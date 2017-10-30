@@ -12,7 +12,7 @@
                 "id": "c1",
                 "title": "任务名称",
                 "type": "shorttext",
-                "format": "name",
+                "format": "",
                 "required": "Y"
             },
             "config":
@@ -78,7 +78,7 @@
                 "id": "c1",
                 "title": "任务名称",
                 "type": "shorttext",
-                "format": "name",
+                "format": "",
                 "required": "Y",
                 "unique": "N"
             },
@@ -115,7 +115,7 @@
         "id": "c1",
         "title": "任务名称",
         "type": "shorttext",
-        "format": "name",
+        "format": "",
         "required": "Y"
     },
     {

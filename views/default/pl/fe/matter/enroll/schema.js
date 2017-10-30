@@ -4,6 +4,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
      * 题目管理
      */
     ngApp.provider.controller('ctrlSchema', ['$scope', 'srvEnrollPage', 'srvEnrollApp', function($scope, srvEnrollPage, srvEnrollApp) {
+        $scope._srvAppBase = srvEnrollApp;
         /**
          * 提交对题目的修改
          * 1、自动查找作为昵称的字段
@@ -21,11 +22,10 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                             break;
                         }
                         if (oSchema.title.indexOf('姓名') !== -1) {
-                            if (oNicknameSchema && oSchema.length < oNicknameSchema.length) {
+                            if (!oNicknameSchema || oSchema.title.length < oNicknameSchema.title.length) {
                                 oNicknameSchema = oSchema;
                             }
-                        }
-                        if (oSchema.format && oSchema.format === 'name') {
+                        } else if (oSchema.format && oSchema.format === 'name') {
                             oNicknameSchema = oSchema;
                         }
                     }
@@ -62,9 +62,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         $scope.cancelEnrollApp = function() {
             $scope.app.enroll_app_id = '';
             srvEnrollApp.update('enroll_app_id');
-        };
-        $scope.assignGroupApp = function() {
-            srvEnrollApp.assignGroupApp();
         };
         $scope.cancelGroupApp = function() {
             $scope.app.group_app_id = '';

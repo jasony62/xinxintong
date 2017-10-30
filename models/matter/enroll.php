@@ -1,11 +1,11 @@
 <?php
 namespace matter;
 
-require_once dirname(__FILE__) . '/app_base.php';
+require_once dirname(__FILE__) . '/enroll_base.php';
 /**
  *
  */
-class enroll_model extends app_base {
+class enroll_model extends enroll_base {
 	/**
 	 * 记录日志时需要的列
 	 */
@@ -17,22 +17,21 @@ class enroll_model extends app_base {
 		return 'xxt_enroll';
 	}
 	/**
-	 *
+	 * 活动进入链接
 	 */
 	public function getEntryUrl($siteId, $id, $oParams = null) {
-		$url = 'http://' . APP_HTTP_HOST;
-
 		if ($siteId === 'platform') {
-			if ($oApp = $this->byId($id, ['cascaded' => 'N'])) {
-				$url .= "/rest/site/fe/matter/enroll";
-				$url .= "?site={$oApp->siteid}&app=" . $id;
+			$oApp = $this->byId($id, ['cascaded' => 'N']);
+			if (false === $oApp) {
+				return 'http://' . APP_HTTP_HOST . '/404.html';
 			} else {
-				$url = 'http://' . APP_HTTP_HOST . '/404.html';
+				$siteId = $oApp->siteid;
 			}
-		} else {
-			$url .= "/rest/site/fe/matter/enroll";
-			$url .= "?site={$siteId}&app=" . $id;
 		}
+
+		$url = 'http://' . APP_HTTP_HOST;
+		$url .= "/rest/site/fe/matter/enroll";
+		$url .= "?site={$siteId}&app=" . $id;
 
 		if (isset($oParams) && is_object($oParams)) {
 			foreach ($oParams as $k => $v) {
@@ -475,7 +474,11 @@ class enroll_model extends app_base {
 	 *
 	 */
 	public function createByTemplate($oUser, $oSite, $oCustomConfig, $oMission = null, $scenario = 'common', $template = 'simple') {
-		$current = time();
+		$oTemplateConfig = $this->_getSysTemplate($scenario, $template);
+		if (empty($oTemplateConfig->entryRule)) {
+			//return new \ResponseError('没有获得页面进入规则');
+		}
+
 		$oNewApp = new \stdClass;
 		/* 从站点或项目获得的信息 */
 		if (empty($oMission)) {
@@ -494,185 +497,46 @@ class enroll_model extends app_base {
 		}
 		$appId = uniqid();
 		/* 使用指定模板，插入选择分组题 */
-		$oTemplateConfig = $this->_getSysTemplate($scenario, $template);
+
 		/* 进入规则 */
 		$oEntryRule = $oTemplateConfig->entryRule;
-		if (empty($oEntryRule)) {
-			return new \ResponseError('没有获得页面进入规则');
-		}
 		if (!empty($oCustomConfig->proto->entryRule->scope)) {
-			$oProtoEntryRule = $oCustomConfig->proto->entryRule;
-			$oEntryRule->scope = $oProtoEntryRule->scope;
-			switch ($oEntryRule->scope) {
-			case 'group':
-				if (!empty($oProtoEntryRule->group->id) && !empty($oProtoEntryRule->group->round->id)) {
-					$oEntryRule->group = (object) ['id' => $oProtoEntryRule->group->id];
-					$oEntryRule->group->round = (object) ['id' => $oProtoEntryRule->group->round->id];
-				}
-				break;
-			case 'member':
-				if (isset($oProtoEntryRule->mschemas)) {
-					$oEntryRule->member = new \stdClass;
-					foreach ($oProtoEntryRule->mschemas as $oMschema) {
-						$oRule = new \stdClass;
-						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-						$oEntryRule->member->{$oMschema->id} = $oRule;
-					}
-					$oEntryRule->other = new \stdClass;
-					$oEntryRule->other->entry = '$memberschema';
-				}
-				break;
-			case 'sns':
-				$oRule = new \stdClass;
-				$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-				$oSns = new \stdClass;
-				if (isset($oProtoEntryRule->sns)) {
-					foreach ($oProtoEntryRule->sns as $snsName => $bValid) {
-						if ($bValid) {
-							$oSns->{$snsName} = $oRule;
-						}
-					}
-				} else {
-					$modelWx = $this->model('sns\wx');
-					$wxOptions = ['fields' => 'joined'];
-					if (($wx = $modelWx->bySite($site, $wxOptions)) && $wx->joined === 'Y') {
-						$oSns->wx = $oRule;
-					} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
-						$oSns->wx = $oRule;
-					}
-					$yxOptions = ['fields' => 'joined'];
-					if ($yx = $this->model('sns\yx')->bySite($site, $yxOptions)) {
-						if ($yx->joined === 'Y') {
-							$oSns->yx = $oRule;
-						}
-					}
-					if ($qy = $this->model('sns\qy')->bySite($site, ['fields' => 'joined'])) {
-						if ($qy->joined === 'Y') {
-							$oSns->qy = $oRule;
-						}
-					}
-				}
-				$oEntryRule->sns = $oSns;
-				$oEntryRule->other = new \stdClass;
-				$oEntryRule->other->entry = '$mpfollow';
-				break;
-			}
+			/* 用户指定的规则 */
+			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule);
 		} else if (isset($oMisEntryRule)) {
-			if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
-				$oEntryRule->scope = $oMisEntryRule->scope;
-				switch ($oEntryRule->scope) {
-				case 'member':
-					if (isset($oMisEntryRule->member)) {
-						$oEntryRule->member = $oMisEntryRule->member;
-						foreach ($oEntryRule->member as &$oRule) {
-							$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-						}
-						$oEntryRule->other = new \stdClass;
-						$oEntryRule->other->entry = '$memberschema';
-					}
-					break;
-				case 'sns':
-					$oEntryRule->sns = new \stdClass;
-					if (isset($oMisEntryRule->sns)) {
-						foreach ($oMisEntryRule->sns as $snsName => $oRule) {
-							if (isset($oRule->entry) && $oRule->entry === 'Y') {
-								$oEntryRule->sns->{$snsName} = new \stdClass;
-								$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-							}
-						}
-						$oEntryRule->other = new \stdClass;
-						$oEntryRule->other->entry = '$mpfollow';
-					}
-					break;
-				}
-			}
+			/* 项目的进入规则 */
+			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);
 		}
 		if (!isset($oEntryRule->scope)) {
 			$oEntryRule->scope = 'none';
 		}
-		/* 关联了分组活动 */
+		$oNewApp->entry_rule = json_encode($oEntryRule);
+
+		/* 关联了通讯录，替换匹配的题目 */
+		if (!empty($oTemplateConfig->schema)) {
+			/* 通讯录关联题目 */
+			if (!empty($oEntryRule->scope) && $oEntryRule->scope === 'member') {
+				$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
+				if (!empty($mschemaIds)) {
+					$this->setSchemaByMschema($mschemaIds[0], $oTemplateConfig);
+				}
+			}
+		}
+
+		/* 关联了分组活动，添加分组名称，替换匹配的题目 */
 		if (!empty($oCustomConfig->proto->groupApp->id)) {
 			$oNewApp->group_app_id = $this->escape($oCustomConfig->proto->groupApp->id);
-			$oRoundSchema = new \stdClass;
-			$oRoundSchema->id = '_round_id';
-			$oRoundSchema->type = 'single';
-			$oRoundSchema->title = '分组名称';
-			$oRoundSchema->required = 'Y';
-			$oRoundSchema->ops = [];
-			$oGroupApp = $this->model('matter\group')->byId($oNewApp->group_app_id);
-			if (!empty($oGroupApp->rounds)) {
-				foreach ($oGroupApp->rounds as $oRound) {
-					$op = new \stdClass;
-					$op->v = $oRound->round_id;
-					$op->l = $oRound->title;
-					$oRoundSchema->ops[] = $op;
-				}
-			}
-			if (empty($oTemplateConfig->schema)) {
-				$oTemplateConfig->schema = [$oRoundSchema];
-			} else {
-				array_splice($oTemplateConfig->schema, 0, 0, [$oRoundSchema]);
-			}
-			/**
-			 * 处理页面数据定义
-			 */
-			foreach ($oTemplateConfig->pages as $oAppPage) {
-				if (!empty($oAppPage->data_schemas)) {
-					/* 自动添加项目阶段定义 */
-					if ($oAppPage->type === 'I') {
-						$newPageSchema = new \stdClass;
-						$schemaPhaseConfig = new \stdClass;
-						$schemaPhaseConfig->component = 'R';
-						$schemaPhaseConfig->align = 'V';
-						$newPageSchema->schema = $oRoundSchema;
-						$newPageSchema->config = $schemaPhaseConfig;
-						array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
-					} else if ($oAppPage->type === 'V') {
-						$newPageSchema = new \stdClass;
-						$schemaPhaseConfig = new \stdClass;
-						$schemaPhaseConfig->id = 'V' . time();
-						$schemaPhaseConfig->pattern = 'record';
-						$schemaPhaseConfig->inline = 'Y';
-						$schemaPhaseConfig->splitLine = 'Y';
-						$newPageSchema->schema = $oRoundSchema;
-						$newPageSchema->config = $schemaPhaseConfig;
-						array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
-					}
-				}
-			}
+			$this->setSchemaByGroupApp($oNewApp->group_app_id, $oTemplateConfig);
 		}
-		/* 通讯录关联题目 */
-		if (!empty($oEntryRule->scope) && $oEntryRule->scope === 'member') {
-			$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
-			if (!empty($mschemaIds)) {
-				$oMschema1st = $this->model('site\user\memberschema')->byId($mschemaIds[0], ['fields' => 'id,attr_name,attr_mobile,attr_email', 'cascaded' => 'N']);
-				/* 应用的题目 */
-				foreach ($oTemplateConfig->schema as $oSchema) {
-					if ($oSchema->type === 'shorttext' && in_array($oSchema->id, ['name', 'email', 'mobile'])) {
-						if (false === $oMschema1st->attrs->{$oSchema->id}->hide) {
-							$oSchema->type = 'member';
-							$oSchema->schema_id = $oMschema1st->id;
-							$oSchema->id = 'member.' . $oSchema->id;
-						}
-					}
-				}
-				/* 页面的题目 */
-				foreach ($oTemplateConfig->pages as $oAppPage) {
-					if (!empty($oAppPage->data_schemas)) {
-						foreach ($oAppPage->data_schemas as $oSchemaConfig) {
-							$oSchema = $oSchemaConfig->schema;
-							if ($oSchema->type === 'shorttext' && in_array($oSchema->id, ['name', 'email', 'mobile'])) {
-								if (false === $oMschema1st->attrs->{$oSchema->id}->hide) {
-									$oSchema->type = 'member';
-									$oSchema->schema_id = $oMschema1st->id;
-									$oSchema->id = 'member.' . $oSchema->id;
-								}
-							}
-						}
-					}
-				}
-			}
+
+		/* 作为昵称的题目 */
+		$oNicknameSchema = $this->findAssignedNicknameSchema($oTemplateConfig->schema);
+		if (!empty($oNicknameSchema)) {
+			$oNewApp->assigned_nickname = json_encode(['valid' => 'Y', 'schema' => ['id' => $oNicknameSchema->id]]);
 		}
+
+		isset($oTemplateConfig->schema) && $oNewApp->data_schemas = $this->toJson($oTemplateConfig->schema);
+
 		/* 添加页面 */
 		$this->_addPageByTemplate($oUser, $oSite, $oMission, $appId, $oTemplateConfig, $oCustomConfig);
 
@@ -710,9 +574,7 @@ class enroll_model extends app_base {
 		$oNewApp->enroll_app_id = empty($oCustomConfig->proto->enrollApp->id) ? '' : $this->escape($oCustomConfig->proto->enrollApp->id);
 		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;
 		$oNewApp->end_at = isset($oCustomConfig->proto->end_at) ? $oCustomConfig->proto->end_at : 0;
-		$oNewApp->entry_rule = json_encode($oEntryRule);
 		$oNewApp->can_siteuser = 'Y';
-		isset($oTemplateConfig) && $oNewApp->data_schemas = $this->toJson($oTemplateConfig->schema);
 
 		/*任务码*/
 		$entryUrl = $this->getOpUrl($oSite->id, $appId);
@@ -840,8 +702,8 @@ class enroll_model extends app_base {
 				}
 			}
 			$pageSchemas = [];
-			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? \TMS_MODEL::toJson($page->data_schemas) : '[]';
-			$pageSchemas['act_schemas'] = isset($page->act_schemas) ? \TMS_MODEL::toJson($page->act_schemas) : '[]';
+			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? $this->toJson($page->data_schemas) : '[]';
+			$pageSchemas['act_schemas'] = isset($page->act_schemas) ? $this->toJson($page->act_schemas) : '[]';
 			$rst = $modelPage->update(
 				'xxt_enroll_page',
 				$pageSchemas,
@@ -850,13 +712,7 @@ class enroll_model extends app_base {
 			/* 填充页面 */
 			if (!empty($page->code)) {
 				$code = (array) $page->code;
-				/* 页面存在动态信息 */
-				$matched = [];
-				$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
-				if (preg_match($pattern, $code['html'], $matched)) {
-					$html = $modelPage->htmlBySchema($page->data_schemas, $matched[0]);
-					$code['html'] = preg_replace($pattern, $html, $code['html']);
-				}
+				$code['html'] = $modelPage->compileHtml($page->type, $code['html'], $page->data_schemas);
 				$modelCode->modify($ap->code_id, $code);
 			}
 		}

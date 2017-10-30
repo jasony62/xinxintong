@@ -1,19 +1,20 @@
 <?php
 /**
- *
+ * 团队
  */
 class site_model extends \TMS_MODEL {
 	/**
 	 * 创建团队
 	 */
-	public function create($data) {
-		$account = \TMS_CLIENT::account();
-		$siteid = $this->uuid($account->uid);
-		$data['id'] = $siteid;
-		$data['creater'] = $account->uid;
-		$data['creater_name'] = $account->nickname;
-		$data['create_at'] = time();
-		$this->insert('xxt_site', $data, false);
+	public function create($oUser, $oNewSite) {
+		$siteid = $this->uuid($oUser->id);
+
+		$oNewSite->id = $siteid;
+		$oNewSite->creater = $oUser->id;
+		$oNewSite->creater_name = $this->escape($oUser->name);
+		$oNewSite->create_at = time();
+
+		$this->insert('xxt_site', $oNewSite, false);
 
 		return $siteid;
 	}
@@ -31,7 +32,7 @@ class site_model extends \TMS_MODEL {
 		if (($site = $this->query_obj_ss($q)) && !empty($cascaded)) {
 			$cascaded = explode(',', $cascaded);
 			if (count($cascaded)) {
-				$modelCode = \TMS_APP::M('code\page');
+				$modelCode = $this->model('code\page');
 				foreach ($cascaded as $field) {
 					if ($field === 'home_page_name') {
 						$site->home_page = $modelCode->lastPublishedByName($siteId, $site->home_page_name, ['fields' => 'id,html,css,js']);
@@ -71,6 +72,19 @@ class site_model extends \TMS_MODEL {
 		$sites = $this->query_objs_ss($q, $q2);
 
 		return $sites;
+	}
+	/**
+	 * 指定用户是否为团队的管理员
+	 */
+	public function isAdmin($siteId, $userId) {
+		$q = [
+			'1',
+			'xxt_site_admin',
+			['siteid' => $siteId, 'uid' => $userId],
+		];
+		$admins = $this->query_objs_ss($q);
+
+		return !empty($admins);
 	}
 	/**
 	 * 团队是否已经被指定用户关注

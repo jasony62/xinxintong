@@ -136,7 +136,7 @@ class base_model extends \TMS_MODEL {
 	 * @param object $oUpdated 被修改的内容
 	 *
 	 */
-	public function modify($oUser, &$oMatter, $oUpdated) {
+	public function modify($oUser, $oMatter, $oUpdated) {
 		$current = time();
 
 		/* 记录修改日志 */

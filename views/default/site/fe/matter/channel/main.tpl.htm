@@ -9,43 +9,37 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/custom-bootstrap.min.css" rel="stylesheet">
-    <link href="/static/css/custom.site.fe.css" rel="stylesheet">
-    <link href='/views/default/site/fe/matter/channel/main.css?_=1' rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/home.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/matter/channel/main.css');?>" rel="stylesheet">
 </head>
 
 <body ng-app='app' ng-controller='ctrl' ng-cloak class='ng-cloak'>
+    <div id='site'>
+        <a class="site-title" ng-href="{{'/rest/site/home?site='+siteInfo.id}}" target='_self'><img class="pull-left img-circle" ng-src="{{siteInfo.heading_pic}}"><span ng-bind="siteInfo.name"></span><i class="glyphicon glyphicon-menu-right pull-right"></i></a>
+        <p class="site-summary" ng-bind="siteInfo.summary"></p>
+        <button ng-if="siteInfo.can_subscribe==='Y'" class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
+    </div>
     <div class="matters">
-        <select class='form-control input-lg' ng-model='Matter.orderby' ng-change='Matter.changeOrderby()' ng-if="channel.matter_type==='article'">
-            <option value='time'>最新</option>
-            <option value='score'>最热</option>
-        </select>
+        <div class='form-group' ng-if="channel.matter_type==='article'">
+            <select class='form-control input-lg' ng-model='Matter.orderby' ng-change='Matter.changeOrderby()'>
+                <option value='time'>最新</option>
+                <option value='score'>最热</option>
+            </select>
+        </div>
         <ul class='list-group' infinite-scroll="Matter.nextPage()" infinite-scroll-disabled="Matter.busy" infinite-scroll-distance="1">
-            <li class='list-group-item' ng-repeat='m in Matter.matters' ng-click='open(m)'>
-                <div class="media-item-left pull-left">
-                    <div class="media-item-img">
-                        <img class="media-object" ng-src='{{m.pic}}'>
+            <li class='list-group-item media-item' ng-repeat='m in Matter.matters' ng-click='open(m)'>
+                <div class="media-item-left">
+                    <div class="media-item-img" ng-style="{'background-image':'url('+m.pic||m.thumbnail+')'}">
                     </div>
                 </div>
-                <div class="media-item-body pull-left">
-                    <div class='creater_name'>
-                        <a ng-href='/rest/site/home?site={{siteInfo.id}}'>
-                            <img class="img-circle" ng-src="{{siteInfo.heading_pic}}" style="width:12px;height:12px">
-                            <h6 class="inline pdl10">{{siteInfo.name}}</h6>
-                            <i class="glyphicon glyphicon-menu-right pull-right"></i>
-                        </a>
-                    </div>
-                    <h4 class="media-heading" >{{m.title}}</h4>
-                    <h5 class="media-summary">{{m.summary}}</h5>
-                    <div class='attr clearfix'>
-                        <div class='put_at pull-left'>
-                            <a href="">
-                                <h6 class="inline" ng-bind="m.add_at*1000|date:'yyyy-MM-dd'"></h6>
-                            </a>
-                        </div>
-                        <div class="create_name">
-                            <a href="">
-                                <h6 class="inline" ng-bind="m.creater_name" style='display:none'></h6>
-                            </a>
+                <div class="media-item-body">
+                    <div class='media-item-body-flexbox'>
+                        <div class="media-heading">{{m.title}}</div>
+                        <div class="media-summary">{{m.summary}}</div>
+                        <div class='media-attr'>
+                            <div class='put_at'>
+                                <span ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></span>
+                            </div>
                         </div>
                     </div>
                 </div>

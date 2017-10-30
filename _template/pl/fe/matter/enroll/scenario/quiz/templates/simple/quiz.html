@@ -1,37 +1,6 @@
 <div wrap="text" class="form-group">开始测验！</div>
-<div class="form-group form-group-lg" wrap="input" schema="c1001" schema-type="shorttext">
-    <label>问题1</label>
-    <input ng-model="data.c1001" title="信息1" placeholder="" class="form-control input-lg" type="text"/>
-</div>
-<div wrap="input" class="form-group form-group-lg" schema="c1002" schema-type="single"><label>问题2</label>
-    <ul>
-        <li class="radio" wrap="radio"><label><input type="radio" name="c1002" value="v1" ng-model="data.c1002"/><span>A.答案1</span></label>
-        </li>
-        <li class="radio" wrap="radio"><label><input type="radio" name="c1002" value="v2" ng-model="data.c1002"/><span>B.答案2</span></label>
-        </li>
-        <li class="radio" wrap="radio"><label><input type="radio" name="c1002" value="v3" ng-model="data.c1002"/><span>C.答案3</span></label>
-        </li>
-        <li class="radio" wrap="radio"><label><input type="radio" name="c1002" value="v4" ng-model="data.c1002"/><span>D.答案4</span></label>
-        </li>
-    </ul>
-</div>
-<div wrap="input" class="form-group form-group-lg" schema="c1003" schema-type="multiple"><label>问题3</label>
-    <ul>
-        <li class="checkbox" wrap="checkbox"><label><input type="checkbox"  ng-model="data.c1003.v1"/><span>A.答案1</span></label>
-        </li>
-        <li class="checkbox" wrap="checkbox"><label><input type="checkbox"  ng-model="data.c1003.v2"/><span>B.答案2</span></label>
-        </li>
-        <li class="checkbox" wrap="checkbox"><label><input type="checkbox"  ng-model="data.c1003.v3"/><span>C.答案3</span></label>
-        </li>
-        <li class="checkbox" wrap="checkbox"><label><input type="checkbox"  ng-model="data.c1003.v4"/><span>D.答案4</span></label>
-        </li>
-    </ul>
-</div>
-<div class="form-group form-group-lg" wrap="input" schema="c1004" schema-type="longtext">
-    <label>问题4</label><textarea
-        style="height:auto;" ng-model="data.c1004" title="信息2" placeholder="" class="form-control input-lg"
-        rows="3"></textarea>
-</div>
+<!-- begin: input_base.html -->
+<!-- end: input_base.html -->
 <div id="btnSubmit" class="form-group" wrap="button">
     <button class="btn btn-primary btn-block btn-lg" ng-click="submit($event,'score')"><span>提交考卷</span></button>
 </div>

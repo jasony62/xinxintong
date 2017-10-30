@@ -56,7 +56,7 @@ define(['wrap'], function(SchemaWrap) {
                 movedWrap = this.wrapBySchema(oMovedSchema);
                 this.data_schemas.splice(this.data_schemas.indexOf(movedWrap), 1);
                 $html = $('<div>' + this.html + '</div>');
-                $movedHtml = $html.find('[schema=' + oMovedSchema.id + ']');
+                $movedHtml = $html.find('[schema="' + oMovedSchema.id + '"]');
                 if (oPrevSchema) {
                     prevWrap = this.wrapBySchema(oPrevSchema);
                     this.data_schemas.splice(this.data_schemas.indexOf(prevWrap), 0, movedWrap);

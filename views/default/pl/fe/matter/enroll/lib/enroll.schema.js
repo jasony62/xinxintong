@@ -61,6 +61,66 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
     ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', '$uibModal', 'http2', 'cstApp', 'srvEnrollSchema', function($scope, $timeout, $sce, $uibModal, http2, cstApp, srvEnrollSchema) {
         $scope.activeSchema = null;
         $scope.cstApp = cstApp;
+        $scope.assignGroupApp = function() {
+            if ($scope._srvAppBase) {
+                $scope._srvAppBase.assignGroupApp().then(function(oGroupApp) {
+                    var oRoundDS, ops, oAssignedNickname, oGrpNicknameSchema, oAppNicknameSchema;
+                    /* 添加分组轮次 */
+                    oRoundDS = {
+                        id: '_round_id',
+                        type: 'single',
+                        title: '分组名称',
+                    };
+                    ops = [];
+                    oGroupApp.rounds.forEach(function(round) {
+                        ops.push({
+                            v: round.round_id,
+                            l: round.title
+                        });
+                    });
+                    oRoundDS.ops = ops;
+                    oGroupApp.dataSchemas.splice(0, 0, oRoundDS);
+                    $scope.newByOtherApp(oRoundDS, oGroupApp);
+                    /* 匹配昵称字段 */
+                    if (oAssignedNickname = oGroupApp.assignedNickname) {
+                        if (oAssignedNickname.valid && oAssignedNickname.valid === 'Y' && oAssignedNickname.schema) {
+                            for (var i = 1; i < oGroupApp.dataSchemas.length; i++) {
+                                if (oGroupApp.dataSchemas[i].id === oAssignedNickname.schema.id) {
+                                    oGrpNicknameSchema = oGroupApp.dataSchemas[i];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (oGrpNicknameSchema) {
+                        var oAppSchema;
+                        for (var i = 0; i < $scope.app.dataSchemas.length; i++) {
+                            oAppSchema = $scope.app.dataSchemas[i];
+                            if (oAppSchema.title === oGrpNicknameSchema.title) {
+                                if (/shorttext|member/.test(oAppSchema.type) && oAppSchema.required === 'Y') {
+                                    oAppNicknameSchema = oAppSchema;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (oAppNicknameSchema) {
+                        var oBefore;
+                        oBefore = angular.copy(oAppNicknameSchema);
+                        if (oAppNicknameSchema.type === 'member') {
+                            delete oAppNicknameSchema.schema_id;
+                            oAppNicknameSchema.type = 'shorttext';
+                        }
+                        oAppNicknameSchema.fromApp = oGroupApp.id;
+                        oAppNicknameSchema.requireCheck = 'Y';
+                        oAppNicknameSchema.format = 'name';
+                        $scope.updSchema(oAppNicknameSchema, oBefore);
+                    } else if (oGrpNicknameSchema) {
+                        $scope.newByOtherApp(oGrpNicknameSchema, oGroupApp);
+                    }
+                });
+            }
+        };
         $scope.newSchema = function(type) {
             var newSchema, mission, oProto;
 
@@ -405,6 +465,38 @@ define(['require', 'schema', 'wrap'], function(require, schemaLib, wrapLib) {
         $scope.removeOption = function(schema, op) {
             schema.ops.splice(schema.ops.indexOf(op), 1);
             $scope.updSchema(schema);
+        };
+        $scope.refreshSchema = function(oSchema) {
+            var oApp;
+            oApp = $scope.app;
+            if (oSchema.id === '_round_id' && oApp.groupApp) {
+                http2.get('/rest/pl/fe/matter/group/round/list?site=' + oApp.siteid + '&app=' + oApp.groupApp.id, function(rsp) {
+                    var newOp, opById;
+                    if (rsp.data.length) {
+                        opById = {};
+                        if (oSchema.ops === undefined) {
+                            oSchema.ops = [];
+                        } else {
+                            oSchema.ops.forEach(function(op) {
+                                opById[op.v] = op;
+                            });
+                        }
+                        rsp.data.forEach(function(oRound) {
+                            if (undefined === opById[oRound.round_id]) {
+                                newOp = {};
+                                newOp.l = oRound.title;
+                                newOp.v = oRound.round_id;
+                                oSchema.ops.push(newOp);
+                            }
+                        });
+                        if (newOp) {
+                            $scope.updSchema(oSchema);
+                        }
+                    }
+                });
+            } else if (oSchema.type === 'phase') {
+
+            }
         };
         $scope.$on('title.xxt.editable.changed', function(e, schema) {
             $scope.updSchema(schema);

@@ -29,6 +29,7 @@ define(['frame'], function(ngApp) {
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
         };
+        $('#entry-view').height($('#pl-layout-main').height());
         $('#entry-view').scrollspy({ target: '#entryScrollspy' });
         $('#entryScrollspy>ul').affix({
             offset: {
@@ -132,7 +133,7 @@ define(['frame'], function(ngApp) {
             var url;
             url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.app.siteid;
             url += '&matter_type=enroll&matter_id=' + $scope.app.id;
-            url += '&expire=864000';
+            //url += '&expire=864000';
             http2.get(url, function(rsp) {
                 $scope.qrcode = rsp.data;
             });

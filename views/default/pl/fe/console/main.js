@@ -120,7 +120,7 @@ define(['frame'], function(ngApp) {
             }, true);
         });
     }]);
-    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'cstApp', '$uibModal', 'facListFilter', function($scope, $location, http2, cstApp, $uibModal, facListFilter) {
+    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'CstNaming', 'cstApp', '$uibModal', 'facListFilter', function($scope, $location, http2, CstNaming, cstApp, $uibModal, facListFilter) {
         var lsearch, filter2, _oPage;
         // if (window.localStorage) {
         //     $scope.$watch('filter', function(nv) {
@@ -149,15 +149,15 @@ define(['frame'], function(ngApp) {
         aUnionMatterTypes = [];
         cstApp.matterNames.appOrder.forEach(function(name) {
             if (name === 'enroll') {
-                cstApp.scenarioOrder.forEach(function(scenario) {
-                    aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: cstApp.scenarioNames[scenario] });
+                CstNaming.scenario.enrollIndex.forEach(function(scenario) {
+                    aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: CstNaming.scenario.enroll[scenario] });
                 });
             } else {
                 aUnionMatterTypes.push({ name: name, label: cstApp.matterNames.app[name] });
             }
         });
         $scope.unionMatterTypes = aUnionMatterTypes;
-        $scope.scenarioNames = cstApp.scenarioNames;
+        $scope.scenarioNames = CstNaming.scenario.enroll;
         $scope.page = _oPage = {
             at: 1,
             size: 12,
@@ -456,64 +456,6 @@ define(['frame'], function(ngApp) {
         $scope.createEnrollApp = function() {
             http2.post('/rest/pl/fe/matter/enroll/createByMschema?mschema=' + oMchema.id, {}, function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
-            });
-        };
-        $scope.editInvite = function(oInvite) {
-            $uibModal.open({
-                templateUrl: 'inviteEditor.html',
-                backdrop: 'static',
-                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
-                    $scope2.option = { max_count: oInvite.max_count, expire_at: oInvite.expire_at };
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.option);
-                    };
-                }]
-            }).result.then(function(option) {
-                http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, option, function(rsp) {
-                    angular.extend(oInvite, rsp.data);
-                });
-            });
-        };
-        $scope.addInvite = function() {
-            $uibModal.open({
-                templateUrl: 'inviteEditor.html',
-                backdrop: 'static',
-                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
-                    $scope2.option = { max_count: 1 };
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.option);
-                    };
-                }]
-            }).result.then(function(option) {
-                http2.post('/rest/pl/fe/site/member/invite/add?schema=' + _oMschemaid, option, function(rsp) {
-                    $scope.invites.push(rsp.data);
-                });
-            });
-        };
-        $scope.stopInvite = function(oInvite) {
-            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { stop: 'Y' }, function(rsp) {
-                angular.extend(oInvite, rsp.data);
-            });
-        };
-        $scope.startInvite = function(oInvite) {
-            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { stop: 'N' }, function(rsp) {
-                angular.extend(oInvite, rsp.data);
-            });
-        };
-        $scope.removeInvite = function(oInvite) {
-            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { state: 0 }, function(rsp) {
-                oInvite.state = '0';
-            });
-        };
-        $scope.restoreInvite = function(oInvite) {
-            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { state: 1 }, function(rsp) {
-                oInvite.state = '1';
             });
         };
     }]);

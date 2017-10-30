@@ -24,8 +24,8 @@ class player extends \pl\fe\matter\base {
 		$modelGrp = $this->model('matter\group');
 		$modelPlayer = $this->model('matter\group\player');
 
-		$app = $modelGrp->byId($app);
-		$result = $modelPlayer->byApp($app);
+		$oApp = $modelGrp->byId($app);
+		$result = $modelPlayer->byApp($oApp);
 
 		return new \ResponseData($result);
 	}
@@ -149,7 +149,7 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 从其他活动导入数据
 	 */
-	public function importByApp_action($app) {
+	public function assocWithApp_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -164,13 +164,13 @@ class player extends \pl\fe\matter\base {
 		if (!empty($oParams->app)) {
 			$modelGrpUsr = $this->model('matter\group\player');
 			if ($oParams->appType === 'registration') {
-				$oSourceApp = $modelGrpUsr->importByEnroll($oApp, $oParams->app);
+				$oSourceApp = $modelGrpUsr->assocWithEnroll($oApp, $oParams->app);
 			} else if ($oParams->appType === 'signin') {
-				$oSourceApp = $modelGrpUsr->importBySignin($oApp, $oParams->app);
+				$oSourceApp = $modelGrpUsr->assocWithSignin($oApp, $oParams->app);
 			} else if ($oParams->appType === 'wall') {
-				$oSourceApp = $modelGrpUsr->importByWall($oApp, $oParams->app, $oParams->onlySpeaker);
+				$oSourceApp = $modelGrpUsr->assocWithWall($oApp, $oParams->app, $oParams->onlySpeaker);
 			} else if ($oParams->appType === 'mschema') {
-				$oSourceApp = $modelGrpUsr->importByMschema($oApp, $oParams->app);
+				$oSourceApp = $modelGrpUsr->assocWithMschema($oApp, $oParams->app);
 			}
 		}
 
@@ -275,11 +275,11 @@ class player extends \pl\fe\matter\base {
 				$user->headimgurl = $wallUser->headimgurl;
 				if ($modelPly->byId($objGrp->id, $wallUser->enroll_key, ['cascaded' => 'N'])) {
 					// 已经同步过的用户
-					$modelPly->setData($siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
+					$modelPly->setData($objGrp, $wallUser->enroll_key, $wallUser->data);
 				} else {
 					// 新用户
-					$modelPly->enroll($siteId, $objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
-					$modelPly->setData($siteId, $objGrp, $wallUser->enroll_key, $wallUser->data);
+					$modelPly->enroll($objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
+					$modelPly->setData($objGrp, $wallUser->enroll_key, $wallUser->data);
 				}
 			}
 		}
@@ -306,11 +306,11 @@ class player extends \pl\fe\matter\base {
 					$user->headimgurl = $record->headimgurl;
 					if ($modelPly->byId($objGrp->id, $record->enroll_key, ['cascaded' => 'N'])) {
 						// 已经同步过的用户
-						$modelPly->setData($siteId, $objGrp, $record->enroll_key, $record->data);
+						$modelPly->setData($objGrp, $record->enroll_key, $record->data);
 					} else {
 						// 新用户
 						$modelPly->enroll($siteId, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
-						$modelPly->setData($siteId, $objGrp, $record->enroll_key, $record->data);
+						$modelPly->setData($objGrp, $record->enroll_key, $record->data);
 					}
 					$cnt++;
 				} else {
@@ -368,7 +368,7 @@ class player extends \pl\fe\matter\base {
 		}
 
 		$modelPly->enroll($site, $app, $user, $player);
-		$result = $modelPly->setData($site, $app, $ek, $posted->data);
+		$result = $modelPly->setData($app, $ek, $posted->data);
 		if (false === $result[0]) {
 			return new \ResponseError($result[1]);
 		}
@@ -421,7 +421,7 @@ class player extends \pl\fe\matter\base {
 			["aid" => $app->id, "enroll_key" => $ek]
 		);
 		/* 更新登记数据 */
-		$result = $modelPly->setData($site, $app, $ek, $player->data);
+		$result = $modelPly->setData($app, $ek, $player->data);
 		if (false === $result[0]) {
 			return new \ResponseError($result[1]);
 		}
@@ -455,12 +455,14 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 清空登记信息
 	 */
-	public function empty_action($site, $app, $keepData = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+	public function empty_action($app, $keepData = 'Y') {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$modelGrpPly = $this->model('matter\group\player');
+		$modelGrpPly->clean($app, $keepData === 'N');
 
-		$rst = $this->model('matter\group\player')->clean($app, $keepData === 'N');
+		$rst = $modelGrpPly->update('xxt_group', ['last_sync_at' => 0], ['id' => $app]);
 
 		return new \ResponseData($rst);
 	}

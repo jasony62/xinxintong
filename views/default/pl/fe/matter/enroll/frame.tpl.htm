@@ -41,11 +41,8 @@
                     </ul>
                 </li>
                 <li ng-class="{'opened':opened==='publish'}">
-                    <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('preview')">发布 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'82px':'0'}">
-                        <li ng-class="{'active':subView==='preview'}">
-                            <a href='' ng-click="switchTo('preview')">预览</a>
-                        </li>
+                    <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('time')">发布 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'41px':'0'}">
                         <li ng-class="{'active':subView==='time'}">
                             <a href='' ng-click="switchTo('time')">轮次</a>
                         </li>
@@ -90,7 +87,8 @@
                 </li>
                 <div class='pl-layout-leftnav-footer'>
                     <ul class="nav nav-tabs nav-stacked">
-                        <li ng-class="{'active':subView==='entry'}"><a href='' ng-click="switchTo('entry')"><i class='glyphicon glyphicon-phone'></i>入口</a></li>
+                        <li ng-class="{'active':subView==='preview'}"><a href='' ng-click="switchTo('preview')"><i class='glyphicon glyphicon-blackboard'></i> 预览</a></li>
+                        <li ng-class="{'active':subView==='entry'}"><a href='' ng-click="switchTo('entry')"><i class='glyphicon glyphicon-phone'></i> 入口</a></li>
                     </ul>
                 </div>
             </ul>
@@ -99,12 +97,20 @@
         <div id='pl-layout-main' class='pl-layout-main pl-layout-main-topnav'>
             <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
                 <div class='container-fluid'>
-                    <nav class='nav navbar-nav tms-breadcrumb'>
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" ng-click="isNavCollapsed=!isNavCollapsed">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <nav class='nav navbar-nav tms-breadcrumb' uib-collapse="isNavCollapsed">
                         <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>个人工作台</a></li>
                         <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
                         <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
-                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/app?site={{app.siteid}}&id={{app.mission.id}}#{{app.scenario||'enroll'}}" target='_self'>{{scenarioNames[app.scenario]||'登记'}}</a></li>
+                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/app?site={{app.siteid}}&id={{app.mission.id}}#{{app.scenario||'enroll'}}" target='_self'>{{scenarioes.names[app.scenario]||'登记'}}</a></li>
                         <li>
                             <a href='' ng-click="switchTo('preview')">{{app.title}}</a>
                         </li>
@@ -135,6 +141,7 @@
     <script src="/static/js/ui-tms.js?_=4"></script>
     <script src="/static/js/xxt.ui.js?_=4"></script>
     <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
+    <script src="<?php echo custom_version('/pl/fe/_module/const.js');?>"></script>
     <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
     <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
     <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/frame-loader.js?_=9"></script>

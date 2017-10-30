@@ -282,51 +282,58 @@ class group_model extends app_base {
 	}
 	/**
 	 * 创建分组活动
+	 *
+	 * @param string $site
+	 * @param string $missioon
+	 * @param string $scenario
 	 */
-	public function createByMission($oUser, $oSite, $oMission, $scenario = 'split', $oCustomConfig = null) {
-		$current = time();
+	public function createByConfig($oUser, $oSite, $oCustomConfig, $oMission = null, $scenario = 'split') {
 		$oNewApp = new \stdClass;
-		$appId = uniqid();
-
-		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新分组活动' : $this->escape($oCustomConfig->proto->title);
-		$oNewApp->summary = $this->escape($oMission->summary);
-		$oNewApp->pic = $oMission->pic;
-		$oNewApp->mission_id = $oMission->id;
-		$oNewApp->use_mission_header = 'Y';
-		$oNewApp->use_mission_footer = 'Y';
-
-		/* 指定了用户来源 */
-		if (isset($oCustomConfig->proto->sourceApp)) {
-			$oSourceApp = $oCustomConfig->proto->sourceApp;
-			if (!empty($oSourceApp->id) && !empty($oSourceApp->type)) {
-				if (in_array($oSourceApp->type, ['enroll', 'signin', 'wall', 'mschema'])) {
-					$oNewApp->source_app = json_encode(['id' => $oSourceApp->id, 'type' => $oSourceApp->type]);
-				}
-			}
+		if (empty($oMission)) {
+			$oNewApp->summary = '';
+			$oNewApp->pic = $oSite->heading_pic;
+			$oNewApp->use_mission_header = 'N';
+			$oNewApp->use_mission_footer = 'N';
+		} else {
+			$oNewApp->summary = $this->escape($oMission->summary);
+			$oNewApp->pic = $oMission->pic;
+			$oNewApp->mission_id = $oMission->id;
+			$oNewApp->use_mission_header = 'Y';
+			$oNewApp->use_mission_footer = 'Y';
 		}
-
 		/*create app*/
-		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新分组活动' : $this->escape($oCustomConfig->proto->title);
 		$oNewApp->scenario = $scenario;
-		$oNewApp->creater = $oUser->id;
-		$oNewApp->creater_src = $oUser->src;
-		$oNewApp->creater_name = $this->escape($oUser->name);
-		$oNewApp->create_at = $current;
-		$oNewApp->start_at = $current;
-		$oNewApp->modifier = $oUser->id;
-		$oNewApp->modifier_src = $oUser->src;
-		$oNewApp->modifier_name = $this->escape($oUser->name);
-		$oNewApp->modify_at = $current;
-		$this->insert('xxt_group', $oNewApp, false);
-		$oNewApp->type = 'group';
+		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;
+		$oNewApp->end_at = isset($oCustomConfig->proto->end_at) ? $oCustomConfig->proto->end_at : 0;
+		$oNewApp = $this->create($oUser, $oNewApp);
 
 		/*记录操作日志*/
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
-		/*记录和项目的关系*/
-		$modelMis = $this->model('matter\mission');
-		$modelMis->addMatter($oUser, $oSite->id, $oMission->id, $oNewApp);
+		/* 指定分组用户名单并导入分组用户 */
+		if (isset($oCustomConfig->proto->sourceApp)) {
+			$oSourceApp = $oCustomConfig->proto->sourceApp;
+			if (!empty($oSourceApp->id) && !empty($oSourceApp->type)) {
+				$modelGrpUsr = $this->model('matter\group\player');
+				switch ($oSourceApp->type) {
+				case 'enroll':
+				case 'registration':
+					$modelGrpUsr->assocWithEnroll($oNewApp, $oSourceApp->id);
+					break;
+				case 'signin':
+					$modelGrpUsr->assocWithSignin($oNewApp, $oSourceApp->id);
+					break;
+				case 'wall':
+					break;
+					$modelGrpUsr->assocWithWall($oNewApp, $oSourceApp->id, $oSourceApp->onlySpeaker);
+				case 'mschema':
+					$modelGrpUsr->assocWithMschema($oNewApp, $oSourceApp->id);
+					break;
+				}
+			}
+		}
 
 		return $oNewApp;
 	}

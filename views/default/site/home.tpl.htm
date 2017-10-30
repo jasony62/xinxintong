@@ -9,13 +9,13 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/custom-bootstrap.min.css" rel="stylesheet">
-    <link href="/static/css/custom.site.fe.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/home.fe.css');?>" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/home.css');?>" rel="stylesheet">
 </head>
 
 <body>
-    <nav class='navbar navbar-default'>
-        <div class='container'>
+    <nav class='navbar hm-navbar-default'>
+        <div class='container-fluid'>
             <div class="navbar-header">
                 <a class='navbar-brand' href='/rest/home' target='_self'>
                     <?php echo APP_TITLE;?>
@@ -34,7 +34,7 @@
                 </ul>
                 <form class='navbar-form navbar-right ng-cloak' ng-cloak ng-if="user.loginExpire">
                     <div class="btn-group">
-                        <a class="btn btn-default" data-toggle="dropdown">
+                        <a class="btn hm-btn-default" data-toggle="dropdown">
                             <span class="site_fe_home site_fe_home_icon xxt_person"></span>
                             <span ng-bind="user.nickname"></span>
                         </a>

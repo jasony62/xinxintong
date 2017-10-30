@@ -1,6 +1,6 @@
 define(['missionService', 'enrollService', 'signinService'], function() {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tinymce.ui.xxt', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tinymce.ui.xxt', 'pl.const', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
     ngApp.constant('cstApp', {
         notifyMatter: [],
         innerlink: [],
@@ -19,22 +19,6 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                 'memberschema': '通讯录',
             },
             appOrder: ['enroll', 'signin', 'group', 'wall', 'memberschema']
-        },
-        scenarioNames: {
-            enroll: {
-                'common': '通用登记',
-                'registration': '报名',
-                'voting': '投票',
-                'quiz': '测验',
-                'group_week_report': '周报',
-                'score_sheet': '记分表',
-            },
-            enrollOrder: ['common', 'registration', 'voting', 'quiz', 'group_week_report', 'score_sheet'],
-            group: {
-                'split': '分组',
-                'wall': '信息墙'
-            },
-            groupOrder: ['split', 'wall']
         },
         naming: { 'phase': '项目阶段' }
     });
@@ -138,7 +122,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         $scope.switchTo = function(subView) {
             var url = '/rest/pl/fe/matter/mission/' + subView;
             $location.path(url);
-        }
+        };
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });

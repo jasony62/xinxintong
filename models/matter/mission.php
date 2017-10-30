@@ -280,7 +280,7 @@ class mission_model extends app_base {
 	public function removeMatter($matterId, $matterType) {
 		$rst = $this->delete(
 			'xxt_mission_matter',
-			"matter_id='$matterId' and matter_type='$matterType'"
+			['matter_id' => $matterId, 'matter_type' => $matterType]
 		);
 
 		return $rst;

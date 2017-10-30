@@ -271,7 +271,8 @@ class base extends \site\fe\matter\base {
 				if (isset($oParams->site)) {
 					unset($oParams->site);
 				}
-				$rst = $this->model('sns\\' . $sns . '\call\qrcode')->createOneOff($site, 'enroll', $oMatter->id, $oParams);
+				$oMatter->params = $oParams;
+				$rst = $this->model('sns\\' . $sns . '\call\qrcode')->createOneOff($site, $oMatter);
 				if ($rst[0] === false) {
 					$this->snsFollow($site, $sns, $oMatter);
 				} else {

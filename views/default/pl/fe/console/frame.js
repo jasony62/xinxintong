@@ -1,6 +1,6 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt']);
     ngApp.constant('cstApp', {
         matterNames: {
             doc: {
@@ -24,15 +24,6 @@ define(['require'], function(require) {
             'site': '团队',
             'mission': '项目',
         },
-        scenarioNames: {
-            'common': '通用登记',
-            'registration': '报名',
-            'voting': '投票',
-            'quiz': '测验',
-            'group_week_report': '周报',
-            'score_sheet': '记分表'
-        },
-        scenarioOrder: ['common', 'registration', 'voting', 'quiz', 'group_week_report', 'score_sheet']
     });
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         var RouteParam = function(name) {
@@ -154,14 +145,10 @@ define(['require'], function(require) {
             }
         };
         $scope.openSite = function(id) {
-            location.href = '/rest/pl/fe/site/setting?site=' + id;
+            location.href = '/rest/pl/fe/site?site=' + id;
         };
         $scope.createSite = function() {
-            var url = '/rest/pl/fe/site/create?_=' + (new Date * 1);
-
-            http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
-            });
+            location.href = '/rest/pl/fe/site/plan';
         };
         /*新建素材*/
         var _fns = {
@@ -240,13 +227,12 @@ define(['require'], function(require) {
                 }
             }
         };
-        $scope.list = function() {
-            $scope.siteType = 1;
+        $scope.listSite = function() {
             var url = '/rest/pl/fe/site/list';
-            http2.get(url + '?_=' + (new Date() * 1), function(rsp) {
+            http2.get(url + '?_=' + (new Date * 1), function(rsp) {
                 if (rsp.data.length === 0) {
                     http2.get('/rest/pl/fe/site/create', function(rsp) {
-                        http2.get(url + '?_=' + (new Date() * 1), function(rsp) {
+                        http2.get(url + '?_=' + (new Date * 1), function(rsp) {
                             $scope.sites = rsp.data;
                             frameState.sid = rsp.data[0].id;
                         });
@@ -292,7 +278,7 @@ define(['require'], function(require) {
                 backdrop: 'static',
             });
         };
-        $scope.list();
+        $scope.listSite();
         var isNavCollapsed = false;
         if (document.body.clientWidth <= 768) {
             isNavCollapsed = true;

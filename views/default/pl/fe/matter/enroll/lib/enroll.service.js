@@ -68,9 +68,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 } else {
                     records = [];
                 }
-                records.forEach(function(record) {
-                    srvRecordConverter.forTable(record, that._oApp._unionSchemasById);
-                    that._aRecords.push(record);
+                records.forEach(function(oRecord) {
+                    srvRecordConverter.forTable(oRecord, that._oApp._unionSchemasById);
+                    that._aRecords.push(oRecord);
                 });
                 defer.resolve(records);
             });
@@ -386,18 +386,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     return defer.promise;
                 },
                 quitMission: function() {
-                    var matter = {
-                            id: _oApp.id,
-                            type: 'enroll',
-                            title: _oApp.title
-                        },
-                        defer = $q.defer();
-                    http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + _siteId + '&id=' + _oApp.mission_id, matter, function(rsp) {
+                    var defer = $q.defer();
+                    http2.get('/rest/pl/fe/matter/enroll/quitMission?site=' + _siteId + '&app=' + _oApp.id, function(rsp) {
                         delete _oApp.mission;
-                        _oApp.mission_id = null;
-                        _self.update(['mission_id']).then(function() {
-                            defer.resolve();
-                        });
+                        _oApp.mission_id = 0;
+                        _oApp.mission_phase_id = '';
+                        defer.resolve();
                     });
                     return defer.promise;
                 },
@@ -477,6 +471,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                 },
                 assignGroupApp: function() {
+                    var defer = $q.defer();
                     $uibModal.open({
                         templateUrl: 'assignGroupApp.html',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -504,25 +499,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _self.update('group_app_id').then(function(rsp) {
                             var url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _oApp.group_app_id;
                             http2.get(url, function(rsp) {
-                                var groupApp = rsp.data,
-                                    roundDS = {
-                                        id: '_round_id',
-                                        type: 'single',
-                                        title: '分组名称',
-                                    },
-                                    ops = [];
-                                groupApp.rounds.forEach(function(round) {
-                                    ops.push({
-                                        v: round.round_id,
-                                        l: round.title
-                                    });
-                                });
-                                roundDS.ops = ops;
-                                groupApp.dataSchemas.splice(0, 0, roundDS);
-                                _oApp.groupApp = groupApp;
+                                _oApp.groupApp = rsp.data;
+                                defer.resolve(_oApp.groupApp);
                             });
                         });
                     });
+                    return defer.promise;
                 },
             };
             return _self;

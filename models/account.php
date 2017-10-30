@@ -48,9 +48,9 @@ class account_model extends TMS_MODEL {
 	 * register a new account.
 	 */
 	public function register($email, $password, $nickname, $from_ip) {
-		/*
-			        * new accouont key
-		*/
+		/**
+		 * new accouont key
+		 */
 		$uid = uniqid();
 		/**
 		 * password.
@@ -91,13 +91,13 @@ class account_model extends TMS_MODEL {
 	 * 对外部认证通过的用户进行注册
 	 */
 	public function authed_from($authed_id, $authed_from, $from_ip, $nickname = '') {
-		/*
-			        * new accouont key
-		*/
+		/**
+		 * new accouont key
+		 */
 		$uid = uniqid();
-		/*
-			        * new account
-		*/
+		/**
+		 * new account
+		 */
 		$current = time();
 		$account = array(
 			'uid' => $uid,

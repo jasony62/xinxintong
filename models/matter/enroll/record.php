@@ -1,9 +1,11 @@
 <?php
 namespace matter\enroll;
+
+require_once dirname(__FILE__) . '/record_base.php';
 /**
  * 登记活动记录
  */
-class record_model extends \TMS_MODEL {
+class record_model extends record_base {
 	/**
 	 * 活动登记（不包括登记数据）
 	 *
@@ -631,6 +633,10 @@ class record_model extends \TMS_MODEL {
 		$whereByData = '';
 		foreach ($data as $k => $v) {
 			if (!empty($v) && is_string($v)) {
+				/* 通讯录字段简化处理 */
+				if (strpos($k, 'member.') === 0) {
+					$k = str_replace('member.', '', $k);
+				}
 				$whereByData .= ' and (';
 				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
@@ -805,7 +811,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'r.enroll_key,r.rid,r.enroll_at,r.tags,r.userid,r.nickname,r.wx_openid,r.yx_openid,r.qy_openid,r.headimgurl,r.verified,r.comment,r.data,r.supplement,r.data_tag',
+			'r.enroll_key,r.rid,r.enroll_at,r.tags,r.userid,r.group_id,r.nickname,r.wx_openid,r.yx_openid,r.qy_openid,r.headimgurl,r.verified,r.comment,r.data,r.supplement,r.data_tag',
 			"xxt_enroll_record r",
 			$w,
 		];
@@ -843,51 +849,74 @@ class record_model extends \TMS_MODEL {
 		/* 处理获得的数据 */
 		$aRoundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
-			foreach ($records as &$rec) {
-				$rec->data_tag = empty($rec->data_tag) ? new \stdClass : json_decode($rec->data_tag);
-				$data = str_replace("\n", ' ', $rec->data);
+			foreach ($records as &$oRec) {
+				$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
+				$data = str_replace("\n", ' ', $oRec->data);
 				$data = json_decode($data);
 				//测验场景或数值填空题共用score字段
-				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($rec->score)) {
-					$score = str_replace("\n", ' ', $rec->score);
+				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($oRec->score)) {
+					$score = str_replace("\n", ' ', $oRec->score);
 					$score = json_decode($score);
 
 					if ($score === null) {
-						$rec->score = 'json error(' . json_last_error_msg() . '):' . $rec->score;
+						$oRec->score = 'json error(' . json_last_error_msg() . '):' . $oRec->score;
 					} else {
-						$rec->score = $score;
+						$oRec->score = $score;
 					}
 				}
 				//附加说明
-				if (!empty($rec->supplement)) {
-					$supplement = str_replace("\n", ' ', $rec->supplement);
+				if (!empty($oRec->supplement)) {
+					$supplement = str_replace("\n", ' ', $oRec->supplement);
 					$supplement = json_decode($supplement);
 
 					if ($supplement === null) {
-						$rec->supplement = 'json error(' . json_last_error_msg() . '):' . $rec->supplement;
+						$oRec->supplement = 'json error(' . json_last_error_msg() . '):' . $oRec->supplement;
 					} else {
-						$rec->supplement = $supplement;
+						$oRec->supplement = $supplement;
 					}
 				}
 
 				if ($data === null) {
-					$rec->data = 'json error(' . json_last_error_msg() . '):' . $rec->data;
+					$oRec->data = 'json error(' . json_last_error_msg() . '):' . $oRec->data;
 				} else {
-					$rec->data = $data;
+					$oRec->data = $data;
+					/* 处理提交数据后分组的问题 */
+					if (!empty($oRec->group_id) && !isset($oRec->data->_round_id)) {
+						$oRec->data->_round_id = $oRec->group_id;
+					}
+					/* 处理提交数据后指定昵称题的问题 */
+					if ($oRec->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
+						if (isset($oApp->assignedNickname->schema->id)) {
+							$nicknameSchemaId = $oApp->assignedNickname->schema->id;
+							if (0 === strpos($nicknameSchemaId, 'member.')) {
+								$nicknameSchemaId = explode('.', $nicknameSchemaId);
+								if (!isset($oRec->data->member)) {
+									$oRec->data->member = new \stdClass;
+								}
+								if (!isset($oRec->data->member->{$nicknameSchemaId[1]})) {
+									$oRec->data->member->{$nicknameSchemaId[1]} = $oRec->nickname;
+								}
+							} else {
+								if (!isset($oRec->data->{$nicknameSchemaId})) {
+									$oRec->data->{$nicknameSchemaId} = $oRec->nickname;
+								}
+							}
+						}
+					}
 				}
 				// 记录的登记轮次
-				if (!empty($rec->rid)) {
-					if (!isset($aRoundsById[$rec->rid])) {
+				if (!empty($oRec->rid)) {
+					if (!isset($aRoundsById[$oRec->rid])) {
 						if (!isset($modelRnd)) {
 							$modelRnd = $this->model('matter\enroll\round');
 						}
-						$round = $modelRnd->byId($rec->rid, ['fields' => 'title']);
-						$aRoundsById[$rec->rid] = $round;
+						$round = $modelRnd->byId($oRec->rid, ['fields' => 'title']);
+						$aRoundsById[$oRec->rid] = $round;
 					} else {
-						$round = $aRoundsById[$rec->rid];
+						$round = $aRoundsById[$oRec->rid];
 					}
 					if ($round) {
-						$rec->round = $round;
+						$oRec->round = $round;
 					}
 				}
 				// 记录的分数
@@ -896,8 +925,8 @@ class record_model extends \TMS_MODEL {
 						$scoreSchemas = $this->_mapOfScoreSchema($oApp);
 						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
-					$rec->_score = $this->_calcVotingScore($scoreSchemas, $data);
-					$rec->_average = $countScoreSchemas === 0 ? 0 : $rec->_score / $countScoreSchemas;
+					$oRec->_score = $this->_calcVotingScore($scoreSchemas, $data);
+					$oRec->_average = $countScoreSchemas === 0 ? 0 : $oRec->_score / $countScoreSchemas;
 				}
 			}
 			$result->records = $records;

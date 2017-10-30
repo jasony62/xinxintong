@@ -40,11 +40,7 @@ define(['frame'], function(ngApp) {
         $scope.export = function() {
             var url = '/rest/pl/fe/matter/enroll/user/export?site=' + $scope.app.siteid;
             url += '&app=' + $scope.app.id;
-            if ($scope.rule.scope !== 'member') {
-                url += '&rid=' + _oCriteria.rid;
-            } else {
-                url += '&rid=' + _oCriteria.rid + '&mschema=' + _oCriteria.mschema.id;
-            }
+            url += '&rid=' + _oCriteria.rid;
             window.open(url);
         };
         $scope.notify = function(isBatch) {
@@ -85,7 +81,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.searchEnrollee = function(pageAt) {
             var url;
-            
+
             pageAt && (page.at = pageAt);
             url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + page.j();
             http2.post(url, _oCriteria, function(rsp) {

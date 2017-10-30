@@ -27,14 +27,7 @@ define(['require'], function(require) {
         });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
-            $scope.snsCount = Object.keys(oSns).length;
-            if (!missionId) {
-                if ($scope.snsCount) {
-                    _oEntryRule.scope = 'sns';
-                } else {
-                    _oEntryRule.scope = 'none';
-                }
-            }
+            $scope.snsNames = Object.keys(oSns);
         });
         if (missionId) {
             http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {
@@ -49,15 +42,61 @@ define(['require'], function(require) {
                             oMschemasById[mschema.id] = mschema;
                         });
                         Object.keys(oMission.entry_rule.member).forEach(function(mschemaId) {
-                            _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
+                            if (oMschemasById[mschemaId]) {
+                                _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
+                            }
                         });
                     });
                 } else if ('sns' === oMission.entry_rule.scope) {
-                    $scope.result.proto.sns = oMission.entry_rule.sns;
+                    $scope.proto.sns = oMission.entry_rule.sns;
                 }
                 _oProto.title = oMission.title + '-签到';
             });
         }
+        $scope.chooseMschema = function() {
+            srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(function(result) {
+                var oChosen = result.chosen;
+                _oEntryRule.mschemas.push({ id: oChosen.id, title: oChosen.title });
+            });
+        };
+        $scope.removeMschema = function(oMschema) {
+            var mschemas = _oEntryRule.mschemas;
+            mschemas.splice(mschemas.indexOf(oMschema), 1);
+        };
+        $scope.changeUserScope = function() {
+            switch (_oEntryRule.scope) {
+                case 'member':
+                    if (!_oEntryRule.mschemas || _oEntryRule.mschemas.length === 0) {
+                        $scope.chooseMschema();
+                    }
+                    break;
+                case 'sns':
+                    _oEntryRule.sns = {};
+                    $scope.snsNames.forEach(function(snsName) {
+                        _oEntryRule.sns[snsName] = true;
+                    });
+                    break;
+            }
+        };
+        $scope.assignGroupApp = function() {
+            srvSite.openGallery({
+                matterTypes: [{
+                    value: 'group',
+                    title: '分组活动',
+                    url: '/rest/pl/fe/matter'
+                }],
+                singleMatter: true,
+                mission: _oProto.mission,
+                onlySameMission: true
+            }).then(function(result) {
+                var oGroupApp, oChosen;
+                if (result.matters.length === 1) {
+                    oChosen = result.matters[0];
+                    oGroupApp = { id: oChosen.id, title: oChosen.title };
+                    _oProto.groupApp = oGroupApp;
+                }
+            });
+        };
         $scope.doCreate = function() {
             var url, data;
             var oConfig;

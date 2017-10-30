@@ -30,6 +30,20 @@ define(['frame'], function(ngApp) {
             oTags = $scope.oTag;
             srvTag._tagMatter($scope.app, oTags, subType);
         };
+        srvSigninApp.get().then(function(oApp) {
+            $scope.defaultTime = {
+                start_at: oApp.start_at > 0 ? oApp.start_at : (function() {
+                    var t;
+                    t = new Date;
+                    t.setHours(8);
+                    t.setMinutes(0);
+                    t.setMilliseconds(0);
+                    t.setSeconds(0);
+                    t = parseInt(t / 1000);
+                    return t;
+                })()
+            };
+        });
     }]);
     ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvSigninApp', function($scope, http2, $interval, $uibModal, srvSigninApp) {
         function listReceivers(app) {

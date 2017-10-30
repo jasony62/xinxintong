@@ -28,7 +28,11 @@ class timer extends base {
 			$modelTim->insert('xxt_log_timer', $oLog, true);
 
 			/* 更新任务状态 */
-			$modelTim->update('update xxt_timer_task set left_count=left_count-1 where id=' . $oTask->id);
+			if (false == $rsp[0]) {
+				$modelTim->update('update xxt_timer_task set enabled=\'N\' where id=' . $oTask->id);
+			} else {
+				$modelTim->update('update xxt_timer_task set left_count=left_count-1 where id=' . $oTask->id);
+			}
 		}
 
 		return new \ResponseData(count($tasks));

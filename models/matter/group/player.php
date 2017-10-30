@@ -48,7 +48,7 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 保存登记的数据
 	 */
-	public function setData($siteId, &$app, $ek, $data) {
+	public function setData($oApp, $ek, $data) {
 		if (empty($data)) {
 			return array(true);
 		}
@@ -56,24 +56,15 @@ class player_model extends \TMS_MODEL {
 		$dbData = new \stdClass;
 
 		$schemasById = [];
-		foreach ($app->dataSchemas as $schema) {
+		foreach ($oApp->dataSchemas as $schema) {
 			$schemasById[$schema->id] = $schema;
 		}
 
 		/* 已有的登记数据 */
-		$fields = $this->query_vals_ss(['name', 'xxt_group_player_data', "aid='{$app->id}' and enroll_key='$ek'"]);
+		$fields = $this->query_vals_ss(['name', 'xxt_group_player_data', "aid='{$oApp->id}' and enroll_key='$ek'"]);
 
 		foreach ($data as $n => $v) {
-			if (!isset($schemasById[$n])) {
-				continue;
-			}
-
-			$schema = $schemasById[$n];
-			/**
-			 * 插入自定义属性
-			 */
 			if ($n === 'member' && is_object($v)) {
-				//
 				$dbData->{$n} = $v;
 				/* 自定义用户信息 */
 				$treatedValue = new \stdClass;
@@ -88,47 +79,56 @@ class player_model extends \TMS_MODEL {
 					$treatedValue->extattr = $extattr;
 				}
 				$treatedValue = urldecode(json_encode($treatedValue));
-			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
-				/* 上传图片 */
-				$treatedValue = array();
-				$fsuser = \TMS_APP::model('fs/user', $siteId);
-				foreach ($v as $img) {
-					$rst = $fsuser->storeImg($img);
-					if (false === $rst[0]) {
-						return $rst;
+			} else {
+				if (!isset($schemasById[$n])) {
+					continue;
+				}
+				$schema = $schemasById[$n];
+				/**
+				 * 插入自定义属性
+				 */
+				if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
+					/* 上传图片 */
+					$treatedValue = array();
+					$fsuser = $this->model('fs/user', $oApp->siteid);
+					foreach ($v as $img) {
+						$rst = $fsuser->storeImg($img);
+						if (false === $rst[0]) {
+							return $rst;
+						}
+						$treatedValue[] = $rst[1];
 					}
-					$treatedValue[] = $rst[1];
-				}
-				$treatedValue = implode(',', $treatedValue);
-				$dbData->{$n} = $treatedValue;
-			} else if ($schema->type === 'score') {
-				$dbData->{$n} = $v;
-				$treatedValue = json_encode($v);
-			} else {
-				if (is_string($v)) {
-					$treatedValue = $this->escape($v);
-				} else if (is_object($v) || is_array($v)) {
-					$treatedValue = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+					$treatedValue = implode(',', $treatedValue);
+					$dbData->{$n} = $treatedValue;
+				} else if ($schema->type === 'score') {
+					$dbData->{$n} = $v;
+					$treatedValue = json_encode($v);
 				} else {
-					$treatedValue = $v;
+					if (is_string($v)) {
+						$treatedValue = $this->escape($v);
+					} else if (is_object($v) || is_array($v)) {
+						$treatedValue = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+					} else {
+						$treatedValue = $v;
+					}
+					$dbData->{$n} = $treatedValue;
 				}
-				$dbData->{$n} = $treatedValue;
-			}
-			if (!empty($fields) && in_array($n, $fields)) {
-				$this->update(
-					'xxt_group_player_data',
-					['value' => $treatedValue],
-					"aid='{$app->id}' and enroll_key='$ek' and name='$n'"
-				);
-				unset($fields[array_search($n, $fields)]);
-			} else {
-				$ic = [
-					'aid' => $app->id,
-					'enroll_key' => $ek,
-					'name' => $n,
-					'value' => $treatedValue,
-				];
-				$this->insert('xxt_group_player_data', $ic, false);
+				if (!empty($fields) && in_array($n, $fields)) {
+					$this->update(
+						'xxt_group_player_data',
+						['value' => $treatedValue],
+						"aid='{$oApp->id}' and enroll_key='$ek' and name='$n'"
+					);
+					unset($fields[array_search($n, $fields)]);
+				} else {
+					$ic = [
+						'aid' => $oApp->id,
+						'enroll_key' => $ek,
+						'name' => $n,
+						'value' => $treatedValue,
+					];
+					$this->insert('xxt_group_player_data', $ic, false);
+				}
 			}
 		}
 		// 记录数据
@@ -231,7 +231,7 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 根据指定的数据查找匹配的记录
 	 */
-	public function &byData(&$oApp, &$data, $options = []) {
+	public function byData($oApp, $data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$records = false;
 
@@ -244,6 +244,10 @@ class player_model extends \TMS_MODEL {
 				$whereByData .= ')';
 			} else {
 				if (!empty($v)) {
+					/* 通讯录字段简化处理 */
+					if (strpos($k, 'member.') === 0) {
+						$k = str_replace('member.', '', $k);
+					}
 					$whereByData .= ' and (';
 					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
@@ -325,7 +329,7 @@ class player_model extends \TMS_MODEL {
 			];
 		}
 		/* 排序 */
-		$q2['o'] = 'enroll_at desc';
+		$q2['o'] = 'round_id asc,enroll_at desc';
 		if ($players = $this->query_objs_ss($q, $q2)) {
 			/* record data */
 			if ($fields === '*' || false !== strpos($fields, 'data')) {
@@ -540,9 +544,9 @@ class player_model extends \TMS_MODEL {
 		return $cnt;
 	}
 	/**
-	 * 从报名活动导入数据
+	 * 从通讯录中导入数据
 	 */
-	public function importByMschema($oGrpApp, $mschemaId, $sync = 'N') {
+	public function assocWithMschema($oGrpApp, $mschemaId, $sync = 'N') {
 		$modelMsc = $this->model('site\user\memberschema');
 
 		$oMschema = $modelMsc->byId($mschemaId);
@@ -625,26 +629,32 @@ class player_model extends \TMS_MODEL {
 						$data->{$ds->id} = isset($oExtData->{$ds->id}) ? $oExtData->{$ds->id} : '';
 					}
 				}
-				$this->setData($objGrp->siteid, $objGrp, $oMember->id, $data);
+				$this->setData($objGrp, $oMember->id, $data);
 			}
 		}
 
 		return $oMschema;
 	}
 	/**
-	 * 从报名活动导入数据
+	 * 关联报名活动数据
 	 */
-	public function importByEnroll($oGrpApp, $byApp, $sync = 'N') {
+	public function assocWithEnroll($oGrpApp, $byApp) {
 		$modelEnl = $this->model('matter\enroll');
 
 		$oSourceApp = $modelEnl->byId($byApp, ['fields' => 'data_schemas,assigned_nickname', 'cascaded' => 'N']);
+		$aDataSchemas = $oSourceApp->dataSchemas;
+
+		/* 移除题目中和其他活动、通讯录的关联信息 */
+		$modelEnl->replaceAssocSchema($aDataSchemas);
+		$modelEnl->replaceMemberSchema($aDataSchemas, null, true);
+
 		/* 导入活动定义 */
 		$this->update(
 			'xxt_group',
 			[
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"enroll"}',
-				'data_schemas' => $oSourceApp->data_schemas,
+				'data_schemas' => $this->escape($this->toJson($aDataSchemas)),
 				'assigned_nickname' => $oSourceApp->assigned_nickname,
 			],
 			['id' => $oGrpApp->id]
@@ -665,16 +675,16 @@ class player_model extends \TMS_MODEL {
 			$modelRec = $this->model('matter\enroll\record');
 			$options = ['cascaded' => 'Y'];
 			foreach ($eks as $ek) {
-				$record = $modelRec->byId($ek, $options);
+				$oRecord = $modelRec->byId($ek, $options);
 				$oUser = new \stdClass;
-				$oUser->uid = $record->userid;
-				$oUser->nickname = $record->nickname;
-				$oUser->wx_openid = $record->wx_openid;
-				$oUser->yx_openid = $record->yx_openid;
-				$oUser->qy_openid = $record->qy_openid;
-				$oUser->headimgurl = $record->headimgurl;
-				$this->enroll($oGrpApp->siteid, $oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
-				$this->setData($oGrpApp->siteid, $oGrpApp, $ek, $record->data);
+				$oUser->uid = $oRecord->userid;
+				$oUser->nickname = $oRecord->nickname;
+				$oUser->wx_openid = $oRecord->wx_openid;
+				$oUser->yx_openid = $oRecord->yx_openid;
+				$oUser->qy_openid = $oRecord->qy_openid;
+				$oUser->headimgurl = $oRecord->headimgurl;
+				$this->enroll($oGrpApp->siteid, $oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
+				$this->setData($oGrpApp, $ek, $oRecord->data);
 			}
 		}
 
@@ -684,10 +694,10 @@ class player_model extends \TMS_MODEL {
 	 * 从签到活动导入数据
 	 * 如果指定了包括报名数据，只需要从报名活动中导入登记项的定义，签到时已经自动包含了报名数据
 	 */
-	public function importBySignin($oGrpApp, $byApp, $includeEnroll = 'Y') {
+	public function assocWithSignin($oGrpApp, $byApp, $includeEnroll = 'Y') {
 		$modelSignin = $this->model('matter\signin');
 		$oSourceApp = $modelSignin->byId($byApp, ['fields' => 'data_schemas,assigned_nickname,enroll_app_id', 'cascaded' => 'N']);
-		$sourceDataSchemas = $oSourceApp->data_schemas;
+		$aSourceDataSchemas = $oSourceApp->dataSchemas;
 		/**
 		 * 导入报名数据，需要合并签到和报名的登记项
 		 */
@@ -695,25 +705,28 @@ class player_model extends \TMS_MODEL {
 			if (!empty($oSourceApp->enroll_app_id)) {
 				$modelEnl = $this->model('matter\enroll');
 				$enrollApp = $modelEnl->byId($oSourceApp->enroll_app_id, ['fields' => 'data_schemas', 'cascaded' => 'N']);
-				$enrollDataSchemas = json_decode($enrollApp->data_schemas);
-				$sourceDataSchemas = json_decode($sourceDataSchemas);
-				$diff = array_udiff($enrollDataSchemas, $sourceDataSchemas, create_function('$a,$b', 'return strcmp($a->id,$b->id);'));
-				$sourceDataSchemas = array_merge($sourceDataSchemas, $diff);
-				$sourceDataSchemas = $this->toJson($sourceDataSchemas);
+				$diff = array_udiff($enrollApp->dataSchemas, $aSourceDataSchemas, create_function('$a,$b', 'return strcmp($a->id,$b->id);'));
+				$aSourceDataSchemas = array_merge($aSourceDataSchemas, $diff);
 			}
 		}
+
+		/* 移除题目中和其他活动、通讯录的关联信息 */
+		$modelSignin->replaceAssocSchema($aSourceDataSchemas);
+		$modelSignin->replaceMemberSchema($aSourceDataSchemas, null, true);
+
 		/* 导入活动定义 */
 		$this->update(
 			'xxt_group',
 			[
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"signin"}',
-				'data_schemas' => $sourceDataSchemas,
+				'data_schemas' => $this->escape($this->toJson($aSourceDataSchemas)),
 				'assigned_nickname' => $oSourceApp->assigned_nickname,
 			],
 			['id' => $oGrpApp->id]
 		);
-		$oGrpApp->dataSchemas = json_decode($sourceDataSchemas);
+		$oGrpApp->dataSchemas = $aSourceDataSchemas;
+
 		/* 清空已有数据 */
 		$this->clean($oGrpApp->id, true);
 
@@ -738,7 +751,7 @@ class player_model extends \TMS_MODEL {
 				$oUser->qy_openid = $oRecord->qy_openid;
 				$oUser->headimgurl = $oRecord->headimgurl;
 				$this->enroll($oGrpApp->siteid, $oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
-				$this->setData($oGrpApp->siteid, $oGrpApp, $ek, $oRecord->data);
+				$this->setData($oGrpApp, $ek, $oRecord->data);
 			}
 		}
 
@@ -748,20 +761,27 @@ class player_model extends \TMS_MODEL {
 	 * 从信息墙导入数据
 	 * $onlySpeaker 是否为发言的用户
 	 */
-	public function importByWall($oGrpApp, $byApp, $onlySpeaker) {
+	public function assocWithWall($oGrpApp, $byApp, $onlySpeaker) {
 		$modelWall = $this->model('matter\wall');
 		$oSourceApp = $modelWall->byId($byApp, ['fields' => 'data_schemas']);
+		$aSourceDataSchemas = $oSourceApp->dataSchemas;
+
+		/* 移除题目中和其他活动、通讯录的关联信息 */
+		$modelWall->replaceAssocSchema($aSourceDataSchemas);
+		$modelWall->replaceMemberSchema($aSourceDataSchemas, null, true);
+
 		/* 导入活动定义 */
 		$this->update(
 			'xxt_group',
 			[
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"wall"}',
-				'data_schemas' => $oSourceApp->data_schemas,
+				'data_schemas' => $this->escape($this->toJson($aSourceDataSchemas)),
 			],
 			['id' => $oGrpApp->id]
 		);
-		$oGrpApp->dataSchemas = json_decode($oSourceApp->data_schemas);
+		$oGrpApp->dataSchemas = $aSourceDataSchemas;
+
 		/* 清空已有分组数据 */
 		$this->clean($oGrpApp->id, true);
 
@@ -791,7 +811,7 @@ class player_model extends \TMS_MODEL {
 					$oWallUser->enroll_key = $ek;
 				}
 				$this->enroll($oGrpApp->siteid, $oGrpApp, $oUser, ['enroll_key' => $oWallUser->enroll_key, 'enroll_at' => $oWallUser->join_at]);
-				$this->setData($oGrpApp->siteid, $oGrpApp, $oWallUser->enroll_key, $oWallUser->data);
+				$this->setData($oGrpApp, $oWallUser->enroll_key, $oWallUser->data);
 			}
 		}
 

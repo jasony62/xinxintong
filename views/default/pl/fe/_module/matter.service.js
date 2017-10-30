@@ -1,3 +1,4 @@
+'use strict';
 angular.module('service.matter', ['ngSanitize', 'ui.bootstrap', 'ui.tms']).
 provider('srvSite', function() {
     var _siteId, _oSite, _aSns, _aMemberSchemas, _oTag;
@@ -28,6 +29,15 @@ provider('srvSite', function() {
                         defer.resolve(_oSite);
                     });
                 }
+                return defer.promise;
+            },
+            update: function(prop) {
+                var oUpdated = {},
+                    defer = $q.defer();
+                oUpdated[prop] = _oSite[prop];
+                http2.post('/rest/pl/fe/site/update?site=' + _siteId, oUpdated, function(rsp) {
+                    defer.resolve(_oSite);
+                });
                 return defer.promise;
             },
             matterList: function(moduleTitle, site, page) {

@@ -1,7 +1,7 @@
 (function(){
     app.provider.controller('ctrlInteract',['$scope', '$http', function($scope, $http) {
-        var num = 6,startTime,
-            time = new Date().getTime(),
+        var num = $scope.Wall.scenario_config.player_sum / 4, startTime,
+            time = $scope.time,
             url = window.location.href + "&time=" + time,
             boxs = document.querySelectorAll(".box"),
             uls = document.querySelectorAll(".box > ul");
@@ -44,7 +44,15 @@
                 prev.find('.shine').css({'animation': 'moveShine 2s linear','animation-fill-mode': 'forwards'});
             }, 2000);
             setTimeout(function() {
-                next.css({'animation': 'moveImg 5s linear','animation-fill-mode': 'forwards'});
+                if(next.attr('class')=='bgImg1') {
+                    next.css({'animation': 'moveImg1 5s linear','animation-fill-mode': 'forwards'});
+                }else if(next.attr('class')=='bgImg2') {
+                    next.css({'animation': 'moveImg2 5s linear','animation-fill-mode': 'forwards'});
+                }else if(next.attr('class')=='bgImg3'){
+                    next.css({'animation': 'moveImg3 5s linear','animation-fill-mode': 'forwards'});
+                }else if(next.attr('class')=='bgImg4'){
+                    next.css({'animation': 'moveImg4 5s linear','animation-fill-mode': 'forwards'});
+                }
             }, 4000);
         }
         $scope.play = function() {
@@ -73,10 +81,10 @@
             }, 1000);
         };
         $scope.start = function() {
-            var timer1,
-                url = 'index.json?startTime=';
+            listPlayer_action($site, $app, $startTime, $startId = null)/app是信息墙的id
+            var url = '/rest/site/op/matter/wall/listPlayer?site' + $scope.siteId + '&app=' + $scope.wallId + '&startTime=' + startTime + '&startId=';
             setTimeout(function(){
-                $scope.players.length == '0' ? url += time: url += $scope.players[$scope.players.length-1].time;
+                $scope.players.length == '0' ? url += '': url += $scope.players[$scope.players.length-1].id;
                 $http.get(url).success(function(rsp) {
                     angular.forEach(rsp.data, function(data) {
                         if($scope.players.length > 0) {
@@ -104,7 +112,7 @@
             },3000);
         }
         angular.element(document).ready(function() {
-            //$scope.start();
+            $scope.start();
         });
     }]);
 })()

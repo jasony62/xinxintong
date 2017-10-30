@@ -75,6 +75,9 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
     $scope.siteId = ls.match(/site=([^&]*)/)[1];
     $scope.wallId = ls.match(/wall=([^&]*)/)[1];
     $scope.stop = false;
+    $http.get('/clock.php').success(function(rsp) {
+        $scope.time = rsp.data;
+    });
     $http.get('/rest/site/op/matter/wall/pageGet?site=' + $scope.siteId + '&wall=' + $scope.wallId).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
@@ -84,31 +87,33 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
         params = rsp.data;
         $scope.Wall = params.wall;
         setPage($scope, params.page);
-        $http.get('/rest/site/op/matter/wall/messageList?site=' + $scope.siteId + '&wall=' + $scope.wallId + '&_=' + (new Date() * 1), {
-            headers: {
-                'Accept': 'application/json'
-            }
-        }).success(function(rsp) {
-            var last, worker;
-            $scope.messages = rsp.data[0];
-            last = rsp.data[1];
-            worker = new Worker("/views/default/site/op/matter/wall/wallMessages.js?_=2");
-            worker.onmessage = function(e) {
-                var messages = e.data;
-                for (var i in messages) {
-                    if (!inlist(messages[i].id))
-                        $scope.messages.splice(0, 0, messages[i]);
+        if($scope.Wall.scenario!=='interact') {
+            $http.get('/rest/site/op/matter/wall/messageList?site=' + $scope.siteId + '&wall=' + $scope.wallId + '&_=' + (new Date() * 1), {
+                headers: {
+                    'Accept': 'application/json'
                 }
-                $scope.$apply();
-            };
-            worker.postMessage({
-                siteId: $scope.siteId,
-                wid: $scope.wallId,
-                last: last
+            }).success(function(rsp) {
+                var last, worker;
+                $scope.messages = rsp.data[0];
+                last = rsp.data[1];
+                worker = new Worker("/views/default/site/op/matter/wall/wallMessages.js?_=2");
+                worker.onmessage = function(e) {
+                    var messages = e.data;
+                    for (var i in messages) {
+                        if (!inlist(messages[i].id))
+                            $scope.messages.splice(0, 0, messages[i]);
+                    }
+                    $scope.$apply();
+                };
+                worker.postMessage({
+                    siteId: $scope.siteId,
+                    wid: $scope.wallId,
+                    last: last
+                });
+                $scope.stop = function() {
+                    worker.terminate();
+                };
             });
-            $scope.stop = function() {
-                worker.terminate();
-            };
-        });
+        }
     });
 }]);

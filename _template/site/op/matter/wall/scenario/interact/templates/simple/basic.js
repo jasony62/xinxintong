@@ -108,9 +108,7 @@
                 });
                 if($scope.players.length < num * 4) {
                     url = '/rest/site/op/matter/wall/listPlayer?site=' + $scope.siteId + '&app=' + $scope.wallId + '&startTime=' + startTime + '&startId=';
-                    setTimeout(function(){
-                        setTimeout(arguments.callee, 3000);
-                    });
+                    setTimeout(arguments.callee, 3000);
                 }
             },3000);
         }

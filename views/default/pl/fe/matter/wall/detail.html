@@ -65,7 +65,7 @@
                     </select>
                 </div>
                 <div class='form-group'>
-                    <label>时间设置</label>
+                    <label class='help-block'>时间设置</label>
                         <div class=''>
                             <table class='table table-bordered'>
                                 <tr>
@@ -115,7 +115,7 @@
                     </div>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='interact'">
-                    <label>已有图文</label>
+                    <label class='help-block'>已有图文</label>
                     <button class='btn btn-default btn-sm' ng-click="addInteractMatter()">选择素材</button>
                     <ul class='list-group' style='margin-bottom:0'>
                         <li class='list-group-item' ng-repeat="m in wall.interact_matter" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
@@ -127,7 +127,7 @@
                     </ul>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='interact'">
-                    <div class='help-block'>互动方式</div>
+                    <label class='help-block'>互动方式</label>
                     <div class=''>
                         <label class='checkbox-inline'>
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.shareF' ng-change="update('scenario_config')">分享-朋友</label>

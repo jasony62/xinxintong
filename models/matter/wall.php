@@ -286,7 +286,7 @@ class wall_model extends enroll_base {
 
 		if ($interactAction->shareF === 'Y' || $interactAction->shareT === 'Y') {
 			$q = [
-				'max(s.id),s.share_to,s.share_at,s.matter_id,s.matter_type,s.matter_title,s.userid,a.nickname,a.headimgurl,a.wx_openid,a.yx_openid,a.qy_openid',
+				'max(s.id) id,s.share_to,s.share_at,s.matter_id,s.matter_type,s.matter_title,s.userid,a.nickname,a.headimgurl,a.wx_openid,a.yx_openid,a.qy_openid',
 				'xxt_log_matter_share s,xxt_site_account a',
 				"s.share_at > $startTime and s.userid = a.uid and s.siteid = a.siteid"
 			];

@@ -69,7 +69,7 @@
                         var Num = count / num;
                         $(boxs[Num]).addClass("boxBg");
                     }
-                    $(imgs[count]).attr('src', $scope.players[count].headimg_url);
+                    $(imgs[count]).attr('src', $scope.players[count].headimgurl);
                     $(imgs[count]).css('borderColor','#FFFA52');
 
                     if(count==num||count==num*2||count==num*3) {
@@ -86,7 +86,7 @@
         $scope.start = function() {
             var url = '/rest/site/op/matter/wall/listPlayer?site=' + $scope.siteId + '&app=' + $scope.wallId + '&startTime=' + startTime + '&startId=';
             setTimeout(function(){
-                $scope.players.length == '0' ? url += '': url += $scope.players[$scope.players.length-1].id;
+                $scope.players.length == '0' ? url : url += $scope.players[$scope.players.length-1].id;
                 $http.get(url).success(function(rsp) {
                     angular.forEach(rsp.data, function(data) {
                         if($scope.players.length > 0) {
@@ -106,7 +106,7 @@
                         }
                     });
                 });
-                if($scope.players.length < num * 4) {
+                if($scope.players.length < $scope.Wall.scenario_config.player_sum) {
                     url = '/rest/site/op/matter/wall/listPlayer?site=' + $scope.siteId + '&app=' + $scope.wallId + '&startTime=' + startTime + '&startId=';
                     setTimeout(arguments.callee, 3000);
                 }

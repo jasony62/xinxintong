@@ -311,6 +311,7 @@ class wall_model extends enroll_base {
 
 			$q2 = ['g' => 's.userid', 'o' => 'max(s.id)'];
 		}
+
 		$users = $this->query_objs_ss($q, $q2);
 
 		return $users;

@@ -14,7 +14,7 @@ body{width: 100%;height:auto;padding-top:26px;font-size:24px;font-family:'MicroS
 /* 主体 */
 .row{height: 420px;}
 .boxBg{background: url('/static/img/interactRect.png') no-repeat -84px -236px;}
-.box{position: relative;float: left;width: 290px;height: 100%;text-align: center;padding:35px 30px 0 30px;border-radius:5%;margin-right:15px;background-color: rgba(255,255,255,0.3);}
+.box{position: relative;float: left;width: 290px;height: 100%;text-align: center;padding-top:35px;border-radius:5%;margin-right:15px;background-color: rgba(255,255,255,0.3);}
 .box:last-child{margin-right: 0px;}
 .box > .case{width: 130px;height: 135px;margin:25px auto 15px;position: relative;}
 .box > .case > .boxBody {width: 100%;height: 80px;position: absolute;bottom:0;left:0;background: url("/static/img/interactBox.png") no-repeat;}

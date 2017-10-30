@@ -2,7 +2,7 @@
     app.provider.controller('ctrlInteract',['$scope', '$http', function($scope, $http) {
         var num = 6,startTime,
             time = new Date().getTime(),
-            url = window.location.href + "?time=" + time,
+            url = window.location.href + "&time=" + time,
             boxs = document.querySelectorAll(".box"),
             uls = document.querySelectorAll(".box > ul");
         $scope.players = [];
@@ -19,7 +19,21 @@
         } else {
             startTime = getQueryString("time");
         }
-
+        //布置最初的页面
+        for(var i=0; i<uls.length; i++) {
+            $(uls[i]).css({width: '290px',padding:'0 30px'});
+            for(var j=0; j<num; j++) {
+                var li = $("<li></li>"), img = $("<img />"),
+                    liWidth = ($(uls[0]).width() - 40) / 3;
+                li.css({width: liWidth, position:"relative"});
+                if(j % 3 == 1){li.css('margin', '0 20px')};
+                if(j > 2) {li.css('marginTop', '20px')};
+                img.css({width: liWidth, height: liWidth, border: "3px solid #FFF", borderRadius: "10%"});
+                img.attr('src',"/static/img/interactPao.png");
+                li.append(img);
+                $(uls[i]).append(li);
+            }
+        }
         $scope.open = function(event) {
             var prev = $(event.target).prev(),
                 next = $(event.target).next();
@@ -90,21 +104,7 @@
             },3000);
         }
         angular.element(document).ready(function() {
-            //布置最初的页面
-        for(var i=0; i<uls.length; i++) {
-            for(var j=0; j<num; j++) {
-                var li = $("<li></li>"), img = $("<img />"),
-                    liWidth = ($(uls[0]).width() - 52) / 3;
-                li.css({width: liWidth, position:"relative"});
-                if(j % 3 == 1){li.css('margin', '0 26px')};
-                if(j > 2) {li.css('marginTop', '20px')};
-                img.css({width: liWidth, height: liWidth, border: "3px solid #FFF", borderRadius: "10%"});
-                img.attr('src',"/static/img/interactPao.png");
-                li.append(img);
-                $(uls[i]).append(li);
-            }
-        }
-            $scope.start();
+            //$scope.start();
         });
     }]);
 })()

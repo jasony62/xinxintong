@@ -6,6 +6,9 @@
             boxs = document.querySelectorAll(".box"),
             uls = document.querySelectorAll(".box > ul");
         $scope.players = [];
+        $scope.Wall.interact_matter.forEach(function(m) {
+            m.entryUrl = '/rest/site/fe/matter/wall/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent(m.entryUrl);
+        });
         //留住第一次打开页面的时间，并在URL上隐藏；
         function getQueryString(name) {
             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
@@ -81,8 +84,7 @@
             }, 1000);
         };
         $scope.start = function() {
-            listPlayer_action($site, $app, $startTime, $startId = null)/app是信息墙的id
-            var url = '/rest/site/op/matter/wall/listPlayer?site' + $scope.siteId + '&app=' + $scope.wallId + '&startTime=' + startTime + '&startId=';
+            var url = '/rest/site/op/matter/wall/listPlayer?site=' + $scope.siteId + '&app=' + $scope.wallId + '&startTime=' + startTime + '&startId=';
             setTimeout(function(){
                 $scope.players.length == '0' ? url += '': url += $scope.players[$scope.players.length-1].id;
                 $http.get(url).success(function(rsp) {
@@ -104,10 +106,11 @@
                         }
                     });
                 });
-
                 if($scope.players.length < num * 4) {
-                    url = 'index.json?startTime=';
-                    setTimeout(arguments.callee, 3000);
+                    url = '/rest/site/op/matter/wall/listPlayer?site=' + $scope.siteId + '&app=' + $scope.wallId + '&startTime=' + startTime + '&startId=';
+                    setTimeout(function(){
+                        setTimeout(arguments.callee, 3000);
+                    });
                 }
             },3000);
         }

@@ -692,7 +692,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                                 url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + siteId;
                                 url += '&matter_type=signin&matter_id=' + appId;
-                                url += '&expire=864000';
+                                //url += '&expire=864000';
 
                                 http2.post(url, {
                                     params: params

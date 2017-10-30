@@ -97,7 +97,15 @@
         <div id='pl-layout-main' class='pl-layout-main pl-layout-main-topnav'>
             <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
                 <div class='container-fluid'>
-                    <nav class='nav navbar-nav tms-breadcrumb'>
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" ng-click="isNavCollapsed=!isNavCollapsed">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <nav class='nav navbar-nav tms-breadcrumb' uib-collapse="isNavCollapsed">
                         <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>个人工作台</a></li>
                         <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>

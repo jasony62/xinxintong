@@ -1,0 +1,82 @@
+<div class='row'>
+    <div class='col-md-6 col-md-offset-3'>
+        <div class='panel panel-default'>
+            <div class='panel-body'>
+                <div class='form-group'>
+                    <label>团队ID</label>
+                    <p class='form-control-static' ng-bind="site.id"></p>
+                </div>
+                <div class='form-group'>
+                    <label>创建时间</label>
+                    <p class='form-control-static' ng-bind="site.create_at*1000|date:'yy-MM-dd HH:mm'"></p>
+                </div>
+                <div class='form-group'>
+                    <label>团队名称</label>
+                    <input type='text' class='form-control' ng-model='site.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
+                </div>
+                <div class='form-group'>
+                    <label>团队介绍</label>
+                    <textarea class='form-control' ng-model='site.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+                </div>
+                <div class='form-group'>
+                    <label>缺省头图</label>
+                    <div style='position:relative'>
+                        <div style="width:182px;border:1px solid #CCC">
+                            <div style="height:100px;text-align:center;padding-top:32px" ng-if="!site.heading_pic">
+                                <button class='btn btn-default' ng-click='setPic();'>
+                                    <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                            </div>
+                            <div style='position:relative' ng-if="site.heading_pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                                <img name='pic' ng-src="{{site.heading_pic}}" width='180px' />
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                    <span class='glyphicon glyphicon-picture'></span>
+                                </button>
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                    <span class='glyphicon glyphicon-trash'></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label>首页地址</label>
+                    <div class='input-group'>
+                        <div class='form-control' style='overflow:hidden;word-break:none' ng-bind='site.homeUrl'></div>
+                        <div class="input-group-btn">
+                            <button class='btn btn-default text2Clipboard' data-clipboard-text="{{site.homeUrl}}">复制</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='panel panel-default'>
+            <div class='panel-body'>
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr>
+                            <td>通用页眉</td>
+                            <td>通用页眉</td>
+                            <td>
+                                <a href='' ng-click="editPage($event,'header')">编辑页面</a>
+                                <a href='' ng-click="resetPage($event,'header')" ng-show="site.header_page_name.length">重置页面</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>通用页脚</td>
+                            <td>通用页脚</td>
+                            <td>
+                                <a href='' ng-click="editPage($event,'footer')">编辑页面</a>
+                                <a href='' ng-click="resetPage($event,'footer')" ng-show="site.footer_page_name.length">重置页面</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class='form-group' ng-switch on="site.yourRole">
+            <hr>
+            <button ng-switch-when="O" class='btn btn-default btn-block' ng-click="remove()">删除团队</button>
+            <button ng-switch-when="A" class='btn btn-default btn-block' ng-click="quit()">退出团队</button>
+        </div>
+    </div>
+</div>

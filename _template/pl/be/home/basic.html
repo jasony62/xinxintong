@@ -219,7 +219,7 @@
                 <div class="madinSide-body">
                     <ul class="list-unstyled row">
                         <li class="list-item" ng-repeat="a in c.data">
-                            <a ng-href="{{a.url}}">
+                            <a ng-href="{{a.url}}" target='_self'>
                                 <span ng-bind="a.title"></span>
                             </a>
                         </li>
@@ -232,7 +232,7 @@
                         <uib-tab-heading>{{c.title}}</uib-tab-heading>
                         <ul class="list-unstyled">
                             <li class="list-item" ng-repeat="d in c.data">
-                                <a ng-href="{{d.url}}">
+                                <a ng-href="{{d.url}}" target='_self'>
                                     <span ng-bind="d.title"></span>
                                 </a>
                             </li>

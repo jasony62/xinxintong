@@ -68,9 +68,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 } else {
                     records = [];
                 }
-                records.forEach(function(record) {
-                    srvRecordConverter.forTable(record, that._oApp._unionSchemasById);
-                    that._aRecords.push(record);
+                records.forEach(function(oRecord) {
+                    srvRecordConverter.forTable(oRecord, that._oApp._unionSchemasById);
+                    that._aRecords.push(oRecord);
                 });
                 defer.resolve(records);
             });

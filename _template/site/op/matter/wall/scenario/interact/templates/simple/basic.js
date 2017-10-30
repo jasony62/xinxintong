@@ -6,11 +6,11 @@
             boxs = document.querySelectorAll(".box"),
             uls = document.querySelectorAll(".box > ul");
         $scope.players = [];
-        if($scope.Wall.interact_matter) {
+        if($scope.Wall.interact_matter.length) {
             $scope.Wall.interact_matter.forEach(function(m) {
                 m.entryUrl = '/rest/site/fe/matter/wall/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent(m.entryUrl);
             });
-        }eles {
+        } else {
             alert('未指定分享素材');
         }
 

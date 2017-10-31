@@ -10,13 +10,13 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/analysis');
+		\TPL::output('/pl/fe/site/frame');
 		exit;
 	}
 	/**
 	 * 素材行为统计数据
 	 */
-	public function matterActions_action($site,$type,$orderby, $startAt, $endAt, $page = 1, $size = 30) {
+	public function matterActions_action($site, $type, $orderby, $startAt, $endAt, $page = 1, $size = 30) {
 		$s = 'l.matter_title,l.matter_type,l.matter_id';
 		$s .= ',sum(l.act_read) read_num';
 		$s .= ',sum(l.act_share_friend) share_friend_num';
@@ -31,36 +31,36 @@ class main extends \pl\fe\base {
 			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
 		);
 		//按照阅读数、分享数逆序排列
-		if(in_array($orderby, array('read','share_friend','share_timeline'))){
-			$q2['o']=$orderby . '_num desc';
+		if (in_array($orderby, array('read', 'share_friend', 'share_timeline'))) {
+			$q2['o'] = $orderby . '_num desc';
 		}
 
-		$model=$this->model();
+		$model = $this->model();
 		if ($stat = $model->query_objs_ss($q, $q2)) {
-			$b=new \stdClass;
+			$b = new \stdClass;
 			foreach ($stat as $k => $v) {
-				$v->fav_num=$model->query_val_ss([
+				$v->fav_num = $model->query_val_ss([
 					'count(*)',
 					'xxt_site_favor',
-					"siteid='$site' and matter_type='$v->matter_type' and matter_id='$v->matter_id'"
-					]);
-				$c[$k]=$v->fav_num;
-				$b->$k=$v;
+					"siteid='$site' and matter_type='$v->matter_type' and matter_id='$v->matter_id'",
+				]);
+				$c[$k] = $v->fav_num;
+				$b->$k = $v;
 			}
 			//按照收藏数量逆序排列
-			if($orderby=='fav'){
+			if ($orderby == 'fav') {
 				arsort($c);
 				foreach ($c as $k2 => $v2) {
 					foreach ($b as $k3 => $v3) {
-						if($k2==$k3 && $v2==$v3->fav_num){
-							$e[]=$v3;
+						if ($k2 == $k3 && $v2 == $v3->fav_num) {
+							$e[] = $v3;
 						}
 					}
 				}
-				$b=(object)$e;
+				$b = (object) $e;
 			}
 
-			$stat=$b;
+			$stat = $b;
 			$q = array(
 				'count(distinct matter_type,matter_id)',
 				'xxt_log_matter_action',

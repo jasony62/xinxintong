@@ -10,7 +10,7 @@ class home extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/home');
+		\TPL::output('/pl/fe/site/frame');
 		exit;
 	}
 }

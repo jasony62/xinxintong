@@ -32,24 +32,34 @@ abstract class page_base extends \TMS_MODEL {
 	 * 将通讯录题目替换为普通题目
 	 */
 	public function replaceMemberSchema(&$oPage, $oMschema) {
+		$modelSch = $this->model('matter\enroll\schema');
 		$aPageDataSchemas = json_decode($oPage->data_schemas);
 		foreach ($aPageDataSchemas as $oPageWrap) {
-			$oSchema = $oPageWrap->schema;
-			if ($oSchema->type === 'member' && $oSchema->schema_id === $oMschema->id) {
-				$oBeforeSchema = clone $oSchema;
-				/* 更新题目 */
-				$oSchema->type = 'shorttext';
-				$oSchema->id = str_replace('member.', '', $oSchema->id);
-				if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
-					$oSchema->format = $oSchema->id;
-				} else {
-					$oSchema->format = '';
+			switch ($oPage->type) {
+			case 'I':
+			case 'V':
+				if (isset($oPageWrap->schema)) {
+					$oSchema = $oPageWrap->schema;
+					$oBeforeSchema = clone $oSchema;
+					if ($modelSch->wipeMschema($oSchema, $oMschema)) {
+						$this->updHtmlBySchema($oPage, $oSchema, $oBeforeSchema);
+					}
 				}
-				unset($oSchema->schema_id);
-				/* 更新页面 */
-				$this->updHtmlBySchema($oPage, $oSchema, $oBeforeSchema);
+				break;
+			case 'L':
+				if (!empty($oPageWrap->schemas)) {
+					$oSchemas = $oPageWrap->schemas;
+					foreach ($oSchemas as $oSchema) {
+						$oBeforeSchema = clone $oSchema;
+						if ($modelSch->wipeMschema($oSchema, $oMschema)) {
+							$this->updHtmlBySchema($oPage, $oSchema, $oBeforeSchema);
+						}
+					}
+				}
+				break;
 			}
 		}
+
 		$oPage->data_schemas = $this->toJson($aPageDataSchemas);
 
 		return [true];
@@ -58,13 +68,11 @@ abstract class page_base extends \TMS_MODEL {
 	 * 将通讯录题目替换为普通题目
 	 */
 	public function replaceAssocSchema(&$oPage, $aAssocAppIds) {
+		$modelSch = $this->model('matter\enroll\schema');
 		$aPageDataSchemas = json_decode($oPage->data_schemas);
 		foreach ($aPageDataSchemas as $oPageWrap) {
 			$oSchema = $oPageWrap->schema;
-			if (isset($oSchema->fromApp) && in_array($oSchema->fromApp, $aAssocAppIds)) {
-				unset($oSchema->fromApp);
-				unset($oSchema->requieCheck);
-			}
+			$modelSch->wipeAssoc($oSchema);
 		}
 		$oPage->data_schemas = $this->toJson($aPageDataSchemas);
 
@@ -108,6 +116,17 @@ abstract class page_base extends \TMS_MODEL {
 			}
 			break;
 		case 'L':
+			foreach ($dom->find('[schema="' . $beforeId . '"]') as $elem) {
+				if ($beforeId !== $oNewSchema->id) {
+					$elem->schema = $oNewSchema->id;
+					$innertext = $elem->find('>div', 0)->innertext;
+					$innertext = str_replace('data.' . $beforeId, 'data.' . $oNewSchema->id, $innertext);
+					$elem->find('>div', 0)->innertext = $innertext;
+				}
+				if ($beforeType !== $oNewSchema->type) {
+					$elem->{'schema-type'} = $oNewSchema->type;
+				}
+			}
 			break;
 		}
 

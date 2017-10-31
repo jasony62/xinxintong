@@ -10,7 +10,7 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/user');
+		\TPL::output('/pl/fe/site/frame');
 		exit;
 	}
 	/**
@@ -32,7 +32,7 @@ class main extends \pl\fe\base {
 		$q = [
 			'*',
 			'xxt_log_matter_read',
-			['userid' => $uid]
+			['userid' => $uid],
 		];
 		!empty($site) && $q[2]['siteid'] = $site;
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
@@ -68,7 +68,7 @@ class main extends \pl\fe\base {
 			'xxt_log_user_matter',
 			"userid='" . $uid . "' and user_last_op='Y' and operation='submit' and matter_type in ('enroll','signin')",
 		];
-		!empty($site) && $q[2] .= " and siteid = '". $modelLog->escape($site) ."'";
+		!empty($site) && $q[2] .= " and siteid = '" . $modelLog->escape($site) . "'";
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		$q2['o'] = ['operate_at desc'];
 
@@ -97,7 +97,7 @@ class main extends \pl\fe\base {
 		$q = array(
 			'id,favor_at,matter_id,matter_type,matter_title',
 			'xxt_site_favor',
-			['unionid' => $unionid]
+			['unionid' => $unionid],
 		);
 		!empty($site) && $q[2]['siteid'] = $site;
 		$q2 = array(

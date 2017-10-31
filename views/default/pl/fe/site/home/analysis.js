@@ -1,8 +1,10 @@
-define(['main'], function(ngApp) {
+define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlAnalysis', ['$scope', function($scope) {
-        var catelogs = $scope.$root.catelogs;
+        var catelogs;
+        $scope.catelogs = catelogs = [];
         catelogs.splice(0, catelogs.length, { l: '单图文', v: 'article' }, { l: '用户', v: 'user' });
+        $scope.catelog = catelogs[0];
     }]);
     ngApp.provider.controller('ctrlArticle', ['$scope', 'http2', function($scope, http2) {
         var current, startAt, endAt;

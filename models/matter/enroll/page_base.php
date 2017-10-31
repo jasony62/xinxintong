@@ -32,44 +32,34 @@ abstract class page_base extends \TMS_MODEL {
 	 * 将通讯录题目替换为普通题目
 	 */
 	public function replaceMemberSchema(&$oPage, $oMschema) {
+		$modelSch = $this->model('matter\enroll\schema');
 		$aPageDataSchemas = json_decode($oPage->data_schemas);
 		foreach ($aPageDataSchemas as $oPageWrap) {
-			if (!empty($oPageWrap->schema)) {
-				$oSchema = $oPageWrap->schema;
-				if ($oSchema->type === 'member' && $oSchema->schema_id === $oMschema->id) {
+			switch ($oPage->type) {
+			case 'I':
+			case 'V':
+				if (isset($oPageWrap->schema)) {
+					$oSchema = $oPageWrap->schema;
 					$oBeforeSchema = clone $oSchema;
-					/* 更新题目 */
-					$oSchema->type = 'shorttext';
-					$oSchema->id = str_replace('member.', '', $oSchema->id);
-					if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
-						$oSchema->format = $oSchema->id;
-					} else {
-						$oSchema->format = '';
+					if ($modelSch->wipeMschema($oSchema, $oMschema)) {
+						$this->updHtmlBySchema($oPage, $oSchema, $oBeforeSchema);
 					}
-					unset($oSchema->schema_id);
-					/* 更新页面 */
-					$this->updHtmlBySchema($oPage, $oSchema, $oBeforeSchema);
 				}
-			} else {
-				$oSchemas = $oPageWrap->schemas;
-				foreach ($oSchemas as $schema) {
-					if ($schema->type === 'member' && $schema->schema_id === $oMschema->id) {
-						$oBeforeSchema = clone $schema;
-						/* 更新题目 */
-						$schema->type = 'shorttext';
-						$schema->id = str_replace('member.', '', $schema->id);
-						if (in_array($schema->id, ['name', 'mobile', 'email'])) {
-							$schema->format = $schema->id;
-						} else {
-							$schema->format = '';
+				break;
+			case 'L':
+				if (!empty($oPageWrap->schemas)) {
+					$oSchemas = $oPageWrap->schemas;
+					foreach ($oSchemas as $oSchema) {
+						$oBeforeSchema = clone $oSchema;
+						if ($modelSch->wipeMschema($oSchema, $oMschema)) {
+							$this->updHtmlBySchema($oPage, $oSchema, $oBeforeSchema);
 						}
-						unset($schema->schema_id);
-						/* 更新页面 */
-						$this->updHtmlBySchema($oPage, $schema, $oBeforeSchema);
 					}
 				}
+				break;
 			}
 		}
+
 		$oPage->data_schemas = $this->toJson($aPageDataSchemas);
 
 		return [true];
@@ -78,13 +68,11 @@ abstract class page_base extends \TMS_MODEL {
 	 * 将通讯录题目替换为普通题目
 	 */
 	public function replaceAssocSchema(&$oPage, $aAssocAppIds) {
+		$modelSch = $this->model('matter\enroll\schema');
 		$aPageDataSchemas = json_decode($oPage->data_schemas);
 		foreach ($aPageDataSchemas as $oPageWrap) {
 			$oSchema = $oPageWrap->schema;
-			if (isset($oSchema->fromApp) && in_array($oSchema->fromApp, $aAssocAppIds)) {
-				unset($oSchema->fromApp);
-				unset($oSchema->requieCheck);
-			}
+			$modelSch->wipeAssoc($oSchema);
 		}
 		$oPage->data_schemas = $this->toJson($aPageDataSchemas);
 

@@ -58,6 +58,9 @@ class fan_model extends \TMS_MODEL {
 		}
 		$fans = $this->query_objs_ss($q);
 		if (count($fans) === 0) {
+			if ($siteid !== 'platform') {
+				return $this->byOpenid('platform', $openid, $fields, $followed);
+			}
 			return false;
 		} else if (count($fans) > 1) {
 			throw new \Exception('数据库数据错误');

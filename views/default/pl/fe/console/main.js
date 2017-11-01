@@ -22,7 +22,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.openMatter = function(matter, subView) {
             var type, id, url;
-            type = matter.matter_type || matter.type;
+            type = matter.type || matter.matter_type;
             id = matter.matter_id || matter.id;
             url = '/rest/pl/fe/matter/' + type;
             if (subView) {

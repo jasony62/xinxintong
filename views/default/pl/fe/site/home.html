@@ -2,171 +2,187 @@
     <div class='col-md-8 col-md-offset-2'>
         <div class='panel panel-default'>
             <div class='panel-body'>
-                <div class='form-group clearfix'>
-                    <div class='qrcode' style='width:240px;float:left;'>
-                        <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
-                        <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
-                    </div>
-                    <div style='width:480px;float:left;'>
+                <div class='row'>
+                    <div class='col-md-8'>
                         <div class='form-group'>
+                            <label>首页地址</label>
                             <div class='input-group'>
                                 <input class='form-control' readonly value="{{entry.url}}">
-                                <span class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
-                        <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </span>
+                                <div class='input-group-btn'>
+                                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                                    <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                                </div>
                             </div>
                         </div>
                         <div class='form-group'>
                             <a href='' ng-click="editPage('home')">编辑页面</a>
                             <a href='' ng-click="resetPage('home')" ng-show="site.home_page_name.length">重置页面</a>
                             <p ng-show="site.home_page_name.length">
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.autoup_homepage" ng-change="update('autoup_homepage')" />自动更新
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.autoup_homepage" ng-change="update('autoup_homepage')" /> 自动更新
                             </p>
                         </div>
-                        <div class="form-group" ng-if="state=='N'">
-                            <button class='btn btn-default' ng-click="applyToHome()">允许团队主页公开访问</button>
-                        </div>
-                        <div class="form-group" ng-if="state=='Y'">
-                            <button class='btn btn-danger' ng-click="cancleToHome()">关闭团队主页公开访问</button>
-                            <button class='btn btn-success' ng-click="applyToHome()">更新团队主页信息</button>
-                        </div>
+                    </div>
+                    <div class='col-md-4'>
                         <div class='form-group'>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.can_contribute" ng-change="update('can_contribute')">开放投稿</label>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.can_subscribe" ng-change="update('can_subscribe')">开放关注</label>
-                        </div>
-                        <div class='form-group'>
-                            <label>团队首页头图</label>
-                            <div style='position:relative'>
-                                <div style="width:182px;border:1px solid #CCC">
-                                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="!site.home_heading_pic">
-                                        <button class='btn btn-default' ng-click='setHomeHeadingPic();'>
-                                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
-                                    </div>
-                                    <div style='position:relative' ng-if="site.home_heading_pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                                        <img name='pic' ng-src="{{site.home_heading_pic}}" width='180px' />
-                                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setHomeHeadingPic();'>
-                                            <span class='glyphicon glyphicon-picture'></span>
-                                        </button>
-                                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removeHomeHeadingPic();'>
-                                            <span class='glyphicon glyphicon-trash'></span>
-                                        </button>
-                                    </div>
-                                </div>
+                            <div class='qrcode'>
+                                <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+                                <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
                             </div>
-                            <p class='help-block'>建议采用宽高比为16:9，图片尺寸不小于192*108像素的图片</p>
                         </div>
                     </div>
                 </div>
-                <div ng-controller="ctrlHomeCarousel">
-                    <table class='table table-bordered'>
-                        <tbody>
-                            <tr>
-                                <th style='width:4em'>序号</th>
-                                <th>图片</th>
-                                <th style='width:7em'>操作</th>
-                            </tr>
-                            <tr ng-repeat='s in slides'>
-                                <td>{{$index+1}}</td>
-                                <td><img ng-src="{{s.picUrl}}" style='width:200px'></td>
-                                <td>
-                                    <button class='btn btn-xs btn-danger' ng-click="remove(s,$index)"><i class='glyphicon glyphicon-remove'></i></button>
-                                    <button class='btn btn-xs btn-default' ng-click="up(s,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
-                                    <button class='btn btn-xs btn-default' ng-click="down(s,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="3">
-                                    <button class='btn btn-default' ng-click="add()">添加主页轮播图</button>
-                                    <span class='small text-muted'>(建议图片尺寸：1200px*360px)</span>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-                <div ng-controller="ctrlHomeQrcode">
-                    <table class='table table-bordered'>
-                        <tbody>
-                            <tr>
-                                <th style='width:4em'>序号</th>
-                                <th>图片</th>
-                                <th>说明</th>
-                                <th style='width:7em'>操作</th>
-                            </tr>
-                            <tr ng-repeat='q in qrcodes'>
-                                <td>{{$index+1}}</td>
-                                <td><img ng-src="{{q.picUrl}}" style='width:200px'></td>
-                                <td>
-                                    <input type="text" ng-model="q.tip" class="form-control" ng-blur='doTip(q)'>
-                                </td>
-                                <td>
-                                    <button class='btn btn-xs btn-danger' ng-click="remove(q,$index)"><i class='glyphicon glyphicon-remove'></i></button>
-                                    <button class='btn btn-xs btn-default' ng-click="up(q,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
-                                    <button class='btn btn-xs btn-default' ng-click="down(q,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="4">
-                                    <button class='btn btn-default' ng-click="add(q)">添加联系二维码，会在首页显示</button>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-                <div ng-controller="ctrlHomeChannel">
-                    <table class='table table-bordered'>
-                        <tbody>
-                            <tr>
-                                <th style='width:4em'>序号</th>
-                                <th>显示名称</th>
-                                <th>频道名称</th>
-                                <th>频道说明</th>
-                                <th style='width:8em'>频道分组</th>
-                                <th style='width:10em'>操作</th>
-                            </tr>
-                            <tr ng-repeat='c in channels'>
-                                <td>{{$index+1}}</td>
-                                <td>{{c.display_name}}</td>
-                                <td><a href='/rest/pl/fe/matter/channel?site={{site.id}}&id={{c.channel_id}}' target='_self'>{{c.title}}</a></td>
-                                <td>{{c.summary}}</td>
-                                <td>
-                                    <select class='form-control' ng-model="c.home_group" ng-change='doGroup(c, c.home_group)'>
-                                        <option value=>请选择</option>
-                                        <option value='C'>第1组</option>
-                                        <option value='R'>第2组</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <button class='btn btn-xs btn-default' ng-click="edit(c)"><i class='glyphicon glyphicon-edit'></i></button>
-                                    <button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
-                                    <button class='btn btn-xs btn-default' ng-click="up(c,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
-                                    <button class='btn btn-xs btn-default' ng-click="down(c,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="6">
-                                    <button class='btn btn-default' ng-click="add()">添加主页频道</button>
-                                    <button class='btn btn-default' ng-click="create()">新建主页频道</button>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <div class='form-group'>
-                        <label>移动端布局方式</label>
-                        <div>
-                            <label class='radio-inline'>
-                                <input type='radio' value="g1_g2" ng-model="site.home_mobile_layout" ng-change="update('home_mobile_layout')">第1组在上，第2组在下</label>
-                            <label class='radio-inline'>
-                                <input type='radio' value="g2_g1" ng-model="site.home_mobile_layout" ng-change="update('home_mobile_layout')">第2组在上，第1组在下</label>
+                <div class='form-group'>
+                    <label>首页头图</label>
+                    <div style='position:relative'>
+                        <div style="width:182px;border:1px solid #CCC">
+                            <div style="height:100px;text-align:center;padding-top:32px" ng-if="!site.home_heading_pic">
+                                <button class='btn btn-default' ng-click='setHomeHeadingPic();'>
+                                    <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                            </div>
+                            <div style='position:relative' ng-if="site.home_heading_pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                                <img name='pic' ng-src="{{site.home_heading_pic}}" width='180px' />
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setHomeHeadingPic();'>
+                                    <span class='glyphicon glyphicon-picture'></span>
+                                </button>
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removeHomeHeadingPic();'>
+                                    <span class='glyphicon glyphicon-trash'></span>
+                                </button>
+                            </div>
                         </div>
+                    </div>
+                    <p class='help-block'>建议采用宽高比为16:9，图片尺寸不小于192*108像素的图片</p>
+                </div>
+                <div class='form-group'>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.can_contribute" ng-change="update('can_contribute')">开放投稿</label>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.can_subscribe" ng-change="update('can_subscribe')">开放关注</label>
+                </div>
+                <div class='form-group'>
+                    <div class="form-group" ng-if="state=='N'">
+                        <button class='btn btn-default' ng-click="applyToHome()">允许团队主页公开访问</button>
+                    </div>
+                    <div class="form-group" ng-if="state=='Y'">
+                        <button class='btn btn-danger' ng-click="cancleToHome()">关闭团队主页公开访问</button>
+                        <button class='btn btn-success' ng-click="applyToHome()">更新团队主页信息</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='panel panel-default' ng-controller="ctrlHomeCarousel">
+            <div class='panel-body'>
+                <label>主页轮播图</label>
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr>
+                            <th style='width:4em'>序号</th>
+                            <th>图片</th>
+                            <th style='width:7em'>操作</th>
+                        </tr>
+                        <tr ng-repeat='s in slides'>
+                            <td>{{$index+1}}</td>
+                            <td><img ng-src="{{s.picUrl}}" style='width:200px'></td>
+                            <td>
+                                <button class='btn btn-xs btn-danger' ng-click="remove(s,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                                <button class='btn btn-xs btn-default' ng-click="up(s,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
+                                <button class='btn btn-xs btn-default' ng-click="down(s,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3">
+                                <button class='btn btn-default' ng-click="add()">添加图片</button>
+                                <span class='small text-muted'>(建议图片尺寸：1200px*360px)</span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class='panel panel-default' ng-controller="ctrlHomeQrcode">
+            <div class='panel-body'>
+                <label>首页二维码</label>
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr>
+                            <th style='width:4em'>序号</th>
+                            <th>图片</th>
+                            <th>说明</th>
+                            <th style='width:7em'>操作</th>
+                        </tr>
+                        <tr ng-repeat='q in qrcodes'>
+                            <td>{{$index+1}}</td>
+                            <td><img ng-src="{{q.picUrl}}" style='width:200px'></td>
+                            <td>
+                                <input type="text" ng-model="q.tip" class="form-control" ng-blur='doTip(q)'>
+                            </td>
+                            <td>
+                                <button class='btn btn-xs btn-danger' ng-click="remove(q,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                                <button class='btn btn-xs btn-default' ng-click="up(q,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
+                                <button class='btn btn-xs btn-default' ng-click="down(q,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4">
+                                <button class='btn btn-default' ng-click="add(q)">添加二维码</button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class='panel panel-default' ng-controller="ctrlHomeChannel">
+            <div class='panel-body'>
+                <label>主页频道</label>
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr>
+                            <th style='width:4em'>序号</th>
+                            <th>显示名称</th>
+                            <th>频道名称</th>
+                            <th>频道说明</th>
+                            <th style='width:8em'>频道分组</th>
+                            <th style='width:10em'>操作</th>
+                        </tr>
+                        <tr ng-repeat='c in channels'>
+                            <td>{{$index+1}}</td>
+                            <td>{{c.display_name}}</td>
+                            <td><a href='/rest/pl/fe/matter/channel?site={{site.id}}&id={{c.channel_id}}' target='_self'>{{c.title}}</a></td>
+                            <td>{{c.summary}}</td>
+                            <td>
+                                <select class='form-control' ng-model="c.home_group" ng-change='doGroup(c, c.home_group)'>
+                                    <option value=>请选择</option>
+                                    <option value='C'>第1组</option>
+                                    <option value='R'>第2组</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button class='btn btn-xs btn-default' ng-click="edit(c)"><i class='glyphicon glyphicon-edit'></i></button>
+                                <button class='btn btn-xs btn-danger' ng-click="remove(c,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                                <button class='btn btn-xs btn-default' ng-click="up(c,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
+                                <button class='btn btn-xs btn-default' ng-click="down(c,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <button class='btn btn-default' ng-click="add()">添加频道</button>
+                                <button class='btn btn-default' ng-click="create()">新建频道</button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div class='form-group'>
+                    <label>移动端布局方式</label>
+                    <div>
+                        <label class='radio-inline'>
+                            <input type='radio' value="g1_g2" ng-model="site.home_mobile_layout" ng-change="update('home_mobile_layout')">第1组在上，第2组在下</label>
+                        <label class='radio-inline'>
+                            <input type='radio' value="g2_g1" ng-model="site.home_mobile_layout" ng-change="update('home_mobile_layout')">第2组在上，第1组在下</label>
                     </div>
                 </div>
             </div>

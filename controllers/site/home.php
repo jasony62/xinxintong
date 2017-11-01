@@ -80,6 +80,8 @@ class home extends base {
 			['fields' => '*', 'cascaded' => 'home_page_name']
 		);
 		if ($oSite) {
+			/* 团队首页地址 */
+			$oSite->homeUrl = 'http://' . APP_HTTP_HOST . '/rest/site/home?site=' . $oSite->id;
 			/* 轮播图片 */
 			if (!empty($oSite->home_carousel)) {
 				$oSite->home_carousel = json_decode($oSite->home_carousel);

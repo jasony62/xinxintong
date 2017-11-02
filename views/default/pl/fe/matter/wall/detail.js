@@ -44,6 +44,46 @@ define(['frame'], function(ngApp) {
             $scope.wall.pic = '';
             $scope.update('pic');
         };
+        $scope.setQrcode = function() {
+            if($scope.wall.matters_img && $scope.wall.matters_img.length >= 3) {
+                alert("最多允许上传3张二维码");
+                return;
+            }
+            var options = {
+                callback: function(url) {
+                    var img = {};
+                    img.qrcodesrc = url;
+                    !$scope.wall.matters_img && ($scope.wall.matters_img = []);
+                    $scope.wall.matters_img.push(img);
+                    $scope.update('matters_img');
+                }
+            };
+            mediagallery.open($scope.siteId, options);
+        }
+        $scope.setImage = function() {
+            if($scope.wall.result_img && $scope.wall.result_img.length >= 4) {
+                alert("最多允许上传4张图片");
+                return;
+            }
+            var options = {
+                callback: function(url) {
+                    var img = {};
+                    img.imgsrc = url;
+                    !$scope.wall.result_img && ($scope.wall.result_img = []);
+                    $scope.wall.result_img.push(img);
+                    $scope.update('result_img');
+                }
+            };
+            mediagallery.open($scope.siteId, options);
+        }
+        $scope.removeQrcode = function(qrcodeimgs, index) {
+            qrcodeimgs.splice(index,1);
+            $scope.update('matters_img');
+        }
+        $scope.removeImage = function(qrcodeimgs, index) {
+            qrcodeimgs.splice(index,1);
+            $scope.update('result_img');
+        }
         $scope.assignMission = function() {
             srvWallApp.assignMission();
         };

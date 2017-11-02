@@ -6,14 +6,7 @@
             boxs = document.querySelectorAll(".box"),
             uls = document.querySelectorAll(".box > ul");
         $scope.players = [];
-        if($scope.Wall.interact_matter.length) {
-            $scope.Wall.interact_matter.forEach(function(m) {
-                m.entryUrl = '/rest/site/fe/matter/wall/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent(m.entryUrl);
-            });
-        } else {
-            alert('未指定分享素材');
-        }
-
+        if(!$scope.Wall.matters_img) {alert('未指定分享素材');}
         //留住第一次打开页面的时间，并在URL上隐藏；
         function getQueryString(name) {
             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");

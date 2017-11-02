@@ -1,4 +1,4 @@
-<div class="col-md-6 col-md-offset-3">
+<div class="col-md-6 col-md-offset-3" id="detail">
     <div class='panel panel-default'>
         <div class='panel-body'>
             <button class='btn btn-success' ng-click='start()' ng-if="wall.active==='N' && wall.scenario=='discuss'">启用</button>
@@ -152,53 +152,29 @@
                         </li>
                     </ul>
                 </div>
-                <div class='form-group' ng-if="wall.scenario=='interact'">
-                    <label>分享图文二维码（建议尺寸：250像素*268像素；建议数量：3个）</label>
+                <div class='form-group' ng-if="wall.scenario=='interact'" >
+                    <label>分享图文二维码（建议尺寸：250像素*268像素；数量上限：3个）</label>
                     <ul class="img-tiles clearfix">
                         <li wrap="img" ng-repeat="img in wall.matters_img" class="img-thumbnail" title="图片">
-                            <img flex-img="" />
-                            <button class="btn btn-default btn-xs" ng-click="removeImage(record.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                            <img ng-src='{{img.qrcodesrc}}' style="width:100%;height:134px;left:0px;top: 50%margin-top: -68px;" />
+                            <button class="btn btn-default btn-xs" ng-click="removeQrcode(wall.matters_img,$index)"><span class="glyphicon glyphicon-remove"></span></button>
                         </li>
                         <li class="img-picker">
-                            <button class="btn btn-default" ng-click="chooseImage(schema.id)"><span class="glyphicon glyphicon-picture"></span>
-                                <br />上传图片</button>
+                            <button class="btn btn-default" ng-click="setQrcode()"><span class="glyphicon glyphicon-picture"></span><br />上传图片</button>
                         </li>
                     </ul>
-                    <div style="width:182px;border:1px solid #CCC">
-                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!wall.pic">
-                            <button class='btn btn-default' ng-click='setPic();'>
-                                <span class='glyphicon glyphicon-picture'></span> 选择图片
-                            </button>
-                        </div>
-                        <div style='position:relative' ng-if="wall.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                            <img name='pic' ng-src='{{wall.pic}}' width='180px' />
-                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                                <span class='glyphicon glyphicon-picture'></span>
-                            </button>
-                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                                <span class='glyphicon glyphicon-trash'></span>
-                            </button>
-                        </div>
-                    </div>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='interact'">
-                    <label>宝箱底图（建议尺寸：290像素*420像素；建议数量：4张）</label>
-                    <div style="width:182px;border:1px solid #CCC">
-                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!wall.pic">
-                            <button class='btn btn-default' ng-click='setPic();'>
-                                <span class='glyphicon glyphicon-picture'></span> 选择图片
-                            </button>
-                        </div>
-                        <div style='position:relative' ng-if="wall.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                            <img name='pic' ng-src='{{wall.pic}}' width='180px' />
-                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                                <span class='glyphicon glyphicon-picture'></span>
-                            </button>
-                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                                <span class='glyphicon glyphicon-trash'></span>
-                            </button>
-                        </div>
-                    </div>
+                    <label>宝箱底图（建议尺寸：290像素*420像素；数量：4张）</label>
+                    <ul class="img-tiles boxImg clearfix">
+                        <li wrap="img" ng-repeat="img in wall.result_img" class="img-thumbnail" title="图片">
+                            <img ng-src='{{img.qrcodesrc}}' style="width:100%;height:210px;left:0px;top: 50%margin-top: -105px;"  />
+                            <button class="btn btn-default btn-xs" ng-click="removeImage(wall.result_img,$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                        </li>
+                        <li class="img-picker">
+                            <button class="btn btn-default" ng-click="setImage()"><span class="glyphicon glyphicon-picture"></span><br />上传图片</button>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

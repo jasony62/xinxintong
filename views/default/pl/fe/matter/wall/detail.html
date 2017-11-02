@@ -1,4 +1,4 @@
-<div class="col-md-6 col-md-offset-3">
+<div class="col-md-6 col-md-offset-3" id="detail">
     <div class='panel panel-default'>
         <div class='panel-body'>
             <button class='btn btn-success' ng-click='start()' ng-if="wall.active==='N' && wall.scenario=='discuss'">启用</button>
@@ -11,16 +11,16 @@
         <div class="panel-body">
             <div class="tile">
                 <div class="form-group">
-                    <div class='help-block'>名称</div>
+                    <label>名称</label>
                     <input type="text" class="form-control" ng-model='wall.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
                 </div>
                 <div class="form-group">
-                    <div class='help-block'>活动类型</div>
+                    <label>活动类型</label>
                     <input type="text" class="form-control" ng-if="wall.scenario=='interact'" style="text-align:center" value="互动" readonly>
                     <input type="text" class="form-control" ng-if="wall.scenario=='discuss'" style="text-align:center" value="讨论"  readonly>
                 </div>
                 <div class="form-group compact">
-                    <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
+                    <label>头图（可选）（建议尺寸：900像素 * 500像素）</label>
                     <div style="width:182px;border:1px solid #CCC">
                         <div style="height:100px;text-align:center;padding-top:32px" ng-if="!wall.pic">
                             <button class='btn btn-default' ng-click='setPic();'>
@@ -39,7 +39,7 @@
                     </div>
                 </div>
                 <div class="form-group compact">
-                    <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
+                    <label>摘要（可选）（最多120个汉字，240个英文字符）</label>
                     <div class=''>
                         <textarea class='form-control' ng-model='wall.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');" rows='3'></textarea>
                     </div>
@@ -65,7 +65,7 @@
                     </select>
                 </div>
                 <div class='form-group'>
-                    <label class='help-block'>时间设置</label>
+                    <label>时间设置</label>
                         <div class=''>
                             <table class='table table-bordered'>
                                 <tr>
@@ -85,28 +85,30 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="panel panel-default">
         <div class="panel-body">
             <div class="tile">
                 <div class='form-group' ng-if="wall.scenario=='discuss'">
-                    <div class='help-block'>加入提示</div>
+                    <label>加入提示</label>
                     <div class=''>
                         <textarea class="form-control" ng-model='wall.join_reply' tms-auto-update tms-wait=1000 tms-update="update('join_reply')"></textarea>
                     </div>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='discuss'">
-                    <div class='help-block'>退出提示</div>
+                    <label>退出提示</label>
                     <div class=''>
                         <textarea class="form-control" ng-model='wall.quit_reply' tms-auto-update tms-wait=1000 tms-update="update('quit_reply')"></textarea>
                     </div>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='discuss'">
-                    <div class='help-block'>退出关键字</div>
+                    <label>退出关键字</label>
                     <div class=''>
                         <input type="text" class="form-control" ng-model='wall.quit_cmd' tms-auto-update tms-wait=1000 tms-update="update('quit_cmd')">
                     </div>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='discuss'">
-                    <div class='help-block'>消息处理</div>
+                    <label>消息处理</label>
                     <div class=''>
                         <label class='checkbox-inline'>
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='wall.skip_approve' ng-change="update('skip_approve')">跳过审核</label>
@@ -115,7 +117,31 @@
                     </div>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='interact'">
-                    <label class='help-block'>已有图文</label>
+                    <label>互动方式</label>
+                    <div class=''>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.shareF' ng-change="update('scenario_config')">分享-朋友</label>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.shareT' ng-change="update('scenario_config')">分享-朋友圈</label>
+                        <!-- <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.read' ng-change="update('scenario_config')">阅读</label> -->
+                    </div>
+                </div>
+                <div class="form-group" ng-if="wall.scenario=='interact'">
+                    <label>参加人数</label>
+                    <div class=''>
+                        <select class='form-control' ng-model="wall.scenario_config.player_sum" ng-change="update('scenario_config')">
+                            <option value='4'>4</option>
+                            <option value='8'>8</option>
+                            <option value='12'>12</option>
+                            <option value='16'>16</option>
+                            <option value='20'>20</option>
+                            <option value='24'>24</option>
+                        </select>
+                    </div>
+                </div>
+                <div class='form-group' ng-if="wall.scenario=='interact'">
+                    <label>已有图文</label>
                     <button class='btn btn-default btn-sm' ng-click="addInteractMatter()">选择素材</button>
                     <ul class='list-group' style='margin-bottom:0'>
                         <li class='list-group-item' ng-repeat="m in wall.interact_matter" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
@@ -126,28 +152,29 @@
                         </li>
                     </ul>
                 </div>
+                <div class='form-group' ng-if="wall.scenario=='interact'" >
+                    <label>分享图文二维码（建议尺寸：250像素*268像素；数量上限：3个）</label>
+                    <ul class="img-tiles clearfix">
+                        <li wrap="img" ng-repeat="img in wall.matters_img" class="img-thumbnail" title="图片">
+                            <img ng-src='{{img.qrcodesrc}}' style="width:100%;height:134px;left:0px;top: 50%margin-top: -68px;" />
+                            <button class="btn btn-default btn-xs" ng-click="removeQrcode(wall.matters_img,$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                        </li>
+                        <li class="img-picker">
+                            <button class="btn btn-default" ng-click="setQrcode()"><span class="glyphicon glyphicon-picture"></span><br />上传图片</button>
+                        </li>
+                    </ul>
+                </div>
                 <div class='form-group' ng-if="wall.scenario=='interact'">
-                    <label class='help-block'>互动方式</label>
-                    <div class=''>
-                        <label class='checkbox-inline'>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.shareF' ng-change="update('scenario_config')">分享-朋友</label>
-                        <label class='checkbox-inline'>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.shareT' ng-change="update('scenario_config')">分享-朋友圈</label>
-                        <!-- <label class='checkbox-inline'>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='interactAction.read' ng-change="update('scenario_config')">阅读</label> -->
-                    </div>
-                    <div class='help-block'></div>
-                    <div class='help-block'>参加人数（最少4人，最多24人）</div>
-                    <div class=''>
-                        <select class='form-control' ng-model="wall.scenario_config.player_sum" ng-change="update('scenario_config')">
-                        <option value='4'>4</option>
-                        <option value='8'>8</option>
-                        <option value='12'>12</option>
-                        <option value='16'>16</option>
-                        <option value='20'>20</option>
-                        <option value='24'>24</option>
-                    </select>
-                    </div>
+                    <label>宝箱底图（建议尺寸：290像素*420像素；数量：4张）</label>
+                    <ul class="img-tiles boxImg clearfix">
+                        <li wrap="img" ng-repeat="img in wall.result_img" class="img-thumbnail" title="图片">
+                            <img ng-src='{{img.qrcodesrc}}' style="width:100%;height:210px;left:0px;top: 50%margin-top: -105px;"  />
+                            <button class="btn btn-default btn-xs" ng-click="removeImage(wall.result_img,$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                        </li>
+                        <li class="img-picker">
+                            <button class="btn btn-default" ng-click="setImage()"><span class="glyphicon glyphicon-picture"></span><br />上传图片</button>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -155,7 +182,7 @@
     <div class='panel panel-default'>
         <div class="panel-body">
             <div class="form-group compact">
-                <div class="help-block">用户进入URL</div>
+                <label>用户进入URL</label>
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{entry.url}}">
                     <span class='input-group-btn'>

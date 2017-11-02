@@ -396,7 +396,7 @@ class main extends \site\fe\matter\base {
 	/*
 	* 获取我的分享信息
 	*/
-	public function getMyShareInfo_action($matterType, $matterId, $orderBy = 'read') {
+	public function getMyShareInfo_action($site, $matterType, $matterId, $orderBy = 'read') {
 		$user = $this->who;
 		$users = $this->getMyShareInfo($user, $matterType, $matterId, $orderBy);
 

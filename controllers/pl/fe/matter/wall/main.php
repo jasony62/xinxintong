@@ -175,9 +175,9 @@ class main extends \pl\fe\matter\main_base {
 		} else if (isset($oUpdated->scenario_config)) {
 			$oUpdated->scenario_config = $modelApp->escape(json_encode($oUpdated->scenario_config));
 		} else if (isset($oUpdated->matters_img)) {
-			$oUpdated->matters_img = $modelApp->escape(json_encode($oUpdated->matters_img));
+			$oUpdated->matters_img = $modelApp->toJson($oUpdated->matters_img);
 		} else if (isset($oUpdated->result_img)) {
-			$oUpdated->result_img = $modelApp->escape(json_encode($oUpdated->result_img));
+			$oUpdated->result_img = $modelApp->toJson($oUpdated->result_img);
 		}
 
 		if ($oMatter = $modelApp->modify($oUser, $oMatter, $oUpdated)) {

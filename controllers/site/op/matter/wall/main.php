@@ -44,12 +44,7 @@ class main extends \site\op\base {
 		$page = $page[0];
 		$model = $this->model('matter\wall');
 		$wall = $model->byId($wall);
-		if (!empty($wall->interact_matter)) {
-			foreach ($wall->interact_matter as $key => $matter) {
-				$options = array('cascaded' => 'N', 'fields' => 'siteid,id,title');
-				$wall->interact_matter[$key] = $this->model('matter\\' . $matter->type)->byId($matter->id, $options);
-			}
-		}
+
 		$params = array(
 			'wall' => $wall,
 			'page' => $page,
@@ -73,15 +68,15 @@ class main extends \site\op\base {
 	*/
 	public function listPlayer_action($site, $app, $startTime, $startId = null) {
 		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
-		if (($oApp = $modelWall->byId($app, ['fields' => 'scenario_config,interact_matter'])) === false) {
+		if (($oApp = $modelWall->byId($app, ['fields' => 'siteid,scenario_config,interact_matter'])) === false) {
 			return new \ObjectNotFoundError();
 		}
 		if(empty($oApp->interact_matter)){
 			return new \ResponseError('未指定互动素材');
 		}
 		
-		$users = $this->model('matter\wall')->listPlayer($startTime, $startId, $oApp);
+		$data = $this->model('matter\wall')->listPlayer($startTime, $startId, $oApp);
 
-		return new \ResponseData($users);
+		return new \ResponseData($data->users);
 	}
 }

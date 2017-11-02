@@ -174,6 +174,10 @@ class main extends \pl\fe\matter\main_base {
 			$modelApp->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $app]);
 		} else if (isset($oUpdated->scenario_config)) {
 			$oUpdated->scenario_config = $modelApp->escape(json_encode($oUpdated->scenario_config));
+		} else if (isset($oUpdated->matters_img)) {
+			$oUpdated->matters_img = $modelApp->escape(json_encode($oUpdated->matters_img));
+		} else if (isset($oUpdated->result_img)) {
+			$oUpdated->result_img = $modelApp->escape(json_encode($oUpdated->result_img));
 		}
 
 		if ($oMatter = $modelApp->modify($oUser, $oMatter, $oUpdated)) {
@@ -401,7 +405,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
-		if (($oApp = $modelWall->byId($app, ['fields' => 'interact_matter'])) === false) {
+		if (($oApp = $modelWall->byId($app, ['fields' => 'siteid,interact_matter'])) === false) {
 			return new \ObjectNotFoundError();
 		}
 		$oInteractMatters = $oApp->interact_matter;
@@ -431,7 +435,7 @@ class main extends \pl\fe\matter\main_base {
 			['id' => $app]
 		);
 
-		$oApp = $modelWall->byId($app, ['fields' => 'interact_matter']);
+		$oApp = $modelWall->byId($app, ['fields' => 'siteid,interact_matter']);
 
 		return new \ResponseData($oApp);
 	}

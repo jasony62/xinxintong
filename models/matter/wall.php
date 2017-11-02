@@ -49,6 +49,19 @@ class wall_model extends enroll_base {
 			}
 			if (!empty($oWall->interact_matter)) {
 				$oWall->interact_matter = json_decode($oWall->interact_matter);
+				foreach ($oWall->interact_matter as $key => $matter) {
+					if ($matter->type === 'signin') {
+						$oWall->interact_matter[$key]->entryUrl = '';
+						continue;
+					}
+					$oWall->interact_matter[$key]->entryUrl = $this->model('matter\\' . $matter->type)->getEntryUrl($oWall->siteid, $matter->id);
+				}
+			}
+			if (!empty($oWall->matters_img)) {
+				$oWall->matters_img = json_decode($oWall->matters_img);
+			}
+			if (!empty($oWall->result_img)) {
+				$oWall->result_img = json_decode($oWall->result_img);
 			}
 		}
 
@@ -276,7 +289,7 @@ class wall_model extends enroll_base {
 	* $startTime 分享开始时间
 	 and s.matter_id in ($matterId) and s.matter_type = '$matterType'
 	*/
-	public function listPlayer($startTime, $startId = null, $oApp) {
+	public function listPlayer($startTime, $startId = null, &$oApp, $page = null, $size = null) {
 		$this->setOnlyWriteDbConn(true);
 		$startTime = $this->escape($startTime);
 		$interactAction = $oApp->scenario_config->interact_action;
@@ -310,11 +323,26 @@ class wall_model extends enroll_base {
 			$q[2] .= ' and (' . $whereMatters . ')';
 
 			$q2 = ['g' => 's.userid', 'o' => 'max(s.id)'];
+			if (!empty($page) && !empty($size)) {
+				$q2['r']['o'] = ($page - 1) * $size;
+				$q2['r']['l'] = $size;
+			}
+
+			$users = $this->query_objs_ss($q, $q2);
+			$data = new \stdClass;
+			$data->users = $users;
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$data->total = $total;
+
+			return $data;
+		} else {
+			$data = new \stdClass;
+			$data->users = [];
+			$data->total = 0;
+
+			return $data;
 		}
-
-		$users = $this->query_objs_ss($q, $q2);
-
-		return $users;
 	}
 	/**
 	 * 获得消息列表

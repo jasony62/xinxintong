@@ -63,7 +63,6 @@ class user_model extends \TMS_MODEL {
 		if (!empty($options['byGroup'])) {
 			$q[2] .= " and group_id = '" . $this->escape($options['byGroup']) . "'";
 		}
-
 		if (!empty($options['orderby'])) {
 			$q2 = ['o' => $options['orderby'] . ' desc'];
 		} else {
@@ -72,23 +71,38 @@ class user_model extends \TMS_MODEL {
 		if (!empty($page) && !empty($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
-		if ($users = $this->query_objs_ss($q, $q2)) {
-			if ($cascaded === 'Y') {
-				foreach ($users as $user) {
-					$p = [
-						'wx_openid,yx_openid,qy_openid',
-						"xxt_site_account",
-						"uid = '{$user->userid}'",
-					];
-					if ($openid = $this->query_obj_ss($p)) {
-						$user->wx_openid = $openid->wx_openid;
-						$user->yx_openid = $openid->yx_openid;
-						$user->qy_openid = $openid->qy_openid;
-					} else {
-						$user->wx_openid = '';
-						$user->yx_openid = '';
-						$user->qy_openid = '';
+		$users = $this->query_objs_ss($q, $q2);
+		if ($cascaded === 'Y' && count($users)) {
+			foreach ($users as $oUser) {
+				$p = [
+					'wx_openid,yx_openid,qy_openid',
+					"xxt_site_account",
+					['uid' => $oUser->userid],
+				];
+				if ($oOpenid = $this->query_obj_ss($p)) {
+					$oUser->wx_openid = $oOpenid->wx_openid;
+					if (!empty($oOpenid->wx_openid)) {
+						if (!isset($modelWxfan)) {
+							$modelWxfan = $this->model('sns\wx\fan');
+						}
+						$oWxfan = $modelWxfan->byOpenid($oApp->siteid, $oOpenid->wx_openid, 'nickname,headimgurl', 'Y');
+						if ($oWxfan) {
+							$oUser->wxfan = $oWxfan;
+						}
 					}
+					$oUser->yx_openid = $oOpenid->yx_openid;
+					if (!empty($oOpenid->yx_openid)) {
+						if (!isset($modelYxfan)) {
+							$modelYxfan = $this->model('sns\yx\fan');
+						}
+						$oYxfan = $modelYxfan->byOpenid($oApp->siteid, $oOpenid->yx_openid, 'nickname,headimgurl', 'Y');
+						if ($oYxfan) {
+							$oUser->yxfan = $oYxfan;
+						}
+					}
+				} else {
+					$oUser->wx_openid = '';
+					$oUser->yx_openid = '';
 				}
 			}
 		}

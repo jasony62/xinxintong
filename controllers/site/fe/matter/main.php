@@ -393,13 +393,4 @@ class main extends \site\fe\matter\base {
 
 		return new \ResponseData('ok');
 	}
-	/*
-	* 获取我的分享信息
-	*/
-	public function getMyShareInfo_action($site, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
-		$user = $this->who;
-		$users = $this->getMyShareInfo($user, $matterType, $matterId, $orderBy, $page, $size);
-
-		return new \ResponseData($users);
-	}
 }

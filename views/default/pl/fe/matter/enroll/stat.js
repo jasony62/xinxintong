@@ -106,9 +106,13 @@ define(['frame'], function(ngApp) {
                         selected: {}
                     };
                     $scope2.opConfig = oOpConfig;
-                    oOpConfig.exclude.forEach(function(schemaId) {
-                        $scope2.opExcludeRows.selected[schemaId] = true;
-                    });
+                    if (oOpConfig.exclude) {
+                        oOpConfig.exclude.forEach(function(schemaId) {
+                            $scope2.opExcludeRows.selected[schemaId] = true;
+                        });
+                    } else {
+                        oOpConfig.exclude = [];
+                    }
                     marks.forEach(function(item, index) {
                         for (var i = 0; i < $scope2.appMarkSchemas.length; i++) {
                             if (item.id == $scope2.appMarkSchemas[i].id) {

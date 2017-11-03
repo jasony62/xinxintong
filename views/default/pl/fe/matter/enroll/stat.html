@@ -19,7 +19,7 @@
                 </select>
             </div>
             <div class='form-group'>
-                <button class='btn btn-default' ng-click="show()">选择标识项</button>
+                <button class='btn btn-default' ng-click="config()">设置</button>
             </div>
         </div>
     </div>
@@ -34,13 +34,15 @@
                         <thead>
                             <tr>
                                 <th>选项</th>
-                                <th>数量</th>
+                                <th ng-if="chartConfig.number==='Y'">数量</th>
+                                <th ng-if="chartConfig.percentage==='Y'">比例</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="op in stat[schema.id].ops">
                                 <td>{{op.l}}</td>
-                                <td>{{op.c}}</td>
+                                <td ng-if="chartConfig.number==='Y'">{{op.c}}</td>
+                                <td ng-if="chartConfig.percentage==='Y'">{{op.p}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -123,7 +125,7 @@
             </div>
         </div>
     </div>
-    <script type="text/ng-template" id="showCondition.html">
+    <script type="text/ng-template" id="config.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
             <h5 class="modal-title">展示条件</h5>
@@ -145,6 +147,19 @@
                     </tr>
                 </tbody>
             </table>
+            <hr>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.number">选择题表格中显示数量</label>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.percentage">选择题表格中显示百分比</label>
+            </div>
+            <div class='radio'>
+                <label>
+                    <input type='radio' name='label' value='number' ng-model="opConfig.label">选择题图片中显示数量</label>
+                <label>
+                    <input type='radio' name='label' value='percentage' ng-model="opConfig.label">选择题图片中显示百分比</label>
+            </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-default" ng-click="cancel()">关闭</button>

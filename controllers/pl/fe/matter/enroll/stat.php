@@ -18,118 +18,20 @@ class stat extends \pl\fe\matter\base {
 	 *
 	 * 只统计single/multiple类型的数据项
 	 *
-	 * return
-	 * name => array(l=>label,c=>count)
-	 *
-	 */
-	private function _getResult($site, $appId, $rid = '', $renewCache = 'Y') {
-		if (empty($rid)) {
-			$app = $this->model('matter\enroll')->byId($appId, ['cascaded' => 'N']);
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
-				$rid = $activeRound->rid;
-			}
-		}
-
-		$current = time();
-		$modelRec = $this->model('matter\enroll\record');
-		$rid = $modelRec->escape($rid);
-		if ($renewCache === 'Y') {
-			/* 上一次保留统计结果的时间 */
-			$q = [
-				'create_at',
-				'xxt_enroll_record_stat',
-				['aid' => $appId, 'rid' => $rid],
-			];
-
-			$q2 = ['r' => ['o' => 0, 'l' => 1]];
-			$last = $modelRec->query_objs_ss($q, $q2);
-			/* 上次统计后的新登记记录数 */
-			if (count($last) === 1) {
-				$last = $last[0];
-				$q = [
-					'count(*)',
-					'xxt_enroll_record',
-					"aid='$appId' and enroll_at>={$last->create_at}",
-				];
-				if ($rid !== 'ALL' && !empty($rid)) {
-					$q[2] .= " and rid = '$rid'";
-				}
-
-				$newCnt = (int) $modelRec->query_val_ss($q);
-			} else {
-				$newCnt = 999;
-			}
-			// 如果更新的登记数据，重新计算统计结果
-			if ($newCnt > 0) {
-				$result = $modelRec->getStat($appId, $rid);
-				// 保存统计结果
-				$modelRec->delete(
-					'xxt_enroll_record_stat',
-					['aid' => $appId, 'rid' => $rid]
-				);
-				foreach ($result as $id => $stat) {
-					foreach ($stat['ops'] as $op) {
-						$r = [
-							'siteid' => $site,
-							'aid' => $appId,
-							'create_at' => $current,
-							'id' => $id,
-							'title' => $stat['title'],
-							'v' => $op->v,
-							'l' => $op->l,
-							'c' => $op->c,
-							'rid' => $rid,
-						];
-						$modelRec->insert('xxt_enroll_record_stat', $r);
-					}
-				}
-			} else {
-				/* 从缓存中获取统计数据 */
-				$result = [];
-				$q = [
-					'id,title,v,l,c',
-					'xxt_enroll_record_stat',
-					['aid' => $appId, 'rid' => $rid],
-				];
-
-				$cached = $modelRec->query_objs_ss($q);
-				foreach ($cached as $data) {
-					if (empty($result[$data->id])) {
-						$item = [
-							'id' => $data->id,
-							'title' => $data->title,
-							'ops' => [],
-						];
-						$result[$data->id] = $item;
-					}
-					$op = [
-						'v' => $data->v,
-						'l' => $data->l,
-						'c' => $data->c,
-					];
-					$result[$data->id]['ops'][] = $op;
-				}
-			}
-		} else {
-			$result = $modelRec->getStat($appId, $rid);
-		}
-
-		return $result;
-	}
-	/**
-	 * 统计登记信息
-	 *
-	 * 只统计single/multiple类型的数据项
-	 *
 	 * @return array name => array(l=>label,c=>count)
 	 *
 	 */
 	public function get_action($site, $app, $rid = '', $renewCache = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$result = $this->_getResult($site, $app, $rid, $renewCache);
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$result = $this->model('matter\enroll\record')->getStat($oApp, $rid, $renewCache);
 
 		return new \ResponseData($result);
 	}
@@ -222,7 +124,7 @@ class stat extends \pl\fe\matter\base {
 						if (empty($data)) {
 							continue;
 						}
-						
+
 						$graph = new \PieGraph($graphWidth, $graphHeight);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
@@ -236,7 +138,7 @@ class stat extends \pl\fe\matter\base {
 						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
 						$pie->SetColor(array(255, 255, 255));
 						foreach ($labels as &$rec) {
-							$rec=iconv("UTF-8","GB2312//IGNORE",$rec);
+							$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
 						}
 						$pie->SetLabels($labels, 1);
 
@@ -381,7 +283,7 @@ class stat extends \pl\fe\matter\base {
 						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
 						$pie->SetColor(array(255, 255, 255));
 						foreach ($labels as &$rec) {
-							$rec=iconv("UTF-8","GB2312//IGNORE",$rec);
+							$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
 						}
 						$pie->SetLabels($labels, 1);
 					}
@@ -404,10 +306,10 @@ class stat extends \pl\fe\matter\base {
 					$bar = new \BarPlot($data);
 					$graph->Add($bar);
 					// Setup the titles
-					$graph->xaxis->title->Set(iconv("UTF-8","GB2312//IGNORE","选项"));
-					$graph->yaxis->title->Set(iconv("UTF-8","GB2312//IGNORE","数量"));
+					$graph->xaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "选项"));
+					$graph->yaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "数量"));
 					foreach ($labels as &$rec) {
-						$rec=iconv("UTF-8","GB2312//IGNORE",$rec);
+						$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
 					}
 					$graph->xaxis->SetTickLabels($labels);
 					$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
@@ -482,7 +384,7 @@ class stat extends \pl\fe\matter\base {
 					$graph->xgrid->Show();
 					$graph->xgrid->SetLineStyle("solid");
 					foreach ($labels as &$rec) {
-						$rec=iconv("UTF-8","GB2312//IGNORE",$rec);
+						$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
 					}
 					$graph->xaxis->SetTickLabels($labels);
 					$graph->xgrid->SetColor('#E3E3E3');

@@ -1,197 +1,10 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlStat', ['$scope', '$location', 'http2', '$timeout', '$q', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvRecordConverter', function($scope, $location, http2, $timeout, $q, $uibModal, srvEnrollApp, srvEnrollRound, srvRecordConverter) {
-        var rid = $location.search().rid;
+    ngApp.provider.controller('ctrlStat', ['$scope', '$location', 'http2', '$timeout', '$q', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvRecordConverter', 'srvChart', function($scope, $location, http2, $timeout, $q, $uibModal, srvEnrollApp, srvEnrollRound, srvRecordConverter, srvChart) {
+        var _rid, _oChartConfig, _cacheOfRecordsBySchema;
 
-        function drawBarChart(item) {
-            var categories = [],
-                series = [];
-
-            item.ops.forEach(function(op) {
-                categories.push(op.l);
-                series.push(parseInt(op.c));
-            });
-            new Highcharts.Chart({
-                chart: {
-                    type: 'bar',
-                    renderTo: item.id
-                },
-                title: {
-                    text: '' //item.title
-                },
-                legend: {
-                    enabled: false
-                },
-                xAxis: {
-                    categories: categories
-                },
-                yAxis: {
-                    'title': '',
-                    allowDecimals: false
-                },
-                series: [{
-                    name: '数量',
-                    data: series
-                }],
-                lang: {
-                    downloadJPEG: "下载JPEG 图片",
-                    downloadPDF: "下载PDF文档",
-                    downloadPNG: "下载PNG 图片",
-                    downloadSVG: "下载SVG 矢量图",
-                    printChart: "打印图片",
-                    exportButtonTitle: "导出图片"
-                }
-            });
-        }
-
-        function drawPieChart(item) {
-            var categories = [],
-                series = [];
-
-            item.ops.forEach(function(op) {
-                series.push({
-                    name: op.l,
-                    y: parseInt(op.c)
-                });
-            });
-            new Highcharts.Chart({
-                chart: {
-                    type: 'pie',
-                    renderTo: item.id
-                },
-                title: {
-                    text: '' //item.title
-                },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>:{y}',
-                            style: {
-                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                            }
-                        }
-                    }
-                },
-                series: [{
-                    name: '数量',
-                    data: series
-                }],
-                lang: {
-                    downloadJPEG: "下载JPEG 图片",
-                    downloadPDF: "下载PDF文档",
-                    downloadPNG: "下载PNG 图片",
-                    downloadSVG: "下载SVG 矢量图",
-                    printChart: "打印图片",
-                    exportButtonTitle: "导出图片"
-                }
-            });
-        }
-
-        function drawNumPie(item, schema) {
-            var categories = [],
-                series = [],
-                sum = 0,
-                otherSum;
-            item.records.forEach(function(record) {
-                var recVal = record.data[schema.id] ? parseInt(record.data[schema.id]) : 0;
-                sum += recVal;
-                series.push({
-                    name: recVal,
-                    y: recVal
-                });
-            });
-            otherSum = parseInt(item.sum) - sum;
-            if (otherSum != 0) {
-                series.push({ name: '其它', y: otherSum });
-            }
-
-            new Highcharts.Chart({
-                chart: {
-                    type: 'pie',
-                    renderTo: schema.id
-                },
-                title: {
-                    text: '' //schema.title
-                },
-                tooltip: {
-                    pointFormat: '{series.name}: <b>{point.percentage:.1f}</b>'
-                },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                            style: {
-                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                            }
-                        }
-                    }
-                },
-                series: [{
-                    name: '所占百分比',
-                    data: series
-                }],
-                lang: {
-                    downloadJPEG: "下载JPEG 图片",
-                    downloadPDF: "下载PDF文档",
-                    downloadPNG: "下载PNG 图片",
-                    downloadSVG: "下载SVG 矢量图",
-                    printChart: "打印图片",
-                    exportButtonTitle: "导出图片"
-                }
-            });
-        }
-
-        function drawLineChart(item) {
-            var categories = [],
-                data = [];
-
-            item.ops.forEach(function(op) {
-                categories.push(op.l);
-                data.push(op.c);
-            });
-            new Highcharts.Chart({
-                chart: {
-                    type: 'line',
-                    renderTo: item.id
-                },
-                title: {
-                    text: '' //item.title,
-                },
-                xAxis: {
-                    categories: categories
-                },
-                yAxis: {
-                    title: {
-                        text: '平均分'
-                    },
-                    plotLines: [{
-                        value: 0,
-                        width: 1,
-                        color: '#808080'
-                    }]
-                },
-                series: [{
-                    name: item.title,
-                    data: data
-                }],
-                lang: {
-                    downloadJPEG: "下载JPEG 图片",
-                    downloadPDF: "下载PDF文档",
-                    downloadPNG: "下载PNG 图片",
-                    downloadSVG: "下载SVG 矢量图",
-                    printChart: "打印图片",
-                    exportButtonTitle: "导出图片"
-                }
-            });
-        }
-
-        var _cacheOfRecordsBySchema = {
+        _rid = $location.search().rid;
+        _cacheOfRecordsBySchema = {
             recordsBySchema: function(schema, page) {
                 var deferred = $q.defer(),
                     cached,
@@ -218,7 +31,7 @@ define(['frame'], function(ngApp) {
                 if (requireGet) {
                     url = '/rest/pl/fe/matter/enroll/record/list4Schema';
                     url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-                    url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size + '&rid=' + (rid ? rid : '');
+                    url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size + '&rid=' + (_rid || '');
                     cached._running = true;
                     http2.get(url, function(rsp) {
                         cached._running = false;
@@ -231,7 +44,7 @@ define(['frame'], function(ngApp) {
                         });
                         if (schema.number && schema.number == 'Y') {
                             cached.sum = rsp.data.sum;
-                            drawNumPie(rsp.data, schema);
+                            srvChart.drawNumPie(rsp.data, schema);
                         }
                         cached.records = rsp.data.records;
                         page.total = rsp.data.total;
@@ -264,11 +77,18 @@ define(['frame'], function(ngApp) {
             _cacheOfRecordsBySchema.recordsBySchema(schema, page);
             return false;
         };
-        $scope.show = function() {
+        $scope.config = function() {
             $uibModal.open({
-                templateUrl: 'showCondition.html',
+                templateUrl: 'config.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var marks = $scope.app.rpConfig.marks ? $scope.app.rpConfig.marks : [];
+                    var oApp, marks, oOpConfig;
+                    oApp = $scope.app;
+                    marks = oApp.rpConfig.marks ? oApp.rpConfig.marks : [];
+                    oOpConfig = oApp.rpConfig.op ? oApp.rpConfig.op : {
+                        number: true,
+                        percentage: true,
+                        label: 'number'
+                    };
                     $scope2.appMarkSchemas = angular.copy($scope.markSchemas);
                     $scope2.rows = {
                         selected: {},
@@ -276,6 +96,7 @@ define(['frame'], function(ngApp) {
                             this.selected = {};
                         }
                     };
+                    $scope2.opConfig = oOpConfig;
                     marks.forEach(function(item, index) {
                         for (var i = 0; i < $scope2.appMarkSchemas.length; i++) {
                             if (item.id == $scope2.appMarkSchemas[i].id) {
@@ -284,7 +105,7 @@ define(['frame'], function(ngApp) {
                         }
                     });
                     $scope2.ok = function() {
-                        $mi.close($scope2.rows);
+                        $mi.close({ marks: $scope2.rows.selected, op: oOpConfig });
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss();
@@ -293,8 +114,8 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static'
             }).result.then(function(result) {
                 var selectedSchemas = [];
-                for (var p in result.selected) {
-                    if (result.selected[p] === true) {
+                for (var p in result.marks) {
+                    if (result.marks[p] === true) {
                         selectedSchemas.push({
                             id: $scope.markSchemas[p].id,
                             name: $scope.markSchemas[p].title
@@ -302,11 +123,12 @@ define(['frame'], function(ngApp) {
                     }
                 }
                 $scope.app.rpConfig = {
-                    marks: selectedSchemas
+                    marks: selectedSchemas,
+                    op: result.op
                 };
                 srvEnrollApp.update('rpConfig').then(function() { location.reload() });
             });
-        }
+        };
         $scope.doRound = function(rid) {
             if (rid == 'more') {
                 $scope.moreRounds();
@@ -353,26 +175,38 @@ define(['frame'], function(ngApp) {
             }).result.then(function(result) {
                 location.href = '/rest/pl/fe/matter/enroll/stat?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&rid=' + result;
             });
-        }
-        srvEnrollApp.get().then(function(app) {
+        };
+        srvEnrollApp.get().then(function(oApp) {
             var url;
-            srvRecordConverter.config(app.dataSchemas);
+            srvRecordConverter.config(oApp.dataSchemas);
             $scope.markSchemas = [{ title: "昵称", id: "nickname" }];
-            app.dataSchemas.forEach(function(schema) {
+            $scope.chartConfig = _oChartConfig = (oApp.rpConfig && oApp.rpConfig.op) || {
+                number: 'Y',
+                percentage: 'Y',
+                label: 'number'
+            };
+            srvChart.config(_oChartConfig);
+            oApp.dataSchemas.forEach(function(schema) {
                 if (['multiple', 'score', 'image', 'location', 'file', 'date'].indexOf(schema.type) === -1) {
                     $scope.markSchemas.push(schema);
                 }
             })
             url = '/rest/pl/fe/matter/enroll/stat/get';
-            url += '?site=' + app.siteid;
-            url += '&app=' + app.id;
-            url += '&rid=' + (rid ? rid : '');
+            url += '?site=' + oApp.siteid;
+            url += '&app=' + oApp.id;
+            url += '&rid=' + (_rid || '');
             http2.get(url, function(rsp) {
                 var stat = {};
-                app.dataSchemas.forEach(function(schema) {
-                    if (rsp.data[schema.id]) {
-                        rsp.data[schema.id]._schema = schema;
-                        stat[schema.id] = rsp.data[schema.id];
+                oApp.dataSchemas.forEach(function(oSchema) {
+                    var oStatBySchema;
+                    if (oStatBySchema = rsp.data[oSchema.id]) {
+                        oStatBySchema._schema = oSchema;
+                        stat[oSchema.id] = oStatBySchema;
+                        if (oStatBySchema.ops && oStatBySchema.sum > 0) {
+                            oStatBySchema.ops.forEach(function(oDataByOp) {
+                                oDataByOp.p = (new Number(oDataByOp.c / oStatBySchema.sum * 100)).toFixed(2) + '%';
+                            });
+                        }
                     }
                 });
                 $scope.stat = stat;
@@ -383,9 +217,9 @@ define(['frame'], function(ngApp) {
                     for (p in stat) {
                         item = stat[p];
                         if (/single|phase/.test(item._schema.type)) {
-                            drawPieChart(item);
+                            srvChart.drawPieChart(item);
                         } else if (/multiple/.test(item._schema.type)) {
-                            drawBarChart(item);
+                            srvChart.drawBarChart(item);
                         } else if (/score/.test(item._schema.type)) {
                             if (item.ops.length) {
                                 var totalScore = 0,
@@ -394,7 +228,7 @@ define(['frame'], function(ngApp) {
                                     op.c = parseFloat(new Number(op.c).toFixed(2));
                                     totalScore += op.c;
                                 });
-                                drawLineChart(item);
+                                srvChart.drawLineChart(item);
                                 // 添加题目平均分
                                 avgScore = parseFloat(new Number(totalScore / item.ops.length).toFixed(2));
                                 item.ops.push({
@@ -424,18 +258,18 @@ define(['frame'], function(ngApp) {
                 });
             });
         });
-        srvEnrollRound.list(rid).then(function(result) {
+        srvEnrollRound.list(_rid).then(function(result) {
             $scope.activeRound = result.active;
             $scope.checkedRound = result.checked;
             $scope.rounds = result.rounds;
-            if (rid) {
-                if (rid === 'ALL') {
+            if (_rid) {
+                if (_rid === 'ALL') {
                     $scope.criteria.rid = 'ALL';
-                } else if (rid == $scope.checkedRound.rid) {
+                } else if (_rid == $scope.checkedRound.rid) {
                     $scope.criteria.rid = $scope.checkedRound.rid;
                 } else {
                     $scope.rounds.forEach(function(round) {
-                        if (round.rid == rid) {
+                        if (round.rid === _rid) {
                             $scope.criteria.rid = rid;
                         }
                     });

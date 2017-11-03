@@ -1533,7 +1533,7 @@ class record_model extends record_base {
 					$op = (object) [
 						'v' => $oDataByOp->v,
 						'l' => $oDataByOp->l,
-						'c' => (int) $oDataByOp->c,
+						'c' => $oDataByOp->c,
 					];
 					$oDataBySchema->ops[] = $op;
 					$oDataBySchema->sum += $op->c;

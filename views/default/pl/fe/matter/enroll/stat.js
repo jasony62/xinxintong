@@ -81,12 +81,17 @@ define(['frame'], function(ngApp) {
             $uibModal.open({
                 templateUrl: 'config.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var oApp, marks, oOpConfig;
+                    var oApp, marks, oPlConfig, oOpConfig;
                     oApp = $scope.app;
                     marks = oApp.rpConfig.marks ? oApp.rpConfig.marks : [];
+                    oPlConfig = oApp.rpConfig.pl ? oApp.rpConfig.pl : {
+                        number: 'Y',
+                        percentage: 'Y',
+                        label: 'number'
+                    };
                     oOpConfig = oApp.rpConfig.op ? oApp.rpConfig.op : {
-                        number: true,
-                        percentage: true,
+                        number: 'Y',
+                        percentage: 'Y',
                         label: 'number'
                     };
                     $scope2.appMarkSchemas = angular.copy($scope.markSchemas);
@@ -96,6 +101,7 @@ define(['frame'], function(ngApp) {
                             this.selected = {};
                         }
                     };
+                    $scope2.plConfig = oPlConfig;
                     $scope2.opConfig = oOpConfig;
                     marks.forEach(function(item, index) {
                         for (var i = 0; i < $scope2.appMarkSchemas.length; i++) {
@@ -105,7 +111,7 @@ define(['frame'], function(ngApp) {
                         }
                     });
                     $scope2.ok = function() {
-                        $mi.close({ marks: $scope2.rows.selected, op: oOpConfig });
+                        $mi.close({ marks: $scope2.rows.selected, pl: oPlConfig, op: oOpConfig });
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss();
@@ -124,6 +130,7 @@ define(['frame'], function(ngApp) {
                 }
                 $scope.app.rpConfig = {
                     marks: selectedSchemas,
+                    pl: result.pl,
                     op: result.op
                 };
                 srvEnrollApp.update('rpConfig').then(function() { location.reload() });
@@ -180,7 +187,7 @@ define(['frame'], function(ngApp) {
             var url;
             srvRecordConverter.config(oApp.dataSchemas);
             $scope.markSchemas = [{ title: "昵称", id: "nickname" }];
-            $scope.chartConfig = _oChartConfig = (oApp.rpConfig && oApp.rpConfig.op) || {
+            $scope.chartConfig = _oChartConfig = (oApp.rpConfig && oApp.rpConfig.pl) || {
                 number: 'Y',
                 percentage: 'Y',
                 label: 'number'

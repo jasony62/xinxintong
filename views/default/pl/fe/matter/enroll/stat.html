@@ -128,14 +128,46 @@
     <script type="text/ng-template" id="config.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title">展示条件</h5>
+            <h5 class="modal-title">设置</h5>
         </div>
         <div class="modal-body">
+            <div>
+                <label>统计报告内容设置</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="plConfig.number">选择题表格中显示数量</label>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="plConfig.percentage">选择题表格中显示百分比</label>
+            </div>
+            <div class='radio'>
+                <label>
+                    <input type='radio' name='plLabel' value='number' ng-model="plConfig.label">选择题图片中显示数量</label>
+                <label>
+                    <input type='radio' name='plLabel' value='percentage' ng-model="plConfig.label">选择题图片中显示百分比</label>
+            </div>
+            <hr>
+            <div>
+                <label>统计报告分享链接内容设置</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.number">选择题表格中显示数量</label>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.percentage">选择题表格中显示百分比</label>
+            </div>
+            <div class='radio'>
+                <label>
+                    <input type='radio' name='opLabel' value='number' ng-model="opConfig.label">选择题图片中显示数量</label>
+                <label>
+                    <input type='radio' name='opLabel' value='percentage' ng-model="opConfig.label">选择题图片中显示百分比</label>
+            </div>
+            <hr>
             <table class='table table-bordered' style='margin-bottom:0;'>
                 <thead>
                     <tr>
                         <th style='width:50px'>操作</th>
-                        <th>标识登记项</th>
+                        <th>记录标识项</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -147,19 +179,6 @@
                     </tr>
                 </tbody>
             </table>
-            <hr>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.number">选择题表格中显示数量</label>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.percentage">选择题表格中显示百分比</label>
-            </div>
-            <div class='radio'>
-                <label>
-                    <input type='radio' name='label' value='number' ng-model="opConfig.label">选择题图片中显示数量</label>
-                <label>
-                    <input type='radio' name='label' value='percentage' ng-model="opConfig.label">选择题图片中显示百分比</label>
-            </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-default" ng-click="cancel()">关闭</button>

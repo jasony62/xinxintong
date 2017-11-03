@@ -87,31 +87,38 @@ define(['frame'], function(ngApp) {
                     oPlConfig = oApp.rpConfig.pl ? oApp.rpConfig.pl : {
                         number: 'Y',
                         percentage: 'Y',
-                        label: 'number'
+                        label: 'number',
+                        exclude: []
                     };
                     oOpConfig = oApp.rpConfig.op ? oApp.rpConfig.op : {
                         number: 'Y',
                         percentage: 'Y',
-                        label: 'number'
+                        label: 'number',
+                        exclude: []
                     };
+                    $scope2.dataSchemas = oApp._schemasForInput;
                     $scope2.appMarkSchemas = angular.copy($scope.markSchemas);
-                    $scope2.rows = {
+                    $scope2.markRows = {
                         selected: {},
-                        reset: function() {
-                            this.selected = {};
-                        }
                     };
                     $scope2.plConfig = oPlConfig;
+                    $scope2.opExcludeRows = {
+                        selected: {}
+                    };
                     $scope2.opConfig = oOpConfig;
+                    oOpConfig.exclude.forEach(function(schemaId) {
+                        $scope2.opExcludeRows.selected[schemaId] = true;
+                    });
                     marks.forEach(function(item, index) {
                         for (var i = 0; i < $scope2.appMarkSchemas.length; i++) {
                             if (item.id == $scope2.appMarkSchemas[i].id) {
-                                $scope2.rows.selected[i] = true;
+                                $scope2.markRows.selected[i] = true;
                             }
                         }
                     });
                     $scope2.ok = function() {
-                        $mi.close({ marks: $scope2.rows.selected, pl: oPlConfig, op: oOpConfig });
+                        oOpConfig.exclude = Object.keys($scope2.opExcludeRows.selected);
+                        $mi.close({ marks: $scope2.markRows.selected, pl: oPlConfig, op: oOpConfig });
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss();
@@ -156,19 +163,7 @@ define(['frame'], function(ngApp) {
                             $scope2.activeRound = result.active;
                             $scope2.rounds = result.rounds;
                             $scope2.pageOfRound = result.page;
-                            if (rid) {
-                                if (rid === 'ALL') {
-                                    $scope2.moreCriteria.rid = 'ALL';
-                                } else {
-                                    $scope2.rounds.forEach(function(round) {
-                                        if (round.rid == rid) {
-                                            $scope2.moreCriteria.rid = rid;
-                                        }
-                                    });
-                                }
-                            } else {
-                                $scope2.moreCriteria.rid = $scope.activeRound.rid;
-                            }
+                            $scope2.moreCriteria.rid = _rid || $scope.activeRound.rid;
                         })
                     };
                     $scope2.cancel = function() {
@@ -186,16 +181,19 @@ define(['frame'], function(ngApp) {
         srvEnrollApp.get().then(function(oApp) {
             var url;
             srvRecordConverter.config(oApp.dataSchemas);
-            $scope.markSchemas = [{ title: "昵称", id: "nickname" }];
+            $scope.markSchemas = [];
+            if (!oApp.assignedNickname || oApp.assignedNickname.valid === 'N') {
+                $scope.markSchemas.push({ title: "昵称", id: "nickname" });
+            }
             $scope.chartConfig = _oChartConfig = (oApp.rpConfig && oApp.rpConfig.pl) || {
                 number: 'Y',
                 percentage: 'Y',
                 label: 'number'
             };
             srvChart.config(_oChartConfig);
-            oApp.dataSchemas.forEach(function(schema) {
-                if (['multiple', 'score', 'image', 'location', 'file', 'date'].indexOf(schema.type) === -1) {
-                    $scope.markSchemas.push(schema);
+            oApp.dataSchemas.forEach(function(oSchema) {
+                if (/shorttext/.test(oSchema.type) || oSchema.id === '_round_id') {
+                    $scope.markSchemas.push(oSchema);
                 }
             })
             url = '/rest/pl/fe/matter/enroll/stat/get';
@@ -269,21 +267,7 @@ define(['frame'], function(ngApp) {
             $scope.activeRound = result.active;
             $scope.checkedRound = result.checked;
             $scope.rounds = result.rounds;
-            if (_rid) {
-                if (_rid === 'ALL') {
-                    $scope.criteria.rid = 'ALL';
-                } else if (_rid == $scope.checkedRound.rid) {
-                    $scope.criteria.rid = $scope.checkedRound.rid;
-                } else {
-                    $scope.rounds.forEach(function(round) {
-                        if (round.rid === _rid) {
-                            $scope.criteria.rid = rid;
-                        }
-                    });
-                }
-            } else {
-                $scope.criteria.rid = $scope.activeRound.rid;
-            }
+            $scope.criteria.rid = _rid || $scope.activeRound.rid;
         });
     }]);
 });

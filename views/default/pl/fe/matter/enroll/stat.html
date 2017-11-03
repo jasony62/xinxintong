@@ -131,54 +131,75 @@
             <h5 class="modal-title">设置</h5>
         </div>
         <div class="modal-body">
-            <div>
-                <label>统计报告内容设置</label>
-            </div>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="plConfig.number">选择题表格中显示数量</label>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="plConfig.percentage">选择题表格中显示百分比</label>
-            </div>
-            <div class='radio'>
-                <label>
-                    <input type='radio' name='plLabel' value='number' ng-model="plConfig.label">选择题图片中显示数量</label>
-                <label>
-                    <input type='radio' name='plLabel' value='percentage' ng-model="plConfig.label">选择题图片中显示百分比</label>
-            </div>
-            <hr>
-            <div>
-                <label>统计报告分享链接内容设置</label>
-            </div>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.number">选择题表格中显示数量</label>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.percentage">选择题表格中显示百分比</label>
-            </div>
-            <div class='radio'>
-                <label>
-                    <input type='radio' name='opLabel' value='number' ng-model="opConfig.label">选择题图片中显示数量</label>
-                <label>
-                    <input type='radio' name='opLabel' value='percentage' ng-model="opConfig.label">选择题图片中显示百分比</label>
-            </div>
-            <hr>
-            <table class='table table-bordered' style='margin-bottom:0;'>
-                <thead>
-                    <tr>
-                        <th style='width:50px'>操作</th>
-                        <th>记录标识项</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat='m in appMarkSchemas' class='record'>
-                        <td>
-                            <input type='checkbox' ng-model="rows.selected[$index]">
-                        </td>
-                        <td>{{m.title}}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <uib-tabset active="active">
+                <uib-tab index="0" heading="标识项">
+                    <div style='max-height:370px;overflow-y:auto'>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:46px'>操作</th>
+                                    <th>题目</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat='schema in appMarkSchemas' class='record'>
+                                    <td>
+                                        <input type='checkbox' ng-model="markRows.selected[$index]">
+                                    </td>
+                                    <td>{{schema.title}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </uib-tab>
+                <uib-tab index="1" heading="默认内容">
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="plConfig.number">选择题表格中显示数量</label>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="plConfig.percentage">选择题表格中显示百分比</label>
+                    </div>
+                    <div class='radio'>
+                        <label>
+                            <input type='radio' name='plLabel' value='number' ng-model="plConfig.label">选择题图片中显示数量</label>
+                        <label>
+                            <input type='radio' name='plLabel' value='percentage' ng-model="plConfig.label">选择题图片中显示百分比</label>
+                    </div>
+                </uib-tab>
+                <uib-tab index="2" heading="分享内容">
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.number">选择题表格中显示数量</label>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.percentage">选择题表格中显示百分比</label>
+                    </div>
+                    <div class='radio'>
+                        <label>
+                            <input type='radio' name='opLabel' value='number' ng-model="opConfig.label">选择题图片中显示数量</label>
+                        <label>
+                            <input type='radio' name='opLabel' value='percentage' ng-model="opConfig.label">选择题图片中显示百分比</label>
+                    </div>
+                    <label>不包含的题目</label>
+                    <div style='max-height:370px;overflow-y:auto'>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:46px'>操作</th>
+                                    <th>题目</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat='schema in dataSchemas'>
+                                    <td>
+                                        <input type='checkbox' ng-model="opExcludeRows.selected[schema.id]" ng-change="opExcludeRows.change(schema)">
+                                    </td>
+                                    <td>{{schema.title}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </uib-tab>
+            </uib-tabset>
         </div>
         <div class="modal-footer">
             <button class="btn btn-default" ng-click="cancel()">关闭</button>
@@ -201,8 +222,10 @@
                             <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
                         </select>
                         <div ng-show="pageOfRound.total>pageOfRound.size">
-                            <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                            <div class='pl-pagination'>
+                                <span>总数：{{pageOfRound.total}}</span>
+                                <ul uib-pagination boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                            </div>
                         </div>
                     </div>
                 </div>

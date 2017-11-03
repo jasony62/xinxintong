@@ -180,25 +180,32 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         url += '&rid=' + (rid ? rid : '');
 
         http2.get(url, function(rsp) {
-            var oApp, oStat = {};
+            var oApp = rsp.data.app,
+                rpSchemas = [],
+                oStat = {},
+                rpConfig = (oApp.rpConfig && oApp.rpConfig.op) ? oApp.rpConfig.op : undefined,
+                aExcludeSchemas = (rpConfig && rpConfig.exclude) ? rpConfig.exclude : [];
 
-            oApp = rsp.data.app;
-            srvRecordConverter.config(oApp.data_schemas);
+            srvRecordConverter.config(oApp.dataSchemas);
             oApp.dataSchemas.forEach(function(oSchema) {
                 var oStatBySchema;
-                if (oStatBySchema = rsp.data.stat[oSchema.id]) {
-                    oStatBySchema._schema = oSchema;
-                    oStat[oSchema.id] = oStatBySchema;
-                    if (oStatBySchema.ops && oStatBySchema.sum > 0) {
-                        oStatBySchema.ops.forEach(function(oDataByOp) {
-                            oDataByOp.p = (new Number(oDataByOp.c / oStatBySchema.sum * 100)).toFixed(2) + '%';
-                        });
+                if (oSchema.type !== 'html') {
+                    if (oStatBySchema = rsp.data.stat[oSchema.id]) {
+                        oStatBySchema._schema = oSchema;
+                        oStat[oSchema.id] = oStatBySchema;
+                        if (oStatBySchema.ops && oStatBySchema.sum > 0) {
+                            oStatBySchema.ops.forEach(function(oDataByOp) {
+                                oDataByOp.p = (new Number(oDataByOp.c / oStatBySchema.sum * 100)).toFixed(2) + '%';
+                            });
+                        }
                     }
+                    aExcludeSchemas.indexOf(oSchema.id) === -1 && rpSchemas.push(oSchema);
                 }
             });
             $scope.app = oApp;
+            $scope.rpSchemas = rpSchemas;
             $scope.stat = oStat;
-            $scope.chartConfig = _oChartConfig = (oApp.rpConfig && oApp.rpConfig.op) || {
+            $scope.chartConfig = _oChartConfig = rpConfig || {
                 number: 'Y',
                 percentage: 'Y',
                 label: 'number'
@@ -206,7 +213,8 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             srvChart.config(_oChartConfig);
             $timeout(function() {
                 var item, scoreSummary = [],
-                    totalScoreSummary = 0,                    avgScoreSummary = 0;
+                    totalScoreSummary = 0,
+                    avgScoreSummary = 0;
                 for (var p in oStat) {
                     item = oStat[p];
                     if (/single|phase/.test(item._schema.type)) {
@@ -274,19 +282,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                             $scope2.activeRound = result.active;
                             $scope2.rounds = result.rounds;
                             $scope2.pageOfRound = result.page;
-                            if (rid) {
-                                if (rid === 'ALL') {
-                                    $scope2.moreCriteria.rid = 'ALL';
-                                } else {
-                                    $scope2.rounds.forEach(function(round) {
-                                        if (round.rid == rid) {
-                                            $scope2.moreCriteria.rid = rid;
-                                        }
-                                    });
-                                }
-                            } else {
-                                $scope2.moreCriteria.rid = $scope.activeRound.rid;
-                            }
+                            $scope2.moreCriteria.rid = rid || $scope.activeRound.rid;
                         });
                     };
                     $scope2.cancel = function() {
@@ -305,21 +301,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             $scope.activeRound = result.active;
             $scope.checkedRound = result.checked;
             $scope.rounds = result.rounds;
-            if (rid) {
-                if (rid === 'ALL') {
-                    $scope.criteria.rid = 'ALL';
-                } else if (rid == $scope.checkedRound.rid) {
-                    $scope.criteria.rid = $scope.checkedRound.rid;
-                } else {
-                    $scope.rounds.forEach(function(round) {
-                        if (round.rid == rid) {
-                            $scope.criteria.rid = rid;
-                        }
-                    });
-                }
-            } else {
-                $scope.criteria.rid = $scope.activeRound.rid;
-            }
+            $scope.criteria.rid = rid || $scope.activeRound.rid;
         });
     }]);
     require(['domReady!'], function(document) {

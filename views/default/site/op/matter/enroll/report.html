@@ -13,7 +13,7 @@
                 </select>
             </div>
             <!--schemas-->
-            <div ng-repeat="schema in app.dataSchemas" ng-if="schema.type!=='html'">
+            <div ng-repeat="schema in rpSchemas">
                 <h3><span ng-bind="schema.title"></span></h3>
                 <div ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1">
                     <div id="{{schema.id}}" style='height:300px'></div>

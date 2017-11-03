@@ -209,7 +209,7 @@ class base extends \site\fe\base {
 	/*
 	* 获取我的分享信息
 	*/
-	protected function getMyShareInfo($oUser, $matterType, $matterId, $orderBy = 'read') {
+	protected function getMyShareInfo($oUser, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
 		$model = $this->model()->setOnlyWriteDbConn(true);
 
 		$q = [];
@@ -223,7 +223,15 @@ class base extends \site\fe\base {
 				$q2['g'] = 's.userid';
 				$q2['o'] = 'shareF_sum desc,s.share_at desc';
 
+				if (!empty($page) && !empty($size)) {
+					$q2['r']['o'] = ($page - 1) * $size;
+					$q2['r']['l'] = $size;
+				}
+				
 				$users = $model->query_objs_ss($q, $q2);
+				$q[0] = "count(distinct s.userid)";
+				$total = (int) $model->query_val_ss($q);
+
 				break;
 			case 'shareT':
 				$q[0] = 's.userid,count(*) shareT_sum,a.nickname,a.headimgurl';
@@ -233,12 +241,27 @@ class base extends \site\fe\base {
 				$q2['g'] = 's.userid';
 				$q2['o'] = 'shareT_sum desc,s.share_at desc';
 
+				if (!empty($page) && !empty($size)) {
+					$q2['r']['o'] = ($page - 1) * $size;
+					$q2['r']['l'] = $size;
+				}
+				
 				$users = $model->query_objs_ss($q, $q2);
+				$q[0] = "count(distinct s.userid)";
+				$total = (int) $model->query_val_ss($q);
+
 				break;
 			case 'attractRead':
 				$q = "select r.userid,(select count(*) from xxt_log_matter_read r1 where r1.matter_id='" . $model->escape($matterId) . "' and r1.matter_type='" . $model->escape($matterType) . "' and r1.matter_shareby like CONCAT(r.userid,'_%')) as attractRead_sum,a.nickname,a.headimgurl from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUser->uid . "_%' and r.userid = a.uid group by r.userid order by attractRead_sum desc,r.read_at desc";
 				
+				if (!empty($page) && !empty($size)) {
+					$q .= " limit " . ($page - 1) * $size . "," . $size;
+				}
+
 				$users = $model->query_objs($q);
+				$q = "select count(distinct r.userid) from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUser->uid . "_%' and r.userid = a.uid";
+				$total = (int) $model->query_value($q);
+				
 				break;
 			default:
 				$q[0] = 'r.userid,count(*) as read_sum,a.nickname,a.headimgurl';
@@ -248,7 +271,15 @@ class base extends \site\fe\base {
 				$q2['g'] = 'r.userid';
 				$q2['o'] = 'read_sum desc,r.read_at desc';
 
+				if (!empty($page) && !empty($size)) {
+					$q2['r']['o'] = ($page - 1) * $size;
+					$q2['r']['l'] = $size;
+				}
+				
 				$users = $model->query_objs_ss($q, $q2);
+				$q[0] = "count(distinct r.userid)";
+				$total = (int) $model->query_val_ss($q);
+
 				break;
 		}
 
@@ -331,6 +362,11 @@ class base extends \site\fe\base {
 			}
 		}
 
-		return $users;
+
+		$data = new \stdClass;
+		$data->users = $users;
+		$data->total = $total;
+
+		return $data;
 	}
 }

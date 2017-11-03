@@ -697,14 +697,14 @@ class log_model extends \TMS_MODEL {
 	/*
 	* 获取我的分享信息
 	*/
-	public function getMyShareInfo($oUser, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
+	public function getMyShareInfo($oUserid, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
 		$q = [];
 		$q2 = [];
 		switch ($orderBy) {
 			case 'shareF':
 				$q[0] = 's.userid,count(*) shareF_sum,a.nickname,a.headimgurl';
 				$q[1] = 'xxt_log_matter_share s,xxt_site_account a';
-				$q[2] = "s.matter_id = '{$matterId}' and s.matter_type = '{$matterType}' and s.matter_shareby like '" . $oUser->uid . "_%' and s.share_to ='F' and s.userid = a.uid";
+				$q[2] = "s.matter_id = '{$matterId}' and s.matter_type = '{$matterType}' and s.matter_shareby like '" . $oUserid . "_%' and s.share_to ='F' and s.userid = a.uid";
 
 				$q2['g'] = 's.userid';
 				$q2['o'] = 'shareF_sum desc,s.share_at desc';
@@ -722,7 +722,7 @@ class log_model extends \TMS_MODEL {
 			case 'shareT':
 				$q[0] = 's.userid,count(*) shareT_sum,a.nickname,a.headimgurl';
 				$q[1] = 'xxt_log_matter_share s,xxt_site_account a';
-				$q[2] = "s.matter_id = '{$matterId}' and s.matter_type = '{$matterType}' and s.matter_shareby like '" . $oUser->uid . "_%' and s.share_to ='T' and s.userid = a.uid";
+				$q[2] = "s.matter_id = '{$matterId}' and s.matter_type = '{$matterType}' and s.matter_shareby like '" . $oUserid . "_%' and s.share_to ='T' and s.userid = a.uid";
 
 				$q2['g'] = 's.userid';
 				$q2['o'] = 'shareT_sum desc,s.share_at desc';
@@ -738,21 +738,21 @@ class log_model extends \TMS_MODEL {
 
 				break;
 			case 'attractRead':
-				$q = "select r.userid,(select count(*) from xxt_log_matter_read r1 where r1.matter_id='" . $this->escape($matterId) . "' and r1.matter_type='" . $this->escape($matterType) . "' and r1.matter_shareby like CONCAT(r.userid,'_%')) as attractRead_sum,a.nickname,a.headimgurl from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUser->uid . "_%' and r.userid = a.uid group by r.userid order by attractRead_sum desc,r.read_at desc";
+				$q = "select r.userid,(select count(*) from xxt_log_matter_read r1 where r1.matter_id='" . $this->escape($matterId) . "' and r1.matter_type='" . $this->escape($matterType) . "' and r1.matter_shareby like CONCAT(r.userid,'_%')) as attractRead_sum,a.nickname,a.headimgurl from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid group by r.userid order by attractRead_sum desc,r.read_at desc";
 				
 				if (!empty($page) && !empty($size)) {
 					$q .= " limit " . ($page - 1) * $size . "," . $size;
 				}
 
 				$users = $this->query_objs($q);
-				$q = "select count(distinct r.userid) from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUser->uid . "_%' and r.userid = a.uid";
+				$q = "select count(distinct r.userid) from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid";
 				$total = (int) $this->query_value($q);
 				
 				break;
 			default:
 				$q[0] = 'r.userid,count(*) as read_sum,a.nickname,a.headimgurl';
 				$q[1] = 'xxt_log_matter_read r,xxt_site_account a';
-				$q[2] = "r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUser->uid . "_%' and r.userid = a.uid";
+				$q[2] = "r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid";
 
 				$q2['g'] = 'r.userid';
 				$q2['o'] = 'read_sum desc,r.read_at desc';
@@ -779,7 +779,7 @@ class log_model extends \TMS_MODEL {
 					];
 					$q[2]["matter_id"] = $matterId;
 					$q[2]["matter_type"] = $matterType;
-					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUser->uid . '_%'];
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
 					$q[2]["userid"] = $user->userid;
 
 					$rst = $this->query_obj_ss($q);
@@ -797,7 +797,7 @@ class log_model extends \TMS_MODEL {
 					];
 					$q[2]["matter_id"] = $matterId;
 					$q[2]["matter_type"] = $matterType;
-					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUser->uid . '_%'];
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
 					$q[2]["userid"] = $user->userid;
 					$q[2]["share_to"] = 'F';
 
@@ -816,7 +816,7 @@ class log_model extends \TMS_MODEL {
 					];
 					$q[2]["matter_id"] = $matterId;
 					$q[2]["matter_type"] = $matterType;
-					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUser->uid . '_%'];
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
 					$q[2]["userid"] = $user->userid;
 					$q[2]["share_to"] = 'T';
 

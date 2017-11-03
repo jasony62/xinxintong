@@ -52,13 +52,12 @@ class share extends \site\fe\base {
 		$model = $this->model('matter\log');
 		// 指定用户的访问记录
 		if (!empty($userid)) {
-			$user = new \stdClass;
-			$user->uid = $model->escape($userid);
+			$userid = $model->escape($userid);
 		} else {
-			$user = $this->who;
+			$userid = $this->who->uid;
 		}
 
-		$users = $model->getMyShareInfo($user, $matterType, $matterId, $orderBy, $page, $size);
+		$users = $model->getMyShareInfo($userid, $matterType, $matterId, $orderBy, $page, $size);
 
 		return new \ResponseData($users);
 	}

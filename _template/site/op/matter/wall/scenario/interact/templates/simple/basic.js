@@ -4,9 +4,9 @@
             time = $scope.time,
             url = window.location.href + "&time=" + time,
             boxs = document.querySelectorAll(".box"),
-            uls = document.querySelectorAll(".box > ul");
+            uls = document.querySelectorAll(".box > ul"),
+            bgImgs = document.querySelectorAll(".bgImg");
         $scope.players = [];
-        if(!$scope.Wall.matters_img) {alert('未指定分享素材');}
         //留住第一次打开页面的时间，并在URL上隐藏；
         function getQueryString(name) {
             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
@@ -35,6 +35,23 @@
                 $(uls[i]).append(li);
             }
         }
+        if($scope.Wall.result_img) {
+            angular.forEach(bgImgs, function(bgImg, index) {
+                angular.element(bgImg).css({
+                    display:'none',
+                    background:'url(' + $scope.Wall.result_img[index].imgsrc + ') no-repeat',
+                    width: '20px',
+                    height: '20px',
+                    position: 'absolute',
+                    margin: 'auto',
+                    top: '110px',
+                    left: '25px',
+                    right: '0',
+                    bottom: '0',
+                    borderRadius: '5%'
+                });
+            })
+        }
         $scope.open = function(event) {
             var prev = $(event.target).prev(),
                 next = $(event.target).next();
@@ -45,16 +62,8 @@
                 prev.find('.shine').css({'animation': 'moveShine 2s linear','animation-fill-mode': 'forwards'});
             }, 2000);
             setTimeout(function() {
-                if(next.attr('class')=='bgImg1') {
-                    next.css({'animation': 'moveImg1 5s linear','animation-fill-mode': 'forwards'});
-                }else if(next.attr('class')=='bgImg2') {
-                    next.css({'animation': 'moveImg2 5s linear','animation-fill-mode': 'forwards'});
-                }else if(next.attr('class')=='bgImg3'){
-                    next.css({'animation': 'moveImg3 5s linear','animation-fill-mode': 'forwards'});
-                }else if(next.attr('class')=='bgImg4'){
-                    next.css({'animation': 'moveImg4 5s linear','animation-fill-mode': 'forwards'});
-                }
-            }, 4000);
+                next.css({'display':'block','animation': 'moveImg 2s linear','animation-fill-mode': 'forwards'});
+            }, 3000);
         }
         $scope.play = function() {
             var timer2, count = 0, idx,

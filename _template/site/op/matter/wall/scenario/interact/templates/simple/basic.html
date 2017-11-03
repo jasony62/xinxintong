@@ -6,8 +6,8 @@
         </div>
         <div class="qrcode">
             <ul>
-                <li ng-repeat="m in Wall.interact_matter">
-                    <img ng-src="{{m.entryUrl}}" style="width:250px;height:268px">
+                <li ng-repeat="m in Wall.matters_img">
+                    <img ng-src="{{m.qrcodesrc}}" style="width:250px;height:268px">
                 </li>
             </ul>
         </div>
@@ -23,7 +23,7 @@
                     </div>
                 </div>
                 <div class="button" ng-click="open($event)" >开启宝箱</div>
-                <div class="bgImg1"></div>
+                <div class="bgImg one"></div>
             </div>
             <div class="box">
                 <ul></ul>
@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <div class="button" ng-click="open($event)" >开启宝箱</div>
-                <div class="bgImg2"></div>
+                <div class="bgImg two"></div>
             </div>
             <div class="box">
                 <ul></ul>
@@ -45,7 +45,7 @@
                     </div>
                 </div>
                 <div class="button" ng-click="open($event)" >开启宝箱</div>
-                <div class="bgImg3"></div>
+                <div class="bgImg three"></div>
             </div>
             <div class="box">
                 <ul></ul>
@@ -56,7 +56,7 @@
                     </div>
                 </div>
                 <div class="button" ng-click="open($event)" >开启宝箱</div>
-                <div class="bgImg4"></div>
+                <div class="bgImg four"></div>
             </div>
         </div>
     </div>

@@ -86,8 +86,18 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
         var params;
         params = rsp.data;
         $scope.Wall = params.wall;
-        setPage($scope, params.page);
-        if($scope.Wall.scenario!=='interact') {
+        if($scope.Wall.scenario =='interact') {
+            if(!$scope.Wall.matters_img || $scope.Wall.matters_img.length == 0){
+                alert("未指定分享素材的二维码");
+                return;
+            }
+            if(!$scope.Wall.result_img || $scope.Wall.result_img.length == 0) {
+                alert("未指定宝箱底图");
+                return;
+            }
+            setPage($scope, params.page);
+        }else{
+            setPage($scope, params.page);
             $http.get('/rest/site/op/matter/wall/messageList?site=' + $scope.siteId + '&wall=' + $scope.wallId + '&_=' + (new Date() * 1), {
                 headers: {
                     'Accept': 'application/json'

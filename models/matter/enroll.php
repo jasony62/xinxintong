@@ -313,7 +313,7 @@ class enroll_model extends enroll_base {
 			];
 			$oRound->remark_total = $this->query_val_ss($q);
 			/* enrollee */
-			$oEnrollees = $modelUsr->enrolleeByApp($oApp);
+			$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['cascaded' => 'N']);
 			$oRound->enrollee_num = $oEnrollees->total;
 			/* member */
 			if (!empty($mschemaIds)) {
@@ -345,7 +345,7 @@ class enroll_model extends enroll_base {
 				];
 				$oRound->remark_total = $this->query_val_ss($q);
 				/* enrollee */
-				$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $oRound->rid]);
+				$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $oRound->rid, 'cascaded' => 'N']);
 				$oRound->enrollee_num = $oEnrollees->total;
 
 				/* member */

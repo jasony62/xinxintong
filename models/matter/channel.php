@@ -34,14 +34,17 @@ class channel_model extends article_base {
 	/**
 	 * 获得素材的所有频道
 	 */
-	public function &byMatter($id, $type) {
+	public function &byMatter($id, $type, $oOptions = []) {
 		$id = $this->escape($id);
 		$type = $this->escape($type);
-		$q = array(
+		$q = [
 			'c.id,c.title,cm.create_at,c.style_page_id,c.header_page_id,c.footer_page_id,c.style_page_name,c.header_page_name,c.footer_page_name',
 			'xxt_channel_matter cm,xxt_channel c',
 			"cm.matter_id='$id' and cm.matter_type='$type' and cm.channel_id=c.id and c.state=1",
-		);
+		];
+		if (isset($oOptions['public_visible'])) {
+			$q[2] .= " and public_visible='{$oOptions['public_visible']}'";
+		}
 		$q2['o'] = 'cm.create_at desc';
 
 		$channels = $this->query_objs_ss($q, $q2);

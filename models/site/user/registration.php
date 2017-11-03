@@ -48,10 +48,10 @@ class registration_model extends \TMS_MODEL {
 	 * 注册用户帐号
 	 */
 	public function create($siteId, $uname, $password, $options = array()) {
+		$this->setOnlyWriteDbConn(true);
 		if ($this->checkUname($uname)) {
 			return [false, '注册账号已经存在，不能重复注册'];
 		}
-		$this->setOnlyWriteDbConn(true);
 
 		$current = time();
 		/*password*/

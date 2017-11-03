@@ -5,14 +5,14 @@ define(['require'], function(require) {
     _siteid = ls.match(/[\?&]site=([^&]*)/)[1];
     ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
     ngApp.config(['$routeProvider', '$controllerProvider', '$locationProvider', '$uibTooltipProvider', 'srvSiteProvider', function($routeProvider, $controllerProvider, $locationProvider, $uibTooltipProvider, srvSiteProvider) {
-        var RouteParam = function(name) {
+        var RouteParam = function(name, htmlBase, jsBase) {
             var baseURL = '/views/default/pl/fe/site/';
-            this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
+            this.templateUrl = (htmlBase || baseURL) + name + '.html?_=' + (new Date * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             this.resolve = {
                 load: function($q) {
                     var defer = $q.defer();
-                    require([baseURL + name + '.js'], function() {
+                    require([(jsBase || baseURL) + name + '.js'], function() {
                         defer.resolve();
                     });
                     return defer.promise;
@@ -25,6 +25,11 @@ define(['require'], function(require) {
         $routeProvider
             .when('/rest/pl/fe/site/basic', new RouteParam('basic'))
             .when('/rest/pl/fe/site/coworker', new RouteParam('coworker'))
+            .when('/rest/pl/fe/site/home', new RouteParam('home'))
+            .when('/rest/pl/fe/site/user', new RouteParam('user', '/views/default/pl/fe/site/home/', '/views/default/pl/fe/site/home/'))
+            .when('/rest/pl/fe/site/subscriber', new RouteParam('subscriber', '/views/default/pl/fe/site/home/', '/views/default/pl/fe/site/home/'))
+            .when('/rest/pl/fe/site/analysis', new RouteParam('analysis', '/views/default/pl/fe/site/home/', '/views/default/pl/fe/site/home/'))
+            .when('/rest/pl/fe/site/received', new RouteParam('received', '/views/default/pl/fe/site/message/', '/views/default/pl/fe/site/message/'))
             .otherwise(new RouteParam('basic'));
         $locationProvider.html5Mode(true);
         $uibTooltipProvider.setTriggers({
@@ -41,8 +46,15 @@ define(['require'], function(require) {
             switch ($scope.subView) {
                 case 'basic':
                 case 'coworker':
+                case 'home':
                     $scope.opened = 'define';
                     break;
+                case 'user':
+                case 'subscriber':
+                case 'received':
+                case 'analysis':
+                    $scope.opened = 'data';
+                    break
                 default:
                     $scope.opened = '';
             }

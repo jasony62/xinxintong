@@ -24,13 +24,19 @@
             <ul class="nav nav-tabs nav-stacked">
                 <li ng-class="{'opened':opened==='define'}">
                     <a href='' ng-click="opened=opened==='define'?false:'define';switchTo('basic')">定义 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='define'?'82px':'0'}">
-                        <li ng-class="{'active':subView==='basic'}">
-                            <a href='' ng-click="switchTo('basic')">描述</a>
-                        </li>
-                        <li ng-class="{'active':subView==='coworker'}">
-                            <a href='' ng-click="switchTo('coworker')">成员</a>
-                        </li>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='define'?'123px':'0'}">
+                        <li ng-class="{'active':subView==='basic'}"><a href='' ng-click="switchTo('basic')">描述</a></li>
+                        <li ng-class="{'active':subView==='coworker'}"><a href='' ng-click="switchTo('coworker')">成员</a></li>
+                        <li ng-class="{'active':subView==='home'}"><a href='' ng-click="switchTo('home')">主页</a></li>
+                    </ul>
+                </li>
+                <li ng-class="{'opened':opened==='data'}">
+                    <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('user')">数据 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'164px':'0'}">
+                        <li ng-class="{'active':subView==='user'}"><a href='' ng-click="switchTo('user')">门户用户</a></li>
+                        <li ng-class="{'active':subView==='subscriber'}"><a href='' ng-click="switchTo('subscriber')">订阅用户</a></li>
+                        <li ng-class="{'active':subView==='received'}"><a href='' ng-click="switchTo('received')">用户消息</a></li>
+                        <li ng-class="{'active':subView==='analysis'}"><a href='' ng-click="switchTo('analysis')">运行统计</a></li>
                     </ul>
                 </li>
             </ul>

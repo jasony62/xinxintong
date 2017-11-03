@@ -52,9 +52,8 @@
                         <th ng-if="app.userTask.minLikeNum>0">要求赞同数</th>
                         <th>积分</th>
                         <th>得分</th>
-                        <th ng-if="sns.wx.joined=='Y'">已关联微信</th>
-                        <th ng-if="sns.yx.joined=='Y'">已关联易信</th>
-                        <th ng-if="sns.qy.joined=='Y'">已关联微企</th>
+                        <th ng-if="sns.wx.joined=='Y'">微信昵称</th>
+                        <th ng-if="sns.yx.joined=='Y'">易信昵称</th>
                         <th>最后一次通知发送时间</th>
                         <th>最后一次通知发送结果</th>
                     </tr>
@@ -98,13 +97,10 @@
                             <div ng-if='m.score'>{{m.score}}</div>
                         </td>
                         <td ng-if="sns.wx.joined=='Y'">
-                            <div ng-show="m.wx_openid">是</div>
+                            <div ng-show="m.wx_openid">{{m.wxfan.nickname}}</div>
                         </td>
                         <td ng-if="sns.yx.joined=='Y'">
-                            <div ng-show="m.yx_openid">是</div>
-                        </td>
-                        <td ng-if="sns.qy.joined=='Y'">
-                            <div ng-show="m.qy_openid">是</div>
+                            <div ng-show="m.yx_openid">{{m.yxfan.nickname}}</div>
                         </td>
                         <td>
                             <div ng-if="m.tmplmsg.create_at">{{m.tmplmsg.create_at*1000|date: 'yy-MM-dd HH:mm'}}</div>

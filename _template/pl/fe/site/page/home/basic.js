@@ -2,13 +2,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
     var ls = location.search,
         siteId = ls.match(/site=([^&]*)/)[1],
         width = angular.element(window).width(),
-        page, entry, url;
+        page;
 
-    url = 'http://' + location.host + '/rest/site/home?site=' + siteId;
-    $scope.entry = entry = {
-        url: url,
-        qrcode: '/rest/pl/fe/site/qrcode?site=' + siteId + '&url=' + encodeURIComponent(url)
-    }
     $scope.cTotal = [];
     $scope.siteId = siteId;
     $scope.page = page = {
@@ -29,19 +24,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         $http.get('/rest/pl/fe/matter/tag/listTags?site=' + siteId + '&subType=C').success(function(rsp) {
             $scope.oTagsC = rsp.data;
         });
-    };
-    $scope.moreMatters = function(id) {
-        $scope.cTotal[id].pageAt++;
-        $scope.page.at = $scope.cTotal[id].pageAt;
-        $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + id + '&' + page.j()).success(function(rsp) {
-            var matterData = $scope.cTotal[id].data.matters;
-            rsp.data.matters.forEach(function(item) {
-                matterData.push(item);
-            });
-            $scope.cTotal[id].data = matterData;
-            $scope.cTotal[id].total = rsp.data.length;
-        });
-    };
+    }
 
     function c_listChannels() {
         $scope.c_prev_channels = [], $scope.c_next_channels = [];
@@ -96,6 +79,18 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             });
         });
     }
+    $scope.moreMatters = function(id) {
+        $scope.cTotal[id].pageAt++;
+        $scope.page.at = $scope.cTotal[id].pageAt;
+        $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + id + '&' + page.j()).success(function(rsp) {
+            var matterData = $scope.cTotal[id].data.matters;
+            rsp.data.matters.forEach(function(item) {
+                matterData.push(item);
+            });
+            $scope.cTotal[id].data = matterData;
+            $scope.cTotal[id].total = rsp.data.length;
+        });
+    };
     $scope.favor = function(user, article) {
         event.preventDefault();
         event.stopPropagation();
@@ -129,10 +124,20 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         $location.hash("home");
         $anchorScroll();
     };
-    tagMatters();
-    listTemplates();
-    c_listChannels();
-    r_listChannels();
+    $scope.$watch('site', function(oSite) {
+        var qrcodePic;
+        if (oSite) {
+            qrcodePic = '/rest/pl/fe/site/qrcode?site=' + oSite.id + '&url=' + encodeURIComponent(oSite.homeUrl);
+            if (!oSite.home_qrcode_group) {
+                oSite.home_qrcode_group = [];
+            }
+            oSite.home_qrcode_group.splice(0, 0, { picUrl: qrcodePic, tip: '团队首页二维码' });
+            tagMatters();
+            listTemplates();
+            c_listChannels();
+            r_listChannels();
+        }
+    });
 }]);
 ngApp.provider.controller('ctrlCarousel', function($scope) {
     $scope.myInterval = 5000;

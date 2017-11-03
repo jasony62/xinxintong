@@ -1,4 +1,4 @@
-define(['main'], function(ngApp) {
+define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlReceived', ['$scope', 'http2', function($scope, http2) {
         $scope.page = { current: 1, size: 30, keyword: '' };
         $scope.doSearch = function(page) {

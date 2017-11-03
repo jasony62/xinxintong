@@ -36,10 +36,10 @@
             }
         }
         if($scope.Wall.result_img) {
-            angular.forEach(bgImgs, function(bgImg, index) {
-                angular.element(bgImg).css({
+            angular.forEach($scope.Wall.result_img, function(img, index) {
+                angular.element(bgImgs[index]).css({
                     display:'none',
-                    background:'url(' + $scope.Wall.result_img[index].imgsrc + ') no-repeat',
+                    background:'url(' + img.imgsrc + ') no-repeat',
                     width: '20px',
                     height: '20px',
                     position: 'absolute',

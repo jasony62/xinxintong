@@ -293,9 +293,6 @@ class wall_model extends enroll_base {
 		$this->setOnlyWriteDbConn(true);
 		$startTime = $this->escape($startTime);
 		$interactAction = $oApp->scenario_config->interact_action;
-		if ($interactAction->shareF === 'N' && $interactAction->shareT === 'N' && $interactAction->read === 'N') {
-			return [];
-		}
 
 		if ($interactAction->shareF === 'Y' || $interactAction->shareT === 'Y') {
 			$q = [

@@ -87,6 +87,10 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
         params = rsp.data;
         $scope.Wall = params.wall;
         if($scope.Wall.scenario =='interact') {
+            if(!$scope.Wall.interact_matter || $scope.Wall.interact_matter.length == 0){
+                alert("未指定分享素材");
+                return;
+            }
             if(!$scope.Wall.matters_img || $scope.Wall.matters_img.length == 0){
                 alert("未指定分享素材的二维码");
                 return;

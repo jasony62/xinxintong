@@ -141,7 +141,7 @@
                     </div>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='interact'">
-                    <label>已有图文</label>
+                    <label>分享素材</label>
                     <button class='btn btn-default btn-sm' ng-click="addInteractMatter()">选择素材</button>
                     <ul class='list-group' style='margin-bottom:0'>
                         <li class='list-group-item' ng-repeat="m in wall.interact_matter" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
@@ -153,7 +153,7 @@
                     </ul>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='interact'" >
-                    <label>分享图文二维码（建议尺寸：250像素*268像素；数量上限：3个）</label>
+                    <label>分享素材的二维码（建议尺寸：250像素*268像素；数量上限：3个）</label>
                     <ul class="img-tiles clearfix">
                         <li wrap="img" ng-repeat="img in wall.matters_img" class="img-thumbnail" title="图片">
                             <img ng-src='{{img.qrcodesrc}}' style="width:100%;height:134px;left:0px;top: 50%margin-top: -68px;" />
@@ -179,7 +179,7 @@
             </div>
         </div>
     </div>
-    <div class='panel panel-default'>
+    <div class='panel panel-default' ng-if="wall.scenario=='discuss'">
         <div class="panel-body">
             <div class="form-group compact">
                 <label>用户进入URL</label>
@@ -195,6 +195,10 @@
                 <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
                 <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
             </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
             <div class='form-group compact'>
                 <label>管理标签（可选）</label>
                 <p class="form-control" ng-click="tagMatter('M')">

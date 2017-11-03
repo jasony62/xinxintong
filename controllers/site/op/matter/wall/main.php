@@ -74,6 +74,10 @@ class main extends \site\op\base {
 		if(empty($oApp->interact_matter)){
 			return new \ResponseError('未指定互动素材');
 		}
+		$interactAction = $oApp->scenario_config->interact_action;
+		if ($interactAction->shareF === 'N' && $interactAction->shareT === 'N') {
+			return new \ResponseError('未指定互动行为');
+		}
 		
 		$data = $this->model('matter\wall')->listPlayer($startTime, $startId, $oApp);
 

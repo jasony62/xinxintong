@@ -7,6 +7,14 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class stat extends \pl\fe\matter\base {
 	/**
+	 * 图表的宽度
+	 */
+	const GRAPH_WIDTH = 450;
+	/**
+	 * 图表的高度
+	 */
+	const GRAPH_HEIGHT = 300;
+	/**
 	 * 返回视图
 	 */
 	public function index_action() {
@@ -34,6 +42,127 @@ class stat extends \pl\fe\matter\base {
 		$result = $this->model('matter\enroll\record')->getStat($oApp, $rid, $renewCache);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 单选题的饼图图表
+	 */
+	private function _setSingleSchemaGraph($aSchemaOps, $oPlConfig) {
+		$aOpsData = [];
+		$labels = [];
+		for ($i = 0, $l = count($aSchemaOps); $i < $l; $i++) {
+			$op = $aSchemaOps[$i];
+			if ((int) $op->c !== 0) {
+				$aOpsData[] = (int) $op->c;
+				if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
+					$labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：%.1f%%');
+				} else {
+					$labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：' . $op->c);
+				}
+			}
+		}
+		if (empty($aOpsData)) {
+			return false;
+		}
+
+		$graph = new \PieGraph(self::GRAPH_WIDTH, self::GRAPH_HEIGHT);
+		$graph->SetShadow();
+		$pie = new \PiePlot($aOpsData);
+		$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
+		$graph->Add($pie);
+		$pie->ShowBorder();
+		$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
+		$pie->SetColor(array(255, 255, 255));
+		$pie->SetLabels($labels, 1);
+
+		return $graph;
+	}
+	/**
+	 * 多选题的柱状图表
+	 */
+	private function _setMultipleSchemaGraph($aSchemaOps, $oPlConfig) {
+		$aOpsData = [];
+		$labels = [];
+		for ($i = 0, $l = count($aSchemaOps); $i < $l; $i++) {
+			$op = $aSchemaOps[$i];
+			if ((int) $op->c !== 0) {
+				$aOpsData[] = (int) $op->c;
+				if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
+					$labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：' . round($op->c / $oSchemaStat->sum * 100, 2) . '%');
+				} else {
+					$labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：' . $op->c);
+				}
+			}
+		}
+		if (empty($aOpsData)) {
+			return false;
+		}
+
+		// Create the graph. These two calls are always required
+		$graph = new \Graph(self::GRAPH_WIDTH, self::GRAPH_HEIGHT);
+		$graph->SetScale("textint");
+		// Add a drop shadow
+		$graph->SetShadow();
+		// Adjust the margin a bit to make more room for titles
+		$graph->img->SetMargin(40, 30, 20, 40);
+		// Create a bar pot
+		$bar = new \BarPlot($aOpsData);
+		$graph->Add($bar);
+		// Setup the titles
+		//$graph->xaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "选项"));
+		//$graph->yaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "数量"));
+		$graph->xaxis->SetTickLabels($labels);
+		$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
+
+		$graph->yaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
+		$graph->xaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
+
+		return $graph;
+	}
+	/**
+	 * 打分题线条图
+	 */
+	private function _setScoreSchemaGraph($aSchemaOps) {
+		$labels = [];
+		$data = [];
+		for ($i = 0, $l = count($aSchemaOps); $i < $l; $i++) {
+			$labels[] = iconv("UTF-8", "GB2312//IGNORE", '打分项' . ($i + 1));
+			$op = $aSchemaOps[$i];
+			$op->c = round((float) $op->c, 2);
+			$data[] = $op->c;
+		}
+		if (empty($data)) {
+			return false;
+		}
+		// 如果只有1个点，jpgraph会报错，所以跳过绘图。
+		// Setup the graph
+		$graph = new \Graph(self::GRAPH_WIDTH, self::GRAPH_HEIGHT);
+		$graph->SetScale("textlin");
+
+		$theme_class = new \UniversalTheme;
+
+		$graph->SetTheme($theme_class);
+		$graph->img->SetAntiAliasing(false);
+		//$graph->title->Set($oSchemaStat->title);
+		//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
+		$graph->SetBox(false);
+
+		$graph->img->SetAntiAliasing();
+
+		$graph->yaxis->HideZeroLabel();
+		$graph->yaxis->HideLine(false);
+		$graph->yaxis->HideTicks(false, false);
+
+		$graph->xgrid->Show();
+		$graph->xgrid->SetLineStyle("solid");
+		$graph->xaxis->SetTickLabels($labels);
+		$graph->xgrid->SetColor('#E3E3E3');
+		$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
+
+		$p1 = new \LinePlot($data);
+		$graph->Add($p1);
+		$p1->SetColor("#6495ED");
+
+		return $graph;
 	}
 	/**
 	 * 导出报告
@@ -115,8 +244,6 @@ class stat extends \pl\fe\matter\base {
 		);
 		// a4纸宽210mm 取15㎝，1CM=567 twips
 		$a4_width = 15 * 567;
-		$graphWidth = 450;
-		$graphHeight = 300;
 		$section->addText($oApp->title, ['bold' => true, 'size' => 24], ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
 		$section->addTextBreak(2, null, null);
 
@@ -127,47 +254,6 @@ class stat extends \pl\fe\matter\base {
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
 				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
-					//数值型的饼图
-					if (isset($schema->format) && $schema->format === 'number') {
-						$data = [];
-						foreach ($textResult->records as $record) {
-							$schemaId = $schema->id;
-							if (isset($record->data->$schemaId)) {
-								$data[] = $record->data->$schemaId;
-							}
-						}
-						if (empty($data)) {
-							continue;
-						}
-
-						$graph = new \PieGraph($graphWidth, $graphHeight);
-						$graph->SetShadow();
-						$pie = new \PiePlot($data);
-						$labels = [];
-						for ($i = 0, $l = count($data); $i < $l; $i++) {
-							$labels[] = $op = $data[$i] . '：%.1f%%';
-						}
-						$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
-						$graph->Add($pie);
-						$pie->ShowBorder();
-						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
-						$pie->SetColor(array(255, 255, 255));
-						foreach ($labels as &$rec) {
-							$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
-						}
-						$pie->SetLabels($labels, 1);
-
-						//$graph->title->Set($schema->title);
-						//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
-
-						$graph->Stroke(_IMG_HANDLER);
-						ob_start(); // start buffering
-						$graph->img->Stream(); // print data to buffer
-						$image_data = ob_get_contents(); // retrieve buffer contents
-						ob_end_clean(); // stop buffer
-						//
-						$section->addImage($image_data, $imgStyle);
-					}
 					//拼装表格
 					$records = $textResult->records;
 					$phpWord->addTableStyle("one", $fancyTableStyle, $firstStyle);
@@ -267,84 +353,19 @@ class stat extends \pl\fe\matter\base {
 				}
 			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
 				$oSchemaStat = $aStatResult[$schema->id];
-				$data = [];
-				foreach ($oSchemaStat->ops as $op) {
-					if ((int) $op->c !== 0) {
-						$data[] = (int) $op->c;
-					}
-				}
-				if (empty($data)) {
-					continue;
-				}
 				if (in_array($schema->type, ['single', 'phase'])) {
 					// Create a pie pot
-					if ($oSchemaStat->sum) {
-						$graph = new \PieGraph($graphWidth, $graphHeight);
-						$graph->SetShadow();
-						$pie = new \PiePlot($data);
-						$labels = [];
-						for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
-							$op = $oSchemaStat->ops[$i];
-							if ((int) $op->c !== 0) {
-								if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
-									$labels[] = '选项' . ($i + 1) . '：%.1f%%';
-								} else {
-									$labels[] = '选项' . ($i + 1) . '：' . $op->c;
-								}
-							}
-						}
-						$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
-						$graph->Add($pie);
-						$pie->ShowBorder();
-						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
-						$pie->SetColor(array(255, 255, 255));
-						foreach ($labels as &$rec) {
-							$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
-						}
-						$pie->SetLabels($labels, 1);
-					}
+					$graph = $this->_setSingleSchemaGraph($oSchemaStat->ops, $oPlConfig);
 				} else if ($schema->type === 'multiple') {
-					// Create the graph. These two calls are always required
-					$graph = new \Graph($graphWidth, $graphHeight);
-					$graph->SetScale("textint");
-					// Add a drop shadow
-					$graph->SetShadow();
-					// Adjust the margin a bit to make more room for titles
-					$graph->img->SetMargin(40, 30, 20, 40);
-					// Create a bar pot
-					$labels = [];
-					for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
-						$op = $oSchemaStat->ops[$i];
-						if ((int) $op->c !== 0) {
-							if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
-								$labels[] = '选项' . ($i + 1) . '：' . round($op->c / $oSchemaStat->sum * 100, 2) . '%';
-							} else {
-								$labels[] = '选项' . ($i + 1) . '：' . $op->c;
-							}
-						}
-					}
-					$bar = new \BarPlot($data);
-					$graph->Add($bar);
-					// Setup the titles
-					//$graph->xaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "选项"));
-					//$graph->yaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "数量"));
-					foreach ($labels as &$rec) {
-						$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
-					}
-					$graph->xaxis->SetTickLabels($labels);
-					$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
-
-					$graph->yaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
-					$graph->xaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
+					$graph = $this->_setMultipleSchemaGraph($oSchemaStat->ops, $oPlConfig);
 				}
-				if ($oSchemaStat->sum) {
+				if ($graph) {
 					$graph->Stroke(_IMG_HANDLER);
 					ob_start(); // start buffering
 					$graph->img->Stream(); // print data to buffer
-					$image_data = ob_get_contents(); // retrieve buffer contents
+					$imageData = ob_get_contents(); // retrieve buffer contents
 					ob_end_clean(); // stop buffer
-
-					$section->addImage($image_data, $imgStyle);
+					$section->addImage($imageData, $imgStyle);
 				}
 				$section->addTextBreak(1, null, null);
 				$phpWord->addTableStyle("two", $fancyTableStyle, $firstStyle);
@@ -377,57 +398,15 @@ class stat extends \pl\fe\matter\base {
 			} else if ('score' === $schema->type) {
 				//
 				$oSchemaStat = $aStatResult[$schema->id];
-				$labels = [];
-				$data = [];
-				$totalScore = 0;
-				for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
-					$labels[] = '打分项' . ($i + 1);
-					$op = &$oSchemaStat->ops[$i];
-					$op->c = round((float) $op->c, 2);
-					$data[] = $op->c;
-					$totalScore += $op->c;
-				}
-				if (count($data) > 1) {
-					// 如果只有1个点，jpgraph会报错，所以跳过绘图。
-					// Setup the graph
-					$graph = new \Graph($graphWidth, $graphHeight);
-					$graph->SetScale("textlin");
-
-					$theme_class = new \UniversalTheme;
-
-					$graph->SetTheme($theme_class);
-					$graph->img->SetAntiAliasing(false);
-					//$graph->title->Set($oSchemaStat->title);
-					//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
-					$graph->SetBox(false);
-
-					$graph->img->SetAntiAliasing();
-
-					$graph->yaxis->HideZeroLabel();
-					$graph->yaxis->HideLine(false);
-					$graph->yaxis->HideTicks(false, false);
-
-					$graph->xgrid->Show();
-					$graph->xgrid->SetLineStyle("solid");
-					foreach ($labels as &$rec) {
-						$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
-					}
-					$graph->xaxis->SetTickLabels($labels);
-					$graph->xgrid->SetColor('#E3E3E3');
-					$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
-
-					$p1 = new \LinePlot($data);
-					$graph->Add($p1);
-					$p1->SetColor("#6495ED");
-
-					// Output line
+				// Output line
+				$graph = $this->_setScoreSchemaGraph($oSchemaStat->ops);
+				if ($graph) {
 					$graph->Stroke(_IMG_HANDLER);
 					ob_start(); // start buffering
 					$graph->img->Stream(); // print data to buffer
-					$image_data = ob_get_contents(); // retrieve buffer contents
+					$imageData = ob_get_contents(); // retrieve buffer contents
 					ob_end_clean(); // stop buffer
-
-					$section->addImage($image_data, $imgStyle);
+					$section->addImage($imageData, $imgStyle);
 				}
 				// table
 				$phpWord->addTableStyle("three", $fancyTableStyle, $firstStyle);
@@ -447,7 +426,7 @@ class stat extends \pl\fe\matter\base {
 					$table3->addCell($cell_w2, $fancyTableCellStyle)->addText($op2->l, $cellTextStyle);
 					$table3->addCell($cell_w3, $fancyTableCellStyle)->addText($op2->c, $cellTextStyle);
 				}
-				$avgScore = round($totalScore / count($oSchemaStat->ops), 2);
+				$avgScore = round($oSchemaStat->sum / count($oSchemaStat->ops), 2);
 				$table3->addRow(500);
 				$table3->addCell($cell_w1, $fancyTableCellStyle)->addText('本项平均分', $cellTextStyle);
 				$table3->addCell($cell_w2, $fancyTableCellStyle)->addText('');
@@ -565,49 +544,6 @@ class stat extends \pl\fe\matter\base {
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
 				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
-					//数值型的饼图
-					if (isset($schema->format) && $schema->format === 'number') {
-						$data = [];
-						foreach ($textResult->records as $record) {
-							$schemaId = $schema->id;
-							if (isset($record->data->$schemaId)) {
-								$data[] = $record->data->$schemaId;
-							}
-						}
-						if (empty($data)) {
-							continue;
-						}
-						$graph = new \PieGraph(550, 300);
-						$graph->SetShadow();
-						$pie = new \PiePlot($data);
-						$labels = [];
-						for ($i = 0, $l = count($data); $i < $l; $i++) {
-							$labels[] = $op = $data[$i] . '：%.1f%%';
-						}
-						$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
-						$graph->Add($pie);
-						$pie->ShowBorder();
-						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
-						$pie->SetColor(array(255, 255, 255));
-						foreach ($labels as &$rec) {
-							$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
-						}
-						$pie->SetLabels($labels, 1);
-
-						//$graph->title->Set($schema->title);
-						//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
-
-						$graph->Stroke(_IMG_HANDLER);
-						ob_start(); // start buffering
-						$graph->img->Stream(); // print data to buffer
-						$image_data = ob_get_contents(); // retrieve buffer contents
-						ob_end_clean(); // stop buffer
-						$imageBase64 = chunk_split(base64_encode($image_data));
-						//
-						$mappingOfImages[$schema->id . '.base64'] = $imageBase64;
-						//
-						$html .= '<img src="' . $schema->id . '.base64" />';
-					}
 					//拼装表格
 					$records = $textResult->records;
 					$html .= "<table><thead><tr>";
@@ -688,86 +624,18 @@ class stat extends \pl\fe\matter\base {
 				}
 			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
 				$oSchemaStat = $aStatResult[$schema->id];
-				$data = [];
-				foreach ($oSchemaStat->ops as $op) {
-					if ((int) $op->c !== 0) {
-						$data[] = (int) $op->c;
-					}
-				}
-				if (empty($data)) {
-					continue;
-				}
 				if (in_array($schema->type, ['single', 'phase'])) {
-					// Create a pie pot
-					if ($oSchemaStat->sum) {
-						$graph = new \PieGraph(550, 300);
-						$graph->SetShadow();
-						$pie = new \PiePlot($data);
-						$labels = [];
-						for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
-							$op = $oSchemaStat->ops[$i];
-							if ((int) $op->c !== 0) {
-								if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
-									$labels[] = '选项' . ($i + 1) . '：%.1f%%';
-								} else {
-									$labels[] = '选项' . ($i + 1) . '：' . $op->c;
-								}
-							}
-						}
-						$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
-						$graph->Add($pie);
-						$pie->ShowBorder();
-						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
-						$pie->SetColor(array(255, 255, 255));
-						foreach ($labels as &$rec) {
-							$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
-						}
-						$pie->SetLabels($labels, 1);
-					}
+					$graph = $this->_setSingleSchemaGraph($oSchemaStat->ops, $oPlConfig);
 				} else if ($schema->type === 'multiple') {
-					// Create the graph. These two calls are always required
-					$graph = new \Graph(550, 200);
-					$graph->SetScale("textint");
-					// Add a drop shadow
-					$graph->SetShadow();
-					// Adjust the margin a bit to make more room for titles
-					$graph->img->SetMargin(40, 30, 20, 40);
-					// Create a bar pot
-					$labels = [];
-					for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
-						$op = $oSchemaStat->ops[$i];
-						if ((int) $op->c !== 0) {
-							if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
-								$labels[] = '选项' . ($i + 1) . '：' . round($op->c / $oSchemaStat->sum * 100, 2) . '%';
-							} else {
-								$labels[] = '选项' . ($i + 1) . '：' . $op->c;
-							}
-						}
-					}
-					$bar = new \BarPlot($data);
-					$graph->Add($bar);
-					// Setup the titles
-					//$graph->xaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "选项"));
-					//$graph->yaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "数量"));
-					foreach ($labels as &$rec) {
-						$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
-					}
-					$graph->xaxis->SetTickLabels($labels);
-					$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
-
-					$graph->yaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
-					$graph->xaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
+					$graph = $this->_setMultipleSchemaGraph($oSchemaStat->ops, $oPlConfig);
 				}
-				if ($oSchemaStat->sum) {
-					//$graph->title->Set($oSchemaStat->title);
-					//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
-
+				if ($graph) {
 					$graph->Stroke(_IMG_HANDLER);
 					ob_start(); // start buffering
 					$graph->img->Stream(); // print data to buffer
-					$image_data = ob_get_contents(); // retrieve buffer contents
+					$imageData = ob_get_contents(); // retrieve buffer contents
 					ob_end_clean(); // stop buffer
-					$imageBase64 = chunk_split(base64_encode($image_data));
+					$imageBase64 = chunk_split(base64_encode($imageData));
 					//
 					$mappingOfImages[$oSchemaStat->id . '.base64'] = $imageBase64;
 					//
@@ -795,58 +663,17 @@ class stat extends \pl\fe\matter\base {
 				}
 				$html .= "</tbody></table>";
 			} else if ('score' === $schema->type) {
-				//
 				$oSchemaStat = $aStatResult[$schema->id];
-				$labels = [];
-				$data = [];
-				$totalScore = 0;
-				for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
-					$labels[] = '打分项' . ($i + 1);
-					$op = &$oSchemaStat->ops[$i];
-					$op['c'] = round((float) $op->c, 2);
-					$data[] = $op->c;
-					$totalScore += $op->c;
-				}
-				if (count($data) > 1) {
-					// 如果只有1个点，jpgraph会报错，所以跳过绘图。
-					// Setup the graph
-					$graph = new \Graph(550, 200);
-					$graph->SetScale("textlin");
-
-					$theme_class = new \UniversalTheme;
-
-					$graph->SetTheme($theme_class);
-					$graph->img->SetAntiAliasing(false);
-					$graph->title->Set($oSchemaStat->title);
-					$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
-					$graph->SetBox(false);
-
-					$graph->img->SetAntiAliasing();
-
-					$graph->yaxis->HideZeroLabel();
-					$graph->yaxis->HideLine(false);
-					$graph->yaxis->HideTicks(false, false);
-
-					$graph->xgrid->Show();
-					$graph->xgrid->SetLineStyle("solid");
-					$graph->xaxis->SetTickLabels($labels);
-					$graph->xgrid->SetColor('#E3E3E3');
-					$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
-
-					$p1 = new \LinePlot($data);
-					$graph->Add($p1);
-					$p1->SetColor("#6495ED");
-
+				$graph = $this->_setScoreSchemaGraph($oSchemaStat->ops);
+				if ($graph) {
 					// Output line
 					$graph->Stroke(_IMG_HANDLER);
 					ob_start(); // start buffering
 					$graph->img->Stream(); // print data to buffer
-					$image_data = ob_get_contents(); // retrieve buffer contents
+					$imageData = ob_get_contents(); // retrieve buffer contents
 					ob_end_clean(); // stop buffer
-					$imageBase64 = chunk_split(base64_encode($image_data));
-					//
+					$imageBase64 = chunk_split(base64_encode($imageData));
 					$mappingOfImages[$oSchemaStat->id . '.base64'] = $imageBase64;
-					//
 					$html .= '<img src="' . $oSchemaStat->id . '.base64" />';
 				}
 				// table
@@ -856,7 +683,7 @@ class stat extends \pl\fe\matter\base {
 					$op2 = $oSchemaStat->ops[$i];
 					$html .= "<tr><td>打分项" . ($i + 1) . "</td><td>{$op2['l']}</td><td>{$op2['c']}</td></tr>";
 				}
-				$avgScore = round($totalScore / count($oSchemaStat->ops), 2);
+				$avgScore = round($oSchemaStat->sum / count($oSchemaStat->ops), 2);
 				$html .= "<tr><td>本项平均分</td><td>{$avgScore}</td></tr>";
 				$html .= "</tbody></table>";
 				/*打分题汇总*/

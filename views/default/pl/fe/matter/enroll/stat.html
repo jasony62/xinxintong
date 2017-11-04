@@ -26,8 +26,8 @@
     <div id='stat-result' class='panel panel-default'>
         <div class='panel-body'>
             <!--schemas-->
-            <div ng-repeat="schema in app.dataSchemas" ng-if="schema.type!=='html'">
-                <h3><span class='hide'>第{{$index+1}}项：</span><span ng-bind="schema.title"></span></h3>
+            <div ng-repeat="schema in schemasForReport">
+                <h3><span ng-bind="schema.title"></span></h3>
                 <div ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1">
                     <div id="{{schema.id}}" style='height:300px'></div>
                     <table class='table table-bordered'>
@@ -144,7 +144,7 @@
                             <tbody>
                                 <tr ng-repeat='schema in appMarkSchemas' class='record'>
                                     <td>
-                                        <input type='checkbox' ng-model="markRows.selected[$index]">
+                                        <input type='checkbox' ng-model="markRows.selected[schema.id]">
                                     </td>
                                     <td>{{schema.title}}</td>
                                 </tr>
@@ -164,6 +164,25 @@
                             <input type='radio' name='plLabel' value='number' ng-model="plConfig.label">选择题图片中显示数量</label>
                         <label>
                             <input type='radio' name='plLabel' value='percentage' ng-model="plConfig.label">选择题图片中显示百分比</label>
+                    </div>
+                    <label>不包含的题目</label>
+                    <div style='max-height:370px;overflow-y:auto'>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:46px'>操作</th>
+                                    <th>题目</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat='schema in dataSchemas'>
+                                    <td>
+                                        <input type='checkbox' ng-model="plExcludeRows.selected[schema.id]" ng-change="plExcludeRows.change(schema)">
+                                    </td>
+                                    <td>{{schema.title}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </uib-tab>
                 <uib-tab index="2" heading="分享内容">

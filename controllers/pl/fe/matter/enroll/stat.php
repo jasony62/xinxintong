@@ -589,10 +589,13 @@ class stat extends \pl\fe\matter\base {
 						$pie->ShowBorder();
 						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
 						$pie->SetColor(array(255, 255, 255));
+						foreach ($labels as &$rec) {
+							$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
+						}
 						$pie->SetLabels($labels, 1);
 
-						$graph->title->Set($schema->title);
-						$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
+						//$graph->title->Set($schema->title);
+						//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 
 						$graph->Stroke(_IMG_HANDLER);
 						ob_start(); // start buffering
@@ -632,11 +635,6 @@ class stat extends \pl\fe\matter\base {
 						$html .= "<tr>";
 						$record = $records[$i];
 						$html .= "<td>" . ($i + 1) . "</td>";
-						// if ($ridName = $this->model('matter\enroll\round')->byId($record->rid, ['fields' => 'title'])) {
-						// 	$html .= "<td>" . $ridName->title . "</td>";
-						// } else {
-						// 	$html .= "<td>无</td>";
-						// }
 						//标识
 						if (isset($rpConfig) && !empty($rpConfig->marks)) {
 							foreach ($rpConfig->marks as $mark) {
@@ -721,6 +719,9 @@ class stat extends \pl\fe\matter\base {
 						$pie->ShowBorder();
 						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
 						$pie->SetColor(array(255, 255, 255));
+						foreach ($labels as &$rec) {
+							$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
+						}
 						$pie->SetLabels($labels, 1);
 					}
 				} else if ($schema->type === 'multiple') {
@@ -746,8 +747,11 @@ class stat extends \pl\fe\matter\base {
 					$bar = new \BarPlot($data);
 					$graph->Add($bar);
 					// Setup the titles
-					$graph->xaxis->title->Set("选项");
-					$graph->yaxis->title->Set("数量");
+					$graph->xaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "选项"));
+					$graph->yaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "数量"));
+					foreach ($labels as &$rec) {
+						$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
+					}
 					$graph->xaxis->SetTickLabels($labels);
 					$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
 
@@ -755,8 +759,8 @@ class stat extends \pl\fe\matter\base {
 					$graph->xaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
 				}
 				if ($oSchemaStat->sum) {
-					$graph->title->Set($oSchemaStat->title);
-					$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
+					//$graph->title->Set($oSchemaStat->title);
+					//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 
 					$graph->Stroke(_IMG_HANDLER);
 					ob_start(); // start buffering

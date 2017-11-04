@@ -209,10 +209,20 @@ define(['frame'], function(ngApp) {
                         $scope2.markRows.selected[item.id] = true;
                     });
                     $scope2.ok = function() {
-                        var oResult;
+                        var oResult, schemaId;
                         oResult = { marks: [], pl: oPlConfig, op: oOpConfig };
-                        oPlConfig.exclude = Object.keys($scope2.plExcludeRows.selected);
-                        oOpConfig.exclude = Object.keys($scope2.opExcludeRows.selected);
+                        oPlConfig.exclude = [];
+                        for (schemaId in $scope2.plExcludeRows.selected) {
+                            if ($scope2.plExcludeRows.selected[schemaId]) {
+                                oPlConfig.exclude.push(schemaId);
+                            }
+                        }
+                        oOpConfig.exclude = [];
+                        for (schemaId in $scope2.opExcludeRows.selected) {
+                            if ($scope2.opExcludeRows.selected[schemaId]) {
+                                oOpConfig.exclude.push(schemaId);
+                            }
+                        }
                         if (Object.keys($scope2.markRows.selected).length) {
                             markSchemas.forEach(function(oSchema) {
                                 if ($scope2.markRows.selected[oSchema.id]) {
@@ -286,7 +296,10 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/enroll/stat?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&rid=' + result;
             });
         };
-        srvEnrollApp.get().then(function(oApp) {
+        $scope.$watch('app', function(oApp) {
+            if (!oApp) {
+                return;
+            }
             srvRecordConverter.config(oApp.dataSchemas);
 
             $scope.chartConfig = _oChartConfig = (oApp.rpConfig && oApp.rpConfig.pl) || {

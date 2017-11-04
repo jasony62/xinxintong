@@ -236,7 +236,7 @@ define(['frame'], function(ngApp) {
             var url, params = {};
 
             url = '/rest/pl/fe/matter/enroll/stat/export';
-            url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&rid=' + (rid ? rid : '');
+            url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&rid=' + (_rid || '');
 
             window.open(url);
         };

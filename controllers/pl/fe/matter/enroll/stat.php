@@ -36,15 +36,24 @@ class stat extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 在sae环境上导出
+	 * 导出报告
 	 */
 	public function export_action($site, $app, $rid = '') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
+		$oSite = $this->model('site')->byId($site, ['fields' => 'name']);
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
 		if (defined('SAE_TMP_PATH')) {
-			$this->_saeExport($site, $app, $rid);
+			$this->_saeExport($oApp, $rid);
 		}
 
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph.php';
@@ -53,16 +62,22 @@ class stat extends \pl\fe\matter\base {
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_line.php';
 		require_once TMS_APP_DIR . '/lib/PHPWord/bootstrap.php';
 
-		$oSite = $this->model('site')->byId($site, ['fields' => 'name']);
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-
-		$schemas = json_decode($oApp->data_schemas);
+		if (isset($oApp->rpConfig->pl)) {
+			$oPlConfig = $oApp->rpConfig->pl;
+			$aExcludeSchemaIds = empty($oPlConfig->exclude) ? [] : $oPlConfig->exclude;
+		} else {
+			$aExcludeSchemaIds = [];
+		}
+		$schemas = [];
 		$schemasById = [];
-		foreach ($schemas as $schema) {
-			$schemasById[$schema->id] = $schema;
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (!in_array($oSchema->id, $aExcludeSchemaIds) && $oSchema->type !== 'html') {
+				$schemas[] = $oSchema;
+				$schemasById[$oSchema->id] = $oSchema;
+			}
 		}
 
-		$statResult = $this->_getResult($site, $oApp->id, $rid);
+		$aStatResult = $this->model('matter\enroll\record')->getStat($oApp, $rid);
 
 		$phpWord = new \PhpOffice\PhpWord\PhpWord();
 		$phpWord->setDefaultFontName('Times New Roman');
@@ -159,11 +174,11 @@ class stat extends \pl\fe\matter\base {
 					$table1 = $section->addTable("one", $fancyTableStyle);
 					$sumNumber = 0; //数值型最后合计的列号
 
-					if (!empty($oApp->rp_config)) {
-						$rpConfig = json_decode($oApp->rp_config);
+					if (isset($oApp->rpConfig)) {
+						$rpConfig = $oApp->rpConfig;
 						if (!empty($rpConfig->marks)) {
 							foreach ($rpConfig->marks as $key => $mark) {
-								if ($schema->title !== $mark->name) {
+								if ($schema->title !== $mark->title) {
 									$sumNumber++;
 								}
 							}
@@ -183,8 +198,8 @@ class stat extends \pl\fe\matter\base {
 						$rpConfig = json_decode($oApp->rp_config);
 						if (!empty($rpConfig->marks)) {
 							foreach ($rpConfig->marks as $key => $mark) {
-								if ($schema->title !== $mark->name) {
-									$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($mark->name, $firstStyle, $paragraphStyle);
+								if ($schema->title !== $mark->title) {
+									$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($mark->title, $firstStyle, $paragraphStyle);
 									//$sumNumber++;
 								}
 							}
@@ -251,14 +266,11 @@ class stat extends \pl\fe\matter\base {
 					$section->addTextBreak(2, null, null);
 				}
 			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
-				$item = (array) $statResult[$schema->id];
+				$oSchemaStat = $aStatResult[$schema->id];
 				$data = [];
-				$sum = 0;
-				foreach ($item['ops'] as $op) {
-					$op = (array) $op;
-					if ((int) $op['c'] !== 0) {
-						$data[] = (int) $op['c'];
-						$sum += (int) $op['c'];
+				foreach ($oSchemaStat->ops as $op) {
+					if ((int) $op->c !== 0) {
+						$data[] = (int) $op->c;
 					}
 				}
 				if (empty($data)) {
@@ -266,15 +278,19 @@ class stat extends \pl\fe\matter\base {
 				}
 				if (in_array($schema->type, ['single', 'phase'])) {
 					// Create a pie pot
-					if ($sum) {
+					if ($oSchemaStat->sum) {
 						$graph = new \PieGraph($graphWidth, $graphHeight);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
 						$labels = [];
-						for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-							$op = (array) $item['ops'][$i];
-							if ((int) $op['c'] !== 0) {
-								$labels[] = '选项' . ($i + 1) . '：%.1f%%';
+						for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
+							$op = $oSchemaStat->ops[$i];
+							if ((int) $op->c !== 0) {
+								if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
+									$labels[] = '选项' . ($i + 1) . '：%.1f%%';
+								} else {
+									$labels[] = '选项' . ($i + 1) . '：' . $op->c;
+								}
 							}
 						}
 						$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
@@ -297,10 +313,14 @@ class stat extends \pl\fe\matter\base {
 					$graph->img->SetMargin(40, 30, 20, 40);
 					// Create a bar pot
 					$labels = [];
-					for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-						$op = (array) $item['ops'][$i];
-						if ((int) $op['c'] !== 0) {
-							$labels[] = '选项' . ($i + 1);
+					for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
+						$op = $oSchemaStat->ops[$i];
+						if ((int) $op->c !== 0) {
+							if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
+								$labels[] = '选项' . ($i + 1) . '：' . round($op->c / $oSchemaStat->sum * 100, 2) . '%';
+							} else {
+								$labels[] = '选项' . ($i + 1) . '：' . $op->c;
+							}
 						}
 					}
 					$bar = new \BarPlot($data);
@@ -317,10 +337,7 @@ class stat extends \pl\fe\matter\base {
 					$graph->yaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
 					$graph->xaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
 				}
-				if ($sum) {
-					//$graph->title->Set($item['title']);
-					//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
-
+				if ($oSchemaStat->sum) {
 					$graph->Stroke(_IMG_HANDLER);
 					ob_start(); // start buffering
 					$graph->img->Stream(); // print data to buffer
@@ -338,28 +355,37 @@ class stat extends \pl\fe\matter\base {
 				$table2->addRow(500);
 				$table2->addCell($cell_w1, $fancyTableCellStyle)->addText('选项编号', $firstStyle, $paragraphStyle);
 				$table2->addCell($cell_w2, $fancyTableCellStyle)->addText('选项内容', $firstStyle, $paragraphStyle);
-				$table2->addCell($cell_w3, $fancyTableCellStyle)->addText('数量', $firstStyle, $paragraphStyle);
-
-				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-					$op = (array) $item['ops'][$i];
+				if (isset($oPlConfig->number) && $oPlConfig->number === 'Y') {
+					$table2->addCell($cell_w3, $fancyTableCellStyle)->addText('数量', $firstStyle, $paragraphStyle);
+				}
+				if (isset($oPlConfig->percentage) && $oPlConfig->percentage === 'Y') {
+					$table2->addCell($cell_w3, $fancyTableCellStyle)->addText('占比', $firstStyle, $paragraphStyle);
+				}
+				for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
+					$op = $oSchemaStat->ops[$i];
 					$table2->addRow(500);
 					$table2->addCell($cell_w1, $fancyTableCellStyle)->addText("选项" . ($i + 1), $cellTextStyle);
-					$table2->addCell($cell_w2, $fancyTableCellStyle)->addText($op['l'], $cellTextStyle);
-					$table2->addCell($cell_w3, $fancyTableCellStyle)->addText($op['c'], $cellTextStyle);
+					$table2->addCell($cell_w2, $fancyTableCellStyle)->addText($op->l, $cellTextStyle);
+					if (isset($oPlConfig->number) && $oPlConfig->number === 'Y') {
+						$table2->addCell($cell_w3, $fancyTableCellStyle)->addText($op->c, $cellTextStyle);
+					}
+					if (isset($oPlConfig->percentage) && $oPlConfig->percentage === 'Y') {
+						$table2->addCell($cell_w3, $fancyTableCellStyle)->addText(round($op->c / $oSchemaStat->sum * 100, 2) . '%', $cellTextStyle);
+					}
 				}
 				$section->addTextBreak(2, null, null);
 			} else if ('score' === $schema->type) {
 				//
-				$item = $statResult[$schema->id];
+				$oSchemaStat = $aStatResult[$schema->id];
 				$labels = [];
 				$data = [];
 				$totalScore = 0;
-				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
+				for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
 					$labels[] = '打分项' . ($i + 1);
-					$op = &$item['ops'][$i];
-					$op['c'] = round((float) $op['c'], 2);
-					$data[] = $op['c'];
-					$totalScore += $op['c'];
+					$op = &$oSchemaStat->ops[$i];
+					$op->c = round((float) $op->c, 2);
+					$data[] = $op->c;
+					$totalScore += $op->c;
 				}
 				if (count($data) > 1) {
 					// 如果只有1个点，jpgraph会报错，所以跳过绘图。
@@ -371,7 +397,7 @@ class stat extends \pl\fe\matter\base {
 
 					$graph->SetTheme($theme_class);
 					$graph->img->SetAntiAliasing(false);
-					//$graph->title->Set($item['title']);
+					//$graph->title->Set($oSchemaStat->title);
 					//$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 					$graph->SetBox(false);
 
@@ -414,14 +440,14 @@ class stat extends \pl\fe\matter\base {
 				$table3->addCell($cell_w2, $fancyTableCellStyle)->addText('打分项内容', $firstStyle, $paragraphStyle);
 				$table3->addCell($cell_w3, $fancyTableCellStyle)->addText('平均分', $firstStyle, $paragraphStyle);
 
-				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-					$op2 = $item['ops'][$i];
+				for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
+					$op2 = $oSchemaStat->ops[$i];
 					$table3->addRow(500);
 					$table3->addCell($cell_w1, $fancyTableCellStyle)->addText($i + 1, $cellTextStyle);
-					$table3->addCell($cell_w2, $fancyTableCellStyle)->addText($op2['l'], $cellTextStyle);
-					$table3->addCell($cell_w3, $fancyTableCellStyle)->addText($op2['c'], $cellTextStyle);
+					$table3->addCell($cell_w2, $fancyTableCellStyle)->addText($op2->l, $cellTextStyle);
+					$table3->addCell($cell_w3, $fancyTableCellStyle)->addText($op2->c, $cellTextStyle);
 				}
-				$avgScore = round($totalScore / count($item['ops']), 2);
+				$avgScore = round($totalScore / count($oSchemaStat->ops), 2);
 				$table3->addRow(500);
 				$table3->addCell($cell_w1, $fancyTableCellStyle)->addText('本项平均分', $cellTextStyle);
 				$table3->addCell($cell_w2, $fancyTableCellStyle)->addText('');
@@ -499,21 +525,28 @@ class stat extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	private function _saeExport($site, $app, $rid = '') {
+	private function _saeExport($oApp, $rid = '') {
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph.php';
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_bar.php';
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_pie.php';
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_line.php';
 
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-
-		$schemas = json_decode($oApp->data_schemas);
+		if (isset($oApp->rpConfig->pl)) {
+			$oPlConfig = $oApp->rpConfig->pl;
+			$aExcludeSchemaIds = empty($oPlConfig->exclude) ? [] : $oPlConfig->exclude;
+		} else {
+			$aExcludeSchemaIds = [];
+		}
+		$schemas = [];
 		$schemasById = [];
-		foreach ($schemas as $schema) {
-			$schemasById[$schema->id] = $schema;
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (!in_array($oSchema->id, $aExcludeSchemaIds) && $oSchema->type !== 'html') {
+				$schemas[] = $oSchema;
+				$schemasById[$oSchema->id] = $oSchema;
+			}
 		}
 
-		$statResult = $this->_getResult($site, $oApp->id, $rid);
+		$aStatResult = $this->model('matter\enroll\record')->getStat($oApp, $rid);
 
 		$html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
 		$html .= '<head>';
@@ -528,7 +561,7 @@ class stat extends \pl\fe\matter\base {
 		$scoreSummary = []; //所有打分题汇总数据
 		$totalScoreSummary = 0; //所有打分题的平局分合计
 		foreach ($schemas as $index => $schema) {
-			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
+			$html .= "<h3><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
 				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
@@ -656,13 +689,11 @@ class stat extends \pl\fe\matter\base {
 					$html .= "</tbody></table>";
 				}
 			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
-				$item = $statResult[$schema->id];
+				$oSchemaStat = $aStatResult[$schema->id];
 				$data = [];
-				$sum = 0;
-				foreach ($item['ops'] as $op) {
-					if ((int) $op['c'] !== 0) {
-						$data[] = (int) $op['c'];
-						$sum += (int) $op['c'];
+				foreach ($oSchemaStat->ops as $op) {
+					if ((int) $op->c !== 0) {
+						$data[] = (int) $op->c;
 					}
 				}
 				if (empty($data)) {
@@ -670,15 +701,19 @@ class stat extends \pl\fe\matter\base {
 				}
 				if (in_array($schema->type, ['single', 'phase'])) {
 					// Create a pie pot
-					if ($sum) {
+					if ($oSchemaStat->sum) {
 						$graph = new \PieGraph(550, 300);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
 						$labels = [];
-						for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-							$op = $item['ops'][$i];
-							if ((int) $op['c'] !== 0) {
-								$labels[] = '选项' . ($i + 1) . '：%.1f%%';
+						for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
+							$op = $oSchemaStat->ops[$i];
+							if ((int) $op->c !== 0) {
+								if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
+									$labels[] = '选项' . ($i + 1) . '：%.1f%%';
+								} else {
+									$labels[] = '选项' . ($i + 1) . '：' . $op->c;
+								}
 							}
 						}
 						$pie->value->SetFont(FF_SIMSUN, FS_NORMAL);
@@ -698,10 +733,14 @@ class stat extends \pl\fe\matter\base {
 					$graph->img->SetMargin(40, 30, 20, 40);
 					// Create a bar pot
 					$labels = [];
-					for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-						$op = $item['ops'][$i];
-						if ((int) $op['c'] !== 0) {
-							$labels[] = '选项' . ($i + 1);
+					for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
+						$op = $oSchemaStat->ops[$i];
+						if ((int) $op->c !== 0) {
+							if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
+								$labels[] = '选项' . ($i + 1) . '：' . round($op->c / $oSchemaStat->sum * 100, 2) . '%';
+							} else {
+								$labels[] = '选项' . ($i + 1) . '：' . $op->c;
+							}
 						}
 					}
 					$bar = new \BarPlot($data);
@@ -715,8 +754,8 @@ class stat extends \pl\fe\matter\base {
 					$graph->yaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
 					$graph->xaxis->title->SetFont(FF_SIMSUN, FS_NORMAL);
 				}
-				if ($sum) {
-					$graph->title->Set($item['title']);
+				if ($oSchemaStat->sum) {
+					$graph->title->Set($oSchemaStat->title);
 					$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 
 					$graph->Stroke(_IMG_HANDLER);
@@ -726,29 +765,43 @@ class stat extends \pl\fe\matter\base {
 					ob_end_clean(); // stop buffer
 					$imageBase64 = chunk_split(base64_encode($image_data));
 					//
-					$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
+					$mappingOfImages[$oSchemaStat->id . '.base64'] = $imageBase64;
 					//
-					$html .= '<img src="' . $item['id'] . '.base64" />';
+					$html .= '<img src="' . $oSchemaStat->id . '.base64" />';
 				}
-				$html .= "<table><thead><tr><th>选项编号</th><th>选项内容</th><th>数量</th></tr></thead>";
-				$html .= "<tbody>";
-				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-					$op = $item['ops'][$i];
-					$html .= "<tr><td>选项" . ($i + 1) . "</td><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
+				$html .= "<table><thead><tr><th>选项编号</th><th>选项内容</th>";
+				if (isset($oPlConfig->number) && $oPlConfig->number === 'Y') {
+					$html .= "<th>数量</th>";
+				}
+				if (isset($oPlConfig->percentage) && $oPlConfig->percentage === 'Y') {
+					$html .= "<th>占比</th>";
+				}
+				$html .= "</tr></thead><tbody>";
+				for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
+					$op = $oSchemaStat->ops[$i];
+					$html .= "<tr><td>选项" . ($i + 1) . "</td>";
+					$html .= "<td>{$op->l}</td>";
+					if (isset($oPlConfig->number) && $oPlConfig->number === 'Y') {
+						$html .= "<td>{$op->c}</td>";
+					}
+					if (isset($oPlConfig->percentage) && $oPlConfig->percentage === 'Y') {
+						$html .= '<td>' . round($op->c / $oSchemaStat->sum * 100, 2) . '%</td>';
+					}
+					$html .= "</tr>";
 				}
 				$html .= "</tbody></table>";
 			} else if ('score' === $schema->type) {
 				//
-				$item = $statResult[$schema->id];
+				$oSchemaStat = $aStatResult[$schema->id];
 				$labels = [];
 				$data = [];
 				$totalScore = 0;
-				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
+				for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
 					$labels[] = '打分项' . ($i + 1);
-					$op = &$item['ops'][$i];
-					$op['c'] = round((float) $op['c'], 2);
-					$data[] = $op['c'];
-					$totalScore += $op['c'];
+					$op = &$oSchemaStat->ops[$i];
+					$op['c'] = round((float) $op->c, 2);
+					$data[] = $op->c;
+					$totalScore += $op->c;
 				}
 				if (count($data) > 1) {
 					// 如果只有1个点，jpgraph会报错，所以跳过绘图。
@@ -760,7 +813,7 @@ class stat extends \pl\fe\matter\base {
 
 					$graph->SetTheme($theme_class);
 					$graph->img->SetAntiAliasing(false);
-					$graph->title->Set($item['title']);
+					$graph->title->Set($oSchemaStat->title);
 					$graph->title->SetFont(FF_SIMSUN, FS_NORMAL);
 					$graph->SetBox(false);
 
@@ -788,18 +841,18 @@ class stat extends \pl\fe\matter\base {
 					ob_end_clean(); // stop buffer
 					$imageBase64 = chunk_split(base64_encode($image_data));
 					//
-					$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
+					$mappingOfImages[$oSchemaStat->id . '.base64'] = $imageBase64;
 					//
-					$html .= '<img src="' . $item['id'] . '.base64" />';
+					$html .= '<img src="' . $oSchemaStat->id . '.base64" />';
 				}
 				// table
 				$html .= "<table><thead><tr><th>打分项编号</th><th>打分项内容</th><th>平均分</th></tr></thead>";
 				$html .= "<tbody>";
-				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
-					$op2 = $item['ops'][$i];
+				for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
+					$op2 = $oSchemaStat->ops[$i];
 					$html .= "<tr><td>打分项" . ($i + 1) . "</td><td>{$op2['l']}</td><td>{$op2['c']}</td></tr>";
 				}
-				$avgScore = round($totalScore / count($item['ops']), 2);
+				$avgScore = round($totalScore / count($oSchemaStat->ops), 2);
 				$html .= "<tr><td>本项平均分</td><td>{$avgScore}</td></tr>";
 				$html .= "</tbody></table>";
 				/*打分题汇总*/

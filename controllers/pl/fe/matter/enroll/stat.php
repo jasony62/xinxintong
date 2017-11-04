@@ -326,8 +326,8 @@ class stat extends \pl\fe\matter\base {
 					$bar = new \BarPlot($data);
 					$graph->Add($bar);
 					// Setup the titles
-					$graph->xaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "选项"));
-					$graph->yaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "数量"));
+					//$graph->xaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "选项"));
+					//$graph->yaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "数量"));
 					foreach ($labels as &$rec) {
 						$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
 					}
@@ -747,8 +747,8 @@ class stat extends \pl\fe\matter\base {
 					$bar = new \BarPlot($data);
 					$graph->Add($bar);
 					// Setup the titles
-					$graph->xaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "选项"));
-					$graph->yaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "数量"));
+					//$graph->xaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "选项"));
+					//$graph->yaxis->title->Set(iconv("UTF-8", "GB2312//IGNORE", "数量"));
 					foreach ($labels as &$rec) {
 						$rec = iconv("UTF-8", "GB2312//IGNORE", $rec);
 					}

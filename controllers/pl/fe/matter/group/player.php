@@ -309,7 +309,7 @@ class player extends \pl\fe\matter\base {
 						$modelPly->setData($objGrp, $record->enroll_key, $record->data);
 					} else {
 						// 新用户
-						$modelPly->enroll($siteId, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
+						$modelPly->enroll($objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
 						$modelPly->setData($objGrp, $record->enroll_key, $record->data);
 					}
 					$cnt++;
@@ -327,54 +327,54 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 手工添加分组用户信息
 	 *
-	 * @param string $aid
+	 * @param string $app
 	 */
 	public function add_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$current = time();
 		$modelGrp = $this->model('matter\group');
 		$modelPly = $this->model('matter\group\player');
 
-		$app = $modelGrp->byId($app);
-		$ek = $modelPly->genKey($site, $app->id);
+		$oApp = $modelGrp->byId($app);
+		$ek = $modelPly->genKey($oApp->siteid, $oApp->id);
 		/**
 		 * 分组用户登记数据
 		 */
-		$user = new \stdClass;
-		$user->uid = '';
-		$user->nickname = '';
-		$user->wx_openid = '';
-		$user->yx_openid = '';
-		$user->qy_openid = '';
-		$user->headimgurl = '';
+		$oEnrollee = new \stdClass;
+		$oEnrollee->uid = '';
+		$oEnrollee->nickname = '';
+		$oEnrollee->wx_openid = '';
+		$oEnrollee->yx_openid = '';
+		$oEnrollee->qy_openid = '';
+		$oEnrollee->headimgurl = '';
 
-		$player = new \stdClass;
-		$player->enroll_key = $ek;
-		$player->enroll_at = $current;
-		$player->comment = isset($posted->comment) ? $posted->comment : '';
-		if (isset($posted->tags)) {
-			$player->tags = $posted->tags;
-			$modelGrp->updateTags($app->id, $posted->tags);
+		$oPlayer = new \stdClass;
+		$oPlayer->enroll_key = $ek;
+		$oPlayer->enroll_at = $current;
+		$oPlayer->comment = isset($oPosted->comment) ? $oPosted->comment : '';
+		if (isset($oPosted->tags)) {
+			$oPlayer->tags = $oPosted->tags;
+			$modelGrp->updateTags($oApp->id, $oPosted->tags);
 		}
-		if (!empty($posted->round_id)) {
+		if (!empty($oPosted->round_id)) {
 			$modelRnd = $this->model('matter\group\round');
-			$round = $modelRnd->byId($posted->round_id);
-			$player->round_id = $posted->round_id;
-			$player->round_title = $round->title;
+			$round = $modelRnd->byId($oPosted->round_id);
+			$oPlayer->round_id = $oPosted->round_id;
+			$oPlayer->round_title = $round->title;
 		}
 
-		$modelPly->enroll($site, $app, $user, $player);
-		$result = $modelPly->setData($app, $ek, $posted->data);
+		$modelPly->enroll($oApp, $oEnrollee, $oPlayer);
+		$result = $modelPly->setData($oApp, $ek, $oPosted->data);
 		if (false === $result[0]) {
 			return new \ResponseError($result[1]);
 		}
-		$player->data = json_decode($result[1]);
+		$oPlayer->data = json_decode($result[1]);
 
-		return new \ResponseData($player);
+		return new \ResponseData($oPlayer);
 	}
 	/**
 	 * 更新登记记录
@@ -384,7 +384,7 @@ class player extends \pl\fe\matter\base {
 	 * @param $ek record's key
 	 */
 	public function update_action($site, $app, $ek) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -428,7 +428,7 @@ class player extends \pl\fe\matter\base {
 		$player = $modelPly->byId($app->id, $ek);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $player);
+		$this->model('matter\log')->matterOp($site, $oUser, $app, 'update', $player);
 
 		return new \ResponseData($player);
 	}
@@ -444,7 +444,7 @@ class player extends \pl\fe\matter\base {
 	 * 清空一条登记信息
 	 */
 	public function remove_action($site, $app, $ek, $keepData = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -470,7 +470,7 @@ class player extends \pl\fe\matter\base {
 	 * 将用户移出分组
 	 */
 	public function quitGroup_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -495,7 +495,7 @@ class player extends \pl\fe\matter\base {
 
 		// 记录操作日志
 		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
-		$this->model('matter\log')->matterOp($site, $user, $app, 'quitGroup', $result);
+		$this->model('matter\log')->matterOp($site, $oUser, $app, 'quitGroup', $result);
 
 		return new \ResponseData($result);
 	}
@@ -503,7 +503,7 @@ class player extends \pl\fe\matter\base {
 	 * 将用户移入分组
 	 */
 	public function joinGroup_action($site, $app, $round) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -530,7 +530,7 @@ class player extends \pl\fe\matter\base {
 
 		// 记录操作日志
 		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
-		$this->model('matter\log')->matterOp($site, $user, $app, 'joinGroup', $result);
+		$this->model('matter\log')->matterOp($site, $oUser, $app, 'joinGroup', $result);
 
 		return new \ResponseData($result);
 	}

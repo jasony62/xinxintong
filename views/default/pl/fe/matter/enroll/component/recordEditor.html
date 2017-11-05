@@ -183,7 +183,11 @@
                             <div ng-switch-when='date'>
                                 <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
                             </div>
-                            <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
+                            <input type='text' class='form-control' ng-switch-when="member" ng-model="record.data.member[schema.id.substr(7)]">
+                            <div ng-switch-default>
+                                <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')===0" ng-model="record.data.member[schema.id.substr(7)]">
+                                <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')!==0" ng-model="record.data[schema.id]">
+                            </div>
                             <span ng-if="record.score[schema.id]"> 得分<font ng-if="schema.weight">(权重{{schema.weight}})</font> <input type='text' class='form-control' ng-model="record.score[schema.id]"> </span>
                             <textarea ng-if="schema.supplement==='Y'" class='form-control' ng-model="record.supplement[schema.id]" rows="3"></textarea>
                         </div>

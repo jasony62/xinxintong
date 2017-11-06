@@ -10,8 +10,17 @@
     <link href="<?php echo auto_version('/views/default/site/fe/user/share/log.css');?>" rel="stylesheet">
 </head>
 
-<body>
-    <div class="container" ng-controller="ctrlNgApp">
+<body ng-controller="ctrlNgApp">
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
+        <div class='container-fluid text-right'>
+            <p class="navbar-text">
+                <a class='navbar-link' href='/rest/site/home?site={{site.id}}' target='_self'>{{site.name}} &nbsp;
+                    <span class='glyphicon glyphicon-menu-right'></span>
+                </a>
+            </p>
+        </div>
+    </nav>
+    <div class="container  ng-cloak" ng-cloak>
         <div class="main">
             <div class="orderItem">
                 <div class="col-xs-3 col-md-3" ng-click="order('read')">阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>

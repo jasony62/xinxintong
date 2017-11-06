@@ -1,11 +1,22 @@
 var app = angular.module('ngApp', []);
 app.controller('ctrlNgApp', ['$scope', '$http', function($scope, $http){
-    var url = ;
-
-    $scope.order = function(item) {
-
+    var matterId = location.search.match('matterId=(.*)')[1],
+        matterType = location.search.match('matterType=(.*)')[1],
+        userid = location.search.match('userid=(.*)')[1];
+    $scope.page = {
+        at: 1,
+        size: 10,
+        j: function() {
+            return '&page=' + this.at + '&size=' + this.size;
+        }
     }
-    $http.get(url).success(function(rsp){
-        $scope.results = rsp.data;
-    })
+    $scope.order = function(item) {
+        var url = 'rest/site/fe/user/share/getMyShareLog';
+            url += '?userid=' + userid + '&matterType=' + matterType + '&matterId=' + matterId;
+            url += '&orderBy=' + item + page.j();
+        $http.get(url).success(function(rsp) {
+            $scope.result = rsp.data;
+        });
+    }
+    $scope.order('read');
 }]);

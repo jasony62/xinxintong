@@ -43,7 +43,7 @@ ul.img-tiles li.img-picker button span {
 </div>
 <div class="modal-body">
     <form class="form-horizontal player-editor">
-        <div class="form-group" ng-repeat="schema in app.data_schemas">
+        <div class="form-group" ng-repeat="schema in app.dataSchemas">
             <label class="col-md-3 control-label">{{schema.title}}</label>
             <div class="col-md-9" ng-switch on="schema.type">
                 <textarea class='form-control' ng-switch-when="longtext" ng-model="player.data[schema.id]"></textarea>
@@ -86,7 +86,11 @@ ul.img-tiles li.img-picker button span {
                         <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                     </div>
                 </div>
-                <input type='text' class='form-control' ng-switch-default ng-model="player.data[schema.id]">
+                <input type='text' class='form-control' ng-switch-when="member" ng-model="player.data.member[schema.id.substr(7)]">
+                <div ng-switch-default>
+                    <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')===0" ng-model="player.data.member[schema.id.substr(7)]">
+                    <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')!==0" ng-model="player.data[schema.id]">
+                </div>
             </div>
         </div>
         <div class="form-group">

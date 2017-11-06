@@ -191,6 +191,8 @@ define(['frame'], function(ngApp) {
         };
         $scope.removeMschema = function(mschemaId) {
             if (_oAppRule.member[mschemaId]) {
+                /* 取消题目和通信录的关联 */
+
                 delete _oAppRule.member[mschemaId];
                 $scope.update('entry_rule');
             }

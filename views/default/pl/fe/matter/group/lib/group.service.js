@@ -583,7 +583,7 @@ provider('srvGroupApp', function() {
             $scope.rounds = rounds;
         });
         if (player.data) {
-            oApp.data_schemas.forEach(function(schema) {
+            oApp.dataSchemas.forEach(function(schema) {
                 if (player.data[schema.id]) {
                     srvRecordConverter.forEdit(schema, player.data);
                 }
@@ -613,9 +613,14 @@ provider('srvGroupApp', function() {
             round_id: oScopePlayer.round_id
         };
         if (oScopePlayer.data) {
-            $scope.app.data_schemas.forEach(function(oSchema) {
-                oNewPlayer.data[oSchema.id] = oScopePlayer.data[oSchema.id];
+            $scope.app.dataSchemas.forEach(function(oSchema) {
+                if (oScopePlayer.data[oSchema.id]) {
+                    oNewPlayer.data[oSchema.id] = oScopePlayer.data[oSchema.id];
+                }
             });
+            if (oScopePlayer.data.member) {
+                oNewPlayer.data.member = oScopePlayer.data.member;
+            }
         }
         $mi.close({ player: oNewPlayer, tags: $scope.aTags });
     };

@@ -2,7 +2,7 @@ var app = angular.module('ngApp', []);
 app.controller('ctrlNgApp', ['$scope', '$http', function($scope, $http){
     var matterId = location.search.match('matterId=(.*)')[1],
         matterType = location.search.match('matterType=(.*)')[1],
-        userid = location.search.match('userid=(.*)')[1];
+        siteId = location.search.match('site=(.*)')[1];
     $scope.page = {
         at: 1,
         size: 10,
@@ -12,8 +12,8 @@ app.controller('ctrlNgApp', ['$scope', '$http', function($scope, $http){
     }
     $scope.order = function(item) {
         var url = 'rest/site/fe/user/share/getMyShareLog';
-            url += '?userid=' + userid + '&matterType=' + matterType + '&matterId=' + matterId;
-            url += '&orderBy=' + item + page.j();
+            url += '&matterType=' + matterType + '&matterId=' + matterId;
+            url += '&orderBy=' + item + $scope.page.j();
         $http.get(url).success(function(rsp) {
             $scope.results = rsp.data;
         });

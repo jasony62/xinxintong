@@ -25,6 +25,7 @@ window.loading = {
                 "highcharts-exporting": '/static/js/highcharts/exporting',
                 "ui-tms": '/static/js/ui-tms',
                 "ui-xxt": '/static/js/xxt.ui',
+                "sys.chart": '/views/default/pl/fe/_module/sys.chart',
                 "service.matter": '/views/default/pl/fe/_module/matter.service',
                 "enrollService": '/views/default/pl/fe/matter/enroll/lib/enroll.service',
                 "page": '/views/default/pl/fe/matter/enroll/lib/page',
@@ -57,7 +58,9 @@ window.loading = {
                         require(['ui-tms'], function() {
                             require(['ui-xxt'], function() {
                                 require(['highcharts'], function() {
-                                    requirejs(['/views/default/site/op/matter/enroll/report.js']);
+                                    require(['sys.chart'], function() {
+                                        requirejs(['/views/default/site/op/matter/enroll/report.js']);
+                                    });
                                 });
                             });
                         });

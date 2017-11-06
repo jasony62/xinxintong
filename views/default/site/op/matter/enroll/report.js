@@ -6,7 +6,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
     appId = ls.match(/[\?&]app=([^&]*)/)[1];
     accessId = ls.match(/[\?&]accessToken=([^&]*)/)[1];
 
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter', 'service.enroll']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter', 'service.enroll', 'sys.chart']);
     ngApp.constant('cstApp', {});
     ngApp.config(['$locationProvider', '$routeProvider', '$uibTooltipProvider', 'srvEnrollAppProvider', 'srvOpEnrollRecordProvider', 'srvEnrollRecordProvider', 'srvOpEnrollRoundProvider', function($locationProvider, $routeProvider, $uibTooltipProvider, srvEnrollAppProvider, srvOpEnrollRecordProvider, srvEnrollRecordProvider, srvOpEnrollRoundProvider) {
         var RouteParam = function(name, baseURL) {
@@ -96,201 +96,13 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             });
         });
     }]);
-    ngApp.controller('ctrlReport', ['$scope', '$location', '$uibModal', '$timeout', '$q', 'http2', 'srvOpEnrollRound', 'srvRecordConverter', function($scope, $location, $uibModal, $timeout, $q, http2, srvOpEnrollRound, srvRecordConverter) {
-        var rid, ls = $location.search();
+    ngApp.controller('ctrlReport', ['$scope', '$location', '$uibModal', '$timeout', '$q', 'http2', 'srvOpEnrollRound', 'srvRecordConverter', 'srvChart', function($scope, $location, $uibModal, $timeout, $q, http2, srvOpEnrollRound, srvRecordConverter, srvChart) {
+        var rid, _oChartConfig, ls = $location.search();
 
         $scope.appId = ls.app;
         $scope.siteId = ls.site;
         $scope.accessToken = ls.accessToken;
         rid = ls.rid;
-
-        function drawBarChart(item) {
-            var categories = [],
-                series = [];
-
-            item.ops.forEach(function(op) {
-                categories.push(op.l);
-                series.push(parseInt(op.c));
-            });
-            new Highcharts.Chart({
-                chart: {
-                    type: 'bar',
-                    renderTo: item.id
-                },
-                title: {
-                    text: '' //item.title
-                },
-                legend: {
-                    enabled: false
-                },
-                xAxis: {
-                    categories: categories
-                },
-                yAxis: {
-                    'title': '',
-                    allowDecimals: false
-                },
-                series: [{
-                    name: '数量',
-                    data: series
-                }],
-                lang: {
-                    downloadJPEG: "下载JPEG 图片",
-                    downloadPDF: "下载PDF文档",
-                    downloadPNG: "下载PNG 图片",
-                    downloadSVG: "下载SVG 矢量图",
-                    printChart: "打印图片",
-                    exportButtonTitle: "导出图片"
-                }
-            });
-        }
-
-        function drawPieChart(item) {
-            var categories = [],
-                series = [];
-
-            item.ops.forEach(function(op) {
-                series.push({
-                    name: op.l,
-                    y: parseInt(op.c)
-                });
-            });
-            new Highcharts.Chart({
-                chart: {
-                    type: 'pie',
-                    renderTo: item.id
-                },
-                title: {
-                    text: '' //item.title
-                },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>:{y}',
-                            style: {
-                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                            }
-                        }
-                    }
-                },
-                series: [{
-                    name: '数量',
-                    data: series
-                }],
-                lang: {
-                    downloadJPEG: "下载JPEG 图片",
-                    downloadPDF: "下载PDF文档",
-                    downloadPNG: "下载PNG 图片",
-                    downloadSVG: "下载SVG 矢量图",
-                    printChart: "打印图片",
-                    exportButtonTitle: "导出图片"
-                }
-            });
-        }
-
-        function drawLineChart(item) {
-            var categories = [],
-                data = [];
-
-            item.ops.forEach(function(op) {
-                categories.push(op.l);
-                data.push(op.c);
-            });
-            new Highcharts.Chart({
-                chart: {
-                    type: 'line',
-                    renderTo: item.id
-                },
-                title: {
-                    text: '' //item.title,
-                },
-                xAxis: {
-                    categories: categories
-                },
-                yAxis: {
-                    title: {
-                        text: '平均分'
-                    },
-                    plotLines: [{
-                        value: 0,
-                        width: 1,
-                        color: '#808080'
-                    }]
-                },
-                series: [{
-                    name: item.title,
-                    data: data
-                }],
-                lang: {
-                    downloadJPEG: "下载JPEG 图片",
-                    downloadPDF: "下载PDF文档",
-                    downloadPNG: "下载PNG 图片",
-                    downloadSVG: "下载SVG 矢量图",
-                    printChart: "打印图片",
-                    exportButtonTitle: "导出图片"
-                }
-            });
-        }
-
-        function drawNumPieChart(item, schema) {
-            var categories = [],
-                series = [],
-                sum = 0,
-                otherSum;
-            item.records.forEach(function(record) {
-                var recVal = record.data[schema.id] ? parseInt(record.data[schema.id]) : 0;
-                sum += recVal;
-                series.push({
-                    name: recVal,
-                    y: recVal
-                });
-            });
-            otherSum = parseInt(item.sum) - sum;
-            if (otherSum != 0) {
-                series.push({ name: '其它', y: otherSum });
-            }
-
-            new Highcharts.Chart({
-                chart: {
-                    type: 'pie',
-                    renderTo: schema.id
-                },
-                title: {
-                    text: '' //schema.title
-                },
-                tooltip: {
-                    pointFormat: '{series.name}: <b>{point.percentage:.1f}</b>'
-                },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                            style: {
-                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                            }
-                        }
-                    }
-                },
-                series: [{
-                    name: '所占百分比',
-                    data: series
-                }],
-                lang: {
-                    downloadJPEG: "下载JPEG 图片",
-                    downloadPDF: "下载PDF文档",
-                    downloadPNG: "下载PNG 图片",
-                    downloadSVG: "下载SVG 矢量图",
-                    printChart: "打印图片",
-                    exportButtonTitle: "导出图片"
-                }
-            });
-        }
 
         var _cacheOfRecordsBySchema = {
             recordsBySchema: function(schema, page) {
@@ -336,7 +148,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
 
                         if (schema.number && schema.number == 'Y') {
                             cached.sum = rsp.data.sum;
-                            drawNumPieChart(rsp.data, schema);
+                            srvChart.drawNumPieChart(rsp.data, schema);
                         }
 
                         cached.records = rsp.data.records;
@@ -368,29 +180,50 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         url += '&rid=' + (rid ? rid : '');
 
         http2.get(url, function(rsp) {
-            var app, stat = {};
+            var oApp = rsp.data.app,
+                rpSchemas = [],
+                oStat = {},
+                rpConfig = (oApp.rpConfig && oApp.rpConfig.op) ? oApp.rpConfig.op : undefined,
+                aExcludeSchemas = (rpConfig && rpConfig.exclude) ? rpConfig.exclude : [];
 
-            app = rsp.data.app;
-            srvRecordConverter.config(app.data_schemas);
-            app.dataSchemas.forEach(function(schema) {
-                if (rsp.data.stat[schema.id]) {
-                    rsp.data.stat[schema.id]._schema = schema;
-                    stat[schema.id] = rsp.data.stat[schema.id];
+            srvRecordConverter.config(oApp.dataSchemas);
+            oApp.dataSchemas.forEach(function(oSchema) {
+                var oStatBySchema;
+                if (oSchema.type !== 'html') {
+                    if (oStatBySchema = rsp.data.stat[oSchema.id]) {
+                        oStatBySchema._schema = oSchema;
+                        oStat[oSchema.id] = oStatBySchema;
+                        if (oStatBySchema.ops && oStatBySchema.sum > 0) {
+                            oStatBySchema.ops.forEach(function(oDataByOp) {
+                                oDataByOp.p = (new Number(oDataByOp.c / oStatBySchema.sum * 100)).toFixed(2) + '%';
+                            });
+                        }
+                    }
+                    aExcludeSchemas.indexOf(oSchema.id) === -1 && rpSchemas.push(oSchema);
                 }
             });
-            $scope.app = app;
-            $scope.stat = stat;
-
+            $scope.app = oApp;
+            $scope.rpSchemas = rpSchemas;
+            $scope.stat = oStat;
+            $scope.chartConfig = _oChartConfig = rpConfig || {
+                number: 'Y',
+                percentage: 'Y',
+                label: 'number'
+            };
+            srvChart.config(_oChartConfig);
             $timeout(function() {
-                var p, item, scoreSummary = [],
+                var item, scoreSummary = [],
                     totalScoreSummary = 0,
                     avgScoreSummary = 0;
-                for (p in stat) {
-                    item = stat[p];
+                for (var p in oStat) {
+                    item = oStat[p];
+                    if (aExcludeSchemas.indexOf(item.id) !== -1) {
+                        continue;
+                    }
                     if (/single|phase/.test(item._schema.type)) {
-                        drawPieChart(item);
+                        srvChart.drawPieChart(item);
                     } else if (/multiple/.test(item._schema.type)) {
-                        drawBarChart(item);
+                        srvChart.drawBarChart(item);
                     } else if (/score/.test(item._schema.type)) {
                         if (item.ops.length) {
                             var totalScore = 0,
@@ -399,7 +232,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                                 op.c = parseFloat(new Number(op.c).toFixed(2));
                                 totalScore += op.c;
                             });
-                            drawLineChart(item);
+                            srvChart.drawLineChart(item);
                             // 添加题目平均分
                             avgScore = parseFloat(new Number(totalScore / item.ops.length).toFixed(2));
                             item.ops.push({
@@ -429,7 +262,6 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             });
             window.loading.finish();
         });
-
         $scope.criteria = {
             rid: ''
         };
@@ -453,19 +285,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                             $scope2.activeRound = result.active;
                             $scope2.rounds = result.rounds;
                             $scope2.pageOfRound = result.page;
-                            if (rid) {
-                                if (rid === 'ALL') {
-                                    $scope2.moreCriteria.rid = 'ALL';
-                                } else {
-                                    $scope2.rounds.forEach(function(round) {
-                                        if (round.rid == rid) {
-                                            $scope2.moreCriteria.rid = rid;
-                                        }
-                                    });
-                                }
-                            } else {
-                                $scope2.moreCriteria.rid = $scope.activeRound.rid;
-                            }
+                            $scope2.moreCriteria.rid = rid || $scope.activeRound.rid;
                         });
                     };
                     $scope2.cancel = function() {
@@ -484,21 +304,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             $scope.activeRound = result.active;
             $scope.checkedRound = result.checked;
             $scope.rounds = result.rounds;
-            if (rid) {
-                if (rid === 'ALL') {
-                    $scope.criteria.rid = 'ALL';
-                } else if (rid == $scope.checkedRound.rid) {
-                    $scope.criteria.rid = $scope.checkedRound.rid;
-                } else {
-                    $scope.rounds.forEach(function(round) {
-                        if (round.rid == rid) {
-                            $scope.criteria.rid = rid;
-                        }
-                    });
-                }
-            } else {
-                $scope.criteria.rid = $scope.activeRound.rid;
-            }
+            $scope.criteria.rid = rid || $scope.activeRound.rid;
         });
     }]);
     require(['domReady!'], function(document) {

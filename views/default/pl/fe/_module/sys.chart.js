@@ -14,8 +14,8 @@ provider('srvChart', function() {
                 var categories = [],
                     series = [];
 
-                item.ops.forEach(function(op) {
-                    categories.push(op.l);
+                item.ops.forEach(function(op, index) {
+                    categories.push('选项' + (index + 1));
                     series.push(parseInt(op.c));
                 });
                 new Highcharts.Chart({
@@ -204,8 +204,8 @@ provider('srvChart', function() {
                 var categories = [],
                     data = [];
 
-                item.ops.forEach(function(op) {
-                    categories.push(op.l);
+                item.ops.forEach(function(op, index) {
+                    categories.push('选项' + (index + 1));
                     data.push(op.c);
                 });
                 new Highcharts.Chart({

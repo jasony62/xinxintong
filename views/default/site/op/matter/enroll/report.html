@@ -22,8 +22,8 @@
                             <tr>
                                 <th style='width:4em'>编号</th>
                                 <th>选项</th>
-                                <th ng-if="chartConfig.number==='Y'">数量</th>
-                                <th ng-if="chartConfig.percentage==='Y'">占比</th>
+                                <th style='width:6em' ng-if="chartConfig.number==='Y'">数量</th>
+                                <th style='width:6em' ng-if="chartConfig.percentage==='Y'">占比</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -41,12 +41,14 @@
                     <table class='table table-bordered'>
                         <thead>
                             <tr>
+                                <th style='width:4em'>编号</th>
                                 <th>打分项</th>
-                                <th>平均分</th>
+                                <th style='width:6em'>平均分</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="op in stat[schema.id].ops">
+                                <td>选项{{$index+1}}</td>
                                 <td>{{op.l}}</td>
                                 <td>{{op.c}}</td>
                             </tr>

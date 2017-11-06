@@ -189,17 +189,21 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             srvRecordConverter.config(oApp.dataSchemas);
             oApp.dataSchemas.forEach(function(oSchema) {
                 var oStatBySchema;
-                if (oSchema.type !== 'html') {
-                    if (oStatBySchema = rsp.data.stat[oSchema.id]) {
-                        oStatBySchema._schema = oSchema;
-                        oStat[oSchema.id] = oStatBySchema;
-                        if (oStatBySchema.ops && oStatBySchema.sum > 0) {
-                            oStatBySchema.ops.forEach(function(oDataByOp) {
-                                oDataByOp.p = (new Number(oDataByOp.c / oStatBySchema.sum * 100)).toFixed(2) + '%';
-                            });
+                if (aExcludeSchemas.indexOf(oSchema.id) === -1) {
+                    if (oSchema.type !== 'html') {
+                        // 报表中包含的题目
+                        rpSchemas.push(oSchema);
+                        // 报表中包含统计数据的题目
+                        if (oStatBySchema = rsp.data.stat[oSchema.id]) {
+                            oStatBySchema._schema = oSchema;
+                            oStat[oSchema.id] = oStatBySchema;
+                            if (oStatBySchema.ops && oStatBySchema.sum > 0) {
+                                oStatBySchema.ops.forEach(function(oDataByOp) {
+                                    oDataByOp.p = (new Number(oDataByOp.c / oStatBySchema.sum * 100)).toFixed(2) + '%';
+                                });
+                            }
                         }
                     }
-                    aExcludeSchemas.indexOf(oSchema.id) === -1 && rpSchemas.push(oSchema);
                 }
             });
             $scope.app = oApp;

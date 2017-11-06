@@ -27,7 +27,7 @@ define(['frame'], function(ngApp) {
             url += '&rid=' + (_rid || '');
             http2.get(url, function(rsp) {
                 var oStatData = {};
-                oApp.dataSchemas.forEach(function(oSchema) {
+                $scope.schemasForReport.forEach(function(oSchema) {
                     var oStatBySchema;
                     if (oStatBySchema = rsp.data[oSchema.id]) {
                         oStatBySchema._schema = oSchema;
@@ -41,7 +41,6 @@ define(['frame'], function(ngApp) {
                 });
                 _processStat($scope.stat = oStatData);
             });
-
         }
 
         function _processStat(oStatData) {

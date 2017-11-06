@@ -14,7 +14,7 @@ define(['require', 'angular'], function(require, angular) {
         };
         $scope.list = function(more) {
             more && $scope.page.times++;
-            var url = '/rest/site/fe/user/share/list?site=' + siteId;
+            var url = '/rest/site/fe/user/share/listShare?site=' + siteId + '&userid=' + $scope.user.uid;
             url += '&' + page.join();
             $http.get(url).success(function(rsp) {
                 if (rsp.err_code != 0) {
@@ -26,11 +26,11 @@ define(['require', 'angular'], function(require, angular) {
             });
         };
         $scope.openMatter = function(id, type) {
-            location.href = '/rest/site/fe/matter?site=' + siteId + '&id=' + id + '&type=' + type;
+            location.href = '/rest/site/fe/user/share/log?site=' + siteId + '&id=' + id + '&type=' + type;
         };
         $scope.list();
-        $http.get('/rest/site/fe/get?site=' + siteId).success(function(rsp) {
-            $scope.site = rsp.data;
+        $http.get('/rest/site/fe/user/get?site=' + siteId).success(function(rsp) {
+            $scope.user = rsp.data;
             window.loading.finish();
         });
     }]);

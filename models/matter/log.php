@@ -668,7 +668,7 @@ class log_model extends \TMS_MODEL {
 	public function listUserShare($site = '', $users, $page = null, $size = null) {
 		$user = "'" . implode("','", $users) . "'";
 		$q = [
-			'siteid,share_at,share_to,matter_id,matter_type,matter_title',
+			'siteid,share_at,share_to,matter_id,matter_type,matter_title,userid',
 			'xxt_log_matter_share',
 			"userid in ($user)"
 		];

@@ -30,7 +30,7 @@
                 if(j % 3 == 1){li.css('margin', '0 20px')};
                 if(j > 2) {li.css('marginTop', '20px')};
                 img.css({width: liWidth, height: liWidth, border: "3px solid #FFF", borderRadius: "10%"});
-                img.attr('src',"/static/img/interactPao.png");
+                img.attr('src',"/static/img/xxq_interact/interactPao.png");
                 li.append(img);
                 $(uls[i]).append(li);
             }

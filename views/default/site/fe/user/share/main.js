@@ -24,8 +24,8 @@ define(['require', 'angular'], function(require, angular) {
                 $scope.page.total = rsp.data.total;
             });
         };
-        $scope.openMatter = function(id, type) {
-            location.href = '/rest/site/fe/user/share/log?page=log&site=' + siteId  + '&matterId=' + id + '&matterType=' + type;
+        $scope.openMatter = function(id, type, uid) {
+            location.href = '/rest/site/fe/user/share/log?page=log&site=' + siteId  + '&matterId=' + id + '&matterType=' + type + '&uid=' + uid;
         };
         $http.get('/rest/site/fe/get?site=' + siteId).success(function(rsp) {
             $scope.site = rsp.data;

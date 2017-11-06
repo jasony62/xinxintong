@@ -1,8 +1,9 @@
 var app = angular.module('ngApp', []);
-app.controller('ctrlNgApp', ['$scope', '$http', function($scope, $http){
-    var matterId = location.search.match('matterId=(.*)')[1],
-        matterType = location.search.match('matterType=(.*)')[1],
-        siteId = location.search.match('site=(.*)')[1];
+app.controller('ctrlNgApp', ['$scope', '$http', '$location', function($scope, $http, $location){
+    var matterId = location.search.match(/matterId=([^&]*)/)[1],
+        matterType = location.search.match(/matterType=([^&]*)/)[1],
+        siteId = location.search.match(/site=([^&]*)/)[1],
+        uid = location.search.match(/uid=([^&]*)/)[1];
     $scope.page = {
         at: 1,
         size: 10,
@@ -11,8 +12,10 @@ app.controller('ctrlNgApp', ['$scope', '$http', function($scope, $http){
         }
     }
     $scope.order = function(item) {
+        console.log(matterType);
+        console.log(uid);
         var url = '/rest/site/fe/user/share/getMyShareLog';
-            url += '?matterType=' + matterType + '&matterId=' + matterId;
+            url += '?userid=' + uid + '&matterType=' + matterType + '&matterId=' + matterId;
             url += '&orderBy=' + item + $scope.page.j();
         $http.get(url).success(function(rsp) {
             $scope.results = rsp.data;

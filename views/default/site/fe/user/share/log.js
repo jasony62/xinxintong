@@ -18,5 +18,9 @@ app.controller('ctrlNgApp', ['$scope', '$http', function($scope, $http){
             $scope.result = rsp.data;
         });
     }
+    $scope.more = function() {
+        $scope.page.at++;
+        $scope.order();
+    }
     $scope.order('read');
 }]);

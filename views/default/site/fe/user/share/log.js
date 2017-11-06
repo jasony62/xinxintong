@@ -15,12 +15,15 @@ app.controller('ctrlNgApp', ['$scope', '$http', function($scope, $http){
             url += '?userid=' + userid + '&matterType=' + matterType + '&matterId=' + matterId;
             url += '&orderBy=' + item + page.j();
         $http.get(url).success(function(rsp) {
-            $scope.result = rsp.data;
+            $scope.results = rsp.data;
         });
     }
     $scope.more = function() {
         $scope.page.at++;
         $scope.order();
     }
-    $scope.order('read');
+    $http.get('/rest/site/fe/get?site=' + siteId).success(function(rsp) {
+        $scope.site = rsp.data;
+        $scope.order('read');
+    });
 }]);

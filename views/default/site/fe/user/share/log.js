@@ -11,8 +11,8 @@ app.controller('ctrlNgApp', ['$scope', '$http', function($scope, $http){
         }
     }
     $scope.order = function(item) {
-        var url = 'rest/site/fe/user/share/getMyShareLog';
-            url += '&matterType=' + matterType + '&matterId=' + matterId;
+        var url = '/rest/site/fe/user/share/getMyShareLog';
+            url += '?matterType=' + matterType + '&matterId=' + matterId;
             url += '&orderBy=' + item + $scope.page.j();
         $http.get(url).success(function(rsp) {
             $scope.results = rsp.data;

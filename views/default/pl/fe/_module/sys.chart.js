@@ -87,9 +87,9 @@ provider('srvChart', function() {
                 var categories = [],
                     series = [];
 
-                item.ops.forEach(function(op) {
+                item.ops.forEach(function(op, index) {
                     series.push({
-                        name: op.l,
+                        name: '选项' + (index + 1),
                         y: parseInt(op.c),
                         p: op.p
                     });

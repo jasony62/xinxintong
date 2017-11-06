@@ -33,6 +33,7 @@
                     <table class='table table-bordered'>
                         <thead>
                             <tr>
+                                <th style='width:4em'>编号</th>
                                 <th>选项</th>
                                 <th ng-if="chartConfig.number==='Y'">数量</th>
                                 <th ng-if="chartConfig.percentage==='Y'">比例</th>
@@ -40,6 +41,7 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="op in stat[schema.id].ops">
+                                <td>选项{{$index+1}}</td>
                                 <td>{{op.l}}</td>
                                 <td ng-if="chartConfig.number==='Y'">{{op.c}}</td>
                                 <td ng-if="chartConfig.percentage==='Y'">{{op.p}}</td>

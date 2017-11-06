@@ -4,6 +4,7 @@ app.controller('ctrlNgApp', ['$scope', '$http', '$location', function($scope, $h
         matterType = location.search.match(/matterType=([^&]*)/)[1],
         siteId = location.search.match(/site=([^&]*)/)[1],
         uid = location.search.match(/uid=([^&]*)/)[1];
+    $scope.results = [];
     $scope.page = {
         at: 1,
         size: 10,
@@ -12,18 +13,19 @@ app.controller('ctrlNgApp', ['$scope', '$http', '$location', function($scope, $h
         }
     }
     $scope.order = function(item) {
-        console.log(matterType);
-        console.log(uid);
         var url = '/rest/site/fe/user/share/getMyShareLog';
             url += '?userid=' + uid + '&matterType=' + matterType + '&matterId=' + matterId;
             url += '&orderBy=' + item + $scope.page.j();
         $http.get(url).success(function(rsp) {
-            $scope.results = rsp.data;
+            angular.forEach(rsp.data.users, function(user) {
+                $scope.results.push(user);
+            });
+            $scope.page.total = rsp.data.total;
         });
     }
-    $scope.more = function() {
+    $scope.more = function(item) {
         $scope.page.at++;
-        $scope.order();
+        $scope.order(item);
     }
     $http.get('/rest/site/fe/get?site=' + siteId).success(function(rsp) {
         $scope.site = rsp.data;

@@ -23,10 +23,10 @@
     <div class="container  ng-cloak" ng-cloak>
         <div class="main">
             <div class="orderItem">
-                <div class="col-xs-3 col-md-3" ng-click="order('read')">阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-                <div class="col-xs-3 col-md-3" ng-click="order('shareF')">分享<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-                <div class="col-xs-3 col-md-3" ng-click="order('shareT')">转发<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-                <div class="col-xs-3 col-md-3" ng-click="order('attractRead')">带来阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+                <div class="col-xs-3 col-md-3" ng-model="filter='read'" ng-click="order('read')">阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+                <div class="col-xs-3 col-md-3" ng-model="filter='shareF'" ng-click="order('shareF')">分享<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+                <div class="col-xs-3 col-md-3" ng-model="filter='shareT'" ng-click="order('shareT')">转发<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+                <div class="col-xs-3 col-md-3" ng-model="filter='attractRead'" ng-click="order('attractRead')">带来阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
             </div>
             <div class="orderResult">
                 <ul>
@@ -42,8 +42,8 @@
                         </div>
                     </li>
                 </ul>
-                <div class="more">
-                    <button class="btn btn-success btn-lg" ng-click="more()">加载更多</button>
+                <div class="more" ng-if="results.length < page.total">
+                    <button class="btn btn-success btn-lg" ng-click="more(filter)">加载更多</button>
                 </div>
             </div>
         </div>

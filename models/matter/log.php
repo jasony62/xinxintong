@@ -697,7 +697,7 @@ class log_model extends \TMS_MODEL {
 	/*
 	* 获取我的分享信息
 	*/
-	public function getMyShareInfo($oUserid, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
+	public function getMyShareLog($oUserid, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
 		$q = [];
 		$q2 = [];
 		switch ($orderBy) {

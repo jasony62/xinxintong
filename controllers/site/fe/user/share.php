@@ -9,8 +9,16 @@ class share extends \site\fe\base {
 	/**
 	 *
 	 */
-	public function index_action() {
-		\TPL::output('/site/fe/user/share/main');
+	public function index_action($page = '') {
+		switch ($page) {
+			case 'log':
+				\TPL::output('/site/fe/user/share/log');
+				break;
+			default:
+				\TPL::output('/site/fe/user/share/main');
+				break;
+		}
+
 		exit;
 	}
 	/**
@@ -48,7 +56,7 @@ class share extends \site\fe\base {
 	/*
 	* 获取我的分享信息
 	*/
-	public function getMyShareInfo_action($userid = '', $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
+	public function getMyShareLog_action($userid = '', $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
 		$model = $this->model('matter\log');
 		// 指定用户的访问记录
 		if (!empty($userid)) {
@@ -57,7 +65,7 @@ class share extends \site\fe\base {
 			$userid = $this->who->uid;
 		}
 
-		$users = $model->getMyShareInfo($userid, $matterType, $matterId, $orderBy, $page, $size);
+		$users = $model->getMyShareLog($userid, $matterType, $matterId, $orderBy, $page, $size);
 
 		return new \ResponseData($users);
 	}

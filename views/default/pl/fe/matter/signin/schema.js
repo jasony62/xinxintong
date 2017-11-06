@@ -3,66 +3,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
     /**
      * 填写项管理
      */
-    ngApp.provider.controller('ctrlSchema', ['$scope', '$q', 'srvSigninApp', 'srvSigninPage', function($scope, $q, srvSigninApp, srvSigninPage) {
-        $scope._srvAppBase = srvSigninApp;
-        $scope._submitChange = function(changedPages) {
-            var updatedAppProps = ['data_schemas'],
-                oSchema, oNicknameSchema, oAppNicknameSchema;
-
-
-            for (var i = $scope.app.dataSchemas.length - 1; i >= 0; i--) {
-                oSchema = $scope.app.dataSchemas[i];
-                if (oSchema.required === 'Y') {
-                    if (oSchema.type === 'shorttext' || oSchema.type === 'member') {
-                        if (oSchema.title === '姓名') {
-                            oNicknameSchema = oSchema;
-                            break;
-                        }
-                        if (oSchema.title.indexOf('姓名') !== -1) {
-                            if (!oNicknameSchema || oSchema.title.length < oNicknameSchema.title.length) {
-                                oNicknameSchema = oSchema;
-                            }
-                        } else if (oSchema.format && oSchema.format === 'name') {
-                            oNicknameSchema = oSchema;
-                        }
-                    }
-                }
-            }
-            if (oNicknameSchema) {
-                if (oAppNicknameSchema = $scope.app.assignedNickname) {
-                    if (oAppNicknameSchema.schema) {
-                        if (oAppNicknameSchema.schema.id !== '') {
-                            oAppNicknameSchema.schema.id = oNicknameSchema.id;
-                            updatedAppProps.push('assignedNickname');
-                        }
-                    } else {
-                        oAppNicknameSchema.valid = 'Y';
-                        oAppNicknameSchema.schema = { id: oNicknameSchema.id };
-                        updatedAppProps.push('assignedNickname');
-                    }
-                }
-            } else {
-                if ($scope.app.assignedNickname.schema) {
-                    delete $scope.app.assignedNickname.schema;
-                    updatedAppProps.push('assignedNickname');
-                }
-            }
-            srvSigninApp.update(updatedAppProps).then(function() {
-                changedPages.forEach(function(oPage) {
-                    srvSigninPage.update(oPage, ['data_schemas', 'html']);
-                });
-            });
-        };
-        $scope.assignEnrollApp = function() {
-            srvSigninApp.assignEnrollApp();
-        };
-        $scope.cancelEnrollApp = function() {
-            srvSigninApp.cancelEnrollApp();
-        };
-        $scope.cancelGroupApp = function() {
-            $scope.app.group_app_id = '';
-            srvSigninApp.update('group_app_id');
-        };
+    ngApp.provider.controller('ctrlSchema', ['$scope', '$q', 'srvSigninPage', function($scope, $q, srvSigninPage) {
         $scope.updConfig = function(oActiveSchema) {
             var pages, oPage;
             pages = $scope.app.pages;

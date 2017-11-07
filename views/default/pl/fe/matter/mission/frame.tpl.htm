@@ -92,7 +92,7 @@
                     </div>
                     <div class='collapse navbar-collapse' uib-collapse="isNavCollapsed">
                         <nav class='nav navbar-nav tms-breadcrumb'>
-                            <li><a href="/rest/pl/fe?view=main&scope=mission&sid={{mission.siteid}}" target='_self'>个人工作台</a></li>
+                            <li><a href="/rest/pl/fe?view=main&scope=mission&sid={{mission.siteid}}" target='_self'>工作台</a></li>
                             <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=mission&sid={{mission.siteid}}" target='_self'>{{site.name}}</a></li>
                             <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
                             <li><a href="/rest/pl/fe/matter/mission/main?site={{mission.siteid}}&id={{mission.id}}" title="{{mission.title}}">{{mission.title}}</a></li>

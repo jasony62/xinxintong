@@ -96,7 +96,7 @@ class round extends \pl\fe\matter\base {
 		$q = [
 			'count(*)',
 			'xxt_group_player',
-			"aid='$app' and round_id='$rid' and state<>1",
+			['aid' => $app, 'round_id' => $rid, 'state' => 1],
 		];
 		if (0 < (int) $model->query_val_ss($q)) {
 			return new \ResponseError('已经有分组数据，不允许删除轮次！');

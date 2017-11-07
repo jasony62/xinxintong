@@ -44,6 +44,25 @@ class wall_model extends enroll_base {
 			if (!empty($oWall->matter_mg_tag)) {
 				$oWall->matter_mg_tag = json_decode($oWall->matter_mg_tag);
 			}
+			if (!empty($oWall->scenario_config)) {
+				$oWall->scenario_config = json_decode($oWall->scenario_config);
+			}
+			if (!empty($oWall->interact_matter)) {
+				$oWall->interact_matter = json_decode($oWall->interact_matter);
+				foreach ($oWall->interact_matter as $key => $matter) {
+					if ($matter->type === 'signin') {
+						$oWall->interact_matter[$key]->entryUrl = '';
+						continue;
+					}
+					$oWall->interact_matter[$key]->entryUrl = $this->model('matter\\' . $matter->type)->getEntryUrl($oWall->siteid, $matter->id);
+				}
+			}
+			if (!empty($oWall->matters_img)) {
+				$oWall->matters_img = json_decode($oWall->matters_img);
+			}
+			if (!empty($oWall->result_img)) {
+				$oWall->result_img = json_decode($oWall->result_img);
+			}
 		}
 
 		return $oWall;
@@ -264,6 +283,63 @@ class wall_model extends enroll_base {
 		$time > 0 && $q[2] .= " and publish_at>=$time";
 		$q2['o'] = 'publish_at desc';
 		return $this->query_objs_ss($q, $q2);
+	}
+	/*
+	* 获取素材分享者列表
+	* $startTime 分享开始时间
+	 and s.matter_id in ($matterId) and s.matter_type = '$matterType'
+	*/
+	public function listPlayer($startTime, $startId = null, &$oApp, $page = null, $size = null) {
+		$this->setOnlyWriteDbConn(true);
+		$startTime = $this->escape($startTime);
+		$interactAction = $oApp->scenario_config->interact_action;
+
+		if ($interactAction->shareF === 'Y' || $interactAction->shareT === 'Y') {
+			$q = [
+				'max(s.id) id,s.share_to,s.share_at,s.matter_id,s.matter_type,s.matter_title,s.userid,a.nickname,a.headimgurl,a.wx_openid,a.yx_openid,a.qy_openid',
+				'xxt_log_matter_share s,xxt_site_account a',
+				"s.share_at > $startTime and s.userid = a.uid and s.siteid = a.siteid"
+			];
+			if (!empty($startId)) {
+				$startId = $this->escape($startId);
+				$q[2] .= ' and s.id > ' . $startId;
+			}
+			if ($interactAction->shareF === 'Y' && $interactAction->shareT === 'N') {
+				$q[2] .= " and s.share_to = 'F'";
+			} else if ($interactAction->shareF === 'N' && $interactAction->shareT === 'Y') {
+				$q[2] .= " and s.share_to = 'T'";
+			}
+
+			$whereMatter = '';
+			foreach ($oApp->interact_matter as $matter) {
+				$whereMatter .= " or ( matter_id = '" . $matter->id . "' and matter_type = '" . $matter->type . "')";
+			}
+			$whereMatter = explode('or', $whereMatter);
+			array_shift($whereMatter);
+			$whereMatters = implode('or', $whereMatter);
+			$q[2] .= ' and (' . $whereMatters . ')';
+
+			$q2 = ['g' => 's.userid', 'o' => 'max(s.id)'];
+			if (!empty($page) && !empty($size)) {
+				$q2['r']['o'] = ($page - 1) * $size;
+				$q2['r']['l'] = $size;
+			}
+
+			$users = $this->query_objs_ss($q, $q2);
+			$data = new \stdClass;
+			$data->users = $users;
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$data->total = $total;
+
+			return $data;
+		} else {
+			$data = new \stdClass;
+			$data->users = [];
+			$data->total = 0;
+
+			return $data;
+		}
 	}
 	/**
 	 * 获得消息列表

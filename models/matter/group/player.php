@@ -7,12 +7,12 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 用户登记（不包括登记数据）
 	 *
-	 * @param string $siteId
 	 * @param object $app
 	 * @param object $user
 	 * @param array $options
+	 *
 	 */
-	public function enroll($siteId, &$app, &$user, $options = []) {
+	public function enroll($oApp, $oUser, $options = []) {
 		if (is_object($options)) {
 			$options = (array) $options;
 		}
@@ -20,19 +20,19 @@ class player_model extends \TMS_MODEL {
 		if (isset($options['enroll_key'])) {
 			$ek = $options['enroll_key'];
 		} else {
-			$ek = $this->genKey($siteId, $app->id);
+			$ek = $this->genKey($oApp->siteid, $oApp->id);
 		}
 
 		$player = [
-			'aid' => $app->id,
-			'siteid' => $siteId,
+			'aid' => $oApp->id,
+			'siteid' => $oApp->siteid,
 			'enroll_key' => $ek,
-			'userid' => $user->uid,
-			'nickname' => $this->escape($user->nickname),
-			'wx_openid' => $user->wx_openid,
-			'yx_openid' => $user->yx_openid,
-			'qy_openid' => $user->qy_openid,
-			'headimgurl' => $user->headimgurl,
+			'userid' => $oUser->uid,
+			'nickname' => $this->escape($oUser->nickname),
+			'wx_openid' => $oUser->wx_openid,
+			'yx_openid' => $oUser->yx_openid,
+			'qy_openid' => $oUser->qy_openid,
+			'headimgurl' => $oUser->headimgurl,
 		];
 		$player['enroll_at'] = isset($options['enroll_at']) ? $options['enroll_at'] : time();
 		isset($options['round_id']) && $player['round_id'] = $options['round_id'];
@@ -50,7 +50,7 @@ class player_model extends \TMS_MODEL {
 	 */
 	public function setData($oApp, $ek, $data) {
 		if (empty($data)) {
-			return array(true);
+			return [true];
 		}
 		// 处理后的登记记录
 		$dbData = new \stdClass;
@@ -117,7 +117,7 @@ class player_model extends \TMS_MODEL {
 					$this->update(
 						'xxt_group_player_data',
 						['value' => $treatedValue],
-						"aid='{$oApp->id}' and enroll_key='$ek' and name='$n'"
+						['aid' => $oApp->id, 'enroll_key' => $ek, 'name' => $n]
 					);
 					unset($fields[array_search($n, $fields)]);
 				} else {
@@ -136,7 +136,7 @@ class player_model extends \TMS_MODEL {
 		$this->update(
 			'xxt_group_player',
 			['enroll_at' => time(), 'data' => $dbData],
-			"enroll_key='$ek'"
+			['enroll_key' => $ek]
 		);
 
 		return [true, $dbData];

@@ -156,26 +156,30 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     };
     angular.module('service.enroll', ['ui.bootstrap', 'ui.xxt', 'service.matter']).
     provider('srvEnrollApp', function() {
-        function _mapSchemas(app) {
+        function _mapSchemas(oApp) {
             var mapOfSchemaByType = {},
                 mapOfSchemaById = {},
                 mapOfUnionSchemaById = {},
+                inputSchemas = [],
                 enrollDataSchemas = [],
                 groupDataSchemas = [],
                 canFilteredSchemas = [];
 
-            app.dataSchemas.forEach(function(schema) {
+            oApp.dataSchemas.forEach(function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema.id);
                 mapOfSchemaById[schema.id] = schema;
                 mapOfUnionSchemaById[schema.id] = schema;
-                if (false === /image|file/.test(schema.type)) {
+                if (schema.type !== 'html') {
+                    inputSchemas.push(schema);
+                }
+                if (false === /image|file|html/.test(schema.type)) {
                     canFilteredSchemas.push(schema);
                 }
             });
             // 关联的报名登记项
-            if (app.enrollApp && app.enrollApp.dataSchemas) {
-                app.enrollApp.dataSchemas.forEach(function(item) {
+            if (oApp.enrollApp && oApp.enrollApp.dataSchemas) {
+                oApp.enrollApp.dataSchemas.forEach(function(item) {
                     if (mapOfUnionSchemaById[item.id] === undefined) {
                         mapOfUnionSchemaById[item.id] = item;
                         enrollDataSchemas.push(item);
@@ -183,8 +187,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
             }
             // 关联的分组活动的登记项
-            if (app.groupApp && app.groupApp.dataSchemas) {
-                app.groupApp.dataSchemas.forEach(function(item) {
+            if (oApp.groupApp && oApp.groupApp.dataSchemas) {
+                oApp.groupApp.dataSchemas.forEach(function(item) {
                     if (mapOfUnionSchemaById[item.id] === undefined) {
                         mapOfUnionSchemaById[item.id] = item;
                         groupDataSchemas.push(item);
@@ -192,12 +196,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
             }
 
-            app._schemasByType = mapOfSchemaByType;
-            app._schemasById = mapOfSchemaById;
-            app._unionSchemasById = mapOfUnionSchemaById;
-            app._schemasCanFilter = canFilteredSchemas;
-            app._schemasFromEnrollApp = enrollDataSchemas;
-            app._schemasFromGroupApp = groupDataSchemas;
+            oApp._schemasByType = mapOfSchemaByType;
+            oApp._schemasById = mapOfSchemaById;
+            oApp._schemasForInput = inputSchemas;
+            oApp._unionSchemasById = mapOfUnionSchemaById;
+            oApp._schemasCanFilter = canFilteredSchemas;
+            oApp._schemasFromEnrollApp = enrollDataSchemas;
+            oApp._schemasFromGroupApp = groupDataSchemas;
         }
 
         var _siteId, _appId, _accessId, _oApp, _getAppDeferred = false;

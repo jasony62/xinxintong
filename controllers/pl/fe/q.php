@@ -15,19 +15,20 @@ class q extends \pl\fe\base {
 	 * @return
 	 */
 	public function get_action($site) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$modelQurl = $this->model('q\url');
 
-		$task = $modelQurl->byUrl($user, $site, $posted->url);
+		$task = $modelQurl->byUrl($oUser, $site, $oPosted->url);
 
 		return new \ResponseData($task);
 	}
 	/**
 	 * 创建快速进入短链接
+	 * 一个url只允许创建一个短链接，若已经有，就返回已有的
 	 *
 	 * @param string $site
 	 * @param string $url
@@ -35,20 +36,24 @@ class q extends \pl\fe\base {
 	 * @return
 	 */
 	public function create_action($site) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
-		if (empty($posted->url)) {
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->url)) {
 			return new \ParameterError();
 		}
 
-		$url = $posted->url;
-		$title = isset($posted->title) ? $posted->title : '';
+		$url = $oPosted->url;
+		$title = isset($oPosted->title) ? $oPosted->title : '';
 
 		$modelQurl = $this->model('q\url');
-		$code = $modelQurl->add($user, $site, $url, $title);
+		if ($oShortUrl = $modelQurl->byUrl($oUser, $site, $url)) {
+			return new \ResponseData(['code' => $oShortUrl->code]);
+		}
+
+		$code = $modelQurl->add($oUser, $site, $url, $title);
 
 		return new \ResponseData(['code' => $code]);
 	}
@@ -61,15 +66,15 @@ class q extends \pl\fe\base {
 	 * @return
 	 */
 	public function update_action($site, $code) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$modelQurl = $this->model('q\url');
 
 		$data = [];
-		foreach ($posted as $key => $val) {
+		foreach ($oPosted as $key => $val) {
 			if ($key === 'can_favor') {
 				$data['can_favor'] = $val === 'Y' ? 'Y' : 'N';
 			}
@@ -95,14 +100,14 @@ class q extends \pl\fe\base {
 	 * @return
 	 */
 	public function remove_action($site) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$modelQurl = $this->model('q\url');
 
-		$rst = $modelQurl->remove($user, $site, $posted->url);
+		$rst = $modelQurl->remove($oUser, $site, $oPosted->url);
 
 		return new \ResponseData($rst);
 	}
@@ -115,16 +120,16 @@ class q extends \pl\fe\base {
 	 * @return
 	 */
 	public function config_action($site) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$modelQurl = $this->model('q\url');
 
 		$rst = $modelQurl->update(
 			'xxt_short_url',
-			$posted->config, "target_url='{$posted->url}'"
+			$oPosted->config, "target_url='{$oPosted->url}'"
 		);
 
 		return new \ResponseData($rst);

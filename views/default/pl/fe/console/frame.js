@@ -201,10 +201,8 @@ define(['require'], function(require) {
                     location.href = '/rest/pl/fe/matter/merchant/shop?site=' + site.id + '&id=' + rsp.data;
                 });
             },
-            addWall: function(site) {
-                http2.get('/rest/pl/fe/matter/wall/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/wall?site=' + site.id + '&id=' + rsp.data.id;
-                });
+            addWall: function(site, scenario) {
+                location.href = '/rest/pl/fe/matter/wall/shop?site=' + site.id + '&scenario=' + (scenario || '');
             },
             addText: function(site) {
                 location.href = '/rest/pl/fe/matter/text?site=' + site.id;

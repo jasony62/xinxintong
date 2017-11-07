@@ -14,6 +14,15 @@
 </head>
 
 <body ng-app='app' ng-controller='ctrl' ng-cloak class='ng-cloak'>
+    <nav class='navbar hm-navbar-default'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a class='navbar-brand' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+        </div>
+    </nav>
     <div id='site'>
         <a class="site-title" ng-href="{{'/rest/site/home?site='+siteInfo.id}}" target='_self'><img class="pull-left img-circle" ng-src="{{siteInfo.heading_pic}}"><span ng-bind="siteInfo.name"></span><i class="glyphicon glyphicon-menu-right pull-right"></i></a>
         <p class="site-summary" ng-bind="siteInfo.summary"></p>

@@ -1,11 +1,41 @@
 <style>
 /* img tiles */
-ul{padding-left:0}
-ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}
-ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute}
-ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
-ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
-ul.img-tiles li.img-picker button span{font-size:36px}
+
+ul {
+    padding-left: 0
+}
+
+ul.img-tiles li {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    width: 80px;
+    height: 80px;
+    margin: 0px;
+    padding: 0px;
+    float: left
+}
+
+ul.img-tiles li.img-thumbnail img {
+    display: inline-block;
+    position: absolute
+}
+
+ul.img-tiles li.img-thumbnail button {
+    position: absolute;
+    top: 0;
+    right: 0
+}
+
+ul.img-tiles li.img-picker button {
+    position: auto;
+    width: 100%;
+    height: 100%
+}
+
+ul.img-tiles li.img-picker button span {
+    font-size: 36px
+}
 </style>
 <div class="modal-header">
     <button class="close" type="button" ng-click="cancel()">×</button>
@@ -32,7 +62,8 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                 </select>
                 <ul ng-switch-when="multiple">
                     <li class='checkbox' ng-repeat="op in schema.ops">
-                        <label><input type="checkbox" name="{{schema.id}}" ng-model="record.data[schema.id][op.v]"/><span>{{op.l}}</span></label>
+                        <label>
+                            <input type="checkbox" name="{{schema.id}}" ng-model="record.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
                     </li>
                 </ul>
                 <ul ng-switch-when="image" class="img-tiles clearfix">
@@ -41,29 +72,50 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                         <button class="btn btn-default btn-xs" ng-click="removeImage(record.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
                     </li>
                     <li class="img-picker">
-                        <button class="btn btn-default" ng-click="chooseImage(schema.id)"><span class="glyphicon glyphicon-picture"></span><br />上传图片</button>
+                        <button class="btn btn-default" ng-click="chooseImage(schema.id)"><span class="glyphicon glyphicon-picture"></span>
+                            <br />上传图片</button>
                     </li>
                 </ul>
-                <span ng-switch-when="file">
-                    <span ng-repeat="file in record.data[schema.id]">
-                        <span ng-bind="file.url"></span>
-                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                            <source src="{{file.url}}" type="{{file.type}}"/>
-                        </video>
-                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
-                    </span>
-                </span>
+                <div ng-switch-when="file">
+                    <ul class="list-group" ng-repeat="file in record.data[schema.id]">
+                        <li class="list-group-item" ng-if="file.type.indexOf('video')===0">
+                            <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
+                            <video controls="controls" style="width:100%;">
+                                <source src="{{file.url}}" type="{{file.type}}" />
+                            </video>
+                        </li>
+                        <li class="list-group-item" ng-if="file.type.indexOf('audio')===0">
+                            <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
+                            <audio controls="controls" style="width:100%;">
+                                <source src="{{file.url}}" type="{{file.type}}" title="{{file.name}}" />
+                            </audio>
+                        </li>
+                        <li class="list-group-item" ng-if="file.type.indexOf('image')===0">
+                            <img ng-src='{{file.url}}' style="width:100%" title="{{file.name}}" />
+                        </li>
+                        <li class="list-group-item" ng-if="file.type.indexOf('video')===-1&&file.type.indexOf('audio')===-1&&file.type.indexOf('image')===-1">
+                            <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
+                        </li>
+                        <button class="btn btn-default btn-xs" ng-click="removeFile(record.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                    </ul>
+                    <button class="btn btn-default" ng-click="chooseFile(schema.id)">上传文件</button>
+                </div>
                 <input type="text" class='form-control' ng-switch-when='mobile' ng-model="record.data[schema.id]">
                 <div ng-switch-when='date'>
                     <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
                 </div>
-                <input type='text' class='form-control' ng-switch-default ng-model="record.data[schema.id]">
+                <input type='text' class='form-control' ng-switch-when="member" ng-model="record.data.member[schema.id.substr(7)]">
+                <div ng-switch-default>
+                    <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')===0" ng-model="record.data.member[schema.id.substr(7)]">
+                    <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')!==0" ng-model="record.data[schema.id]">
+                </div>
             </div>
         </div>
         <div class="form-group">
             <label class="col-md-3 control-label">验证通过</label>
             <div class="col-md-9">
-                <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="record.verified">是</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="record.verified">是</label>
             </div>
         </div>
         <div class="form-group">
@@ -95,7 +147,8 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                 </select>
                 <ul ng-switch-when="multiple">
                     <li class='checkbox' ng-repeat="op in schema.ops">
-                        <label><input type="checkbox" name="{{schema.id}}" disabled ng-model="record.data[schema.id][op.v]"/><span>{{op.l}}</span></label>
+                        <label>
+                            <input type="checkbox" name="{{schema.id}}" disabled ng-model="record.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
                     </li>
                 </ul>
                 <ul ng-switch-when="image" class="img-tiles clearfix">
@@ -106,11 +159,11 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                 <span ng-switch-when="file">
                     <span ng-repeat="file in record.data[schema.id]">
                         <span ng-bind="file.url"></span>
-                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                            <source src="{{file.url}}" type="{{file.type}}"/>
-                        </video>
-                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
-                    </span>
+                <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                    <source src="{{file.url}}" type="{{file.type}}" />
+                </video>
+                <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
+                </span>
                 </span>
                 <input type='text' class='form-control' disabled ng-switch-default ng-model="record.data[schema.id]">
             </div>
@@ -132,7 +185,9 @@ ul.img-tiles li.img-picker button span{font-size:36px}
         <tbody>
             <tr ng-repeat="rnd in app.rounds">
                 <td>{{rnd.title}}</td>
-                <td style='width:360px'><tms-datepicker class='tms-datepicker' tms-title='签到时间' tms-obj="rnd" tms-date="record.signin_log[rnd.rid]" tms-state="signinAt" tms-default-date="{{rnd.late_at}}"></tms-datepicker></td>
+                <td style='width:360px'>
+                    <tms-datepicker class='tms-datepicker' tms-title='签到时间' tms-obj="rnd" tms-date="record.signin_log[rnd.rid]" tms-state="signinAt" tms-default-date="{{rnd.late_at}}"></tms-datepicker>
+                </td>
             </tr>
         </tbody>
     </table>

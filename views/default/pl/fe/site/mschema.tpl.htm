@@ -31,7 +31,7 @@
             <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
                 <div class='container-fluid'>
                     <nav class='nav navbar-nav tms-breadcrumb ng-cloak' ng-cloak>
-                        <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
+                        <li><a href="/rest/pl/fe" target='_self'>工作台</a></li>
                         <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
                         <li ng-if="choosedSchema.mission"><a href="/rest/pl/fe/matter/mission?site={{site.id}}&id={{choosedSchema.mission.id}}" target='_self'>{{choosedSchema.mission.title}}</a></li>

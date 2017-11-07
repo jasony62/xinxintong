@@ -44,7 +44,7 @@ define(['frame'], function(ngApp) {
             window.open(url);
         };
         $scope.notify = function(isBatch) {
-            srvEnrollRecord.notify(isBatch ? $scope.criteria : undefined);
+            srvEnrollRecord.notify(isBatch ? $scope.criteria : _oRows);
         };
         $scope.filter = function() {
             $uibModal.open({

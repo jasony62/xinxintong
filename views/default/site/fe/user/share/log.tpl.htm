@@ -10,7 +10,7 @@
     <link href="<?php echo auto_version('/views/default/site/fe/user/share/log.css');?>" rel="stylesheet">
 </head>
 
-<body ng-controller="ctrlNgApp">
+<body ng-controller="ctrlNgApp" class="ng-cloak" ng-cloak>
     <nav class='navbar site-navbar-default navbar-fixed-top'>
         <div class='container-fluid text-right'>
             <p class="navbar-text">
@@ -20,12 +20,12 @@
             </p>
         </div>
     </nav>
-    <div class="container  ng-cloak" ng-cloak>
+    <div class="container">
         <div class="orderItem">
-            <div class="col-xs-3 col-md-3" ng-model="filter='read'" ng-click="order('read')">阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-            <div class="col-xs-3 col-md-3" ng-model="filter='shareF'" ng-click="order('shareF')">分享<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-            <div class="col-xs-3 col-md-3" ng-model="filter='shareT'" ng-click="order('shareT')">转发<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-            <div class="col-xs-3 col-md-3" ng-model="filter='attractRead'" ng-click="order('attractRead')">带来阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-click="order('read', false)">阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-click="order('shareF',false)">分享<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-click="order('shareT',false)">转发<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-click="order('attractRead',false)">带来阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
         </div>
         <div class="orderResult">
             <ul>
@@ -42,7 +42,7 @@
                 </li>
             </ul>
             <div class="more" ng-if="results.length < page.total">
-                <button class="btn btn-success btn-lg" ng-click="more(filter)">加载更多</button>
+                <button class="btn btn-success btn-lg" ng-click="more()">加载更多</button>
             </div>
         </div>
     </div>

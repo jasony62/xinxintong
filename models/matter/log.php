@@ -668,7 +668,7 @@ class log_model extends \TMS_MODEL {
 	public function listUserShare($site = '', $users, $page = null, $size = null) {
 		$user = "'" . implode("','", $users) . "'";
 		$q = [
-			'siteid,share_at,share_to,matter_id,matter_type,matter_title,userid',
+			'siteid,share_at,matter_id,matter_type,matter_title,userid,nickname',
 			'xxt_log_matter_share',
 			"userid in ($user)"
 		];
@@ -677,7 +677,7 @@ class log_model extends \TMS_MODEL {
 			$q[2] .= " and siteid = '$site'";
 		}
 
-		$q2['g'] = "matter_id,matter_type";
+		$q2['g'] = "userid,matter_id,matter_type";
 		$q2['o'] = "share_at desc";
 		if (!empty($page) && !empty($size)) {
 			$q2['r']['o'] = ($page-1) * $size;
@@ -685,7 +685,7 @@ class log_model extends \TMS_MODEL {
 		}
 
 		$matters = $this->query_objs_ss($q,$q2);
-		$q[0] = "count(distinct matter_id,matter_type)";
+		$q[0] = "count(distinct userid,matter_id,matter_type)";
 		$total = (int) $this->query_val_ss($q);
 
 		$data = new \stdClass;

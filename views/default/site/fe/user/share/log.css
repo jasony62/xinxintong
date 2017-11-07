@@ -5,7 +5,7 @@ body{width: 100%;height: 100%;background-color: #F6F6F6;color: #333;font-family:
 .navbar .navbar-text{float:none;}
 .orderItem{overflow: hidden;margin-bottom: 15px;}
 .orderItem > .col-xs-3{padding-left: 0;padding-right:   0;cursor: pointer;}
-.orderResult .result{width: 100%;height: 104px;margin-bottom: 20px;padding:15px 10px;font-size:13px;background-size: contain;background-repeat:  no-repeat;}
+.orderResult .result{width: 100%;height: 104px;margin-bottom: 20px;padding:15px 10px;font-size:13px;background-size: cover;background-repeat:  no-repeat;}
 .odd{background-image:url('/static/img/odd.png');}
 .even{background-image:url('/static/img/even.png');}
 .lineOne{margin-bottom: 10px;}

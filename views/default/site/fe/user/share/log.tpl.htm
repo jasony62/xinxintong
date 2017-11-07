@@ -21,30 +21,28 @@
         </div>
     </nav>
     <div class="container  ng-cloak" ng-cloak>
-        <div class="main">
-            <div class="orderItem">
-                <div class="col-xs-3 col-md-3" ng-model="filter='read'" ng-click="order('read')">阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-                <div class="col-xs-3 col-md-3" ng-model="filter='shareF'" ng-click="order('shareF')">分享<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-                <div class="col-xs-3 col-md-3" ng-model="filter='shareT'" ng-click="order('shareT')">转发<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-                <div class="col-xs-3 col-md-3" ng-model="filter='attractRead'" ng-click="order('attractRead')">带来阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-            </div>
-            <div class="orderResult">
-                <ul>
-                    <li ng-class-odd="'odd result'" ng-class-even="'even result'" ng-repeat="result in results">
-                        <p class="nickname" ng-bind="{{result.nickname}}"></p>
-                        <div class="lineOne">
-                            <p class="readSum">阅读数：<span ng-bind="{{result.read_sum}}"></span></p>
-                            <p class="shareFSum">发送给朋友数:<span ng-bind="{{result.shareFSum}}"></span></p>
-                        </div>
-                        <div class="lineTwo">
-                            <p class="shareTSum">分享到朋友圈数：<span ng-bind="{{result.shareTSum}}"></span></p>
-                            <p class="attractReadSum">Ta带来的阅读数：<span ng-bind="{{result.attractReadSum}}"></span></p>
-                        </div>
-                    </li>
-                </ul>
-                <div class="more" ng-if="results.length < page.total">
-                    <button class="btn btn-success btn-lg" ng-click="more(filter)">加载更多</button>
-                </div>
+        <div class="orderItem">
+            <div class="col-xs-3 col-md-3" ng-model="filter='read'" ng-click="order('read')">阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-model="filter='shareF'" ng-click="order('shareF')">分享<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-model="filter='shareT'" ng-click="order('shareT')">转发<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-model="filter='attractRead'" ng-click="order('attractRead')">带来阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+        </div>
+        <div class="orderResult">
+            <ul>
+                <li ng-class-odd="'odd result'" ng-class-even="'even result'" ng-repeat="result in results">
+                    <p class="nickname">{{result.nickname}}</p>
+                    <div class="lineOne">
+                        <p class="readSum">阅读数：<span ng-bind="{{result.read_sum}}"></span></p>
+                        <p class="shareFSum">发送给朋友数：<span ng-bind="{{result.shareF_sum}}"></span></p>
+                    </div>
+                    <div class="lineTwo">
+                        <p class="shareTSum">分享到朋友圈数：<span ng-bind="{{result.shareT_sum}}"></span></p>
+                        <p class="attractReadSum">Ta带来的阅读数：<span ng-bind="{{result.attractRead_sum}}"></span></p>
+                    </div>
+                </li>
+            </ul>
+            <div class="more" ng-if="results.length < page.total">
+                <button class="btn btn-success btn-lg" ng-click="more(filter)">加载更多</button>
             </div>
         </div>
     </div>

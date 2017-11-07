@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>我的分享</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/user/share/main.css');?>" rel="stylesheet">
+</head>
+
+<body ng-controller='ctrlShare'>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
+        <div class='container-fluid text-right'>
+            <p class="navbar-text">
+                <a class='navbar-link' href='/rest/site/home?site={{site.id}}' target='_self'>{{site.name}} &nbsp;
+                    <span class='glyphicon glyphicon-menu-right'></span>
+                </a>
+            </p>
+        </div>
+    </nav>
+    <div class="container ng-cloak" ng-cloak>
+         <div class="row">
+             <div class="col-md-12">
+                 <table class='table table-bordered table-striped'>
+                    <thead>
+                        <tr>
+                            <th>素材标题</th>
+                            <th style="width:100px">素材类型</th>
+                            <th style="width:100px">分享类型</th>
+                            <th style="width:120px">分享时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat='matter in matters'>
+                            <td ng-click="openMatter(matter.matter_id, matter.matter_type, matter.userid)">{{matter.matter_title}}</td>
+                            <td>{{cstApp[matter.matter_type]}}</td>
+                            <td>{{shareTo[matter.share_to]}}</td>
+                            <td>{{matter.share_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class='form-group form-inline'>
+                    <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+                </div>
+             </div>
+         </div>
+    </div>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/share/main-loader.js?_=3"></script>
+</body>
+
+</html>

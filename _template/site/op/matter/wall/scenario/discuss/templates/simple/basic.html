@@ -1,0 +1,18 @@
+<div class='header' ng-bind='Wall.title'></div>
+<div class='container'>
+    <div class='row'>
+        <ul class='wall'>
+            <li class='message' ng-repeat='m in messages'>
+                <div class="avatar">
+                    <img ng-src="{{m.headimgurl}}">
+                </div>
+                <div class="content">
+                    <span class='nickname' ng-bind="m.nickname"></span>
+                    <span>：</span>
+                    <span class='data' ng-bind="m.data"></span>
+                </div>
+            </li>
+        </ul>
+        <button class='btn btn-success' ng-click='stop()' style='display:none'>暂停</button>
+    </div>
+</div>

@@ -1,0 +1,63 @@
+<div ng-controller="ctrlInteract">
+    <div class="top">
+        <div class="rule">
+            <p><span>微信</span>扫码</p>
+            <p><span>分享</span>至朋友圈</p>
+        </div>
+        <div class="qrcode">
+            <ul>
+                <li ng-repeat="m in Wall.matters_img">
+                    <img ng-src="{{m.qrcodesrc}}" style="width:250px;height:268px">
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="box boxBg">
+                <ul></ul>
+                <div class="case">
+                    <div class="boxBody">
+                        <div class="cover"></div>
+                        <div class="shine"></div>
+                    </div>
+                </div>
+                <div class="button" ng-click="open($event)" >开启宝箱</div>
+                <div class="bgImg one"></div>
+            </div>
+            <div class="box">
+                <ul></ul>
+                <div class="case">
+                    <div class="boxBody">
+                        <div class="cover"></div>
+                        <div class="shine"></div>
+                    </div>
+                </div>
+                <div class="button" ng-click="open($event)" >开启宝箱</div>
+                <div class="bgImg two"></div>
+            </div>
+            <div class="box">
+                <ul></ul>
+                <div class="case">
+                    <div class="boxBody">
+                        <div class="cover"></div>
+                        <div class="shine"></div>
+                    </div>
+                </div>
+                <div class="button" ng-click="open($event)" >开启宝箱</div>
+                <div class="bgImg three"></div>
+            </div>
+            <div class="box">
+                <ul></ul>
+                <div class="case">
+                    <div class="boxBody">
+                        <div class="cover"></div>
+                        <div class="shine"></div>
+                    </div>
+                </div>
+                <div class="button" ng-click="open($event)" >开启宝箱</div>
+                <div class="bgImg four"></div>
+            </div>
+        </div>
+    </div>
+</div>

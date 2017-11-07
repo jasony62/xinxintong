@@ -94,7 +94,7 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 创建一个信息墙
 	 */
-	public function create_action($site = null, $mission = null) {
+	public function create_action($site = null, $mission = null, $scenario = 'discuss', $template = 'simple') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -110,6 +110,7 @@ class main extends \pl\fe\matter\main_base {
 			$oNewApp->siteid = $oSite->id;
 			$oNewApp->pic = $oSite->heading_pic; //使用站点的缺省头图
 			$oNewApp->summary = '';
+			$title = '信息墙-' . (($scenario === 'interact')? '互动' : '讨论');
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($mission);
@@ -120,11 +121,16 @@ class main extends \pl\fe\matter\main_base {
 			$oNewApp->summary = $oMission->summary;
 			$oNewApp->pic = $oMission->pic;
 			$oNewApp->mission_id = $oMission->id;
+			$title = $oMission->title . '-' . (($scenario === 'interact')? '互动' : '讨论');
 		}
 
 		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
 		/* 前端指定的信息 */
-		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新信息墙' : $modelWall->escape($oCustomConfig->proto->title);
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? $title : urldecode($modelWall->escape(urlencode($oCustomConfig->proto->title)));
+		!empty($oCustomConfig->proto->summary) && $oNewApp->summary = $modelWall->escape($oCustomConfig->proto->summary);
+		!empty($oCustomConfig->proto->start_at) && $oNewApp->start_at = $modelWall->escape($oCustomConfig->proto->start_at);!empty($oCustomConfig->proto->end_at) && $oNewApp->end_at = $modelWall->escape($oCustomConfig->proto->end_at);
+		$oNewApp->scenario = $modelWall->escape($scenario);
+		!empty($oCustomConfig->proto->scenario_config) && $oNewApp->scenario_config = $modelWall->toJson($oCustomConfig->proto->scenario_config);
 		$oNewApp->quit_cmd = 'q';
 		$oNewApp->join_reply = '欢迎加入';
 		$oNewApp->quit_reply = '已经退出';
@@ -166,6 +172,12 @@ class main extends \pl\fe\matter\main_base {
 		} else if (isset($oUpdated->active) && $oUpdated->active === 'N') {
 			//如果停用信息墙，退出所有用户
 			$modelApp->update('xxt_wall_enroll', ['close_at' => time()], ['wid' => $app]);
+		} else if (isset($oUpdated->scenario_config)) {
+			$oUpdated->scenario_config = $modelApp->escape(json_encode($oUpdated->scenario_config));
+		} else if (isset($oUpdated->matters_img)) {
+			$oUpdated->matters_img = $modelApp->toJson($oUpdated->matters_img);
+		} else if (isset($oUpdated->result_img)) {
+			$oUpdated->result_img = $modelApp->toJson($oUpdated->result_img);
 		}
 
 		if ($oMatter = $modelApp->modify($oUser, $oMatter, $oUpdated)) {
@@ -383,5 +395,89 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		return new \ResponseData($rst);
+	}
+	/*
+	*互动场景添加素材
+	*/
+	public function addInteractMatter_action($site, $app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
+		if (($oApp = $modelWall->byId($app, ['fields' => 'siteid,interact_matter'])) === false) {
+			return new \ObjectNotFoundError();
+		}
+		$oInteractMatters = $oApp->interact_matter;
+		if(empty($oInteractMatters)){
+			$oInteractMatters = [];
+		}
+
+		$post = $this->getPostJson();
+		if(empty($post->matters)){
+			return new \ResponseError('没有选择素材');
+		}
+
+		foreach ($post->matters as $matter) {
+			$matter2 = new \stdClass;
+			$matter2->id = $matter->id;
+			$matter2->type = $matter->type;
+			$matter2->title = $matter->title;
+			if (!in_array($matter2, $oInteractMatters)) {
+				array_unshift($oInteractMatters, $matter2);
+			}
+		}
+		$interactMatters = $modelWall->tojson($oInteractMatters);
+
+		$modelWall->update(
+			'xxt_wall',
+			['interact_matter' => $interactMatters],
+			['id' => $app]
+		);
+
+		$oApp = $modelWall->byId($app, ['fields' => 'siteid,interact_matter']);
+
+		return new \ResponseData($oApp);
+	}
+	/*
+	*
+	*/
+	public function removeInteractMatter_action($site, $app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
+		if (($oApp = $modelWall->byId($app, ['fields' => 'interact_matter'])) === false) {
+			return new \ObjectNotFoundError();
+		}
+		$oInteractMatters = $oApp->interact_matter;
+		if(empty($oInteractMatters)){
+			return new \ResponseError('未指定互动素材');
+		}
+
+		$post = $this->getPostJson();
+		if(empty($post)){
+			return new \ResponseError('没有选择素材');
+		}
+
+		$removeMatter = new \stdClass;
+		$removeMatter->id = $post->id;
+		$removeMatter->type = $post->type;
+		$removeMatter->title = $post->title;
+
+		$key = array_search($removeMatter, $oInteractMatters);
+		array_splice($oInteractMatters,$key,1);
+
+		$interactMatters = $modelWall->tojson($oInteractMatters);
+
+		$modelWall->update(
+			'xxt_wall',
+			['interact_matter' => $interactMatters],
+			['id' => $app]
+		);
+		$oApp = $modelWall->byId($app, ['fields' => 'interact_matter']);
+
+		return new \ResponseData($oApp);
 	}
 }

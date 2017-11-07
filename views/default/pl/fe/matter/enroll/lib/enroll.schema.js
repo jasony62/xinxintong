@@ -124,13 +124,14 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
     /**
      * 所有题目
      */
-    ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', '$uibModal', 'http2', 'cstApp', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollSchema',
-        function($scope, $timeout, $sce, $uibModal, http2, cstApp, srvApp, srvEnrollSchema) {
+    ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', '$uibModal', 'http2', 'cstApp', 'srv' + window.MATTER_TYPE + 'App', 'srv' + window.MATTER_TYPE + 'Page', 'srvEnrollSchema',
+        function($scope, $timeout, $sce, $uibModal, http2, cstApp, srvApp, srvAppPage, srvEnrollSchema) {
             $scope.activeSchema = null;
             $scope.cstApp = cstApp;
+
             $scope.assignGroupApp = function() {
                 srvApp.assignGroupApp().then(function(oGroupApp) {
-                    var oRoundDS, ops, oAssignedNickname, oGrpNicknameSchema, oAppNicknameSchema;
+                    var oRoundDS, ops, oAppSchema, oAppRoundSchema, oAssignedNickname, oGrpNicknameSchema, oAppNicknameSchema;
                     /* 添加分组轮次 */
                     oRoundDS = {
                         id: '_round_id',
@@ -146,7 +147,23 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     });
                     oRoundDS.ops = ops;
                     oGroupApp.dataSchemas.splice(0, 0, oRoundDS);
-                    $scope.newByOtherApp(oRoundDS, oGroupApp);
+                    /* 匹配分组轮次字段 */
+                    for (var i = 0; i < $scope.app.dataSchemas.length; i++) {
+                        oAppSchema = $scope.app.dataSchemas[i];
+                        if (oAppSchema.id === '_round_id') {
+                            oAppRoundSchema = oAppSchema;
+                            break;
+                        }
+                    }
+                    if (oAppRoundSchema) {
+                        var oBefore;
+                        oBefore = angular.copy(oAppRoundSchema);
+                        oAppRoundSchema.fromApp = oGroupApp.id;
+                        oAppRoundSchema.requireCheck = 'Y';
+                        $scope.updSchema(oAppRoundSchema, oBefore);
+                    } else {
+                        $scope.newByOtherApp(oRoundDS, oGroupApp);
+                    }
                     /* 匹配昵称字段 */
                     if (oAssignedNickname = oGroupApp.assignedNickname) {
                         if (oAssignedNickname.valid && oAssignedNickname.valid === 'Y' && oAssignedNickname.schema) {
@@ -159,7 +176,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         }
                     }
                     if (oGrpNicknameSchema) {
-                        var oAppSchema;
                         for (var i = 0; i < $scope.app.dataSchemas.length; i++) {
                             oAppSchema = $scope.app.dataSchemas[i];
                             if (oAppSchema.title === oGrpNicknameSchema.title) {
@@ -209,6 +225,19 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         delete oSchema.requireCheck;
                     });
                     srvApp.update(['enroll_app_id', 'data_schemas']);
+                });
+            };
+            $scope.updConfig = function(oActiveSchema) {
+                srvApp.get().then(function(oApp) {
+                    var pages, oPage;
+                    pages = oApp.pages;
+                    for (var i = pages.length - 1; i >= 0; i--) {
+                        oPage = pages[i];
+                        if (oPage.type === 'I') {
+                            oPage.updateSchema(oActiveSchema);
+                            srvAppPage.update(oPage, ['data_schemas', 'html']);
+                        }
+                    }
                 });
             };
             $scope.newSchema = function(type) {

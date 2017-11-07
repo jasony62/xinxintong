@@ -38,7 +38,7 @@
                     <tbody>
                         <tr ng-repeat='matter in matters'>
                             <td ng-click="openMatter(matter.matter_id, matter.matter_type, matter.userid)">{{matter.matter_title}}</td>
-                            <td>{{matter.matter_type}}</td>
+                            <td>cstApp[matter.matter_type]</td>
                             <td>{{matter.share_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         </tr>
                     </tbody>

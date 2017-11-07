@@ -5,6 +5,20 @@ define(['require', 'angular'], function(require, angular) {
     var ngApp = angular.module('app', []);
     ngApp.controller('ctrlShare', ['$scope', '$http', function($scope, $http) {
         var page;
+        $scope.cstApp = {
+            'article': '单图文',
+            'news': '多图文',
+            'channel': '频道',
+            'link': '链接',
+            'contribute': '投稿',
+            'text': '文本',
+            'custom': '定制页',
+            'enroll': '登记',
+            'signin': '签到',
+            'group': '分组',
+            'lottery': '抽奖',
+            'wall': '信息墙'
+        };
         $scope.page = page = {
             at: 1,
             size: 10,

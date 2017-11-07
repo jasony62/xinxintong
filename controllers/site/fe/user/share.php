@@ -31,16 +31,21 @@ class share extends \site\fe\base {
 		$model = $this->model('matter\log');
 		$users = [];
 		// 指定用户的访问记录
+		// if (!empty($userid)) {
+		// 	$users[] = $model->escape($userid);
+		// } else if (empty($this->who->unionid)) {
+		// 	$users[] = $this->who->uid;
+		// } else {
+		// 	$modelAct = $this->model('site\user\account');
+		// 	$aSiteAccounts = $modelAct->byUnionid($this->who->unionid, ['fields' => 'uid']);
+		// 	foreach ($aSiteAccounts as $oSiteAccount) {
+		// 		$users[] = $oSiteAccount->uid;
+		// 	}
+		// }
 		if (!empty($userid)) {
 			$users[] = $model->escape($userid);
-		} else if (empty($this->who->unionid)) {
-			$users[] = $this->who->uid;
 		} else {
-			$modelAct = $this->model('site\user\account');
-			$aSiteAccounts = $modelAct->byUnionid($this->who->unionid, ['fields' => 'uid']);
-			foreach ($aSiteAccounts as $oSiteAccount) {
-				$users[] = $oSiteAccount->uid;
-			}
+			$users[] = $this->who->uid;
 		}
 
 		$data = $model->listUserShare($site, $users, $page, $size);

@@ -19,6 +19,10 @@ define(['require', 'angular'], function(require, angular) {
             'lottery': '抽奖',
             'wall': '信息墙'
         };
+        $scope.shareTo = {
+            'T':'朋友圈',
+            'F':'好友'
+        };
         $scope.page = page = {
             at: 1,
             size: 10,

@@ -32,13 +32,15 @@
                         <tr>
                             <th>素材标题</th>
                             <th style="width:100px">素材类型</th>
+                            <th style="width:100px">分享类型</th>
                             <th style="width:120px">分享时间</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat='matter in matters'>
                             <td ng-click="openMatter(matter.matter_id, matter.matter_type, matter.userid)">{{matter.matter_title}}</td>
-                            <td>cstApp[matter.matter_type]</td>
+                            <td>{{cstApp[matter.matter_type]}}</td>
+                            <td>{{shareTo[matter.share_to]}}</td>
                             <td>{{matter.share_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         </tr>
                     </tbody>

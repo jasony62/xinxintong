@@ -19,6 +19,7 @@ app.controller('ctrlNgApp', ['$scope', '$http', '$location', function($scope, $h
             url += '&orderBy=' + item + $scope.page.j();
         $http.get(url).success(function(rsp) {
             if(rsp.data.users.length > 0) {
+                angular.element('.note').css('display','none');
                 if(append) {
                     $scope.results =  $scope.results.concat(rsp.data.users);
                 }else{
@@ -26,9 +27,10 @@ app.controller('ctrlNgApp', ['$scope', '$http', '$location', function($scope, $h
                 }
                 $scope.page.total = rsp.data.total;
             }else {
+                $scope.results = [];
+                $scope.page.total = rsp.data.total;
                 angular.element('.note').css('display','block');
             }
-
         });
     }
     $scope.more = function() {

@@ -42,8 +42,8 @@
                 </li>
                 <li class="note">暂无此排序下的数据~</li>
             </ul>
-            <div class="more" ng-if="results.length < page.total">
-                <button class="btn btn-success btn-lg" ng-click="more()">加载更多</button>
+            <div ng-if="results.length < page.total">
+                <button class="btn btn-primary btn-block" ng-click="more()">加载更多</button>
             </div>
         </div>
     </div>

@@ -18,17 +18,17 @@ app.controller('ctrlNgApp', ['$scope', '$http', '$location', function($scope, $h
             url += '?userid=' + uid + '&matterType=' + matterType + '&matterId=' + matterId;
             url += '&orderBy=' + item + $scope.page.j();
         $http.get(url).success(function(rsp) {
-            if(rsp.data.users.length) {
+            if(rsp.data.users.length > 0) {
                 if(append) {
                     $scope.results =  $scope.results.concat(rsp.data.users);
                 }else{
                     $scope.results = rsp.data.users;
                 }
-                $scope.page.total = rsp.data.total;     
+                $scope.page.total = rsp.data.total;
             }else {
                 angular.element('.note').css('display','block');
             }
-                   
+
         });
     }
     $scope.more = function() {

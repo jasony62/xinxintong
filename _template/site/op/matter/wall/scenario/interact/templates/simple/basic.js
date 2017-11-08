@@ -52,6 +52,14 @@
                 });
             })
         }
+        $scope.scale = function(index) {
+            angular.element('.mask').css('display','block');
+            angular.element('.mask').find('img').attr('src',$scope.Wall.result_img[index]);
+        }
+        $scope.close = function() {
+            angular.element('.mask').find('img').attr('src','');
+            angular.element('.mask').css('display','none');
+        }
         $scope.open = function(event) {
             var prev = $(event.target).prev(),
                 next = $(event.target).next(),

@@ -10,7 +10,7 @@ body{width: 100%;height:auto;padding-top:26px;font-size:24px;font-family:'MicroS
 .top > .rule > p:nth-child(1){top:60px;left: 60px;}
 .top > .rule > p:nth-child(2){top: 95px;right: 45px;}
 .top > .qrcode{margin-left: 425px;overflow: hidden;}
-.top > .qrcode > ul > li{float: left;width: 250px;height: 268px;background-color:red;margin-right:57px;}
+.top > .qrcode > ul > li{float: left;width: 250px;height: 268px;margin-right:57px;}
 /* 主体 */
 .row{height: 420px;}
 .boxBg{background: url('/static/img/xxq_interact/interactRect.png') no-repeat -84px -236px;}

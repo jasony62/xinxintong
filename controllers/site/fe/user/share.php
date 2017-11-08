@@ -31,21 +31,16 @@ class share extends \site\fe\base {
 		$model = $this->model('matter\log');
 		$users = [];
 		// 指定用户的访问记录
-		// if (!empty($userid)) {
-		// 	$users[] = $model->escape($userid);
-		// } else if (empty($this->who->unionid)) {
-		// 	$users[] = $this->who->uid;
-		// } else {
-		// 	$modelAct = $this->model('site\user\account');
-		// 	$aSiteAccounts = $modelAct->byUnionid($this->who->unionid, ['fields' => 'uid']);
-		// 	foreach ($aSiteAccounts as $oSiteAccount) {
-		// 		$users[] = $oSiteAccount->uid;
-		// 	}
-		// }
 		if (!empty($userid)) {
 			$users[] = $model->escape($userid);
-		} else {
+		} else if (empty($this->who->unionid)) {
 			$users[] = $this->who->uid;
+		} else {
+			$modelAct = $this->model('site\user\account');
+			$aSiteAccounts = $modelAct->byUnionid($this->who->unionid, ['fields' => 'uid']);
+			foreach ($aSiteAccounts as $oSiteAccount) {
+				$users[] = $oSiteAccount->uid;
+			}
 		}
 
 		$data = $model->listUserShare($site, $users, $page, $size);
@@ -55,14 +50,10 @@ class share extends \site\fe\base {
 	/*
 	* 获取我的分享信息
 	*/
-	public function getMyShareLog_action($userid = '', $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
+	public function getMyShareLog_action($userid, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
 		$model = $this->model('matter\log');
 		// 指定用户的访问记录
-		if (!empty($userid)) {
-			$userid = $model->escape($userid);
-		} else {
-			$userid = $this->who->uid;
-		}
+		$userid = $model->escape($userid);
 
 		$users = $model->getMyShareLog($userid, $matterType, $matterId, $orderBy, $page, $size);
 

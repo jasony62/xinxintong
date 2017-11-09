@@ -112,19 +112,27 @@ define(['wrap'], function(SchemaWrap) {
          * 添加题目的html
          */
         _appendWrap: function(tag, attrs, html, afterWrap) {
-            var newDomWrap, $html, $lastInputWrap, $btnWrap;
+            var newDomWrap, $html, $siblingInputWrap, bInsertAfter, $btnWrap;
 
+            bInsertAfter = true;
             $html = $('<div>' + this.html + '</div>');
             newDomWrap = $(document.createElement(tag)).attr(attrs).html(html);
             if (afterWrap) {
-                $lastInputWrap = $html.find("[schema='" + afterWrap.schema.id + "']");
+                $siblingInputWrap = $html.find("[schema='" + afterWrap.schema.id + "']");
+            } else if (afterWrap === false) {
+                $siblingInputWrap = $html.find("[wrap='input']:first");
+                bInsertAfter = false;
             } else {
-                $lastInputWrap = $html.find("[wrap='input']:last");
+                $siblingInputWrap = $html.find("[wrap='input']:last");
             }
 
-            if ($lastInputWrap.length) {
-                // 加到最后一个题目后面
-                $lastInputWrap.after(newDomWrap);
+            if ($siblingInputWrap.length) {
+                // 加到指定题目后面
+                if (bInsertAfter) {
+                    $siblingInputWrap.after(newDomWrap);
+                } else {
+                    $siblingInputWrap.before(newDomWrap);
+                }
             } else {
                 // 加在按钮的前面
                 $btnWrap = $html.find("[wrap='button']:first");
@@ -153,6 +161,9 @@ define(['wrap'], function(SchemaWrap) {
                 } else {
                     this.data_schemas.splice(afterIndex + 1, 0, newWrap);
                 }
+            } else if (afterSchema === false) {
+                afterWrap = false;
+                this.data_schemas.splice(0, 0, newWrap);
             } else {
                 this.data_schemas.push(newWrap);
             }
@@ -234,18 +245,26 @@ define(['wrap'], function(SchemaWrap) {
          * 添加题目的html
          */
         _appendWrap: function(tag, attrs, html, afterWrap) {
-            var $html, domNewWrap, $lastInputWrap, $btnWrap;
+            var $html, domNewWrap, $siblingInputWrap, bInsertAfter, $btnWrap;
 
+            bInsertAfter = true;
             $html = $('<div>' + this.html + '</div>');
             domNewWrap = $(document.createElement(tag)).attr(attrs).html(html);
             if (afterWrap) {
-                $lastInputWrap = $html.find("[schema='" + afterWrap.schema.id + "']");
+                $siblingInputWrap = $html.find("[schema='" + afterWrap.schema.id + "']");
+            } else if (afterWrap === false) {
+                $siblingInputWrap = $html.find("[wrap='value']:first");
+                bInsertAfter = false;
             } else {
-                $lastInputWrap = $html.find("[wrap='value']:last");
+                $siblingInputWrap = $html.find("[wrap='value']:last");
             }
 
-            if ($lastInputWrap.length) {
-                $lastInputWrap.after(domNewWrap);
+            if ($siblingInputWrap.length) {
+                if (bInsertAfter) {
+                    $siblingInputWrap.after(domNewWrap);
+                } else {
+                    $siblingInputWrap.before(domNewWrap);
+                }
             } else {
                 // 加在按钮的前面
                 $btnWrap = $html.find("[wrap='button']:first");
@@ -270,6 +289,8 @@ define(['wrap'], function(SchemaWrap) {
 
             if (afterSchema) {
                 afterWrap = this.wrapBySchema(afterSchema);
+            } else if (afterSchema === false) {
+                afterWrap = false;
             } else {
                 if (this.data_schemas.length) {
                     lastWrap = this.data_schemas[this.data_schemas.length - 1];
@@ -291,6 +312,8 @@ define(['wrap'], function(SchemaWrap) {
                 } else {
                     this.data_schemas.splice(afterIndex + 1, 0, oNewWrap);
                 }
+            } else if (afterWrap === false) {
+                this.data_schemas.splice(0, 0, oNewWrap);
             } else {
                 this.data_schemas.push(oNewWrap);
             }
@@ -401,7 +424,11 @@ define(['wrap'], function(SchemaWrap) {
                         for (var j = listWrap.schemas.length - 1; j >= 0; j--) {
                             if (listWrap.schemas[j].id === oBeforeSchema.id) {
                                 var $beforeWrap = $listHtml.find('[schema=' + oBeforeSchema.id + ']');
-                                $beforeWrap.after(valueHtml);
+                                if ($beforeWrap.length) {
+                                    $beforeWrap.after(valueHtml);
+                                } else {
+                                    $listHtml.append(valueHtml);
+                                }
                                 listWrap.schemas.splice(j + 1, 0, oSchema);
                                 break;
                             }
@@ -410,6 +437,18 @@ define(['wrap'], function(SchemaWrap) {
                             $listHtml.append(valueHtml);
                             listWrap.schemas.push(oSchema);
                         }
+                    } else if (oBeforeSchema === false) {
+                        if (listWrap.schemas.length) {
+                            var $beforeWrap = $listHtml.find('[schema=' + listWrap.schemas[0].id + ']');
+                            if ($beforeWrap.length) {
+                                $beforeWrap.before(valueHtml);
+                            } else {
+                                $listHtml.append(valueHtml);
+                            }
+                        } else {
+                            $listHtml.append(valueHtml);
+                        }
+                        listWrap.schemas.splice(0, 0, oSchema);
                     } else {
                         $listHtml.append(valueHtml);
                         listWrap.schemas.push(oSchema);

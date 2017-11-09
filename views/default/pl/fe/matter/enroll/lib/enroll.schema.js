@@ -162,7 +162,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         oAppRoundSchema.requireCheck = 'Y';
                         $scope.updSchema(oAppRoundSchema, oBefore);
                     } else {
-                        $scope.newByOtherApp(oRoundDS, oGroupApp);
+                        oAppRoundSchema = $scope.newByOtherApp(oRoundDS, oGroupApp, false);
                     }
                     /* 匹配昵称字段 */
                     if (oAssignedNickname = oGroupApp.assignedNickname) {
@@ -198,7 +198,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         oAppNicknameSchema.format = 'name';
                         $scope.updSchema(oAppNicknameSchema, oBefore);
                     } else if (oGrpNicknameSchema) {
-                        $scope.newByOtherApp(oGrpNicknameSchema, oGroupApp);
+                        $scope.newByOtherApp(oGrpNicknameSchema, oGroupApp, oAppRoundSchema);
                     }
                 });
             };
@@ -253,6 +253,8 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 }
                 newSchema = schemaLib.newSchema(type, $scope.app, oProto);
                 $scope._appendSchema(newSchema);
+
+                return newSchema;
             };
             $scope.newMember = function(ms, schema) {
                 var newSchema = schemaLib.newSchema('member', $scope.app);
@@ -261,8 +263,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 newSchema.id = schema.id;
                 newSchema.title = schema.title;
                 $scope._appendSchema(newSchema);
+
+                return newSchema;
             };
-            $scope.newByOtherApp = function(oProtoSchema, oOtherApp) {
+            $scope.newByOtherApp = function(oProtoSchema, oOtherApp, oAfterSchema) {
                 var oNewSchema;
 
                 oNewSchema = schemaLib.newSchema(oProtoSchema.type, $scope.app, oProtoSchema);
@@ -273,7 +277,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 if (oProtoSchema.ops) {
                     oNewSchema.ops = oProtoSchema.ops;
                 }
-                $scope._appendSchema(oNewSchema);
+                $scope._appendSchema(oNewSchema, oAfterSchema);
+
+                return oNewSchema;
             };
             $scope.copySchema = function(schema) {
                 var newSchema = angular.copy(schema);
@@ -283,6 +289,8 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 delete newSchema.fromApp;
                 delete newSchema.requireCheck;
                 $scope._appendSchema(newSchema, schema);
+
+                return newSchema;
             };
             $scope.importByOther = function() {
                 var _oApp;
@@ -368,25 +376,30 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     $scope.updSchema(schema);
                 });
             };
-            $scope._appendSchema = function(newSchema, afterSchema) {
+            /**
+             * oAfterSchema: false - first, undefined - after active schema
+             */
+            $scope._appendSchema = function(newSchema, oAfterSchema) {
                 var oApp, afterIndex, changedPages = [];
                 oApp = $scope.app;
                 if (oApp._schemasById[newSchema.id]) {
                     alert(cstApp.alertMsg['schema.duplicated']);
                     return;
                 }
-                if (!afterSchema) {
-                    afterSchema = $scope.activeSchema;
+                if (undefined === oAfterSchema) {
+                    oAfterSchema = $scope.activeSchema;
                 }
-                if (afterSchema) {
-                    afterIndex = oApp.dataSchemas.indexOf(afterSchema);
+                if (oAfterSchema) {
+                    afterIndex = oApp.dataSchemas.indexOf(oAfterSchema);
                     oApp.dataSchemas.splice(afterIndex + 1, 0, newSchema);
+                } else if (oAfterSchema === false) {
+                    oApp.dataSchemas.splice(0, 0, newSchema);
                 } else {
                     oApp.dataSchemas.push(newSchema);
                 }
                 oApp._schemasById[newSchema.id] = newSchema;
                 oApp.pages.forEach(function(oPage) {
-                    if (oPage.appendSchema(newSchema, afterSchema)) {
+                    if (oPage.appendSchema(newSchema, oAfterSchema)) {
                         changedPages.push(oPage);
                     }
                 });

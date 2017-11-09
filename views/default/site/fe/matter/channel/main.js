@@ -81,7 +81,7 @@ angular.module('app', ['infinite-scroll']).config(['$locationProvider', function
         var deferred = $q.defer();
         $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {
             $scope.siteInfo = rsp.data;
-        })
+        });
         $http.get('/rest/site/fe/matter/channel/get?site=' + siteId + '&id=' + channelId).success(function(rsp) {
             $scope.user = rsp.data.user;
             $scope.channel = rsp.data.channel;

@@ -23,40 +23,44 @@
             </div>
         </div>
     </nav>
-    <div id='site'>
-        <a class="site-title" ng-href="{{'/rest/site/home?site='+siteInfo.id}}" target='_self'><img class="pull-left img-circle" ng-src="{{siteInfo.heading_pic}}"><span ng-bind="siteInfo.name"></span><i class="glyphicon glyphicon-menu-right pull-right"></i></a>
-        <p class="site-summary" ng-bind="siteInfo.summary"></p>
-        <button ng-if="siteInfo.can_subscribe==='Y'" class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
-    </div>
-    <div class="matters">
-        <div class='form-group' ng-if="channel.matter_type==='article'">
-            <select class='form-control input-lg' ng-model='Matter.orderby' ng-change='Matter.changeOrderby()'>
-                <option value='time'>最新</option>
-                <option value='score'>最热</option>
-            </select>
-        </div>
-        <ul class='list-group' infinite-scroll="Matter.nextPage()" infinite-scroll-disabled="Matter.busy" infinite-scroll-distance="1">
-            <li class='list-group-item media-item' ng-repeat='m in Matter.matters' ng-click='open(m)'>
-                <div class="media-item-left">
-                    <div class="media-item-img" ng-style="{'background-image':'url('+m.pic||m.thumbnail+')'}">
-                    </div>
+    <div id='content' class='container'>
+        <div class='row'>
+            <div id='site' class='col-md-3 col-md-push-9 col-xs-12'>
+                <a class="site-title" ng-href="{{'/rest/site/home?site='+siteInfo.id}}" target='_self'><img class="pull-left img-circle" ng-src="{{siteInfo.heading_pic}}"><span ng-bind="siteInfo.name"></span><i class="glyphicon glyphicon-menu-right pull-right"></i></a>
+                <p class="site-summary" ng-bind="siteInfo.summary"></p>
+                <button ng-if="siteInfo.can_subscribe==='Y'" class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
+            </div>
+            <div id='matters' class='col-md-9 col-md-pull-3 col-xs-12 '>
+                <div class='form-group' ng-if="channel.matter_type==='article'">
+                    <select class='form-control input-lg' ng-model='Matter.orderby' ng-change='Matter.changeOrderby()'>
+                        <option value='time'>最新</option>
+                        <option value='score'>最热</option>
+                    </select>
                 </div>
-                <div class="media-item-body">
-                    <div class='media-item-body-flexbox'>
-                        <div class="media-heading">{{m.title}}</div>
-                        <div class="media-summary">{{m.summary}}</div>
-                        <div class='media-attr'>
-                            <div class='put_at'>
-                                <span ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></span>
+                <div infinite-scroll="Matter.nextPage()" infinite-scroll-disabled="Matter.busy" infinite-scroll-distance="1">
+                    <div class='media-item' ng-repeat='m in Matter.matters' ng-click='open(m)'>
+                        <div class="media-item-left">
+                            <div class="media-item-img" ng-style="{'background-image':'url('+m.pic||m.thumbnail+')'}">
+                            </div>
+                        </div>
+                        <div class="media-item-body">
+                            <div class='media-item-body-flexbox'>
+                                <div class="media-heading">{{m.title}}</div>
+                                <div class="media-summary">{{m.summary}}</div>
+                                <div class='media-attr'>
+                                    <div class='put_at'>
+                                        <span ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </li>
-        </ul>
-    </div>
-    <div class='form-group'>
-        <button class='btn btn-default btn-block' style="margin-left:0" ng-disabled="Matter.end" ng-click="Matter.nextPage()">更多</button>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default btn-block' ng-disabled="Matter.end" ng-click="Matter.nextPage()">更多</button>
+            </div>
+        </div>
     </div>
     <script type="text/javascript">
     if (/MicroMessenger/i.test(navigator.userAgent)) {

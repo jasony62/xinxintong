@@ -18,7 +18,13 @@ class main extends \site\fe\matter\base {
 			}
 		}
 		switch ($link->urlsrc) {
-		case 0:
+		case 0: // 外部链接
+
+			if ($link->embedded === 'Y') {
+				\TPL::output('/site/fe/matter/link/main');
+				exit;
+			}
+			/* 页面跳转 */
 			$url = $link->url;
 			if (preg_match('/^(http:|https:)/', $url) === 0) {
 				$url = 'http://' . $url;
@@ -73,15 +79,33 @@ class main extends \site\fe\matter\base {
 				exit;
 			}
 			break;
-		case 1:
+		case 1: // 多图文
 			//require_once dirname(__FILE__) . '/page_news.php';
 			//$page = new page_news((int) $link->url, $openid);
 			break;
-		case 2:
+		case 2: // 频道
 			$channelUrl = $this->model('matter\channel')->getEntryUrl($site, (int) $link->url);
 			$this->redirect($channelUrl);
 			break;
 		}
+	}
+	/**
+	 * 返回链接定义
+	 */
+	public function get_action($site, $id) {
+		$oLink = $this->model('matter\link')->byIdWithParams($id);
+		$url = $oLink->url;
+		if (preg_match('/^(http:|https:)/', $url) === 0) {
+			$url = 'http://' . $url;
+		}
+		if (isset($oLink->params)) {
+			$url .= (strpos($url, '?') === false) ? '?' : '&';
+			$url .= $this->_spliceParams($oLink->siteid, $oLink->params);
+		}
+
+		$oLink->fullUrl = $url;
+
+		return new \ResponseData(['link' => $oLink]);
 	}
 	/**
 	 * 检查是否需要第三方社交帐号认证

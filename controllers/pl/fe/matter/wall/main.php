@@ -448,7 +448,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
-		if (($oApp = $modelWall->byId($app, ['fields' => 'interact_matter'])) === false) {
+		if (($oApp = $modelWall->byId($app, ['fields' => 'siteid,interact_matter'])) === false) {
 			return new \ObjectNotFoundError();
 		}
 		$oInteractMatters = $oApp->interact_matter;
@@ -476,7 +476,7 @@ class main extends \pl\fe\matter\main_base {
 			['interact_matter' => $interactMatters],
 			['id' => $app]
 		);
-		$oApp = $modelWall->byId($app, ['fields' => 'interact_matter']);
+		$oApp = $modelWall->byId($app, ['fields' => 'siteid,interact_matter']);
 
 		return new \ResponseData($oApp);
 	}

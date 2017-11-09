@@ -4,13 +4,10 @@ body{width: 100%;height:auto;padding-top:26px;font-size:24px;font-family:'MicroS
 .container{width:1210px;}
 /* 顶部 */
 .top{position: relative;overflow: hidden;margin-bottom: 30px;}
-.top > .rule{position: absolute;top:45px;left:15px;width: 375px;height: 240px;background:url('/static/img/xxq_interact/interactArrow.png') no-repeat 0 0;}
-.top > .rule > p{position: absolute;}
-.top > .rule > p > span{font-size: 30px;font-weight: 600;}
-.top > .rule > p:nth-child(1){top:60px;left: 60px;}
-.top > .rule > p:nth-child(2){top: 95px;right: 45px;}
-.top > .qrcode{margin-left: 425px;overflow: hidden;}
-.top > .qrcode > ul > li{float: left;width: 250px;height: 268px;margin-right:57px;}
+.top > .qrcode{overflow: hidden;}
+.top > .qrcode > ul{padding-left:82px;}
+.top > .qrcode > ul > li{float: left;width: 250px;height: 268px;margin-right:230px;}
+.top > .qrcode li:nth-child(3){margin-right:0;}
 /* 主体 */
 .row{height: 420px;}
 .boxBg{background: url('/static/img/xxq_interact/interactRect.png') no-repeat -84px -236px;}

@@ -279,7 +279,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                     scope.$apply();
                 }
             });
-            elem[0].querySelectorAll('.dropdown-menu *').forEach(function(elem2) {
+            angular.forEach(elem[0].querySelectorAll('.dropdown-menu *'), function(elem2) {
                 elem2.addEventListener('click', function(e) {
                     e.stopPropagation();
                 });
@@ -732,8 +732,8 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                             grandchildren;
                         // Iterate the children at the current level
                         for (; i < n; ++i) {
-                            // We will compare the cached element to the element in 
-                            // at the destination index. If it does not match, then 
+                            // We will compare the cached element to the element in
+                            // at the destination index. If it does not match, then
                             // the cached element is being moved into this position.
                             cursor = parentNode.childNodes[i];
                             child = children[i];
@@ -741,7 +741,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                             // using a reverse lookup by object reference
                             cached = lookup(child);
                             // If the parentScope no longer matches, we've moved.
-                            // We'll have to transclude again so that scopes 
+                            // We'll have to transclude again so that scopes
                             // and controllers are properly inherited
                             if (cached && cached.parentScope !== parentScope) {
                                 cache.push(cached);
@@ -759,7 +759,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                                         element: clone[0],
                                         branch: clone.find(branchExpr)[0]
                                     };
-                                    // This had to happen during transclusion so inherited 
+                                    // This had to happen during transclusion so inherited
                                     // controllers, among other things, work properly
                                     parentNode.insertBefore(cached.element, cursor);
                                 });
@@ -768,7 +768,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                             }
                             // Lets's set some scope values
                             childScope = cached.scope;
-                            // Store the current depth on the scope in case you want 
+                            // Store the current depth on the scope in case you want
                             // to use it (for good or evil, no judgment).
                             childScope.$depth = depth;
                             // Emulate some ng-repeat values
@@ -779,7 +779,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                             // Push the object onto the new cache which will replace
                             // the old cache at the end of the walk.
                             currentCache.push(cached);
-                            // If the child has children of its own, recurse 'em.             
+                            // If the child has children of its own, recurse 'em.
                             grandchildren = child[childrenExpr];
                             if (grandchildren && grandchildren.length) {
                                 walk(grandchildren, cached.branch, childScope, depth + 1);

@@ -1,9 +1,5 @@
 <div ng-controller="ctrlInteract">
     <div class="top">
-        <div class="rule">
-            <p><span>微信</span>扫码</p>
-            <p><span>分享</span>至朋友圈</p>
-        </div>
         <div class="qrcode">
             <ul>
                 <li ng-repeat="m in Wall.matters_img">
@@ -23,7 +19,7 @@
                     </div>
                 </div>
                 <div class="button" ng-click="open($event)" >开启宝箱</div>
-                <div class="bgImg one"></div>
+                <div class="bgImg" ng-click="scale(0)"></div>
             </div>
             <div class="box">
                 <ul></ul>
@@ -34,7 +30,7 @@
                     </div>
                 </div>
                 <div class="button" ng-click="open($event)" >开启宝箱</div>
-                <div class="bgImg two"></div>
+                <div class="bgImg" ng-click="scale(1)"></div>
             </div>
             <div class="box">
                 <ul></ul>
@@ -45,7 +41,7 @@
                     </div>
                 </div>
                 <div class="button" ng-click="open($event)" >开启宝箱</div>
-                <div class="bgImg three"></div>
+                <div class="bgImg" ng-click="scale(2)"></div>
             </div>
             <div class="box">
                 <ul></ul>
@@ -56,8 +52,11 @@
                     </div>
                 </div>
                 <div class="button" ng-click="open($event)" >开启宝箱</div>
-                <div class="bgImg four"></div>
+                <div class="bgImg" ng-click="scale(3)"></div>
             </div>
         </div>
+    </div>
+    <div class="mask">
+        <img src="" ng-click="close()"/>
     </div>
 </div>

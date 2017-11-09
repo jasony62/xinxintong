@@ -12,18 +12,24 @@ define(['require', 'angular'], function(require, angular) {
                 return '&page=' + this.at + '&size=' + this.size;
             }
         };
-        $scope.list = function(more) {
-            more && $scope.page.times++;
+        $scope.matters = [];
+        $scope.list = function() {
             var url = '/rest/site/fe/user/share/listShare?site=' + siteId + page.join();
             $http.get(url).success(function(rsp) {
                 if (rsp.err_code != 0) {
                     $scope.$root.errmsg = rsp.err_msg;
                     return;
                 }
-                $scope.matters = rsp.data.matters;
+                angular.forEach(rsp.data.matters, function(matter) {
+                    $scope.matters.push(matter);
+                });
                 $scope.page.total = rsp.data.total;
             });
         };
+        $scope.more = function() {
+            $scope.page.at++;
+            $scope.list();
+        }
         $scope.openMatter = function(id, type, uid) {
             location.href = '/rest/site/fe/user/share/log?page=log&site=' + siteId  + '&matterId=' + id + '&matterType=' + type + '&uid=' + uid;
         };

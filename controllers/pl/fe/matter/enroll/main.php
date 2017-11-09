@@ -343,8 +343,8 @@ class main extends main_base {
 		foreach ($oPosted as $n => $v) {
 			if (in_array($n, ['title', 'summary'])) {
 				$oUpdated->{$n} = $modelApp->escape($v);
-			} else if ($n === 'data_schemas') {
-				$oUpdated->data_schemas = $modelApp->escape($modelApp->toJson($v));
+			} else if (in_array($n, ['data_schemas', 'recycle_schemas'])) {
+				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'entry_rule') {
 				if ($v->scope === 'group') {
 					if (isset($v->group->title)) {

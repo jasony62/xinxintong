@@ -130,7 +130,6 @@ define(['require', 'enrollService'], function(require) {
         });
         srvTempApp.tempEnrollGet().then(function(app) {
             $scope.app = app;
-            app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
             // 用户评论
             if (app.can_discuss === 'Y') {
                 $scope.discussParams = {

@@ -290,8 +290,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     angular.isString(names) && (names = [names]);
                     names.forEach(function(name) {
-                        if (name === 'data_schemas') {
+                        if (name === 'data_schemas' || name === 'dataSchemas') {
                             modifiedData.data_schemas = app.dataSchemas;
+                        } else if (name === 'recycle_schemas' || name === 'recycleSchemas') {
+                            modifiedData.recycle_schemas = app.recycleSchemas;
                         } else if (name === 'tags') {
                             modifiedData.tags = app.tags.join(',');
                         } else {

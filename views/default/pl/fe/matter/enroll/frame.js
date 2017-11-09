@@ -165,7 +165,6 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                     tagById[tag.id] = tag;
                 });
                 oApp._tagsById = tagById;
-                oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
                 if (oApp.matter_mg_tag !== '') {
                     oApp.matter_mg_tag.forEach(function(cTag, index) {
                         $scope.oTag.forEach(function(oTag) {
@@ -178,6 +177,10 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 $scope.app = oApp;
                 srvSite.memberSchemaList(oApp).then(function(aMemberSchemas) {
                     $scope.memberSchemas = aMemberSchemas;
+                    $scope.mschemasById = {};
+                    $scope.memberSchemas.forEach(function(mschema) {
+                        $scope.mschemasById[mschema.id] = mschema;
+                    });
                 });
             });
         });

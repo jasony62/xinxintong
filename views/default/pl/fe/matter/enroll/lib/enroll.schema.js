@@ -70,6 +70,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     });
                 },
                 submitChange: function(changedPages) {
+                    var deferred = $q.defer();
                     srvApp.get().then(function(oApp) {
                         var updatedAppProps = ['data_schemas'],
                             oSchema, oNicknameSchema, oAppNicknameSchema;
@@ -111,11 +112,25 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         }
                         srvApp.update(updatedAppProps).then(function() {
-                            changedPages.forEach(function(oPage) {
-                                srvAppPage.update(oPage, ['data_schemas', 'html']);
-                            });
+                            if (!changedPages || changedPages.length === 0) {
+                                deferred.resolve();
+                            } else {
+                                var fnOnePage;
+                                fnOnePage = function(index) {
+                                    srvAppPage.update(changedPages[index], ['data_schemas', 'html']).then(function() {
+                                        index++;
+                                        if (index === changedPages.length) {
+                                            deferred.resolve();
+                                        } else {
+                                            fnOnePage(index);
+                                        }
+                                    });
+                                };
+                                fnOnePage(0);
+                            }
                         });
                     });
+                    return deferred.promise;
                 }
             };
             return _self;
@@ -403,34 +418,45 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         changedPages.push(oPage);
                     }
                 });
-                srvEnrollSchema.submitChange(changedPages);
+                return srvEnrollSchema.submitChange(changedPages);
             };
             $scope._changeSchemaOrder = function(moved) {
-                var oApp, changedPages = [];
+                var oApp, i, prevSchema, changedPages;
+
                 oApp = $scope.app;
-                if (oApp.__schemasOrderConsistent === 'Y') {
-                    var i = oApp.dataSchemas.indexOf(moved),
-                        prevSchema;
-                    if (i > 0) prevSchema = oApp.dataSchemas[i - 1];
-                    oApp.pages.forEach(function(oPage) {
-                        oPage.moveSchema(moved, prevSchema);
-                        changedPages.push(oPage);
-                    });
-                }
+                i = oApp.dataSchemas.indexOf(moved);
+                if (i > 0) prevSchema = oApp.dataSchemas[i - 1];
+                changedPages = []
+                oApp.pages.forEach(function(oPage) {
+                    oPage.moveSchema(moved, prevSchema);
+                    changedPages.push(oPage);
+                });
                 srvEnrollSchema.submitChange(changedPages);
             };
-            $scope._removeSchema = function(removedSchema) {
+            $scope._removeSchema = function(oRemovedSchema) {
                 var oApp = $scope.app,
                     changedPages = [];
 
-                oApp.dataSchemas.splice(oApp.dataSchemas.indexOf(removedSchema), 1);
-                delete oApp._schemasById[removedSchema.id];
+                oApp.dataSchemas.splice(oApp.dataSchemas.indexOf(oRemovedSchema), 1);
+                delete oApp._schemasById[oRemovedSchema.id];
                 $scope.app.pages.forEach(function(oPage) {
-                    if (oPage.removeSchema(removedSchema)) {
+                    if (oPage.removeSchema(oRemovedSchema)) {
                         changedPages.push(oPage);
                     }
                 });
-                srvEnrollSchema.submitChange(changedPages);
+                srvEnrollSchema.submitChange(changedPages).then(function() {
+                    /* 放入回收站 */
+                    var aNewRecycleSchemas;
+                    aNewRecycleSchemas = [];
+                    for (var i = oApp.recycleSchemas.length - 1; i >= 0; i--) {
+                        if (oApp.recycleSchemas[i].id !== oRemovedSchema.id) {
+                            aNewRecycleSchemas.push(oApp.recycleSchemas[i]);
+                        }
+                    }
+                    aNewRecycleSchemas.push(oRemovedSchema);
+                    oApp.recycleSchemas = aNewRecycleSchemas;
+                    srvApp.update('recycleSchemas');
+                });
             };
             var timerOfUpdate = null;
             $scope.updSchema = function(oSchema, oBeforeState, prop) {
@@ -611,6 +637,12 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
 
                 }
             };
+            $scope.recycleSchema = function(oSchema) {
+                $scope._appendSchema(oSchema).then(function() {
+                    $scope.app.recycleSchemas.splice($scope.app.recycleSchemas.indexOf(oSchema), 1);
+                    $scope.update('recycleSchemas');
+                });
+            };
             $scope.$on('title.xxt.editable.changed', function(e, schema) {
                 $scope.updSchema(schema);
             });
@@ -637,13 +669,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.trustAsHtml = function(schema, prop) {
                 return $sce.trustAsHtml(schema[prop]);
             };
-            $scope.$watch('memberSchemas', function(nv) {
-                if (!nv) return;
-                $scope.mschemasById = {};
-                $scope.memberSchemas.forEach(function(mschema) {
-                    $scope.mschemasById[mschema.id] = mschema;
-                });
-            }, true);
         }
     ]);
     /**

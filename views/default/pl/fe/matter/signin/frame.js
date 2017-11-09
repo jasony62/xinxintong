@@ -152,9 +152,12 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
                     });
                 }
                 $scope.app = oApp;
-                oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
                 srvSite.memberSchemaList(oApp).then(function(aMemberSchemas) {
                     $scope.memberSchemas = aMemberSchemas;
+                    $scope.mschemasById = {};
+                    $scope.memberSchemas.forEach(function(mschema) {
+                        $scope.mschemasById[mschema.id] = mschema;
+                    });
                 });
             });
         });

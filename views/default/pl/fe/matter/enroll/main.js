@@ -192,29 +192,23 @@ define(['frame'], function(ngApp) {
             var bSchemaChanged = false;
             if (_oAppRule.member[mschemaId]) {
                 /* 取消题目和通信录的关联 */
-_oApp.dataSchemas.forEach(function(oSchema) {
-    var _oBeforeState;
-    if (oSchema.type === 'member') {
-        _oBeforeState = angular.copy(oSchema);
-        oSchema.type = 'shorttext';
-        delete oSchema.schema_id;
-        srvEnrollSchema.update(oSchema, _oBeforeState);
-        bSchemaChanged = true;
-    }
-});
-if (bSchemaChanged) {
-    srvEnrollSchema.submitChange(_oApp.pages);
-}
-delete _oAppRule.member[mschemaId];
-$scope.update('entry_rule');
-}
-};
-$scope.$watch('memberSchemas', function(nv) {
-            if (!nv) return;          $scope.mschemasById = {};
-            $scope.memberSchemas.forEach(function(mschema) {
-                $scope.mschemasById[mschema.id] = mschema;
-            });
-        }, true);
+                _oApp.dataSchemas.forEach(function(oSchema) {
+                    var _oBeforeState;
+                    if (oSchema.type === 'member') {
+                        _oBeforeState = angular.copy(oSchema);
+                        oSchema.type = 'shorttext';
+                        delete oSchema.schema_id;
+                        srvEnrollSchema.update(oSchema, _oBeforeState);
+                        bSchemaChanged = true;
+                    }
+                });
+                if (bSchemaChanged) {
+                    srvEnrollSchema.submitChange(_oApp.pages);
+                }
+                delete _oAppRule.member[mschemaId];
+                $scope.update('entry_rule');
+            }
+        };
         $scope.addExclude = function() {
             var rule = $scope.rule;
             if (!rule.exclude) {

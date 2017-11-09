@@ -256,6 +256,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     names.forEach(function(name) {
                         if (/data_schemas|dataSchemas/.test(name)) {
                             modifiedData['data_schemas'] = _oApp.dataSchemas;
+                        } else if (/recycle_schemas|recycleSchemas/.test(name)) {
+                            modifiedData['recycle_schemas'] = _oApp.recycleSchemas;
                         } else if (name === 'tags') {
                             modifiedData.tags = _oApp.tags.join(',');
                         } else {

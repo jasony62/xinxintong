@@ -23,6 +23,22 @@ class message extends \pl\fe\matter\base {
 		return new \ResponseData($messages);
 	}
 	/**
+	 * 获得所有互动日志
+	 */
+	public function listInteractLog_action($site, $id, $page = 1, $size = 30) {
+		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
+		if (($oApp = $modelWall->byId($id, ['fields' => 'siteid,create_at,scenario_config,interact_matter'])) === false) {
+			return new \ObjectNotFoundError();
+		}
+		if(empty($oApp->interact_matter)){
+			return new \ResponseError('未指定互动素材');
+		}
+		
+		$data = $this->model('matter\wall')->listPlayer($oApp->create_at, null, $oApp, $page, $size);
+
+		return new \ResponseData($data);
+	}
+	/**
 	 * 获得未审核的消息
 	 */
 	public function pendingList_action($id, $last = 0, $site) {

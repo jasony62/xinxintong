@@ -1,0 +1,7 @@
+#simulator{position:relative;}
+#simulator .nav{position:absolute;top:70px;left:50%;margin-left:-286px;width:114px;}
+#simulator .nav-pills>li{border:1px solid #ddd;}
+#simulator .nav-pills>li>a{border-radius:0;}
+#simulator .nav-stacked>li+li{margin-top:-1px;}
+#simulator iframe{width:360px;height:640px;border:1px solid #ddd;}
+#shareBoard .thumbnail{height:128px;}

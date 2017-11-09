@@ -1,0 +1,7 @@
+body{background-image:url('/static/img/bg1.jpg');background-size:100%;background-attachment:fixed;margin-top:100px;font-family:Microsoft Yahei,Arial;}
+.header{position:absolute;top:20px;left:0;right:0;line-height:48px;font-size:48px;color:#FFFFFF;text-align:center;}
+.wall{list-style-type:none;margin:0 auto;padding:0;width:883px}
+.wall .message{min-height:140px;margin:2px 0 7px 150px;width:70%;padding:0 15px 0 15px;border-radius:8px;-webkit-border-radius:8px;background:rgba(255,255,255,0.1)}
+.wall .message .avatar{position:absolute;top:0;left:0;padding:30px 14px 0 13px;}
+.wall .message .avatar img{width:100px;height:100px;background:#E8E8E8;border:#4E9B86 1px solid;padding:3px;font-size:0;}
+.wall .message .content{margin-left:101px;font-size:40px;font-weight:bold;color:#FFFF00;padding:20px;line-height:1.6em;}

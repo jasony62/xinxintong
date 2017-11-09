@@ -662,4 +662,197 @@ class log_model extends \TMS_MODEL {
 
 		return true;
 	}
+	/*
+	* 获取用户分享过的素材
+	*/
+	public function listUserShare($site = '', $users, $page = null, $size = null) {
+		$user = "'" . implode("','", $users) . "'";
+		$q = [
+			'siteid,max(share_at) share_at,matter_id,matter_type,matter_title,userid,nickname',
+			'xxt_log_matter_share',
+			"userid in ($user)"
+		];
+		if (!empty($site) && $site !== 'platform') {
+			$site = $this->escape($site);
+			$q[2] .= " and siteid = '$site'";
+		}
+
+		$q2['g'] = "userid,matter_id,matter_type";
+		$q2['o'] = "max(share_at) desc";
+		if (!empty($page) && !empty($size)) {
+			$q2['r']['o'] = ($page-1) * $size;
+			$q2['r']['l'] = $size;
+		}
+
+		$matters = $this->query_objs_ss($q,$q2);
+		$q[0] = "count(distinct userid,matter_id,matter_type)";
+		$total = (int) $this->query_val_ss($q);
+
+		$data = new \stdClass;
+		$data->matters = $matters;
+		$data->total = $total;
+
+		return $data;
+	}
+	/*
+	* 获取我的分享信息
+	*/
+	public function getMyShareLog($oUserid, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
+		$q = [];
+		$q2 = [];
+		switch ($orderBy) {
+			case 'shareF':
+				$q[0] = 's.userid,count(*) shareF_sum,a.nickname,a.headimgurl';
+				$q[1] = 'xxt_log_matter_share s,xxt_site_account a';
+				$q[2] = "s.matter_id = '{$matterId}' and s.matter_type = '{$matterType}' and s.matter_shareby like '" . $oUserid . "_%' and s.share_to ='F' and s.userid = a.uid";
+
+				$q2['g'] = 's.userid';
+				$q2['o'] = 'shareF_sum desc,s.share_at desc';
+
+				if (!empty($page) && !empty($size)) {
+					$q2['r']['o'] = ($page - 1) * $size;
+					$q2['r']['l'] = $size;
+				}
+
+				$users = $this->query_objs_ss($q, $q2);
+				$q[0] = "count(distinct s.userid)";
+				$total = (int) $this->query_val_ss($q);
+
+				break;
+			case 'shareT':
+				$q[0] = 's.userid,count(*) shareT_sum,a.nickname,a.headimgurl';
+				$q[1] = 'xxt_log_matter_share s,xxt_site_account a';
+				$q[2] = "s.matter_id = '{$matterId}' and s.matter_type = '{$matterType}' and s.matter_shareby like '" . $oUserid . "_%' and s.share_to ='T' and s.userid = a.uid";
+
+				$q2['g'] = 's.userid';
+				$q2['o'] = 'shareT_sum desc,s.share_at desc';
+
+				if (!empty($page) && !empty($size)) {
+					$q2['r']['o'] = ($page - 1) * $size;
+					$q2['r']['l'] = $size;
+				}
+
+				$users = $this->query_objs_ss($q, $q2);
+				$q[0] = "count(distinct s.userid)";
+				$total = (int) $this->query_val_ss($q);
+
+				break;
+			case 'attractRead':
+				$q = "select r.userid,(select count(*) from xxt_log_matter_read r1 where r1.matter_id='" . $this->escape($matterId) . "' and r1.matter_type='" . $this->escape($matterType) . "' and r1.matter_shareby like CONCAT(r.userid,'_%')) as attractRead_sum,a.nickname,a.headimgurl from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid group by r.userid order by attractRead_sum desc,r.read_at desc";
+
+				if (!empty($page) && !empty($size)) {
+					$q .= " limit " . ($page - 1) * $size . "," . $size;
+				}
+
+				$users = $this->query_objs($q);
+				$q = "select count(distinct r.userid) from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid";
+				$total = (int) $this->query_value($q);
+
+				break;
+			default:
+				$q[0] = 'r.userid,count(*) as read_sum,a.nickname,a.headimgurl';
+				$q[1] = 'xxt_log_matter_read r,xxt_site_account a';
+				$q[2] = "r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid";
+
+				$q2['g'] = 'r.userid';
+				$q2['o'] = 'read_sum desc,r.read_at desc';
+
+				if (!empty($page) && !empty($size)) {
+					$q2['r']['o'] = ($page - 1) * $size;
+					$q2['r']['l'] = $size;
+				}
+
+				$users = $this->query_objs_ss($q, $q2);
+				$q[0] = "count(distinct r.userid)";
+				$total = (int) $this->query_val_ss($q);
+
+				break;
+		}
+
+		if($users){
+			foreach ($users as $user) {
+				if (!isset($user->read_sum)) {
+					$q = [
+						'count(*) read_sum',
+						'xxt_log_matter_read',
+						[]
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
+					$q[2]["userid"] = $user->userid;
+
+					$rst = $this->query_obj_ss($q);
+					if ($rst) {
+						$user->read_sum = $rst->read_sum;
+					} else {
+						$user->read_sum = 0;
+					}
+				}
+				if (!isset($user->shareF_sum)) {
+					$q = [
+						'count(*) shareF_sum',
+						'xxt_log_matter_share',
+						[]
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
+					$q[2]["userid"] = $user->userid;
+					$q[2]["share_to"] = 'F';
+
+					$rst = $this->query_obj_ss($q);
+					if ($rst) {
+						$user->shareF_sum = $rst->shareF_sum;
+					} else {
+						$user->shareF_sum = 0;
+					}
+				}
+				if (!isset($user->shareT_sum)) {
+					$q = [
+						'count(*) shareT_sum',
+						'xxt_log_matter_share',
+						[]
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
+					$q[2]["userid"] = $user->userid;
+					$q[2]["share_to"] = 'T';
+
+					$rst = $this->query_obj_ss($q);
+					if ($rst) {
+						$user->shareT_sum = $rst->shareT_sum;
+					} else {
+						$user->shareT_sum = 0;
+					}
+				}
+				/*ta带来的阅读数是否加上ta自己的阅读数？？？*/
+				if (!isset($user->attractRead_sum)) {
+					$q = [
+						'count(*) attractRead_sum',
+						'xxt_log_matter_read',
+						[]
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $user->userid . '_%'];
+
+					$rst = $this->query_obj_ss($q);
+					if ($rst) {
+						$user->attractRead_sum = $rst->attractRead_sum;
+					} else {
+						$user->attractRead_sum = 0;
+					}
+				}
+			}
+		}
+
+
+		$data = new \stdClass;
+		$data->users = $users;
+		$data->total = $total;
+
+		return $data;
+	}
 }

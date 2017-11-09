@@ -19,16 +19,21 @@ class page extends \pl\fe\matter\base {
 	 * @param string $wall
 	 */
 	public function list_action($id, $site) {
+		$modelWall = $this->model('matter\wall');
+		if (false === ($wall = $modelWall->byId($id))) {
+			return new \ResponseError('指定的数据不存在');
+		}
+
 		$modelPage = $this->model('matter\wall\page');
 		$modelCode = $this->model('code\page');
-
+		$template = empty($wall->scenario_config)? 'simple' : $wall->scenario_config->template;
 		$pages = [];
 		$wp = [
 			'name' => '信息墙大屏幕',
 			'title' => '信息墙大屏幕',
 			'type' => 'op',
 			'seq' => 1,
-			'templateDir' => TMS_APP_TEMPLATE . '/site/op/matter/wall/',
+			'templateDir' => TMS_APP_TEMPLATE . '/site/op/matter/wall/scenario/' . $wall->scenario . '/templates/' . $template . '/',
 		];
 		$page = $modelPage->byType($wp['type'], $id);
 		if (empty($page)) {
@@ -52,12 +57,17 @@ class page extends \pl\fe\matter\base {
 	/**
 	 * 用模板重置页面
 	 */
-	public function reset_action($page) {
+	public function reset_action($id, $page) {
+		$modelWall = $this->model('matter\wall');
+		if (false === ($wall = $modelWall->byId($id))) {
+			return new \ResponseError('指定的数据不存在');
+		}
+
 		$page = $this->model('matter\wall\page')->byId($page);
 		$modelCode = $this->model('code\page');
-
+		$template = empty($wall->scenario_config)? 'simple' : $wall->scenario_config->template;
 		$pattern = 'basic';
-		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/wall/';
+		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/wall/scenario/' . $wall->scenario . '/templates/' . $template . '/';
 		$data = array(
 			'html' => file_get_contents($templateDir . $pattern . '.html'),
 			'css' => file_get_contents($templateDir . $pattern . '.css'),

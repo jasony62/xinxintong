@@ -355,9 +355,9 @@ class stat extends \pl\fe\matter\base {
 				$oSchemaStat = $aStatResult[$schema->id];
 				if (in_array($schema->type, ['single', 'phase'])) {
 					// Create a pie pot
-					$graph = $this->_setSingleSchemaGraph($oSchemaStat->ops, $oPlConfig);
+					$graph = $this->_setSingleSchemaGraph($oSchemaStat->ops, isset($oPlConfig) ? $oPlConfig : null);
 				} else if ($schema->type === 'multiple') {
-					$graph = $this->_setMultipleSchemaGraph($oSchemaStat->ops, $oPlConfig);
+					$graph = $this->_setMultipleSchemaGraph($oSchemaStat->ops, isset($oPlConfig) ? $oPlConfig : null);
 				}
 				if ($graph) {
 					$graph->Stroke(_IMG_HANDLER);
@@ -376,10 +376,10 @@ class stat extends \pl\fe\matter\base {
 				$table2->addRow(500);
 				$table2->addCell($cell_w1, $fancyTableCellStyle)->addText('选项编号', $firstStyle, $paragraphStyle);
 				$table2->addCell($cell_w2, $fancyTableCellStyle)->addText('选项内容', $firstStyle, $paragraphStyle);
-				if (isset($oPlConfig->number) && $oPlConfig->number === 'Y') {
+				if (!isset($oPlConfig->number) || $oPlConfig->number === 'Y') {
 					$table2->addCell($cell_w3, $fancyTableCellStyle)->addText('数量', $firstStyle, $paragraphStyle);
 				}
-				if (isset($oPlConfig->percentage) && $oPlConfig->percentage === 'Y') {
+				if (!isset($oPlConfig->percentage) || $oPlConfig->percentage === 'Y') {
 					$table2->addCell($cell_w3, $fancyTableCellStyle)->addText('占比', $firstStyle, $paragraphStyle);
 				}
 				for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
@@ -387,10 +387,10 @@ class stat extends \pl\fe\matter\base {
 					$table2->addRow(500);
 					$table2->addCell($cell_w1, $fancyTableCellStyle)->addText("选项" . ($i + 1), $cellTextStyle);
 					$table2->addCell($cell_w2, $fancyTableCellStyle)->addText($op->l, $cellTextStyle);
-					if (isset($oPlConfig->number) && $oPlConfig->number === 'Y') {
+					if (!isset($oPlConfig->number) || $oPlConfig->number === 'Y') {
 						$table2->addCell($cell_w3, $fancyTableCellStyle)->addText($op->c, $cellTextStyle);
 					}
-					if (isset($oPlConfig->percentage) && $oPlConfig->percentage === 'Y') {
+					if (!isset($oPlConfig->percentage) || $oPlConfig->percentage === 'Y') {
 						$table2->addCell($cell_w3, $fancyTableCellStyle)->addText(round($op->c / $oSchemaStat->sum * 100, 2) . '%', $cellTextStyle);
 					}
 				}

@@ -650,6 +650,27 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
      * 单个题目
      */
     ngMod.controller('ctrlSchemaEdit', ['$scope', function($scope) {
+        function _setSelectedMemberSchema(oActiveSchema) {
+            var i, j, memberSchema, schema, selectedMemberSchema;
+            /*自定义用户*/
+            for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
+                memberSchema = $scope.memberSchemas[i];
+                if (oActiveSchema.schema_id === memberSchema.id) {
+                    for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
+                        schema = memberSchema._schemas[j];
+                        if (oActiveSchema.id === schema.id) {
+                            selectedMemberSchema = {
+                                schema: memberSchema,
+                                attr: schema
+                            };
+                            return selectedMemberSchema;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         var editing;
 
         $scope.editing = editing = {};
@@ -664,40 +685,32 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             }
         };
         $scope.changeSchemaType = function() {
-            var oBeforeState = angular.copy($scope.activeSchema);
-            if (schemaLib.changeType($scope.activeSchema, editing.type)) {
-                $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;
-                $scope.updSchema($scope.activeSchema, oBeforeState);
+            var oBeforeState;
+            if (false === schemaLib.changeType($scope.activeSchema, editing.type)) {
+                editing.type = $scope.activeSchema.type;
+                return;
             }
+            oBeforeState = angular.copy($scope.activeSchema);
+            if ($scope.activeSchema.type === 'member') {
+                if ($scope.app.entry_rule.member) {
+                    var mschemaIds = Object.keys($scope.app.entry_rule.member);
+                    if (mschemaIds.length) {
+                        $scope.activeSchema.schema_id = mschemaIds[0];
+                        $scope.selectedMemberSchema = _setSelectedMemberSchema($scope.activeSchema);
+                    }
+                }
+            }
+            $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;
+            $scope.updSchema($scope.activeSchema, oBeforeState);
         };
         $scope.$watch('activeSchema', function() {
             var oActiveSchema, oPage, oWrap;
 
+            $scope.selectedMemberSchema = false;
             oActiveSchema = $scope.activeSchema;
             editing.type = oActiveSchema.type;
-            if (editing.type === 'member') {
-                if (oActiveSchema.schema_id) {
-                    (function() {
-                        var i, j, memberSchema, schema;
-                        /*自定义用户*/
-                        for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
-                            memberSchema = $scope.memberSchemas[i];
-                            if (oActiveSchema.schema_id === memberSchema.id) {
-                                for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
-                                    schema = memberSchema._schemas[j];
-                                    if (oActiveSchema.id === schema.id) {
-                                        break;
-                                    }
-                                }
-                                $scope.selectedMemberSchema = {
-                                    schema: memberSchema,
-                                    attr: schema
-                                };
-                                break;
-                            }
-                        }
-                    })();
-                }
+            if (editing.type === 'member' && oActiveSchema.schema_id) {
+                $scope.selectedMemberSchema = _setSelectedMemberSchema(oActiveSchema);
             }
             $scope.activeConfig = false;
             $scope.inputPage = false;

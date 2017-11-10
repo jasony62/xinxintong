@@ -10,34 +10,35 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	public function index_action($site, $id) {
-		$link = $this->model('matter\link')->byIdWithParams($id);
-		if ($link->fans_only === 'Y') {
+		$oLink = $this->model('matter\link')->byIdWithParams($id);
+		if ($oLink->fans_only === 'Y') {
 			if (!$this->afterSnsOAuth()) {
 				/* 检查是否需要第三方社交帐号OAuth */
 				$this->_requireSnsOAuth($site);
 			}
 		}
-		switch ($link->urlsrc) {
+		switch ($oLink->urlsrc) {
 		case 0: // 外部链接
 
-			if ($link->embedded === 'Y') {
+			if ($oLink->embedded === 'Y') {
+				\TPL::assign('title', $oLink->title);
 				\TPL::output('/site/fe/matter/link/main');
 				exit;
 			}
 			/* 页面跳转 */
-			$url = $link->url;
+			$url = $oLink->url;
 			if (preg_match('/^(http:|https:)/', $url) === 0) {
 				$url = 'http://' . $url;
 			}
-			if ($link->method == 'GET') {
-				if (isset($link->params)) {
+			if ($oLink->method == 'GET') {
+				if (isset($oLink->params)) {
 					$url .= (strpos($url, '?') === false) ? '?' : '&';
-					$url .= $this->_spliceParams($this->siteId, $link->params);
+					$url .= $this->_spliceParams($oLink->siteid, $oLink->params);
 				}
 				$this->redirect($url);
-			} elseif ($link->method == 'POST') {
-				if (isset($link->params)) {
-					$posted = $this->_spliceParams($this->siteId, $link->params);
+			} elseif ($oLink->method == 'POST') {
+				if (isset($oLink->params)) {
+					$posted = $this->_spliceParams($oLink->siteid, $oLink->params);
 				}
 				$ch = curl_init(); //初始化curl
 				curl_setopt($ch, CURLOPT_URL, $url); //设置链接
@@ -81,10 +82,10 @@ class main extends \site\fe\matter\base {
 			break;
 		case 1: // 多图文
 			//require_once dirname(__FILE__) . '/page_news.php';
-			//$page = new page_news((int) $link->url, $openid);
+			//$page = new page_news((int) $oLink->url, $openid);
 			break;
 		case 2: // 频道
-			$channelUrl = $this->model('matter\channel')->getEntryUrl($site, (int) $link->url);
+			$channelUrl = $this->model('matter\channel')->getEntryUrl($oLink->siteid, (int) $oLink->url);
 			$this->redirect($channelUrl);
 			break;
 		}

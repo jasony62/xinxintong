@@ -734,8 +734,18 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.selectedMemberSchema = false;
             oActiveSchema = $scope.activeSchema;
             editing.type = oActiveSchema.type;
-            if (editing.type === 'member' && oActiveSchema.schema_id) {
-                $scope.selectedMemberSchema = _setSelectedMemberSchema(oActiveSchema);
+            switch (editing.type) {
+                case 'member':
+                    $scope.selectedMemberSchema = _setSelectedMemberSchema(oActiveSchema);
+                    break;
+                case 'multiple':
+                    if (!oActiveSchema.limitChoice) {
+                        oActiveSchema.limitChoice = 'N';
+                    }
+                    if (!oActiveSchema.range) {
+                        oActiveSchema.range = [1, oActiveSchema.ops ? oActiveSchema.ops.length : 1];
+                    }
+                    break;
             }
             $scope.activeConfig = false;
             $scope.inputPage = false;

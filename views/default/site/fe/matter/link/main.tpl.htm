@@ -25,10 +25,20 @@
     </nav>
     <div id='content' class='container'>
         <div class='row'>
-            <div id='site' class='col-md-3 col-md-push-9 col-xs-12'>
-                <a class="site-title" ng-href="{{'/rest/site/home?site='+siteInfo.id}}" target='_self'><img class="pull-left img-circle" ng-src="{{siteInfo.heading_pic}}"><span ng-bind="siteInfo.name"></span><i class="glyphicon glyphicon-menu-right pull-right"></i></a>
+            <div id='site-card' class='col-md-3 col-md-push-9 col-xs-12'>
+                <div class="site-title">
+                    <img class="pull-left img-circle" ng-src="{{siteInfo.heading_pic}}">
+                    <a ng-href="{{'/rest/site/home?site='+siteInfo.id}}" target='_self' ng-bind="siteInfo.name"></a>
+                    <span uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="siteInfo.can_subscribe==='Y'">
+                        <i class="glyphicon glyphicon-option-vertical" uib-dropdown-toggle></i>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li>
+                                <a href='' ng-click="subscribeSite()">关注</a>
+                            </li>
+                        </ul>
+                    </span>
+                </div>
                 <p class="site-summary" ng-bind="siteInfo.summary"></p>
-                <button ng-if="siteInfo.can_subscribe==='Y'" class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
             </div>
             <div id="link" class='col-md-9 col-md-pull-3 col-xs-12'>
                 <iframe></iframe>
@@ -44,6 +54,7 @@
     </script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/xxt.share.js?_=1"></script>
     <script src="<?php echo auto_version('/views/default/site/fe/matter/link/main.js');?>"></script>
 </body>

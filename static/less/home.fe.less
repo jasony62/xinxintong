@@ -310,6 +310,78 @@ ul.nav-tabs>span>a {
 }
 
 /**
+* site card
+*/
+
+/*site*/
+#site-card {
+	position: relative;
+	padding: 10px;
+	background-color: #fafafa;
+	overflow: hidden;
+
+	.site-title {
+		display: flex;
+		overflow: hidden;
+		margin-bottom: 20px;
+
+		&>img {
+			display: inline-block;
+			width: 2em;
+			height: 2em;
+			margin: 0 8px 0 0;
+		}
+
+		&>a {
+			height: 2em;
+			line-height: 2em;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			flex-grow: 1;
+		}
+
+		&>span {
+			color: #999;
+			line-height: 2em;
+			cursor: pointer;
+		}
+
+	}
+
+	.site-summary {
+		line-height: 1.7;
+		color: #666;
+		white-space: normal;
+		overflow: hidden;
+		word-break: break-all;
+	}
+
+	.dropdown-menu {
+		left: 0;
+	}
+
+}
+
+@media screen and (max-width:768px) {
+	#site-card {
+		background-color: #fff;
+		margin-bottom: 8px;
+
+		.site-title, .site-summary {
+			margin-bottom: 4px;
+		}
+
+		.site-summary {
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+		}
+
+	}
+
+}
+
+/**
  * media
 */
 .media-item {

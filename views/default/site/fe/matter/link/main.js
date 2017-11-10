@@ -4,12 +4,22 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-angular.module('app', []).config(['$locationProvider', function($locationProvider) {
+angular.module('app', ['ui.bootstrap']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
-}]).controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
+}]).controller('ctrl', ['$scope', '$location', '$http', function($scope, $location, $http) {
     var siteId, linkId;
     siteId = $location.search().site;
     linkId = $location.search().id;
+    $scope.elSiteCard = angular.element(document.querySelector('#site-card'));
+    $scope.siteCardToggled = function(open) {
+        var elDropdownMenu;
+        if (open) {
+            if (elDropdownMenu = document.querySelector('#site-card>.dropdown-menu')) {
+                elDropdownMenu.style.left = 'auto';
+                elDropdownMenu.style.right = 0;
+            }
+        }
+    };
     $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {
         $scope.siteInfo = rsp.data;
         $http.get('/rest/site/fe/matter/link/get?site=' + siteId + '&id=' + linkId).success(function(rsp) {

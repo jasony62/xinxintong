@@ -30,10 +30,20 @@
         <div class="container">
             <div class='row'>
                 <div class="col-md-3 col-xs-12">
-                    <div id='site'>
-                        <a class="site-title" ng-href="{{'/rest/site/home?site='+site.id}}"><img class="img-circle" ng-src="{{site.heading_pic}}"><span ng-bind="site.name"></span><i class="glyphicon glyphicon-menu-right pull-right"></i></a>
+                    <div id='site-card'>
+                        <div class="site-title">
+                            <img class="pull-left img-circle" ng-src="{{site.heading_pic}}">
+                            <a ng-href="{{'/rest/site/home?site='+site.id}}" target='_self' ng-bind="site.name"></a>
+                            <span uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="site.can_subscribe==='Y'">
+                        <i class="glyphicon glyphicon-option-vertical" uib-dropdown-toggle></i>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li>
+                                <a href='' ng-click="subscribeSite()">关注</a>
+                            </li>
+                        </ul>
+                    </span>
+                        </div>
                         <p class="site-summary" ng-bind="site.summary"></p>
-                        <button ng-if="site.can_subscribe==='Y'" class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
                     </div>
                     <div id='qrCode' class='hidden-xs hidden-sm'>
                         <img ng-src="{{code}}">
@@ -94,6 +104,7 @@
     </div>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/article/main.js');?>"></script>
 </body>
 

@@ -4,7 +4,7 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-angular.module('app', ['infinite-scroll']).config(['$locationProvider', function($locationProvider) {
+angular.module('app', ['ui.bootstrap', 'infinite-scroll']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
 }]).controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
     var siteId, channelId, shareby;
@@ -72,6 +72,16 @@ angular.module('app', ['infinite-scroll']).config(['$locationProvider', function
                 }
                 _this.busy = false;
             });
+        }
+    };
+    $scope.elSiteCard = angular.element(document.querySelector('#site-card'));
+    $scope.siteCardToggled = function(open) {
+        var elDropdownMenu;
+        if (open) {
+            if (elDropdownMenu = document.querySelector('#site-card>.dropdown-menu')) {
+                elDropdownMenu.style.left = 'auto';
+                elDropdownMenu.style.right = 0;
+            }
         }
     };
     $scope.open = function(opened) {

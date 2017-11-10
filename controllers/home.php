@@ -217,12 +217,12 @@ class home extends TMS_CONTROLLER {
 	/**
 	 *获取置顶活动
 	 */
-	public function listMatterTop_action($type = 'article', $page = 1, $size = 3) {
+	public function listMatterTop_action($type = 'ALL', $page = 1, $size = 3) {
 		$modelHome = $this->model('matter\home');
 		$options = [];
 		$options['page']['at'] = $page;
 		$options['page']['size'] = $size;
-		$options['type'] = $type;
+		//$options['type'] = $type;
 		$result = $modelHome->atHomeTop($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {

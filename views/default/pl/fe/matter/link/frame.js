@@ -24,7 +24,7 @@ ngApp.controller('ctrlLink', ['$scope', '$location', 'http2', 'srvSite', functio
         $scope.entryUrl = 'http://' + location.host + '/rest/site/fe/matter/link?site=' + $scope.siteId + '&id=' + $scope.id;
     });
 }]);
-ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 'srvTag', 'srvSite', function($scope, http2, mediagallery, $uibModal, srvTag, srvSite) {
+ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 'noticebox', 'srvTag', 'srvSite', function($scope, http2, mediagallery, $uibModal, noticebox, srvTag, srvSite) {
     var modifiedData = {};
     $scope.modified = false;
     $scope.urlsrcs = {
@@ -202,24 +202,24 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 's
                 });
             }
         });
-    },
+    };
     $scope.quitMission = function() {
         var that = this;
         matter = {
-            id: $scope.editing.id,
-            type: 'link',
-            title: $scope.editing.title
-        },
-        http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + $scope.siteId + '&id=' + $scope.editing.mission_id, matter, function(rsp) {
-            delete $scope.editing.mission;
-            $scope.editing.mission_id = 0;
-            modifiedData['mission_id'] = 0;
-            $scope.editing.mission_phase_id = '';
-            modifiedData['mission_phase_id'] = '';
+                id: $scope.editing.id,
+                type: 'link',
+                title: $scope.editing.title
+            },
+            http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + $scope.siteId + '&id=' + $scope.editing.mission_id, matter, function(rsp) {
+                delete $scope.editing.mission;
+                $scope.editing.mission_id = 0;
+                modifiedData['mission_id'] = 0;
+                $scope.editing.mission_phase_id = '';
+                modifiedData['mission_phase_id'] = '';
 
-            that.submit();
-        });
-    },
+                that.submit();
+            });
+    };
     $scope.choosePhase = function() {
         var phaseId = $scope.editing.mission_phase_id,
             newPhase, updatedFields = ['mission_phase_id'],
@@ -241,7 +241,13 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 's
         }
 
         that.update(updatedFields);
-    },
+    };
+    $scope.applyToHome = function() {
+        var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.editing.siteid + '&type=link&id=' + $scope.editing.id;
+        http2.get(url, function(rsp) {
+            noticebox.success('完成申请！');
+        });
+    };
     $scope.$watch('editing.urlsrc', function(nv) {
         switch (nv) {
             case '1':

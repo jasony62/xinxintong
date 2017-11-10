@@ -16,7 +16,7 @@
             <div id="slider_extends" class="slider_extends" ng-controller="ctrlSlider" ng-if="topArticles!=''">
                 <ul class="list-unstyled row">
                     <li ng-mouseenter="selectTag($index)" class="slider_extend pull-left" ng-repeat="ta in topArticles" data-ng-init="load()">
-                        <a ng-href="{{ta.url}}">
+                        <a ng-href="{{ta.url}}" target='_self'>
                             <div class="slider-caption">
                                 <h4 class="slider-text-wrap">{{ta.title}}</h4>
                             </div>
@@ -32,7 +32,7 @@
             </div>
             <uib-tabset active="0">
                 <uib-tab index="0" ng-if="articles.length">
-                    <uib-tab-heading>热门时讯</uib-tab-heading>
+                    <uib-tab-heading>热门</uib-tab-heading>
                     <div class="media-item" ng-repeat="a in articles">
                         <div class="media-item-left" ng-click="openMatter(a)">
                             <div class="media-item-img" ng-style="{'background-image':'url('+a.pic||a.thumbnail+')'}"></div>

@@ -10,6 +10,7 @@ th{text-align:center;}
 					<option value='app'>活动</option>
 					<option value='channel'>频道</option>
 					<option value='article'>文章</option>
+					<option value='link'>链接</option>
 					<option value='site'>团队</option>
 				</select>
 			</form>
@@ -127,7 +128,7 @@ th{text-align:center;}
 			<ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchMatter()"></ul>
 		</div>
 	</div>
-	<div class='row' ng-if="criteria.category==='article'">
+	<div class='row' ng-if="criteria.category==='article'||criteria.category==='link'">
 		<div class='col-md-12' ng-controller="ctrlMatter">
 			<table class='table table-bordered'>
 				<thead>

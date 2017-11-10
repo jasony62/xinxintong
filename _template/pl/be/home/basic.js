@@ -151,7 +151,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             });
         });
     };
-    $http.get('/rest/home/listMatterTop?type=article&page=1&size=3').success(function(rsp) {
+    $http.get('/rest/home/listMatterTop?page=1&size=3').success(function(rsp) {
         $scope.topArticles = rsp.data.matters;
     });
     $scope.gotoTop = function() {

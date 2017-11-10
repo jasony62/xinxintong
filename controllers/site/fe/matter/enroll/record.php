@@ -458,9 +458,10 @@ class record extends base {
 	 * 检查内容：
 	 * 1、应用允许登记的条数（count_limit）
 	 * 2、登记项是否和已有登记记录重复（schema.unique）
+	 * 3、多选题选项的数量（schema.limitChoice, schema.range）
 	 *
 	 */
-	private function _canSubmit(&$oApp, &$oUser, &$posted, $ek) {
+	private function _canSubmit($oApp, $oUser, $oRecData, $ek) {
 		/**
 		 * 检查活动是否在进行过程中
 		 */
@@ -501,20 +502,36 @@ class record extends base {
 		/**
 		 * 检查提交数据的合法性
 		 */
-		foreach ($oApp->dataSchemas as $schema) {
-			if (isset($schema->unique) && $schema->unique === 'Y') {
-				if (empty($posted->{$schema->id})) {
-					return [false, ['唯一项【' . $schema->title . '】不允许为空']];
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (isset($oSchema->unique) && $oSchema->unique === 'Y') {
+				if (empty($oRecData->{$oSchema->id})) {
+					return [false, ['唯一项【' . $oSchema->title . '】不允许为空']];
 				}
 				$checked = new \stdClass;
-				$checked->{$schema->id} = $posted->{$schema->id};
+				$checked->{$oSchema->id} = $oRecData->{$oSchema->id};
 				$existings = $modelRec->byData($oApp, $checked, ['fields' => 'enroll_key']);
 				if (count($existings)) {
 					foreach ($existings as $existing) {
 						if ($existing->enroll_key !== $ek) {
-							return [false, ['唯一项【' . $schema->title . '】不允许重复，请检查填写的数据']];
+							return [false, ['唯一项【' . $oSchema->title . '】不允许重复，请检查填写的数据']];
 						}
 					}
+				}
+			}
+			if (isset($oSchema->type)) {
+				switch ($oSchema->type) {
+				case 'multiple':
+					if (isset($oSchema->limitChoice) && $oSchema->limitChoice === 'Y' && isset($oSchema->range) && is_array($oSchema->range)) {
+						$submitVal = $oRecData->{$oSchema->id};
+						if (is_object($submitVal)) {
+							// 多选题，将选项合并为逗号分隔的字符串
+							$opCount = count(array_filter((array) $submitVal, function ($i) {return $i;}));
+							if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
+								return [false, ['选择题【' . $oSchema->title . '】选中的选项数量，不在指定范围【' . implode('-', $oSchema->range) . '】内']];
+							}
+						}
+					}
+					break;
 				}
 			}
 		}

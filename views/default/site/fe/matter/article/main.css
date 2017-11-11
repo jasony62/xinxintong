@@ -1,11 +1,12 @@
 html,body{height:100%;width:100%;position:relative;overflow:hidden;}
 .ng-cloak{display:none;}
 body>div:first-child{position:relative;height:100%;box-sizing:border-box;overflow-y:auto;white-space:normal;word-wrap:break-word;word-break:break-all}
+blockquote{background-color:#fafafa;}
 
 /* left-column */
 #title{font-size:28px;font-weight:700;margin-top:24px;}
 #attribute{margin-top:10px;margin-bottom:30px;padding:0 10px;}
-#attribute>h6{margin-right:15px;color:#999;}
+#attribute>span{margin-right:15px;color:#999;}
 .article{background-color:#fff;}
 .article .headpic{margin:10px 0}
 .article img{display:block;max-width:100%;margin:5px auto;}

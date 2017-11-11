@@ -1,10 +1,10 @@
+#matter-summary{position:relative;padding:8px;background-color:#fafafa;overflow:hidden;margin-top:16px;}
+@media screen and (max-width:768px){
+	#matter-summary{margin-top:8px;background-color:#fff;}
+}
+
 /* matters */
 #matters{background-color:#fff;padding:0 8px;}
-.actions{height:36px;background:#eee;margin:12px -15px 0}
-.actions>span{display:inline-block;width:49%;text-align:center;line-height:36px}
-.actions .like:before{content:' ';margin-right:4px;-webkit-tap-highlight-color:rgba(0,0,0,0);display:inline-block;background-image:url("/static/img/icons.svg");background-size:68.75px 103.13px;background-position:-31.25px 0;background-repeat:no-repeat;width:15px;height:15px}
-.actions .like.praised:before{background-position:-31.25px -25px}
-.actions .remark:before{content:'评论';margin-right:4px}
 
 /* auth */
 #frmAuth{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999;box-sizing:border-box;}

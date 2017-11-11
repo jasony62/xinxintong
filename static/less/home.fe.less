@@ -312,14 +312,22 @@ ul.nav-tabs>span>a {
 /**
 * site card
 */
-
-/*site*/
-#site-card {
+.hm-tile {
 	position: relative;
-	padding: 10px;
+	padding: 8px;
 	background-color: #fafafa;
 	overflow: hidden;
+	margin-bottom: 8px;
+}
 
+@media screen and (max-width:768px) {
+	.hm-tile {
+		background-color: #fff;
+	}
+
+}
+
+#site-card {
 	.site-title {
 		display: flex;
 		overflow: hidden;
@@ -340,7 +348,7 @@ ul.nav-tabs>span>a {
 			flex-grow: 1;
 		}
 
-		&>span {
+		&>*:last-child {
 			color: #999;
 			line-height: 2em;
 			cursor: pointer;
@@ -364,9 +372,6 @@ ul.nav-tabs>span>a {
 
 @media screen and (max-width:768px) {
 	#site-card {
-		background-color: #fff;
-		margin-bottom: 8px;
-
 		.site-title, .site-summary {
 			margin-bottom: 4px;
 		}
@@ -600,7 +605,7 @@ ul.nav-tabs>span>a {
 
 	.mainSide-header {
 		position: relative;
-		line-height: 1.7857; /*.nav-tabs>li>a*/
+		line-height: 1.7857;        /*.nav-tabs>li>a*/
 		padding-left: 30px;
 
 		/* aside */

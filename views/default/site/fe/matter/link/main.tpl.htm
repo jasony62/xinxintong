@@ -25,20 +25,25 @@
     </nav>
     <div id='content' class='container'>
         <div class='row'>
-            <div id='site-card' class='col-md-3 col-md-push-9 col-xs-12'>
-                <div class="site-title">
-                    <img class="pull-left img-circle" ng-src="{{siteInfo.heading_pic}}">
-                    <a ng-href="{{'/rest/site/home?site='+siteInfo.id}}" target='_self' ng-bind="siteInfo.name"></a>
-                    <span uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="siteInfo.can_subscribe==='Y'">
-                        <i class="glyphicon glyphicon-option-vertical" uib-dropdown-toggle></i>
-                        <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li>
-                                <a href='' ng-click="subscribeSite()">关注</a>
-                            </li>
-                        </ul>
-                    </span>
+            <div class='col-md-3 col-md-push-9 col-xs-12'>
+                <div id='site-card' class='hm-tile'>
+                    <div class="site-title">
+                        <img class="img-circle" ng-src="{{siteInfo.heading_pic}}">
+                        <a ng-href="{{'/rest/site/home?site='+siteInfo.id}}" target='_self' ng-bind="siteInfo.name"></a>
+                        <div uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="siteInfo.can_subscribe==='Y'">
+                            <i class="glyphicon glyphicon-option-vertical" uib-dropdown-toggle></i>
+                            <ul class="dropdown-menu" uib-dropdown-menu>
+                                <li>
+                                    <a href='' ng-click="subscribeSite()">关注</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="site-summary" ng-bind="siteInfo.summary"></p>
                 </div>
-                <p class="site-summary" ng-bind="siteInfo.summary"></p>
+                <div class='hm-tile' ng-if="link.summary">
+                    <div ng-bind="link.summary"></div>
+                </div>
             </div>
             <div id="link" class='col-md-9 col-md-pull-3 col-xs-12'>
                 <iframe></iframe>

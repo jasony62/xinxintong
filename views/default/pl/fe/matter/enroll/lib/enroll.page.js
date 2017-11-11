@@ -292,28 +292,28 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
      * input
      */
     ngMod.controller('ctrlAppSchemas4IV', ['$scope', function($scope) {
-        var oChooseState;
+        var _oChooseState;
         $scope.choose = function(schema) {
-            if (oChooseState[schema.id]) {
+            if (_oChooseState[schema.id]) {
                 var ia, sibling, domNewWrap;
                 ia = $scope.app.dataSchemas.indexOf(schema);
                 if (ia === 0) {
                     sibling = $scope.app.dataSchemas[++ia];
-                    while (ia < $scope.app.dataSchemas.length && !oChooseState[sibling.id]) {
+                    while (ia < $scope.app.dataSchemas.length && !_oChooseState[sibling.id]) {
                         sibling = $scope.app.dataSchemas[++ia];
                     }
                     domNewWrap = editorProxy.appendSchema(schema, sibling, true);
                 } else {
                     sibling = $scope.app.dataSchemas[--ia];
-                    while (ia > 0 && !oChooseState[sibling.id]) {
+                    while (ia > 0 && !_oChooseState[sibling.id]) {
                         sibling = $scope.app.dataSchemas[--ia];
                     }
-                    if (oChooseState[sibling.id]) {
+                    if (_oChooseState[sibling.id]) {
                         domNewWrap = editorProxy.appendSchema(schema, sibling);
                     } else {
                         ia = $scope.app.dataSchemas.indexOf(schema);
                         sibling = $scope.app.dataSchemas[++ia];
-                        while (ia < $scope.app.dataSchemas.length && !oChooseState[sibling.id]) {
+                        while (ia < $scope.app.dataSchemas.length && !_oChooseState[sibling.id]) {
                             sibling = $scope.app.dataSchemas[++ia];
                         }
                         domNewWrap = editorProxy.appendSchema(schema, sibling, true);
@@ -331,35 +331,54 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         };
         $scope.$on('xxt.matter.enroll.page.data_schemas.removed', function(event, removedSchema) {
             if (removedSchema && removedSchema.id) {
-                oChooseState[removedSchema.id] = false;
+                _oChooseState[removedSchema.id] = false;
             }
         });
         $scope.$watch('ep', function(oPage) {
             if (oPage) {
-                oChooseState = {};
+                _oChooseState = {};
                 if (!$scope.app) return;
                 $scope.app.dataSchemas.forEach(function(schema) {
-                    oChooseState[schema.id] = false;
+                    _oChooseState[schema.id] = false;
                 });
-                if ($scope.ep.type === 'I') {
-                    $scope.ep.data_schemas.forEach(function(dataWrap) {
+                if (oPage.type === 'I') {
+                    oPage.data_schemas.forEach(function(dataWrap) {
                         if (dataWrap.schema) {
-                            oChooseState[dataWrap.schema.id] = true;
+                            _oChooseState[dataWrap.schema.id] = true;
                         }
                     });
-                } else if ($scope.ep.type === 'V') {
+                } else if (oPage.type === 'V') {
                     $scope.otherSchemas = [{
                         id: 'enrollAt',
                         type: '_enrollAt',
                         title: '填写时间'
                     }];
-                    $scope.ep.data_schemas.forEach(function(config) {
-                        config.schema && config.schema.id && (oChooseState[config.schema.id] = true);
+                    oPage.data_schemas.forEach(function(config) {
+                        config.schema && config.schema.id && (_oChooseState[config.schema.id] = true);
                     });
-                    oChooseState['enrollAt'] === undefined && (oChooseState['enrollAt'] = false);
+                    _oChooseState['enrollAt'] === undefined && (_oChooseState['enrollAt'] = false);
                 }
-                $scope.chooseState = oChooseState;
+                $scope.chooseState = _oChooseState;
             }
+            $scope.$watchCollection('ep.data_schemas', function(newVal) {
+                var aUncheckedSchemaIds;
+                if (/I|V/.test($scope.ep.type)) {
+                    if (newVal) {
+                        aUncheckedSchemaIds = Object.keys(_oChooseState);
+                        newVal.forEach(function(oWrap) {
+                            var i;
+                            _oChooseState[oWrap.schema.id] = true;
+                            i = aUncheckedSchemaIds.indexOf(oWrap.schema.id);
+                            if (i !== -1) {
+                                aUncheckedSchemaIds.splice(i, 1);
+                            }
+                        });
+                        aUncheckedSchemaIds.forEach(function(schemaId) {
+                            _oChooseState[schemaId] = false;
+                        });
+                    }
+                }
+            });
         });
     }]);
     /**

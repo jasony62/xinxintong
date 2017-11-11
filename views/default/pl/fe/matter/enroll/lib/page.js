@@ -6,7 +6,7 @@ define(['wrap'], function(SchemaWrap) {
     /**
      * 页面处理逻辑基类
      */
-    var protoPage = {
+    var oProtoPage = {
         _parseSchemas: function() {
             var dataSchemas = this.data_schemas,
                 actSchemas = this.act_schemas,
@@ -81,11 +81,64 @@ define(['wrap'], function(SchemaWrap) {
 
             return false;
         },
+        check: function() {
+            var $html, schemasById, oSchema, $schemas, $schema;
+            $html = $('<div>' + this.html + '</div>');
+            schemasById = {};
+            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                oSchema = this.data_schemas[i].schema;
+                if ($html.find("[schema='" + oSchema.id + "']").length === 0) {
+                    return ['s01', '题目【' + oSchema.title + '】在页面【' + this.title + '】中不存在，可通过（显示/隐藏）操作在页面中添加该题目', oSchema];
+                }
+                schemasById[oSchema.id] = oSchema;
+            }
+            $schemas = $html.find("[schema]");
+            if ($schemas.length !== this.data_schemas.length) {
+                for (var i = $schemas.length - 1; i >= 0; i--) {
+                    $schema = $($schemas[i]);
+                    if (!schemasById[$schema.attr('schema')]) {
+                        return ['p01', '页面【' + this.title + '】中的题目【' + $schema.text() + '】没有定义，可通过删除页面元素清除', $schema];
+                    }
+                }
+            }
+
+            return [true];
+        },
+        repair: function(aCheckResult) {
+            var code, aChangedProps;
+
+            code = aCheckResult[0];
+            aChangedProps = [];
+            switch (code) {
+                case 's01':
+                    if (aCheckResult[2]) {
+                        for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                            if (this.data_schemas[i].schema.id === aCheckResult[2].id) {
+                                this.data_schemas.splice(i, 1);
+                                aChangedProps.push('data_schemas');
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                case 'p01':
+                    if (aCheckResult[2]) {
+                        var $html;
+                        $html = $('<div>' + this.html + '</div>');
+                        $html.find("[schema='" + aCheckResult[2].attr('schema') + "']").remove();
+                        this.html = $html.html();
+                        aChangedProps.push('html');
+                    }
+                    break;
+            }
+
+            return [true, aChangedProps];
+        }
     };
     /**
      * 输入页处理逻辑基类
      */
-    var protoInputPage = {
+    var oProtoInputPage = {
         /**
          * 整理题目，使得页面中的schema和应用中的schema是同一个对象
          */
@@ -205,13 +258,13 @@ define(['wrap'], function(SchemaWrap) {
                 }
             }
             return found;
-        },
+        }
     };
-    protoInputPage = angular.extend({}, protoPage, protoInputPage);
+    oProtoInputPage = angular.extend({}, oProtoPage, oProtoInputPage);
     /**
      * 查看页处理逻辑基类
      */
-    var protoViewPage = {
+    var oProtoViewPage = {
         /**
          * 整理题目，使得页面中的schema和应用中的schema是同一个对象
          */
@@ -359,13 +412,13 @@ define(['wrap'], function(SchemaWrap) {
                 }
             }
             return false;
-        },
+        }
     };
-    protoViewPage = angular.extend({}, protoPage, protoViewPage);
+    oProtoViewPage = angular.extend({}, oProtoPage, oProtoViewPage);
     /**
      * 列表页处理逻辑基类
      */
-    var protoListPage = {
+    var oProtoListPage = {
         _arrange: function(mapOfAppSchemas) {
             if (this.data_schemas.length) {
                 this.data_schemas.forEach(function(item) {
@@ -542,28 +595,34 @@ define(['wrap'], function(SchemaWrap) {
                 return true;
             }
             return false;
+        },
+        check: function() {
+            return [true];
+        },
+        repair: function(aCheckResult) {
+            return [true];
         }
     };
-    protoListPage = angular.extend({}, protoPage, protoListPage);
+    oProtoListPage = angular.extend({}, oProtoPage, oProtoListPage);
 
     return {
-        enhance: function(page, mapOfAppSchemas) {
-            switch (page.type) {
+        enhance: function(oPage, mapOfAppSchemas) {
+            switch (oPage.type) {
                 case 'I':
-                    angular.merge(page, protoInputPage);
+                    angular.merge(oPage, oProtoInputPage);
                     break;
                 case 'V':
-                    angular.merge(page, protoViewPage);
+                    angular.merge(oPage, oProtoViewPage);
                     break;
                 case 'L':
-                    angular.merge(page, protoListPage);
+                    angular.merge(oPage, oProtoListPage);
                     break;
                 default:
-                    console.error('unknown page', page);
+                    console.error('unknown page type', oPage);
             }
-            page._parseSchemas();
+            oPage._parseSchemas();
             if (mapOfAppSchemas) {
-                page._arrange(mapOfAppSchemas);
+                oPage._arrange(mapOfAppSchemas);
             }
         }
     };

@@ -90,6 +90,10 @@ define(['wrap'], function(wrapLib) {
             _editor.setContent(html);
             _editor.undoManager.clear();
         },
+        refresh: function() {
+            _editor.setContent(_page.html);
+            _editor.undoManager.clear();
+        },
         setEditor: function(editor) {
             _editor = editor;
             wrapLib.setEditor(editor);

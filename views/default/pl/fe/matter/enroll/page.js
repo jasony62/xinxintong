@@ -3,8 +3,41 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
     /**
      *
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, srvEnrollApp, srvEnrollPage) {
-        $scope.ep = null;
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, $uibModal, srvEnrollApp, srvEnrollPage) {
+        function _repair(aCheckResult, oPage) {
+            return $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/repair.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.reason = aCheckResult[1];
+                    $scope2.ok = function() {
+                        $mi.close();
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function() {
+                var aRepairResult;
+                aRepairResult = oPage.repair(aCheckResult);
+                if (aRepairResult[0] === true) {
+                    if (aRepairResult[1] && aRepairResult[1].length) {
+                        aRepairResult[1].forEach(function(changedProp) {
+                            switch (changedProp) {
+                                case 'data_schemas':
+                                    // do nothing
+                                    break;
+                                case 'html':
+                                    if (oPage === $scope.ep) {
+                                        editorProxy.refresh();
+                                    }
+                                    break;
+                            }
+                        });
+                    }
+                }
+            });
+        }
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep && $scope.ep.$$modified) {
@@ -16,6 +49,8 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
                 return message;
             }
         };
+
+        $scope.ep = null;
         $scope.addPage = function() {
             $('body').click();
             srvEnrollPage.create().then(function(page) {
@@ -88,26 +123,38 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
                 }
             });
         });
-        // @todo 提交前如何检查数据的一致性？所有的页面都需要保存吗？
-        // 如果页面中有添加记录的操作，活动的限制填写数量应该为0或者大于1
+        /**
+         * 1,检查页面中是否存在错误
+         * 2,如果页面中有添加记录的操作，活动的限制填写数量应该为0或者大于1
+         */
         $scope.save = function() {
-            var updatedAppProps = ['data_schemas'],
-                bCanAddRecord = false,
-                oAppPage;
+            var pages, oPage, aCheckResult, updatedAppProps, bCanAddRecord;
 
-            for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
-                oAppPage = $scope.app.pages[i];
-                if (oAppPage.type === 'V') {
-                    if (oAppPage.act_schemas && oAppPage.act_schemas.length) {
-                        for (var j = oAppPage.act_schemas.length - 1; j >= 0; j--) {
-                            if (oAppPage.act_schemas[j].name === 'addRecord') {
+            pages = $scope.app.pages;
+            updatedAppProps = ['data_schemas'];
+            bCanAddRecord = false;
+
+            /* 更新当前编辑页 */
+            $scope.ep.html = editorProxy.getEditor().getContent();
+            editorProxy.purifyPage($scope.ep, true);
+
+            for (var i = pages.length - 1; i >= 0; i--) {
+                oPage = pages[i];
+                aCheckResult = oPage.check();
+                if (aCheckResult[0] !== true) {
+                    _repair(aCheckResult, oPage);
+                    return false;
+                }
+                if (oPage.type === 'V') {
+                    if (oPage.act_schemas && oPage.act_schemas.length) {
+                        for (var j = oPage.act_schemas.length - 1; j >= 0; j--) {
+                            if (oPage.act_schemas[j].name === 'addRecord') {
                                 bCanAddRecord = true;
                                 break;
                             }
                         }
                     }
                 }
-                if (bCanAddRecord) break;
             }
             if (bCanAddRecord) {
                 if ($scope.app.count_limit == 1) {

@@ -276,7 +276,7 @@ class home_model extends \TMS_MODEL {
 	/**
 	 * 已经批准在主页上的素材
 	 */
-	public function &atHomeArticle($options = []) {
+	public function &atHomeMatter($options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		if (strpos($fields, 'h.') === false && strpos($fields, 's.') === false) {
 			$fields = str_replace(',', ',h.', $fields);
@@ -287,7 +287,7 @@ class home_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_home_matter h, xxt_site s',
-			"h.approved='Y' and h.matter_type='article' and h.siteid = s.id and s.state=1 ",
+			"h.approved='Y' and h.siteid = s.id and s.state=1 ",
 		];
 
 		$q2 = [
@@ -358,7 +358,7 @@ class home_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_home_matter h, xxt_site s',
-			"h.approved='Y' and h.weight>0 and h.siteid = s.id and s.state=1 ",
+			"h.weight>0 and h.siteid = s.id and s.state=1 ",
 		];
 		if (!empty($type) && $type !== 'ALL') {
 			$q[2] .= " and h.matter_type = '" . $type . "'";

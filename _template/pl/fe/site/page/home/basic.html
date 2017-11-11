@@ -1,17 +1,22 @@
 <div id='home' class='container' ng-controller="ctrlHome">
     <div class='row team'>
-        <div class='col-md-9 col-xs-12'>
+        <div class='col-md-12 col-xs-12'>
             <div class="team-info">
                 <div class="team-img" ng-style="{'background-image':'url('+(site.home_heading_pic||site.heading_pic)+')'}">
                 </div>
-                <div class="team-title">{{site.name}}</div>
+                <div class="team-title">
+                    <div>{{site.name}}</div>
+                    <div uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="site.can_contribute==='Y'||site.can_subscribe==='Y'">
+                        <i class="glyphicon glyphicon-option-vertical" uib-dropdown-toggle></i>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li>
+                                <a ng-if="site.can_contribute==='Y'" href='' ng-click="contributeSite()">投稿</a>
+                                <a ng-if="site.can_subscribe==='Y'" href='' ng-click="subscribeSite()">关注</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="team-summary">{{site.summary}}</div>
-            </div>
-        </div>
-        <div class='col-md-3 col-xs-12' ng-if="site.can_contribute==='Y'||site.can_subscribe==='Y'">
-            <div class="team-handle">
-                <button ng-if="site.can_contribute==='Y'" class="btn btn-primary" ng-click="contributeSite()">投稿</button>
-                <button ng-if="site.can_subscribe==='Y'" class="btn btn-warning" ng-click="subscribeSite()">关注</button>
             </div>
         </div>
     </div>

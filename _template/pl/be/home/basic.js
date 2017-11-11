@@ -1,4 +1,4 @@
-ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorScroll', '$uibModal', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $http, $location, $anchorScroll, $uibModal, tmsFavor, tmsForward, tmsDynaPage) {
+ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$anchorScroll', '$uibModal', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $q, $http, $location, $anchorScroll, $uibModal, tmsFavor, tmsForward, tmsDynaPage) {
     var page, width = angular.element(window).width();
     $scope.width = width;
     $scope.page = page = {
@@ -151,19 +151,34 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             });
         });
     };
-    $http.get('/rest/home/listMatterTop?page=1&size=3').success(function(rsp) {
-        $scope.topArticles = rsp.data.matters;
-    });
     $scope.gotoTop = function() {
         $location.hash("home");
         $anchorScroll();
     };
-    listSites();
-    listTemplates();
-    $scope.listApps();
-    $scope.listArticles();
-    $scope.listChannels1();
-    $scope.listChannels2();
+    $scope.slideOnload = function(index) {
+        if (index === 0) {
+            _loadAll();
+        }
+    };
+
+    function _loadAll() {
+        $scope.listArticles();
+        $scope.listChannels1();
+        $scope.listChannels2();
+        $scope.listApps();
+        listSites();
+        listTemplates();
+    }
+
+    $scope.$watch('platform', function(platform) {
+        if (platform === undefined) return;
+        $http.get('/rest/home/listMatterTop?page=1&size=3').success(function(rsp) {
+            $scope.topArticles = rsp.data.matters;
+        });
+        if (platform.home_carousel.length === 0) {
+            _loadAll();
+        }
+    });
 }]);
 ngApp.provider.controller('ctrlCarousel', function($scope) {
     $scope.myInterval = 5000;

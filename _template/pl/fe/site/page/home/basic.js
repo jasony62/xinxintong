@@ -79,6 +79,16 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             });
         });
     }
+    $scope.elSiteCard = angular.element(document.querySelector('#home'));
+    $scope.siteCardToggled = function(open) {
+        var elDropdownMenu;
+        if (open) {
+            if (elDropdownMenu = document.querySelector('#home>.dropdown-menu')) {
+                elDropdownMenu.style.left = 'auto';
+                elDropdownMenu.style.right = $scope.elSiteCard[0].offsetLeft + 'px';
+            }
+        }
+    };
     $scope.moreMatters = function(id) {
         $scope.cTotal[id].pageAt++;
         $scope.page.at = $scope.cTotal[id].pageAt;

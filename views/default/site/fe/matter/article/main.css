@@ -28,7 +28,7 @@ blockquote{background-color:#fafafa;}
 	.behavior .xs-attr{width:100%;position:absolute;bottom:5px;left:0;}
 	#action{display:flex;}
 	#action>a{flex-grow:1;border:0;border-radius:0;padding:0;font-size:21px;text-align:center;margin-right:0px;}
-	#action h6{display:none;}
+	#action>a>span{display:none;}
 }
 
 /* qrcode */

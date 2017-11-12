@@ -3,41 +3,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
     /**
      *
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, $uibModal, srvEnrollApp, srvEnrollPage) {
-        function _repair(aCheckResult, oPage) {
-            return $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/repair.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    $scope2.reason = aCheckResult[1];
-                    $scope2.ok = function() {
-                        $mi.close();
-                    };
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                }],
-                backdrop: 'static'
-            }).result.then(function() {
-                var aRepairResult;
-                aRepairResult = oPage.repair(aCheckResult);
-                if (aRepairResult[0] === true) {
-                    if (aRepairResult[1] && aRepairResult[1].length) {
-                        aRepairResult[1].forEach(function(changedProp) {
-                            switch (changedProp) {
-                                case 'data_schemas':
-                                    // do nothing
-                                    break;
-                                case 'html':
-                                    if (oPage === $scope.ep) {
-                                        editorProxy.refresh();
-                                    }
-                                    break;
-                            }
-                        });
-                    }
-                }
-            });
-        }
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, $uibModal, srvEnrollApp, srvAppPage) {
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep && $scope.ep.$$modified) {
@@ -53,7 +19,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
         $scope.ep = null;
         $scope.addPage = function() {
             $('body').click();
-            srvEnrollPage.create().then(function(page) {
+            srvAppPage.create().then(function(page) {
                 $scope.choosePage(page);
             });
         };
@@ -66,12 +32,11 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
                 editorProxy.purifyPage(page, true);
             }
 
-            return srvEnrollPage.update(page, props);
+            return srvAppPage.update(page, props);
         };
         $scope.cleanPage = function() {
-            $('body').click();
             if (window.confirm('确定清除页面【' + $scope.ep.title + '】的所有内容？')) {
-                srvEnrollPage.clean($scope.ep).then(function() {
+                srvAppPage.clean($scope.ep).then(function() {
                     editorProxy.getEditor().setContent('');
                 });
             }
@@ -94,7 +59,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
             if (bUserd) {
                 alert('页面已经被【' + oPage.title + '/' + oActSchema.label + '】使用，不能删除');
             } else if (window.confirm('确定删除页面【' + $scope.ep.title + '】？')) {
-                srvEnrollPage.remove($scope.ep).then(function(pages) {
+                srvAppPage.remove($scope.ep).then(function(pages) {
                     $scope.choosePage(pages.length ? pages[0] : null);
                 });
             }
@@ -142,7 +107,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
                 oPage = pages[i];
                 aCheckResult = oPage.check();
                 if (aCheckResult[0] !== true) {
-                    _repair(aCheckResult, oPage);
+                    srvAppPage.repair(aCheckResult, oPage);
                     return false;
                 }
                 if (oPage.type === 'V') {

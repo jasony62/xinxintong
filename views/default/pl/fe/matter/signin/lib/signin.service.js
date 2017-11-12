@@ -3,7 +3,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * BasesrvSigninRecord
      * srvSigninApp
      * srvSigninRound
-     * srvSigninPage
      * srvSigninRecord
      */
     var BasesrvSigninRecord = function($q, http2, srvRecordConverter, noticebox, $uibModal) {
@@ -702,59 +701,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                         }]
                     });
-                }
-            };
-        }];
-    }).provider('srvSigninPage', function() {
-        var siteId, appId;
-        this.setSiteId = function(id) {
-            siteId = id;
-        };
-        this.setAppId = function(id) {
-            appId = id;
-        };
-        this.$get = ['$q', 'http2', 'noticebox', function($q, http2, noticebox) {
-            return {
-                update: function(page, names) {
-                    var defer = $q.defer(),
-                        updated = {},
-                        url;
-
-                    angular.isString(names) && (names = [names]);
-                    names.forEach(function(name) {
-                        if (name === 'html') {
-                            updated.html = encodeURIComponent(page.html);
-                        } else {
-                            updated[name] = page[name];
-                        }
-                    });
-                    url = '/rest/pl/fe/matter/signin/page/update';
-                    url += '?site=' + siteId;
-                    url += '&app=' + appId;
-                    url += '&pid=' + page.id;
-                    url += '&cname=' + page.code_name;
-                    http2.post(url, updated, function(rsp) {
-                        page.$$modified = false;
-                        defer.resolve();
-                        noticebox.success('完成保存');
-                    });
-
-                    return defer.promise;
-                },
-                remove: function(page) {
-                    var defer = $q.defer(),
-                        url = '/rest/pl/fe/matter/signin/page/remove';
-
-                    url += '?site=' + siteId;
-                    url += '&app=' + appId;
-                    url += '&pid=' + page.id;
-                    url += '&cname=' + page.code_name;
-                    http2.get(url, function(rsp) {
-                        defer.resolve();
-                        noticebox.success('完成删除');
-                    });
-
-                    return defer.promise;
                 }
             };
         }];

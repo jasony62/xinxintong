@@ -124,7 +124,7 @@ define([], function() {
         html += '><span ';
         forEdit && (html += 'contenteditable="true"');
         html += '>' + op.l + '</span></label>';
-        if(op.desc && op.desc.length) html += '<div class="desc">'+ op.desc +'</div>';
+        if (op.desc && op.desc.length) html += '<div class="desc">' + op.desc + '</div>';
         html += '</li>';
 
         return html;
@@ -147,7 +147,7 @@ define([], function() {
         html += '><span ';
         forEdit && (html += 'contenteditable="true"');
         html += '>' + op.l + '</span></label>';
-        if(op.desc && op.desc.length) html += '<div class="desc">'+ op.desc +'</div>';
+        if (op.desc && op.desc.length) html += '<div class="desc">' + op.desc + '</div>';
         html += '</li>';
 
         return html;
@@ -168,7 +168,7 @@ define([], function() {
             html += "<div ng-class=\"{'in':lessScore('" + schema.id + "'," + index + "," + num + ")}\" ng-click=\"score('" + schema.id + "'," + index + "," + num + ")\">" + num + "</div>";
         }
         html += '</div>';
-        if(op.desc && op.desc.length) html += '<div class="desc">'+ op.desc +'</div>';
+        if (op.desc && op.desc.length) html += '<div class="desc">' + op.desc + '</div>';
         html += '</li>';
 
         return html;
@@ -357,7 +357,7 @@ define([], function() {
                 html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + schema.id + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
                 html += '</li>';
                 html += '<li class="img-picker">';
-                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + schema.id + '\',' + schema.count + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
+                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + schema.id + '\',' + (schema.count || 1) + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -369,7 +369,7 @@ define([], function() {
                 html += '<span class="file-name" ng-bind="file.name"></span>';
                 html += '</li>';
                 html += '<li class="list-group-item file-picker">';
-                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + schema.id + '\',' + schema.count + ')">' + schema.title + '</button>';
+                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + schema.id + '\',' + (schema.count || 1) + ')">' + schema.title + '</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -495,7 +495,7 @@ define([], function() {
                         var $button = $dom.find('li.img-picker button'),
                             sNgClick;
 
-                        sNgClick = 'chooseImage(' + "'" + oSchema.id + "'," + oSchema.count + ')';
+                        sNgClick = 'chooseImage(' + "'" + oSchema.id + "'," + (oSchema.count || 1) + ')';
                         $button.attr('ng-click', sNgClick);
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
@@ -505,7 +505,7 @@ define([], function() {
                         var $button = $dom.find('li.file-picker button'),
                             sNgClick;
 
-                        sNgClick = 'chooseFile(' + "'" + oSchema.id + "'," + oSchema.count + ')';
+                        sNgClick = 'chooseFile(' + "'" + oSchema.id + "'," + (oSchema.count || 1) + ')';
                         $button.attr('ng-click', sNgClick).html(oSchema.title);
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
@@ -914,9 +914,9 @@ define([], function() {
             'ng-controller': 'ctrlRecords',
             'enroll-records': 'Y',
             'enroll-records-owner': dataWrap.config.dataScope,
-            'enroll-records-type': dataWrap.config.type=='records'?'records':'enrollees',
+            'enroll-records-type': dataWrap.config.type == 'records' ? 'records' : 'enrollees',
             'enroll-records-mschema': mschemaId,
-            wrap: dataWrap.config.type=='records'?'records':'enrollees',
+            wrap: dataWrap.config.type == 'records' ? 'records' : 'enrollees',
             class: 'form-group'
         };
         return {
@@ -931,7 +931,7 @@ define([], function() {
             config = oWrap.config;
 
         attrs['enroll-records-owner'] = config.dataScope;
-        if(Object.keys(oWrap.config).indexOf('mschemaId') !== -1) {
+        if (Object.keys(oWrap.config).indexOf('mschemaId') !== -1) {
             attrs['enroll-records-mschema'] = config.mschemaId;
         }
         $wrap.attr(attrs);
@@ -1104,7 +1104,7 @@ define([], function() {
         dataByDom: function(domWrap, oPage) {
             var wrapType = $(domWrap).attr('wrap'),
                 dataWrap;
-            if(wrapType=='enrollees'){wrapType = 'records'};
+            if (wrapType == 'enrollees') { wrapType = 'records' };
             if (!this[wrapType]) {
                 return false;
             }

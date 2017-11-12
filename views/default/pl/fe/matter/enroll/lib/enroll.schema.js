@@ -2,7 +2,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
     'use strict';
     var ngMod = angular.module('schema.enroll', []);
     ngMod.provider('srvEnrollSchema', function() {
-        this.$get = ['$uibModal', '$q', 'srv' + window.MATTER_TYPE + 'App', 'srv' + window.MATTER_TYPE + 'Page', function($uibModal, $q, srvApp, srvAppPage) {
+        this.$get = ['$uibModal', '$q', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', function($uibModal, $q, srvApp, srvAppPage) {
             var _self = {
                 makePagelet: function(content) {
                     var deferred = $q.defer();
@@ -139,7 +139,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
     /**
      * 所有题目
      */
-    ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', '$uibModal', 'http2', 'cstApp', 'srv' + window.MATTER_TYPE + 'App', 'srv' + window.MATTER_TYPE + 'Page', 'srvEnrollSchema',
+    ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', '$uibModal', 'http2', 'cstApp', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', 'srvEnrollSchema',
         function($scope, $timeout, $sce, $uibModal, http2, cstApp, srvApp, srvAppPage, srvEnrollSchema) {
             $scope.activeSchema = null;
             $scope.cstApp = cstApp;

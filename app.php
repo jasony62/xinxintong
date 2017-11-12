@@ -40,7 +40,7 @@ file_exists(dirname(__FILE__) . '/cus/app.php') && include_once dirname(__FILE__
  */
 !defined('APP_LOGO') && define('APP_LOGO', '/static/img/logo.png');
 /**
- * 定义应用的logo
+ * 定义应用登录注册也的bannner图
  */
 !defined('APP_ACCESS_BANNER') && define('APP_ACCESS_BANNER', '/static/img/access.png');
 /**

@@ -1186,15 +1186,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.sum4Schema = function(rid) {
                 var url,
-                    params = {
-                        criteria: _ins._oCriteria
-                    },
                     defer = $q.defer();
 
                 url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
-                url += '&rid=' + params.criteria.record.rid;
+                url += '&rid=' + _ins._oCriteria.rid;
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
@@ -1203,15 +1200,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.score4Schema = function(rid) {
                 var url,
-                    params = {
-                        criteria: _ins._oCriteria
-                    },
                     defer = $q.defer();
 
                 url = '/rest/pl/fe/matter/enroll/record/score4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
-                url += '&rid=' + params.criteria.record.rid;
+                url += '&rid=' + _ins._oCriteria.record.rid;
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);

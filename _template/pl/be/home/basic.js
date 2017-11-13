@@ -64,7 +64,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
             if (rsp.data.matters.length) {
                 rsp.data.matters.forEach(function(item) {
                     if(Object.keys(item).indexOf('pic')!==-1&&item.pic==null) {
-                        item.src = '';
+                        item.src = item.pic = '';
                     }else if(Object.keys(item).indexOf('thumbnail')!==-1&&item.thumbnail==null){
                         item.src = item.thumnail = '';
                     }else {
@@ -96,7 +96,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         $http.get(url).success(function(rsp) {
             angular.forEach(rsp.data.matters, function(matter) {
                 if(Object.keys(matter).indexOf('pic')!==-1&&matter.pic==null) {
-                    matter.src = '';
+                    matter.src = matter.pic = '';
                 }else if(Object.keys(matter).indexOf('thumbnail')!==-1&&matter.thumbnail==null){
                     matter.src = matter.thumnail = '';
                 }else {

@@ -39,9 +39,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
                     var chid = channel.channel_id,
                         data = [];
                     data.data = rsp.data.matters;
-                    data.total = rsp.data.length;
                     data.pageAt = $scope.page.at;
-                    if (data.total > 0) {
+                    if (data.data.length > 0) {
                         data.data.forEach(function(matter, index1) {
                             if (matter.matter_cont_tag != '' && matter.matter_cont_tag != undefined) {
                                 matter.matter_cont_tag.forEach(function(mTag, index2) {
@@ -53,8 +52,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
                                 });
                             }
                             if(Object.keys(matter).indexOf('pic')!==-1&&matter.pic==null) {
-                                console.log(1);
-                                matter.src = '';
+                                matter.src = matter.pic = '';
                             }else if(Object.keys(matter).indexOf('thumbnail')!==-1&&matter.thumbnail==null){
                                 matter.src = matter.thumnail = '';
                             }else {
@@ -104,14 +102,14 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + id + '&' + page.j()).success(function(rsp) {
             var matterData = $scope.cTotal[id].data.matters;
             rsp.data.matters.forEach(function(item) {
-                matterData.push(item);
                 if(Object.keys(item).indexOf('pic')!==-1&&item.pic==null) {
-                    item.src = '';
+                    item.src = item.pic = '';
                 }else if(Object.keys(item).indexOf('thumbnail')!==-1&&item.thumbnail==null){
                     item.src = item.thumnail = '';
                 }else {
                     item.src = item.pic ? item.pic : item.thumbnail;
                 }
+                matterData.push(item);
             });
             $scope.cTotal[id].data = matterData;
             $scope.cTotal[id].total = rsp.data.length;

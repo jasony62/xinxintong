@@ -134,6 +134,17 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         $location.hash("home");
         $anchorScroll();
     };
+    $scope.slideOnload = function(index) {
+        if (index === 0) {
+            _loadAll();
+        }
+    };
+    function _loadAll() {
+        tagMatters();
+        listTemplates();
+        c_listChannels();
+        r_listChannels();
+    }
     $scope.$watch('site', function(oSite) {
         var qrcodePic;
         if (oSite) {
@@ -142,10 +153,9 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
                 oSite.home_qrcode_group = [];
             }
             oSite.home_qrcode_group.splice(0, 0, { picUrl: qrcodePic, tip: '团队首页二维码' });
-            tagMatters();
-            listTemplates();
-            c_listChannels();
-            r_listChannels();
+            if (oSite.home_carousel.length === 0) {
+                _loadAll();
+            }
         }
     });
 }]);

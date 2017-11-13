@@ -23,7 +23,7 @@
     <div ng-controller="ctrlCarousel" ng-if="site.home_carousel.length">
         <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
             <div uib-slide ng-repeat="slide in slides" index="$index" style="padding-top:30%;position:relative">
-                <img ng-src="{{slide.picUrl}}" style="position:absolute;top:0;left:0;width:100%;height:100%">
+                <img ng-src="{{slide.picUrl}}" style="position:absolute;top:0;left:0;width:100%;height:100%" imageonload="slideOnload({{$index}})">
                 <div class="carousel-caption"></div>
             </div>
         </div>

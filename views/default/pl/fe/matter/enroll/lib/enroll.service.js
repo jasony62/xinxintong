@@ -1188,8 +1188,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 var url,
                     params = {
                         criteria: _ins._oCriteria
-                    }
-                defer = $q.defer();
+                    },
+                    defer = $q.defer();
 
                 url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;
@@ -1205,8 +1205,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 var url,
                     params = {
                         criteria: _ins._oCriteria
-                    }
-                defer = $q.defer();
+                    },
+                    defer = $q.defer();
 
                 url = '/rest/pl/fe/matter/enroll/record/score4Schema';
                 url += '?site=' + _siteId;

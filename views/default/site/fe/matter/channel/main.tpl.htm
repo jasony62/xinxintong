@@ -44,6 +44,9 @@
                 <div class='hm-tile' ng-if="channel.summary">
                     <div ng-bind="channel.summary"></div>
                 </div>
+                <div id='qrCode' class='hidden-xs hidden-sm'>
+                    <img ng-src="{{qrcode}}">
+                </div>
             </div>
             <div id='matters' class='col-md-9 col-md-pull-3 col-xs-12 '>
                 <div class='form-group' ng-if="channel.matter_type==='article'">
@@ -71,9 +74,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class='form-group'>
-                <button class='btn btn-default btn-block' ng-disabled="Matter.end" ng-click="Matter.nextPage()">更多</button>
+                <div class='form-group'>
+                    <button class='btn btn-default btn-block' ng-if="Matter.end" ng-click="Matter.nextPage()">更多</button>
+                </div>
             </div>
         </div>
     </div>

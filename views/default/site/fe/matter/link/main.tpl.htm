@@ -44,6 +44,9 @@
                 <div class='hm-tile' ng-if="link.summary">
                     <div ng-bind="link.summary"></div>
                 </div>
+                <div id='qrCode' class='hidden-xs hidden-sm'>
+                    <img ng-src="{{qrcode}}">
+                </div>
             </div>
             <div id="link" class='col-md-9 col-md-pull-3 col-xs-12'>
                 <iframe></iframe>

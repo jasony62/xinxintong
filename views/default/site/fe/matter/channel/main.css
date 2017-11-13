@@ -3,6 +3,13 @@
 	#matter-summary{margin-top:8px;background-color:#fff;}
 }
 
+/* qrcode */
+#qrCode{text-align:center;}
+#qrCode>img{width:75%;}
+@media screen and (max-width:768px){
+	#qrCode{display:none;}
+}
+
 /* matters */
 #matters{background-color:#fff;padding:0 8px;}
 

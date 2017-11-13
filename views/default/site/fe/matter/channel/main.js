@@ -95,6 +95,7 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll']).config(['$locationPro
         $http.get('/rest/site/fe/matter/channel/get?site=' + siteId + '&id=' + channelId).success(function(rsp) {
             $scope.user = rsp.data.user;
             $scope.channel = rsp.data.channel;
+            $scope.qrcode = '/rest/site/fe/matter/channel/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
             if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
                 setShare();
             }

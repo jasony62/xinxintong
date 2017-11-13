@@ -24,6 +24,7 @@ angular.module('app', ['ui.bootstrap']).config(['$locationProvider', function($l
         $scope.siteInfo = rsp.data;
         $http.get('/rest/site/fe/matter/link/get?site=' + siteId + '&id=' + linkId).success(function(rsp) {
             $scope.link = rsp.data.link;
+            $scope.qrcode = '/rest/site/fe/matter/link/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
             document.querySelector('#link>iframe').setAttribute('src', $scope.link.fullUrl);
             $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + linkId + '&type=link&title=' + $scope.link.title, {
                 search: location.search.replace('?', ''),

@@ -60,7 +60,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
                             }
                         });
                     }
-                    console.log(data.data);
                     $scope.cTotal[chid] = data;
                 });
             });

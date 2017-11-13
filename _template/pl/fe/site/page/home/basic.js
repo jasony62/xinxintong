@@ -153,7 +153,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
                 oSite.home_qrcode_group = [];
             }
             oSite.home_qrcode_group.splice(0, 0, { picUrl: qrcodePic, tip: '团队首页二维码' });
-            if (oSite.home_carousel.length === 0) {
+            if (!oSite.home_carousel || oSite.home_carousel.length === 0) {
                 _loadAll();
             }
         }

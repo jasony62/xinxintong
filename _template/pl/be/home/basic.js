@@ -175,7 +175,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         $http.get('/rest/home/listMatterTop?page=1&size=3').success(function(rsp) {
             $scope.topArticles = rsp.data.matters;
         });
-        if (platform.home_carousel.length === 0) {
+        if (!platform.home_carousel || platform.home_carousel.length === 0) {
             _loadAll();
         }
     });

@@ -35,7 +35,7 @@
                     <uib-tab-heading>{{c.display_name}}</uib-tab-heading>
                     <div class="media-item clearfix" ng-repeat="m in cTotal[c.channel_id]['data']" ng-click="openMatter(m)">
                         <div class="media-item-left">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+m.pic||m.thumbnail+')'}"></div>
+                            <div class="media-item-img" ng-style="{'background-image':'url('+m.src+')'}"></div>
                         </div>
                         <div class="media-item-body">
                             <div class='media-item-body-flexbox'>

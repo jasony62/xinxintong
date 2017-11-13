@@ -63,6 +63,13 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         $http.get('/rest/home/listMatter?' + _oPage.j()).success(function(rsp) {
             if (rsp.data.matters.length) {
                 rsp.data.matters.forEach(function(item) {
+                    if(Object.keys(item).indexOf('pic')!==-1&&item.pic==null) {
+                        item.src = item.pic = '';
+                    }else if(Object.keys(item).indexOf('thumbnail')!==-1&&item.thumbnail==null){
+                        item.src = item.thumnail = '';
+                    }else {
+                        item.src = item.pic ? item.pic : item.thumbnail;
+                    }
                     _articles.push(item);
                 });
                 $scope.articles = _articles;
@@ -87,6 +94,15 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         url += '?site=' + item.siteid + '&id=' + item.matter_id;
         url += '&' + _oPage.j();
         $http.get(url).success(function(rsp) {
+            angular.forEach(rsp.data.matters, function(matter) {
+                if(Object.keys(matter).indexOf('pic')!==-1&&matter.pic==null) {
+                    matter.src = matter.pic = '';
+                }else if(Object.keys(matter).indexOf('thumbnail')!==-1&&matter.thumbnail==null){
+                    matter.src = matter.thumnail = '';
+                }else {
+                    matter.src = matter.pic ? matter.pic : matter.thumbnail;
+                }
+            });
             if (_oPage.at == 1) {
                 _channelMatters.push({ title: item.title, siteid: item.siteid, matter_id: item.matter_id, data: rsp.data.matters, total: rsp.data.total });
             }

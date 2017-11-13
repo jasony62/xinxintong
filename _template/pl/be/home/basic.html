@@ -35,7 +35,7 @@
                     <uib-tab-heading>热门</uib-tab-heading>
                     <div class="media-item" ng-repeat="a in articles">
                         <div class="media-item-left" ng-click="openMatter(a)">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+a.pic||a.thumbnail+')'}"></div>
+                            <div class="media-item-img" ng-style="{'background-image':'url('+a.src+')'}"></div>
                         </div>
                         <div class="media-item-body">
                             <div class='media-item-body-flexbox'>
@@ -180,7 +180,7 @@
                     <uib-tab-heading>{{c.title}}</uib-tab-heading>
                     <div class="media-item" ng-repeat="a in c.data" ng-click="openMatter(a)">
                         <div class="media-item-left">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+a.pic||a.thumbnail+')'}"></div>
+                            <div class="media-item-img" ng-style="{'background-image':'url('+a.src+')'}"></div>
                         </div>
                         <div class="media-item-body">
                             <div class='media-item-body-flexbox'>

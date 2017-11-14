@@ -98,17 +98,17 @@
                                 <div class='media-author'>
                                     <a ng-href='/rest/site/home?site={{a.siteid}}' target="_self"><img class="img-circle" ng-src="{{a.heading_pic}}"><span>{{a.site_name}}</span><i class="glyphicon glyphicon-menu-right"></i></a>
                                 </div>
-                                <div class="media-heading" ng-click="openMatter('app', a)">{{a.title}}</div>
-                                <div class="media-summary" ng-click="openMatter('app', a)">{{a.summary}}</div>
+                                <div class="media-heading" ng-click="openMatter('app', s)">{{a.title}}</div>
+                                <div class="media-summary" ng-click="openMatter('app', s)">{{a.summary}}</div>
                                 <div class='media-attr'>
                                     <div class='put_at'>
                                         <span ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></span>
                                     </div>
                                     <div class="favor">
-                                        <a href="" ng-click="favor(user,a)"><i class="glyphicon glyphicon-star-empty"></i><span> 收藏</span></a>
+                                        <a href="" ng-click="favor(user,s)"><i class="glyphicon glyphicon-star-empty"></i><span> 收藏</span></a>
                                     </div>
                                     <div class="forward hide">
-                                        <a href="" ng-click="forward(user,a)"><i class="glyphicon glyphicon-share"></i><span> 转发</span></a>
+                                        <a href="" ng-click="forward(user,s)"><i class="glyphicon glyphicon-share"></i><span> 转发</span></a>
                                     </div>
                                 </div>
                             </div>
@@ -121,7 +121,7 @@
                 <uib-tab index="3" ng-if="templates.length">
                     <uib-tab-heading>精选模板</uib-tab-heading>
                     <div class="media-item" ng-repeat="t in templates">
-                        <div class="media-item-left" ng-click="openMatter('template', a)">
+                        <div class="media-item-left" ng-click="openMatter('template', t)">
                             <div class="media-item-img" ng-style="{'background-image':'url('+t.src+')'}"></div>
                         </div>
                         <div class="media-item-body">
@@ -129,8 +129,8 @@
                                 <div class='media-author'>
                                     <a ng-href='/rest/site/home?site={{t.siteid}}' target="_self"><img class="img-circle" ng-src="{{t.heading_pic}}"><span>{{t.site_name}}</span><i class="glyphicon glyphicon-menu-right"></i></a>
                                 </div>
-                                <div class="media-heading" ng-click="openMatter('template', a)">{{t.title}}</div>
-                                <div class="media-summary" ng-click="openMatter('template', a)">{{t.summary}}</div>
+                                <div class="media-heading" ng-click="openMatter('template', t)">{{t.title}}</div>
+                                <div class="media-summary" ng-click="openMatter('template', t)">{{t.summary}}</div>
                                 <div class='media-attr'>
                                     <div class='put_at'>
                                         <span ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></span>

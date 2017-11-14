@@ -60,17 +60,17 @@
                     </div>
                 </uib-tab>
                 <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="c_channels.length > 3">
-                        <a href id="simple-dropdown" uib-dropdown-toggle>
-                            <i class="glyphicon glyphicon-th-list"></i>
-                        </a>
-                        <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
-                            <li ng-repeat="c in c_next_channels">
-                              <a ng-href="/rest/site/fe/matter?site={{c.siteid}}&id={{c.channel_id}}&type=channel" target='_self'>
-                                    <h4 class="inline-block" ng-bind="c.display_name"></h4>
-                                </a>
-                            </li>
-                        </ul>
-                    </span>
+                    <a href id="simple-dropdown" uib-dropdown-toggle>
+                        <i class="glyphicon glyphicon-th-list"></i>
+                    </a>
+                    <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
+                        <li ng-repeat="c in c_next_channels">
+                            <a ng-href="/rest/site/fe/matter?site={{c.siteid}}&id={{c.channel_id}}&type=channel" target='_self'>
+                                <h4 class="inline-block" ng-bind="c.display_name"></h4>
+                            </a>
+                        </li>
+                    </ul>
+                </span>
             </uib-tabset>
         </div>
         <div class="col-md-3 col-xs-12 section">
@@ -104,16 +104,12 @@
                         <div ng-if="r.total>5" class="text-center"><a ng-href="{{r.url}}" target='_self'>更 多</a></div>
                     </uib-tab>
                     <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channelArticles.length>2">
-                            <a href id="simple-dropdown" uib-dropdown-toggle>
-                                <i class="glyphicon glyphicon-th-list"></i>
-                            </a>
-                            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
-                                <li ng-repeat="c in r_next_channels">
-                                  <a ng-href='{{c.url}}' target='_self'>
-                                        <span ng-bind="c.display_name"></span>
-                    </a>
-                    </li>
-                    </ul>
+                        <a href id="simple-dropdown" uib-dropdown-toggle><i class="glyphicon glyphicon-th-list"></i></a>
+                        <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
+                            <li ng-repeat="c in r_next_channels">
+                              <a ng-href='{{c.url}}' target='_self'><span ng-bind="c.display_name"></span></a>
+                            </li>
+                        </ul>
                     </span>
                 </uib-tabset>
             </div>

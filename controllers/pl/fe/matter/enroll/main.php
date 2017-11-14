@@ -16,13 +16,13 @@ class main extends main_base {
 	/**
 	 * 返回指定的登记活动
 	 */
-	public function get_action($id) {
+	public function get_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelEnl = $this->model('matter\enroll');
-		if (false === ($oApp = $modelEnl->byId($id))) {
+		if (false === ($oApp = $modelEnl->byId($app))) {
 			return new \ResponseError('指定的数据不存在');
 		}
 		unset($oApp->data_schemas);
@@ -30,7 +30,7 @@ class main extends main_base {
 		unset($oApp->rp_config);
 
 		/* channels */
-		$oApp->channels = $this->model('matter\channel')->byMatter($id, 'enroll');
+		$oApp->channels = $this->model('matter\channel')->byMatter($oApp->id, 'enroll');
 		/* 所属项目 */
 		if ($oApp->mission_id) {
 			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, ['cascaded' => 'phase']);
@@ -343,8 +343,8 @@ class main extends main_base {
 		foreach ($oPosted as $n => $v) {
 			if (in_array($n, ['title', 'summary'])) {
 				$oUpdated->{$n} = $modelApp->escape($v);
-			} else if ($n === 'data_schemas') {
-				$oUpdated->data_schemas = $modelApp->escape($modelApp->toJson($v));
+			} else if (in_array($n, ['data_schemas', 'recycle_schemas'])) {
+				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'entry_rule') {
 				if ($v->scope === 'group') {
 					if (isset($v->group->title)) {

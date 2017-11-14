@@ -39,8 +39,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         };
         http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {
             $scope.user = rsp.data;
-            srvEnrollApp.opGet().then(function(data) {
-                var oApp = data.app;
+            srvEnrollApp.opGet().then(function(oApp) {
                 // schemas
                 var recordSchemas = [],
                     recordSchemas2 = [],
@@ -100,7 +99,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                         window.localStorage.setItem("site.op.matter.enroll.console", JSON.stringify(cachedStatus));
                     }, 6000);
                 }
-                $scope.$broadcast('site.op.matter.enroll.app.ready', data);
+                $scope.$broadcast('site.op.matter.enroll.app.ready', oApp);
             });
         });
     }]);

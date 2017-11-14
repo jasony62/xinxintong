@@ -30,6 +30,10 @@
     <div class='panel panel-default'>
         <div class='panel-body'>
             <div class='form-group'>
+                <label class="checkbox-inline">
+                    <input type='checkbox' ng-model='editing.public_visible' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('public_visible')">图文中用户是否可见</label>
+            </div>
+            <div class='form-group'>
                 <label>固定标题</label>
                 <input type='text' class='form-control' ng-model="editing.fixed_title" tms-auto-update tms-wait=1000 tms-update="update('fixed_title')">
             </div>

@@ -229,7 +229,7 @@ class main extends \pl\fe\matter\main_base {
 		$posted = $this->getPostJson();
 		$oUpdated = new \stdClass;
 		foreach ($posted as $n => $v) {
-			if (in_array($n, ['entry_rule', 'data_schemas'])) {
+			if (in_array($n, ['entry_rule', 'data_schemas', 'recycle_schemas'])) {
 				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'assignedNickname') {
 				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));

@@ -226,6 +226,7 @@ $sql .= ",url text";
 $sql .= ",method varchar(6) not null default 'GET'";
 $sql .= ",open_directly char(1) not null default 'N'";
 $sql .= ",return_data char(1) not null default 'N'"; // 是否直接执行链接并返回数据
+$sql .= ",embedded char(1) not null default 'N'"; // 将链接嵌入到页面中
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ",fans_only char(1) not null default 'N'"; // 仅限关注用户打开

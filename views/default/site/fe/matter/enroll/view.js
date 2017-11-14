@@ -111,12 +111,14 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
-            domActs.forEach(function(domAct) {
-                var ngClick = domAct.getAttribute('ng-click');
-                if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
-                    domAct.style.display = 'none';
-                }
-            });
+            if (domActs.forEach) {
+                domActs.forEach(function(domAct) {
+                    var ngClick = domAct.getAttribute('ng-click');
+                    if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
+                        domAct.style.display = 'none';
+                    }
+                });
+            }
         }
     }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {

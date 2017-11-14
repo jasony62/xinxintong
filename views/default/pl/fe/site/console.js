@@ -327,9 +327,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     };
     //信息墙
     $scope.addWall = function() {
-        http2.get('/rest/pl/fe/matter/wall/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/wall?site=' + $scope.siteId + '&id=' + rsp.data;
-        });
+        location.href = '/rest/pl/fe/matter/wall/shop?site=' + $scope.siteId;
     };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1), function(rsp) {
         $scope.matters = rsp.data.matters;

@@ -22,7 +22,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.openMatter = function(matter, subView) {
             var type, id, url;
-            type = matter.matter_type || matter.type;
+            type = matter.type || matter.matter_type;
             id = matter.matter_id || matter.id;
             url = '/rest/pl/fe/matter/' + type;
             if (subView) {
@@ -453,11 +453,6 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
-        $scope.createEnrollApp = function() {
-            http2.post('/rest/pl/fe/matter/enroll/createByMschema?mschema=' + oMchema.id, {}, function(rsp) {
-                location.href = '/rest/pl/fe/matter/enroll?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
-            });
-        };
     }]);
     ngApp.provider.controller('ctrlSiteAccount', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {
         var _oFilter, _oPage;
@@ -469,6 +464,9 @@ define(['frame'], function(ngApp) {
         $scope.filter = facListFilter.init(function() {
             $scope.doSearch(1);
         }, _oFilter);
+        $scope.openProfile = function(oUser) {
+            location.href = '/rest/pl/fe/site/user?site=' + $scope.frameState.sid + '&uid=' + oUser.uid + '&unionid='+oUser.unionid;
+        };
         $scope.doSearch = function(pageAt) {
             var url, data;
             pageAt && ($scope.page.at = pageAt);

@@ -1,0 +1,27 @@
+ul,ol{padding-left:0;margin-bottom:0;list-style:none;overflow: hidden;}
+ul > li{float: left;}
+body{width: 100%;height:auto;padding-top:26px;font-size:24px;font-family:'MicroSoft YaHei';background: url('/static/img/xxq_interact/interactBg.jpg') no-repeat;}
+.container{width:1210px;}
+/* 顶部 */
+.top{position: relative;overflow: hidden;margin-bottom: 30px;}
+.top > .qrcode{overflow: hidden;}
+.top > .qrcode > ul{padding-left:82px;}
+.top > .qrcode > ul > li{float: left;width: 250px;height: 268px;margin-right:230px;}
+.top > .qrcode li:nth-child(3){margin-right:0;}
+/* 主体 */
+.row{height: 420px;}
+.boxBg{background: url('/static/img/xxq_interact/interactRect.png') no-repeat -84px -236px;}
+.box{position: relative;float: left;width: 290px;height: 100%;text-align: center;padding-top:35px;border-radius:5%;margin-right:15px;background-color: rgba(255,255,255,0.3);}
+.box:last-child{margin-right: 0px;}
+.box > .case{width: 130px;height: 135px;margin:25px auto 15px;position: relative;}
+.box > .case > .boxBody {width: 100%;height: 80px;position: absolute;bottom:0;left:0;background: url("/static/img/xxq_interact/interactBox.png") no-repeat;}
+.box > .case > .boxBody > .cover{width: 100%;height: 55px;position: absolute;top:-28px;left: 0px;background: url("/static/img/xxq_interact/interactCover.png") no-repeat;}
+@keyframes moveCover {0%{top: -28px;left: 0;}25%{top: -35px;left:0;}100%{top:-35px;left:-60px;}}
+.box > .case > .boxBody > .shine{width: 100px;height: 108px;position: absolute;top:-85px;right:0;}
+@keyframes moveShine{0%{background: url('/static/img/xxq_interact/interactLight.png') no-repeat;opacity: 0.1;}25%{background: url('/static/img/xxq_interact/interactLight.png') no-repeat;opacity: 0.5;}50%{background: url('/static/img/xxq_interact/interactLight.png') no-repeat;opacity: 0.8;}100%{background: url('/static/img/xxq_interact/interactLight.png') no-repeat;opacity:1;}}
+@keyframes moveImg{0%{width: 20px;height: 20px;position: absolute;margin: auto;right: 0;top: 110px;left: 25px;bottom: 0;}
+50%{width: 125px;height: 190px;position: absolute;margin: auto;right: 0;top: 0;left: 0;bottom: 0;}
+100%{width: 260px;height: 380px;margin:auto;top:0;left:0;right:0;bottom:0;position:absolute;}}
+.box > .button{opacity: 0.4;display: inline-block;cursor: pointer;color:#a16d32;font-size:14px;line-height: 28px;text-align: center;width: 86px;height: 28px;background:url('/static/img/xxq_interact/interactBt.png') no-repeat 0 0;}
+.mask{display: none;width: 100%;height: 100%;position: absolute;top:0;left:0;bottom:0;right:0;background:rgba(0,0,0,0.9);}
+.mask > img{display: block;width: 518px;height: 100%;margin: 0 auto;}

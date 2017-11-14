@@ -12,11 +12,11 @@ require.config({
         "enrollSchema": '/views/default/pl/fe/matter/enroll/lib/enroll.schema',
         "enrollPage": '/views/default/pl/fe/matter/enroll/lib/enroll.page',
         "signinService": '/views/default/pl/fe/matter/signin/lib/signin.service',
-        "frame": '/views/default/pl/fe/matter/signin/frame',
         "page": '/views/default/pl/fe/matter/enroll/lib/page',
         "schema": '/views/default/pl/fe/matter/enroll/lib/schema',
         "wrap": '/views/default/pl/fe/matter/enroll/lib/wrap',
         "editor": '/views/default/pl/fe/matter/enroll/lib/editor',
+        "frame": '/views/default/pl/fe/matter/signin/frame',
     },
     urlArgs: function(id, url) {
         if (/domReady/.test(id)) {
@@ -25,4 +25,5 @@ require.config({
         return "?bust=" + (timestamp * 1);
     }
 });
+window.MATTER_TYPE = 'Signin'; // 为了支持动态加载服务模块
 require(['frame']);

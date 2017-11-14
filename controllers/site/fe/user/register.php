@@ -14,27 +14,6 @@ class register extends \site\fe\base {
 		return $rule_action;
 	}
 	/**
-	 * 打开注册页
-	 */
-	public function index_action() {
-		/* 整理cookie中的数据，便于后续处理 */
-		$modelWay = $this->model('site\fe\way');
-		$modelWay->resetAllCookieUser();
-
-		/* 保存页面来源 */
-		if (isset($_SERVER['HTTP_REFERER'])) {
-			$referer = $_SERVER['HTTP_REFERER'];
-			if (!empty($referer) && !in_array($referer, array('/'))) {
-				if (false === strpos($referer, '/fe/user')) {
-					$this->mySetCookie('_auth_referer', $referer);
-				}
-			}
-		}
-
-		\TPL::output('/site/fe/user/register');
-		exit;
-	}
-	/**
 	 * 执行注册
 	 */
 	public function do_action() {

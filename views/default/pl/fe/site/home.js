@@ -74,11 +74,10 @@ define(['frame'], function(ngApp) {
         }
         $scope.$watch('site', function(oSite) {
             if (!oSite) return;
-            var entry, url;
-            url = 'http://' + location.host + '/rest/site/home?site=' + oSite.id;
+            var entry;
             entry = {
-                url: url,
-                qrcode: '/rest/pl/fe/site/qrcode?site=' + oSite.id + '&url=' + encodeURIComponent(url),
+                url: oSite.homeUrl,
+                qrcode: '/rest/pl/fe/site/qrcode?site=' + oSite.id + '&url=' + encodeURIComponent(oSite.homeUrl),
             };
             $scope.entry = entry;
         });

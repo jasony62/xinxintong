@@ -22,20 +22,16 @@ class main extends \site\op\base {
 	/**
 	 *
 	 *
-	 * @param string $siteid
 	 * @param string $appid
 	 */
-	public function get_action($site, $app) {
+	public function get_action($app) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
 
-		$params = array();
-		/* 登记活动定义 */
 		$modelApp = $this->model('matter\enroll');
-		$app = $modelApp->byId($app, array('cascaded' => 'Y'), 'Y');
-		$params['app'] = &$app;
+		$oApp = $modelApp->byId($app, ['cascaded' => 'Y']);
 
-		return new \ResponseData($params);
+		return new \ResponseData($oApp);
 	}
 }

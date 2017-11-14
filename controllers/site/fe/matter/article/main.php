@@ -46,7 +46,7 @@ class main extends \site\fe\matter\base {
 			$article->author = $article2->author;
 		}
 		/* 单图文所属的频道 */
-		$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
+		$article->channels = $this->model('matter\channel')->byMatter($id, 'article', ['public_visible' => 'Y']);
 		$modelCode = $this->model('code\page');
 		foreach ($article->channels as &$channel) {
 			if ($channel->style_page_id) {

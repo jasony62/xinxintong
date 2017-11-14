@@ -1114,17 +1114,27 @@ class record_model extends record_base {
 	 *
 	 */
 	public function list4Schema(&$oApp, $schemaId, $options = null) {
+		$schemaId = $this->escape($schemaId);
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if ($oSchema->id === $schemaId) {
+				$oDataSchema = $oSchema;
+				break;
+			}
+		}
+		if (!isset($oDataSchema)) {
+			return false;
+		}
+
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
 			$size = isset($options->size) ? $options->size : null;
 			$rid = isset($options->rid) ? $this->escape($options->rid) : null;
 		}
+
 		$result = new \stdClass; // 返回的结果
 		$result->records = [];
 		$result->total = 0;
-
-		$schemaId = $this->escape($schemaId);
 
 		// 查询参数
 		$q = [
@@ -1132,6 +1142,9 @@ class record_model extends record_base {
 			"xxt_enroll_record_data",
 			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>''",
 		];
+		if ($oDataSchema->type === 'date') {
+
+		}
 		/* 指定用户 */
 		if (!empty($options->owner)) {
 			$q[2] .= " and userid='" . $options->owner . "'";
@@ -1158,29 +1171,24 @@ class record_model extends record_base {
 		// 处理获得的数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			//如果是数值型计算合计值
-			foreach ($oApp->dataSchemas as $data_schema) {
-				//判断是否是数值型
-				if ($data_schema->id === $schemaId && isset($data_schema->number) && $data_schema->number === 'Y') {
-					$p = [
-						'sum(value)',
-						'xxt_enroll_record_data',
-						['aid' => $oApp->id, 'schema_id' => $schemaId, 'state' => 1],
-					];
-					if (!empty($rid)) {
-						if ($rid !== 'ALL') {
-							$p[2]['rid'] = $rid;
-						}
-					} else {
-						if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-							$p[2]['rid'] = $activeRound->rid;
-						}
+			if (isset($oDataSchema->number) && $oDataSchema->number === 'Y') {
+				$p = [
+					'sum(value)',
+					'xxt_enroll_record_data',
+					['aid' => $oApp->id, 'schema_id' => $schemaId, 'state' => 1],
+				];
+				if (!empty($rid)) {
+					if ($rid !== 'ALL') {
+						$p[2]['rid'] = $rid;
 					}
-
-					$sum = (int) $this->query_val_ss($p);
-					$result->sum = $sum;
-
-					break;
+				} else {
+					if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+						$p[2]['rid'] = $activeRound->rid;
+					}
 				}
+
+				$sum = (int) $this->query_val_ss($p);
+				$result->sum = $sum;
 			}
 			/* 补充记录标识 */
 			if (!isset($oApp->rpConfig) || empty($oApp->rpConfig->marks)) {
@@ -1433,99 +1441,201 @@ class record_model extends record_base {
 		return $rst;
 	}
 	/**
-	 * 统计登记信息
-	 *
+	 * 统计选择题、记分题汇总信息
 	 */
-	public function &getStat($appId, $rid = '') {
-		$app = $this->model('matter\enroll')->byId($appId, ['cascaded' => 'N']);
+	public function &getStat($appIdOrObj, $rid = '', $renewCache = 'Y') {
+		if (is_string($appIdOrObj)) {
+			$oApp = $this->model('matter\enroll')->byId($appIdOrObj, ['fields' => 'id,data_schemas,round_cron', 'cascaded' => 'N']);
+		} else {
+			$oApp = $appIdOrObj;
+		}
 		if (empty($rid)) {
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($app)) {
-				$rid2 = $activeRound->rid;
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $activeRound->rid;
 			}
 		} elseif ($rid !== 'ALL') {
-			$rid2 = $rid;
+			$rid = $rid;
 		}
 
+		$current = time();
+		$rid = $this->escape($rid);
+		if ($renewCache === 'Y') {
+			/* 上一次保留统计结果的时间，每条记录的时间都一样 */
+			$q = [
+				'create_at',
+				'xxt_enroll_record_stat',
+				['aid' => $oApp->id, 'rid' => $rid],
+			];
+
+			$q2 = ['r' => ['o' => 0, 'l' => 1]];
+			$last = $this->query_objs_ss($q, $q2);
+			/* 上次统计后的新登记记录数 */
+			if (count($last) === 1) {
+				$last = $last[0];
+				$q = [
+					'count(*)',
+					'xxt_enroll_record',
+					"aid='$oApp->id' and enroll_at>={$last->create_at}",
+				];
+				if ($rid !== 'ALL' && !empty($rid)) {
+					$q[2] .= " and rid = '$rid'";
+				}
+
+				$newCnt = (int) $this->query_val_ss($q);
+			} else {
+				$newCnt = 999;
+			}
+			// 如果更新的登记数据，重新计算统计结果
+			if ($newCnt > 0) {
+				$result = $this->_calcStat($oApp, $rid);
+				// 保存统计结果
+				$this->delete(
+					'xxt_enroll_record_stat',
+					['aid' => $oApp->id, 'rid' => $rid]
+				);
+				foreach ($result as $id => $oDataBySchema) {
+					foreach ($oDataBySchema->ops as $op) {
+						$r = [
+							'siteid' => $oApp->siteid,
+							'aid' => $oApp->id,
+							'create_at' => $current,
+							'id' => $id,
+							'title' => $oDataBySchema->title,
+							'v' => $op->v,
+							'l' => $op->l,
+							'c' => $op->c,
+							'rid' => $rid,
+						];
+						$this->insert('xxt_enroll_record_stat', $r);
+					}
+				}
+			} else {
+				/* 从缓存中获取统计数据 */
+				$result = [];
+				$q = [
+					'id,title,v,l,c',
+					'xxt_enroll_record_stat',
+					['aid' => $oApp->id, 'rid' => $rid],
+				];
+				$aCached = $this->query_objs_ss($q);
+				foreach ($aCached as $oDataByOp) {
+					if (empty($result[$oDataByOp->id])) {
+						$oDataBySchema = (object) [
+							'id' => $oDataByOp->id,
+							'title' => $oDataByOp->title,
+							'ops' => [],
+							'sum' => 0,
+						];
+						$result[$oDataByOp->id] = $oDataBySchema;
+					} else {
+						$oDataBySchema = $result[$oDataByOp->id];
+					}
+					$op = (object) [
+						'v' => $oDataByOp->v,
+						'l' => $oDataByOp->l,
+						'c' => $oDataByOp->c,
+					];
+					$oDataBySchema->ops[] = $op;
+					$oDataBySchema->sum += $op->c;
+				}
+			}
+		} else {
+			$result = $this->_calcStat($oApp, $rid);
+		}
+
+		return $result;
+	}
+	/**
+	 * 统计选择题、记分题汇总信息
+	 */
+	private function &_calcStat($oApp, $rid) {
 		$result = [];
 
-		if (empty($app->data_schemas)) {
-			return $result;
-		}
-
-		$dataSchemas = json_decode($app->data_schemas);
-
-		foreach ($dataSchemas as $schema) {
-			if (!in_array($schema->type, ['single', 'multiple', 'phase', 'score'])) {
+		$dataSchemas = $oApp->dataSchemas;
+		foreach ($dataSchemas as $oSchema) {
+			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score'])) {
 				continue;
 			}
-			$result[$schema->id] = ['title' => isset($schema->title) ? $schema->title : '', 'id' => $schema->id, 'ops' => []];
-			if (in_array($schema->type, ['single', 'phase'])) {
-				foreach ($schema->ops as $op) {
+			$result[$oSchema->id] = $oDataBySchema = (object) [
+				'title' => isset($oSchema->title) ? $oSchema->title : '',
+				'id' => $oSchema->id,
+				'ops' => [],
+			];
+			$oDataBySchema->sum = 0;
+			if (in_array($oSchema->type, ['single', 'phase'])) {
+				foreach ($oSchema->ops as $op) {
 					/**
 					 * 获取数据
 					 */
 					$q = [
 						'count(*)',
 						'xxt_enroll_record_data',
-						['aid' => $appId, 'state' => 1, 'schema_id' => $schema->id, 'value' => $op->v],
+						['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oSchema->id, 'value' => $op->v],
 					];
-					if (isset($rid2)) {
-						$q[2]['rid'] = $rid2;
+					if (isset($rid)) {
+						$q[2]['rid'] = $rid;
 					}
-					$op->c = $this->query_val_ss($q);
-					$result[$schema->id]['ops'][] = $op;
+					$op->c = (int) $this->query_val_ss($q);
+					$oDataBySchema->ops[] = $op;
+					$oDataBySchema->sum += $op->c;
 				}
-			} else if ($schema->type === 'multiple') {
-				foreach ($schema->ops as $op) {
+			} else if ($oSchema->type === 'multiple') {
+				foreach ($oSchema->ops as $op) {
 					/**
 					 * 获取数据
 					 */
 					$q = [
 						'count(*)',
 						'xxt_enroll_record_data',
-						"aid='$appId' and state=1 and schema_id='{$schema->id}' and FIND_IN_SET('{$op->v}', value)",
+						"aid='$oApp->id' and state=1 and schema_id='{$oSchema->id}' and FIND_IN_SET('{$op->v}', value)",
 					];
-					if (isset($rid2)) {
-						$rid2 = $this->escape($rid2);
-						$q[2] .= " and rid = '$rid2'";
+					if (isset($rid)) {
+						$rid = $this->escape($rid);
+						$q[2] .= " and rid = '$rid'";
 					}
-					$op->c = $this->query_val_ss($q);
-					$result[$schema->id]['ops'][] = $op;
+					$op->c = (int) $this->query_val_ss($q);
+					$oDataBySchema->ops[] = $op;
+					$oDataBySchema->sum += $op->c;
 				}
-			} else if ($schema->type === 'score') {
+			} else if ($oSchema->type === 'score') {
 				$scoreByOp = [];
-				foreach ($schema->ops as &$op) {
+				foreach ($oSchema->ops as &$op) {
 					$op->c = 0;
-					$result[$schema->id]['ops'][] = $op;
+					$oDataBySchema->ops[] = $op;
 					$scoreByOp[$op->v] = $op;
 				}
 				// 计算总分数
 				$q = [
 					'value',
 					'xxt_enroll_record_data',
-					['aid' => $appId, 'state' => 1, 'schema_id' => $schema->id],
+					['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oSchema->id],
 				];
-				if (isset($rid2)) {
-					$q[2]['rid'] = $rid2;
+				if (isset($rid)) {
+					$q[2]['rid'] = $rid;
 				}
 
 				$values = $this->query_objs_ss($q);
-				foreach ($values as $value) {
-					$value = json_decode($value->value);
-					foreach ($value as $opKey => $opValue) {
-						if (isset($scoreByOp[$opKey]->c)) {
-							$scoreByOp[$opKey]->c += (int) $opValue;
+				foreach ($values as $oValue) {
+					if (!empty($oValue->value)) {
+						$oValue = json_decode($oValue->value);
+						if (!empty($oValue) && is_object($oValue)) {
+							foreach ($oValue as $opKey => $opValue) {
+								if (isset($scoreByOp[$opKey]->c)) {
+									$scoreByOp[$opKey]->c += (int) $opValue;
+								}
+							}
 						}
 					}
 				}
 				// 计算平均分
 				if ($rowNumber = count($values)) {
-					foreach ($schema->ops as &$op) {
+					foreach ($oSchema->ops as &$op) {
 						$op->c = $op->c / $rowNumber;
 					}
 				} else {
 					$op->c = 0;
 				}
+				$oDataBySchema->sum += $op->c;
 			}
 		}
 

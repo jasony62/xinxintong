@@ -87,7 +87,7 @@
                         </button>
                     </div>
                     <nav class='nav navbar-nav tms-breadcrumb' uib-collapse="isNavCollapsed">
-                        <li><a href="/rest/pl/fe?view=main&scope=activity&type=signin&sid={{site.id}}" target='_self'>个人工作台</a></li>
+                        <li><a href="/rest/pl/fe?view=main&scope=activity&type=signin&sid={{site.id}}" target='_self'>工作台</a></li>
                         <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=signin&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
                         <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
@@ -117,9 +117,9 @@
     <script src="/static/js/ZeroClipboard.min.js"></script>
     <script src="/static/js/ui-tms.js?_=4"></script>
     <script src="/static/js/xxt.ui.js?_=4"></script>
-    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+    <script src="<?php echo auto_version('/views/default/pl/fe/_module/matter.service.js');?>"></script>
     <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
-    <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/signin/frame-loader.js?_=7"></script>
+    <script src="/static/js/require.js" data-main="<?php echo auto_version('/views/default/pl/fe/matter/signin/frame-loader.js');?>"></script>
 </body>
 
 </html>

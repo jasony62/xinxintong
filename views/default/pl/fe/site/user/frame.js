@@ -1,6 +1,8 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+    var siteId, ngApp;
+    siteId = location.search.match(/site=([^&]*)/)[1];
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
     ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', 'srvSiteProvider', function($lp, $rp, $cp, srvSiteProvider) {
         var RouteParam = function(name, loadjs) {
             var baseURL = '/views/default/pl/fe/site/user/';
@@ -18,32 +20,52 @@ define(['require'], function(require) {
                 };
             }
         };
-        var siteId = location.search.match(/site=([^&]*)/)[1];
         srvSiteProvider.config(siteId);
         ngApp.provider = {
             controller: $cp.register
         };
         $rp
-            .when('/rest/pl/fe/site/user/fans/main', new RouteParam('main', true))
-            .when('/rest/pl/fe/site/user/fans/history', new RouteParam('history', true))
-            .when('/rest/pl/fe/site/user/fans/message', new RouteParam('message', true))
+            .when('/rest/pl/fe/site/user/main', new RouteParam('main', true))
+            .when('/rest/pl/fe/site/user/history', new RouteParam('history', true))
+            .when('/rest/pl/fe/site/user/message', new RouteParam('message', true))
             .otherwise(new RouteParam('main', true));
         $lp.html5Mode(true);
     }]);
-    ngApp.controller('ctrlUser', ['$scope', 'srvSite', 'http2', function($scope, srvSite, http2) {
+    ngApp.controller('ctrlUser', ['$scope', '$location', 'srvSite', 'http2', function($scope, $location, srvSite, http2) {
         var params = {
-            siteId :  location.search.match(/site=([^&]*)/)[1],
-            userId :  location.search.match(/uid=([^&]*)/)[1],
-            unionId :  location.search.match(/unionid=([^&]*)/)[1],
+            siteId: location.search.match(/site=([^&]*)/)[1],
+            userId: location.search.match(/uid=([^&]*)/)[1],
+            unionId: location.search.match(/unionid=([^&]*)/)[1],
         };
         $scope.siteId = params.siteId;
         $scope.userId = params.userId;
         $scope.unionId = params.unionId;
         $scope.subView = '';
+        $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'fans' ? 'main' : subView[1];
+            $scope.subView = subView[1] === 'user' ? 'main' : subView[1];
+            switch ($scope.subView) {
+                case 'main':
+                    $scope.opened = 'main';
+                    break;
+                case 'history':
+                case 'app':
+                case 'doc':
+                case 'favor':
+                    $scope.opened = 'history';
+                    break;
+                case 'message':
+                    $scope.opened = 'message';
+                    break;
+                default:
+                    $scope.opened = '';
+            }
         });
+        $scope.switchTo = function(subView) {
+            var url = '/rest/pl/fe/site/user/' + subView;
+            $location.path(url);
+        };
         srvSite.get().then(function(site) {
             $scope.site = site;
         });

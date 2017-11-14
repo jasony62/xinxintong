@@ -4,15 +4,15 @@ define(['frame'], function(ngApp) {
         $scope.assignMission = function() {
             srvEnrollApp.assignMission().then(function(mission) {});
         };
-        $scope.tagMatter = function(subType) {
-            var oTags;
-            oTags = $scope.oTag;
-            srvTag._tagMatter($scope.app, oTags, subType);
-        };
         $scope.quitMission = function() {
             if (window.confirm('确定将[' + $scope.app.title + ']从项目中移除？')) {
                 srvEnrollApp.quitMission().then(function() {});
             }
+        };
+        $scope.tagMatter = function(subType) {
+            var oTags;
+            oTags = $scope.oTag;
+            srvTag._tagMatter($scope.app, oTags, subType);
         };
         $scope.choosePhase = function() {
             srvEnrollApp.choosePhase();
@@ -64,10 +64,9 @@ define(['frame'], function(ngApp) {
                     top: 0
                 }
             });
-            $anchorScroll();
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvEnrollApp', function($scope, $uibModal, http2, srvSite, srvEnrollApp) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', function($scope, $uibModal, http2, srvSite, srvEnrollApp, srvEnrollSchema) {
         function chooseGroupApp() {
             return $uibModal.open({
                 templateUrl: 'chooseGroupApp.html',
@@ -190,18 +189,26 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.removeMschema = function(mschemaId) {
+            var bSchemaChanged = false;
             if (_oAppRule.member[mschemaId]) {
+                /* 取消题目和通信录的关联 */
+                _oApp.dataSchemas.forEach(function(oSchema) {
+                    var _oBeforeState;
+                    if (oSchema.type === 'member') {
+                        _oBeforeState = angular.copy(oSchema);
+                        oSchema.type = 'shorttext';
+                        delete oSchema.schema_id;
+                        srvEnrollSchema.update(oSchema, _oBeforeState);
+                        bSchemaChanged = true;
+                    }
+                });
+                if (bSchemaChanged) {
+                    srvEnrollSchema.submitChange(_oApp.pages);
+                }
                 delete _oAppRule.member[mschemaId];
                 $scope.update('entry_rule');
             }
         };
-        $scope.$watch('memberSchemas', function(nv) {
-            if (!nv) return;
-            $scope.mschemasById = {};
-            $scope.memberSchemas.forEach(function(mschema) {
-                $scope.mschemasById[mschema.id] = mschema;
-            });
-        }, true);
         $scope.addExclude = function() {
             var rule = $scope.rule;
             if (!rule.exclude) {

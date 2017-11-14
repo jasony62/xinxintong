@@ -310,6 +310,83 @@ ul.nav-tabs>span>a {
 }
 
 /**
+* site card
+*/
+.hm-tile {
+	position: relative;
+	padding: 8px;
+	background-color: #fafafa;
+	overflow: hidden;
+	margin-bottom: 8px;
+}
+
+@media screen and (max-width:768px) {
+	.hm-tile {
+		background-color: #fff;
+	}
+
+}
+
+#site-card {
+	.site-title {
+		display: flex;
+		overflow: hidden;
+		margin-bottom: 20px;
+
+		&>img {
+			display: inline-block;
+			width: 2em;
+			height: 2em;
+			margin: 0 8px 0 0;
+		}
+
+		&>a {
+			height: 2em;
+			line-height: 2em;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			flex-grow: 1;
+		}
+
+		&>*:last-child {
+			color: #999;
+			line-height: 2em;
+			cursor: pointer;
+		}
+
+	}
+
+	.site-summary {
+		line-height: 1.7;
+		color: #666;
+		white-space: normal;
+		overflow: hidden;
+		word-break: break-all;
+	}
+
+	.dropdown-menu {
+		left: 0;
+	}
+
+}
+
+@media screen and (max-width:768px) {
+	#site-card {
+		.site-title, .site-summary {
+			margin-bottom: 4px;
+		}
+
+		.site-summary {
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+		}
+
+	}
+
+}
+
+/**
  * media
 */
 .media-item {
@@ -528,7 +605,7 @@ ul.nav-tabs>span>a {
 
 	.mainSide-header {
 		position: relative;
-		line-height: 1.7857; /*.nav-tabs>li>a*/
+		line-height: 1.7857;        /*.nav-tabs>li>a*/
 		padding-left: 30px;
 
 		/* aside */

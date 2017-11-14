@@ -8,9 +8,9 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
             return 'page=' + this.at + '&size=' + this.size;
         }
     }
-    $scope.moreMatters = function(matterType, matter) {
+    $scope.moreMatters = function(type, matter) {
         _oPage.at++;
-        switch (matterType) {
+        switch (type) {
             case 'site':
                 listSites();
                 break;
@@ -20,13 +20,13 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
             case 'article':
                 $scope.listMatters();
                 break;
-            case 'channel':
+            case 'channelMatter':
                 $scope.listChannelsMatters(matter);
                 break;
         }
     };
     $scope.openMatter = function(matter) {
-        location.href = matter.type!==undefined ? matter.url : '/rest/site/home?site=' + matter.siteid;
+        location.href = (matter.type || matter.matter_type)!==undefined ? matter.url : '/rest/site/home?site=' + matter.siteid;
     };
     function dealImgSrc(item) {
         if(Object.keys(item).indexOf('pic')!==-1&&item.pic==null) {

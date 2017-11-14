@@ -31,53 +31,53 @@
                 </div>
             </div>
             <uib-tabset active="0">
-                <uib-tab index="0" ng-if="articles.length">
+                <uib-tab index="0" ng-if="matters.length">
                     <uib-tab-heading>热门</uib-tab-heading>
-                    <div class="media-item" ng-repeat="a in articles">
-                        <div class="media-item-left" ng-click="openMatter(a.type, a)">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+a.src+')'}"></div>
+                    <div class="media-item" ng-repeat="matter in matters">
+                        <div class="media-item-left" ng-click="openMatter(matter)">
+                            <div class="media-item-img" ng-style="{'background-image':'url('+matter.src+')'}"></div>
                         </div>
                         <div class="media-item-body">
                             <div class='media-item-body-flexbox'>
                                 <div class='media-author'>
-                                    <a ng-href='/rest/site/home?site={{a.siteid}}' target="_self"><img class="img-circle" ng-src="{{a.heading_pic}}"><span>{{a.site_name}}</span><i class="glyphicon glyphicon-menu-right"></i></a>
+                                    <a ng-href='/rest/site/home?site={{matter.siteid}}' target="_self"><img class="img-circle" ng-src="{{matter.heading_pic}}"><span>{{matter.site_name}}</span><i class="glyphicon glyphicon-menu-right"></i></a>
                                 </div>
-                                <div class="media-heading" ng-click="openMatter(a.type, a)">{{a.title}}</div>
-                                <div class="media-summary" ng-click="openMatter(a.type, a)">{{a.summary}}</div>
+                                <div class="media-heading" ng-click="openMatter(matter)">{{matter.title}}</div>
+                                <div class="media-summary" ng-click="openMatter(matter)">{{matter.summary}}</div>
                                 <div class='media-attr'>
                                     <div class='put_at'>
-                                        <span ng-bind="a.put_at*1000|date:'yyyy-MM-dd'"></span>
+                                        <span ng-bind="matter.put_at*1000|date:'yyyy-MM-dd'"></span>
                                     </div>
                                     <div class="favor">
-                                        <a href="" ng-click="favor(user,a)"><i class="glyphicon glyphicon-star-empty"></i><span> 收藏</span></a>
+                                        <a href="" ng-click="favor(user,matter)"><i class="glyphicon glyphicon-star-empty"></i><span> 收藏</span></a>
                                     </div>
                                     <div class="forward hide">
-                                        <a href="" ng-click="forward(user,a)"><i class="glyphicon glyphicon-share"></i><span> 转发</span></a>
+                                        <a href="" ng-click="forward(user,matter)"><i class="glyphicon glyphicon-share"></i><span> 转发</span></a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('article')" ng-if="articles.total>articles.length">加载更多</button>
+                        <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(matter.type)" ng-if="articles.total>articles.length">加载更多</button>
                     </div>
                 </uib-tab>
                 <uib-tab index="1" ng-if="sites.length">
                     <uib-tab-heading>推荐团队</uib-tab-heading>
-                    <div class="media-item" ng-repeat="s in sites">
-                        <div class="media-item-left" ng-click="openMatter('site', s)">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+s.pic+')'}"></div>
+                    <div class="media-item" ng-repeat="site in sites">
+                        <div class="media-item-left" ng-click="openMatter(site)">
+                            <div class="media-item-img" ng-style="{'background-image':'url('+site.pic+')'}"></div>
                         </div>
                         <div class="media-item-body">
                             <div class='media-item-body-flexbox'>
                                 <div class='media-author'>
-                                    <a ng-href='/rest/site/home?site={{s.siteid}}' target="_self"><img class="img-circle" ng-src="{{s.pic}}"><span>{{s.creater_name}}</span><i class="glyphicon glyphicon-menu-right"></i></a>
+                                    <a ng-href='/rest/site/home?site={{site.siteid}}' target="_self"><img class="img-circle" ng-src="{{site.pic}}"><span>{{site.creater_name}}</span><i class="glyphicon glyphicon-menu-right"></i></a>
                                 </div>
-                                <div class="media-heading" ng-click="openMatter('site', s)">{{s.title}}</div>
-                                <div class="media-summary" ng-click="openMatter('site', s)">{{s.summary}}</div>
+                                <div class="media-heading" ng-click="openMatter(site)">{{site.title}}</div>
+                                <div class="media-summary" ng-click="openMatter(site)">{{site.summary}}</div>
                                 <div class='media-attr'>
                                     <div class='put_at'>
-                                        <span ng-bind="s.put_at*1000|date:'yyyy-MM-dd'"></span>
+                                        <span ng-bind="site.put_at*1000|date:'yyyy-MM-dd'"></span>
                                     </div>
                                 </div>
                             </div>

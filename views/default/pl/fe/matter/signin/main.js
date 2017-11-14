@@ -115,7 +115,7 @@ define(['frame'], function(ngApp) {
             listReceivers(app);
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvSigninApp', function($scope, $uibModal, http2, srvSite, srvSigninApp) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvSigninApp', 'srvEnrollSchema', function($scope, $uibModal, http2, srvSite, srvSigninApp, srvEnrollSchema) {
         var oEntryRule;
         $scope.rule = {};
         $scope.isInputPage = function(pageName) {
@@ -161,18 +161,26 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.removeMschema = function(mschemaId) {
+            var bSchemaChanged;
             if (oEntryRule.member[mschemaId]) {
+                /* 取消题目和通信录的关联 */
+                $scope.app.dataSchemas.forEach(function(oSchema) {
+                    var _oBeforeState;
+                    if (oSchema.type === 'member') {
+                        _oBeforeState = angular.copy(oSchema);
+                        oSchema.type = 'shorttext';
+                        delete oSchema.schema_id;
+                        srvEnrollSchema.update(oSchema, _oBeforeState);
+                        bSchemaChanged = true;
+                    }
+                });
+                if (bSchemaChanged) {
+                    srvEnrollSchema.submitChange($scope.app.pages);
+                }
                 delete oEntryRule.member[mschemaId];
                 $scope.update('entry_rule');
             }
         };
-        $scope.$watch('memberSchemas', function(nv) {
-            if (!nv) return;
-            $scope.mschemasById = {};
-            $scope.memberSchemas.forEach(function(mschema) {
-                $scope.mschemasById[mschema.id] = mschema;
-            });
-        }, true);
         srvSigninApp.get().then(function(app) {
             $scope.jumpPages = srvSigninApp.jumpPages();
             $scope.rule.scope = app.entry_rule.scope || 'none';

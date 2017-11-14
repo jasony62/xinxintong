@@ -81,6 +81,14 @@ class signin_model extends enroll_base {
 					$oApp->dataSchemas = [];
 				}
 			}
+			if ($fields === '*' || false !== strpos($fields, 'recycle_schemas')) {
+				if (!empty($oApp->recycle_schemas)) {
+					$oApp->recycleSchemas = json_decode($oApp->recycle_schemas);
+				} else {
+					$oApp->recycleSchemas = [];
+				}
+				unset($oApp->recycle_schemas);
+			}
 			if ($fields === '*' || false !== strpos($fields, 'assigned_nickname')) {
 				if (!empty($oApp->assigned_nickname)) {
 					$oApp->assignedNickname = json_decode($oApp->assigned_nickname);

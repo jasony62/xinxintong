@@ -22,10 +22,10 @@
     </nav>
     <div class="container">
         <div class="orderItem">
-            <div class="col-xs-3 col-md-3" ng-click="order('read', false)">阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-            <div class="col-xs-3 col-md-3" ng-click="order('shareT',false)">分享<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-            <div class="col-xs-3 col-md-3" ng-click="order('shareF',false)">转发<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-            <div class="col-xs-3 col-md-3" ng-click="order('attractRead',false)">带来阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-class="{'active':filter==='read'}" ng-click="order('read', false)">阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-class="{'active':filter==='shareT'}" ng-click="order('shareT',false)">分享<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-class="{'active':filter==='shareF'}" ng-click="order('shareF',false)">转发<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+            <div class="col-xs-3 col-md-3" ng-class="{'active':filter==='attractRead'}" ng-click="order('attractRead',false)">带来阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
         </div>
         <div class="orderResult">
             <ul>
@@ -40,13 +40,15 @@
                         <p class="attractReadSum">Ta带来的阅读数：<span ng-bind="{{result.attractRead_sum}}"></span></p>
                     </div>
                 </li>
+                <li class="note">暂无此排序下的数据~</li>
             </ul>
-            <div class="more" ng-if="results.length < page.total">
-                <button class="btn btn-success btn-lg" ng-click="more()">加载更多</button>
+            <div ng-if="results.length < page.total">
+                <button class="btn btn-primary btn-block" ng-click="more()">加载更多</button>
             </div>
         </div>
     </div>
 </body>
+<script src="/static/js/jquery.min.js"></script>
 <script src="/static/js/angular.min.js"></script>
 <script src="/views/default/site/fe/user/share/log.js?_=1"></script>
 

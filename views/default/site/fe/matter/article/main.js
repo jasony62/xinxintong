@@ -8,7 +8,7 @@ require('../../../../../../asset/js/xxt.ui.forward.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
 
-var ngApp = angular.module('app', ['page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
@@ -273,6 +273,16 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
     id = ls.match(/[\?|&]id=([^&]*)/)[1];
     _bPreview = ls.match(/[\?|&]preview=Y/);
 
+    $scope.elSiteCard = angular.element(document.querySelector('#site-card'));
+    $scope.siteCardToggled = function(open) {
+        var elDropdownMenu;
+        if (open) {
+            if (elDropdownMenu = document.querySelector('#site-card>.dropdown-menu')) {
+                elDropdownMenu.style.left = 'auto';
+                elDropdownMenu.style.right = 0;
+            }
+        }
+    };
     $scope.openChannel = function(ch) {
         location.href = '/rest/site/fe/matter?site=' + siteId + '&type=channel&id=' + ch.id;
     };

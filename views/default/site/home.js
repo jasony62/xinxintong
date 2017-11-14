@@ -44,6 +44,16 @@ ngApp.directive('autoHeight', ['$window', function($window) {
         }
     }
 }]);
+ngApp.directive('imageonload',function(){
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs){
+            element.bind('load', function() {
+                scope.$apply(attrs.imageonload);
+            })
+        }
+    }
+});
 ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', 'tmsDynaPage', 'tmsSubscribe', 'tmsContribute', 'tmsFavor', 'tmsForward', function($scope, $q, $uibModal, http2, srvUser, tmsDynaPage, tmsSubscribe, tmsContribute, tmsFavor, tmsForward) {
     function createSite() {
         var defer = $q.defer(),

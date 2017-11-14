@@ -36,11 +36,11 @@
                 <tbody>
                     <tr ng-repeat='m in missions'>
                         <td>{{$index+1}}</td>
-                        <td ng-click="openMission(m,'report')">{{m.title}}</td>
-                        <td ng-click="openMission(m,'matter','enroll','registration')">{{m.matter.enroll.registration||0}}</td>
-                        <td ng-click="openMission(m,'matter','signin')">{{m.matter.signin||0}}</td>
-                        <td ng-click="openMission(m,'matter','group')">{{m.matter.group.split||0}}</td>
-                        <td ng-click="openMission(m,'matter')">{{m.matter.num||0}}</td>
+                        <td ng-click="openMission(m,'app')">{{m.title}}</td>
+                        <td ng-click="openMission(m,'app','enroll','registration')">{{m.matter.enroll.registration||0}}</td>
+                        <td ng-click="openMission(m,'app','signin')">{{m.matter.signin||0}}</td>
+                        <td ng-click="openMission(m,'app','group')">{{m.matter.group.split||0}}</td>
+                        <td ng-click="openMission(m,'app')">{{m.matter.num||0}}</td>
                         <td>{{m.creater_name}}</td>
                         <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>
@@ -297,16 +297,16 @@
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
+                            <th style='width:48px'>序号</th>
                             <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
-                            <th>来源</th>
                             <th style='width:120px'>创建日期</th>
                             <th style='width:60px'>积分</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat='u in users'>
-                            <td><a href='' ng-click="openProfile(u.uid)">{{u.nickname}}</a></td>
-                            <td>{{u.ufrom}}</td>
+                            <td>{{$index+1}}</td>
+                            <td><a href='' ng-click="openProfile(u)">{{u.nickname}}</a></td>
                             <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>
                             <td>{{u.coin}}</td>
                         </tr>

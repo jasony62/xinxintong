@@ -4,7 +4,7 @@
             <div ng-controller="ctrlCarousel">
                 <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
                     <div uib-slide ng-repeat="slide in slides" index="$index" style="padding-top:30%;position:relative">
-                        <img ng-src="{{slide.picUrl}}" style="position:absolute;top:0;left:0;width:100%;height:100%">
+                        <img ng-src="{{slide.picUrl}}" style="position:absolute;top:0;left:0;width:100%;height:100%" imageonload="slideOnload({{$index}})">
                         <div class="carousel-caption"></div>
                     </div>
                 </div>
@@ -16,7 +16,7 @@
             <div id="slider_extends" class="slider_extends" ng-controller="ctrlSlider" ng-if="topArticles!=''">
                 <ul class="list-unstyled row">
                     <li ng-mouseenter="selectTag($index)" class="slider_extend pull-left" ng-repeat="ta in topArticles" data-ng-init="load()">
-                        <a ng-href="{{ta.url}}">
+                        <a ng-href="{{ta.url}}" target='_self'>
                             <div class="slider-caption">
                                 <h4 class="slider-text-wrap">{{ta.title}}</h4>
                             </div>
@@ -32,10 +32,10 @@
             </div>
             <uib-tabset active="0">
                 <uib-tab index="0" ng-if="articles.length">
-                    <uib-tab-heading>热门时讯</uib-tab-heading>
+                    <uib-tab-heading>热门</uib-tab-heading>
                     <div class="media-item" ng-repeat="a in articles">
                         <div class="media-item-left" ng-click="openMatter(a)">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+a.pic||a.thumbnail+')'}"></div>
+                            <div class="media-item-img" ng-style="{'background-image':'url('+a.src+')'}"></div>
                         </div>
                         <div class="media-item-body">
                             <div class='media-item-body-flexbox'>
@@ -180,7 +180,7 @@
                     <uib-tab-heading>{{c.title}}</uib-tab-heading>
                     <div class="media-item" ng-repeat="a in c.data" ng-click="openMatter(a)">
                         <div class="media-item-left">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+a.pic||a.thumbnail+')'}"></div>
+                            <div class="media-item-img" ng-style="{'background-image':'url('+a.src+')'}"></div>
                         </div>
                         <div class="media-item-body">
                             <div class='media-item-body-flexbox'>

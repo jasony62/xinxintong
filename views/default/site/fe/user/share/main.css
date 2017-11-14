@@ -1,4 +1,6 @@
 .ng-cloak{display:none}
 .container{margin-top: 71px;}
 .navbar .navbar-text{float:none;}
-td:hover{color: #2994da;cursor: pointer;}
+.app{cursor: pointer;}
+.title{width:95%;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;}
+.forward{display:inline-block;position:absolute;top:20px;right:10px;}

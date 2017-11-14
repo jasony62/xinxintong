@@ -9,7 +9,6 @@
         <?php TPL::pt('title');?>
     </title>
     <link rel="stylesheet" href="/static/css/custom-bootstrap.min.css">
-    <link rel="stylesheet" href="/static/css/custom.site.fe.css">
     <link href="<?php echo auto_version('/static/css/home.fe.css');?>" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/fe/matter/article/main.css');?>" rel="stylesheet">
 </head>
@@ -29,22 +28,37 @@
         <header ng-if="article.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
         <div class="container">
             <div class='row'>
-                <div class="col-md-3 col-xs-12">
-                    <div id='site'>
-                        <a class="site-title" ng-href="{{'/rest/site/home?site='+site.id}}"><img class="img-circle" ng-src="{{site.heading_pic}}"><span ng-bind="site.name"></span><i class="glyphicon glyphicon-menu-right pull-right"></i></a>
+                <div class="col-md-3 col-md-push-9 col-xs-12">
+                    <div id='site-card' class='hm-tile'>
+                        <div class="site-title">
+                            <img class="img-circle" ng-src="{{site.heading_pic}}">
+                            <a ng-href="{{'/rest/site/home?site='+site.id}}" target='_self' ng-bind="site.name"></a>
+                            <div uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="site.can_subscribe==='Y'">
+                                <i class="glyphicon glyphicon-option-vertical" uib-dropdown-toggle></i>
+                                <ul class="dropdown-menu" uib-dropdown-menu>
+                                    <li>
+                                        <a href='' ng-click="subscribeSite()">关注</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                         <p class="site-summary" ng-bind="site.summary"></p>
-                        <button ng-if="site.can_subscribe==='Y'" class="btn btn-warning pull-right" ng-click="subscribeSite()">关注</button>
                     </div>
                     <div id='qrCode' class='hidden-xs hidden-sm'>
                         <img ng-src="{{code}}">
                     </div>
                 </div>
-                <div class="article col-md-9 col-xs-12">
+                <div class="article col-md-9 col-md-pull-3 col-xs-12">
                     <h2 id="title" class="inline-block" ng-bind='article.title'></h2>
                     <div id="attribute">
-                        <h6 class="inline">{{article.author}}</h6>
-                        <h6 class="inline time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></h6>
-                        <h6 class="inline read">阅读 {{article.read_num}}</h6>
+                        <span>{{article.author}}</span>
+                        <span class="time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></span>
+                        <span class="read">阅读 {{article.read_num}}</span>
+                    </div>
+                    <div id='summary' ng-if="article.summary">
+                        <blockquote>
+                            <div ng-bind="article.summary"></div>
+                        </blockquote>
                     </div>
                     <div class="headpic" ng-if="article.hide_pic!=='Y'">
                         <img ng-src="{{article.pic}}">
@@ -70,15 +84,15 @@
                         <div id="action">
                             <a href="" ng-click="siteUser(site.id)">
                                 <i class="glyphicon glyphicon-user"></i>
-                                <h6 class="inline"> 个人中心</h6>
+                                <span> 个人中心</span>
                             </a>
                             <a href="" ng-click="favor(user,article)">
                                 <i class="glyphicon glyphicon-star-empty"></i>
-                                <h6 class="inline"> 收藏</h6>
+                                <span> 收藏</span>
                             </a>
                             <a href="" ng-click="forward(user,article)">
                                 <i class="glyphicon glyphicon-share"></i>
-                                <h6 class="inline"> 转发</h6>
+                                <span> 转发</span>
                             </a>
                         </div>
                     </div>
@@ -92,7 +106,9 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/article/main.js');?>"></script>
 </body>
 

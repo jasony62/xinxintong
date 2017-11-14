@@ -52,9 +52,21 @@
                 });
             })
         }
+        $scope.scale = function(index) {
+            angular.element('.mask').css('display','block');
+            angular.element('.mask').find('img').attr('src',$scope.Wall.result_img[index]);
+        }
+        $scope.close = function() {
+            angular.element('.mask').find('img').attr('src','');
+            angular.element('.mask').css('display','none');
+        }
         $scope.open = function(event) {
             var prev = $(event.target).prev(),
-                next = $(event.target).next();
+                next = $(event.target).next(),
+                parent = $(event.target).parent();
+            if(parent.hasClass('boxBg') == false) {
+                parent.addClass('boxBg');
+            }
             setTimeout(function(){
                 prev.find('.cover').css({'animation':'moveCover 2s linear','animation-fill-mode':'forwards'});
             },0);
@@ -66,29 +78,26 @@
             }, 3000);
         }
         $scope.play = function() {
-            var timer2, count = 0, idx,
+            var timer2, count = 0, idx, Num,
                 imgs = document.querySelectorAll(".box > ul > li > img");
             timer2 = setInterval(function() {
                 if(count >= $scope.players.length) {
                     clearInterval(timer2);
                 } else {
                     if(count==num||count==num*2||count==num*3) {
-                        var Num = count / num;
+                        Num = count / num;
                         $(boxs[Num]).addClass("boxBg");
                     }
                     $(imgs[count]).attr('src', $scope.players[count].headimgurl);
                     $(imgs[count]).css('borderColor','#FFFA52');
 
-                    if(count==num||count==num*2||count==num*3) {
-                        idx = (count - num) / num;
-                        $(boxs[idx]).find('.button').css('opacity','1');
-                    }else if(count==num*4-1){
-                        idx = (count + 1 - num) / num;
+                    if(count==num-1||count==num*2-1||count==num*3-1||count==num*4-1) {
+                        idx = (count + 1) / num -1;
                         $(boxs[idx]).find('.button').css('opacity','1');
                     }
                     count++;
                 }
-            }, 1000);
+            }, 2000);
         };
         $scope.start = function() {
             var url = '/rest/site/op/matter/wall/listPlayer?site=' + $scope.siteId + '&app=' + $scope.wallId + '&startTime=' + startTime + '&startId=';

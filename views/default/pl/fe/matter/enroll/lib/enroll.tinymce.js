@@ -79,7 +79,7 @@ directive('tinymce', function($timeout) {
                         if (e.selectionChange === true) {
                             /*选择节点*/
                             wrap = e.element;
-                            if (wrap.tagName !== 'HTML') {
+                            if (wrap.tagName && wrap.tagName !== 'HTML') {
                                 if (!wrap.hasAttribute('wrap') && wrap !== editor.getBody()) {
                                     while (wrap.parentNode !== editor.getBody()) {
                                         if (wrap.hasAttribute('wrap') || wrap.parentNode === null) break;

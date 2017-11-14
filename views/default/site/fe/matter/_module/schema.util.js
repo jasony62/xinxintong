@@ -62,6 +62,17 @@ utilSchema.checkValue = function(oSchema, value) {
                 return sCheckResult;
             }
         }
+        if (oSchema.type === 'multiple' && oSchema.limitChoice === 'Y' && oSchema.range) {
+            var opCount = 0;
+            for (var i in value) {
+                if (value[i]) {
+                    opCount++;
+                }
+            }
+            if (opCount < oSchema.range[0] || opCount > oSchema.range[1]) {
+                return '选择题［' + oSchema.title + '］选中的选项数量，不在指定范围（' + oSchema.range.join(',') + '）内';
+            }
+        }
         if (/image|file/.test(oSchema.type) && oSchema.count) {
             if (true !== (sCheckResult = this.checkCount(oSchema, value))) {
                 return sCheckResult;

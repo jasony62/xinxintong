@@ -197,15 +197,15 @@ class home extends TMS_CONTROLLER {
 		return new \ResponseData($result);
 	}
 	/**
-	 *
+	 * 发布到主页热点中的素材
 	 */
-	public function listArticle_action($page = 1, $size = 8) {
+	public function listMatter_action($page = 1, $size = 8) {
 		$modelHome = $this->model('matter\home');
 
 		$options = [];
 		$options['page']['at'] = $page;
 		$options['page']['size'] = $size;
-		$result = $modelHome->atHomeArticle($options);
+		$result = $modelHome->atHomeMatter($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {
 				$matter->url = $this->model('matter\article')->getEntryUrl($matter->siteid, $matter->matter_id);
@@ -217,12 +217,12 @@ class home extends TMS_CONTROLLER {
 	/**
 	 *获取置顶活动
 	 */
-	public function listMatterTop_action($type = 'article', $page = 1, $size = 3) {
+	public function listMatterTop_action($type = 'ALL', $page = 1, $size = 3) {
 		$modelHome = $this->model('matter\home');
 		$options = [];
 		$options['page']['at'] = $page;
 		$options['page']['size'] = $size;
-		$options['type'] = $type;
+		//$options['type'] = $type;
 		$result = $modelHome->atHomeTop($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {

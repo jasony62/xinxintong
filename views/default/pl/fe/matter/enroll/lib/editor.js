@@ -7,7 +7,7 @@ define(['wrap'], function(wrapLib) {
         _editor = null,
         _page = null;
 
-    function _appendWrap(name, attrs, html, oSiblingSchema, insertBefore) {
+    function _appendWrap(name, attrs, html, oSiblingSchema, bInsertBefore) {
         var dom, body, newDomWrap, selection, $siblingWrap, $upmost;
 
         dom = _editor.dom;
@@ -20,7 +20,7 @@ define(['wrap'], function(wrapLib) {
             $upmost = $siblingWrap.parents('[wrap]');
             $upmost = $upmost.length === 0 ? $siblingWrap : $($upmost.get($upmost.length - 1));
             newDomWrap = dom.create(name, attrs, html);
-            if (insertBefore) {
+            if (bInsertBefore) {
                 if ($upmost[0].parentNode) {
                     $upmost[0].parentNode.insertBefore(newDomWrap, $upmost[0]);
                 }
@@ -88,6 +88,10 @@ define(['wrap'], function(wrapLib) {
             this.setEditor(editor);
             html = this.setPage(page);
             _editor.setContent(html);
+            _editor.undoManager.clear();
+        },
+        refresh: function() {
+            _editor.setContent(_page.html);
             _editor.undoManager.clear();
         },
         setEditor: function(editor) {

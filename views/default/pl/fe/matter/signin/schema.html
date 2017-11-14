@@ -85,9 +85,13 @@
                 </div>
             </div>
         </div>
-        <div class='checkbox'>
-            <label class='checkbox-inline'>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.__schemasOrderConsistent">页面显示顺序保持一致</label>
+        <div class='form-inline' ng-if="app.recycleSchemas.length">
+            <div class="btn-group" uib-dropdown>
+                <button type="button" class="btn btn-default" uib-dropdown-toggle>恢复删除的题目 <i class="caret"></i></button>
+                <ul uib-dropdown-menu>
+                    <li ng-repeat="schema in app.recycleSchemas"><a href="" ng-click="recycleSchema(schema)">{{schema.title}}</a></li>
+                </ul>
+            </div>
         </div>
     </div>
     <!-- end schema list -->

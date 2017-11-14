@@ -1,84 +1,9 @@
-define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
+define(['frame'], function(ngApp) {
     'use strict';
     /**
      * 题目管理
      */
-    ngApp.provider.controller('ctrlSchema', ['$scope', 'srvEnrollPage', 'srvEnrollApp', function($scope, srvEnrollPage, srvEnrollApp) {
-        $scope._srvAppBase = srvEnrollApp;
-        /**
-         * 提交对题目的修改
-         * 1、自动查找作为昵称的字段
-         */
-        $scope._submitChange = function(changedPages) {
-            var updatedAppProps = ['data_schemas'],
-                oSchema, oNicknameSchema, oAppNicknameSchema;
-
-            for (var i = $scope.app.dataSchemas.length - 1; i >= 0; i--) {
-                oSchema = $scope.app.dataSchemas[i];
-                if (oSchema.required === 'Y') {
-                    if (oSchema.type === 'shorttext' || oSchema.type === 'member') {
-                        if (oSchema.title === '姓名') {
-                            oNicknameSchema = oSchema;
-                            break;
-                        }
-                        if (oSchema.title.indexOf('姓名') !== -1) {
-                            if (!oNicknameSchema || oSchema.title.length < oNicknameSchema.title.length) {
-                                oNicknameSchema = oSchema;
-                            }
-                        } else if (oSchema.format && oSchema.format === 'name') {
-                            oNicknameSchema = oSchema;
-                        }
-                    }
-                }
-            }
-            if (oNicknameSchema) {
-                if (oAppNicknameSchema = $scope.app.assignedNickname) {
-                    if (oAppNicknameSchema.schema) {
-                        if (oAppNicknameSchema.schema.id !== '') {
-                            oAppNicknameSchema.schema.id = oNicknameSchema.id;
-                            updatedAppProps.push('assignedNickname');
-                        }
-                    } else {
-                        oAppNicknameSchema.valid = 'Y';
-                        oAppNicknameSchema.schema = { id: oNicknameSchema.id };
-                        updatedAppProps.push('assignedNickname');
-                    }
-                }
-            } else {
-                if ($scope.app.assignedNickname.schema) {
-                    delete $scope.app.assignedNickname.schema;
-                    updatedAppProps.push('assignedNickname');
-                }
-            }
-            srvEnrollApp.update(updatedAppProps).then(function() {
-                changedPages.forEach(function(oPage) {
-                    srvEnrollPage.update(oPage, ['data_schemas', 'html']);
-                });
-            });
-        };
-        $scope.assignEnrollApp = function() {
-            srvEnrollApp.assignEnrollApp();
-        };
-        $scope.cancelEnrollApp = function() {
-            $scope.app.enroll_app_id = '';
-            srvEnrollApp.update('enroll_app_id');
-        };
-        $scope.cancelGroupApp = function() {
-            $scope.app.group_app_id = '';
-            srvEnrollApp.update('group_app_id');
-        };
-        $scope.updConfig = function(oActiveSchema) {
-            var pages, oPage;
-            pages = $scope.app.pages;
-            for (var i = pages.length - 1; i >= 0; i--) {
-                oPage = pages[i];
-                if (oPage.type === 'I') {
-                    oPage.updateSchema(oActiveSchema);
-                    srvEnrollPage.update(oPage, ['data_schemas', 'html']);
-                }
-            }
-        };
-    }]);
+    ngApp.provider.controller('ctrlSchema', ['$scope', function($scope) {}]);
     /**
      * 导入导出记录
      */

@@ -45,6 +45,17 @@ ngApp.directive('autoHeight', ['$window', function($window) {
         }
     }
 }]);
+ngApp.directive('imageonload', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            element.bind('load', function() {
+                //call the function that was passed
+                scope.$apply(attrs.imageonload);
+            });
+        }
+    };
+});
 ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 'srvUser', 'tmsDynaPage', 'tmsSubscribe', 'tmsFavor', 'tmsForward', function($scope, $timeout, $q, $uibModal, http2, srvUser, tmsDynaPage, tmsSubscribe, tmsFavor, tmsForward) {
     function createSite() {
         var defer = $q.defer(),
@@ -199,6 +210,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
     http2.get('/rest/home/get', function(rsp) {
         platform = rsp.data.platform;
         if (platform.home_page === false) {
+            // 没有设置主页
             location.href = '/rest/pl/fe';
         } else {
             $scope.platform = platform;

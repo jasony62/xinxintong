@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,user-scalable=no" name="viewport">
+    <base href="/" />
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <link href="/static/css/custom-bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/home.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/matter/link/main.css');?>" rel="stylesheet">
+</head>
+
+<body ng-app='app' ng-controller='ctrl' ng-cloak class='ng-cloak'>
+    <nav class='navbar hm-navbar-default navbar-fixed-top'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a class='navbar-brand' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div id='content' class='container'>
+        <div class='row'>
+            <div class='col-md-3 col-md-push-9 col-xs-12'>
+                <div id='site-card' class='hm-tile'>
+                    <div class="site-title">
+                        <img class="img-circle" ng-src="{{siteInfo.heading_pic}}">
+                        <a ng-href="{{'/rest/site/home?site='+siteInfo.id}}" target='_self' ng-bind="siteInfo.name"></a>
+                        <div uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="siteInfo.can_subscribe==='Y'">
+                            <i class="glyphicon glyphicon-option-vertical" uib-dropdown-toggle></i>
+                            <ul class="dropdown-menu" uib-dropdown-menu>
+                                <li>
+                                    <a href='' ng-click="subscribeSite()">关注</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="site-summary" ng-bind="siteInfo.summary"></p>
+                </div>
+                <div class='hm-tile' ng-if="link.summary">
+                    <div ng-bind="link.summary"></div>
+                </div>
+                <div id='qrCode' class='hidden-xs hidden-sm'>
+                    <img ng-src="{{qrcode}}">
+                </div>
+            </div>
+            <div id="link" class='col-md-9 col-md-pull-3 col-xs-12'>
+                <iframe></iframe>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    if (/MicroMessenger/i.test(navigator.userAgent)) {
+        var siteid = location.search.match(/site=([^&]*)/)[1];
+        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='\/rest\/site\/fe\/base\/wxjssdksignpackage?site=" + siteid + "&url=" + encodeURIComponent(location.href.split('#')[0]) + "'><\/script>");
+    }
+    </script>
+    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/xxt.share.js?_=1"></script>
+    <script src="<?php echo auto_version('/views/default/site/fe/matter/link/main.js');?>"></script>
+</body>
+
+</html>

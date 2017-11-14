@@ -668,7 +668,7 @@ class log_model extends \TMS_MODEL {
 	public function listUserShare($site = '', $users, $page = null, $size = null) {
 		$user = "'" . implode("','", $users) . "'";
 		$q = [
-			'siteid,share_at,share_to,matter_id,matter_type,matter_title,userid',
+			'siteid,max(share_at) share_at,matter_id,matter_type,matter_title,userid,nickname',
 			'xxt_log_matter_share',
 			"userid in ($user)"
 		];
@@ -677,15 +677,15 @@ class log_model extends \TMS_MODEL {
 			$q[2] .= " and siteid = '$site'";
 		}
 
-		$q2['g'] = "matter_id,matter_type";
-		$q2['o'] = "share_at desc";
+		$q2['g'] = "userid,matter_id,matter_type";
+		$q2['o'] = "max(share_at) desc";
 		if (!empty($page) && !empty($size)) {
 			$q2['r']['o'] = ($page-1) * $size;
 			$q2['r']['l'] = $size;
 		}
 
 		$matters = $this->query_objs_ss($q,$q2);
-		$q[0] = "count(distinct matter_id,matter_type)";
+		$q[0] = "count(distinct userid,matter_id,matter_type)";
 		$total = (int) $this->query_val_ss($q);
 
 		$data = new \stdClass;
@@ -713,7 +713,7 @@ class log_model extends \TMS_MODEL {
 					$q2['r']['o'] = ($page - 1) * $size;
 					$q2['r']['l'] = $size;
 				}
-				
+
 				$users = $this->query_objs_ss($q, $q2);
 				$q[0] = "count(distinct s.userid)";
 				$total = (int) $this->query_val_ss($q);
@@ -731,7 +731,7 @@ class log_model extends \TMS_MODEL {
 					$q2['r']['o'] = ($page - 1) * $size;
 					$q2['r']['l'] = $size;
 				}
-				
+
 				$users = $this->query_objs_ss($q, $q2);
 				$q[0] = "count(distinct s.userid)";
 				$total = (int) $this->query_val_ss($q);
@@ -739,7 +739,7 @@ class log_model extends \TMS_MODEL {
 				break;
 			case 'attractRead':
 				$q = "select r.userid,(select count(*) from xxt_log_matter_read r1 where r1.matter_id='" . $this->escape($matterId) . "' and r1.matter_type='" . $this->escape($matterType) . "' and r1.matter_shareby like CONCAT(r.userid,'_%')) as attractRead_sum,a.nickname,a.headimgurl from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid group by r.userid order by attractRead_sum desc,r.read_at desc";
-				
+
 				if (!empty($page) && !empty($size)) {
 					$q .= " limit " . ($page - 1) * $size . "," . $size;
 				}
@@ -747,7 +747,7 @@ class log_model extends \TMS_MODEL {
 				$users = $this->query_objs($q);
 				$q = "select count(distinct r.userid) from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid";
 				$total = (int) $this->query_value($q);
-				
+
 				break;
 			default:
 				$q[0] = 'r.userid,count(*) as read_sum,a.nickname,a.headimgurl';
@@ -761,7 +761,7 @@ class log_model extends \TMS_MODEL {
 					$q2['r']['o'] = ($page - 1) * $size;
 					$q2['r']['l'] = $size;
 				}
-				
+
 				$users = $this->query_objs_ss($q, $q2);
 				$q[0] = "count(distinct r.userid)";
 				$total = (int) $this->query_val_ss($q);

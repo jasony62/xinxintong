@@ -51,13 +51,6 @@ define(['frame'], function(ngApp) {
                 $scope.update('entry_rule');
             }
         };
-        $scope.$watch('memberSchemas', function(nv) {
-            if (!nv) return;
-            $scope.mschemasById = {};
-            $scope.memberSchemas.forEach(function(mschema) {
-                $scope.mschemasById[mschema.id] = mschema;
-            });
-        }, true);
         srvSigninApp.get().then(function(app) {
             $scope.jumpPages = srvSigninApp.jumpPages();
             $scope.rule.scope = app.entry_rule.scope || 'none';

@@ -3,7 +3,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * BasesrvSigninRecord
      * srvSigninApp
      * srvSigninRound
-     * srvSigninPage
      * srvSigninRecord
      */
     var BasesrvSigninRecord = function($q, http2, srvRecordConverter, noticebox, $uibModal) {
@@ -290,8 +289,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     angular.isString(names) && (names = [names]);
                     names.forEach(function(name) {
-                        if (name === 'data_schemas') {
+                        if (name === 'data_schemas' || name === 'dataSchemas') {
                             modifiedData.data_schemas = app.dataSchemas;
+                        } else if (name === 'recycle_schemas' || name === 'recycleSchemas') {
+                            modifiedData.recycle_schemas = app.recycleSchemas;
                         } else if (name === 'tags') {
                             modifiedData.tags = app.tags.join(',');
                         } else {
@@ -488,7 +489,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }).result.then(function(data) {
                         app.enroll_app_id = data.source;
                         _this.update('enroll_app_id').then(function(rsp) {
-                            var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&id=' + app.enroll_app_id;
+                            var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&app=' + app.enroll_app_id;
                             http2.get(url, function(rsp) {
                                 rsp.data.data_schemas = rsp.data.dataSchemas;
                                 app.enrollApp = rsp.data;
@@ -501,17 +502,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }
                             _this.update('data_schemas');
                         });
-                    });
-                },
-                cancelEnrollApp: function() {
-                    var _this = this;
-                    app.enroll_app_id = '';
-                    delete app.enrollApp;
-                    this.update('enroll_app_id').then(function() {
-                        app.dataSchemas.forEach(function(dataSchema) {
-                            delete dataSchema.requireCheck;
-                        });
-                        _this.update('data_schemas');
                     });
                 },
                 assignGroupApp: function() {
@@ -555,17 +545,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     return defer.promise;
                 },
-                cancelGroupApp: function() {
-                    var _this = this;
-                    app.group_app_id = '';
-                    delete app.groupApp;
-                    this.update('group_app_id').then(function() {
-                        app.data_schemas.forEach(function(dataSchema) {
-                            delete dataSchema.requireCheck;
-                        });
-                        _this.update('data_schemas');
-                    });
-                }
             };
         }];
     }).provider('srvSigninRound', function() {
@@ -722,59 +701,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                         }]
                     });
-                }
-            };
-        }];
-    }).provider('srvSigninPage', function() {
-        var siteId, appId;
-        this.setSiteId = function(id) {
-            siteId = id;
-        };
-        this.setAppId = function(id) {
-            appId = id;
-        };
-        this.$get = ['$q', 'http2', 'noticebox', function($q, http2, noticebox) {
-            return {
-                update: function(page, names) {
-                    var defer = $q.defer(),
-                        updated = {},
-                        url;
-
-                    angular.isString(names) && (names = [names]);
-                    names.forEach(function(name) {
-                        if (name === 'html') {
-                            updated.html = encodeURIComponent(page.html);
-                        } else {
-                            updated[name] = page[name];
-                        }
-                    });
-                    url = '/rest/pl/fe/matter/signin/page/update';
-                    url += '?site=' + siteId;
-                    url += '&app=' + appId;
-                    url += '&pid=' + page.id;
-                    url += '&cname=' + page.code_name;
-                    http2.post(url, updated, function(rsp) {
-                        page.$$modified = false;
-                        defer.resolve();
-                        noticebox.success('完成保存');
-                    });
-
-                    return defer.promise;
-                },
-                remove: function(page) {
-                    var defer = $q.defer(),
-                        url = '/rest/pl/fe/matter/signin/page/remove';
-
-                    url += '?site=' + siteId;
-                    url += '&app=' + appId;
-                    url += '&pid=' + page.id;
-                    url += '&cname=' + page.code_name;
-                    http2.get(url, function(rsp) {
-                        defer.resolve();
-                        noticebox.success('完成删除');
-                    });
-
-                    return defer.promise;
                 }
             };
         }];

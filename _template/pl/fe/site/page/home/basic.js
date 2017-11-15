@@ -3,7 +3,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         siteId = ls.match(/site=([^&]*)/)[1],
         width = angular.element(window).width(),
         page;
-
     $scope.cTotal = [];
     $scope.siteId = siteId;
     $scope.page = page = {
@@ -13,19 +12,16 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             return '&page=' + this.at + '&size=' + this.size;
         }
     }
-
     function listTemplates() {
         $http.get('/rest/site/home/listTemplate?site=' + siteId).success(function(rsp) {
             $scope.templates = rsp.data;
         });
     }
-
     function tagMatters() {
         $http.get('/rest/pl/fe/matter/tag/listTags?site=' + siteId + '&subType=C').success(function(rsp) {
             $scope.oTagsC = rsp.data;
         });
     }
-
     function dealImgSrc(matter) {
         if(Object.keys(matter).indexOf('pic')!==-1&&matter.pic==null) {
             matter.src = matter.pic = '';
@@ -36,7 +32,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         }
         return matter;
     }
-
     function c_listChannels() {
         $scope.c_prev_channels = [], $scope.c_next_channels = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=C').success(function(rsp) {
@@ -70,9 +65,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             });
         });
     }
-
     function r_listChannels() {
-        $scope.r_prev_channels = [], $scope.r_next_channels = [], $scope.channelArticles = [];
+        $scope.r_prev_channels = [], $scope.r_next_channels = [], $scope.channelMatters = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=R').success(function(rsp) {
             $scope.r_channels = rsp.data;
             rsp.data.forEach(function(item, index) {
@@ -81,7 +75,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             width > 768 ? $scope.r_channels_matters = $scope.r_channels : $scope.r_channels_matters = $scope.r_channels_matters = $scope.r_prev_channels;
             $scope.r_channels_matters.forEach(function(item, index) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + item.channel_id + '&page=1&size=5').success(function(rsp) {
-                    $scope.channelArticles.push({
+                    $scope.channelMatters.push({
                         title: item.title,
                         url: '/rest/site/fe/matter?site=' + item.siteid + '&id=' + item.channel_id + '&type=channel',
                         data: rsp.data.matters

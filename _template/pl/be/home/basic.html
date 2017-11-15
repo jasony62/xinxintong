@@ -151,26 +151,26 @@
                 </uib-tab>
                 <uib-tab index="4+$index" ng-if="channels1.length" ng-repeat="channelMatter in channelMatters">
                     <uib-tab-heading>{{channelMatter.title}}</uib-tab-heading>
-                    <div class="media-item" ng-repeat="a in channelMatter.data" ng-click="openMatter(a)">
-                        <div class="media-item-left">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+a.src+')'}"></div>
+                    <div class="media-item" ng-repeat="data in channelMatter.data">
+                        <div class="media-item-left" ng-click="openMatter(data)">
+                            <div class="media-item-img" ng-style="{'background-image':'url('+data.src+')'}"></div>
                         </div>
                         <div class="media-item-body">
                             <div class='media-item-body-flexbox'>
                                 <div class='media-author'>
-                                    <a ng-href='/rest/site/home?site={{a.siteid}}' target="_self"><img class="img-circle" ng-src="{{a.heading_pic}}"><span>{{a.site_name}}</span><i class="glyphicon glyphicon-menu-right"></i></a>
+                                    <a ng-href='/rest/site/home?site={{data.siteid}}' target="_self"><img class="img-circle" ng-src="{{data.heading_pic}}"><span>{{data.site_name}}</span><i class="glyphicon glyphicon-menu-right"></i></a>
                                 </div>
-                                <div class="media-heading">{{a.title}}</div>
-                                <div class="media-summary">{{a.summary}}</div>
+                                <div class="media-heading" ng-click="openMatter(data)">{{data.title}}</div>
+                                <div class="media-summary" ng-click="openMatter(data)">{{data.summary}}</div>
                                 <div class='media-attr'>
                                     <div class='put_at'>
-                                        <span ng-bind="a.create_at*1000|date:'yyyy-MM-dd'"></span>
+                                        <span ng-bind="data.create_at*1000|date:'yyyy-MM-dd'"></span>
                                     </div>
                                     <div class="favor">
-                                        <a href="" ng-click="favor(user,a)"><i class="glyphicon glyphicon-star-empty"></i><span> 收藏</span></a>
+                                        <a href="" ng-click="favor(user,data)"><i class="glyphicon glyphicon-star-empty"></i><span> 收藏</span></a>
                                     </div>
                                     <div class="forward hide">
-                                        <a href="" ng-click="forward(user,a)"><i class="glyphicon glyphicon-share"></i><span> 转发</span></a>
+                                        <a href="" ng-click="forward(user,data)"><i class="glyphicon glyphicon-share"></i><span> 转发</span></a>
                                     </div>
                                 </div>
                             </div>

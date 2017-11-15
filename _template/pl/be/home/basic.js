@@ -2,13 +2,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     var width = angular.element(window).width(), sitePageAt = 1,appPageAt = 1,
         matterPageAt = 1,templatePageAt = 1,channelMatterPageAt = 1;
     $scope.width = width;
-    /*$scope.page = {
-        at: 1,
-        size: 1,
-        j: function() {
-            return 'page=' + this.at + '&size=' + this.size;
-        }
-    }*/
     $scope.moreMatters = function(type, matter) {
         switch (type) {
             case 'site':
@@ -16,7 +9,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
                 listSites();
                 break;
             case 'app':
-                appPageAt;
+                appPageAt++;
                 $scope.listApps();
                 break;
             case 'matter':
@@ -60,7 +53,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     };
     var _sites = [];
     function listSites() {
-        $http.get('/rest/home/listSite?page=' + sitePageAt + '&size=1').success(function(rsp) {
+        $http.get('/rest/home/listSite?page=' + sitePageAt + '&size=10').success(function(rsp) {
             if (rsp.data.sites.length) {
                 rsp.data.sites.forEach(function(item) {
                     dealImgSrc(item);
@@ -85,7 +78,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     };
     var _matters = [];
     $scope.listMatters = function() {
-        $http.get('/rest/home/listMatter?page=' + matterPageAt + '&size=1').success(function(rsp) {
+        $http.get('/rest/home/listMatter?page=' + matterPageAt + '&size=10').success(function(rsp) {
             if (rsp.data.matters.length) {
                 rsp.data.matters.forEach(function(item) {
                     dealImgSrc(item);
@@ -111,7 +104,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         var url;
         url = '/rest/site/fe/matter/channel/mattersGet';
         url += '?site=' + item.siteid + '&id=' + item.matter_id;
-        url += '&page=' + channelMatterPageAt + '&size=1';
+        url += '&page=' + channelMatterPageAt + '&size=10';
         $http.get(url).success(function(rsp) {
             rsp.data.matters.forEach(function(matter) {
                 dealImgSrc(matter);

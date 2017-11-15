@@ -60,60 +60,54 @@
                     </div>
                 </uib-tab>
                 <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="c_channels.length > 3">
-                        <a href id="simple-dropdown" uib-dropdown-toggle>
-                            <i class="glyphicon glyphicon-th-list"></i>
-                        </a>
-                        <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
-                            <li ng-repeat="c in c_next_channels">
-                              <a ng-href="/rest/site/fe/matter?site={{c.siteid}}&id={{c.channel_id}}&type=channel" target='_self'>
-                                    <h4 class="inline-block" ng-bind="c.display_name"></h4>
-                                </a>
-                            </li>
-                        </ul>
-                    </span>
+                    <a href id="simple-dropdown" uib-dropdown-toggle>
+                        <i class="glyphicon glyphicon-th-list"></i>
+                    </a>
+                    <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
+                        <li ng-repeat="c in c_next_channels">
+                            <a ng-href="/rest/site/fe/matter?site={{c.siteid}}&id={{c.channel_id}}&type=channel" target='_self'>
+                                <h4 class="inline-block" ng-bind="c.display_name"></h4>
+                            </a>
+                        </li>
+                    </ul>
+                </span>
             </uib-tabset>
         </div>
         <div class="col-md-3 col-xs-12 section">
-            <div class="mainSide hidden-xs" ng-repeat="r in channelArticles">
+            <div class="mainSide hidden-xs" ng-repeat="channelMatter in channelMatters">
                 <div class="mainSide-header">
                     <span class="site_fe_home site_fe_home_icon xxt_guide"></span>
-                    <span class=''>{{r.title}}</span>
-                    <span ng-if="r.total>5" class="pull-right"><a ng-href="{{r.url}}">更多<i class="glyphicon glyphicon-menu-right"></i></a></span>
+                    <span class=''>{{channelMatter.title}}</span>
+                    <span ng-if="channelMatter.total>5" class="pull-right"><a ng-href="{{channelMatter.url}}">更多<i class="glyphicon glyphicon-menu-right"></i></a></span>
                 </div>
                 <div class='madinSide-body'>
                     <ul class="list-unstyled row">
-                        <li class="list-item" ng-repeat="m in r.data">
-                            <a ng-href="{{m.url}}">
-                                <span ng-bind="m.title"></span>
-                            </a>
+                        <li class="list-item" ng-repeat="data in channelMatter.data">
+                            <a ng-href="{{data.url}}"><span ng-bind="data.title"></span></a>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="mainSide visible-xs-block">
                 <uib-tabset active="0">
-                    <uib-tab index="$index" ng-repeat="r in channelArticles">
-                        <uib-tab-heading>{{r.title}}</uib-tab-heading>
+                    <uib-tab index="$index" ng-repeat="channelMatter in channelMatters">
+                        <uib-tab-heading>{{channelMatter.title}}</uib-tab-heading>
                         <ul class="list-unstyled">
-                            <li class="list-item" ng-repeat="d in r.data">
-                                <a ng-href="{{d.url}}">
-                                    <span ng-bind="d.title"></span>
+                            <li class="list-item" ng-repeat="data in channelMatter.data">
+                                <a ng-href="{{data.url}}">
+                                    <span ng-bind="data.title"></span>
                                 </a>
                             </li>
                         </ul>
-                        <div ng-if="r.total>5" class="text-center"><a ng-href="{{r.url}}" target='_self'>更 多</a></div>
+                        <div ng-if="channelMatter.total>5" class="text-center"><a ng-href="{{channelMatter.url}}" target='_self'>更 多</a></div>
                     </uib-tab>
-                    <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channelArticles.length>2">
-                            <a href id="simple-dropdown" uib-dropdown-toggle>
-                                <i class="glyphicon glyphicon-th-list"></i>
-                            </a>
-                            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
-                                <li ng-repeat="c in r_next_channels">
-                                  <a ng-href='{{c.url}}' target='_self'>
-                                        <span ng-bind="c.display_name"></span>
-                    </a>
-                    </li>
-                    </ul>
+                    <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channelMatters.length>2">
+                        <a href id="simple-dropdown" uib-dropdown-toggle><i class="glyphicon glyphicon-th-list"></i></a>
+                        <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
+                            <li ng-repeat="channel in r_next_channels">
+                              <a ng-href='{{channel.url}}' target='_self'><span ng-bind="channel.display_name"></span></a>
+                            </li>
+                        </ul>
                     </span>
                 </uib-tabset>
             </div>
@@ -131,9 +125,9 @@
         <span class="site_fe_home site_fe_home_icon xxt_talk_qrcode" ng-mouseenter="active=true" ng-mouseleave="active=false"></span>
         <div class="gotalk" ng-show="active">
             <div class="talk-qrcodes" ng-if="site.home_qrcode_group">
-                <div class="talk-qrcode" ng-repeat="q in site.home_qrcode_group">
-                    <span ng-bind="q.tip"></span>
-                    <img class="qrcode" ng-src="{{q.picUrl}}" />
+                <div class="talk-qrcode" ng-repeat="qrocde in site.home_qrcode_group">
+                    <span ng-bind="qrocde.tip"></span>
+                    <img class="qrcode" ng-src="{{qrocde.picUrl}}" />
                 </div>
             </div>
         </div>

@@ -3,7 +3,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         siteId = ls.match(/site=([^&]*)/)[1],
         width = angular.element(window).width(),
         page;
-
     $scope.cTotal = [];
     $scope.siteId = siteId;
     $scope.page = page = {
@@ -13,19 +12,26 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             return '&page=' + this.at + '&size=' + this.size;
         }
     }
-
     function listTemplates() {
         $http.get('/rest/site/home/listTemplate?site=' + siteId).success(function(rsp) {
             $scope.templates = rsp.data;
         });
     }
-
     function tagMatters() {
         $http.get('/rest/pl/fe/matter/tag/listTags?site=' + siteId + '&subType=C').success(function(rsp) {
             $scope.oTagsC = rsp.data;
         });
     }
-
+    function dealImgSrc(matter) {
+        if(Object.keys(matter).indexOf('pic')!==-1&&matter.pic==null) {
+            matter.src = matter.pic = '';
+        }else if(Object.keys(matter).indexOf('thumbnail')!==-1&&matter.thumbnail==null){
+            matter.src = matter.thumnail = '';
+        }else {
+            matter.src = matter.pic ? matter.pic : matter.thumbnail;
+        }
+        return matter;
+    }
     function c_listChannels() {
         $scope.c_prev_channels = [], $scope.c_next_channels = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=C').success(function(rsp) {
@@ -51,24 +57,16 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
                                     });
                                 });
                             }
-                            if(Object.keys(matter).indexOf('pic')!==-1&&matter.pic==null) {
-                                matter.src = matter.pic = '';
-                            }else if(Object.keys(matter).indexOf('thumbnail')!==-1&&matter.thumbnail==null){
-                                matter.src = matter.thumnail = '';
-                            }else {
-                                matter.src = matter.pic ? matter.pic : matter.thumbnail;
-                            }
+                            dealImgSrc(matter);
                         });
                     }
-                    console.log(data.data);
                     $scope.cTotal[chid] = data;
                 });
             });
         });
     }
-
     function r_listChannels() {
-        $scope.r_prev_channels = [], $scope.r_next_channels = [], $scope.channelArticles = [];
+        $scope.r_prev_channels = [], $scope.r_next_channels = [], $scope.channelMatters = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=R').success(function(rsp) {
             $scope.r_channels = rsp.data;
             rsp.data.forEach(function(item, index) {
@@ -77,7 +75,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             width > 768 ? $scope.r_channels_matters = $scope.r_channels : $scope.r_channels_matters = $scope.r_channels_matters = $scope.r_prev_channels;
             $scope.r_channels_matters.forEach(function(item, index) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + item.channel_id + '&page=1&size=5').success(function(rsp) {
-                    $scope.channelArticles.push({
+                    $scope.channelMatters.push({
                         title: item.title,
                         url: '/rest/site/fe/matter?site=' + item.siteid + '&id=' + item.channel_id + '&type=channel',
                         data: rsp.data.matters
@@ -102,43 +100,37 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + id + '&' + page.j()).success(function(rsp) {
             var matterData = $scope.cTotal[id].data.matters;
             rsp.data.matters.forEach(function(item) {
-                if(Object.keys(item).indexOf('pic')!==-1&&item.pic==null) {
-                    item.src = item.pic = '';
-                }else if(Object.keys(item).indexOf('thumbnail')!==-1&&item.thumbnail==null){
-                    item.src = item.thumnail = '';
-                }else {
-                    item.src = item.pic ? item.pic : item.thumbnail;
-                }
+                dealImgSrc(item);
                 matterData.push(item);
             });
             $scope.cTotal[id].data = matterData;
             $scope.cTotal[id].total = rsp.data.length;
         });
     };
-    $scope.favor = function(user, article) {
+    $scope.favor = function(user, matter) {
         event.preventDefault();
         event.stopPropagation();
 
         if (!user.loginExpire) {
             tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
                 user.loginExpire = data.loginExpire;
-                tmsFavor.open(article);
+                tmsFavor.open(matter);
             });
         } else {
-            tmsFavor.open(article);
+            tmsFavor.open(matter);
         }
     };
-    $scope.forward = function(user, article) {
+    $scope.forward = function(user, matter) {
         event.preventDefault();
         event.stopPropagation();
 
         if (!user.loginExpire) {
             tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
                 user.loginExpire = data.loginExpire;
-                tmsForward.open(article);
+                tmsForward.open(matter);
             });
         } else {
-            tmsForward.open(article);
+            tmsForward.open(matter);
         }
     };
     $scope.openMatter = function(matter) {

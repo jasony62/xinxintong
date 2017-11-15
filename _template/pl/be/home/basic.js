@@ -3,7 +3,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     $scope.width = width;
     $scope.page = _oPage = {
         at: 1,
-        size: 10,
+        size: 1,
         j: function() {
             return 'page=' + this.at + '&size=' + this.size;
         }
@@ -17,8 +17,11 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
             case 'app':
                 $scope.listApps();
                 break;
-            case 'article':
+            case 'matter':
                 $scope.listMatters();
+                break;
+            case 'template':
+                listTemplates();
                 break;
             case 'channelMatter':
                 $scope.listChannelsMatters(matter);

@@ -1,6 +1,5 @@
 ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$anchorScroll', '$uibModal', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $q, $http, $location, $anchorScroll, $uibModal, tmsFavor, tmsForward, tmsDynaPage) {
-    var width = angular.element(window).width(), sitePageAt = 1,appPageAt = 1,
-        matterPageAt = 1,templatePageAt = 1,channelMatterPageAt = 1;
+    var width = angular.element(window).width(), sitePageAt = 1,appPageAt = 1, matterPageAt = 1,templatePageAt = 1,channelMatterPageAt = 1;
     $scope.width = width;
     $scope.moreMatters = function(type, matter) {
         switch (type) {

@@ -300,6 +300,8 @@
                             <th style='width:48px'>序号</th>
                             <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
                             <th style='width:120px'>创建日期</th>
+                            <th style='width:60px'>已注册</th>
+                            <th style='width:130px'>微信昵称</th>
                             <th style='width:60px'>积分</th>
                         </tr>
                     </thead>
@@ -308,13 +310,17 @@
                             <td>{{$index+1}}</td>
                             <td><a href='' ng-click="openProfile(u)">{{u.nickname}}</a></td>
                             <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>
+                            <td></td>
+                            <td></td>
                             <td>{{u.coin}}</td>
                         </tr>
                     </tbody>
                 </table>
-                <div class='form-group form-inline'>
-                    <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-                    <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                <div class='form-group'>
+                    <div class='pl-pagination'>
+                        <span>总数：{{page.total}}</span>
+                        <ul uib-pagination ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                    </div>
                 </div>
             </div>
             <div ng-controller='ctrlSiteSubscribe' ng-switch-when="subscribe">

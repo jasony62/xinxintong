@@ -231,54 +231,32 @@ class user extends \pl\fe\base {
 	public function refreshOne_action($openid) {
 		$mpa = $this->model('mp\mpaccount')->byId($this->mpid);
 
-		if ($mpa->mpsrc === 'qy') {
-			$member = $this->model('user/member')->byOpenid($this->mpid, $openid);
-			if (count($member) !== 1) {
-				return new \ResponseError('数据错误', $member);
-			}
-
-			$member = $member[0];
-
-			$result = $this->getFanInfo($this->mpid, $openid, false);
-			if ($result[0] === false) {
-				return new \ResponseError($result[1]);
-			}
-
-			$user = $result[1];
-
-			$this->updateQyFan($this->mpid, $member->fid, $user, $member->authapi_id);
-
-			$fan = $this->model('user/fans')->byId($member->fid);
-
-			return new \ResponseData($fan);
-		} else {
-			$info = $this->getFanInfo($this->mpid, $openid, true);
-			if ($info[0] === false) {
-				return new \ResponseError($info[1]);
-			}
-			if ($info[1]->subscribe != 1) {
-				return new \ResponseError('指定用户未关注公众号，无法获取用户信息');
-			}
-			/**更新数据 */
-			$model = $this->model();
-			$nickname = trim($model->escape($info[1]->nickname));
-			$u = array(
-				'nickname' => empty($nickname) ? '未知' : $nickname,
-				'sex' => $info[1]->sex,
-				'city' => $info[1]->city,
-				'groupid' => $info[1]->groupid,
-			);
-			isset($info[1]->headimgurl) && $u['headimgurl'] = $info[1]->headimgurl;
-			isset($info[1]->icon) && $u['headimgurl'] = $info[1]->icon;
-			isset($info[1]->province) && $u['province'] = $info[1]->province;
-			isset($info[1]->country) && $u['country'] = $info[1]->country;
-			$model->update(
-				'xxt_fans',
-				$u,
-				"mpid='$this->mpid' and openid='$openid'"
-			);
-			return new \ResponseData($info[1]);
+		$info = $this->getFanInfo($this->mpid, $openid, true);
+		if ($info[0] === false) {
+			return new \ResponseError($info[1]);
 		}
+		if ($info[1]->subscribe != 1) {
+			return new \ResponseError('指定用户未关注公众号，无法获取用户信息');
+		}
+		/**更新数据 */
+		$model = $this->model();
+		$nickname = trim($model->escape($info[1]->nickname));
+		$u = array(
+			'nickname' => empty($nickname) ? '未知' : $nickname,
+			'sex' => $info[1]->sex,
+			'city' => $info[1]->city,
+			'groupid' => $info[1]->groupid,
+		);
+		isset($info[1]->headimgurl) && $u['headimgurl'] = $info[1]->headimgurl;
+		isset($info[1]->icon) && $u['headimgurl'] = $info[1]->icon;
+		isset($info[1]->province) && $u['province'] = $info[1]->province;
+		isset($info[1]->country) && $u['country'] = $info[1]->country;
+		$model->update(
+			'xxt_fans',
+			$u,
+			"mpid='$this->mpid' and openid='$openid'"
+		);
+		return new \ResponseData($info[1]);
 	}
 	/**
 	 * 从公众平台更新粉丝分组信息

@@ -1,7 +1,7 @@
 <?php
 require_once '../db.php';
 /**
- * 访客
+ * 访客(should be removed)
  */
 $sql = 'create table if not exists xxt_visitor(';
 $sql .= 'mpid varchar(32) not null';
@@ -14,7 +14,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 粉丝
+ * 粉丝（should be removed）
  */
 $sql = "create table if not exists xxt_fans(";
 $sql .= 'fid varchar(32) not null';
@@ -47,7 +47,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 粉丝分组
+ * 粉丝分组（should be removed）
  */
 $sql = "create table if not exists xxt_fansgroup(";
 $sql .= 'id int not null';
@@ -166,7 +166,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /*
- * member's card
+ * member's card（should be removed）
  */
 $sql = 'create table if not exists xxt_member_card(';
 $sql .= 'mpid varchar(32) not null';

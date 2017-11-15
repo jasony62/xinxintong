@@ -131,113 +131,6 @@ class fan_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 * 创建一个企业号的粉丝用户
-	 * 同步的创建会员用户
-	 * $authid schema_id
-	 * $user 企业号用户的详细信息
-	 */
-	public function createQyFan($site, $user, $authid, $timestamp = null, $mapDeptR2L = null) {
-
-		$create_at = time();
-		empty($timestamp) && $timestamp = $create_at;
-
-		$fan = array();
-		$fan['siteid'] = $site;
-		$fan['openid'] = $user->userid;
-		$fan['nickname'] = $user->name;
-		// $fan['verified'] = 'Y';
-		//$fan['create_at'] = $create_at;
-		$fan['sync_at'] = $timestamp;
-		isset($user->mobile) && $fan['mobile'] = $user->mobile;
-		isset($user->email) && $fan['email'] = $user->email;
-		isset($user->weixinid) && $fan['weixinid'] = $user->weixinid;
-		$extattr = array();
-		if (isset($user->extattr) && !empty($user->extattr->attrs)) {
-			foreach ($user->extattr->attrs as $ea) {
-				$extattr[urlencode($ea->name)] = urlencode($ea->value);
-			}
-
-		}
-		/**
-		 * 处理岗位信息
-		 */
-		if (!empty($user->position)) {
-			$extattr['position'] = urlencode($user->position);
-		}
-
-		$fan['extattr'] = urldecode(json_encode($extattr));
-		/**
-		 * 建立成员和部门之间的关系
-		 */
-		$udepts = array();
-		foreach ($user->department as $ud) {
-			if (empty($mapDeptR2L)) {
-				$q = array(
-					'fullpath',
-					'xxt_site_member_department',
-					"siteid='$site' and extattr like '%\"id\":$ud,%'",
-				);
-				$fullpath = $this->query_val_ss($q);
-				$udepts[] = explode(',', $fullpath);
-			} else {
-				isset($mapDeptR2L[$ud]) && $udepts[] = explode(',', $mapDeptR2L[$ud]['path']);
-			}
-
-		}
-
-		$fan['depts'] = json_encode($udepts);
-		$fan['sex']=$user->gender;
-		/**
-		 * 新增加的企业号通信录成员关联到信信通的账户
-		 */
-		$openid = $fan['openid'];
-		$uid = $this->query_val_ss([
-			'uid',
-			'xxt_site_account',
-			" siteid='$site' and qy_openid ='$openid' ",
-		]);
-
-		if (!empty($uid)) {
-			$fan['userid'] = $uid;
-		} else {
-			$option = array(
-				'ufrom' => 'qy',
-				'qy_openid' => $openid,
-				'nickname' => $fan['nickname'],
-				'headimgurl' => isset($user->avatar) ? $user->avatar : '',
-			);
-
-			$account = \TMS_MODEL::M("site\\user\\account")->blank($site, true, $option);
-
-			$fan['userid'] = $account->uid;
-		}
-		/**
-		 * 为了兼容服务号和订阅号的操作，生成和成员用户对应的粉丝用户
-		 */
-		if ($old = \TMS_MODEL::M('sns\qy\fan')->byOpenid($site, $user->userid)) {
-			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			if ($user->status == 1 && $old->subscribe_at == 0) {
-				$fan['subscribe_at'] = $timestamp;
-			} else if ($user->status == 1 && $old->unsubscribe_at != 0) {
-				$fan['unsubscribe_at'] = 0;
-			} else if ($user->status == 4 && $old->unsubscribe_at == 0) {
-				$fan['unsubscribe_at'] = $timestamp;
-			}
-			$this->update(
-				'xxt_site_qyfan',
-				$fan,
-				"siteid='$site' and openid='{$user->userid}'"
-			);
-			$sync_id = $old->id;
-		} else {
-			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
-			$sync_id = $this->insert('xxt_site_qyfan', $fan, true);
-		}
-
-		return true;
-	}
-	/**
 	 * 更新企业号用户信息
 	 */
 	public function updateQyFan($site, $luser, $user, $authid, $timestamp = null, $mapDeptR2L = null) {
@@ -280,7 +173,7 @@ class fan_model extends \TMS_MODEL {
 			}
 		}
 		$fan['depts'] = json_encode($udepts);
-		$fan['sex']=$user->gender;
+		$fan['sex'] = $user->gender;
 		/*
 			 * 建立企业号通信录成员关联到信信通的账户
 		*/

@@ -1,179 +1,165 @@
-<div class='form-inline form-group'>
-    <div class='form-group' style='width:100px'>
-        <p class="modal-title h5 form-control-static">{{user.nickname}}</p>
-    </div>
-    <div class='pull-right' ng-show="memberSchemas.length">
-        <select class='form-control' ng-model='selectedSchema' ng-options='ms.title for ms in registerNo' style="min-width:150px;">
-            <option value=''></option>
-        </select>
-        <button class='btn btn-primary' ng-disabled='!selectedSchema' ng-click='addMember(selectedSchema,i)'>添加自定义用户信息
-        </button>
-    </div>
-</div>
-
-<div class="panel panel-default">
-    <div class="panel-heading">注册信息</div>
-    <div class="panel-body">
-        <div class="form-horizontal">
-            <div class="form-group">
-                <label class="col-md-2 control-label">注册时间</label>
-
-                <div class='col-md-10'>
-                    <p class="form-control-static">{{user.reg_time*1000|date:'yyyy-MM-dd HH:mm'}}</p>
+<div class='row'>
+    <div class='col-md-6 col-md-offset-3'>
+        <div class='form-inline form-group'>
+            <div class='form-group' style='width:100px'>
+                <p class="modal-title h5 form-control-static">{{user.nickname}}</p>
+            </div>
+            <div class='pull-right' ng-show="memberSchemas.length">
+                <select class='form-control' ng-model='selectedSchema' ng-options='ms.title for ms in registerNo' style="min-width:150px;">
+                    <option value=''></option>
+                </select>
+                <button class='btn btn-primary' ng-disabled='!selectedSchema' ng-click='addMember(selectedSchema,i)'>添加自定义用户信息
+                </button>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">注册信息</div>
+            <div class="panel-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">注册时间</label>
+                        <div class='col-md-10'>
+                            <p class="form-control-static">{{user.reg_time*1000|date:'yyyy-MM-dd HH:mm'}}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<div class="panel panel-default" ng-repeat='memberSchema in registerYes'>
-    <div class="panel-heading">
-        <span>{{memberSchema.title}}</span>
-        <a href='javascript:void(0)' class='pull-right' ng-click='editMember(memberSchema)'>修改</a>
-    </div>
-    <div class="panel-body">
-        <div class="form-horizontal">
-            <div class="form-group" ng-show="canFieldShow(memberSchema,'name')">
-                <label class="col-md-2 control-label">姓名</label>
-
-                <div class="col-md-10">
-                    <p class="form-control-static">{{memberSchema.member.name}}</p>
-                </div>
+        <div class="panel panel-default" ng-repeat='memberSchema in registerYes'>
+            <div class="panel-heading">
+                <span>{{memberSchema.title}}</span>
+                <a href='javascript:void(0)' class='pull-right' ng-click='editMember(memberSchema)'>修改</a>
             </div>
-            <div class="form-group" ng-show="canFieldShow(memberSchema,'mobile')">
-                <label class="col-md-2 control-label">手机</label>
-
-                <div class="col-md-10">
-                    <p class="form-control-static">{{memberSchema.member.mobile}}</p>
-                </div>
-            </div>
-            <div class="form-group" ng-show="canFieldShow(memberSchema,'email')">
-                <label class="col-md-2 control-label">邮箱</label>
-
-                <div class="col-md-10">
-                    <p class="form-control-static">{{memberSchema.member.email}}</p>
-                </div>
-            </div>
-            <div class="form-group" ng-repeat='ea in memberSchema.extattr'>
-                <label class="col-md-2 control-label">{{ea.label}}</label>
-
-                <div class="col-md-10">
-                    <p class="form-control-static">{{memberSchema.member.extattr[ea.id]}}</p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">完成认证</label>
-
-                <div class="col-md-10">
-                    <div class="form-control-static">{{memberSchema.member.verified==='Y'?'是':'否'}}</div>
+            <div class="panel-body">
+                <div class="form-horizontal">
+                    <div class="form-group" ng-show="canFieldShow(memberSchema,'name')">
+                        <label class="col-md-2 control-label">姓名</label>
+                        <div class="col-md-10">
+                            <p class="form-control-static">{{memberSchema.member.name}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-show="canFieldShow(memberSchema,'mobile')">
+                        <label class="col-md-2 control-label">手机</label>
+                        <div class="col-md-10">
+                            <p class="form-control-static">{{memberSchema.member.mobile}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-show="canFieldShow(memberSchema,'email')">
+                        <label class="col-md-2 control-label">邮箱</label>
+                        <div class="col-md-10">
+                            <p class="form-control-static">{{memberSchema.member.email}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-repeat='ea in memberSchema.extattr'>
+                        <label class="col-md-2 control-label">{{ea.label}}</label>
+                        <div class="col-md-10">
+                            <p class="form-control-static">{{memberSchema.member.extattr[ea.id]}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">完成认证</label>
+                        <div class="col-md-10">
+                            <div class="form-control-static">{{memberSchema.member.verified==='Y'?'是':'否'}}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<!--公众号信息 ng-if内判断更改 获得后台信息-->
-<div class="panel panel-default" ng-if="wx">
-    <div class="panel-heading">
-        <span>微信公众号信息</span>
-        <a href="javascript:void(0)" class="pull-right" ng-click="sync(wx.openid,'wx')">同步信息</a>
-    </div>
-    <div class="panel-body">
-        <div class="form-horizontal">
-            <div class="form-group">
-                <label class="col-md-2 control-label">头像</label>
-
-                <div class='col-md-10'>
-                    <img ng-src="{{wx.headimgurl}}" alt=""/>
-                </div>
+        <!--公众号信息 ng-if内判断更改 获得后台信息-->
+        <div class="panel panel-default" ng-if="wx">
+            <div class="panel-heading">
+                <span>微信公众号信息</span>
+                <a href="javascript:void(0)" class="pull-right" ng-click="sync(wx.openid,'wx')">同步信息</a>
             </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">昵称</label>
-
-                <div class='col-md-10'>
-                    <p class="form-control-static" ng-bind="wx.nickname"></p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">性别</label>
-
-                <div class='col-md-10' ng-switch on="wx.sex">
-                    <p class="form-control-static" ng-switch-when="1">男</p>
-                    <p class="form-control-static" ng-switch-when="2">女</p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">城市</label>
-
-                <div class='col-md-10'>
-                    <p class="form-control-static" ng-bind="wx.province">{{}}</p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">关注日期</label>
-
-                <div class='col-md-10'>
-                    <p class="form-control-static" ng-bind="wx.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+            <div class="panel-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">头像</label>
+                        <div class='col-md-10'>
+                            <img ng-src="{{wx.headimgurl}}" alt="" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">昵称</label>
+                        <div class='col-md-10'>
+                            <p class="form-control-static" ng-bind="wx.nickname"></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">性别</label>
+                        <div class='col-md-10' ng-switch on="wx.sex">
+                            <p class="form-control-static" ng-switch-when="1">男</p>
+                            <p class="form-control-static" ng-switch-when="2">女</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">城市</label>
+                        <div class='col-md-10'>
+                            <p class="form-control-static" ng-bind="wx.province">{{}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">关注日期</label>
+                        <div class='col-md-10'>
+                            <p class="form-control-static" ng-bind="wx.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<div class="panel panel-default" ng-if="qy">
-    <div class="panel-heading">
-        <span>微信企业号信息</span>
-        <a href="javascript:void(0)" class="pull-right" ng-click="sync(qy.openid,'qy')">同步信息</a>
-    </div>
-    <div class="panel-body">
-        <div class="form-horizontal">
-            <div class="form-group">
-                <label class="col-md-2 control-label">头像</label>
-
-                <div class='col-md-10'>
-                    <img class="img-thumbnail" ng-src="{{qy.headimgurl}}" style="width: 50px" alt=""/>
-                </div>
+        <div class="panel panel-default" ng-if="qy">
+            <div class="panel-heading">
+                <span>微信企业号信息</span>
+                <a href="javascript:void(0)" class="pull-right" ng-click="sync(qy.openid,'qy')">同步信息</a>
             </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">昵称</label>
-
-                <div class='col-md-10'>
-                    <p class="form-control-static" ng-bind="qy.nickname"></p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">关注日期</label>
-
-                <div class='col-md-10'>
-                    <p class="form-control-static" ng-bind="qy.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+            <div class="panel-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">头像</label>
+                        <div class='col-md-10'>
+                            <img class="img-thumbnail" ng-src="{{qy.headimgurl}}" style="width: 50px" alt="" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">昵称</label>
+                        <div class='col-md-10'>
+                            <p class="form-control-static" ng-bind="qy.nickname"></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">关注日期</label>
+                        <div class='col-md-10'>
+                            <p class="form-control-static" ng-bind="qy.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<div class="panel panel-default" ng-if="yx">
-    <div class="panel-heading">
-        <span>易信公众号信息</span>
-        <a href="javascript:void(0)" class="pull-right" ng-click="sync(yx.openid,'yx')">同步信息</a>
-    </div>
-    <div class="panel-body">
-        <div class="form-horizontal">
-            <div class="form-group">
-                <label class="col-md-2 control-label">头像</label>
-
-                <div class='col-md-10'>
-                    <img ng-src="{{yx.headimgurl}}" alt=""/>
-                </div>
+        <div class="panel panel-default" ng-if="yx">
+            <div class="panel-heading">
+                <span>易信公众号信息</span>
+                <a href="javascript:void(0)" class="pull-right" ng-click="sync(yx.openid,'yx')">同步信息</a>
             </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">昵称</label>
-
-                <div class='col-md-10'>
-                    <p class="form-control-static" ng-bind="yx.nickname"></p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">关注日期</label>
-
-                <div class='col-md-10'>
-                    <p class="form-control-static" ng-bind="yx.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+            <div class="panel-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">头像</label>
+                        <div class='col-md-10'>
+                            <img ng-src="{{yx.headimgurl}}" alt="" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">昵称</label>
+                        <div class='col-md-10'>
+                            <p class="form-control-static" ng-bind="yx.nickname"></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">关注日期</label>
+                        <div class='col-md-10'>
+                            <p class="form-control-static" ng-bind="yx.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -188,14 +174,12 @@
         <form class="form-horizontal">
             <div class="form-group" ng-if="member.id">
                 <label class="col-md-2 control-label">认证日期</label>
-
                 <div class="col-md-10">
                     <p class="form-control-static">{{member.create_at*1000|date:'yy-MM-dd hh:mm'}}</p>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-md-2 control-label">完成认证</label>
-
                 <div class="col-md-10">
                     <label class='checkbox-inline'>
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.verified'>是
@@ -204,38 +188,32 @@
             </div>
             <div class="form-group" ng-if="canShow('name')">
                 <label class="col-md-2 control-label">姓名</label>
-
                 <div class="col-md-10">
                     <input class="form-control" ng-model='member.name'>
                 </div>
             </div>
             <div class="form-group" ng-if="canShow('mobile')">
                 <label class="col-md-2 control-label">手机</label>
-
                 <div class="col-md-10">
                     <input class="form-control" ng-model='member.mobile'>
                 </div>
             </div>
             <div class="form-group" ng-if="canShow('email')">
                 <label class="col-md-2 control-label">邮箱</label>
-
                 <div class="col-md-10">
                     <input class="form-control" ng-model='member.email'>
                 </div>
             </div>
             <div class="form-group" ng-if='schema.attr_email[4]==1'>
                 <label class="col-md-2 control-label">邮箱验证通过</label>
-
                 <div class="col-md-10">
                     <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'"
-                               ng-model='member.email_verified'>是
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.email_verified'>是
                     </label>
                 </div>
             </div>
             <div class="form-group" ng-repeat='ea in schema.extattr'>
                 <label class="col-md-2 control-label">{{ea.label}}</label>
-
                 <div class="col-md-10">
                     <input class="form-control" ng-model='member.extattr[ea.id]'>
                 </div>

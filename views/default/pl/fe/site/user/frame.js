@@ -6,7 +6,7 @@ define(['require'], function(require) {
     ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', 'srvSiteProvider', function($lp, $rp, $cp, srvSiteProvider) {
         var RouteParam = function(name, loadjs) {
             var baseURL = '/views/default/pl/fe/site/user/';
-            this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
+            this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             if (loadjs) {
                 this.resolve = {
@@ -26,7 +26,9 @@ define(['require'], function(require) {
         };
         $rp
             .when('/rest/pl/fe/site/user/main', new RouteParam('main', true))
-            .when('/rest/pl/fe/site/user/history', new RouteParam('history', true))
+            .when('/rest/pl/fe/site/user/doc', new RouteParam('doc', true))
+            .when('/rest/pl/fe/site/user/app', new RouteParam('app', true))
+            .when('/rest/pl/fe/site/user/favor', new RouteParam('favor', true))
             .when('/rest/pl/fe/site/user/message', new RouteParam('message', true))
             .otherwise(new RouteParam('main', true));
         $lp.html5Mode(true);
@@ -49,7 +51,6 @@ define(['require'], function(require) {
                 case 'main':
                     $scope.opened = 'main';
                     break;
-                case 'history':
                 case 'app':
                 case 'doc':
                 case 'favor':

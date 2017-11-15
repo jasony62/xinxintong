@@ -1,29 +1,34 @@
 ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$anchorScroll', '$uibModal', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $q, $http, $location, $anchorScroll, $uibModal, tmsFavor, tmsForward, tmsDynaPage) {
-    var _oPage, width = angular.element(window).width();
+    var width = angular.element(window).width(), sitePageAt = 1,appPageAt = 1,
+        matterPageAt = 1,templatePageAt = 1,channelMatterPageAt = 1;
     $scope.width = width;
-    $scope.page = _oPage = {
+    /*$scope.page = {
         at: 1,
         size: 1,
         j: function() {
             return 'page=' + this.at + '&size=' + this.size;
         }
-    }
+    }*/
     $scope.moreMatters = function(type, matter) {
-        _oPage.at++;
         switch (type) {
             case 'site':
+                sitePageAt++;
                 listSites();
                 break;
             case 'app':
+                appPageAt;
                 $scope.listApps();
                 break;
             case 'matter':
+                matterPageAt++;
                 $scope.listMatters();
                 break;
             case 'template':
+                templatePageAt++;
                 listTemplates();
                 break;
             case 'channelMatter':
+                channelMatterPageAt++;
                 $scope.listChannelsMatters(matter);
                 break;
         }
@@ -43,7 +48,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     }
     var _templates = [];
     function listTemplates() {
-        $http.get('/rest/home/listTemplate').success(function(rsp) {
+        $http.get('/rest/home/listTemplate?page=' + templatePageAt + '&size=10').success(function(rsp) {
             if(rsp.data.length) {
                 rsp.data.forEach(function(data) {
                     dealImgSrc(data);
@@ -55,7 +60,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     };
     var _sites = [];
     function listSites() {
-        $http.get('/rest/home/listSite?' + _oPage.j()).success(function(rsp) {
+        $http.get('/rest/home/listSite?page=' + sitePageAt + '&size=1').success(function(rsp) {
             if (rsp.data.sites.length) {
                 rsp.data.sites.forEach(function(item) {
                     dealImgSrc(item);
@@ -68,7 +73,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     };
     var _apps = [];
     $scope.listApps = function() {
-        $http.get('/rest/home/listApp?' + _oPage.j()).success(function(rsp) {
+        $http.get('/rest/home/listApp?page=' + appPageAt + '&size=10').success(function(rsp) {
             if (rsp.data.matters.length) {
                 rsp.data.matters.forEach(function(item) {
                     _apps.push(item);
@@ -80,7 +85,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     };
     var _matters = [];
     $scope.listMatters = function() {
-        $http.get('/rest/home/listMatter?' + _oPage.j()).success(function(rsp) {
+        $http.get('/rest/home/listMatter?page=' + matterPageAt + '&size=1').success(function(rsp) {
             if (rsp.data.matters.length) {
                 rsp.data.matters.forEach(function(item) {
                     dealImgSrc(item);
@@ -106,15 +111,15 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         var url;
         url = '/rest/site/fe/matter/channel/mattersGet';
         url += '?site=' + item.siteid + '&id=' + item.matter_id;
-        url += '&' + _oPage.j();
+        url += '&page=' + channelMatterPageAt + '&size=1';
         $http.get(url).success(function(rsp) {
             rsp.data.matters.forEach(function(matter) {
                 dealImgSrc(matter);
             });
-            if (_oPage.at == 1) {
+            if (channelMatterPageAt == 1) {
                 _channelMatters.push({ title: item.title, siteid: item.siteid, matter_id: item.matter_id, data: rsp.data.matters, total: rsp.data.total });
             }
-            if ($scope.page.at > 1) {
+            if (channelMatterPageAt > 1) {
                 if (rsp.data.matters.length) {
                     _channelMatters.forEach(function(channel) {
                         if (channel.matter_id == item.matter_id) {

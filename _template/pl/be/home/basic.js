@@ -48,6 +48,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
                 });
             }
             $scope.templates = _templates;
+            $scope.templates.total = rsp.data.total;
         });
     };
     var _sites = [];
@@ -144,32 +145,32 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
             });
         });
     };
-    $scope.favor = function(user, article) {
-        article.type = article.matter_type;
+    $scope.favor = function(user, matter) {
+        matter.type = matter.matter_type;
         event.preventDefault();
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + matter.siteid).then(function(data) {
                 user.loginExpire = data.loginExpire;
-                tmsFavor.open(article);
+                tmsFavor.open(matter);
             });
         } else {
-            tmsFavor.open(article);
+            tmsFavor.open(matter);
         }
     }
-    $scope.forward = function(user, article) {
-        article.type = article.matter_type;
+    $scope.forward = function(user, matter) {
+        matter.type = matter.matter_type;
         event.preventDefault();
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + matter.siteid).then(function(data) {
                 user.loginExpire = data.loginExpire;
-                tmsForward.open(article);
+                tmsForward.open(matter);
             });
         } else {
-            tmsForward.open(article);
+            tmsForward.open(matter);
         }
     }
     $scope.gotoTop = function() {

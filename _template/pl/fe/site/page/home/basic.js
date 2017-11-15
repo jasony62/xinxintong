@@ -107,30 +107,30 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             $scope.cTotal[id].total = rsp.data.length;
         });
     };
-    $scope.favor = function(user, article) {
+    $scope.favor = function(user, matter) {
         event.preventDefault();
         event.stopPropagation();
 
         if (!user.loginExpire) {
             tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
                 user.loginExpire = data.loginExpire;
-                tmsFavor.open(article);
+                tmsFavor.open(matter);
             });
         } else {
-            tmsFavor.open(article);
+            tmsFavor.open(matter);
         }
     };
-    $scope.forward = function(user, article) {
+    $scope.forward = function(user, matter) {
         event.preventDefault();
         event.stopPropagation();
 
         if (!user.loginExpire) {
             tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
                 user.loginExpire = data.loginExpire;
-                tmsForward.open(article);
+                tmsForward.open(matter);
             });
         } else {
-            tmsForward.open(article);
+            tmsForward.open(matter);
         }
     };
     $scope.openMatter = function(matter) {

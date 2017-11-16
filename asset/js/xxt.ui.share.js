@@ -14,7 +14,10 @@
                      alert('share failed:' + ex.message);
                  }
              },
-             cancel: function() {}
+             cancel: function() {},
+             fail: function() {
+                alert('shareT: fail');
+             }
          });
          window.wx.onMenuShareAppMessage({
              title: title,
@@ -28,7 +31,10 @@
                      alert('share failed:' + ex.message);
                  }
              },
-             cancel: function() {}
+             cancel: function() {},
+             fail: function() {
+                alert('shareF: fail');
+             }
          });
      }
 
@@ -87,7 +93,10 @@
                                      wx.config(signPackage);
                                      wx.ready(function() {
                                         setWxShare(title, link, desc, img, _this.options);
-                                    });
+                                     });
+                                     wx.error(function(res){
+                                        alert(res);
+                                     });
                                  }
                              } catch (e) {
                                  alert('local error:' + e.toString());

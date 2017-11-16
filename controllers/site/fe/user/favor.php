@@ -93,24 +93,25 @@ class favor extends \site\fe\base {
 			'xxt_site_favor',
 			['siteid' => $oMatter->siteid, 'unionid' => $loginUserid, 'matter_id' => $id, 'matter_type' => $type],
 		];
-		if (false === $modelMat->query_obj_ss($q)) {
-			$log = [
-				'siteid' => $oMatter->siteid,
-				'site_name' => $modelMat->escape($fromSite->name),
-				'unionid' => $loginUserid,
-				'nickname' => empty($this->who->nickname) ? '' : $modelMat->escape($this->who->nickname),
-				'favor_at' => time(),
-				'matter_id' => $oMatter->id,
-				'matter_type' => $oMatter->type,
-				'matter_title' => $modelMat->escape($oMatter->title),
-			];
-
-			$id = $modelMat->insert('xxt_site_favor', $log, true);
-
-			return new \ResponseData($id);
-		} else {
+		if ($modelMat->query_obj_ss($q)) {
 			return new \ResponseError('已经收藏过', 101);
 		}
+		$log = [
+			'siteid' => $oMatter->siteid,
+			'site_name' => $modelMat->escape($fromSite->name),
+			'unionid' => $loginUserid,
+			'nickname' => empty($this->who->nickname) ? '' : $modelMat->escape($this->who->nickname),
+			'favor_at' => time(),
+			'matter_id' => $oMatter->id,
+			'matter_type' => $oMatter->type,
+			'matter_title' => $modelMat->escape($oMatter->title),
+		];
+		$id = $modelMat->insert('xxt_site_favor', $log, true);
+
+		/* 更新用户收藏数量 */
+		$modelMat->update("update xxt_site_account set favor_num=favor_num+1 where uid='{$this->who->uid}'");
+
+		return new \ResponseData($id);
 	}
 	/**
 	 * 检查用户是否收藏了指定素材
@@ -138,12 +139,16 @@ class favor extends \site\fe\base {
 		if (!isset($this->who->unionid)) {
 			return new \ResponseError('仅限登录用户操作');
 		}
+		$model = $this->model();
 		$loginUserid = $this->who->unionid;
 
-		$rst = $this->model()->delete(
+		$rst = $model->delete(
 			'xxt_site_favor',
 			['unionid' => $loginUserid, 'matter_id' => $id, 'matter_type' => $type]
 		);
+
+		/* 更新用户收藏数量 */
+		$model->update("update xxt_site_account set favor_num=favor_num-1 where uid='{$this->who->uid}'");
 
 		return new \ResponseData($rst);
 	}

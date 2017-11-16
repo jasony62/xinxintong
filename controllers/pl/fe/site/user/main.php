@@ -57,8 +57,8 @@ class main extends \pl\fe\base {
 	 * @param string $site site'id
 	 * @param string $uid
 	 */
-	public function actList_action($site = null, $uid, $page = 1, $size = 12) {
-		if (false === ($user = $this->accountUser())) {
+	public function appList_action($site = null, $uid, $page = 1, $size = 12) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
@@ -78,6 +78,25 @@ class main extends \pl\fe\base {
 		if (empty($logs)) {
 			$result->total = 0;
 		} else {
+			$oUser = (object) ['uid' => $uid];
+			foreach ($logs as $log) {
+				switch ($log->matter_type) {
+				case 'enroll':
+					if (!isset($modelEnlUsr)) {
+						$modelEnlUsr = $this->model('matter\enroll\user');
+					}
+					$oApp = (object) ['id' => $log->matter_id];
+					$log->act = $modelEnlUsr->reportByUser($oApp, $oUser);
+					break;
+				case 'signin':
+					if (!isset($modelSig)) {
+						$modelSig = $this->model('matter\signin');
+					}
+					$oApp = (object) ['id' => $log->matter_id];
+					$log->act = $modelSig->reportByUser($oApp, $oUser);
+					break;
+				}
+			}
 			$q[0] = 'count(*)';
 			$result->total = $modelLog->query_val_ss($q);
 		}

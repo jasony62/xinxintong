@@ -200,20 +200,20 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             if (oArticle.can_picviewer === 'Y') {
                 tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
             }
-            if (!document.querySelector('.tms-switch-favor')) {
-                tmsFavor.showSwitch($scope.user, oArticle);
-            } else {
-                $scope.favor = function(user, article) {
-                    if (!user.loginExpire) {
-                        tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
-                            user.loginExpire = data.loginExpire;
-                            tmsFavor.open(article);
-                        });
-                    } else {
+            //if (!document.querySelector('.tms-switch-favor')) {
+            tmsFavor.showSwitch($scope.user, oArticle);
+            //} else {
+            $scope.favor = function(user, article) {
+                if (!user.loginExpire) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+                        user.loginExpire = data.loginExpire;
                         tmsFavor.open(article);
-                    }
+                    });
+                } else {
+                    tmsFavor.open(article);
                 }
-            }
+            };
+            //}
             if (!document.querySelector('.tms-switch-forward')) {
                 tmsForward.showSwitch($scope.user, oArticle);
             } else {
@@ -226,7 +226,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                     } else {
                         tmsForward.open(article);
                     }
-                }
+                };
             }
             if (oArticle.can_coinpay === 'Y') {
                 if (!document.querySelector('.tms-switch-coinpay')) {
@@ -234,16 +234,16 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 }
             }
             if (oArticle.can_siteuser === 'Y') {
-                if (!document.querySelector('.tms-switch-siteuser')) {
-                    tmsSiteUser.showSwitch(oArticle.siteid, true);
-                } else {
-                    $scope.siteUser = function(id) {
-                        var url = 'http://' + location.host;
-                        url += '/rest/site/fe/user';
-                        url += "?site=" + siteId;
-                        location.href = url;
-                    }
-                }
+                //if (!document.querySelector('.tms-switch-siteuser')) {
+                //    tmsSiteUser.showSwitch(oArticle.siteid, true);
+                //} else {
+                $scope.siteUser = function(id) {
+                    var url = 'http://' + location.host;
+                    url += '/rest/site/fe/user';
+                    url += "?site=" + siteId;
+                    location.href = url;
+                };
+                //}
             }
             if (!_bPreview) {
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + oArticle.title + '&shareby=' + shareby, {

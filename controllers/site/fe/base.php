@@ -90,6 +90,7 @@ class base extends \site\base {
 				$snsSiteId = $this->siteId;
 			} else if ($this->myGetcookie("_platform_oauthpending") === 'Y') {
 				$snsSiteId = 'platform';
+				$this->model('log')->log($this->siteId, 'afterSnsOAuth', 'snsSiteId: ' . $snsSiteId, null, $_SERVER['REQUEST_URI']);
 			}
 			if (false === $snsSiteId) {
 				return false;
@@ -207,6 +208,7 @@ class base extends \site\base {
 			$snsConfig = $modelSns->bySite('platform');
 		}
 		if ($snsConfig === false) {
+			$this->model('log')->log($site, 'snsOAuthUserByCode', 'snsConfig: false', null, $_SERVER['REQUEST_URI']);
 			return false;
 		}
 		$snsProxy = $this->model('sns\\' . $snsName . '\proxy', $snsConfig);
@@ -347,13 +349,16 @@ class base extends \site\base {
 			}
 		}
 		if (isset($snsProxy)) {
+			$this->model('log')->log($site, 'wxjssdksignpackage', 'url: ' . urldecode($url), null, $_SERVER['REQUEST_URI']);
 			$rst = $snsProxy->getJssdkSignPackage(urldecode($url));
 			header('Content-Type: text/javascript');
 			if ($rst[0] === false) {
+				$this->model('log')->log($site, 'wxjssdksignpackage', 'url: ' . urldecode($url) . ' failed: ' . $rst[1], null, $_SERVER['REQUEST_URI']);
 				die("alert('{$rst[1]}');");
 			}
 			die($rst[1]);
 		} else {
+			$this->model('log')->log($site, 'wxjssdksignpackage', 'snsProxy=false', null, $_SERVER['REQUEST_URI']);
 			die("signPackage=false");
 		}
 	}

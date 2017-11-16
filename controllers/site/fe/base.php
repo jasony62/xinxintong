@@ -349,13 +349,13 @@ class base extends \site\base {
 			}
 		}
 		if (isset($snsProxy)) {
-			$this->model('log')->log($site, 'wxjssdksignpackage', 'url: ' . urldecode($url), null, $_SERVER['REQUEST_URI']);
 			$rst = $snsProxy->getJssdkSignPackage(urldecode($url));
 			header('Content-Type: text/javascript');
 			if ($rst[0] === false) {
-				$this->model('log')->log($site, 'wxjssdksignpackage', 'url: ' . urldecode($url) . ' failed: ' . $rst[1], null, $_SERVER['REQUEST_URI']);
+				$this->model('log')->log($site, 'wxjssdksignpackage', 'url: ' . urldecode($url) . ' ,failed: ' . $rst[1], null, $_SERVER['REQUEST_URI']);
 				die("alert('{$rst[1]}');");
 			}
+			$this->model('log')->log($site, 'wxjssdksignpackage', $rst[1], null, $_SERVER['REQUEST_URI']);
 			die($rst[1]);
 		} else {
 			$this->model('log')->log($site, 'wxjssdksignpackage', 'snsProxy=false', null, $_SERVER['REQUEST_URI']);

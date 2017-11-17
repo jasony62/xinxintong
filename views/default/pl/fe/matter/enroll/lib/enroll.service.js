@@ -1191,7 +1191,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
-                url += '&rid=' + _ins._oCriteria.rid;
+                _ins._oCriteria.rid && (url += '&rid=' + _ins._oCriteria.rid);
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
@@ -1205,7 +1205,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url = '/rest/pl/fe/matter/enroll/record/score4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
-                url += '&rid=' + _ins._oCriteria.record.rid;
+                _ins._oCriteria.rid && (url += '&rid=' + _ins._oCriteria.record.rid);
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
@@ -1325,7 +1325,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
                 url += '&accessToken=' + _accessId;
-                url += '&rid=' + params.criteria.record.rid;
+                params.criteria.record && (url += '&rid=' + params.criteria.record.rid);
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);

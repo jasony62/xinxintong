@@ -1184,14 +1184,16 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
-            _ins.sum4Schema = function(rid) {
+            _ins.sum4Schema = function() {
                 var url,
                     defer = $q.defer();
 
                 url = '/rest/pl/fe/matter/enroll/record/sum4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
-                _ins._oCriteria.rid && (url += '&rid=' + _ins._oCriteria.rid);
+                if (_ins._oCriteria.record && _ins._oCriteria.record.rid) {
+                    url += '&rid=' + _ins._oCriteria.record.rid;
+                }
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
@@ -1205,7 +1207,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url = '/rest/pl/fe/matter/enroll/record/score4Schema';
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
-                _ins._oCriteria.rid && (url += '&rid=' + _ins._oCriteria.record.rid);
+                if (_ins._oCriteria.record && _ins._oCriteria.record.rid) {
+                    url += '&rid=' + _ins._oCriteria.record.rid;
+                }
 
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);

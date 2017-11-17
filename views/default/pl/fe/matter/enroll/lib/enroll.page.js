@@ -436,15 +436,19 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     while (ia > 0 && !_oChooseState[sibling.id]) {
                         sibling = $scope.app.dataSchemas[--ia];
                     }
-                    if (_oChooseState[sibling.id]) {
-                        domNewWrap = editorProxy.appendSchema(schema, sibling);
-                    } else {
-                        ia = $scope.app.dataSchemas.indexOf(schema);
-                        sibling = $scope.app.dataSchemas[++ia];
-                        while (ia < $scope.app.dataSchemas.length && !_oChooseState[sibling.id]) {
+                    if (sibling) {
+                        if (_oChooseState[sibling.id]) {
+                            domNewWrap = editorProxy.appendSchema(schema, sibling);
+                        } else {
+                            ia = $scope.app.dataSchemas.indexOf(schema);
                             sibling = $scope.app.dataSchemas[++ia];
+                            while (ia < $scope.app.dataSchemas.length && !_oChooseState[sibling.id]) {
+                                sibling = $scope.app.dataSchemas[++ia];
+                            }
+                            domNewWrap = editorProxy.appendSchema(schema, sibling, true);
                         }
-                        domNewWrap = editorProxy.appendSchema(schema, sibling, true);
+                    } else {
+                        domNewWrap = editorProxy.appendSchema(schema);
                     }
                 }
                 $scope.setActiveWrap(domNewWrap);
@@ -480,11 +484,16 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                         id: 'enrollAt',
                         type: '_enrollAt',
                         title: '填写时间'
+                    }, {
+                        id: 'roundTitle',
+                        type: '_roundTitle',
+                        title: '填写轮次'
                     }];
                     oPage.data_schemas.forEach(function(config) {
                         config.schema && config.schema.id && (_oChooseState[config.schema.id] = true);
                     });
                     _oChooseState['enrollAt'] === undefined && (_oChooseState['enrollAt'] = false);
+                    _oChooseState['roundTitle'] === undefined && (_oChooseState['roundTitle'] = false);
                 }
                 $scope.chooseState = _oChooseState;
             }
@@ -592,8 +601,15 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             id: 'enrollAt',
             type: '_enrollAt',
             title: '填写时间'
+        }, {
+            id: 'roundTitle',
+            type: '_roundTitle',
+            title: '填写轮次'
         }];
         $scope.app.dataSchemas.forEach(function(schema) {
+            chooseState[schema.id] = false;
+        });
+        $scope.otherSchemas.forEach(function(schema) {
             chooseState[schema.id] = false;
         });
         listSchemas.forEach(function(schema) {
@@ -612,12 +628,16 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     while (ia > 0 && !chooseState[brother.id]) {
                         brother = $scope.app.dataSchemas[--ia];
                     }
-                    for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
-                        if (listSchemas[ibl].id === brother.id) {
-                            break;
+                    if (brother) {
+                        for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
+                            if (listSchemas[ibl].id === brother.id) {
+                                break;
+                            }
                         }
+                        listSchemas.splice(ibl + 1, 0, schema);
+                    } else {
+                        listSchemas.push(schema);
                     }
-                    listSchemas.splice(ibl + 1, 0, schema);
                 }
             } else {
                 for (var i = listSchemas.length - 1; i >= 0; i--) {

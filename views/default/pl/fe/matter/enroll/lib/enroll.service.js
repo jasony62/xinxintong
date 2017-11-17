@@ -1200,7 +1200,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 })
                 return defer.promise;
             };
-            _ins.score4Schema = function(rid) {
+            _ins.score4Schema = function() {
                 var url,
                     defer = $q.defer();
 

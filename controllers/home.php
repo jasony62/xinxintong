@@ -20,50 +20,41 @@ class home extends TMS_CONTROLLER {
 		$current = time();
 		$modelPl = $this->model('platform');
 		$platform = $modelPl->get();
-		$modelCode = \TMS_APP::M('code\page');
+		$modelCode = $this->model('code\page');
 		$template = $modelPl->escape($template);
 		//自动更新主页页面
 		if ($platform->autoup_homepage === 'Y' && !empty($template)) {
-			$home_page = $modelCode->lastPublishedByName('platform', $platform->home_page_name, ['fields' => 'id,create_at']);
+			$oHomePage = $modelCode->lastPublishedByName('platform', $platform->home_page_name, ['fields' => 'id,create_at']);
 			$templatePageMTimes = $this->_getPageMTime('home', $template);
-
-			if ($templatePageMTimes['upAtHtml'] > $home_page->create_at || $templatePageMTimes['upAtCss'] > $home_page->create_at || $templatePageMTimes['upAtJs'] > $home_page->create_at) {
+			if (false === $oHomePage || $templatePageMTimes['upAtHtml'] > $oHomePage->create_at || $templatePageMTimes['upAtCss'] > $oHomePage->create_at || $templatePageMTimes['upAtJs'] > $oHomePage->create_at) {
 				//更新主页页面
 				$data = $this->_makePage('home', $template);
 				$data['create_at'] = $current;
 				$data['modify_at'] = $current;
-				$rst = $this->model('code\page')->modify($platform->{'home_page_id'}, $data);
+				$modelCode->modify($platform->{'home_page_id'}, $data);
 			}
-			$home_page = '';
-			$data = '';
 		}
 		if ($platform->autoup_sitepage === 'Y' && !empty($template)) {
-			$site_page = $modelCode->lastPublishedByName('platform', $platform->site_page_name, ['fields' => 'id,create_at']);
+			$oSitePage = $modelCode->lastPublishedByName('platform', $platform->site_page_name, ['fields' => 'id,create_at']);
 			$templatePageMTimes = $this->_getPageMTime('site', $template);
-
-			if ($templatePageMTimes['upAtHtml'] > $site_page->create_at || $templatePageMTimes['upAtCss'] > $site_page->create_at || $templatePageMTimes['upAtJs'] > $site_page->create_at) {
+			if (false === $oSitePage || $templatePageMTimes['upAtHtml'] > $oSitePage->create_at || $templatePageMTimes['upAtCss'] > $oSitePage->create_at || $templatePageMTimes['upAtJs'] > $oSitePage->create_at) {
 				//更新主页页面
 				$data = $this->_makePage('site', $template);
 				$data['create_at'] = $current;
 				$data['modify_at'] = $current;
-				$rst = $this->model('code\page')->modify($platform->{'site_page_id'}, $data);
+				$modelCode->modify($platform->{'site_page_id'}, $data);
 			}
-			$site_page = '';
-			$data = '';
 		}
 		if ($platform->autoup_templatepage === 'Y' && !empty($template)) {
-			$template_page = $modelCode->lastPublishedByName('platform', $platform->template_page_name, ['fields' => 'id,create_at']);
+			$oTemplatePage = $modelCode->lastPublishedByName('platform', $platform->template_page_name, ['fields' => 'id,create_at']);
 			$templatePageMTimes = $this->_getPageMTime('template', $template);
-
-			if ($templatePageMTimes['upAtHtml'] > $template_page->create_at || $templatePageMTimes['upAtCss'] > $template_page->create_at || $templatePageMTimes['upAtJs'] > $template_page->create_at) {
+			if (false === $oTemplatePage || $templatePageMTimes['upAtHtml'] > $oTemplatePage->create_at || $templatePageMTimes['upAtCss'] > $oTemplatePage->create_at || $templatePageMTimes['upAtJs'] > $oTemplatePage->create_at) {
 				//更新主页页面
 				$data = $this->_makePage('template', $template);
 				$data['create_at'] = $current;
 				$data['modify_at'] = $current;
-				$rst = $this->model('code\page')->modify($platform->{'template_page_id'}, $data);
+				$modelCode->modify($platform->{'template_page_id'}, $data);
 			}
-			$template_page = '';
-			$data = '';
 		}
 
 		TPL::output('/home');

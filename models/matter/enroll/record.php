@@ -965,7 +965,7 @@ class record_model extends record_base {
 		$fields = isset($options->fields) ? $options->fields : 'enroll_key,userid';
 
 		$w = "state=1 and aid='{$oApp->id}'";
-		if (!empty($options['userid'])) {
+		if (!empty($options->userid)) {
 		} else {
 			$w .= " and userid<>''";
 		}

@@ -44,7 +44,7 @@ class record extends base {
 		}
 
 		$modelApp = $this->model('matter\signin');
-		$mdoelSigRec = $this->model('matter\signin\record');
+		$mdoelSigRec = $this->model('matter\signin\record')->setOnlyWriteDbConn(true);
 		if (false === ($oSigninApp = $modelApp->byId($app, ['cascaded' => 'N']))) {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('签到活动不存在');
@@ -126,11 +126,10 @@ class record extends base {
 		/**
 		 * 签到并保存登记的数据
 		 */
-		$modelRec = $this->model('matter\signin\record')->setOnlyWriteDbConn(true);
-		$oSignState = $modelRec->signin($oUser, $oSigninApp, $oSigninData);
+		$oSignState = $mdoelSigRec->signin($oUser, $oSigninApp, $oSigninData);
 		// 保存签到登记数据
 		empty($submitkey) && $submitkey = $oUser->uid;
-		$rst = $modelRec->setData($site, $oSigninApp, $oSignState->ek, $oSigninData, $submitkey);
+		$rst = $mdoelSigRec->setData($site, $oSigninApp, $oSignState->ek, $oSigninData, $submitkey);
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
 		}
@@ -166,9 +165,9 @@ class record extends base {
 							!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
 						}
 						// 记录报名数据
-						$modelRec->setData($site, $oSigninApp, $oSignState->ek, $oSigninData, $submitkey);
+						$mdoelSigRec->setData($site, $oSigninApp, $oSignState->ek, $oSigninData, $submitkey);
 						// 记录验证状态
-						$modelRec->update(
+						$mdoelSigRec->update(
 							'xxt_signin_record',
 							['verified' => 'Y', 'verified_enroll_key' => $oEnrollRecord->enroll_key],
 							"enroll_key='{$oSignState->ek}'"
@@ -194,7 +193,7 @@ class record extends base {
 					/**
 					 * 没有在报名表中找到对应的记录
 					 */
-					$modelRec->update(
+					$mdoelSigRec->update(
 						'xxt_signin_record',
 						['verified' => 'N', 'verified_enroll_key' => ''],
 						"enroll_key='{$oSignState->ek}'"

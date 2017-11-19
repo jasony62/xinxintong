@@ -137,7 +137,9 @@
     </div>
     <!-- end records -->
     <div class='form-group' style='text-align:right;'>
-        <span style='line-height:34px'>总数：{{page.total}}</span>
-        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        <div class='pl-pagination'>
+            <span>总数：{{page.total}}</span>
+            <ul uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
     </div>
 </div>

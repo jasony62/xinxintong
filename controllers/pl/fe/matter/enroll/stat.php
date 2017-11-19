@@ -133,7 +133,6 @@ class stat extends \pl\fe\matter\base {
 		if (empty($data)) {
 			return false;
 		}
-		// 如果只有1个点，jpgraph会报错，所以跳过绘图。
 		// Setup the graph
 		$graph = new \Graph(self::GRAPH_WIDTH, self::GRAPH_HEIGHT);
 		$graph->SetScale("textlin");
@@ -157,7 +156,6 @@ class stat extends \pl\fe\matter\base {
 		$graph->xaxis->SetTickLabels($labels);
 		$graph->xgrid->SetColor('#E3E3E3');
 		$graph->xaxis->SetFont(FF_SIMSUN, FS_NORMAL);
-
 		$p1 = new \LinePlot($data);
 		$graph->Add($p1);
 		$p1->SetColor("#6495ED");
@@ -233,15 +231,15 @@ class stat extends \pl\fe\matter\base {
 			'bold' => true,
 			'size' => 14,
 		];
-		$fancyTableCellStyle = array('valign' => 'center');
-		$paragraphStyle = array('alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER);
+		$fancyTableCellStyle = ['valign' => 'center'];
+		$paragraphStyle = ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER];
 		$cellTextStyle = ['size' => 12];
-		$imgStyle = array(
+		$imgStyle = [
 			'marginTop' => 1,
 			'marginLeft' => 1,
 			'alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER,
 			'wrappingStyle' => 'behind',
-		);
+		];
 		// a4纸宽210mm 取15㎝，1CM=567 twips
 		$a4_width = 15 * 567;
 		$section->addText($oApp->title, ['bold' => true, 'size' => 24], ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
@@ -399,14 +397,17 @@ class stat extends \pl\fe\matter\base {
 				//
 				$oSchemaStat = $aStatResult[$schema->id];
 				// Output line
-				$graph = $this->_setScoreSchemaGraph($oSchemaStat->ops);
-				if ($graph) {
-					$graph->Stroke(_IMG_HANDLER);
-					ob_start(); // start buffering
-					$graph->img->Stream(); // print data to buffer
-					$imageData = ob_get_contents(); // retrieve buffer contents
-					ob_end_clean(); // stop buffer
-					$section->addImage($imageData, $imgStyle);
+				// 如果只有1个点，jpgraph会报错，所以跳过绘图。
+				if (count($oSchemaStat->ops) > 1) {
+					$graph = $this->_setScoreSchemaGraph($oSchemaStat->ops);
+					if ($graph) {
+						$graph->Stroke(_IMG_HANDLER);
+						ob_start(); // start buffering
+						$graph->img->Stream(); // print data to buffer
+						$imageData = ob_get_contents(); // retrieve buffer contents
+						ob_end_clean(); // stop buffer
+						$section->addImage($imageData, $imgStyle);
+					}
 				}
 				// table
 				$phpWord->addTableStyle("three", $fancyTableStyle, $firstStyle);

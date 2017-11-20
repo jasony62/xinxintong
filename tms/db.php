@@ -173,7 +173,7 @@ class TMS_DB {
 
 		$mysqli = $this->_getDbWriteConn();
 		if (!$mysqli->query($sql)) {
-			throw new Exception("database error(update $table):" . $sql . ';' . $mysqli->error);
+			throw new Exception("database error:" . $sql . ';' . $mysqli->error);
 		}
 
 		$rows_affected = $mysqli->affected_rows;

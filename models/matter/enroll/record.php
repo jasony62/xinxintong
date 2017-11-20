@@ -964,7 +964,11 @@ class record_model extends record_base {
 		}
 		$fields = isset($options->fields) ? $options->fields : 'enroll_key,userid';
 
-		$w = "state=1 and aid='{$oApp->id}' and userid<>''";
+		$w = "state=1 and aid='{$oApp->id}'";
+		if (!empty($options->userid)) {
+		} else {
+			$w .= " and userid<>''";
+		}
 
 		// 按轮次过滤
 		!empty($rid) && $w .= " and e.rid='$rid'";
@@ -1240,8 +1244,8 @@ class record_model extends record_base {
 				];
 				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
 
-				$sum = $this->query_val_ss($q);
-				$sum = number_format($sum, 2);
+				$sum = (float) $this->query_val_ss($q);
+				$sum = number_format($sum, 2, '.', '');
 				$result->{$schema->id} = (float) $sum;
 			}
 		}
@@ -1273,8 +1277,8 @@ class record_model extends record_base {
 				];
 				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
 
-				$sum = $this->query_val_ss($q);
-				$sum = number_format($sum, 2);
+				$sum = (float) $this->query_val_ss($q);
+				$sum = number_format($sum, 2, '.', '');
 				$result->{$oSchema->id} = (float) $sum;
 			}
 		}
@@ -1287,8 +1291,8 @@ class record_model extends record_base {
 		];
 		$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
 
-		$sum = $this->query_val_ss($q);
-		$sum = number_format($sum, 2);
+		$sum = (float) $this->query_val_ss($q);
+		$sum = number_format($sum, 2, '.', '');
 		$result->sum = (float) $sum;
 
 		return $result;

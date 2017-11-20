@@ -63,7 +63,7 @@ class report extends \pl\fe\matter\base {
 			}
 			break;
 		case 'enroll':
-			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all']);
+			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all', 'userid' => 'all']);
 			break;
 		case 'signin':
 			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname']);

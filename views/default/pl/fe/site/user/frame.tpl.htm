@@ -28,16 +28,16 @@
                     <a href='' ng-click="switchTo('main')">详情</a>
                 </li>
                 <li ng-class="{'opened':opened==='history'}">
-                    <a href='' ng-click="opened=opened==='history'?false:'history';switchTo('history')">历史 <span class="caret"></span></a>
+                    <a href='' ng-click="opened=opened==='history'?false:'history';switchTo('doc')">历史 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='history'?'123px':'0'}">
-                        <li ng-class="{'active':subView==='app'}">
-                            <a href='' ng-click="switchTo('history')">活动</a>
-                        </li>
                         <li ng-class="{'active':subView==='doc'}">
-                            <a href='' ng-click="switchTo('history')">阅读</a>
+                            <a href='' ng-click="switchTo('doc')">访问</a>
+                        </li>
+                        <li ng-class="{'active':subView==='app'}">
+                            <a href='' ng-click="switchTo('app')">活动</a>
                         </li>
                         <li ng-class="{'active':subView==='favor'}">
-                            <a href='' ng-click="switchTo('history')">收藏</a>
+                            <a href='' ng-click="switchTo('favor')">收藏</a>
                         </li>
                     </ul>
                 </li>
@@ -59,7 +59,7 @@
                         </button>
                     </div>
                     <div class='container-fluid'>
-                        <nav class='nav navbar-nav tms-breadcrumb'>
+                        <nav class='nav navbar-nav tms-breadcrumb ng-cloak' ng-cloak>
                             <li><a href="/rest/pl/fe" target='_self'>工作台</a></li>
                             <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{site.id}}" target='_self'>{{site.name}}</a></li>
                             <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
@@ -67,12 +67,7 @@
                     </div>
                 </div>
             </nav>
-            <div class='container-fluid'>
-                <div class='row'>
-                    <div class='col-md-12'>
-                        <div ng-view></div>
-                    </div>
-                </div>
+            <div class='container-fluid' ng-view>
             </div>
         </div>
     </div>

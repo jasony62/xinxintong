@@ -454,7 +454,7 @@ define(['frame'], function(ngApp) {
             });
         };
     }]);
-    ngApp.provider.controller('ctrlSiteAccount', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {
+    ngApp.provider.controller('ctrlSiteAccount', ['$scope', '$uibModal', 'http2', 'facListFilter', 'srvSite', function($scope, $uibModal, http2, facListFilter, srvSite) {
         var _oFilter, _oPage;
         _oFilter = {};
         $scope.page = _oPage = {
@@ -465,7 +465,7 @@ define(['frame'], function(ngApp) {
             $scope.doSearch(1);
         }, _oFilter);
         $scope.openProfile = function(oUser) {
-            location.href = '/rest/pl/fe/site/user?site=' + $scope.frameState.sid + '&uid=' + oUser.uid + '&unionid='+oUser.unionid;
+            location.href = '/rest/pl/fe/site/user?site=' + $scope.frameState.sid + '&uid=' + oUser.uid + '&unionid=' + oUser.unionid;
         };
         $scope.doSearch = function(pageAt) {
             var url, data;
@@ -482,7 +482,14 @@ define(['frame'], function(ngApp) {
                 _oPage.total = rsp.data.total;
             });
         };
-        $scope.doSearch(1);
+        $scope.$watch('frameState.sid', function(sid) {
+            if (sid) {
+                $scope.doSearch(1);
+                srvSite.snsList(sid).then(function(aSns) {
+                    $scope.sns = aSns;
+                });
+            }
+        });
     }]);
     ngApp.provider.controller('ctrlSiteSubscribe', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {
         var _oFilter, _oPage;

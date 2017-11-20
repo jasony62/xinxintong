@@ -683,7 +683,7 @@ class player_model extends \TMS_MODEL {
 				$oUser->yx_openid = $oRecord->yx_openid;
 				$oUser->qy_openid = $oRecord->qy_openid;
 				$oUser->headimgurl = $oRecord->headimgurl;
-				$this->enroll($oGrpApp->siteid, $oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
+				$this->enroll($oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
 				$this->setData($oGrpApp, $ek, $oRecord->data);
 			}
 		}
@@ -750,7 +750,7 @@ class player_model extends \TMS_MODEL {
 				$oUser->yx_openid = $oRecord->yx_openid;
 				$oUser->qy_openid = $oRecord->qy_openid;
 				$oUser->headimgurl = $oRecord->headimgurl;
-				$this->enroll($oGrpApp->siteid, $oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
+				$this->enroll($oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
 				$this->setData($oGrpApp, $ek, $oRecord->data);
 			}
 		}
@@ -810,7 +810,7 @@ class player_model extends \TMS_MODEL {
 					$ek = $modelPly->genKey($site, $oGrpApp->id);
 					$oWallUser->enroll_key = $ek;
 				}
-				$this->enroll($oGrpApp->siteid, $oGrpApp, $oUser, ['enroll_key' => $oWallUser->enroll_key, 'enroll_at' => $oWallUser->join_at]);
+				$this->enroll($oGrpApp, $oUser, ['enroll_key' => $oWallUser->enroll_key, 'enroll_at' => $oWallUser->join_at]);
 				$this->setData($oGrpApp, $oWallUser->enroll_key, $oWallUser->data);
 			}
 		}

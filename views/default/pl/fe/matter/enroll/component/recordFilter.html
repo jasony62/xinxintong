@@ -1,7 +1,3 @@
-<style>
-/* img tiles */
-ul{margin:0;padding:0}
-</style>
 <div class="modal-header">
     <button class="close" type="button" ng-click="cancel()">×</button>
     <h5 class="modal-title">筛选条件</h5>
@@ -11,9 +7,12 @@ ul{margin:0;padding:0}
         <div class="form-group">
             <label class="col-md-3 control-label">审核通过</label>
             <div class="col-md-7">
-                <label class='radio-inline'><input type='radio' name='verified' value='Y' ng-model="criteria.record.verified">是</label>
-                <label class='radio-inline'><input type='radio' name='verified' value='N' ng-model="criteria.record.verified">否</label>
-                <label class='radio-inline'><input type='radio' name='verified' value='' ng-model="criteria.record.verified">全部</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='verified' value='Y' ng-model="criteria.record.verified">是</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='verified' value='N' ng-model="criteria.record.verified">否</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='verified' value='' ng-model="criteria.record.verified">全部</label>
             </div>
         </div>
         <div class="form-group" ng-if="rounds.length">
@@ -24,9 +23,9 @@ ul{margin:0;padding:0}
                     <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
                     <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
                 </select>
-                <div ng-show="pageOfRound.total>pageOfRound.size">
-                    <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                <div class='pl-pagination' ng-show="pageOfRound.total>pageOfRound.size">
+                    <span>总数：{{pageOfRound.total}}</span>
+                    <ul uib-pagination boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
                 </div>
             </div>
         </div>
@@ -40,7 +39,8 @@ ul{margin:0;padding:0}
                 </select>
                 <ul ng-if="schema.type==='multiple'">
                     <li class='checkbox' ng-repeat="op in schema.ops">
-                        <label><input type="checkbox" name="{{schema.id}}" ng-model="criteria.data[schema.id][op.v]"/><span>{{op.l}}</span></label>
+                        <label>
+                            <input type="checkbox" name="{{schema.id}}" ng-model="criteria.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
                     </li>
                 </ul>
             </div>

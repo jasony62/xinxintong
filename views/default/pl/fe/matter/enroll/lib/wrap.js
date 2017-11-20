@@ -712,6 +712,9 @@ define([], function() {
             case '_enrollAt':
                 html = "<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
                 break;
+            case '_roundTitle':
+                html = "<div>{{Record.current.round.title}}</div>";
+                break;
         }
 
         return html;
@@ -807,7 +810,7 @@ define([], function() {
                 schemaId = $wrap.attr('schema');
                 if (schemaId) {
                     data = oPage.wrapBySchema({ id: schemaId });
-                    if (data.config === undefined) {
+                    if (data && data.config === undefined) {
                         data.config = {
                             inline: $wrap.hasClass('wrap-inline') ? 'Y' : 'N',
                             splitLine: $wrap.hasClass('wrap-splitline') ? 'Y' : 'N'
@@ -876,6 +879,9 @@ define([], function() {
                 break;
             case '_enrollAt':
                 html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
+                break;
+            case '_roundTitle':
+                html += "<div>{{r.round.title}}</div>";
                 break;
         }
         if (oSchema.supplement && oSchema.supplement === 'Y') {

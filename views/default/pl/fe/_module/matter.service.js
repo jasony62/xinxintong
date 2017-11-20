@@ -207,12 +207,12 @@ provider('srvSite', function() {
                 });
                 return defer.promise;
             },
-            snsList: function() {
+            snsList: function(siteId) {
                 var defer = $q.defer();
-                if (_aSns) {
+                if (!siteId && _aSns) {
                     defer.resolve(_aSns);
                 } else {
-                    http2.get('/rest/pl/fe/site/snsList?site=' + _siteId, function(rsp) {
+                    http2.get('/rest/pl/fe/site/snsList?site=' + (siteId || _siteId), function(rsp) {
                         _aSns = rsp.data;
                         defer.resolve(_aSns);
                     });

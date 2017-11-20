@@ -522,13 +522,19 @@ class record extends base {
 				switch ($oSchema->type) {
 				case 'multiple':
 					if (isset($oSchema->limitChoice) && $oSchema->limitChoice === 'Y' && isset($oSchema->range) && is_array($oSchema->range)) {
-						$submitVal = $oRecData->{$oSchema->id};
-						if (is_object($submitVal)) {
-							// 多选题，将选项合并为逗号分隔的字符串
-							$opCount = count(array_filter((array) $submitVal, function ($i) {return $i;}));
-							if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
-								return [false, ['选择题【' . $oSchema->title . '】选中的选项数量，不在指定范围【' . implode('-', $oSchema->range) . '】内']];
+						if (isset($oRecData->{$oSchema->id})) {
+							$submitVal = $oRecData->{$oSchema->id};
+							if (is_object($submitVal)) {
+								// 多选题，将选项合并为逗号分隔的字符串
+								$opCount = count(array_filter((array) $submitVal, function ($i) {return $i;}));
+							} else {
+								$opCount = 0;
 							}
+						} else {
+							$opCount = 0;
+						}
+						if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
+							return [false, ['选择题【' . $oSchema->title . '】选中的选项数量，不在指定范围【' . implode('-', $oSchema->range) . '】内']];
 						}
 					}
 					break;

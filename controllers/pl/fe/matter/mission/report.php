@@ -55,6 +55,7 @@ class report extends \pl\fe\matter\base {
 						foreach ($users as $oUser) {
 							if (!empty($oUser->data->{$oAssignedNickname->schema->id})) {
 								$oUser->nickname = $oUser->data->{$oAssignedNickname->schema->id};
+								$oUser->userAppData = $oUser->data;
 								unset($oUser->data);
 							}
 						}
@@ -63,15 +64,39 @@ class report extends \pl\fe\matter\base {
 			}
 			break;
 		case 'enroll':
-			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,comment', 'rid' => 'all', 'userid' => 'all']);
+			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,comment,data userAppData', 'rid' => 'all', 'userid' => 'all']);
+			if (count($users)) {
+				foreach ($users as $oUser) {
+					if (!empty($oUser->userAppData)) {
+						$oUser->userAppData = json_decode($oUser->userAppData);
+					}
+				}
+			}
 			break;
 		case 'signin':
-			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,comment']);
+			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,comment,data userAppData']);
+			if (count($users)) {
+				foreach ($users as $oUser) {
+					if (!empty($oUser->userAppData)) {
+						$oUser->userAppData = json_decode($oUser->userAppData);
+					}
+				}
+			}
 			break;
 		case 'mschema':
-			$users = $this->model('site\user\member')->byMschema($userSource->id, ['fields' => 'userid,name,email,mobile']);
+			$users = $this->model('site\user\member')->byMschema($userSource->id, ['fields' => 'userid,name,email,mobile,extattr']);
 			foreach ($users as &$oUser) {
 				$oUser->nickname = empty($oUser->name) ? (empty($oUser->email) ? $oUser->mobile : $oUser->email) : $oUser->name;
+				$oUser->userAppData = new \stdClass;
+				$oUser->userAppData->name = $oUser->name;
+				$oUser->userAppData->email = $oUser->email;
+				$oUser->userAppData->mobile = $oUser->mobile;
+				if (!empty($oUser->extattr)) {
+					$extattrs = json_decode($oUser->extattr);
+					foreach ($extattrs as $key => $extattr) {
+						$oUser->userAppData->{$key} = $extattr;
+					}
+				}
 			}
 			break;
 		}

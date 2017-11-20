@@ -29,9 +29,9 @@ define(['require'], function(require) {
 
                     return _getMissionDeferred.promise;
                 },
-                chooseApps: function(oMission) {
+                chooseContents: function(oMission) {
                     return $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/mission/component/chooseApps.html?_=1',
+                        templateUrl: '/views/default/pl/fe/matter/mission/component/chooseContents.html?_=1',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                             var oCriteria, oReportConfig, oIncludeApps = {};
                             $scope2.mission = oMission;

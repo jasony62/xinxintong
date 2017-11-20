@@ -76,8 +76,8 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
-        $scope.chooseApps = function() {
-            srvMission.chooseApps($scope.mission).then(function(apps) {
+        $scope.chooseContents = function() {
+            srvMission.chooseContents($scope.mission).then(function(apps) {
                 $scope.makeReport(apps);
             });
         };

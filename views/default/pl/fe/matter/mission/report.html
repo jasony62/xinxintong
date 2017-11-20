@@ -40,13 +40,16 @@
                         <div ng-switch-when="enroll">
                             <div ng-if="user.data[$index].enroll_num">记录：{{user.data[$index].enroll_num}}</div>
                             <div ng-if="user.data[$index].remark_other_num">评论：{{user.data[$index].remark_other_num}}</div>
+                            <div ng-if="user.data[$index].comment">备注：{{user.data[$index].comment}}</div>
                         </div>
                         <div ng-switch-when="signin" ng-if="user.data[$index]">
                             <div>签到：{{user.data[$index].signin_num}}</div>
                             <div ng-if="user.data[$index].late_num" style='color:red'>迟到：{{user.data[$index].late_num}}</div>
+                            <div ng-if="user.data[$index].comment">备注：{{user.data[$index].comment}}</div>
                         </div>
                         <div ng-switch-when="group" ng-if="user.data[$index]">
                             <div ng-repeat="rnd in user.data[$index]">分组：{{rnd.round_title||'空'}}</div>
+                            <div ng-if="user.data[$index].comment">备注：{{user.data[$index].comment}}</div>
                         </div>
                         <div ng-switch-default>{{user.data[$index]}}</div>
                     </td>

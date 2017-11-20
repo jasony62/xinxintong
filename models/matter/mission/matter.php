@@ -98,7 +98,7 @@ class matter_model extends \TMS_MODEL {
 					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,start_at,end_at';
 					$options2 = ['fields' => $fields];
 				} else if ($mm->matter_type === 'memberschema') {
-					$fields = 'siteid,id,title,create_at,start_at,end_at,url';
+					$fields = 'siteid,id,title,create_at,start_at,end_at,url,attr_email,attr_mobile,attr_name,extattr';
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
 				} else {
 					$fields = 'siteid,id,title,summary,pic,create_at,creater_name';
@@ -124,8 +124,18 @@ class matter_model extends \TMS_MODEL {
 					}
 					if ($mm->matter_type === 'memberschema') {
 						$oMatter->entryUrl = $modelMat->getEntryUrl($oMatter->siteid, $oMatter->id);
+						$data_schemas = [];
+						($oMatter->attr_mobile[0] == '0') && $data_schemas[] = (object) ['id' => 'attr_mobile', 'title' => '手机'];
+						($oMatter->attr_email[0] == '0') && $data_schemas[] = (object) ['id' => 'attr_email', 'title' => '邮箱'];
+						($oMatter->attr_name[0] == '0') && $data_schemas[] = (object) ['id' => 'attr_name', 'title' => '姓名'];
+						if (!empty($oMatter->extattr)) {
+							$extattrs = json_decode($oMatter->extattr);
+							foreach ($extattrs as $extattr) {
+								$data_schemas[] = (object) ['id' => $extattr->id, 'title' => $extattr->label];
+							}
+						}
+						$oMatter->data_schemas = $data_schemas;
 					}
-
 					$matters[] = $oMatter;
 				}
 			}

@@ -50,7 +50,8 @@ define(['frame'], function(ngApp) {
                             $scope.makeReport();
                         });
                     } else {
-                        var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&id=' + data.appId;
+                        var key = data.appType == 'enroll' ? 'app' : 'id';
+                        var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&' + key + '=' + data.appId;
                         http2.get(url, function(rsp) {
                             mission.userApp = rsp.data;
                             if (mission.userApp.data_schemas && angular.isString(mission.userApp.data_schemas)) {

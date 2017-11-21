@@ -276,7 +276,7 @@ class group_model extends app_base {
 	public function reportByUser($oApp, $oUser) {
 		$modelPly = $this->model('matter\group\player');
 
-		$result = $modelPly->byUser($oApp, $oUser->userid, ['fields' => 'id,round_id,round_title']);
+		$result = $modelPly->byUser($oApp, $oUser->userid, ['fields' => 'id,round_id,round_title,comment']);
 
 		return $result;
 	}

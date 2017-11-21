@@ -54,18 +54,21 @@ class report extends \pl\fe\matter\base {
 		switch ($userSource->type) {
 		case 'group':
 			$oGrpApp = $this->model('matter\group')->byId($userSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
-			$users = $this->model('matter\group\player')->byApp($userSource, (object) ['fields' => 'userid,nickname,round_id,round_title,data,comment']);
+			$users = $this->model('matter\group\player')->byApp($userSource, (object) ['fields' => 'userid,nickname,round_id,round_title,data show_schema_data']);
 			$users = isset($users->players) ? $users->players : [];
 			if (count($users)) {
+				foreach ($users as $oUser) {
+					if (!empty($oUser->show_schema_data)) {
+						$oUser->show_schema_data = json_decode($oUser->show_schema_data);
+					}
+				}
 				/* 指定分组用户昵称 */
 				if (!empty($oGrpApp->assigned_nickname)) {
 					$oAssignedNickname = $oGrpApp->assignedNickname;
 					if (isset($oAssignedNickname->valid) && $oAssignedNickname->valid === 'Y' && !empty($oAssignedNickname->schema->id)) {
 						foreach ($users as $oUser) {
-							if (!empty($oUser->data->{$oAssignedNickname->schema->id})) {
-								$oUser->nickname = $oUser->data->{$oAssignedNickname->schema->id};
-								$oUser->show_schema_data = $oUser->data;
-								unset($oUser->data);
+							if (!empty($oUser->show_schema_data->{$oAssignedNickname->schema->id})) {
+								$oUser->nickname = $oUser->show_schema_data->{$oAssignedNickname->schema->id};
 							}
 						}
 					}
@@ -73,7 +76,7 @@ class report extends \pl\fe\matter\base {
 			}
 			break;
 		case 'enroll':
-			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,comment,data show_schema_data', 'rid' => 'all', 'userid' => 'all']);
+			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,data show_schema_data', 'rid' => 'all', 'userid' => 'all']);
 			if (count($users)) {
 				foreach ($users as $oUser) {
 					if (!empty($oUser->show_schema_data)) {
@@ -83,7 +86,7 @@ class report extends \pl\fe\matter\base {
 			}
 			break;
 		case 'signin':
-			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,comment,data show_schema_data']);
+			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,data show_schema_data']);
 			if (count($users)) {
 				foreach ($users as $oUser) {
 					if (!empty($oUser->show_schema_data)) {
@@ -118,7 +121,6 @@ class report extends \pl\fe\matter\base {
 		// if (empty($posted->defaultConfig->apps)) {
 			/* 汇总报告配置信息 */
 			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oLoginUser, $oMission);
-			// var_dump($rpConfig);die;
 			if (empty($rpConfig) || empty($rpConfig->include_apps)) {
 				/* 如果没有指定 */
 				$matters = $this->model('matter\mission\matter')->byMission($oMission->id);
@@ -134,9 +136,9 @@ class report extends \pl\fe\matter\base {
 				// $defaultConfig = new \stdClass;
 				// $defaultConfig->apps = $apps;
 			} else {
-				// $defaultConfig = $rpConfig->include_apps;
-				// $apps = $defaultConfig->apps;
-				$apps = $rpConfig->include_apps;
+				$defaultConfig = $rpConfig->include_apps;
+				$apps = $defaultConfig->apps;
+				// $apps = $rpConfig->include_apps;
 			}
 		} else {
 			$apps = $posted->apps;
@@ -254,7 +256,19 @@ class report extends \pl\fe\matter\base {
 			
 			if (!empty($result->show_schema)) {
 				foreach ($result->show_schema as $show_schema) {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->{$show_schema->id});
+					if ($show_schema->id === '_round_id') {
+						$value = $rec->show_schema_data->{$show_schema->id};
+						$rounds = $show_schema->ops;
+						$roundTitle = '';
+						foreach ($rounds as $round) {
+							if ($round->v === $value) {
+								$roundTitle = $round->l;
+							}
+						}
+						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $roundTitle);
+					} else {
+						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->{$show_schema->id});
+					}
 				}
 			}
 
@@ -266,18 +280,24 @@ class report extends \pl\fe\matter\base {
 							$content[] = '记录：' . $v->enroll_num;
 						}
 						if (!empty($v->remark_other_num)) {
-							$content[] = '评论：' . $v->remark_other_num;
+							$content[] = "\n 评论：" . $v->remark_other_num;
 						}
 						$content = implode("\n ", $content);
 					} else if (isset($v->signin_num)) {
 						$content = '签到：' . $v->signin_num;
 						isset($v->late_num) && $content .= "\n 迟到：" . $v->late_num;
 					}
+					if (isset($v->comment) && !empty($v->comment)) {
+						$content .= "\n 备注：" . $v->comment;
+					}
 				} else if (is_array($v)) {
 					if (!empty($v[0]->round_title)) {
 						$content = '分组：' . $v[0]->round_title;
 					} else {
 						$content = '分组：空';
+					}
+					if (isset($v[0]->comment) && !empty($v[0]->comment)) {
+						$content .= "\n 备注：" . $v[0]->comment;
 					}
 				} else {
 					$content = '';

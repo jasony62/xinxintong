@@ -28,7 +28,6 @@ define(['require'], function(require) {
                             });
                             _oMission._unionSchemasById = mapOfUnionSchemaById;
                         }
-                        console.log(_oMission);
                         _getMissionDeferred.resolve(_oMission);
                     });
 

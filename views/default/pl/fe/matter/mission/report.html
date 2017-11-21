@@ -39,13 +39,13 @@
                     <td ng-if="mission.userApp.type==='group'">{{user.round_title}}</td>
                     <td ng-repeat="schema in mission.userApp.dataSchemas" ng-switch="schema.type">
                         <div ng-switch-when="image">
-                            <img ng-repeat="img in user.show_schema_data[schema.id]" ng-src='{{img}}' />
+                            <img ng-repeat="img in user.show_schema_data._data[schema.id]" ng-src='{{img}}' />
                         </div>
                         <div ng-switch-when="file">
-                            <span ng-repeat='file in user.show_schema_data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            <span ng-repeat='file in user.show_schema_data._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                         </div>
                         <span ng-switch-when="date">{{(user.show_schema_data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                        <span ng-switch-default ng-bind-html="user.show_schema_data[schema.id]"></span>
+                        <span ng-switch-default ng-bind-html="user.show_schema_data._data[schema.id]"></span>
                     </td>
                     <td ng-repeat="app in report.orderedApps" ng-switch on="app.type" ng-click="chooseUser(user,app)">
                         <div ng-switch-when="enroll">

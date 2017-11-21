@@ -106,7 +106,7 @@ define(['frame'], function(ngApp) {
             configUserApps();
         };
         $scope.makeReport = function(apps) {
-            var oMission, url, params;
+            var oMission, url, params, mapOfUnionSchemaById = {};
             oMission = $scope.mission;
             url = '/rest/pl/fe/matter/mission/report/userAndApp?site=' + oMission.siteid + '&mission=' + oMission.id;
             params = {
@@ -117,10 +117,17 @@ define(['frame'], function(ngApp) {
                 apps.forEach(function(oApp) {
                     params.apps.push({ id: oApp.id, type: oApp.type });
                 });
-            }
+            };
+            oMission.userApp.dataSchemas.forEach(function(schema) {
+                mapOfUnionSchemaById[schema.id] = schema;
+            });
+            oMission._unionSchemasById = mapOfUnionSchemaById;
             http2.post(url, params, function(rsp) {
-                $scope.report.show_schema_data.forEach(function(record) {
-                    srvRecordConverter.forTable(record, $scope.mission._unionSchemasById);
+                rsp.data.users.forEach(function(user) {
+                    if (user.show_schema_data) {
+                        user.show_schema_data.data = angular.copy(user.show_schema_data);
+                    }
+                    srvRecordConverter.forTable(user.show_schema_data, oMission._unionSchemasById);
                 });
                 $scope.report = rsp.data;
                 rsp.data.orderedApps.forEach(function(oMatter) {

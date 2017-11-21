@@ -30,12 +30,9 @@ class report_model extends \TMS_MODEL {
 	 */
 	public function createConfig($oMission, $oCreater, $options = []) {
 		$includeApps = $options['includeApps'];
-		if (!is_array($includeApps)) {
-			$includeApps = [];
+		if (!is_object($includeApps)) {
+			$includeApps = {};
 		}
-		// if (!is_object($includeApps)) {
-		// 	$includeApps = {};
-		// }
 
 		$asDefault = isset($options['asDefault']) ? $options['asDefault'] : 'Y';
 		if (!preg_match('/Y|N/', $asDefault)) {

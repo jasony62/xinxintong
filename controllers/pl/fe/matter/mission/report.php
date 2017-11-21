@@ -117,8 +117,7 @@ class report extends \pl\fe\matter\base {
 			return new \ParameterError('项目用户为空，无法显示用户数据');
 		}
 		/* 获得项目下的活动 */
-		if (empty($posted->apps)) {
-		// if (empty($posted->defaultConfig->apps)) {
+		if (empty($posted->defaultConfig->apps)) {
 			/* 汇总报告配置信息 */
 			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oLoginUser, $oMission);
 			if (empty($rpConfig) || empty($rpConfig->include_apps)) {
@@ -133,21 +132,18 @@ class report extends \pl\fe\matter\base {
 						$apps[] = (object) ['id' => $oMatter->id, 'type' => $oMatter->type];
 					}
 				}
-				// $defaultConfig = new \stdClass;
-				// $defaultConfig->apps = $apps;
+				$defaultConfig = new \stdClass;
+				$defaultConfig->apps = $apps;
 			} else {
 				$defaultConfig = $rpConfig->include_apps;
 				$apps = $defaultConfig->apps;
-				// $apps = $rpConfig->include_apps;
 			}
 		} else {
-			$apps = $posted->apps;
-			// $defaultConfig = $posted->defaultConfig;
+			$defaultConfig = $posted->defaultConfig;
 			/* 保留用户指定的查询参数 */
 			$modelRp = $this->model('matter\mission\report');
-			$modelRp->createConfig($oMission, $oLoginUser, ['asDefault' => 'Y', 'includeApps' => $apps]);
-			// $modelRp->createConfig($oMission, $oLoginUser, ['asDefault' => 'Y', 'includeApps' => $defaultConfig]);
-			// $apps = $defaultConfig->apps;
+			$modelRp->createConfig($oMission, $oLoginUser, ['asDefault' => 'Y', 'includeApps' => $defaultConfig]);
+			$apps = $defaultConfig->apps;
 		}
 
 		$modelRep = $this->model('matter\mission\report');

@@ -114,17 +114,18 @@ define(['frame'], function(ngApp) {
             oMission._unionSchemasById = mapOfUnionSchemaById;
             url = '/rest/pl/fe/matter/mission/report/userAndApp?site=' + oMission.siteid + '&mission=' + oMission.id;
             params = {
+                defaultConfig: {},
                 userSource: { id: oMission.user_app_id, type: oMission.user_app_type }
             };
-            if (results.app && results.app.length) {
+            if (results && results.app && results.app.length) {
                 params.defaultConfig.apps = [];
                 results.app.forEach(function(oApp) {
                     params.defaultConfig.apps.push({ id: oApp.id, type: oApp.type});
                 });
             };
-            if (results.schema && results.schema.length) {
+            if (results && results.mark && results.mark.length) {
                 params.defaultConfig.show_schema = [];
-                results.schema.forEach(function(schema) {
+                results.mark.forEach(function(schema) {
                     params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title});
                 });
             };

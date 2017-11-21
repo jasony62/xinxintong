@@ -119,6 +119,9 @@ define(['frame'], function(ngApp) {
                 });
             }
             http2.post(url, params, function(rsp) {
+                $scope.report.show_schema_data.forEach(function(record) {
+                    srvRecordConverter.forTable(record, $scope.mission._unionSchemasById);
+                });
                 $scope.report = rsp.data;
                 rsp.data.orderedApps.forEach(function(oMatter) {
                     if (oMatter.type === 'enroll') {

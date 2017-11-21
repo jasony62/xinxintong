@@ -9,7 +9,7 @@ define(['require'], function(require) {
         this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvRecordConverter', function($q, $uibModal, http2, noticebox, srvRecordConverter) {
             var _self = {
                 get: function() {
-                    var url;
+                    var url, mapOfUnionSchemaById = {};
                     if (_getMissionDeferred) {
                         return _getMissionDeferred.promise;
                     }
@@ -23,7 +23,12 @@ define(['require'], function(require) {
                             if (userApp.data_schemas && angular.isString(userApp.data_schemas)) {
                                 userApp.data_schemas = JSON.parse(userApp.data_schemas);
                             }
+                            userApp.dataSchemas.forEach(function(schema) {
+                                mapOfUnionSchemaById[schema.id] = schema;
+                            });
+                            _oMission._unionSchemasById = mapOfUnionSchemaById;
                         }
+                        console.log(_oMission);
                         _getMissionDeferred.resolve(_oMission);
                     });
 

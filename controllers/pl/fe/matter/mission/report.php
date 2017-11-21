@@ -50,72 +50,6 @@ class report extends \pl\fe\matter\base {
 			$userSource = $posted->userSource;
 		}
 
-		/* 获得用户 */
-		switch ($userSource->type) {
-		case 'group':
-			$oGrpApp = $this->model('matter\group')->byId($userSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
-			$users = $this->model('matter\group\player')->byApp($userSource, (object) ['fields' => 'userid,nickname,round_id,round_title,data show_schema_data']);
-			$users = isset($users->players) ? $users->players : [];
-			if (count($users)) {
-				foreach ($users as $oUser) {
-					if (!empty($oUser->show_schema_data)) {
-						$oUser->show_schema_data = json_decode($oUser->show_schema_data);
-					}
-				}
-				/* 指定分组用户昵称 */
-				if (!empty($oGrpApp->assigned_nickname)) {
-					$oAssignedNickname = $oGrpApp->assignedNickname;
-					if (isset($oAssignedNickname->valid) && $oAssignedNickname->valid === 'Y' && !empty($oAssignedNickname->schema->id)) {
-						foreach ($users as $oUser) {
-							if (!empty($oUser->show_schema_data->{$oAssignedNickname->schema->id})) {
-								$oUser->nickname = $oUser->show_schema_data->{$oAssignedNickname->schema->id};
-							}
-						}
-					}
-				}
-			}
-			break;
-		case 'enroll':
-			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,data show_schema_data', 'rid' => 'all', 'userid' => 'all']);
-			if (count($users)) {
-				foreach ($users as $oUser) {
-					if (!empty($oUser->show_schema_data)) {
-						$oUser->show_schema_data = json_decode($oUser->show_schema_data);
-					}
-				}
-			}
-			break;
-		case 'signin':
-			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,data show_schema_data']);
-			if (count($users)) {
-				foreach ($users as $oUser) {
-					if (!empty($oUser->show_schema_data)) {
-						$oUser->show_schema_data = json_decode($oUser->show_schema_data);
-					}
-				}
-			}
-			break;
-		case 'mschema':
-			$users = $this->model('site\user\member')->byMschema($userSource->id, ['fields' => 'userid,name,email,mobile,extattr']);
-			foreach ($users as &$oUser) {
-				$oUser->nickname = empty($oUser->name) ? (empty($oUser->email) ? $oUser->mobile : $oUser->email) : $oUser->name;
-				$oUser->show_schema_data = new \stdClass;
-				$oUser->show_schema_data->name = $oUser->name;
-				$oUser->show_schema_data->email = $oUser->email;
-				$oUser->show_schema_data->mobile = $oUser->mobile;
-				if (!empty($oUser->extattr)) {
-					$extattrs = json_decode($oUser->extattr);
-					foreach ($extattrs as $key => $extattr) {
-						$oUser->show_schema_data->{$key} = $extattr;
-					}
-				}
-			}
-			break;
-		}
-
-		if (empty($users)) {
-			return new \ParameterError('项目用户为空，无法显示用户数据');
-		}
 		/* 获得项目下的活动 */
 		if (empty($posted->defaultConfig->apps)) {
 			/* 汇总报告配置信息 */
@@ -144,6 +78,102 @@ class report extends \pl\fe\matter\base {
 			$modelRp = $this->model('matter\mission\report');
 			$modelRp->createConfig($oMission, $oLoginUser, ['asDefault' => 'Y', 'includeApps' => $defaultConfig]);
 			$apps = $defaultConfig->apps;
+		}
+
+		/* 获得用户 */
+		switch ($userSource->type) {
+		case 'group':
+			$oGrpApp = $this->model('matter\group')->byId($userSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
+			$users = $this->model('matter\group\player')->byApp($userSource, (object) ['fields' => 'userid,nickname,round_id,round_title,data show_schema_datas']);
+			$users = isset($users->players) ? $users->players : [];
+			if (count($users)) {
+				foreach ($users as $oUser) {
+					$show_schema_data = new \stdClass;
+					if (!empty($oUser->show_schema_datas)) {
+						$show_schema_datas = json_decode($oUser->show_schema_datas);
+						/* 处理用户指定显示的列 */
+						if (!empty($defaultConfig->show_schema)) {
+							foreach ($defaultConfig->show_schema as $show_schema) {
+								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
+							}
+						}
+					}
+					$oUser->show_schema_data = $show_schema_data;
+					/* 指定分组用户昵称 */
+					if (!empty($oGrpApp->assigned_nickname)) {
+						$oAssignedNickname = $oGrpApp->assignedNickname;
+						if (isset($oAssignedNickname->valid) && $oAssignedNickname->valid === 'Y' && !empty($oAssignedNickname->schema->id)) {
+							if (!empty($show_schema_datas->{$oAssignedNickname->schema->id})) {
+								$oUser->nickname = $show_schema_datas->{$oAssignedNickname->schema->id};
+							}
+						}
+					}
+					unset($oUser->show_schema_datas);
+				}
+			}
+			break;
+		case 'enroll':
+			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,data show_schema_datas', 'rid' => 'all', 'userid' => 'all']);
+			if (count($users)) {
+				foreach ($users as $oUser) {
+					$show_schema_data = new \stdClass;
+					if (!empty($oUser->show_schema_datas)) {
+						$show_schema_datas = json_decode($oUser->show_schema_datas);
+						/* 处理用户指定显示的列 */
+						if (!empty($defaultConfig->show_schema)) {
+							foreach ($defaultConfig->show_schema as $show_schema) {
+								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
+							}
+						}
+						unset($show_schema_datas);
+					}
+					$oUser->show_schema_data = $show_schema_data;
+					unset($oUser->show_schema_datas);
+				}
+			}
+			break;
+		case 'signin':
+			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,data show_schema_datas']);
+			if (count($users)) {
+				foreach ($users as $oUser) {
+					$show_schema_data = new \stdClass;
+					if (!empty($oUser->show_schema_datas)) {
+						$show_schema_datas = json_decode($oUser->show_schema_datas);
+						/* 处理用户指定显示的列 */
+						if (!empty($defaultConfig->show_schema)) {
+							foreach ($defaultConfig->show_schema as $show_schema) {
+								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
+							}
+						}
+						unset($show_schema_datas);
+					}
+					$oUser->show_schema_data = $show_schema_data;
+					unset($oUser->show_schema_datas);
+				}
+			}
+			break;
+		case 'mschema':
+			$users = $this->model('site\user\member')->byMschema($userSource->id, ['fields' => 'userid,name,email,mobile,extattr']);
+			foreach ($users as &$oUser) {
+				$oUser->nickname = empty($oUser->name) ? (empty($oUser->email) ? $oUser->mobile : $oUser->email) : $oUser->name;
+				$oUser->show_schema_data = new \stdClass;
+				if (!empty($defaultConfig->show_schema)) {
+					foreach ($defaultConfig->show_schema as $show_schema) {
+						$oUser->show_schema_data->{$show_schema->id} = $oUser->{$show_schema->id};
+					}
+					if (!empty($oUser->extattr)) {
+						$extattrs = json_decode($oUser->extattr);
+						foreach ($extattrs as $key => $extattr) {
+							$oUser->show_schema_data->{$key} = $extattr;
+						}
+					}
+				}
+			}
+			break;
+		}
+
+		if (empty($users)) {
+			return new \ParameterError('项目用户为空，无法显示用户数据');
 		}
 
 		$modelRep = $this->model('matter\mission\report');
@@ -253,7 +283,7 @@ class report extends \pl\fe\matter\base {
 			if (!empty($result->show_schema)) {
 				foreach ($result->show_schema as $show_schema) {
 					if ($show_schema->id === '_round_id') {
-						$value = $rec->show_schema_data->{$show_schema->id};
+						$value = $rec->show_schema_datas->{$show_schema->id};
 						$rounds = $show_schema->ops;
 						$roundTitle = '';
 						foreach ($rounds as $round) {
@@ -263,7 +293,7 @@ class report extends \pl\fe\matter\base {
 						}
 						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $roundTitle);
 					} else {
-						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->{$show_schema->id});
+						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_datas->{$show_schema->id});
 					}
 				}
 			}

@@ -29,6 +29,15 @@ class report extends \pl\fe\matter\base {
 		}
 
 		$posted = $this->getPostJson();
+
+		$result = $this->userAndAppData($oLoginUser, $oMission, $posted);
+
+		return new \ResponseData($result);
+	}
+	/* 
+	*获得用户指定app下的用户
+	*/
+	private function userAndAppData($oLoginUser, $oMission, $posted = '') {
 		if (!isset($posted->userSource) || !isset($posted->userSource->type) || !isset($posted->userSource->id)) {
 			if (isset($oMission->user_app_id) && isset($oMission->user_app_type)) {
 				$userSource = new \stdClass;
@@ -100,6 +109,7 @@ class report extends \pl\fe\matter\base {
 			}
 			break;
 		}
+
 		if (empty($users)) {
 			return new \ParameterError('项目用户为空，无法显示用户数据');
 		}
@@ -109,7 +119,7 @@ class report extends \pl\fe\matter\base {
 			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oLoginUser, $oMission);
 			if (empty($rpConfig) || empty($rpConfig->include_apps)) {
 				/* 如果没有指定 */
-				$matters = $this->model('matter\mission\matter')->byMission($mission);
+				$matters = $this->model('matter\mission\matter')->byMission($oMission->id);
 				if (count($matters) === 0) {
 					return new \ParameterError('没有获得项目中活动');
 				}
@@ -132,7 +142,7 @@ class report extends \pl\fe\matter\base {
 		$modelRep = $this->model('matter\mission\report');
 		$result = $modelRep->userAndApp($users, $apps);
 
-		return new \ResponseData($result);
+		return $result;
 	}
 	/**
 	 * 更新项目报告配置
@@ -194,52 +204,9 @@ class report extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		if (empty($oMission->user_app_id) || empty($oMission->user_app_type)) {
-			return new \ParameterError();
-		}
-
-		$userSource = new \stdClass;
-		$userSource->id = $oMission->user_app_id;
-		$userSource->type = $oMission->user_app_type;
-
 		/* 获得用户 */
-		switch ($userSource->type) {
-		case 'enroll':
-			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all']);
-			break;
-		case 'signin':
-			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname']);
-			break;
-		case 'mschema':
-			$users = $this->model('site\user\member')->byMschema($userSource->id, ['fields' => 'userid,name,email,mobile']);
-			foreach ($users as &$oUser) {
-				$oUser->nickname = empty($oUser->name) ? (empty($oUser->email) ? $oUser->mobile : $oUser->email) : $oUser->name;
-			}
-			break;
-		}
-		if (empty($users)) {
-			return new \ParameterError('没有获得项目中用户');
-		}
-
-		/* 汇总报告配置信息 */
-		$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oLoginUser, $oMission);
-		if (empty($rpConfig) || empty($rpConfig->include_apps)) {
-			$matters = $this->model('matter\mission\matter')->byMission($mission);
-			if (count($matters) === 0) {
-				return new \ParameterError('没有获得项目中活动');
-			}
-		} else {
-			$matters = $rpConfig->include_apps;
-		}
-
-		$apps = [];
-		foreach ($matters as $oMatter) {
-			if (in_array($oMatter->type, ['enroll', 'signin', 'group'])) {
-				$apps[] = (object) ['id' => $oMatter->id, 'type' => $oMatter->type];
-			}
-		}
-		$modelRep = $this->model('matter\mission\report');
-		$result = $modelRep->userAndApp($users, $apps);
+		$result = $this->userAndAppData($oLoginUser, $oMission);
+		// var_dump($result);die;
 
 		/*把result导出excel文件*/
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';

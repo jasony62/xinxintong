@@ -56,7 +56,7 @@ class main extends \pl\fe\matter\base {
 							$data_schemas[] = (object) ['id' => $extattr->id, 'title' => $extattr->label];
 						}
 					}
-					$oMission->userApp->data_schemas = $data_schemas;
+					$oMission->userApp->dataSchemas = $data_schemas;
 				}
 			}
 			/* 汇总报告配置信息 */

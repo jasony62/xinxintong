@@ -35,7 +35,7 @@
                     <thead>
                         <tr>
                             <th style='width:32px'>
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="appRows.allSelected">
                             </th>
                             <th>项目活动</th>
                         </tr>
@@ -43,7 +43,7 @@
                     <tbody>
                         <tr ng-repeat="matter in matters">
                             <td>
-                                <input type='checkbox' ng-model="rows.selected[$index]">
+                                <input type='checkbox' ng-model="appRows.selected[$index]">
                             </td>
                             <td><span>{{matter.title}}</span></td>
                         </tr>

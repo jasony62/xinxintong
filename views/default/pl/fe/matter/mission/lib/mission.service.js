@@ -45,8 +45,15 @@ define(['require'], function(require) {
                                     });
                                 }
                             }
+                            $scope2.appMarkSchemas = angular.copy(oMission.userApp.dataSchemas);
                             // 选中的记录
-                            $scope2.rows = {
+                            $scope2.markRows = {
+                                selected: {},
+                                reset: function() {
+                                    this.selected = {};
+                                }
+                            };
+                            $scope2.appRows = {
                                 allSelected: 'N',
                                 selected: {},
                                 reset: function() {
@@ -54,24 +61,24 @@ define(['require'], function(require) {
                                     this.selected = {};
                                 }
                             };
-                            $scope2.$watch('rows.allSelected', function(checked) {
+                            $scope2.$watch('appRows.allSelected', function(checked) {
                                 var index = 0;
                                 if (checked === 'Y') {
                                     while (index < $scope2.matters.length) {
-                                        $scope2.rows.selected[index++] = true;
+                                        $scope2.appRows.selected[index++] = true;
                                     }
                                 } else if (checked === 'N') {
-                                    $scope2.rows.selected = {};
+                                    $scope2.appRows.selected = {};
                                 }
                             });
                             $scope2.doSearch = function() {
-                                $scope2.rows.reset();
+                                $scope2.appRows.reset();
                                 _self.matterList(oCriteria).then(function(matters) {
                                     $scope2.matters = matters;
                                     if (matters && matters.length) {
                                         matters.forEach(function(oMatter, index) {
                                             if (oIncludeApps[oMatter.type + oMatter.id]) {
-                                                $scope2.rows.selected[index] = true;
+                                                $scope2.appRows.selected[index] = true;
                                             }
                                         });
                                     }
@@ -81,13 +88,21 @@ define(['require'], function(require) {
                                 $mi.dismiss();
                             };
                             $scope2.ok = function() {
-                                var selected = [];
-                                for (var i in $scope2.rows.selected) {
-                                    if ($scope2.rows.selected[i]) {
-                                        selected.push($scope2.matters[i]);
+                                var apps = [];
+                                for (var i in $scope2.appRows.selected) {
+                                    if ($scope2.appRows.selected[i]) {
+                                        apps.push($scope2.matters[i]);
                                     }
                                 }
-                                $mi.close(selected);
+                                var schemas = [];
+                                if (Object.keys($scope2.markRows.selected).length) {
+                                    $scope2.appMarkSchemas.forEach(function(oSchema) {
+                                        if ($scope2.markRows.selected[oSchema.id]) {
+                                            schemas.push(oSchema);
+                                        }
+                                    });
+                                }
+                                $mi.close({app: apps, schema: schemas});
                             };
                             $scope2.doSearch();
                         }],

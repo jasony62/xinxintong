@@ -77,8 +77,8 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.chooseContents = function() {
-            srvMission.chooseContents($scope.mission).then(function(apps) {
-                $scope.makeReport(apps);
+            srvMission.chooseContents($scope.mission).then(function(results) {
+                $scope.makeReport(results);
             });
         };
         $scope.moveUp = function(matter, index) {
@@ -105,23 +105,29 @@ define(['frame'], function(ngApp) {
             apps.splice(index, 1);
             configUserApps();
         };
-        $scope.makeReport = function(apps) {
-            var oMission, url, params, mapOfUnionSchemaById = {};
+        $scope.makeReport = function(results) {
+            var oMission, mapOfUnionSchemaById = {}, url, params;
             oMission = $scope.mission;
-            url = '/rest/pl/fe/matter/mission/report/userAndApp?site=' + oMission.siteid + '&mission=' + oMission.id;
-            params = {
-                userSource: { id: oMission.user_app_id, type: oMission.user_app_type }
-            };
-            if (apps && apps.length) {
-                params.apps = [];
-                apps.forEach(function(oApp) {
-                    params.apps.push({ id: oApp.id, type: oApp.type });
-                });
-            };
             oMission.userApp.dataSchemas.forEach(function(schema) {
                 mapOfUnionSchemaById[schema.id] = schema;
             });
             oMission._unionSchemasById = mapOfUnionSchemaById;
+            url = '/rest/pl/fe/matter/mission/report/userAndApp?site=' + oMission.siteid + '&mission=' + oMission.id;
+            params = {
+                userSource: { id: oMission.user_app_id, type: oMission.user_app_type }
+            };
+            if (results.app && results.app.length) {
+                params.defaultConfig.apps = [];
+                results.app.forEach(function(oApp) {
+                    params.defaultConfig.apps.push({ id: oApp.id, type: oApp.type});
+                });
+            };
+            if (results.schema && results.schema.length) {
+                params.defaultConfig.show_schema = [];
+                results.schema.forEach(function(schema) {
+                    params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title});
+                });
+            };
             http2.post(url, params, function(rsp) {
                 rsp.data.users.forEach(function(user) {
                     if (user.show_schema_data) {

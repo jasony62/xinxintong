@@ -64,7 +64,7 @@ class report extends \pl\fe\matter\base {
 						foreach ($users as $oUser) {
 							if (!empty($oUser->data->{$oAssignedNickname->schema->id})) {
 								$oUser->nickname = $oUser->data->{$oAssignedNickname->schema->id};
-								$oUser->userAppData = $oUser->data;
+								$oUser->show_schema_data = $oUser->data;
 								unset($oUser->data);
 							}
 						}
@@ -73,21 +73,21 @@ class report extends \pl\fe\matter\base {
 			}
 			break;
 		case 'enroll':
-			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,comment,data userAppData', 'rid' => 'all', 'userid' => 'all']);
+			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,comment,data show_schema_data', 'rid' => 'all', 'userid' => 'all']);
 			if (count($users)) {
 				foreach ($users as $oUser) {
-					if (!empty($oUser->userAppData)) {
-						$oUser->userAppData = json_decode($oUser->userAppData);
+					if (!empty($oUser->show_schema_data)) {
+						$oUser->show_schema_data = json_decode($oUser->show_schema_data);
 					}
 				}
 			}
 			break;
 		case 'signin':
-			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,comment,data userAppData']);
+			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname,comment,data show_schema_data']);
 			if (count($users)) {
 				foreach ($users as $oUser) {
-					if (!empty($oUser->userAppData)) {
-						$oUser->userAppData = json_decode($oUser->userAppData);
+					if (!empty($oUser->show_schema_data)) {
+						$oUser->show_schema_data = json_decode($oUser->show_schema_data);
 					}
 				}
 			}
@@ -96,14 +96,14 @@ class report extends \pl\fe\matter\base {
 			$users = $this->model('site\user\member')->byMschema($userSource->id, ['fields' => 'userid,name,email,mobile,extattr']);
 			foreach ($users as &$oUser) {
 				$oUser->nickname = empty($oUser->name) ? (empty($oUser->email) ? $oUser->mobile : $oUser->email) : $oUser->name;
-				$oUser->userAppData = new \stdClass;
-				$oUser->userAppData->name = $oUser->name;
-				$oUser->userAppData->email = $oUser->email;
-				$oUser->userAppData->mobile = $oUser->mobile;
+				$oUser->show_schema_data = new \stdClass;
+				$oUser->show_schema_data->name = $oUser->name;
+				$oUser->show_schema_data->email = $oUser->email;
+				$oUser->show_schema_data->mobile = $oUser->mobile;
 				if (!empty($oUser->extattr)) {
 					$extattrs = json_decode($oUser->extattr);
 					foreach ($extattrs as $key => $extattr) {
-						$oUser->userAppData->{$key} = $extattr;
+						$oUser->show_schema_data->{$key} = $extattr;
 					}
 				}
 			}
@@ -115,8 +115,10 @@ class report extends \pl\fe\matter\base {
 		}
 		/* 获得项目下的活动 */
 		if (empty($posted->apps)) {
+		// if (empty($posted->defaultConfig->apps)) {
 			/* 汇总报告配置信息 */
 			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oLoginUser, $oMission);
+			// var_dump($rpConfig);die;
 			if (empty($rpConfig) || empty($rpConfig->include_apps)) {
 				/* 如果没有指定 */
 				$matters = $this->model('matter\mission\matter')->byMission($oMission->id);
@@ -129,18 +131,26 @@ class report extends \pl\fe\matter\base {
 						$apps[] = (object) ['id' => $oMatter->id, 'type' => $oMatter->type];
 					}
 				}
+				// $defaultConfig = new \stdClass;
+				// $defaultConfig->apps = $apps;
 			} else {
+				// $defaultConfig = $rpConfig->include_apps;
+				// $apps = $defaultConfig->apps;
 				$apps = $rpConfig->include_apps;
 			}
 		} else {
 			$apps = $posted->apps;
+			// $defaultConfig = $posted->defaultConfig;
 			/* 保留用户指定的查询参数 */
 			$modelRp = $this->model('matter\mission\report');
 			$modelRp->createConfig($oMission, $oLoginUser, ['asDefault' => 'Y', 'includeApps' => $apps]);
+			// $modelRp->createConfig($oMission, $oLoginUser, ['asDefault' => 'Y', 'includeApps' => $defaultConfig]);
+			// $apps = $defaultConfig->apps;
 		}
 
 		$modelRep = $this->model('matter\mission\report');
 		$result = $modelRep->userAndApp($users, $apps);
+		$result->show_schema = empty($defaultConfig->show_schema) ? new \stdClass : $defaultConfig->show_schema;
 
 		return $result;
 	}
@@ -206,7 +216,6 @@ class report extends \pl\fe\matter\base {
 
 		/* 获得用户 */
 		$result = $this->userAndAppData($oLoginUser, $oMission);
-		// var_dump($result);die;
 
 		/*把result导出excel文件*/
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
@@ -226,6 +235,12 @@ class report extends \pl\fe\matter\base {
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '用户');
 
+		if (!empty($result->show_schema)) {
+			foreach ($result->show_schema as $show_schema) {
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, $show_schema->title);
+			}
+		}
+
 		foreach ($result->orderedApps as $app) {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, $app->title);
 		}
@@ -236,6 +251,13 @@ class report extends \pl\fe\matter\base {
 			$columnNum2 = 0;
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, ++$row, $i++);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, !empty($rec->nickname) ? $rec->nickname : ('用户' . $rec->userid));
+			
+			if (!empty($result->show_schema)) {
+				foreach ($result->show_schema as $show_schema) {
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->{$show_schema->id});
+				}
+			}
+
 			foreach ($rec->data as $v) {
 				if (is_object($v)) {
 					if (isset($v->enroll_num)) {

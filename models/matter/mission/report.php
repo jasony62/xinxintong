@@ -33,6 +33,9 @@ class report_model extends \TMS_MODEL {
 		if (!is_array($includeApps)) {
 			$includeApps = [];
 		}
+		// if (!is_object($includeApps)) {
+		// 	$includeApps = {};
+		// }
 
 		$asDefault = isset($options['asDefault']) ? $options['asDefault'] : 'Y';
 		if (!preg_match('/Y|N/', $asDefault)) {
@@ -112,6 +115,7 @@ class report_model extends \TMS_MODEL {
 				$oEnlApp = $modelEnl->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,title,create_at,start_at,data_schemas']);
 				if ($oEnlApp) {
 					unset($oEnlApp->data_schemas);
+					unset($oEnlApp->pages);
 					$orderedApps[] = $oEnlApp;
 				}
 				break;

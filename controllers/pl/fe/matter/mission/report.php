@@ -70,7 +70,7 @@ class report extends \pl\fe\matter\base {
 				$defaultConfig->apps = $apps;
 			} else {
 				$defaultConfig = $rpConfig->include_apps;
-				$apps = $defaultConfig->apps;
+				$apps = empty($defaultConfig->apps) ? [] : $defaultConfig->apps;
 			}
 		} else {
 			$defaultConfig = $posted->defaultConfig;
@@ -178,7 +178,7 @@ class report extends \pl\fe\matter\base {
 
 		$modelRep = $this->model('matter\mission\report');
 		$result = $modelRep->userAndApp($users, $apps);
-		$result->show_schema = empty($defaultConfig->show_schema) ? new \stdClass : $defaultConfig->show_schema;
+		$result->show_schema = empty($defaultConfig->show_schema) ? [] : $defaultConfig->show_schema;
 
 		return $result;
 	}

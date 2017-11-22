@@ -59,8 +59,10 @@
                             <div ng-if="user.data[$index].comment">备注：{{user.data[$index].comment}}</div>
                         </div>
                         <div ng-switch-when="group" ng-if="user.data[$index]">
-                            <div ng-repeat="rnd in user.data[$index]">分组：{{rnd.round_title||'空'}}</div>
-                            <div ng-if="user.data[$index].comment">备注：{{user.data[$index].comment}}</div>
+                            <div ng-repeat="rnd in user.data[$index]">
+                                <div>分组：{{rnd.round_title||'空'}}</div>
+                                <div>备注：{{rnd.comment}}</div>
+                            </div>
                         </div>
                         <div ng-switch-default>{{user.data[$index]}}</div>
                     </td>

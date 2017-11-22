@@ -137,6 +137,16 @@ class report_model extends \TMS_MODEL {
 					$orderedApps[] = $oGrpApp;
 				}
 				break;
+			case 'memberschema':
+				if (!isset($modelms)) {
+					$modelms = $this->model('site\user\memberschema');
+				}
+				$oMsApp = $modelms->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,title,create_at']);
+				if ($oMsApp) {
+					$oMsApp->type = 'memberschema';
+					$orderedApps[] = $oMsApp;
+				}
+				break;
 			}
 		}
 		if (count($orderedApps) === 0) {
@@ -161,6 +171,24 @@ class report_model extends \TMS_MODEL {
 					break;
 				case 'group':
 					$oUser->data[] = $modelGrp->reportByUser($oApp, $oUser);
+					break;
+				case 'memberschema':
+					if (!isset($modelMUser)) {
+						$modelMUser = $this->model('site\user\member');
+					}
+					$mUser = $modelMUser->byUser($oUser->userid, ['schemas' => $oApp->id, 'fields' => 'id,name,mobile,email,extattr']);
+					if ($mUser) {
+						$mUser = $mUser[0];
+						if (!empty($mUser->extattr)) {
+							$extattrs = json_decode($mUser->extattr);
+							foreach ($extattrs as $key => $value) {
+								$mUser->{$key} = $value;
+							}
+						}
+						$oUser->data[] = $mUser;
+					} else {
+						$oUser->data[] = false;
+					}
 					break;
 				}
 			}

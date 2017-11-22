@@ -44,9 +44,9 @@ define(['frame'], function(ngApp) {
                 mission.user_app_type = data.appType;
                 $scope.update(['user_app_id', 'user_app_type']).then(function(rsp) {
                     if (data.appType === 'mschema') {
-                        var url = '/rest/pl/fe/site/member/schema/get?site=' + mission.siteid + '&mschema=' + data.appId;
+                        var url = '/rest/pl/fe/matter/mission/get?id=' + mission.id;
                         http2.get(url, function(rsp) {
-                            mission.userApp = rsp.data;
+                            mission.userApp = rsp.data.userApp;
                             $scope.makeReport();
                         });
                     } else {

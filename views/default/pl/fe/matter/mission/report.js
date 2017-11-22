@@ -108,47 +108,47 @@ define(['frame'], function(ngApp) {
         $scope.makeReport = function(results) {
             var oMission, mapOfUnionSchemaById = {}, url, params;
             oMission = $scope.mission;
-            oMission.userApp.dataSchemas.forEach(function(schema) {
-                mapOfUnionSchemaById[schema.id] = schema;
-            });
-            oMission._unionSchemasById = mapOfUnionSchemaById;
             url = '/rest/pl/fe/matter/mission/report/userAndApp?site=' + oMission.siteid + '&mission=' + oMission.id;
             params = {
-                defaultConfig: {},
+                defaultConfig: {apps: [], show_schema: []},
                 userSource: { id: oMission.user_app_id, type: oMission.user_app_type }
             };
             if (results && results.app && results.app.length) {
-                params.defaultConfig.apps = [];
                 results.app.forEach(function(oApp) {
                     params.defaultConfig.apps.push({ id: oApp.id, type: oApp.type});
                 });
             };
             if (results && results.mark && results.mark.length) {
-                params.defaultConfig.show_schema = [];
                 results.mark.forEach(function(schema) {
-                    params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title});
+                    params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title, type: schema.type});
                 });
             };
             http2.post(url, params, function(rsp) {
-                rsp.data.users.forEach(function(user) {
-                    if (user.show_schema_data) {
-                        user.show_schema_data.data = angular.copy(user.show_schema_data);
-                    }
-                    srvRecordConverter.forTable(user.show_schema_data, oMission._unionSchemasById);
-                });
-                $scope.report = rsp.data;
-                rsp.data.orderedApps.forEach(function(oMatter) {
-                    if (oMatter.type === 'enroll') {
-                        var schemasById;
-                        if (oMatter.dataSchemas) {
-                            schemasById = {};
-                            oMatter.dataSchemas.forEach(function(schema) {
-                                schemasById[schema.id] = schema;
-                            });
-                            _enrollAppSchemas[oMatter.id] = schemasById;
+                if(rsp.data) {
+                    $scope.dataSchemas = rsp.data.show_schema.length > 0 ? rsp.data.show_schema : oMission.userApp.dataSchemas;
+                    $scope.dataSchemas.forEach(function(schema) {
+                        mapOfUnionSchemaById[schema.id] = schema;
+                    });
+                    rsp.data.users.forEach(function(user) {
+                        if (user.show_schema_data) {
+                            user.show_schema_data.data = angular.copy(user.show_schema_data);
                         }
-                    }
-                });
+                        srvRecordConverter.forTable(user.show_schema_data, mapOfUnionSchemaById);
+                    });
+                    $scope.report = rsp.data;
+                    rsp.data.orderedApps.forEach(function(oMatter) {
+                        if (oMatter.type === 'enroll') {
+                            var schemasById;
+                            if (oMatter.dataSchemas) {
+                                schemasById = {};
+                                oMatter.dataSchemas.forEach(function(schema) {
+                                    schemasById[schema.id] = schema;
+                                });
+                                _enrollAppSchemas[oMatter.id] = schemasById;
+                            }
+                        }
+                    });
+                }
             });
         };
         $scope.exportReport = function() {

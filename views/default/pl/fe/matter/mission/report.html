@@ -28,7 +28,7 @@
                     <th style="width:4em">序号</th>
                     <th style="width:8em">用户</th>
                     <th style="width:8em" ng-if="mission.userApp.type==='group'">分组</th>
-                    <th style="width:8em" ng-repeat="schema in mission.userApp.dataSchemas">{{schema.title}}</th>
+                    <th style="width:8em" ng-repeat="schema in dataSchemas">{{schema.title}}</th>
                     <th style="width:8em" ng-repeat="app in report.orderedApps">{{app.title}}</th>
                 </tr>
             </thead>
@@ -37,7 +37,7 @@
                     <td>{{$index+1}}</td>
                     <td ng-click="chooseUser(user)">{{user.nickname}}</td>
                     <td ng-if="mission.userApp.type==='group'">{{user.round_title}}</td>
-                    <td ng-repeat="schema in mission.userApp.dataSchemas" ng-switch="schema.type">
+                    <td ng-repeat="schema in dataSchemas" ng-switch="schema.type">
                         <div ng-switch-when="image">
                             <img ng-repeat="img in user.show_schema_data._data[schema.id]" ng-src='{{img}}' />
                         </div>

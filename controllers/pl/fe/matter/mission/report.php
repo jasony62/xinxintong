@@ -50,34 +50,36 @@ class report extends \pl\fe\matter\base {
 			$userSource = $posted->userSource;
 		}
 
-		/* 获得项目下的活动 */
-		if (empty($posted->defaultConfig->apps)) {
-			/* 汇总报告配置信息 */
-			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oLoginUser, $oMission);
-			if (empty(get_object_vars($rpConfig->include_apps))) {
-				/* 如果没有指定 */
-				$matters = $this->model('matter\mission\matter')->byMission($oMission->id);
-				if (count($matters) === 0) {
-					return new \ParameterError('没有获得项目中活动');
-				}
-				$apps = [];
-				foreach ($matters as $oMatter) {
-					if (in_array($oMatter->type, ['enroll', 'signin', 'group'])) {
-						$apps[] = (object) ['id' => $oMatter->id, 'type' => $oMatter->type];
-					}
-				}
-				$defaultConfig = new \stdClass;
-				$defaultConfig->apps = $apps;
-			} else {
-				$defaultConfig = $rpConfig->include_apps;
-				$apps = empty($defaultConfig->apps) ? [] : $defaultConfig->apps;
-			}
-		} else {
+		$modelRp = $this->model('matter\mission\report');
+		if (!empty($posted->defaultConfig->show_schema) || !empty($posted->defaultConfig->apps)) {
 			$defaultConfig = $posted->defaultConfig;
 			/* 保留用户指定的查询参数 */
-			$modelRp = $this->model('matter\mission\report');
 			$modelRp->createConfig($oMission, $oLoginUser, ['asDefault' => 'Y', 'includeApps' => $defaultConfig]);
-			$apps = $defaultConfig->apps;
+		} else {
+			/* 汇总报告配置信息 */
+			$rpConfig = $modelRp->defaultConfigByUser($oLoginUser, $oMission);
+			if ($rpConfig !== false) {
+				$defaultConfig = $rpConfig->include_apps;
+			} else {
+				$defaultConfig = new \stdClass;
+				$defaultConfig->apps = [];
+				$defaultConfig->show_schema = [];
+			}
+		}
+
+		/* 获得项目下的活动 */
+		$apps = $defaultConfig->apps;
+		if (empty($apps)) {
+			/* 如果没有指定 */
+			$matters = $this->model('matter\mission\matter')->byMission($oMission->id);
+			if (count($matters) === 0) {
+				return new \ParameterError('没有获得项目中活动');
+			}
+			foreach ($matters as $oMatter) {
+				if (in_array($oMatter->type, ['enroll', 'signin', 'group'])) {
+					$apps[] = (object) ['id' => $oMatter->id, 'type' => $oMatter->type];
+				}
+			}
 		}
 
 		/* 获得用户 */
@@ -189,7 +191,8 @@ class report extends \pl\fe\matter\base {
 
 		$modelRep = $this->model('matter\mission\report');
 		if ($result = $modelRep->userAndApp($users, $apps)) {
-			$result->show_schema = empty($defaultConfig->show_schema) ? [] : $defaultConfig->show_schema;
+			$result->show_schema = $defaultConfig->show_schema;
+			$result->apps = $defaultConfig->apps;
 		}
 
 		return $result;
@@ -250,12 +253,37 @@ class report extends \pl\fe\matter\base {
 
 		$modelMis = $this->model('matter\mission');
 		$oMission = $modelMis->byId($mission);
+		if ($oMission->user_app_id) {
+			if ($oMission->user_app_type === 'group') {
+				$oMission->userApp = $this->model('matter\group')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+			} else if ($oMission->user_app_type === 'enroll') {
+				$oMission->userApp = $this->model('matter\enroll')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+			} else if ($oMission->user_app_type === 'signin') {
+				$oMission->userApp = $this->model('matter\signin')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+			} else if ($oMission->user_app_type === 'mschema') {
+				$oMission->userApp = $this->model('site\user\memberschema')->byId($oMission->user_app_id, ['cascaded' => 'N', 'fields' => 'siteid,id,title,create_at,start_at,end_at,url,attr_email,attr_mobile,attr_name,extattr']);
+				$data_schemas = [];
+				($oMission->userApp->attr_mobile[0] == '0') && $data_schemas[] = (object) ['id' => 'mobile', 'title' => '手机'];
+				($oMission->userApp->attr_email[0] == '0') && $data_schemas[] = (object) ['id' => 'email', 'title' => '邮箱'];
+				($oMission->userApp->attr_name[0] == '0') && $data_schemas[] = (object) ['id' => 'name', 'title' => '姓名'];
+				if (!empty($oMission->userApp->extattr)) {
+					$extattrs = $oMission->userApp->extattr;
+					foreach ($extattrs as $extattr) {
+						$data_schemas[] = (object) ['id' => $extattr->id, 'title' => $extattr->label];
+					}
+				}
+				$oMission->userApp->dataSchemas = $data_schemas;
+			}
+		}
 		if ($oMission === false) {
 			return new \ObjectNotFoundError();
 		}
 
 		/* 获得用户 */
 		$result = $this->userAndAppData($oLoginUser, $oMission);
+		if (empty($result->show_schema)) {
+			$result->show_schema = $oMission->userApp->dataSchemas;
+		}
 
 		/*把result导出excel文件*/
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
@@ -275,10 +303,8 @@ class report extends \pl\fe\matter\base {
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '用户');
 
-		if (!empty($result->show_schema)) {
-			foreach ($result->show_schema as $show_schema) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, $show_schema->title);
-			}
+		foreach ($result->show_schema as $show_schema) {
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, $show_schema->title);
 		}
 
 		foreach ($result->orderedApps as $app) {
@@ -292,21 +318,19 @@ class report extends \pl\fe\matter\base {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, ++$row, $i++);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, !empty($rec->nickname) ? $rec->nickname : ('用户' . $rec->userid));
 			
-			if (!empty($result->show_schema)) {
-				foreach ($result->show_schema as $show_schema) {
-					if ($show_schema->id === '_round_id') {
-						$value = $rec->show_schema_datas->{$show_schema->id};
-						$rounds = $show_schema->ops;
-						$roundTitle = '';
-						foreach ($rounds as $round) {
-							if ($round->v === $value) {
-								$roundTitle = $round->l;
-							}
+			foreach ($result->show_schema as $show_schema) {
+				if ($show_schema->id === '_round_id') {
+					$value = $rec->show_schema_datas->{$show_schema->id};
+					$rounds = $show_schema->ops;
+					$roundTitle = '';
+					foreach ($rounds as $round) {
+						if ($round->v === $value) {
+							$roundTitle = $round->l;
 						}
-						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $roundTitle);
-					} else {
-						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_datas->{$show_schema->id});
 					}
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $roundTitle);
+				} else {
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_datas->{$show_schema->id});
 				}
 			}
 

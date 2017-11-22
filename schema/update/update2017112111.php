@@ -10,7 +10,7 @@ if (strpos($row['include_apps'], 'apps') !== false) {
 }
 $sqls = array();
 //
-$sqls[] = "update xxt_mission_report set include_apps = concat('{" . '"apps"' . ":',include_apps,'}') where include_apps != '' or include_apps != null";
+$sqls[] = "update xxt_mission_report set include_apps = concat('{" . '"apps"' . ":',include_apps,'," . '"show_schema"' . ":[]}') where include_apps != '' or include_apps != null";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

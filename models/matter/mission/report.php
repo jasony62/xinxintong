@@ -32,6 +32,8 @@ class report_model extends \TMS_MODEL {
 		$includeApps = $options['includeApps'];
 		if (!is_object($includeApps)) {
 			$includeApps = new \stdClass;
+			$includeApps->apps = [];
+			$includeApps->show_schema = [];
 		}
 
 		$asDefault = isset($options['asDefault']) ? $options['asDefault'] : 'Y';

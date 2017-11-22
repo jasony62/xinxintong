@@ -342,46 +342,49 @@ class report extends \pl\fe\matter\base {
 					}
 				}
 			}
-
-			foreach ($rec->data as $v) {
-				if (is_object($v)) {
-					if (isset($v->enroll_num)) {
-						$content = [];
-						if (!empty($v->enroll_num)) {
-							$content[] = '记录：' . $v->enroll_num;
+			if (!empty($rec->data)) {
+				foreach ($rec->data as $v) {
+					if (is_object($v)) {
+						if (isset($v->enroll_num)) {
+							$content = [];
+							if (!empty($v->enroll_num)) {
+								$content[] = '记录：' . $v->enroll_num;
+							}
+							if (!empty($v->remark_other_num)) {
+								$content[] = "\n 评论：" . $v->remark_other_num;
+							}
+							$content = implode("\n ", $content);
+						} else if (isset($v->signin_num)) {
+							$content = '签到：' . $v->signin_num;
+							isset($v->late_num) && $content .= "\n 迟到：" . $v->late_num;
 						}
-						if (!empty($v->remark_other_num)) {
-							$content[] = "\n 评论：" . $v->remark_other_num;
+						if (isset($v->comment) && !empty($v->comment)) {
+							$content .= "\n 备注：" . $v->comment;
 						}
-						$content = implode("\n ", $content);
-					} else if (isset($v->signin_num)) {
-						$content = '签到：' . $v->signin_num;
-						isset($v->late_num) && $content .= "\n 迟到：" . $v->late_num;
-					}
-					if (isset($v->comment) && !empty($v->comment)) {
-						$content .= "\n 备注：" . $v->comment;
-					}
-				} else if (is_array($v)) {
-					$content = '';
-					foreach ($v as $k => $val) {
-						if ($rec->round_id) {
-							if ($rec->round_id === $val->round_id) {
-								$content .= '分组：' . $val->round_title;
+					} else if (is_array($v)) {
+						$content = '';
+						foreach ($v as $k => $val) {
+							if ($rec->round_id) {
+								if ($rec->round_id === $val->round_id) {
+									$content .= '分组：' . $val->round_title;
+									if (isset($val->comment) && !empty($val->comment)) {
+										$content .= "\n 备注：" . $val->comment;
+									}
+								}
+							} else {
 								if (isset($val->comment) && !empty($val->comment)) {
 									$content .= "\n 备注：" . $val->comment;
 								}
 							}
-						} else {
-							if (isset($val->comment) && !empty($val->comment)) {
-								$content .= "\n 备注：" . $val->comment;
-							}
 						}
+					} else {
+						$content = '';
 					}
-				} else {
-					$content = '';
-				}
 
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $content);
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $content);
+				}
+			} else {
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, '');
 			}
 		}
 

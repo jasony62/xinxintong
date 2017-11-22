@@ -303,6 +303,9 @@ class report extends \pl\fe\matter\base {
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '用户');
 
+		if ($oMission->user_app_type === 'group') {
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
+		}
 		foreach ($result->show_schema as $show_schema) {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, $show_schema->title);
 		}
@@ -317,10 +320,12 @@ class report extends \pl\fe\matter\base {
 			$columnNum2 = 0;
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, ++$row, $i++);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, !empty($rec->nickname) ? $rec->nickname : ('用户' . $rec->userid));
-			
+			if ($oMission->user_app_type === 'group') {
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->round_title);
+			}
 			foreach ($result->show_schema as $show_schema) {
 				if ($show_schema->id === '_round_id') {
-					$value = $rec->show_schema_datas->{$show_schema->id};
+					$value = $rec->show_schema_data->{$show_schema->id};
 					$rounds = $show_schema->ops;
 					$roundTitle = '';
 					foreach ($rounds as $round) {
@@ -330,7 +335,11 @@ class report extends \pl\fe\matter\base {
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $roundTitle);
 				} else {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_datas->{$show_schema->id});
+					if (isset($rec->show_schema_data->{$show_schema->id})) {
+						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->{$show_schema->id});
+					} else {
+						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, '');
+					}
 				}
 			}
 
@@ -353,13 +362,20 @@ class report extends \pl\fe\matter\base {
 						$content .= "\n 备注：" . $v->comment;
 					}
 				} else if (is_array($v)) {
-					if (!empty($v[0]->round_title)) {
-						$content = '分组：' . $v[0]->round_title;
-					} else {
-						$content = '分组：空';
-					}
-					if (isset($v[0]->comment) && !empty($v[0]->comment)) {
-						$content .= "\n 备注：" . $v[0]->comment;
+					$content = '';
+					foreach ($v as $k => $val) {
+						if ($rec->round_id) {
+							if ($rec->round_id === $val->round_id) {
+								$content .= '分组：' . $val->round_title;
+								if (isset($val->comment) && !empty($val->comment)) {
+									$content .= "\n 备注：" . $val->comment;
+								}
+							}
+						} else {
+							if (isset($val->comment) && !empty($val->comment)) {
+								$content .= "\n 备注：" . $val->comment;
+							}
+						}
 					}
 				} else {
 					$content = '';

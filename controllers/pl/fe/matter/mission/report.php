@@ -96,6 +96,8 @@ class report extends \pl\fe\matter\base {
 							foreach ($defaultConfig->show_schema as $show_schema) {
 								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
 							}
+						} else {
+							$show_schema_data = $show_schema_datas;		
 						}
 					}
 					$oUser->show_schema_data = $show_schema_data;
@@ -124,8 +126,9 @@ class report extends \pl\fe\matter\base {
 							foreach ($defaultConfig->show_schema as $show_schema) {
 								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
 							}
+						} else {
+							$show_schema_data = $show_schema_datas;		
 						}
-						unset($show_schema_datas);
 					}
 					$oUser->show_schema_data = $show_schema_data;
 					unset($oUser->show_schema_datas);
@@ -144,8 +147,9 @@ class report extends \pl\fe\matter\base {
 							foreach ($defaultConfig->show_schema as $show_schema) {
 								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
 							}
+						} else {
+							$show_schema_data = $show_schema_datas;		
 						}
-						unset($show_schema_datas);
 					}
 					$oUser->show_schema_data = $show_schema_data;
 					unset($oUser->show_schema_datas);
@@ -156,18 +160,25 @@ class report extends \pl\fe\matter\base {
 			$users = $this->model('site\user\member')->byMschema($userSource->id, ['fields' => 'userid,name,email,mobile,extattr']);
 			foreach ($users as &$oUser) {
 				$oUser->nickname = empty($oUser->name) ? (empty($oUser->email) ? $oUser->mobile : $oUser->email) : $oUser->name;
-				$oUser->show_schema_data = new \stdClass;
-				if (!empty($defaultConfig->show_schema)) {
-					foreach ($defaultConfig->show_schema as $show_schema) {
-						$oUser->show_schema_data->{$show_schema->id} = $oUser->{$show_schema->id};
-					}
-					if (!empty($oUser->extattr)) {
-						$extattrs = json_decode($oUser->extattr);
-						foreach ($extattrs as $key => $extattr) {
-							$oUser->show_schema_data->{$key} = $extattr;
-						}
+				$show_schema_data1 = new \stdClass;
+				$show_schema_data1->name = $oUser->name;
+				$show_schema_data1->email = $oUser->email;
+				$show_schema_data1->mobile = $oUser->mobile;
+				if (!empty($oUser->extattr)) {
+					$extattrs = json_decode($oUser->extattr);
+					foreach ($extattrs as $key => $extattr) {
+						$show_schema_data1->{$key} = $extattr;
 					}
 				}
+				$show_schema_data2 = new \stdClass;
+				if (!empty($defaultConfig->show_schema)) {
+					foreach ($defaultConfig->show_schema as $show_schema) {
+						$show_schema_data2->{$show_schema->id} = $show_schema_data1->{$show_schema->id};
+					}
+				} else {
+					$show_schema_data2 = $show_schema_data1;
+				}
+				$oUser->show_schema_data = $show_schema_data2;
 			}
 			break;
 		}

@@ -177,8 +177,9 @@ class report extends \pl\fe\matter\base {
 		}
 
 		$modelRep = $this->model('matter\mission\report');
-		$result = $modelRep->userAndApp($users, $apps);
-		$result->show_schema = empty($defaultConfig->show_schema) ? [] : $defaultConfig->show_schema;
+		if ($result = $modelRep->userAndApp($users, $apps)) {
+			$result->show_schema = empty($defaultConfig->show_schema) ? [] : $defaultConfig->show_schema;
+		}
 
 		return $result;
 	}

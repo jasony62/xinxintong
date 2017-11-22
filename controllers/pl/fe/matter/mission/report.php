@@ -54,7 +54,7 @@ class report extends \pl\fe\matter\base {
 		if (empty($posted->defaultConfig->apps)) {
 			/* 汇总报告配置信息 */
 			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oLoginUser, $oMission);
-			if (empty($rpConfig->include_apps)) {
+			if (empty(get_object_vars($rpConfig->include_apps))) {
 				/* 如果没有指定 */
 				$matters = $this->model('matter\mission\matter')->byMission($oMission->id);
 				if (count($matters) === 0) {

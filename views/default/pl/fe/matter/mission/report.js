@@ -120,7 +120,11 @@ define(['frame'], function(ngApp) {
             };
             if (results && results.mark && results.mark.length) {
                 results.mark.forEach(function(schema) {
-                    params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title, type: schema.type});
+                    if(schema.id=='_round_id') {
+                        params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title, type: schema.type, ops: schema.ops});
+                    }else{
+                        params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title, type: schema.type});
+                    }
                 });
             };
             http2.post(url, params, function(rsp) {

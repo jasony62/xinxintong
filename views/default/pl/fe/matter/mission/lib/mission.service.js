@@ -87,13 +87,14 @@ define(['require'], function(require) {
                                 }
                                 _self.matterList(oCriteria).then(function(matters) {
                                     $scope2.matters = matters;
-
                                     if (matters && matters.length) {
-                                        matters.forEach(function(oMatter, index) {
-                                            if(oMatter.type=="memberschema") {
-                                                matters.splice(oMatter,1);
-                                                console.log(matters);
+                                        for(var i=0; i<matters.length; i++) {
+                                            if(matters[i].type=='memberschema') {
+                                                matters.splice(matters[i],1);
+                                                break;
                                             }
+                                        };
+                                        matters.forEach(function(oMatter, index) {
                                             if (oIncludeApps[oMatter.type + oMatter.id]) {
                                                 $scope2.appRows.selected[index] = true;
                                             }

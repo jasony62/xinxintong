@@ -390,7 +390,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 quitMission: function() {
                     var defer = $q.defer();
-                    http2.get(_fnMakeApiUrl(quitMission), function(rsp) {
+                    http2.get(_fnMakeApiUrl('quitMission'), function(rsp) {
                         delete _oApp.mission;
                         _oApp.mission_id = 0;
                         _oApp.mission_phase_id = '';

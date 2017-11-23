@@ -281,6 +281,9 @@ class report extends \pl\fe\matter\base {
 
 		/* 获得用户 */
 		$result = $this->userAndAppData($oLoginUser, $oMission);
+		if ($result === false) {
+			return new \ObjectNotFoundError();
+		}
 		if (empty($result->show_schema)) {
 			$result->show_schema = $oMission->userApp->dataSchemas;
 		}
@@ -325,13 +328,15 @@ class report extends \pl\fe\matter\base {
 			}
 			foreach ($result->show_schema as $show_schema) {
 				if ($show_schema->id === '_round_id') {
-					$value = $rec->show_schema_data->{$show_schema->id};
 					$roundTitle = '';
-					if (isset($show_schema->ops)) {
-						$rounds = $show_schema->ops;
-						foreach ($rounds as $round) {
-							if ($round->v === $value) {
-								$roundTitle = $round->l;
+					if (!empty($rec->show_schema_data->{$show_schema->id})) {
+						$value = $rec->show_schema_data->{$show_schema->id};
+						if (isset($show_schema->ops)) {
+							$rounds = $show_schema->ops;
+							foreach ($rounds as $round) {
+								if ($round->v === $value) {
+									$roundTitle = $round->l;
+								}
 							}
 						}
 					}

@@ -29,26 +29,24 @@ define(['require'], function(require) {
 
                     return _getMissionDeferred.promise;
                 },
-                chooseContents: function(oMission) {
+                chooseContents: function(oMission, oReport) {
                     return $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/mission/component/chooseContents.html?_=1',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            var oCriteria, oReportConfig, oIncludeApps = {}, oIncludeMarks = {};
+                            var oCriteria, oIncludeApps = {}, oIncludeMarks = {};
                             $scope2.mission = oMission;
                             $scope2.criteria = oCriteria = {
                                 mission_phase_id: ''
                             };
-                            if (oReportConfig = oMission.reportConfig) {
-                                if (oReportConfig.include_apps.apps) {
-                                    oReportConfig.include_apps.apps.forEach(function(oApp) {
-                                        oIncludeApps[oApp.type + oApp.id] = true;
-                                    });
-                                }
-                                if(oReportConfig.include_apps.show_schema) {
-                                    oReportConfig.include_apps.show_schema.forEach(function(oSchema) {
-                                        oIncludeMarks[oSchema.title + oSchema.id] = true;
-                                    });
-                                }
+                            if(oReport.apps) {
+                                oReport.apps.forEach(function(oApp) {
+                                    oIncludeApps[oApp.type + oApp.id] = true;
+                                });
+                            }
+                            if(oReport.show_schema) {
+                                oReport.show_schema.forEach(function(oSchema) {
+                                    oIncludeMarks[oSchema.title + oSchema.id] = true;
+                                });
                             }
                             // 选中的记录
                             $scope2.markRows = {
@@ -77,6 +75,8 @@ define(['require'], function(require) {
                             });
                             $scope2.doSearch = function() {
                                 $scope2.appRows.reset();
+                                $scope2.markRows.reset();
+
                                 $scope2.appMarkSchemas = angular.copy(oMission.userApp.dataSchemas);
                                 if($scope2.appMarkSchemas && $scope2.appMarkSchemas.length) {
                                     $scope2.appMarkSchemas.forEach(function(schema, index) {

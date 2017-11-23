@@ -366,15 +366,14 @@ class report extends \pl\fe\matter\base {
 					} else if (is_array($v)) {
 						$content = '';
 						foreach ($v as $k => $val) {
-							if ($rec->round_id) {
-								if ($rec->round_id === $val->round_id) {
-									$content .= '分组：' . $val->round_title;
-									if (isset($val->comment) && !empty($val->comment)) {
-										$content .= "\n 备注：" . $val->comment;
-									}
+							if (!empty($val->round_title)) {
+								$content .= '分组：' . $val->round_title;
+								if (!empty($val->comment)) {
+									$content .= "\n 备注：" . $val->comment;
 								}
 							} else {
-								if (isset($val->comment) && !empty($val->comment)) {
+								$content = '分组：空';
+								if (!empty($val->comment)) {
 									$content .= "\n 备注：" . $val->comment;
 								}
 							}

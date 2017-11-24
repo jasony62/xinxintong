@@ -236,17 +236,20 @@ class main extends \pl\fe\matter\main_base {
 			} else if (in_array($n, ['title', 'summary'])) {
 				$oUpdated->{$n} = $modelApp->escape($v);
 			} else if ($n === 'absent_cause') {
-				!is_object($oApp->absent_cause) &&  $oApp->absent_cause = new \stdClass;
-				foreach ($n as $uid => $val) {
-					$oApp->absent_cause->{$uid} = $modelApp->escape($modelApp->toJson($val));
+				$absentCause = is_object($oApp->absent_cause) ? $oApp->absent_cause : new \stdClass;
+				foreach ($v as $uid => $val) {
+					$absentCause->{$uid} = $modelApp->toJson($val);
 				}
-				$oUpdated->{$n} = $oApp->absent_cause;
+				$oUpdated->{$n} = $absentCause;
 			} else {
 				$oUpdated->{$n} = $v;
 			}
 		}
 
 		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
+			if (isset($oApp->absent_cause)) {
+				$oApp->absent_cause = json_decode($oApp->absent_cause);
+			}
 			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U');
 		}
 

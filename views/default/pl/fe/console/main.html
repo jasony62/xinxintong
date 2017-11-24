@@ -442,3 +442,36 @@
         <button class="btn btn-primary" ng-click="ok()">选择标签</button>
     </div>
 </script>
+<script type="text/ng-template" id="copyMatter.html">
+    <div class="modal-header">
+        <h5 class="modal-title">活动复制</h5>
+    </div>
+    <div class="modal-body">
+        <form class='form-horizontal'>
+            <div class='form-group'>
+                <label class='col-md-3 control-label'>复制到</label>
+                <div class='col-md-9'>
+                    <select class='form-control' ng-model="criteria.mission_id" size=5>
+                        <option value="{{mission.id}}" ng-repeat="mission in missions">{{mission.title}}</option>
+                    </select>
+                    <div class='pl-pagination' >
+                        <span>总数：{{pageOfMission.total}}</span>
+                        <ul uib-pagination boundary-links="true" total-items="pageOfMission.total" max-size="5" items-per-page="pageOfMission.size" rotate="false" ng-model="pageOfMission.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchMission()"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group' style="margin-bottom:0">
+                <label class='col-md-3 control-label'><input type='checkbox' ng-model="criteria.isMatterData" ng-true-value="'Y'" ng-false-value="'N'"></label>
+                <div class='col-md-7 control-label' style="text-align:left">复制活动数据</div>
+            </div>
+            <div class="form-group" ng-show="criteria.isMatterData === 'Y'">
+                <label class='col-md-3 control-label'><input type='checkbox' ng-model="criteria.isMatterAction" ng-true-value="'Y'" ng-false-value="'N'"></label>
+                <div class='col-md-7 control-label' style="text-align:left">只复制活动数据，不作为用户行为记录</div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancle()">取消</button>
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

@@ -43,6 +43,33 @@ define(['frame'], function(ngApp) {
                     url += type + '/copy?id=' + id + '&site=' + siteid;
                     break;
                 case 'enroll':
+                    $uibModal.open({
+                        templateUrl: 'copyMatter.html',
+                        controller: ['$scope', '$uibModalInstance', '$http', function($scope2, $mi, $http) {
+                            $scope2.pageOfMission = {
+                                at: '1',
+                                size: '5',
+                                j: function() {
+                                    return '&page=' + this.at + '&size=' + page.size;
+                                }
+                            };
+                            $scope2.criteria = {
+                                mission_id: '',
+                                isMatterData: 'N',
+                                isMatterAction: 'Y'
+                            }
+                            $scope2.ok = function() {
+                                $mi.close();
+                            };
+                            $scope2.cancle = function() {
+                                $mi.dismiss();
+                            }
+                        }],
+                        backdrop: 'static'
+                    }).result.then(function(newMatter) {
+
+                    });
+                    break;
                 case 'signin':
                 case 'wall':
                 case 'group':
@@ -52,13 +79,13 @@ define(['frame'], function(ngApp) {
                     alert('指定素材不支持复制');
                     return;
             }
-            http2.get(url, function(rsp) {
+            /*http2.get(url, function(rsp) {
                 if (type === 'enroll') {
                     location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                 } else {
                     location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                 }
-            });
+            });*/
         };
     }]);
     ngApp.provider.controller('ctrlMission', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {

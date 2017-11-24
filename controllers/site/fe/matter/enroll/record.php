@@ -64,7 +64,8 @@ class record extends base {
 
 		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
 		$rawPosted = file_get_contents("php://input");
-		$this->model('log')->log('trace', 'enroll-submit-' . $oUser->uid, $rawPosted);
+		$modelLog = $this->model('log');
+		$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
 
 		// 提交的数据
 		$posted = $this->getPostJson();

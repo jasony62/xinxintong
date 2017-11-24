@@ -240,16 +240,13 @@ class main extends \pl\fe\matter\main_base {
 				foreach ($v as $uid => $val) {
 					$absentCause->{$uid} = $val;
 				}
-				$oUpdated->{$n} = $modelApp->toJson($absentCause);
+				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($absentCause));
 			} else {
 				$oUpdated->{$n} = $v;
 			}
 		}
 
 		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
-			if (isset($oUpdated->absent_cause)) {
-				$oApp->absent_cause = json_decode($oApp->absent_cause);
-			}
 			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U');
 		}
 

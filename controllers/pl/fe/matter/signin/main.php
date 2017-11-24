@@ -236,7 +236,7 @@ class main extends \pl\fe\matter\main_base {
 			} else if (in_array($n, ['title', 'summary'])) {
 				$oUpdated->{$n} = $modelApp->escape($v);
 			} else if ($n === 'absent_cause') {
-				$absentCause = is_object($oApp->absent_cause) ? $oApp->absent_cause : new \stdClass;
+				$absentCause = !empty($oApp->absent_cause) ? $oApp->absent_cause : new \stdClass;
 				foreach ($v as $uid => $val) {
 					$absentCause->{$uid} = $val;
 				}

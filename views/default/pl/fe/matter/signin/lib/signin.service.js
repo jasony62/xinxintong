@@ -1038,7 +1038,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             url = '/rest/pl/fe/matter/signin/update?site=' + siteId + '&app=' + appId;
                             http2.post(url, {'absent_cause': params}, function(rsp) {
                                 $mi.close();
-                                defer.resolve(rsp.data.absent_cause);
+                                defer.resolve($scope2.cause);
                             });
                         };
                     }],

@@ -8,9 +8,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.editCause = function(user) {
             srvSigninRecord.editCause(user).then(function(data) {
-                var cause = angular.fromJson(data)[user.userid];
-                console.log(cause);
-                user.absent_cause = cause;
+                user.absent_cause = data;
             });
         }
         $scope.toggleAbsent = function() {

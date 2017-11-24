@@ -219,7 +219,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$modelApp = $this->model('matter\signin');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,start_at,end_at,mission_id,mission_phase_id', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,start_at,end_at,mission_id,mission_phase_id,absent_cause', 'cascaded' => 'N']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -235,6 +235,12 @@ class main extends \pl\fe\matter\main_base {
 				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if (in_array($n, ['title', 'summary'])) {
 				$oUpdated->{$n} = $modelApp->escape($v);
+			} else if ($n === 'absent_cause') {
+				!is_object($oApp->absent_cause) &&  $oApp->absent_cause = new \stdClass;
+				foreach ($n as $uid => $val) {
+					$oApp->absent_cause->{$uid} = $modelApp->escape($modelApp->toJson($val));
+				}
+				$oUpdated->{$n} = $oApp->absent_cause;
 			} else {
 				$oUpdated->{$n} = $v;
 			}

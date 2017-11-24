@@ -697,4 +697,142 @@ class record_model extends \matter\enroll\record_base {
 
 		return $enrollees;
 	}
+	/**
+	 * 缺席用户
+	 *
+	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
+	 * 2、如果活动关联了分组活动
+	 * 3、如果活动所属项目指定了用户名单
+	 */
+	public function absentByApp($oApp, $rid = '') {
+		/* 获得当前活动的参与人 */
+		$oUsers = $this->enrolleeByApp($oApp, ['fields' => 'id,userid']);
+		$oUsers2 = [];
+		foreach ($oUsers as $oUser) {
+			$oUsers2[$oUser->id] = $oUser->userid;
+		}
+		$aAbsentUsrs = [];
+		if (isset($oApp->entry_rule->scope) && in_array($oApp->entry_rule->scope, ['member'])) {
+			if ($oApp->entry_rule->scope === 'member' && isset($oApp->entry_rule->member)) {
+				$modelMem = $this->model('site\user\member');
+				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
+					$members = $modelMem->byMschema($mschemaId);
+					foreach ($members as $oMember) {
+						if (false === in_array($oMember->userid, $oUsers2)) {
+							$oUser = new \stdClass;
+							$oUser->userid = $oMember->userid;
+							$oUser->nickname = $oMember->name;
+							$aAbsentUsrs[] = $oUser;
+						}
+					}
+				}
+			}
+		} else if (!empty($oApp->group_app_id)) {
+			$modelGrpUsr = $this->model('matter\group\player');
+			$aGrpUsrs = $modelGrpUsr->byApp($oApp->group_app_id, ['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']);
+			foreach ($aGrpUsrs->players as $oGrpUsr) {
+				if (false === in_array($oGrpUsr->userid, $oUsers2)) {
+					$aAbsentUsrs[] = $oGrpUsr;
+				}
+			}
+		} else if (!empty($oApp->mission_id)) {
+			$modelMis = $this->model('matter\mission');
+			$oMission = $modelMis->byId($oApp->mission_id, ['fields' => 'user_app_id,user_app_type,entry_rule']);
+			if (isset($oMission->entry_rule->scope) && $oMission->entry_rule->scope === 'member') {
+				$modelMem = $this->model('site\user\member');
+				foreach ($oMission->entry_rule->member as $mschemaId => $rule) {
+					$members = $modelMem->byMschema($mschemaId);
+					foreach ($members as $oMember) {
+					if (false === in_array($oMember->userid, $oUsers2)) {
+							$oUser = new \stdClass;
+							$oUser->userid = $oMember->userid;
+							$oUser->nickname = $oMember->name;
+							$aAbsentUsrs[] = $oUser;
+						}
+					}
+				}
+			} else {
+				if ($oMission->user_app_type === 'enroll') {
+					$modelRec = $this->model('matter\enroll\record');
+					$result = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($result->records)) {
+						foreach ($result->records as $oRec) {
+							if (false === in_array($oRec->userid, $oUsers2)) {
+								$aAbsentUsrs[] = $oRec;
+							}
+						}
+					}
+				} else if ($oMission->user_app_type === 'signin') {
+					$modelRec = $this->model('matter\signin\record');
+					$result = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($result->records)) {
+						foreach ($result->records as $oRec) {
+							if (false === in_array($oRec->userid, $oUsers2)) {
+								$aAbsentUsrs[] = $oRec;
+							}
+						}
+					}
+				} else if ($oMission->user_app_type === 'group') {
+					$modelRec = $this->model('matter\group\player');
+					$result = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($result->players)) {
+						foreach ($result->players as $oRec) {
+							if (false === in_array($oRec->userid, $oUsers2)) {
+								$aAbsentUsrs[] = $oRec;
+							}
+						}
+					}
+				}
+			}
+		}
+		/* userid去重 */
+		$aAbsentUsrs2 = [];
+		$newAbsentCause = new \stdClass;//更新signin中未签到用户
+		foreach ($aAbsentUsrs as $aAbsentUsr) {
+			$state = true;
+			foreach ($aAbsentUsrs2 as $aAbsentUsr2) {
+				if ($aAbsentUsr->userid === $aAbsentUsr2->userid) {
+					$state = false;
+					continue;
+				}
+			}
+			if ($state) {
+				//获取未签到人员的信息，并从$oApp->absent_cause中筛选出已经签到的人
+				if (isset($oApp->absent_cause->{$aAbsentUsr->userid})) {
+					$aAbsentUsr->absent_cause = $oApp->absent_cause->{$aAbsentUsr->userid};
+					$newAbsentCause->{$aAbsentUsr->userid} = $oApp->absent_cause->{$aAbsentUsr->userid};
+					unset($oApp->absent_cause->{$aAbsentUsr->userid});
+				} else {
+					$aAbsentUsr->absent_cause = '';
+				}
+				$aAbsentUsrs2[] = $aAbsentUsr;
+			}
+		}
+		// 之前未签到现在是否已经签到，如果签到则移动未签到原因
+		if (!empty($oApp->absent_cause)) {
+			foreach ($oApp->absent_cause as $uid => $value) {
+				if (($id = array_search($uid, $oUsers2)) !== false) {
+					$this->update(
+							'xxt_signin_record',
+							['absent_cause' => $this->toJson($value)],
+							['id' => $id]
+						);
+				}
+			}
+		}
+		//更新未签到原因
+		if (!empty($newAbsentCause)) {
+			$newAbsentCause = $this->toJson($newAbsentCause);
+			$this->update(
+						'xxt_signin',
+						['absent_cause' => $newAbsentCause],
+						['id' => $oApp->id]
+					);
+		}
+
+		$result = new \stdClass;
+		$result->users = $aAbsentUsrs2;
+
+		return $result;
+	}
 }

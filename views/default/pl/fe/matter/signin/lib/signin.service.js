@@ -1016,6 +1016,37 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                 return defer.promise;
             };
+            _ins.absent = function() {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/matter/signin/record/absent?site=' + siteId + '&app=' + appId, function(rsp) {
+                    defer.resolve(rsp.data.uers);
+                });
+                return defer.promise;
+            };
+            _ins.editCause = function(user) {
+                var defer = $q.defer();
+                $uibModal.open({
+                    templateUrl: 'editCause.html',
+                    controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                        $scope2.cause = '';
+                        $scope.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.ok = function() {
+                            var url, params;
+                            url = '/rest/pl/fe/matter/signin/update?site=' + siteId + '&app=' + appId;
+                            params = {
+                                user.userid:cause
+                            }
+                            http2.post(url, params, function(rsp) {
+                                defer.resolve(rsp.data);
+                            });
+                        };
+                    }],
+                    backdrop: 'static'
+                });
+                return defer.promise;
+            };
             return _ins;
         }];
     }).provider('srvOpSigninRecord', function() {

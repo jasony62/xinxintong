@@ -1,6 +1,19 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvSigninApp', 'srvSigninRecord', function($scope, $uibModal, srvSigninApp, srvSigninRecord) {
+        $scope.absent = function() {
+            srvSigninRecord.absent().then(function(data) {
+                $scope.absentUsers = data;
+            });
+        };
+        $scope.editCause = function(user) {
+            srvSigninRecord.editCause(user).then(function(data) {
+                user.absent_cause = data;
+            });
+        }
+        $scope.toggleAbsent = function() {
+            $scope.category = $scope.category === 'absent' ? 'record' : 'absent';
+        };
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvSigninRecord.search(pageNumber);
@@ -90,6 +103,7 @@ define(['frame'], function(ngApp) {
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
+        $scope.category = 'record';
         srvSigninApp.get().then(function(app) {
             srvSigninRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             // schemas
@@ -117,6 +131,7 @@ define(['frame'], function(ngApp) {
             $scope.tmsTableWrapReady = 'Y';
             $scope.bRequireNickname = app.assignedNickname.valid !== 'Y' || !app.assignedNickname.schema;
             $scope.doSearch();
+            $scope.absent();
         });
     }]);
 });

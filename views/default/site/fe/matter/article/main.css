@@ -23,7 +23,7 @@ blockquote{background-color:#fafafa;}
 .btn-custom-default:hover,.btn-custom-default:active,.btn-custom-default:focus{color:#fff;background-color:#2994d0;}
 @media screen and (max-width:768px){
 	.behavior{padding-bottom:0;}
-	.article{padding:0 8px;}
+	.article{padding:0 16px;}
 	#title{font-size:24px;font-weight:500;}
 	.behavior .xs-attr{width:100%;position:absolute;bottom:5px;left:0;}
 	#action{display:flex;}

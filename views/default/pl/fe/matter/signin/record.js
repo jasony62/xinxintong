@@ -3,12 +3,14 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvSigninApp', 'srvSigninRecord', function($scope, $uibModal, srvSigninApp, srvSigninRecord) {
         $scope.absent = function() {
             srvSigninRecord.absent().then(function(data) {
-                $scope.absentUsers = data;
+                $scope.absentUsers = data.users;
             });
         };
         $scope.editCause = function(user) {
             srvSigninRecord.editCause(user).then(function(data) {
-                user.absent_cause = data;
+                var cause = angular.fromJson(data)[user.userid];
+                console.log(cause);
+                user.absent_cause = cause;
             });
         }
         $scope.toggleAbsent = function() {

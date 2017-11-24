@@ -1019,7 +1019,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _ins.absent = function() {
                 var defer = $q.defer();
                 http2.get('/rest/pl/fe/matter/signin/record/absent?site=' + siteId + '&app=' + appId, function(rsp) {
-                    defer.resolve(rsp.data.uers);
+                    defer.resolve(rsp.data);
                 });
                 return defer.promise;
             };
@@ -1029,17 +1029,16 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     templateUrl: 'editCause.html',
                     controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
                         $scope2.cause = '';
-                        $scope.cancel = function() {
+                        $scope2.cancel = function() {
                             $mi.dismiss();
                         };
                         $scope2.ok = function() {
-                            var url, params;
+                            var url, params = {};
+                            params[user.userid] = $scope2.cause;
                             url = '/rest/pl/fe/matter/signin/update?site=' + siteId + '&app=' + appId;
-                            params = {
-                                user.userid:cause
-                            }
-                            http2.post(url, params, function(rsp) {
-                                defer.resolve(rsp.data);
+                            http2.post(url, {'absent_cause': params}, function(rsp) {
+                                $mi.close();
+                                defer.resolve(rsp.data.absent_cause);
                             });
                         };
                     }],

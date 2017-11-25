@@ -43,6 +43,34 @@ class user_model extends \TMS_MODEL {
 		return $oNewUsr;
 	}
 	/**
+	 * 删除1条记录
+	 */
+	public function removeRecord($oRecord) {
+		if (empty($oRecord->userid) || !isset($oRecord->rid)) {
+			return [false, '参数不完整'];
+		}
+
+		$updateSql = 'update xxt_enroll_user set enroll_num=enroll_num-1 where enroll_num>0 and userid="' . $oRecord->userid . '"';
+		$this->update($updateSql . ' and rid="' . $oRecord->rid . '"');
+		$rst = $this->update($updateSql . ' and rid="ALL"');
+
+		return [true, $rst];
+	}
+	/**
+	 * 恢复1条记录
+	 */
+	public function restoreRecord($oRecord) {
+		if (empty($oRecord->userid) || !isset($oRecord->rid)) {
+			return [false, '参数不完整'];
+		}
+
+		$updateSql = 'update xxt_enroll_user set enroll_num=enroll_num+1 where userid="' . $oRecord->userid . '"';
+		$this->update($updateSql . ' and rid="' . $oRecord->rid . '"');
+		$rst = $this->update($updateSql . ' and rid="ALL"');
+
+		return [true, $rst];
+	}
+	/**
 	 * 活动中提交过数据的用户
 	 */
 	public function enrolleeByApp($oApp, $page = '', $size = '', $options = []) {

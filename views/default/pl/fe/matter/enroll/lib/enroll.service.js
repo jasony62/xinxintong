@@ -899,7 +899,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     http2.get('/rest/pl/fe/matter/enroll/record/restore?site=' + _siteId + '&app=' + _appId + '&key=' + record.enroll_key, function(rsp) {
                         var i = _ins._aRecords.indexOf(record);
                         _ins._aRecords.splice(i, 1);
-                        _ins._oPage.total = _oPage.total - 1;
+                        _ins._oPage.total = _ins._oPage.total - 1;
                     });
                 }
             };

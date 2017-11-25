@@ -37,6 +37,32 @@ class user_model extends \TMS_MODEL {
 		return $oNewUsr;
 	}
 	/**
+	 * 删除1条记录
+	 */
+	public function removeRecord($missionId, $oRecord) {
+		if (empty($missionId) || empty($oRecord->userid) || !isset($oRecord->rid)) {
+			return [false, '参数不完整'];
+		}
+
+		$updateSql = 'update xxt_mission_user set enroll_num=enroll_num-1 where enroll_num>0 and mission_id="' . $missionId . '" and userid="' . $oRecord->userid . '"';
+		$rst = $this->update($updateSql);
+
+		return [true, $rst];
+	}
+	/**
+	 * 恢复1条记录
+	 */
+	public function restoreRecord($missionId, $oRecord) {
+		if (empty($missionId) || empty($oRecord->userid) || !isset($oRecord->rid)) {
+			return [false, '参数不完整'];
+		}
+
+		$updateSql = 'update xxt_mission_user set enroll_num=enroll_num+1 where mission_id="' . $missionId . '" and userid="' . $oRecord->userid . '"';
+		$rst = $this->update($updateSql);
+
+		return [true, $rst];
+	}
+	/**
 	 * 参与过活动任务的用户
 	 */
 	public function enrolleeByMission($oMission, $aOptions = []) {

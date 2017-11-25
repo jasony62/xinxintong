@@ -253,7 +253,7 @@ $sql = "create table if not exists xxt_enroll_user(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",rid varchar(13) not null default ''";
+$sql .= ",rid varchar(13) not null default ''"; // 登记轮次，ALL代表累计的数据，每个轮次有单独轮次的记录，如果没有设置轮次，轮次rid为空字符串
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
@@ -271,7 +271,7 @@ $sql .= ",last_like_other_at int not null default 0"; // 最后一次对登记�
 $sql .= ",like_other_num int not null default 0"; // 对登记内容进行点赞的次数
 $sql .= ",last_like_other_remark_at int not null default 0"; // 最后一次对评论进行点赞的时间
 $sql .= ",like_other_remark_num int not null default 0"; // 对评论进行点赞的次数
-$sql .= ",user_total_coin int not null default 0"; // 用户在某个活动中的总分数
+$sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
 $sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

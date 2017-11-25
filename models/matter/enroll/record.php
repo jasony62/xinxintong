@@ -1349,7 +1349,7 @@ class record_model extends record_base {
 	 * @param string $aid
 	 * @param string $ek
 	 */
-	public function removeByUser($site, $appId, $ek) {
+	public function removeByUser($appId, $ek) {
 		$rst = $this->update(
 			'xxt_enroll_record_data',
 			['state' => 101],

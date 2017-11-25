@@ -411,32 +411,74 @@ class record extends \pl\fe\matter\base {
 	 * 删除一条登记信息
 	 */
 	public function remove_action($site, $app, $key) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
-		$rst = $this->model('matter\enroll\record')->remove($app, $key);
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		$modelEnlRec = $this->model('matter\enroll\record');
+		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,rid,state']);
+		if (false === $oRecord) {
+			return new \ObjectNotFoundError();
+		}
+		// 是否已经删除
+		if ($oRecord->state !== '1') {
+			return new \ResponseError('记录已经被删除，不能再次删除');
+		}
+		// 如果已经获得积分不允许删除
+		if (!empty($oRecord->userid)) {
+			$modelEnlUsr = $this->model('matter\enroll\user');
+			$oEnlUsrRnd = $modelEnlUsr->byId($oApp, $oRecord->userid, ['fields' => 'user_total_coin', 'rid' => $oRecord->rid]);
+			if ($oEnlUsrRnd && $oEnlUsrRnd->user_total_coin > 0) {
+				return new \ResponseError('提交的记录已经获得活动积分，不能删除');
+			}
+		}
+		// 删除数据
+		$rst = $modelEnlRec->remove($oApp->id, $key);
+		/**
+		 * 更新用户累计数据
+		 */
+		if (!empty($oRecord->userid)) {
+			// 活动的累计数据
+			$modelEnlUsr->removeRecord($oRecord);
+			// 项目的累计数据
+			if (!empty($oApp->mission_id)) {
+				$modelMisUsr = $this->model('matter\mission\user');
+				$modelMisUsr->removeRecord($oApp->mission_id, $oRecord);
+			}
+		}
 
 		// 记录操作日志
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		$this->model('matter\log')->matterOp($site, $user, $app, 'remove', $key);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'remove', $key);
 
 		return new \ResponseData($rst);
 	}
 	/**
 	 * 恢复一条登记信息
 	 */
-	public function restore_action($site, $app, $key) {
-		if (false === ($user = $this->accountUser())) {
+	public function restore_action($app, $key) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 
-		$rst = $this->model('matter\enroll\record')->restore($app, $key);
+		$modelEnlRec = $this->model('matter\enroll\record');
+		$rst = $modelEnlRec->restore($oApp->id, $key);
+
+		// 更新用户的累计数据
+		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,rid']);
+		$this->model('matter\enroll\user')->restoreRecord($oRecord);
+		if (!empty($oApp->mission_id)) {
+			$this->model('matter\mission\user')->restoreRecord($oApp->mission_id, $oRecord);
+		}
 
 		// 记录操作日志
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'restore', $key);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'restore', $key);
 
 		return new \ResponseData($rst);
 	}
@@ -444,7 +486,7 @@ class record extends \pl\fe\matter\base {
 	 * 清空登记信息
 	 */
 	public function empty_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -453,7 +495,7 @@ class record extends \pl\fe\matter\base {
 		// 记录操作日志
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'empty');
+		$this->model('matter\log')->matterOp($site, $oUser, $app, 'empty');
 
 		return new \ResponseData($rst);
 	}
@@ -461,7 +503,7 @@ class record extends \pl\fe\matter\base {
 	 * 所有记录通过审核
 	 */
 	public function verifyAll_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -475,7 +517,7 @@ class record extends \pl\fe\matter\base {
 
 		// 记录操作日志
 		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'verify.all');
+		$this->model('matter\log')->matterOp($site, $oUser, $app, 'verify.all');
 
 		return new \ResponseData($rst);
 	}
@@ -590,7 +632,7 @@ class record extends \pl\fe\matter\base {
 	 * 给记录批量添加标签
 	 */
 	public function batchTag_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -627,7 +669,7 @@ class record extends \pl\fe\matter\base {
 	 * 从关联的登记活动中查找匹配的记录
 	 */
 	public function matchEnroll_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -672,7 +714,7 @@ class record extends \pl\fe\matter\base {
 	 * 从关联的分组活动中查找匹配的记录
 	 */
 	public function matchGroup_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -720,7 +762,7 @@ class record extends \pl\fe\matter\base {
 	 * 登记数据导出
 	 */
 	public function export_action($site, $app, $rid = '') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -1035,7 +1077,7 @@ class record extends \pl\fe\matter\base {
 	 * 导出登记数据中的图片
 	 */
 	public function exportImage_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			die('请先登录系统');
 		}
 		if (defined('SAE_TMP_PATH')) {
@@ -1172,7 +1214,7 @@ class record extends \pl\fe\matter\base {
 	 *
 	 */
 	public function importByOther_action($site, $app, $fromApp, $append = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

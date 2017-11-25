@@ -30,8 +30,10 @@ class report_model extends \TMS_MODEL {
 	 */
 	public function createConfig($oMission, $oCreater, $options = []) {
 		$includeApps = $options['includeApps'];
-		if (!is_array($includeApps)) {
-			$includeApps = [];
+		if (!is_object($includeApps)) {
+			$includeApps = new \stdClass;
+			$includeApps->apps = [];
+			$includeApps->show_schema = [];
 		}
 
 		$asDefault = isset($options['asDefault']) ? $options['asDefault'] : 'Y';
@@ -112,6 +114,7 @@ class report_model extends \TMS_MODEL {
 				$oEnlApp = $modelEnl->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,title,create_at,start_at,data_schemas']);
 				if ($oEnlApp) {
 					unset($oEnlApp->data_schemas);
+					unset($oEnlApp->pages);
 					$orderedApps[] = $oEnlApp;
 				}
 				break;

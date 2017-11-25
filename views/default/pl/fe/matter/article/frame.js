@@ -139,7 +139,7 @@ define(['require'], function() {
             }
         });
         window.onbeforeunload = function(e) {
-            if (!editing.pic && !editing.thumbnail) {
+            if (!$scope.editing.pic && !$scope.editing.thumbnail) {
                 tmsThumbnail.thumbnail($scope.editing);
             }
         };

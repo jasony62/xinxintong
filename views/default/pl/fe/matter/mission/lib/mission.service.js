@@ -29,24 +29,33 @@ define(['require'], function(require) {
 
                     return _getMissionDeferred.promise;
                 },
-                chooseApps: function(oMission) {
+                chooseContents: function(oMission, oReport) {
                     return $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/mission/component/chooseApps.html?_=1',
+                        templateUrl: '/views/default/pl/fe/matter/mission/component/chooseContents.html?_=1',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            var oCriteria, oReportConfig, oIncludeApps = {};
+                            var oCriteria, oIncludeApps = {}, oIncludeMarks = {};
                             $scope2.mission = oMission;
                             $scope2.criteria = oCriteria = {
                                 mission_phase_id: ''
                             };
-                            if (oReportConfig = oMission.reportConfig) {
-                                if (oReportConfig.include_apps) {
-                                    oReportConfig.include_apps.forEach(function(oApp) {
-                                        oIncludeApps[oApp.type + oApp.id] = true;
-                                    });
-                                }
+                            if(oReport.apps) {
+                                oReport.apps.forEach(function(oApp) {
+                                    oIncludeApps[oApp.type + oApp.id] = true;
+                                });
+                            }
+                            if(oReport.show_schema) {
+                                oReport.show_schema.forEach(function(oSchema) {
+                                    oIncludeMarks[oSchema.title + oSchema.id] = true;
+                                });
                             }
                             // 选中的记录
-                            $scope2.rows = {
+                            $scope2.markRows = {
+                                selected: {},
+                                reset: function() {
+                                    this.selected = {};
+                                }
+                            };
+                            $scope2.appRows = {
                                 allSelected: 'N',
                                 selected: {},
                                 reset: function() {
@@ -54,24 +63,40 @@ define(['require'], function(require) {
                                     this.selected = {};
                                 }
                             };
-                            $scope2.$watch('rows.allSelected', function(checked) {
+                            $scope2.$watch('appRows.allSelected', function(checked) {
                                 var index = 0;
                                 if (checked === 'Y') {
                                     while (index < $scope2.matters.length) {
-                                        $scope2.rows.selected[index++] = true;
+                                        $scope2.appRows.selected[index++] = true;
                                     }
                                 } else if (checked === 'N') {
-                                    $scope2.rows.selected = {};
+                                    $scope2.appRows.selected = {};
                                 }
                             });
                             $scope2.doSearch = function() {
-                                $scope2.rows.reset();
+                                $scope2.appRows.reset();
+                                $scope2.markRows.reset();
+
+                                $scope2.appMarkSchemas = angular.copy(oMission.userApp.dataSchemas);
+                                if($scope2.appMarkSchemas && $scope2.appMarkSchemas.length) {
+                                    $scope2.appMarkSchemas.forEach(function(schema, index) {
+                                        if(oIncludeMarks[schema.title + schema.id]) {
+                                            $scope2.markRows.selected[schema.id] = true;
+                                        }
+                                    });
+                                }
                                 _self.matterList(oCriteria).then(function(matters) {
                                     $scope2.matters = matters;
                                     if (matters && matters.length) {
+                                        for(var i=0; i<matters.length; i++) {
+                                            if(matters[i].type=='memberschema') {
+                                                matters.splice(matters[i],1);
+                                                break;
+                                            }
+                                        };
                                         matters.forEach(function(oMatter, index) {
                                             if (oIncludeApps[oMatter.type + oMatter.id]) {
-                                                $scope2.rows.selected[index] = true;
+                                                $scope2.appRows.selected[index] = true;
                                             }
                                         });
                                     }
@@ -81,13 +106,21 @@ define(['require'], function(require) {
                                 $mi.dismiss();
                             };
                             $scope2.ok = function() {
-                                var selected = [];
-                                for (var i in $scope2.rows.selected) {
-                                    if ($scope2.rows.selected[i]) {
-                                        selected.push($scope2.matters[i]);
+                                var apps = [];
+                                for (var i in $scope2.appRows.selected) {
+                                    if ($scope2.appRows.selected[i]) {
+                                        apps.push($scope2.matters[i]);
                                     }
                                 }
-                                $mi.close(selected);
+                                var marks = [];
+                                if (Object.keys($scope2.markRows.selected).length) {
+                                    $scope2.appMarkSchemas.forEach(function(oSchema) {
+                                        if ($scope2.markRows.selected[oSchema.id]) {
+                                            marks.push(oSchema);
+                                        }
+                                    });
+                                }
+                                $mi.close({app: apps, mark: marks});
                             };
                             $scope2.doSearch();
                         }],

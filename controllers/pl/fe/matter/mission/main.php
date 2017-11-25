@@ -45,7 +45,18 @@ class main extends \pl\fe\matter\base {
 				} else if ($oMission->user_app_type === 'signin') {
 					$oMission->userApp = $this->model('matter\signin')->byId($oMission->user_app_id, ['cascaded' => 'N']);
 				} else if ($oMission->user_app_type === 'mschema') {
-					$oMission->userApp = $this->model('site\user\memberschema')->byId($oMission->user_app_id);
+					$oMission->userApp = $this->model('site\user\memberschema')->byId($oMission->user_app_id, ['cascaded' => 'N', 'fields' => 'siteid,id,title,create_at,start_at,end_at,url,attr_email,attr_mobile,attr_name,extattr']);
+					$data_schemas = [];
+					($oMission->userApp->attr_mobile[0] == '0') && $data_schemas[] = (object) ['id' => 'mobile', 'title' => '手机'];
+					($oMission->userApp->attr_email[0] == '0') && $data_schemas[] = (object) ['id' => 'email', 'title' => '邮箱'];
+					($oMission->userApp->attr_name[0] == '0') && $data_schemas[] = (object) ['id' => 'name', 'title' => '姓名'];
+					if (!empty($oMission->userApp->extattr)) {
+						$extattrs = $oMission->userApp->extattr;
+						foreach ($extattrs as $extattr) {
+							$data_schemas[] = (object) ['id' => $extattr->id, 'title' => $extattr->label];
+						}
+					}
+					$oMission->userApp->dataSchemas = $data_schemas;
 				}
 			}
 			/* 汇总报告配置信息 */

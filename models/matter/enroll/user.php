@@ -308,9 +308,21 @@ class user_model extends \TMS_MODEL {
 
 		/* 登记次数 */
 		$modelRec = $this->model('matter\enroll\record');
-		$records = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);
+		$records = $modelRec->byUser($oApp, $oUser, ['fields' => 'id,comment']);
+		if (false === $records) {
+			return false;
+		}
 		$result->enroll_num = count($records);
-
+		$result->comment = '';
+		if ($result->enroll_num > 0) {
+			$comments = [];
+			foreach ($records as $record) {
+				if (!empty($record->comment)) {
+					$comments[] = $record->comment;
+				}
+			}
+			$result->comment = implode(',', $comments);
+		}
 		/* 发表评论次数 */
 		$modelRec = $this->model('matter\enroll\remark');
 		$remarks = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);

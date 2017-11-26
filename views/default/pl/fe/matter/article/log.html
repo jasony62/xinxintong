@@ -1,58 +1,52 @@
-<ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#log-view">日志</a></li>
-    <li><a data-toggle="tab" href="#favor-view">收藏</a></li>
-</ul>
-<div class="tab-content" style="padding-top: 1em">
-    <div class="active tab-pane" id='log-view'>
-        <table class='table table-bordered table-striped'>
-            <thead>
-            <tr>
-                <th>打开时间</th>
-                <th>用户</th>
-                <th>操作</th>
-                <th>累计操作次数</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat='log in read.logs'>
-                <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
-                <td>{{log.nickname||'未知'}}</td>
-                <td>{{log.operation}}</td>
-                <td>{{log.user_op_num}}</td>
-            </tr>
-            </tbody>
-        </table>
-        <div class='form-group form-inline'>
-            <span style='height:34px;line-height:34px'>总数：{{read.page.total}}</span>
-            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right"
-                ng-show="read.page.total>read.page.size" boundary-links="true" total-items="read.page.total"
-                max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at"
-                previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-                ng-change="read.list()"></ul>
+<div class='col-md-12'>
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#log-view">日志</a></li>
+        <li><a data-toggle="tab" href="#favor-view">收藏</a></li>
+    </ul>
+    <div class="tab-content" style="padding-top: 1em">
+        <div class="active tab-pane" id='log-view'>
+            <table class='table table-bordered table-striped'>
+                <thead>
+                    <tr>
+                        <th>打开时间</th>
+                        <th>用户</th>
+                        <th>操作</th>
+                        <th>累计操作次数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='log in read.logs'>
+                        <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>{{log.nickname||'未知'}}</td>
+                        <td>{{log.operation}}</td>
+                        <td>{{log.user_op_num}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='form-group form-inline'>
+                <span style='height:34px;line-height:34px'>总数：{{read.page.total}}</span>
+                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right" ng-show="read.page.total>read.page.size" boundary-links="true" total-items="read.page.total" max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="read.list()"></ul>
+            </div>
         </div>
-    </div>
-    <div class="tab-pane" id='favor-view'>
-        <table class='table table-bordered table-striped'>
-            <thead>
-            <tr>
-                <th>收藏时间</th>
-                <th>用户</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat='favorer in favor.favorers'>
-                <td>{{favorer.favor_at*1000|date:'yy-MM-dd HH:mm'}}</td>
-                <td>{{favorer.nickname||'未知'}}</td>
-            </tr>
-            </tbody>
-        </table>
-        <div class='form-group form-inline'>
-            <span style='height:34px;line-height:34px'>总数：{{favor.page.total}}</span>
-            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right"
-                ng-show="favor.page.total>favor.page.size" boundary-links="true" total-items="favor.page.total"
-                max-size="7" items-per-page="favor.page.size" rotate="false" ng-model="favor.page.at"
-                previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-                ng-change="favor.list()"></ul>
+        <div class="tab-pane" id='favor-view'>
+            <table class='table table-bordered table-striped'>
+                <thead>
+                    <tr>
+                        <th>收藏时间</th>
+                        <th>用户</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='favorer in favor.favorers'>
+                        <td>{{favorer.favor_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>{{favorer.nickname||'未知'}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='form-group form-inline'>
+                <span style='height:34px;line-height:34px'>总数：{{favor.page.total}}</span>
+                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right" ng-show="favor.page.total>favor.page.size" boundary-links="true" total-items="favor.page.total" max-size="7" items-per-page="favor.page.size" rotate="false" ng-model="favor.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="favor.list()"></ul>
+            </div>
         </div>
     </div>
 </div>

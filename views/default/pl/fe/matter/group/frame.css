@@ -1,16 +1,8 @@
-.ng-cloak{display:none;}
-body{padding:71px 0;font-family:Microsoft Yahei,Arial;}
-form .form-group:last-child{margin-bottom:0;}
-.navbar-nav.tms-breadcrumb>li>a{padding-left:0;padding-right:0;color:#428bca;max-width:12em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-.navbar-nav.tms-breadcrumb>li:last-child>a{color:#777;}
-.navbar-nav.tms-breadcrumb>li+li>a:before{content:'/\00a0';padding-left:5px;color:#ccc;}
-.tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}
+.tag{background:#337ab7;padding:3px 6px;margin:4px;border-radius:4px;color:#fff;}
 table th{text-align:center;}
 th.name{width:100px;}
 th.mobile{width:100px;}
+th.nickname{background:lightblue;}
 
 /*players*/
 table img{max-width:96px;}
-
-/*running*/
-.running .rounds .thumbnail{text-align:center;}

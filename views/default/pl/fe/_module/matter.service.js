@@ -1,3 +1,4 @@
+'use strict';
 angular.module('service.matter', ['ngSanitize', 'ui.bootstrap', 'ui.tms']).
 provider('srvSite', function() {
     var _siteId, _oSite, _aSns, _aMemberSchemas, _oTag;
@@ -28,6 +29,15 @@ provider('srvSite', function() {
                         defer.resolve(_oSite);
                     });
                 }
+                return defer.promise;
+            },
+            update: function(prop) {
+                var oUpdated = {},
+                    defer = $q.defer();
+                oUpdated[prop] = _oSite[prop];
+                http2.post('/rest/pl/fe/site/update?site=' + _siteId, oUpdated, function(rsp) {
+                    defer.resolve(_oSite);
+                });
                 return defer.promise;
             },
             matterList: function(moduleTitle, site, page) {
@@ -103,13 +113,13 @@ provider('srvSite', function() {
                                 }
                             }
                         };
-                        $scope.doSearch = function(page) {
+                        $scope.doSearch = function(pageAt) {
                             if (!$scope.p.matterType) return;
                             var matter = $scope.p.matterType,
                                 url = matter.url,
                                 params = {};
 
-                            page && ($scope.page.at = page);
+                            pageAt && ($scope.page.at = pageAt);
                             params.byTitle = $scope.filter.byTitle ? $scope.filter.byTitle : '';
                             url += '/' + matter.value;
                             url += '/list?site=' + _siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
@@ -122,19 +132,8 @@ provider('srvSite', function() {
                                 url += '&mission=' + $scope.mission.id;
                             }
                             $http.post(url, params).success(function(rsp) {
-                                if (/article/.test(matter.value)) {
-                                    $scope.matters = rsp.data.articles;
-                                    $scope.page.total = rsp.data.total;
-                                } else if (/enroll|signin|group|contribute/.test(matter.value)) {
-                                    $scope.matters = rsp.data.apps;
-                                    $scope.page.total = rsp.data.total;
-                                } else if (/mission/.test(matter.value)) {
-                                    $scope.matters = rsp.data.missions;
-                                    $scope.page.total = rsp.data.total;
-                                } else {
-                                    $scope.matters = rsp.data;
-                                    $scope.page.total = $scope.matters.length;
-                                }
+                                $scope.matters = rsp.data.docs || rsp.data.apps || rsp.data.missions;
+                                $scope.page.total = rsp.data.total;
                             });
                         };
                         $scope.cleanFilter = function() {
@@ -208,12 +207,12 @@ provider('srvSite', function() {
                 });
                 return defer.promise;
             },
-            snsList: function() {
+            snsList: function(siteId) {
                 var defer = $q.defer();
-                if (_aSns) {
+                if (!siteId && _aSns) {
                     defer.resolve(_aSns);
                 } else {
-                    http2.get('/rest/pl/fe/site/snsList?site=' + _siteId, function(rsp) {
+                    http2.get('/rest/pl/fe/site/snsList?site=' + (siteId || _siteId), function(rsp) {
                         _aSns = rsp.data;
                         defer.resolve(_aSns);
                     });
@@ -239,7 +238,7 @@ provider('srvSite', function() {
                     defer.resolve(_aMemberSchemas);
                 } else {
                     url = '/rest/pl/fe/site/member/schema/list?valid=Y&site=' + _siteId;
-                    if (oMatter && oMatter.id) {
+                    if (oMatter && oMatter.id && oMatter.id !== '_pending') {
                         url += '&matter=' + oMatter.id + ',' + oMatter.type;
                         if (bOnlyMatter) {
                             url += '&onlyMatter=Y';
@@ -324,20 +323,29 @@ provider('srvSite', function() {
                             $scope2.data.chosen = mschemas[0];
                         }
                         $scope2.create = function() {
-                            var url, proto;
+                            var url, proto, oNewSchema;
                             url = '/rest/pl/fe/site/member/schema/create?site=' + _siteId;
                             proto = { valid: 'Y' };
-                            if (oMatter && oMatter.id) {
-                                proto.matter_id = oMatter.id;
-                                proto.matter_type = oMatter.type;
-                                if (oMatter.title) {
-                                    proto.title = oMatter.title + '-' + '通讯录';
+                            if (oMatter && oMatter.id === '_pending') {
+                                oNewSchema = {
+                                    id: '_pending',
+                                    title: (oMatter.title ? oMatter.title + '-' + '通讯录' : '通讯录') + '（待新建）'
+                                };
+                                mschemas.push(oNewSchema);
+                                $scope2.data.chosen = oNewSchema;
+                            } else {
+                                if (oMatter && oMatter.id) {
+                                    proto.matter_id = oMatter.id;
+                                    proto.matter_type = oMatter.type;
+                                    if (oMatter.title) {
+                                        proto.title = oMatter.title + '-' + '通讯录';
+                                    }
                                 }
+                                http2.post(url, proto, function(rsp) {
+                                    mschemas.push(rsp.data);
+                                    $scope2.data.chosen = rsp.data;
+                                });
                             }
-                            http2.post(url, proto, function(rsp) {
-                                mschemas.push(rsp.data);
-                                $scope2.data.chosen = rsp.data;
-                            });
                         };
                         $scope2.ok = function() {
                             $mi.close($scope2.data);
@@ -570,35 +578,39 @@ provider('srvQuickEntry', function() {
             return val;
         }
 
-        function _forTable(record, mapOfSchemas) {
-            var schema, data = {};
+        function _forTable(oRecord, mapOfSchemas) {
+            var oSchema, type, data = {};
 
-            if (record.state !== undefined) {
-                record._state = _mapOfRecordState[record.state];
+            if (oRecord.state !== undefined) {
+                oRecord._state = _mapOfRecordState[oRecord.state];
             }
-            // enroll data
-            if (record.data && mapOfSchemas) {
+            if (oRecord.data && mapOfSchemas) {
                 for (var schemaId in mapOfSchemas) {
-                    schema = mapOfSchemas[schemaId];
-                    switch (schema.type) {
+                    oSchema = mapOfSchemas[schemaId];
+                    type = oSchema.type;
+                    /* 分组活动导入数据时会将member题型改为shorttext题型 */
+                    if (type === 'shorttext' && /member\..+/.test(oSchema.id) && oRecord.data.member) {
+                        type = 'member';
+                    }
+                    switch (type) {
                         case 'image':
-                            var imgs = record.data[schema.id] ? record.data[schema.id].split(',') : [];
-                            data[schema.id] = imgs;
+                            var imgs = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id].split(',') : [];
+                            data[oSchema.id] = imgs;
                             break;
                         case 'file':
-                            var files = record.data[schema.id] ? record.data[schema.id] : {};
-                            data[schema.id] = files;
+                            var files = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : {};
+                            data[oSchema.id] = files;
                             break;
                         case 'member':
-                            data[schema.id] = _memberAttr(record.data.member, schema);
+                            data[oSchema.id] = _memberAttr(oRecord.data.member, oSchema);
                             break;
                         default:
-                            data[schema.id] = $sce.trustAsHtml(_value2Html(record.data[schema.id], schema));
+                            data[oSchema.id] = $sce.trustAsHtml(_value2Html(oRecord.data[oSchema.id], oSchema));
                     }
                 };
-                record._data = data;
+                oRecord._data = data;
             }
-            return record;
+            return oRecord;
         }
 
         var _mapOfRecordState = {
@@ -797,6 +809,6 @@ provider('srvTmplmsgNotice', function() {
         });
     });
     http2.get('/rest/pl/fe/matter/channel/list?site=' + srvSite.getSiteId() + '&cascade=N', function(rsp) {
-        $scope.channels = rsp.data;
+        $scope.channels = rsp.data.docs;
     });
 }]);

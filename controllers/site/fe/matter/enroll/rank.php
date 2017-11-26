@@ -7,7 +7,7 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class rank extends base {
 	/**
-	 *
+	 * 用户排行榜
 	 */
 	public function userByApp_action($app, $page = 1, $size = 10) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
@@ -22,15 +22,11 @@ class rank extends base {
 		$modelUsr = $this->model('matter\enroll\user');
 
 		$q = [
-			'u.userid,u.nickname,a.headimgurl',
+			'u.userid,u.nickname,u.rid,a.headimgurl',
 			'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
 			"u.aid='{$oApp->id}'",
 		];
-		if (!empty($oCriteria->round) && $oCriteria->round !== 'ALL') {
-			$round = $modelUsr->escape($oCriteria->round);
-		} else {
-			$round = 'ALL';
-		}
+		$round = empty($oCriteria->round) ? 'ALL' : $modelUsr->escape($oCriteria->round);
 		$q[2] .= " and u.rid = '$round'";
 
 		switch ($oCriteria->orderby) {
@@ -73,21 +69,25 @@ class rank extends base {
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
 		$result = new \stdClass;
-		if (($users = $modelUsr->query_objs_ss($q, $q2)) && !empty($oApp->group_app_id)) {
+		$users = $modelUsr->query_objs_ss($q, $q2);
+		if (count($users) && !empty($oApp->group_app_id)) {
 			$q = [
 				'userid,round_id,round_title',
 				'xxt_group_player',
 				['aid' => $oApp->group_app_id],
 			];
-			if ($userGroups = $modelUsr->query_objs_ss($q)) {
+			$userGroups = $modelUsr->query_objs_ss($q);
+			if (count($userGroups)) {
 				$userGroups2 = new \stdClass;
-				foreach ($userGroups as $userGroup) {
-					$userGroups2->{$userGroup->userid} = new \stdClass;
-					$userGroups2->{$userGroup->userid}->round_id = $userGroup->round_id;
-					$userGroups2->{$userGroup->userid}->round_title = $userGroup->round_title;
+				foreach ($userGroups as $oUserGroup) {
+					if (!empty($oUserGroup->userid)) {
+						$userGroups2->{$oUserGroup->userid} = new \stdClass;
+						$userGroups2->{$oUserGroup->userid}->round_id = $oUserGroup->round_id;
+						$userGroups2->{$oUserGroup->userid}->round_title = $oUserGroup->round_title;
+					}
 				}
-				foreach ($users as $user) {
-					$user->group = isset($userGroups2->{$user->userid})? $userGroups2->{$user->userid} : new \stdClass;
+				foreach ($users as $oUser) {
+					$oUser->group = isset($userGroups2->{$oUser->userid}) ? $userGroups2->{$oUser->userid} : new \stdClass;
 				}
 			}
 		}
@@ -99,10 +99,11 @@ class rank extends base {
 		return new \ResponseData($result);
 	}
 	/**
-	 *
+	 * 分组排行榜
 	 */
 	public function groupByApp_action($app) {
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false) {
 			return new \ObjectNotFoundError();
 		}
@@ -121,40 +122,43 @@ class rank extends base {
 			return new \ParameterError();
 		}
 
+		$sql = 'select ';
+		switch ($oCriteria->orderby) {
+		case 'enroll':
+			$sql .= 'sum(enroll_num)';
+			break;
+		case 'remark':
+			$sql .= 'sum(remark_num)';
+			break;
+		case 'like':
+			$sql .= 'sum(like_num)';
+			break;
+		case 'remark_other':
+			$sql .= 'sum(remark_other_num)';
+			break;
+		case 'like_other':
+			$sql .= 'sum(like_other_num)';
+			break;
+		case 'total_coin':
+			$sql .= 'sum(user_total_coin)';
+			break;
+		case 'score':
+			$sql .= 'sum(score)';
+			break;
+		}
+		$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "'";
+		$round = empty($oCriteria->round) ? 'ALL' : $modelApp->escape($oCriteria->round);
+		$sql .= " and rid='" . $round . "'";
+
 		/* 获取分组的数据 */
 		$modelUsr = $this->model('matter\enroll\user');
-		foreach ($userGroups as &$userGroup) {
-			$sql = 'select ';
-			switch ($oCriteria->orderby) {
-			case 'enroll':
-				$sql .= 'sum(enroll_num)';
-				break;
-			case 'remark':
-				$sql .= 'sum(remark_num)';
-				break;
-			case 'like':
-				$sql .= 'sum(like_num)';
-				break;
-			case 'remark_other':
-				$sql .= 'sum(remark_other_num)';
-				break;
-			case 'like_other':
-				$sql .= 'sum(like_other_num)';
-				break;
-			case 'total_coin':
-				$sql .= 'sum(user_total_coin)';
-				break;
-			case 'score':
-				$sql .= 'sum(score)';
-				break;
-			}
-			$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . '\' and rid=\'ALL\'';
-			$sql .= ' and group_id=\'' . $userGroup->v . '\'';
-			$userGroup->id = $userGroup->v;
-			$userGroup->title = $userGroup->l;
-			unset($userGroup->v);
-			unset($userGroup->l);
-			$userGroup->num = (int) $modelUsr->query_value($sql);
+		foreach ($userGroups as $oUserGroup) {
+			$sqlByGroup = $sql . ' and group_id=\'' . $oUserGroup->v . '\'';
+			$oUserGroup->id = $oUserGroup->v;
+			$oUserGroup->title = $oUserGroup->l;
+			unset($oUserGroup->v);
+			unset($oUserGroup->l);
+			$oUserGroup->num = (int) $modelUsr->query_value($sqlByGroup);
 		}
 		/* 对分组数据进行排讯 */
 		usort($userGroups, function ($a, $b) {

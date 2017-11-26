@@ -3,7 +3,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * BasesrvSigninRecord
      * srvSigninApp
      * srvSigninRound
-     * srvSigninPage
      * srvSigninRecord
      */
     var BasesrvSigninRecord = function($q, http2, srvRecordConverter, noticebox, $uibModal) {
@@ -165,7 +164,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 signinLate = {},
                 that = this;
 
-            srvRecordConverter.forTable(record, that._oApp._schemasById);
+            srvRecordConverter.forTable(record, that._oApp._assocSchemasById);
             // signin log
             for (var roundId in that._mapOfRoundsById) {
                 round = that._mapOfRoundsById[roundId];
@@ -185,7 +184,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     angular.module('service.signin', ['ui.bootstrap', 'ui.xxt', 'service.matter']).
     provider('srvSigninApp', function() {
         function _mapSchemas(app) {
-            var mapOfSchemaByType = {},
+            var mapOfAppSchemaById = {},
+                mapOfSchemaByType = {},
                 mapOfSchemaById = {},
                 enrollDataSchemas = [],
                 groupDataSchemas = [],
@@ -194,6 +194,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             app.dataSchemas.forEach(function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema.id);
+                mapOfAppSchemaById[schema.id] = schema;
                 mapOfSchemaById[schema.id] = schema;
                 if (false === /image|file/.test(schema.type)) {
                     canFilteredSchemas.push(schema);
@@ -219,7 +220,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             }
 
             app._schemasByType = mapOfSchemaByType;
-            app._schemasById = mapOfSchemaById;
+            app._schemasById = mapOfAppSchemaById;
+            app._assocSchemasById = mapOfSchemaById;
             app._schemasCanFilter = canFilteredSchemas;
             app._schemasFromEnrollApp = enrollDataSchemas;
             app._schemasFromGroupApp = groupDataSchemas;
@@ -287,8 +289,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     angular.isString(names) && (names = [names]);
                     names.forEach(function(name) {
-                        if (name === 'data_schemas') {
+                        if (name === 'data_schemas' || name === 'dataSchemas') {
                             modifiedData.data_schemas = app.dataSchemas;
+                        } else if (name === 'recycle_schemas' || name === 'recycleSchemas') {
+                            modifiedData.recycle_schemas = app.recycleSchemas;
                         } else if (name === 'tags') {
                             modifiedData.tags = app.tags.join(',');
                         } else {
@@ -485,7 +489,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }).result.then(function(data) {
                         app.enroll_app_id = data.source;
                         _this.update('enroll_app_id').then(function(rsp) {
-                            var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&id=' + app.enroll_app_id;
+                            var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&app=' + app.enroll_app_id;
                             http2.get(url, function(rsp) {
                                 rsp.data.data_schemas = rsp.data.dataSchemas;
                                 app.enrollApp = rsp.data;
@@ -500,19 +504,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         });
                     });
                 },
-                cancelEnrollApp: function() {
-                    var _this = this;
-                    app.enroll_app_id = '';
-                    delete app.enrollApp;
-                    this.update('enroll_app_id').then(function() {
-                        app.data_schemas.forEach(function(dataSchema) {
-                            delete dataSchema.requireCheck;
-                        });
-                        _this.update('data_schemas');
-                    });
-                },
                 assignGroupApp: function() {
-                    var _this = this;
+                    var _this = this,
+                        defer = $q.defer();;
                     $uibModal.open({
                         templateUrl: 'assignGroupApp.html',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -543,37 +537,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _this.update('group_app_id').then(function(rsp) {
                             var url = '/rest/pl/fe/matter/group/get?site=' + siteId + '&app=' + app.group_app_id;
                             http2.get(url, function(rsp) {
-                                var groupApp = rsp.data,
-                                    roundDS = {
-                                        id: '_round_id',
-                                        type: 'single',
-                                        title: '分组名称',
-                                    },
-                                    ops = [];
-                                groupApp.rounds.forEach(function(round) {
-                                    ops.push({
-                                        v: round.round_id,
-                                        l: round.title
-                                    });
-                                });
-                                roundDS.ops = ops;
-                                groupApp.dataSchemas.splice(0, 0, roundDS);
-                                app.groupApp = groupApp;
+                                app.groupApp = rsp.data;
+                                defer.resolve(app.groupApp);
                             });
                         });
                     });
+
+                    return defer.promise;
                 },
-                cancelGroupApp: function() {
-                    var _this = this;
-                    app.group_app_id = '';
-                    delete app.groupApp;
-                    this.update('group_app_id').then(function() {
-                        app.data_schemas.forEach(function(dataSchema) {
-                            delete dataSchema.requireCheck;
-                        });
-                        _this.update('data_schemas');
-                    });
-                }
             };
         }];
     }).provider('srvSigninRound', function() {
@@ -700,7 +671,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                                 url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + siteId;
                                 url += '&matter_type=signin&matter_id=' + appId;
-                                url += '&expire=864000';
+                                //url += '&expire=864000';
 
                                 http2.post(url, {
                                     params: params
@@ -730,59 +701,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                         }]
                     });
-                }
-            };
-        }];
-    }).provider('srvSigninPage', function() {
-        var siteId, appId;
-        this.setSiteId = function(id) {
-            siteId = id;
-        };
-        this.setAppId = function(id) {
-            appId = id;
-        };
-        this.$get = ['$q', 'http2', 'noticebox', function($q, http2, noticebox) {
-            return {
-                update: function(page, names) {
-                    var defer = $q.defer(),
-                        updated = {},
-                        url;
-
-                    angular.isString(names) && (names = [names]);
-                    names.forEach(function(name) {
-                        if (name === 'html') {
-                            updated.html = encodeURIComponent(page.html);
-                        } else {
-                            updated[name] = page[name];
-                        }
-                    });
-                    url = '/rest/pl/fe/matter/signin/page/update';
-                    url += '?site=' + siteId;
-                    url += '&app=' + appId;
-                    url += '&pid=' + page.id;
-                    url += '&cname=' + page.code_name;
-                    http2.post(url, updated, function(rsp) {
-                        page.$$modified = false;
-                        defer.resolve();
-                        noticebox.success('完成保存');
-                    });
-
-                    return defer.promise;
-                },
-                remove: function(page) {
-                    var defer = $q.defer(),
-                        url = '/rest/pl/fe/matter/signin/page/remove';
-
-                    url += '?site=' + siteId;
-                    url += '&app=' + appId;
-                    url += '&pid=' + page.id;
-                    url += '&cname=' + page.code_name;
-                    http2.get(url, function(rsp) {
-                        defer.resolve();
-                        noticebox.success('完成删除');
-                    });
-
-                    return defer.promise;
                 }
             };
         }];

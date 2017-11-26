@@ -10,7 +10,7 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/user');
+		\TPL::output('/pl/fe/site/user/frame');
 		exit;
 	}
 	/**
@@ -32,7 +32,7 @@ class main extends \pl\fe\base {
 		$q = [
 			'*',
 			'xxt_log_matter_read',
-			['userid' => $uid]
+			['userid' => $uid],
 		];
 		!empty($site) && $q[2]['siteid'] = $site;
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
@@ -57,8 +57,8 @@ class main extends \pl\fe\base {
 	 * @param string $site site'id
 	 * @param string $uid
 	 */
-	public function actList_action($site = null, $uid, $page = 1, $size = 12) {
-		if (false === ($user = $this->accountUser())) {
+	public function appList_action($site = null, $uid, $page = 1, $size = 12) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
@@ -68,7 +68,7 @@ class main extends \pl\fe\base {
 			'xxt_log_user_matter',
 			"userid='" . $uid . "' and user_last_op='Y' and operation='submit' and matter_type in ('enroll','signin')",
 		];
-		!empty($site) && $q[2] .= " and siteid = '". $modelLog->escape($site) ."'";
+		!empty($site) && $q[2] .= " and siteid = '" . $modelLog->escape($site) . "'";
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		$q2['o'] = ['operate_at desc'];
 
@@ -78,6 +78,25 @@ class main extends \pl\fe\base {
 		if (empty($logs)) {
 			$result->total = 0;
 		} else {
+			$oUser = (object) ['uid' => $uid];
+			foreach ($logs as $log) {
+				switch ($log->matter_type) {
+				case 'enroll':
+					if (!isset($modelEnlUsr)) {
+						$modelEnlUsr = $this->model('matter\enroll\user');
+					}
+					$oApp = (object) ['id' => $log->matter_id];
+					$log->act = $modelEnlUsr->reportByUser($oApp, $oUser);
+					break;
+				case 'signin':
+					if (!isset($modelSig)) {
+						$modelSig = $this->model('matter\signin');
+					}
+					$oApp = (object) ['id' => $log->matter_id];
+					$log->act = $modelSig->reportByUser($oApp, $oUser);
+					break;
+				}
+			}
 			$q[0] = 'count(*)';
 			$result->total = $modelLog->query_val_ss($q);
 		}
@@ -97,7 +116,7 @@ class main extends \pl\fe\base {
 		$q = array(
 			'id,favor_at,matter_id,matter_type,matter_title',
 			'xxt_site_favor',
-			['unionid' => $unionid]
+			['unionid' => $unionid],
 		);
 		!empty($site) && $q[2]['siteid'] = $site;
 		$q2 = array(

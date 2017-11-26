@@ -1,45 +1,12 @@
-body{margin-bottom:50px;}
-.navbar-nav.tms-breadcrumb>li>a{padding-left:0;padding-right:0;color:#428bca;}
-.navbar-nav.tms-breadcrumb>li:last-child>a{color:#777;}
-.navbar-nav.tms-breadcrumb>li+li>a:before{content:'/\00a0';padding-left:5px;color:#ccc;}
-form .form-group:last-child{margin-bottom:0;}
-.tms-panel-heading{margin-bottom:-1px;}
-.tms-panel-body{border:1px solid #eee;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
-.tms-panel-body:before{content:' ';display:table;}
-.tms-panel-body:after{content:' ';display:table;clear:both;}
-.tms-tile{border:1px solid #ddd;border-radius:4px;padding:15px;}
-.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
+.glyphicon-eye-close{color:red;}
 
 /*phase*/
 .phases{phase}
-.phases .phase{counter-increment:phase;position:relative;}
-.phase:after{content:counter(phase);background:#eee;position:absolute;top:-9px;left:9px;width:18px;height:18px;line-height:18px;text-align:center;}
-.phases .phase .action{position:absolute;top:-9px;right:9px;}
+.phases .phase{counter-increment:phase;}
+.phase:after{content:counter(phase);background:#ddd;position:absolute;top:-9px;left:-9px;width:18px;height:18px;line-height:18px;text-align:center;}
 
 /*matter*/
-#viewMatter .thumbnail{position:relative;height:180px;display:flex;flex-direction:column;padding:.5em 1em;}
-#viewMatter .thumbnail .summary{flex:1;overflow:hidden;}
-#viewMatter .thumbnail .attrs{display:flex;padding:1em .5em;}
-#viewMatter .thumbnail .operator{flex:1;}
-.thumbnail .actions{border-top:1px solid #ddd;padding-top:.5em;}
-#viewMatter .thumbnail .actions-top{position:absolute;top:.5em;right:.5em;}
 .tag{background:#337ab7;padding:3px 6px;margin:4px;border-radius:4px;color:#fff;}
-
-/*indicator*/
-#viewMatter .thumbnail.indicator{flex-direction:row;align-items:center;background:#f8f8f8;}
-#viewMatter .thumbnail.indicator>div{flex:1.0;font-size:18px;text-align:center;}
-
-/*matter*/
-#viewMatter .article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewMatter .enroll:after{content:'登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewMatter .common:after{content:'通用登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewMatter .registration:after{content:'报名';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewMatter .voting:after{content:'投票';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewMatter .group_week_report:after{content:'周报';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewMatter .score_sheet:after{content:'记分表';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewMatter .signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewMatter .group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-#viewMatter .split:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 
 /*report*/
 #viewReport img{height:48px;}

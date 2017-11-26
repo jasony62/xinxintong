@@ -181,7 +181,7 @@ class TMS_APP {
 		/**
 		 * 通过controller处理当前请求
 		 */
-		if (empty($trans) || count($ps) == 0) {
+		if (count($ps) == 0) {
 			$response = $obj_controller->$action_method();
 		} else {
 			foreach ($ps as $p) {

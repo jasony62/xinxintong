@@ -35,7 +35,7 @@ controller('ctrlSetChannel', ['$scope', 'http2', function($scope, http2) {
     $scope.$watch('siteId', function(siteid) {
         if (siteid) {
             http2.get('/rest/pl/fe/matter/channel/list?site=' + siteid + '&cascade=N', function(rsp) {
-                $scope.channels = rsp.data;
+                $scope.channels = rsp.data.docs;
             });
         }
     });

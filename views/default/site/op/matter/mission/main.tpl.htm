@@ -4,216 +4,88 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
-    <base href='/'>
+    <base href="/" />
     <title>
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/css/tms.css?_=2" rel="stylesheet">
-    <link href='/views/default/site/op/matter/mission/main.css?_=1' rel="stylesheet">
+    <link href="/views/default/site/op/matter/mission/main.css?_=2" rel="stylesheet">
 </head>
 
-<body ng-controller='ctrlMission' class='ng-cloak' ng-cloak>
-    <nav class='navbar navbar-default'>
-        <div class='container-fluid'>
-            <div class="navbar-header">
-                <button class="navbar-toggle collapsed" ng-click="chooseApps()">选择活动</button>
-                <a class='navbar-brand' href='/rest/site/home?site={{site.id}}' target='_self'>{{site.name}}</a>
+<body ng-controller="ctrlMain">
+    <div class='container ng-cloak' ng-cloak>
+        <div id='times' class='row'>
+            <div ng-repeat="time in times">
+                <div class='col-xs-2 timeline' ng-class="{'pending':time>currentTime}">
+                    <div class='date' ng-bind="time*1000|date:'MM-dd'"></div>
+                    <div class='time' ng-bind="time*1000|date:'HH:mm'"></div>
+                </div>
+                <div class='col-xs-10'>
+                    <div ng-repeat="matter in matters[time]" ng-switch on="matter.type">
+                        <div class='thumbnail track' ng-class="matter.indicator.state">
+                            <div class='title' ng-bind="matter.title"></div>
+                            <div class='row' ng-switch-when="enroll">
+                                <div class='col-xs-6'>
+                                    <label>用户数量</label>
+                                    <div ng-bind="matter.opData[0].enrollee_num||0"></div>
+                                </div>
+                                <div class='col-xs-6'>
+                                    <label>记录数量</label>
+                                    <div ng-bind="matter.opData[0].total||0"></div>
+                                </div>
+                                <div class='col-xs-6' ng-if="matter.indicator.remark">
+                                    <label>评论数量</label>
+                                    <div ng-bind="matter.opData[0].remark_total||0"></div>
+                                </div>
+                                <div class='col-xs-12' ng-if="matter.indicator.end_submit" ng-switch on="matter.indicator.end_submit">
+                                    <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
+                                    <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
+                                </div>
+                                <div class='col-xs-12' ng-if="matter.indicator.end" ng-switch on="matter.indicator.end">
+                                    <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
+                                    <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
+                                </div>
+                            </div>
+                            <div class='row' ng-switch-when="signin">
+                                <div ng-repeat="rnd in matter.opData">
+                                    <div class='col-xs-6'>
+                                        <label ng-bind="rnd.title"></label>
+                                        <div ng-bind="rnd.total"></div>
+                                    </div>
+                                    <div class='col-xs-6'>
+                                        <label>迟到数量</label>
+                                        <div ng-bind="rnd.late"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <p class="navbar-text hidden-xs hidden-sm">用户名单：{{mission.userApp.title}}</p>
-            <form class='navbar-form navbar-right hidden-xs hidden-sm'>
-                <button class='btn btn-default' ng-click="chooseApps()">选择活动</button>
-            </form>
         </div>
+    </div>
+    <nav class="navbar navbar-default navbar-fixed-bottom" ng-if="mission.userApp">
+        <form class="navbar-form navbar-right">
+            <button class='btn btn-default' ng-click="chooseUser()">用户详情 <span class='caret'></span></button>
+        </form>
     </nav>
-    <div class="col-md-7" tms-flex-height top='72' bottom='15'>
-        <div id="users" style='overflow-x:auto'>
-            <table class='table table-bordered table-hover' style="table-layout:fixed;">
-                <thead>
-                    <tr>
-                        <th style="width:4em">序号</th>
-                        <th style="width:8em">用户</th>
-                        <th style="width:8em" ng-repeat="app in report.orderedApps">{{app.title}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="user in report.users" ng-class="{info:user===activeUser}">
-                        <td data-th='序号'>
-                            <div>{{$index+1}}</div>
-                        </td>
-                        <td data-th='用户' ng-click="chooseUser(user)">
-                            <div>{{user.nickname}}</div>
-                        </td>
-                        <td data-th='{{app.title}}' ng-repeat="app in report.orderedApps" ng-switch on="app.type" ng-click="chooseUser(user,app)">
-                            <div ng-switch-when="enroll">
-                                <div ng-if="user.data[$index].enroll_num">记录：{{user.data[$index].enroll_num}}</div>
-                                <div ng-if="user.data[$index].remark_other_num">评论：{{user.data[$index].remark_other_num}}</div>
-                            </div>
-                            <div ng-switch-when="signin" ng-if="user.data[$index]">
-                                <div>签到：{{user.data[$index].signin_num}}</div>
-                                <div ng-if="user.data[$index].late_num" style='color:red'>迟到：{{user.data[$index].late_num}}</div>
-                            </div>
-                            <div ng-switch-when="group" ng-if="user.data[$index]">
-                                <div ng-repeat="rnd in user.data[$index]">分组：{{rnd.round_title||'空'}}</div>
-                            </div>
-                            <div ng-switch-default>{{user.data[$index]}}</div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class='col-md-5 hidden-xs hidden-sm' tms-flex-height top='72' bottom='15'>
-        <div id="userApps" class='list-group'>
-            <div class='list-group-item matter' ng-repeat="matter in report.orderedApps" ng-switch on="matter.type" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                <div class='seq'>{{$index+1}}</div>
-                <div class='form-group'>
-                    <div class='title' ng-bind="matter.title"></div>
-                </div>
-                <div class='list-group' ng-switch-when="enroll">
-                    <div class='list-group-item record' ng-repeat="rec in recordsByApp.enroll[matter.id]">
-                        <div>
-                            <label>登记时间：</label><span>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</span></div>
-                        <div>
-                            <label>审核通过：</label><span>{{rec.verified}}</span></div>
-                        <div>
-                            <label>备注：</label><span>{{rec.comment}}</span></div>
-                        <div ng-repeat="schema in enrollAppSchemas[matter.id]" ng-switch on="schema.type">
-                            <label title="{{schema.title}}">{{schema.title}}：</label>
-                            <div ng-switch-when="image">
-                                <img ng-repeat="img in rec._data[schema.id]" ng-src='{{img}}' />
-                            </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in rec._data[schema.id]'>{{file.name}}</span>
-                            </div>
-                            <span ng-switch-when="date">{{(rec._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                            <span ng-switch-default ng-bind-html="rec._data[schema.id]"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class='list-group' ng-switch-when="signin">
-                    <div class='list-group-item record' ng-repeat="rec in recordsByApp.signin[matter.id]">
-                        <div>
-                            <label>审核通过：</label><span>{{rec.verified}}</span></div>
-                        <div>
-                            <label>备注：</label><span>{{rec.comment}}</span></div>
-                        <div>
-                            <label>签到次数：</label><span>{{rec.signin_num}}</span></div>
-                        <div ng-repeat="rnd in matter.rounds">
-                            <div>
-                                <label title="{{rnd.title}}">{{rnd.title}}：</label>
-                                <span ng-if="rec.signin_log[rnd.rid]" ng-class="{'signin_late':rnd.late_at!==0&&(rec.signin_log[rnd.rid]+60)>rnd.late_at}">{{rec.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class='list-group' ng-switch-when="group">
-                    <div class='list-group-item record' ng-repeat="rec in recordsByApp.group[matter.id]">
-                        <div>
-                            <label>所属分组：</label><span>{{rec.round_title}}</span></div>
-                    </div>
-                </div>
-                <button class='btn btn-default btn-sm' ng-click="gotoDetail(matter)">查看活动全部数据</button>
-                <button class='btn btn-default btn-sm' ng-click="moveUp(matter,$index)"><i class='glyphicon glyphicon-arrow-up'></i></button>
-                <button class='btn btn-default btn-sm' ng-click="moveDown(matter,$index)"><i class='glyphicon glyphicon-arrow-down'></i></button>
-                <div ng-if="entered" class='pull-right'>
-                    <button class='btn btn-default btn-sm' ng-click="removeUserApp(matter,$index)"><i class='glyphicon glyphicon-remove'></i></button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script type="text/ng-template" id="userAppRecord.html">
-        <div class="modal-header">
-            <h5 class="modal-title">{{app.title}}</h5>
-        </div>
-        <div id='userApps' class="modal-body" ng-switch on="app.type">
-            <div class='list-group' ng-switch-when="enroll">
-                <div class='list-group-item record' ng-repeat="rec in records">
-                    <div>
-                        <label>登记时间：</label><span>{{rec.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</span></div>
-                    <div>
-                        <label>审核通过：</label><span>{{rec.verified}}</span></div>
-                    <div>
-                        <label>备注：</label><span>{{rec.comment}}</span></div>
-                    <div ng-repeat="schema in enrollAppSchemas" ng-switch on="schema.type">
-                        <label title="{{schema.title}}">{{schema.title}}：</label>
-                        <div ng-switch-when="image">
-                            <img ng-repeat="img in rec._data[schema.id]" ng-src='{{img}}' />
-                        </div>
-                        <div ng-switch-when="file">
-                            <span ng-repeat='file in rec._data[schema.id]'>{{file.name}}</span>
-                        </div>
-                        <span ng-switch-when="date">{{(rec._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                        <span ng-switch-default ng-bind-html="rec._data[schema.id]"></span>
-                    </div>
-                </div>
-            </div>
-            <div class='list-group' ng-switch-when="signin">
-                <div class='list-group-item record' ng-repeat="rec in records">
-                    <div>
-                        <label>审核通过：</label><span>{{rec.verified}}</span></div>
-                    <div>
-                        <label>备注：</label><span>{{rec.comment}}</span></div>
-                    <div>
-                        <label>签到次数：</label><span>{{rec.signin_num}}</span></div>
-                    <div ng-repeat="rnd in matter.rounds">
-                        <div>
-                            <label title="{{rnd.title}}">{{rnd.title}}：</label><span ng-if="rec.signin_log[rnd.rid]" ng-class="{'signin_late':rnd.late_at!==0&&(rec.signin_log[rnd.rid]+60)>rnd.late_at}">{{rec.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'}}</span></div>
-                    </div>
-                </div>
-            </div>
-            <div class='list-group' ng-switch-when="group">
-                <div class='list-group-item record' ng-repeat="rec in records">
-                    <div>
-                        <label>所属分组：</label><span>{{rec.round_title}}</span></div>
-                </div>
+    <script type="text/ng-template" id="chooseUser.html">
+        <div class="modal-body ">
+            <div class="radio" ng-repeat="user in users">
+                <label>
+                    <input type='radio' name='user' value="{{$index}}" ng-model='chosen.index'>{{user.nickname}}</label>
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            <button class="btn btn-default" ng-click="cancel() ">关闭</button>
+            <button class="btn btn-default" ng-click="ok() ">确定</button>
         </div>
     </script>
-    <script type="text/ng-template" id="chooseApps.html">
-        <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title">选择报告中包含的活动</h5>
-        </div>
-        <div class="modal-body">
-            <form class="form-inline">
-                <select class='form-control' ng-model="criteria.mission_phase_id" ng-options="phase.phase_id as phase.title for phase in phases" ng-change="doSearch()">
-                    <option value=''>所有阶段</option>
-                </select>
-            </form>
-            <div style='max-height:420px;overflow-y:auto'>
-                <table class='table table-bordered'>
-                    <thead>
-                        <tr>
-                            <th style='width:32px'>
-                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
-                            </th>
-                            <th>项目活动</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="matter in matters">
-                            <td>
-                                <input type='checkbox' ng-model="rows.selected[$index]">
-                            </td>
-                            <td><span>{{matter.title}}</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" ng-click="cancel()">取消</button>
-            <button class="btn btn-primary" ng-click="ok()">确定</button>
-        </div>
-    </script>
-    <div class="loading">
-        <div class='loading-indicator'><i></i></div>
-    </div>
-    <script src="/static/js/require.js" defer async data-main="/views/default/site/op/matter/mission/main-loader.js?_=3"></script>
+    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/op/matter/mission/main-loader.js?_=1"></script>
 </body>
 
 </html>

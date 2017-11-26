@@ -1,11 +1,10 @@
-define(['main'], function(ngApp) {
+define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlSubscriber', ['$scope', function($scope) {
-        var catelogs = $scope.$root.catelogs;
+        var catelogs;
+        $scope.catelogs = catelogs = [];
         catelogs.splice(0, catelogs.length, { l: '个人', v: 'client' }, { l: '团队', v: 'friend' });
-        $scope.$watch('site', function(site) {
-            if (site === undefined) return;
-        });
+        $scope.catelog = catelogs[0];
     }]);
     ngApp.provider.controller('ctrlClient', ['$scope', 'srvSite', function($scope, srvSite) {
         srvSite.subscriberList('client').then(function(result) {

@@ -5,6 +5,66 @@ namespace matter\mission;
  */
 class user_model extends \TMS_MODEL {
 	/**
+	 * 获得指定项目下指定用户的行为数据
+	 */
+	public function byId($oMission, $userid, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_mission_user',
+			['mission_id' => $oMission->id, 'userid' => $userid],
+		];
+
+		$oUser = $this->query_obj_ss($q);
+
+		return $oUser;
+	}
+	/**
+	 * 添加一个项目用户
+	 */
+	public function add($oMission, $oUser, $data = []) {
+		$oNewUsr = new \stdClass;
+		$oNewUsr->siteid = $oMission->siteid;
+		$oNewUsr->mission_id = $oMission->id;
+		$oNewUsr->userid = $oUser->uid;
+		$oNewUsr->group_id = empty($oUser->group_id) ? '' : $oUser->group_id;
+		$oNewUsr->nickname = $this->escape($oUser->nickname);
+		foreach ($data as $k => $v) {
+			$oNewUsr->{$k} = $v;
+		}
+		$oNewUsr->id = $this->insert('xxt_mission_user', $oNewUsr, true);
+
+		return $oNewUsr;
+	}
+	/**
+	 * 参与过活动任务的用户
+	 */
+	public function enrolleeByMission($oMission, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_mission_user',
+			['mission_id' => $oMission->id],
+		];
+
+		/* 筛选条件 */
+		if (isset($aOptions['filter'])) {
+			$oFilter = $aOptions['filter'];
+			if (!empty($oFilter->by) && !empty($oFilter->keyword)) {
+				$q[2][$oFilter->by] = (object) ['op' => 'like', 'pat' => '%' . $oFilter->keyword . '%'];
+			}
+		}
+		$q2 = [];
+		/* 排序规则 */
+		if (!empty($aOptions['orderBy'])) {
+			$q2['o'] = $aOptions['orderBy'] . ' desc';
+		}
+
+		$oUsers = $this->query_objs_ss($q, $q2);
+
+		return $oUsers;
+	}
+	/**
 	 *
 	 */
 	public function byMission(&$mission, $criteria = null, $options = null) {

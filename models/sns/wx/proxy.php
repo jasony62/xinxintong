@@ -127,6 +127,7 @@ class proxy_model extends \sns\proxybase {
 			return array(false, $response);
 		}
 		if (isset($token->errcode)) {
+			\TMS_APP::model('log')->log('error', 'accessToken: response is error.', json_encode($token));
 			return array(false, $token->errmsg);
 		}
 		/**
@@ -206,7 +207,7 @@ class proxy_model extends \sns\proxybase {
 
 		$rst = $this->httpGet($cmd, $params);
 		if ($rst[0] === false) {
-			return $rst[1];
+			return $rst;
 		}
 
 		$ticket = $rst[1];
@@ -267,6 +268,7 @@ class proxy_model extends \sns\proxybase {
 			$userRst = $this->httpGet($cmd, $params, false, false);
 			if ($userRst[0] === false) {
 				if (strpos($userRst[1], 'json failed:') === 0) {
+					$this->model('log')->log($this->config->siteid, 'getOAuthUser', 'userinfo json failed: ' . $userRst[1], null, $_SERVER['REQUEST_URI']);
 					$user = new \stdClass;
 					$json = str_replace(array('json failed:', '{', '}'), '', $userRst[1]);
 					$data = explode(',', $json);
@@ -274,10 +276,11 @@ class proxy_model extends \sns\proxybase {
 						$pv = explode(':', $pv);
 						$p = str_replace('"', '', $pv[0]);
 						$v = str_replace('"', '', $pv[1]);
-						$fan->{$p} = $v;
+						$user->{$p} = $v;
 					}
 					$userRst[0] = true;
 					$userRst[1] = $user;
+					return $userRst;
 				} else {
 					return array(false, $userRst[1]);
 				}

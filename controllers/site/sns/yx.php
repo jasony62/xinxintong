@@ -2,9 +2,9 @@
 namespace site\sns;
 
 require_once dirname(__FILE__) . '/usercall.php';
-require_once dirname(dirname(dirname(__FILE__))) . '/member_base.php';
+require_once dirname(dirname(dirname(__FILE__))) . '/xxt_base.php';
 
-class yx extends \member_base {
+class yx extends \xxt_base {
 
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'white'; //'black'黑名单,黑名单中的检查  'white'白名单,白名单以外的检查

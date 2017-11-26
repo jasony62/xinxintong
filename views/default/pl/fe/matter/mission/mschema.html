@@ -1,6 +1,6 @@
 <div class="col-md-12">
     <div ng-if='mschemas.length===0'>
-        <div class='alert alert-info'>请<a href='' class="alert-link" ng-click="createMschema()">创建</a>团队联系人通讯录</div>
+        <div class='alert alert-info'>请<a href='' class="alert-link" ng-click="createMschema()">创建</a>项目联系人通讯录</div>
     </div>
     <div ng-if='mschemas.length'>
         <div class='form-group form-inline'>
@@ -28,6 +28,9 @@
             </div>
             <div class='form-group'>
                 <button class='btn btn-default' ng-click="createMschema()">添加通讯录</button>
+            </div>
+            <div class='form-group' ng-if="selected.mschema.require_invite==='Y'">
+                <a class='btn btn-default' href="/rest/pl/fe/site/mschema?site={{selected.mschema.siteid}}#{{selected.mschema.id}}" target='_self'>查看邀请码</a>
             </div>
         </div>
         <div>
@@ -59,58 +62,12 @@
                     </tr>
                 </tbody>
             </table>
-            <div class='form-group form-inline'>
-                <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-                <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
-            </div>
-        </div>
-        <div class='form-group'>
-            <div class='form-inline'>
-                <label>填写链接</label>
-                <div class='input-group'>
-                    <input class='form-control' readonly value="{{selected.mschema.fullUrl}}">
-                    <div class='input-group-btn'>
-                        <a class='btn btn-default' ng-href="{{selected.mschema.fullUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </div>
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul uib-pagination class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
                 </div>
             </div>
-        </div>
-        <div class='form-group' ng-if="selected.mschema.require_invite==='Y'">
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th style='width:48px'>序号</th>
-                        <th style='width:64px'>已停用</th>
-                        <th>邀请码</th>
-                        <th style='width:100px'>可邀请次数</th>
-                        <th style='width:100px'>已使用次数</th>
-                        <th style='width:120px'>到期时间</th>
-                        <th style='width:120px'>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat='invite in invites'>
-                        <td>{{$index+1}}</td>
-                        <td ng-if="invite.stop==='Y'"><span style='color:red'>{{invite.stop}}</span></td>
-                        <td ng-if="invite.stop==='N'">{{invite.stop}}</td>
-                        <td ng-if="invite.state=='0'">
-                            <del class='text-danger' title='页面刷新后不可恢复'>{{invite.code}}</del>
-                        </td>
-                        <td ng-if="invite.state=='1'">{{invite.code}}</td>
-                        <td>{{invite.max_count}}</td>
-                        <td>{{invite.use_count}}</td>
-                        <td><span ng-if="invite.expire_at">{{invite.expire_at*1000|date:'MM-dd HH:mm'}}</span></td>
-                        <td>
-                            <a href='' ng-click='editInvite(invite)' ng-if="invite.state=='1'">修改</a>
-                            <a href='' ng-click='stopInvite(invite)' ng-if="invite.state=='1'&&invite.stop==='N'">停用</a>
-                            <a href='' ng-click='startInvite(invite)' ng-if="invite.state=='1'&&invite.stop==='Y'">启用</a>
-                            <a href='' ng-click='removeInvite(invite)' ng-if="invite.state=='1'">删除</a>
-                            <a href='' ng-click='restoreInvite(invite)' ng-if="invite.state=='0'">恢复</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <button class='btn btn-default' ng-click="addInvite()">添加邀请码</button>
         </div>
     </div>
 </div>

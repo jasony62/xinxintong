@@ -1,18 +1,9 @@
 <div wrap="text" class="form-group">已填写如下报名信息</div>
-<!-- begin: generate by schema -->
-<?php foreach ($this->schema as $def) { 
-$schema = $def->schema;
-?>
-<div id="<?php echo $def->config->id?>" class="form-group wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>"><label><?php echo $schema->title;?></label>
-<?php if (in_array($schema->type,['name','email','mobile','shorttext','longtext','member'])) { ?>
-<div>{{Record.current.data.<?php echo $schema->id?>}}</div>
-<?php } else if (in_array($schema->type,['_enrollAt'])) { ?>
-<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-<?php } else if (in_array($schema->type,['single','phase'])) { ?>
-<div>{{value2Label("<?php echo $schema->id;?>")}}</div>
-<?php } ?>
+<!-- begin: view_base.html -->
+<!-- end: view_base.html -->
+<div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord">
+    <button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'enroll')"><span>修改报名信息</span></button>
 </div>
-<?php } ?>
-<!-- end: generate by schema -->
-<div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'enroll')"><span>修改报名信息</span></button></div>
-<div id="act3" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="removeRecord($event,'enroll')"><span>取消报名</span></button></div>
+<div id="act3" class="form-group" wrap="button" ng-controller="ctrlRecord">
+    <button class="btn btn-primary btn-block btn-lg" ng-click="removeRecord($event,'enroll')"><span>取消报名</span></button>
+</div>

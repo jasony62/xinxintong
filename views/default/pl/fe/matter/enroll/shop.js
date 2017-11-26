@@ -1,57 +1,86 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp, ls, siteId, missionId;
+    var ngApp, ls, _siteId, _missionId;
 
     ls = location.search;
-    siteId = ls.match(/[\?&]site=([^&]*)/)[1];
-    missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
+    _siteId = ls.match(/[\?&]site=([^&]*)/)[1];
+    _missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
 
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
-    ngApp.config(['$locationProvider', '$uibTooltipProvider', 'srvSiteProvider', function($locationProvider, $uibTooltipProvider, srvSiteProvider) {
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'pl.const', 'service.matter']);
+    ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider, srvSiteProvider) {
         $locationProvider.html5Mode(true);
-        $uibTooltipProvider.setTriggers({
-            'show': 'hide'
-        });
-        srvSiteProvider.config(siteId);
+        srvSiteProvider.config(_siteId);
     }]);
-    ngApp.controller('ctrlMain', ['$scope', '$location', '$timeout', 'http2', 'srvSite', function($scope, $location, $timeout, http2, srvSite) {
+    ngApp.controller('ctrlMain', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
         $scope.source = 'platform';
         $scope.switchSource = function(source) {
             $scope.source = source;
         };
-        $scope.blank = function() {
-            var url;
-            url = '/rest/pl/fe/matter/enroll/create?site=' + siteId;
-            if (missionId) {
-                url += '&mission=' + missionId;
+        srvSite.get().then(function(oSite) {
+            $scope.site = oSite;
+            if (_missionId) {
+                http2.get('/rest/pl/fe/matter/mission/get?site=' + _siteId + '&id=' + _missionId, function(rsp) {
+                    $scope.mission = rsp.data;
+                });
             }
-            http2.post(url, {}, function(rsp) {
-                location.href = '/rest/pl/fe/matter/enroll?site=' + siteId + '&id=' + rsp.data.id;
-            });
-        };
-        $scope.doCreate = function() {
-            $scope.$broadcast('doCreate.shop');
-        };
+        });
     }]);
-    ngApp.controller('ctrlSysTemplate', ['$scope', '$location', 'http2', 'srvSite', function($scope, $location, http2, srvSite) {
-        var assignedScenario;
+    ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2', 'CstNaming', 'srvSite', function($scope, $location, $uibModal, http2, CstNaming, srvSite) {
+        var assignedScenario, _oProto, _oEntryRule, _oResult;
 
         assignedScenario = $location.search().scenario;
-        $scope.result = {
+        $scope.result = _oResult = {
             proto: {
-                scope: '',
-                mschemas: []
+                entryRule: {
+                    scope: '',
+                    mschemas: [],
+                }
             }
         };
+        $scope.proto = _oProto = $scope.result.proto;
+        $scope.entryRule = _oEntryRule = _oProto.entryRule;
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            _oProto[data.state] = data.value;
+        });
         $scope.chooseMschema = function() {
-            srvSite.chooseMschema().then(function(result) {
+            srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(function(result) {
                 var oChosen = result.chosen;
-                $scope.result.proto.mschemas.push({ id: oChosen.id, title: oChosen.title });
+                _oEntryRule.mschemas.push({ id: oChosen.id, title: oChosen.title });
             });
         };
         $scope.removeMschema = function(oMschema) {
-            var mschemas = $scope.result.proto.mschemas;
+            var mschemas = _oEntryRule.mschemas;
             mschemas.splice(mschemas.indexOf(oMschema), 1);
+        };
+        $scope.chooseGroupApp = function() {
+            $uibModal.open({
+                templateUrl: 'chooseGroupApp.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = {
+                        app: null,
+                        round: null
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.data);
+                    };
+                    var url = '/rest/pl/fe/matter/group/list?site=' + _siteId + '&size=999&cascaded=Y';
+                    url += '&mission=' + _missionId;
+                    http2.get(url, function(rsp) {
+                        $scope2.apps = rsp.data.apps;
+                    });
+                }],
+                backdrop: 'static'
+            }).result.then(function(result) {
+                if (result.app) {
+                    _oEntryRule.group = { id: result.app.id, title: result.app.title };
+                    if (result.round) {
+                        _oEntryRule.group.round = { id: result.round.round_id, title: result.round.title };
+                    }
+                }
+            });
         };
         $scope.assignGroupApp = function() {
             srvSite.openGallery({
@@ -61,42 +90,23 @@ define(['require'], function(require) {
                     url: '/rest/pl/fe/matter'
                 }],
                 singleMatter: true,
-                mission: $scope.result.proto.mission,
+                mission: _oProto.mission,
                 onlySameMission: true
             }).then(function(result) {
                 var oGroupApp, oChosen;
                 if (result.matters.length === 1) {
                     oChosen = result.matters[0];
                     oGroupApp = { id: oChosen.id, title: oChosen.title };
-                    $scope.result.proto.groupApp = oGroupApp;
+                    _oProto.groupApp = oGroupApp;
                 }
             });
         };
-        $scope.assignEnrollApp = function() {
-            srvSite.openGallery({
-                matterTypes: [{
-                    value: 'enroll',
-                    title: '登记活动',
-                    url: '/rest/pl/fe/matter'
-                }],
-                singleMatter: true,
-                mission: $scope.result.proto.mission,
-                onlySameMission: true
-            }).then(function(result) {
-                var oEnrollApp, oChosen;
-                if (result.matters.length === 1) {
-                    oChosen = result.matters[0];
-                    oEnrollApp = { id: oChosen.id, title: oChosen.title };
-                    $scope.result.proto.enrollApp = oEnrollApp;
-                }
-            });
-        };
-        $scope.$on('doCreate.shop', function() {
+        $scope.doCreate = function() {
             var url, data;
             var oConfig;
-            url = '/rest/pl/fe/matter/enroll/create?site=' + siteId;
-            if (missionId) {
-                url += '&mission=' + missionId;
+            url = '/rest/pl/fe/matter/enroll/create?site=' + _siteId;
+            if (_missionId) {
+                url += '&mission=' + _missionId;
             }
             oConfig = {};
             data = $scope.result;
@@ -112,44 +122,71 @@ define(['require'], function(require) {
                 oConfig.scenarioConfig = data.scenarioConfig;
             }
             http2.post(url, oConfig, function(rsp) {
-                location.href = '/rest/pl/fe/matter/enroll/schema?site=' + siteId + '&id=' + rsp.data.id;
+                location.href = '/rest/pl/fe/matter/enroll/schema?site=' + _siteId + '&id=' + rsp.data.id;
             });
-        });
+        };
         $scope.chooseScenario = function() {
             var oTemplates, keys;
 
-            oTemplates = $scope.result.scenario.templates;
+            oTemplates = _oResult.scenario.templates;
             keys = Object.keys(oTemplates);
-            $scope.result.template = oTemplates[keys[0]];
+            _oResult.template = oTemplates[keys[0]];
             $scope.chooseTemplate();
         };
         $scope.chooseTemplate = function() {
-            if (!$scope.result.template) return;
+            if (!_oResult.template) return;
             var url;
             url = '/rest/pl/fe/matter/enroll/template/config';
-            url += '?scenario=' + $scope.result.scenario.name;
-            url += '&template=' + $scope.result.template.name;
+            url += '?scenario=' + _oResult.scenario.name;
+            url += '&template=' + _oResult.template.name;
             http2.get(url, function(rsp) {
-                var elSimulator, url;
+                var oScenarioConfig, elSimulator, url;
+                $scope.scenarioConfig = oScenarioConfig = rsp.data.scenarioConfig;
+                oScenarioConfig.required = (oScenarioConfig.can_repos !== 'D' || oScenarioConfig.can_rank !== 'D' || oScenarioConfig.can_repos !== 'D');
+                _oProto.can_repos = oScenarioConfig.can_repos === 'Y' ? 'Y' : 'N';
+                _oProto.can_rank = oScenarioConfig.can_rank === 'Y' ? 'Y' : 'N';
+                _oProto.can_rounds = oScenarioConfig.can_rounds === 'Y' ? 'Y' : 'N';
                 $scope.pages = rsp.data.pages;
-                $scope.result.selectedPage = $scope.pages[0];
-                elSimulator = document.querySelector('#simulator');
-                url = 'http://' + location.host;
-                url += '/rest/site/fe/matter/enroll/template';
-                url += '?scenario=' + $scope.result.scenario.name;
-                url += '&template=' + $scope.result.template.name;
-                url += '&page=' + $scope.result.selectedPage.name;
-                url += '&_=' + (new Date() * 1);
+                _oResult.selectedPage = $scope.pages[0];
+                elSimulator = document.querySelector('#simulator iframe');
+                url = '/rest/site/fe/matter/enroll/template';
+                url += '?scenario=' + _oResult.scenario.name;
+                url += '&template=' + _oResult.template.name;
+                url += '&page=' + _oResult.selectedPage.name;
+                url += '&_=' + (new Date * 1);
                 elSimulator.src = url;
             });
         };
-        $scope.choosePage = function() {
-            var elSimulator, page, config;
-            elSimulator = document.querySelector('#simulator');
-            config = {};
-            page = $scope.result.selectedPage.name;
+        $scope.choosePage = function(oPage) {
+            var elSimulator;
+            if (oPage) {
+                _oResult.selectedPage = oPage;
+            } else {
+                oPage = _oResult.selectedPage;
+            }
+            elSimulator = document.querySelector('#simulator iframe');
             if (elSimulator.contentWindow.renew) {
-                elSimulator.contentWindow.renew(page, config);
+                elSimulator.contentWindow.renew(oPage.name, {});
+            }
+        };
+        $scope.changeUserScope = function() {
+            switch (_oEntryRule.scope) {
+                case 'group':
+                    if (!_oEntryRule.group) {
+                        $scope.chooseGroupApp();
+                    }
+                    break;
+                case 'member':
+                    if (!_oEntryRule.mschemas || _oEntryRule.mschemas.length === 0) {
+                        $scope.chooseMschema();
+                    }
+                    break;
+                case 'sns':
+                    _oEntryRule.sns = {};
+                    $scope.snsNames.forEach(function(snsName) {
+                        _oEntryRule.sns[snsName] = true;
+                    });
+                    break;
             }
         };
         /*系统模版*/
@@ -160,62 +197,47 @@ define(['require'], function(require) {
             $scope.templates2 = oScenarioes;
             if (assignedScenario) {
                 if (oScenarioes[assignedScenario]) {
-                    $scope.result.scenario = oScenarioes[assignedScenario];
+                    _oResult.scenario = oScenarioes[assignedScenario];
                     $scope.fixedScenario = true;
-                    oTemplates = $scope.result.scenario.templates;
-                    $scope.result.template = oTemplates[Object.keys(oTemplates)];
+                    oTemplates = _oResult.scenario.templates;
+                    _oResult.template = oTemplates[Object.keys(oTemplates)[0]];
                     $scope.chooseTemplate();
                 }
             } else {
-                $scope.result.scenario = oScenarioes.common;
+                _oResult.scenario = oScenarioes.common;
                 $scope.chooseScenario();
             }
         });
-        srvSite.get().then(function(oSite) {
-            $scope.site = oSite;
-        });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
-            $scope.snsCount = Object.keys(oSns).length;
-            if (!missionId) {
-                if ($scope.snsCount) {
-                    $scope.result.proto.scope = 'sns';
-                } else {
-                    $scope.result.proto.scope = 'none';
-                }
-            }
+            $scope.snsNames = Object.keys(oSns);
         });
-        if (missionId) {
-            http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {
-                var oMission;
-                oMission = rsp.data;
-                $scope.result.proto.mission = { id: oMission.id, title: oMission.title };
-                $scope.result.proto.scope = oMission.entry_rule.scope || 'none';
-                if ('member' === oMission.entry_rule.scope) {
-                    srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
-                        var oMschemasById = {};
-                        aMemberSchemas.forEach(function(mschema) {
-                            oMschemasById[mschema.id] = mschema;
+        if (_missionId) {
+            $scope.$watch('mission', function(oMission) {
+                if (oMission) {
+                    _oProto.mission = { id: oMission.id, title: oMission.title };
+                    _oEntryRule.scope = oMission.entry_rule.scope || 'none';
+                    if ('member' === oMission.entry_rule.scope) {
+                        srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
+                            var oMschemasById = {};
+                            aMemberSchemas.forEach(function(mschema) {
+                                oMschemasById[mschema.id] = mschema;
+                            });
+                            Object.keys(oMission.entry_rule.member).forEach(function(mschemaId) {
+                                _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
+                            });
                         });
-                        Object.keys(oMission.entry_rule.member).forEach(function(mschemaId) {
-                            $scope.result.proto.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
-                        });
-                    });
-                } else if ('sns' === oMission.entry_rule.scope) {
-                    $scope.result.proto.sns = oMission.entry_rule.sns;
+                    } else if ('sns' === oMission.entry_rule.scope) {
+                        _oResult.proto.sns = oMission.entry_rule.sns;
+                    }
+                    _oProto.title = oMission.title + '-' + CstNaming.scenario.enroll[assignedScenario] || '登记活动';
                 }
-                if (assignedScenario === 'registration') {
-                    $scope.result.proto.title = oMission.title + '-报名';
-                } else if (assignedScenario === 'voting') {
-                    $scope.result.proto.title = oMission.title + '-投票';
-                } else if (assignedScenario === 'group_week_report') {
-                    $scope.result.proto.title = oMission.title + '-周报';
-                } else if (assignedScenario === 'score_sheet') {
-                    $scope.result.proto.title = oMission.title + '-记分表';
-                } else if (assignedScenario === 'quiz') {
-                    $scope.result.proto.title = oMission.title + '-测验';
-                } else if (assignedScenario === 'common') {
-                    $scope.result.proto.title = oMission.title + '-登记';
+            });
+        } else if (_siteId) {
+            $scope.$watch('site', function(oSite) {
+                if (oSite) {
+                    _oEntryRule.scope = 'none';
+                    _oProto.title = oSite.name + '-' + CstNaming.scenario.enroll[assignedScenario] || '登记活动';
                 }
             });
         }
@@ -232,20 +254,20 @@ define(['require'], function(require) {
         $scope.data = {
             choose: -1
         };
-        $scope.$on('doCreate.shop', function() {
+        $scope.doCreate = function() {
             var url, data;
             var data;
             data = $scope.templates[$scope.data.choose];
-            url = '/rest/pl/fe/matter/enroll/createByOther?site=' + siteId + '&template=' + data.id;
-            if (missionId) {
-                url += '&mission=' + missionId;
+            url = '/rest/pl/fe/matter/enroll/createByOther?site=' + _siteId + '&template=' + data.id;
+            if (_missionId) {
+                url += '&mission=' + _missionId;
             }
             http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/matter/enroll/schema?site=' + siteId + '&id=' + rsp.data.id;
+                location.href = '/rest/pl/fe/matter/enroll/schema?site=' + _siteId + '&id=' + rsp.data.id;
             });
-        });
+        };
         $scope.searchTemplate = function() {
-            var url = '/rest/pl/fe/template/site/list?matterType=enroll&scope=P' + '&site=' + siteId;
+            var url = '/rest/pl/fe/template/site/list?matterType=enroll&scope=P' + '&site=' + _siteId;
 
             http2.get(url, function(rsp) {
                 $scope.templates = rsp.data.templates;
@@ -261,7 +283,7 @@ define(['require'], function(require) {
             });
         };
         $scope.searchBySite = function() {
-            var url = '/rest/pl/fe/template/site/list?site=' + siteId + '&matterType=enroll&scope=S';
+            var url = '/rest/pl/fe/template/site/list?site=' + _siteId + '&matterType=enroll&scope=S';
 
             http2.get(url, function(rsp) {
                 $scope.templates = rsp.data.templates;
@@ -276,7 +298,7 @@ define(['require'], function(require) {
                 var ele, r;
                 ele = document.getElementById('btnCreateByExcel');
                 r = new Resumable({
-                    target: '/rest/pl/fe/matter/enroll/uploadExcel4Create?site=' + siteId,
+                    target: '/rest/pl/fe/matter/enroll/uploadExcel4Create?site=' + _siteId,
                     testChunks: false,
                 });
                 r.assignBrowse(ele);
@@ -294,7 +316,7 @@ define(['require'], function(require) {
                         lastModified: lastModified,
                         uniqueIdentifier: f.uniqueIdentifier,
                     };
-                    http2.post('/rest/pl/fe/matter/enroll/createByExcel?site=' + siteId, posted, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/enroll/createByExcel?site=' + _siteId, posted, function(rsp) {
                         $mi.close({ source: 'file', app: rsp.data });
                     });
                 });
@@ -305,7 +327,7 @@ define(['require'], function(require) {
 
         $scope.$on('doCreate.shop', function() {
             if (oNewApp) {
-                location.href = '/rest/pl/fe/matter/enroll?site=' + siteId + '&id=' + choice.app.id;
+                location.href = '/rest/pl/fe/matter/enroll?site=' + _siteId + '&id=' + choice.app.id;
             }
         });
         window.chooseFile = function(file) {
@@ -315,9 +337,9 @@ define(['require'], function(require) {
                 var template, url;
                 template = evt.target.result;
                 template = JSON.parse(template);
-                url = '/rest/pl/fe/matter/enroll/createByConfig?site=' + siteId;
-                if (missionId) {
-                    url += '&mission=' + missionId;
+                url = '/rest/pl/fe/matter/enroll/createByConfig?site=' + _siteId;
+                if (_missionId) {
+                    url += '&mission=' + _missionId;
                 }
                 http2.post(url, template, function(rsp) {
                     oNewApp = rsp.data;

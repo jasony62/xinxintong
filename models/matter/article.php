@@ -5,16 +5,14 @@ require_once dirname(__FILE__) . '/article_base.php';
 
 class article_model extends article_base {
 	/**
+	 * 记录日志时需要的列
+	 */
+	const LOG_FIELDS = 'siteid,id,title,summary,pic,mission_id';
+	/**
 	 *
 	 */
 	protected function table() {
 		return 'xxt_article';
-	}
-	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'article';
 	}
 	/**
 	 *
@@ -151,7 +149,6 @@ class article_model extends article_base {
 	 */
 	public function &getMatters($id) {
 		$article = $this->byId($id, "id,siteid,title,author,summary,pic,body,url");
-		$newArticle->type = 'article';
 		$articles = array($article);
 
 		return $articles;
@@ -161,7 +158,6 @@ class article_model extends article_base {
 	 */
 	public function &getArticles($id) {
 		$article = $this->byId($id, 'id,siteid,title,author,summary,pic,body,url');
-		$newArticle->type = 'article';
 		$articles = array($article);
 
 		return $articles;
@@ -261,11 +257,11 @@ class article_model extends article_base {
 			);
 		} else {
 			/* 按标签过滤 */
-			if(is_array($options->tag)){
+			if (is_array($options->tag)) {
 				foreach ($options->tag as $tag) {
 					$w .= " and a.matter_cont_tag like '%" . $tag . "%'";
 				}
-			}else{
+			} else {
 				$w .= " and a.matter_cont_tag like '%" . $options->tag . "%'";
 			}
 			$q = array(
@@ -329,7 +325,7 @@ class article_model extends article_base {
 		$q3 = [
 			'id,title',
 			'xxt_tag',
-			['siteid' => $site, 'sub_type' => 'C']
+			['siteid' => $site, 'sub_type' => 'C'],
 		];
 		$tagSiteCs = $this->query_objs_ss($q3);
 
@@ -341,7 +337,7 @@ class article_model extends article_base {
 		$b = array();
 		foreach ($articles as $k => $v) {
 			$a = array();
-			if(!empty($v['matter_cont_tag'])){
+			if (!empty($v['matter_cont_tag'])) {
 				$v['matter_cont_tag'] = json_decode($v['matter_cont_tag']);
 				foreach ($v['matter_cont_tag'] as $tagMatterC) {
 					foreach ($tagSiteCs as $tagSiteC) {

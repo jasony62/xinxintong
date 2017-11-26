@@ -1,4 +1,13 @@
-<div ng-switch on="catelog.v">
+<div class='row'>
+    <div class='col-md-12'>
+        <div class='form-group'>
+            <div class='form-inline'>
+                <select class='form-control' ng-model="catelog" ng-options="cat.l for cat in catelogs"></select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class='row' ng-switch on="catelog.v">
     <div class='col-md-12' ng-controller="ctrlClient" ng-switch-when="client">
         <div class='list-group'>
             <div class='list-group-item' ng-repeat="s in subscribers">

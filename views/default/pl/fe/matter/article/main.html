@@ -1,11 +1,11 @@
-<div class='row'>
-    <div class='col-md-7'>
-        <div class='tile'>
-            <div class='form-group compact'>
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
                 <label>标题：最多35个汉字，70个英文字符</label>
                 <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
             </div>
-            <div class='form-group compact'>
+            <div class='form-group'>
                 <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
                 <div style='position:relative'>
                     <div style="width:182px;border:1px solid #CCC">
@@ -29,15 +29,15 @@
                     </div>
                 </div>
             </div>
-            <div class='form-group compact'>
+            <div class='form-group'>
                 <label>摘要（可选）：最多120个汉字，240个英文字符</label>
                 <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
             </div>
-            <div class='form-group compact'>
+            <div class='form-group'>
                 <label>作者（可选）：最多8个汉字或英文字符</label>
                 <input type='text' class='form-control' ng-model='editing.author' tms-auto-update tms-wait=1000 tms-update="update('author')">
             </div>
-            <div class='form-group compact'>
+            <div class='form-group'>
                 <label>原文链接(可选)</label>
                 <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url')"></textarea>
             </div>
@@ -62,86 +62,14 @@
                 <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
             </div>
         </div>
-        <div class='tile'>
-            <div>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">添加素材
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="#" ng-click="embedMatter()">内置素材</a>
-                        </li>
-                        <li>
-                            <a href="#" ng-click="embedLink()">外部链接</a>
-                        </li>
-                        <li>
-                            <a href="#" ng-click="embedVideo()">视频</a>
-                        </li>
-                        <li>
-                            <a href="#" ng-click="embedAudio()">音频</a>
-                        </li>
-                    </ul>
-                </div>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
-            </div>
-            <tinymce id='body1' contenteditable='bodyEditable' toolbar="fullscreen code" height='700'></tinymce>
-            <div class='help-block'>正文：少于2万字符</div>
-        </div>
-        <div class='tile'>
-            <div class='form-group'>
-                <button id='addAttachment' class='btn btn-default btn-sm'>
-                    <span class='glyphicon glyphicon-plus'></span>
-                </button>
-                <ul class='list-group' style='margin-bottom:0'>
-                    <li class='list-group-item' ng-repeat='a in editing.attachments' ng-mouseenter="enter=true" ng-mouseleave="enter=false">
-                        <span>
-                            <a ng-href='{{downloadUrl(a)}}' target='_blank'>{{a.name}}</a>
-                        </span>
-                        <button class='btn btn-default btn-xs pull-right' ng-if='enter' ng-click='delAttachment($index,a)'>
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                    </li>
-                </ul>
-                <div class='help-block'>附件（可选）</div>
-            </div>
-        </div>
     </div>
-    <div class='col-md-5'>
-        <div class="panel panel-default">
-            <div class="panel-heading">用户访问链接</div>
-            <div class="panel-body">
-                <div class='input-group'>
-                    <input class='form-control' readonly value="{{entry.url}}">
-                    <span class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
-                        <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </span>
-                </div>
-                <div>
-                    <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
-                    <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
-                </div>
-            </div>
-        </div>
-        <div class='tile'>
-            <div class='form-group'>
-                <div>阅读：{{editing.read_num}}</div>
-                <div>分享好友：{{editing.share_friend_num}}</div>
-                <div>分享朋友圈：{{editing.share_timeline_num}}</div>
-                <div ng-show="editing.can_discuss==='Y'">评论：{{editing.remark_num}}</div>
-                <div ng-show="editing.can_discuss==='Y'">点赞：{{editing.score}}</div>
-            </div>
-        </div>
-        <div class='tile'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
             <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='article';matterObj='editing'">
-                <label>频道（可选）</label>
+                <label>所属频道（可选）</label>
                 <combox evt-prefix='channel' readonly=true link='Y' prop='title' existing='editing.channels' options='channels'></combox>
             </div>
-        </div>
-        <div class='tile'>
-            <div class='form-group compact'>
+            <div class='form-group'>
                 <label>内容标签（可选）</label>
                 <p class="form-control" ng-click="tagMatter('C')">
                     <span class="tag" ng-repeat="t in editing.matter_cont_tag" ng-bind="t.title"></span>
@@ -154,44 +82,24 @@
                 </p>
             </div>
         </div>
-        <div class='tile'>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
             <div class='form-group'>
                 <memberacl site-id='{{editing.siteid}}' obj='editing' prop-access='access_control' update-access-control="update('access_control')" prop-member-schemas='authapis' update-member-schemas="update('authapis')" prop-acl='acl' change-acl-url='/rest/pl/fe/matter/article/setAcl?site={{editing.siteid}}&id={{editing.id}}' remove-acl-url='/rest/pl/fe/matter/article/removeAcl?site={{editing.siteid}}'></memberacl>
             </div>
         </div>
-        <div class='tile' ng-if="editing.entry">
+    </div>
+    <div class='panel panel-default' ng-if="editing.entry">
+        <div class='panel-body'>
             <div class='form-group'>
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.approved' ng-change="update('approved');">审核通过</label>
             </div>
         </div>
-        <div class='tile'>
-            <div class='form-group'>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_share' ng-change="update('can_share');">可以分享</label>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_fullsearch' ng-change="update('can_fullsearch');">可以检索</label>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_coinpay' ng-change="update('can_coinpay');">开放打赏</label>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_siteuser' ng-change="update('can_siteuser');">用户主页</label>
-            </div>
-        </div>
-        <div class='tile'>
-            <div class='form-group'>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
-            </div>
-            <div class='form-group' ng-if="editing.mission_id>0">
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
-            </div>
-        </div>
-        <div class='tile'>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
             <div class='form-group'>
                 <div>创建人：{{editing.creater_name}}</div>
                 <div>创建时间：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
@@ -200,36 +108,8 @@
             </div>
         </div>
     </div>
+    <hr>
+    <div class='form-group'>
+        <button class='btn btn-default btn-block' ng-click="remove()">删除图文</button>
+    </div>
 </div>
-<!-- footer navbar -->
-<nav class="navbar navbar-default navbar-fixed-bottom">
-    <div class="container-fluid" style='text-align:center'>
-        <form class="navbar-form" style='display:inline-block'>
-            <button class='btn' ng-class="{'btn-success':modified,'btn-default':!modified}" ng-click="submit()" ng-disabled="!modified">保存正文</button>
-            <button class='btn btn-default' ng-click="applyToHome()">申请发布到平台主页</button>
-        </form>
-        <form class="navbar-form navbar-right" style='display:inline-block'>
-            <button class='btn btn-default' ng-click="remove()">删除图文</button>
-        </form>
-    </div>
-</nav>
-<!-- end footer navbar -->
-<script type="text/ng-template" id="insertMedia.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">媒体文件</h5>
-    </div>
-    <div class="modal-body">
-        <div class="form-group" ng-if="embedType=='link'">
-            <label>链接文本</label>
-            <input class="form-control" ng-model='data.text'/>
-        </div>
-        <div class="form-group">
-            <label>地址（URL）</label>
-            <textarea class="form-control" ng-model='data.url' rows=6></textarea>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-default" ng-click="ok()">确定</button>
-    </div>
-</script>

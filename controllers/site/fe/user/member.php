@@ -23,7 +23,7 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function index_action($schema) {
-		$oSchema = $this->model('site\user\memberschema')->byId($schema, 'siteid,valid,is_wx_fan,is_yx_fan');
+		$oSchema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,title,valid,is_wx_fan,is_yx_fan,is_qy_fan']);
 		if ($oSchema === false || $oSchema->valid === 'N') {
 			return new \ObjectNotFoundError();
 		}
@@ -92,7 +92,7 @@ class member extends \site\fe\base {
 				}
 			}
 		}
-
+		\TPL::assign('title', $oSchema->title);
 		\TPL::output('/site/fe/user/member');
 		exit;
 	}
@@ -182,7 +182,7 @@ class member extends \site\fe\base {
 			return new \ResponseError('已经有对应通讯录联系人，不能重复创建');
 		}
 
-		$oMschema = $this->model('site\user\memberschema')->byId($schema, 'siteid,id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified,require_invite');
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified,require_invite']);
 		if ($oMschema === false) {
 			return new \ObjectNotFoundError();
 		}
@@ -262,7 +262,7 @@ class member extends \site\fe\base {
 			return new \ResponseError('请登录后再指定用户信息');
 		}
 
-		$oMschema = $this->model('site\user\memberschema')->byId($schema, 'siteid,id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified');
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified']);
 		if ($oMschema === false) {
 			return new \ObjectNotFoundError();
 		}
@@ -313,7 +313,7 @@ class member extends \site\fe\base {
 				return new \ResponseData($target);
 			}
 		} else {
-			$oMschema = $this->model('site\user\memberschema')->byId($schema, 'passed_url');
+			$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'passed_url']);
 			/**
 			 * 认证成功后的缺省页面
 			 */
@@ -393,30 +393,6 @@ class member extends \site\fe\base {
 
 		// todo 邮件验证的信息应该允许定制
 		\TPL::output('emailpassed');
-	}
-	/**
-	 * 给当前用户发送验证邮件
-	 * 当前用户的信息通过cookie获取
-	 *
-	 * $site
-	 *
-	 */
-	public function sendVerifyEmail_action($site) {
-		// todo 需要指定认证接口
-		$aAuthapis = array();
-		$authapi = $this->model('user/authapi')->byUrl($site, '/rest/member/auth', 'authid,url');
-		$aAuthapis[] = $authapi->authid;
-		$members = $this->getCookieMember($site, $aAuthapis);
-		if (empty($members)) {
-			die('parameter invalid.');
-		}
-
-		//$member = $this->model('user/member')->byId($mid, 'email');
-		$member = $members[0];
-
-		$this->_sendVerifyEmail($site, $member->authed_identity);
-
-		return new \ResponseData('success');
 	}
 	/**
 	 * 返回组织机构组件

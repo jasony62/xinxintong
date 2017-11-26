@@ -1,6 +1,134 @@
-define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wrapLib, editorProxy) {
+define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLib, schemaLib, wrapLib, editorProxy) {
     'use strict';
     var ngMod = angular.module('page.enroll', []);
+    /**
+     * app's pages
+     */
+    ngMod.provider('srvEnrollPage', function() {
+        var _siteId, _appId, _matterType, _baseUrl;
+
+        _matterType = window.MATTER_TYPE.toLowerCase();
+        _baseUrl = '/rest/pl/fe/matter/' + _matterType + '/page/';
+        this.config = function(siteId, appId) {
+            _siteId = siteId;
+            _appId = appId;
+        };
+        this.$get = ['$uibModal', '$q', 'http2', 'noticebox', 'srv' + window.MATTER_TYPE + 'App', function($uibModal, $q, http2, noticebox, srvApp) {
+            var _self;
+            _self = {
+                create: function() {
+                    var deferred = $q.defer();
+                    srvApp.get().then(function(app) {
+                        $uibModal.open({
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/createPage.html?_=3',
+                            backdrop: 'static',
+                            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                                $scope.options = {};
+                                $scope.ok = function() {
+                                    $mi.close($scope.options);
+                                };
+                                $scope.cancel = function() {
+                                    $mi.dismiss();
+                                };
+                            }],
+                        }).result.then(function(options) {
+                            http2.post(_baseUrl + 'add?site=' + _siteId + '&app=' + _appId, options, function(rsp) {
+                                var page = rsp.data;
+                                pageLib.enhance(page);
+                                app.pages.push(page);
+                                deferred.resolve(page);
+                            });
+                        });
+                    });
+                    return deferred.promise;
+                },
+                update: function(page, names) {
+                    var defer = $q.defer(),
+                        updated = {},
+                        url;
+
+                    angular.isString(names) && (names = [names]);
+                    names.forEach(function(name) {
+                        if (name === 'html') {
+                            updated.html = encodeURIComponent(page.html);
+                        } else {
+                            updated[name] = page[name];
+                        }
+                    });
+                    url = _baseUrl + '/update';
+                    url += '?site=' + _siteId;
+                    url += '&app=' + _appId;
+                    url += '&page=' + page.id;
+                    url += '&cname=' + page.code_name;
+                    http2.post(url, updated, function(rsp) {
+                        page.$$modified = false;
+                        defer.resolve();
+                        noticebox.success('完成保存');
+                    });
+
+                    return defer.promise;
+                },
+                clean: function(page) {
+                    page.html = '';
+                    page.data_schemas = [];
+                    page.act_schemas = [];
+                    page.user_schemas = [];
+                    return _self.update(page, ['data_schemas', 'act_schemas', 'user_schemas', 'html']);
+                },
+                remove: function(page) {
+                    var defer = $q.defer();
+                    srvApp.get().then(function(app) {
+                        var url = _baseUrl + 'remove';
+                        url += '?site=' + _siteId;
+                        url += '&app=' + _appId;
+                        url += '&pid=' + page.id;
+                        url += '&cname=' + page.code_name;
+                        http2.get(url, function(rsp) {
+                            app.pages.splice(app.pages.indexOf(page), 1);
+                            defer.resolve(app.pages);
+                            noticebox.success('完成删除');
+                        });
+                    });
+                    return defer.promise;
+                },
+                repair: function(aCheckResult, oPage) {
+                    return $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/repair.html',
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            $scope2.reason = aCheckResult[1];
+                            $scope2.ok = function() {
+                                $mi.close();
+                            };
+                            $scope2.cancel = function() {
+                                $mi.dismiss();
+                            };
+                        }],
+                        backdrop: 'static'
+                    }).result.then(function() {
+                        var aRepairResult;
+                        aRepairResult = oPage.repair(aCheckResult);
+                        if (aRepairResult[0] === true) {
+                            if (aRepairResult[1] && aRepairResult[1].length) {
+                                aRepairResult[1].forEach(function(changedProp) {
+                                    switch (changedProp) {
+                                        case 'data_schemas':
+                                            // do nothing
+                                            break;
+                                        case 'html':
+                                            if (oPage === editorProxy.getPage()) {
+                                                editorProxy.refresh();
+                                            }
+                                            break;
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            };
+            return _self;
+        }];
+    });
     /**
      * page editor
      */
@@ -292,31 +420,35 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
      * input
      */
     ngMod.controller('ctrlAppSchemas4IV', ['$scope', function($scope) {
-        var oChooseState;
+        var _oChooseState;
         $scope.choose = function(schema) {
-            if (oChooseState[schema.id]) {
+            if (_oChooseState[schema.id]) {
                 var ia, sibling, domNewWrap;
                 ia = $scope.app.dataSchemas.indexOf(schema);
                 if (ia === 0) {
                     sibling = $scope.app.dataSchemas[++ia];
-                    while (ia < $scope.app.dataSchemas.length && !oChooseState[sibling.id]) {
+                    while (ia < $scope.app.dataSchemas.length && !_oChooseState[sibling.id]) {
                         sibling = $scope.app.dataSchemas[++ia];
                     }
                     domNewWrap = editorProxy.appendSchema(schema, sibling, true);
                 } else {
                     sibling = $scope.app.dataSchemas[--ia];
-                    while (ia > 0 && !oChooseState[sibling.id]) {
+                    while (ia > 0 && !_oChooseState[sibling.id]) {
                         sibling = $scope.app.dataSchemas[--ia];
                     }
-                    if (oChooseState[sibling.id]) {
-                        domNewWrap = editorProxy.appendSchema(schema, sibling);
-                    } else {
-                        ia = $scope.app.dataSchemas.indexOf(schema);
-                        sibling = $scope.app.dataSchemas[++ia];
-                        while (ia < $scope.app.dataSchemas.length && !oChooseState[sibling.id]) {
+                    if (sibling) {
+                        if (_oChooseState[sibling.id]) {
+                            domNewWrap = editorProxy.appendSchema(schema, sibling);
+                        } else {
+                            ia = $scope.app.dataSchemas.indexOf(schema);
                             sibling = $scope.app.dataSchemas[++ia];
+                            while (ia < $scope.app.dataSchemas.length && !_oChooseState[sibling.id]) {
+                                sibling = $scope.app.dataSchemas[++ia];
+                            }
+                            domNewWrap = editorProxy.appendSchema(schema, sibling, true);
                         }
-                        domNewWrap = editorProxy.appendSchema(schema, sibling, true);
+                    } else {
+                        domNewWrap = editorProxy.appendSchema(schema);
                     }
                 }
                 $scope.setActiveWrap(domNewWrap);
@@ -331,35 +463,59 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
         };
         $scope.$on('xxt.matter.enroll.page.data_schemas.removed', function(event, removedSchema) {
             if (removedSchema && removedSchema.id) {
-                oChooseState[removedSchema.id] = false;
+                _oChooseState[removedSchema.id] = false;
             }
         });
         $scope.$watch('ep', function(oPage) {
             if (oPage) {
-                oChooseState = {};
+                _oChooseState = {};
                 if (!$scope.app) return;
                 $scope.app.dataSchemas.forEach(function(schema) {
-                    oChooseState[schema.id] = false;
+                    _oChooseState[schema.id] = false;
                 });
-                if ($scope.ep.type === 'I') {
-                    $scope.ep.data_schemas.forEach(function(dataWrap) {
+                if (oPage.type === 'I') {
+                    oPage.data_schemas.forEach(function(dataWrap) {
                         if (dataWrap.schema) {
-                            oChooseState[dataWrap.schema.id] = true;
+                            _oChooseState[dataWrap.schema.id] = true;
                         }
                     });
-                } else if ($scope.ep.type === 'V') {
+                } else if (oPage.type === 'V') {
                     $scope.otherSchemas = [{
                         id: 'enrollAt',
                         type: '_enrollAt',
                         title: '填写时间'
+                    }, {
+                        id: 'roundTitle',
+                        type: '_roundTitle',
+                        title: '填写轮次'
                     }];
-                    $scope.ep.data_schemas.forEach(function(config) {
-                        config.schema && config.schema.id && (oChooseState[config.schema.id] = true);
+                    oPage.data_schemas.forEach(function(config) {
+                        config.schema && config.schema.id && (_oChooseState[config.schema.id] = true);
                     });
-                    oChooseState['enrollAt'] === undefined && (oChooseState['enrollAt'] = false);
+                    _oChooseState['enrollAt'] === undefined && (_oChooseState['enrollAt'] = false);
+                    _oChooseState['roundTitle'] === undefined && (_oChooseState['roundTitle'] = false);
                 }
-                $scope.chooseState = oChooseState;
+                $scope.chooseState = _oChooseState;
             }
+            $scope.$watchCollection('ep.data_schemas', function(newVal) {
+                var aUncheckedSchemaIds;
+                if (/I|V/.test($scope.ep.type)) {
+                    if (newVal) {
+                        aUncheckedSchemaIds = Object.keys(_oChooseState);
+                        newVal.forEach(function(oWrap) {
+                            var i;
+                            _oChooseState[oWrap.schema.id] = true;
+                            i = aUncheckedSchemaIds.indexOf(oWrap.schema.id);
+                            if (i !== -1) {
+                                aUncheckedSchemaIds.splice(i, 1);
+                            }
+                        });
+                        aUncheckedSchemaIds.forEach(function(schemaId) {
+                            _oChooseState[schemaId] = false;
+                        });
+                    }
+                }
+            });
         });
     }]);
     /**
@@ -445,8 +601,15 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
             id: 'enrollAt',
             type: '_enrollAt',
             title: '填写时间'
+        }, {
+            id: 'roundTitle',
+            type: '_roundTitle',
+            title: '填写轮次'
         }];
         $scope.app.dataSchemas.forEach(function(schema) {
+            chooseState[schema.id] = false;
+        });
+        $scope.otherSchemas.forEach(function(schema) {
             chooseState[schema.id] = false;
         });
         listSchemas.forEach(function(schema) {
@@ -465,12 +628,16 @@ define(['require', 'schema', 'wrap', 'editor'], function(require, schemaLib, wra
                     while (ia > 0 && !chooseState[brother.id]) {
                         brother = $scope.app.dataSchemas[--ia];
                     }
-                    for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
-                        if (listSchemas[ibl].id === brother.id) {
-                            break;
+                    if (brother) {
+                        for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
+                            if (listSchemas[ibl].id === brother.id) {
+                                break;
+                            }
                         }
+                        listSchemas.splice(ibl + 1, 0, schema);
+                    } else {
+                        listSchemas.push(schema);
                     }
-                    listSchemas.splice(ibl + 1, 0, schema);
                 }
             } else {
                 for (var i = listSchemas.length - 1; i >= 0; i--) {

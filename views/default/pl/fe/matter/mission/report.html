@@ -1,25 +1,23 @@
 <div id="viewReport">
     <div class='col-md-12'>
-        <nav class='navbar navbar-default'>
-            <div class='container-fluid'>
-                <form class='navbar-form navbar-left'>
-                    <div class='form-group'>
-                        <label>用户名单</label>
-                        <div class="input-group">
-                            <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" ng-click="cancelUserApp()" ng-if="mission.userApp">
-                                    <span class='glyphicon glyphicon-remove'></span>
+        <nav class='form-group'>
+            <div class='form-inline'>
+                <div class='form-group'>
+                    <label>用户名单</label>
+                    <div class="input-group">
+                        <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" ng-click="cancelUserApp()" ng-if="mission.userApp">
+                                <span class='glyphicon glyphicon-remove'></span>
                             </button>
                             <button class='btn btn-success' ng-click="assignUserApp()" ng-if="!mission.userApp">指定</button>
-                            </span>
                         </div>
                     </div>
-                </form>
-                <form class='navbar-form navbar-left'>
-                    <button class='btn btn-default' ng-click="chooseApps()">选择活动</button>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click="chooseContents()">选择报告内容</button>
                     <button class='btn btn-default' ng-click="exportReport()">导出报告</button>
-                </form>
+                </div>
             </div>
         </nav>
     </div>
@@ -29,6 +27,8 @@
                 <tr>
                     <th style="width:4em">序号</th>
                     <th style="width:8em">用户</th>
+                    <th style="width:8em" ng-if="mission.userApp.type==='group'">分组</th>
+                    <th style="width:8em" ng-repeat="schema in dataSchemas">{{schema.title}}</th>
                     <th style="width:8em" ng-repeat="app in report.orderedApps">{{app.title}}</th>
                 </tr>
             </thead>
@@ -36,17 +36,33 @@
                 <tr ng-repeat="user in report.users" ng-class="{info:user===activeUser}">
                     <td>{{$index+1}}</td>
                     <td ng-click="chooseUser(user)">{{user.nickname}}</td>
+                    <td ng-if="mission.userApp.type==='group'">{{user.round_title}}</td>
+                    <td ng-repeat="schema in dataSchemas" ng-switch="schema.type">
+                        <div ng-switch-when="image">
+                            <img ng-repeat="img in user.show_schema_data._data[schema.id]" ng-src='{{img}}' />
+                        </div>
+                        <div ng-switch-when="file">
+                            <span ng-repeat='file in user.show_schema_data._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                        </div>
+                        <span ng-switch-when="date">{{(user.show_schema_data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                        <span ng-switch-default ng-bind-html="user.show_schema_data._data[schema.id]"></span>
+                    </td>
                     <td ng-repeat="app in report.orderedApps" ng-switch on="app.type" ng-click="chooseUser(user,app)">
                         <div ng-switch-when="enroll">
                             <div ng-if="user.data[$index].enroll_num">记录：{{user.data[$index].enroll_num}}</div>
                             <div ng-if="user.data[$index].remark_other_num">评论：{{user.data[$index].remark_other_num}}</div>
+                            <div ng-if="user.data[$index].comment">备注：{{user.data[$index].comment}}</div>
                         </div>
                         <div ng-switch-when="signin" ng-if="user.data[$index]">
                             <div>签到：{{user.data[$index].signin_num}}</div>
                             <div ng-if="user.data[$index].late_num" style='color:red'>迟到：{{user.data[$index].late_num}}</div>
+                            <div ng-if="user.data[$index].comment">备注：{{user.data[$index].comment}}</div>
                         </div>
                         <div ng-switch-when="group" ng-if="user.data[$index]">
-                            <div ng-repeat="rnd in user.data[$index]">分组：{{rnd.round_title||'空'}}</div>
+                            <div ng-repeat="rnd in user.data[$index]">
+                                <div>分组：{{rnd.round_title||'空'}}</div>
+                                <div>备注：{{rnd.comment}}</div>
+                            </div>
                         </div>
                         <div ng-switch-default>{{user.data[$index]}}</div>
                     </td>
@@ -123,6 +139,8 @@
                 <label class="col-md-3 control-label">活动类型</label>
                 <div class="col-md-9">
                     <label class='radio-inline'>
+                        <input type='radio' value='group' ng-model="data.appType">分组活动</label>
+                    <label class='radio-inline'>
                         <input type='radio' value='enroll' ng-model="data.appType">登记活动</label>
                     <label class='radio-inline'>
                         <input type='radio' value='signin' ng-model="data.appType">签到活动</label>
@@ -139,43 +157,6 @@
         </form>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
-</script>
-<script type="text/ng-template" id="chooseApps.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">选择报告中包含的活动</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-inline">
-            <select class='form-control' ng-model="criteria.mission_phase_id" ng-options="phase.phase_id as phase.title for phase in phases" ng-change="doSearch()">
-                <option value=''>所有阶段</option>
-            </select>
-        </form>
-        <div style='max-height:420px;overflow-y:auto'>
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th style='width:32px'>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
-                        </th>
-                        <th>项目活动</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="matter in matters">
-                        <td>
-                            <input type='checkbox' ng-model="rows.selected[$index]">
-                        </td>
-                        <td><span>{{matter.title}}</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-default" ng-click="cancel()">取消</button>
         <button class="btn btn-primary" ng-click="ok()">确定</button>
     </div>
 </script>

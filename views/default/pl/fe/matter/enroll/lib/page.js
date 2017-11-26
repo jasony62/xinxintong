@@ -6,7 +6,7 @@ define(['wrap'], function(SchemaWrap) {
     /**
      * 页面处理逻辑基类
      */
-    var protoPage = {
+    var oProtoPage = {
         _parseSchemas: function() {
             var dataSchemas = this.data_schemas,
                 actSchemas = this.act_schemas,
@@ -56,7 +56,7 @@ define(['wrap'], function(SchemaWrap) {
                 movedWrap = this.wrapBySchema(oMovedSchema);
                 this.data_schemas.splice(this.data_schemas.indexOf(movedWrap), 1);
                 $html = $('<div>' + this.html + '</div>');
-                $movedHtml = $html.find('[schema=' + oMovedSchema.id + ']');
+                $movedHtml = $html.find('[schema="' + oMovedSchema.id + '"]');
                 if (oPrevSchema) {
                     prevWrap = this.wrapBySchema(oPrevSchema);
                     this.data_schemas.splice(this.data_schemas.indexOf(prevWrap), 0, movedWrap);
@@ -81,11 +81,64 @@ define(['wrap'], function(SchemaWrap) {
 
             return false;
         },
+        check: function() {
+            var $html, schemasById, oSchema, $schemas, $schema;
+            $html = $('<div>' + this.html + '</div>');
+            schemasById = {};
+            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                oSchema = this.data_schemas[i].schema;
+                if ($html.find("[schema='" + oSchema.id + "']").length === 0) {
+                    return ['s01', '题目【' + oSchema.title + '】在页面【' + this.title + '】中不存在，可通过（显示/隐藏）操作在页面中添加该题目', oSchema];
+                }
+                schemasById[oSchema.id] = oSchema;
+            }
+            $schemas = $html.find("[schema]");
+            if ($schemas.length !== this.data_schemas.length) {
+                for (var i = $schemas.length - 1; i >= 0; i--) {
+                    $schema = $($schemas[i]);
+                    if (!schemasById[$schema.attr('schema')]) {
+                        return ['p01', '页面【' + this.title + '】中的题目【' + $schema.text() + '】没有定义，可通过删除页面元素清除', $schema];
+                    }
+                }
+            }
+
+            return [true];
+        },
+        repair: function(aCheckResult) {
+            var code, aChangedProps;
+
+            code = aCheckResult[0];
+            aChangedProps = [];
+            switch (code) {
+                case 's01':
+                    if (aCheckResult[2]) {
+                        for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+                            if (this.data_schemas[i].schema.id === aCheckResult[2].id) {
+                                this.data_schemas.splice(i, 1);
+                                aChangedProps.push('data_schemas');
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                case 'p01':
+                    if (aCheckResult[2]) {
+                        var $html;
+                        $html = $('<div>' + this.html + '</div>');
+                        $html.find("[schema='" + aCheckResult[2].attr('schema') + "']").remove();
+                        this.html = $html.html();
+                        aChangedProps.push('html');
+                    }
+                    break;
+            }
+
+            return [true, aChangedProps];
+        }
     };
     /**
      * 输入页处理逻辑基类
      */
-    var protoInputPage = {
+    var oProtoInputPage = {
         /**
          * 整理题目，使得页面中的schema和应用中的schema是同一个对象
          */
@@ -112,19 +165,27 @@ define(['wrap'], function(SchemaWrap) {
          * 添加题目的html
          */
         _appendWrap: function(tag, attrs, html, afterWrap) {
-            var newDomWrap, $html, $lastInputWrap, $btnWrap;
+            var newDomWrap, $html, $siblingInputWrap, bInsertAfter, $btnWrap;
 
+            bInsertAfter = true;
             $html = $('<div>' + this.html + '</div>');
             newDomWrap = $(document.createElement(tag)).attr(attrs).html(html);
             if (afterWrap) {
-                $lastInputWrap = $html.find("[schema='" + afterWrap.schema.id + "']");
+                $siblingInputWrap = $html.find("[schema='" + afterWrap.schema.id + "']");
+            } else if (afterWrap === false) {
+                $siblingInputWrap = $html.find("[wrap='input']:first");
+                bInsertAfter = false;
             } else {
-                $lastInputWrap = $html.find("[wrap='input']:last");
+                $siblingInputWrap = $html.find("[wrap='input']:last");
             }
 
-            if ($lastInputWrap.length) {
-                // 加到最后一个题目后面
-                $lastInputWrap.after(newDomWrap);
+            if ($siblingInputWrap.length) {
+                // 加到指定题目后面
+                if (bInsertAfter) {
+                    $siblingInputWrap.after(newDomWrap);
+                } else {
+                    $siblingInputWrap.before(newDomWrap);
+                }
             } else {
                 // 加在按钮的前面
                 $btnWrap = $html.find("[wrap='button']:first");
@@ -153,6 +214,9 @@ define(['wrap'], function(SchemaWrap) {
                 } else {
                     this.data_schemas.splice(afterIndex + 1, 0, newWrap);
                 }
+            } else if (afterSchema === false) {
+                afterWrap = false;
+                this.data_schemas.splice(0, 0, newWrap);
             } else {
                 this.data_schemas.push(newWrap);
             }
@@ -194,13 +258,13 @@ define(['wrap'], function(SchemaWrap) {
                 }
             }
             return found;
-        },
+        }
     };
-    protoInputPage = angular.extend({}, protoPage, protoInputPage);
+    oProtoInputPage = angular.extend({}, oProtoPage, oProtoInputPage);
     /**
      * 查看页处理逻辑基类
      */
-    var protoViewPage = {
+    var oProtoViewPage = {
         /**
          * 整理题目，使得页面中的schema和应用中的schema是同一个对象
          */
@@ -234,18 +298,26 @@ define(['wrap'], function(SchemaWrap) {
          * 添加题目的html
          */
         _appendWrap: function(tag, attrs, html, afterWrap) {
-            var $html, domNewWrap, $lastInputWrap, $btnWrap;
+            var $html, domNewWrap, $siblingInputWrap, bInsertAfter, $btnWrap;
 
+            bInsertAfter = true;
             $html = $('<div>' + this.html + '</div>');
             domNewWrap = $(document.createElement(tag)).attr(attrs).html(html);
             if (afterWrap) {
-                $lastInputWrap = $html.find("[schema='" + afterWrap.schema.id + "']");
+                $siblingInputWrap = $html.find("[schema='" + afterWrap.schema.id + "']");
+            } else if (afterWrap === false) {
+                $siblingInputWrap = $html.find("[wrap='value']:first");
+                bInsertAfter = false;
             } else {
-                $lastInputWrap = $html.find("[wrap='value']:last");
+                $siblingInputWrap = $html.find("[wrap='value']:last");
             }
 
-            if ($lastInputWrap.length) {
-                $lastInputWrap.after(domNewWrap);
+            if ($siblingInputWrap.length) {
+                if (bInsertAfter) {
+                    $siblingInputWrap.after(domNewWrap);
+                } else {
+                    $siblingInputWrap.before(domNewWrap);
+                }
             } else {
                 // 加在按钮的前面
                 $btnWrap = $html.find("[wrap='button']:first");
@@ -270,6 +342,8 @@ define(['wrap'], function(SchemaWrap) {
 
             if (afterSchema) {
                 afterWrap = this.wrapBySchema(afterSchema);
+            } else if (afterSchema === false) {
+                afterWrap = false;
             } else {
                 if (this.data_schemas.length) {
                     lastWrap = this.data_schemas[this.data_schemas.length - 1];
@@ -291,6 +365,8 @@ define(['wrap'], function(SchemaWrap) {
                 } else {
                     this.data_schemas.splice(afterIndex + 1, 0, oNewWrap);
                 }
+            } else if (afterWrap === false) {
+                this.data_schemas.splice(0, 0, oNewWrap);
             } else {
                 this.data_schemas.push(oNewWrap);
             }
@@ -336,13 +412,13 @@ define(['wrap'], function(SchemaWrap) {
                 }
             }
             return false;
-        },
+        }
     };
-    protoViewPage = angular.extend({}, protoPage, protoViewPage);
+    oProtoViewPage = angular.extend({}, oProtoPage, oProtoViewPage);
     /**
      * 列表页处理逻辑基类
      */
-    var protoListPage = {
+    var oProtoListPage = {
         _arrange: function(mapOfAppSchemas) {
             if (this.data_schemas.length) {
                 this.data_schemas.forEach(function(item) {
@@ -401,7 +477,11 @@ define(['wrap'], function(SchemaWrap) {
                         for (var j = listWrap.schemas.length - 1; j >= 0; j--) {
                             if (listWrap.schemas[j].id === oBeforeSchema.id) {
                                 var $beforeWrap = $listHtml.find('[schema=' + oBeforeSchema.id + ']');
-                                $beforeWrap.after(valueHtml);
+                                if ($beforeWrap.length) {
+                                    $beforeWrap.after(valueHtml);
+                                } else {
+                                    $listHtml.append(valueHtml);
+                                }
                                 listWrap.schemas.splice(j + 1, 0, oSchema);
                                 break;
                             }
@@ -410,6 +490,18 @@ define(['wrap'], function(SchemaWrap) {
                             $listHtml.append(valueHtml);
                             listWrap.schemas.push(oSchema);
                         }
+                    } else if (oBeforeSchema === false) {
+                        if (listWrap.schemas.length) {
+                            var $beforeWrap = $listHtml.find('[schema=' + listWrap.schemas[0].id + ']');
+                            if ($beforeWrap.length) {
+                                $beforeWrap.before(valueHtml);
+                            } else {
+                                $listHtml.append(valueHtml);
+                            }
+                        } else {
+                            $listHtml.append(valueHtml);
+                        }
+                        listWrap.schemas.splice(0, 0, oSchema);
                     } else {
                         $listHtml.append(valueHtml);
                         listWrap.schemas.push(oSchema);
@@ -503,28 +595,34 @@ define(['wrap'], function(SchemaWrap) {
                 return true;
             }
             return false;
+        },
+        check: function() {
+            return [true];
+        },
+        repair: function(aCheckResult) {
+            return [true];
         }
     };
-    protoListPage = angular.extend({}, protoPage, protoListPage);
+    oProtoListPage = angular.extend({}, oProtoPage, oProtoListPage);
 
     return {
-        enhance: function(page, mapOfAppSchemas) {
-            switch (page.type) {
+        enhance: function(oPage, mapOfAppSchemas) {
+            switch (oPage.type) {
                 case 'I':
-                    angular.merge(page, protoInputPage);
+                    angular.merge(oPage, oProtoInputPage);
                     break;
                 case 'V':
-                    angular.merge(page, protoViewPage);
+                    angular.merge(oPage, oProtoViewPage);
                     break;
                 case 'L':
-                    angular.merge(page, protoListPage);
+                    angular.merge(oPage, oProtoListPage);
                     break;
                 default:
-                    console.error('unknown page', page);
+                    console.error('unknown page type', oPage);
             }
-            page._parseSchemas();
+            oPage._parseSchemas();
             if (mapOfAppSchemas) {
-                page._arrange(mapOfAppSchemas);
+                oPage._arrange(mapOfAppSchemas);
             }
         }
     };

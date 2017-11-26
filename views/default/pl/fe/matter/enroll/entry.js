@@ -29,6 +29,13 @@ define(['frame'], function(ngApp) {
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
         };
+        $('#entry-view').height($('#pl-layout-main').height());
+        $('#entry-view').scrollspy({ target: '#entryScrollspy' });
+        $('#entryScrollspy>ul').affix({
+            offset: {
+                top: 0
+            }
+        });
     }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
         var targetUrl, host, opEntry;
@@ -126,7 +133,7 @@ define(['frame'], function(ngApp) {
             var url;
             url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.app.siteid;
             url += '&matter_type=enroll&matter_id=' + $scope.app.id;
-            url += '&expire=864000';
+            //url += '&expire=864000';
             http2.get(url, function(rsp) {
                 $scope.qrcode = rsp.data;
             });
@@ -205,21 +212,6 @@ define(['frame'], function(ngApp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
             });
         };
-        $scope.chooseQy = function() {
-            $uibModal.open({
-                templateUrl: 'chooseUser.html',
-                controller: 'ctrlChooseUser',
-            }).result.then(function(data) {
-                var app = $scope.app,
-                    url;
-                url = '/rest/pl/fe/matter/enroll/receiver/add';
-                url += '?site=' + app.siteid;
-                url += '&app=' + app.id;
-                http2.post(url, data, function(rsp) {
-                    listReceivers(app);
-                });
-            })
-        };
         var oTimerTask;
         $scope.timerTask = oTimerTask = {
             report: {
@@ -244,7 +236,7 @@ define(['frame'], function(ngApp) {
                     oOneTask.state = 'Y';
                     oOneTask.taskId = rsp.data.id;
                     oOneTask.task = {};
-                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled', 'notweekend'].forEach(function(prop) {
                         oOneTask.task[prop] = '' + rsp.data[prop];
                     });
                     $scope.$watch('timerTask.' + model, function(oUpdTask, oOldTask) {
@@ -282,7 +274,7 @@ define(['frame'], function(ngApp) {
                     oTimerTask[oTask.task_model].state = 'Y';
                     oTimerTask[oTask.task_model].taskId = oTask.id;
                     oTimerTask[oTask.task_model].task = {};
-                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled'].forEach(function(prop) {
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'enabled', 'notweekend'].forEach(function(prop) {
                         oTimerTask[oTask.task_model].task[prop] = oTask[prop];
                     });
                     $scope.$watch('timerTask.' + oTask.task_model, function(oUpdTask, oOldTask) {
@@ -294,76 +286,6 @@ define(['frame'], function(ngApp) {
                     }, true);
                 });
             });
-        });
-    }]);
-    ngApp.provider.controller('ctrlChooseUser', ['$scope', '$uibModalInstance', 'http2', 'srvEnrollApp', function($scope, $mi, http2, srvEnrollApp) {
-        $scope.page = {
-            at: 1,
-            size: 15,
-            total: 0,
-            param: function() {
-                return 'page=' + this.at + '&size=' + this.size;
-            }
-        };
-        $scope.search = function(name) {
-            var url = '/rest/pl/fe/matter/enroll/receiver/qymem';
-            url += '?site=' + $scope.app.siteid;
-            url += '&' + $scope.page.param();
-            http2.post(url, { keyword: name }, function(rsp) {
-                $scope.users = rsp.data.data;
-                $scope.page.total = rsp.data.total;
-            });
-        }
-        $scope.doSearch = function(page, name) {
-            var url;
-            page && ($scope.page.at = page);
-            url = '/rest/pl/fe/matter/enroll/receiver/qymem';
-            url += '?site=' + $scope.app.siteid;
-            url += '&' + $scope.page.param();
-            if (name) {
-                http2.post(url, { keyword: name }, function(rsp) {
-                    $scope.users = rsp.data.data;
-                    $scope.page.total = rsp.data.total;
-                })
-            } else {
-                http2.get(url, function(rsp) {
-                    $scope.users = rsp.data.data;
-                    $scope.page.total = rsp.data.total;
-                });
-            }
-        }
-        $scope.selected = [];
-        var updateSelected = function(action, option) {
-            if (action == 'add') {
-                $scope.selected.push(option);
-
-            }
-            if (action == 'remove') {
-                angular.forEach($scope.selected, function(item, index) {
-                    if (item.uid == option.uid) {
-                        $scope.selected.splice(index, 1);
-                    }
-                })
-            }
-        }
-        $scope.updateSelection = function($event, data) {
-            var checkbox = $event.target;
-            var action = (checkbox.checked ? 'add' : 'remove');
-            var option = {
-                nickname: data.nickname,
-                uid: data.userid
-            };
-            updateSelected(action, option);
-        }
-        $scope.ok = function() {
-            $mi.close($scope.selected);
-        };
-        $scope.cancel = function() {
-            $mi.dismiss();
-        };
-        srvEnrollApp.get().then(function(app) {
-            $scope.app = app;
-            $scope.doSearch(1);
         });
     }]);
 });

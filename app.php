@@ -40,6 +40,10 @@ file_exists(dirname(__FILE__) . '/cus/app.php') && include_once dirname(__FILE__
  */
 !defined('APP_LOGO') && define('APP_LOGO', '/static/img/logo.png');
 /**
+ * 定义应用登录注册也的bannner图
+ */
+!defined('APP_ACCESS_BANNER') && define('APP_ACCESS_BANNER', '/static/img/access.png');
+/**
  * 微信要求采用TLSv1
  */
 !defined('CURL_SSLVERSION_TLSv1') && define('CURL_SSLVERSION_TLSv1', 1);
@@ -93,7 +97,7 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
 /**
  * 用户未认证通过时缺省页
  */
-!defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/pl/fe/user/auth');
+!defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/rest/site/fe/user/access');
 define('TMS_APP_AUTHED', '/pl/fe'); // 认证通过后的缺省页
 
 /*************************
@@ -179,12 +183,31 @@ set_exception_handler('tms_exception_handler');
  *                starting with slash).
  */
 function auto_version($file) {
-	if (strpos($file, '/') !== 0 || !file_exists(TMS_APP_DIR . $file)) {
+	if (strpos($file, DIRECTORY_SEPARATOR) !== 0 || !file_exists(TMS_APP_DIR . $file)) {
 		return $file;
 	}
 	$mtime = filemtime(TMS_APP_DIR . $file);
 	$file .= '?_=' . $mtime;
 	return $file;
+}
+/**
+ * 获得文件的定制版本
+ */
+function custom_version($file) {
+	if (0 !== strpos($file, DIRECTORY_SEPARATOR)) {
+		$file = DIRECTORY_SEPARATOR . $file;
+	}
+
+	$full = '/views/' . TMS_APP_VIEW_NAME . $file;
+	if (!file_exists(TMS_APP_DIR . $full)) {
+		$full = '/views/' . TMS_APP_VIEW_NAME_DEFAULT . $file;
+	}
+
+	$full = auto_version($full);
+
+	$full = TMS_APP_URI . $full;
+
+	return $full;
 }
 /**
  * error handle

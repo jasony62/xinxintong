@@ -7,20 +7,20 @@ define(['wrap'], function(wrapLib) {
         _editor = null,
         _page = null;
 
-    function _appendWrap(name, attrs, html, oSiblingSchema, insertBefore) {
+    function _appendWrap(name, attrs, html, oSiblingSchema, bInsertBefore) {
         var dom, body, newDomWrap, selection, $siblingWrap, $upmost;
 
         dom = _editor.dom;
         body = _editor.getBody();
         if (oSiblingSchema) {
-            $siblingWrap = $(body).find('[schema=' + oSiblingSchema.id + ']');
+            $siblingWrap = $(body).find('[schema="' + oSiblingSchema.id + '"]');
         }
         if ($siblingWrap && $siblingWrap.length) {
             /*如果指定了兄弟wrap，加在这个wrap之后*/
             $upmost = $siblingWrap.parents('[wrap]');
             $upmost = $upmost.length === 0 ? $siblingWrap : $($upmost.get($upmost.length - 1));
             newDomWrap = dom.create(name, attrs, html);
-            if (insertBefore) {
+            if (bInsertBefore) {
                 if ($upmost[0].parentNode) {
                     $upmost[0].parentNode.insertBefore(newDomWrap, $upmost[0]);
                 }
@@ -88,6 +88,10 @@ define(['wrap'], function(wrapLib) {
             this.setEditor(editor);
             html = this.setPage(page);
             _editor.setContent(html);
+            _editor.undoManager.clear();
+        },
+        refresh: function() {
+            _editor.setContent(_page.html);
             _editor.undoManager.clear();
         },
         setEditor: function(editor) {
@@ -223,7 +227,7 @@ define(['wrap'], function(wrapLib) {
             } else if (_page.type === 'L') {
                 if (wrap.type === 'value') {
                     wrapLib.value.modify(wrap.dom, wrap);
-                } else if (wrap.type === 'records' || wrap.type=='enrollees') {
+                } else if (wrap.type === 'records' || wrap.type == 'enrollees') {
                     wrapLib.records.modify(wrap.dom, wrap);
                 }
             }
@@ -383,7 +387,7 @@ define(['wrap'], function(wrapLib) {
             return status;
         },
         setActiveWrap: function(domWrap) {
-            var wrapType,dataType;
+            var wrapType, dataType;
             if (_activeWrap) {
                 _activeWrap.dom.classList.remove('active');
             }
@@ -392,7 +396,7 @@ define(['wrap'], function(wrapLib) {
                 dataType = $(domWrap).attr('enroll-records-type');
                 _activeWrap = {
                     type: wrapType,
-                    dataType: dataType=='records'?'records':'enrollees',
+                    dataType: dataType == 'records' ? 'records' : 'enrollees',
                     dom: domWrap,
                     upmost: /body/i.test(domWrap.parentNode.tagName),
                     downmost: /button|value|radio|checkbox/.test(wrapType),
@@ -532,7 +536,7 @@ define(['wrap'], function(wrapLib) {
                     type: 'enrollee'
                 }]
             };
-            switch(oApp.entry_rule.scope) {
+            switch (oApp.entry_rule.scope) {
                 case 'member':
                     dataWrap.schemas.push({
                         id: 'schema_title',
@@ -546,7 +550,7 @@ define(['wrap'], function(wrapLib) {
                         id: 'nickname',
                         title: '昵称',
                         type: 'sns'
-                    },{
+                    }, {
                         id: 'headimgurl',
                         title: '头像',
                         type: 'sns'

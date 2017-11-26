@@ -1,4 +1,3 @@
-
 <div class="row ng-cloak">
     <div class="col-md-12" ng-if="page.state===1">
         <p class="alert alert-danger ">您没有绑定微信公众号或微信企业号或易信公众号 !</p>
@@ -19,18 +18,14 @@
                             <select class='form-control' ng-model="sns" ng-options="s as s.title for s in selSync" ng-change='checkoutSns(sns)'></select>
                         </div>
                         <div class="form-group pull-right">
-                            <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'"
-                                    ng-click='send()' >发送
-                            </button>
+                            <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'" ng-click='send()'>发送</button>
                         </div>
                     </div>
                     <div class="form-group">
                         <textarea class='form-control' rows=4 ng-model='page.text' ng-show="matterType=='write'"></textarea>
                     </div>
-
                     <div class='list-group' ng-hide="matterType=='write'">
-                        <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters'
-                           ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
+                        <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters' ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
                     </div>
                     <div ng-show='page2.total>page2.size'>
                         <span style='height:34px;line-height:34px'>总数：{{page2.total}}</span>
@@ -49,7 +44,7 @@
                     </ul>
                     <div>
                         <!--<span style='height:34px;line-height:34px'>总数：{{page.total}}</span>-->
-                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="4" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                        <ul uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="4" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
                     </div>
                 </div>
             </div>

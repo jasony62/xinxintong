@@ -7,7 +7,7 @@ class memberschema_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	private function &_queryBy($where, $fields = '*') {
+	private function &_queryBy($where, $fields = '*', $cascaded = 'Y') {
 		$q = [
 			$fields,
 			'xxt_site_member_schema',
@@ -17,56 +17,145 @@ class memberschema_model extends \TMS_MODEL {
 		$schemas = $this->query_objs_ss($q);
 		if (count($schemas)) {
 			//$modelCp = $this->model('code\page');
-			foreach ($schemas as &$schema) {
-				if ($schema->type === 'inner') {
-					if (isset($schema->siteid) && isset($schema->id)) {
-						$schema->fullUrl = 'http://' . APP_HTTP_HOST . $schema->url . '?site=' . $schema->siteid . '&schema=' . $schema->id;
+			foreach ($schemas as $oSchema) {
+				$oAttrs = new \stdClass;
+				foreach (['name', 'mobile', 'email'] as $prop) {
+					if (isset($oSchema->{'attr_' . $prop})) {
+						$oProp = new \stdClass;
+						$oProp->hide = $oSchema->{'attr_' . $prop}[0] === '1';
+						$oProp->required = $oSchema->{'attr_' . $prop}[1] === '1';
+						$oProp->unique = $oSchema->{'attr_' . $prop}[2] === '1';
+						$oProp->identity = $oSchema->{'attr_' . $prop}[5] === '1';
+						$oAttrs->{$prop} = $oProp;
 					}
 				}
-				if (!empty($schema->extattr)) {
-					$schema->extattr = json_decode($schema->extattr);
+				$oSchema->attrs = $oAttrs;
+				if (isset($oSchema->type) && $oSchema->type === 'inner') {
+					if (isset($oSchema->siteid) && isset($oSchema->id)) {
+						$oSchema->fullUrl = 'http://' . APP_HTTP_HOST . $oSchema->url . '?site=' . $oSchema->siteid . '&schema=' . $oSchema->id;
+					}
 				}
-				// if (!empty($schema->page_code_name)) {
+				if (isset($oSchema->extattr) && !empty($oSchema->extattr)) {
+					$oSchema->extattr = json_decode($oSchema->extattr);
+				}
+				// if (!empty($oSchema->page_code_name)) {
 				// 	$page = $modelCp->lastPublishedByName(
-				// 		$schema->siteid,
-				// 		$schema->page_code_name,
+				// 		$oSchema->siteid,
+				// 		$oSchema->page_code_name,
 				// 		['fields' => 'id,html,css,js']
 				// 	);
-				// 	$schema->page = $page;
+				// 	$oSchema->page = $page;
 				// }
-				$oPage = new \stdClass;
-				$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-				if (file_exists($templateDir . '/basic.html')) {
-					$oPage->html = file_get_contents($templateDir . '/basic.html');
-				} else {
-					$oPage->html = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.html');
+				if ($cascaded === 'Y') {
+					$oPage = new \stdClass;
+					$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
+					if (file_exists($templateDir . '/basic.html')) {
+						$oPage->html = file_get_contents($templateDir . '/basic.html');
+					} else {
+						$oPage->html = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.html');
+					}
+					if (file_exists($templateDir . '/basic.css')) {
+						$oPage->css = file_get_contents($templateDir . '/basic.css');
+					} else {
+						$oPage->css = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.css');
+					}
+					if (file_exists($templateDir . '/basic.js')) {
+						$oPage->js = file_get_contents($templateDir . '/basic.js');
+					} else {
+						$oPage->js = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.js');
+					}
+					$oSchema->page = $oPage;
 				}
-				if (file_exists($templateDir . '/basic.css')) {
-					$oPage->css = file_get_contents($templateDir . '/basic.css');
-				} else {
-					$oPage->css = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.css');
-				}
-				if (file_exists($templateDir . '/basic.js')) {
-					$oPage->js = file_get_contents($templateDir . '/basic.js');
-				} else {
-					$oPage->js = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.js');
-				}
-				$schema->page = $oPage;
 			}
 		}
 
 		return $schemas;
 	}
 	/**
+	 * 根据模板创建缺省页面
+	 */
+	private function _pageCreate($oSite, $oUser, $template = 'basic') {
+		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
+
+		$data = [
+			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
+			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
+			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
+		];
+
+		$oCode = $this->model('code\page')->create($oSite->id, $oUser->id, $data);
+
+		return $oCode;
+	}
+	/**
 	 * 自定义用户信息
 	 */
-	public function &byId($id, $fields = '*') {
-		$id = $this->escape($id);
-		$oMschema = $this->_queryBy("id='$id'");
+	public function &byId($id, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
+
+		$oMschema = $this->_queryBy("id='$id'", $fields, $cascaded);
 
 		$oMschema = count($oMschema) === 1 ? $oMschema[0] : false;
 
 		return $oMschema;
+	}
+	/**
+	 * 填加自定义联系人接口
+	 * 自定义联系人接口只有在本地部署版本中才有效
+	 */
+	public function create($oSite, $oUser, $oConfig = null) {
+
+		$oCode = $this->_pageCreate($oSite, $oUser);
+
+		$oNewMschema = new \stdClass;
+		$oNewMschema->siteid = $oSite->id;
+		$oNewMschema->matter_id = isset($oConfig->matter_id) ? $oConfig->matter_id : '';
+		$oNewMschema->matter_type = isset($oConfig->matter_type) ? $oConfig->matter_type : '';
+		$oNewMschema->title = isset($oConfig->title) ? $this->escape($oConfig->title) : '新通讯录';
+		$oNewMschema->type = 'inner';
+		$oNewMschema->valid = (isset($oConfig->valid) && $oConfig->valid === 'Y') ? 'Y' : 'N';
+		$oNewMschema->creater = $oUser->id;
+		$oNewMschema->create_at = time();
+		$oNewMschema->entry_statement = '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。';
+		$oNewMschema->acl_statement = '您的身份识别信息没有放入白名单中，请与系统管理员联系。';
+		$oNewMschema->notpass_statement = '您的邮箱还没有验证通过，若未收到验证邮件请联系系统管理员。若需要重发验证邮件，请先完成【<a href="{{authapi}}">用户身份确认</a>】。';
+		$oNewMschema->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
+		$oNewMschema->code_id = $oCode->id;
+		$oNewMschema->page_code_name = $oCode->name;
+		$oNewMschema->attr_mobile = '011101'; // 必填，唯一，不可更改，身份标识
+		$oNewMschema->attr_email = '001000';
+		$oNewMschema->attr_name = '000000';
+		$oNewMschema->require_invite = 'Y';
+		$oNewMschema->auto_verified = 'Y';
+		$oNewMschema->validity = 365;
+		$oNewMschema->at_user_home = 'N';
+
+		/* 默认要求已经开通的关注公众号 */
+		$modelWx = $this->model('sns\wx');
+		if (($wx = $modelWx->bySite($oSite->id, ['fields' => 'joined'])) && $wx->joined === 'Y') {
+			$oNewMschema->is_wx_fan = 'Y';
+		} else if (($wx = $modelWx->bySite('platform', ['fields' => 'joined'])) && $wx->joined === 'Y') {
+			$oNewMschema->is_wx_fan = 'Y';
+		} else {
+			$oNewMschema->is_wx_fan = 'N';
+		}
+		if (($yx = $this->model('sns\yx')->bySite($oSite->id, ['fields' => 'joined'])) && $yx->joined === 'Y') {
+			$oNewMschema->is_yx_fan = 'Y';
+		} else {
+			$oNewMschema->is_yx_fan = 'N';
+		}
+
+		$oNewMschema->id = $this->insert('xxt_site_member_schema', $oNewMschema, true);
+		$oNewMschema->type = 'memberschema';
+
+		/* 作为项目中的活动 */
+		if (!empty($oConfig->matter_type) && $oConfig->matter_type === 'mission') {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($oUser, $oSite->id, $oConfig->matter_id, $oNewMschema, ['is_public' => 'N']);
+		}
+
+		return $oNewMschema;
 	}
 	/**
 	 * 通讯录概况

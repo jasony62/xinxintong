@@ -15,7 +15,7 @@ define(['frame'], function(ngApp) {
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.data = {
                         appId: '',
-                        appType: 'enroll'
+                        appType: 'group'
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss();
@@ -44,13 +44,14 @@ define(['frame'], function(ngApp) {
                 mission.user_app_type = data.appType;
                 $scope.update(['user_app_id', 'user_app_type']).then(function(rsp) {
                     if (data.appType === 'mschema') {
-                        var url = '/rest/pl/fe/site/member/schema/get?site=' + mission.siteid + '&mschema=' + data.appId;
+                        var url = '/rest/pl/fe/matter/mission/get?id=' + mission.id;
                         http2.get(url, function(rsp) {
-                            mission.userApp = rsp.data;
+                            mission.userApp = rsp.data.userApp;
                             $scope.makeReport();
                         });
                     } else {
-                        var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&id=' + data.appId;
+                        var key = data.appType == 'enroll' ? 'app' : 'id';
+                        var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&' + key + '=' + data.appId;
                         http2.get(url, function(rsp) {
                             mission.userApp = rsp.data;
                             if (mission.userApp.data_schemas && angular.isString(mission.userApp.data_schemas)) {
@@ -69,13 +70,15 @@ define(['frame'], function(ngApp) {
             $scope.update(['user_app_id', 'user_app_type']).then(function() {
                 delete mission.userApp;
                 http2.post('/rest/pl/fe/matter/mission/report/configUpdate?mission=' + mission.id, { apps: [] }, function(rsp) {
-                    mission.reportConfig.include_apps = [];
+                    if (mission.reportConfig) {
+                        mission.reportConfig.include_apps = [];
+                    }
                 });
             });
         };
-        $scope.chooseApps = function() {
-            srvMission.chooseApps($scope.mission).then(function(apps) {
-                $scope.makeReport(apps);
+        $scope.chooseContents = function() {
+            srvMission.chooseContents($scope.mission, $scope.report).then(function(results) {
+                $scope.makeReport(results);
             });
         };
         $scope.moveUp = function(matter, index) {
@@ -102,33 +105,54 @@ define(['frame'], function(ngApp) {
             apps.splice(index, 1);
             configUserApps();
         };
-        $scope.makeReport = function(apps) {
-            var oMission, url, params;
+        $scope.makeReport = function(results) {
+            var oMission, mapOfUnionSchemaById = {}, url, params;
             oMission = $scope.mission;
             url = '/rest/pl/fe/matter/mission/report/userAndApp?site=' + oMission.siteid + '&mission=' + oMission.id;
             params = {
+                defaultConfig: {apps: [], show_schema: []},
                 userSource: { id: oMission.user_app_id, type: oMission.user_app_type }
             };
-            if (apps && apps.length) {
-                params.apps = [];
-                apps.forEach(function(oApp) {
-                    params.apps.push({ id: oApp.id, type: oApp.type });
+            if (results && results.app && results.app.length) {
+                results.app.forEach(function(oApp) {
+                    params.defaultConfig.apps.push({ id: oApp.id, type: oApp.type});
                 });
-            }
-            http2.post(url, params, function(rsp) {
-                $scope.report = rsp.data;
-                rsp.data.orderedApps.forEach(function(oMatter) {
-                    if (oMatter.type === 'enroll') {
-                        var schemasById;
-                        if (oMatter.dataSchemas) {
-                            schemasById = {};
-                            oMatter.dataSchemas.forEach(function(schema) {
-                                schemasById[schema.id] = schema;
-                            });
-                            _enrollAppSchemas[oMatter.id] = schemasById;
-                        }
+            };
+            if (results && results.mark && results.mark.length) {
+                results.mark.forEach(function(schema) {
+                    if(schema.id=='_round_id') {
+                        params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title, type: schema.type, ops: schema.ops});
+                    }else{
+                        params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title, type: schema.type});
                     }
                 });
+            };
+            http2.post(url, params, function(rsp) {
+                if(rsp.data) {
+                    $scope.dataSchemas = rsp.data.show_schema.length > 0 ? rsp.data.show_schema : oMission.userApp.dataSchemas;
+                    $scope.dataSchemas.forEach(function(schema) {
+                        mapOfUnionSchemaById[schema.id] = schema;
+                    });
+                    rsp.data.users.forEach(function(user) {
+                        if (user.show_schema_data) {
+                            user.show_schema_data.data = angular.copy(user.show_schema_data);
+                        }
+                        srvRecordConverter.forTable(user.show_schema_data, mapOfUnionSchemaById);
+                    });
+                    $scope.report = rsp.data;
+                    rsp.data.orderedApps.forEach(function(oMatter) {
+                        if (oMatter.type === 'enroll') {
+                            var schemasById;
+                            if (oMatter.dataSchemas) {
+                                schemasById = {};
+                                oMatter.dataSchemas.forEach(function(schema) {
+                                    schemasById[schema.id] = schema;
+                                });
+                                _enrollAppSchemas[oMatter.id] = schemasById;
+                            }
+                        }
+                    });
+                }
             });
         };
         $scope.exportReport = function() {
@@ -179,12 +203,13 @@ define(['frame'], function(ngApp) {
                     $timeout(function() {
                         var eleList, eleApp, index = $scope.report.orderedApps.indexOf(oApp);
                         eleList = document.querySelector('#userApps');
-                        eleApp = eleList.children[index];
-                        eleList.parentNode.scrollTop = eleApp.offsetTop;
-                        eleApp.classList.add('blink');
-                        $timeout(function() {
-                            eleApp.classList.remove('blink');
-                        }, 1000);
+                        if (eleApp = eleList.children[index]) {
+                            eleList.parentNode.scrollTop = eleApp.offsetTop;
+                            eleApp.classList.add('blink');
+                            $timeout(function() {
+                                eleApp.classList.remove('blink');
+                            }, 1000);
+                        }
                     });
                 });
             }

@@ -7,6 +7,13 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class round extends \pl\fe\matter\base {
 	/**
+	 * 返回视图
+	 */
+	public function index_action($site, $id) {
+		\TPL::output('/pl/fe/matter/group/frame');
+		exit;
+	}
+	/**
 	 * 获得分组活动下的轮次（分组）
 	 *
 	 * @param string $site
@@ -86,18 +93,18 @@ class round extends \pl\fe\matter\base {
 		/**
 		 * 已过已经有抽奖数据不允许删除
 		 */
-		$q = array(
+		$q = [
 			'count(*)',
 			'xxt_group_player',
-			"aid='$app' and round_id='$rid'",
-		);
+			['aid' => $app, 'round_id' => $rid, 'state' => 1],
+		];
 		if (0 < (int) $model->query_val_ss($q)) {
 			return new \ResponseError('已经有分组数据，不允许删除轮次！');
 		}
 
 		$rst = $model->delete(
 			'xxt_group_round',
-			"aid='$app' and round_id='$rid'"
+			['aid' => $app, 'round_id' => $rid]
 		);
 
 		return new \ResponseData($rst);

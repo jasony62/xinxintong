@@ -52,10 +52,10 @@ class timer_model extends base_model {
 	 */
 	public function tasksByTime() {
 		$min = (int) date('i'); // 0-59
-		$hour = date('G');
+		$hour = date('G'); // 0-23
 		$mday = date('j'); // 1-31
-		$wday = date('N'); // 1-7
-		$mon = date('n'); // 1-23
+		$wday = date('w'); // 0-6（周日到周一）
+		$mon = date('n'); // 1-12
 
 		$q = [
 			'*',
@@ -74,6 +74,11 @@ class timer_model extends base_model {
 		foreach ($schedules as $oSchedule) {
 			if (empty($oSchedule->task_model) || empty($oSchedule->matter_id) || empty($oSchedule->matter_type)) {
 				continue;
+			}
+			if ($oSchedule->notweekend === 'Y') {
+				if ($oSchedule->wday === '-1' && ($wday === '0' || $wday === '6')) {
+					continue;
+				}
 			}
 			$oTask = new \stdClass;
 			$oTask->id = $oSchedule->id;

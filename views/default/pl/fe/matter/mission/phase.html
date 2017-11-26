@@ -1,0 +1,41 @@
+<div class='col-md-6 col-md-offset-3 phases'>
+    <div class='form-group'>
+        <div class='input-group'>
+            <span class="input-group-addon">
+                <span ng-if="!phases.length">指定{{cstApp.naming.phase}}数量</span>
+            <span ng-if="phases.length">增加{{cstApp.naming.phase}}数量</span>
+            </span>
+            <input type='text' class='form-control' ng-model="numberOfNewPhases">
+            <div class='input-group-btn'>
+                <button class='btn btn-default' ng-click="add()">添加</button>
+            </div>
+        </div>
+    </div>
+    <div class='panel pl-panel-default phase' ng-repeat="p in phases">
+        <div class='panel-body'>
+            <button class='btn btn-default pl-btn-remove' ng-click="remove(p)"><i class='glyphicon glyphicon-remove'></i></button>
+            <div class='form-group'>
+                <label>{{cstApp.naming.phase}}名称</label>
+                <input type="text" class="form-control" ng-model="p.title" tms-auto-update tms-wait=1000 tms-update="update(p,'title')">
+            </div>
+            <div class='form-group'>
+                <label>{{cstApp.naming.phase}}说明</label>
+                <textarea class="form-control" ng-model="p.summary" tms-auto-update tms-wait=1000 tms-update="update(p,'summary')"></textarea>
+            </div>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>开始时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="p" tms-date='p.start_at' tms-state='phase.start_at'></tms-datepicker>
+                    </div>
+                </div>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>结束时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-obj="p" tms-date='p.end_at' tms-state='phase.end_at'></tms-datepicker>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

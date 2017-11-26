@@ -10,9 +10,34 @@ class report_model extends \TMS_MODEL {
 	 * @param
 	 */
 	public function exec($oMatter, $arguments = null) {
+		if ($oMatter->type === 'mission') {
+			$modelMission = $this->model('matter\mission');
+			$oMission = $modelMission->byId($oMatter->id);
+			if (false === $oMission) {
+				return [false, '指定的项目不存在'];
+			}
+			if (isset($oMission->state) && $oMission->state === '0') {
+				return [false, '指定的项目已经不可用'];
+			}
+			$appURL = $oMission->opUrl;
+			$modelQurl = $this->model('q\url');
+			$noticeURL = $modelQurl->urlByUrl($oMission->siteid, $appURL);
+
+			$model = $this->model('matter\mission\receiver');
+			$rst = $model->notify($oMission, 'timer.mission.report', ['noticeURL' => $noticeURL]);
+
+			return $rst;
+		}
+
 		if ($oMatter->type === 'enroll') {
 			$modelEnl = $this->model('matter\enroll');
 			$oMatter = $modelEnl->byId($oMatter->id, ['cascaded' => 'N']);
+			if (false === $oMatter) {
+				return [false, '指定的活动不存在'];
+			}
+			if (isset($oMatter->state) && $oMatter->state === '0') {
+				return [false, '指定的活动已经不可用'];
+			}
 
 			/* 获得活动的管理员链接 */
 			$appURL = $modelEnl->getOpUrl($oMatter->siteid, $oMatter->id);

@@ -5,29 +5,27 @@ require_once dirname(__FILE__) . '/article_base.php';
 
 class channel_model extends article_base {
 	/**
+	 * 记录日志时需要的列
+	 */
+	const LOG_FIELDS = 'siteid,id,title';
+	/**
 	 *
 	 */
 	protected function table() {
 		return 'xxt_channel';
 	}
 	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'channel';
-	}
-	/**
 	 * 获得一个账号下的频道
 	 */
-	public function &byMpid($mpid, $acceptType = null) {
-		$q = array(
-			"c.*",
-			'xxt_channel c',
-			"c.mpid='$mpid' and c.state=1",
-		);
-		!empty($acceptType) && $q[2] .= " and (c.matter_type='' or c.matter_type='$acceptType')";
+	public function &bySite($siteId, $acceptType = null) {
+		$q = [
+			"*",
+			'xxt_channel',
+			"siteid='$siteId' and state=1",
+		];
+		!empty($acceptType) && $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
 
-		$q2['o'] = 'c.create_at desc';
+		$q2['o'] = 'create_at desc';
 
 		$channels = $this->query_objs_ss($q, $q2);
 
@@ -36,14 +34,17 @@ class channel_model extends article_base {
 	/**
 	 * 获得素材的所有频道
 	 */
-	public function &byMatter($id, $type) {
+	public function &byMatter($id, $type, $oOptions = []) {
 		$id = $this->escape($id);
 		$type = $this->escape($type);
-		$q = array(
+		$q = [
 			'c.id,c.title,cm.create_at,c.style_page_id,c.header_page_id,c.footer_page_id,c.style_page_name,c.header_page_name,c.footer_page_name',
 			'xxt_channel_matter cm,xxt_channel c',
 			"cm.matter_id='$id' and cm.matter_type='$type' and cm.channel_id=c.id and c.state=1",
-		);
+		];
+		if (isset($oOptions['public_visible'])) {
+			$q[2] .= " and public_visible='{$oOptions['public_visible']}'";
+		}
 		$q2['o'] = 'cm.create_at desc';
 
 		$channels = $this->query_objs_ss($q, $q2);
@@ -146,7 +147,7 @@ class channel_model extends article_base {
 		/**
 		 * top matter
 		 */
-		if (!empty($channel->top_type)) {
+		if (!empty($channel->top_type) && isset($matterTypes[$channel->top_type])) {
 			$qt[] = $this->matterColumns($channel->top_type, '');
 			$qt[] = $matterTypes[$channel->top_type];
 			$qt[] = "id='$channel->top_id'";
@@ -156,7 +157,7 @@ class channel_model extends article_base {
 		/**
 		 * bottom matter
 		 */
-		if (!empty($channel->bottom_type)) {
+		if (!empty($channel->bottom_type) && isset($matterTypes[$channel->top_type])) {
 			$qb[] = $this->matterColumns($channel->bottom_type, '');
 			$qb[] = $matterTypes[$channel->bottom_type];
 			$qb[] = "id='$channel->bottom_id'";
@@ -303,7 +304,7 @@ class channel_model extends article_base {
 			$orderby = $channel->orderby;
 			$channel_id = $this->escape($channel_id);
 			$q1 = array();
-			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.score,m.remark_num,s.score myscore,st.name site_name,st.id siteid,m.matter_cont_tag,m.matter_mg_tag";
+			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.score,m.remark_num,s.score myscore,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag";
 			$q1[] = "xxt_article m left join xxt_article_score s on m.id=s.article_id and s.vid='$userid',xxt_channel_matter cm,xxt_site st";
 			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
 
@@ -328,6 +329,13 @@ class channel_model extends article_base {
 					!empty($matter->matter_mg_tag) && $matter->matter_mg_tag = json_decode($matter->matter_mg_tag);
 				}
 			}
+			$q1[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q1);
+
+			$data = new \stdClass;
+			$data->matters = $matters;
+			$data->total = $total;
+			return $data;
 		} else {
 			$q1 = [
 				'cm.create_at,cm.matter_type,cm.matter_id',
@@ -345,7 +353,8 @@ class channel_model extends article_base {
 			}
 			$matters = []; // 可用的素材
 			$simpleMatters = $this->query_objs_ss($q1, $q2);
-
+			$q1[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q1);
 			foreach ($simpleMatters as $sm) {
 				/* 检查素材是否可用 */
 				$valid = true;
@@ -353,7 +362,7 @@ class channel_model extends article_base {
 					$fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
 				} else {
 					$q = [
-						"a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,s.name site_name,'article' type,a.matter_cont_tag,a.matter_mg_tag",
+						"a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.name site_name,s.id siteid,s.heading_pic",
 						'xxt_article a, xxt_site s',
 						"a.id = $sm->matter_id and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
 					];
@@ -383,16 +392,20 @@ class channel_model extends article_base {
 
 				$fullMatter->type = $sm->matter_type;
 				$fullMatter->add_at = $sm->create_at;
-				if(!empty($fullMatter->matter_cont_tag) && is_string($fullMatter->matter_cont_tag)){
+				if (!empty($fullMatter->matter_cont_tag) && is_string($fullMatter->matter_cont_tag)) {
 					$fullMatter->matter_cont_tag = json_decode($fullMatter->matter_cont_tag);
 				}
-				if(!empty($fullMatter->matter_mg_tag) && is_string($fullMatter->matter_mg_tag)){
+				if (!empty($fullMatter->matter_mg_tag) && is_string($fullMatter->matter_mg_tag)) {
 					$fullMatter->matter_mg_tag = json_decode($fullMatter->matter_mg_tag);
 				}
 				$matters[] = $fullMatter;
 			}
+
+			$data = new \stdClass;
+			$data->matters = $matters;
+			$data->total = $total;
+			return $data;
 		}
-		return $matters;
 	}
 	/**
 	 * 频道中增加素材

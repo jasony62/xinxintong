@@ -111,12 +111,14 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
-            domActs.forEach(function(domAct) {
-                var ngClick = domAct.getAttribute('ng-click');
-                if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
-                    domAct.style.display = 'none';
-                }
-            });
+            if (domActs.forEach) {
+                domActs.forEach(function(domAct) {
+                    var ngClick = domAct.getAttribute('ng-click');
+                    if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
+                        domAct.style.display = 'none';
+                    }
+                });
+            }
         }
     }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
@@ -150,7 +152,7 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
         });
         facRecord.current.tag = params.record.data_tag ? params.record.data_tag : {};
         /* disable actions */
-        if (oApp.end_at > 0 && parseInt(oApp.end_at) < (new Date() * 1) / 1000) {
+        if (oApp.end_submit_at > 0 && parseInt(oApp.end_submit_at) < (new Date * 1) / 1000) {
             fnDisableActions();
         } else if ((oApp.can_cowork && oApp.can_cowork !== 'Y')) {
             if (params.user.uid !== oRecord.userid) {

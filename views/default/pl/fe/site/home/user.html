@@ -1,13 +1,20 @@
+<div class='col-md-12'>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <select class='form-control' ng-model="catelog" ng-options="cat.l for cat in catelogs"></select>
+        </div>
+    </div>
+</div>
 <div class='col-md-12' ng-switch on="catelog.v">
     <div ng-controller='ctrlAccount' ng-switch-when="account">
         <div class='form-group' style='max-width:200px'>
             <div class="input-group">
                 <input type='text' class='form-control' ng-model='nickname' placeholder='请输入昵称'>
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" type="button" ng-click='find()'>
-                            <span class="glyphicon glyphicon-search"></span>
-                        </button>
-                    </span>
+                <div class="input-group-btn">
+                    <button class="btn btn-default" type="button" ng-click='find()'>
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </div>
             </div>
         </div>
         <table class='table table-bordered'>
@@ -44,7 +51,7 @@
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" ng-click='doSearch(1)'>
                         <span class="glyphicon glyphicon-search"></span>
-                        </button>
+                    </button>
                     </span>
                 </div>
             </div>
@@ -87,20 +94,22 @@
     <div ng-controller='ctrlCoin' ng-switch-when="coin">
         <table class="table table-bordered table-striped">
             <thead>
-            <tr>
-                <th>ID</th>
-                <th>说明</th>
-                <th style='width:90px'>用户A积分</th>
-                <!--<th style='width:90px'>用户B积分</th>-->
-            </tr>
+                <tr>
+                    <th>ID</th>
+                    <th>说明</th>
+                    <th style='width:90px'>用户A积分</th>
+                    <!--<th style='width:90px'>用户B积分</th>-->
+                </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="r in rules">
-                <td ng-bind="r.act"></td>
-                <td ng-bind="r.desc"></td>
-                <td><input type='text' ng-model="r.actor_delta"></td>
-                <!--<td><input type='text' ng-model="r.creator_delta"></td>-->
-            </tr>
+                <tr ng-repeat="r in rules">
+                    <td ng-bind="r.act"></td>
+                    <td ng-bind="r.desc"></td>
+                    <td>
+                        <input type='text' ng-model="r.actor_delta">
+                    </td>
+                    <!--<td><input type='text' ng-model="r.creator_delta"></td>-->
+                </tr>
             </tbody>
         </table>
         <button class='btn btn-success' ng-click="save()">保存</button>

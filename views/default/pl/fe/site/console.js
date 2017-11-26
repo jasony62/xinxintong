@@ -32,37 +32,12 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             });
         } else {
             http2.get(url, function(rsp) {
-                if (/article/.test($scope.matterType)) {
-                    if (append) {
-                        $scope.matters = $scope.matters.concat(rsp.data.articles);
-                    } else {
-                        $scope.matters = rsp.data.articles;
-                    }
-                    page.total = rsp.data.total;
-                } else if (/enroll|signin|group|contribute/.test($scope.matterType)) {
-                    if (append) {
-                        $scope.matters = $scope.matters.concat(rsp.data.apps || []);
-                    } else {
-                        $scope.matters = rsp.data.apps || [];
-                    }
-                    page.total = rsp.data.total;
-                } else if (/wall/.test($scope.matterType)) {
-                    if (append) {
-                        $scope.matters = $scope.matters.concat(rsp.data);
-                    } else {
-                        $scope.matters = rsp.data;
-                    }
-                    page.total = rsp.data.length;
-                } else if (/custom/.test($scope.matterType)) {
-                    if (append) {
-                        $scope.matters = $scope.matters.concat(rsp.data.customs);
-                    } else {
-                        $scope.matters = rsp.data.customs;
-                    }
-                    page.total = rsp.data.total;
+                if (append) {
+                    $scope.matters = $scope.matters.concat(rsp.data.docs || rsp.data.apps);
                 } else {
-                    $scope.matters = rsp.data;
+                    $scope.matters = rsp.data.docs || rsp.data.apps;
                 }
+                page.total = rsp.data.total;
             });
         }
     };
@@ -151,17 +126,17 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             switch (type) {
                 case 'article':
                 case 'link':
+                case 'news':
+                case 'channel':
                     url += type + '/remove?id=' + id + '&site=' + $scope.siteId;
                     break;
                 case 'enroll':
                 case 'signin':
                 case 'group':
                 case 'wall':
+                case 'lottery':
+                case 'contribute':
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
-                    break;
-                case 'news':
-                case 'channel':
-                    url += type + '/delete?site=' + $scope.siteId + '&id=' + id;
                     break;
                 default:
                     alert('指定素材不支持删除');
@@ -352,9 +327,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     };
     //信息墙
     $scope.addWall = function() {
-        http2.get('/rest/pl/fe/matter/wall/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/wall?site=' + $scope.siteId + '&id=' + rsp.data;
-        });
+        location.href = '/rest/pl/fe/matter/wall/shop?site=' + $scope.siteId;
     };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1), function(rsp) {
         $scope.matters = rsp.data.matters;

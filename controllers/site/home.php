@@ -10,6 +10,9 @@ class home extends base {
 	 *
 	 */
 	public function index_action($site, $template = 'basic') {
+		if (empty($site)) {
+			$this->outputInfo('参数错误');
+		}
 		$modelSite = $this->model('site');
 		$oSite = $modelSite->byId(
 			$site,
@@ -25,9 +28,12 @@ class home extends base {
 			$modelCode = $this->model('code\page');
 			$home_page = $modelCode->lastPublishedByName($oSite->id, $oSite->home_page_name, ['fields' => 'id,create_at']);
 
-			$templateDirHtml = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.html';
-			$templateDirCss = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.css';
-			$templateDirJs = TMS_APP_TEMPLATE . '/pl/fe/site/page/home/' . $template . '.js';
+			$templateDir = file_exists(TMS_APP_TEMPLATE . '/pl/fe/site/page/home') ? TMS_APP_TEMPLATE : TMS_APP_TEMPLATE_DEFAULT;
+			$templateDir .= '/pl/fe/site/page/home';
+
+			$templateDirHtml = $templateDir . '/' . $template . '.html';
+			$templateDirCss = $templateDir . '/' . $template . '.css';
+			$templateDirJs = $templateDir . '/' . $template . '.js';
 			$createAtTemplateHtml = filemtime($templateDirHtml);
 			$createAtTemplateCss = filemtime($templateDirCss);
 			$createAtTemplateJs = filemtime($templateDirJs);
@@ -50,7 +56,9 @@ class home extends base {
 	 *
 	 */
 	private function &_makePage($site, $page, $template) {
-		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/page/' . $page;
+		$templateDir = file_exists(TMS_APP_TEMPLATE . '/pl/fe/site/page/home') ? TMS_APP_TEMPLATE : TMS_APP_TEMPLATE_DEFAULT;
+		$templateDir .= '/pl/fe/site/page/home';
+
 		$data = array(
 			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
 			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
@@ -72,6 +80,8 @@ class home extends base {
 			['fields' => '*', 'cascaded' => 'home_page_name']
 		);
 		if ($oSite) {
+			/* 团队首页地址 */
+			$oSite->homeUrl = 'http://' . APP_HTTP_HOST . '/rest/site/home?site=' . $oSite->id;
 			/* 轮播图片 */
 			if (!empty($oSite->home_carousel)) {
 				$oSite->home_carousel = json_decode($oSite->home_carousel);

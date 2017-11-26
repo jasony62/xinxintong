@@ -1,17 +1,11 @@
 <?php
 namespace pl\fe\matter\lottery;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/main_base.php';
 /*
  * 抽奖活动主控制器
  */
-class main extends \pl\fe\matter\base {
-	/**
-	 *
-	 */
-	protected function getMatterType() {
-		return 'lottery';
-	}
+class main extends \pl\fe\matter\main_base {
 	/**
 	 *
 	 */
@@ -56,30 +50,34 @@ class main extends \pl\fe\matter\base {
 	 * 抽奖活动
 	 */
 	public function list_action($site) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$model = $this->model();
-		$post = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$q = [
 			"*,'lottery' type",
-			'xxt_lottery',
-			"siteid = '". $model->escape($site) ."' and state in (1,2)"
+			'xxt_lottery l',
+			"siteid = '" . $model->escape($site) . "' and state in (1,2)",
 		];
-		if(!empty($post->byTitle)){
-			$q[2] .= " and title like '%". $model->escape($post->byTitle) ."%'";
+		if (!empty($oPosted->byTitle)) {
+			$q[2] .= " and title like '%" . $model->escape($oPosted->byTitle) . "%'";
 		}
-		if(!empty($post->byTags)){
-			foreach($post->byTags as $tag){
+		if (!empty($oPosted->byTags)) {
+			foreach ($oPosted->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
 			}
 		}
+		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='lottery' and t.matter_id=l.id and userid='{$oUser->id}')";
+		}
+
 		$q2['o'] = 'create_at desc';
 
 		$apps = $model->query_objs_ss($q, $q2);
 
-		return new \ResponseData($apps);
+		return new \ResponseData(['apps' => $apps, 'total' => count($apps)]);
 	}
 	/**
 	 * 获得转盘设置信息
@@ -101,55 +99,47 @@ class main extends \pl\fe\matter\base {
 	 * 自动将转盘各个槽位的奖项设置为没有奖励的缺省奖项
 	 */
 	public function create_action($site) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
 
-		$modelApp = $this->model('matter\lottery');
-		$modelApp->setOnlyWriteDbConn(true);
+		$modelApp = $this->model('matter\lottery')->setOnlyWriteDbConn(true);
 
-		$lid = uniqid();
 		$current = time();
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
-
-		$newone['siteid'] = $site->id;
-		$newone['id'] = $lid;
-		$newone['title'] = '新抽奖活动';
-		$newone['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newone['creater_name'] = $user->name;
-		$newone['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
-		$newapp['modify_at'] = $current;
-		$newone['pic'] = $site->heading_pic;
-		$newone['start_at'] = $current;
-		$newone['end_at'] = $current + 86400;
-		$newone['nonfans_alert'] = "请先关注公众号，再参与抽奖！";
-		$newone['nochance_alert'] = "您的抽奖机会已经用光了，下次再来试试吧！";
-		$newone['pretaskdesc'] = "请设置前置任务";
+		$oNewApp = new \stdClass;
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->title = '新抽奖活动';
+		$oNewApp->pic = $oSite->heading_pic;
+		$oNewApp->start_at = $current;
+		$oNewApp->end_at = $current + 86400;
+		$oNewApp->nonfans_alert = "请先关注公众号，再参与抽奖！";
+		$oNewApp->nochance_alert = "您的抽奖机会已经用光了，下次再来试试吧！";
+		$oNewApp->pretaskdesc = "请设置前置任务";
 		/**
 		 * 创建定制页
 		 */
 		$modelCode = $this->model('code\page');
-		$page = $modelCode->create($site->id, $user->id);
+		$page = $modelCode->create($oSite->id, $oUser->id);
 		$data = array(
 			'html' => '<button ng-click="play()">开始</button>',
 			'css' => '#pattern button{width:100%;font-size:1.2em;padding:.5em 0}',
 			'js' => '',
 		);
 		$modelCode->modify($page->id, $data);
-		$newone['page_id'] = $page->id;
-		$newone['page_code_name'] = $page->name;
+		$oNewApp->page_id = $page->id;
+		$oNewApp->page_code_name = $page->name;
 
-		$modelApp->insert('xxt_lottery', $newone, false);
+		$oNewApp = $modelApp->create($oUser, $oNewApp);
 		/**
 		 * default award
 		 */
 		$aid = uniqid();
-		$award['siteid'] = $site->id;
-		$award['lid'] = $lid;
+		$award['siteid'] = $oSite->id;
+		$award['lid'] = $oNewApp->id;
 		$award['aid'] = $aid;
 		$award['title'] = '谢谢参与';
 		$award['prob'] = 100;
@@ -158,74 +148,66 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * plate
 		 */
-		$plate['siteid'] = $site->id;
-		$plate['lid'] = $lid;
+		$plate['siteid'] = $oSite->id;
+		$plate['lid'] = $oNewApp->id;
 		for ($i = 0; $i < 12; $i++) {
 			$plate["a$i"] = $aid;
 		}
 		$modelApp->insert('xxt_lottery_plate', $plate, false);
-		$app = $modelApp->byId($lid);
 
 		/*记录操作日志*/
-		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
-		return new \ResponseData($lid);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 *
 	 * @param int $id mission'is
 	 */
 	public function createByMission_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$modelApp = $this->model('matter\lottery');
-		$modelApp->setOnlyWriteDbConn(true);
+		$oSite = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelApp = $this->model('matter\lottery')->setOnlyWriteDbConn(true);
 		$modelMis = $this->model('matter\mission');
 
 		/* lottery */
-		$lid = uniqid();
 		$current = time();
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
-
-		$newone['siteid'] = $site->id;
-		$newone['id'] = $lid;
-		$newone['title'] = '新抽奖活动';
-		$newone['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newone['creater_name'] = $user->name;
-		$newone['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
-		$newapp['modify_at'] = $current;
-		$newone['pic'] = $site->heading_pic;
-		$newone['start_at'] = $current;
-		$newone['end_at'] = $current + 86400;
-		$newone['nonfans_alert'] = "请先关注公众号，再参与抽奖！";
-		$newone['nochance_alert'] = "您的抽奖机会已经用光了，下次再来试试吧！";
-		$newone['pretaskdesc'] = "请设置前置任务";
+		$oNewApp = new \stdClass;
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->title = '新抽奖活动';
+		$oNewApp->pic = $oSite->heading_pic;
+		$oNewApp->start_at = $current;
+		$oNewApp->end_at = $current + 86400;
+		$oNewApp->nonfans_alert = "请先关注公众号，再参与抽奖！";
+		$oNewApp->nochance_alert = "您的抽奖机会已经用光了，下次再来试试吧！";
+		$oNewApp->pretaskdesc = "请设置前置任务";
 		/**
 		 * 创建定制页
 		 */
 		$modelCode = $this->model('code\page');
-		$page = $modelCode->create($site->id, $user->id);
-		$data = array(
+		$page = $modelCode->create($oSite->id, $oUser->id);
+		$data = [
 			'html' => '<button ng-click="play()">开始</button>',
 			'css' => '#pattern button{width:100%;font-size:1.2em;padding:.5em 0}',
 			'js' => '',
-		);
+		];
 		$modelCode->modify($page->id, $data);
-		$newone['page_id'] = $page->id;
+		$oNewApp->page_id = $page->id;
 
-		$modelApp->insert('xxt_lottery', $newone, false);
+		$oNewApp = $modelApp->create($oUser, $oNewApp);
 		/**
 		 * default award
 		 */
 		$aid = uniqid();
-		$award['siteid'] = $site->id;
-		$award['lid'] = $lid;
+		$award['siteid'] = $oSite->id;
+		$award['lid'] = $oNewApp->id;
 		$award['aid'] = $aid;
 		$award['title'] = '谢谢参与';
 		$award['prob'] = 100;
@@ -234,53 +216,44 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * plate
 		 */
-		$plate['siteid'] = $site->id;
-		$plate['lid'] = $lid;
+		$plate['siteid'] = $oSite->id;
+		$plate['lid'] = $oNewApp->id;
 		for ($i = 0; $i < 12; $i++) {
 			$plate["a$i"] = $aid;
 		}
 		$modelApp->insert('xxt_lottery_plate', $plate, false);
-		$app = $modelApp->byId($lid);
 
 		/*记录操作日志*/
-		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
-		/*记录和任务的关系*/
-		$modelMis->addMatter($user, $site, $id, $app);
-
-		return new \ResponseData($lid);
+		return new \ResponseData($oNewApp);
 	}
 	/**
 	 * 更新抽奖活动的基本设置信息
 	 */
 	public function update_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\lottery');
-		$modelApp->setOnlyWriteDbConn(true);
+		$oMatter = $modelApp->byId($app, 'id,title,summary,pic,start_at,end_at,mission_id');
+		if (false === $oMatter) {
+			return new \ObjectNotFoundError();
+		}
 
-		$nv = $this->getPostJson();
-
-		foreach ($nv as $k => $v) {
-			if (in_array($k, array('nonfans_alert', 'nochance_alert', 'nostart_alert', 'hasend_alert', 'pretaskdesc'))) {
-				$nv->{$k} = $model->escape($v);
+		$oUpdated = $this->getPostJson();
+		foreach ($oUpdated as $k => $v) {
+			if (in_array($k, ['nonfans_alert', 'nochance_alert', 'nostart_alert', 'hasend_alert', 'pretaskdesc'])) {
+				$oUpdated->{$k} = $modelApp->escape($v);
 			}
 		}
-		$nv->modifier = $user->id;
-		$nv->modifier_src = $user->src;
-		$nv->modifier_name = $user->name;
-		$nv->modify_at = time();
 
-		$rst = $modelApp->update('xxt_lottery', $nv, "id='$app'");
-		/*记录操作日志*/
-		if ($rst) {
-			$app = $modelApp->byId($app, 'id,title,summary,pic');
-			$this->model('matter\log')->matterOp($site, $user, $app, 'U');
+		if ($oMatter = $modelApp->modify($oUser, $oMatter, $oUpdated)) {
+			$this->model('matter\log')->matterOp($site, $oUser, $oMatter, 'U');
 		}
 
-		return new \ResponseData($rst);
+		return new \ResponseData($oMatter);
 	}
 	/**
 	 * 设置转盘槽位的奖项
@@ -337,6 +310,30 @@ class main extends \pl\fe\matter\base {
 		$stat = $this->model()->query_objs_ss($q, $q2);
 
 		return new \ResponseData($stat);
+	}
+	/**
+	 * 删除一个活动
+	 *
+	 * @param string $site
+	 * @param string $app
+	 */
+	public function remove_action($site, $app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelLot = $this->model('matter\lottery');
+		$oApp = $modelLot->byId($app, 'siteid,id,title,summary,pic,creater');
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		if ($oApp->creater !== $oUser->id) {
+			return new \ResponseError('没有删除数据的权限');
+		}
+
+		$rst = $modelLot->remove($oUser, $oApp, 'Recycle');
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 * 删除一条抽奖活动数据

@@ -21,13 +21,22 @@ class template extends \pl\fe\matter\base {
 	 */
 	public function config_action($scenario, $template) {
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
-		$config = file_get_contents($templateDir . '/config.json');
-		$config = preg_replace('/\t|\r|\n/', '', $config);
-		$config = json_decode($config);
+		$oConfig = file_get_contents($templateDir . '/config.json');
+		$oConfig = preg_replace('/\t|\r|\n/', '', $oConfig);
+		$oConfig = json_decode($oConfig);
 		if (json_last_error()) {
-			$config = json_last_error_msg();
+			$oConfig = json_last_error_msg();
+			return new \ResponseError($oConfig);
 		}
 
-		return new \ResponseData($config);
+		if (file_exists($templateDir . '/explaination.html')) {
+			$oExplPage = new \stdClass;
+			$oExplPage->name = 'explaination';
+			$oExplPage->title = '模板说明';
+			$oExplPage->type = 'I';
+			array_splice($oConfig->pages, 0, 0, [$oExplPage]);
+		}
+
+		return new \ResponseData($oConfig);
 	}
 }

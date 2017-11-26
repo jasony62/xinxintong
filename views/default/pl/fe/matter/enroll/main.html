@@ -1,95 +1,336 @@
-<div class='col-md-4'>
-    <div class='form-group'>
-        <label>活动名称</label>
-        <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-    </div>
-    <div class='form-group'>
-        <label>活动类型</label>
-        <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
-            <option value='common'>通用登记</option>
-            <option value='registration'>报名</option>
-            <option value='voting'>投票</option>
-            <option value='group_week_report'>周报</option>
-            <option value='quiz'>测验</option>
-            <option value='score_sheet'>记分表</option>
-        </select>
-    </div>
-    <div class='form-group'>
-        <label>活动说明</label>
-        <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
-    </div>
-    <div class='form-group'>
-        <label class='help-block'>管理标签（可选）</label>
-        <p class="form-control" ng-click="tagMatter('M')">
-            <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
-        </p>
-    </div>
-    <div class='form-group' ng-if="!app.mission">
-        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
-    </div>
-    <div class='form-group' ng-if="app.mission">
-        <label>所属项目</label>
-        <div class="input-group">
-            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
-            <div class="input-group-btn">
-                <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
-                    <span class='glyphicon glyphicon-remove'></span>
-                </button>
-                <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
+<div id='main-view' class='col-md-6 col-md-offset-3'>
+    <div id='main-1' class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>活动名称</label>
+                <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+            <div class='form-group'>
+                <label>活动类型</label>
+                <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
+                    <option value='{{scenario}}' ng-repeat="scenario in scenarioes.index">{{scenarioes.names[scenario]}}</option>
+                </select>
+            </div>
+            <div class='form-group'>
+                <label>活动说明</label>
+                <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+            </div>
+            <div class='form-group'>
+                <label class='help-block'>管理标签（可选）</label>
+                <p class="form-control" ng-click="tagMatter('M')">
+                    <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
+                </p>
+            </div>
+            <div class='form-group' ng-if="!app.mission">
+                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+            </div>
+            <div class='form-group' ng-if="app.mission">
+                <label>所属项目</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
                     <span class='glyphicon glyphicon-new-window'></span>
                 </a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
+                <label>{{cstApp.naming.mission_phase}}</label>
+                <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                    <option value=''>全部</option>
+                </select>
             </div>
         </div>
     </div>
-    <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
-        <label>{{cstApp.naming.mission_phase}}</label>
-        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
-            <option value=''>全部</option>
-        </select>
+    <div id='main-time' class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>时间设置</label>
+                <table class='table table-bordered'>
+                    <tr>
+                        <td>活动开始</td>
+                        <td style='padding:0;width:180px;'>
+                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-default-date='{{defaultTime.start_at}}' tms-state='start_at'></tms-datepicker>
+                        </td>
+                        <td style='padding:0'>
+                            <select class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
+                                <option value=''>默认提示</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>提交结束</td>
+                        <td style='padding:0;width:180px;'>
+                            <tms-datepicker class='tms-datepicker' tms-title='提交结束时间' tms-date='app.end_submit_at' tms-state='end_submit_at'></tms-datepicker>
+                        </td>
+                        <td style='padding:0'>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>活动结束</td>
+                        <td style='padding:0;width:180px;'>
+                            <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
+                        </td>
+                        <td style='padding:0'>
+                            <select class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
+                                <option value=''>默认提示</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
-    <hr>
+    <div id='main-3' class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'D'" ng-model="app.scenarioConfig.can_rounds" ng-change="update('scenarioConfig')">按轮次登记</label>
+            </div>
+            <div class='checkbox hide'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_siteuser" ng-change="update('can_siteuser')">开放用户主页</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_repos" ng-change="update('can_repos')">开放共享页</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_rank" ng-change="update('can_rank')">开放排行页</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_coin" ng-change="update('can_coin')">支持用户积分</label>
+            </div>
+        </div>
+    </div>
+    <div id='main-access' class='panel panel-default' ng-controller='ctrlAccess'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>设置进入条件</label>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+                </div>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
+                </div>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' value='group' ng-model="rule.scope" ng-change="changeUserScope()">限同项目内分组活动用户访问</label>
+                </div>
+                <div class='radio' ng-if="sns">
+                    <label>
+                        <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
+                </div>
+            </div>
+            <div class='form-group' ng-if="rule.scope==='none'||rule.scope==='group'">
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr>
+                            <td>默认进入页面</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in jumpPages.otherwise"></select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class='form-group' ng-if="rule.scope==='member'">
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr ng-repeat="(msid,erm) in app.entry_rule.member">
+                            <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model="erm.entry" ng-options="p.name as p.title for p in jumpPages.all">
+                                </select>
+                            </td>
+                            <td>
+                                <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
+                                <button class='btn btn-default btn-xs' ng-click="editMschema(mschemasById[msid])"><span class='glyphicon glyphicon-edit'></span></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>不满足条件用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonMember"></select>
+                            </td>
+                            <td style='width:72px'></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
+            </div>
+            <div class='form-group' ng-if="rule.scope==='group'">
+                <div class="input-group">
+                    <input class='form-control' title="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" value="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" readonly>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" ng-click="removeGroupApp()">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </div>
+                </div>
+                <button class='btn btn-default' ng-click="chooseGroupApp()">选择分组活动</button>
+            </div>
+            <div class='form-group' ng-if="rule.scope==='sns'">
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr ng-if="sns.wx">
+                            <td>公众号【<span>{{sns.wx.title}}</span>】关注用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in jumpPages.all'>
+                                    <option value=''>忽略</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr ng-if="sns.qy">
+                            <td>公众号【<span>{{sns.qy.title}}</span>】关注用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in jumpPages.all'>
+                                    <option value=''>忽略</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr ng-if="sns.yx">
+                            <td>公众号【<span>{{sns.yx.title}}</span>】关注用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in jumpPages.all'>
+                                    <option value=''>忽略</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>不满足条件用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonfan"></select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-model="bCountLimited" ng-change="app.count_limit=bCountLimited?1:0;update('count_limit')">限制每用户填写的记录条数</label>
+            </div>
+            <div class='form-group'>
+                <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')" ng-if="bCountLimited">
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.entry_rule.anonymous" ng-change="update('entry_rule')">隐藏用户昵称（匿名）</label>
+            </div>
+            <hr>
+            <table class='table table-bordered'>
+                <tbody>
+                    <tr>
+                        <td rowspan="2">已填写时进入</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in jumpPages.all' ng-change="update('enrolled_entry_page')">
+                            </select>
+                        </td>
+                    </tr>
+                    <tr ng-show='isInputPage(app.enrolled_entry_page)'>
+                        <td>
+                            <label class='checkbox-inline'>
+                                <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.open_lastroll' ng-change="update('open_lastroll')">显示最后一条填写记录</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr>
+            <div class='form-group' ng-if="rule.scope!=='none'">
+                <label>忽略进入条件页面</label>
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr ng-repeat="page in rule.exclude">
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-model="rule.exclude[$index]" ng-options='page.name as page.title for page in jumpPages.exclude' ng-change="configExclude()">
+                                </select>
+                            </td>
+                            <td style="width:36px">
+                                <button class='btn btn-default btn-xs' ng-click="removeExclude($index)"><span class='glyphicon glyphicon-remove'></span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div>
+                    <button class='btn btn-default' ng-click="addExclude()">添加忽略进入条件页面</button>
+                </div>
+            </div>
+        </div>
+        <script type="text/ng-template" id="chooseGroupApp.html">
+            <div class="modal-header">
+                <button class="close" ng-click="cancel()">×</button>
+                <h5 class="modal-title">分组活动</h5>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class='form-group'>
+                        <label class="col-md-3 control-label">目标活动</label>
+                        <div class="col-md-9">
+                            <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                            <div class='checkbox' ng-if="app.mission">
+                                <label>
+                                    <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'"> 选择同一个项目中的活动</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label class="col-md-3 control-label">目标分组</label>
+                        <div class="col-md-9">
+                            <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in data.app.rounds">
+                                <option>全部分组</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="ok()">确定</button>
+            </div>
+        </script>
+    </div>
+    <div id='main-5' class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>要求每用户至少填写记录条数（0或空代表无限制）</label>
+                <input type='text' class='form-control' ng-model='app.userTask.minEnrollNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+            </div>
+            <div class='form-group'>
+                <label>要求每用户至少发表评论条数（0或空代表无限制）</label>
+                <input type='text' class='form-control' ng-model='app.userTask.minRemarkNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+            </div>
+            <div class='form-group'>
+                <label>要求每用户至少赞同的条数（0或空代表无限制）</label>
+                <input type='text' class='form-control' ng-model='app.userTask.minLikeNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+            </div>
+            <div class='form-group'>
+                <label>要求每用户最多赞同的条数（0或空代表无限制）</label>
+                <input type='text' class='form-control' ng-model='app.userTask.maxLikeNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
+            </div>
+        </div>
+    </div>
     <div class='form-group'>
-        <label>允许每用户填写条数（0不限制）</label>
-        <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
+        <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">生成模版</button>
+        <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出模版</button>
+        <button class='btn btn-default btn-block hide' ng-click="applyToHome()">申请发布到平台主页</button>
+        <hr>
+        <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
     </div>
-    <div class='checkbox'>
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'D'" ng-model="app.scenarioConfig.can_rounds" ng-change="update('scenarioConfig')">支持按轮次登记</label>
-    </div>
-    <div class='checkbox hide'>
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_siteuser" ng-change="update('can_siteuser')">开放用户主页</label>
-    </div>
-    <div class='checkbox'>
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_repos" ng-change="update('can_repos')">开放共享页</label>
-    </div>
-    <div class='checkbox'>
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_rank" ng-change="update('can_rank')">开放排行页</label>
-    </div>
-    <hr>
-    <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">生成模版</button>
-    <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出模版</button>
-    <button class='btn btn-default btn-block hide' ng-click="applyToHome()">申请发布到平台主页</button>
-    <hr>
-    <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
 </div>
-<div class='col-md-4'>
-    <div class='form-group'>
-        <label>要求每用户至少填写记录条数（0或空代表无限制）</label>
-        <input type='text' class='form-control' ng-model='app.userTask.minEnrollNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
-    </div>
-    <div class='form-group'>
-        <label>要求每用户至少发表评论条数（0或空代表无限制）</label>
-        <input type='text' class='form-control' ng-model='app.userTask.minRemarkNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
-    </div>
-    <div class='form-group'>
-        <label>要求每用户至少赞同的条数（0或空代表无限制）</label>
-        <input type='text' class='form-control' ng-model='app.userTask.minLikeNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
-    </div>
-    <div class='form-group'>
-        <label>要求每用户最多赞同的条数（0或空代表无限制）</label>
-        <input type='text' class='form-control' ng-model='app.userTask.maxLikeNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
-    </div>
+<div class="col-md-3" id="mainScrollspy" style='position:relative;'>
+    <ul class="nav nav-pills nav-stacked pl-workspace" style='position:fixed;'>
+        <li><a href="#main-1">基本信息</a></li>
+        <li><a href="#main-time">时间设置</a></li>
+        <li><a href="#main-3">特性设置</a></li>
+        <li><a href="#main-access">进入规则</a></li>
+        <li><a href="#main-5">任务设置</a></li>
+    </ul>
 </div>

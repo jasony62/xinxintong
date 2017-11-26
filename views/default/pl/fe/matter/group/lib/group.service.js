@@ -49,21 +49,6 @@ provider('srvGroupApp', function() {
 
                 return defer.promise;
             },
-            roundList: function() {
-                var defer = $q.defer(),
-                    url;
-
-                url = '/rest/pl/fe/matter/group/round/list?site=' + _siteId + '&app=' + _appId;
-                http2.get(url, function(rsp) {
-                    var rounds = rsp.data;
-                    angular.forEach(rounds, function(round) {
-                        round.extattrs = (round.extattrs && round.extattrs.length) ? JSON.parse(round.extattrs) : {};
-                    });
-                    defer.resolve(rounds);
-                });
-
-                return defer.promise;
-            },
             update: function(names) {
                 var defer = $q.defer(),
                     modifiedData = {};
@@ -94,19 +79,23 @@ provider('srvGroupApp', function() {
 
                 return defer.promise;
             },
-            importByApp: function(importSource) {
+            assocWithApp: function(sourceTypes, oMission, notSync) {
                 var defer = $q.defer();
                 $uibModal.open({
-                    templateUrl: 'importByApp.html',
+                    templateUrl: '/views/default/pl/fe/matter/group/component/sourceApp.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                        $scope2.app = _oApp;
                         $scope2.data = {
                             app: '',
                             appType: 'registration',
                             onlySpeaker: 'N'
                         };
-                        _oApp.mission && ($scope2.data.sameMission = 'Y');
-                        $scope2.importSource = importSource;
+                        if (!oMission && _oApp && _oApp.mission) {
+                            oMission = _oApp.mission;
+                        };
+                        if (oMission) {
+                            $scope2.data.sameMission = 'Y'
+                        };
+                        $scope2.sourceTypes = sourceTypes;
                         $scope2.cancel = function() {
                             $mi.dismiss();
                         };
@@ -114,10 +103,10 @@ provider('srvGroupApp', function() {
                             $mi.close($scope2.data);
                         };
                         $scope2.$watch('data.appType', function(appType) {
-                            if (!appType) return;
                             var url;
+                            if (!appType) return;
                             if (appType === 'mschema') {
-                                srvSite.memberSchemaList().then(function(aMschemas) {
+                                srvSite.memberSchemaList(oMission, !!oMission).then(function(aMschemas) {
                                     $scope2.apps = aMschemas;
                                 });
                                 delete $scope2.data.includeEnroll;
@@ -132,9 +121,9 @@ provider('srvGroupApp', function() {
                                 } else {
                                     url = '/rest/pl/fe/matter/wall/list?site=' + _siteId + '&size=999';
                                 }
-                                _oApp.mission && (url += '&mission=' + _oApp.mission.id);
+                                oMission && (url += '&mission=' + oMission.id);
                                 http2.get(url, function(rsp) {
-                                    $scope2.apps = $scope2.data.appType === 'wall' ? rsp.data : rsp.data.apps;
+                                    $scope2.apps = rsp.data.apps;
                                 });
                             }
                         });
@@ -149,15 +138,27 @@ provider('srvGroupApp', function() {
                         };
                         data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
                         data.appType === 'wall' && (params.onlySpeaker = data.onlySpeaker);
-                        http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + _siteId + '&app=' + _appId, params, function(rsp) {
-                            _oApp.sourceApp = data.app;
-                            if (angular.isString(rsp.data.data_schemas)) {
-                                _oApp.data_schemas = rsp.data.data_schemas ? JSON.parse(rsp.data.data_schemas) : '';
-                            } else {
-                                _oApp.data_schemas = rsp.data.data_schemas;
-                            }
-                            defer.resolve();
-                        });
+                        if (notSync) {
+                            params.appTitle = data.app.title;
+                            defer.resolve(params);
+                        } else {
+                            http2.post('/rest/pl/fe/matter/group/player/assocWithApp?site=' + _siteId + '&app=' + _appId, params, function(rsp) {
+                                var schemasById = {}
+                                _oApp.sourceApp = data.app;
+                                if (angular.isString(rsp.data.data_schemas)) {
+                                    _oApp.data_schemas = rsp.data.data_schemas ? JSON.parse(rsp.data.data_schemas) : '';
+                                } else {
+                                    _oApp.data_schemas = rsp.data.data_schemas;
+                                }
+                                _oApp.data_schemas.forEach(function(schema) {
+                                    if (schema.type !== 'html') {
+                                        schemasById[schema.id] = schema;
+                                    }
+                                });
+                                _oApp._schemasById = schemasById;
+                                defer.resolve();
+                            });
+                        }
                     }
                 });
                 return defer.promise;
@@ -183,8 +184,9 @@ provider('srvGroupApp', function() {
             cancelSourceApp: function() {
                 _oApp.source_app = '';
                 _oApp.data_schemas = '';
+                _oApp.assigned_nickname = '';
                 delete _oApp.sourceApp;
-                return this.update(['source_app', 'data_schemas']);
+                return this.update(['source_app', 'data_schemas', 'assigned_nickname']);
             },
             export: function() {
                 var url = '/rest/pl/fe/matter/group/player/export?site=' + _siteId + '&app=' + _appId;
@@ -214,9 +216,10 @@ provider('srvGroupApp', function() {
                     url = '/rest/pl/fe/matter/group/round/list?site=' + _siteId + '&app=' + _appId + '&cascade=playerCount';
                     http2.get(url, function(rsp) {
                         var rounds = rsp.data;
-                        rounds.forEach(function(round) {
-                            round.extattrs = (round.extattrs && round.extattrs.length) ? JSON.parse(round.extattrs) : {};
-                            _rounds.push(round);
+                        rounds.forEach(function(oRound) {
+                            oRound.extattrs = (oRound.extattrs && oRound.extattrs.length) ? JSON.parse(oRound.extattrs) : {};
+                            oRound.targets = (!oRound.targets || oRound.targets.length === 0) ? [] : JSON.parse(oRound.targets);
+                            _rounds.push(oRound);
                         });
                         defer.resolve(_rounds);
                     });
@@ -304,7 +307,7 @@ provider('srvGroupApp', function() {
                     };
                 http2.post('/rest/pl/fe/matter/group/round/add?site=' + _siteId + '&app=' + _appId, proto, function(rsp) {
                     _rounds.push(rsp.data);
-                    defer.resolve();
+                    defer.resolve(rsp.data);
                 });
                 return defer.promise;
             },
@@ -580,7 +583,7 @@ provider('srvGroupApp', function() {
             $scope.rounds = rounds;
         });
         if (player.data) {
-            oApp.data_schemas.forEach(function(schema) {
+            oApp.dataSchemas.forEach(function(schema) {
                 if (player.data[schema.id]) {
                     srvRecordConverter.forEdit(schema, player.data);
                 }
@@ -610,9 +613,14 @@ provider('srvGroupApp', function() {
             round_id: oScopePlayer.round_id
         };
         if (oScopePlayer.data) {
-            $scope.app.data_schemas.forEach(function(oSchema) {
-                oNewPlayer.data[oSchema.id] = oScopePlayer.data[oSchema.id];
+            $scope.app.dataSchemas.forEach(function(oSchema) {
+                if (oScopePlayer.data[oSchema.id]) {
+                    oNewPlayer.data[oSchema.id] = oScopePlayer.data[oSchema.id];
+                }
             });
+            if (oScopePlayer.data.member) {
+                oNewPlayer.data.member = oScopePlayer.data.member;
+            }
         }
         $mi.close({ player: oNewPlayer, tags: $scope.aTags });
     };

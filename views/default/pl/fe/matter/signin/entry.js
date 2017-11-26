@@ -1,10 +1,16 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlEntry', ['$scope', 'http2', 'mediagallery', 'srvSigninApp', function($scope, http2, mediagallery, srvSigninApp) {
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            if (/app\./.test(data.state)) {
+                $scope.app[data.state.split('.')[1]] = data.value;
+                srvSigninApp.update(data.state);
+            }
+        });
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
-                    $scope.app.pic = url + '?_=' + (new Date() * 1);
+                    $scope.app.pic = url + '?_=' + (new Date * 1);
                     $scope.update('pic');
                 }
             };
@@ -14,33 +20,14 @@ define(['frame'], function(ngApp) {
             $scope.app.pic = '';
             $scope.update('pic');
         };
-        srvSigninApp.get().then(function(app) {
+        srvSigninApp.get().then(function(oApp) {
             var url = '/rest/pl/fe/matter/signin/opData';
-            url += '?site=' + app.siteid;
-            url += '&app=' + app.id;
+            url += '?site=' + oApp.siteid;
+            url += '&app=' + oApp.id;
             http2.get(url, function(rsp) {
                 $scope.summary = rsp.data;
             });
         });
-    }]);
-    /**
-     * 访问控制规则
-     */
-    ngApp.provider.controller('ctrlAccessRule', ['$scope', 'srvSigninApp', function($scope, srvSigninApp) {
-        $scope.rule = {};
-        $scope.update = function() {
-            srvSigninApp.update('entry_rule');
-        };
-        $scope.reset = function() {
-            srvSigninApp.resetEntryRule();
-        };
-        $scope.changeUserScope = function() {
-            srvSigninApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas, $scope.jumpPages.defaultInput);
-        };
-        srvSigninApp.get().then(function(app) {
-            $scope.jumpPages = srvSigninApp.jumpPages();
-            $scope.rule.scope = app.entry_rule.scope || 'none';
-        }, true);
     }]);
     /**
      * 签到轮次
@@ -52,8 +39,12 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-            data.obj[data.state] = data.value;
-            $scope.update(data.obj, data.state);
+            var prop;
+            if (/round\./.test(data.state)) {
+                prop = data.state.split('.')[1];
+                data.obj[prop] = data.value;
+                $scope.update(data.obj, prop);
+            }
         });
         $scope.add = function() {
             srvSigninRound.add($scope.rounds);

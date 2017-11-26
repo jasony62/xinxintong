@@ -4,7 +4,7 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-angular.module('app', ['infinite-scroll']).config(['$locationProvider', function($locationProvider) {
+angular.module('app', ['ui.bootstrap', 'infinite-scroll']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
 }]).controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
     var siteId, channelId, shareby;
@@ -61,8 +61,8 @@ angular.module('app', ['infinite-scroll']).config(['$locationProvider', function
             url += '&page=' + this.page;
             url += '&size=10';
             $http.get(url).success(function(rsp) {
-                if (rsp.data.length) {
-                    var matters = rsp.data;
+                if (rsp.data.matters.length) {
+                    var matters = rsp.data.matters;
                     for (var i = 0, l = matters.length; i < l; i++) {
                         _this.matters.push(matters[i]);
                     }
@@ -74,6 +74,16 @@ angular.module('app', ['infinite-scroll']).config(['$locationProvider', function
             });
         }
     };
+    $scope.elSiteCard = angular.element(document.querySelector('#site-card'));
+    $scope.siteCardToggled = function(open) {
+        var elDropdownMenu;
+        if (open) {
+            if (elDropdownMenu = document.querySelector('#site-card>.dropdown-menu')) {
+                elDropdownMenu.style.left = 'auto';
+                elDropdownMenu.style.right = 0;
+            }
+        }
+    };
     $scope.open = function(opened) {
         location.href = opened.url;
     };
@@ -81,10 +91,11 @@ angular.module('app', ['infinite-scroll']).config(['$locationProvider', function
         var deferred = $q.defer();
         $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {
             $scope.siteInfo = rsp.data;
-        })
+        });
         $http.get('/rest/site/fe/matter/channel/get?site=' + siteId + '&id=' + channelId).success(function(rsp) {
             $scope.user = rsp.data.user;
             $scope.channel = rsp.data.channel;
+            $scope.qrcode = '/rest/site/fe/matter/channel/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
             if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
                 setShare();
             }

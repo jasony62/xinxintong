@@ -4,46 +4,6 @@
  */
 class xxt_base extends TMS_CONTROLLER {
 	/**
-	 * 发起请求的来源
-	 */
-	protected function getClientSrc() {
-		$user_agent = $_SERVER['HTTP_USER_AGENT'];
-		if (preg_match('/yixin/i', $user_agent)) {
-			$csrc = 'yx';
-		} elseif (preg_match('/MicroMessenger/i', $user_agent)) {
-			$csrc = 'wx';
-		} else {
-			$csrc = false;
-		}
-
-		return $csrc;
-	}
-	/**
-	 * 获得当前访客的ID
-	 *
-	 * 若cookie中已经有记录则返回cookie中记录的内容
-	 * 否则生成一条新的访客记录并返回ID
-	 */
-	protected function getVisitorId($mpid) {
-		$cname = G_COOKIE_PREFIX . "_{$mpid}_visitor";
-
-		if (isset($_COOKIE[$cname])) {
-			return $_COOKIE[$cname];
-		} else {
-			$time = time();
-			$vid = md5($mpid . $time . uniqid());
-			$i['mpid'] = $mpid;
-			$i['vid'] = $vid;
-			$i['create_at'] = $time;
-
-			$this->model()->insert('xxt_visitor', $i);
-
-			$this->mySetCookie("_{$mpid}_visitor", $vid, time() + (86400 * 5));
-
-			return $vid;
-		}
-	}
-	/**
 	 * 获得一个指定粉丝的信息
 	 */
 	protected function getFanInfo($mpid, $openid, $getGroup = false) {
@@ -59,189 +19,6 @@ class xxt_base extends TMS_CONTROLLER {
 		return $result;
 	}
 	/**
-	 * 创建一个企业号的粉丝用户
-	 * 同步的创建会员用户
-	 *
-	 * $user 企业号用户的详细信息
-	 */
-	protected function createQyFan($mpid, $user, $authid, $timestamp = null, $mapDeptR2L = null) {
-		if (empty($authid)) {
-			return '未设置内置认证接口，无法同步通讯录';
-		}
-
-		$create_at = time();
-		empty($timestamp) && $timestamp = $create_at;
-		$mid = md5(uniqid() . $create_at); //member's id
-		$fid = $this->model('user/fans')->calcId($mpid, $user->userid);
-
-		$aMember = array();
-		$aMember['mid'] = $mid;
-		$aMember['fid'] = $fid;
-		$aMember['mpid'] = $mpid;
-		$aMember['openid'] = $user->userid;
-		$aMember['nickname'] = $user->name;
-		$aMember['verified'] = 'Y';
-		$aMember['create_at'] = $create_at;
-		$aMember['sync_at'] = $timestamp;
-		$aMember['authapi_id'] = $authid;
-		$aMember['authed_identity'] = $user->userid;
-		$aMember['name'] = $user->name;
-		isset($user->mobile) && $aMember['mobile'] = $user->mobile;
-		isset($user->email) && $aMember['email'] = $user->email;
-		isset($user->weixinid) && $aMember['weixinid'] = $user->weixinid;
-		$extattr = array();
-		if (isset($user->extattr) && !empty($user->extattr->attrs)) {
-			foreach ($user->extattr->attrs as $ea) {
-				$extattr[urlencode($ea->name)] = urlencode($ea->value);
-			}
-
-		}
-		/**
-		 * 处理岗位信息
-		 */
-		if (!empty($user->position)) {
-			$extattr['position'] = urlencode($user->position);
-		}
-
-		$aMember['extattr'] = urldecode(json_encode($extattr));
-		/**
-		 * 建立成员和部门之间的关系
-		 */
-		$udepts = array();
-		foreach ($user->department as $ud) {
-			if (empty($mapDeptR2L)) {
-				$q = array(
-					'fullpath',
-					'xxt_member_department',
-					"mpid='$mpid' and extattr like '%\"id\":$ud,%'",
-				);
-				$fullpath = $this->model()->query_val_ss($q);
-				$udepts[] = explode(',', $fullpath);
-			} else {
-				isset($mapDeptR2L[$ud]) && $udepts[] = explode(',', $mapDeptR2L[$ud]['path']);
-			}
-
-		}
-
-		$aMember['depts'] = json_encode($udepts);
-
-		$model = $this->model();
-		$model->insert('xxt_member', $aMember, false);
-		/**
-		 * 为了兼容服务号和订阅号的操作，生成和成员用户对应的粉丝用户
-		 */
-		if ($old = $this->model('user/fans')->byId($fid)) {
-			$fan = array();
-			$fan['nickname'] = $user->name;
-			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			if ($user->status == 1 && $old->subscribe_at == 0) {
-				$fan['subscribe_at'] = $timestamp;
-			} else if ($user->status == 1 && $old->unsubscribe_at != 0) {
-				$fan['unsubscribe_at'] = 0;
-			} else if ($user->status == 4 && $old->unsubscribe_at == 0) {
-				$fan['unsubscribe_at'] = $timestamp;
-			}
-			$model->update(
-				'xxt_fans',
-				$fan,
-				"mpid='$mpid' and fid='$fid'"
-			);
-		} else {
-			$fan = array();
-			$fan['fid'] = $fid;
-			$fan['mpid'] = $mpid;
-			$fan['openid'] = $user->userid;
-			$fan['nickname'] = $user->name;
-			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
-			$model->insert('xxt_fans', $fan, false);
-		}
-		return true;
-	}
-	/**
-	 * 更新企业号用户信息
-	 */
-	protected function updateQyFan($mpid, $fid, $user, $authid, $timestamp = null, $mapDeptR2L = null) {
-		$model = $this->model();
-		empty($timestamp) && $timestamp = time();
-
-		$aMember = array();
-		$aMember['sync_at'] = $timestamp;
-		$aMember['name'] = $user->name;
-		$aMember['authapi_id'] = $authid;
-		$aMember['authed_identity'] = $user->userid;
-		isset($user->mobile) && $aMember['mobile'] = $user->mobile;
-		isset($user->email) && $aMember['email'] = $user->email;
-		$extattr = array();
-		if (isset($user->extattr) && !empty($user->extattr->attrs)) {
-			foreach ($user->extattr->attrs as $ea) {
-				$extattr[urlencode($ea->name)] = urlencode($ea->value);
-			}
-		}
-		$aMember['tags'] = ''; // 先将成员的标签清空，标签同步的阶段会重新更新
-		/**
-		 * 处理岗位信息
-		 */
-		if (!empty($user->position)) {
-			$extattr['position'] = urlencode($user->position);
-		}
-		$aMember['extattr'] = urldecode(json_encode($extattr));
-		/**
-		 * 建立成员和部门之间的关系
-		 */
-		$udepts = array();
-		foreach ($user->department as $ud) {
-			if (empty($mapDeptR2L)) {
-				$q = array(
-					'fullpath',
-					'xxt_member_department',
-					"mpid='$mpid' and extattr like '%\"id\":$ud,%'",
-				);
-				$fullpath = $model->query_val_ss($q);
-				$udepts[] = explode(',', $fullpath);
-			} else {
-				isset($mapDeptR2L[$ud]) && $udepts[] = explode(',', $mapDeptR2L[$ud]['path']);
-			}
-		}
-		$aMember['depts'] = json_encode($udepts);
-		$model->update(
-			'xxt_member',
-			$aMember,
-			"mpid='$mpid' and openid='$user->userid'"
-		);
-		/**
-		 * 成员用户对应的粉丝用户
-		 */
-		if ($old = $this->model('user/fans')->byId($fid)) {
-			$fan = array();
-			$fan['nickname'] = $user->name;
-			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			if ($user->status == 1 && $old->subscribe_at == 0) {
-				$fan['subscribe_at'] = $timestamp;
-			} else if ($user->status == 1 && $old->unsubscribe_at != 0) {
-				$fan['unsubscribe_at'] = 0;
-			} else if ($user->status == 4 && $old->unsubscribe_at == 0) {
-				$fan['unsubscribe_at'] = $timestamp;
-			}
-			$model->update(
-				'xxt_fans',
-				$fan,
-				"mpid='$mpid' and fid='$fid'"
-			);
-		} else {
-			$fan = array();
-			$fan['fid'] = $fid;
-			$fan['mpid'] = $mpid;
-			$fan['openid'] = $user->userid;
-			$fan['nickname'] = $user->name;
-			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
-			$model->insert('xxt_fans', $fan, false);
-		}
-
-		return true;
-	}
-	/**
 	 * 尽最大可能向用户发送消息
 	 *
 	 * $mpid
@@ -250,13 +27,13 @@ class xxt_base extends TMS_CONTROLLER {
 	 */
 	public function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
 		if (empty($openid_src)) {
-			$user=$model->query_obj_ss([
+			$user = $model->query_obj_ss([
 				'ufrom',
 				'xxt_site_account',
-				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
+				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')",
 			]);
-			$mpa = $this->model("sns\\".$user->ufrom)->bySite($mpid);
-			$mpproxy = $this->model('sns\\'.$user->ufrom.'\\proxy', $mpa);
+			$mpa = $this->model("sns\\" . $user->ufrom)->bySite($mpid);
+			$mpproxy = $this->model('sns\\' . $user->ufrom . '\\proxy', $mpa);
 			$mpa->yx_p2p = $mpa->can_p2p;
 			$mpa->mpsrc = $user->ufrom;
 		} else {
@@ -313,7 +90,7 @@ class xxt_base extends TMS_CONTROLLER {
 		/*模板定义*/
 		is_object($data) && $data = (array) $data;
 		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, array('cascaded' => 'Y'));
-		$model=$this->model('matter\log');
+		$model = $this->model('matter\log');
 		/*发送消息*/
 		if (!empty($tmpl->templateid)) {
 			/*只有微信号才有模板消息ID*/
@@ -337,10 +114,10 @@ class xxt_base extends TMS_CONTROLLER {
 			$msgid = $rst[1]->msgid;
 		} else {
 			/*如果不是微信号，将模板消息转换文本消息*/
-			$user=$model->query_obj_ss([
+			$user = $model->query_obj_ss([
 				'ufrom',
 				'xxt_site_account',
-				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')"
+				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')",
 			]);
 			$txt = array();
 			$txt[] = $tmpl->title;
@@ -687,85 +464,5 @@ class xxt_base extends TMS_CONTROLLER {
 	 */
 	public function askFollow_action($mpid) {
 		$this->askFollow($mpid);
-	}
-	/**
-	 * 获得公众号的公共配置信息
-	 *
-	 * $runningMpid 当前正在运行的公众号
-	 */
-	public function getMpSetting($runningMpid) {
-		$q = array(
-			'can_article_remark,header_page_id,footer_page_id',
-			'xxt_mpsetting',
-			"mpid='$runningMpid'",
-		);
-		$setting = $this->model()->query_obj_ss($q);
-
-		$mp = $this->model('mp\mpaccount')->byId($runningMpid, 'parent_mpid');
-		if (!empty($mp->parent_mpid)) {
-			$q = array(
-				'can_article_remark,header_page_id,footer_page_id',
-				'xxt_mpsetting',
-				"mpid='$mp->parent_mpid'",
-			);
-			$psetting = $this->model()->query_obj_ss($q);
-			$setting->header_page_id === '0' && $psetting->header_page_id !== '0' && $setting->header_page_id = $psetting->header_page_id;
-			$setting->footer_page_id === '0' && $psetting->footer_page_id !== '0' && $setting->footer_page_id = $psetting->footer_page_id;
-			$setting->can_article_remark === 'N' && $psetting->can_article_remark === 'Y' && $setting->can_article_remark = 'Y';
-		}
-
-		if ($setting->header_page_id !== '0') {
-			$setting->header_page = $this->model('code\page')->byId($setting->header_page_id);
-		}
-		if ($setting->footer_page_id) {
-			$setting->footer_page = $this->model('code\page')->byId($setting->footer_page_id);
-		}
-
-		return $setting;
-	}
-	/**
-	 * 记录访问日志
-	 */
-	protected function logRead($mpid, $user, $id, $type, $title, $shareby = '') {
-		$logUser = new \stdClass;
-		$logUser->vid = $user->vid;
-		$logUser->openid = $user->openid;
-		$logUser->nickname = $user->nickname;
-
-		$logMatter = new \stdClass;
-		$logMatter->id = $id;
-		$logMatter->type = $type;
-		$logMatter->title = $title;
-
-		$logClient = new \stdClass;
-		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
-		$logClient->ip = $this->client_ip();
-
-		$search = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
-		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-
-		$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
-		/**
-		 * coin log
-		 * 如果是投稿人阅读没有奖励
-		 */
-		// $modelCoin = $this->model('coin\log');
-		// if ($type === 'article') {
-		// 	$contribution = $this->model('matter\article')->getContributionInfo($id);
-		// 	if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
-		// 		// for contributor
-		// 		$action = 'app.' . $contribution->entry . '.article.read';
-		// 		$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
-		// 	}
-		// 	if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
-		// 		// for reader
-		// 		$modelCoin->income($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
-		// 	}
-		// } else {
-		// 	// for reader
-		// 	$modelCoin->income($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
-		// }
-
-		return true;
 	}
 }

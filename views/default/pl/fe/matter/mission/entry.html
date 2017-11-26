@@ -1,0 +1,459 @@
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default' ng-controller="ctrlAccess">
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>参与人进入规则 <span class='glyphicon glyphicon-question-sign' uib-tooltip='项目下创建活动时，默认设置的进入规则。' tooltip-placement='bottom'></span></label>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
+                </div>
+                <div class='radio' ng-if="snsCount>0">
+                    <label>
+                        <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
+                </div>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限制</label>
+                </div>
+            </div>
+            <div ng-if="rule.scope==='member'">
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>通讯录</th>
+                            <th style='width:69px'>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="(msid,erm) in mission.entry_rule.member">
+                            <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
+                            <td>
+                                <button class='btn btn-default btn-xs' ng-click="editMschema(mschemasById[msid])"><span class='glyphicon glyphicon-edit'></span></button>
+                                <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
+            </div>
+            <div ng-if="rule.scope==='sns'&&snsCount>1">
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr>
+                            <th>公众号</th>
+                            <th style='width:69px'>操作</th>
+                        </tr>
+                        <tr ng-if="sns.wx">
+                            <td>微信公众号关注用户</td>
+                            <td>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='mission.entry_rule.sns.wx.entry'>生效</label>
+                            </td>
+                        </tr>
+                        <tr ng-if="sns.qy">
+                            <td>微信企业号关注用户</td>
+                            <td>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='mission.entry_rule.sns.qy.entry'>生效</label>
+                            </td>
+                        </tr>
+                        <tr ng-if="sns.yx">
+                            <td>易信公众号关注用户</td>
+                            <td>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='mission.entry_rule.sns.yx.entry'>生效</label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>参与人进入链接 <span class='glyphicon glyphicon-question-sign' uib-tooltip='参与人查看项目中所有需要参加的活动。'></span></label>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{mission.entryUrl}}">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{mission.entryUrl}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{mission.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <div class='checkbox'>
+                    <label class='checkbox-inline' uib-tooltip='定时将包含【活动进入链接】消息发送给所有填写人'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.remind.state" ng-change="shiftTimerTask('remind')">定时向所有参与人发送链接 <span class='glyphicon glyphicon-question-sign'></span></label>
+                </div>
+                <div ng-if="timerTask.remind.taskId">
+                    <div class='radio'>
+                        <label>
+                            <input type='radio' value='Y' ng-model="timerTask.remind.task.pattern"> 每年</label>
+                        <label>
+                            <input type='radio' value='M' ng-model="timerTask.remind.task.pattern"> 每月</label>
+                        <label>
+                            <input type='radio' value='W' ng-model="timerTask.remind.task.pattern"> 每周</label>
+                    </div>
+                    <div class='form-group'>
+                        <div class='form-inline'>
+                            <select class='form-control' ng-model="timerTask.remind.task.mon" ng-if="timerTask.remind.task.pattern==='Y'">
+                                <option value='-1'>每月</option>
+                                <option value='1'>1月</option>
+                                <option value='2'>2月</option>
+                                <option value='3'>3月</option>
+                                <option value='4'>4月</option>
+                                <option value='5'>5月</option>
+                                <option value='6'>6月</option>
+                                <option value='7'>7月</option>
+                                <option value='8'>8月</option>
+                                <option value='9'>9月</option>
+                                <option value='10'>10月</option>
+                                <option value='11'>11月</option>
+                                <option value='12'>12月</option>
+                            </select>
+                            <select class='form-control' ng-model="timerTask.remind.task.mday" ng-if="timerTask.remind.task.pattern==='M'||timerTask.remind.task.pattern==='Y'">
+                                <option value='-1'>每日</option>
+                                <option value='1'>1号</option>
+                                <option value='2'>2号</option>
+                                <option value='3'>3号</option>
+                                <option value='4'>4号</option>
+                                <option value='5'>5号</option>
+                                <option value='6'>6号</option>
+                                <option value='7'>7号</option>
+                                <option value='8'>8号</option>
+                                <option value='9'>9号</option>
+                                <option value='10'>10号</option>
+                                <option value='11'>11号</option>
+                                <option value='12'>12号</option>
+                                <option value='13'>13号</option>
+                                <option value='14'>14号</option>
+                                <option value='15'>15号</option>
+                                <option value='16'>16号</option>
+                                <option value='17'>17号</option>
+                                <option value='18'>18号</option>
+                                <option value='19'>19号</option>
+                                <option value='20'>20号</option>
+                                <option value='21'>21号</option>
+                                <option value='22'>22号</option>
+                                <option value='23'>23号</option>
+                                <option value='24'>24号</option>
+                                <option value='25'>25号</option>
+                                <option value='26'>26号</option>
+                                <option value='27'>27号</option>
+                                <option value='28'>28号</option>
+                                <option value='29'>29号</option>
+                                <option value='30'>30号</option>
+                                <option value='31'>31号</option>
+                            </select>
+                            <select class='form-control' ng-model="timerTask.remind.task.wday" ng-if="timerTask.remind.task.pattern==='W'">
+                                <option value='-1'>每天</option>
+                                <option value='1'>周一</option>
+                                <option value='2'>周二</option>
+                                <option value='3'>周三</option>
+                                <option value='4'>周四</option>
+                                <option value='5'>周五</option>
+                                <option value='6'>周六</option>
+                                <option value='0'>周日</option>
+                            </select>
+                            <select class='form-control' ng-model="timerTask.remind.task.hour">
+                                <option value='-1'>每小时</option>
+                                <option value='0'>0点</option>
+                                <option value='1'>1点</option>
+                                <option value='2'>2点</option>
+                                <option value='3'>3点</option>
+                                <option value='4'>4点</option>
+                                <option value='5'>5点</option>
+                                <option value='6'>6点</option>
+                                <option value='7'>7点</option>
+                                <option value='8'>8点</option>
+                                <option value='9'>9点</option>
+                                <option value='10'>10点</option>
+                                <option value='11'>11点</option>
+                                <option value='12'>12点</option>
+                                <option value='13'>13点</option>
+                                <option value='14'>14点</option>
+                                <option value='15'>15点</option>
+                                <option value='16'>16点</option>
+                                <option value='17'>17点</option>
+                                <option value='18'>18点</option>
+                                <option value='19'>19点</option>
+                                <option value='20'>20点</option>
+                                <option value='21'>21点</option>
+                                <option value='22'>22点</option>
+                                <option value='23'>23点</option>
+                            </select>
+                            <select class='form-control' ng-model="timerTask.remind.task.min">
+                                <option value='-1'>每分种</option>
+                                <option value='0'>0分</option>
+                                <option value='5'>5分</option>
+                                <option value='10'>10分</option>
+                                <option value='15'>15分</option>
+                                <option value='20'>20分</option>
+                                <option value='25'>25分</option>
+                                <option value='30'>30分</option>
+                                <option value='35'>35分</option>
+                                <option value='40'>40分</option>
+                                <option value='45'>45分</option>
+                                <option value='50'>50分</option>
+                                <option value='55'>55分</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class='checkbox' ng-show="['6','0'].indexOf(timerTask.remind.task.wday)===-1">
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.remind.task.notweekend"> 不包含周六、周日</label>
+                    </div>
+                    <div class='form-group'>
+                        <div class='form-inline'>
+                            <div class='form-group'>
+                                <label style='font-weight:normal;'>剩余执行次数 </label>
+                                <select class='form-control' ng-model="timerTask.remind.task.left_count">
+                                    <option value='0'>0次</option>
+                                    <option value='1'>1次</option>
+                                    <option value='2'>2次</option>
+                                    <option value='3'>3次</option>
+                                    <option value='4'>4次</option>
+                                    <option value='5'>5次</option>
+                                    <option value='6'>6次</option>
+                                    <option value='7'>8次</option>
+                                    <option value='9'>9次</option>
+                                    <option value='10'>10次</option>
+                                </select>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type='checkbox' ng-model="timerTask.remind.task.enabled" ng-true-value="'Y'" ng-false-value="'N'"> 定时规则生效</label>
+                            </div>
+                            <button class='btn' ng-class="timerTask.remind.modified?'btn-success':'btn-default'" ng-disabled="!timerTask.remind.modified" ng-click="saveTimerTask('remind')">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default' ng-if="missionMschemas.length">
+        <div class='panel-body'>
+            <div class='form-group' ng-repeat="mschema in missionMschemas">
+                <label>通讯录【{{mschema.title}}】填写链接 <span class='glyphicon glyphicon-question-sign' uib-tooltip='参与人填写通讯录信息。'></span></label>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{mschema.fullUrl}}">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{mschema.fullUrl}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{mschema.fullUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>监督人进入链接 <span class='glyphicon glyphicon-question-sign' uib-tooltip='监督人查看项目下所有活动的进展。'></span></label>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{opEntry.url}}">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
+                <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
+                <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
+            </div>
+            <div class='form-group' ng-if="opEntry.url">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
+                <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
+            </div>
+            <hr>
+            <div ng-controller="ctrlReceiver">
+                <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
+                    <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信公众号用户扫码作为接收人 <span class="caret"></span></button>
+                </div>
+                <div class='form-group' ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
+                    <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信公众号用户扫码作为接收人 <span class="caret"></span></button>
+                </div>
+                <div class='list-group'>
+                    <div class='list-group-item' ng-repeat="r in receivers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                        <span>{{r.nickname}}</span>&nbsp;<span ng-if="r.snsUser.snsName">{{r.snsUser.snsName}}</span>
+                        <button class='btn btn-default btn-xs pull-right' ng-show="entered" ng-click="remove(r)">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- receiver -->
+            <div>
+                <div>
+                    <div class='checkbox'>
+                        <label class='checkbox-inline' uib-tooltip='定时将包含【汇总结果分享链接】消息发送给所有接收人'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.report.state" ng-change="shiftTimerTask('report')">定时向所有接收人发送链接 <span class='glyphicon glyphicon-question-sign'></span></label>
+                    </div>
+                    <div ng-if="timerTask.report.taskId">
+                        <div class='radio'>
+                            <label>
+                                <input type='radio' value='Y' ng-model="timerTask.report.task.pattern"> 每年</label>
+                            <label>
+                                <input type='radio' value='M' ng-model="timerTask.report.task.pattern"> 每月</label>
+                            <label>
+                                <input type='radio' value='W' ng-model="timerTask.report.task.pattern"> 每周</label>
+                        </div>
+                        <div class='form-group'>
+                            <div class='form-inline'>
+                                <select class='form-control' ng-model="timerTask.report.task.mon" ng-if="timerTask.report.task.pattern==='Y'">
+                                    <option value='-1'>每月</option>
+                                    <option value='1'>1月</option>
+                                    <option value='2'>2月</option>
+                                    <option value='3'>3月</option>
+                                    <option value='4'>4月</option>
+                                    <option value='5'>5月</option>
+                                    <option value='6'>6月</option>
+                                    <option value='7'>7月</option>
+                                    <option value='8'>8月</option>
+                                    <option value='9'>9月</option>
+                                    <option value='10'>10月</option>
+                                    <option value='11'>11月</option>
+                                    <option value='12'>12月</option>
+                                </select>
+                                <select class='form-control' ng-model="timerTask.report.task.mday" ng-if="timerTask.report.task.pattern==='M'||timerTask.report.task.pattern==='Y'">
+                                    <option value='-1'>每日</option>
+                                    <option value='1'>1号</option>
+                                    <option value='2'>2号</option>
+                                    <option value='3'>3号</option>
+                                    <option value='4'>4号</option>
+                                    <option value='5'>5号</option>
+                                    <option value='6'>6号</option>
+                                    <option value='7'>7号</option>
+                                    <option value='8'>8号</option>
+                                    <option value='9'>9号</option>
+                                    <option value='10'>10号</option>
+                                    <option value='11'>11号</option>
+                                    <option value='12'>12号</option>
+                                    <option value='13'>13号</option>
+                                    <option value='14'>14号</option>
+                                    <option value='15'>15号</option>
+                                    <option value='16'>16号</option>
+                                    <option value='17'>17号</option>
+                                    <option value='18'>18号</option>
+                                    <option value='19'>19号</option>
+                                    <option value='20'>20号</option>
+                                    <option value='21'>21号</option>
+                                    <option value='22'>22号</option>
+                                    <option value='23'>23号</option>
+                                    <option value='24'>24号</option>
+                                    <option value='25'>25号</option>
+                                    <option value='26'>26号</option>
+                                    <option value='27'>27号</option>
+                                    <option value='28'>28号</option>
+                                    <option value='29'>29号</option>
+                                    <option value='30'>30号</option>
+                                    <option value='31'>31号</option>
+                                </select>
+                                <select class='form-control' ng-model="timerTask.report.task.wday" ng-if="timerTask.report.task.pattern==='W'">
+                                    <option value='-1'>每天</option>
+                                    <option value='1'>周一</option>
+                                    <option value='2'>周二</option>
+                                    <option value='3'>周三</option>
+                                    <option value='4'>周四</option>
+                                    <option value='5'>周五</option>
+                                    <option value='6'>周六</option>
+                                    <option value='0'>周日</option>
+                                </select>
+                                <select class='form-control' ng-model="timerTask.report.task.hour">
+                                    <option value='-1'>每小时</option>
+                                    <option value='0'>0点</option>
+                                    <option value='1'>1点</option>
+                                    <option value='2'>2点</option>
+                                    <option value='3'>3点</option>
+                                    <option value='4'>4点</option>
+                                    <option value='5'>5点</option>
+                                    <option value='6'>6点</option>
+                                    <option value='7'>7点</option>
+                                    <option value='8'>8点</option>
+                                    <option value='9'>9点</option>
+                                    <option value='10'>10点</option>
+                                    <option value='11'>11点</option>
+                                    <option value='12'>12点</option>
+                                    <option value='13'>13点</option>
+                                    <option value='14'>14点</option>
+                                    <option value='15'>15点</option>
+                                    <option value='16'>16点</option>
+                                    <option value='17'>17点</option>
+                                    <option value='18'>18点</option>
+                                    <option value='19'>19点</option>
+                                    <option value='20'>20点</option>
+                                    <option value='21'>21点</option>
+                                    <option value='22'>22点</option>
+                                    <option value='23'>23点</option>
+                                </select>
+                                <select class='form-control' ng-model="timerTask.report.task.min">
+                                    <option value='-1'>每分种</option>
+                                    <option value='0'>0分</option>
+                                    <option value='5'>5分</option>
+                                    <option value='10'>10分</option>
+                                    <option value='15'>15分</option>
+                                    <option value='20'>20分</option>
+                                    <option value='25'>25分</option>
+                                    <option value='30'>30分</option>
+                                    <option value='35'>35分</option>
+                                    <option value='40'>40分</option>
+                                    <option value='45'>45分</option>
+                                    <option value='50'>50分</option>
+                                    <option value='55'>55分</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='checkbox' ng-show="['6','0'].indexOf(timerTask.report.task.wday)===-1">
+                            <label>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.report.task.notweekend"> 不包含周六、周日</label>
+                        </div>
+                        <div class='form-group'>
+                            <div class='form-inline'>
+                                <div class='form-group'>
+                                    <label style='font-weight:normal;'>剩余执行次数 </label>
+                                    <select class='form-control' ng-model="timerTask.report.task.left_count">
+                                        <option value='0'>0次</option>
+                                        <option value='1'>1次</option>
+                                        <option value='2'>2次</option>
+                                        <option value='3'>3次</option>
+                                        <option value='4'>4次</option>
+                                        <option value='5'>5次</option>
+                                        <option value='6'>6次</option>
+                                        <option value='7'>8次</option>
+                                        <option value='9'>9次</option>
+                                        <option value='10'>10次</option>
+                                    </select>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type='checkbox' ng-model="timerTask.report.task.enabled" ng-true-value="'Y'" ng-false-value="'N'"> 定时规则生效</label>
+                                </div>
+                                <button class='btn' ng-class="timerTask.report.modified?'btn-success':'btn-default'" ng-disabled="!timerTask.report.modified" ng-click="saveTimerTask('report')">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="joinQrcode.html">
+        <div style="width:200px">
+            <img ng-src="{{qrcodeURL}}" style="width:100%">
+        </div>
+    </script>
+    <script type="text/ng-template" id="opUrlPasswd.html">
+        <div id="opUrlPasswd">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' ng-model="opEntry.password">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+</div>

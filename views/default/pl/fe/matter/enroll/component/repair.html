@@ -1,0 +1,12 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()" type="button">×</button>
+    <h5 class="modal-title">修复页面</h5>
+</div>
+<div class="modal-body">
+    <p><i class='glyphicon glyphicon-warning-sign'></i> 问题</p>
+    <p>{{reason}}</p>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">不自动修复</button>
+    <button class="btn btn-success" ng-click="ok()">自动修复</button>
+</div>

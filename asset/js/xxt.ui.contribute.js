@@ -36,7 +36,7 @@ ngMod.service('tmsContribute', ['$http', 'tmsModal', function($http, tmsModal) {
                 $scope2.selectedMatters = selectedMatters = [];
                 $scope2.chooseSite = function() {
                     $http.get('/rest/pl/fe/matter/article/list?site=' + data.chooseSite).success(function(rsp) {
-                        $scope2.matters = rsp.data.articles;
+                        $scope2.matters = rsp.data.docs;
                     });
                 };
                 $scope2.chooseMatter = function(matter) {

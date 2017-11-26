@@ -1,26 +1,27 @@
 <?php
 /**
- *
+ * 团队
  */
 class site_model extends \TMS_MODEL {
 	/**
 	 * 创建团队
 	 */
-	public function create($data) {
-		$account = \TMS_CLIENT::account();
-		$siteid = $this->uuid($account->uid);
-		$data['id'] = $siteid;
-		$data['creater'] = $account->uid;
-		$data['creater_name'] = $account->nickname;
-		$data['create_at'] = time();
-		$this->insert('xxt_site', $data, false);
+	public function create($oUser, $oNewSite) {
+		$siteid = $this->uuid($oUser->id);
+
+		$oNewSite->id = $siteid;
+		$oNewSite->creater = $oUser->id;
+		$oNewSite->creater_name = $this->escape($oUser->name);
+		$oNewSite->create_at = time();
+
+		$this->insert('xxt_site', $oNewSite, false);
 
 		return $siteid;
 	}
 	/**
 	 * 获得指定团队的信息
 	 */
-	public function &byId($siteId, $options = array()) {
+	public function &byId($siteId, $options = []) {
 		$fields = empty($options['fields']) ? '*' : $options['fields'];
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : '';
 		$q = [
@@ -31,7 +32,7 @@ class site_model extends \TMS_MODEL {
 		if (($site = $this->query_obj_ss($q)) && !empty($cascaded)) {
 			$cascaded = explode(',', $cascaded);
 			if (count($cascaded)) {
-				$modelCode = \TMS_APP::M('code\page');
+				$modelCode = $this->model('code\page');
 				foreach ($cascaded as $field) {
 					if ($field === 'home_page_name') {
 						$site->home_page = $modelCode->lastPublishedByName($siteId, $site->home_page_name, ['fields' => 'id,html,css,js']);
@@ -59,18 +60,31 @@ class site_model extends \TMS_MODEL {
 			'xxt_site s',
 			"(creater='{$userId}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$userId}')) and state=1",
 		];
-		if(isset($options['byTitle'])){
-			$q[2] .= " and s.name like '%".$options['byTitle']."%'";
+		if (isset($options['byTitle'])) {
+			$q[2] .= " and s.name like '%" . $options['byTitle'] . "%'";
 		}
-		if(isset($options['bySite'])){
-			$q[2] .= " and s.id = '".$options['bySite']."'";
+		if (isset($options['bySite'])) {
+			$q[2] .= " and s.id = '" . $options['bySite'] . "'";
 		}
-		
+
 		$q2 = ['o' => 'create_at desc'];
 
 		$sites = $this->query_objs_ss($q, $q2);
 
 		return $sites;
+	}
+	/**
+	 * 指定用户是否为团队的管理员
+	 */
+	public function isAdmin($siteId, $userId) {
+		$q = [
+			'1',
+			'xxt_site_admin',
+			['siteid' => $siteId, 'uid' => $userId],
+		];
+		$admins = $this->query_objs_ss($q);
+
+		return !empty($admins);
 	}
 	/**
 	 * 团队是否已经被指定用户关注
@@ -130,10 +144,10 @@ class site_model extends \TMS_MODEL {
 		$q = [
 			'*',
 			'xxt_site_subscriber',
-			"siteid = '". $this->escape($siteId) ."'"
+			"siteid = '" . $this->escape($siteId) . "'",
 		];
-		if(!empty($options['byNickname'])){
-			$q[2] .= " and nickname like '%". $this->escape($options['byNickname']) ."%'";
+		if (!empty($options['byNickname'])) {
+			$q[2] .= " and nickname like '%" . $this->escape($options['byNickname']) . "%'";
 		}
 
 		if (empty($page) || empty($size)) {
@@ -448,5 +462,63 @@ class site_model extends \TMS_MODEL {
 		$result->total = $this->query_val_ss($q);
 
 		return $result;
+	}
+	/**
+	 * 在团队中添加素材
+	 */
+	public function addMatter($oUser, $oMatter, $matterCategory = 'doc') {
+		if (empty($oMatter->siteid)) {
+			return [false, 'no empty siteid allowed'];
+		}
+		$relation = [
+			'siteid' => $oMatter->siteid,
+			'mission_id' => isset($oMatter->mission_id) ? $oMatter->mission_id : 0,
+			'matter_id' => $oMatter->id,
+			'matter_type' => $oMatter->type,
+			'matter_title' => $this->escape($oMatter->title),
+			'matter_category' => $matterCategory,
+			'scenario' => isset($oMatter->scenario) ? $oMatter->scenario : '',
+			'start_at' => isset($oMatter->start_at) ? $oMatter->start_at : 0,
+			'end_at' => isset($oMatter->end_at) ? $oMatter->end_at : 0,
+			'creater' => $oUser->id,
+			'creater_name' => $this->escape($oUser->name),
+			'creater_src' => $oUser->src,
+			'create_at' => time(),
+		];
+		$this->insert('xxt_site_matter', $relation, false);
+
+		return [true];
+	}
+	/**
+	 * 更新团队中的素材信息
+	 */
+	public function updateMatter($oMatter) {
+		if (empty($oMatter->siteid)) {
+			return [false, 'no empty siteid allowed'];
+		}
+		$relation = [
+			'matter_title' => $this->escape($oMatter->title),
+			'scenario' => isset($oMatter->scenario) ? $oMatter->scenario : '',
+			'start_at' => isset($oMatter->start_at) ? $oMatter->start_at : 0,
+			'end_at' => isset($oMatter->end_at) ? $oMatter->end_at : 0,
+		];
+		$rst = $this->update(
+			'xxt_site_matter',
+			$relation,
+			['siteid' => $oMatter->siteid, 'matter_id' => $oMatter->id, 'matter_type' => $oMatter->type]
+		);
+
+		return [true];
+	}
+	/**
+	 * 从团队中删除素材
+	 */
+	public function removeMatter($oMatter) {
+		$rst = $this->delete(
+			'xxt_site_matter',
+			['matter_id' => $oMatter->id, 'matter_type' => $oMatter->type]
+		);
+
+		return [true];
 	}
 }

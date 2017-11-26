@@ -1,0 +1,62 @@
+<div ng-controller="ctrlInteract">
+    <div class="top">
+        <div class="qrcode">
+            <ul>
+                <li ng-repeat="m in Wall.matters_img">
+                    <img ng-src="{{m.qrcodesrc}}" style="width:250px;height:268px">
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="box boxBg">
+                <ul></ul>
+                <div class="case">
+                    <div class="boxBody">
+                        <div class="cover"></div>
+                        <div class="shine"></div>
+                    </div>
+                </div>
+                <div class="button" ng-click="open($event)" >开启宝箱</div>
+                <div class="bgImg" ng-click="scale(0)"></div>
+            </div>
+            <div class="box">
+                <ul></ul>
+                <div class="case">
+                    <div class="boxBody">
+                        <div class="cover"></div>
+                        <div class="shine"></div>
+                    </div>
+                </div>
+                <div class="button" ng-click="open($event)" >开启宝箱</div>
+                <div class="bgImg" ng-click="scale(1)"></div>
+            </div>
+            <div class="box">
+                <ul></ul>
+                <div class="case">
+                    <div class="boxBody">
+                        <div class="cover"></div>
+                        <div class="shine"></div>
+                    </div>
+                </div>
+                <div class="button" ng-click="open($event)" >开启宝箱</div>
+                <div class="bgImg" ng-click="scale(2)"></div>
+            </div>
+            <div class="box">
+                <ul></ul>
+                <div class="case">
+                    <div class="boxBody">
+                        <div class="cover"></div>
+                        <div class="shine"></div>
+                    </div>
+                </div>
+                <div class="button" ng-click="open($event)" >开启宝箱</div>
+                <div class="bgImg" ng-click="scale(3)"></div>
+            </div>
+        </div>
+    </div>
+    <div class="mask">
+        <img src="" ng-click="close()"/>
+    </div>
+</div>

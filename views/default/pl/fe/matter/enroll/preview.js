@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
+    ngApp.provider.controller('ctrlPreview', ['$scope', '$location', '$anchorScroll', '$uibModal', 'http2', 'srvEnrollApp', function($scope, $location, $anchorScroll, $uibModal, http2, srvEnrollApp) {
         function refresh() {
             $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1);
         }
@@ -10,6 +10,38 @@ define(['frame'], function(ngApp) {
         };
         $scope.showPage = function(page) {
             params.page = page;
+        };
+        $scope.popupQrcode = function() {
+            $uibModal.open({
+                templateUrl: 'popupQrcode.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var _oApp, _oQrcode;
+                    _oApp = $scope.app;
+                    $scope2.qrcode = _oQrcode = {};
+                    if (_oApp.entry_rule.scope && _oApp.entry_rule.scope === 'sns' && _oApp.entry_rule.sns.wx) {
+                        http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + _oApp.siteid + '&app=' + _oApp.id, function(rsp) {
+                            var qrcodes = rsp.data;
+                            _oQrcode.pic = qrcodes.length ? qrcodes[0].pic : false;
+                            _oQrcode.src = 'wx';
+                        });
+                    } else {
+                        _oQrcode.pic = '/rest/site/fe/matter/enroll/qrcode?site=' + _oApp.siteid + '&url=' + encodeURIComponent(_oApp.entryUrl);
+                    }
+                    $scope2.createWxQrcode = function() {
+                        var url;
+                        url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + _oApp.siteid;
+                        url += '&matter_type=enroll&matter_id=' + _oApp.id;
+                        url += '&expire=864000';
+                        http2.get(url, function(rsp) {
+                            _oQrcode.pic = rsp.data.pic;
+                        });
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+                backdrop: 'static'
+            });
         };
         srvEnrollApp.get().then(function(app) {
             if (app.pages && app.pages.length) {
@@ -115,14 +147,14 @@ define(['frame'], function(ngApp) {
                     });
                 }
             } else if (oRule.scope === 'sns') {
-                if (oRule.sns) {
-                    if (oRule.sns.wx && oRule.sns.wx.entry) {
+                if (oRule.sns && $scope.sns) {
+                    if (oRule.sns.wx && oRule.sns.wx.entry && $scope.sns.wx) {
                         status.user.sns.push({ title: $scope.sns.wx.title });
                     }
-                    if (oRule.sns.yx && oRule.sns.yx.entry) {
+                    if (oRule.sns.yx && oRule.sns.yx.entry && $scope.sns.yx) {
                         status.user.sns.push({ title: $scope.sns.yx.title });
                     }
-                    if (oRule.sns.qy && oRule.sns.qy.entry) {
+                    if (oRule.sns.qy && oRule.sns.qy.entry && $scope.sns.qy) {
                         status.user.sns.push({ title: $scope.sns.qy.title });
                     }
                 }
@@ -146,5 +178,14 @@ define(['frame'], function(ngApp) {
                 $scope.opData = data[0];
             }
         });
+        $('#preview-view').height($('#pl-layout-main').height());
+        $('#preview-view').scrollspy({ target: '#previewScrollspy' }).scrollspy('refresh');
+        $('#previewScrollspy>ul').affix({
+            offset: {
+                top: 0
+            }
+        });
+        //$location.hash("status5");
+        //$anchorScroll();
     }]);
 });

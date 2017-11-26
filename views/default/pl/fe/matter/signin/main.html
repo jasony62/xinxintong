@@ -1,118 +1,222 @@
-<div class='col-md-6'>
-    <div class='form-group'>
-        <label>活动名称</label>
-        <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-    </div>
-    <div class='form-group'>
-        <label>活动说明</label>
-        <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
-    </div>
-    <div class='form-group'>
-        <label class='help-block'>管理标签（可选）</label>
-        <p class="form-control" ng-click="tagMatter('M')">
-            <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
-        </p>
-    </div>
-    <div class='form-group' ng-if="!app.mission">
-        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
-    </div>
-    <div class='form-group' ng-if="app.mission">
-        <label>所属项目</label>
-        <div class="input-group">
-            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
-            <div class="input-group-btn">
-                <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
-                    <span class='glyphicon glyphicon-remove'></span>
-                </button>
-                <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>活动名称</label>
+                <input type='text' class='form-control' size='40' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+            <div class='form-group'>
+                <label>活动说明</label>
+                <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+            </div>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>开始时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-default-date='{{defaultTime.start_at}}' tms-state='start_at'></tms-datepicker>
+                    </div>
+                </div>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>结束时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='help-block'>管理标签（可选）</label>
+                <p class="form-control" ng-click="tagMatter('M')">
+                    <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
+                </p>
+            </div>
+            <div class='form-group' ng-if="!app.mission">
+                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+            </div>
+            <div class='form-group' ng-if="app.mission">
+                <label>所属项目</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
                     <span class='glyphicon glyphicon-new-window'></span>
                 </a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
+                <label>{{cstApp.naming.mission_phase}}</label>
+                <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                    <option value=''>全部</option>
+                </select>
             </div>
         </div>
     </div>
-    <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
-        <label>{{cstApp.naming.mission_phase}}</label>
-        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
-            <option value=''>全部</option>
-        </select>
+    <div class='panel panel-default' ng-controller="ctrlReceiver">
+        <div class='panel-body'>
+            <div class='form-group'>
+                <p class=''><i class="glyphicon glyphicon-bell"></i> 事件提醒</p>
+            </div>
+            <div class='checkbox'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">用户提交填写内容时通知</label>
+            </div>
+            <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
+                <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信公众号用户扫码作为接收人 <span class="caret"></span></button>
+            </div>
+            <div class='form-group' ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
+                <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信公众号用户扫码作为接收人 <span class="caret"></span></button>
+            </div>
+            <div class='list-group'>
+                <div class='list-group-item' ng-repeat="r in receivers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                    <span>{{r.nickname}}</span>&nbsp;<span ng-if="r.snsUser.snsName">{{r.snsUser.snsName}}</span>
+                    <button class='btn btn-default btn-xs pull-right' ng-show="entered" ng-click="remove(r)">
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default' ng-controller="ctrlAccess">
+        <div class='panel-body'>
+            <div class='radio'>
+                <label>
+                    <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+            </div>
+            <div class='radio'>
+                <label>
+                    <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
+            </div>
+            <div class='radio' ng-if="sns">
+                <label>
+                    <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
+            </div>
+            <hr>
+            <table class='table table-bordered' ng-if="rule.scope==='none'">
+                <tbody>
+                    <tr>
+                        <td>默认进入页面</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in jumpPages.inapp"></select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class='table table-bordered' ng-if="rule.scope==='member'">
+                <tbody>
+                    <tr ng-repeat="(msid,erm) in app.entry_rule.member">
+                        <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model="erm.entry" ng-options="p.name as p.title for p in jumpPages.inapp">
+                            </select>
+                        </td>
+                        <td>
+                            <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
+                            <button class='btn btn-default btn-xs' ng-click="editMschema(mschemasById[msid])"><span class='glyphicon glyphicon-edit'></span></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>不满足条件用户</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonMember"></select>
+                        </td>
+                        <td style='width:72px'></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div ng-if="rule.scope==='member'">
+                <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
+            </div>
+            <table class='table table-bordered' ng-if="rule.scope==='sns'">
+                <tbody>
+                    <tr ng-if="sns.wx">
+                        <td>微信公众号关注用户</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in jumpPages.inapp'>
+                                <option value=''>忽略</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr ng-if="sns.qy">
+                        <td>微信企业号关注用户</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in jumpPages.inapp'>
+                                <option value=''>忽略</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr ng-if="sns.yx">
+                        <td>易信公众号关注用户</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in jumpPages.inapp'>
+                                <option value=''>忽略</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>不满足条件用户</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonfan"></select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr>
+            <button class='btn btn-block btn-success' ng-click="reset()">重置规则</button>
+            <hr>
+            <table class='table table-bordered'>
+                <tbody>
+                    <tr ng-if="app.enrollApp">
+                        <td>签到成功时进入</td>
+                        <td style='padding:0'>
+                            <div class='form-inline'>
+                                <div class='form-group'>
+                                    <select style='border:0' class='form-control' ng-model="app.entry_rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update('entry_rule')">
+                                        <option value=></option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr ng-if="app.enrollApp">
+                        <td>签到失败时进入</td>
+                        <td style='padding:0'>
+                            <div class='form-inline'>
+                                <div class='form-group'>
+                                    <select style='border:0' class='form-control' ng-model="app.entry_rule.fail.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update('entry_rule')">
+                                        <option value=></option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-default" type="button" ng-click="newPage('fail.entry')">+</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr ng-if="!app.enrollApp">
+                        <td>签到后进入</td>
+                        <td style='padding:0'>
+                            <div class='form-inline'>
+                                <div class='form-group'>
+                                    <select style='border:0' class='form-control' ng-model="app.entry_rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update('entry_rule')">
+                                        <option value=></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     <hr>
-    <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
-</div>
-<div class='col-md-6'>
-    <div ng-controller="ctrlReceiver">
-        <div class='form-group'>
-            <p class=''><i class="glyphicon glyphicon-bell"></i> 事件提醒</p>
-        </div>
-        <div class='checkbox'>
-            <label class='checkbox-inline'>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">用户提交填写内容时通知</label>
-        </div>
-        <div class="form-group" ng-if="sns.qy.joined==='Y'">
-            <button class='btn btn-default' ng-click='chooseQy()'>选择微信企业号用户加入接收人</button>
-        </div>
-        <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
-            <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信公众号用户扫码作为接收人 <span class="caret"></span></button>
-        </div>
-        <div class='form-group' ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
-            <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信公众号用户扫码作为接收人 <span class="caret"></span></button>
-        </div>
-        <div class='list-group'>
-            <div class='list-group-item' ng-repeat="r in receivers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                <span>{{r.nickname}}</span>&nbsp;<span ng-if="r.snsUser.snsName">{{r.snsUser.snsName}}</span>
-                <button class='btn btn-default btn-xs pull-right' ng-show="entered" ng-click="remove(r)">
-                    <span class='glyphicon glyphicon-remove'></span>
-                </button>
-            </div>
-        </div>
+    <div class='form-group'>
+        <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
     </div>
 </div>
 <script type="text/ng-template" id="joinQrcode.html">
     <div style="width:200px">
         <img ng-src="{{qrcodeURL}}" style="width:100%">
-    </div>
-</script>
-<script type="text/ng-template" id="chooseUser.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <span class="modal-title h5">选择管理员</span>
-    </div>
-    <div id="chooseUser" class="modal-body">
-        <form class="form-inline form-group">
-            <div class="form-group">
-                <input type="text" class="form-control" ng-model='nickname' placeholder="请输入昵称">
-                <button type="submit" class="btn btn-default" ng-click='search(nickname)'>搜索</button>
-            </div>
-        </form>
-        <table class='table table-bordered'>
-            <thead>
-                <tr>
-                    <th>操作</th>
-                    <th>成员名称</th>
-                    <th>用户ID</th>
-                    <th>电话</th>
-                    <th>邮箱</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="u in users">
-                    <td>
-                        <input type="checkbox" ng-click="updateSelection($event,u)">
-                    </td>
-                    <td ng-bind="u.nickname"></td>
-                    <td ng-bind="u.openid"></td>
-                    <td ng-bind="u.mobile"></td>
-                    <td ng-bind="u.email"></td>
-                </tr>
-            </tbody>
-        </table>
-        <div class='clearfix'>
-            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class="pull-right" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch(page.at,nickname)">
-            </ul>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
     </div>
 </script>

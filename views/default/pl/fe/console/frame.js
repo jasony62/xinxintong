@@ -1,31 +1,29 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt']);
     ngApp.constant('cstApp', {
         matterNames: {
-            'article': '单图文',
-            'news': '多图文',
-            'channel': '频道',
-            'link': '链接',
-            'contribute': '投稿',
-            'text': '文本',
-            'custom': '定制页',
-            'enroll': '登记',
-            'signin': '签到',
-            'group': '分组',
-            'lottery': '抽奖',
-            'wall': '信息墙',
+            doc: {
+                'article': '单图文',
+                'news': '多图文',
+                'channel': '频道',
+                'link': '链接',
+                'contribute': '投稿',
+                'text': '文本',
+                'custom': '定制页',
+            },
+            docOrder: ['article', 'news', 'channel', 'link', 'text', 'contribute', 'custom'],
+            app: {
+                'enroll': '登记',
+                'signin': '签到',
+                'group': '分组',
+                'lottery': '抽奖',
+                'wall': '信息墙',
+            },
+            appOrder: ['enroll', 'signin', 'group', 'lottery', 'wall'],
+            'site': '团队',
             'mission': '项目',
-            'site': '团队'
         },
-        scenarioNames: {
-            'common': '通用登记',
-            'registration': '报名',
-            'voting': '投票',
-            'quiz': '测验',
-            'group_week_report': '周报',
-            'score_sheet': '记分表'
-        }
     });
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         var RouteParam = function(name) {
@@ -55,7 +53,7 @@ define(['require'], function(require) {
             'show': 'hide'
         });
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', '$location', 'http2', 'srvUserNotice', '$uibModal', 'templateShop', function($scope, $location, http2, srvUserNotice, $uibModal, templateShop) {
+    ngApp.controller('ctrlFrame', ['$scope', '$location', 'http2', 'srvUserNotice', '$uibModal', 'cstApp', function($scope, $location, http2, srvUserNotice, $uibModal, cstApp) {
         var frameState, lsearch;
         /* 恢复上一次访问的状态 */
         if (window.localStorage) {
@@ -91,8 +89,8 @@ define(['require'], function(require) {
                 frameState.scope = lsearch.scope;
             }
         }
+        $scope.opened = 'main';
         $scope.frameState = frameState;
-
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/[^\/]+$/)[0];
             subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
@@ -100,13 +98,29 @@ define(['require'], function(require) {
             if (subView !== frameState.view) {
                 frameState.view = subView;
                 if (frameState.view === 'main') {
-                    frameState.scope = 'top';
+                    frameState.scope = 'mission';
                 } else if (frameState.view === 'friend') {
                     frameState.scope = 'subscribeSite';
                 }
             }
+            switch (frameState.scope) {
+                case 'mission':
+                case 'activity':
+                case 'doc':
+                case 'user':
+                case 'recycle':
+                    $scope.opened = 'main';
+                    break;
+                case 'subscribeSite':
+                case 'contributeSite':
+                case 'favorSite':
+                    $scope.opened = 'friend';
+                    break;
+                default:
+                    $scope.opened = '';
+            }
         });
-        var url = '/rest/pl/fe/user/get?_=' + (new Date() * 1);
+        var url = '/rest/pl/fe/user/get?_=' + (new Date * 1);
         http2.get(url, function(rsp) {
             $scope.loginUser = rsp.data;
         });
@@ -131,19 +145,13 @@ define(['require'], function(require) {
             }
         };
         $scope.openSite = function(id) {
-            location.href = '/rest/pl/fe/site/setting?site=' + id;
+            location.href = '/rest/pl/fe/site?site=' + id;
+        };
+        $scope.createSite = function() {
+            location.href = '/rest/pl/fe/site/plan';
         };
         /*新建素材*/
         var _fns = {
-            createSite: function() {
-                var defer = $q.defer(),
-                    url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
-
-                http2.get(url, function(rsp) {
-                    defer.resolve(rsp.data);
-                });
-                return defer.promise;
-            },
             addLink: function(site) {
                 http2.get('/rest/pl/fe/matter/link/create?site=' + site.id, function(rsp) {
                     location.href = '/rest/pl/fe/matter/link?site=' + site.id + '&id=' + rsp.data.id;
@@ -168,18 +176,14 @@ define(['require'], function(require) {
                 location.href = '/rest/pl/fe/matter/enroll/shop?site=' + site.id + '&scenario=' + (scenario || '');
             },
             addSignin: function(site) {
-                http2.get('/rest/pl/fe/matter/signin/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/signin?site=' + site.id + '&id=' + rsp.data.id;
-                });
+                location.href = '/rest/pl/fe/matter/signin/plan?site=' + site.id;
             },
             addGroup: function(site) {
-                http2.get('/rest/pl/fe/matter/group/create?site=' + site.id + '&scenario=split', function(rsp) {
-                    location.href = '/rest/pl/fe/matter/group/main?site=' + site.id + '&id=' + rsp.data.id;
-                });
+                location.href = '/rest/pl/fe/matter/group/plan?site=' + site.id;
             },
             addLottery: function(site) {
                 http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data;
+                    location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addContribute: function(site) {
@@ -187,14 +191,9 @@ define(['require'], function(require) {
                     location.href = '/rest/pl/fe/matter/contribute?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
-            addMission: function(site) {
-                http2.get('/rest/pl/fe/matter/mission/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/mission?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
             addCustom: function(site) {
                 http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data;
+                    location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addMerchant: function(site) {
@@ -202,10 +201,8 @@ define(['require'], function(require) {
                     location.href = '/rest/pl/fe/matter/merchant/shop?site=' + site.id + '&id=' + rsp.data;
                 });
             },
-            addWall: function(site) {
-                http2.get('/rest/pl/fe/matter/wall/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/wall?site=' + site.id + '&id=' + rsp.data;
-                });
+            addWall: function(site, scenario) {
+                location.href = '/rest/pl/fe/matter/wall/shop?site=' + site.id + '&scenario=' + (scenario || '');
             },
             addText: function(site) {
                 location.href = '/rest/pl/fe/matter/text?site=' + site.id;
@@ -213,63 +210,27 @@ define(['require'], function(require) {
         };
 
         function addMatter(site, matterType, scenario) {
-            $('body').click();
             var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
             _fns[fnName].call(_fns, site, scenario);
         }
         $scope.addMatter = function(matterType, scenario) {
-            if (matterType == 'site') {
-                var url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
-                http2.get(url, function(rsp) {
-                    location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
-                });
-            }
-            if (frameState.sid != '') {
-                var site = { id: frameState.sid };
-                addMatter(site, matterType, scenario);
-            } else {
-                var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
-                http2.get(url, function(rsp) {
-                    var sites = rsp.data;
-                    if (sites.length === 1) {
-                        addMatter(sites[0], matterType, scenario);
-                    } else if (sites.length === 0) {
-                        createSite().then(function(site) {
-                            addMatter(site, matterType, scenario);
-                        });
+            if (frameState.sid) {
+                if (matterType) {
+                    var site = { id: frameState.sid };
+                    if (/^enroll\.(.+)/.test(matterType)) {
+                        addMatter(site, 'enroll', matterType.split('.')[1]);
                     } else {
-                        $uibModal.open({
-                            templateUrl: 'addMatterSite.html',
-                            dropback: 'static',
-                            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                                var data;
-                                $scope2.mySites = sites;
-                                $scope2.data = data = {};
-                                $scope2.ok = function() {
-                                    if (data.index !== undefined) {
-                                        $mi.close(sites[data.index]);
-                                    } else {
-                                        $mi.dismiss();
-                                    }
-                                };
-                                $scope2.cancel = function() {
-                                    $mi.dismiss();
-                                };
-                            }]
-                        }).result.then(function(site) {
-                            addMatter(site, matterType, scenario);
-                        });
+                        addMatter(site, matterType, scenario);
                     }
-                });
+                }
             }
         };
-        $scope.list = function() {
-            $scope.siteType = 1;
+        $scope.listSite = function() {
             var url = '/rest/pl/fe/site/list';
-            http2.get(url + '?_=' + (new Date() * 1), function(rsp) {
+            http2.get(url + '?_=' + (new Date * 1), function(rsp) {
                 if (rsp.data.length === 0) {
                     http2.get('/rest/pl/fe/site/create', function(rsp) {
-                        http2.get(url + '?_=' + (new Date() * 1), function(rsp) {
+                        http2.get(url + '?_=' + (new Date * 1), function(rsp) {
                             $scope.sites = rsp.data;
                             frameState.sid = rsp.data[0].id;
                         });
@@ -315,7 +276,7 @@ define(['require'], function(require) {
                 backdrop: 'static',
             });
         };
-        $scope.list();
+        $scope.listSite();
         var isNavCollapsed = false;
         if (document.body.clientWidth <= 768) {
             isNavCollapsed = true;

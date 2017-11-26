@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class='form-group list-group-item' ng-repeat="(msid,erm) in app.entry_rule.member">
-            <label>通讯录联系人：{{mschemasById[msid].title}}</label>
+            <div class='help-block'>通讯录【{{mschemasById[msid].title}}】用户信息</div>
             <div>
                 <button class='btn btn-default' ng-click="newMember(mschemasById[msid],s)" ng-repeat="s in mschemasById[msid]._schemas">{{s.title}}</button>
             </div>
@@ -43,7 +43,7 @@
             <div class='form-group' ng-if="app.enroll_app_id">
                 <button class='btn btn-default' ng-click="newByOtherApp(s,app.enrollApp)" ng-repeat="s in app.enrollApp.dataSchemas">{{s.title}}</button>
             </div>
-            <div ng-if="app.enroll_app_id" class='help-block'>需要和［<span>{{app.enrollApp.title}}</span>］的登记内容匹配的登记项</div>
+            <div ng-if="app.enroll_app_id" class='help-block'>需要和【<a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.enrollApp.id}}' target='_self'>{{app.enrollApp.title}}</a>】的登记内容匹配的登记项</div>
         </div>
         <div class='form-group list-group-item'>
             <div class='form-group' ng-if="!app.group_app_id">
@@ -62,7 +62,7 @@
             <div class='form-group' ng-if="app.group_app_id">
                 <button class='btn btn-default' ng-click="newByOtherApp(s,app.groupApp)" ng-repeat="s in app.groupApp.dataSchemas">{{s.title}}</button>
             </div>
-            <div ng-if="app.group_app_id" class='help-block'>需要和［<span>{{app.groupApp.title}}</span>］的分组内容匹配的题目</div>
+            <div ng-if="app.group_app_id" class='help-block'>需要和【<a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self'>{{app.groupApp.title}}</a>】的分组内容匹配的题目</div>
         </div>
         <!-- end create schema -->
     </div>
@@ -81,12 +81,17 @@
                     <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="removeSchema(schema)"><span class='glyphicon glyphicon-trash'></span></button>
+                    <button ng-if="schema.id==='_round_id'" class='btn btn-sm btn-default' ng-click="refreshSchema(schema)"><span class='glyphicon glyphicon-refresh'></span></button>
                 </div>
             </div>
         </div>
-        <div class='checkbox'>
-            <label class='checkbox-inline'>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.__schemasOrderConsistent">页面显示顺序保持一致</label>
+        <div class='form-inline' ng-if="app.recycleSchemas.length">
+            <div class="btn-group" uib-dropdown>
+                <button type="button" class="btn btn-default" uib-dropdown-toggle>恢复删除的题目 <i class="caret"></i></button>
+                <ul uib-dropdown-menu>
+                    <li ng-repeat="schema in app.recycleSchemas"><a href="" ng-click="recycleSchema(schema)">{{schema.title}}</a></li>
+                </ul>
+            </div>
         </div>
     </div>
     <!-- end schema list -->

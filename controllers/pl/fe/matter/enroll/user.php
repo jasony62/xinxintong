@@ -14,7 +14,7 @@ class user extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 提交过登记记录的用户
+	 * 返回提交过登记记录的用户列表
 	 */
 	public function enrollee_action($app, $rid = '', $page = 1, $size = 30) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -40,7 +40,13 @@ class user extends \pl\fe\matter\base {
 		!empty($post->byGroup) && $options['byGroup'] = $post->byGroup;
 		!empty($post->rid) && $options['rid'] = $post->rid;
 		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $options);
-		/*查询有openid的用户发送消息的情况*/
+		/* 由于版本原因，判断是否需要系统获取填写人信息 */
+		if (0 === count($result->users)) {
+			if ($this->_refresh($oApp) > 0) {
+				$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $options);
+			}
+		}
+		/* 查询有openid的用户发送消息的情况 */
 		if (count($result->users)) {
 			foreach ($result->users as &$user) {
 				$q = [
@@ -57,7 +63,6 @@ class user extends \pl\fe\matter\base {
 				} else {
 					$user->tmplmsg = new \stdClass;
 				}
-				//$user->task=$oApp->userTask;
 				if (isset($ops) && $user->group_id) {
 					foreach ($ops as $v) {
 						if ($v->v == $user->group_id) {
@@ -67,6 +72,29 @@ class user extends \pl\fe\matter\base {
 				}
 			}
 		}
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 缺席用户列表
+	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
+	 * 2、如果活动关联了分组活动
+	 * 3、如果活动所属项目指定了用户名单
+	 */
+	public function absent_action($app, $rid = '') {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelUsr = $this->model('matter\enroll\user');
+
+		$result = $modelUsr->absentByApp($oApp, $rid);
 
 		return new \ResponseData($result);
 	}
@@ -84,8 +112,8 @@ class user extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$modelEnl = $this->model('site\user\memberschema');
-		$oMschema = $modelEnl->byId($mschema, ['cascaded' => 'N']);
+		$modelMs = $this->model('site\user\memberschema');
+		$oMschema = $modelMs->byId($mschema, ['cascaded' => 'N']);
 		if (false === $oMschema) {
 			return new \ObjectNotFoundError();
 		}
@@ -164,9 +192,9 @@ class user extends \pl\fe\matter\base {
 		$oApp->sns = $sns;
 
 		if (!empty($mschema)) {
-			$modelEnl = $this->model('site\user\memberschema');
-			$mschema = $modelEnl->escape($mschema);
-			$oMschema = $modelEnl->byId($mschema);
+			$modelMs = $this->model('site\user\memberschema');
+			$mschema = $modelMs->escape($mschema);
+			$oMschema = $modelMs->byId($mschema);
 			if (false === $oMschema) {
 				return new \ObjectNotFoundError();
 			}
@@ -446,5 +474,13 @@ class user extends \pl\fe\matter\base {
 		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');
 		exit;
+	}
+	/**
+	 *
+	 */
+	private function _refresh($oApp) {
+		$count = 0;
+
+		return $count;
 	}
 }

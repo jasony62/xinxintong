@@ -1,20 +1,25 @@
 {
-    "require": {
-        "chrisboulton/php-resque": "1.2.x",
+    "require":
+    {
         "php": ">=5.3.3",
         "ext-xml": "*",
+        "chrisboulton/php-resque": "1.2.x",
         "zendframework/zend-escaper": "2.4.*",
         "zendframework/zend-stdlib": "2.4.*",
         "zendframework/zend-validator": "2.4.*",
         "phpoffice/common": "0.2.*"
     },
-    "autoload": {
-        "psr-4": {
+    "autoload":
+    {
+        "psr-4":
+        {
             "PhpOffice\\PhpWord\\": "lib/PHPWord/src/PhpWord"
         }
     },
-    "repositories" : {
-        "packagist": {
+    "repositories":
+    {
+        "packagist":
+        {
             "type": "composer",
             "url": "https://packagist.phpcomposer.com"
         }

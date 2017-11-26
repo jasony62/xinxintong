@@ -40,12 +40,14 @@ class recommend extends \pl\be\base {
 		$modelHome = $this->model('matter\home');
 
 		$options = [];
-		$options['page']['at']=$page;
-		$options['page']['size']=$size;
+		$options['page']['at'] = $page;
+		$options['page']['size'] = $size;
 		if ($category === 'app') {
 			$matters = $modelHome->findApp($options);
 		} else if ($category === 'article') {
 			$matters = $modelHome->findArticle($options);
+		} else if ($category === 'link') {
+			$matters = $modelHome->findLink($options);
 		} else if ($category === 'channel') {
 			$matters = $modelHome->findChannel($options);
 		} else {
@@ -57,10 +59,10 @@ class recommend extends \pl\be\base {
 	/**
 	 * 素材加入到主页
 	 */
-	public function pushMatter_action($application) {
+	public function pushMatter_action($application, $homeGroup = '') {
 		$modelHome = $this->model('matter\home');
 
-		$rst = $modelHome->pushHome($application);
+		$rst = $modelHome->pushHome($application, $homeGroup);
 
 		return new \ResponseData($rst);
 	}
@@ -77,10 +79,12 @@ class recommend extends \pl\be\base {
 	/**
 	 *
 	 */
-	public function listSite_action() {
+	public function listSite_action($page = 1, $size = 8) {
 		$modelHome = $this->model('site\home');
-
-		$matters = $modelHome->find();
+		$options = [];
+		$options['page']['at'] = $page;
+		$options['page']['size'] = $size;
+		$matters = $modelHome->find($options);
 
 		return new \ResponseData($matters);
 	}
@@ -113,7 +117,7 @@ class recommend extends \pl\be\base {
 		$modelHome = $this->model('matter\home');
 
 		$rst = $modelHome->pushHomeTop($application);
-		if(isset($rst[0]) && $rst[0] === false){
+		if (isset($rst[0]) && $rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
 

@@ -10,7 +10,7 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/coworker');
+		\TPL::output('/pl/fe/site/frame');
 		exit;
 	}
 	/**

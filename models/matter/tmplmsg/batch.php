@@ -85,6 +85,7 @@ class batch_model extends \TMS_MODEL {
 			/* 平台应用内消息 */
 			$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
 			$log['openid'] = '';
+			$log['status'] = '';
 			$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);
 
 			if (!empty($user->wx_openid)) {

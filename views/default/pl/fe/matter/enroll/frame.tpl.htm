@@ -10,8 +10,8 @@
     <link href="/static/css/bootstrap-switch.min.css" rel="stylesheet">
     <link href="/static/css/font-awesome.min.css" rel="stylesheet">
     <link href="/static/css/tms.css?_=2" rel="stylesheet">
-    <link href="/static/css/pl.fe.css" rel="stylesheet">
-    <link href="/views/default/pl/fe/matter/enroll/frame.css?_=12" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/pl/fe/matter/enroll/frame.css');?>" rel="stylesheet">
 </head>
 
 <body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
@@ -26,63 +26,54 @@
             </div>
             <!--侧边栏-->
             <ul class="nav nav-tabs nav-stacked">
-                <li>
-                    <a href='' ng-click="opened=opened==='edit'?false:'edit';switchTo('schema')">编辑 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'168px':'0'}">
+                <li ng-class="{'opened':opened==='edit'}">
+                    <a href='' ng-click="opened=opened==='edit'?false:'edit';switchTo('schema')">制作 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'123px':'0'}">
                         <li ng-class="{'active':subView==='main'}">
-                            <a href='' ng-click="switchTo('main')">活动定义</a>
+                            <a href='' ng-click="switchTo('main')">描述</a>
                         </li>
                         <li ng-class="{'active':subView==='schema'}">
-                            <a href='' ng-click="switchTo('schema')">修改题目</a>
+                            <a href='' ng-click="switchTo('schema')">题目</a>
                         </li>
                         <li ng-class="{'active':subView==='page'}">
-                            <a href='' ng-click="switchTo('page')">修改页面</a>
-                        </li>
-                        <li ng-class="{'active':subView==='preview'}">
-                            <a href='' ng-click="switchTo('preview')">活动预览</a>
+                            <a href='' ng-click="switchTo('page')">页面</a>
                         </li>
                     </ul>
                 </li>
-                <li>
-                    <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('entry')">发布 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'126px':'0'}">
-                        <li ng-class="{'active':subView==='access'}">
-                            <a href='' ng-click="switchTo('access')">进入条件</a>
-                        </li>
+                <li ng-class="{'opened':opened==='publish'}">
+                    <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('time')">发布 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'41px':'0'}">
                         <li ng-class="{'active':subView==='time'}">
-                            <a href='' ng-click="switchTo('time')">指定时间</a>
-                        </li>
-                        <li ng-class="{'active':subView==='entry'}">
-                            <a href='' ng-click="switchTo('entry')">发放入口</a>
+                            <a href='' ng-click="switchTo('time')">轮次</a>
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li ng-class="{'opened':opened==='data'}">
                     <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('record')">数据 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'252px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'246px':'0'}">
                         <li ng-class="{'active':subView==='record'}">
-                            <a href='' ng-click="switchTo('record')">详细数据</a>
+                            <a href='' ng-click="switchTo('record')">填写记录</a>
                         </li>
                         <li ng-class="{'active':subView==='remark'}">
-                            <a href='' ng-click="switchTo('remark')">评论数据</a>
+                            <a href='' ng-click="switchTo('remark')">评论记录</a>
                         </li>
                         <li ng-class="{'active':subView==='stat'}">
-                            <a href='' ng-click="switchTo('stat')">统计报告</a>
+                            <a href='' ng-click="switchTo('stat')">记录统计</a>
                         </li>
                         <li ng-class="{'active':subView==='enrollee'}">
-                            <a href='' ng-click="switchTo('enrollee')">填写人</a>
+                            <a href='' ng-click="switchTo('enrollee')">行为汇总</a>
                         </li>
                         <li ng-class="{'active':subView==='log'}">
-                            <a href='' ng-click="switchTo('log')">运行日志</a>
+                            <a href='' ng-click="switchTo('log')">行为日志</a>
                         </li>
                         <li ng-class="{'active':subView==='tag'}">
                             <a href='' ng-click="switchTo('tag')">内容标签</a>
                         </li>
                     </ul>
                 </li>
-                <li>
-                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('log')">其他 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'126px':'0'}">
+                <li ng-class="{'opened':opened==='other'}">
+                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('coin')">其他 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'123px':'0'}">
                         <li ng-class="{'active':subView==='recycle'}">
                             <a href='' ng-click="switchTo('recycle')">回收站</a>
                         </li>
@@ -94,36 +85,35 @@
                         </li>
                     </ul>
                 </li>
+                <div class='pl-layout-leftnav-footer'>
+                    <ul class="nav nav-tabs nav-stacked">
+                        <li ng-class="{'active':subView==='preview'}"><a href='' ng-click="switchTo('preview')"><i class='glyphicon glyphicon-blackboard'></i> 预览</a></li>
+                        <li ng-class="{'active':subView==='entry'}"><a href='' ng-click="switchTo('entry')"><i class='glyphicon glyphicon-phone'></i> 入口</a></li>
+                    </ul>
+                </div>
             </ul>
         </div>
         <!--导航+主体内容-->
-        <div class='pl-layout-main pl-layout-main-topnav'>
-            <nav class="navbar navbar-default pl-navbar-fixed-top">
+        <div id='pl-layout-main' class='pl-layout-main pl-layout-main-topnav'>
+            <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
                 <div class='container-fluid'>
                     <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                        <button type="button" class="navbar-toggle" ng-click="isNavCollapsed=!isNavCollapsed">
                             <span class="sr-only">Toggle navigation</span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
                     </div>
-                    <div class='collapse navbar-collapse' id='navbar-collapse-1'>
-                        <nav class='nav navbar-nav tms-breadcrumb'>
-                            <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>个人工作台</a></li>
-                            <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
-                            <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
-                            <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
-                            <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/matter?site={{app.siteid}}&id={{app.mission.id}}#{{app.scenario||'enroll'}}" target='_self'>{{scenarioNames[app.scenario]||'登记'}}</a></li>
-                            <li>
-                                <a href="" ng-click="switchTo('main')" title='{{app.title}}' ng-if="!Title">{{app.title}}</a>
-                                <a ng-if="Title">
-                                    <input type='text' min-size="10" title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')" ng-if="Title">
-                                </a>
-                            </li>
-                        </nav>
-                        <a class="btn btn-default navbar-btn reName" href="" ng-click="Title= Title?false:true">重命名</a>
-                    </div>
+                    <nav class='nav navbar-nav tms-breadcrumb' uib-collapse="isNavCollapsed">
+                        <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>工作台</a></li>
+                        <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
+                        <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
+                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                        <li>
+                            <a href='' ng-click="switchTo('preview')">{{app.title}}</a>
+                        </li>
+                    </nav>
                 </div>
             </nav>
             <div class='container-fluid'>
@@ -150,9 +140,11 @@
     <script src="/static/js/ui-tms.js?_=4"></script>
     <script src="/static/js/xxt.ui.js?_=4"></script>
     <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
-    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+    <script src="<?php echo custom_version('/pl/fe/_module/const.js');?>"></script>
+    <script src="<?php echo auto_version('/views/default/pl/fe/_module/matter.service.js');?>"></script>
+    <script src="/views/default/pl/fe/_module/sys.chart.js?_=1"></script>
     <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
-    <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/frame-loader.js?_=9"></script>
+    <script src="/static/js/require.js" data-main="<?php echo auto_version('/views/default/pl/fe/matter/enroll/frame-loader.js');?>"></script>
 </body>
 
 </html>

@@ -965,7 +965,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url += '?site=' + _siteId;
                         url += '&app=' + _appId;
                         url += '&tmplmsg=' + notify.tmplmsg.id;
-                        url += _ins._oPage.joinParams();
 
                         http2.post(url, targetAndMsg, function(data) {
                             noticebox.success('发送完成');

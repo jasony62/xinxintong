@@ -18,7 +18,9 @@
         </tbody>
     </table>
     <div class='form-group form-inline'>
-        <span>总数：{{read.page.total}}</span>
-        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="read.page.total>read.page.size" boundary-links="true" total-items="read.page.total" max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="read.list()"></ul>
+        <div class='pl-pagination'>
+            <span>总数：{{read.page.total}}</span>
+            <ul uib-pagination ng-show="read.page.total>read.page.size" boundary-links="true" total-items="read.page.total" max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="read.list()"></ul>
+        </div>
     </div>
 </div>

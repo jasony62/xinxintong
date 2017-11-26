@@ -3,7 +3,7 @@
         <div class='form-inline'>
             <button class='btn btn-default' ng-click="toggleAbsent()">缺席<span ng-bind="absentUsers.length"></span>人，<span ng-if="category!=='absent'">查看</span><span ng-if="category==='absent'">关闭</span></button>
             <section style='display:inline-block' ng-if="category==='enrollee'">
-                <button class='btn btn-default' ng-click='filter()' ng-if="app.groupApp||app.multi_rounds=='Y'"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                 <div class="btn-group" uib-dropdown>
                     <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                         排序
@@ -22,7 +22,7 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">更多操作 <i class="caret"></i></button>
                     <ul class="dropdown-menu">
                         <li><a href="" ng-click="notify(true)">给选中用户发消息<span>（{{rows.count}}）</span></a></li>
-                        <li><a href="" ng-click="notify()">给全部用户发消息</a></li>
+                        <li><a href="" ng-click="notify()">给全部用户发消息<span>（{{page.total}}）</span></a></li>
                         <li class="divider"></li>
                         <li><a href="" ng-click="export()">导出全部数据</a></li>
                     </ul>

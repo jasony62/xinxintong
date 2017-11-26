@@ -16,12 +16,11 @@ class notice extends \pl\fe\matter\base {
 	/**
 	 * 给登记活动的参与人发消息
 	 *
-	 * @param string $site site'id
 	 * @param string $app app'id
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
-	public function send_action($site, $app, $tmplmsg, $rid = null) {
+	public function send_action($app, $tmplmsg, $rid = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -31,26 +30,26 @@ class notice extends \pl\fe\matter\base {
 			return new \ObjectNotFountError();
 		}
 
-		$modelRec = $this->model('matter\enroll\user');
-		$site = $modelRec->escape($site);
+		$modelEnlUsr = $this->model('matter\enroll\user');
 		$posted = $this->getPostJson();
-		$params = $posted->message;
 
 		if (isset($posted->criteria)) {
 			// 筛选条件
 			$criteria = $posted->criteria;
-			!empty($criteria->rid) && $rid = $modelRec->escape($criteria->rid);
-			$options = [
+			!empty($criteria->rid) && $rid = $modelEnlUsr->escape($criteria->rid);
+			$aOptions = [
 				'rid' => $rid,
 			];
-			$enrollUsers = $modelRec->enrolleeByApp($oApp, '', '', $options);
+			!empty($post->onlyEnrolled) && $aOptions['onlyEnrolled'] = $post->onlyEnrolled;
+			$enrollUsers = $modelEnlUsr->enrolleeByApp($oApp, '', '', $aOptions);
 			$enrollers = $enrollUsers->users;
 		} else if (isset($posted->users)) {
 			// 直接指定
 			$enrollers = $posted->users;
 		}
-
+		/* 发送消息 */
 		if (count($enrollers)) {
+			$params = $posted->message;
 			$rst = $this->notifyWithMatter($oApp, $enrollers, $tmplmsg, $params);
 			if ($rst[0] === false) {
 				return new \ResponseError($rst[1]);

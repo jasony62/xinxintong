@@ -126,7 +126,12 @@ class report extends \pl\fe\matter\base {
 						/* 处理用户指定显示的列 */
 						if (!empty($defaultConfig->show_schema)) {
 							foreach ($defaultConfig->show_schema as $show_schema) {
-								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
+								if ($show_schema->type === 'member') {
+									$schId = explode('.', $show_schema->id)[1];
+									$show_schema_data->{$show_schema->id} = $show_schema_datas->member->{$schId};
+								} else {
+									$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
+								}
 							}
 						} else {
 							$show_schema_data = $show_schema_datas;		

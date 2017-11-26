@@ -56,7 +56,7 @@ class user extends \pl\fe\matter\base {
 				$q = [
 					'd.tmplmsg_id,d.status,b.create_at',
 					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
-					"d.userid = '{$user->userid}' and d.batch_id = b.id and b.send_from = 'enroll:" . $user->aid . "'",
+					"d.userid = '{$user->userid}' and d.openid<>'' and d.batch_id = b.id and b.send_from = 'enroll:" . $user->aid . "'",
 				];
 				$q2 = [
 					'r' => ['o' => 0, 'l' => 1],

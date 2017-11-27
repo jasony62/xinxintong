@@ -113,6 +113,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                 case 'report':
                     $scope.opened = 'result';
                     break;
+                case 'coin':
                 case 'notice':
                     $scope.opened = 'other';
                     break;

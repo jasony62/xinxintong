@@ -128,7 +128,10 @@ class report extends \pl\fe\matter\base {
 							foreach ($defaultConfig->show_schema as $show_schema) {
 								if ($show_schema->type === 'member') {
 									$schId = explode('.', $show_schema->id)[1];
-									$show_schema_data->{$show_schema->id} = $show_schema_datas->member->{$schId};
+									if (!isset($show_schema_data->member) || !is_object($show_schema_data->member)) {
+										$show_schema_data->member = new \stdClass;
+									}
+									$show_schema_data->member->{$schId} = $show_schema_datas->member->{$schId};
 								} else {
 									$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
 								}
@@ -346,6 +349,13 @@ class report extends \pl\fe\matter\base {
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $roundTitle);
+				} else if ($show_schema->type === 'member') {
+					$schId = explode('.', $show_schema->id)[1];
+					if (isset($rec->show_schema_data->member->{$schId})) {
+						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->member->{$schId});
+					} else {
+						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, '');
+					}
 				} else {
 					if (isset($rec->show_schema_data->{$show_schema->id})) {
 						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->{$show_schema->id});

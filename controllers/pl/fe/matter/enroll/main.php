@@ -184,6 +184,8 @@ class main extends main_base {
 	 * @param string $site 是否要支持跨团队进行活动的复制？
 	 * @param string $app
 	 * @param int $mission
+	 * @param int $cpRecode 是否复制数据
+	 * @param int $cpEnrollee 是否复制用户行为
 	 *
 	 */
 	public function copy_action($site, $app, $mission = null, $cpRecode = 'N', $cpEnrollee = 'N') {

@@ -51,9 +51,6 @@ class record_model extends \matter\enroll\record_base {
 				}
 			}
 			/* 移动用户未签到的原因 */
-			foreach ($oApp->absent_cause as $uid => $val) {
-				
-			}
 			if (!empty($oUser->uid)) {
 				if (isset($oApp->absent_cause->{$oUser->uid})) {
 					$record['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid});

@@ -126,7 +126,7 @@ class report extends \pl\fe\matter\base {
 						/* 处理用户指定显示的列 */
 						if (!empty($defaultConfig->show_schema)) {
 							foreach ($defaultConfig->show_schema as $show_schema) {
-								if ($show_schema->type === 'member') {
+								if (strpos($show_schema->id,'member') === 0) {
 									$schId = explode('.', $show_schema->id)[1];
 									if (!isset($show_schema_data->member) || !is_object($show_schema_data->member)) {
 										$show_schema_data->member = new \stdClass;
@@ -349,7 +349,7 @@ class report extends \pl\fe\matter\base {
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $roundTitle);
-				} else if ($show_schema->type === 'member') {
+				} else if (strpos($show_schema->id,'member') === 0) {
 					$schId = explode('.', $show_schema->id)[1];
 					if (isset($rec->show_schema_data->member->{$schId})) {
 						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->member->{$schId});

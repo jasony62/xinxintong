@@ -618,7 +618,7 @@ class player_model extends \TMS_MODEL {
 				$oUser->yx_openid = $oSiteUser->yx_openid;
 				$oUser->qy_openid = $oSiteUser->qy_openid;
 				$oUser->headimgurl = $oSiteUser->headimgurl;
-				$this->enroll($objGrp->siteid, $objGrp, $oUser, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
+				$this->enroll($objGrp, $oUser, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
 				$data = new \stdClass;
 				foreach ($dataSchemas as $ds) {
 					$data->{$ds->id} = isset($oMember->{$ds->format}) ? $oMember->{$ds->format} : '';

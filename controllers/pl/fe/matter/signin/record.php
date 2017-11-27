@@ -802,4 +802,27 @@ class record extends \pl\fe\matter\base {
 
 		return new \ResponseData('ok');
 	}
+	/**
+	 * 缺席用户列表
+	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
+	 * 2、如果活动关联了分组活动
+	 * 3、如果活动所属项目指定了用户名单
+	 */
+	public function absent_action($app, $rid = '') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelSin = $this->model('matter\signin');
+		$oApp = $modelSin->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelUsr = $this->model('matter\signin\record');
+
+		$result = $modelUsr->absentByApp($oApp, $rid);
+
+		return new \ResponseData($result);
+	}
 }

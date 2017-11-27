@@ -349,7 +349,7 @@ class report extends \pl\fe\matter\base {
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $roundTitle);
-				} else if ($show_schema->type === 'member') {
+				} else if (strpos($show_schema->id,'member') === 0) {
 					$schId = explode('.', $show_schema->id)[1];
 					if (isset($rec->show_schema_data->member->{$schId})) {
 						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->member->{$schId});

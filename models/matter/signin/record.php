@@ -791,7 +791,7 @@ class record_model extends \matter\enroll\record_base {
 		foreach ($aAbsentUsrs as $aAbsentUsr) {
 			$state = true;
 			foreach ($aAbsentUsrs2 as $aAbsentUsr2) {
-				if ($aAbsentUsr->userid === $aAbsentUsr2->userid) {
+				if ($aAbsentUsr->userid === $aAbsentUsr2->userid || empty($aAbsentUsr->userid)) {
 					$state = false;
 					continue;
 				}

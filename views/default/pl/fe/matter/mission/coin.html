@@ -7,9 +7,7 @@
                     <tr>
                         <th>ID</th>
                         <th>说明</th>
-                        <th>活动积分</th>
-                        <th ng-if="app.mission">项目积分</th>
-                        <th>计算方式</th>
+                        <th>积分</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -19,21 +17,10 @@
                         <td>
                             <input type='text' ng-model="r.data.actor_delta" ng-change="changeRules()">
                         </td>
-                        <td ng-if="app.mission">
-                            <span>{{r.mission.actor_delta||0}}</span>
-                        </td>
-                        <td>
-                            <label class='radio-inline'>
-                                <input type='radio' name='{{r.data.act}}' value='A' ng-model="r.data.actor_overlap" ng-change="changeRules()">累加
-                            </label>
-                            <label class='radio-inline'>
-                                <input type='radio' name='{{r.data.act}}' value='R' ng-model="r.data.actor_overlap" ng-change="changeRules()">替代
-                            </label>
-                        </td>
                     </tr>
                 </tbody>
             </table>
-            <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+            <button class='btn btn-success' ng-click="save()">保存</button>
         </uib-tab>
         <uib-tab index="1">
             <uib-tab-heading>积分日志</uib-tab-heading>

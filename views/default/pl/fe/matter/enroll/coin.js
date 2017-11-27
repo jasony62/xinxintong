@@ -1,82 +1,88 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
-        var actions = [{
-            name: 'site.matter.enroll.read',
+
+        function fetchAppRules() {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/coin/rules?site=' + _oApp.siteid + '&app=' + _oApp.id;
+            http2.get(url, function(rsp) {
+                rsp.data.forEach(function(oRule) {
+                    var oRuleData = $scope.rules[oRule.act].data;
+                    oRuleData.id = oRule.id;
+                    oRuleData.actor_delta = oRule.actor_delta;
+                    oRuleData.actor_overlap = oRule.actor_overlap;
+                });
+            });
+        }
+
+        function fetchMissionRules() {
+            var url;
+            url = '/rest/pl/fe/matter/mission/coin/rules?site=' + _oApp.siteid + '&mission=' + _oApp.mission.id;
+            http2.get(url, function(rsp) {
+                rsp.data.forEach(function(oRule) {
+                    $scope.rules[oRule.act].mission = oRule;
+                });
+            });
+        }
+
+        var _oApp, _aDefaultRules;
+        _aDefaultRules = [{
+            data: { act: 'site.matter.enroll.read' },
             desc: '用户A打开登记活动页面'
         }, {
-            name: 'site.matter.enroll.submit',
+            data: { act: 'site.matter.enroll.submit' },
             desc: '用户A提交新登记记录',
         }, {
-            name: 'site.matter.enroll.share.friend',
+            data: { act: 'site.matter.enroll.share.friend' },
             desc: '用户A分享活动给公众号好友',
         }, {
-            name: 'site.matter.enroll.share.timeline',
+            data: { act: 'site.matter.enroll.share.timeline' },
             desc: '用户A分享活动至朋友圈',
             //}, {
-            //    name: 'site.matter.enroll.discuss.like',
+            //    act: 'site.matter.enroll.discuss.like',
             //    desc: '用户A对活动赞同',
             //}, {
-            //    name: 'site.matter.enroll.discuss.comment',
+            //    act: 'site.matter.enroll.discuss.comment',
             //    desc: '用户A对活动评论',
         }, {
-            name: 'site.matter.enroll.data.like',
+            data: { act: 'site.matter.enroll.data.like' },
             desc: '用户A填写数据被赞同',
         }, {
-            name: 'site.matter.enroll.data.other.like',
+            data: { act: 'site.matter.enroll.data.other.like' },
             desc: '用户A赞同别人的填写数据',
         }, {
-            name: 'site.matter.enroll.data.comment',
+            data: { act: 'site.matter.enroll.data.comment' },
             desc: '用户A填写数据被点评',
         }, {
-            name: 'site.matter.enroll.data.other.comment',
+            data: { act: 'site.matter.enroll.data.other.comment' },
             desc: '用户A点评别人的填写数据',
         }];
         $scope.rules = {};
-        actions.forEach(function(act) {
-            var name;
-            name = act.name;
-            $scope.rules[name] = {
-                act: name,
-                desc: act.desc,
-                actor_delta: 0,
-            };
+        _aDefaultRules.forEach(function(oRule) {
+            oRule.data.actor_delta = 0;
+            oRule.data.actor_overlap = 'A';
+            $scope.rules[oRule.data.act] = oRule;
         });
+        $scope.rulesModified = false;
+        $scope.changeRules = function() {
+            $scope.rulesModified = true;
+        };
         $scope.save = function() {
-            var filter = 'ID:' + $scope.app.id,
-                posted = [],
-                url, rule;
+            var posted = [],
+                rule, url;
 
             for (var k in $scope.rules) {
                 rule = $scope.rules[k];
-                if (rule.id || rule.actor_delta != 0) {
-                    var data;
-                    data = {
-                        act: rule.act,
-                        actor_delta: rule.actor_delta,
-                        matter_type: 'enroll',
-                        matter_filter: filter
-                    };
-                    rule.id && (data.id = rule.id);
-                    posted.push(data);
+                if (rule.data.id || rule.data.actor_delta != 0) {
+                    posted.push(rule.data);
                 }
             }
-            url = '/rest/pl/fe/matter/enroll/coin/saveRules?site=' + $scope.app.siteid;
+            url = '/rest/pl/fe/matter/enroll/coin/saveRules?site=' + _oApp.siteid + '&app=' + _oApp.id;
             http2.post(url, posted, function(rsp) {
                 for (var k in rsp.data) {
-                    $scope.rules[k].id = rsp.data[k];
+                    $scope.rules[k].data.id = rsp.data[k];
                 }
-            });
-        };
-        $scope.fetchRules = function() {
-            var url;
-            url = '/rest/pl/fe/matter/enroll/coin/rules?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-            http2.get(url, function(rsp) {
-                rsp.data.forEach(function(rule) {
-                    var rule2 = $scope.rules[rule.act];
-                    rule2.id = rule.id;
-                    rule2.actor_delta = rule.actor_delta;
-                });
+                $scope.rulesModified = false;
             });
         };
         var logs, page;
@@ -89,25 +95,29 @@ define(['frame'], function(ngApp) {
         }
         $scope.fetchLogs = function() {
             var url;
-            url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + $scope.app.siteid + '&app=' + $scope.app.id + page.j();
+            url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + _oApp.siteid + '&app=' + _oApp.id + page.j();
             http2.get(url, function(rsp) {
-                if(rsp.data.logs) {
+                if (rsp.data.logs) {
                     $scope.tabActive = 1;
                     $scope.logs = logs = rsp.data.logs;
                     $scope.page.total = rsp.data.total;
                 }
 
-                if(rsp.data.logs.length == 0) {
+                if (rsp.data.logs.length == 0) {
                     $scope.tabActive = 0;
                 }
             });
         };
         $scope.$watch('logs', function(nv) {
-            if(!nv) { $scope.tabActive = 3;}
+            if (!nv) { $scope.tabActive = 3; }
         });
-        srvEnrollApp.get().then(function(app) {
-            $scope.fetchRules();
+        srvEnrollApp.get().then(function(oApp) {
+            _oApp = oApp;
+            fetchAppRules();
             $scope.fetchLogs();
+            if (_oApp.mission) {
+                fetchMissionRules();
+            }
         });
     }]);
 });

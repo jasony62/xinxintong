@@ -186,7 +186,7 @@ class main extends main_base {
 	 * @param int $mission
 	 *
 	 */
-	public function copy_action($site, $app, $mission = null) {
+	public function copy_action($site, $app, $mission = null, $cpRecode = 'N', $cpEnrollee = 'N') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -275,6 +275,7 @@ class main extends main_base {
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
 		$oNewApp->group_app_id = $oCopied->group_app_id;
 		$oNewApp->enroll_app_id = $oCopied->enroll_app_id;
+		$oNewApp->tags = $modelApp->escape($oCopied->tags);
 
 		/* 所属项目 */
 		if (!empty($mission)) {
@@ -311,6 +312,64 @@ class main extends main_base {
 					'js' => $ep->js,
 				];
 				$modelCode->modify($oNewPage->code_id, $data);
+			}
+		}
+		/* 复制登记活动数据 */
+		if ($cpRecode === 'Y') {
+			$oNewApp = $modelApp->byId($oNewApp->id);
+			$modelRec = $this->model('matter\enroll\record');
+			$oCriteria = new \stdClass;
+			$oCriteria->record = new \stdClass;
+			$oCriteria->record->rid = 'all';
+			$oldUsers = $modelRec->byApp($oCopied, '', $oCriteria);
+			if (count($oldUsers->records)) {
+				foreach ($oldUsers->records as $record) {
+					$cpUser = new \stdClass;
+					$cpUser->uid = ($cpEnrollee !== 'Y')? '' : $record->userid;
+					$cpUser->nickname = ($cpEnrollee !== 'Y')? '' : $record->nickname;
+					/* 插入登记数据 */
+					$ek = $modelRec->enroll($oNewApp, $cpUser, ['nickname' => $cpUser->nickname]);
+					/* 处理自定义信息 */
+					$oEnrolledData = $record->data;
+					$rst = $modelRec->setData($cpUser, $oNewApp, $ek, $oEnrolledData, '', false);
+					if (!empty($record->supplement) && count(get_object_vars($posted->supplement))) {
+						$rst = $modelRec->setSupplement($cpUser, $oEnrollApp, $ek, $posted->supplement);
+					}
+					$upDate = [];
+					$upDate['verified'] = $record->verified;
+					$upDate['comment'] = $modelRec->escape($record->comment);
+					if (!empty($record->tags)) {
+						$upDate['tags'] = $modelRec->escape($record->tags);
+					}
+					$rst = $modelRec->update(
+						'xxt_enroll_record',
+						$upDate,
+						['enroll_key' => $ek, 'state' => 1]
+					);
+				}
+			}
+
+			/* 复制用户行为 */
+			if ($cpEnrollee === 'Y') {
+				$modelUsr = $this->model('matter\enroll\user');
+				$options = [
+					'onlyEnrolled' => 'Y',
+					'cascaded' => 'N',
+					'rid' => 'ALL',
+				];
+				$oldUsers = $modelUsr->enrolleeByApp($oCopied, '', '', $options);
+				$oldUsers = $oldUsers->users;
+				if (count($oldUsers)) {
+					foreach ($oldUsers as $oldUser) {
+						unset($oldUser->id);
+						$oldUser->siteid = $oNewApp->siteid;
+						$oldUser->aid = $oNewApp->id;
+						$oldUser->group_id = '';
+						$oldUser->last_enroll_at = time();
+						$oldUser->user_total_coin = 0;
+						$modelUsr->insert('xxt_enroll_user', (array)$oldUser, false);
+					}
+				}
 			}
 		}
 

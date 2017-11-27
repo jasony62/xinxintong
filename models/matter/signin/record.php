@@ -632,7 +632,7 @@ class record_model extends \matter\enroll\record_base {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.enroll_at,e.signin_at,e.signin_num,e.signin_log,e.userid,e.nickname,e.verified,e.comment,e.tags,e.data,e.verified_enroll_key',
+			'e.enroll_key,e.enroll_at,e.signin_at,e.signin_num,e.signin_log,e.userid,e.nickname,e.verified,e.comment,e.absent_cause,e.tags,e.data,e.verified_enroll_key',
 			'xxt_signin_record e',
 			$w,
 		];
@@ -814,20 +814,20 @@ class record_model extends \matter\enroll\record_base {
 				if (($id = array_search($uid, $oUsers2)) !== false) {
 					$this->update(
 							'xxt_signin_record',
-							['absent_cause' => $this->toJson($value)],
+							['absent_cause' => $this->escape($value)],
 							['id' => $id]
 						);
 				}
 			}
-		}
-		//更新未签到原因
-		if (!empty($newAbsentCause)) {
-			$newAbsentCause = $this->toJson($newAbsentCause);
-			$this->update(
-						'xxt_signin',
-						['absent_cause' => $newAbsentCause],
-						['id' => $oApp->id]
-					);
+			//更新未签到原因
+			if (!empty($newAbsentCause)) {
+				$newAbsentCause = $this->escape($this->toJson($newAbsentCause));
+				$this->update(
+							'xxt_signin',
+							['absent_cause' => $newAbsentCause],
+							['id' => $oApp->id]
+						);
+			}
 		}
 
 		$result = new \stdClass;

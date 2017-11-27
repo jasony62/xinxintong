@@ -4,7 +4,6 @@ require_once '../../db.php';
 $sqls = array();
 //
 $sqls[] = "ALTER TABLE xxt_signin add absent_cause text";
-$sqls[] = "ALTER TABLE xxt_signin_record add absent_cause text";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

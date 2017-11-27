@@ -50,6 +50,23 @@ class record_model extends \matter\enroll\record_base {
 					$record['headimgurl'] = $userOpenids->headimgurl;
 				}
 			}
+			/* 移动用户未签到的原因 */
+			foreach ($oApp->absent_cause as $uid => $val) {
+				
+			}
+			if (!empty($oUser->uid)) {
+				if (isset($oApp->absent_cause->{$oUser->uid})) {
+					$record['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid});
+					unset($oApp->absent_cause->{$oUser->uid});
+					/* 更新原未签到记录 */
+					$newAbsentCause = $this->escape($this->toJson($oApp->absent_cause));
+				       $this->update(
+				             'xxt_signin',
+				             ['absent_cause' => $newAbsentCause],
+				             ['id' => $oApp->id]
+				           );
+				}
+			}
 
 			$this->insert('xxt_signin_record', $record, false);
 		}
@@ -787,7 +804,6 @@ class record_model extends \matter\enroll\record_base {
 		}
 		/* userid去重 */
 		$aAbsentUsrs2 = [];
-		$newAbsentCause = new \stdClass;//更新signin中未签到用户
 		foreach ($aAbsentUsrs as $aAbsentUsr) {
 			$state = true;
 			foreach ($aAbsentUsrs2 as $aAbsentUsr2) {
@@ -800,33 +816,11 @@ class record_model extends \matter\enroll\record_base {
 				//获取未签到人员的信息，并从$oApp->absent_cause中筛选出已经签到的人
 				if (isset($oApp->absent_cause->{$aAbsentUsr->userid})) {
 					$aAbsentUsr->absent_cause = $oApp->absent_cause->{$aAbsentUsr->userid};
-					$newAbsentCause->{$aAbsentUsr->userid} = $oApp->absent_cause->{$aAbsentUsr->userid};
 					unset($oApp->absent_cause->{$aAbsentUsr->userid});
 				} else {
 					$aAbsentUsr->absent_cause = '';
 				}
 				$aAbsentUsrs2[] = $aAbsentUsr;
-			}
-		}
-		// 之前未签到现在是否已经签到，如果签到则移动未签到原因
-		if (!empty($oApp->absent_cause)) {
-			foreach ($oApp->absent_cause as $uid => $value) {
-				if (($id = array_search($uid, $oUsers2)) !== false) {
-					$this->update(
-							'xxt_signin_record',
-							['absent_cause' => $this->escape($value)],
-							['id' => $id]
-						);
-				}
-			}
-			//更新未签到原因
-			if (!empty($newAbsentCause)) {
-				$newAbsentCause = $this->escape($this->toJson($newAbsentCause));
-				$this->update(
-							'xxt_signin',
-							['absent_cause' => $newAbsentCause],
-							['id' => $oApp->id]
-						);
 			}
 		}
 

@@ -52,6 +52,10 @@ define(['frame'], function(ngApp) {
             oRule.data.actor_overlap = 'A';
             $scope.rules[oRule.data.act] = oRule;
         });
+        $scope.rulesModified = false;
+        $scope.changeRules = function() {
+            $scope.rulesModified = true;
+        };
         $scope.save = function() {
             var oRule, aPostRules, url;
 
@@ -67,6 +71,7 @@ define(['frame'], function(ngApp) {
                 for (var k in rsp.data) {
                     $scope.rules[k].id = rsp.data[k];
                 }
+                $scope.rulesModified = false;
             });
         };
         $scope.$watch('mission', function(oMission) {

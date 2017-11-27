@@ -213,10 +213,10 @@ class record extends base {
 			/* 处理自定义信息 */
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey, true);
 			/* 登记提交的积分奖励 */
-			$modelMat = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
-			$rules = $modelMat->rulesByMatter('site.matter.enroll.submit', $oEnrollApp);
-			$modelCoin = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
-			$modelCoin->award($oEnrollApp, $oUser, 'site.matter.enroll.submit', $rules);
+			$modelCoin = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
+			$rules = $modelCoin->rulesByMatter('site.matter.enroll.submit', $oEnrollApp);
+			$modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
+			$modelCoinLog->award($oEnrollApp, $oUser, 'site.matter.enroll.submit', $rules);
 		} else {
 			/* 重新插入新提交的数据 */
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey);

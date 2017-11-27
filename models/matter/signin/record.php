@@ -57,11 +57,11 @@ class record_model extends \matter\enroll\record_base {
 					unset($oApp->absent_cause->{$oUser->uid});
 					/* 更新原未签到记录 */
 					$newAbsentCause = $this->escape($this->toJson($oApp->absent_cause));
-				       $this->update(
-				             'xxt_signin',
-				             ['absent_cause' => $newAbsentCause],
-				             ['id' => $oApp->id]
-				           );
+					$this->update(
+						'xxt_signin',
+						['absent_cause' => $newAbsentCause],
+						['id' => $oApp->id]
+					);
 				}
 			}
 
@@ -646,7 +646,7 @@ class record_model extends \matter\enroll\record_base {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.enroll_at,e.signin_at,e.signin_num,e.signin_log,e.userid,e.nickname,e.verified,e.comment,e.absent_cause,e.tags,e.data,e.verified_enroll_key',
+			'e.enroll_key,e.enroll_at,e.signin_at,e.signin_num,e.signin_log,e.userid,e.nickname,e.verified,e.comment,e.tags,e.data,e.verified_enroll_key',
 			'xxt_signin_record e',
 			$w,
 		];
@@ -749,52 +749,13 @@ class record_model extends \matter\enroll\record_base {
 					$aAbsentUsrs[] = $oGrpUsr;
 				}
 			}
-		} else if (!empty($oApp->mission_id)) {
-			$modelMis = $this->model('matter\mission');
-			$oMission = $modelMis->byId($oApp->mission_id, ['fields' => 'user_app_id,user_app_type,entry_rule']);
-			if (isset($oMission->entry_rule->scope) && $oMission->entry_rule->scope === 'member') {
-				$modelMem = $this->model('site\user\member');
-				foreach ($oMission->entry_rule->member as $mschemaId => $rule) {
-					$members = $modelMem->byMschema($mschemaId);
-					foreach ($members as $oMember) {
-					if (false === in_array($oMember->userid, $oUsers2)) {
-							$oUser = new \stdClass;
-							$oUser->userid = $oMember->userid;
-							$oUser->nickname = $oMember->name;
-							$aAbsentUsrs[] = $oUser;
-						}
-					}
-				}
-			} else {
-				if ($oMission->user_app_type === 'enroll') {
-					$modelRec = $this->model('matter\enroll\record');
-					$result = $modelRec->byApp($oMission->user_app_id);
-					if (!empty($result->records)) {
-						foreach ($result->records as $oRec) {
-							if (false === in_array($oRec->userid, $oUsers2)) {
-								$aAbsentUsrs[] = $oRec;
-							}
-						}
-					}
-				} else if ($oMission->user_app_type === 'signin') {
-					$modelRec = $this->model('matter\signin\record');
-					$result = $modelRec->byApp($oMission->user_app_id);
-					if (!empty($result->records)) {
-						foreach ($result->records as $oRec) {
-							if (false === in_array($oRec->userid, $oUsers2)) {
-								$aAbsentUsrs[] = $oRec;
-							}
-						}
-					}
-				} else if ($oMission->user_app_type === 'group') {
-					$modelRec = $this->model('matter\group\player');
-					$result = $modelRec->byApp($oMission->user_app_id);
-					if (!empty($result->players)) {
-						foreach ($result->players as $oRec) {
-							if (false === in_array($oRec->userid, $oUsers2)) {
-								$aAbsentUsrs[] = $oRec;
-							}
-						}
+		} else if (!empty($oApp->enroll_app_id)) {
+			$modelRec = $this->model('matter\enroll\record');
+			$result = $modelRec->byApp($oApp->enroll_app_id);
+			if (!empty($result->records)) {
+				foreach ($result->records as $oRec) {
+					if (false === in_array($oRec->userid, $oUsers2)) {
+						$aAbsentUsrs[] = $oRec;
 					}
 				}
 			}

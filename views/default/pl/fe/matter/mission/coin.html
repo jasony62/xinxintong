@@ -20,7 +20,7 @@
                     </tr>
                 </tbody>
             </table>
-            <button class='btn btn-success' ng-click="save()">保存</button>
+            <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
         </uib-tab>
         <uib-tab index="1">
             <uib-tab-heading>积分日志</uib-tab-heading>

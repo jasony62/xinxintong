@@ -2,7 +2,7 @@
     <!-- signin -->
     <div class='form-group'>
         <div class='form-inline'>
-            <button class='btn btn-default' ng-click="toggleAbsent()">缺席<span ng-bind="absentUsers.length"></span>人，<span ng-if="category!=='absent'">查看</span><span ng-if="category==='absent'">关闭</span></button>
+            <button class='btn btn-default' ng-click="toggleAbsent()" ng-if="bHasAbsent">缺席<span ng-bind="absentUsers.length"></span>人，<span ng-if="category!=='absent'">查看</span><span ng-if="category==='absent'">关闭</span></button>
             <div style='display:inline-block' ng-if="category==='record'">
                 <div class='form-group' ng-if='app.rounds'>
                     <label>轮次</label>
@@ -159,7 +159,7 @@
                         <th>姓名</th>
                         <th>分组</th>
                         <th>备注</th>
-                        <th>操作</th>
+                        <th style='width:48px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>

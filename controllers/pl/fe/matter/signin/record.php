@@ -814,7 +814,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		$modelSin = $this->model('matter\signin');
-		$oApp = $modelSin->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
+		$oApp = $modelSin->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,enroll_app_id,absent_cause']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}

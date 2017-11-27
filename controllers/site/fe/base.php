@@ -90,7 +90,6 @@ class base extends \site\base {
 				$snsSiteId = $this->siteId;
 			} else if ($this->myGetcookie("_platform_oauthpending") === 'Y') {
 				$snsSiteId = 'platform';
-				$this->model('log')->log($this->siteId, 'afterSnsOAuth', 'snsSiteId: ' . $snsSiteId, null, $_SERVER['REQUEST_URI']);
 			}
 			if (false === $snsSiteId) {
 				return false;

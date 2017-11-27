@@ -43,28 +43,59 @@ class user_model extends \TMS_MODEL {
 		return $oNewUsr;
 	}
 	/**
+	 * 删除1条记录
+	 */
+	public function removeRecord($oRecord) {
+		if (empty($oRecord->userid) || !isset($oRecord->rid)) {
+			return [false, '参数不完整'];
+		}
+
+		$updateSql = 'update xxt_enroll_user set enroll_num=enroll_num-1 where enroll_num>0 and userid="' . $oRecord->userid . '"';
+		$this->update($updateSql . ' and rid="' . $oRecord->rid . '"');
+		$rst = $this->update($updateSql . ' and rid="ALL"');
+
+		return [true, $rst];
+	}
+	/**
+	 * 恢复1条记录
+	 */
+	public function restoreRecord($oRecord) {
+		if (empty($oRecord->userid) || !isset($oRecord->rid)) {
+			return [false, '参数不完整'];
+		}
+
+		$updateSql = 'update xxt_enroll_user set enroll_num=enroll_num+1 where userid="' . $oRecord->userid . '"';
+		$this->update($updateSql . ' and rid="' . $oRecord->rid . '"');
+		$rst = $this->update($updateSql . ' and rid="ALL"');
+
+		return [true, $rst];
+	}
+	/**
 	 * 活动中提交过数据的用户
 	 */
-	public function enrolleeByApp($oApp, $page = '', $size = '', $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+	public function enrolleeByApp($oApp, $page = '', $size = '', $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 
 		$result = new \stdClass;
 		$q = [
 			$fields,
 			"xxt_enroll_user",
-			"aid='{$oApp->id}' and enroll_num>0",
+			"aid='{$oApp->id}'",
 		];
-		if (!empty($options['rid'])) {
-			$q[2] .= " and rid = '" . $this->escape($options['rid']) . "'";
+		if (!empty($aOptions['onlyEnrolled']) && $aOptions['onlyEnrolled'] === 'Y') {
+			$q[2] .= " and enroll_num>0";
+		}
+		if (!empty($aOptions['rid'])) {
+			$q[2] .= " and rid = '" . $this->escape($aOptions['rid']) . "'";
 		} else {
 			$q[2] .= " and rid = 'ALL'";
 		}
-		if (!empty($options['byGroup'])) {
-			$q[2] .= " and group_id = '" . $this->escape($options['byGroup']) . "'";
+		if (!empty($aOptions['byGroup'])) {
+			$q[2] .= " and group_id = '" . $this->escape($aOptions['byGroup']) . "'";
 		}
-		if (!empty($options['orderby'])) {
-			$q2 = ['o' => $options['orderby'] . ' desc'];
+		if (!empty($aOptions['orderby'])) {
+			$q2 = ['o' => $aOptions['orderby'] . ' desc'];
 		} else {
 			$q2 = ['o' => 'last_enroll_at desc'];
 		}
@@ -108,6 +139,8 @@ class user_model extends \TMS_MODEL {
 		}
 
 		$result->users = $users;
+
+		/* 符合条件的用户总数 */
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
 		$result->total = $total;
@@ -280,9 +313,21 @@ class user_model extends \TMS_MODEL {
 
 		/* 登记次数 */
 		$modelRec = $this->model('matter\enroll\record');
-		$records = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);
+		$records = $modelRec->byUser($oApp, $oUser, ['fields' => 'id,comment']);
+		if (false === $records) {
+			return false;
+		}
 		$result->enroll_num = count($records);
-
+		$result->comment = '';
+		if ($result->enroll_num > 0) {
+			$comments = [];
+			foreach ($records as $record) {
+				if (!empty($record->comment)) {
+					$comments[] = $record->comment;
+				}
+			}
+			$result->comment = implode(',', $comments);
+		}
 		/* 发表评论次数 */
 		$modelRec = $this->model('matter\enroll\remark');
 		$remarks = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);

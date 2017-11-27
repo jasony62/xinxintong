@@ -395,13 +395,14 @@ class signin_model extends enroll_base {
 	public function reportByUser($oApp, $oUser) {
 		$modelRec = $this->model('matter\signin\record');
 
-		$oRecord = $modelRec->byUser($oUser, $oApp, ['fields' => 'id,signin_num,signin_log']);
+		$oRecord = $modelRec->byUser($oUser, $oApp, ['fields' => 'id,signin_num,signin_log,comment']);
 		if (false === $oRecord) {
 			return false;
 		}
 		$result = new \stdClass;
 
 		$result->signin_num = $oRecord->signin_num;
+		$result->comment = $oRecord->comment;
 
 		$late_num = 0;
 		if (!empty($oApp->rounds) && !empty($oRecord->signin_log)) {

@@ -727,6 +727,7 @@ class record extends base {
 	}
 	/**
 	 * 返回指定记录或最后一条记录
+	 *
 	 * @param string $site
 	 * @param string $app
 	 * @param string $ek
@@ -1095,28 +1096,56 @@ class record extends base {
 	/**
 	 * 删除当前记录
 	 *
-	 * @param string $site
 	 * @param string $app
+	 * @param string $ek
+	 *
 	 */
-	public function remove_action($site, $app, $ek) {
+	public function remove_action($app, $ek) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false) {
 			return new \ObjectNotFoundError();
 		}
-
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek, ['fields' => 'userid,rid,state']);
+		if (false === $oRecord) {
+			return new \ObjectNotFoundError();
+		}
+		// 判断删除人是否为提交人
+		if ($oRecord->userid !== $this->who->uid) {
+			return new \ResponseError('仅允许记录的提交者删除记录');
+		}
 		// 判断活动是否添加了轮次
 		if ($oApp->multi_rounds == 'Y') {
 			$modelRnd = $this->model('matter\enroll\round');
 			$oActiveRnd = $modelRnd->getActive($oApp);
 			$now = time();
-			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now)) {
-				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
+			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now) || ($oActiveRnd->rid !== $oRecord->rid)) {
+				return new \ResponseError('记录所在活动轮次已结束，不能提交、修改、保存或删除！');
 			}
 		}
+		// 是否已经删除
+		if ($oRecord->state !== '1') {
+			return new \ResponseError('记录已经被删除，不能再次删除');
+		}
+		// 如果已经获得积分不允许删除
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		$oEnlUsrRnd = $modelEnlUsr->byId($oApp, $this->who->uid, ['fields' => 'id,enroll_num,user_total_coin', 'rid' => $oRecord->rid]);
+		if ($oEnlUsrRnd && $oEnlUsrRnd->user_total_coin > 0) {
+			return new \ResponseError('提交的记录已经获得活动积分，不能删除');
+		}
 
-		$modelRec = $this->model('matter\enroll\record');
-		$rst = $modelRec->removeByUser($site, $app, $ek);
+		// 删除数据
+		$rst = $modelRec->removeByUser($oApp->id, $ek);
+
+		// 更新活动的累计数据
+		$modelEnlUsr->removeRecord($oRecord);
+
+		// 更新项目的累计数据
+		if (!empty($oApp->mission_id)) {
+			$modelMisUsr = $this->model('matter\mission\user');
+			$modelMisUsr->removeRecord($oApp->mission_id, $oRecord);
+		}
 
 		return new \ResponseData($rst);
 	}

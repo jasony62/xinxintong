@@ -18,6 +18,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.criteria = _oCriteria = {
             orderby: 'enroll_num',
+            onlyEnrolled: 'Y',
             rid: ''
         };
         $scope.rows = _oRows = {
@@ -48,7 +49,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.filter = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/enrolleeFilter.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/enrolleeFilter.html?_=2',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.app = $scope.app;
                     $scope2.criteria = _oCriteria;

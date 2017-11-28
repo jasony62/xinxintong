@@ -2,6 +2,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
     'use strict';
     var ngMod = angular.module('schema.enroll', []);
     ngMod.provider('srvEnrollSchema', function() {
+        var _siteId;
+        this.config = function(siteId) {
+            _siteId = siteId;
+        };
         this.$get = ['$uibModal', '$q', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', function($uibModal, $q, srvApp, srvAppPage) {
             var _self = {
                 makePagelet: function(content) {

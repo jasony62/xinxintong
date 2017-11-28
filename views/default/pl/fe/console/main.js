@@ -46,6 +46,7 @@ define(['frame'], function(ngApp) {
                     $uibModal.open({
                         templateUrl: 'copyMatter.html',
                         controller: ['$scope', '$uibModalInstance', '$http', function($scope2, $mi, $http) {
+                            var criteria;
                             $scope2.pageOfMission = {
                                 at: '1',
                                 size: '5',
@@ -53,10 +54,13 @@ define(['frame'], function(ngApp) {
                                     return '&page=' + this.at + '&size=' + page.size;
                                 }
                             };
-                            $scope2.criteria = {
+                            $scope2.criteria = criteria = {
                                 mission_id: '',
                                 isMatterData: 'N',
                                 isMatterAction: 'Y'
+                            }
+                            $scope2.doMission = function() {
+
                             }
                             $scope2.ok = function() {
                                 $mi.close();
@@ -64,6 +68,7 @@ define(['frame'], function(ngApp) {
                             $scope2.cancle = function() {
                                 $mi.dismiss();
                             }
+                            $scope2.doMission();
                         }],
                         backdrop: 'static'
                     }).result.then(function(newMatter) {

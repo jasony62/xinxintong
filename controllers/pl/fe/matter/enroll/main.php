@@ -348,7 +348,7 @@ class main extends main_base {
 				$oldCriteria->record = new \stdClass;
 				$oldCriteria->record->assignRid = $oldRound->rid;
 				$oldUsers = $modelRec->byApp($oCopied, '', $oldCriteria);
-				if (count($oldUsers->records)) {
+				if (isset($oldUsers->records) && count($oldUsers->records)) {
 					foreach ($oldUsers->records as $record) {
 						$cpUser = new \stdClass;
 						$cpUser->uid = ($cpEnrollee !== 'Y')? '' : $record->userid;
@@ -356,6 +356,13 @@ class main extends main_base {
 						/* 插入登记数据 */
 						$ek = $modelRec->enroll($oNewApp, $cpUser, ['nickname' => $cpUser->nickname, 'assignRid' => $newRound]);
 						/* 处理自定义信息 */
+						if (isset($record->data->member) && $oNewApp->entry_rule->scope !== 'member') {
+							unset($record->data->member->schema_id);
+							foreach ($record->data->member as $schemaId => $val) {
+								$record->data->{$schemaId} = $val;
+							}
+							unset($record->data->member);
+						}
 						$oEnrolledData = $record->data;
 						$rst = $modelRec->setData($cpUser, $oNewApp, $ek, $oEnrolledData, '', false);
 						if (!empty($record->supplement) && count(get_object_vars($posted->supplement))) {

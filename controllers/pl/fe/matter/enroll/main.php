@@ -184,11 +184,11 @@ class main extends main_base {
 	 * @param string $site 是否要支持跨团队进行活动的复制？
 	 * @param string $app
 	 * @param int $mission
-	 * @param int $cpRecode 是否复制数据
+	 * @param int $cpRecord 是否复制数据
 	 * @param int $cpEnrollee 是否复制用户行为
 	 *
 	 */
-	public function copy_action($site, $app, $mission = null, $cpRecode = 'N', $cpEnrollee = 'N') {
+	public function copy_action($site, $app, $mission = null, $cpRecord = 'N', $cpEnrollee = 'N') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -317,7 +317,7 @@ class main extends main_base {
 			}
 		}
 		/* 复制登记活动数据 */
-		if ($cpRecode === 'Y') {
+		if ($cpRecord === 'Y') {
 			$oNewApp = $modelApp->byId($oNewApp->id);
 			$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 			/* 创建新活动的轮次和元活动匹配 */

@@ -115,6 +115,8 @@ class record_model extends record_base {
 						$dbData->{$schemaId} = $treatedValue;
 					} else if (empty($submitVal)) {
 						$dbData->{$schemaId} = $treatedValue = '';
+					} else if (is_string($submitVal)) {
+						$dbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【image】需要的类型不匹配');
 					}
@@ -156,6 +158,8 @@ class record_model extends record_base {
 							}
 						}
 						$dbData->{$schemaId} = $treatedValue;
+					} else if (is_string($submitVal)) {
+						$dbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【file】需要的类型不匹配');
 					}
@@ -165,6 +169,8 @@ class record_model extends record_base {
 						// 多选题，将选项合并为逗号分隔的字符串
 						$treatedValue = implode(',', array_keys(array_filter((array) $submitVal, function ($i) {return $i;})));
 						$dbData->{$schemaId} = $treatedValue;
+					} else if (is_string($submitVal)) {
+						$dbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【multiple】需要的类型不匹配');
 					}

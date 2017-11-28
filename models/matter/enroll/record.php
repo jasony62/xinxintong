@@ -15,6 +15,7 @@ class record_model extends record_base {
 	public function enroll(&$oApp, $oUser = null, $aOptions = []) {
 		$referrer = isset($aOptions['referrer']) ? $aOptions['referrer'] : '';
 		$enrollAt = isset($aOptions['enrollAt']) ? $aOptions['enrollAt'] : time();
+		isset($aOptions['assignRid']) && $assignRid = $aOptions['assignRid'];
 
 		$ek = $this->genKey($oApp->siteid, $oApp->id);
 
@@ -30,7 +31,9 @@ class record_model extends record_base {
 		];
 		/* 记录所属轮次 */
 		$modelRun = $this->model('matter\enroll\round');
-		if ($oActiveRound = $modelRun->getActive($oApp)) {
+		if (isset($assignRid)) {
+			$record['rid'] = $assignRid;
+		} else if ($oActiveRound = $modelRun->getActive($oApp)) {
 			$record['rid'] = $oActiveRound->rid;
 		}
 		/* 登记用户昵称 */
@@ -112,6 +115,8 @@ class record_model extends record_base {
 						$dbData->{$schemaId} = $treatedValue;
 					} else if (empty($submitVal)) {
 						$dbData->{$schemaId} = $treatedValue = '';
+					} else if (is_string($submitVal)) {
+						$dbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【image】需要的类型不匹配');
 					}
@@ -153,6 +158,8 @@ class record_model extends record_base {
 							}
 						}
 						$dbData->{$schemaId} = $treatedValue;
+					} else if (is_string($submitVal)) {
+						$dbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【file】需要的类型不匹配');
 					}
@@ -162,6 +169,8 @@ class record_model extends record_base {
 						// 多选题，将选项合并为逗号分隔的字符串
 						$treatedValue = implode(',', array_keys(array_filter((array) $submitVal, function ($i) {return $i;})));
 						$dbData->{$schemaId} = $treatedValue;
+					} else if (is_string($submitVal)) {
+						$dbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【multiple】需要的类型不匹配');
 					}
@@ -745,14 +754,16 @@ class record_model extends record_base {
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
 		// 指定轮次，或者当前激活轮次
-		if (!empty($oCriteria->record->rid)) {
+		if (isset($oCriteria->record->assignRid)) {
+			$rid = $oCriteria->record->assignRid;
+		} else if (!empty($oCriteria->record->rid)) {
 			if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 				$rid = $oCriteria->record->rid;
 			}
 		} else if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
 			$rid = $oActiveRnd->rid;
 		}
-		!empty($rid) && $w .= " and r.rid='$rid'";
+		isset($rid) && $w .= " and r.rid='$rid'";
 
 		/* 根据用户分组过滤 */
 		if (!empty($oOptions->userGroup)) {

@@ -45,25 +45,35 @@ define(['frame'], function(ngApp) {
                 case 'enroll':
                     $uibModal.open({
                         templateUrl: 'copyMatter.html',
-                        controller: ['$scope', '$uibModalInstance', '$http', function($scope2, $mi, $http) {
+                        controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
                             var criteria;
                             $scope2.pageOfMission = {
                                 at: '1',
                                 size: '5',
                                 j: function() {
-                                    return '&page=' + this.at + '&size=' + page.size;
+                                    return '&page=' + this.at + '&size=' + this.size;
                                 }
                             };
                             $scope2.criteria = criteria = {
-                                mission_id: '',
-                                isMatterData: 'N',
-                                isMatterAction: 'Y'
-                            }
+                                'mission_id': '',
+                                'isMatterData': 'N',
+                                'isMatterAction': 'Y'
+                            };
                             $scope2.doMission = function() {
-
+                                var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j();
+                                http2.get(url, function(rsp) {
+                                    if(rsp.data) {
+                                        $scope2.missions = rsp.data.missions;
+                                        $scope2.pageOfMission.total = rsp.data.total;
+                                    }
+                                });
                             }
                             $scope2.ok = function() {
-                                $mi.close();
+                                $mi.close({
+                                    cpRecord: criteria.isMatterData,
+                                    cpEnrollee: criteria.isMatterAction,
+                                    mission: criteria.mission_id
+                                });
                             };
                             $scope2.cancle = function() {
                                 $mi.dismiss();
@@ -71,8 +81,11 @@ define(['frame'], function(ngApp) {
                             $scope2.doMission();
                         }],
                         backdrop: 'static'
-                    }).result.then(function(newMatter) {
-
+                    }).result.then(function(result) {
+                        url += '/copy?site=' + siteid + '&app=' + id +'&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
+                        http2.get(url, function(rsp) {
+                            location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+                        });
                     });
                     break;
                 case 'signin':
@@ -84,13 +97,11 @@ define(['frame'], function(ngApp) {
                     alert('指定素材不支持复制');
                     return;
             }
-            /*http2.get(url, function(rsp) {
-                if (type === 'enroll') {
-                    location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
-                } else {
+            if(type !== 'enroll') {
+                http2.get(url, function(rsp) {
                     location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
-                }
-            });*/
+                });
+            }
         };
     }]);
     ngApp.provider.controller('ctrlMission', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {

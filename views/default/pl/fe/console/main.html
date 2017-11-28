@@ -452,6 +452,7 @@
                 <label class='col-md-3 control-label'>复制到</label>
                 <div class='col-md-9'>
                     <select class='form-control' ng-model="criteria.mission_id" size=5>
+                        <option value="">无</option>
                         <option value="{{mission.id}}" ng-repeat="mission in missions">{{mission.title}}</option>
                     </select>
                     <div class='pl-pagination' >

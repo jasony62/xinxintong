@@ -44,8 +44,8 @@
             <div class='row' ng-if="params.activeRound">
                 <div class='text-center help-block'>
                     <span ng-bind="params.activeRound.title"></span>
-                    <span ng-if="params.activeRound.start_at>0"> / {{params.activeRound.start_at|date:'MM.dd HH:mm'}}</span>
-                    <span ng-if="params.activeRound.end_at>0"> - {{params.activeRound.end_at|date:'MM.dd HH:mm'}}</span>
+                    <span ng-if="params.activeRound.start_at>0"> / {{params.activeRound.start_at*1000|date:'MM.dd HH:mm'}}</span>
+                    <span ng-if="params.activeRound.end_at>0"> - {{params.activeRound.end_at*1000|date:'MM.dd HH:mm'}}</span>
                 </div>
             </div>
         </div>

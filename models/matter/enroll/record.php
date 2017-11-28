@@ -15,6 +15,7 @@ class record_model extends record_base {
 	public function enroll(&$oApp, $oUser = null, $aOptions = []) {
 		$referrer = isset($aOptions['referrer']) ? $aOptions['referrer'] : '';
 		$enrollAt = isset($aOptions['enrollAt']) ? $aOptions['enrollAt'] : time();
+		isset($aOptions['assignRid']) && $assignRid = $aOptions['assignRid'];
 
 		$ek = $this->genKey($oApp->siteid, $oApp->id);
 
@@ -30,7 +31,9 @@ class record_model extends record_base {
 		];
 		/* 记录所属轮次 */
 		$modelRun = $this->model('matter\enroll\round');
-		if ($oActiveRound = $modelRun->getActive($oApp)) {
+		if (isset($assignRid)) {
+			$record['rid'] = $assignRid;
+		} else if ($oActiveRound = $modelRun->getActive($oApp)) {
 			$record['rid'] = $oActiveRound->rid;
 		}
 		/* 登记用户昵称 */
@@ -745,14 +748,16 @@ class record_model extends record_base {
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
 		// 指定轮次，或者当前激活轮次
-		if (!empty($oCriteria->record->rid)) {
+		if (isset($oCriteria->record->assignRid)) {
+			$rid = $oCriteria->record->assignRid;
+		} else if (!empty($oCriteria->record->rid)) {
 			if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 				$rid = $oCriteria->record->rid;
 			}
 		} else if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
 			$rid = $oActiveRnd->rid;
 		}
-		!empty($rid) && $w .= " and r.rid='$rid'";
+		isset($rid) && $w .= " and r.rid='$rid'";
 
 		/* 根据用户分组过滤 */
 		if (!empty($oOptions->userGroup)) {

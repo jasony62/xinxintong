@@ -279,7 +279,7 @@ define(['wrap'], function(SchemaWrap) {
                         matched = false;
                     if (config && config.pattern === 'record') {
                         if (schema && schema.id) {
-                            if (schema.id === 'enrollAt') {
+                            if (/enrollAt|roundTitle/.test(schema.id)) {
                                 matched = true;
                                 dataSchemas.push(item);
                             } else if (mapOfAppSchemas[schema.id]) {

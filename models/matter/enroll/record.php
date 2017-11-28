@@ -484,35 +484,21 @@ class record_model extends record_base {
 	public function lastByUser($oApp, $oUser, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
+		$assignRid = isset($aOptions['assignRid']) ? $aOptions['assignRid'] : '';
 
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			"siteid='{$oApp->siteid}' and aid='{$oApp->id}' and state=1",
+			['aid' => $oApp->id, 'state' => 1, 'userid' => $oUser->uid],
 		];
-		/* 指定登记用户 */
-		//if (empty($oUser->unionid)) {
-		$q[2] .= " and userid='{$oUser->uid}'";
-		// } else {
-		// 	$modelAcnt = $this->model('site\user\account');
-		// 	$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-		// 	if (count($aSiteUsers) === 1) {
-		// 		$q[2] .= " and userid='{$aSiteUsers[0]->uid}'";
-		// 	} else {
-		// 		$q[2] .= " and userid in (";
-		// 		foreach ($aSiteUsers as $index => $aSiteUser) {
-		// 			if ($index > 0) {
-		// 				$q[2] .= ',';
-		// 			}
-		// 			$q[2] .= "'{$aSiteUser->uid}'";
-		// 		}
-		// 		$q[2] .= ")";
-		// 	}
-		// }
 
 		/* 指定登记轮次 */
-		if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-			$q[2] .= " and rid='$activeRound->rid'";
+		if (empty($assignRid)) {
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$q[2]['rid'] = $activeRound->rid;
+			}
+		} else {
+			$q[2]['rid'] = $assignRid;
 		}
 
 		/* 登记的时间 */

@@ -22,10 +22,11 @@ class record extends base {
 	 *
 	 * @param string $site
 	 * @param string $app
+	 * @param string $rid 指定在哪一个轮次上提交（仅限新建的情况）
 	 * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
 	 * @param string $submitkey 支持文件分段上传
 	 */
-	public function submit_action($site, $app, $ek = null, $submitkey = '') {
+	public function submit_action($site, $app, $rid = '', $ek = null, $submitkey = '') {
 		/* support CORS */
 		//header('Access-Control-Allow-Origin:*');
 		//header('Access-Control-Allow-Methods:POST');
@@ -41,8 +42,6 @@ class record extends base {
 			die('参数错误！');
 		}
 
-		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
-
 		$modelEnl = $this->model('matter\enroll');
 		$modelEnlRec = $this->model('matter\enroll\record');
 
@@ -50,13 +49,22 @@ class record extends base {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('登记活动不存在');
 		}
+
+		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
+
 		// 判断活动是否添加了轮次
-		if ($oEnrollApp->multi_rounds == 'Y') {
-			$modelRnd = $this->model('matter\enroll\round');
+		$modelRnd = $this->model('matter\enroll\round');
+		if (empty($rid)) {
 			$oActiveRnd = $modelRnd->getActive($oEnrollApp);
 			$now = time();
 			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now)) {
 				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
+			}
+			$rid = $oActiveRnd->rid;
+		} else {
+			$oActiveRnd = $modelRnd->byId($rid);
+			if (empty($oActiveRnd)) {
+				return new \ResponseError('指定的轮次不存在！');
 			}
 		}
 
@@ -209,7 +217,7 @@ class record extends base {
 		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 		if ($bSubmitNewRecord) {
 			/* 插入登记数据 */
-			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname]);
+			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname, 'assignRid' => $rid]);
 			/* 处理自定义信息 */
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey, true);
 			/* 登记提交的积分奖励 */
@@ -260,16 +268,7 @@ class record extends base {
 		/* 记录操作日志 */
 		$this->_logSubmit($oEnrollApp, $ek);
 		/* 登记用户行为及积分 */
-		$modelUsr = $this->model('matter\enroll\user');
-		$modelUsr->setOnlyWriteDbConn(true);
-
-		/* 获得所属轮次 */
-		$modelRun = $this->model('matter\enroll\round');
-		if ($oActiveRnd = $modelRun->getActive($oEnrollApp)) {
-			$rid = $oActiveRnd->rid;
-		} else {
-			$rid = '';
-		}
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 更新活动用户轮次数据 */
 		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => $rid]);

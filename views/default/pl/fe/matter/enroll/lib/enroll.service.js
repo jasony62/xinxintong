@@ -571,7 +571,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 add: function() {
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=1',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                             $scope.round = {
@@ -612,10 +612,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 edit: function(round) {
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=1',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = { title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
+                            $scope.round = { rid: round.rid, title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
                             $scope.roundState = RoundState;
                             $scope.$on('xxt.tms-datepicker.change', function(event, data) {
                                 if (data.state === 'start_at') {
@@ -655,6 +655,17 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     data: $scope.round
                                 });
                             };
+                            $scope.downloadQrcode = function(url) {
+                                $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+                            };
+                            srvEnrollApp.get().then(function(oApp) {
+                                var rndEntryUrl;
+                                rndEntryUrl = oApp.entryUrl + '&rid=' + round.rid;
+                                $scope.entry = {
+                                    url: rndEntryUrl,
+                                    qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + oApp.siteid + '&url=' + encodeURIComponent(rndEntryUrl),
+                                }
+                            });
                         }]
                     }).result.then(function(rst) {
                         var url = _RestURL;

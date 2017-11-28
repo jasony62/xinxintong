@@ -439,8 +439,8 @@ define(['frame'], function(ngApp) {
                             extattr: data.extattr
                         },
                         i, ea;
-                    for (i in selected.mschema.extattr) {
-                        ea = selected.mschema.extattr[i];
+                    for (i in $scope.mschema.extattr) {
+                        ea = $scope.mschema.extattr[i];
                         newData[ea.id] = rst.data[ea.id];
                     }
                     http2.post('/rest/pl/fe/site/member/update?site=' + $scope.frameState.sid + '&id=' + member.id, newData, function(rsp) {

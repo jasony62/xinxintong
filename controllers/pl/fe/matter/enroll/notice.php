@@ -35,12 +35,12 @@ class notice extends \pl\fe\matter\base {
 
 		if (isset($posted->criteria)) {
 			// 筛选条件
-			$criteria = $posted->criteria;
-			!empty($criteria->rid) && $rid = $modelEnlUsr->escape($criteria->rid);
+			$oCriteria = $posted->criteria;
+			!empty($oCriteria->rid) && $rid = $modelEnlUsr->escape($oCriteria->rid);
 			$aOptions = [
 				'rid' => $rid,
 			];
-			!empty($post->onlyEnrolled) && $aOptions['onlyEnrolled'] = $post->onlyEnrolled;
+			!empty($oCriteria->onlyEnrolled) && $aOptions['onlyEnrolled'] = $oCriteria->onlyEnrolled;
 			$enrollUsers = $modelEnlUsr->enrolleeByApp($oApp, '', '', $aOptions);
 			$enrollers = $enrollUsers->users;
 		} else if (isset($posted->users)) {

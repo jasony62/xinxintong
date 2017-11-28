@@ -57,8 +57,11 @@ define(['frame'], function(ngApp) {
                             $scope2.criteria = criteria = {
                                 'mission_id': '',
                                 'isMatterData': 'N',
-                                'isMatterAction': 'Y'
+                                'isMatterAction': 'N'
                             };
+                            $scope2.$watch('criteria.isMatterData', function(nv) {
+                                if(nv==='Y') {criteria.isMatterAction='Y'};
+                            });
                             $scope2.doMission = function() {
                                 var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j();
                                 http2.get(url, function(rsp) {
@@ -82,7 +85,7 @@ define(['frame'], function(ngApp) {
                         }],
                         backdrop: 'static'
                     }).result.then(function(result) {
-                        url += '/copy?site=' + siteid + '&app=' + id +'&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
+                        url += type + '/copy?site=' + siteid + '&app=' + id +'&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
                         http2.get(url, function(rsp) {
                             location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                         });

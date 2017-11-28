@@ -41,6 +41,13 @@
                 <form name='enroll' novalidate dynamic-html="page.html">
                 </form>
             </div>
+            <div class='row' ng-if="params.activeRound">
+                <div class='text-center help-block'>
+                    <span ng-bind="params.activeRound.title"></span>
+                    <span ng-if="params.activeRound.start_at>0"> / {{params.activeRound.start_at|date:'MM.dd HH:mm'}}</span>
+                    <span ng-if="params.activeRound.end_at>0"> - {{params.activeRound.end_at|date:'MM.dd HH:mm'}}</span>
+                </div>
+            </div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

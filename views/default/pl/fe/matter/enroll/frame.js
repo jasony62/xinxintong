@@ -96,6 +96,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             //
             srvSiteProvider.config(siteId);
             srvTagProvider.config(siteId);
+            srvEnrollSchemaProvider.config(siteId);
             srvEnrollAppProvider.config(siteId, appId);
             srvEnrollRoundProvider.config(siteId, appId);
             srvEnrollPageProvider.config(siteId, appId);

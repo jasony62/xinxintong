@@ -331,7 +331,7 @@ ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'ls', function($scop
     }
     window.onbeforeunload = function() {
         // 保存未提交数据
-        submitState.modified && submitState.cache();
+        submitState.modified && submitState.cache($scope.data);
     };
 
     var facInput, submitState, tasksOfBeforeSubmit;

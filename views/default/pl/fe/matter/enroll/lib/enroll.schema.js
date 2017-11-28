@@ -715,11 +715,11 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
         };
         $scope.changeSchemaType = function() {
             var oBeforeState;
+            oBeforeState = angular.copy($scope.activeSchema);
             if (false === schemaLib.changeType($scope.activeSchema, editing.type)) {
                 editing.type = $scope.activeSchema.type;
                 return;
             }
-            oBeforeState = angular.copy($scope.activeSchema);
             if ($scope.activeSchema.type === 'member') {
                 if ($scope.app.entry_rule.member) {
                     var mschemaIds = Object.keys($scope.app.entry_rule.member);

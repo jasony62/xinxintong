@@ -184,9 +184,11 @@ class main extends main_base {
 	 * @param string $site 是否要支持跨团队进行活动的复制？
 	 * @param string $app
 	 * @param int $mission
+	 * @param int $cpRecord 是否复制数据
+	 * @param int $cpEnrollee 是否复制用户行为
 	 *
 	 */
-	public function copy_action($site, $app, $mission = null) {
+	public function copy_action($site, $app, $mission = null, $cpRecord = 'N', $cpEnrollee = 'N') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -275,6 +277,7 @@ class main extends main_base {
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
 		$oNewApp->group_app_id = $oCopied->group_app_id;
 		$oNewApp->enroll_app_id = $oCopied->enroll_app_id;
+		$oNewApp->tags = $modelApp->escape($oCopied->tags);
 
 		/* 所属项目 */
 		if (!empty($mission)) {
@@ -311,6 +314,73 @@ class main extends main_base {
 					'js' => $ep->js,
 				];
 				$modelCode->modify($oNewPage->code_id, $data);
+			}
+		}
+		/* 复制登记活动数据 */
+		if ($cpRecord === 'Y') {
+			$oNewApp = $modelApp->byId($oNewApp->id);
+			$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
+			/* 创建新活动的轮次和元活动匹配 */
+			$modelRound = $this->model('matter\enroll\round');
+			$oldRounds = $modelRound->byApp($oCopied)->rounds;
+			//轮次为空的用户
+			$nullRound = new \stdClass;
+			$nullRound->rid = '';
+			$oldRounds[] = $nullRound;
+			foreach ($oldRounds as $oldRound) {
+				if (!empty($oldRound->rid)) {
+					$props = new \stdClass;
+					$props->title = $oldRound->title;
+					$props->summary = $oldRound->summary;
+					$props->start_at = $oldRound->start_at;
+					$props->end_at = $oldRound->end_at;
+					$props->state = $oldRound->state;
+					$newRound = $modelRound->create($oNewApp, $props, $oUser);
+					if (!$newRound[0]) {
+						return new \ResponseError($newRound[1]);
+					}
+					$newRound = $newRound[1]->rid;
+				} else {
+					$newRound = '';
+				}
+				//插入数据
+				$oldCriteria = new \stdClass;
+				$oldCriteria->record = new \stdClass;
+				$oldCriteria->record->assignRid = $oldRound->rid;
+				$oldUsers = $modelRec->byApp($oCopied, '', $oldCriteria);
+				if (isset($oldUsers->records) && count($oldUsers->records)) {
+					foreach ($oldUsers->records as $record) {
+						$cpUser = new \stdClass;
+						$cpUser->uid = ($cpEnrollee !== 'Y')? '' : $record->userid;
+						$cpUser->nickname = ($cpEnrollee !== 'Y')? '' : $record->nickname;
+						/* 插入登记数据 */
+						$ek = $modelRec->enroll($oNewApp, $cpUser, ['nickname' => $cpUser->nickname, 'assignRid' => $newRound]);
+						/* 处理自定义信息 */
+						if (isset($record->data->member) && $oNewApp->entry_rule->scope !== 'member') {
+							unset($record->data->member->schema_id);
+							foreach ($record->data->member as $schemaId => $val) {
+								$record->data->{$schemaId} = $val;
+							}
+							unset($record->data->member);
+						}
+						$oEnrolledData = $record->data;
+						$rst = $modelRec->setData($cpUser, $oNewApp, $ek, $oEnrolledData, '', false);
+						if (!empty($record->supplement) && count(get_object_vars($posted->supplement))) {
+							$rst = $modelRec->setSupplement($cpUser, $oEnrollApp, $ek, $posted->supplement);
+						}
+						$upDate = [];
+						$upDate['verified'] = $record->verified;
+						$upDate['comment'] = $modelRec->escape($record->comment);
+						if (!empty($record->tags)) {
+							$upDate['tags'] = $modelRec->escape($record->tags);
+						}
+						$rst = $modelRec->update(
+							'xxt_enroll_record',
+							$upDate,
+							['enroll_key' => $ek, 'state' => 1]
+						);
+					}
+				}
 			}
 		}
 

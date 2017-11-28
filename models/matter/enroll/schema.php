@@ -27,7 +27,7 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 去除和其他活动的题目的关联
 	 */
-	public function wipeAssoc(&$oSchema) {
+	public function wipeAssoc(&$oSchema, $aAssocAppIds) {
 		if (isset($oSchema->fromApp) && in_array($oSchema->fromApp, $aAssocAppIds)) {
 			unset($oSchema->fromApp);
 			unset($oSchema->requieCheck);

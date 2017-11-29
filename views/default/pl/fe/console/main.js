@@ -44,7 +44,7 @@ define(['frame'], function(ngApp) {
                     break;
                 case 'enroll':
                     $uibModal.open({
-                        templateUrl: 'copyMatter.html',
+                        templateUrl: '/views/default/pl/fe/_module/copyMatter.html?_=1',
                         controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
                             var criteria;
                             $scope2.pageOfMission = {

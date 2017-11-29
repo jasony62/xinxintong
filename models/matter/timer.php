@@ -61,7 +61,7 @@ class timer_model extends base_model {
 		$q = [
 			'*',
 			'xxt_timer_task',
-			"enabled='Y' and ((task_expire_at>0 and task_expire_at>={$now}) or left_count>0)",
+			"enabled='Y' and ((task_expire_at=0 and left_count>0) or task_expire_at>={$now})",
 		];
 		$q[2] .= " and (min=-1 or min=$min)";
 		$q[2] .= " and (hour=-1 or hour=$hour)";

@@ -55,12 +55,14 @@ class record extends base {
 		// 判断活动是否添加了轮次
 		$modelRnd = $this->model('matter\enroll\round');
 		if (empty($rid)) {
-			$oActiveRnd = $modelRnd->getActive($oEnrollApp);
-			$now = time();
-			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now)) {
-				return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
+			if ($oEnrollApp->multi_rounds === 'Y') {
+				$oActiveRnd = $modelRnd->getActive($oEnrollApp);
+				$now = time();
+				if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now)) {
+					return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
+				}
+				$rid = $oActiveRnd->rid;
 			}
-			$rid = $oActiveRnd->rid;
 		} else {
 			$oActiveRnd = $modelRnd->byId($rid);
 			if (empty($oActiveRnd)) {

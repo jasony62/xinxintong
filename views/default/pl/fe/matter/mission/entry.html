@@ -206,8 +206,14 @@
                     </div>
                     <div class='form-group'>
                         <div class='form-inline'>
+                            <span>终止时间</span>
+                            <tms-datepicker class='tms-datepicker' tms-title='终止时间' tms-date='timerTask.remind.task.task_expire_at' tms-state='remind'></tms-datepicker>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <div class='form-inline'>
                             <div class='form-group'>
-                                <label style='font-weight:normal;'>剩余执行次数 </label>
+                                <span>剩余执行次数</span>
                                 <select class='form-control' ng-model="timerTask.remind.task.left_count">
                                     <option value='0'>0次</option>
                                     <option value='1'>1次</option>
@@ -221,6 +227,10 @@
                                     <option value='10'>10次</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <div class='form-inline'>
                             <div class="checkbox">
                                 <label>
                                     <input type='checkbox' ng-model="timerTask.remind.task.enabled" ng-true-value="'Y'" ng-false-value="'N'"> 定时规则生效</label>
@@ -412,8 +422,14 @@
                         </div>
                         <div class='form-group'>
                             <div class='form-inline'>
+                                <span>终止时间</span>
+                                <tms-datepicker class='tms-datepicker' tms-title='终止时间' tms-date='timerTask.report.task.task_expire_at' tms-state='report'></tms-datepicker>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <div class='form-inline'>
                                 <div class='form-group'>
-                                    <label style='font-weight:normal;'>剩余执行次数 </label>
+                                    <span>剩余执行次数</span>
                                     <select class='form-control' ng-model="timerTask.report.task.left_count">
                                         <option value='0'>0次</option>
                                         <option value='1'>1次</option>
@@ -427,6 +443,10 @@
                                         <option value='10'>10次</option>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <div class='form-inline'>
                                 <div class="checkbox">
                                     <label>
                                         <input type='checkbox' ng-model="timerTask.report.task.enabled" ng-true-value="'Y'" ng-false-value="'N'"> 定时规则生效</label>

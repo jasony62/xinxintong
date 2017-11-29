@@ -39,13 +39,14 @@ class remind_model extends \TMS_MODEL {
 				case 'enroll':
 					$matterEnroll = new \stdClass;
 					$matterEnroll->id = $oMission->user_app_id;
-					$modelRec = $this->model('matter\enroll\user');
+					$modelEnlUsr = $this->model('matter\enroll\user');
 					$options = [
 						'rid' => 'ALL',
+						'onlyEnrolled' => 'Y',
 						'fields' => 'userid',
 						'cascaded' => 'N',
 					];
-					$enrollUsers = $modelRec->enrolleeByApp($matterEnroll, '', '', $options);
+					$enrollUsers = $modelEnlUsr->enrolleeByApp($matterEnroll, '', '', $options);
 					$receivers = $enrollUsers->users;
 					break;
 				case 'signin':

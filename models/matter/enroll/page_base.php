@@ -72,7 +72,7 @@ abstract class page_base extends \TMS_MODEL {
 		$aPageDataSchemas = json_decode($oPage->data_schemas);
 		foreach ($aPageDataSchemas as $oPageWrap) {
 			$oSchema = $oPageWrap->schema;
-			$modelSch->wipeAssoc($oSchema);
+			$modelSch->wipeAssoc($oSchema, $aAssocAppIds);
 		}
 		$oPage->data_schemas = $this->toJson($aPageDataSchemas);
 

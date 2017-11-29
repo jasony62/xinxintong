@@ -43,6 +43,54 @@ define(['frame'], function(ngApp) {
                     url += type + '/copy?id=' + id + '&site=' + siteid;
                     break;
                 case 'enroll':
+                    $uibModal.open({
+                        templateUrl: 'copyMatter.html',
+                        controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                            var criteria;
+                            $scope2.pageOfMission = {
+                                at: '1',
+                                size: '5',
+                                j: function() {
+                                    return '&page=' + this.at + '&size=' + this.size;
+                                }
+                            };
+                            $scope2.criteria = criteria = {
+                                'mission_id': '',
+                                'isMatterData': 'N',
+                                'isMatterAction': 'N'
+                            };
+                            $scope2.$watch('criteria.isMatterData', function(nv) {
+                                if(nv==='Y') {criteria.isMatterAction='Y'};
+                            });
+                            $scope2.doMission = function() {
+                                var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j();
+                                http2.get(url, function(rsp) {
+                                    if(rsp.data) {
+                                        $scope2.missions = rsp.data.missions;
+                                        $scope2.pageOfMission.total = rsp.data.total;
+                                    }
+                                });
+                            }
+                            $scope2.ok = function() {
+                                $mi.close({
+                                    cpRecord: criteria.isMatterData,
+                                    cpEnrollee: criteria.isMatterAction,
+                                    mission: criteria.mission_id
+                                });
+                            };
+                            $scope2.cancle = function() {
+                                $mi.dismiss();
+                            }
+                            $scope2.doMission();
+                        }],
+                        backdrop: 'static'
+                    }).result.then(function(result) {
+                        url += type + '/copy?site=' + siteid + '&app=' + id +'&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
+                        http2.get(url, function(rsp) {
+                            location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+                        });
+                    });
+                    break;
                 case 'signin':
                 case 'wall':
                 case 'group':
@@ -52,13 +100,11 @@ define(['frame'], function(ngApp) {
                     alert('指定素材不支持复制');
                     return;
             }
-            http2.get(url, function(rsp) {
-                if (type === 'enroll') {
-                    location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
-                } else {
+            if(type !== 'enroll') {
+                http2.get(url, function(rsp) {
                     location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
-                }
-            });
+                });
+            }
         };
     }]);
     ngApp.provider.controller('ctrlMission', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {
@@ -439,8 +485,8 @@ define(['frame'], function(ngApp) {
                             extattr: data.extattr
                         },
                         i, ea;
-                    for (i in selected.mschema.extattr) {
-                        ea = selected.mschema.extattr[i];
+                    for (i in $scope.mschema.extattr) {
+                        ea = $scope.mschema.extattr[i];
                         newData[ea.id] = rst.data[ea.id];
                     }
                     http2.post('/rest/pl/fe/site/member/update?site=' + $scope.frameState.sid + '&id=' + member.id, newData, function(rsp) {

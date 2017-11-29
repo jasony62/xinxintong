@@ -84,7 +84,7 @@ class timer_model extends base_model {
 			$oTask = new \stdClass;
 			$oTask->id = $oSchedule->id;
 			$oTask->siteid = $oSchedule->siteid;
-			if ($oTask->task_expire_at > 0) {
+			if ($oSchedule->task_expire_at > 0) {
 				$oTask->task_expire_at = $oSchedule->task_expire_at;
 			} else {
 				$oTask->left_count = $oSchedule->left_count;

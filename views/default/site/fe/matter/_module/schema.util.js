@@ -70,7 +70,7 @@ utilSchema.checkValue = function(oSchema, value) {
                 }
             }
             if (opCount < oSchema.range[0] || opCount > oSchema.range[1]) {
-                return '选择题［' + oSchema.title + '］选中的选项数量，不在指定范围（' + oSchema.range.join(',') + '）内';
+                return '【' + oSchema.title + '】中最多只能选择(' + oSchema.range[1] +')项，最少需要选择(' + oSchema.range[0] +')项';
             }
         }
         if (/image|file/.test(oSchema.type) && oSchema.count) {

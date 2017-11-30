@@ -31,7 +31,9 @@ class timer extends base {
 			if (false == $rsp[0]) {
 				$modelTim->update('update xxt_timer_task set enabled=\'N\' where id=' . $oTask->id);
 			} else {
-				$modelTim->update('update xxt_timer_task set left_count=left_count-1 where id=' . $oTask->id);
+				if (isset($oTask->left_count) && $oTask->left_count > 0) {
+					$modelTim->update('update xxt_timer_task set left_count=left_count-1 where id=' . $oTask->id);
+				}
 			}
 		}
 

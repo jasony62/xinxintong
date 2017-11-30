@@ -51,6 +51,7 @@ class timer_model extends base_model {
 	 * 获得当前时间段要执行的任务
 	 */
 	public function tasksByTime() {
+		$now = time();
 		$min = (int) date('i'); // 0-59
 		$hour = date('G'); // 0-23
 		$mday = date('j'); // 1-31
@@ -60,7 +61,7 @@ class timer_model extends base_model {
 		$q = [
 			'*',
 			'xxt_timer_task',
-			"enabled='Y' and left_count>0",
+			"enabled='Y' and ((task_expire_at=0 and left_count>0) or task_expire_at>={$now})",
 		];
 		$q[2] .= " and (min=-1 or min=$min)";
 		$q[2] .= " and (hour=-1 or hour=$hour)";
@@ -83,6 +84,11 @@ class timer_model extends base_model {
 			$oTask = new \stdClass;
 			$oTask->id = $oSchedule->id;
 			$oTask->siteid = $oSchedule->siteid;
+			if ($oSchedule->task_expire_at > 0) {
+				$oTask->task_expire_at = $oSchedule->task_expire_at;
+			} else {
+				$oTask->left_count = $oSchedule->left_count;
+			}
 
 			$oTask->model = $this->model('matter\task\\' . $oSchedule->task_model);
 

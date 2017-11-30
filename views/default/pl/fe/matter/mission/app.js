@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlApp', ['$scope', '$location', 'http2', 'facListFilter', 'CstNaming', 'cstApp', function($scope, $location, http2, facListFilter, CstNaming, cstApp) {
+    ngApp.provider.controller('ctrlApp', ['$scope', '$location', 'http2', 'facListFilter', 'CstNaming', 'cstApp', '$uibModal', function($scope, $location, http2, facListFilter, CstNaming, cstApp, $uibModal) {
         var _oMission, _oCriteria, hash;
         $scope.scenarioes = CstNaming.scenario;
         if (hash = $location.hash()) {
@@ -95,15 +95,66 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.copyMatter = function(evt, matter) {
-            var type = (matter.type || $scope.matterType),
-                id = matter.id,
+            var type = (matter.matter_type || matter.type || $scope.matterType),
+                id = (matter.matter_id || matter.id),
+                siteid = matter.siteid,
                 url = '/rest/pl/fe/matter/';
 
             evt.stopPropagation();
-            url += type + '/copy?app=' + id + '&site=' + _oMission.siteid + '&mission=' + _oMission.id;
-            http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/matter/' + type + '?site=' + _oMission.siteid + '&id=' + rsp.data.id;
-            });
+            if (type == 'enroll') {
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/_module/copyMatter.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                        var criteria;
+                        $scope2.pageOfMission = {
+                            at: '1',
+                            size: '5',
+                            j: function() {
+                                return '&page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.criteria = criteria = {
+                            'mission_id': '',
+                            'isMatterData': 'N',
+                            'isMatterAction': 'N'
+                        };
+                        $scope2.$watch('criteria.isMatterData', function(nv) {
+                            if(nv==='Y') {criteria.isMatterAction='Y'};
+                        });
+                        $scope2.doMission = function() {
+                            var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j();
+                            http2.get(url, function(rsp) {
+                                if(rsp.data) {
+                                    $scope2.missions = rsp.data.missions;
+                                    $scope2.pageOfMission.total = rsp.data.total;
+                                }
+                            });
+                        }
+                        $scope2.ok = function() {
+                            $mi.close({
+                                cpRecord: criteria.isMatterData,
+                                cpEnrollee: criteria.isMatterAction,
+                                mission: criteria.mission_id
+                            });
+                        };
+                        $scope2.cancle = function() {
+                            $mi.dismiss();
+                        }
+                        $scope2.doMission();
+                    }],
+                    backdrop: 'static'
+                }).result.then(function(result) {
+                    url += type + '/copy?site=' + siteid + '&app=' + id +'&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
+                    http2.get(url, function(rsp) {
+                        location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+                    });
+                });
+            }else {
+                url += type + '/copy?app=' + id + '&site=' + _oMission.siteid + '&mission=' + _oMission.id;
+                http2.get(url, function(rsp) {
+                    location.href = '/rest/pl/fe/matter/' + type + '?site=' + _oMission.siteid + '&id=' + rsp.data.id;
+                });
+            }
         };
         $scope.list = function() {
             var url, data, matterType;

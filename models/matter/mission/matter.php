@@ -125,7 +125,6 @@ class matter_model extends \TMS_MODEL {
 					if ($mm->matter_type === 'memberschema') {
 						$oMatter->entryUrl = $modelMat->getEntryUrl($oMatter->siteid, $oMatter->id);
 					}
-
 					$matters[] = $oMatter;
 				}
 			}

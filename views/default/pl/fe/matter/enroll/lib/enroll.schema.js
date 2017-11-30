@@ -2,6 +2,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
     'use strict';
     var ngMod = angular.module('schema.enroll', []);
     ngMod.provider('srvEnrollSchema', function() {
+        var _siteId;
+        this.config = function(siteId) {
+            _siteId = siteId;
+        };
         this.$get = ['$uibModal', '$q', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', function($uibModal, $q, srvApp, srvAppPage) {
             var _self = {
                 makePagelet: function(content) {
@@ -711,11 +715,11 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
         };
         $scope.changeSchemaType = function() {
             var oBeforeState;
+            oBeforeState = angular.copy($scope.activeSchema);
             if (false === schemaLib.changeType($scope.activeSchema, editing.type)) {
                 editing.type = $scope.activeSchema.type;
                 return;
             }
-            oBeforeState = angular.copy($scope.activeSchema);
             if ($scope.activeSchema.type === 'member') {
                 if ($scope.app.entry_rule.member) {
                     var mschemaIds = Object.keys($scope.app.entry_rule.member);

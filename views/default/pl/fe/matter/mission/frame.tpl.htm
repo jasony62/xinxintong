@@ -65,7 +65,10 @@
                 </li>
                 <li ng-class="{'opened':opened==='other'}">
                     <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('notice')">其他 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'41px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'82px':'0'}">
+                        <li ng-class="{'active':subView==='coin'}">
+                            <a href='' ng-click="switchTo('coin')">积分</a>
+                        </li>
                         <li ng-class="{'active':subView==='notice'}">
                             <a href='' ng-click="switchTo('notice')">通知记录</a>
                         </li>

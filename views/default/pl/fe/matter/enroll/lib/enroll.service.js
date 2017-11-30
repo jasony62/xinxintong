@@ -571,7 +571,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 add: function() {
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=1',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                             $scope.round = {
@@ -612,10 +612,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 edit: function(round) {
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=1',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = { title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
+                            $scope.round = { rid: round.rid, title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
                             $scope.roundState = RoundState;
                             $scope.$on('xxt.tms-datepicker.change', function(event, data) {
                                 if (data.state === 'start_at') {
@@ -655,6 +655,17 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     data: $scope.round
                                 });
                             };
+                            $scope.downloadQrcode = function(url) {
+                                $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+                            };
+                            srvEnrollApp.get().then(function(oApp) {
+                                var rndEntryUrl;
+                                rndEntryUrl = oApp.entryUrl + '&rid=' + round.rid;
+                                $scope.entry = {
+                                    url: rndEntryUrl,
+                                    qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + oApp.siteid + '&url=' + encodeURIComponent(rndEntryUrl),
+                                }
+                            });
                         }]
                     }).result.then(function(rst) {
                         var url = _RestURL;
@@ -899,7 +910,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     http2.get('/rest/pl/fe/matter/enroll/record/restore?site=' + _siteId + '&app=' + _appId + '&key=' + record.enroll_key, function(rsp) {
                         var i = _ins._aRecords.indexOf(record);
                         _ins._aRecords.splice(i, 1);
-                        _ins._oPage.total = _oPage.total - 1;
+                        _ins._oPage.total = _ins._oPage.total - 1;
                     });
                 }
             };
@@ -965,7 +976,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url += '?site=' + _siteId;
                         url += '&app=' + _appId;
                         url += '&tmplmsg=' + notify.tmplmsg.id;
-                        url += _ins._oPage.joinParams();
 
                         http2.post(url, targetAndMsg, function(data) {
                             noticebox.success('发送完成');

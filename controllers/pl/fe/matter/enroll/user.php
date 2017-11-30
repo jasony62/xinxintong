@@ -14,9 +14,9 @@ class user extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 返回提交过登记记录的用户列表
+	 * 返回提交过填写记录的用户列表
 	 */
-	public function enrollee_action($app, $rid = '', $page = 1, $size = 30) {
+	public function enrollee_action($app, $page = 1, $size = 30) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -26,33 +26,37 @@ class user extends \pl\fe\matter\base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
-		if (!empty($oApp->group_app_id)) {
-			foreach ($oApp->dataSchemas as $schema) {
-				if ($schema->id == '_round_id') {
-					$ops = $schema->ops;
-				}
-			}
-		}
 		$modelUsr = $this->model('matter\enroll\user');
 		$post = $this->getPostJson();
-		$options = [];
-		!empty($post->orderby) && $options['orderby'] = $post->orderby;
-		!empty($post->byGroup) && $options['byGroup'] = $post->byGroup;
-		!empty($post->rid) && $options['rid'] = $post->rid;
-		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $options);
+		$aOptions = [];
+		!empty($post->orderby) && $aOptions['orderby'] = $post->orderby;
+		!empty($post->byGroup) && $aOptions['byGroup'] = $post->byGroup;
+		!empty($post->rid) && $aOptions['rid'] = $post->rid;
+		!empty($post->onlyEnrolled) && $aOptions['onlyEnrolled'] = $post->onlyEnrolled;
+
+		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
 		/* 由于版本原因，判断是否需要系统获取填写人信息 */
 		if (0 === count($result->users)) {
 			if ($this->_refresh($oApp) > 0) {
-				$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $options);
+				$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
 			}
 		}
+
 		/* 查询有openid的用户发送消息的情况 */
 		if (count($result->users)) {
+			if (!empty($oApp->group_app_id)) {
+				foreach ($oApp->dataSchemas as $schema) {
+					if ($schema->id == '_round_id') {
+						$aUserRounds = $schema->ops;
+						break;
+					}
+				}
+			}
 			foreach ($result->users as &$user) {
 				$q = [
 					'd.tmplmsg_id,d.status,b.create_at',
 					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
-					"d.userid = '{$user->userid}' and d.batch_id = b.id and b.send_from = 'enroll:" . $user->aid . "'",
+					"d.userid = '{$user->userid}' and d.openid<>'' and d.batch_id = b.id and b.send_from = 'enroll:" . $user->aid . "'",
 				];
 				$q2 = [
 					'r' => ['o' => 0, 'l' => 1],
@@ -63,8 +67,8 @@ class user extends \pl\fe\matter\base {
 				} else {
 					$user->tmplmsg = new \stdClass;
 				}
-				if (isset($ops) && $user->group_id) {
-					foreach ($ops as $v) {
+				if (isset($aUserRounds) && $user->group_id) {
+					foreach ($aUserRounds as $v) {
 						if ($v->v == $user->group_id) {
 							$user->group = $v;
 						}

@@ -52,6 +52,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             .when('/rest/pl/fe/matter/mission/enrollee', new RouteParam('enrollee'))
             .when('/rest/pl/fe/matter/mission/report', new RouteParam('report'))
             .when('/rest/pl/fe/matter/mission/overview', new RouteParam('overview'))
+            .when('/rest/pl/fe/matter/mission/coin', new RouteParam('coin'))
             .when('/rest/pl/fe/matter/mission/notice', new RouteParam('notice'))
             .otherwise(new RouteParam('main'));
 
@@ -112,6 +113,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
                 case 'report':
                     $scope.opened = 'result';
                     break;
+                case 'coin':
                 case 'notice':
                     $scope.opened = 'other';
                     break;

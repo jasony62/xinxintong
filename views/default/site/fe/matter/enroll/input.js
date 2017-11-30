@@ -47,7 +47,7 @@ ngApp.factory('Input', ['$q', '$timeout', 'ls', 'http2', function($q, $timeout, 
         if (Object.keys && Object.keys(posted.member).length === 0) {
             delete posted.member;
         }
-        url = LS.j('record/submit', 'site', 'app');
+        url = LS.j('record/submit', 'site', 'app', 'rid');
         ek && ek.length && (url += '&ek=' + ek);
         for (var i in posted) {
             d = posted[i];

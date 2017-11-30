@@ -81,6 +81,7 @@ class remind_model extends \TMS_MODEL {
 			$modelUsr = $this->model('matter\enroll\user');
 			$options = [
 				'rid' => 'ALL',
+				'onlyEnrolled' => 'Y',
 				'fields' => 'userid',
 				'cascaded' => 'N',
 			];

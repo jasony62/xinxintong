@@ -91,7 +91,7 @@ class user extends \pl\fe\matter\base {
 		}
 
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id']);
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}

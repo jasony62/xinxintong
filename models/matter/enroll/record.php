@@ -53,6 +53,22 @@ class record_model extends record_base {
 			}
 		}
 
+		/* 移动用户未签到的原因 */
+		if (!empty($oUser->uid)) {
+			$rid = !empty($record['rid']) ? $record['rid'] : 'ALL';
+			if (isset($oApp->absent_cause->{$oUser->uid}) && isset($oApp->absent_cause->{$oUser->uid}->{$rid})) {
+				$record['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid}->{$rid});
+				unset($oApp->absent_cause->{$oUser->uid}->{$rid});
+				/* 更新原未签到记录 */
+				$newAbsentCause = $this->escape($this->toJson($oApp->absent_cause));
+				$this->update(
+					'xxt_signin',
+					['absent_cause' => $newAbsentCause],
+					['id' => $oApp->id]
+				);
+			}
+		}
+
 		$this->insert('xxt_enroll_record', $record, false);
 
 		return $ek;

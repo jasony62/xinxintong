@@ -475,7 +475,7 @@ class record extends \pl\fe\matter\base {
 		// 关联的报名活动
 		if (!empty($signinApp->group_app_id)) {
 			$groupApp = $this->model('matter\group')->byId($signinApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$groupSchemas = json_decode($groupApp->data_schemas);
+			$groupSchemas = $groupApp->dataSchemas;
 			$mapOfSigninSchemas = [];
 			foreach ($schemas as $schema) {
 				$mapOfSigninSchemas[] = $schema->id;

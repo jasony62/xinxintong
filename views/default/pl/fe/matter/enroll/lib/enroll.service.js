@@ -1365,7 +1365,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * op round
      */
     ngModule.provider('srvOpEnrollRound', function() {
-        var _siteId, _appId, _accessId, _rounds, _oPage,
+        var _siteId, _appId, _accessId, _rounds, _oPage, _checked,
             _RestURL = '/rest/site/op/matter/enroll/round/',
             RoundState = ['新建', '启用', '停止'];
 

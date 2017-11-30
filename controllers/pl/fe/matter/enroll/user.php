@@ -270,7 +270,9 @@ class user extends \pl\fe\matter\base {
 			->setSubject($oApp->title)
 			->setDescription($oApp->title);
 
+		$objPHPExcel->setActiveSheetIndex(0);
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
+		$objActiveSheet->setTitle('签到人员完成情况');
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
 		// 转换标题
@@ -456,6 +458,35 @@ class user extends \pl\fe\matter\base {
 				}
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->tmplmsg->create_at) ? date('Y-m-d H:i:s') : '');
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->tmplmsg->status) ? $record->tmplmsg->status : '');
+			}
+		}
+
+		/* 未签到用户 */
+		$result = $modelUsr->absentByApp($oApp, $rid);
+		$absentUsers = $result->users;
+		if (count($absentUsers)) {
+			$objPHPExcel->createSheet();
+			$objPHPExcel->setActiveSheetIndex(1);
+			$objActiveSheet2 = $objPHPExcel->getActiveSheet();
+			$objActiveSheet2->setTitle('未签到人员数据');
+
+			$colNumber = 0;
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '序号');
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '姓名');
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '分组');
+
+			$rowNumber = 2;
+			foreach ($absentUsers as $k => $absentUser) {
+				$colNumber = 0;
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $k + 1);
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->nickname);
+				if (isset($absentUser->round_title)) {
+					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->round_title);
+				} else {
+					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
+				}
+
+				$rowNumber++;
 			}
 		}
 

@@ -165,6 +165,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         });
                     });
                     oRoundDS.ops = ops;
+                    oRoundDS.assocState = 'yes';
                     oGroupApp.dataSchemas.splice(0, 0, oRoundDS);
                     /* 匹配分组轮次字段 */
                     for (var i = 0; i < $scope.app.dataSchemas.length; i++) {
@@ -215,6 +216,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         oAppNicknameSchema.fromApp = oGroupApp.id;
                         oAppNicknameSchema.requireCheck = 'Y';
                         oAppNicknameSchema.format = 'name';
+                        oGrpNicknameSchema.assocState = 'yes';
                         $scope.updSchema(oAppNicknameSchema, oBefore);
                     } else if (oGrpNicknameSchema) {
                         $scope.newByOtherApp(oGrpNicknameSchema, oGroupApp, oAppRoundSchema);
@@ -233,7 +235,24 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 });
             };
             $scope.assignEnrollApp = function() {
-                srvApp.assignEnrollApp();
+                srvApp.assignEnrollApp().then(function(oEnlApp) {
+                    var oAppSchema, oEnlSchema, oBefore;
+                    /* 自动关联字段 */
+                    for (var i = 0; i < $scope.app.dataSchemas.length; i++) {
+                        oAppSchema = $scope.app.dataSchemas[i];
+                        for (var j = 0; j < oEnlApp.dataSchemas.length; j++) {
+                            oEnlSchema = oEnlApp.dataSchemas[j];
+                            if (oAppSchema.id === oEnlSchema.id && oAppSchema.type === oEnlSchema.type && oAppSchema.title === oEnlSchema.title) {
+                                oBefore = angular.copy(oAppSchema);
+                                oAppSchema.fromApp = oEnlApp.id;
+                                oAppSchema.requireCheck = 'Y';
+                                $scope.updSchema(oAppSchema, oBefore);
+                                oEnlSchema.assocState = 'yes';
+                                break;
+                            }
+                        }
+                    }
+                });
             };
             $scope.cancelEnrollApp = function() {
                 srvApp.get().then(function(oApp) {
@@ -245,6 +264,17 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     });
                     srvApp.update(['enroll_app_id', 'data_schemas']);
                 });
+            };
+            $scope.assocApp = function(appId) {
+                var oApp, assocApp;
+                oApp = $scope.app;
+                if (oApp.enrollApp && oApp.enrollApp.id === appId) {
+                    return oApp.enrollApp;
+                } else if (oApp.groupApp && oApp.groupApp.id === appId) {
+                    return oApp.groupApp;
+                } else {
+                    return false;
+                }
             };
             $scope.updConfig = function(oActiveSchema) {
                 srvApp.get().then(function(oApp) {
@@ -296,9 +326,45 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 if (oProtoSchema.ops) {
                     oNewSchema.ops = oProtoSchema.ops;
                 }
+                oProtoSchema.assocState = 'yes';
                 $scope._appendSchema(oNewSchema, oAfterSchema);
 
                 return oNewSchema;
+            };
+            $scope.unassocWithOtherApp = function(oSchema) {
+                var oAssocApp;
+                if (oSchema.fromApp) {
+                    oAssocApp = $scope.assocApp(oSchema.fromApp);
+                    for (var i = oAssocApp.dataSchemas.length - 1; i >= 0; i--) {
+                        if (oAssocApp.dataSchemas[i].id === oSchema.id) {
+                            oAssocApp.dataSchemas[i].assocState = 'no';
+                            break;
+                        }
+                    }
+                    delete oSchema.fromApp;
+                    delete oSchema.requireCheck;
+                    $scope.updSchema(oSchema);
+                }
+            };
+            $scope.assocWithOtherApp = function(oOtherSchema, oAssocApp) {
+                var oAppSchema;
+                oAppSchema = $scope.app._schemasById[oOtherSchema.id];
+                if (oAppSchema) {
+                    if (oAppSchema.type !== oOtherSchema.type) {
+                        if (!/shorttext|member/.test(oAppSchema.type) || !/shorttext|member/.test(oOtherSchema.type)) {
+                            alert('题目【' + oOtherSchema.title + '】和【' + oAppSchema.title + '】的类型不一致，无法关联');
+                            return;
+                        }
+                    }
+                    if (oAppSchema.title !== oOtherSchema.title) {
+                        alert('题目【' + oOtherSchema.title + '】和【' + oAppSchema.title + '】的名称不一致，无法关联');
+                        return;
+                    }
+                    oAppSchema.fromApp = oAssocApp.id;
+                    oAppSchema.requireCheck = 'Y';
+                    oOtherSchema.assocState = 'yes';
+                    $scope.updSchema(oAppSchema);
+                }
             };
             $scope.copySchema = function(schema) {
                 var newSchema = angular.copy(schema);
@@ -703,16 +769,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
         var editing;
 
         $scope.editing = editing = {};
-        $scope.assocAppName = function(appId) {
-            var assocApp;
-            if ($scope.app.enrollApp && $scope.app.enrollApp.id === appId) {
-                return $scope.app.enrollApp.title;
-            } else if ($scope.app.groupApp && $scope.app.groupApp.id === appId) {
-                return $scope.app.groupApp.title;
-            } else {
-                return '';
-            }
-        };
         $scope.changeSchemaType = function() {
             var oBeforeState;
             oBeforeState = angular.copy($scope.activeSchema);

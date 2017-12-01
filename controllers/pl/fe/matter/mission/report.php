@@ -41,9 +41,9 @@ class report extends \pl\fe\matter\base {
 
 		return new \ResponseData($result[1]);
 	}
-	/* 
-	*获得用户指定app下的用户
-	*/
+	/**
+	 *获得用户指定app下的用户
+	 */
 	private function userAndAppData($oLoginUser, $oMission, $posted = '') {
 		if (!isset($posted->userSource) || !isset($posted->userSource->type) || !isset($posted->userSource->id)) {
 			if (isset($oMission->user_app_id) && isset($oMission->user_app_type)) {
@@ -106,7 +106,7 @@ class report extends \pl\fe\matter\base {
 								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
 							}
 						} else {
-							$show_schema_data = $show_schema_datas;		
+							$show_schema_data = $show_schema_datas;
 						}
 					}
 					$oUser->show_schema_data = $show_schema_data;
@@ -133,7 +133,7 @@ class report extends \pl\fe\matter\base {
 						/* 处理用户指定显示的列 */
 						if (!empty($defaultConfig->show_schema)) {
 							foreach ($defaultConfig->show_schema as $show_schema) {
-								if (strpos($show_schema->id,'member') === 0) {
+								if (strpos($show_schema->id, 'member') === 0) {
 									$schId = explode('.', $show_schema->id)[1];
 									if (!isset($show_schema_data->member) || !is_object($show_schema_data->member)) {
 										$show_schema_data->member = new \stdClass;
@@ -144,7 +144,7 @@ class report extends \pl\fe\matter\base {
 								}
 							}
 						} else {
-							$show_schema_data = $show_schema_datas;		
+							$show_schema_data = $show_schema_datas;
 						}
 					}
 					$oUser->show_schema_data = $show_schema_data;
@@ -165,7 +165,7 @@ class report extends \pl\fe\matter\base {
 								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
 							}
 						} else {
-							$show_schema_data = $show_schema_datas;		
+							$show_schema_data = $show_schema_datas;
 						}
 					}
 					$oUser->show_schema_data = $show_schema_data;
@@ -210,7 +210,7 @@ class report extends \pl\fe\matter\base {
 			$result->apps = $defaultConfig->apps;
 		}
 
-		return array(true, $result);
+		return [true, $result];
 	}
 	/**
 	 * 更新项目报告配置
@@ -271,6 +271,10 @@ class report extends \pl\fe\matter\base {
 
 		$modelMis = $this->model('matter\mission');
 		$oMission = $modelMis->byId($mission);
+		if ($oMission === false) {
+			return new \ObjectNotFoundError();
+		}
+
 		if ($oMission->user_app_id) {
 			if ($oMission->user_app_type === 'group') {
 				$oMission->userApp = $this->model('matter\group')->byId($oMission->user_app_id, ['cascaded' => 'N']);
@@ -292,9 +296,6 @@ class report extends \pl\fe\matter\base {
 				}
 				$oMission->userApp->dataSchemas = $data_schemas;
 			}
-		}
-		if ($oMission === false) {
-			return new \ObjectNotFoundError();
 		}
 
 		/* 获得用户 */
@@ -360,7 +361,7 @@ class report extends \pl\fe\matter\base {
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $roundTitle);
-				} else if (strpos($show_schema->id,'member') === 0) {
+				} else if (strpos($show_schema->id, 'member') === 0) {
 					$schId = explode('.', $show_schema->id)[1];
 					if (isset($rec->show_schema_data->member->{$schId})) {
 						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->member->{$schId});

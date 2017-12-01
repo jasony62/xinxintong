@@ -442,7 +442,8 @@ class main extends main_base {
 			} else if ($n === 'absent_cause') {
 				$absentCause = !empty($oApp->absent_cause) ? $oApp->absent_cause : new \stdClass;
 				foreach ($v as $uid => $val) {
-					$absentCause->{$uid} = $val;
+					!isset($absentCause->{$uid}) && $absentCause->{$uid} = new \stdClass;
+					$absentCause->{$uid}->{$val->rid} = $val->cause;
 				}
 				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($absentCause));
 			} else {

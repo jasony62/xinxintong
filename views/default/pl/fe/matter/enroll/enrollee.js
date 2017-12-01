@@ -19,7 +19,8 @@ define(['frame'], function(ngApp) {
         $scope.criteria = _oCriteria = {
             orderby: 'enroll_num',
             onlyEnrolled: 'Y',
-            rid: ''
+            rid: '',
+            turn_title: '全部轮次',
         };
         $scope.rows = _oRows = {
             allSelected: 'N',
@@ -93,6 +94,13 @@ define(['frame'], function(ngApp) {
                         });
                     }
                     $scope2.ok = function() {
+                        $scope2.rounds.forEach(function(round) {
+                            if($scope2.criteria.rid == round.rid) {
+                                $scope2.criteria.turn_title = round.title;
+                            }else if($scope2.criteria.rid == ''){
+                                $scope2.criteria.turn_title = '全部轮次';
+                            }
+                        });
                         $mi.close($scope2.criteria);
                     };
                     $scope2.cancel = function() {

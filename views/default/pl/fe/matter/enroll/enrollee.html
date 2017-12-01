@@ -31,6 +31,12 @@
             <div class='form-group pull-right' ng-if="category==='enrollee'">
                 <button type='button' class='btn btn-default' ng-click="searchEnrollee()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
             </div>
+            <div class='form-group pull-right' ng-if="category==='absent'">
+                <div class='input-group'>
+                    <span class="input-group-addon">当前选中轮次</span>
+                    <input class='form-control' ng-model='criteria.turn_title' readonly="readonly" style='width:100px'>
+                </div>
+            </div>
         </div>
     </div>
     <div ng-switch on='category'>

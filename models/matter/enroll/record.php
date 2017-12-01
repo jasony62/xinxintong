@@ -59,10 +59,13 @@ class record_model extends record_base {
 			if (isset($oApp->absent_cause->{$oUser->uid}) && isset($oApp->absent_cause->{$oUser->uid}->{$rid})) {
 				$record['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid}->{$rid});
 				unset($oApp->absent_cause->{$oUser->uid}->{$rid});
+				if (count(get_object_vars($oApp->absent_cause->{$oUser->uid})) == 0) {
+					unset($oApp->absent_cause->{$oUser->uid});
+				}
 				/* 更新原未签到记录 */
 				$newAbsentCause = $this->escape($this->toJson($oApp->absent_cause));
 				$this->update(
-					'xxt_signin',
+					'xxt_enroll',
 					['absent_cause' => $newAbsentCause],
 					['id' => $oApp->id]
 				);

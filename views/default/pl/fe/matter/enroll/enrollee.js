@@ -58,26 +58,21 @@ define(['frame'], function(ngApp) {
                         $mi.dismiss();
                     };
                     $scope2.ok = function() {
-                        var url, params = {
+                        var url, params = {};
+                        params[user.userid] = {
                             rid: $scope2.criteria.rid,
-                            absent_cause: $scope2.cause
-                        };
+                            cause: $scope2.cause
+                        }
                         url = '/rest/pl/fe/matter/enroll/update?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-                        http2.post(url, {'userid': params}, function(rsp) {
-                            angular.forEach($scope2.rounds, function(round) {
-                                if(round.rid == $scope2.criteria.rid){
-                                    params.round_title = round.title;
-                                }
-                            });
-                            $mi.close(params);
+                        http2.post(url, params, function(rsp) {
+                            $mi.close($scope2.cause);
                         });
                     };
                     $scope2.doSearchRound();
                 }],
                 backdrop: 'static'
             }).result.then(function(result){
-                user.absent_cause.round_title = result.round_title;
-                user.absent_cause.cause = result.absent_cause;
+                user.absent_cause.cause = result;
             });
         };
         $scope.chooseOrderby = function(orderby) {

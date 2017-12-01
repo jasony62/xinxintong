@@ -128,7 +128,6 @@
                         <th style='width:48px'>序号</th>
                         <th>姓名</th>
                         <th>分组</th>
-                        <th>轮次</th>
                         <th>备注</th>
                         <th style='width:48px'>操作</th>
                     </tr>
@@ -141,7 +140,6 @@
                         <td>{{$index+1}}</td>
                         <td>{{user.nickname}}</td>
                         <td>{{user.round_title}}</td>
-                        <td>{{user.absent_cause.round_title}}</td>
                         <td>{{user.absent_cause.cause}}</td>
                         <td>
                             <button class="btn btn-xs btn-default" ng-click="editCause(user)">

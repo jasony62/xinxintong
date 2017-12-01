@@ -7,6 +7,15 @@
             <label class='col-md-3 control-label'>复制到项目</label>
             <div class='col-md-9'>
                 <div class='form-group'>
+                    <div class="form-inline">
+                        <div class="input-group">
+                            <input type="input" class="form-control" placeholder="按名称筛选" ng-model="filter.byTitle">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" ng-click="doSearch()"><span class="glyphicon glyphicon-search"></span></button>
+                                <button class="btn btn-default" ng-click="cleanFilter()"><span class="glyphicon glyphicon-remove"></span></button>
+                            </span>
+                        </div>
+                    </div>
                     <select class='form-control' ng-model="criteria.mission_id" size=7>
                         <option value="">无</option>
                         <option value="{{mission.id}}" ng-repeat="mission in missions">{{mission.title}}</option>

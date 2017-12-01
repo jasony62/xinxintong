@@ -115,6 +115,7 @@ define(['frame'], function(ngApp) {
                         };
                         $scope2.criteria = criteria = {
                             'mission_id': '',
+                            'byTitle':'',
                             'isMatterData': 'N',
                             'isMatterAction': 'N'
                         };
@@ -122,13 +123,18 @@ define(['frame'], function(ngApp) {
                             if(nv==='Y') {criteria.isMatterAction='Y'};
                         });
                         $scope2.doMission = function() {
-                            var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j();
-                            http2.get(url, function(rsp) {
+                            var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j() + '&fields=id,title',
+                                params = {byTitle: criteria.byTitle};
+                            http2.post(url, params, function(rsp) {
                                 if(rsp.data) {
                                     $scope2.missions = rsp.data.missions;
                                     $scope2.pageOfMission.total = rsp.data.total;
                                 }
                             });
+                        };
+                        $scope2.cleanCriteria = function() {
+                            $scope2.criteria.byTitle = '';
+                            $scope2.doMission();
                         }
                         $scope2.ok = function() {
                             $mi.close({

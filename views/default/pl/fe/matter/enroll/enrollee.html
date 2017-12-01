@@ -158,19 +158,6 @@
     </div>
     <div class="modal-body">
         <form class="form-horizontal">
-            <div class="form-group" ng-if="rounds.length">
-                <label class="col-md-3 control-label">填写轮次</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model="criteria.rid" size=5>
-                        <option value=''>全部轮次</option>
-                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                    </select>
-                    <div class='pl-pagination' ng-show="page.total>page.size">
-                        <span>总数：{{page.total}}</span>
-                        <ul uib-pagination boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
-                    </div>
-                </div>
-            </div>
             <div class="form-group">
                 <label class="col-md-3 control-label">备注</label>
                 <div class="col-md-9">

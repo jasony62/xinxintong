@@ -40,27 +40,13 @@ define(['frame'], function(ngApp) {
                 controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2){
                     $scope2.cause = '';
                     $scope2.app = $scope.app;
-                    $scope2.criteria = _oCriteria;
-                    $scope2.page = {
-                        at: 1,
-                        size: 5,
-                        j: function() {
-                            return '&page=' + this.at + '&size=' + this.size;
-                        }
-                    };
-                    $scope2.doSearchRound = function() {
-                        http2.get('/rest/pl/fe/matter/enroll/round/list?site=' + $scope.app.siteid + '&app=' + $scope.app.id + $scope2.page.j(), function(rsp) {
-                            $scope2.rounds = rsp.data.rounds;
-                            $scope2.page.total = rsp.data.total;
-                        });
-                    }
                     $scope2.cancel = function() {
                         $mi.dismiss();
                     };
                     $scope2.ok = function() {
                         var url, params = {};
                         params[user.userid] = {
-                            rid: $scope2.criteria.rid,
+                            rid: user.userid.rid,
                             cause: $scope2.cause
                         }
                         url = '/rest/pl/fe/matter/enroll/update?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
@@ -68,7 +54,6 @@ define(['frame'], function(ngApp) {
                             $mi.close($scope2.cause);
                         });
                     };
-                    $scope2.doSearchRound();
                 }],
                 backdrop: 'static'
             }).result.then(function(result){

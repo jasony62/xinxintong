@@ -46,11 +46,11 @@ define(['frame'], function(ngApp) {
                     $scope2.ok = function() {
                         var url, params = {};
                         params[user.userid] = {
-                            rid: user.userid.rid,
+                            rid: user.absent_cause.rid,
                             cause: $scope2.cause
                         }
                         url = '/rest/pl/fe/matter/enroll/update?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-                        http2.post(url, params, function(rsp) {
+                        http2.post(url, {'absent_cause': params}, function(rsp) {
                             $mi.close($scope2.cause);
                         });
                     };

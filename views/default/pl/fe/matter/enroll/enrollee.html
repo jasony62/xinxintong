@@ -128,6 +128,9 @@
                         <th style='width:48px'>序号</th>
                         <th>姓名</th>
                         <th>分组</th>
+                        <th>轮次</th>
+                        <th>备注</th>
+                        <th style='width:48px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,9 +141,48 @@
                         <td>{{$index+1}}</td>
                         <td>{{user.nickname}}</td>
                         <td>{{user.round_title}}</td>
+                        <td>{{user.absent_cause.round_title}}</td>
+                        <td>{{user.absent_cause.cause}}</td>
+                        <td>
+                            <button class="btn btn-xs btn-default" ng-click="editCause(user)">
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+<script type='text/ng-template' id='editCause.html'>
+    <div class="modal-header">
+        <h5 class="modal-title">修改备注</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group" ng-if="rounds.length">
+                <label class="col-md-3 control-label">填写轮次</label>
+                <div class="col-md-9">
+                    <select class='form-control' ng-model="criteria.rid" size=5>
+                        <option value=''>全部轮次</option>
+                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                    </select>
+                    <div class='pl-pagination' ng-show="page.total>page.size">
+                        <span>总数：{{page.total}}</span>
+                        <ul uib-pagination boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">备注</label>
+                <div class="col-md-9">
+                    <textarea name="cause" ng-model="cause" style="width:100%;height:100px;resize:none;"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

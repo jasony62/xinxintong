@@ -191,13 +191,12 @@ class user_model extends \TMS_MODEL {
 	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
 	 * 2、如果活动关联了分组活动
 	 * 3、如果活动所属项目指定了用户名单
+	 *   $oUsers 当前轮次的所有用户
 	 */
-	public function absentByApp($oApp, $rid = '') {
+	public function absentByApp($oApp, $oUsers, $rid = '') {
 		empty($rid) && $rid = 'ALL';
-		/* 获得当前活动的参与人 */
-		$oUsers = $this->enrolleeByApp($oApp,'', '', ['fields' => 'id,userid', 'onlyEnrolled' => 'Y', 'cascaded' => 'N', 'rid' => $rid]);
 		$oUsers2 = [];
-		foreach ($oUsers->users as $oUser) {
+		foreach ($oUsers as $oUser) {
 			$oUsers2[$oUser->id] = $oUser->userid;
 		}
 

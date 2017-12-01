@@ -89,6 +89,7 @@ class user extends \pl\fe\matter\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		empty($rid) && $rid = 'ALL';
 
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
@@ -97,8 +98,9 @@ class user extends \pl\fe\matter\base {
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-
-		$result = $modelUsr->absentByApp($oApp, $rid);
+		/* 获得当前活动的参与人 */
+		$oUsers = $modelUsr->enrolleeByApp($oApp,'', '', ['fields' => 'id,userid', 'onlyEnrolled' => 'Y', 'cascaded' => 'N', 'rid' => $rid]);
+		$result = $modelUsr->absentByApp($oApp, $oUsers->users, $rid);
 
 		return new \ResponseData($result);
 	}
@@ -462,7 +464,7 @@ class user extends \pl\fe\matter\base {
 		}
 
 		/* 未签到用户 */
-		$result = $modelUsr->absentByApp($oApp, $rid);
+		$result = $modelUsr->absentByApp($oApp, $data, $rid);
 		$absentUsers = $result->users;
 		if (count($absentUsers)) {
 			$objPHPExcel->createSheet();

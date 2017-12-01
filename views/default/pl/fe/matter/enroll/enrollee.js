@@ -121,7 +121,6 @@ define(['frame'], function(ngApp) {
             pageAt && (page.at = pageAt);
             url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + page.j();
             http2.post(url, _oCriteria, function(rsp) {
-                console.log(_oCriteria);
                 srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.users);
                 rsp.data.users.forEach(function(user) {
                     if (user.tmplmsg && user.tmplmsg.status) {

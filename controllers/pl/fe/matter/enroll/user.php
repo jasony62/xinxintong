@@ -178,7 +178,7 @@ class user extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,user_task,group_app_id,data_schemas', 'cascaded' => 'N']))) {
+		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,user_task,group_app_id,data_schemas,absent_cause', 'cascaded' => 'N']))) {
 			return new \ParameterError();
 		}
 		$oUserTask = $oApp->userTask;
@@ -476,6 +476,7 @@ class user extends \pl\fe\matter\base {
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '序号');
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '姓名');
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '分组');
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '备注');
 
 			$rowNumber = 2;
 			foreach ($absentUsers as $k => $absentUser) {
@@ -487,6 +488,7 @@ class user extends \pl\fe\matter\base {
 				} else {
 					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 				}
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->absent_cause->cause);
 
 				$rowNumber++;
 			}

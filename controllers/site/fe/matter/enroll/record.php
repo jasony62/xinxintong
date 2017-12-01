@@ -536,7 +536,7 @@ class record extends base {
 							$opCount = 0;
 						}
 						if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
-							return [false, ['选择题【' . $oSchema->title . '】选中的选项数量，不在指定范围【' . implode('-', $oSchema->range) . '】内']];
+							return [false, ['【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] .')项']];
 						}
 					}
 					break;

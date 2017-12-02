@@ -52,6 +52,17 @@
                 </li>
             </ul>
         </div>
+        <div class='form-group list-group-item' ng-repeat="(msid,erm) in app.entry_rule.member">
+            <div class='help-block'>通讯录【{{mschemasById[msid].title}}】用户信息</div>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat="s in mschemasById[msid]._schemas" ng-switch on="s.assocState">
+                    <span>{{s.title}}</span>
+                    <span ng-switch-when="yes" class='pull-right'>已关联</span>
+                    <button ng-switch-when="no" class='btn btn-default btn-xs pull-right' ng-click="assocWithMschema(s,mschemasById[msid])">关联</button>
+                    <button ng-switch-default class='btn btn-default btn-xs pull-right' ng-click="newMember(mschemasById[msid],s)">添加</button>
+                </li>
+            </ul>
+        </div>
         <!-- end create schema -->
     </div>
     <!-- schema list -->
@@ -71,8 +82,15 @@
                     <button class='btn btn-sm btn-default' ng-click="removeSchema(schema)"><span class='glyphicon glyphicon-trash'></span></button>
                     <button ng-if="schema.id==='_round_id'" class='btn btn-sm btn-default' ng-click="refreshSchema(schema)"><span class='glyphicon glyphicon-refresh'></span></button>
                 </div>
-                <div ng-if="'Y'===schema.requireCheck" ">
-                    <p class='help-block'>需要与【<span>{{assocApp(schema.fromApp).title}}</span>】中的记录匹配 <button class='btn btn-default btn-xs' ng-click="unassocWithOtherApp(schema) "><span class='glyphicon glyphicon-remove'></span></button></p>
+                <div ng-if="'Y'===schema.requireCheck">
+                    <p class='help-block'>需要【<span>{{assocApp(schema.fromApp).title}}</span>】中有题目【<span>{{assocAppSchema(schema).title}}</span>】的值与填写内容匹配的记录
+                        <button class='btn btn-default btn-xs' ng-click="unassocWithOtherApp(schema) "><span class='glyphicon glyphicon-remove'></span></button>
+                    </p>
+                </div>
+                <div ng-if="'member'===schema.type">
+                    <p class='help-block'>用通讯录【<span>{{mschemasById[schema.schema_id].title}}</span>】中【<span>{{mschemasById[schema.schema_id]._schemasById[schema.id].title}}</span>】自动填写
+                        <button class='btn btn-default btn-xs' ng-click="unassocWithMschema(schema) "><span class='glyphicon glyphicon-remove'></span></button>
+                    </p>
                 </div>
             </div>
         </div>

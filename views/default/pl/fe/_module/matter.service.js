@@ -247,39 +247,43 @@ provider('srvSite', function() {
                     http2.get(url, function(rsp) {
                         _aMemberSchemas = rsp.data;
                         _aMemberSchemas.forEach(function(ms) {
-                            var schemas = [],
+                            var oSchema, schemas = [],
+                                schemasById = {},
                                 mschemas = [];
                             if (ms.attr_name[0] === '0') {
-                                schemas.push({
+                                oSchema = {
                                     id: 'member.name',
                                     title: '姓名',
-                                });
+                                };
+                                schemas.push(oSchema);
+                                schemasById[oSchema.id] = oSchema;
                                 mschemas.push({
                                     id: 'name',
-                                    title: '姓名',
-                                    type: 'address'
+                                    title: '姓名'
                                 });
                             }
                             if (ms.attr_mobile[0] === '0') {
-                                schemas.push({
+                                oSchema = {
                                     id: 'member.mobile',
                                     title: '手机',
-                                });
+                                };
+                                schemas.push(oSchema);
+                                schemasById[oSchema.id] = oSchema;
                                 mschemas.push({
                                     id: 'mobile',
-                                    title: '手机',
-                                    type: 'address'
+                                    title: '手机'
                                 });
                             }
                             if (ms.attr_email[0] === '0') {
-                                schemas.push({
+                                oSchema = {
                                     id: 'member.email',
-                                    title: '邮箱',
-                                });
+                                    title: '手机',
+                                };
+                                schemas.push(oSchema);
+                                schemasById[oSchema.id] = oSchema;
                                 mschemas.push({
                                     id: 'email',
-                                    title: '邮箱',
-                                    type: 'address'
+                                    title: '邮箱'
                                 });
                             }
                             (function() {
@@ -287,19 +291,21 @@ provider('srvSite', function() {
                                 if (ms.extattr) {
                                     for (i = ms.extattr.length - 1; i >= 0; i--) {
                                         ea = ms.extattr[i];
-                                        schemas.push({
+                                        oSchema = {
                                             id: 'member.extattr.' + ea.id,
                                             title: ea.label,
-                                        });
+                                        };
+                                        schemas.push(oSchema);
+                                        schemasById[oSchema.id] = oSchema;
                                         mschemas.push({
                                             id: ea.id,
-                                            title: ea.label,
-                                            type: 'address'
+                                            title: ea.label
                                         });
                                     };
                                 }
                             })();
                             ms._schemas = schemas;
+                            ms._schemasById = schemasById;
                             ms._mschemas = mschemas;
                         });
                         defer.resolve(_aMemberSchemas);

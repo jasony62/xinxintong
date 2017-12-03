@@ -17,7 +17,7 @@
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div id="appLoginTip" uib-popover-template="'appLoginTip.html'" uib-popover="" popover-placement="bottom" popover-trigger="show" popover-append-to-body="true"></div>
-    <nav class='navbar navbar-default main-navbar row'>
+    <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
@@ -37,11 +37,11 @@
     <div ng-cloak class='app ng-cloak'>
         <div id='notice' class='alert' ng-class="{'active':notice.msg,'alert-danger':notice.type==='error','alert-success':notice.type==='success'}" ng-click="notice.msg=''" ng-bind='notice.msg'></div>
         <div id='enroll' class='container'>
-            <div class='row' ng-controller='ctrlInput'>
+            <div ng-controller='ctrlInput'>
                 <form name='enroll' novalidate dynamic-html="page.html">
                 </form>
             </div>
-            <div class='row' ng-if="params.activeRound">
+            <div g-if="params.activeRound">
                 <div class='text-center help-block'>
                     <span ng-bind="params.activeRound.title"></span>
                     <span ng-if="params.activeRound.start_at>0"> / {{params.activeRound.start_at*1000|date:'MM.dd HH:mm'}}</span>

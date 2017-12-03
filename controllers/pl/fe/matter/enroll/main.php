@@ -402,7 +402,7 @@ class main extends main_base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id');
+		$oApp = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id,absent_cause');
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -439,6 +439,13 @@ class main extends main_base {
 				$oUpdated->round_cron = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'rpConfig') {
 				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'absent_cause') {
+				$absentCause = !empty($oApp->absent_cause) ? $oApp->absent_cause : new \stdClass;
+				foreach ($v as $uid => $val) {
+					!isset($absentCause->{$uid}) && $absentCause->{$uid} = new \stdClass;
+					$absentCause->{$uid}->{$val->rid} = $val->cause;
+				}
+				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($absentCause));
 			} else {
 				$oUpdated->{$n} = $v;
 			}

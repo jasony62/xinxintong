@@ -767,14 +767,12 @@ class record_model extends \matter\enroll\record_base {
 			foreach ($aAbsentUsrs2 as $aAbsentUsr2) {
 				if ($aAbsentUsr->userid === $aAbsentUsr2->userid || empty($aAbsentUsr->userid)) {
 					$state = false;
-					continue;
+					break;
 				}
 			}
 			if ($state) {
-				//获取未签到人员的信息，并从$oApp->absent_cause中筛选出已经签到的人
 				if (isset($oApp->absent_cause->{$aAbsentUsr->userid})) {
 					$aAbsentUsr->absent_cause = $oApp->absent_cause->{$aAbsentUsr->userid};
-					unset($oApp->absent_cause->{$aAbsentUsr->userid});
 				} else {
 					$aAbsentUsr->absent_cause = '';
 				}

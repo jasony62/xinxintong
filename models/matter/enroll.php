@@ -147,6 +147,13 @@ class enroll_model extends enroll_base {
 					$oApp->rpConfig = new \stdClass;
 				}
 			}
+			if ($fields === '*' || false !== strpos($fields, 'absent_cause')) {
+				if (!empty($oApp->absent_cause)) {
+					$oApp->absent_cause = json_decode($oApp->absent_cause);
+				} else {
+					$oApp->absent_cause = new \stdClass;
+				}
+			}
 			if (!empty($oApp->matter_mg_tag)) {
 				$oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
 			}

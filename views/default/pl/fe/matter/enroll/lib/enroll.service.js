@@ -174,8 +174,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         item.assocState = 'no';
                     }
                 });
-                oApp._schemasFromEnrollApp = enrollDataSchemas;
             }
+            oApp._schemasFromEnrollApp = enrollDataSchemas;
         }
 
         function _fnMapAssocGroupApp(oApp) {

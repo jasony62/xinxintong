@@ -476,7 +476,7 @@ define(['wrap'], function(SchemaWrap) {
                     if (oBeforeSchema) {
                         for (var j = listWrap.schemas.length - 1; j >= 0; j--) {
                             if (listWrap.schemas[j].id === oBeforeSchema.id) {
-                                var $beforeWrap = $listHtml.find('[schema=' + oBeforeSchema.id + ']');
+                                var $beforeWrap = $listHtml.find('[schema="' + oBeforeSchema.id + '"]');
                                 if ($beforeWrap.length) {
                                     $beforeWrap.after(valueHtml);
                                 } else {
@@ -492,7 +492,7 @@ define(['wrap'], function(SchemaWrap) {
                         }
                     } else if (oBeforeSchema === false) {
                         if (listWrap.schemas.length) {
-                            var $beforeWrap = $listHtml.find('[schema=' + listWrap.schemas[0].id + ']');
+                            var $beforeWrap = $listHtml.find('[schema="' + listWrap.schemas[0].id + '"]');
                             if ($beforeWrap.length) {
                                 $beforeWrap.before(valueHtml);
                             } else {

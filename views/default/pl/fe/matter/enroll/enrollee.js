@@ -2,7 +2,7 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', '$uibModal', function($scope, http2, srvEnrollRecord, $q, $uibModal) {
         function _absent() {
-            http2.get('/rest/pl/fe/matter/enroll/user/absent?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/enroll/user/absent?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&rid=' + _oCriteria.rid, function(rsp) {
                 $scope.absentUsers = rsp.data.users;
             });
         }
@@ -19,7 +19,8 @@ define(['frame'], function(ngApp) {
         $scope.criteria = _oCriteria = {
             orderby: 'enroll_num',
             onlyEnrolled: 'Y',
-            rid: ''
+            rid: '',
+            turn_title: '全部轮次',
         };
         $scope.rows = _oRows = {
             allSelected: 'N',
@@ -33,6 +34,32 @@ define(['frame'], function(ngApp) {
                 this.selected = {};
                 this.count = 0;
             }
+        };
+        $scope.editCause = function(user) {
+            $uibModal.open({
+                templateUrl: 'editCause.html',
+                controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2){
+                    $scope2.cause = '';
+                    $scope2.app = $scope.app;
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        var url, params = {};
+                        params[user.userid] = {
+                            rid: user.absent_cause.rid,
+                            cause: $scope2.cause
+                        }
+                        url = '/rest/pl/fe/matter/enroll/update?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+                        http2.post(url, {'absent_cause': params}, function(rsp) {
+                            $mi.close($scope2.cause);
+                        });
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(result){
+                user.absent_cause.cause = result;
+            });
         };
         $scope.chooseOrderby = function(orderby) {
             _oCriteria.orderby = orderby;
@@ -67,6 +94,13 @@ define(['frame'], function(ngApp) {
                         });
                     }
                     $scope2.ok = function() {
+                        $scope2.rounds.forEach(function(round) {
+                            if($scope2.criteria.rid == round.rid) {
+                                $scope2.criteria.turn_title = round.title;
+                            }else if($scope2.criteria.rid == ''){
+                                $scope2.criteria.turn_title = '全部轮次';
+                            }
+                        });
                         $mi.close($scope2.criteria);
                     };
                     $scope2.cancel = function() {
@@ -78,6 +112,7 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static',
             }).result.then(function(_oCriteria) {
                 $scope.searchEnrollee(1);
+                _absent();
             });
         };
         $scope.searchEnrollee = function(pageAt) {

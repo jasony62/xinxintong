@@ -191,8 +191,16 @@ class user_model extends \TMS_MODEL {
 	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
 	 * 2、如果活动关联了分组活动
 	 * 3、如果活动所属项目指定了用户名单
+	 *   $oUsers 当前轮次的所有用户
 	 */
-	public function absentByApp($oApp, $rid = '') {
+	public function absentByApp($oApp, $oUsers, $rid = '') {
+		empty($rid) && $rid = 'ALL';
+		$oUsers2 = [];
+		foreach ($oUsers as $oUser) {
+			$oUsers2[$oUser->id] = $oUser->userid;
+		}
+
+		/* 获取未签到人员 */
 		$aAbsentUsrs = [];
 		if (isset($oApp->entry_rule->scope) && in_array($oApp->entry_rule->scope, ['group', 'member'])) {
 			if ($oApp->entry_rule->scope === 'group' && isset($oApp->entry_rule->group)) {
@@ -204,7 +212,7 @@ class user_model extends \TMS_MODEL {
 					['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']
 				);
 				foreach ($aGrpUsrs as $oGrpUsr) {
-					if (false === $this->byId($oApp, $oGrpUsr->userid)) {
+					if (false === in_array($oGrpUsr->userid, $oUsers2)) {
 						$aAbsentUsrs[] = $oGrpUsr;
 					}
 				}
@@ -213,7 +221,7 @@ class user_model extends \TMS_MODEL {
 				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
 					$members = $modelMem->byMschema($mschemaId);
 					foreach ($members as $oMember) {
-						if (false === $this->byId($oApp, $oMember->userid)) {
+						if (false === in_array($oMember->userid, $oUsers2)) {
 							$oUser = new \stdClass;
 							$oUser->userid = $oMember->userid;
 							$oUser->nickname = $oMember->name;
@@ -226,7 +234,7 @@ class user_model extends \TMS_MODEL {
 			$modelGrpUsr = $this->model('matter\group\player');
 			$aGrpUsrs = $modelGrpUsr->byApp($oApp->group_app_id, ['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']);
 			foreach ($aGrpUsrs->players as $oGrpUsr) {
-				if (false === $this->byId($oApp, $oGrpUsr->userid)) {
+				if (false === in_array($oGrpUsr->userid, $oUsers2)) {
 					$aAbsentUsrs[] = $oGrpUsr;
 				}
 			}
@@ -238,7 +246,7 @@ class user_model extends \TMS_MODEL {
 				foreach ($oMission->entry_rule->member as $mschemaId => $rule) {
 					$members = $modelMem->byMschema($mschemaId);
 					foreach ($members as $oMember) {
-						if (false === $this->byId($oApp, $oMember->userid)) {
+						if (false === in_array($oMember->userid, $oUsers2)) {
 							$oUser = new \stdClass;
 							$oUser->userid = $oMember->userid;
 							$oUser->nickname = $oMember->name;
@@ -252,7 +260,9 @@ class user_model extends \TMS_MODEL {
 					$result = $modelRec->byApp($oMission->user_app_id);
 					if (!empty($result->records)) {
 						foreach ($result->records as $oRec) {
-							$aAbsentUsrs[] = $oRec;
+							if (false === in_array($oRec->userid, $oUsers2)) {
+								$aAbsentUsrs[] = $oRec;
+							}
 						}
 					}
 				} else if ($oMission->user_app_type === 'signin') {
@@ -260,7 +270,9 @@ class user_model extends \TMS_MODEL {
 					$result = $modelRec->byApp($oMission->user_app_id);
 					if (!empty($result->records)) {
 						foreach ($result->records as $oRec) {
-							$aAbsentUsrs[] = $oRec;
+							if (false === in_array($oRec->userid, $oUsers2)) {
+								$aAbsentUsrs[] = $oRec;
+							}
 						}
 					}
 				} else if ($oMission->user_app_type === 'group') {
@@ -268,15 +280,42 @@ class user_model extends \TMS_MODEL {
 					$result = $modelRec->byApp($oMission->user_app_id);
 					if (!empty($result->players)) {
 						foreach ($result->players as $oRec) {
-							$aAbsentUsrs[] = $oRec;
+							if (false === in_array($oRec->userid, $oUsers2)) {
+								$aAbsentUsrs[] = $oRec;
+							}
 						}
 					}
 				}
 			}
 		}
 
+		/* userid去重 */
+		$aAbsentUsrs2 = [];
+		foreach ($aAbsentUsrs as $aAbsentUsr) {
+			$state = true;
+			foreach ($aAbsentUsrs2 as $aAbsentUsr2) {
+				if ($aAbsentUsr->userid === $aAbsentUsr2->userid || empty($aAbsentUsr->userid)) {
+					$state = false;
+					break;
+				}
+			}
+			if ($state) {
+				//获取未签到人员的信息，并从$oApp->absent_cause中筛选出已经签到的人
+				if (isset($oApp->absent_cause->{$aAbsentUsr->userid}) && isset($oApp->absent_cause->{$aAbsentUsr->userid}->{$rid})) {
+					$aAbsentUsr->absent_cause = new \stdClass;
+					$aAbsentUsr->absent_cause->cause = $oApp->absent_cause->{$aAbsentUsr->userid}->{$rid};
+					$aAbsentUsr->absent_cause->rid = $rid;
+				} else {
+					$aAbsentUsr->absent_cause = new \stdClass;
+					$aAbsentUsr->absent_cause->rid = $rid;
+					$aAbsentUsr->absent_cause->cause  = '';
+				}
+				$aAbsentUsrs2[] = $aAbsentUsr;
+			}
+		}
+
 		$result = new \stdClass;
-		$result->users = $aAbsentUsrs;
+		$result->users = $aAbsentUsrs2;
 
 		return $result;
 	}

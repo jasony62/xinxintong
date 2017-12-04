@@ -187,17 +187,21 @@ define(['frame'], function(ngApp) {
             $scope.bRequireScore = bRequireScore;
             $scope.recordSchemas = recordSchemas;
             $scope.recordSchemasExt = recordSchemasExt;
-            app._schemasFromEnrollApp.forEach(function(schema) {
-                if (schema.type !== 'html') {
-                    enrollDataSchemas.push(schema);
-                }
-            });
+            if (app._schemasFromEnrollApp) {
+                app._schemasFromEnrollApp.forEach(function(schema) {
+                    if (schema.type !== 'html') {
+                        enrollDataSchemas.push(schema);
+                    }
+                });
+            }
             $scope.enrollDataSchemas = enrollDataSchemas;
-            app._schemasFromGroupApp.forEach(function(schema) {
-                if (schema.type !== 'html') {
-                    groupDataSchemas.push(schema);
-                }
-            });
+            if (app._schemasFromGroupApp) {
+                app._schemasFromGroupApp.forEach(function(schema) {
+                    if (schema.type !== 'html') {
+                        groupDataSchemas.push(schema);
+                    }
+                });
+            }
             $scope.groupDataSchemas = groupDataSchemas;
             $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();

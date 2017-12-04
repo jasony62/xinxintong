@@ -15,7 +15,7 @@
 <body ng-app='app' ng-controller='ctrlMain'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar navbar-default main-navbar'>
+    <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
@@ -98,7 +98,7 @@
                                 <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
                             </div>
                             <div class="col-md-9 col-xs-8 text-left">
-                                <img class='user-headimg' ng-src="{{u.headimgurl}}"/>
+                                <img class='user-headimg' ng-src="{{u.headimgurl}}" />
                                 <span>{{u.nickname}}</span>
                                 <span ng-if="app.group_app_id">-{{u.group.round_title}}</span>
                             </div>
@@ -136,7 +136,7 @@
                                     <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
                                 </div>
                                 <div class='col-xs-8 user-info'>
-                                    <img class='data-headimg' ng-src="{{rec.headimgurl}}"/>
+                                    <img class='data-headimg' ng-src="{{rec.headimgurl}}" />
                                     <span>{{rec.nickname}}</span><span ng-if="app.group_app_id">-{{rec.group_title}}</span>
                                 </div>
                                 <div class='col-xs-2 text-color pull-right'><span>{{rec[appState.criteria.orderby+'_num']}}</span>
@@ -155,7 +155,7 @@
                                 </div>
                                 <div ng-switch-when="image" class='f-box'>
                                     <p class='s-box'>
-                                        <img ng-src="{{rec.value[0]}}" class='c-box'/>
+                                        <img ng-src="{{rec.value[0]}}" class='c-box' />
                                         <span class='mask' ng-if="rec.value.length>1"></span>
                                         <span class='tip' ng-if="rec.value.length>1"><i class='glyphicon glyphicon-picture'></i>
                                         {{rec.value.length}}图</span>
@@ -203,7 +203,7 @@
                                     <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
                                 </div>
                                 <div class='col-xs-8 user-info'>
-                                    <img class='data-headimg' ng-src="{{rec.headimgurl}}"/>
+                                    <img class='data-headimg' ng-src="{{rec.headimgurl}}" />
                                     <span>{{rec.nickname}}</span><span ng-if="app.group_app_id">-{{rec.group_title}}</span>
                                 </div>
                                 <div class='col-xs-2 text-color pull-right'><span>{{rec[appState.criteria.orderby+'_num']}}</span>
@@ -223,7 +223,7 @@
                                 </div>
                                 <div ng-switch-when="image" class='f-box'>
                                     <p class='s-box'>
-                                        <img ng-src="{{rec.value[0]}}" class='c-box'/>
+                                        <img ng-src="{{rec.value[0]}}" class='c-box' />
                                         <span class='mask' ng-if="rec.value.length>1"></span>
                                         <span class='tip' ng-if="rec.value.length>1"><i class='glyphicon glyphicon-picture'></i>
                                         {{rec.value.length}}图</span>
@@ -256,7 +256,6 @@
                             <div class='col-md-2 hidden-xs'><span>{{rec[appState.criteria.orderby+'_num']}}</span></div>
                             <div class="custom custom-md-like like-color hidden-xs"><span ng-if="rec.agreed=='Y'">荐</span></div>
                             <div class='custom custom-entry text-color hidden-xs'><span class='glyphicon glyphicon-menu-right'></span></div>
-
                         </li>
                     </ul>
                     <ul ng-switch-when="remark">
@@ -273,7 +272,7 @@
                                     <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
                                 </div>
                                 <div class='col-xs-8 user-info'>
-                                    <img class='data-headimg' ng-src="{{rem.headimgurl}}"/>
+                                    <img class='data-headimg' ng-src="{{rem.headimgurl}}" />
                                     <span>{{rem.nickname}}</span><span ng-if="app.group_app_id">-{{rem.group_title}}</span>
                                 </div>
                                 <div class='col-xs-2 text-color pull-right'><span>{{rem.like_num}}</span>
@@ -292,7 +291,6 @@
                             </div>
                             <div class='col-md-2 hidden-xs'><span>{{rem.like_num}}</span></div>
                             <div class='custom custom-entry text-color hidden-xs'><span class='glyphicon glyphicon-menu-right'></span></div>
-
                         </li>
                     </ul>
                     <ul ng-switch-when="remark-rec">
@@ -309,7 +307,7 @@
                                     <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
                                 </div>
                                 <div class='col-xs-8 user-info'>
-                                    <img class='data-headimg' ng-src="{{rem.headimgurl}}"/>
+                                    <img class='data-headimg' ng-src="{{rem.headimgurl}}" />
                                     <span>{{rem.nickname}}</span><span ng-if="app.group_app_id">-{{rem.group_title}}</span>
                                 </div>
                                 <div class='col-xs-2 text-color pull-right'><span>{{rem.like_num}}</span>

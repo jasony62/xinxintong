@@ -160,13 +160,47 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * app
      */
     ngModule.provider('srvEnrollApp', function() {
+        function _fnMapAssocEnrollApp(oApp) {
+            var enrollDataSchemas = [];
+            if (oApp.enrollApp && oApp.enrollApp.dataSchemas) {
+                oApp.enrollApp.dataSchemas.forEach(function(item) {
+                    if (oApp._unionSchemasById[item.id] === undefined) {
+                        item.assocState = '';
+                        oApp._unionSchemasById[item.id] = item;
+                        enrollDataSchemas.push(item);
+                    } else if (oApp._unionSchemasById[item.id].fromApp === oApp.enrollApp.id) {
+                        item.assocState = 'yes';
+                    } else {
+                        item.assocState = 'no';
+                    }
+                });
+            }
+            oApp._schemasFromEnrollApp = enrollDataSchemas;
+        }
+
+        function _fnMapAssocGroupApp(oApp) {
+            var groupDataSchemas = [];
+            if (oApp.groupApp && oApp.groupApp.dataSchemas) {
+                oApp.groupApp.dataSchemas.forEach(function(item) {
+                    if (oApp._unionSchemasById[item.id] === undefined) {
+                        item.assocState = '';
+                        oApp._unionSchemasById[item.id] = item;
+                        groupDataSchemas.push(item);
+                    } else if (oApp._unionSchemasById[item.id].fromApp === oApp.groupApp.id) {
+                        item.assocState = 'yes';
+                    } else {
+                        item.assocState = 'no';
+                    }
+                });
+            }
+            oApp._schemasFromGroupApp = groupDataSchemas;
+        }
+
         function _fnMapSchemas(oApp) {
             var mapOfSchemaByType = {},
                 mapOfSchemaById = {},
                 mapOfUnionSchemaById = {},
                 inputSchemas = [],
-                enrollDataSchemas = [],
-                groupDataSchemas = [],
                 canFilteredSchemas = [];
 
             oApp.dataSchemas.forEach(function(schema) {
@@ -181,32 +215,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     canFilteredSchemas.push(schema);
                 }
             });
-            // 关联的报名登记项
-            if (oApp.enrollApp && oApp.enrollApp.dataSchemas) {
-                oApp.enrollApp.dataSchemas.forEach(function(item) {
-                    if (mapOfUnionSchemaById[item.id] === undefined) {
-                        mapOfUnionSchemaById[item.id] = item;
-                        enrollDataSchemas.push(item);
-                    }
-                });
-            }
-            // 关联的分组活动的登记项
-            if (oApp.groupApp && oApp.groupApp.dataSchemas) {
-                oApp.groupApp.dataSchemas.forEach(function(item) {
-                    if (mapOfUnionSchemaById[item.id] === undefined) {
-                        mapOfUnionSchemaById[item.id] = item;
-                        groupDataSchemas.push(item);
-                    }
-                });
-            }
-
             oApp._schemasByType = mapOfSchemaByType;
             oApp._schemasById = mapOfSchemaById;
             oApp._schemasForInput = inputSchemas;
             oApp._unionSchemasById = mapOfUnionSchemaById;
             oApp._schemasCanFilter = canFilteredSchemas;
-            oApp._schemasFromEnrollApp = enrollDataSchemas;
-            oApp._schemasFromGroupApp = groupDataSchemas;
+
+            _fnMapAssocEnrollApp(oApp);
+            _fnMapAssocGroupApp(oApp);
         }
 
 
@@ -437,6 +453,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     return deferred.promise;
                 },
                 assignEnrollApp: function() {
+                    var defer = $q.defer();
                     $uibModal.open({
                         templateUrl: 'assignEnrollApp.html',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -464,11 +481,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _self.update('enroll_app_id').then(function(rsp) {
                             var url = '/rest/pl/fe/matter/enroll/get?site=' + _siteId + '&app=' + _oApp.enroll_app_id;
                             http2.get(url, function(rsp) {
-                                rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
                                 _oApp.enrollApp = rsp.data;
+                                _fnMapAssocEnrollApp(_oApp);
+                                defer.resolve(_oApp.enrollApp);
                             });
                         });
                     });
+                    return defer.promise;
                 },
                 assignGroupApp: function() {
                     var defer = $q.defer();
@@ -500,6 +519,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             var url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _oApp.group_app_id;
                             http2.get(url, function(rsp) {
                                 _oApp.groupApp = rsp.data;
+                                _fnMapAssocGroupApp(_oApp);
                                 defer.resolve(_oApp.groupApp);
                             });
                         });

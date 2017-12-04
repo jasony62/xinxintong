@@ -371,11 +371,6 @@ define(['require'], function(require) {
                 });
             }
         };
-        $scope.createEnrollApp = function(oSchema) {
-            http2.post('/rest/pl/fe/matter/enroll/createByMschema?mschema=' + oSchema.id, {}, function(rsp) {
-                location.href = '/rest/pl/fe/matter/enroll?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
-            });
-        };
         service.memberSchema.get('N').then(function(schemas) {
             schemas.forEach(function(schema) {
                 shiftAttr(schema);

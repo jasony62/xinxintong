@@ -1,9 +1,4 @@
-html,body{height:auto;width:100%;font-family:Microsoft Yahei,Arial;}
-body{position:relative;font-size:16px;padding: 15px;}
-.app{margin-top:15px;}
 img{max-width:100%}
-header{margin:-15px -15px 0 -15px;}
-footer{margin:0 -15px -15px -15px;}
 
 /* default form style*/
 div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px dotted #ccc;}
@@ -21,6 +16,3 @@ li .wrap-inline>label{padding:7px 0;color:#444;}
 li .wrap-inline{border-bottom:1px dashed #efefef;}
 li .wrap-inline:last-child{border-bottom:0;}
 .tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
-
-/* auth */
-#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}

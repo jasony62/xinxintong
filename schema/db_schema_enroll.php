@@ -67,6 +67,7 @@ $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面�
 $sql .= ",rp_short_url_code char(4) not null default ''"; // 统计报告页面的短链接编码
 $sql .= ",rp_config text"; // 统计报告页面用户选择的标识信息
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
+$sql .= ",absent_cause text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

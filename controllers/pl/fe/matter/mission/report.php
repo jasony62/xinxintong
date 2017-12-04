@@ -17,26 +17,33 @@ class report extends \pl\fe\matter\base {
 	 * 获得项目汇总报告
 	 * 如果用户指定了查询参数，保存查询参数
 	 */
-	public function userAndApp_action($mission) {
+	public function userAndApp_action($mission = '') {
 		if (false === ($oLoginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
+		}
+
+		if (empty($mission)) {
+			return new \ResponseError('未指定项目id');
 		}
 
 		$modelMis = $this->model('matter\mission');
 		$oMission = $modelMis->byId($mission);
 		if ($oMission === false) {
-			return new \ObjectNotFoundError();
+			return new \ResponseError('指定项目不存在');
 		}
 
 		$posted = $this->getPostJson();
 
 		$result = $this->userAndAppData($oLoginUser, $oMission, $posted);
+		if ($result[0] === false) {
+			return new \ResponseError($result[1]);
+		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($result[1]);
 	}
-	/* 
-	*获得用户指定app下的用户
-	*/
+	/**
+	 *获得用户指定app下的用户
+	 */
 	private function userAndAppData($oLoginUser, $oMission, $posted = '') {
 		if (!isset($posted->userSource) || !isset($posted->userSource->type) || !isset($posted->userSource->id)) {
 			if (isset($oMission->user_app_id) && isset($oMission->user_app_type)) {
@@ -44,7 +51,7 @@ class report extends \pl\fe\matter\base {
 				$userSource->id = $oMission->user_app_id;
 				$userSource->type = $oMission->user_app_type;
 			} else {
-				return new \ParameterError();
+				return [false, '未找到用户名单'];
 			}
 		} else {
 			$userSource = $posted->userSource;
@@ -73,7 +80,7 @@ class report extends \pl\fe\matter\base {
 			/* 如果没有指定 */
 			$matters = $this->model('matter\mission\matter')->byMission($oMission->id);
 			if (count($matters) === 0) {
-				return new \ParameterError('没有获得项目中活动');
+				return [false, '未获得项目中活动'];
 			}
 			foreach ($matters as $oMatter) {
 				if (in_array($oMatter->type, ['enroll', 'signin', 'group'])) {
@@ -99,7 +106,7 @@ class report extends \pl\fe\matter\base {
 								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
 							}
 						} else {
-							$show_schema_data = $show_schema_datas;		
+							$show_schema_data = $show_schema_datas;
 						}
 					}
 					$oUser->show_schema_data = $show_schema_data;
@@ -126,7 +133,7 @@ class report extends \pl\fe\matter\base {
 						/* 处理用户指定显示的列 */
 						if (!empty($defaultConfig->show_schema)) {
 							foreach ($defaultConfig->show_schema as $show_schema) {
-								if (strpos($show_schema->id,'member') === 0) {
+								if (strpos($show_schema->id, 'member') === 0) {
 									$schId = explode('.', $show_schema->id)[1];
 									if (!isset($show_schema_data->member) || !is_object($show_schema_data->member)) {
 										$show_schema_data->member = new \stdClass;
@@ -137,7 +144,7 @@ class report extends \pl\fe\matter\base {
 								}
 							}
 						} else {
-							$show_schema_data = $show_schema_datas;		
+							$show_schema_data = $show_schema_datas;
 						}
 					}
 					$oUser->show_schema_data = $show_schema_data;
@@ -158,7 +165,7 @@ class report extends \pl\fe\matter\base {
 								$show_schema_data->{$show_schema->id} = $show_schema_datas->{$show_schema->id};
 							}
 						} else {
-							$show_schema_data = $show_schema_datas;		
+							$show_schema_data = $show_schema_datas;
 						}
 					}
 					$oUser->show_schema_data = $show_schema_data;
@@ -194,7 +201,7 @@ class report extends \pl\fe\matter\base {
 		}
 
 		if (empty($users)) {
-			return new \ParameterError('项目用户为空，无法显示用户数据');
+			return [false, '项目用户为空，无法显示用户数据'];
 		}
 
 		$modelRep = $this->model('matter\mission\report');
@@ -203,7 +210,7 @@ class report extends \pl\fe\matter\base {
 			$result->apps = $defaultConfig->apps;
 		}
 
-		return $result;
+		return [true, $result];
 	}
 	/**
 	 * 更新项目报告配置
@@ -254,13 +261,20 @@ class report extends \pl\fe\matter\base {
 	/**
 	 * 导出项目汇总报告
 	 */
-	public function export_action($mission) {
+	public function export_action($mission = '') {
 		if (false === ($oLoginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
+		}
+		if (empty($mission)) {
+			return new \ResponseError('未指定项目id');
 		}
 
 		$modelMis = $this->model('matter\mission');
 		$oMission = $modelMis->byId($mission);
+		if ($oMission === false) {
+			return new \ObjectNotFoundError();
+		}
+
 		if ($oMission->user_app_id) {
 			if ($oMission->user_app_type === 'group') {
 				$oMission->userApp = $this->model('matter\group')->byId($oMission->user_app_id, ['cascaded' => 'N']);
@@ -283,15 +297,13 @@ class report extends \pl\fe\matter\base {
 				$oMission->userApp->dataSchemas = $data_schemas;
 			}
 		}
-		if ($oMission === false) {
-			return new \ObjectNotFoundError();
-		}
 
 		/* 获得用户 */
 		$result = $this->userAndAppData($oLoginUser, $oMission);
-		if ($result === false) {
-			return new \ObjectNotFoundError();
+		if ($result[0] === false) {
+			return new \ResponseError($result[1]);
 		}
+		$result = $result[1];
 		if (empty($result->show_schema)) {
 			$result->show_schema = $oMission->userApp->dataSchemas;
 		}
@@ -349,7 +361,7 @@ class report extends \pl\fe\matter\base {
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $roundTitle);
-				} else if (strpos($show_schema->id,'member') === 0) {
+				} else if (strpos($show_schema->id, 'member') === 0) {
 					$schId = explode('.', $show_schema->id)[1];
 					if (isset($rec->show_schema_data->member->{$schId})) {
 						$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $row, $rec->show_schema_data->member->{$schId});

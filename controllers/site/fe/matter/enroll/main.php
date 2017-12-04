@@ -309,7 +309,9 @@ class main extends base {
 			$modelRnd = $this->model('matter\enroll\round');
 			if (empty($rid)) {
 				$oActiveRnd = $modelRnd->getActive($oApp);
-				$rid = $oActiveRnd->rid;
+				if ($oActiveRnd) {
+					$rid = $oActiveRnd->rid;
+				}
 				$params['activeRound'] = $oActiveRnd;
 			} else {
 				$params['activeRound'] = $modelRnd->byId($rid);

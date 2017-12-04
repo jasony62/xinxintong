@@ -89,16 +89,18 @@ class user extends \pl\fe\matter\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		empty($rid) && $rid = 'ALL';
 
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id']);
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-
-		$result = $modelUsr->absentByApp($oApp, $rid);
+		/* 获得当前活动的参与人 */
+		$oUsers = $modelUsr->enrolleeByApp($oApp,'', '', ['fields' => 'id,userid', 'onlyEnrolled' => 'Y', 'cascaded' => 'N', 'rid' => $rid]);
+		$result = $modelUsr->absentByApp($oApp, $oUsers->users, $rid);
 
 		return new \ResponseData($result);
 	}
@@ -176,7 +178,7 @@ class user extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,user_task,group_app_id,data_schemas', 'cascaded' => 'N']))) {
+		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,user_task,group_app_id,data_schemas,absent_cause', 'cascaded' => 'N']))) {
 			return new \ParameterError();
 		}
 		$oUserTask = $oApp->userTask;
@@ -462,7 +464,7 @@ class user extends \pl\fe\matter\base {
 		}
 
 		/* 未签到用户 */
-		$result = $modelUsr->absentByApp($oApp, $rid);
+		$result = $modelUsr->absentByApp($oApp, $data, $rid);
 		$absentUsers = $result->users;
 		if (count($absentUsers)) {
 			$objPHPExcel->createSheet();
@@ -474,6 +476,7 @@ class user extends \pl\fe\matter\base {
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '序号');
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '姓名');
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '分组');
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '备注');
 
 			$rowNumber = 2;
 			foreach ($absentUsers as $k => $absentUser) {
@@ -485,6 +488,7 @@ class user extends \pl\fe\matter\base {
 				} else {
 					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 				}
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->absent_cause->cause);
 
 				$rowNumber++;
 			}

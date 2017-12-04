@@ -5,7 +5,7 @@
     </div>
     <div class="form-group">
         <label>题目类型</label>
-        <select class='form-control' ng-model='editing.type' ng-change="changeSchemaType()">
+        <select class='form-control' ng-model='editing.type' ng-change="changeSchemaType()" ng-disabled="editing.type==='member'">
             <option value='shorttext'>单行填写题</option>
             <option value='longtext'>多行填写题</option>
             <option value='single'>单选题</option>
@@ -46,14 +46,6 @@
             <label class="checkbox-inline">
                 <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">邮箱</label>
         </div>
-    </div>
-    <div class="form-group" ng-if="activeSchema.type==='member'">
-        <select class='form-control' disabled ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas'>
-            <option></option>
-        </select>
-        <select class='form-control' disabled ng-model='selectedMemberSchema.attr' ng-options='a.title for a in selectedMemberSchema.schema._schemas'>
-            <option></option>
-        </select>
     </div>
     <div class="form-group" ng-if="activeSchema.type==='multiple'">
         <div class='checkbox'>
@@ -118,9 +110,6 @@
     <div class="form-group" ng-show="['image','file'].indexOf(activeSchema.type)!==-1">
         <label>限制数量</label>
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema)">
-    </div>
-    <div class="form-group" ng-show="'Y'===activeSchema.requireCheck">
-        <p class='help-block'>需要在【<span>{{assocAppName(activeSchema.fromApp)}}</span>】中检查</label>
     </div>
     <div ng-if="activeSchema.requireScore==='Y'">
         <!--设置分数-->

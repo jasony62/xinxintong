@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlApp', ['$scope', '$location', 'http2', 'facListFilter', 'CstNaming', 'cstApp', '$uibModal', function($scope, $location, http2, facListFilter, CstNaming, cstApp, $uibModal) {
+    ngApp.provider.controller('ctrlApp', ['$scope', '$location', 'http2', 'facListFilter', 'CstNaming', '$uibModal', function($scope, $location, http2, facListFilter, CstNaming, $uibModal) {
         var _oMission, _oCriteria, hash;
         $scope.scenarioes = CstNaming.scenario;
         if (hash = $location.hash()) {
@@ -18,13 +18,13 @@ define(['frame'], function(ngApp) {
         }
         var aUnionMatterTypes;
         aUnionMatterTypes = [];
-        cstApp.matterNames.appOrder.forEach(function(name) {
+        CstNaming.matter.appOrder.forEach(function(name) {
             if (name === 'enroll') {
                 $scope.scenarioes.enrollIndex.forEach(function(scenario) {
                     aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: $scope.scenarioes.enroll[scenario] });
                 });
             } else {
-                aUnionMatterTypes.push({ name: name, label: cstApp.matterNames.app[name] });
+                aUnionMatterTypes.push({ name: name, label: CstNaming.matter.app[name] });
             }
         });
         $scope.unionMatterTypes = aUnionMatterTypes;
@@ -115,18 +115,18 @@ define(['frame'], function(ngApp) {
                         };
                         $scope2.criteria = criteria = {
                             'mission_id': '',
-                            'byTitle':'',
+                            'byTitle': '',
                             'isMatterData': 'N',
                             'isMatterAction': 'N'
                         };
                         $scope2.$watch('criteria.isMatterData', function(nv) {
-                            if(nv==='Y') {criteria.isMatterAction='Y'};
+                            if (nv === 'Y') { criteria.isMatterAction = 'Y' };
                         });
                         $scope2.doMission = function() {
                             var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j() + '&fields=id,title',
-                                params = {byTitle: criteria.byTitle};
+                                params = { byTitle: criteria.byTitle };
                             http2.post(url, params, function(rsp) {
-                                if(rsp.data) {
+                                if (rsp.data) {
                                     $scope2.missions = rsp.data.missions;
                                     $scope2.pageOfMission.total = rsp.data.total;
                                 }
@@ -150,12 +150,12 @@ define(['frame'], function(ngApp) {
                     }],
                     backdrop: 'static'
                 }).result.then(function(result) {
-                    url += type + '/copy?site=' + siteid + '&app=' + id +'&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
+                    url += type + '/copy?site=' + siteid + '&app=' + id + '&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
                     http2.get(url, function(rsp) {
                         location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                     });
                 });
-            }else {
+            } else {
                 url += type + '/copy?app=' + id + '&site=' + _oMission.siteid + '&mission=' + _oMission.id;
                 http2.get(url, function(rsp) {
                     location.href = '/rest/pl/fe/matter/' + type + '?site=' + _oMission.siteid + '&id=' + rsp.data.id;

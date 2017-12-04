@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlDoc', ['$scope', '$location', 'http2', 'facListFilter', 'cstApp', function($scope, $location, http2, facListFilter, cstApp) {
+    ngApp.provider.controller('ctrlDoc', ['$scope', '$location', 'http2', 'facListFilter', 'CstNaming', function($scope, $location, http2, facListFilter, CstNaming) {
         var _oMission, _oCriteria, hash;
         if (hash = $location.hash()) {
             $scope.matterType = hash;
@@ -9,8 +9,8 @@ define(['frame'], function(ngApp) {
         }
         var aUnionMatterTypes;
         aUnionMatterTypes = [];
-        cstApp.matterNames.docOrder.forEach(function(name) {
-            aUnionMatterTypes.push({ name: name, label: cstApp.matterNames.doc[name] });
+        CstNaming.matter.docOrder.forEach(function(name) {
+            aUnionMatterTypes.push({ name: name, label: CstNaming.matter.doc[name] });
         });
         $scope.unionMatterTypes = aUnionMatterTypes;
         $scope.unionType = '';

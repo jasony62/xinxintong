@@ -380,7 +380,8 @@ class log_model extends \TMS_MODEL {
 			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
 		);
 		// 记录新日志，或更新日志
-		if ($userLastLog === false || $current > $userLastLog->operate_at + 600 || $userLastLog->operation === 'C' || $userLastLog->operation === 'transfer') {
+		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restore'];
+		if ($userLastLog === false || in_array($userLastLog->operation, $filterOp) || $current > $userLastLog->operate_at + 600) {
 			/* 两次更新操作的间隔超过10分钟，产生新日志 */
 			$d = array();
 			$d['siteid'] = $siteId;

@@ -304,23 +304,77 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 查询用户操作素材日志
 	 */
-	public function &listUserMatterOp($matterId, $matterType, $page, $size) {
+	public function &listUserMatterOp($matterId, $matterType, $options = [], $page, $size) {
 		$result = new \stdClass;
 		$q = [
 			'l.userid,l.nickname,l.operation,l.operate_at,l.user_op_num,l.matter_op_num',
 			'xxt_log_user_matter l',
-			"l.matter_type='$matterType' and l.matter_id='$matterId'",
+			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
 		];
+
+		if (!empty($options['byUser'])) {
+			$q[2] .= " and l.userid = '" . $this->escape($options['byUser']) . "'";
+		}
+		if (!empty($options['byOp'])) {
+			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
+		}
+		if (!empty($options['byRid'])) {
+			$q[2] .= " and l.operate_data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
+		}
+
 		/**
 		 * 分页数据
 		 */
 		$q2 = [
 			'o' => 'l.operate_at desc',
-			'r' => [
+		];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = [
 				'o' => (($page - 1) * $size),
 				'l' => $size,
-			],
+			];
+		}
+
+		$result->logs = $this->query_objs_ss($q, $q2);
+
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
+	}
+	/**
+	 * 查询用户操作素材日志
+	 */
+	public function &listMatterOp($matterId, $matterType, $options = [], $page, $size) {
+		$result = new \stdClass;
+		$q = [
+			'l.operator,l.operator_name,l.operation,l.operate_at',
+			'xxt_log_matter_op l',
+			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
 		];
+
+		if (!empty($options['byUser'])) {
+			$q[2] .= " and l.operator_name like '%" . $this->escape($options['byUser']) . "%'";
+		}
+		if (!empty($options['byOp'])) {
+			$q[2] .= " and i.operation = '" . $this->escape($options['byOp']) . "'";
+		}
+		if (!empty($options['byRid'])) {
+			$q[2] .= " and data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
+		}
+
+		/**
+		 * 分页数据
+		 */
+		$q2 = [
+			'o' => 'l.operate_at desc',
+		];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			];
+		}
 
 		$result->logs = $this->query_objs_ss($q, $q2);
 

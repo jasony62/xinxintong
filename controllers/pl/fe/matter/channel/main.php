@@ -24,8 +24,14 @@ class main extends \pl\fe\matter\main_base {
 		$modelChn = $this->model('matter\channel');
 		if ($oChannel = $modelChn->byId($id)) {
 			$oChannel->entryUrl = $modelChn->getEntryUrl($site, $id);
+			/* 所属项目 */
+			if ($oChannel->mission_id) {
+				$oChannel->mission = $this->model('matter\mission')->byId($oChannel->mission_id, ['cascaded' => 'phase']);
+			}
 			!empty($oChannel->matter_mg_tag) && $oChannel->matter_mg_tag = json_decode($oChannel->matter_mg_tag);
+
 			$oChannel->matters = $modelChn->getMatters($id, $oChannel, $site);
+
 			$oChannel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
 		}
 
@@ -93,19 +99,36 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 在指定团队下创建频道素材
 	 */
-	public function create_action($site) {
+	public function create_action($site = null, $mission = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		if (empty($site) && empty($mission)) {
+			return new \ParameterError();
+		}
+
+		$oPosted = $this->getPostJson();
+		$oChannel = new \stdClass;
+		if (!empty($mission)) {
+			$oMission = $this->model('matter\mission')->byId($mission);
+			if (false === $oMission) {
+				return new \ObjectNotFoundError();
+			}
+			$oChannel->siteid = $oMission->siteid;
+			$oChannel->mission_id = $oMission->id;
+		} else if (!empty($site)) {
+			$oSite = $this->model('site')->byId($site);
+			if (false === $oSite) {
+				return new \ObjectNotFoundError();
+			}
+			$oChannel->siteid = $oSite->id;
+		}
 
 		$modelCh = $this->model('matter\channel')->setOnlyWriteDbConn(true);
-		$oPosted = $this->getPostJson();
 
 		$q = ['count(*)', 'xxt_channel', ['siteid' => $site, 'state' => 1]];
 		$countOfChn = (int) $modelCh->query_val_ss($q);
 
-		$oChannel = new \stdClass;
-		$oChannel->siteid = $site;
 		$oChannel->title = isset($oPosted->title) ? $modelCh->escape($oPosted->title) : ('新频道-' . ++$countOfChn);
 		$oChannel->matter_type = '';
 

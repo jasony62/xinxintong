@@ -39,6 +39,13 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/matter/link?id=' + rsp.data.id + '&site=' + _oMission.siteid;
             });
         };
+        $scope.addChannel = function() {
+            var url = '/rest/pl/fe/matter/channel/create?mission=' + _oMission.id;
+            url += '&title=' + _oMission.title + '-频道';
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/channel?id=' + rsp.data.id + '&site=' + _oMission.siteid;
+            });
+        };
         $scope.addMatter = function(matterType) {
             $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
         };
@@ -51,8 +58,9 @@ define(['frame'], function(ngApp) {
                 url += '/' + subView;
             }
             switch (type) {
-                case 'link':
                 case 'article':
+                case 'link':
+                case 'channel':
                     location.href = url + '?id=' + id + '&site=' + _oMission.siteid;
                     break;
             }

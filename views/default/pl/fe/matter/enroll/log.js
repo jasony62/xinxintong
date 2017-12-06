@@ -40,6 +40,7 @@ define(['frame'], function(ngApp) {
         $scope.$watch('app', function(oApp) {
             if (!oApp) return;
             _oApp = oApp;
+            $scope.active = 0;
             $scope.read.list("site");
             $scope.record.list("pl");
         });

@@ -1,10 +1,10 @@
-<div class="col-md-6 col-md-offset-3">
-    <div class="form-group" >
+<div class="col-md-6 col-md-offset-3" ng-init="active='0'">
+    <div class="form-group" ng-if="active=='0'">
         <div class="form-inline">
             <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
         </div>
     </div>
-    <uib-tabset active="0">
+    <uib-tabset active="active">
         <uib-tab index="0">
             <uib-tab-heading>用户端</uib-tab-heading>
             <table class='table table-bordered table-striped pl-workspace'>

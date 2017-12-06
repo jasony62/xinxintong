@@ -28,7 +28,7 @@ class log extends \pl\fe\matter\base {
 		if (!empty($criteria->byOp)) {
 			$options['byOp'] = $criteria->byOp;
 		}
-		if (!empty($criteria->byRid)) {
+		if (!empty($criteria->byRid) && (strcasecmp('all', $criteria->byRid) != 0)) {
 			$options['byRid'] = $criteria->byRid;
 		}
 

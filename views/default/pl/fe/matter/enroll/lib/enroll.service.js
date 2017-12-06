@@ -1447,20 +1447,39 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * log
      */
     ngModule.provider('srvEnrollLog', function() {
-        var _siteId, _appId, _siteOperations;
+        var _siteId, _appId, _plOperations, _siteOperations;
 
         this.config = function(siteId, appId) {
             _siteId = siteId;
             _appId = appId;
+            _plOperations = [{
+                value: 'restoreData',
+                title: '恢复数据'
+            },{
+                value: 'add',
+                title: '新增数据'
+            },{
+                value: 'Recycle',
+                title: '删除活动'
+            },{
+                value: 'U',
+                title: '修改活动'
+            },{
+                value: 'C',
+                title: '创建活动'
+            },{
+                value: 'Restore',
+                title: '恢复活动'
+            }];
             _siteOperations = [{
                 value: 'submit',
-                title: '新建'
+                title: '提交'
             },{
                 value: 'updateData',
-                title: '修改'
+                title: '修改数据'
             },{
                 value: 'removeData',
-                title: '删除'
+                title: '删除数据'
             }];
         };
         this.$get = ['$q', 'http2', '$uibModal', function($q, http2, $uibModal) {
@@ -1489,13 +1508,15 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     return defer.promise;
                 },
-                filter: function() {
+                filter: function(type) {
                     var defer = $q.defer();
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/enroll/component/logFilter.html?_=1',
                         controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
                             var oCriteria;
+                            $scope2.type = type;
                             $scope2.siteOperations = _siteOperations;
+                            $scope2.plOperations = _plOperations;
                             $scope2.pageOfRound = {
                                 at: 1,
                                 size: 5,
@@ -1519,9 +1540,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                             $scope2.cancel = function() {
                                 $mi.dismiss();
-                            };
-                            $scope2.clean = function() {
-                                $scope2.criteria = {};
                             };
                             $scope2.ok = function() {
                                 defer.resolve(oCriteria);

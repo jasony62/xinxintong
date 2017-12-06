@@ -1,7 +1,9 @@
-<div class="col-md-6 col-md-offset-3" ng-init="active='0'">
-    <div class="form-group" ng-if="active=='0'">
+<div class="col-md-6 col-md-offset-3">
+    <div class="form-group">
         <div class="form-inline">
-            <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+            <button class='btn btn-default' ng-if="active=='0'" ng-click="filter('site')"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+            <button class='btn btn-default' ng-if="active=='1'" ng-click="filter('pl')"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+            <button class="btn btn-default" ng-click="clean()"><i class="glyphicon glyphicon-erase"></i> <span>清除条件</span></button>
         </div>
     </div>
     <uib-tabset active="active">

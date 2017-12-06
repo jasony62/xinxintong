@@ -1447,9 +1447,25 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * log
      */
     ngModule.provider('srvEnrollLog', function() {
-        this.$get = ['$q', 'http2', function($q, http2) {
+        var _siteId, _appId, _siteOperations;
+
+        this.config = function(siteId, appId) {
+            _siteId = siteId;
+            _appId = appId;
+            _siteOperations = [{
+                value: 'submit',
+                title: '新建'
+            },{
+                value: 'updateData',
+                title: '修改'
+            },{
+                value: 'removeData',
+                title: '删除'
+            }];
+        };
+        this.$get = ['$q', 'http2', '$uibModal', function($q, http2, $uibModal) {
             return {
-                list: function(_appId, page) {
+                list: function(page, type, criteria) {
                     var defer = $q.defer(),
                         url;
                     if (!page || !page._j) {
@@ -1465,12 +1481,56 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }
                         });
                     }
-                    url = '/rest/pl/fe/matter/enroll/log/list?app=' + _appId + page._j();
-                    http2.get(url, function(rsp) {
+                    url = '/rest/pl/fe/matter/enroll/log/list?logType=' + type + '&app=' + _appId + page._j();
+                    http2.post(url, criteria, function(rsp) {
                         rsp.data.total && (page.total = rsp.data.total);
                         defer.resolve(rsp.data.logs);
                     });
 
+                    return defer.promise;
+                },
+                filter: function() {
+                    var defer = $q.defer();
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/logFilter.html?_=1',
+                        controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                            var oCriteria;
+                            $scope2.siteOperations = _siteOperations;
+                            $scope2.pageOfRound = {
+                                at: 1,
+                                size: 5,
+                                j: function() {
+                                    return '&page=' + this.at + '&size=' + this.size;
+                                }
+                            };
+                            $scope2.criteria = oCriteria = {
+                                byUser: '',
+                                byRid: '',
+                                byOp: ''
+                            };
+                            $scope2.doSearchRound = function() {
+                                var url = '/rest/pl/fe/matter/enroll/round/list?site=' + _siteId + '&app=' + _appId + $scope2.pageOfRound.j();
+                                http2.get(url, function(rsp) {
+                                    oCriteria.byRid = rsp.data.active.rid;
+                                    $scope2.activeRound = rsp.data.active;
+                                    $scope2.rounds = rsp.data.rounds;
+                                    $scope2.rounds.total = rsp.data.total;
+                                });
+                            };
+                            $scope2.cancel = function() {
+                                $mi.dismiss();
+                            };
+                            $scope2.clean = function() {
+                                $scope2.criteria = {};
+                            };
+                            $scope2.ok = function() {
+                                defer.resolve(oCriteria);
+                                $mi.close();
+                            };
+                            $scope2.doSearchRound();
+                        }],
+                        backdrop: 'static',
+                    });
                     return defer.promise;
                 }
             };

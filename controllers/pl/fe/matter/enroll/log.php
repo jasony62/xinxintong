@@ -40,17 +40,4 @@ class log extends \pl\fe\matter\base {
 
 		return new \ResponseData($reads);
 	}
-	/*
-	 *提交记录用户列表
-	*/
-	public function listUser_action($app, $page = '', $size = '') {
-		if (($oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N'])) === false) {
-			return new \ObjectNotFoundError();
-		}
-
-		$modelUser = $this->model('matter\enroll\user');
-		$users = $modelUser->enrolleeByApp($oApp, $page, $size, ['cascaded' => 'N', 'onlyEnrolled' => 'Y', 'fields' => 'userid,nickname']);
-
-		return new \ResponseData($users);
-	}
 }

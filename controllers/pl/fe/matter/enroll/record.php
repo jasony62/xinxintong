@@ -377,7 +377,7 @@ class record extends \pl\fe\matter\base {
 		isset($record->comment) && $operation->comment = $record->comment;
 		$operation->rid = $oNewRecord->rid;
 		$operation->round = $oNewRecord->round;
-		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'updateData', $operation);
+		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'update', $operation);
 
 		return new \ResponseData($oNewRecord);
 	}
@@ -465,7 +465,7 @@ class record extends \pl\fe\matter\base {
 		// 记录操作日志
 		unset($oRecord->userid);
 		$operation = $oRecord;
-		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'removeData', $operation);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'remove', $operation);
 
 		return new \ResponseData($rst);
 	}

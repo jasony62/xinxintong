@@ -269,7 +269,7 @@ class record extends base {
 		}
 		/* 记录操作日志 */
 		$operation = new \stdClass;
-		$operation->name = $bSubmitNewRecord ? 'submit' : 'updateData';
+		$operation->name = $bSubmitNewRecord ? 'submit' : 'update';
 		$operation->data = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
 		$this->_logUserOp($oEnrollApp, $operation);
 		/* 登记用户行为及积分 */
@@ -1150,7 +1150,7 @@ class record extends base {
 
 		/* 记录操作日志 */
 		$operation = new \stdClass;
-		$operation->name = 'removeData';
+		$operation->name = 'remove';
 		unset($oRecord->userid);
 		unset($oRecord->state);
 		$operation->data = $oRecord;

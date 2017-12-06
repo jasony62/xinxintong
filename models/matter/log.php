@@ -348,7 +348,7 @@ class log_model extends \TMS_MODEL {
 	public function &listMatterOp($matterId, $matterType, $options = [], $page, $size) {
 		$result = new \stdClass;
 		$q = [
-			'l.operator,l.operator_name,l.operation,l.operate_at',
+			'l.operator userid,l.operator_name nickname,l.operation,l.operate_at',
 			'xxt_log_matter_op l',
 			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
 		];
@@ -434,7 +434,7 @@ class log_model extends \TMS_MODEL {
 			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
 		);
 		// 记录新日志，或更新日志
-		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restore'];
+		$filterOp = ['C', 'transfer', 'update', 'add', 'remove', 'restore'];
 		if ($userLastLog === false || in_array($userLastLog->operation, $filterOp) || $current > $userLastLog->operate_at + 600) {
 			/* 两次更新操作的间隔超过10分钟，产生新日志 */
 			$d = array();

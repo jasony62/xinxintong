@@ -7,6 +7,58 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class data extends \pl\fe\matter\base {
 	/**
+	 * 根据record中的data数据，修复reocrd_data
+	 */
+	public function repairByRecord_action($ek = '') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek);
+		if (false === $oRecord) {
+			return new \ObjectNotFoundError();
+		}
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = new \stdClass;
+		$oUser->uid = $oRecord->userid;
+		$oUser->group_id = $oRecord->group_id;
+
+		$this->model('matter\enroll\data')->setData($oUser, $oApp, $oRecord, $oRecord->data);
+
+		return new \ResponseData('ok');
+	}
+	/**
+	 * 根据record中的data数据，修复reocrd_data
+	 */
+	public function repairByApp_action($app) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$modelRecDat = $this->model('matter\enroll\data');
+		$result = $modelRec->byApp($oApp->id);
+
+		foreach ($result->records as $oRecord) {
+			$oUser = new \stdClass;
+			$oUser->uid = $oRecord->userid;
+			$oUser->group_id = $oRecord->group_id;
+
+			$modelRecDat->setData($oUser, $oApp, $oRecord, $oRecord->data);
+		}
+
+		return new \ResponseData(count($result->records));
+	}
+	/**
 	 *
 	 */
 	public function agree_action($ek, $schema, $value = '') {

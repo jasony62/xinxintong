@@ -6,7 +6,7 @@ constant('CstNaming', {
             'link': '链接',
             'channel': '频道',
         },
-        docOrder: ['article', 'link'],
+        docOrder: ['article', 'link', 'channel'],
         app: {
             'enroll': '登记',
             'signin': '签到',
@@ -32,5 +32,8 @@ constant('CstNaming', {
             'extract': '抓阄'
         },
         groupIndex: ['split', 'extract']
+    },
+    mission:{
+        
     }
 });

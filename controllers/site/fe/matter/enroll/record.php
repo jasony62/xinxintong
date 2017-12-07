@@ -385,7 +385,10 @@ class record extends base {
 			);
 		}
 		/* 记录操作日志 */
-		$this->_logSubmit($oEnrollApp, $ek);
+		$operation = new \stdClass;
+		$operation->name = $bSubmitNewRecord ? 'submit' : 'updateData';
+		$operation->data = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
+		$this->_logUserOp($oEnrollApp, $operation);
 		/* 登记用户行为及积分 */
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
@@ -550,16 +553,12 @@ class record extends base {
 	 * @param object $app
 	 *
 	 */
-	private function _logSubmit($oApp, $ek) {
+	private function _logUserOp($oApp, $operation) {
 		$modelLog = $this->model('matter\log');
 
 		$logUser = new \stdClass;
 		$logUser->userid = $this->who->uid;
 		$logUser->nickname = $this->who->nickname;
-
-		$operation = new \stdClass;
-		$operation->name = 'submit';
-		$operation->data = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'enroll_key,data']);
 
 		$client = new \stdClass;
 		$client->agent = $_SERVER['HTTP_USER_AGENT'];
@@ -1225,9 +1224,9 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek, ['fields' => 'userid,rid,state']);
+		$oRecord = $modelRec->byId($ek, ['fields' => 'userid,state,enroll_key,data,rid']);
 		if (false === $oRecord) {
-			return new \ObjectNotFoundError();
+			return new \ResponseError('记录已经被删除，不能再次删除');
 		}
 		// 判断删除人是否为提交人
 		if ($oRecord->userid !== $this->who->uid) {
@@ -1264,6 +1263,16 @@ class record extends base {
 			$modelMisUsr = $this->model('matter\mission\user');
 			$modelMisUsr->removeRecord($oApp->mission_id, $oRecord);
 		}
+
+
+		/* 记录操作日志 */
+		$operation = new \stdClass;
+		$operation->name = 'removeData';
+		unset($oRecord->userid);
+		unset($oRecord->state);
+		$operation->data = $oRecord;
+
+		$this->_logUserOp($oApp, $operation);
 
 		return new \ResponseData($rst);
 	}

@@ -405,6 +405,21 @@ class main extends base {
 							$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
 							$params['record'] = $oRecord;
 						}
+						if ($oOpenPage->type === 'I') {
+							/* 查询是否又保存的数据 */
+							$q = [
+								'operate_data',
+								'xxt_log_user_matter',
+								"userid='{$oUser->uid}' and matter_id='$oApp->id' and matter_type='enroll' and operation='saveData' and user_last_op='Y'",
+							];
+							$saveRecode = $modelRec->query_obj_ss($q);
+							if ($saveRecode) {
+								$saveRecode->opData = json_decode($saveRecode->operate_data);
+								$params['record']->data = $saveRecode->opData->data;
+								$params['record']->supplement = $saveRecode->opData->supplement;
+								$params['record']->data_tag = $saveRecode->opData->data_tag;
+							}
+						}
 					}
 				}
 			}

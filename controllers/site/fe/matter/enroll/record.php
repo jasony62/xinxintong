@@ -203,7 +203,17 @@ class record extends base {
 				}
 			}
 			$posted->data = $dbData;
-
+			$data_tag = new \stdClass;
+			if (!empty($posted->tag)) {
+				foreach ($posted->tag as $schId => $saveTags) {
+					$data_tag->{$schId} = [];
+					foreach ($saveTags as $saveTag) {
+						$data_tag->{$schId}[] = $saveTag->id;
+					}
+				}
+				unset($posted->tag);
+			}
+			$posted->data_tag = $data_tag;
 			/* 插入到用户对素材的行为日志中 */
 			$operation = new \stdClass;
 			$operation->name = 'saveData';

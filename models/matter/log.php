@@ -263,6 +263,14 @@ class log_model extends \TMS_MODEL {
 		} else {
 			$userOpNum = 1;
 		}
+		/* 如果是登记活动提交操作处理之前保存的数据 */
+		if ($operation->name === 'submit' || $operation->name === 'updateData') {
+			$this->update(
+				'xxt_log_user_matter',
+				['user_last_op' => 'N'],
+				"userid='{$user->userid}' and matter_id='$matter->id' and matter_type='$matter->type' and operation='saveData' and user_last_op='Y'"
+			);
+		}
 		// 新建日志
 		$log = array();
 		$log['siteid'] = $siteId;

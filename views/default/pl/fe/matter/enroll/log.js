@@ -10,10 +10,7 @@ define(['frame'], function(ngApp) {
             'removeData': '删除数据',
             'restoreData': '恢复数据',
             'add': '新增数据',
-            'Recycle': '删除活动',
-            'U': '修改活动',
-            'C': '创建活动',
-            'Restore': '恢复活动'
+            'U': '修改活动'
         };
         $scope.filter = function(type) {
             srvEnrollLog.filter(type).then(function(data) {

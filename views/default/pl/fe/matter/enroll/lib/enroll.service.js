@@ -1453,23 +1453,20 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
             _plOperations = [{
-                value: 'restoreData',
-                title: '恢复数据'
-            },{
                 value: 'add',
                 title: '新增数据'
             },{
-                value: 'Recycle',
-                title: '删除活动'
+                value: 'updateData',
+                title: '修改数据'
+            },{
+                value: 'removeData',
+                title: '删除数据'
+            },{
+                value: 'restoreData',
+                title: '恢复数据'
             },{
                 value: 'U',
                 title: '修改活动'
-            },{
-                value: 'C',
-                title: '创建活动'
-            },{
-                value: 'Restore',
-                title: '恢复活动'
             }];
             _siteOperations = [{
                 value: 'submit',

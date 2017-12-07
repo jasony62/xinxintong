@@ -357,10 +357,10 @@ class log_model extends \TMS_MODEL {
 			$q[2] .= " and l.operator_name like '%" . $this->escape($options['byUser']) . "%'";
 		}
 		if (!empty($options['byOp'])) {
-			$q[2] .= " and i.operation = '" . $this->escape($options['byOp']) . "'";
+			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
 		}
 		if (!empty($options['byRid'])) {
-			$q[2] .= " and data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
+			$q[2] .= " and l.data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
 		}
 
 		/**

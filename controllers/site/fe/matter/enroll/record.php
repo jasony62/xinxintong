@@ -26,7 +26,7 @@ class record extends base {
 	 * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
 	 * @param string $submitkey 支持文件分段上传
 	 */
-	public function submit_action($site, $app, $rid = '', $ek = null, $submitkey = '', $subType = 'save') {
+	public function submit_action($site, $app, $rid = '', $ek = null, $submitkey = '', $subType = 'submit') {
 		/* support CORS */
 		//header('Access-Control-Allow-Origin:*');
 		//header('Access-Control-Allow-Methods:POST');

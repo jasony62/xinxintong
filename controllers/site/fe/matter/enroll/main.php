@@ -353,6 +353,15 @@ class main extends base {
 				$params['page'] = $oOpenPage;
 				/* 是否需要返回登记记录 */
 				if ($oOpenPage->type === 'I' && ($newRecord === 'Y' || empty($ek))) {
+					/* 查询是否有保存的数据 */
+					$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
+					$params['record'] = new \stdClass;
+					if (count($saveRecode) == 1) {
+						$saveRecode->opData = json_decode($saveRecode->operate_data);
+						$params['record']->data = $saveRecode->opData->data;
+						$params['record']->supplement = $saveRecode->opData->supplement;
+						$params['record']->data_tag = $saveRecode->opData->data_tag;
+					}
 					/* 返回当前用户在关联活动中填写的数据 */
 					if (!empty($oApp->enroll_app_id)) {
 						$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
@@ -388,6 +397,16 @@ class main extends base {
 							}
 						}
 					}
+					// if ($oOpenPage->type === 'I') {
+					// 	/* 查询是否有保存的数据 */
+					// 	$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);;
+					// 	if (count($saveRecode) == 1) {
+					// 		$saveRecode->opData = json_decode($saveRecode->operate_data);
+					// 		$params['record']->data = $saveRecode->opData->data;
+					// 		$params['record']->supplement = $saveRecode->opData->supplement;
+					// 		$params['record']->data_tag = $saveRecode->opData->data_tag;
+					// 	}
+					// }
 				} else {
 					if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $oOpenPage->type === 'V' || $oOpenPage->name === 'score') {
 						if (empty($ek)) {
@@ -404,16 +423,6 @@ class main extends base {
 						} else {
 							$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
 							$params['record'] = $oRecord;
-						}
-						if ($oOpenPage->type === 'I') {
-							/* 查询是否又保存的数据 */
-							$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);;
-							if (count($saveRecode) == 1) {
-								$saveRecode->opData = json_decode($saveRecode->operate_data);
-								$params['record']->data = $saveRecode->opData->data;
-								$params['record']->supplement = $saveRecode->opData->supplement;
-								$params['record']->data_tag = $saveRecode->opData->data_tag;
-							}
 						}
 					}
 				}

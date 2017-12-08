@@ -914,4 +914,22 @@ class log_model extends \TMS_MODEL {
 
 		return $data;
 	}
+	/* 
+	 * 查询用户最后一条行为记录
+	*/
+	public function lastByUser($matterId, $matterType, $userId, $options = []) {
+		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		$q = [
+			$fields,
+			'xxt_log_user_matter',
+			['userid' => $userId, 'matter_id' => $matterId, 'matter_type' => $matterType, 'user_last_op' => 'Y'],
+		];
+		if (!empty($options['byOp'])) {
+			$q[2]['operation'] = $options['byOp'];
+		}
+
+		$logs = $modelRec->query_objs_ss($q);
+
+		return $logs;
+	}
 }

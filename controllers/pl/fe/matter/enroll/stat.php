@@ -79,7 +79,8 @@ class stat extends \pl\fe\matter\base {
 	/**
 	 * 多选题的柱状图表
 	 */
-	private function _setMultipleSchemaGraph($aSchemaOps, $oPlConfig) {
+	private function _setMultipleSchemaGraph($aSchema, $oPlConfig) {
+		$aSchemaOps = $aSchema->ops;
 		$aOpsData = [];
 		$labels = [];
 		for ($i = 0, $l = count($aSchemaOps); $i < $l; $i++) {
@@ -87,7 +88,7 @@ class stat extends \pl\fe\matter\base {
 			if ((int) $op->c !== 0) {
 				$aOpsData[] = (int) $op->c;
 				if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
-					$labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：' . round($op->c / $oSchemaStat->sum * 100, 2) . '%');
+					$labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：' . round($op->c / $aSchema->sum * 100, 2) . '%');
 				} else {
 					$labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：' . $op->c);
 				}
@@ -355,7 +356,7 @@ class stat extends \pl\fe\matter\base {
 					// Create a pie pot
 					$graph = $this->_setSingleSchemaGraph($oSchemaStat->ops, isset($oPlConfig) ? $oPlConfig : null);
 				} else if ($schema->type === 'multiple') {
-					$graph = $this->_setMultipleSchemaGraph($oSchemaStat->ops, isset($oPlConfig) ? $oPlConfig : null);
+					$graph = $this->_setMultipleSchemaGraph($oSchemaStat, isset($oPlConfig) ? $oPlConfig : null);
 				}
 				if ($graph) {
 					$graph->Stroke(_IMG_HANDLER);
@@ -628,7 +629,7 @@ class stat extends \pl\fe\matter\base {
 				if (in_array($schema->type, ['single', 'phase'])) {
 					$graph = $this->_setSingleSchemaGraph($oSchemaStat->ops, $oPlConfig);
 				} else if ($schema->type === 'multiple') {
-					$graph = $this->_setMultipleSchemaGraph($oSchemaStat->ops, $oPlConfig);
+					$graph = $this->_setMultipleSchemaGraph($oSchemaStat, $oPlConfig);
 				}
 				if ($graph) {
 					$graph->Stroke(_IMG_HANDLER);

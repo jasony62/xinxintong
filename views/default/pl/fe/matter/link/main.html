@@ -29,26 +29,6 @@
                 <label>摘要（可选）：最多120个汉字，240个英文字符</label>
                 <textarea class='form-control' ng-model='editing.summary' ng-change="update('summary');"></textarea>
             </div>
-            <div class='form-group'>
-                <label class='help-block'>管理标签（可选）</label>
-                <p class="form-control" ng-click="tagMatter('M')">
-                    <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
-                </p>
-            </div>
-            <div class='form-group'>
-                <label>链接</label>
-                <div class='input-group'>
-                    <input class='form-control' readonly value="{{entryUrl}}">
-                    <div class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entryUrl}}">复制</button>
-                        <a class='btn btn-default' ng-href="{{entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class='panel panel-default'>
-        <div class='panel-body'>
             <div class='form-group' ng-if="editing.mission">
                 <label>所属项目</label>
                 <div class="input-group">
@@ -74,8 +54,14 @@
     <div class='panel panel-default'>
         <div class='panel-body'>
             <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='link';matterObj='editing'">
-                <div class='help-block'>频道（可选）</div>
+                <label class='help-block'>所属频道（可选）</label>
                 <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
+            </div>
+            <div class='form-group'>
+                <label class='help-block'>管理标签（可选）</label>
+                <p class="form-control" ng-click="tagMatter('M')">
+                    <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
+                </p>
             </div>
         </div>
     </div>
@@ -165,20 +151,8 @@
         </div>
     </div>
     <div class='panel panel-default'>
-        <div class='panel-body'>
-            <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
-            <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
-            <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到平台主页</button>
-        </div>
-    </div>
-    <div class='panel panel-default'>
-        <div class='panel-body'>
-            <div class='form-group'>
-                <div>创建人：{{editing.creater_name}}</div>
-                <div>创建时间：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-                <div>修改人：{{editing.modifier_name}}</div>
-                <div>最后一次修改时间：{{editing.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-            </div>
-        </div>
+        <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
+        <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
     </div>
 </div>
+

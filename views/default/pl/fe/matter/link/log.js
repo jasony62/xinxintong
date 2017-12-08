@@ -16,6 +16,7 @@ define(['frame'], function(ngApp) {
             var url = '/rest/pl/fe/matter/link/log/list?id=' + oApp.id +  page.j();
             http2.get(url, function(rsp) {
                 $scope.logs = rsp.data.logs;
+                $scope.page.total = rsp.data.total;
             });
         };
         $scope.$watch('editing', function(nv) {

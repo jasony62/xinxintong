@@ -357,6 +357,7 @@ class main extends base {
 					$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
 					$params['record'] = new \stdClass;
 					if (count($saveRecode) == 1) {
+						$saveRecode = $saveRecode[0];
 						$saveRecode->opData = json_decode($saveRecode->operate_data);
 						$params['record']->data = $saveRecode->opData->data;
 						$params['record']->supplement = $saveRecode->opData->supplement;
@@ -417,6 +418,7 @@ class main extends base {
 							/* 查询是否有保存的数据 */
 							$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);;
 							if (count($saveRecode) == 1) {
+								$saveRecode = $saveRecode[0];
 								$saveRecode->opData = json_decode($saveRecode->operate_data);
 								$params['record']->data = $saveRecode->opData->data;
 								$params['record']->supplement = $saveRecode->opData->supplement;

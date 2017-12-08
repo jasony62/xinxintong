@@ -928,7 +928,7 @@ class log_model extends \TMS_MODEL {
 			$q[2]['operation'] = $options['byOp'];
 		}
 
-		$logs = $modelRec->query_objs_ss($q);
+		$logs = $this->query_objs_ss($q);
 
 		return $logs;
 	}

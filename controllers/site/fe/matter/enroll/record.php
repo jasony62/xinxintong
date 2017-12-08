@@ -204,7 +204,7 @@ class record extends base {
 			}
 			$posted->data = $dbData;
 			$data_tag = new \stdClass;
-			if (!empty($posted->tag)) {
+			if (isset($posted->tag) && count(get_object_vars($posted->tag))) {
 				foreach ($posted->tag as $schId => $saveTags) {
 					$data_tag->{$schId} = [];
 					foreach ($saveTags as $saveTag) {

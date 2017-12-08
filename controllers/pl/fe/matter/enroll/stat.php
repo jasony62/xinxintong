@@ -390,7 +390,12 @@ class stat extends \pl\fe\matter\base {
 						$table2->addCell($cell_w3, $fancyTableCellStyle)->addText($op->c, $cellTextStyle);
 					}
 					if (!isset($oPlConfig->percentage) || $oPlConfig->percentage === 'Y') {
-						$table2->addCell($cell_w3, $fancyTableCellStyle)->addText(round($op->c / $oSchemaStat->sum * 100, 2) . '%', $cellTextStyle);
+						if ($oSchemaStat->sum > 0) {
+							$value = $op->c / $oSchemaStat->sum * 100;
+						} else {
+							$value = 0;
+						}
+						$table2->addCell($cell_w3, $fancyTableCellStyle)->addText(round($value, 2) . '%', $cellTextStyle);
 					}
 				}
 				$section->addTextBreak(2, null, null);
@@ -659,7 +664,12 @@ class stat extends \pl\fe\matter\base {
 						$html .= "<td>{$op->c}</td>";
 					}
 					if (isset($oPlConfig->percentage) && $oPlConfig->percentage === 'Y') {
-						$html .= '<td>' . round($op->c / $oSchemaStat->sum * 100, 2) . '%</td>';
+						if ($oSchemaStat->sum > 0) {
+							$value = $op->c / $oSchemaStat->sum * 100;
+						} else {
+							$value = 0;
+						}
+						$html .= '<td>' . round($value, 2) . '%</td>';
 					}
 					$html .= "</tr>";
 				}

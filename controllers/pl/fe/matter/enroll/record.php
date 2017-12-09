@@ -28,7 +28,7 @@ class record extends \pl\fe\matter\base {
 	 *
 	 */
 	public function get_action($ek) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
@@ -42,19 +42,19 @@ class record extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $orderby = null, $contain = null, $includeSignin = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 		// 登记数据过滤条件
-		$criteria = $this->getPostJson();
+		$oCriteria = $this->getPostJson();
 
 		// 登记记录过滤条件
-		$options = array(
+		$aOptions = [
 			'page' => $page,
 			'size' => $size,
 			'orderby' => $orderby,
 			'contain' => $contain,
-		);
+		];
 
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
@@ -62,8 +62,8 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->byApp($oEnrollApp, $options, $criteria);
-		if (!empty($result->records)) {
+		$oResult = $mdoelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
+		if (!empty($oResult->records)) {
 			$remarkables = [];
 			$bRequireScore = false;
 			foreach ($oEnrollApp->dataSchemas as $oSchema) {
@@ -75,7 +75,7 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			if (count($remarkables)) {
-				foreach ($result->records as &$oRec) {
+				foreach ($oResult->records as &$oRec) {
 					$modelRem = $this->model('matter\enroll\data');
 					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
 					$oRec->verbose = new \stdClass;
@@ -83,7 +83,7 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			if ($bRequireScore) {
-				foreach ($result->records as &$oRec) {
+				foreach ($oResult->records as &$oRec) {
 					$one = $mdoelRec->query_obj_ss([
 						'id,score',
 						'xxt_enroll_record',
@@ -98,7 +98,7 @@ class record extends \pl\fe\matter\base {
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 计算指定登记项所有记录的合计
@@ -154,7 +154,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 登记记录过滤条件
-		$options = array(
+		$aOptions = array(
 			'page' => $page,
 			'size' => $size,
 			'rid' => $rid,
@@ -166,7 +166,7 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->recycle($site, $enrollApp, $options);
+		$result = $mdoelRec->recycle($site, $enrollApp, $aOptions);
 
 		return new \ResponseData($result);
 	}
@@ -179,15 +179,13 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		// 登记数据过滤条件
-		$criteria = $this->getPostJson();
 		// 登记记录过滤条件
-		$options = [
+		$aOptions = [
 			'page' => $page,
 			'size' => $size,
 		];
 		if (!empty($rid)) {
-			$options['rid'] = $rid;
+			$aOptions['rid'] = $rid;
 		}
 
 		// 登记活动
@@ -196,7 +194,7 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->list4Schema($enrollApp, $schema, $options);
+		$result = $mdoelRec->list4Schema($enrollApp, $schema, $aOptions);
 
 		return new \ResponseData($result);
 	}
@@ -1245,10 +1243,10 @@ class record extends \pl\fe\matter\base {
 				$user = new \stdClass;
 				$user->uid = $record->userid;
 				$user->nickname = $record->nickname;
-				$options = [];
-				$options['enrollAt'] = $record->enroll_at;
-				$options['nickname'] = $record->nickname;
-				$ek = $modelRec->enroll($app, $user, $options);
+				$aOptions = [];
+				$aOptions['enrollAt'] = $record->enroll_at;
+				$aOptions['nickname'] = $record->nickname;
+				$ek = $modelRec->enroll($app, $user, $aOptions);
 				// 登记数据
 				$data = new \stdClass;
 				foreach ($compatibleSchemas as $cs) {

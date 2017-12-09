@@ -158,6 +158,7 @@ class import extends \pl\fe\matter\base {
 					continue;
 				}
 				$fileValue = (string) $objWorksheet->getCellByColumnAndRow($col, $row)->getValue();
+				$fileValue = trim($fileValue);
 				if ($oSchema === 'verified') {
 					$oRecord->verified = in_array($fileValue, ['Y', '是']) ? 'Y' : 'N';
 				} else if ($oSchema === 'comment') {

@@ -210,12 +210,14 @@ class record extends \pl\fe\matter\base {
 
 		$posted = $this->getPostJson();
 		$modelEnl = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
+		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 
 		/* 创建登记记录 */
-		$ek = $modelRec->enroll($oApp);
+		$aOptions = [];
+		!empty($posted->rid) && $aOptions['assignRid'] = $posted->rid;
+		$ek = $modelRec->enroll($oApp, '', $aOptions);
 		$record = [];
 		$record['verified'] = isset($posted->verified) ? $posted->verified : 'N';
 		$record['comment'] = isset($posted->comment) ? $posted->comment : '';
@@ -229,7 +231,8 @@ class record extends \pl\fe\matter\base {
 		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, '', true, isset($posted->quizScore) ? $posted->quizScore : null);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'add', $ek);
+		$oRecord = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
+		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'add', $oRecord);
 
 		/* 返回完整的记录 */
 		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
@@ -249,7 +252,7 @@ class record extends \pl\fe\matter\base {
 
 		$record = $this->getPostJson();
 		$modelEnl = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
+		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 
@@ -359,11 +362,20 @@ class record extends \pl\fe\matter\base {
 			$this->_whenVerifyRecord($oApp, $ek);
 		}
 
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'update', $record);
-
 		/* 返回完整的记录 */
 		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
+
+		/* 记录操作日志 */
+		$operation = new \stdClass;
+		$operation->enroll_key = $ek;
+		isset($record->data) && $operation->data = $record->data;
+		isset($record->quizScore) && $operation->quizScore = $record->quizScore;
+		isset($record->score) && $operation->score = $record->score;
+		isset($record->tags) && $operation->tags = $record->tags;
+		isset($record->comment) && $operation->comment = $record->comment;
+		$operation->rid = $oNewRecord->rid;
+		$operation->round = $oNewRecord->round;
+		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'updateData', $operation);
 
 		return new \ResponseData($oNewRecord);
 	}
@@ -417,7 +429,7 @@ class record extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 		$modelEnlRec = $this->model('matter\enroll\record');
-		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,rid,state']);
+		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,state,enroll_key,data,rid']);
 		if (false === $oRecord) {
 			return new \ObjectNotFoundError();
 		}
@@ -449,7 +461,9 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 记录操作日志
-		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'remove', $key);
+		unset($oRecord->userid);
+		$operation = $oRecord;
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'removeData', $operation);
 
 		return new \ResponseData($rst);
 	}
@@ -469,14 +483,14 @@ class record extends \pl\fe\matter\base {
 		$rst = $modelEnlRec->restore($oApp->id, $key);
 
 		// 更新用户的累计数据
-		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,rid']);
+		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,enroll_key,data,rid']);
 		$this->model('matter\enroll\user')->restoreRecord($oRecord);
 		if (!empty($oApp->mission_id)) {
 			$this->model('matter\mission\user')->restoreRecord($oApp->mission_id, $oRecord);
 		}
 
 		// 记录操作日志
-		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'restore', $key);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'restoreData', $oRecord);
 
 		return new \ResponseData($rst);
 	}

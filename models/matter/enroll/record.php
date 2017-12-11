@@ -517,6 +517,17 @@ class record_model extends record_base {
 		if (empty($oApp)) {
 			return false;
 		}
+		// 数值型的填空题需要计算分值
+		$bRequireScore = false;
+		$oSchemasById = new \stdClass;
+		foreach ($oApp->dataSchemas as $oSchema) {
+			$oSchemasById->{$oSchema->id} = $oSchema;
+			if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
+				$bRequireScore = true;
+				break;
+			}
+		}
+
 		if ($oOptions) {
 			is_array($oOptions) && $oOptions = (object) $oOptions;
 			$creater = isset($oOptions->creater) ? $oOptions->creater : null;
@@ -579,12 +590,43 @@ class record_model extends record_base {
 		if (isset($oCriteria->data)) {
 			$whereByData = '';
 			foreach ($oCriteria->data as $k => $v) {
-				if (!empty($v)) {
+				if (!empty($v) && isset($oSchemasById->{$k})) {
+					$oSchema = $oSchemasById->{$k};
 					$whereByData .= ' and (';
-					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					if ($oSchema->type === 'multiple') {
+						// 选项ID是否互斥，不存在，例如：v1和v11
+						$bOpExclusive = true;
+						$strOpVals = '';
+						foreach ($oSchema->ops as $op) {
+							$strOpVals .= ',' . $op->v;
+						}
+						foreach ($oSchema->ops as $op) {
+							if (false !== strpos($strOpVals, $op->v)) {
+								$bOpExclusive = false;
+								break;
+							}
+						}
+						$v2 = explode(',', $v);
+						foreach ($v2 as $index => $v2v) {
+							if ($index > 0) {
+								$whereByData .= ' and ';
+							}
+							// 获得和题目匹配的子字符串
+							$dataBySchema = 'substr(substr(data,locate(\'"' . $k . '":"\',data)),1,locate(\'"\',substr(data,locate(\'"' . $k . '":"\',data)),' . (strlen($k) + 5) . '))';
+							$whereByData .= '(';
+							if ($bOpExclusive) {
+								$whereByData .= $dataBySchema . ' like \'%' . $v2v . '%\'';
+							} else {
+								$whereByData .= $dataBySchema . ' like \'%"' . $v2v . '"%\'';
+								$whereByData .= ' or ' . $dataBySchema . ' like \'%"' . $v2v . ',%\'';
+								$whereByData .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . ',%\'';
+								$whereByData .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . '"%\'';
+							}
+							$whereByData .= ')';
+						}
+					} else {
+						$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					}
 					$whereByData .= ')';
 				}
 			}
@@ -605,14 +647,6 @@ class record_model extends record_base {
 			$w,
 		];
 
-		//数值型的填空题
-		$bRequireScore = false;
-		foreach ($oApp->dataSchemas as $schema) {
-			if ($schema->type == 'shorttext' && isset($schema->format) && $schema->format == 'number') {
-				$bRequireScore = true;
-				break;
-			}
-		}
 		//测验场景或数值填空题共用score字段
 		if ($oApp->scenario === 'quiz' || $bRequireScore) {
 			$q[0] .= ',r.score';

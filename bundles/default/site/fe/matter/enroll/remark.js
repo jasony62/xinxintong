@@ -1,7 +1,2567 @@
-!function(t){function e(n){if(r[n])return r[n].exports;var o=r[n]={i:n,l:!1,exports:{}};return t[n].call(o.exports,o,o.exports,e),o.l=!0,o.exports}var r={};e.m=t,e.c=r,e.i=function(t){return t},e.d=function(t,r,n){e.o(t,r)||Object.defineProperty(t,r,{configurable:!1,enumerable:!0,get:n})},e.n=function(t){var r=t&&t.__esModule?function(){return t.default}:function(){return t};return e.d(r,"a",r),r},e.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},e.p="",e(e.s=79)}([function(t,e,r){(function(e){function r(t,e){var r=t[1]||"",o=t[3];if(!o)return r;if(e){var i=n(o);return[r].concat(o.sources.map(function(t){return"/*# sourceURL="+o.sourceRoot+t+" */"})).concat([i]).join("\n")}return[r].join("\n")}function n(t){return"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+new e(JSON.stringify(t)).toString("base64")+" */"}t.exports=function(t){var e=[];return e.toString=function(){return this.map(function(e){var n=r(e,t);return e[2]?"@media "+e[2]+"{"+n+"}":n}).join("")},e.i=function(t,r){"string"==typeof t&&(t=[[null,t,""]]);for(var n={},o=0;o<this.length;o++){var i=this[o][0];"number"==typeof i&&(n[i]=!0)}for(o=0;o<t.length;o++){var a=t[o];"number"==typeof a[0]&&n[a[0]]||(r&&!a[2]?a[2]=r:r&&(a[2]="("+a[2]+") and ("+r+")"),e.push(a))}},e}}).call(e,r(4).Buffer)},function(t,e,r){function n(t,e){for(var r=0;r<t.length;r++){var n=t[r],o=h[n.id];if(o){o.refs++;for(var i=0;i<o.parts.length;i++)o.parts[i](n.parts[i]);for(;i<n.parts.length;i++)o.parts.push(l(n.parts[i],e))}else{for(var a=[],i=0;i<n.parts.length;i++)a.push(l(n.parts[i],e));h[n.id]={id:n.id,refs:1,parts:a}}}}function o(t){for(var e=[],r={},n=0;n<t.length;n++){var o=t[n],i=o[0],a=o[1],s=o[2],c=o[3],u={css:a,media:s,sourceMap:c};r[i]?r[i].parts.push(u):e.push(r[i]={id:i,parts:[u]})}return e}function i(t,e){var r=m(t.insertInto);if(!r)throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");var n=b[b.length-1];if("top"===t.insertAt)n?n.nextSibling?r.insertBefore(e,n.nextSibling):r.appendChild(e):r.insertBefore(e,r.firstChild),b.push(e);else{if("bottom"!==t.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");r.appendChild(e)}}function a(t){t.parentNode.removeChild(t);var e=b.indexOf(t);e>=0&&b.splice(e,1)}function s(t){var e=document.createElement("style");return t.attrs.type="text/css",u(e,t.attrs),i(t,e),e}function c(t){var e=document.createElement("link");return t.attrs.type="text/css",t.attrs.rel="stylesheet",u(e,t.attrs),i(t,e),e}function u(t,e){Object.keys(e).forEach(function(r){t.setAttribute(r,e[r])})}function l(t,e){var r,n,o;if(e.singleton){var i=y++;r=v||(v=s(e)),n=d.bind(null,r,i,!1),o=d.bind(null,r,i,!0)}else t.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(r=c(e),n=p.bind(null,r,e),o=function(){a(r),r.href&&URL.revokeObjectURL(r.href)}):(r=s(e),n=f.bind(null,r),o=function(){a(r)});return n(t),function(e){if(e){if(e.css===t.css&&e.media===t.media&&e.sourceMap===t.sourceMap)return;n(t=e)}else o()}}function d(t,e,r,n){var o=r?"":n.css;if(t.styleSheet)t.styleSheet.cssText=x(e,o);else{var i=document.createTextNode(o),a=t.childNodes;a[e]&&t.removeChild(a[e]),a.length?t.insertBefore(i,a[e]):t.appendChild(i)}}function f(t,e){var r=e.css,n=e.media;if(n&&t.setAttribute("media",n),t.styleSheet)t.styleSheet.cssText=r;else{for(;t.firstChild;)t.removeChild(t.firstChild);t.appendChild(document.createTextNode(r))}}function p(t,e,r){var n=r.css,o=r.sourceMap,i=void 0===e.convertToAbsoluteUrls&&o;(e.convertToAbsoluteUrls||i)&&(n=w(n)),o&&(n+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))+" */");var a=new Blob([n],{type:"text/css"}),s=t.href;t.href=URL.createObjectURL(a),s&&URL.revokeObjectURL(s)}var h={},g=function(t){var e;return function(){return void 0===e&&(e=t.apply(this,arguments)),e}}(function(){return window&&document&&document.all&&!window.atob}),m=function(t){var e={};return function(r){return void 0===e[r]&&(e[r]=t.call(this,r)),e[r]}}(function(t){return document.querySelector(t)}),v=null,y=0,b=[],w=r(7);t.exports=function(t,e){if("undefined"!=typeof DEBUG&&DEBUG&&"object"!=typeof document)throw new Error("The style-loader cannot be used in a non-browser environment");e=e||{},e.attrs="object"==typeof e.attrs?e.attrs:{},void 0===e.singleton&&(e.singleton=g()),void 0===e.insertInto&&(e.insertInto="head"),void 0===e.insertAt&&(e.insertAt="bottom");var r=o(t);return n(r,e),function(t){for(var i=[],a=0;a<r.length;a++){var s=r[a],c=h[s.id];c.refs--,i.push(c)}if(t){n(o(t),e)}for(var a=0;a<i.length;a++){var c=i[a];if(0===c.refs){for(var u=0;u<c.parts.length;u++)c.parts[u]();delete h[c.id]}}}};var x=function(){var t=[];return function(e,r){return t[e]=r,t.filter(Boolean).join("\n")}}()},function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("page.ui.xxt",[]);ngMod.directive("dynamicHtml",["$compile",function(t){return{restrict:"EA",replace:!0,link:function(e,r,n){e.$watch(n.dynamicHtml,function(n){n&&n.length&&(r.html(n),t(r.contents())(e))})}}}]),ngMod.service("tmsDynaPage",["$q",function($q){this.loadCss=function(t){var e,r;e=document.createElement("style"),e.innerHTML=t,r=document.querySelector("head"),r.appendChild(e)},this.loadExtCss=function(t){var e,r;e=document.createElement("link"),e.href=t,e.rel="stylesheet",r=document.querySelector("head"),r.appendChild(e)},this.loadJs=function(ngApp,js){!function(ngApp){eval(js)}(ngApp)},this.loadScript=function(t){var e,r,n=$q.defer();return r=function(){var o;o=document.createElement("script"),o.src=t[e],o.onload=function(){e++,e<t.length?r():n.resolve()},document.body.appendChild(o)},t&&(angular.isString(t)&&(t=[t]),t.length&&(e=0,r())),n.promise},this.loadExtJs=function(t,e){var r,n=this,o=$q.defer(),i=e.ext_js.length;return r=function(r){var a;a=document.createElement("script"),a.src=r.url,a.onload=function(){0===--i&&(e.js&&e.js.length&&n.loadJs(t,e.js),o.resolve())},document.body.appendChild(a)},e.ext_js&&e.ext_js.length&&e.ext_js.forEach(r),o.promise},this.loadCode=function(t,e){var r=this,n=$q.defer();return e.ext_css&&e.ext_css.length&&e.ext_css.forEach(function(t){r.loadExtCss(t.url)}),e.css&&e.css.length&&this.loadCss(e.css),e.ext_js&&e.ext_js.length?r.loadExtJs(t,e).then(function(){n.resolve()}):(e.js&&e.js.length&&r.loadJs(t,e.js),n.resolve()),n.promise},this.openPlugin=function(t){var e,r,n,o,i=$q.defer();return o=document.getElementsByTagName("body")[0],o.style.cssText="overflow-y:hidden",e=document.createDocumentFragment(),r=document.createElement("div"),r.setAttribute("id","frmPlugin"),n=document.createElement("iframe"),r.appendChild(n),r.onclick=function(){r.parentNode.removeChild(r),o.style.cssText="overflow-y:auto"},e.appendChild(r),document.body.appendChild(e),0===t.indexOf("http")?(window.onClosePlugin=function(t){r.parentNode.removeChild(r),o.style.cssText="overflow-y:auto",i.resolve(t)},n.setAttribute("src",t)):n.contentDocument&&n.contentDocument.body&&(n.contentDocument.body.innerHTML=t),i.promise}}])},function(t,e,r){"use strict";function n(t){var e=t.length;if(e%4>0)throw new Error("Invalid string. Length must be a multiple of 4");return"="===t[e-2]?2:"="===t[e-1]?1:0}function o(t){return 3*t.length/4-n(t)}function i(t){var e,r,o,i,a,s,c=t.length;a=n(t),s=new d(3*c/4-a),o=a>0?c-4:c;var u=0;for(e=0,r=0;e<o;e+=4,r+=3)i=l[t.charCodeAt(e)]<<18|l[t.charCodeAt(e+1)]<<12|l[t.charCodeAt(e+2)]<<6|l[t.charCodeAt(e+3)],s[u++]=i>>16&255,s[u++]=i>>8&255,s[u++]=255&i;return 2===a?(i=l[t.charCodeAt(e)]<<2|l[t.charCodeAt(e+1)]>>4,s[u++]=255&i):1===a&&(i=l[t.charCodeAt(e)]<<10|l[t.charCodeAt(e+1)]<<4|l[t.charCodeAt(e+2)]>>2,s[u++]=i>>8&255,s[u++]=255&i),s}function a(t){return u[t>>18&63]+u[t>>12&63]+u[t>>6&63]+u[63&t]}function s(t,e,r){for(var n,o=[],i=e;i<r;i+=3)n=(t[i]<<16)+(t[i+1]<<8)+t[i+2],o.push(a(n));return o.join("")}function c(t){for(var e,r=t.length,n=r%3,o="",i=[],a=0,c=r-n;a<c;a+=16383)i.push(s(t,a,a+16383>c?c:a+16383));return 1===n?(e=t[r-1],o+=u[e>>2],o+=u[e<<4&63],o+="=="):2===n&&(e=(t[r-2]<<8)+t[r-1],o+=u[e>>10],o+=u[e>>4&63],o+=u[e<<2&63],o+="="),i.push(o),i.join("")}e.byteLength=o,e.toByteArray=i,e.fromByteArray=c;for(var u=[],l=[],d="undefined"!=typeof Uint8Array?Uint8Array:Array,f="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",p=0,h=f.length;p<h;++p)u[p]=f[p],l[f.charCodeAt(p)]=p;l["-".charCodeAt(0)]=62,l["_".charCodeAt(0)]=63},function(t,e,r){"use strict";(function(t){function n(){return i.TYPED_ARRAY_SUPPORT?2147483647:1073741823}function o(t,e){if(n()<e)throw new RangeError("Invalid typed array length");return i.TYPED_ARRAY_SUPPORT?(t=new Uint8Array(e),t.__proto__=i.prototype):(null===t&&(t=new i(e)),t.length=e),t}function i(t,e,r){if(!(i.TYPED_ARRAY_SUPPORT||this instanceof i))return new i(t,e,r);if("number"==typeof t){if("string"==typeof e)throw new Error("If encoding is specified then the first argument must be a string");return u(this,t)}return a(this,t,e,r)}function a(t,e,r,n){if("number"==typeof e)throw new TypeError('"value" argument must not be a number');return"undefined"!=typeof ArrayBuffer&&e instanceof ArrayBuffer?f(t,e,r,n):"string"==typeof e?l(t,e,r):p(t,e)}function s(t){if("number"!=typeof t)throw new TypeError('"size" argument must be a number');if(t<0)throw new RangeError('"size" argument must not be negative')}function c(t,e,r,n){return s(e),e<=0?o(t,e):void 0!==r?"string"==typeof n?o(t,e).fill(r,n):o(t,e).fill(r):o(t,e)}function u(t,e){if(s(e),t=o(t,e<0?0:0|h(e)),!i.TYPED_ARRAY_SUPPORT)for(var r=0;r<e;++r)t[r]=0;return t}function l(t,e,r){if("string"==typeof r&&""!==r||(r="utf8"),!i.isEncoding(r))throw new TypeError('"encoding" must be a valid string encoding');var n=0|m(e,r);t=o(t,n);var a=t.write(e,r);return a!==n&&(t=t.slice(0,a)),t}function d(t,e){var r=e.length<0?0:0|h(e.length);t=o(t,r);for(var n=0;n<r;n+=1)t[n]=255&e[n];return t}function f(t,e,r,n){if(e.byteLength,r<0||e.byteLength<r)throw new RangeError("'offset' is out of bounds");if(e.byteLength<r+(n||0))throw new RangeError("'length' is out of bounds");return e=void 0===r&&void 0===n?new Uint8Array(e):void 0===n?new Uint8Array(e,r):new Uint8Array(e,r,n),i.TYPED_ARRAY_SUPPORT?(t=e,t.__proto__=i.prototype):t=d(t,e),t}function p(t,e){if(i.isBuffer(e)){var r=0|h(e.length);return t=o(t,r),0===t.length?t:(e.copy(t,0,0,r),t)}if(e){if("undefined"!=typeof ArrayBuffer&&e.buffer instanceof ArrayBuffer||"length"in e)return"number"!=typeof e.length||V(e.length)?o(t,0):d(t,e);if("Buffer"===e.type&&K(e.data))return d(t,e.data)}throw new TypeError("First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.")}function h(t){if(t>=n())throw new RangeError("Attempt to allocate Buffer larger than maximum size: 0x"+n().toString(16)+" bytes");return 0|t}function g(t){return+t!=t&&(t=0),i.alloc(+t)}function m(t,e){if(i.isBuffer(t))return t.length;if("undefined"!=typeof ArrayBuffer&&"function"==typeof ArrayBuffer.isView&&(ArrayBuffer.isView(t)||t instanceof ArrayBuffer))return t.byteLength;"string"!=typeof t&&(t=""+t);var r=t.length;if(0===r)return 0;for(var n=!1;;)switch(e){case"ascii":case"latin1":case"binary":return r;case"utf8":case"utf-8":case void 0:return F(t).length;case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return 2*r;case"hex":return r>>>1;case"base64":return G(t).length;default:if(n)return F(t).length;e=(""+e).toLowerCase(),n=!0}}function v(t,e,r){var n=!1;if((void 0===e||e<0)&&(e=0),e>this.length)return"";if((void 0===r||r>this.length)&&(r=this.length),r<=0)return"";if(r>>>=0,e>>>=0,r<=e)return"";for(t||(t="utf8");;)switch(t){case"hex":return U(this,e,r);case"utf8":case"utf-8":return P(this,e,r);case"ascii":return C(this,e,r);case"latin1":case"binary":return B(this,e,r);case"base64":return R(this,e,r);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return M(this,e,r);default:if(n)throw new TypeError("Unknown encoding: "+t);t=(t+"").toLowerCase(),n=!0}}function y(t,e,r){var n=t[e];t[e]=t[r],t[r]=n}function b(t,e,r,n,o){if(0===t.length)return-1;if("string"==typeof r?(n=r,r=0):r>2147483647?r=2147483647:r<-2147483648&&(r=-2147483648),r=+r,isNaN(r)&&(r=o?0:t.length-1),r<0&&(r=t.length+r),r>=t.length){if(o)return-1;r=t.length-1}else if(r<0){if(!o)return-1;r=0}if("string"==typeof e&&(e=i.from(e,n)),i.isBuffer(e))return 0===e.length?-1:w(t,e,r,n,o);if("number"==typeof e)return e&=255,i.TYPED_ARRAY_SUPPORT&&"function"==typeof Uint8Array.prototype.indexOf?o?Uint8Array.prototype.indexOf.call(t,e,r):Uint8Array.prototype.lastIndexOf.call(t,e,r):w(t,[e],r,n,o);throw new TypeError("val must be string, number or Buffer")}function w(t,e,r,n,o){function i(t,e){return 1===a?t[e]:t.readUInt16BE(e*a)}var a=1,s=t.length,c=e.length;if(void 0!==n&&("ucs2"===(n=String(n).toLowerCase())||"ucs-2"===n||"utf16le"===n||"utf-16le"===n)){if(t.length<2||e.length<2)return-1;a=2,s/=2,c/=2,r/=2}var u;if(o){var l=-1;for(u=r;u<s;u++)if(i(t,u)===i(e,-1===l?0:u-l)){if(-1===l&&(l=u),u-l+1===c)return l*a}else-1!==l&&(u-=u-l),l=-1}else for(r+c>s&&(r=s-c),u=r;u>=0;u--){for(var d=!0,f=0;f<c;f++)if(i(t,u+f)!==i(e,f)){d=!1;break}if(d)return u}return-1}function x(t,e,r,n){r=Number(r)||0;var o=t.length-r;n?(n=Number(n))>o&&(n=o):n=o;var i=e.length;if(i%2!=0)throw new TypeError("Invalid hex string");n>i/2&&(n=i/2);for(var a=0;a<n;++a){var s=parseInt(e.substr(2*a,2),16);if(isNaN(s))return a;t[r+a]=s}return a}function k(t,e,r,n){return W(F(e,t.length-r),t,r,n)}function _(t,e,r,n){return W(J(e),t,r,n)}function E(t,e,r,n){return _(t,e,r,n)}function A(t,e,r,n){return W(G(e),t,r,n)}function S(t,e,r,n){return W(H(e,t.length-r),t,r,n)}function R(t,e,r){return 0===e&&r===t.length?X.fromByteArray(t):X.fromByteArray(t.slice(e,r))}function P(t,e,r){r=Math.min(t.length,r);for(var n=[],o=e;o<r;){var i=t[o],a=null,s=i>239?4:i>223?3:i>191?2:1;if(o+s<=r){var c,u,l,d;switch(s){case 1:i<128&&(a=i);break;case 2:c=t[o+1],128==(192&c)&&(d=(31&i)<<6|63&c)>127&&(a=d);break;case 3:c=t[o+1],u=t[o+2],128==(192&c)&&128==(192&u)&&(d=(15&i)<<12|(63&c)<<6|63&u)>2047&&(d<55296||d>57343)&&(a=d);break;case 4:c=t[o+1],u=t[o+2],l=t[o+3],128==(192&c)&&128==(192&u)&&128==(192&l)&&(d=(15&i)<<18|(63&c)<<12|(63&u)<<6|63&l)>65535&&d<1114112&&(a=d)}}null===a?(a=65533,s=1):a>65535&&(a-=65536,n.push(a>>>10&1023|55296),a=56320|1023&a),n.push(a),o+=s}return T(n)}function T(t){var e=t.length;if(e<=Q)return String.fromCharCode.apply(String,t);for(var r="",n=0;n<e;)r+=String.fromCharCode.apply(String,t.slice(n,n+=Q));return r}function C(t,e,r){var n="";r=Math.min(t.length,r);for(var o=e;o<r;++o)n+=String.fromCharCode(127&t[o]);return n}function B(t,e,r){var n="";r=Math.min(t.length,r);for(var o=e;o<r;++o)n+=String.fromCharCode(t[o]);return n}function U(t,e,r){var n=t.length;(!e||e<0)&&(e=0),(!r||r<0||r>n)&&(r=n);for(var o="",i=e;i<r;++i)o+=z(t[i]);return o}function M(t,e,r){for(var n=t.slice(e,r),o="",i=0;i<n.length;i+=2)o+=String.fromCharCode(n[i]+256*n[i+1]);return o}function Y(t,e,r){if(t%1!=0||t<0)throw new RangeError("offset is not uint");if(t+e>r)throw new RangeError("Trying to access beyond buffer length")}function L(t,e,r,n,o,a){if(!i.isBuffer(t))throw new TypeError('"buffer" argument must be a Buffer instance');if(e>o||e<a)throw new RangeError('"value" argument is out of bounds');if(r+n>t.length)throw new RangeError("Index out of range")}function D(t,e,r,n){e<0&&(e=65535+e+1);for(var o=0,i=Math.min(t.length-r,2);o<i;++o)t[r+o]=(e&255<<8*(n?o:1-o))>>>8*(n?o:1-o)}function I(t,e,r,n){e<0&&(e=4294967295+e+1);for(var o=0,i=Math.min(t.length-r,4);o<i;++o)t[r+o]=e>>>8*(n?o:3-o)&255}function O(t,e,r,n,o,i){if(r+n>t.length)throw new RangeError("Index out of range");if(r<0)throw new RangeError("Index out of range")}function N(t,e,r,n,o){return o||O(t,e,r,4,3.4028234663852886e38,-3.4028234663852886e38),Z.write(t,e,r,n,23,4),r+4}function j(t,e,r,n,o){return o||O(t,e,r,8,1.7976931348623157e308,-1.7976931348623157e308),Z.write(t,e,r,n,52,8),r+8}function $(t){if(t=q(t).replace(tt,""),t.length<2)return"";for(;t.length%4!=0;)t+="=";return t}function q(t){return t.trim?t.trim():t.replace(/^\s+|\s+$/g,"")}function z(t){return t<16?"0"+t.toString(16):t.toString(16)}function F(t,e){e=e||1/0;for(var r,n=t.length,o=null,i=[],a=0;a<n;++a){if((r=t.charCodeAt(a))>55295&&r<57344){if(!o){if(r>56319){(e-=3)>-1&&i.push(239,191,189);continue}if(a+1===n){(e-=3)>-1&&i.push(239,191,189);continue}o=r;continue}if(r<56320){(e-=3)>-1&&i.push(239,191,189),o=r;continue}r=65536+(o-55296<<10|r-56320)}else o&&(e-=3)>-1&&i.push(239,191,189);if(o=null,r<128){if((e-=1)<0)break;i.push(r)}else if(r<2048){if((e-=2)<0)break;i.push(r>>6|192,63&r|128)}else if(r<65536){if((e-=3)<0)break;i.push(r>>12|224,r>>6&63|128,63&r|128)}else{if(!(r<1114112))throw new Error("Invalid code point");if((e-=4)<0)break;i.push(r>>18|240,r>>12&63|128,r>>6&63|128,63&r|128)}}return i}function J(t){for(var e=[],r=0;r<t.length;++r)e.push(255&t.charCodeAt(r));return e}function H(t,e){for(var r,n,o,i=[],a=0;a<t.length&&!((e-=2)<0);++a)r=t.charCodeAt(a),n=r>>8,o=r%256,i.push(o),i.push(n);return i}function G(t){return X.toByteArray($(t))}function W(t,e,r,n){for(var o=0;o<n&&!(o+r>=e.length||o>=t.length);++o)e[o+r]=t[o];return o}function V(t){return t!==t}/*!
- * The buffer module from node.js, for the browser.
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 74);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(selector) {
+		if (typeof memo[selector] === "undefined") {
+			memo[selector] = fn.call(this, selector);
+		}
+
+		return memo[selector]
+	};
+})(function (target) {
+	return document.querySelector(target)
+});
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(3);
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton) options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+	if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	options.attrs.type = "text/css";
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	options.attrs.type = "text/css";
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = options.transform(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('page.ui.xxt', []);
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}]);
+ngMod.service('tmsDynaPage', ['$q', function($q) {
+    this.loadCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
+    this.loadExtCss = function(url) {
+        var link, head;
+        link = document.createElement('link');
+        link.href = url;
+        link.rel = 'stylesheet';
+        head = document.querySelector('head');
+        head.appendChild(link);
+    };
+    this.loadJs = function(ngApp, js) {
+        (function(ngApp) {
+            eval(js);
+        })(ngApp);
+    };
+    this.loadScript = function(urls) {
+        var index, fnLoad, deferred = $q.defer();
+        fnLoad = function() {
+            var script;
+            script = document.createElement('script');
+            script.src = urls[index];
+            script.onload = function() {
+                index++;
+                if (index < urls.length) {
+                    fnLoad();
+                } else {
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (urls) {
+            angular.isString(urls) && (urls = [urls]);
+            if (urls.length) {
+                index = 0;
+                fnLoad();
+            }
+        }
+
+        return deferred.promise;
+    };
+    this.loadExtJs = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer(),
+            jslength = code.ext_js.length,
+            loadScript2;
+        loadScript2 = function(js) {
+            var script;
+            script = document.createElement('script');
+            script.src = js.url;
+            script.onload = function() {
+                jslength--;
+                if (jslength === 0) {
+                    if (code.js && code.js.length) {
+                        _self.loadJs(ngApp, code.js);
+                    }
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (code.ext_js && code.ext_js.length) {
+            code.ext_js.forEach(loadScript2);
+        }
+        return deferred.promise;
+    };
+    this.loadCode = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer();
+        if (code.ext_css && code.ext_css.length) {
+            code.ext_css.forEach(function(css) {
+                _self.loadExtCss(css.url);
+            });
+        }
+        if (code.css && code.css.length) {
+            this.loadCss(code.css);
+        }
+        if (code.ext_js && code.ext_js.length) {
+            _self.loadExtJs(ngApp, code).then(function() {
+                deferred.resolve();
+            });
+        } else {
+            if (code.js && code.js.length) {
+                _self.loadJs(ngApp, code.js);
+            }
+            deferred.resolve();
+        }
+        return deferred.promise;
+        18810091009
+    };
+    this.openPlugin = function(content) {
+        var frag, wrap, frm, body, deferred = $q.defer();
+        body = document.getElementsByTagName('body')[0];
+        body.style.cssText="overflow-y:hidden";
+        frag = document.createDocumentFragment();
+        wrap = document.createElement('div');
+        wrap.setAttribute('id', 'frmPlugin');
+        frm = document.createElement('iframe');
+        wrap.appendChild(frm);
+        wrap.onclick = function() {
+            wrap.parentNode.removeChild(wrap);
+            body.style.cssText="overflow-y:auto";
+        };
+        frag.appendChild(wrap);
+        document.body.appendChild(frag);
+        if (content.indexOf('http') === 0) {
+            window.onClosePlugin = function(result) {
+                wrap.parentNode.removeChild(wrap);
+                body.style.cssText="overflow-y:auto";
+                deferred.resolve(result);
+            };
+            frm.setAttribute('src', content);
+        } else {
+            if (frm.contentDocument && frm.contentDocument.body) {
+                frm.contentDocument.body.innerHTML = content;
+            }
+        }
+        return deferred.promise;
+    };
+}]);
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * @license  MIT
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
  */
-var X=r(3),Z=r(5),K=r(6);e.Buffer=i,e.SlowBuffer=g,e.INSPECT_MAX_BYTES=50,i.TYPED_ARRAY_SUPPORT=void 0!==t.TYPED_ARRAY_SUPPORT?t.TYPED_ARRAY_SUPPORT:function(){try{var t=new Uint8Array(1);return t.__proto__={__proto__:Uint8Array.prototype,foo:function(){return 42}},42===t.foo()&&"function"==typeof t.subarray&&0===t.subarray(1,1).byteLength}catch(t){return!1}}(),e.kMaxLength=n(),i.poolSize=8192,i._augment=function(t){return t.__proto__=i.prototype,t},i.from=function(t,e,r){return a(null,t,e,r)},i.TYPED_ARRAY_SUPPORT&&(i.prototype.__proto__=Uint8Array.prototype,i.__proto__=Uint8Array,"undefined"!=typeof Symbol&&Symbol.species&&i[Symbol.species]===i&&Object.defineProperty(i,Symbol.species,{value:null,configurable:!0})),i.alloc=function(t,e,r){return c(null,t,e,r)},i.allocUnsafe=function(t){return u(null,t)},i.allocUnsafeSlow=function(t){return u(null,t)},i.isBuffer=function(t){return!(null==t||!t._isBuffer)},i.compare=function(t,e){if(!i.isBuffer(t)||!i.isBuffer(e))throw new TypeError("Arguments must be Buffers");if(t===e)return 0;for(var r=t.length,n=e.length,o=0,a=Math.min(r,n);o<a;++o)if(t[o]!==e[o]){r=t[o],n=e[o];break}return r<n?-1:n<r?1:0},i.isEncoding=function(t){switch(String(t).toLowerCase()){case"hex":case"utf8":case"utf-8":case"ascii":case"latin1":case"binary":case"base64":case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return!0;default:return!1}},i.concat=function(t,e){if(!K(t))throw new TypeError('"list" argument must be an Array of Buffers');if(0===t.length)return i.alloc(0);var r;if(void 0===e)for(e=0,r=0;r<t.length;++r)e+=t[r].length;var n=i.allocUnsafe(e),o=0;for(r=0;r<t.length;++r){var a=t[r];if(!i.isBuffer(a))throw new TypeError('"list" argument must be an Array of Buffers');a.copy(n,o),o+=a.length}return n},i.byteLength=m,i.prototype._isBuffer=!0,i.prototype.swap16=function(){var t=this.length;if(t%2!=0)throw new RangeError("Buffer size must be a multiple of 16-bits");for(var e=0;e<t;e+=2)y(this,e,e+1);return this},i.prototype.swap32=function(){var t=this.length;if(t%4!=0)throw new RangeError("Buffer size must be a multiple of 32-bits");for(var e=0;e<t;e+=4)y(this,e,e+3),y(this,e+1,e+2);return this},i.prototype.swap64=function(){var t=this.length;if(t%8!=0)throw new RangeError("Buffer size must be a multiple of 64-bits");for(var e=0;e<t;e+=8)y(this,e,e+7),y(this,e+1,e+6),y(this,e+2,e+5),y(this,e+3,e+4);return this},i.prototype.toString=function(){var t=0|this.length;return 0===t?"":0===arguments.length?P(this,0,t):v.apply(this,arguments)},i.prototype.equals=function(t){if(!i.isBuffer(t))throw new TypeError("Argument must be a Buffer");return this===t||0===i.compare(this,t)},i.prototype.inspect=function(){var t="",r=e.INSPECT_MAX_BYTES;return this.length>0&&(t=this.toString("hex",0,r).match(/.{2}/g).join(" "),this.length>r&&(t+=" ... ")),"<Buffer "+t+">"},i.prototype.compare=function(t,e,r,n,o){if(!i.isBuffer(t))throw new TypeError("Argument must be a Buffer");if(void 0===e&&(e=0),void 0===r&&(r=t?t.length:0),void 0===n&&(n=0),void 0===o&&(o=this.length),e<0||r>t.length||n<0||o>this.length)throw new RangeError("out of range index");if(n>=o&&e>=r)return 0;if(n>=o)return-1;if(e>=r)return 1;if(e>>>=0,r>>>=0,n>>>=0,o>>>=0,this===t)return 0;for(var a=o-n,s=r-e,c=Math.min(a,s),u=this.slice(n,o),l=t.slice(e,r),d=0;d<c;++d)if(u[d]!==l[d]){a=u[d],s=l[d];break}return a<s?-1:s<a?1:0},i.prototype.includes=function(t,e,r){return-1!==this.indexOf(t,e,r)},i.prototype.indexOf=function(t,e,r){return b(this,t,e,r,!0)},i.prototype.lastIndexOf=function(t,e,r){return b(this,t,e,r,!1)},i.prototype.write=function(t,e,r,n){if(void 0===e)n="utf8",r=this.length,e=0;else if(void 0===r&&"string"==typeof e)n=e,r=this.length,e=0;else{if(!isFinite(e))throw new Error("Buffer.write(string, encoding, offset[, length]) is no longer supported");e|=0,isFinite(r)?(r|=0,void 0===n&&(n="utf8")):(n=r,r=void 0)}var o=this.length-e;if((void 0===r||r>o)&&(r=o),t.length>0&&(r<0||e<0)||e>this.length)throw new RangeError("Attempt to write outside buffer bounds");n||(n="utf8");for(var i=!1;;)switch(n){case"hex":return x(this,t,e,r);case"utf8":case"utf-8":return k(this,t,e,r);case"ascii":return _(this,t,e,r);case"latin1":case"binary":return E(this,t,e,r);case"base64":return A(this,t,e,r);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return S(this,t,e,r);default:if(i)throw new TypeError("Unknown encoding: "+n);n=(""+n).toLowerCase(),i=!0}},i.prototype.toJSON=function(){return{type:"Buffer",data:Array.prototype.slice.call(this._arr||this,0)}};var Q=4096;i.prototype.slice=function(t,e){var r=this.length;t=~~t,e=void 0===e?r:~~e,t<0?(t+=r)<0&&(t=0):t>r&&(t=r),e<0?(e+=r)<0&&(e=0):e>r&&(e=r),e<t&&(e=t);var n;if(i.TYPED_ARRAY_SUPPORT)n=this.subarray(t,e),n.__proto__=i.prototype;else{var o=e-t;n=new i(o,void 0);for(var a=0;a<o;++a)n[a]=this[a+t]}return n},i.prototype.readUIntLE=function(t,e,r){t|=0,e|=0,r||Y(t,e,this.length);for(var n=this[t],o=1,i=0;++i<e&&(o*=256);)n+=this[t+i]*o;return n},i.prototype.readUIntBE=function(t,e,r){t|=0,e|=0,r||Y(t,e,this.length);for(var n=this[t+--e],o=1;e>0&&(o*=256);)n+=this[t+--e]*o;return n},i.prototype.readUInt8=function(t,e){return e||Y(t,1,this.length),this[t]},i.prototype.readUInt16LE=function(t,e){return e||Y(t,2,this.length),this[t]|this[t+1]<<8},i.prototype.readUInt16BE=function(t,e){return e||Y(t,2,this.length),this[t]<<8|this[t+1]},i.prototype.readUInt32LE=function(t,e){return e||Y(t,4,this.length),(this[t]|this[t+1]<<8|this[t+2]<<16)+16777216*this[t+3]},i.prototype.readUInt32BE=function(t,e){return e||Y(t,4,this.length),16777216*this[t]+(this[t+1]<<16|this[t+2]<<8|this[t+3])},i.prototype.readIntLE=function(t,e,r){t|=0,e|=0,r||Y(t,e,this.length);for(var n=this[t],o=1,i=0;++i<e&&(o*=256);)n+=this[t+i]*o;return o*=128,n>=o&&(n-=Math.pow(2,8*e)),n},i.prototype.readIntBE=function(t,e,r){t|=0,e|=0,r||Y(t,e,this.length);for(var n=e,o=1,i=this[t+--n];n>0&&(o*=256);)i+=this[t+--n]*o;return o*=128,i>=o&&(i-=Math.pow(2,8*e)),i},i.prototype.readInt8=function(t,e){return e||Y(t,1,this.length),128&this[t]?-1*(255-this[t]+1):this[t]},i.prototype.readInt16LE=function(t,e){e||Y(t,2,this.length);var r=this[t]|this[t+1]<<8;return 32768&r?4294901760|r:r},i.prototype.readInt16BE=function(t,e){e||Y(t,2,this.length);var r=this[t+1]|this[t]<<8;return 32768&r?4294901760|r:r},i.prototype.readInt32LE=function(t,e){return e||Y(t,4,this.length),this[t]|this[t+1]<<8|this[t+2]<<16|this[t+3]<<24},i.prototype.readInt32BE=function(t,e){return e||Y(t,4,this.length),this[t]<<24|this[t+1]<<16|this[t+2]<<8|this[t+3]},i.prototype.readFloatLE=function(t,e){return e||Y(t,4,this.length),Z.read(this,t,!0,23,4)},i.prototype.readFloatBE=function(t,e){return e||Y(t,4,this.length),Z.read(this,t,!1,23,4)},i.prototype.readDoubleLE=function(t,e){return e||Y(t,8,this.length),Z.read(this,t,!0,52,8)},i.prototype.readDoubleBE=function(t,e){return e||Y(t,8,this.length),Z.read(this,t,!1,52,8)},i.prototype.writeUIntLE=function(t,e,r,n){if(t=+t,e|=0,r|=0,!n){L(this,t,e,r,Math.pow(2,8*r)-1,0)}var o=1,i=0;for(this[e]=255&t;++i<r&&(o*=256);)this[e+i]=t/o&255;return e+r},i.prototype.writeUIntBE=function(t,e,r,n){if(t=+t,e|=0,r|=0,!n){L(this,t,e,r,Math.pow(2,8*r)-1,0)}var o=r-1,i=1;for(this[e+o]=255&t;--o>=0&&(i*=256);)this[e+o]=t/i&255;return e+r},i.prototype.writeUInt8=function(t,e,r){return t=+t,e|=0,r||L(this,t,e,1,255,0),i.TYPED_ARRAY_SUPPORT||(t=Math.floor(t)),this[e]=255&t,e+1},i.prototype.writeUInt16LE=function(t,e,r){return t=+t,e|=0,r||L(this,t,e,2,65535,0),i.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8):D(this,t,e,!0),e+2},i.prototype.writeUInt16BE=function(t,e,r){return t=+t,e|=0,r||L(this,t,e,2,65535,0),i.TYPED_ARRAY_SUPPORT?(this[e]=t>>>8,this[e+1]=255&t):D(this,t,e,!1),e+2},i.prototype.writeUInt32LE=function(t,e,r){return t=+t,e|=0,r||L(this,t,e,4,4294967295,0),i.TYPED_ARRAY_SUPPORT?(this[e+3]=t>>>24,this[e+2]=t>>>16,this[e+1]=t>>>8,this[e]=255&t):I(this,t,e,!0),e+4},i.prototype.writeUInt32BE=function(t,e,r){return t=+t,e|=0,r||L(this,t,e,4,4294967295,0),i.TYPED_ARRAY_SUPPORT?(this[e]=t>>>24,this[e+1]=t>>>16,this[e+2]=t>>>8,this[e+3]=255&t):I(this,t,e,!1),e+4},i.prototype.writeIntLE=function(t,e,r,n){if(t=+t,e|=0,!n){var o=Math.pow(2,8*r-1);L(this,t,e,r,o-1,-o)}var i=0,a=1,s=0;for(this[e]=255&t;++i<r&&(a*=256);)t<0&&0===s&&0!==this[e+i-1]&&(s=1),this[e+i]=(t/a>>0)-s&255;return e+r},i.prototype.writeIntBE=function(t,e,r,n){if(t=+t,e|=0,!n){var o=Math.pow(2,8*r-1);L(this,t,e,r,o-1,-o)}var i=r-1,a=1,s=0;for(this[e+i]=255&t;--i>=0&&(a*=256);)t<0&&0===s&&0!==this[e+i+1]&&(s=1),this[e+i]=(t/a>>0)-s&255;return e+r},i.prototype.writeInt8=function(t,e,r){return t=+t,e|=0,r||L(this,t,e,1,127,-128),i.TYPED_ARRAY_SUPPORT||(t=Math.floor(t)),t<0&&(t=255+t+1),this[e]=255&t,e+1},i.prototype.writeInt16LE=function(t,e,r){return t=+t,e|=0,r||L(this,t,e,2,32767,-32768),i.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8):D(this,t,e,!0),e+2},i.prototype.writeInt16BE=function(t,e,r){return t=+t,e|=0,r||L(this,t,e,2,32767,-32768),i.TYPED_ARRAY_SUPPORT?(this[e]=t>>>8,this[e+1]=255&t):D(this,t,e,!1),e+2},i.prototype.writeInt32LE=function(t,e,r){return t=+t,e|=0,r||L(this,t,e,4,2147483647,-2147483648),i.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8,this[e+2]=t>>>16,this[e+3]=t>>>24):I(this,t,e,!0),e+4},i.prototype.writeInt32BE=function(t,e,r){return t=+t,e|=0,r||L(this,t,e,4,2147483647,-2147483648),t<0&&(t=4294967295+t+1),i.TYPED_ARRAY_SUPPORT?(this[e]=t>>>24,this[e+1]=t>>>16,this[e+2]=t>>>8,this[e+3]=255&t):I(this,t,e,!1),e+4},i.prototype.writeFloatLE=function(t,e,r){return N(this,t,e,!0,r)},i.prototype.writeFloatBE=function(t,e,r){return N(this,t,e,!1,r)},i.prototype.writeDoubleLE=function(t,e,r){return j(this,t,e,!0,r)},i.prototype.writeDoubleBE=function(t,e,r){return j(this,t,e,!1,r)},i.prototype.copy=function(t,e,r,n){if(r||(r=0),n||0===n||(n=this.length),e>=t.length&&(e=t.length),e||(e=0),n>0&&n<r&&(n=r),n===r)return 0;if(0===t.length||0===this.length)return 0;if(e<0)throw new RangeError("targetStart out of bounds");if(r<0||r>=this.length)throw new RangeError("sourceStart out of bounds");if(n<0)throw new RangeError("sourceEnd out of bounds");n>this.length&&(n=this.length),t.length-e<n-r&&(n=t.length-e+r);var o,a=n-r;if(this===t&&r<e&&e<n)for(o=a-1;o>=0;--o)t[o+e]=this[o+r];else if(a<1e3||!i.TYPED_ARRAY_SUPPORT)for(o=0;o<a;++o)t[o+e]=this[o+r];else Uint8Array.prototype.set.call(t,this.subarray(r,r+a),e);return a},i.prototype.fill=function(t,e,r,n){if("string"==typeof t){if("string"==typeof e?(n=e,e=0,r=this.length):"string"==typeof r&&(n=r,r=this.length),1===t.length){var o=t.charCodeAt(0);o<256&&(t=o)}if(void 0!==n&&"string"!=typeof n)throw new TypeError("encoding must be a string");if("string"==typeof n&&!i.isEncoding(n))throw new TypeError("Unknown encoding: "+n)}else"number"==typeof t&&(t&=255);if(e<0||this.length<e||this.length<r)throw new RangeError("Out of range index");if(r<=e)return this;e>>>=0,r=void 0===r?this.length:r>>>0,t||(t=0);var a;if("number"==typeof t)for(a=e;a<r;++a)this[a]=t;else{var s=i.isBuffer(t)?t:F(new i(t,n).toString()),c=s.length;for(a=0;a<r-e;++a)this[a+e]=s[a%c]}return this};var tt=/[^+\/0-9A-Za-z-_]/g}).call(e,r(8))},function(t,e){e.read=function(t,e,r,n,o){var i,a,s=8*o-n-1,c=(1<<s)-1,u=c>>1,l=-7,d=r?o-1:0,f=r?-1:1,p=t[e+d];for(d+=f,i=p&(1<<-l)-1,p>>=-l,l+=s;l>0;i=256*i+t[e+d],d+=f,l-=8);for(a=i&(1<<-l)-1,i>>=-l,l+=n;l>0;a=256*a+t[e+d],d+=f,l-=8);if(0===i)i=1-u;else{if(i===c)return a?NaN:1/0*(p?-1:1);a+=Math.pow(2,n),i-=u}return(p?-1:1)*a*Math.pow(2,i-n)},e.write=function(t,e,r,n,o,i){var a,s,c,u=8*i-o-1,l=(1<<u)-1,d=l>>1,f=23===o?Math.pow(2,-24)-Math.pow(2,-77):0,p=n?0:i-1,h=n?1:-1,g=e<0||0===e&&1/e<0?1:0;for(e=Math.abs(e),isNaN(e)||e===1/0?(s=isNaN(e)?1:0,a=l):(a=Math.floor(Math.log(e)/Math.LN2),e*(c=Math.pow(2,-a))<1&&(a--,c*=2),e+=a+d>=1?f/c:f*Math.pow(2,1-d),e*c>=2&&(a++,c/=2),a+d>=l?(s=0,a=l):a+d>=1?(s=(e*c-1)*Math.pow(2,o),a+=d):(s=e*Math.pow(2,d-1)*Math.pow(2,o),a=0));o>=8;t[r+p]=255&s,p+=h,s/=256,o-=8);for(a=a<<o|s,u+=o;u>0;t[r+p]=255&a,p+=h,a/=256,u-=8);t[r+p-h]|=128*g}},function(t,e){var r={}.toString;t.exports=Array.isArray||function(t){return"[object Array]"==r.call(t)}},function(t,e){t.exports=function(t){var e="undefined"!=typeof window&&window.location;if(!e)throw new Error("fixUrls requires window.location");if(!t||"string"!=typeof t)return t;var r=e.protocol+"//"+e.host,n=r+e.pathname.replace(/\/[^\/]*$/,"/");return t.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi,function(t,e){var o=e.trim().replace(/^"(.*)"$/,function(t,e){return e}).replace(/^'(.*)'$/,function(t,e){return e});if(/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(o))return t;var i;return i=0===o.indexOf("//")?o:0===o.indexOf("/")?r+o:n+o.replace(/^\.\//,""),"url("+JSON.stringify(i)+")"})}},function(t,e){var r;r=function(){return this}();try{r=r||Function("return this")()||(0,eval)("this")}catch(t){"object"==typeof window&&(r=window)}t.exports=r},function(t,e,r){"use strict";angular.module("modal.ui.xxt",[]).service("tmsModal",["$rootScope","$compile","$q","$controller",function(t,e,r,n){this.open=function(o){var i,a=r.defer(),s=r.defer(),c={result:a.promise,closed:s.promise,close:function(t){document.body.removeChild(f[0]),a.resolve(t)},dismiss:function(t){document.body.removeChild(f[0]),s.resolve(t)}};i=t.$new(!0),o.controller&&n(o.controller,{$scope:i,$tmsModalInstance:c});var u,l,d,f;return u=angular.element("<div></div>"),u.attr({class:"modal-content","ng-style":"{'z-index':1060}"}).append(o.template),l=angular.element("<div></div>"),l.attr({class:"modal-dialog"}).append(u),d=angular.element("<div></div>"),d.attr({class:"modal-backdrop","ng-style":"{'z-index':1040}"}),f=angular.element("<div></div>"),f.attr({class:"modal","ng-style":"{'z-index':1050}",tabindex:-1}).append(l).append(d),e(f)(i),document.body.appendChild(f[0]),c}}])},function(t,e,r){var n=r(13);"string"==typeof n&&(n=[[t.i,n,""]]);r(1)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,r){"use strict";r(10),r(2),r(9),angular.module("favor.ui.xxt",["page.ui.xxt","modal.ui.xxt"]).service("tmsFavor",["$rootScope","$http","$q","tmsDynaPage","tmsModal",function(t,e,r,n,o){function i(t){var n,o;return o=r.defer(),n="/rest/site/fe/user/favor/byUser",n+="?site="+t.siteid,n+="&id="+t.id,n+="&type="+t.type,e.get(n).success(function(t){o.resolve(t.data)}),o.promise}function a(t){var n,o;return o=r.defer(),n="/rest/site/fe/user/favor/add",n+="?site="+t.siteid,n+="&id="+t.id,n+="&type="+t.type,e.get(n).success(function(t){o.resolve(t.data)}),o.promise}function s(t){var n,o;return o=r.defer(),n="/rest/site/fe/user/favor/remove",n+="?site="+t.siteid,n+="&id="+t.id,n+="&type="+t.type,e.get(n).success(function(t){o.resolve(t.data)}),o.promise}function c(t){var n,o;return o=r.defer(),n="/rest/pl/fe/site/favor/sitesByUser?site="+t.siteid+"&id="+t.id+"&type="+t.type+"&_="+1*new Date,e.get(n).success(function(t){0==t.err_code&&o.resolve(t.data)}),o.promise}function u(t,n){var o,i;return i=r.defer(),o="/rest/pl/fe/site/favor/add?id="+t.id+"&type="+t.type,e.post(o,n).success(function(t){i.resolve(t.data)}),i.promise}function l(t,n){var o,i;return i=r.defer(),o="/rest/pl/fe/site/favor/remove?id="+t.id+"&type="+t.type,e.post(o,n).success(function(t){i.resolve(t.data)}),i.promise}this.open=function(t){var r;r='<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>',r+='<div class="modal-body">',r+='<div class="checkbox">',r+="<label>",r+="<input type='checkbox' ng-true-value=\"'Y'\" ng-false-value=\"'N'\" ng-model='person._selected'>",r+="<span>个人账户</span>",r+="<span ng-if=\"person._favored==='Y'\">（已收藏）</span>",r+="</label>",r+="</div>",r+='<div class="checkbox" ng-repeat="site in mySites">',r+="<label>",r+="<input type='checkbox' ng-true-value=\"'Y'\" ng-false-value=\"'N'\" ng-model='site._selected'>",r+="<span>{{site.name}}</span>",r+="<span ng-if=\"site._favored==='Y'\">（已收藏）</span>",r+="</label>",r+="</div>",r+='<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>',r+="</div>",r+='<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>',o.open({template:r,controller:["$scope","$tmsModalInstance",function(r,n){i(t).then(function(t){r.person={_favored:t?"Y":"N"},r.person._selected=r.person._favored}),c(t).then(function(t){var e=t;e.forEach(function(t){t._selected=t._favored}),r.mySites=e}),r.createSite=function(){e.get("/rest/pl/fe/site/create").success(function(t){var e=t.data;e._favored=e._selected="N",r.mySites=[e]})},r.ok=function(){var t;t={person:r.person,mySites:r.mySites},n.close(t)},r.cancel=function(){n.dismiss()}}]}).result.then(function(e){var r,n;if(r=e.person,r&&r._selected!==r._favored&&("Y"===r._selected?a(t):s(t)),n=e.mySites){var o=[],i=[];n.forEach(function(t){t._selected!==t._favored&&("Y"===t._selected?o.push(t.id):i.push(t.id))}),o.length&&u(t,o),i.length&&l(t,i)}})},this.showSwitch=function(e,r){var o,i=this;o=document.createElement("div"),o.classList.add("tms-switch","tms-switch-favor"),o.addEventListener("click",function(o){o.preventDefault(),o.stopPropagation(),t.$apply(function(){e.loginExpire?i.open(r):n.openPlugin("http://"+location.host+"/rest/site/fe/user/login?site="+r.siteid).then(function(t){e.loginExpire=t.loginExpire,i.open(r)})})},!0),document.body.appendChild(o)}}])},function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("snsshare.ui.xxt",[]);ngMod.service("tmsSnsShare",["$http",function($http){function setWxShare(t,e,r,n,o){window.wx.onMenuShareTimeline({title:o.descAsTitle?r:t,link:e,imgUrl:n,success:function(){try{o.logger&&o.logger("T")}catch(t){alert("share failed:"+t.message)}},cancel:function(){},fail:function(){alert("shareT: fail")}}),window.wx.onMenuShareAppMessage({title:t,desc:r,link:e,imgUrl:n,success:function(){try{o.logger&&o.logger("F")}catch(t){alert("share failed:"+t.message)}},cancel:function(){},fail:function(){alert("shareF: fail")}})}function setYxShare(t,e,r,n,o){var i={img_url:n,link:e,title:t,desc:r};window.YixinJSBridge.on("menu:share:appmessage",function(t){try{o.logger&&o.logger("F")}catch(t){alert("share failed:"+t.message)}window.YixinJSBridge.invoke("sendAppMessage",i,function(t){})}),window.YixinJSBridge.on("menu:share:timeline",function(t){try{o.logger&&o.logger("T")}catch(t){alert("share failed:"+t.message)}window.YixinJSBridge.invoke("shareTimeline",i,function(t){})})}this.config=function(t){this.options=t},this.set=function(title,link,desc,img,fnOther){var _this=this;if(img&&-1===img.indexOf("http")&&(img="http://"+location.host+img),/MicroMessenger/i.test(navigator.userAgent)){var script;script=document.createElement("script"),script.src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js",script.onload=function(){var xhr,url;xhr=new XMLHttpRequest,url="/rest/site/fe/wxjssdksignpackage?site="+_this.options.siteId+"&url="+encodeURIComponent(location.href.split("#")[0]),xhr.open("GET",url,!0),xhr.onreadystatechange=function(){if(4==xhr.readyState)if(xhr.status>=200&&xhr.status<400){var signPackage;try{eval("("+xhr.responseText+")"),signPackage&&(signPackage.debug=!1,signPackage.jsApiList=_this.options.jsApiList,wx.config(signPackage),wx.ready(function(){setWxShare(title,link,desc,img,_this.options)}),wx.error(function(t){alert(t)}))}catch(t){alert("local error:"+t.toString())}}else alert("http error:"+xhr.statusText)},xhr.send()},document.body.appendChild(script)}else/Yixin/i.test(navigator.userAgent)?void 0===window.YixinJSBridge?document.addEventListener("YixinJSBridgeReady",function(){setYxShare(title,link,desc,img,_this.options)},!1):setYxShare(title,link,desc,img,_this.options):fnOther&&"function"==typeof fnOther&&fnOther(title,link,desc,img)}}])},function(t,e,r){e=t.exports=r(0)(void 0),e.push([t.i,".modal{display:block;overflow:hidden;outline:0;overflow-x:hidden;overflow-y:auto;opacity:1}.modal,.modal-backdrop{position:fixed;top:0;right:0;bottom:0;left:0}.modal-backdrop{background-color:#000;opacity:.5}.modal-dialog{z-index:1055;margin:0;position:relative;width:auto;margin:10px}.modal-content{position:relative;background-color:#fff;-webkit-background-clip:padding-box;background-clip:padding-box;border:1px solid #999;border:1px solid rgba(0,0,0,.2);border-radius:6px;outline:0;-webkit-box-shadow:0 3px 9px rgba(0,0,0,.5);box-shadow:0 3px 9px rgba(0,0,0,.5)}.modal-header{padding:15px;border-bottom:1px solid #e5e5e5}.modal-header .close{margin-top:-2px}.modal-title{margin:0;line-height:1.42857143}.modal-body{position:relative;padding:15px}.modal-footer{padding:15px;text-align:right;border-top:1px solid #e5e5e5}button.close{-webkit-appearance:none;padding:0;cursor:pointer;background:0 0;border:0}.close{float:right;font-size:21px;font-weight:700;line-height:1;color:#000;text-shadow:0 1px 0 #fff;filter:alpha(opacity=20);opacity:.2}@media (min-width:768px){.modal-dialog{width:600px;margin:30px auto}.modal-content{-webkit-box-shadow:0 5px 15px rgba(0,0,0,.5);box-shadow:0 5px 15px rgba(0,0,0,.5)}}",""])},function(t,e,r){"use strict";function n(t,e){var r,n,o;r=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),n.appendChild(o),n.onclick=function(){n.parentNode.removeChild(n)},r.appendChild(n),document.body.appendChild(r),0===t.indexOf("http")?(window.onClosePlugin=function(){n.parentNode.removeChild(n),e&&e()},o.setAttribute("src",t)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=t)}angular.module("coinpay.ui.xxt",[]).service("tmsCoinPay",function(){this.showSwitch=function(t,e){var r;r=document.createElement("div"),r.classList.add("tms-switch","tms-switch-coinpay"),r.addEventListener("click",function(r){r.preventDefault(),r.stopPropagation();var o="http://"+location.host;o+="/rest/site/fe/coin/pay",o+="?site="+t,o+="&matter="+e,n(o)},!0),document.body.appendChild(r)}})},function(t,e,r){"use strict";function n(t,e){var r,n,o;r=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),n.appendChild(o),n.onclick=function(){n.parentNode.removeChild(n)},r.appendChild(n),document.body.appendChild(r),0===t.indexOf("http")?(window.onClosePlugin=function(){n.parentNode.removeChild(n),e&&e()},o.setAttribute("src",t)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=t)}angular.module("siteuser.ui.xxt",[]).service("tmsSiteUser",function(){this.showSwitch=function(t,e){var r;r=document.createElement("div"),r.classList.add("tms-switch","tms-switch-siteuser"),r.addEventListener("click",function(r){r.preventDefault(),r.stopPropagation();var o="http://"+location.host;o+="/rest/site/fe/user",o+="?site="+t,e?location.href=o:n(o)},!0),document.body.appendChild(r)}})},function(t,e,r){e=t.exports=r(0)(void 0),e.push([t.i,'.dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-body,.dialog .dlg-header{padding:15px 15px 0}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-switch{position:fixed;right:15px;width:70px;box-shadow:0 2px 6px rgba(18,27,32,.425);height:35px;color:#2994d0;background:#f8fcfe;border-radius:21px;font-size:24px;line-height:27px;text-align:center;cursor:pointer;z-index:1050}.tms-switch:before{font-size:.7em}.tms-switch:last-of-type{bottom:8px}.tms-switch:nth-last-of-type(2){bottom:64px}.tms-switch:nth-last-of-type(3){bottom:120px}.tms-switch:nth-last-of-type(4){bottom:176px}.tms-switch:nth-last-of-type(5){bottom:232px}.tms-switch:nth-last-of-type(6){bottom:288px}.tms-switch-back:before{content:"\\8FD4\\56DE"}.tms-switch-task:before{content:"\\4EFB\\52A1"}.tms-switch-save:before{content:"\\4FDD\\5B58"}.tms-switch-rank:before{content:"\\6392\\884C"}.tms-switch-repos:before{content:"\\5171\\4EAB"}.tms-switch-coinpay:before{content:"\\6253\\8D4F"}@media screen and (max-width:768px){body{margin-bottom:60px}.tms-switch:last-of-type{right:8px;bottom:10px}.tms-switch:nth-last-of-type(2){right:85px;bottom:10px}.tms-switch:nth-last-of-type(3){right:165px;bottom:10px}.tms-switch:nth-last-of-type(4){right:176px;bottom:10px}.tms-switch:nth-last-of-type(5){right:232px;bottom:10px}.tms-switch:nth-last-of-type(6){right:288px;bottom:10px}}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:"\\5173\\95ED";position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}',""])},function(t,e,r){var n=r(16);"string"==typeof n&&(n=[[t.i,n,""]]);r(1)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,r){"use strict";window.__util={},window.__util.makeDialog=function(t,e){var r,n;return n=document.createElement("div"),n.setAttribute("id",t),n.classList.add("dialog","mask"),r="<div class='dialog dlg'>",e.header&&e.header.length&&(r+="<div class='dlg-header'>"+e.header+"</div>"),r+="<div class='dlg-body'>"+e.body+"</div>",e.footer&&e.footer.length&&(r+="<div class='dlg-footer'>"+e.footer+"</div>"),r+="</div>",n.innerHTML=r,document.body.appendChild(n),n.children};var n=angular.module("directive.enroll",[]);n.directive("tmsDate",["$compile",function(t){return{restrict:"A",scope:{value:"=tmsDateValue"},controller:["$scope",function(t){t.close=function(){var e;e=document.querySelector("#"+t.dialogID),document.body.removeChild(e),t.opened=!1},t.ok=function(){var e;e=new Date,e.setTime(0),e.setFullYear(t.data.year),e.setMonth(t.data.month-1),e.setDate(t.data.date),e.setHours(t.data.hour),e.setMinutes(t.data.minute),t.value=parseInt(e.getTime()/1e3),t.close()}}],link:function(e,r,n){var o,i,a,s;void 0===e.value&&(e.value=1*new Date/1e3),i=new Date,i.setTime(1e3*e.value),e.options={years:[2014,2015,2016,2017],months:[1,2,3,4,5,6,7,8,9,10,11,12],dates:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],hours:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],minutes:[0,5,10,15,20,25,30,35,40,45,50,55]},a=5*Math.round(i.getMinutes()/5),e.data={year:i.getFullYear(),month:i.getMonth()+1,date:i.getDate(),hour:i.getHours(),minute:a},-1===e.options.minutes.indexOf(a)&&e.options.minutes.push(a),s='<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>',o=function(r){if(r.preventDefault(),r.stopPropagation(),!e.opened){var n,o;o="_dlg-"+1*new Date,n={header:"",body:s,footer:'<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'},n=__util.makeDialog(o,n),e.opened=!0,e.dialogID=o,t(n)(e)}},r[0].querySelector("[ng-bind]").addEventListener("click",o)}}}]),n.directive("tmsCheckboxGroup",function(){return{restrict:"A",link:function(t,e,r){var n,o,i,a;r.tmsCheckboxGroup&&r.tmsCheckboxGroup.length&&(n=r.tmsCheckboxGroup,r.tmsCheckboxGroupModel&&r.tmsCheckboxGroupModel.length&&(o=r.tmsCheckboxGroupModel,r.tmsCheckboxGroupUpper&&r.tmsCheckboxGroupUpper.length&&(a=r.tmsCheckboxGroupUpper,i=document.querySelectorAll("[name="+n+"]"),t.$watch(o+"."+n,function(t){var e;e=0,angular.forEach(t,function(t,r){t&&e++}),e>=a?[].forEach.call(i,function(t){void 0===t.checked?!t.classList.contains("checked")&&t.setAttribute("disabled",!0):!t.checked&&(t.disabled=!0)}):[].forEach.call(i,function(t){void 0===t.checked?t.removeAttribute("disabled"):t.disabled=!1})},!0))))}}}),n.directive("flexImg",function(){return{restrict:"A",replace:!0,template:"<img ng-src='{{img.imgSrc}}'>",link:function(t,e,r){angular.element(e).on("load",function(){var t,e,r=this.clientWidth,n=this.clientHeight;r>n?(t=r/n*80,angular.element(this).css({height:"100%",width:t+"px",top:"0",left:"50%","margin-left":-1*t/2+"px"})):(e=n/r*80,angular.element(this).css({width:"100%",height:e+"px",left:"0",top:"50%","margin-top":-1*e/2+"px"}))})}}}),n.service("srvUserTask",["$http","tmsModal",function(t,e){this.open=function(r){var n,o;o='<div class="modal-body">',r.summary&&(o+='<div class="form-group">活动说明：'+r.summary+"</div>"),n=r.userTask,o+='<table class="table table-bordered">',o+="<thead><tr><th>任务</th><th>要求</th><th>完成</th></tr></thead>",o+="<tbody>",n.minEnrollNum&&parseInt(n.minEnrollNum)>0&&(o+="<tr>",o+="<td>至少填写记录条数</td>",o+="<td>"+n.minEnrollNum+"</td>",o+="<td>{{enrollee.enroll_num}}</td>",o+="</tr>"),n.minRemarkNum&&parseInt(n.minRemarkNum)>0&&(o+="<tr>",o+="<td>至少发表评论条数</td>",o+="<td>"+n.minRemarkNum+"</td>",o+="<td>{{enrollee.remark_other_num}}</td>",o+="</tr>"),n.minLikeNum&&parseInt(n.minLikeNum)>0&&(o+="<tr>",o+="<td>对记录至少发表赞同的条数</td>",o+="<td>"+n.minLikeNum+"</td>",o+="<td>{{enrollee.like_other_num}}</td>",o+="</tr>"),n.maxLikeNum&&parseInt(n.maxLikeNum)>0&&(o+="<tr>",o+="<td>对记录最多发表赞同的条数</td>",o+="<td>"+n.maxLikeNum+"</td>",o+="<td>{{enrollee.like_other_num}}</td>",o+="</tr>"),o+="</tbody></table>",o+="</div>",o+='<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭任务说明</button></div>',e.open({template:o,controller:["$scope","$tmsModalInstance",function(e,n){t.get("/rest/site/fe/matter/enroll/user/task?site="+r.siteid+"&app="+r.id).success(function(t){e.enrollee=t.data}),e.cancel=function(){n.dismiss()}}]})}}])},function(t,e,r){e=t.exports=r(0)(void 0),e.push([t.i,"body,html{font-family:Microsoft Yahei,Arial;width:100%;height:auto}body{position:relative;font-size:16px;padding:0}.ng-cloak{display:none}.container{position:relative}.navbar-default .navbar-brand,.navbar-default .navbar-nav>li>a{color:#fff}.navbar-brand{height:55px;padding:17.5px 15px}.main-navbar .navbar-brand:hover{color:#fff}@media screen and (min-width:768px){.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1}}@media screen and (max-width:768px){.navbar-brand{width:100%;text-align:center}.navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.navbar-nav{margin:8px 0;position:absolute;top:0;right:0}.nav>li>a{padding:10px}}",""])},function(t,e,r){var n=r(19);"string"==typeof n&&(n=[[t.i,n,""]]);r(1)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,r){"use strict";angular.module("http.ui.xxt",[]).service("http2",["$rootScope","$http","$timeout","$q","$sce","$compile",function(t,e,r,n,o,i){function a(e,r,n){var a;return a=angular.element("<div></div>"),a.attr({class:"tms-notice alert alert-"+(r||"info"),"ng-style":"{'z-index':1040}"}).html(o.trustAsHtml(e)),n||a[0].addEventListener("click",function(){document.body.removeChild(a[0])},!0),i(a)(t),document.body.appendChild(a[0]),a[0]}function s(t){t&&document.body.removeChild(t)}this.get=function(t,o){var i,c,u=n.defer();return o=angular.extend({headers:{accept:"application/json"},autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},o),!0===o.showProgress&&(c=r(function(){c=null,i=a(o.showProgressText,"info")},o.showProgressDelay)),e.get(t,o).success(function(t){if(!0===o.showProgress&&(c&&r.cancel(c),i&&(s(i),i=null)),angular.isString(t))return void(o.autoNotice&&a(t,"warning"));if(0!=t.err_code){if(o.autoNotice){var e;e=angular.isString(t.err_msg)?t.err_msg:angular.isArray(t.err_msg)?t.err_msg.join("<br>"):JSON.stringify(t.err_msg),a(e,"warning")}if(o.autoBreak)return}u.resolve(t)}).error(function(t,e){!0===o.showProgress&&(c&&r.cancel(c),i&&(s(i),i=null)),a(null===t?"网络不可用":t,"danger")}),u.promise},this.post=function(t,o,i){var c,u,l=n.defer();return i=angular.extend({headers:{accept:"application/json"},autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},i),!0===i.showProgress&&(u=r(function(){u=null,c=a(i.showProgressText,"info")},i.showProgressDelay)),e.post(t,o,i).success(function(t){if(!0===i.showProgress&&(u&&r.cancel(u),c&&(s(c),c=null)),angular.isString(t))return void(i.autoNotice&&(a(t,"warning"),c=null));if(0!=t.err_code){if(i.autoNotice){var e;e=angular.isString(t.err_msg)?t.err_msg:angular.isArray(t.err_msg)?t.err_msg.join("<br>"):JSON.stringify(t.err_msg),a(e,"warning")}if(i.autoBreak)return}l.resolve(t)}).error(function(t,e){!0===i.showProgress&&(u&&r.cancel(u),c&&(s(c),c=null)),a(null===t?"网络不可用":t,"danger")}),l.promise}}])},function(t,e,r){"use strict";r(12),/MicroMessenger/i.test(navigator.userAgent)&&window.signPackage&&window.wx?window.wx.ready(function(){window.wx.showOptionMenu()}):/YiXin/i.test(navigator.userAgent)&&document.addEventListener("YixinJSBridgeReady",function(){YixinJSBridge.call("showOptionMenu")},!1),r(17),r(20),r(21),r(2),r(15),r(11),r(14),r(18);var n=angular.module("app",["ngSanitize","ui.bootstrap","http.ui.xxt","page.ui.xxt","snsshare.ui.xxt","directive.enroll","siteuser.ui.xxt","favor.ui.xxt"]);n.provider("ls",function(){var t={};this.params=function(e){var r;return r=location.search,angular.forEach(e,function(e){var n,o;o=new RegExp(e+"=([^&]*)"),n=r.match(o),t[e]=n?n[1]:""}),t},this.$get=function(){return{p:t,j:function(e){var r=1,n=arguments.length,o="/rest/site/fe/matter/enroll",i=[];for(e&&e.length&&(o+="/"+e);r<n;r++)i.push(arguments[r]+"="+t[arguments[r]]);return i.length&&(o+="?"+i.join("&")),o}}}}),n.config(["$controllerProvider","$uibTooltipProvider","lsProvider",function(t,e,r){n.provider={controller:t.register},e.setTriggers({show:"hide"}),r.params(["site","app","rid","page","ek","preview","newRecord","ignoretime"])}]),n.controller("ctrlAppTip",["$scope","$interval",function(t,e){var r;t.autoCloseTime=6,t.domId="",t.closeTip=function(){var e=document.querySelector(t.domId),r=document.createEvent("HTMLEvents");r.initEvent("hide",!1,!1),e.dispatchEvent(r)},r=e(function(){0===--t.autoCloseTime&&(e.cancel(r),t.closeTip())},1e3)}]),n.controller("ctrlMain",["$scope","$q","$http","$timeout","srvUserTask","ls","tmsDynaPage","tmsSnsShare","tmsSiteUser","tmsFavor",function(t,e,r,o,i,a,s,c,u,l){function d(){var n,o;return o=e.defer(),n=a.j("actionRule","site","app"),r.get(n).success(function(e){t.params.actionRule=e.data,o.resolve(e.data)}),o.promise}function f(t,e){var r,n,o;r=document.body,n=document.createElement("div"),n.setAttribute("id","frmPlugin"),n.height=r.clientHeight,o=document.createElement("iframe"),n.appendChild(o),r.scrollTop=0,r.appendChild(n),window.onClosePlugin=function(){e?e().then(function(t){n.parentNode.removeChild(n)}):n.parentNode.removeChild(n)},n.onclick=function(){onClosePlugin()},t&&o.setAttribute("src",t),n.style.display="block"}function p(e){var r,n,o,i;i=!0,r=t,o=e.match(/\((.*?)\)/)[1].replace(/'|"/g,"").split(","),angular.forEach(e.replace(/\(.*?\)/,"").split("."),function(t){if(n&&(r=n),!r[t])return void(i=!1);n=r[t]}),i&&n.apply(r,o)}var h=[];t.notice={msg:"",set:function(t,e){this.msg=t,this.type=e||"error"}},t.back=function(){history.back()},t.historyLen=function(){return history.length},t.closeWindow=function(){/MicroMessenger/i.test(navigator.userAgent)?window.wx.closeWindow():/YiXin/i.test(navigator.userAgent)&&window.YixinJSBridge.call("closeWebView")},t.askFollowSns=function(){var e;t.app.entry_rule&&"sns"===t.app.entry_rule.scope&&(e=a.j("askFollow","site"),e+="&sns="+Object.keys(t.app.entry_rule.sns).join(","),f(e,d))},t.askBecomeMember=function(){var e,r;t.app.entry_rule&&"member"===t.app.entry_rule.scope&&(r=Object.keys(t.app.entry_rule.member),1===r.length?(e="/rest/site/fe/user/member?site="+t.app.siteid,e+="&schema="+r[0]):r.length>1&&(e="/rest/site/fe/user/memberschema?site="+t.app.siteid,e+="&schema="+r.join(",")),f(e,d))},t.addRecord=function(e,r){if(r)t.gotoPage(e,r,null,null,"Y");else for(var n in t.app.pages){var o=t.app.pages[n];if("I"===o.type){t.gotoPage(e,o.name,null,null,"Y");break}}},t.showUserTask=function(){i.open(t.app)},t.gotoPage=function(t,e,r,n,o){t&&(t.preventDefault(),t.stopPropagation());var i=a.j("","site","app");r&&(i+="&ek="+r),void 0!==n&&null!==n&&n.length&&(i+="&rid="+n),void 0!==e&&null!==e&&e.length&&(i+="&page="+e),void 0!==o&&"Y"===o&&(i+="&newRecord=Y"),/remark|repos/.test(e)?location=i:location.replace(i)},t.openMatter=function(t,e,r,n){var o="/rest/site/fe/matter?site="+a.p.site+"&id="+t+"&type="+e;r?location.replace(o):!1===n?location.href=o:window.open(o)},t.onReady=function(e){t.params?p(e):h.push(e)},t.save=function(){t.$broadcast("xxt.app.enroll.save")},r.get(a.j("get","site","app","rid","page","ek","newRecord")).success(function(e){if(0!==e.err_code)return void(t.errmsg=e.err_msg);var i,d,f,p=e.data,g=p.site,m=p.app,v=p.mission,y=p.page,b=p.user,w={},x={};if(m.dataSchemas.forEach(function(t){w[t.id]=t}),m._schemasById=w,m.dataTags.forEach(function(t){x[t.id]=t}),m._tagsById=x,t.params=p,t.site=g,t.mission=v,t.app=m,t.user=b,"Y"===m.multi_rounds&&(t.activeRound=p.activeRound),p.record&&p.record.data_tag)for(var k in p.record.data_tag){var _=p.record.data_tag[k],E=[];_.forEach(function(t){x[t]&&E.push(x[t])}),p.record.data_tag[k]=E}i=b.uid+"_"+1*new Date,d="http://"+location.host+a.j("","site","app","rid","newRecord"),d+="&shareby="+i,y&&y.share_page&&"Y"===y.share_page&&(d+="&page="+y.name,p.record&&p.record.enroll_key&&(d+="&ek="+p.record.enroll_key),/iphone|ipad/i.test(navigator.userAgent)||window.history&&window.history.replaceState&&window.history.replaceState({},m.title,d)),/MicroMessenger|Yixin/i.test(navigator.userAgent)&&(f=m.summary,y&&y.share_summary&&y.share_summary.length&&p.record&&(f=p.record.data[y.share_summary]),window.shareCounter=0,c.config({siteId:m.siteid,logger:function(t){var e;e="/rest/site/fe/matter/logShare",e+="?shareid="+i,e+="&site="+m.siteid,e+="&id="+m.id,e+="&type=enroll",e+="&title="+m.title,e+="&shareby="+i,e+="&shareto="+t,r.get(e),window.shareCounter++,"Y"===m.can_autoenroll&&"Y"===y.autoenroll_onshare&&r.get(a.j("emptyGet","site","app")+"&once=Y"),window.onshare&&window.onshare(window.shareCounter)},jsApiList:["hideOptionMenu","onMenuShareTimeline","onMenuShareAppMessage","chooseImage","uploadImage","getLocation"]}),c.set(m.title,d,f,m.pic)),"Y"===m.use_site_header&&g&&g.header_page&&s.loadCode(n,g.header_page),"Y"===m.use_mission_header&&v&&v.header_page&&s.loadCode(n,v.header_page),"Y"===m.use_mission_footer&&v&&v.footer_page&&s.loadCode(n,v.footer_page),"Y"===m.use_site_footer&&g&&g.footer_page&&s.loadCode(n,g.footer_page),p.page&&s.loadCode(n,p.page).then(function(){t.page=p.page}),h.length&&angular.forEach(h,PG.exec),document.querySelector(".tms-switch-favor")?t.favor=function(t,e){event.preventDefault(),event.stopPropagation(),t.loginExpire?l.open(e):s.openPlugin("http://"+location.host+"/rest/site/fe/user/login?site="+e.siteid).then(function(r){t.loginExpire=r.loginExpire,l.open(e)})}:l.showSwitch(t.user,m),"Y"===m.can_siteuser&&(document.querySelector(".tms-switch-siteuser")?t.siteUser=function(t){event.preventDefault(),event.stopPropagation();var e="http://"+location.host;e+="/rest/site/fe/user",e+="?site="+t,location.href=e}:u.showSwitch(m.siteid,!0)),t.isSmallLayout=!1,window.screen&&window.screen.width<992&&(t.isSmallLayout=!0),o(function(){t.$broadcast("xxt.app.enroll.ready",p)});var A;(A=document.querySelector(".loading"))&&A.parentNode.removeChild(A),r.post("/rest/site/fe/matter/logAccess?site="+m.siteid+"&id="+m.id+"&type=enroll&title="+m.title+"&shareby=",{search:location.search.replace("?",""),referer:document.referrer})}).error(function(e,r){if(401===r){var n=document.createElement("iframe");n.setAttribute("id","frmPopup"),n.onload=function(){this.height=document.querySelector("body").clientHeight},document.body.appendChild(n),0===e.indexOf("http")?(window.onAuthSuccess=function(){n.style.display="none"},n.setAttribute("src",e),n.style.display="block"):n.contentDocument&&n.contentDocument.body&&(n.contentDocument.body.innerHTML=e,n.style.display="block")}else t.errmsg=e})}]),t.exports=n},,,,,,,,,,,,,,,,,function(t,e,r){"use strict";r(65),r(22).controller("ctrlRemark",["$scope","$q","$timeout","http2","$sce","$uibModal",function(t,e,r,n,o,i){function a(){var r,o=e.defer();return r="/rest/site/fe/matter/enroll/remark/list?site="+c.siteid+"&ek="+d,r+="&schema="+t.filter.schema.id,n.get(r).then(function(t){var e;(e=t.data.data)&&"file"==l.schema.type&&(e.value=angular.fromJson(e.value)),o.resolve(t.data)}),o.promise}function s(e,r){var o;return o="/rest/site/fe/matter/enroll/remark/add?site="+c.siteid+"&ek="+d,o+="&schema="+t.filter.schema.id,r&&(o+="&remark="+r.id),n.post(o,{content:e})}var c,u,l,d,f;d=location.search.match(/[\?&]ek=([^&]*)/)[1],f=location.search.match(/[\?&]schema=[^&]*/)?location.search.match(/[\?&]schema=([^&]*)/)[1]:null,t.newRemark={},t.filter=l={},t.openOptions=function(){i.open({templateUrl:"options.html",controller:["$scope","$uibModalInstance",function(t,e){t.remarkableSchemas=u,t.data={},t.data.schema=l.schema,t.cancel=function(){e.dismiss()},t.ok=function(){e.close(t.data)}}],backdrop:"static"}).result.then(function(t){l.schema=t.schema})},t.recommend=function(e,r){var o;e.agreed!==r&&(o="/rest/site/fe/matter/enroll/record/recommend",o+="?site="+c.siteid,o+="&ek="+t.record.enroll_key,o+="&schema="+f,o+="&value="+r,n.get(o).then(function(t){e.agreed=r}))},t.likeRemark=function(t){var e;e="/rest/site/fe/matter/enroll/remark/like",e+="?site="+c.siteid,e+="&remark="+t.id,n.get(e).then(function(e){t.like_log=e.data.like_log,t.like_num=e.data.like_num})},t.writeRemark=function(e){i.open({templateUrl:"writeRemark.html",controller:["$scope","$uibModalInstance",function(t,e){t.data={},t.cancel=function(){e.dismiss()},t.ok=function(){e.close(t.data)}}],backdrop:"static"}).result.then(function(n){s(n.content,e).then(function(n){var o;o=n.data,o.content=o.content.replace(/\\n/g,"<br/>"),e&&(o.content='<a href="" ng-click="gotoUpper('+e.id+')">回复 '+e.nickname+" 的评论：</a><br/>"+o.content),t.remarks.splice(0,0,o),r(function(){var t,e,n;for(t=document.querySelector("#remark-"+o.id),e=t.parentNode;e&&"BODY"!==e.tagName;)n+=e.offsetTop,e=e.parentNode;document.body.scrollTop=n-40,t.classList.add("blink"),r(function(){t.classList.remove("blink")},1e3)})})})},t.likeRecordData=function(){var e;e="/rest/site/fe/matter/enroll/record/like",e+="?site="+c.siteid,e+="&ek="+t.record.enroll_key,e+="&schema="+t.filter.schema.id,n.get(e).then(function(e){t.data.like_log=e.data.like_log,t.data.like_num=e.data.like_num})},t.gotoUpper=function(t){var e,n,o;for(e=document.querySelector("#remark-"+t),n=e.offsetTop,o=e.parentNode;o&&"BODY"!==o.tagName;)n+=o.offsetTop,o=o.parentNode;document.body.scrollTop=n-40,e.classList.add("blink"),r(function(){e.classList.remove("blink")},1e3)},t.gotoRecord=function(){var e;if(t.record.userid===t.user.uid)for(var r in t.app.pages)if(e=t.app.pages[r],"V"===e.type){t.gotoPage(null,e.name,t.record.enroll_key);break}},t.value2Label=function(e){var r,n,i,a=[];return(n=t.app._schemasById[e])&&t.record.data&&((r=t.record.data[e])?n.ops&&n.ops.length&&(i=r.split(","),n.ops.forEach(function(t){-1!==i.indexOf(t.v)&&a.push(t.l)}),r=a.join(",")):r=""),o.trustAsHtml(r)},t.bRequireOption=!0,t.$on("xxt.app.enroll.ready",function(e,r){var n;c=r.app,u=[],t.record=r.record;for(var o=0,i=c.dataSchemas.length;o<i;o++)c.dataSchemas[o].remarkable&&"Y"===c.dataSchemas[o].remarkable&&u.push(c.dataSchemas[o]),f&&c.dataSchemas[o].id===f&&(n=c.dataSchemas[o]);n?l.schema=n:u.length&&(l.schema=u[0]),t.remarkableSchemas=u,u.length<=1&&t.record.userid!==t.user.uid&&(t.bRequireOption=!1);var a;r.groupOthers&&r.groupOthers.length&&(a={},r.groupOthers.forEach(function(t){a[t.userid]=t}),t.groupOthers=a)}),t.$watch("filter",function(e){e&&e.schema&&a().then(function(e){var r,n,o={};if(e.remarks&&e.remarks.length)for(var i=e.remarks.length-1;i>=0;i--)r=e.remarks[i],r.content&&(r.content=r.content.replace(/\n/g,"<br/>")),"0"!==r.remark_id&&(n=o[r.remark_id],r.content='<a href="" ng-click="gotoUpper('+r.remark_id+')">回复 '+n.nickname+" 的评论：</a><br/>"+r.content),o[r.id]=r;t.data&&t.data.tag&&t.data.tag.forEach(function(e,r){c._tagsById[e]&&(t.data.tag[r]=c._tagsById[e])}),t.data=e.data,t.remarks=e.remarks})},!0)}])},,,,,,,,,,,,,,function(t,e,r){e=t.exports=r(0)(void 0),e.push([t.i,'img{max-width:100%}blockquote{font-size:16px}blockquote p{line-height:1.5}button.option{padding:0}.dropdown-menu>li>a{padding-left:20px}.glyphicon-heart{color:red}.bottom-bar{display:flex}.bottom-bar .datetime{color:#777;flex:1;line-height:30px;font-size:.8em}p{word-break:break-all}#recordData{padding:0 1rem 1rem;background:#eee}#recordData .title{margin:0 -1rem .5rem;background:#ddd;padding:.5rem 1rem;border-bottom:3px ridge #ccc}#recordData blockquote{border-left:5px solid #999}#remarks{position:relative;margin-top:1rem}#remarks:before{content:"\\8BC4\\8BBA";position:absolute;left:50%;margin-left:-1em;top:-1em;font-size:.7em;color:#eee;padding:.2em 1em;background:#666;border-radius:1em}#remarks .remark{background:#fff;border-bottom:1px solid #ddd;transition:background 1s;padding:8px}#remarks .remark:last-child{border-bottom:0}#remarks .remark>*{margin:1em 0}#remarks .remark.blink{background:#d9edf7}#remarks .remarkList{margin-bottom:30px}.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff}',""])},,,,,,,,,,,,function(t,e,r){var n=r(53);"string"==typeof n&&(n=[[t.i,n,""]]);r(1)(n,{});n.locals&&(t.exports=n.locals)},,,,,,,,,,,,,,function(t,e,r){t.exports=r(39)}]);
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('modal.ui.xxt', []);
+ngMod.service('tmsModal', ['$rootScope', '$compile', '$q', '$controller', function($rootScope, $compile, $q, $controller) {
+    this.open = function(modalOptions) {
+        var modalResultDeferred = $q.defer(),
+            modalClosedDeferred = $q.defer();
+
+        var modalInstance = {
+            result: modalResultDeferred.promise,
+            closed: modalClosedDeferred.promise,
+            close: function(result) {
+                document.body.removeChild(modalDomEl[0]);
+                modalResultDeferred.resolve(result);
+            },
+            dismiss: function(reason) {
+                document.body.removeChild(modalDomEl[0]);
+                modalClosedDeferred.resolve(reason);
+            }
+        };
+
+        var modalScope;
+        modalScope = $rootScope.$new(true);
+        if (modalOptions.controller) {
+            $controller(modalOptions.controller, { $scope: modalScope, $tmsModalInstance: modalInstance });
+        }
+
+        var contentDomEl, dialogDomEl, backdropDomEl, modalDomEl;
+        /* content */
+        contentDomEl = angular.element('<div></div>');
+        contentDomEl.attr({
+            'class': 'modal-content',
+            'ng-style': '{\'z-index\':1060}'
+        }).append(modalOptions.template);
+
+        /* dialog */
+        dialogDomEl = angular.element('<div></div>');
+        dialogDomEl.attr({
+            'class': 'modal-dialog'
+        }).append(contentDomEl);
+
+        /* backdrop */
+        backdropDomEl = angular.element('<div></div>');
+        backdropDomEl.attr({
+            'class': 'modal-backdrop',
+            'ng-style': '{\'z-index\':1040}'
+        });
+
+        /* modal */
+        modalDomEl = angular.element('<div></div>');
+        modalDomEl.attr({
+            'class': 'modal',
+            'ng-style': '{\'z-index\':1050}',
+            'tabindex': -1
+        }).append(dialogDomEl).append(backdropDomEl);
+
+        $compile(modalDomEl)(modalScope);
+        document.body.appendChild(modalDomEl[0]);
+
+        return modalInstance;
+    };
+}]);
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(8);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../node_modules/css-loader/index.js!./xxt.ui.modal.css", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js!./xxt.ui.modal.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(5);
+
+__webpack_require__(2);
+__webpack_require__(4);
+
+var ngMod = angular.module('favor.ui.xxt', ['page.ui.xxt', 'modal.ui.xxt']);
+ngMod.service('tmsFavor', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsModal', function($rootScope, $http, $q, tmsDynaPage, tmsModal) {
+    function byPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/byUser';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function favorByPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/add';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function unfavorByPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/remove';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function bySite(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/sitesByUser?site=' + oMatter.siteid + '&id=' + oMatter.id + '&type=' + oMatter.type + '&_=' + (new Date() * 1);
+        $http.get(url).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                return;
+            }
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function favorBySite(oMatter, $aTargetSiteIds) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/add?id=' + oMatter.id + '&type=' + oMatter.type;
+        $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function unfavorBySite(oMatter, $aTargetSiteIds) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/remove?id=' + oMatter.id + '&type=' + oMatter.type;
+        $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    this.open = function(oMatter) {
+        var template;
+        template = '<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>';
+        template += '<div class="modal-body">';
+        template += '<div class="checkbox">';
+        template += '<label>';
+        template += '<input type=\'checkbox\' ng-true-value="\'Y\'" ng-false-value="\'N\'" ng-model=\'person._selected\'>';
+        template += '<span>个人账户</span>';
+        template += '<span ng-if="person._favored===\'Y\'">（已收藏）</span>';
+        template += '</label>';
+        template += '</div>';
+        template += '<div class="checkbox" ng-repeat="site in mySites">';
+        template += '<label>';
+        template += '<input type=\'checkbox\' ng-true-value="\'Y\'" ng-false-value="\'N\'" ng-model=\'site._selected\'>';
+        template += '<span>{{site.name}}</span>';
+        template += '<span ng-if="site._favored===\'Y\'">（已收藏）</span>';
+        template += '</label>';
+        template += '</div>'
+        template += '<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>';
+        template += '</div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>';
+        tmsModal.open({
+            template: template,
+            controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {
+                byPerson(oMatter).then(function(log) {
+                    $scope2.person = {
+                        _favored: log ? 'Y' : 'N'
+                    };
+                    $scope2.person._selected = $scope2.person._favored;
+                });
+                bySite(oMatter).then(function(sites) {
+                    var mySites = sites;
+                    mySites.forEach(function(site) {
+                        site._selected = site._favored;
+                    });
+                    $scope2.mySites = mySites;
+                });
+                $scope2.createSite = function() {
+                    $http.get('/rest/pl/fe/site/create').success(function(rsp) {
+                        var site = rsp.data;
+                        site._favored = site._selected = 'N';
+                        $scope2.mySites = [site];
+                    })
+                };
+                $scope2.ok = function() {
+                    var result;
+                    result = {
+                        person: $scope2.person,
+                        mySites: $scope2.mySites
+                    }
+                    $mi.close(result);
+                };
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+            }]
+        }).result.then(function(result) {
+            var url, oPerson, mySites;
+            oPerson = result.person;
+            if (oPerson && oPerson._selected !== oPerson._favored) {
+                if (oPerson._selected === 'Y') {
+                    favorByPerson(oMatter);
+                } else {
+                    unfavorByPerson(oMatter);
+                }
+            }
+            mySites = result.mySites;
+            if (mySites) {
+                var favored = [],
+                    unfavored = [];
+                mySites.forEach(function(site) {
+                    if (site._selected !== site._favored) {
+                        if (site._selected === 'Y') {
+                            favored.push(site.id);
+                        } else {
+                            unfavored.push(site.id);
+                        }
+                    }
+                });
+                if (favored.length) {
+                    favorBySite(oMatter, favored);
+                }
+                if (unfavored.length) {
+                    unfavorBySite(oMatter, unfavored);
+                }
+            }
+        });
+    };
+    this.showSwitch = function(oUser, oMatter) {
+        var _this = this,
+            eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-favor');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $rootScope.$apply(function() {
+                if (!oUser.loginExpire) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+                        oUser.loginExpire = data.loginExpire;
+                        _this.open(oMatter);
+                    });
+                } else {
+                    _this.open(oMatter);
+                }
+            })
+        }, true);
+        document.body.appendChild(eSwitch);
+    };
+}]);
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ 
+ var ngMod = angular.module('snsshare.ui.xxt', []);
+ ngMod.service('tmsSnsShare', ['$http', function($http) {
+     function setWxShare(title, link, desc, img, options) {
+         var _this = this;
+         window.wx.onMenuShareTimeline({
+             title: options.descAsTitle ? desc : title,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('T');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                alert('shareT: fail');
+             }
+         });
+         window.wx.onMenuShareAppMessage({
+             title: title,
+             desc: desc,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('F');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                alert('shareF: fail');
+             }
+         });
+     }
+
+     function setYxShare(title, link, desc, img, options) {
+         var _this = this,
+             shareData = {
+                 'img_url': img,
+                 'link': link,
+                 'title': title,
+                 'desc': desc
+             };
+
+         window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
+             try {
+                 options.logger && options.logger('F');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
+         });
+         window.YixinJSBridge.on('menu:share:timeline', function(argv) {
+             try {
+                 options.logger && options.logger('T');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
+         });
+     }
+
+     this.config = function(options) {
+         this.options = options;
+     };
+     this.set = function(title, link, desc, img, fnOther) {
+         var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf('http') === -1 && (img = 'http://' + location.host + img);
+         if (/MicroMessenger/i.test(navigator.userAgent)) {
+             var script;
+             script = document.createElement('script');
+             script.src = 'http://res.wx.qq.com/open/js/jweixin-1.0.0.js';
+             script.onload = function() {
+                 var xhr, url;
+                 xhr = new XMLHttpRequest();
+                 url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                 xhr.open('GET', url, true);
+                 xhr.onreadystatechange = function() {
+                     if (xhr.readyState == 4) {
+                         if (xhr.status >= 200 && xhr.status < 400) {
+                             var signPackage;
+                             try {
+                                 eval("(" + xhr.responseText + ')');
+                                 if (signPackage) {
+                                     signPackage.debug = false;
+                                     signPackage.jsApiList = _this.options.jsApiList;
+                                     wx.config(signPackage);
+                                     wx.ready(function() {
+                                        setWxShare(title, link, desc, img, _this.options);
+                                     });
+                                     wx.error(function(res){
+                                        alert(res);
+                                     });
+                                 }
+                             } catch (e) {
+                                 alert('local error:' + e.toString());
+                             }
+                         } else {
+                             alert('http error:' + xhr.statusText);
+                         }
+                     };
+                 }
+                 xhr.send();
+             };
+             document.body.appendChild(script);
+         } else if (/Yixin/i.test(navigator.userAgent)) {
+             if (window.YixinJSBridge === undefined) {
+                 document.addEventListener('YixinJSBridgeReady', function() {
+                     setYxShare(title, link, desc, img, _this.options);
+                 }, false);
+             } else {
+                 setYxShare(title, link, desc, img, _this.options);
+             }
+         } else if (fnOther && typeof fnOther === 'function') {
+             fnOther(title, link, desc, img);
+         }
+     };
+ }]);
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".modal {\r\n    display: block;\r\n    overflow: hidden;\r\n    position: fixed;\r\n    top: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    left: 0;\r\n    outline: 0;\r\n    opacity: 1;\r\n    overflow-x: hidden;\r\n    overflow-y: auto;\r\n    opacity: 1;\r\n}\r\n\r\n.modal-backdrop {\r\n    position: fixed;\r\n    top: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    left: 0;\r\n    background-color: #000;\r\n    opacity: .5;\r\n}\r\n\r\n.modal-dialog {\r\n    position: relative;\r\n    z-index: 1055;\r\n    margin: 0;\r\n    position: relative;\r\n    width: auto;\r\n    margin: 10px;\r\n}\r\n\r\n.modal-content {\r\n    position: relative;\r\n    background-color: #fff;\r\n    -webkit-background-clip: padding-box;\r\n    background-clip: padding-box;\r\n    border: 1px solid #999;\r\n    border: 1px solid rgba(0, 0, 0, .2);\r\n    border-radius: 6px;\r\n    outline: 0;\r\n    -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);\r\n    box-shadow: 0 3px 9px rgba(0, 0, 0, .5);\r\n}\r\n\r\n.modal-header {\r\n    padding: 15px;\r\n    border-bottom: 1px solid #e5e5e5;\r\n}\r\n\r\n.modal-header .close {\r\n    margin-top: -2px;\r\n}\r\n\r\n.modal-title {\r\n    margin: 0;\r\n    line-height: 1.42857143;\r\n}\r\n\r\n.modal-body {\r\n    position: relative;\r\n    padding: 15px;\r\n}\r\n\r\n.modal-footer {\r\n    padding: 15px;\r\n    text-align: right;\r\n    border-top: 1px solid #e5e5e5;\r\n}\r\n\r\nbutton.close {\r\n    -webkit-appearance: none;\r\n    padding: 0;\r\n    cursor: pointer;\r\n    background: 0 0;\r\n    border: 0;\r\n}\r\n\r\n.close {\r\n    float: right;\r\n    font-size: 21px;\r\n    font-weight: 700;\r\n    line-height: 1;\r\n    color: #000;\r\n    text-shadow: 0 1px 0 #fff;\r\n    filter: alpha(opacity=20);\r\n    opacity: .2;\r\n}\r\n\r\n@media (min-width:768px) {\r\n    .modal-dialog {\r\n        width: 600px;\r\n        margin: 30px auto;\r\n    }\r\n    .modal-content {\r\n        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);\r\n        box-shadow: 0 5px 15px rgba(0, 0, 0, .5);\r\n    }\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('coinpay.ui.xxt', []);
+ngMod.service('tmsCoinPay', function() {
+    this.showSwitch = function(siteId, matter) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-coinpay');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = 'http://' + location.host;
+            url += '/rest/site/fe/coin/pay';
+            url += "?site=" + siteId;
+            url += "&matter=" + matter;
+            openPlugin(url);
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('siteuser.ui.xxt', []);
+ngMod.service('tmsSiteUser', function() {
+    this.showSwitch = function(siteId, redirect) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-siteuser');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = 'http://' + location.host;
+            url += '/rest/site/fe/user';
+            url += "?site=" + siteId;
+            if (redirect) {
+                location.href = url;
+            } else {
+                openPlugin(url);
+            }
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "/*dialog*/\r\n.dialog.mask{position:fixed;background:rgba(0,0,0,0.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}\r\n.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}\r\n.dialog .dlg-header{padding:15px 15px 0 15px}\r\n.dialog .dlg-body{padding:15px 15px 0 15px}\r\n.dialog .dlg-footer{text-align:right;padding:15px}\r\n.dialog .dlg-footer button{border-radius:0}\r\n\r\n/*filter*/\r\ndiv[wrap=filter] .detail{background:#ccc}\r\ndiv[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}\r\ndiv[wrap=filter] .detail .actions .btn{border-radius:0}\r\n\r\n/*switch*/\r\n.tms-switch{position:fixed;right:15px;width:70px;box-shadow:0px 2px 6px rgba(18,27,32,0.425);height:35px;color:#2994d0;background:#f8fcfe;border-radius:21px;font-size:24px;line-height:27px;text-align:center;cursor:pointer;z-index:1050;}\r\n.tms-switch:before{font-size:0.7em;}\r\n.tms-switch:nth-last-of-type(1){bottom:8px;}\r\n.tms-switch:nth-last-of-type(2){bottom:64px;}\r\n.tms-switch:nth-last-of-type(3){bottom:120px;}\r\n.tms-switch:nth-last-of-type(4){bottom:176px;}\r\n.tms-switch:nth-last-of-type(5){bottom:232px;}\r\n.tms-switch:nth-last-of-type(6){bottom:288px;}\r\n.tms-switch-back:before{content:'\\8FD4\\56DE';}\r\n.tms-switch-task:before{content:'\\4EFB\\52A1';}\r\n.tms-switch-save:before{content:'\\4FDD\\5B58';}\r\n.tms-switch-rank:before{content:'\\6392\\884C';}\r\n.tms-switch-repos:before{content:'\\5171\\4EAB';}\r\n.tms-switch-coinpay:before{content:'\\6253\\8D4F';}\r\n@media screen and (max-width:768px){\r\n\tbody{margin-bottom:60px;}\r\n\t.tms-switch:nth-last-of-type(1){right:8px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(2){right:85px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(3){right:165px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(4){right:176px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(5){right:232px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(6){right:288px;bottom:10px;}\r\n}\r\n#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff;}\r\n#frmPlugin iframe{width:100%;height:100%;border:0;}\r\n#frmPlugin:after{content:'\\5173\\95ED';position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px;}\r\n\r\n/*input list view*/\r\ndiv[wrap]>.description{word-wrap:break-word;}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(11);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./directive.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./directive.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+window.__util = {};
+window.__util.makeDialog = function(id, html) {
+    var dlg, mask;
+
+    mask = document.createElement('div');
+    mask.setAttribute('id', id);
+    mask.classList.add('dialog', 'mask');
+
+    dlg = "<div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div>";
+
+    mask.innerHTML = dlg;
+
+    document.body.appendChild(mask);
+
+    return mask.children;
+};
+
+var ngMod = angular.module('directive.enroll', []);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsDateValue'
+        },
+        controller: ['$scope', function($scope) {
+            $scope.close = function() {
+                var mask;
+                mask = document.querySelector('#' + $scope.dialogID);
+                document.body.removeChild(mask);
+                $scope.opened = false;
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = parseInt(dtObject.getTime() / 1000);
+                $scope.close();
+            };
+        }],
+        link: function(scope, elem, attrs) {
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
+            dtObject = new Date();
+            dtObject.setTime(scope.value * 1000);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date() * 1);
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
+        }
+    }
+}]);
+ngMod.directive('tmsCheckboxGroup', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var groupName, model, options, upper;
+            if (attrs.tmsCheckboxGroup && attrs.tmsCheckboxGroup.length) {
+                groupName = attrs.tmsCheckboxGroup;
+                if (attrs.tmsCheckboxGroupModel && attrs.tmsCheckboxGroupModel.length) {
+                    model = attrs.tmsCheckboxGroupModel;
+                    if (attrs.tmsCheckboxGroupUpper && attrs.tmsCheckboxGroupUpper.length) {
+                        upper = attrs.tmsCheckboxGroupUpper;
+                        options = document.querySelectorAll('[name=' + groupName + ']');
+                        scope.$watch(model + '.' + groupName, function(data) {
+                            var cnt;
+                            cnt = 0;
+                            angular.forEach(data, function(v, p) {
+                                v && cnt++;
+                            });
+                            if (cnt >= upper) {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        !el.classList.contains('checked') && el.setAttribute('disabled', true);
+                                    } else {
+                                        !el.checked && (el.disabled = true);
+                                    }
+                                });
+                            } else {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        el.removeAttribute('disabled');
+                                    } else {
+                                        el.disabled = false;
+                                    }
+                                });
+                            }
+                        }, true);
+                    }
+                }
+            }
+        }
+    };
+});
+ngMod.directive('flexImg', function() {
+    return {
+        restrict: 'A',
+        replace: true,
+        template: "<img ng-src='{{img.imgSrc}}'>",
+        link: function(scope, elem, attrs) {
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
+                    sw, sh;
+                if (w > h) {
+                    sw = w / h * 80;
+                    angular.element(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
+                } else {
+                    sh = h / w * 80;
+                    angular.element(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
+                }
+            })
+        }
+    }
+});
+ngMod.service('srvUserTask', ['$http', 'tmsModal', function($http, tmsModal) {
+    this.open = function(oApp) {
+        var oUserTask, template;
+        template = '<div class="modal-body">';
+        if (oApp.summary) {
+            template += '<div class="form-group">活动说明：' + oApp.summary + '</div>';
+        }
+        oUserTask = oApp.userTask;
+        template += '<table class="table table-bordered">';
+        template += '<thead><tr><th>任务</th><th>要求</th><th>完成</th></tr></thead>';
+        template += '<tbody>';
+        if (oUserTask.minEnrollNum && parseInt(oUserTask.minEnrollNum) > 0) {
+            template += '<tr>';
+            template += '<td>至少填写记录条数</td>';
+            template += '<td>' + oUserTask.minEnrollNum + '</td>';
+            template += '<td>{{enrollee.enroll_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.minRemarkNum && parseInt(oUserTask.minRemarkNum) > 0) {
+            template += '<tr>';
+            template += '<td>至少发表评论条数</td>';
+            template += '<td>' + oUserTask.minRemarkNum + '</td>';
+            template += '<td>{{enrollee.remark_other_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.minLikeNum && parseInt(oUserTask.minLikeNum) > 0) {
+            template += '<tr>';
+            template += '<td>对记录至少发表赞同的条数</td>';
+            template += '<td>' + oUserTask.minLikeNum + '</td>';
+            template += '<td>{{enrollee.like_other_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.maxLikeNum && parseInt(oUserTask.maxLikeNum) > 0) {
+            template += '<tr>';
+            template += '<td>对记录最多发表赞同的条数</td>';
+            template += '<td>' + oUserTask.maxLikeNum + '</td>';
+            template += '<td>{{enrollee.like_other_num}}</td>';
+            template += '</tr>';
+        }
+        template += '</tbody></table>';
+        template += '</div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭任务说明</button></div>';
+        tmsModal.open({
+            template: template,
+            controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {
+                $http.get('/rest/site/fe/matter/enroll/user/task?site=' + oApp.siteid + '&app=' + oApp.id).success(function(rsp) {
+                    $scope2.enrollee = rsp.data;
+                });
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+            }]
+        });
+    };
+}]);
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "html,body{font-family:Microsoft Yahei,Arial;width:100%;height:auto;}\r\nbody{position:relative;font-size:16px;padding:0;}\r\n.ng-cloak{display:none;}\r\n.container{position:relative;}\r\n.navbar-default .navbar-nav > li > a,.navbar-default .navbar-brand{color:#fff;}\r\n.navbar-brand{height:55px;padding:17.5px 15px;}\r\n.main-navbar .navbar-brand:hover{color:#fff;}\r\n@media screen and (min-width:768px){\r\n\t.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1;}\r\n}\r\n@media screen and (max-width:768px){\r\n\t.navbar-brand{width:100%;text-align:center;}\r\n\t.navbar-brand > .icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}\r\n\t.navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}\r\n\t.nav > li > a{padding:10px 10px;}\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(14);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./main.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./main.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('http.ui.xxt', []);
+ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
+    function createAlert(msg, type, keep) {
+        var alertDomEl;
+        /* backdrop */
+        alertDomEl = angular.element('<div></div>');
+        alertDomEl.attr({
+            'class': 'tms-notice alert alert-' + (type ? type : 'info'),
+            'ng-style': '{\'z-index\':1040}'
+        }).html($sce.trustAsHtml(msg));
+        if (!keep) {
+            alertDomEl[0].addEventListener('click', function() {
+                document.body.removeChild(alertDomEl[0]);
+            }, true);
+        }
+        $compile(alertDomEl)($rootScope);
+        document.body.appendChild(alertDomEl[0]);
+
+        return alertDomEl[0];
+    }
+
+    function removeAlert(alertDomEl) {
+        if (alertDomEl) {
+            document.body.removeChild(alertDomEl);
+        }
+    }
+
+    this.get = function(url, options) {
+        var _alert, _timer, _defer = $q.defer();
+        options = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(options.showProgressText, 'info');
+            }, options.showProgressDelay);
+        }
+        $http.get(url, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (angular.isString(rsp)) {
+                if (options.autoNotice) {
+                    createAlert(rsp, 'warning');
+                }
+                return;
+            }
+            if (rsp.err_code != 0) {
+                if (options.autoNotice) {
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else if (angular.isArray(rsp.err_msg)) {
+                        errmsg = rsp.err_msg.join('<br>');
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
+                }
+                if (options.autoBreak) return;
+            }
+            _defer.resolve(rsp);
+        }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+        return _defer.promise;
+    };
+    this.post = function(url, posted, options) {
+        var _alert, _timer, _defer = $q.defer();
+        options = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(options.showProgressText, 'info');
+            }, options.showProgressDelay);
+        }
+        $http.post(url, posted, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (angular.isString(rsp)) {
+                if (options.autoNotice) {
+                    createAlert(rsp, 'warning');
+                    _alert = null;
+                }
+                return;
+            }
+            if (rsp.err_code != 0) {
+                if (options.autoNotice) {
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else if (angular.isArray(rsp.err_msg)) {
+                        errmsg = rsp.err_msg.join('<br>');
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
+                }
+                if (options.autoBreak) return;
+            }
+            _defer.resolve(rsp);
+        }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+        return _defer.promise;
+    };
+}]);
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(7);
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
+    window.wx.ready(function() {
+        window.wx.showOptionMenu();
+    });
+} else if (/YiXin/i.test(navigator.userAgent)) {
+    document.addEventListener('YixinJSBridgeReady', function() {
+        YixinJSBridge.call('showOptionMenu');
+    }, false);
+}
+
+__webpack_require__(12);
+__webpack_require__(15);
+
+__webpack_require__(16);
+__webpack_require__(2);
+__webpack_require__(10);
+__webpack_require__(6);
+__webpack_require__(9);
+
+__webpack_require__(13);
+
+var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt']);
+ngApp.provider('ls', function() {
+    var _baseUrl = '/rest/site/fe/matter/enroll',
+        _params = {};
+
+    this.params = function(params) {
+        var ls;
+        ls = location.search;
+        angular.forEach(params, function(q) {
+            var match, pattern;
+            pattern = new RegExp(q + '=([^&]*)');
+            match = ls.match(pattern);
+            _params[q] = match ? match[1] : '';
+        });
+        return _params;
+    };
+
+    this.$get = function() {
+        return {
+            p: _params,
+            j: function(method) {
+                var i = 1,
+                    l = arguments.length,
+                    url = _baseUrl,
+                    _this = this,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (; i < l; i++) {
+                    search.push(arguments[i] + '=' + _params[arguments[i]]);
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            }
+        };
+    };
+});
+ngApp.config(['$controllerProvider', '$uibTooltipProvider', 'lsProvider', function($cp, $uibTooltipProvider, lsProvider) {
+    ngApp.provider = {
+        controller: $cp.register
+    };
+    $uibTooltipProvider.setTriggers({ 'show': 'hide' });
+    lsProvider.params(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
+}]);
+ngApp.controller('ctrlAppTip', ['$scope', '$interval', function($scope, $interval) {
+    var timer;
+    $scope.autoCloseTime = 6;
+    $scope.domId = '';
+    $scope.closeTip = function() {
+        var domTip = document.querySelector($scope.domId);
+        var evt = document.createEvent("HTMLEvents");
+        evt.initEvent("hide", false, false);
+        domTip.dispatchEvent(evt);
+    };
+    timer = $interval(function() {
+        $scope.autoCloseTime--;
+        if ($scope.autoCloseTime === 0) {
+            $interval.cancel(timer);
+            $scope.closeTip();
+        }
+    }, 1000);
+}]);
+ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, $http, $timeout, srvUserTask, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
+    function refreshActionRule() {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('actionRule', 'site', 'app');
+        $http.get(url).success(function(rsp) {
+            $scope.params.actionRule = rsp.data;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function openPlugin(url, fnCallback) {
+        var body, elWrap, elIframe;
+        body = document.body;
+        elWrap = document.createElement('div');
+        elWrap.setAttribute('id', 'frmPlugin');
+        elWrap.height = body.clientHeight;
+        elIframe = document.createElement('iframe');
+        elWrap.appendChild(elIframe);
+        body.scrollTop = 0;
+        body.appendChild(elWrap);
+        window.onClosePlugin = function() {
+            if (fnCallback) {
+                fnCallback().then(function(data) {
+                    elWrap.parentNode.removeChild(elWrap);
+                });
+            } else {
+                elWrap.parentNode.removeChild(elWrap);
+            }
+        };
+        elWrap.onclick = function() {
+            onClosePlugin();
+        };
+        if (url) {
+            elIframe.setAttribute('src', url);
+        }
+        elWrap.style.display = 'block';
+    }
+
+    function execTask(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    }
+    var tasksOfOnReady = [];
+    // 消息提醒
+    $scope.notice = {
+        msg: '',
+        set: function(msg, type) {
+            this.msg = msg;
+            this.type = type || 'error'
+        }
+    };
+    $scope.back = function() {
+        history.back();
+    };
+    $scope.historyLen = function() {
+        return history.length;
+    };
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            window.YixinJSBridge.call('closeWebView');
+        }
+    };
+    $scope.askFollowSns = function() {
+        var url;
+        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'sns') {
+            url = LS.j('askFollow', 'site');
+            url += '&sns=' + Object.keys($scope.app.entry_rule.sns).join(',');
+            openPlugin(url, refreshActionRule);
+        }
+    };
+    $scope.askBecomeMember = function() {
+        var url, mschemaIds;
+        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'member') {
+            mschemaIds = Object.keys($scope.app.entry_rule.member);
+            if (mschemaIds.length === 1) {
+                url = '/rest/site/fe/user/member?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds[0];
+            } else if (mschemaIds.length > 1) {
+                url = '/rest/site/fe/user/memberschema?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds.join(',');
+            }
+            openPlugin(url, refreshActionRule);
+        }
+    };
+    $scope.addRecord = function(event, page) {
+        if (page) {
+            $scope.gotoPage(event, page, null, null, 'Y');
+        } else {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    $scope.gotoPage(event, oPage.name, null, null, 'Y');
+                    break;
+                }
+            }
+        }
+    };
+    $scope.showUserTask = function() {
+        srvUserTask.open($scope.app);
+    };
+    $scope.gotoPage = function(event, page, ek, rid, newRecord) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        var url = LS.j('', 'site', 'app');
+        if (ek) {
+            url += '&ek=' + ek;
+        }
+        rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
+        page !== undefined && page !== null && page.length && (url += '&page=' + page);
+        newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
+        if (/remark|repos/.test(page)) {
+            location = url;
+        } else {
+            location.replace(url);
+        }
+    };
+    $scope.openMatter = function(id, type, replace, newWindow) {
+        var url = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + id + '&type=' + type;
+        if (replace) {
+            location.replace(url);
+        } else {
+            if (newWindow === false) {
+                location.href = url;
+            } else {
+                window.open(url);
+            }
+        }
+    };
+    $scope.onReady = function(task) {
+        if ($scope.params) {
+            execTask(task);
+        } else {
+            tasksOfOnReady.push(task);
+        }
+    };
+    $scope.save = function() {
+        $scope.$broadcast('xxt.app.enroll.save');
+    };
+    $http.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
+        if (rsp.err_code !== 0) {
+            $scope.errmsg = rsp.err_msg;
+            return;
+        }
+        var params = rsp.data,
+            oSite = params.site,
+            oApp = params.app,
+            oMission = params.mission,
+            oPage = params.page,
+            oUser = params.user,
+            schemasById = {},
+            tagsById = {},
+            shareid, sharelink, shareby, summary;
+
+        oApp.dataSchemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        oApp._schemasById = schemasById;
+        oApp.dataTags.forEach(function(oTag) {
+            tagsById[oTag.id] = oTag;
+        });
+        oApp._tagsById = tagsById;
+        $scope.params = params;
+        $scope.site = oSite;
+        $scope.mission = oMission;
+        $scope.app = oApp;
+        $scope.user = oUser;
+        if (oApp.multi_rounds === 'Y') {
+            $scope.activeRound = params.activeRound;
+        }
+        if (params.record) {
+            if (params.record.data_tag) {
+                for (var schemaId in params.record.data_tag) {
+                    var dataTags = params.record.data_tag[schemaId],
+                        converted = [];
+                    dataTags.forEach(function(tagId) {
+                        tagsById[tagId] && converted.push(tagsById[tagId]);
+                    });
+                    params.record.data_tag[schemaId] = converted;
+                }
+            }
+        }
+
+        /* 设置活动的当前链接 */
+        shareid = oUser.uid + '_' + (new Date() * 1);
+        sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid', 'newRecord');
+        sharelink += "&shareby=" + shareid;
+        if (oPage && oPage.share_page && oPage.share_page === 'Y') {
+            sharelink += '&page=' + oPage.name;
+            params.record && params.record.enroll_key && (sharelink += '&ek=' + params.record.enroll_key);
+            if (!(/iphone|ipad/i.test(navigator.userAgent))) {
+                /*ios下操作无效，且导致微信jssdk失败*/
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState({}, oApp.title, sharelink);
+                }
+            }
+        }
+        /* 设置分享 */
+        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+            summary = oApp.summary;
+            if (oPage && oPage.share_summary && oPage.share_summary.length && params.record) {
+                summary = params.record.data[oPage.share_summary];
+            }
+            /* 分享次数计数器 */
+            window.shareCounter = 0;
+            tmsSnsShare.config({
+                siteId: oApp.siteid,
+                logger: function(shareto) {
+                    var url;
+                    url = "/rest/site/fe/matter/logShare";
+                    url += "?shareid=" + shareid;
+                    url += "&site=" + oApp.siteid;
+                    url += "&id=" + oApp.id;
+                    url += "&type=enroll";
+                    url += "&title=" + oApp.title;
+                    url += "&shareby=" + shareid;
+                    url += "&shareto=" + shareto;
+                    $http.get(url);
+                    window.shareCounter++;
+                    if (oApp.can_autoenroll === 'Y' && oPage.autoenroll_onshare === 'Y') {
+                        $http.get(LS.j('emptyGet', 'site', 'app') + '&once=Y');
+                    }
+                    window.onshare && window.onshare(window.shareCounter);
+                },
+                jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']
+            });
+            tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
+        }
+
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
+        }
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, PG.exec);
+        }
+        if (!document.querySelector('.tms-switch-favor')) {
+            tmsFavor.showSwitch($scope.user, oApp);
+        } else {
+            $scope.favor = function(user, article) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!user.loginExpire) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+                        user.loginExpire = data.loginExpire;
+                        tmsFavor.open(article);
+                    });
+                } else {
+                    tmsFavor.open(article);
+                }
+            }
+        }
+        if (oApp.can_siteuser === 'Y') {
+            if (!document.querySelector('.tms-switch-siteuser')) {
+                tmsSiteUser.showSwitch(oApp.siteid, true);
+            } else {
+                $scope.siteUser = function(id) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    var url = 'http://' + location.host;
+                    url += '/rest/site/fe/user';
+                    url += "?site=" + id;
+                    location.href = url;
+                }
+            }
+        }
+        $scope.isSmallLayout = false;
+        if (window.screen && window.screen.width < 992) {
+            $scope.isSmallLayout = true;
+        }
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.enroll.ready', params);
+        });
+        //
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
+        //
+        $http.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid + '&id=' + oApp.id + '&type=enroll&title=' + oApp.title + '&shareby=', {
+            search: location.search.replace('?', ''),
+            referer: document.referrer
+        });
+    }).error(function(content, httpCode) {
+        if (httpCode === 401) {
+            var el = document.createElement('iframe');
+            el.setAttribute('id', 'frmPopup');
+            el.onload = function() {
+                this.height = document.querySelector('body').clientHeight;
+            };
+            document.body.appendChild(el);
+            if (content.indexOf('http') === 0) {
+                window.onAuthSuccess = function() {
+                    el.style.display = 'none';
+                };
+                el.setAttribute('src', content);
+                el.style.display = 'block';
+            } else {
+                if (el.contentDocument && el.contentDocument.body) {
+                    el.contentDocument.body.innerHTML = content;
+                    el.style.display = 'block';
+                }
+            }
+        } else {
+            $scope.errmsg = content;
+        }
+    });
+}]);
+module.exports = ngApp;
+
+/***/ }),
+/* 18 */,
+/* 19 */,
+/* 20 */,
+/* 21 */,
+/* 22 */,
+/* 23 */,
+/* 24 */,
+/* 25 */,
+/* 26 */,
+/* 27 */,
+/* 28 */,
+/* 29 */,
+/* 30 */,
+/* 31 */,
+/* 32 */,
+/* 33 */,
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(60);
+
+var ngApp = __webpack_require__(17);
+ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$uibModal', function($scope, $q, $timeout, http2, $sce, $uibModal) {
+    function listRemarks() {
+        var url, defer = $q.defer();
+        url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
+        url += '&schema=' + $scope.filter.schema.id;
+        http2.get(url).then(function(rsp) {
+            var oRecordData;
+            if (oRecordData = rsp.data.data) {
+                if (oFilter.schema.type == 'file') {
+                    oRecordData.value = angular.fromJson(oRecordData.value);
+                }
+            }
+            defer.resolve(rsp.data)
+        });
+        return defer.promise;
+    }
+
+    function summary() {
+        var url, defer = $q.defer();
+        url = '/rest/site/fe/matter/enroll/remark/summary?site=' + oApp.siteid + '&ek=' + ek;
+        http2.get(url).then(function(rsp) {
+            defer.resolve(rsp.data)
+        });
+        return defer.promise;
+    }
+
+    function addRemark(content, oRemark) {
+        var url;
+        url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
+        url += '&schema=' + $scope.filter.schema.id;
+        if (oRemark) {
+            url += '&remark=' + oRemark.id;
+        }
+        return http2.post(url, { content: content });
+    }
+
+    var oApp, aRemarkable, oFilter, ek, schemaId;
+    ek = location.search.match(/[\?&]ek=([^&]*)/)[1];
+    if (location.search.match(/[\?&]schema=[^&]*/)) {
+        schemaId = location.search.match(/[\?&]schema=([^&]*)/)[1];
+    } else {
+        schemaId = null;
+    }
+    $scope.newRemark = {};
+    $scope.filter = oFilter = {};
+    $scope.openOptions = function() {
+        $uibModal.open({
+            templateUrl: 'options.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.remarkableSchemas = aRemarkable;
+                $scope2.data = {};
+                $scope2.data.schema = oFilter.schema;
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+            }],
+            backdrop: 'static',
+        }).result.then(function(data) {
+            oFilter.schema = data.schema;
+        });
+    };
+    $scope.recommend = function(oRecData, value) {
+        var url;
+        if (oRecData.agreed !== value) {
+            url = '/rest/site/fe/matter/enroll/record/recommend';
+            url += '?site=' + oApp.siteid;
+            url += '&ek=' + $scope.record.enroll_key;
+            url += '&schema=' + schemaId;
+            url += '&value=' + value;
+            http2.get(url).then(function(rsp) {
+                oRecData.agreed = value;
+            });
+        }
+    };
+    $scope.likeRemark = function(oRemark) {
+        var url;
+        url = '/rest/site/fe/matter/enroll/remark/like';
+        url += '?site=' + oApp.siteid;
+        url += '&remark=' + oRemark.id;
+        http2.get(url).then(function(rsp) {
+            oRemark.like_log = rsp.data.like_log;
+            oRemark.like_num = rsp.data.like_num;
+        });
+    };
+    $scope.writeRemark = function(oUpperRemark) {
+        $uibModal.open({
+            templateUrl: 'writeRemark.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {};
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+            }],
+            backdrop: 'static',
+        }).result.then(function(data) {
+            addRemark(data.content, oUpperRemark).then(function(rsp) {
+                var oNewRemark;
+                oNewRemark = rsp.data;
+                oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
+                if (oUpperRemark) {
+                    oNewRemark.content = '<a href="" ng-click="gotoUpper(' + oUpperRemark.id + ')">回复 ' + oUpperRemark.nickname + ' 的评论：</a><br/>' + oNewRemark.content;
+                }
+                $scope.remarks.splice(0, 0, oNewRemark);
+                $timeout(function() {
+                    var elRemark, parentNode, offsetTop;
+                    elRemark = document.querySelector('#remark-' + oNewRemark.id);
+                    parentNode = elRemark.parentNode;
+                    while (parentNode && parentNode.tagName !== 'BODY') {
+                        offsetTop += parentNode.offsetTop;
+                        parentNode = parentNode.parentNode;
+                    }
+                    document.body.scrollTop = offsetTop - 40;
+                    elRemark.classList.add('blink');
+                    $timeout(function() {
+                        elRemark.classList.remove('blink');
+                    }, 1000);
+                });
+            });
+        });
+    };
+    $scope.likeRecordData = function() {
+        var url;
+        url = '/rest/site/fe/matter/enroll/record/like';
+        url += '?site=' + oApp.siteid;
+        url += '&ek=' + $scope.record.enroll_key;
+        url += '&schema=' + $scope.filter.schema.id;
+        http2.get(url).then(function(rsp) {
+            $scope.data.like_log = rsp.data.like_log;
+            $scope.data.like_num = rsp.data.like_num;
+        });
+    };
+    $scope.gotoUpper = function(upperId) {
+        var elRemark, offsetTop, parentNode;
+        elRemark = document.querySelector('#remark-' + upperId);
+        offsetTop = elRemark.offsetTop;
+        parentNode = elRemark.parentNode;
+        while (parentNode && parentNode.tagName !== 'BODY') {
+            offsetTop += parentNode.offsetTop;
+            parentNode = parentNode.parentNode;
+        }
+        document.body.scrollTop = offsetTop - 40;
+        elRemark.classList.add('blink');
+        $timeout(function() {
+            elRemark.classList.remove('blink');
+        }, 1000);
+    };
+    $scope.gotoRecord = function() {
+        var oPage;
+        if ($scope.record.userid === $scope.user.uid) {
+            for (var i in $scope.app.pages) {
+                oPage = $scope.app.pages[i];
+                if (oPage.type === 'V') {
+                    $scope.gotoPage(null, oPage.name, $scope.record.enroll_key);
+                    break;
+                }
+            }
+        }
+    };
+    $scope.value2Label = function(schemaId) {
+        var val, schema, aVal, aLab = [];
+
+        if ((schema = $scope.app._schemasById[schemaId]) && $scope.record.data) {
+            if (val = $scope.record.data[schemaId]) {
+                if (schema.ops && schema.ops.length) {
+                    aVal = val.split(',');
+                    schema.ops.forEach(function(op) {
+                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                    });
+                    val = aLab.join(',');
+                }
+            } else {
+                val = '';
+            }
+        }
+        return $sce.trustAsHtml(val);
+    };
+    $scope.bRequireOption = true;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var oSchema;
+        oApp = params.app;
+        aRemarkable = [];
+        $scope.record = params.record;
+        for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
+            if (oApp.dataSchemas[i].remarkable && oApp.dataSchemas[i].remarkable === 'Y') {
+                aRemarkable.push(oApp.dataSchemas[i]);
+            }
+            if (schemaId && oApp.dataSchemas[i].id === schemaId) {
+                oSchema = oApp.dataSchemas[i];
+            }
+        }
+        if (oSchema) {
+            oFilter.schema = oSchema;
+        } else if (aRemarkable.length) {
+            oFilter.schema = aRemarkable[0];
+        }
+        $scope.remarkableSchemas = aRemarkable;
+        if (aRemarkable.length <= 1 && $scope.record.userid !== $scope.user.uid) {
+            $scope.bRequireOption = false;
+        }
+        var groupOthersById;
+        if (params.groupOthers && params.groupOthers.length) {
+            groupOthersById = {};
+            params.groupOthers.forEach(function(oOther) {
+                groupOthersById[oOther.userid] = oOther;
+            });
+            $scope.groupOthers = groupOthersById;
+        }
+    });
+    $scope.$watch('filter', function(nv) {
+        if (nv && nv.schema) {
+            listRemarks().then(function(data) {
+                var oRemark, oUpperRemark, oRemarks = {};
+                if (data.remarks && data.remarks.length) {
+                    for (var i = data.remarks.length - 1; i >= 0; i--) {
+                        oRemark = data.remarks[i];
+                        if (oRemark.content) {
+                            oRemark.content = oRemark.content.replace(/\n/g, '<br/>');
+                        }
+                        if (oRemark.remark_id !== '0') {
+                            oUpperRemark = oRemarks[oRemark.remark_id];
+                            oRemark.content = '<a href="" ng-click="gotoUpper(' + oRemark.remark_id + ')">回复 ' + oUpperRemark.nickname + ' 的评论：</a><br/>' + oRemark.content;
+                        }
+                        oRemarks[oRemark.id] = oRemark;
+                    }
+                }
+                if ($scope.data) {
+                    if ($scope.data.tag) {
+                        $scope.data.tag.forEach(function(index, tagId) {
+                            if (oApp._tagsById[index]) {
+                                $scope.data.tag[tagId] = oApp._tagsById[index];
+                            }
+                        });
+                    }
+                }
+                $scope.data = data.data;
+                $scope.remarks = data.remarks;
+            });
+        }
+    }, true);
+}]);
+
+/***/ }),
+/* 35 */,
+/* 36 */,
+/* 37 */,
+/* 38 */,
+/* 39 */,
+/* 40 */,
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "img{max-width:100%}\r\nblockquote{font-size:16px;}\r\nblockquote p{line-height:1.5;}\r\nbutton.option{padding:0;}\r\n.dropdown-menu>li>a{padding-left:20px;}\r\n.glyphicon-heart{color:red;}\r\n.bottom-bar{display:flex;}\r\n.bottom-bar .datetime{color:#777;flex:1;line-height:30px;font-size:.8em;}\r\np{word-break:break-all;}\r\n\r\n/*record*/\r\n#recordData{padding:0 1rem 1rem;background:#eee;}\r\n#recordData .title{margin:0 -1rem .5rem -1rem;background:#ddd;padding:.5rem 1rem;border-bottom:3px ridge #ccc;}\r\n#recordData blockquote{border-left:5px solid #999;}\r\n\r\n/*remark*/\r\n#remarks{position:relative;margin-top:1rem;}\r\n#remarks:before{content:'\\8BC4\\8BBA';position:absolute;left:50%;margin-left:-1em;top:-1em;font-size:.7em;color:#eee;padding:.2em 1em;background:#666;border-radius:1em;}\r\n#remarks .remark{background:#fff;border-bottom:1px solid #ddd;transition:background 1s;padding:8px;}\r\n#remarks .remark:last-child{border-bottom:0;}\r\n#remarks .remark>*{margin:1em 0;}\r\n#remarks .remark.blink{background:#d9edf7;}\r\n#remarks .remarkList{margin-bottom:30px;}\r\n.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}", ""]);
+
+// exports
+
+
+/***/ }),
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(48);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./remark.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./remark.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 61 */,
+/* 62 */,
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */,
+/* 73 */,
+/* 74 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(34);
+
+
+/***/ })
+/******/ ]);

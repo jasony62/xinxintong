@@ -40,7 +40,7 @@ ngApp.factory('Input', ['$q', '$timeout', 'ls', 'http2', function($q, $timeout, 
         }
         return true;
     };
-    Input.prototype.submit = function(ek, data, tags, oSupplement) {
+    Input.prototype.submit = function(ek, data, tags, oSupplement, type) {
         var defer, url, d, d2, posted, tagsByScchema;
         defer = $q.defer();
         posted = angular.copy(data);
@@ -49,6 +49,7 @@ ngApp.factory('Input', ['$q', '$timeout', 'ls', 'http2', function($q, $timeout, 
         }
         url = LS.j('record/submit', 'site', 'app', 'rid');
         ek && ek.length && (url += '&ek=' + ek);
+        url += type =='save'? '&subType=save' : '&subType=submit';
         for (var i in posted) {
             d = posted[i];
             if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
@@ -268,15 +269,15 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     }
 
-    function doTask(seq, nextAction) {
+    function doTask(seq, nextAction, type) {
         var task = tasksOfBeforeSubmit[seq];
         task().then(function(rsp) {
             seq++;
-            seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);
+            seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction, type) : doSubmit(nextAction, type);
         });
     }
 
-    function doSubmit(nextAction) {
+    function doSubmit(nextAction, type) {
         var ek, submitData;
         ek = $scope.record ? $scope.record.enroll_key : undefined;
         facInput.submit(ek, $scope.data, $scope.tag, $scope.supplement).then(function(rsp) {
@@ -342,10 +343,12 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     };
     $scope.$on('xxt.app.enroll.save', function() {
         _localSave();
+        $scope.submit(event, 'result', 'save');
     });
     $scope.save = function(event, nextAction) {
         _localSave();
-        $scope.gotoPage(event, nextAction);
+        $scope.submit(event, nextAction, 'save');
+        /*$scope.gotoPage(event, nextAction);*/
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById,
@@ -353,14 +356,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
 
         StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = params.app._schemasById;
-        /* 用户已经登记过，恢复之前的数据 */
-        if (params.record) {
-            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
-            $scope.record = params.record;
-            if (params.record.data_tag) {
-                $scope.tag = params.record.data_tag;
-            }
-        }
         /* 恢复用户未提交的数据 */
         if (window.localStorage) {
             submitState._cacheKey = StateCacheKey;
@@ -371,6 +366,14 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 }
                 angular.extend($scope.data, cached);
                 submitState.modified = true;
+            }
+        }
+        /* 用户已经登记过，恢复之前的数据 */
+        if (params.record) {
+            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
+            $scope.record = params.record;
+            if (params.record.data_tag) {
+                $scope.tag = params.record.data_tag;
             }
         }
         // 跟踪数据变化
@@ -411,12 +414,12 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             hasAutoFillMember = true;
         }
     });
-    $scope.submit = function(event, nextAction) {
+    $scope.submit = function(event, nextAction, type) {
         var checkResult;
         if (!submitState.isRunning()) {
             submitState.start(event, StateCacheKey);
             if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
-                tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
+                tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
             } else {
                 submitState.finish();
                 $scope.$parent.notice.set(checkResult);

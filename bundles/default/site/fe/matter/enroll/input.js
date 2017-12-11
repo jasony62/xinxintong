@@ -1,7 +1,3239 @@
-!function(t){function e(r){if(n[r])return n[r].exports;var i=n[r]={i:r,l:!1,exports:{}};return t[r].call(i.exports,i,i.exports,e),i.l=!0,i.exports}var n={};e.m=t,e.c=n,e.i=function(t){return t},e.d=function(t,n,r){e.o(t,n)||Object.defineProperty(t,n,{configurable:!1,enumerable:!0,get:r})},e.n=function(t){var n=t&&t.__esModule?function(){return t.default}:function(){return t};return e.d(n,"a",n),n},e.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},e.p="",e(e.s=75)}([function(t,e,n){(function(e){function n(t,e){var n=t[1]||"",i=t[3];if(!i)return n;if(e){var o=r(i);return[n].concat(i.sources.map(function(t){return"/*# sourceURL="+i.sourceRoot+t+" */"})).concat([o]).join("\n")}return[n].join("\n")}function r(t){return"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+new e(JSON.stringify(t)).toString("base64")+" */"}t.exports=function(t){var e=[];return e.toString=function(){return this.map(function(e){var r=n(e,t);return e[2]?"@media "+e[2]+"{"+r+"}":r}).join("")},e.i=function(t,n){"string"==typeof t&&(t=[[null,t,""]]);for(var r={},i=0;i<this.length;i++){var o=this[i][0];"number"==typeof o&&(r[o]=!0)}for(i=0;i<t.length;i++){var a=t[i];"number"==typeof a[0]&&r[a[0]]||(n&&!a[2]?a[2]=n:n&&(a[2]="("+a[2]+") and ("+n+")"),e.push(a))}},e}}).call(e,n(4).Buffer)},function(t,e,n){function r(t,e){for(var n=0;n<t.length;n++){var r=t[n],i=h[r.id];if(i){i.refs++;for(var o=0;o<i.parts.length;o++)i.parts[o](r.parts[o]);for(;o<r.parts.length;o++)i.parts.push(u(r.parts[o],e))}else{for(var a=[],o=0;o<r.parts.length;o++)a.push(u(r.parts[o],e));h[r.id]={id:r.id,refs:1,parts:a}}}}function i(t){for(var e=[],n={},r=0;r<t.length;r++){var i=t[r],o=i[0],a=i[1],s=i[2],c=i[3],l={css:a,media:s,sourceMap:c};n[o]?n[o].parts.push(l):e.push(n[o]={id:o,parts:[l]})}return e}function o(t,e){var n=m(t.insertInto);if(!n)throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");var r=b[b.length-1];if("top"===t.insertAt)r?r.nextSibling?n.insertBefore(e,r.nextSibling):n.appendChild(e):n.insertBefore(e,n.firstChild),b.push(e);else{if("bottom"!==t.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");n.appendChild(e)}}function a(t){t.parentNode.removeChild(t);var e=b.indexOf(t);e>=0&&b.splice(e,1)}function s(t){var e=document.createElement("style");return t.attrs.type="text/css",l(e,t.attrs),o(t,e),e}function c(t){var e=document.createElement("link");return t.attrs.type="text/css",t.attrs.rel="stylesheet",l(e,t.attrs),o(t,e),e}function l(t,e){Object.keys(e).forEach(function(n){t.setAttribute(n,e[n])})}function u(t,e){var n,r,i;if(e.singleton){var o=y++;n=v||(v=s(e)),r=d.bind(null,n,o,!1),i=d.bind(null,n,o,!0)}else t.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(n=c(e),r=p.bind(null,n,e),i=function(){a(n),n.href&&URL.revokeObjectURL(n.href)}):(n=s(e),r=f.bind(null,n),i=function(){a(n)});return r(t),function(e){if(e){if(e.css===t.css&&e.media===t.media&&e.sourceMap===t.sourceMap)return;r(t=e)}else i()}}function d(t,e,n,r){var i=n?"":r.css;if(t.styleSheet)t.styleSheet.cssText=x(e,i);else{var o=document.createTextNode(i),a=t.childNodes;a[e]&&t.removeChild(a[e]),a.length?t.insertBefore(o,a[e]):t.appendChild(o)}}function f(t,e){var n=e.css,r=e.media;if(r&&t.setAttribute("media",r),t.styleSheet)t.styleSheet.cssText=n;else{for(;t.firstChild;)t.removeChild(t.firstChild);t.appendChild(document.createTextNode(n))}}function p(t,e,n){var r=n.css,i=n.sourceMap,o=void 0===e.convertToAbsoluteUrls&&i;(e.convertToAbsoluteUrls||o)&&(r=w(r)),i&&(r+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(i))))+" */");var a=new Blob([r],{type:"text/css"}),s=t.href;t.href=URL.createObjectURL(a),s&&URL.revokeObjectURL(s)}var h={},g=function(t){var e;return function(){return void 0===e&&(e=t.apply(this,arguments)),e}}(function(){return window&&document&&document.all&&!window.atob}),m=function(t){var e={};return function(n){return void 0===e[n]&&(e[n]=t.call(this,n)),e[n]}}(function(t){return document.querySelector(t)}),v=null,y=0,b=[],w=n(7);t.exports=function(t,e){if("undefined"!=typeof DEBUG&&DEBUG&&"object"!=typeof document)throw new Error("The style-loader cannot be used in a non-browser environment");e=e||{},e.attrs="object"==typeof e.attrs?e.attrs:{},void 0===e.singleton&&(e.singleton=g()),void 0===e.insertInto&&(e.insertInto="head"),void 0===e.insertAt&&(e.insertAt="bottom");var n=i(t);return r(n,e),function(t){for(var o=[],a=0;a<n.length;a++){var s=n[a],c=h[s.id];c.refs--,o.push(c)}if(t){r(i(t),e)}for(var a=0;a<o.length;a++){var c=o[a];if(0===c.refs){for(var l=0;l<c.parts.length;l++)c.parts[l]();delete h[c.id]}}}};var x=function(){var t=[];return function(e,n){return t[e]=n,t.filter(Boolean).join("\n")}}()},function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("page.ui.xxt",[]);ngMod.directive("dynamicHtml",["$compile",function(t){return{restrict:"EA",replace:!0,link:function(e,n,r){e.$watch(r.dynamicHtml,function(r){r&&r.length&&(n.html(r),t(n.contents())(e))})}}}]),ngMod.service("tmsDynaPage",["$q",function($q){this.loadCss=function(t){var e,n;e=document.createElement("style"),e.innerHTML=t,n=document.querySelector("head"),n.appendChild(e)},this.loadExtCss=function(t){var e,n;e=document.createElement("link"),e.href=t,e.rel="stylesheet",n=document.querySelector("head"),n.appendChild(e)},this.loadJs=function(ngApp,js){!function(ngApp){eval(js)}(ngApp)},this.loadScript=function(t){var e,n,r=$q.defer();return n=function(){var i;i=document.createElement("script"),i.src=t[e],i.onload=function(){e++,e<t.length?n():r.resolve()},document.body.appendChild(i)},t&&(angular.isString(t)&&(t=[t]),t.length&&(e=0,n())),r.promise},this.loadExtJs=function(t,e){var n,r=this,i=$q.defer(),o=e.ext_js.length;return n=function(n){var a;a=document.createElement("script"),a.src=n.url,a.onload=function(){0===--o&&(e.js&&e.js.length&&r.loadJs(t,e.js),i.resolve())},document.body.appendChild(a)},e.ext_js&&e.ext_js.length&&e.ext_js.forEach(n),i.promise},this.loadCode=function(t,e){var n=this,r=$q.defer();return e.ext_css&&e.ext_css.length&&e.ext_css.forEach(function(t){n.loadExtCss(t.url)}),e.css&&e.css.length&&this.loadCss(e.css),e.ext_js&&e.ext_js.length?n.loadExtJs(t,e).then(function(){r.resolve()}):(e.js&&e.js.length&&n.loadJs(t,e.js),r.resolve()),r.promise},this.openPlugin=function(t){var e,n,r,i,o=$q.defer();return i=document.getElementsByTagName("body")[0],i.style.cssText="overflow-y:hidden",e=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),r=document.createElement("iframe"),n.appendChild(r),n.onclick=function(){n.parentNode.removeChild(n),i.style.cssText="overflow-y:auto"},e.appendChild(n),document.body.appendChild(e),0===t.indexOf("http")?(window.onClosePlugin=function(t){n.parentNode.removeChild(n),i.style.cssText="overflow-y:auto",o.resolve(t)},r.setAttribute("src",t)):r.contentDocument&&r.contentDocument.body&&(r.contentDocument.body.innerHTML=t),o.promise}}])},function(t,e,n){"use strict";function r(t){var e=t.length;if(e%4>0)throw new Error("Invalid string. Length must be a multiple of 4");return"="===t[e-2]?2:"="===t[e-1]?1:0}function i(t){return 3*t.length/4-r(t)}function o(t){var e,n,i,o,a,s,c=t.length;a=r(t),s=new d(3*c/4-a),i=a>0?c-4:c;var l=0;for(e=0,n=0;e<i;e+=4,n+=3)o=u[t.charCodeAt(e)]<<18|u[t.charCodeAt(e+1)]<<12|u[t.charCodeAt(e+2)]<<6|u[t.charCodeAt(e+3)],s[l++]=o>>16&255,s[l++]=o>>8&255,s[l++]=255&o;return 2===a?(o=u[t.charCodeAt(e)]<<2|u[t.charCodeAt(e+1)]>>4,s[l++]=255&o):1===a&&(o=u[t.charCodeAt(e)]<<10|u[t.charCodeAt(e+1)]<<4|u[t.charCodeAt(e+2)]>>2,s[l++]=o>>8&255,s[l++]=255&o),s}function a(t){return l[t>>18&63]+l[t>>12&63]+l[t>>6&63]+l[63&t]}function s(t,e,n){for(var r,i=[],o=e;o<n;o+=3)r=(t[o]<<16)+(t[o+1]<<8)+t[o+2],i.push(a(r));return i.join("")}function c(t){for(var e,n=t.length,r=n%3,i="",o=[],a=0,c=n-r;a<c;a+=16383)o.push(s(t,a,a+16383>c?c:a+16383));return 1===r?(e=t[n-1],i+=l[e>>2],i+=l[e<<4&63],i+="=="):2===r&&(e=(t[n-2]<<8)+t[n-1],i+=l[e>>10],i+=l[e>>4&63],i+=l[e<<2&63],i+="="),o.push(i),o.join("")}e.byteLength=i,e.toByteArray=o,e.fromByteArray=c;for(var l=[],u=[],d="undefined"!=typeof Uint8Array?Uint8Array:Array,f="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",p=0,h=f.length;p<h;++p)l[p]=f[p],u[f.charCodeAt(p)]=p;u["-".charCodeAt(0)]=62,u["_".charCodeAt(0)]=63},function(t,e,n){"use strict";(function(t){function r(){return o.TYPED_ARRAY_SUPPORT?2147483647:1073741823}function i(t,e){if(r()<e)throw new RangeError("Invalid typed array length");return o.TYPED_ARRAY_SUPPORT?(t=new Uint8Array(e),t.__proto__=o.prototype):(null===t&&(t=new o(e)),t.length=e),t}function o(t,e,n){if(!(o.TYPED_ARRAY_SUPPORT||this instanceof o))return new o(t,e,n);if("number"==typeof t){if("string"==typeof e)throw new Error("If encoding is specified then the first argument must be a string");return l(this,t)}return a(this,t,e,n)}function a(t,e,n,r){if("number"==typeof e)throw new TypeError('"value" argument must not be a number');return"undefined"!=typeof ArrayBuffer&&e instanceof ArrayBuffer?f(t,e,n,r):"string"==typeof e?u(t,e,n):p(t,e)}function s(t){if("number"!=typeof t)throw new TypeError('"size" argument must be a number');if(t<0)throw new RangeError('"size" argument must not be negative')}function c(t,e,n,r){return s(e),e<=0?i(t,e):void 0!==n?"string"==typeof r?i(t,e).fill(n,r):i(t,e).fill(n):i(t,e)}function l(t,e){if(s(e),t=i(t,e<0?0:0|h(e)),!o.TYPED_ARRAY_SUPPORT)for(var n=0;n<e;++n)t[n]=0;return t}function u(t,e,n){if("string"==typeof n&&""!==n||(n="utf8"),!o.isEncoding(n))throw new TypeError('"encoding" must be a valid string encoding');var r=0|m(e,n);t=i(t,r);var a=t.write(e,n);return a!==r&&(t=t.slice(0,a)),t}function d(t,e){var n=e.length<0?0:0|h(e.length);t=i(t,n);for(var r=0;r<n;r+=1)t[r]=255&e[r];return t}function f(t,e,n,r){if(e.byteLength,n<0||e.byteLength<n)throw new RangeError("'offset' is out of bounds");if(e.byteLength<n+(r||0))throw new RangeError("'length' is out of bounds");return e=void 0===n&&void 0===r?new Uint8Array(e):void 0===r?new Uint8Array(e,n):new Uint8Array(e,n,r),o.TYPED_ARRAY_SUPPORT?(t=e,t.__proto__=o.prototype):t=d(t,e),t}function p(t,e){if(o.isBuffer(e)){var n=0|h(e.length);return t=i(t,n),0===t.length?t:(e.copy(t,0,0,n),t)}if(e){if("undefined"!=typeof ArrayBuffer&&e.buffer instanceof ArrayBuffer||"length"in e)return"number"!=typeof e.length||K(e.length)?i(t,0):d(t,e);if("Buffer"===e.type&&Z(e.data))return d(t,e.data)}throw new TypeError("First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.")}function h(t){if(t>=r())throw new RangeError("Attempt to allocate Buffer larger than maximum size: 0x"+r().toString(16)+" bytes");return 0|t}function g(t){return+t!=t&&(t=0),o.alloc(+t)}function m(t,e){if(o.isBuffer(t))return t.length;if("undefined"!=typeof ArrayBuffer&&"function"==typeof ArrayBuffer.isView&&(ArrayBuffer.isView(t)||t instanceof ArrayBuffer))return t.byteLength;"string"!=typeof t&&(t=""+t);var n=t.length;if(0===n)return 0;for(var r=!1;;)switch(e){case"ascii":case"latin1":case"binary":return n;case"utf8":case"utf-8":case void 0:return z(t).length;case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return 2*n;case"hex":return n>>>1;case"base64":return G(t).length;default:if(r)return z(t).length;e=(""+e).toLowerCase(),r=!0}}function v(t,e,n){var r=!1;if((void 0===e||e<0)&&(e=0),e>this.length)return"";if((void 0===n||n>this.length)&&(n=this.length),n<=0)return"";if(n>>>=0,e>>>=0,n<=e)return"";for(t||(t="utf8");;)switch(t){case"hex":return U(this,e,n);case"utf8":case"utf-8":return P(this,e,n);case"ascii":return T(this,e,n);case"latin1":case"binary":return B(this,e,n);case"base64":return R(this,e,n);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return I(this,e,n);default:if(r)throw new TypeError("Unknown encoding: "+t);t=(t+"").toLowerCase(),r=!0}}function y(t,e,n){var r=t[e];t[e]=t[n],t[n]=r}function b(t,e,n,r,i){if(0===t.length)return-1;if("string"==typeof n?(r=n,n=0):n>2147483647?n=2147483647:n<-2147483648&&(n=-2147483648),n=+n,isNaN(n)&&(n=i?0:t.length-1),n<0&&(n=t.length+n),n>=t.length){if(i)return-1;n=t.length-1}else if(n<0){if(!i)return-1;n=0}if("string"==typeof e&&(e=o.from(e,r)),o.isBuffer(e))return 0===e.length?-1:w(t,e,n,r,i);if("number"==typeof e)return e&=255,o.TYPED_ARRAY_SUPPORT&&"function"==typeof Uint8Array.prototype.indexOf?i?Uint8Array.prototype.indexOf.call(t,e,n):Uint8Array.prototype.lastIndexOf.call(t,e,n):w(t,[e],n,r,i);throw new TypeError("val must be string, number or Buffer")}function w(t,e,n,r,i){function o(t,e){return 1===a?t[e]:t.readUInt16BE(e*a)}var a=1,s=t.length,c=e.length;if(void 0!==r&&("ucs2"===(r=String(r).toLowerCase())||"ucs-2"===r||"utf16le"===r||"utf-16le"===r)){if(t.length<2||e.length<2)return-1;a=2,s/=2,c/=2,n/=2}var l;if(i){var u=-1;for(l=n;l<s;l++)if(o(t,l)===o(e,-1===u?0:l-u)){if(-1===u&&(u=l),l-u+1===c)return u*a}else-1!==u&&(l-=l-u),u=-1}else for(n+c>s&&(n=s-c),l=n;l>=0;l--){for(var d=!0,f=0;f<c;f++)if(o(t,l+f)!==o(e,f)){d=!1;break}if(d)return l}return-1}function x(t,e,n,r){n=Number(n)||0;var i=t.length-n;r?(r=Number(r))>i&&(r=i):r=i;var o=e.length;if(o%2!=0)throw new TypeError("Invalid hex string");r>o/2&&(r=o/2);for(var a=0;a<r;++a){var s=parseInt(e.substr(2*a,2),16);if(isNaN(s))return a;t[n+a]=s}return a}function _(t,e,n,r){return W(z(e,t.length-n),t,n,r)}function k(t,e,n,r){return W(J(e),t,n,r)}function E(t,e,n,r){return k(t,e,n,r)}function S(t,e,n,r){return W(G(e),t,n,r)}function A(t,e,n,r){return W(H(e,t.length-n),t,n,r)}function R(t,e,n){return 0===e&&n===t.length?V.fromByteArray(t):V.fromByteArray(t.slice(e,n))}function P(t,e,n){n=Math.min(t.length,n);for(var r=[],i=e;i<n;){var o=t[i],a=null,s=o>239?4:o>223?3:o>191?2:1;if(i+s<=n){var c,l,u,d;switch(s){case 1:o<128&&(a=o);break;case 2:c=t[i+1],128==(192&c)&&(d=(31&o)<<6|63&c)>127&&(a=d);break;case 3:c=t[i+1],l=t[i+2],128==(192&c)&&128==(192&l)&&(d=(15&o)<<12|(63&c)<<6|63&l)>2047&&(d<55296||d>57343)&&(a=d);break;case 4:c=t[i+1],l=t[i+2],u=t[i+3],128==(192&c)&&128==(192&l)&&128==(192&u)&&(d=(15&o)<<18|(63&c)<<12|(63&l)<<6|63&u)>65535&&d<1114112&&(a=d)}}null===a?(a=65533,s=1):a>65535&&(a-=65536,r.push(a>>>10&1023|55296),a=56320|1023&a),r.push(a),i+=s}return C(r)}function C(t){var e=t.length;if(e<=Q)return String.fromCharCode.apply(String,t);for(var n="",r=0;r<e;)n+=String.fromCharCode.apply(String,t.slice(r,r+=Q));return n}function T(t,e,n){var r="";n=Math.min(t.length,n);for(var i=e;i<n;++i)r+=String.fromCharCode(127&t[i]);return r}function B(t,e,n){var r="";n=Math.min(t.length,n);for(var i=e;i<n;++i)r+=String.fromCharCode(t[i]);return r}function U(t,e,n){var r=t.length;(!e||e<0)&&(e=0),(!n||n<0||n>r)&&(n=r);for(var i="",o=e;o<n;++o)i+=F(t[o]);return i}function I(t,e,n){for(var r=t.slice(e,n),i="",o=0;o<r.length;o+=2)i+=String.fromCharCode(r[o]+256*r[o+1]);return i}function M(t,e,n){if(t%1!=0||t<0)throw new RangeError("offset is not uint");if(t+e>n)throw new RangeError("Trying to access beyond buffer length")}function $(t,e,n,r,i,a){if(!o.isBuffer(t))throw new TypeError('"buffer" argument must be a Buffer instance');if(e>i||e<a)throw new RangeError('"value" argument is out of bounds');if(n+r>t.length)throw new RangeError("Index out of range")}function Y(t,e,n,r){e<0&&(e=65535+e+1);for(var i=0,o=Math.min(t.length-n,2);i<o;++i)t[n+i]=(e&255<<8*(r?i:1-i))>>>8*(r?i:1-i)}function L(t,e,n,r){e<0&&(e=4294967295+e+1);for(var i=0,o=Math.min(t.length-n,4);i<o;++i)t[n+i]=e>>>8*(r?i:3-i)&255}function O(t,e,n,r,i,o){if(n+r>t.length)throw new RangeError("Index out of range");if(n<0)throw new RangeError("Index out of range")}function D(t,e,n,r,i){return i||O(t,e,n,4,3.4028234663852886e38,-3.4028234663852886e38),X.write(t,e,n,r,23,4),n+4}function j(t,e,n,r,i){return i||O(t,e,n,8,1.7976931348623157e308,-1.7976931348623157e308),X.write(t,e,n,r,52,8),n+8}function N(t){if(t=q(t).replace(tt,""),t.length<2)return"";for(;t.length%4!=0;)t+="=";return t}function q(t){return t.trim?t.trim():t.replace(/^\s+|\s+$/g,"")}function F(t){return t<16?"0"+t.toString(16):t.toString(16)}function z(t,e){e=e||1/0;for(var n,r=t.length,i=null,o=[],a=0;a<r;++a){if((n=t.charCodeAt(a))>55295&&n<57344){if(!i){if(n>56319){(e-=3)>-1&&o.push(239,191,189);continue}if(a+1===r){(e-=3)>-1&&o.push(239,191,189);continue}i=n;continue}if(n<56320){(e-=3)>-1&&o.push(239,191,189),i=n;continue}n=65536+(i-55296<<10|n-56320)}else i&&(e-=3)>-1&&o.push(239,191,189);if(i=null,n<128){if((e-=1)<0)break;o.push(n)}else if(n<2048){if((e-=2)<0)break;o.push(n>>6|192,63&n|128)}else if(n<65536){if((e-=3)<0)break;o.push(n>>12|224,n>>6&63|128,63&n|128)}else{if(!(n<1114112))throw new Error("Invalid code point");if((e-=4)<0)break;o.push(n>>18|240,n>>12&63|128,n>>6&63|128,63&n|128)}}return o}function J(t){for(var e=[],n=0;n<t.length;++n)e.push(255&t.charCodeAt(n));return e}function H(t,e){for(var n,r,i,o=[],a=0;a<t.length&&!((e-=2)<0);++a)n=t.charCodeAt(a),r=n>>8,i=n%256,o.push(i),o.push(r);return o}function G(t){return V.toByteArray(N(t))}function W(t,e,n,r){for(var i=0;i<r&&!(i+n>=e.length||i>=t.length);++i)e[i+n]=t[i];return i}function K(t){return t!==t}/*!
- * The buffer module from node.js, for the browser.
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 70);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(selector) {
+		if (typeof memo[selector] === "undefined") {
+			memo[selector] = fn.call(this, selector);
+		}
+
+		return memo[selector]
+	};
+})(function (target) {
+	return document.querySelector(target)
+});
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(3);
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton) options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+	if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	options.attrs.type = "text/css";
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	options.attrs.type = "text/css";
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = options.transform(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('page.ui.xxt', []);
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}]);
+ngMod.service('tmsDynaPage', ['$q', function($q) {
+    this.loadCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
+    this.loadExtCss = function(url) {
+        var link, head;
+        link = document.createElement('link');
+        link.href = url;
+        link.rel = 'stylesheet';
+        head = document.querySelector('head');
+        head.appendChild(link);
+    };
+    this.loadJs = function(ngApp, js) {
+        (function(ngApp) {
+            eval(js);
+        })(ngApp);
+    };
+    this.loadScript = function(urls) {
+        var index, fnLoad, deferred = $q.defer();
+        fnLoad = function() {
+            var script;
+            script = document.createElement('script');
+            script.src = urls[index];
+            script.onload = function() {
+                index++;
+                if (index < urls.length) {
+                    fnLoad();
+                } else {
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (urls) {
+            angular.isString(urls) && (urls = [urls]);
+            if (urls.length) {
+                index = 0;
+                fnLoad();
+            }
+        }
+
+        return deferred.promise;
+    };
+    this.loadExtJs = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer(),
+            jslength = code.ext_js.length,
+            loadScript2;
+        loadScript2 = function(js) {
+            var script;
+            script = document.createElement('script');
+            script.src = js.url;
+            script.onload = function() {
+                jslength--;
+                if (jslength === 0) {
+                    if (code.js && code.js.length) {
+                        _self.loadJs(ngApp, code.js);
+                    }
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (code.ext_js && code.ext_js.length) {
+            code.ext_js.forEach(loadScript2);
+        }
+        return deferred.promise;
+    };
+    this.loadCode = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer();
+        if (code.ext_css && code.ext_css.length) {
+            code.ext_css.forEach(function(css) {
+                _self.loadExtCss(css.url);
+            });
+        }
+        if (code.css && code.css.length) {
+            this.loadCss(code.css);
+        }
+        if (code.ext_js && code.ext_js.length) {
+            _self.loadExtJs(ngApp, code).then(function() {
+                deferred.resolve();
+            });
+        } else {
+            if (code.js && code.js.length) {
+                _self.loadJs(ngApp, code.js);
+            }
+            deferred.resolve();
+        }
+        return deferred.promise;
+        18810091009
+    };
+    this.openPlugin = function(content) {
+        var frag, wrap, frm, body, deferred = $q.defer();
+        body = document.getElementsByTagName('body')[0];
+        body.style.cssText="overflow-y:hidden";
+        frag = document.createDocumentFragment();
+        wrap = document.createElement('div');
+        wrap.setAttribute('id', 'frmPlugin');
+        frm = document.createElement('iframe');
+        wrap.appendChild(frm);
+        wrap.onclick = function() {
+            wrap.parentNode.removeChild(wrap);
+            body.style.cssText="overflow-y:auto";
+        };
+        frag.appendChild(wrap);
+        document.body.appendChild(frag);
+        if (content.indexOf('http') === 0) {
+            window.onClosePlugin = function(result) {
+                wrap.parentNode.removeChild(wrap);
+                body.style.cssText="overflow-y:auto";
+                deferred.resolve(result);
+            };
+            frm.setAttribute('src', content);
+        } else {
+            if (frm.contentDocument && frm.contentDocument.body) {
+                frm.contentDocument.body.innerHTML = content;
+            }
+        }
+        return deferred.promise;
+    };
+}]);
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * @license  MIT
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
  */
-var V=n(3),X=n(5),Z=n(6);e.Buffer=o,e.SlowBuffer=g,e.INSPECT_MAX_BYTES=50,o.TYPED_ARRAY_SUPPORT=void 0!==t.TYPED_ARRAY_SUPPORT?t.TYPED_ARRAY_SUPPORT:function(){try{var t=new Uint8Array(1);return t.__proto__={__proto__:Uint8Array.prototype,foo:function(){return 42}},42===t.foo()&&"function"==typeof t.subarray&&0===t.subarray(1,1).byteLength}catch(t){return!1}}(),e.kMaxLength=r(),o.poolSize=8192,o._augment=function(t){return t.__proto__=o.prototype,t},o.from=function(t,e,n){return a(null,t,e,n)},o.TYPED_ARRAY_SUPPORT&&(o.prototype.__proto__=Uint8Array.prototype,o.__proto__=Uint8Array,"undefined"!=typeof Symbol&&Symbol.species&&o[Symbol.species]===o&&Object.defineProperty(o,Symbol.species,{value:null,configurable:!0})),o.alloc=function(t,e,n){return c(null,t,e,n)},o.allocUnsafe=function(t){return l(null,t)},o.allocUnsafeSlow=function(t){return l(null,t)},o.isBuffer=function(t){return!(null==t||!t._isBuffer)},o.compare=function(t,e){if(!o.isBuffer(t)||!o.isBuffer(e))throw new TypeError("Arguments must be Buffers");if(t===e)return 0;for(var n=t.length,r=e.length,i=0,a=Math.min(n,r);i<a;++i)if(t[i]!==e[i]){n=t[i],r=e[i];break}return n<r?-1:r<n?1:0},o.isEncoding=function(t){switch(String(t).toLowerCase()){case"hex":case"utf8":case"utf-8":case"ascii":case"latin1":case"binary":case"base64":case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return!0;default:return!1}},o.concat=function(t,e){if(!Z(t))throw new TypeError('"list" argument must be an Array of Buffers');if(0===t.length)return o.alloc(0);var n;if(void 0===e)for(e=0,n=0;n<t.length;++n)e+=t[n].length;var r=o.allocUnsafe(e),i=0;for(n=0;n<t.length;++n){var a=t[n];if(!o.isBuffer(a))throw new TypeError('"list" argument must be an Array of Buffers');a.copy(r,i),i+=a.length}return r},o.byteLength=m,o.prototype._isBuffer=!0,o.prototype.swap16=function(){var t=this.length;if(t%2!=0)throw new RangeError("Buffer size must be a multiple of 16-bits");for(var e=0;e<t;e+=2)y(this,e,e+1);return this},o.prototype.swap32=function(){var t=this.length;if(t%4!=0)throw new RangeError("Buffer size must be a multiple of 32-bits");for(var e=0;e<t;e+=4)y(this,e,e+3),y(this,e+1,e+2);return this},o.prototype.swap64=function(){var t=this.length;if(t%8!=0)throw new RangeError("Buffer size must be a multiple of 64-bits");for(var e=0;e<t;e+=8)y(this,e,e+7),y(this,e+1,e+6),y(this,e+2,e+5),y(this,e+3,e+4);return this},o.prototype.toString=function(){var t=0|this.length;return 0===t?"":0===arguments.length?P(this,0,t):v.apply(this,arguments)},o.prototype.equals=function(t){if(!o.isBuffer(t))throw new TypeError("Argument must be a Buffer");return this===t||0===o.compare(this,t)},o.prototype.inspect=function(){var t="",n=e.INSPECT_MAX_BYTES;return this.length>0&&(t=this.toString("hex",0,n).match(/.{2}/g).join(" "),this.length>n&&(t+=" ... ")),"<Buffer "+t+">"},o.prototype.compare=function(t,e,n,r,i){if(!o.isBuffer(t))throw new TypeError("Argument must be a Buffer");if(void 0===e&&(e=0),void 0===n&&(n=t?t.length:0),void 0===r&&(r=0),void 0===i&&(i=this.length),e<0||n>t.length||r<0||i>this.length)throw new RangeError("out of range index");if(r>=i&&e>=n)return 0;if(r>=i)return-1;if(e>=n)return 1;if(e>>>=0,n>>>=0,r>>>=0,i>>>=0,this===t)return 0;for(var a=i-r,s=n-e,c=Math.min(a,s),l=this.slice(r,i),u=t.slice(e,n),d=0;d<c;++d)if(l[d]!==u[d]){a=l[d],s=u[d];break}return a<s?-1:s<a?1:0},o.prototype.includes=function(t,e,n){return-1!==this.indexOf(t,e,n)},o.prototype.indexOf=function(t,e,n){return b(this,t,e,n,!0)},o.prototype.lastIndexOf=function(t,e,n){return b(this,t,e,n,!1)},o.prototype.write=function(t,e,n,r){if(void 0===e)r="utf8",n=this.length,e=0;else if(void 0===n&&"string"==typeof e)r=e,n=this.length,e=0;else{if(!isFinite(e))throw new Error("Buffer.write(string, encoding, offset[, length]) is no longer supported");e|=0,isFinite(n)?(n|=0,void 0===r&&(r="utf8")):(r=n,n=void 0)}var i=this.length-e;if((void 0===n||n>i)&&(n=i),t.length>0&&(n<0||e<0)||e>this.length)throw new RangeError("Attempt to write outside buffer bounds");r||(r="utf8");for(var o=!1;;)switch(r){case"hex":return x(this,t,e,n);case"utf8":case"utf-8":return _(this,t,e,n);case"ascii":return k(this,t,e,n);case"latin1":case"binary":return E(this,t,e,n);case"base64":return S(this,t,e,n);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return A(this,t,e,n);default:if(o)throw new TypeError("Unknown encoding: "+r);r=(""+r).toLowerCase(),o=!0}},o.prototype.toJSON=function(){return{type:"Buffer",data:Array.prototype.slice.call(this._arr||this,0)}};var Q=4096;o.prototype.slice=function(t,e){var n=this.length;t=~~t,e=void 0===e?n:~~e,t<0?(t+=n)<0&&(t=0):t>n&&(t=n),e<0?(e+=n)<0&&(e=0):e>n&&(e=n),e<t&&(e=t);var r;if(o.TYPED_ARRAY_SUPPORT)r=this.subarray(t,e),r.__proto__=o.prototype;else{var i=e-t;r=new o(i,void 0);for(var a=0;a<i;++a)r[a]=this[a+t]}return r},o.prototype.readUIntLE=function(t,e,n){t|=0,e|=0,n||M(t,e,this.length);for(var r=this[t],i=1,o=0;++o<e&&(i*=256);)r+=this[t+o]*i;return r},o.prototype.readUIntBE=function(t,e,n){t|=0,e|=0,n||M(t,e,this.length);for(var r=this[t+--e],i=1;e>0&&(i*=256);)r+=this[t+--e]*i;return r},o.prototype.readUInt8=function(t,e){return e||M(t,1,this.length),this[t]},o.prototype.readUInt16LE=function(t,e){return e||M(t,2,this.length),this[t]|this[t+1]<<8},o.prototype.readUInt16BE=function(t,e){return e||M(t,2,this.length),this[t]<<8|this[t+1]},o.prototype.readUInt32LE=function(t,e){return e||M(t,4,this.length),(this[t]|this[t+1]<<8|this[t+2]<<16)+16777216*this[t+3]},o.prototype.readUInt32BE=function(t,e){return e||M(t,4,this.length),16777216*this[t]+(this[t+1]<<16|this[t+2]<<8|this[t+3])},o.prototype.readIntLE=function(t,e,n){t|=0,e|=0,n||M(t,e,this.length);for(var r=this[t],i=1,o=0;++o<e&&(i*=256);)r+=this[t+o]*i;return i*=128,r>=i&&(r-=Math.pow(2,8*e)),r},o.prototype.readIntBE=function(t,e,n){t|=0,e|=0,n||M(t,e,this.length);for(var r=e,i=1,o=this[t+--r];r>0&&(i*=256);)o+=this[t+--r]*i;return i*=128,o>=i&&(o-=Math.pow(2,8*e)),o},o.prototype.readInt8=function(t,e){return e||M(t,1,this.length),128&this[t]?-1*(255-this[t]+1):this[t]},o.prototype.readInt16LE=function(t,e){e||M(t,2,this.length);var n=this[t]|this[t+1]<<8;return 32768&n?4294901760|n:n},o.prototype.readInt16BE=function(t,e){e||M(t,2,this.length);var n=this[t+1]|this[t]<<8;return 32768&n?4294901760|n:n},o.prototype.readInt32LE=function(t,e){return e||M(t,4,this.length),this[t]|this[t+1]<<8|this[t+2]<<16|this[t+3]<<24},o.prototype.readInt32BE=function(t,e){return e||M(t,4,this.length),this[t]<<24|this[t+1]<<16|this[t+2]<<8|this[t+3]},o.prototype.readFloatLE=function(t,e){return e||M(t,4,this.length),X.read(this,t,!0,23,4)},o.prototype.readFloatBE=function(t,e){return e||M(t,4,this.length),X.read(this,t,!1,23,4)},o.prototype.readDoubleLE=function(t,e){return e||M(t,8,this.length),X.read(this,t,!0,52,8)},o.prototype.readDoubleBE=function(t,e){return e||M(t,8,this.length),X.read(this,t,!1,52,8)},o.prototype.writeUIntLE=function(t,e,n,r){if(t=+t,e|=0,n|=0,!r){$(this,t,e,n,Math.pow(2,8*n)-1,0)}var i=1,o=0;for(this[e]=255&t;++o<n&&(i*=256);)this[e+o]=t/i&255;return e+n},o.prototype.writeUIntBE=function(t,e,n,r){if(t=+t,e|=0,n|=0,!r){$(this,t,e,n,Math.pow(2,8*n)-1,0)}var i=n-1,o=1;for(this[e+i]=255&t;--i>=0&&(o*=256);)this[e+i]=t/o&255;return e+n},o.prototype.writeUInt8=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,1,255,0),o.TYPED_ARRAY_SUPPORT||(t=Math.floor(t)),this[e]=255&t,e+1},o.prototype.writeUInt16LE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,2,65535,0),o.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8):Y(this,t,e,!0),e+2},o.prototype.writeUInt16BE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,2,65535,0),o.TYPED_ARRAY_SUPPORT?(this[e]=t>>>8,this[e+1]=255&t):Y(this,t,e,!1),e+2},o.prototype.writeUInt32LE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,4,4294967295,0),o.TYPED_ARRAY_SUPPORT?(this[e+3]=t>>>24,this[e+2]=t>>>16,this[e+1]=t>>>8,this[e]=255&t):L(this,t,e,!0),e+4},o.prototype.writeUInt32BE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,4,4294967295,0),o.TYPED_ARRAY_SUPPORT?(this[e]=t>>>24,this[e+1]=t>>>16,this[e+2]=t>>>8,this[e+3]=255&t):L(this,t,e,!1),e+4},o.prototype.writeIntLE=function(t,e,n,r){if(t=+t,e|=0,!r){var i=Math.pow(2,8*n-1);$(this,t,e,n,i-1,-i)}var o=0,a=1,s=0;for(this[e]=255&t;++o<n&&(a*=256);)t<0&&0===s&&0!==this[e+o-1]&&(s=1),this[e+o]=(t/a>>0)-s&255;return e+n},o.prototype.writeIntBE=function(t,e,n,r){if(t=+t,e|=0,!r){var i=Math.pow(2,8*n-1);$(this,t,e,n,i-1,-i)}var o=n-1,a=1,s=0;for(this[e+o]=255&t;--o>=0&&(a*=256);)t<0&&0===s&&0!==this[e+o+1]&&(s=1),this[e+o]=(t/a>>0)-s&255;return e+n},o.prototype.writeInt8=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,1,127,-128),o.TYPED_ARRAY_SUPPORT||(t=Math.floor(t)),t<0&&(t=255+t+1),this[e]=255&t,e+1},o.prototype.writeInt16LE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,2,32767,-32768),o.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8):Y(this,t,e,!0),e+2},o.prototype.writeInt16BE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,2,32767,-32768),o.TYPED_ARRAY_SUPPORT?(this[e]=t>>>8,this[e+1]=255&t):Y(this,t,e,!1),e+2},o.prototype.writeInt32LE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,4,2147483647,-2147483648),o.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8,this[e+2]=t>>>16,this[e+3]=t>>>24):L(this,t,e,!0),e+4},o.prototype.writeInt32BE=function(t,e,n){return t=+t,e|=0,n||$(this,t,e,4,2147483647,-2147483648),t<0&&(t=4294967295+t+1),o.TYPED_ARRAY_SUPPORT?(this[e]=t>>>24,this[e+1]=t>>>16,this[e+2]=t>>>8,this[e+3]=255&t):L(this,t,e,!1),e+4},o.prototype.writeFloatLE=function(t,e,n){return D(this,t,e,!0,n)},o.prototype.writeFloatBE=function(t,e,n){return D(this,t,e,!1,n)},o.prototype.writeDoubleLE=function(t,e,n){return j(this,t,e,!0,n)},o.prototype.writeDoubleBE=function(t,e,n){return j(this,t,e,!1,n)},o.prototype.copy=function(t,e,n,r){if(n||(n=0),r||0===r||(r=this.length),e>=t.length&&(e=t.length),e||(e=0),r>0&&r<n&&(r=n),r===n)return 0;if(0===t.length||0===this.length)return 0;if(e<0)throw new RangeError("targetStart out of bounds");if(n<0||n>=this.length)throw new RangeError("sourceStart out of bounds");if(r<0)throw new RangeError("sourceEnd out of bounds");r>this.length&&(r=this.length),t.length-e<r-n&&(r=t.length-e+n);var i,a=r-n;if(this===t&&n<e&&e<r)for(i=a-1;i>=0;--i)t[i+e]=this[i+n];else if(a<1e3||!o.TYPED_ARRAY_SUPPORT)for(i=0;i<a;++i)t[i+e]=this[i+n];else Uint8Array.prototype.set.call(t,this.subarray(n,n+a),e);return a},o.prototype.fill=function(t,e,n,r){if("string"==typeof t){if("string"==typeof e?(r=e,e=0,n=this.length):"string"==typeof n&&(r=n,n=this.length),1===t.length){var i=t.charCodeAt(0);i<256&&(t=i)}if(void 0!==r&&"string"!=typeof r)throw new TypeError("encoding must be a string");if("string"==typeof r&&!o.isEncoding(r))throw new TypeError("Unknown encoding: "+r)}else"number"==typeof t&&(t&=255);if(e<0||this.length<e||this.length<n)throw new RangeError("Out of range index");if(n<=e)return this;e>>>=0,n=void 0===n?this.length:n>>>0,t||(t=0);var a;if("number"==typeof t)for(a=e;a<n;++a)this[a]=t;else{var s=o.isBuffer(t)?t:z(new o(t,r).toString()),c=s.length;for(a=0;a<n-e;++a)this[a+e]=s[a%c]}return this};var tt=/[^+\/0-9A-Za-z-_]/g}).call(e,n(8))},function(t,e){e.read=function(t,e,n,r,i){var o,a,s=8*i-r-1,c=(1<<s)-1,l=c>>1,u=-7,d=n?i-1:0,f=n?-1:1,p=t[e+d];for(d+=f,o=p&(1<<-u)-1,p>>=-u,u+=s;u>0;o=256*o+t[e+d],d+=f,u-=8);for(a=o&(1<<-u)-1,o>>=-u,u+=r;u>0;a=256*a+t[e+d],d+=f,u-=8);if(0===o)o=1-l;else{if(o===c)return a?NaN:1/0*(p?-1:1);a+=Math.pow(2,r),o-=l}return(p?-1:1)*a*Math.pow(2,o-r)},e.write=function(t,e,n,r,i,o){var a,s,c,l=8*o-i-1,u=(1<<l)-1,d=u>>1,f=23===i?Math.pow(2,-24)-Math.pow(2,-77):0,p=r?0:o-1,h=r?1:-1,g=e<0||0===e&&1/e<0?1:0;for(e=Math.abs(e),isNaN(e)||e===1/0?(s=isNaN(e)?1:0,a=u):(a=Math.floor(Math.log(e)/Math.LN2),e*(c=Math.pow(2,-a))<1&&(a--,c*=2),e+=a+d>=1?f/c:f*Math.pow(2,1-d),e*c>=2&&(a++,c/=2),a+d>=u?(s=0,a=u):a+d>=1?(s=(e*c-1)*Math.pow(2,i),a+=d):(s=e*Math.pow(2,d-1)*Math.pow(2,i),a=0));i>=8;t[n+p]=255&s,p+=h,s/=256,i-=8);for(a=a<<i|s,l+=i;l>0;t[n+p]=255&a,p+=h,a/=256,l-=8);t[n+p-h]|=128*g}},function(t,e){var n={}.toString;t.exports=Array.isArray||function(t){return"[object Array]"==n.call(t)}},function(t,e){t.exports=function(t){var e="undefined"!=typeof window&&window.location;if(!e)throw new Error("fixUrls requires window.location");if(!t||"string"!=typeof t)return t;var n=e.protocol+"//"+e.host,r=n+e.pathname.replace(/\/[^\/]*$/,"/");return t.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi,function(t,e){var i=e.trim().replace(/^"(.*)"$/,function(t,e){return e}).replace(/^'(.*)'$/,function(t,e){return e});if(/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(i))return t;var o;return o=0===i.indexOf("//")?i:0===i.indexOf("/")?n+i:r+i.replace(/^\.\//,""),"url("+JSON.stringify(o)+")"})}},function(t,e){var n;n=function(){return this}();try{n=n||Function("return this")()||(0,eval)("this")}catch(t){"object"==typeof window&&(n=window)}t.exports=n},function(t,e,n){"use strict";angular.module("modal.ui.xxt",[]).service("tmsModal",["$rootScope","$compile","$q","$controller",function(t,e,n,r){this.open=function(i){var o,a=n.defer(),s=n.defer(),c={result:a.promise,closed:s.promise,close:function(t){document.body.removeChild(f[0]),a.resolve(t)},dismiss:function(t){document.body.removeChild(f[0]),s.resolve(t)}};o=t.$new(!0),i.controller&&r(i.controller,{$scope:o,$tmsModalInstance:c});var l,u,d,f;return l=angular.element("<div></div>"),l.attr({class:"modal-content","ng-style":"{'z-index':1060}"}).append(i.template),u=angular.element("<div></div>"),u.attr({class:"modal-dialog"}).append(l),d=angular.element("<div></div>"),d.attr({class:"modal-backdrop","ng-style":"{'z-index':1040}"}),f=angular.element("<div></div>"),f.attr({class:"modal","ng-style":"{'z-index':1050}",tabindex:-1}).append(u).append(d),e(f)(o),document.body.appendChild(f[0]),c}}])},function(t,e,n){var r=n(13);"string"==typeof r&&(r=[[t.i,r,""]]);n(1)(r,{});r.locals&&(t.exports=r.locals)},function(t,e,n){"use strict";n(10),n(2),n(9),angular.module("favor.ui.xxt",["page.ui.xxt","modal.ui.xxt"]).service("tmsFavor",["$rootScope","$http","$q","tmsDynaPage","tmsModal",function(t,e,n,r,i){function o(t){var r,i;return i=n.defer(),r="/rest/site/fe/user/favor/byUser",r+="?site="+t.siteid,r+="&id="+t.id,r+="&type="+t.type,e.get(r).success(function(t){i.resolve(t.data)}),i.promise}function a(t){var r,i;return i=n.defer(),r="/rest/site/fe/user/favor/add",r+="?site="+t.siteid,r+="&id="+t.id,r+="&type="+t.type,e.get(r).success(function(t){i.resolve(t.data)}),i.promise}function s(t){var r,i;return i=n.defer(),r="/rest/site/fe/user/favor/remove",r+="?site="+t.siteid,r+="&id="+t.id,r+="&type="+t.type,e.get(r).success(function(t){i.resolve(t.data)}),i.promise}function c(t){var r,i;return i=n.defer(),r="/rest/pl/fe/site/favor/sitesByUser?site="+t.siteid+"&id="+t.id+"&type="+t.type+"&_="+1*new Date,e.get(r).success(function(t){0==t.err_code&&i.resolve(t.data)}),i.promise}function l(t,r){var i,o;return o=n.defer(),i="/rest/pl/fe/site/favor/add?id="+t.id+"&type="+t.type,e.post(i,r).success(function(t){o.resolve(t.data)}),o.promise}function u(t,r){var i,o;return o=n.defer(),i="/rest/pl/fe/site/favor/remove?id="+t.id+"&type="+t.type,e.post(i,r).success(function(t){o.resolve(t.data)}),o.promise}this.open=function(t){var n;n='<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>',n+='<div class="modal-body">',n+='<div class="checkbox">',n+="<label>",n+="<input type='checkbox' ng-true-value=\"'Y'\" ng-false-value=\"'N'\" ng-model='person._selected'>",n+="<span>个人账户</span>",n+="<span ng-if=\"person._favored==='Y'\">（已收藏）</span>",n+="</label>",n+="</div>",n+='<div class="checkbox" ng-repeat="site in mySites">',n+="<label>",n+="<input type='checkbox' ng-true-value=\"'Y'\" ng-false-value=\"'N'\" ng-model='site._selected'>",n+="<span>{{site.name}}</span>",n+="<span ng-if=\"site._favored==='Y'\">（已收藏）</span>",n+="</label>",n+="</div>",n+='<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>',n+="</div>",n+='<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>',i.open({template:n,controller:["$scope","$tmsModalInstance",function(n,r){o(t).then(function(t){n.person={_favored:t?"Y":"N"},n.person._selected=n.person._favored}),c(t).then(function(t){var e=t;e.forEach(function(t){t._selected=t._favored}),n.mySites=e}),n.createSite=function(){e.get("/rest/pl/fe/site/create").success(function(t){var e=t.data;e._favored=e._selected="N",n.mySites=[e]})},n.ok=function(){var t;t={person:n.person,mySites:n.mySites},r.close(t)},n.cancel=function(){r.dismiss()}}]}).result.then(function(e){var n,r;if(n=e.person,n&&n._selected!==n._favored&&("Y"===n._selected?a(t):s(t)),r=e.mySites){var i=[],o=[];r.forEach(function(t){t._selected!==t._favored&&("Y"===t._selected?i.push(t.id):o.push(t.id))}),i.length&&l(t,i),o.length&&u(t,o)}})},this.showSwitch=function(e,n){var i,o=this;i=document.createElement("div"),i.classList.add("tms-switch","tms-switch-favor"),i.addEventListener("click",function(i){i.preventDefault(),i.stopPropagation(),t.$apply(function(){e.loginExpire?o.open(n):r.openPlugin("http://"+location.host+"/rest/site/fe/user/login?site="+n.siteid).then(function(t){e.loginExpire=t.loginExpire,o.open(n)})})},!0),document.body.appendChild(i)}}])},function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("snsshare.ui.xxt",[]);ngMod.service("tmsSnsShare",["$http",function($http){function setWxShare(t,e,n,r,i){window.wx.onMenuShareTimeline({title:i.descAsTitle?n:t,link:e,imgUrl:r,success:function(){try{i.logger&&i.logger("T")}catch(t){alert("share failed:"+t.message)}},cancel:function(){},fail:function(){alert("shareT: fail")}}),window.wx.onMenuShareAppMessage({title:t,desc:n,link:e,imgUrl:r,success:function(){try{i.logger&&i.logger("F")}catch(t){alert("share failed:"+t.message)}},cancel:function(){},fail:function(){alert("shareF: fail")}})}function setYxShare(t,e,n,r,i){var o={img_url:r,link:e,title:t,desc:n};window.YixinJSBridge.on("menu:share:appmessage",function(t){try{i.logger&&i.logger("F")}catch(t){alert("share failed:"+t.message)}window.YixinJSBridge.invoke("sendAppMessage",o,function(t){})}),window.YixinJSBridge.on("menu:share:timeline",function(t){try{i.logger&&i.logger("T")}catch(t){alert("share failed:"+t.message)}window.YixinJSBridge.invoke("shareTimeline",o,function(t){})})}this.config=function(t){this.options=t},this.set=function(title,link,desc,img,fnOther){var _this=this;if(img&&-1===img.indexOf("http")&&(img="http://"+location.host+img),/MicroMessenger/i.test(navigator.userAgent)){var script;script=document.createElement("script"),script.src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js",script.onload=function(){var xhr,url;xhr=new XMLHttpRequest,url="/rest/site/fe/wxjssdksignpackage?site="+_this.options.siteId+"&url="+encodeURIComponent(location.href.split("#")[0]),xhr.open("GET",url,!0),xhr.onreadystatechange=function(){if(4==xhr.readyState)if(xhr.status>=200&&xhr.status<400){var signPackage;try{eval("("+xhr.responseText+")"),signPackage&&(signPackage.debug=!1,signPackage.jsApiList=_this.options.jsApiList,wx.config(signPackage),wx.ready(function(){setWxShare(title,link,desc,img,_this.options)}),wx.error(function(t){alert(t)}))}catch(t){alert("local error:"+t.toString())}}else alert("http error:"+xhr.statusText)},xhr.send()},document.body.appendChild(script)}else/Yixin/i.test(navigator.userAgent)?void 0===window.YixinJSBridge?document.addEventListener("YixinJSBridgeReady",function(){setYxShare(title,link,desc,img,_this.options)},!1):setYxShare(title,link,desc,img,_this.options):fnOther&&"function"==typeof fnOther&&fnOther(title,link,desc,img)}}])},function(t,e,n){e=t.exports=n(0)(void 0),e.push([t.i,".modal{display:block;overflow:hidden;outline:0;overflow-x:hidden;overflow-y:auto;opacity:1}.modal,.modal-backdrop{position:fixed;top:0;right:0;bottom:0;left:0}.modal-backdrop{background-color:#000;opacity:.5}.modal-dialog{z-index:1055;margin:0;position:relative;width:auto;margin:10px}.modal-content{position:relative;background-color:#fff;-webkit-background-clip:padding-box;background-clip:padding-box;border:1px solid #999;border:1px solid rgba(0,0,0,.2);border-radius:6px;outline:0;-webkit-box-shadow:0 3px 9px rgba(0,0,0,.5);box-shadow:0 3px 9px rgba(0,0,0,.5)}.modal-header{padding:15px;border-bottom:1px solid #e5e5e5}.modal-header .close{margin-top:-2px}.modal-title{margin:0;line-height:1.42857143}.modal-body{position:relative;padding:15px}.modal-footer{padding:15px;text-align:right;border-top:1px solid #e5e5e5}button.close{-webkit-appearance:none;padding:0;cursor:pointer;background:0 0;border:0}.close{float:right;font-size:21px;font-weight:700;line-height:1;color:#000;text-shadow:0 1px 0 #fff;filter:alpha(opacity=20);opacity:.2}@media (min-width:768px){.modal-dialog{width:600px;margin:30px auto}.modal-content{-webkit-box-shadow:0 5px 15px rgba(0,0,0,.5);box-shadow:0 5px 15px rgba(0,0,0,.5)}}",""])},function(t,e,n){"use strict";function r(t,e){var n,r,i;n=document.createDocumentFragment(),r=document.createElement("div"),r.setAttribute("id","frmPlugin"),i=document.createElement("iframe"),r.appendChild(i),r.onclick=function(){r.parentNode.removeChild(r)},n.appendChild(r),document.body.appendChild(n),0===t.indexOf("http")?(window.onClosePlugin=function(){r.parentNode.removeChild(r),e&&e()},i.setAttribute("src",t)):i.contentDocument&&i.contentDocument.body&&(i.contentDocument.body.innerHTML=t)}angular.module("coinpay.ui.xxt",[]).service("tmsCoinPay",function(){this.showSwitch=function(t,e){var n;n=document.createElement("div"),n.classList.add("tms-switch","tms-switch-coinpay"),n.addEventListener("click",function(n){n.preventDefault(),n.stopPropagation();var i="http://"+location.host;i+="/rest/site/fe/coin/pay",i+="?site="+t,i+="&matter="+e,r(i)},!0),document.body.appendChild(n)}})},function(t,e,n){"use strict";function r(t,e){var n,r,i;n=document.createDocumentFragment(),r=document.createElement("div"),r.setAttribute("id","frmPlugin"),i=document.createElement("iframe"),r.appendChild(i),r.onclick=function(){r.parentNode.removeChild(r)},n.appendChild(r),document.body.appendChild(n),0===t.indexOf("http")?(window.onClosePlugin=function(){r.parentNode.removeChild(r),e&&e()},i.setAttribute("src",t)):i.contentDocument&&i.contentDocument.body&&(i.contentDocument.body.innerHTML=t)}angular.module("siteuser.ui.xxt",[]).service("tmsSiteUser",function(){this.showSwitch=function(t,e){var n;n=document.createElement("div"),n.classList.add("tms-switch","tms-switch-siteuser"),n.addEventListener("click",function(n){n.preventDefault(),n.stopPropagation();var i="http://"+location.host;i+="/rest/site/fe/user",i+="?site="+t,e?location.href=i:r(i)},!0),document.body.appendChild(n)}})},function(t,e,n){e=t.exports=n(0)(void 0),e.push([t.i,'.dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-body,.dialog .dlg-header{padding:15px 15px 0}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-switch{position:fixed;right:15px;width:70px;box-shadow:0 2px 6px rgba(18,27,32,.425);height:35px;color:#2994d0;background:#f8fcfe;border-radius:21px;font-size:24px;line-height:27px;text-align:center;cursor:pointer;z-index:1050}.tms-switch:before{font-size:.7em}.tms-switch:last-of-type{bottom:8px}.tms-switch:nth-last-of-type(2){bottom:64px}.tms-switch:nth-last-of-type(3){bottom:120px}.tms-switch:nth-last-of-type(4){bottom:176px}.tms-switch:nth-last-of-type(5){bottom:232px}.tms-switch:nth-last-of-type(6){bottom:288px}.tms-switch-back:before{content:"\\8FD4\\56DE"}.tms-switch-task:before{content:"\\4EFB\\52A1"}.tms-switch-save:before{content:"\\4FDD\\5B58"}.tms-switch-rank:before{content:"\\6392\\884C"}.tms-switch-repos:before{content:"\\5171\\4EAB"}.tms-switch-coinpay:before{content:"\\6253\\8D4F"}@media screen and (max-width:768px){body{margin-bottom:60px}.tms-switch:last-of-type{right:8px;bottom:10px}.tms-switch:nth-last-of-type(2){right:85px;bottom:10px}.tms-switch:nth-last-of-type(3){right:165px;bottom:10px}.tms-switch:nth-last-of-type(4){right:176px;bottom:10px}.tms-switch:nth-last-of-type(5){right:232px;bottom:10px}.tms-switch:nth-last-of-type(6){right:288px;bottom:10px}}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:"\\5173\\95ED";position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}',""])},function(t,e,n){var r=n(16);"string"==typeof r&&(r=[[t.i,r,""]]);n(1)(r,{});r.locals&&(t.exports=r.locals)},function(t,e,n){"use strict";window.__util={},window.__util.makeDialog=function(t,e){var n,r;return r=document.createElement("div"),r.setAttribute("id",t),r.classList.add("dialog","mask"),n="<div class='dialog dlg'>",e.header&&e.header.length&&(n+="<div class='dlg-header'>"+e.header+"</div>"),n+="<div class='dlg-body'>"+e.body+"</div>",e.footer&&e.footer.length&&(n+="<div class='dlg-footer'>"+e.footer+"</div>"),n+="</div>",r.innerHTML=n,document.body.appendChild(r),r.children};var r=angular.module("directive.enroll",[]);r.directive("tmsDate",["$compile",function(t){return{restrict:"A",scope:{value:"=tmsDateValue"},controller:["$scope",function(t){t.close=function(){var e;e=document.querySelector("#"+t.dialogID),document.body.removeChild(e),t.opened=!1},t.ok=function(){var e;e=new Date,e.setTime(0),e.setFullYear(t.data.year),e.setMonth(t.data.month-1),e.setDate(t.data.date),e.setHours(t.data.hour),e.setMinutes(t.data.minute),t.value=parseInt(e.getTime()/1e3),t.close()}}],link:function(e,n,r){var i,o,a,s;void 0===e.value&&(e.value=1*new Date/1e3),o=new Date,o.setTime(1e3*e.value),e.options={years:[2014,2015,2016,2017],months:[1,2,3,4,5,6,7,8,9,10,11,12],dates:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],hours:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],minutes:[0,5,10,15,20,25,30,35,40,45,50,55]},a=5*Math.round(o.getMinutes()/5),e.data={year:o.getFullYear(),month:o.getMonth()+1,date:o.getDate(),hour:o.getHours(),minute:a},-1===e.options.minutes.indexOf(a)&&e.options.minutes.push(a),s='<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>',i=function(n){if(n.preventDefault(),n.stopPropagation(),!e.opened){var r,i;i="_dlg-"+1*new Date,r={header:"",body:s,footer:'<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'},r=__util.makeDialog(i,r),e.opened=!0,e.dialogID=i,t(r)(e)}},n[0].querySelector("[ng-bind]").addEventListener("click",i)}}}]),r.directive("tmsCheckboxGroup",function(){return{restrict:"A",link:function(t,e,n){var r,i,o,a;n.tmsCheckboxGroup&&n.tmsCheckboxGroup.length&&(r=n.tmsCheckboxGroup,n.tmsCheckboxGroupModel&&n.tmsCheckboxGroupModel.length&&(i=n.tmsCheckboxGroupModel,n.tmsCheckboxGroupUpper&&n.tmsCheckboxGroupUpper.length&&(a=n.tmsCheckboxGroupUpper,o=document.querySelectorAll("[name="+r+"]"),t.$watch(i+"."+r,function(t){var e;e=0,angular.forEach(t,function(t,n){t&&e++}),e>=a?[].forEach.call(o,function(t){void 0===t.checked?!t.classList.contains("checked")&&t.setAttribute("disabled",!0):!t.checked&&(t.disabled=!0)}):[].forEach.call(o,function(t){void 0===t.checked?t.removeAttribute("disabled"):t.disabled=!1})},!0))))}}}),r.directive("flexImg",function(){return{restrict:"A",replace:!0,template:"<img ng-src='{{img.imgSrc}}'>",link:function(t,e,n){angular.element(e).on("load",function(){var t,e,n=this.clientWidth,r=this.clientHeight;n>r?(t=n/r*80,angular.element(this).css({height:"100%",width:t+"px",top:"0",left:"50%","margin-left":-1*t/2+"px"})):(e=r/n*80,angular.element(this).css({width:"100%",height:e+"px",left:"0",top:"50%","margin-top":-1*e/2+"px"}))})}}}),r.service("srvUserTask",["$http","tmsModal",function(t,e){this.open=function(n){var r,i;i='<div class="modal-body">',n.summary&&(i+='<div class="form-group">活动说明：'+n.summary+"</div>"),r=n.userTask,i+='<table class="table table-bordered">',i+="<thead><tr><th>任务</th><th>要求</th><th>完成</th></tr></thead>",i+="<tbody>",r.minEnrollNum&&parseInt(r.minEnrollNum)>0&&(i+="<tr>",i+="<td>至少填写记录条数</td>",i+="<td>"+r.minEnrollNum+"</td>",i+="<td>{{enrollee.enroll_num}}</td>",i+="</tr>"),r.minRemarkNum&&parseInt(r.minRemarkNum)>0&&(i+="<tr>",i+="<td>至少发表评论条数</td>",i+="<td>"+r.minRemarkNum+"</td>",i+="<td>{{enrollee.remark_other_num}}</td>",i+="</tr>"),r.minLikeNum&&parseInt(r.minLikeNum)>0&&(i+="<tr>",i+="<td>对记录至少发表赞同的条数</td>",i+="<td>"+r.minLikeNum+"</td>",i+="<td>{{enrollee.like_other_num}}</td>",i+="</tr>"),r.maxLikeNum&&parseInt(r.maxLikeNum)>0&&(i+="<tr>",i+="<td>对记录最多发表赞同的条数</td>",i+="<td>"+r.maxLikeNum+"</td>",i+="<td>{{enrollee.like_other_num}}</td>",i+="</tr>"),i+="</tbody></table>",i+="</div>",i+='<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭任务说明</button></div>',e.open({template:i,controller:["$scope","$tmsModalInstance",function(e,r){t.get("/rest/site/fe/matter/enroll/user/task?site="+n.siteid+"&app="+n.id).success(function(t){e.enrollee=t.data}),e.cancel=function(){r.dismiss()}}]})}}])},function(t,e,n){e=t.exports=n(0)(void 0),e.push([t.i,"body,html{font-family:Microsoft Yahei,Arial;width:100%;height:auto}body{position:relative;font-size:16px;padding:0}.ng-cloak{display:none}.container{position:relative}.navbar-default .navbar-brand,.navbar-default .navbar-nav>li>a{color:#fff}.navbar-brand{height:55px;padding:17.5px 15px}.main-navbar .navbar-brand:hover{color:#fff}@media screen and (min-width:768px){.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1}}@media screen and (max-width:768px){.navbar-brand{width:100%;text-align:center}.navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.navbar-nav{margin:8px 0;position:absolute;top:0;right:0}.nav>li>a{padding:10px}}",""])},function(t,e,n){var r=n(19);"string"==typeof r&&(r=[[t.i,r,""]]);n(1)(r,{});r.locals&&(t.exports=r.locals)},function(t,e,n){"use strict";angular.module("http.ui.xxt",[]).service("http2",["$rootScope","$http","$timeout","$q","$sce","$compile",function(t,e,n,r,i,o){function a(e,n,r){var a;return a=angular.element("<div></div>"),a.attr({class:"tms-notice alert alert-"+(n||"info"),"ng-style":"{'z-index':1040}"}).html(i.trustAsHtml(e)),r||a[0].addEventListener("click",function(){document.body.removeChild(a[0])},!0),o(a)(t),document.body.appendChild(a[0]),a[0]}function s(t){t&&document.body.removeChild(t)}this.get=function(t,i){var o,c,l=r.defer();return i=angular.extend({headers:{accept:"application/json"},autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},i),!0===i.showProgress&&(c=n(function(){c=null,o=a(i.showProgressText,"info")},i.showProgressDelay)),e.get(t,i).success(function(t){if(!0===i.showProgress&&(c&&n.cancel(c),o&&(s(o),o=null)),angular.isString(t))return void(i.autoNotice&&a(t,"warning"));if(0!=t.err_code){if(i.autoNotice){var e;e=angular.isString(t.err_msg)?t.err_msg:angular.isArray(t.err_msg)?t.err_msg.join("<br>"):JSON.stringify(t.err_msg),a(e,"warning")}if(i.autoBreak)return}l.resolve(t)}).error(function(t,e){!0===i.showProgress&&(c&&n.cancel(c),o&&(s(o),o=null)),a(null===t?"网络不可用":t,"danger")}),l.promise},this.post=function(t,i,o){var c,l,u=r.defer();return o=angular.extend({headers:{accept:"application/json"},autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},o),!0===o.showProgress&&(l=n(function(){l=null,c=a(o.showProgressText,"info")},o.showProgressDelay)),e.post(t,i,o).success(function(t){if(!0===o.showProgress&&(l&&n.cancel(l),c&&(s(c),c=null)),angular.isString(t))return void(o.autoNotice&&(a(t,"warning"),c=null));if(0!=t.err_code){if(o.autoNotice){var e;e=angular.isString(t.err_msg)?t.err_msg:angular.isArray(t.err_msg)?t.err_msg.join("<br>"):JSON.stringify(t.err_msg),a(e,"warning")}if(o.autoBreak)return}u.resolve(t)}).error(function(t,e){!0===o.showProgress&&(l&&n.cancel(l),c&&(s(c),c=null)),a(null===t?"网络不可用":t,"danger")}),u.promise}}])},function(t,e,n){"use strict";n(12),/MicroMessenger/i.test(navigator.userAgent)&&window.signPackage&&window.wx?window.wx.ready(function(){window.wx.showOptionMenu()}):/YiXin/i.test(navigator.userAgent)&&document.addEventListener("YixinJSBridgeReady",function(){YixinJSBridge.call("showOptionMenu")},!1),n(17),n(20),n(21),n(2),n(15),n(11),n(14),n(18);var r=angular.module("app",["ngSanitize","ui.bootstrap","http.ui.xxt","page.ui.xxt","snsshare.ui.xxt","directive.enroll","siteuser.ui.xxt","favor.ui.xxt"]);r.provider("ls",function(){var t={};this.params=function(e){var n;return n=location.search,angular.forEach(e,function(e){var r,i;i=new RegExp(e+"=([^&]*)"),r=n.match(i),t[e]=r?r[1]:""}),t},this.$get=function(){return{p:t,j:function(e){var n=1,r=arguments.length,i="/rest/site/fe/matter/enroll",o=[];for(e&&e.length&&(i+="/"+e);n<r;n++)o.push(arguments[n]+"="+t[arguments[n]]);return o.length&&(i+="?"+o.join("&")),i}}}}),r.config(["$controllerProvider","$uibTooltipProvider","lsProvider",function(t,e,n){r.provider={controller:t.register},e.setTriggers({show:"hide"}),n.params(["site","app","rid","page","ek","preview","newRecord","ignoretime"])}]),r.controller("ctrlAppTip",["$scope","$interval",function(t,e){var n;t.autoCloseTime=6,t.domId="",t.closeTip=function(){var e=document.querySelector(t.domId),n=document.createEvent("HTMLEvents");n.initEvent("hide",!1,!1),e.dispatchEvent(n)},n=e(function(){0===--t.autoCloseTime&&(e.cancel(n),t.closeTip())},1e3)}]),r.controller("ctrlMain",["$scope","$q","$http","$timeout","srvUserTask","ls","tmsDynaPage","tmsSnsShare","tmsSiteUser","tmsFavor",function(t,e,n,i,o,a,s,c,l,u){function d(){var r,i;return i=e.defer(),r=a.j("actionRule","site","app"),n.get(r).success(function(e){t.params.actionRule=e.data,i.resolve(e.data)}),i.promise}function f(t,e){var n,r,i;n=document.body,r=document.createElement("div"),r.setAttribute("id","frmPlugin"),r.height=n.clientHeight,i=document.createElement("iframe"),r.appendChild(i),n.scrollTop=0,n.appendChild(r),window.onClosePlugin=function(){e?e().then(function(t){r.parentNode.removeChild(r)}):r.parentNode.removeChild(r)},r.onclick=function(){onClosePlugin()},t&&i.setAttribute("src",t),r.style.display="block"}function p(e){var n,r,i,o;o=!0,n=t,i=e.match(/\((.*?)\)/)[1].replace(/'|"/g,"").split(","),angular.forEach(e.replace(/\(.*?\)/,"").split("."),function(t){if(r&&(n=r),!n[t])return void(o=!1);r=n[t]}),o&&r.apply(n,i)}var h=[];t.notice={msg:"",set:function(t,e){this.msg=t,this.type=e||"error"}},t.back=function(){history.back()},t.historyLen=function(){return history.length},t.closeWindow=function(){/MicroMessenger/i.test(navigator.userAgent)?window.wx.closeWindow():/YiXin/i.test(navigator.userAgent)&&window.YixinJSBridge.call("closeWebView")},t.askFollowSns=function(){var e;t.app.entry_rule&&"sns"===t.app.entry_rule.scope&&(e=a.j("askFollow","site"),e+="&sns="+Object.keys(t.app.entry_rule.sns).join(","),f(e,d))},t.askBecomeMember=function(){var e,n;t.app.entry_rule&&"member"===t.app.entry_rule.scope&&(n=Object.keys(t.app.entry_rule.member),1===n.length?(e="/rest/site/fe/user/member?site="+t.app.siteid,e+="&schema="+n[0]):n.length>1&&(e="/rest/site/fe/user/memberschema?site="+t.app.siteid,e+="&schema="+n.join(",")),f(e,d))},t.addRecord=function(e,n){if(n)t.gotoPage(e,n,null,null,"Y");else for(var r in t.app.pages){var i=t.app.pages[r];if("I"===i.type){t.gotoPage(e,i.name,null,null,"Y");break}}},t.showUserTask=function(){o.open(t.app)},t.gotoPage=function(t,e,n,r,i){t&&(t.preventDefault(),t.stopPropagation());var o=a.j("","site","app");n&&(o+="&ek="+n),void 0!==r&&null!==r&&r.length&&(o+="&rid="+r),void 0!==e&&null!==e&&e.length&&(o+="&page="+e),void 0!==i&&"Y"===i&&(o+="&newRecord=Y"),/remark|repos/.test(e)?location=o:location.replace(o)},t.openMatter=function(t,e,n,r){var i="/rest/site/fe/matter?site="+a.p.site+"&id="+t+"&type="+e;n?location.replace(i):!1===r?location.href=i:window.open(i)},t.onReady=function(e){t.params?p(e):h.push(e)},t.save=function(){t.$broadcast("xxt.app.enroll.save")},n.get(a.j("get","site","app","rid","page","ek","newRecord")).success(function(e){if(0!==e.err_code)return void(t.errmsg=e.err_msg);var o,d,f,p=e.data,g=p.site,m=p.app,v=p.mission,y=p.page,b=p.user,w={},x={};if(m.dataSchemas.forEach(function(t){w[t.id]=t}),m._schemasById=w,m.dataTags.forEach(function(t){x[t.id]=t}),m._tagsById=x,t.params=p,t.site=g,t.mission=v,t.app=m,t.user=b,"Y"===m.multi_rounds&&(t.activeRound=p.activeRound),p.record&&p.record.data_tag)for(var _ in p.record.data_tag){var k=p.record.data_tag[_],E=[];k.forEach(function(t){x[t]&&E.push(x[t])}),p.record.data_tag[_]=E}o=b.uid+"_"+1*new Date,d="http://"+location.host+a.j("","site","app","rid","newRecord"),d+="&shareby="+o,y&&y.share_page&&"Y"===y.share_page&&(d+="&page="+y.name,p.record&&p.record.enroll_key&&(d+="&ek="+p.record.enroll_key),/iphone|ipad/i.test(navigator.userAgent)||window.history&&window.history.replaceState&&window.history.replaceState({},m.title,d)),/MicroMessenger|Yixin/i.test(navigator.userAgent)&&(f=m.summary,y&&y.share_summary&&y.share_summary.length&&p.record&&(f=p.record.data[y.share_summary]),window.shareCounter=0,c.config({siteId:m.siteid,logger:function(t){var e;e="/rest/site/fe/matter/logShare",e+="?shareid="+o,e+="&site="+m.siteid,e+="&id="+m.id,e+="&type=enroll",e+="&title="+m.title,e+="&shareby="+o,e+="&shareto="+t,n.get(e),window.shareCounter++,"Y"===m.can_autoenroll&&"Y"===y.autoenroll_onshare&&n.get(a.j("emptyGet","site","app")+"&once=Y"),window.onshare&&window.onshare(window.shareCounter)},jsApiList:["hideOptionMenu","onMenuShareTimeline","onMenuShareAppMessage","chooseImage","uploadImage","getLocation"]}),c.set(m.title,d,f,m.pic)),"Y"===m.use_site_header&&g&&g.header_page&&s.loadCode(r,g.header_page),"Y"===m.use_mission_header&&v&&v.header_page&&s.loadCode(r,v.header_page),"Y"===m.use_mission_footer&&v&&v.footer_page&&s.loadCode(r,v.footer_page),"Y"===m.use_site_footer&&g&&g.footer_page&&s.loadCode(r,g.footer_page),p.page&&s.loadCode(r,p.page).then(function(){t.page=p.page}),h.length&&angular.forEach(h,PG.exec),document.querySelector(".tms-switch-favor")?t.favor=function(t,e){event.preventDefault(),event.stopPropagation(),t.loginExpire?u.open(e):s.openPlugin("http://"+location.host+"/rest/site/fe/user/login?site="+e.siteid).then(function(n){t.loginExpire=n.loginExpire,u.open(e)})}:u.showSwitch(t.user,m),"Y"===m.can_siteuser&&(document.querySelector(".tms-switch-siteuser")?t.siteUser=function(t){event.preventDefault(),event.stopPropagation();var e="http://"+location.host;e+="/rest/site/fe/user",e+="?site="+t,location.href=e}:l.showSwitch(m.siteid,!0)),t.isSmallLayout=!1,window.screen&&window.screen.width<992&&(t.isSmallLayout=!0),i(function(){t.$broadcast("xxt.app.enroll.ready",p)});var S;(S=document.querySelector(".loading"))&&S.parentNode.removeChild(S),n.post("/rest/site/fe/matter/logAccess?site="+m.siteid+"&id="+m.id+"&type=enroll&title="+m.title+"&shareby=",{search:location.search.replace("?",""),referer:document.referrer})}).error(function(e,n){if(401===n){var r=document.createElement("iframe");r.setAttribute("id","frmPopup"),r.onload=function(){this.height=document.querySelector("body").clientHeight},document.body.appendChild(r),0===e.indexOf("http")?(window.onAuthSuccess=function(){r.style.display="none"},r.setAttribute("src",e),r.style.display="block"):r.contentDocument&&r.contentDocument.body&&(r.contentDocument.body.innerHTML=e,r.style.display="block")}else t.errmsg=e})}]),t.exports=r},function(t,e,n){"use strict";void 0===window.xxt&&(window.xxt={}),window.xxt.geo={options:{},getAddress:function(t,e,n){var r;if(r=e.promise,window.wx)window.wx.getLocation({success:function(r){var i="/rest/site/fe/matter/enroll/locationGet";i+="?site="+n,i+="&lat="+r.latitude,i+="&lng="+r.longitude,t.get(i).then(function(t){e.resolve({errmsg:"ok",lat:r.latitude,lng:r.longitude,address:t.data.address})})}});else try{var i=window.navigator;if(null!==i){var o=i.geolocation;null!==o?o.getCurrentPosition(function(r){var i="/rest/site/fe/matter/enroll/locationGet";i+="?site="+n,i+="&lat="+r.coords.latitude,i+="&lng="+r.coords.longitude,t.get(i).then(function(t){e.resolve({errmsg:"ok",lat:r.coords.latitude,lng:r.coords.longitude,address:t.data.address})})},function(){e.resolve({errmsg:"获取地理位置失败"})}):e.resolve({errmsg:"无法获取地理位置"})}else e.resolve({errmsg:"无法获取地理位置"})}catch(t){alert("exception:"+t.message)}return r}}},function(t,e,n){"use strict";void 0===window.xxt&&(window.xxt={}),window.xxt.image={options:{},choose:function(t,e){var n,r=[];if(n=t.promise,window.YixinJSBridge)window.YixinJSBridge.invoke("pickImage",{type:e,quality:100},function(e){var n;e.data&&e.data.length&&(n={imgSrc:"data:"+e.mime+";base64,"+e.data},r.push(n)),t.resolve(r)});else{var i=document.createElement("input");i.setAttribute("type","file"),i.addEventListener("change",function(e){var n,o,a,s;for(o=e.target.files.length,n=0;n<o;n++){a=e.target.files[n],s={".jp":"image/jpeg",".pn":"image/png",".gi":"image/gif"}[a.name.match(/\.(\w){2}/g)[0]||".jp"],a.type2=a.type||s;var c=new FileReader;c.onload=function(e){return function(n){var o={};o.imgSrc=n.target.result.replace(/^.+(,)/,"data:"+e.type2+";base64,"),r.push(o),document.body.removeChild(i),t.resolve(r)}}(a),c.readAsDataURL(a)}},!1),i.style.opacity=0,document.body.appendChild(i),i.click()}return n},wxUpload:function(t,e){var n;return n=t.promise,0===e.imgSrc.indexOf("weixin://")||0===e.imgSrc.indexOf("wxLocalResource://")?window.wx.uploadImage({localId:e.imgSrc,isShowProgressTips:1,success:function(n){e.serverId=n.serverId,t.resolve(e)}}):t.resolve(e),n}}},,,,,,,function(t,e,n){"use strict";var r={};r.isEmpty=function(t,e){if(void 0===e)return!0;switch(t.type){case"multiple":for(var n in e)if(!0===e[n])return!1;return!0;default:return 0===e.length}},r.checkRequire=function(t,e){return void 0!==e&&!this.isEmpty(t,e)||"请填写必填题目［"+t.title+"］"},r.checkFormat=function(t,e){if("number"===t.format){if(!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(e))return"题目［"+t.title+"］请输入数值"}else if("name"===t.format){if(e.length<2)return"题目［"+t.title+"］请输入正确的姓名（不少于2个字符）"}else if("mobile"===t.format){if(!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(e))return"题目［"+t.title+"］请输入正确的手机号（11位数字）"}else if("email"===t.format&&!/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(e))return"题目［"+t.title+"］请输入正确的邮箱";return!0},r.checkCount=function(t,e){return!(void 0!==t.count&&e.length>t.count)||"［"+t.title+"］超出上传数量（"+t.count+"）限制"},r.checkValue=function(t,e){var n;if(t.required&&"Y"===t.required&&!0!==(n=this.checkRequire(t,e)))return n;if(e){if("shorttext"===t.type&&t.format&&!0!==(n=this.checkFormat(t,e)))return n;if("multiple"===t.type&&"Y"===t.limitChoice&&t.range){var r=0;for(var i in e)e[i]&&r++;if(r<t.range[0]||r>t.range[1])return"【"+t.title+"】中最多只能选择("+t.range[1]+")项，最少需要选择("+t.range[0]+")项"}if(/image|file/.test(t.type)&&t.count&&!0!==(n=this.checkCount(t,e)))return n}return!0},r.loadRecord=function(t,e,n){if(!n)return!1;var r,i;for(r in n)if("member"===r)angular.isString(n.member)&&(n.member=JSON.parse(n.member)),e.member=angular.extend(e.member,n.member);else if(void 0!==t[r]){var o=t[r];if("score"===o.type)e[r]=n[r];else if(n[r].length)if("image"===t[r].type){i=n[r].split(","),e[r]=[];for(var a in i)e[r].push({imgSrc:i[a]})}else if("multiple"===t[r].type){i=n[r].split(","),e[r]={};for(var a in i)e[r][i[a]]=!0}else e[r]=n[r]}return!0},r.autoFillMember=function(t,e){var n,r;t&&e&&e.schema_id&&t.members&&(n=t.members[e.schema_id])&&(angular.isString(n.extattr)&&(n.extattr.length?n.extattr=JSON.parse(n.extattr):n.extattr={}),r=document.querySelectorAll("[ng-model^='data.member']"),angular.forEach(r,function(t){var r;r=t.getAttribute("ng-model"),r=r.replace("data.member.",""),r=r.split("."),2==r.length?(!e.extattr&&(e.extattr={}),e.extattr[r[1]]=n.extattr[r[1]]):e[r[0]]=n[r[0]]}))},t.exports=r},function(t,e,n){"use strict";var r={};r.state={modified:!1,state:"waiting",_cacheKey:!1,start:function(t,e){var n;if(t&&(n=t.target,("BUTTON"===n.tagName||(n=n.parentNode)&&"BUTTON"===n.tagName)&&/submit\(.*\)/.test(n.getAttribute("ng-click")))){var r;this.button=n,r=n.querySelector("span"),r.setAttribute("data-label",r.innerHTML),r.innerHTML="正在提交数据...",this.button.classList.add("submit-running")}this.state="running",this._cacheKey=e||1*new Date},finish:function(t){if(this.state="waiting",this.modified=!1,this.button){var e;e=this.button.querySelector("span"),e.innerHTML=e.getAttribute("data-label"),e.removeAttribute("data-label"),this.button.classList.remove("submit-running"),this.button=null}window.localStorage&&!t&&window.localStorage.removeItem(this._cacheKey)},isRunning:function(){return"running"===this.state},cache:function(t){if(window.localStorage){var e,n;e=this._cacheKey,n=angular.copy(t),n._cacheAt=1*new Date,n=JSON.stringify(n),window.localStorage.setItem(e,n)}},fromCache:function(t){if(window.localStorage){var e,n;e=this._cacheKey,n=window.localStorage.getItem(e),t||window.localStorage.removeItem(e),n&&(n=JSON.parse(n),n._cacheAt&&n._cacheAt+18e5<1*new Date&&(n=!1),delete n._cacheAt)}return n}},t.exports=r},,,function(t,e,n){"use strict";n(61),n(24),n(23);var r=n(22);r.oUtilSchema=n(31),r.oUtilSubmit=n(32),r.config(["$compileProvider",function(t){t.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/)}]),r.factory("Input",["$q","$timeout","ls","http2",function(t,e,n,i){var o,a;return o=function(){},o.prototype.check=function(t,e,n){var i,o,a,s,c;if(n.data_schemas&&n.data_schemas.length){i=JSON.parse(n.data_schemas);for(var l=i.length-1;l>=0;l--){if(o=i[l],a=o.schema,0===a.id.indexOf("member.")){var u=a.id.substr(7);-1===u.indexOf(".")?s=t.member[u]:(u=u.split("."),s=t.member.extattr[u[1]])}else s=t[a.id];if(a.type&&"html"!==a.type&&!0!==(c=r.oUtilSchema.checkValue(a,s)))return c}}return!0},o.prototype.submit=function(e,r,o,a){var s,c,l,u,d,f;s=t.defer(),d=angular.copy(r),Object.keys&&0===Object.keys(d.member).length&&delete d.member,c=n.j("record/submit","site","app","rid"),e&&e.length&&(c+="&ek="+e);for(var p in d)if(l=d[p],angular.isArray(l)&&l.length&&void 0!==l[0].imgSrc&&void 0!==l[0].serverId)for(var h in l)u=l[h],delete u.imgSrc;if(f={},Object.keys&&Object.keys(o).length>0)for(var g in o)f[g]=[],o[g].forEach(function(t){f[g].push(t.id)});return i.post(c,{data:d,tag:o,supplement:a},{autoBreak:!1}).then(function(t){0==t.err_code?s.resolve(t):s.reject(t)}),s.promise},{ins:function(){return a||(a=new o),a}}}]),r.directive("tmsImageInput",["$compile","$q",function(t,e){var n,r;return n=[],r=function(e){var n;n="<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'camera')\">拍照</button></div>",n+="<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'album')\">相册</button></div>",n=window.__util.makeDialog("pickImageFrom",{body:n}),t(n)(e)},function(t){var n=e.defer();return n.resolve("ok"),n.promise},{restrict:"A",controller:["$scope","$timeout",function(t,i){t.chooseImage=function(o,a,s){if(null!==o&&(-1===n.indexOf(o)&&n.push(o),void 0===t.data[o]&&(t.data[o]=[]),null!==a&&t.data[o].length===a&&0!=a))return void t.$parent.notice.set("最多允许上传"+a+"张图片");if(window.YixinJSBridge){if(void 0===s)return t.cachedImgFieldName=o,void r(t);o=t.cachedImgFieldName,t.cachedImgFieldName=null,angular.element("#pickImageFrom").remove()}window.xxt.image.choose(e.defer(),s).then(function(e){var n,r,a,s;n=t.$root.$$phase,"$digest"===n||"$apply"===n?t.data[o]=t.data[o].concat(e):t.$apply(function(){t.data[o]=t.data[o].concat(e)}),i(function(){for(r=0,a=e.length;r<a;r++)s=e[r],document.querySelector('ul[name="'+o+'"] li:nth-last-child(2) img').setAttribute("src",s.imgSrc);t.$broadcast("xxt.enroll.image.choose.done",o)})})},t.removeImage=function(t,e){t.splice(e,1)}}]}}]),r.directive("tmsFileInput",["$q","ls","tmsDynaPage",function(t,e,n){var r,i;return n.loadScript(["/static/js/resumable.js"]).then(function(){r=new Resumable({target:e.j("record/uploadFile","site","app"),testChunks:!1,chunkSize:524288})}),i=function(e){var n;return n=t.defer(),r.files&&0!==r.files.length||n.resolve("empty"),r.on("progress",function(){var t,n;n=r.progress();var t=e.$root.$$phase;"$digest"===t||"$apply"===t?e.progressOfUploadFile=Math.ceil(100*n):e.$apply(function(){e.progressOfUploadFile=Math.ceil(100*n)})}),r.on("complete",function(){var t=e.$root.$$phase;"$digest"===t||"$apply"===t?e.progressOfUploadFile="完成":e.$apply(function(){e.progressOfUploadFile="完成"}),r.cancel(),n.resolve("ok")}),r.upload(),n.promise},{restrict:"A",controller:["$scope",function(t){t.progressOfUploadFile=0,t.beforeSubmit(function(){return i(t)}),t.chooseFile=function(e,n,i){var o=document.createElement("input");o.setAttribute("type","file"),void 0!==i&&o.setAttribute("accept",i),o.addEventListener("change",function(n){var i,a,s;for(a=n.target.files.length,i=0;i<a;i++)s=n.target.files[i],r.addFile(s),t.$apply(function(){void 0===t.data[e]&&(t.data[e]=[]),t.data[e].push({uniqueIdentifier:r.files[r.files.length-1].uniqueIdentifier,name:s.name,size:s.size,type:s.type,url:""}),t.$broadcast("xxt.enroll.file.choose.done",e)});o=null},!0),o.click()}}]}}]),r.controller("ctrlInput",["$scope","$q","$uibModal","$timeout","Input","ls","http2",function(t,e,n,i,o,a,s){function c(){var t;(t=document.querySelectorAll("button[ng-click]"))&&t.forEach(function(t){0===t.getAttribute("ng-click").indexOf("submit")&&(t.style.display="none")})}function l(t,e){(0,p[t])().then(function(n){t++,t<p.length?l(t,e):u(e)})}function u(e){var n;n=t.record?t.record.enroll_key:void 0,f.submit(n,t.data,t.tag,t.supplement).then(function(r){var i;h.finish(),"closeWindow"===e?t.closeWindow():"_autoForward"===e?(i=a.j("","site","app"),location.replace(i)):e&&e.length?(i=a.j("","site","app"),i+="&page="+e,i+="&ek="+r.data,location.replace(i)):(void 0===n&&(t.record={enroll_key:r.data}),t.$broadcast("xxt.app.enroll.submit.done",r.data))},function(t){h.finish()})}function d(){h.start(null,g),h.cache(t.data),h.finish(!0),t.$parent.notice.set("保存成功，关闭页面后，再次打开时自动恢复当前数据","success")}window.onbeforeunload=function(t){var e;if(h.modified)return e="已经修改的内容还没有保存，确定离开？",t=t||window.event,t&&(t.returnValue=e),e};var f,p,h,g;p=[],f=o.ins(),t.data={member:{}},t.tag={},t.supplement={},t.submitState=h=r.oUtilSubmit.state,t.beforeSubmit=function(t){-1===p.indexOf(t)&&p.push(t)},t.$on("xxt.app.enroll.save",function(){d()}),t.save=function(e,n){d(),t.gotoPage(e,n)},t.$on("xxt.app.enroll.ready",function(e,n){if(g="xxt.app.enroll:"+n.app.id+".user:"+n.user.uid+".cacheKey",t.schemasById=n.app._schemasById,n.record&&(r.oUtilSchema.loadRecord(n.app._schemasById,t.data,n.record.data),t.record=n.record,n.record.data_tag&&(t.tag=n.record.data_tag)),window.localStorage){h._cacheKey=g;var i=h.fromCache(g);i&&(i.member&&delete i.member,angular.extend(t.data,i),h.modified=!0)}if(t.$watch("data",function(t,e){t!==e&&(h.modified=!0)},!0),n.page&&n.page.act_schemas)for(var o=JSON.parse(n.page.act_schemas),a=o.length-1;a>=0;a--)if("save"===o[a].name){var s=document.querySelector(".tms-switch-save");s&&(s.style.display="none");break}n.app.end_submit_at>0&&parseInt(n.app.end_submit_at)<1*new Date/1e3&&(c(),t.$parent.notice.set("活动提交数据时间已经结束，不能提交数据")),n.user.unionid});var m=!1;t.$watch("data.member.schema_id",function(e){!1===m&&e&&t.user&&(r.oUtilSchema.autoFillMember(t.user,t.data.member),m=!0)}),t.submit=function(e,n){var r;h.isRunning()||(h.start(e,g),!0===(r=f.check(t.data,t.app,t.page))?p.length?l(0,n):u(n):(h.finish(),t.$parent.notice.set(r)))},t.tagRecordData=function(e){var r,i,o;r=t.app,(i=r._schemasById[e])&&(o=t.tag[e],n.open({templateUrl:"tagRecordData.html",controller:["$scope","$uibModalInstance",function(e,n){var a;e.schema=i,e.apptags=r.dataTags,e.model=a={selected:[]},o&&o.forEach(function(t){-1!==e.apptags.indexOf(t)&&(a.selected[e.apptags.indexOf(t)]=!0)}),e.createTag=function(){var n;e.model.newtag&&(n=e.model.newtag.replace(/\s/,","),n=n.split(","),s.post("/rest/site/fe/matter/enroll/tag/create?site="+t.app.siteid+"&app="+t.app.id,n).then(function(t){t.data.forEach(function(t){e.apptags.push(t)})}),e.model.newtag="")},e.cancel=function(){n.dismiss()},e.ok=function(){var t=[];a.selected.forEach(function(n,r){n&&t.push(e.apptags[r])}),n.close(t)}}],backdrop:"static"}).result.then(function(n){t.tag[e]=n}))},t.getMyLocation=function(n){window.xxt.geo.getAddress(s,e.defer(),a.p.site).then(function(e){t.data[n]=e.address})},t.dataBySchema=function(e){var r=t.app;n.open({templateUrl:"dataBySchema.html",controller:["$scope","$uibModalInstance",function(t,n){t.data={},t.cancel=function(){n.dismiss()},t.ok=function(){n.close(t.data)},s.get("/rest/site/fe/matter/enroll/repos/dataBySchema?site="+r.siteid+"&app="+r.id+"&schema="+e).then(function(e){t.records=e.data.records})}],backdrop:"static"}).result.then(function(n){t.data[e]=n.selected.value})},t.score=function(e,n,r){var i=t.schemasById[e],o=i.ops[n];void 0===t.data[e]&&(t.data[e]={},i.ops.forEach(function(e){t.data[i.id][e.v]=0})),t.data[e][o.v]=r},t.lessScore=function(e,n,r){if(!t.schemasById)return!1;var i=t.schemasById[e],o=i.ops[n];return void 0!==t.data[e]&&t.data[e][o.v]>=r}}])},,,,,,,,,,,,,,function(t,e,n){e=t.exports=n(0)(void 0),e.push([t.i,"img{max-width:100%}ul{list-style:none}li,ul{margin:0;padding:0}.list-group{margin-bottom:0}#notice{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}#notice.active{opacity:1;height:auto;z-index:999}li[wrap=score]{padding:4px 4px 4px 0}li[wrap=score] label{padding:3px;font-weight:400}li[wrap=score]>.number{display:inline-block;margin-top:6px;border:1px solid #ccc}li[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px;margin:4px;text-align:center;border-bottom:1px dotted #ddd}li[wrap=score]>.number>.in{background:#3b9}ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0;padding:0;float:left}ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}ul.img-tiles li.img-picker button span{font-size:36px}div[wrap].wrap-splitline{padding-bottom:.5em;border-bottom:1px solid #fff}div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0}div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}div[wrap=matter]>span{cursor:pointer;text-decoration:underline}.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff}",""])},,,,,,,,,,,,function(t,e,n){var r=n(49);"string"==typeof r&&(r=[[t.i,r,""]]);n(1)(r,{});r.locals&&(t.exports=r.locals)},,,,,,,,,,,,,,function(t,e,n){t.exports=n(35)}]);
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('modal.ui.xxt', []);
+ngMod.service('tmsModal', ['$rootScope', '$compile', '$q', '$controller', function($rootScope, $compile, $q, $controller) {
+    this.open = function(modalOptions) {
+        var modalResultDeferred = $q.defer(),
+            modalClosedDeferred = $q.defer();
+
+        var modalInstance = {
+            result: modalResultDeferred.promise,
+            closed: modalClosedDeferred.promise,
+            close: function(result) {
+                document.body.removeChild(modalDomEl[0]);
+                modalResultDeferred.resolve(result);
+            },
+            dismiss: function(reason) {
+                document.body.removeChild(modalDomEl[0]);
+                modalClosedDeferred.resolve(reason);
+            }
+        };
+
+        var modalScope;
+        modalScope = $rootScope.$new(true);
+        if (modalOptions.controller) {
+            $controller(modalOptions.controller, { $scope: modalScope, $tmsModalInstance: modalInstance });
+        }
+
+        var contentDomEl, dialogDomEl, backdropDomEl, modalDomEl;
+        /* content */
+        contentDomEl = angular.element('<div></div>');
+        contentDomEl.attr({
+            'class': 'modal-content',
+            'ng-style': '{\'z-index\':1060}'
+        }).append(modalOptions.template);
+
+        /* dialog */
+        dialogDomEl = angular.element('<div></div>');
+        dialogDomEl.attr({
+            'class': 'modal-dialog'
+        }).append(contentDomEl);
+
+        /* backdrop */
+        backdropDomEl = angular.element('<div></div>');
+        backdropDomEl.attr({
+            'class': 'modal-backdrop',
+            'ng-style': '{\'z-index\':1040}'
+        });
+
+        /* modal */
+        modalDomEl = angular.element('<div></div>');
+        modalDomEl.attr({
+            'class': 'modal',
+            'ng-style': '{\'z-index\':1050}',
+            'tabindex': -1
+        }).append(dialogDomEl).append(backdropDomEl);
+
+        $compile(modalDomEl)(modalScope);
+        document.body.appendChild(modalDomEl[0]);
+
+        return modalInstance;
+    };
+}]);
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(8);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../node_modules/css-loader/index.js!./xxt.ui.modal.css", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js!./xxt.ui.modal.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(5);
+
+__webpack_require__(2);
+__webpack_require__(4);
+
+var ngMod = angular.module('favor.ui.xxt', ['page.ui.xxt', 'modal.ui.xxt']);
+ngMod.service('tmsFavor', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsModal', function($rootScope, $http, $q, tmsDynaPage, tmsModal) {
+    function byPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/byUser';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function favorByPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/add';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function unfavorByPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/remove';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function bySite(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/sitesByUser?site=' + oMatter.siteid + '&id=' + oMatter.id + '&type=' + oMatter.type + '&_=' + (new Date() * 1);
+        $http.get(url).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                return;
+            }
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function favorBySite(oMatter, $aTargetSiteIds) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/add?id=' + oMatter.id + '&type=' + oMatter.type;
+        $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function unfavorBySite(oMatter, $aTargetSiteIds) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/remove?id=' + oMatter.id + '&type=' + oMatter.type;
+        $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    this.open = function(oMatter) {
+        var template;
+        template = '<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>';
+        template += '<div class="modal-body">';
+        template += '<div class="checkbox">';
+        template += '<label>';
+        template += '<input type=\'checkbox\' ng-true-value="\'Y\'" ng-false-value="\'N\'" ng-model=\'person._selected\'>';
+        template += '<span>个人账户</span>';
+        template += '<span ng-if="person._favored===\'Y\'">（已收藏）</span>';
+        template += '</label>';
+        template += '</div>';
+        template += '<div class="checkbox" ng-repeat="site in mySites">';
+        template += '<label>';
+        template += '<input type=\'checkbox\' ng-true-value="\'Y\'" ng-false-value="\'N\'" ng-model=\'site._selected\'>';
+        template += '<span>{{site.name}}</span>';
+        template += '<span ng-if="site._favored===\'Y\'">（已收藏）</span>';
+        template += '</label>';
+        template += '</div>'
+        template += '<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>';
+        template += '</div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>';
+        tmsModal.open({
+            template: template,
+            controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {
+                byPerson(oMatter).then(function(log) {
+                    $scope2.person = {
+                        _favored: log ? 'Y' : 'N'
+                    };
+                    $scope2.person._selected = $scope2.person._favored;
+                });
+                bySite(oMatter).then(function(sites) {
+                    var mySites = sites;
+                    mySites.forEach(function(site) {
+                        site._selected = site._favored;
+                    });
+                    $scope2.mySites = mySites;
+                });
+                $scope2.createSite = function() {
+                    $http.get('/rest/pl/fe/site/create').success(function(rsp) {
+                        var site = rsp.data;
+                        site._favored = site._selected = 'N';
+                        $scope2.mySites = [site];
+                    })
+                };
+                $scope2.ok = function() {
+                    var result;
+                    result = {
+                        person: $scope2.person,
+                        mySites: $scope2.mySites
+                    }
+                    $mi.close(result);
+                };
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+            }]
+        }).result.then(function(result) {
+            var url, oPerson, mySites;
+            oPerson = result.person;
+            if (oPerson && oPerson._selected !== oPerson._favored) {
+                if (oPerson._selected === 'Y') {
+                    favorByPerson(oMatter);
+                } else {
+                    unfavorByPerson(oMatter);
+                }
+            }
+            mySites = result.mySites;
+            if (mySites) {
+                var favored = [],
+                    unfavored = [];
+                mySites.forEach(function(site) {
+                    if (site._selected !== site._favored) {
+                        if (site._selected === 'Y') {
+                            favored.push(site.id);
+                        } else {
+                            unfavored.push(site.id);
+                        }
+                    }
+                });
+                if (favored.length) {
+                    favorBySite(oMatter, favored);
+                }
+                if (unfavored.length) {
+                    unfavorBySite(oMatter, unfavored);
+                }
+            }
+        });
+    };
+    this.showSwitch = function(oUser, oMatter) {
+        var _this = this,
+            eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-favor');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $rootScope.$apply(function() {
+                if (!oUser.loginExpire) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+                        oUser.loginExpire = data.loginExpire;
+                        _this.open(oMatter);
+                    });
+                } else {
+                    _this.open(oMatter);
+                }
+            })
+        }, true);
+        document.body.appendChild(eSwitch);
+    };
+}]);
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ 
+ var ngMod = angular.module('snsshare.ui.xxt', []);
+ ngMod.service('tmsSnsShare', ['$http', function($http) {
+     function setWxShare(title, link, desc, img, options) {
+         var _this = this;
+         window.wx.onMenuShareTimeline({
+             title: options.descAsTitle ? desc : title,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('T');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                alert('shareT: fail');
+             }
+         });
+         window.wx.onMenuShareAppMessage({
+             title: title,
+             desc: desc,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('F');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                alert('shareF: fail');
+             }
+         });
+     }
+
+     function setYxShare(title, link, desc, img, options) {
+         var _this = this,
+             shareData = {
+                 'img_url': img,
+                 'link': link,
+                 'title': title,
+                 'desc': desc
+             };
+
+         window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
+             try {
+                 options.logger && options.logger('F');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
+         });
+         window.YixinJSBridge.on('menu:share:timeline', function(argv) {
+             try {
+                 options.logger && options.logger('T');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
+         });
+     }
+
+     this.config = function(options) {
+         this.options = options;
+     };
+     this.set = function(title, link, desc, img, fnOther) {
+         var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf('http') === -1 && (img = 'http://' + location.host + img);
+         if (/MicroMessenger/i.test(navigator.userAgent)) {
+             var script;
+             script = document.createElement('script');
+             script.src = 'http://res.wx.qq.com/open/js/jweixin-1.0.0.js';
+             script.onload = function() {
+                 var xhr, url;
+                 xhr = new XMLHttpRequest();
+                 url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                 xhr.open('GET', url, true);
+                 xhr.onreadystatechange = function() {
+                     if (xhr.readyState == 4) {
+                         if (xhr.status >= 200 && xhr.status < 400) {
+                             var signPackage;
+                             try {
+                                 eval("(" + xhr.responseText + ')');
+                                 if (signPackage) {
+                                     signPackage.debug = false;
+                                     signPackage.jsApiList = _this.options.jsApiList;
+                                     wx.config(signPackage);
+                                     wx.ready(function() {
+                                        setWxShare(title, link, desc, img, _this.options);
+                                     });
+                                     wx.error(function(res){
+                                        alert(res);
+                                     });
+                                 }
+                             } catch (e) {
+                                 alert('local error:' + e.toString());
+                             }
+                         } else {
+                             alert('http error:' + xhr.statusText);
+                         }
+                     };
+                 }
+                 xhr.send();
+             };
+             document.body.appendChild(script);
+         } else if (/Yixin/i.test(navigator.userAgent)) {
+             if (window.YixinJSBridge === undefined) {
+                 document.addEventListener('YixinJSBridgeReady', function() {
+                     setYxShare(title, link, desc, img, _this.options);
+                 }, false);
+             } else {
+                 setYxShare(title, link, desc, img, _this.options);
+             }
+         } else if (fnOther && typeof fnOther === 'function') {
+             fnOther(title, link, desc, img);
+         }
+     };
+ }]);
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".modal {\r\n    display: block;\r\n    overflow: hidden;\r\n    position: fixed;\r\n    top: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    left: 0;\r\n    outline: 0;\r\n    opacity: 1;\r\n    overflow-x: hidden;\r\n    overflow-y: auto;\r\n    opacity: 1;\r\n}\r\n\r\n.modal-backdrop {\r\n    position: fixed;\r\n    top: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    left: 0;\r\n    background-color: #000;\r\n    opacity: .5;\r\n}\r\n\r\n.modal-dialog {\r\n    position: relative;\r\n    z-index: 1055;\r\n    margin: 0;\r\n    position: relative;\r\n    width: auto;\r\n    margin: 10px;\r\n}\r\n\r\n.modal-content {\r\n    position: relative;\r\n    background-color: #fff;\r\n    -webkit-background-clip: padding-box;\r\n    background-clip: padding-box;\r\n    border: 1px solid #999;\r\n    border: 1px solid rgba(0, 0, 0, .2);\r\n    border-radius: 6px;\r\n    outline: 0;\r\n    -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);\r\n    box-shadow: 0 3px 9px rgba(0, 0, 0, .5);\r\n}\r\n\r\n.modal-header {\r\n    padding: 15px;\r\n    border-bottom: 1px solid #e5e5e5;\r\n}\r\n\r\n.modal-header .close {\r\n    margin-top: -2px;\r\n}\r\n\r\n.modal-title {\r\n    margin: 0;\r\n    line-height: 1.42857143;\r\n}\r\n\r\n.modal-body {\r\n    position: relative;\r\n    padding: 15px;\r\n}\r\n\r\n.modal-footer {\r\n    padding: 15px;\r\n    text-align: right;\r\n    border-top: 1px solid #e5e5e5;\r\n}\r\n\r\nbutton.close {\r\n    -webkit-appearance: none;\r\n    padding: 0;\r\n    cursor: pointer;\r\n    background: 0 0;\r\n    border: 0;\r\n}\r\n\r\n.close {\r\n    float: right;\r\n    font-size: 21px;\r\n    font-weight: 700;\r\n    line-height: 1;\r\n    color: #000;\r\n    text-shadow: 0 1px 0 #fff;\r\n    filter: alpha(opacity=20);\r\n    opacity: .2;\r\n}\r\n\r\n@media (min-width:768px) {\r\n    .modal-dialog {\r\n        width: 600px;\r\n        margin: 30px auto;\r\n    }\r\n    .modal-content {\r\n        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);\r\n        box-shadow: 0 5px 15px rgba(0, 0, 0, .5);\r\n    }\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('coinpay.ui.xxt', []);
+ngMod.service('tmsCoinPay', function() {
+    this.showSwitch = function(siteId, matter) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-coinpay');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = 'http://' + location.host;
+            url += '/rest/site/fe/coin/pay';
+            url += "?site=" + siteId;
+            url += "&matter=" + matter;
+            openPlugin(url);
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('siteuser.ui.xxt', []);
+ngMod.service('tmsSiteUser', function() {
+    this.showSwitch = function(siteId, redirect) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-siteuser');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = 'http://' + location.host;
+            url += '/rest/site/fe/user';
+            url += "?site=" + siteId;
+            if (redirect) {
+                location.href = url;
+            } else {
+                openPlugin(url);
+            }
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "/*dialog*/\r\n.dialog.mask{position:fixed;background:rgba(0,0,0,0.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}\r\n.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}\r\n.dialog .dlg-header{padding:15px 15px 0 15px}\r\n.dialog .dlg-body{padding:15px 15px 0 15px}\r\n.dialog .dlg-footer{text-align:right;padding:15px}\r\n.dialog .dlg-footer button{border-radius:0}\r\n\r\n/*filter*/\r\ndiv[wrap=filter] .detail{background:#ccc}\r\ndiv[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}\r\ndiv[wrap=filter] .detail .actions .btn{border-radius:0}\r\n\r\n/*switch*/\r\n.tms-switch{position:fixed;right:15px;width:70px;box-shadow:0px 2px 6px rgba(18,27,32,0.425);height:35px;color:#2994d0;background:#f8fcfe;border-radius:21px;font-size:24px;line-height:27px;text-align:center;cursor:pointer;z-index:1050;}\r\n.tms-switch:before{font-size:0.7em;}\r\n.tms-switch:nth-last-of-type(1){bottom:8px;}\r\n.tms-switch:nth-last-of-type(2){bottom:64px;}\r\n.tms-switch:nth-last-of-type(3){bottom:120px;}\r\n.tms-switch:nth-last-of-type(4){bottom:176px;}\r\n.tms-switch:nth-last-of-type(5){bottom:232px;}\r\n.tms-switch:nth-last-of-type(6){bottom:288px;}\r\n.tms-switch-back:before{content:'\\8FD4\\56DE';}\r\n.tms-switch-task:before{content:'\\4EFB\\52A1';}\r\n.tms-switch-save:before{content:'\\4FDD\\5B58';}\r\n.tms-switch-rank:before{content:'\\6392\\884C';}\r\n.tms-switch-repos:before{content:'\\5171\\4EAB';}\r\n.tms-switch-coinpay:before{content:'\\6253\\8D4F';}\r\n@media screen and (max-width:768px){\r\n\tbody{margin-bottom:60px;}\r\n\t.tms-switch:nth-last-of-type(1){right:8px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(2){right:85px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(3){right:165px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(4){right:176px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(5){right:232px;bottom:10px;}\r\n\t.tms-switch:nth-last-of-type(6){right:288px;bottom:10px;}\r\n}\r\n#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff;}\r\n#frmPlugin iframe{width:100%;height:100%;border:0;}\r\n#frmPlugin:after{content:'\\5173\\95ED';position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px;}\r\n\r\n/*input list view*/\r\ndiv[wrap]>.description{word-wrap:break-word;}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(11);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./directive.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./directive.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+window.__util = {};
+window.__util.makeDialog = function(id, html) {
+    var dlg, mask;
+
+    mask = document.createElement('div');
+    mask.setAttribute('id', id);
+    mask.classList.add('dialog', 'mask');
+
+    dlg = "<div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div>";
+
+    mask.innerHTML = dlg;
+
+    document.body.appendChild(mask);
+
+    return mask.children;
+};
+
+var ngMod = angular.module('directive.enroll', []);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsDateValue'
+        },
+        controller: ['$scope', function($scope) {
+            $scope.close = function() {
+                var mask;
+                mask = document.querySelector('#' + $scope.dialogID);
+                document.body.removeChild(mask);
+                $scope.opened = false;
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = parseInt(dtObject.getTime() / 1000);
+                $scope.close();
+            };
+        }],
+        link: function(scope, elem, attrs) {
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
+            dtObject = new Date();
+            dtObject.setTime(scope.value * 1000);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date() * 1);
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
+        }
+    }
+}]);
+ngMod.directive('tmsCheckboxGroup', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var groupName, model, options, upper;
+            if (attrs.tmsCheckboxGroup && attrs.tmsCheckboxGroup.length) {
+                groupName = attrs.tmsCheckboxGroup;
+                if (attrs.tmsCheckboxGroupModel && attrs.tmsCheckboxGroupModel.length) {
+                    model = attrs.tmsCheckboxGroupModel;
+                    if (attrs.tmsCheckboxGroupUpper && attrs.tmsCheckboxGroupUpper.length) {
+                        upper = attrs.tmsCheckboxGroupUpper;
+                        options = document.querySelectorAll('[name=' + groupName + ']');
+                        scope.$watch(model + '.' + groupName, function(data) {
+                            var cnt;
+                            cnt = 0;
+                            angular.forEach(data, function(v, p) {
+                                v && cnt++;
+                            });
+                            if (cnt >= upper) {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        !el.classList.contains('checked') && el.setAttribute('disabled', true);
+                                    } else {
+                                        !el.checked && (el.disabled = true);
+                                    }
+                                });
+                            } else {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        el.removeAttribute('disabled');
+                                    } else {
+                                        el.disabled = false;
+                                    }
+                                });
+                            }
+                        }, true);
+                    }
+                }
+            }
+        }
+    };
+});
+ngMod.directive('flexImg', function() {
+    return {
+        restrict: 'A',
+        replace: true,
+        template: "<img ng-src='{{img.imgSrc}}'>",
+        link: function(scope, elem, attrs) {
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
+                    sw, sh;
+                if (w > h) {
+                    sw = w / h * 80;
+                    angular.element(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
+                } else {
+                    sh = h / w * 80;
+                    angular.element(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
+                }
+            })
+        }
+    }
+});
+ngMod.service('srvUserTask', ['$http', 'tmsModal', function($http, tmsModal) {
+    this.open = function(oApp) {
+        var oUserTask, template;
+        template = '<div class="modal-body">';
+        if (oApp.summary) {
+            template += '<div class="form-group">活动说明：' + oApp.summary + '</div>';
+        }
+        oUserTask = oApp.userTask;
+        template += '<table class="table table-bordered">';
+        template += '<thead><tr><th>任务</th><th>要求</th><th>完成</th></tr></thead>';
+        template += '<tbody>';
+        if (oUserTask.minEnrollNum && parseInt(oUserTask.minEnrollNum) > 0) {
+            template += '<tr>';
+            template += '<td>至少填写记录条数</td>';
+            template += '<td>' + oUserTask.minEnrollNum + '</td>';
+            template += '<td>{{enrollee.enroll_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.minRemarkNum && parseInt(oUserTask.minRemarkNum) > 0) {
+            template += '<tr>';
+            template += '<td>至少发表评论条数</td>';
+            template += '<td>' + oUserTask.minRemarkNum + '</td>';
+            template += '<td>{{enrollee.remark_other_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.minLikeNum && parseInt(oUserTask.minLikeNum) > 0) {
+            template += '<tr>';
+            template += '<td>对记录至少发表赞同的条数</td>';
+            template += '<td>' + oUserTask.minLikeNum + '</td>';
+            template += '<td>{{enrollee.like_other_num}}</td>';
+            template += '</tr>';
+        }
+        if (oUserTask.maxLikeNum && parseInt(oUserTask.maxLikeNum) > 0) {
+            template += '<tr>';
+            template += '<td>对记录最多发表赞同的条数</td>';
+            template += '<td>' + oUserTask.maxLikeNum + '</td>';
+            template += '<td>{{enrollee.like_other_num}}</td>';
+            template += '</tr>';
+        }
+        template += '</tbody></table>';
+        template += '</div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭任务说明</button></div>';
+        tmsModal.open({
+            template: template,
+            controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {
+                $http.get('/rest/site/fe/matter/enroll/user/task?site=' + oApp.siteid + '&app=' + oApp.id).success(function(rsp) {
+                    $scope2.enrollee = rsp.data;
+                });
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+            }]
+        });
+    };
+}]);
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "html,body{font-family:Microsoft Yahei,Arial;width:100%;height:auto;}\r\nbody{position:relative;font-size:16px;padding:0;}\r\n.ng-cloak{display:none;}\r\n.container{position:relative;}\r\n.navbar-default .navbar-nav > li > a,.navbar-default .navbar-brand{color:#fff;}\r\n.navbar-brand{height:55px;padding:17.5px 15px;}\r\n.main-navbar .navbar-brand:hover{color:#fff;}\r\n@media screen and (min-width:768px){\r\n\t.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1;}\r\n}\r\n@media screen and (max-width:768px){\r\n\t.navbar-brand{width:100%;text-align:center;}\r\n\t.navbar-brand > .icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}\r\n\t.navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}\r\n\t.nav > li > a{padding:10px 10px;}\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(14);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./main.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./main.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('http.ui.xxt', []);
+ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
+    function createAlert(msg, type, keep) {
+        var alertDomEl;
+        /* backdrop */
+        alertDomEl = angular.element('<div></div>');
+        alertDomEl.attr({
+            'class': 'tms-notice alert alert-' + (type ? type : 'info'),
+            'ng-style': '{\'z-index\':1040}'
+        }).html($sce.trustAsHtml(msg));
+        if (!keep) {
+            alertDomEl[0].addEventListener('click', function() {
+                document.body.removeChild(alertDomEl[0]);
+            }, true);
+        }
+        $compile(alertDomEl)($rootScope);
+        document.body.appendChild(alertDomEl[0]);
+
+        return alertDomEl[0];
+    }
+
+    function removeAlert(alertDomEl) {
+        if (alertDomEl) {
+            document.body.removeChild(alertDomEl);
+        }
+    }
+
+    this.get = function(url, options) {
+        var _alert, _timer, _defer = $q.defer();
+        options = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(options.showProgressText, 'info');
+            }, options.showProgressDelay);
+        }
+        $http.get(url, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (angular.isString(rsp)) {
+                if (options.autoNotice) {
+                    createAlert(rsp, 'warning');
+                }
+                return;
+            }
+            if (rsp.err_code != 0) {
+                if (options.autoNotice) {
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else if (angular.isArray(rsp.err_msg)) {
+                        errmsg = rsp.err_msg.join('<br>');
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
+                }
+                if (options.autoBreak) return;
+            }
+            _defer.resolve(rsp);
+        }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+        return _defer.promise;
+    };
+    this.post = function(url, posted, options) {
+        var _alert, _timer, _defer = $q.defer();
+        options = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(options.showProgressText, 'info');
+            }, options.showProgressDelay);
+        }
+        $http.post(url, posted, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (angular.isString(rsp)) {
+                if (options.autoNotice) {
+                    createAlert(rsp, 'warning');
+                    _alert = null;
+                }
+                return;
+            }
+            if (rsp.err_code != 0) {
+                if (options.autoNotice) {
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else if (angular.isArray(rsp.err_msg)) {
+                        errmsg = rsp.err_msg.join('<br>');
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
+                }
+                if (options.autoBreak) return;
+            }
+            _defer.resolve(rsp);
+        }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+        return _defer.promise;
+    };
+}]);
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(7);
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
+    window.wx.ready(function() {
+        window.wx.showOptionMenu();
+    });
+} else if (/YiXin/i.test(navigator.userAgent)) {
+    document.addEventListener('YixinJSBridgeReady', function() {
+        YixinJSBridge.call('showOptionMenu');
+    }, false);
+}
+
+__webpack_require__(12);
+__webpack_require__(15);
+
+__webpack_require__(16);
+__webpack_require__(2);
+__webpack_require__(10);
+__webpack_require__(6);
+__webpack_require__(9);
+
+__webpack_require__(13);
+
+var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt']);
+ngApp.provider('ls', function() {
+    var _baseUrl = '/rest/site/fe/matter/enroll',
+        _params = {};
+
+    this.params = function(params) {
+        var ls;
+        ls = location.search;
+        angular.forEach(params, function(q) {
+            var match, pattern;
+            pattern = new RegExp(q + '=([^&]*)');
+            match = ls.match(pattern);
+            _params[q] = match ? match[1] : '';
+        });
+        return _params;
+    };
+
+    this.$get = function() {
+        return {
+            p: _params,
+            j: function(method) {
+                var i = 1,
+                    l = arguments.length,
+                    url = _baseUrl,
+                    _this = this,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (; i < l; i++) {
+                    search.push(arguments[i] + '=' + _params[arguments[i]]);
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            }
+        };
+    };
+});
+ngApp.config(['$controllerProvider', '$uibTooltipProvider', 'lsProvider', function($cp, $uibTooltipProvider, lsProvider) {
+    ngApp.provider = {
+        controller: $cp.register
+    };
+    $uibTooltipProvider.setTriggers({ 'show': 'hide' });
+    lsProvider.params(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
+}]);
+ngApp.controller('ctrlAppTip', ['$scope', '$interval', function($scope, $interval) {
+    var timer;
+    $scope.autoCloseTime = 6;
+    $scope.domId = '';
+    $scope.closeTip = function() {
+        var domTip = document.querySelector($scope.domId);
+        var evt = document.createEvent("HTMLEvents");
+        evt.initEvent("hide", false, false);
+        domTip.dispatchEvent(evt);
+    };
+    timer = $interval(function() {
+        $scope.autoCloseTime--;
+        if ($scope.autoCloseTime === 0) {
+            $interval.cancel(timer);
+            $scope.closeTip();
+        }
+    }, 1000);
+}]);
+ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, $http, $timeout, srvUserTask, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
+    function refreshActionRule() {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('actionRule', 'site', 'app');
+        $http.get(url).success(function(rsp) {
+            $scope.params.actionRule = rsp.data;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function openPlugin(url, fnCallback) {
+        var body, elWrap, elIframe;
+        body = document.body;
+        elWrap = document.createElement('div');
+        elWrap.setAttribute('id', 'frmPlugin');
+        elWrap.height = body.clientHeight;
+        elIframe = document.createElement('iframe');
+        elWrap.appendChild(elIframe);
+        body.scrollTop = 0;
+        body.appendChild(elWrap);
+        window.onClosePlugin = function() {
+            if (fnCallback) {
+                fnCallback().then(function(data) {
+                    elWrap.parentNode.removeChild(elWrap);
+                });
+            } else {
+                elWrap.parentNode.removeChild(elWrap);
+            }
+        };
+        elWrap.onclick = function() {
+            onClosePlugin();
+        };
+        if (url) {
+            elIframe.setAttribute('src', url);
+        }
+        elWrap.style.display = 'block';
+    }
+
+    function execTask(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    }
+    var tasksOfOnReady = [];
+    // 消息提醒
+    $scope.notice = {
+        msg: '',
+        set: function(msg, type) {
+            this.msg = msg;
+            this.type = type || 'error'
+        }
+    };
+    $scope.back = function() {
+        history.back();
+    };
+    $scope.historyLen = function() {
+        return history.length;
+    };
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            window.YixinJSBridge.call('closeWebView');
+        }
+    };
+    $scope.askFollowSns = function() {
+        var url;
+        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'sns') {
+            url = LS.j('askFollow', 'site');
+            url += '&sns=' + Object.keys($scope.app.entry_rule.sns).join(',');
+            openPlugin(url, refreshActionRule);
+        }
+    };
+    $scope.askBecomeMember = function() {
+        var url, mschemaIds;
+        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'member') {
+            mschemaIds = Object.keys($scope.app.entry_rule.member);
+            if (mschemaIds.length === 1) {
+                url = '/rest/site/fe/user/member?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds[0];
+            } else if (mschemaIds.length > 1) {
+                url = '/rest/site/fe/user/memberschema?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds.join(',');
+            }
+            openPlugin(url, refreshActionRule);
+        }
+    };
+    $scope.addRecord = function(event, page) {
+        if (page) {
+            $scope.gotoPage(event, page, null, null, 'Y');
+        } else {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    $scope.gotoPage(event, oPage.name, null, null, 'Y');
+                    break;
+                }
+            }
+        }
+    };
+    $scope.showUserTask = function() {
+        srvUserTask.open($scope.app);
+    };
+    $scope.gotoPage = function(event, page, ek, rid, newRecord) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        var url = LS.j('', 'site', 'app');
+        if (ek) {
+            url += '&ek=' + ek;
+        }
+        rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
+        page !== undefined && page !== null && page.length && (url += '&page=' + page);
+        newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
+        if (/remark|repos/.test(page)) {
+            location = url;
+        } else {
+            location.replace(url);
+        }
+    };
+    $scope.openMatter = function(id, type, replace, newWindow) {
+        var url = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + id + '&type=' + type;
+        if (replace) {
+            location.replace(url);
+        } else {
+            if (newWindow === false) {
+                location.href = url;
+            } else {
+                window.open(url);
+            }
+        }
+    };
+    $scope.onReady = function(task) {
+        if ($scope.params) {
+            execTask(task);
+        } else {
+            tasksOfOnReady.push(task);
+        }
+    };
+    $scope.save = function() {
+        $scope.$broadcast('xxt.app.enroll.save');
+    };
+    $http.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
+        if (rsp.err_code !== 0) {
+            $scope.errmsg = rsp.err_msg;
+            return;
+        }
+        var params = rsp.data,
+            oSite = params.site,
+            oApp = params.app,
+            oMission = params.mission,
+            oPage = params.page,
+            oUser = params.user,
+            schemasById = {},
+            tagsById = {},
+            shareid, sharelink, shareby, summary;
+
+        oApp.dataSchemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        oApp._schemasById = schemasById;
+        oApp.dataTags.forEach(function(oTag) {
+            tagsById[oTag.id] = oTag;
+        });
+        oApp._tagsById = tagsById;
+        $scope.params = params;
+        $scope.site = oSite;
+        $scope.mission = oMission;
+        $scope.app = oApp;
+        $scope.user = oUser;
+        if (oApp.multi_rounds === 'Y') {
+            $scope.activeRound = params.activeRound;
+        }
+        if (params.record) {
+            if (params.record.data_tag) {
+                for (var schemaId in params.record.data_tag) {
+                    var dataTags = params.record.data_tag[schemaId],
+                        converted = [];
+                    dataTags.forEach(function(tagId) {
+                        tagsById[tagId] && converted.push(tagsById[tagId]);
+                    });
+                    params.record.data_tag[schemaId] = converted;
+                }
+            }
+        }
+
+        /* 设置活动的当前链接 */
+        shareid = oUser.uid + '_' + (new Date() * 1);
+        sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid', 'newRecord');
+        sharelink += "&shareby=" + shareid;
+        if (oPage && oPage.share_page && oPage.share_page === 'Y') {
+            sharelink += '&page=' + oPage.name;
+            params.record && params.record.enroll_key && (sharelink += '&ek=' + params.record.enroll_key);
+            if (!(/iphone|ipad/i.test(navigator.userAgent))) {
+                /*ios下操作无效，且导致微信jssdk失败*/
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState({}, oApp.title, sharelink);
+                }
+            }
+        }
+        /* 设置分享 */
+        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+            summary = oApp.summary;
+            if (oPage && oPage.share_summary && oPage.share_summary.length && params.record) {
+                summary = params.record.data[oPage.share_summary];
+            }
+            /* 分享次数计数器 */
+            window.shareCounter = 0;
+            tmsSnsShare.config({
+                siteId: oApp.siteid,
+                logger: function(shareto) {
+                    var url;
+                    url = "/rest/site/fe/matter/logShare";
+                    url += "?shareid=" + shareid;
+                    url += "&site=" + oApp.siteid;
+                    url += "&id=" + oApp.id;
+                    url += "&type=enroll";
+                    url += "&title=" + oApp.title;
+                    url += "&shareby=" + shareid;
+                    url += "&shareto=" + shareto;
+                    $http.get(url);
+                    window.shareCounter++;
+                    if (oApp.can_autoenroll === 'Y' && oPage.autoenroll_onshare === 'Y') {
+                        $http.get(LS.j('emptyGet', 'site', 'app') + '&once=Y');
+                    }
+                    window.onshare && window.onshare(window.shareCounter);
+                },
+                jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']
+            });
+            tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
+        }
+
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
+        }
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, PG.exec);
+        }
+        if (!document.querySelector('.tms-switch-favor')) {
+            tmsFavor.showSwitch($scope.user, oApp);
+        } else {
+            $scope.favor = function(user, article) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!user.loginExpire) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+                        user.loginExpire = data.loginExpire;
+                        tmsFavor.open(article);
+                    });
+                } else {
+                    tmsFavor.open(article);
+                }
+            }
+        }
+        if (oApp.can_siteuser === 'Y') {
+            if (!document.querySelector('.tms-switch-siteuser')) {
+                tmsSiteUser.showSwitch(oApp.siteid, true);
+            } else {
+                $scope.siteUser = function(id) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    var url = 'http://' + location.host;
+                    url += '/rest/site/fe/user';
+                    url += "?site=" + id;
+                    location.href = url;
+                }
+            }
+        }
+        $scope.isSmallLayout = false;
+        if (window.screen && window.screen.width < 992) {
+            $scope.isSmallLayout = true;
+        }
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.enroll.ready', params);
+        });
+        //
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
+        //
+        $http.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid + '&id=' + oApp.id + '&type=enroll&title=' + oApp.title + '&shareby=', {
+            search: location.search.replace('?', ''),
+            referer: document.referrer
+        });
+    }).error(function(content, httpCode) {
+        if (httpCode === 401) {
+            var el = document.createElement('iframe');
+            el.setAttribute('id', 'frmPopup');
+            el.onload = function() {
+                this.height = document.querySelector('body').clientHeight;
+            };
+            document.body.appendChild(el);
+            if (content.indexOf('http') === 0) {
+                window.onAuthSuccess = function() {
+                    el.style.display = 'none';
+                };
+                el.setAttribute('src', content);
+                el.style.display = 'block';
+            } else {
+                if (el.contentDocument && el.contentDocument.body) {
+                    el.contentDocument.body.innerHTML = content;
+                    el.style.display = 'block';
+                }
+            }
+        } else {
+            $scope.errmsg = content;
+        }
+    });
+}]);
+module.exports = ngApp;
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.geo = {
+    options: {},
+    getAddress: function(http2, deferred, siteId) {
+        var promise;
+        promise = deferred.promise;
+        if (window.wx) {
+            window.wx.getLocation({
+                success: function(res) {
+                    var url = '/rest/site/fe/matter/enroll/locationGet';
+                    url += '?site=' + siteId;
+                    url += '&lat=' + res.latitude;
+                    url += '&lng=' + res.longitude;
+                    http2.get(url).then(function(rsp) {
+                        deferred.resolve({
+                            errmsg: 'ok',
+                            lat: res.latitude,
+                            lng: res.longitude,
+                            address: rsp.data.address
+                        });
+                    });
+                }
+            });
+        } else {
+            try {
+                var nav = window.navigator;
+                if (nav !== null) {
+                    var geoloc = nav.geolocation;
+                    if (geoloc !== null) {
+                        geoloc.getCurrentPosition(function(position) {
+                            var url = '/rest/site/fe/matter/enroll/locationGet';
+                            url += '?site=' + siteId;
+                            url += '&lat=' + position.coords.latitude;
+                            url += '&lng=' + position.coords.longitude;
+                            http2.get(url).then(function(rsp) {
+                                deferred.resolve({
+                                    errmsg: 'ok',
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude,
+                                    address: rsp.data.address
+                                });
+                            });
+                        }, function() {
+                            deferred.resolve({
+                                errmsg: '获取地理位置失败'
+                            })
+                        });
+                    } else {
+                        deferred.resolve({
+                            errmsg: "无法获取地理位置"
+                        });
+                    }
+                } else {
+                    deferred.resolve({
+                        errmsg: "无法获取地理位置"
+                    });
+                }
+            } catch (e) {
+                alert('exception:' + e.message);
+            }
+        }
+        return promise;
+    },
+};
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.image = {
+    options: {},
+    choose: function(deferred, from) {
+        var promise, imgs = [];
+        promise = deferred.promise;
+        // if (window.wx !== undefined) {
+        //     window.wx.chooseImage({
+        //         success: function(res) {
+        //             var i, img;
+        //             for (i in res.localIds) {
+        //                 img = {
+        //                     imgSrc: res.localIds[i]
+        //                 };
+        //                 imgs.push(img);
+        //             }
+        //             deferred.resolve(imgs);
+        //         }
+        //     });
+        // } else
+        if (window.YixinJSBridge) {
+            window.YixinJSBridge.invoke(
+                'pickImage', {
+                    type: from,
+                    quality: 100
+                },
+                function(result) {
+                    var img;
+                    if (result.data && result.data.length) {
+                        img = {
+                            imgSrc: 'data:' + result.mime + ';base64,' + result.data
+                        };
+                        imgs.push(img);
+                    }
+                    deferred.resolve(imgs);
+                });
+        } else {
+            var ele = document.createElement('input');
+            ele.setAttribute('type', 'file');
+            ele.addEventListener('change', function(evt) {
+                var i, cnt, f, type;
+                cnt = evt.target.files.length;
+                for (i = 0; i < cnt; i++) {
+                    f = evt.target.files[i];
+                    type = {
+                        ".jp": "image/jpeg",
+                        ".pn": "image/png",
+                        ".gi": "image/gif"
+                    }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                    f.type2 = f.type || type;
+                    var reader = new FileReader();
+                    reader.onload = (function(theFile) {
+                        return function(e) {
+                            var img = {};
+                            img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                            imgs.push(img);
+                            document.body.removeChild(ele);
+                            deferred.resolve(imgs);
+                        };
+                    })(f);
+                    reader.readAsDataURL(f);
+                }
+            }, false);
+            ele.style.opacity = 0;
+            document.body.appendChild(ele);
+            ele.click();
+        }
+        return promise;
+    },
+    wxUpload: function(deferred, img) {
+        var promise;
+        promise = deferred.promise;
+        if (0 === img.imgSrc.indexOf('weixin://') || 0 === img.imgSrc.indexOf('wxLocalResource://')) {
+            window.wx.uploadImage({
+                localId: img.imgSrc,
+                isShowProgressTips: 1,
+                success: function(res) {
+                    img.serverId = res.serverId;
+                    deferred.resolve(img);
+                }
+            });
+        } else {
+            deferred.resolve(img);
+        }
+        return promise;
+    }
+};
+
+
+/***/ }),
+/* 20 */,
+/* 21 */,
+/* 22 */,
+/* 23 */,
+/* 24 */,
+/* 25 */,
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var utilSchema = {};
+utilSchema.isEmpty = function(oSchema, value) {
+    if (value === undefined) {
+        return true;
+    }
+    switch (oSchema.type) {
+        case 'multiple':
+            for (var p in value) {
+                //至少有一个选项
+                if (value[p] === true) {
+                    return false;
+                }
+            }
+            return true;
+        default:
+            return value.length === 0;
+    }
+};
+utilSchema.checkRequire = function(oSchema, value) {
+    if (value === undefined || this.isEmpty(oSchema, value)) {
+        return '请填写必填题目［' + oSchema.title + '］';
+    }
+    return true;
+};
+utilSchema.checkFormat = function(oSchema, value) {
+    if (oSchema.format === 'number') {
+        if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入数值';
+        }
+    } else if (oSchema.format === 'name') {
+        if (value.length < 2) {
+            return '题目［' + oSchema.title + '］请输入正确的姓名（不少于2个字符）';
+        }
+    } else if (oSchema.format === 'mobile') {
+        if (!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入正确的手机号（11位数字）';
+        }
+    } else if (oSchema.format === 'email') {
+        if (!/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入正确的邮箱';
+        }
+    }
+    return true;
+};
+utilSchema.checkCount = function(oSchema, value) {
+    if (oSchema.count !== undefined && value.length > oSchema.count) {
+        return '［' + oSchema.title + '］超出上传数量（' + oSchema.count + '）限制';
+    }
+    return true;
+};
+utilSchema.checkValue = function(oSchema, value) {
+    var sCheckResult;
+    if (oSchema.required && oSchema.required === 'Y') {
+        if (true !== (sCheckResult = this.checkRequire(oSchema, value))) {
+            return sCheckResult;
+        }
+    }
+    if (value) {
+        if (oSchema.type === 'shorttext' && oSchema.format) {
+            if (true !== (sCheckResult = this.checkFormat(oSchema, value))) {
+                return sCheckResult;
+            }
+        }
+        if (oSchema.type === 'multiple' && oSchema.limitChoice === 'Y' && oSchema.range) {
+            var opCount = 0;
+            for (var i in value) {
+                if (value[i]) {
+                    opCount++;
+                }
+            }
+            if (opCount < oSchema.range[0] || opCount > oSchema.range[1]) {
+                return '【' + oSchema.title + '】中最多只能选择(' + oSchema.range[1] +')项，最少需要选择(' + oSchema.range[0] +')项';
+            }
+        }
+        if (/image|file/.test(oSchema.type) && oSchema.count) {
+            if (true !== (sCheckResult = this.checkCount(oSchema, value))) {
+                return sCheckResult;
+            }
+        }
+    }
+    return true;
+};
+utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
+    if (!dataOfRecord) return false;
+
+    var p, value;
+    for (p in dataOfRecord) {
+        if (p === 'member') {
+            /* 提交的数据覆盖自动填写的联系人数据 */
+            if (angular.isString(dataOfRecord.member)) {
+                dataOfRecord.member = JSON.parse(dataOfRecord.member);
+            }
+            dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
+        } else if (schemasById[p] !== undefined) {
+            var schema = schemasById[p];
+            if (schema.type === 'score') {
+                dataOfPage[p] = dataOfRecord[p];
+            } else if (dataOfRecord[p].length) {
+                if (schemasById[p].type === 'image') {
+                    value = dataOfRecord[p].split(',');
+                    dataOfPage[p] = [];
+                    for (var i in value) {
+                        dataOfPage[p].push({
+                            imgSrc: value[i]
+                        });
+                    }
+                } else if (schemasById[p].type === 'multiple') {
+                    value = dataOfRecord[p].split(',');
+                    dataOfPage[p] = {};
+                    for (var i in value) dataOfPage[p][value[i]] = true;
+                } else {
+                    dataOfPage[p] = dataOfRecord[p];
+                }
+            }
+        }
+    }
+    return true;
+};
+utilSchema.autoFillMember = function(user, member) {
+    var member2, eles;
+    if (user && member && member.schema_id && user.members) {
+        if (member2 = user.members[member.schema_id]) {
+            if (angular.isString(member2.extattr)) {
+                if (member2.extattr.length) {
+                    member2.extattr = JSON.parse(member2.extattr);
+                } else {
+                    member2.extattr = {};
+                }
+            }
+            eles = document.querySelectorAll("[ng-model^='data.member']");
+            angular.forEach(eles, function(ele) {
+                var attr;
+                attr = ele.getAttribute('ng-model');
+                attr = attr.replace('data.member.', '');
+                attr = attr.split('.');
+                if (attr.length == 2) {
+                    !member.extattr && (member.extattr = {});
+                    member.extattr[attr[1]] = member2.extattr[attr[1]];
+                } else {
+                    member[attr[0]] = member2[attr[0]];
+                }
+            });
+        }
+    }
+};
+module.exports = utilSchema;
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var utilSubmit = {};
+utilSubmit.state = {
+    modified: false,
+    state: 'waiting',
+    _cacheKey: false,
+    start: function(event, cacheKey) {
+        var submitButton;
+        if (event) {
+            submitButton = event.target;
+            if (submitButton.tagName === 'BUTTON' || ((submitButton = submitButton.parentNode) && submitButton.tagName === 'BUTTON')) {
+                if (/submit\(.*\)/.test(submitButton.getAttribute('ng-click'))) {
+                    var span;
+                    this.button = submitButton;
+                    span = submitButton.querySelector('span');
+                    span.setAttribute('data-label', span.innerHTML);
+                    span.innerHTML = '正在提交数据...';
+                    this.button.classList.add('submit-running');
+                }
+            }
+        }
+        this.state = 'running';
+        this._cacheKey = cacheKey ? cacheKey : (new Date * 1);
+    },
+    finish: function(keep) {
+        this.state = 'waiting';
+        this.modified = false;
+        if (this.button) {
+            var span;
+            span = this.button.querySelector('span');
+            span.innerHTML = span.getAttribute('data-label');
+            span.removeAttribute('data-label');
+            this.button.classList.remove('submit-running');
+            this.button = null;
+        }
+        if (window.localStorage && !keep) {
+            window.localStorage.removeItem(this._cacheKey);
+        }
+    },
+    isRunning: function() {
+        return this.state === 'running';
+    },
+    cache: function(cachedData) {
+        if (window.localStorage) {
+            var key, val;
+            key = this._cacheKey;
+            val = angular.copy(cachedData);
+            val._cacheAt = (new Date * 1);
+            val = JSON.stringify(val);
+            window.localStorage.setItem(key, val);
+        }
+    },
+    fromCache: function(keep) {
+        if (window.localStorage) {
+            var key, val;
+            key = this._cacheKey;
+            val = window.localStorage.getItem(key);
+            if (!keep) window.localStorage.removeItem(key);
+            if (val) {
+                val = JSON.parse(val);
+                /*if (val._cacheAt && (val._cacheAt + 1800000) < (new Date * 1)) {
+                    val = false;
+                }
+                delete val._cacheAt;*/
+            }
+        }
+        return val;
+    }
+};
+module.exports = utilSubmit;
+
+
+/***/ }),
+/* 28 */,
+/* 29 */,
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(56);
+
+__webpack_require__(19);
+__webpack_require__(18);
+
+var ngApp = __webpack_require__(17);
+ngApp.oUtilSchema = __webpack_require__(26);
+ngApp.oUtilSubmit = __webpack_require__(27);
+ngApp.config(['$compileProvider', function($compileProvider) {
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
+}]);
+ngApp.factory('Input', ['$q', '$timeout', 'ls', 'http2', function($q, $timeout, LS, http2) {
+    var Input, _ins;
+    Input = function() {};
+    Input.prototype.check = function(data, app, page) {
+        var dataSchemas, item, oSchema, value, sCheckResult;
+        if (page.data_schemas && page.data_schemas.length) {
+            dataSchemas = JSON.parse(page.data_schemas);
+            for (var i = dataSchemas.length - 1; i >= 0; i--) {
+                item = dataSchemas[i];
+                oSchema = item.schema;
+                if (oSchema.id.indexOf('member.') === 0) {
+                    var memberSchema = oSchema.id.substr(7);
+                    if (memberSchema.indexOf('.') === -1) {
+                        value = data.member[memberSchema];
+                    } else {
+                        memberSchema = memberSchema.split('.');
+                        value = data.member.extattr[memberSchema[1]];
+                    }
+                } else {
+                    value = data[oSchema.id];
+                }
+                if (oSchema.type && oSchema.type !== 'html') {
+                    if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                        return sCheckResult;
+                    }
+                }
+            }
+        }
+        return true;
+    };
+    Input.prototype.submit = function(ek, data, tags, oSupplement, type) {
+        var defer, url, d, d2, posted, tagsByScchema;
+        defer = $q.defer();
+        posted = angular.copy(data);
+        if (Object.keys && Object.keys(posted.member).length === 0) {
+            delete posted.member;
+        }
+        url = LS.j('record/submit', 'site', 'app', 'rid');
+        ek && ek.length && (url += '&ek=' + ek);
+        url += type =='save'? '&subType=save' : '&subType=submit';
+        for (var i in posted) {
+            d = posted[i];
+            if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
+                for (var j in d) {
+                    d2 = d[j];
+                    delete d2.imgSrc;
+                }
+            }
+        }
+        tagsByScchema = {};
+        if (Object.keys && Object.keys(tags).length > 0) {
+            for (var schemaId in tags) {
+                tagsByScchema[schemaId] = [];
+                tags[schemaId].forEach(function(oTag) {
+                    tagsByScchema[schemaId].push(oTag.id);
+                });
+            }
+        }
+        http2.post(url, { data: posted, tag: tags, supplement: oSupplement }, { autoBreak: false }).then(function(rsp) {
+            if (rsp.err_code == 0) {
+                defer.resolve(rsp);
+            } else {
+                defer.reject(rsp);
+            }
+        });
+        return defer.promise;
+    };
+    return {
+        ins: function() {
+            if (!_ins) {
+                _ins = new Input();
+            }
+            return _ins;
+        }
+    }
+}]);
+ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
+    var modifiedImgFields, openPickFrom, onSubmit;
+    modifiedImgFields = [];
+    openPickFrom = function(scope) {
+        var html;
+        html = "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'camera')\">拍照</button></div>";
+        html += "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'album')\">相册</button></div>";
+        html = window.__util.makeDialog('pickImageFrom', {
+            body: html
+        });
+        $compile(html)(scope);
+    };
+    onSubmit = function(data) {
+        var defer = $q.defer(),
+            i = 0,
+            j = 0,
+            nextWxImage;
+        // if (window.wx !== undefined && modifiedImgFields.length) {
+        //     nextWxImage = function() {
+        //         var imgField, img;
+        //         imgField = data[modifiedImgFields[i]];
+        //         img = imgField[j];
+        //         window.xxt.image.wxUpload($q.defer(), img).then(function(data) {
+        //             if (j < imgField.length - 1) {
+        //                 /* next img*/
+        //                 j++;
+        //                 nextWxImage();
+        //             } else if (i < modifiedImgFields.length - 1) {
+        //                 /* next field*/
+        //                 j = 0;
+        //                 i++;
+        //                 nextWxImage();
+        //             } else {
+        //                 defer.resolve('ok');
+        //             }
+        //         });
+        //     };
+        //     nextWxImage();
+        // } else {
+        defer.resolve('ok');
+        //}
+        return defer.promise;
+    };
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$timeout', function($scope, $timeout) {
+            // $scope.beforeSubmit(function() {
+            //     return onSubmit($scope.data);
+            // });
+            $scope.chooseImage = function(imgFieldName, count, from) {
+                if (imgFieldName !== null) {
+                    modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
+                    $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
+                    if (count !== null && $scope.data[imgFieldName].length === count && count != 0) {
+                        $scope.$parent.notice.set('最多允许上传' + count + '张图片');
+                        return;
+                    }
+                }
+                if (window.YixinJSBridge) {
+                    if (from === undefined) {
+                        $scope.cachedImgFieldName = imgFieldName;
+                        openPickFrom($scope);
+                        return;
+                    }
+                    imgFieldName = $scope.cachedImgFieldName;
+                    $scope.cachedImgFieldName = null;
+                    angular.element('#pickImageFrom').remove();
+                }
+                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
+                    var phase, i, j, img;
+                    phase = $scope.$root.$$phase;
+                    if (phase === '$digest' || phase === '$apply') {
+                        $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                    } else {
+                        $scope.$apply(function() {
+                            $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                        });
+                    }
+                    $timeout(function() {
+                        for (i = 0, j = imgs.length; i < j; i++) {
+                            img = imgs[i];
+                            document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);
+                        }
+                        $scope.$broadcast('xxt.enroll.image.choose.done', imgFieldName);
+                    });
+                });
+            };
+            $scope.removeImage = function(imgField, index) {
+                imgField.splice(index, 1);
+            };
+        }]
+    }
+}]);
+ngApp.directive('tmsFileInput', ['$q', 'ls', 'tmsDynaPage', function($q, LS, tmsDynaPage) {
+    var r, onSubmit;
+    tmsDynaPage.loadScript(['/static/js/resumable.js']).then(function() {
+        r = new Resumable({
+            target: LS.j('record/uploadFile', 'site', 'app'),
+            testChunks: false,
+            chunkSize: 512 * 1024
+        });
+    });
+    onSubmit = function($scope) {
+        var defer;
+        defer = $q.defer();
+        if (!r.files || r.files.length === 0)
+            defer.resolve('empty');
+        r.on('progress', function() {
+            var phase, p;
+            p = r.progress();
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = Math.ceil(p * 100);
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = Math.ceil(p * 100);
+                });
+            }
+        });
+        r.on('complete', function() {
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = '完成';
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = '完成';
+                });
+            }
+            r.cancel();
+            defer.resolve('ok');
+        });
+        r.upload();
+        return defer.promise;
+    };
+    return {
+        restrict: 'A',
+        controller: ['$scope', function($scope) {
+            $scope.progressOfUploadFile = 0;
+            $scope.beforeSubmit(function() {
+                return onSubmit($scope);
+            });
+            $scope.chooseFile = function(fileFieldName, count, accept) {
+                var ele = document.createElement('input');
+                ele.setAttribute('type', 'file');
+                accept !== undefined && ele.setAttribute('accept', accept);
+                ele.addEventListener('change', function(evt) {
+                    var i, cnt, f;
+                    cnt = evt.target.files.length;
+                    for (i = 0; i < cnt; i++) {
+                        f = evt.target.files[i];
+                        r.addFile(f);
+                        $scope.$apply(function() {
+                            $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
+                            $scope.data[fileFieldName].push({
+                                uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,
+                                name: f.name,
+                                size: f.size,
+                                type: f.type,
+                                url: ''
+                            });
+                            $scope.$broadcast('xxt.enroll.file.choose.done', fileFieldName);
+                        });
+                    }
+                    ele = null;
+                }, true);
+                ele.click();
+            };
+        }]
+    }
+}]);
+ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'ls', 'http2', function($scope, $q, $uibModal, $timeout, Input, LS, http2) {
+    function fnDisableActions() {
+        var domActs, domAct;
+        if (domActs = document.querySelectorAll('button[ng-click]')) {
+            domActs.forEach(function(domAct) {
+                var ngClick = domAct.getAttribute('ng-click');
+                if (ngClick.indexOf('submit') === 0) {
+                    domAct.style.display = 'none';
+                }
+            });
+        }
+    }
+
+    function doTask(seq, nextAction, type) {
+        var task = tasksOfBeforeSubmit[seq];
+        task().then(function(rsp) {
+            seq++;
+            seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction, type) : doSubmit(nextAction, type);
+        });
+    }
+
+    function doSubmit(nextAction, type) {
+        var ek, submitData;
+        ek = $scope.record ? $scope.record.enroll_key : undefined;
+        facInput.submit(ek, $scope.data, $scope.tag, $scope.supplement).then(function(rsp) {
+            var url;
+            submitState.finish();
+            if (nextAction === 'closeWindow') {
+                $scope.closeWindow();
+            } else if (nextAction === '_autoForward') {
+                // 根据指定的进入规则自动跳转到对应页面
+                url = LS.j('', 'site', 'app');
+                location.replace(url);
+            } else if (nextAction && nextAction.length) {
+                url = LS.j('', 'site', 'app');
+                url += '&page=' + nextAction;
+                url += '&ek=' + rsp.data;
+                location.replace(url);
+            } else {
+                if (ek === undefined) {
+                    $scope.record = {
+                        enroll_key: rsp.data
+                    }
+                }
+                $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
+            }
+        }, function(rsp) {
+            // reject
+            submitState.finish();
+        });
+    }
+
+    function _localSave() {
+        submitState.start(null, StateCacheKey);
+        submitState.cache($scope.data);
+        submitState.finish(true);
+        $scope.$parent.notice.set('保存成功，关闭页面后，再次打开时自动恢复当前数据', 'success');
+    }
+
+    window.onbeforeunload = function(e) {
+        var message;
+        if (submitState.modified) {
+            message = '已经修改的内容还没有保存，确定离开？';
+            e = e || window.event;
+            if (e) {
+                e.returnValue = message;
+            }
+            return message;
+        }
+    };
+
+    var facInput, tasksOfBeforeSubmit, submitState, StateCacheKey;
+    tasksOfBeforeSubmit = [];
+    facInput = Input.ins();
+    $scope.data = {
+        member: {},
+    };
+    $scope.tag = {};
+    $scope.supplement = {};
+    $scope.submitState = submitState = ngApp.oUtilSubmit.state;
+    $scope.beforeSubmit = function(fn) {
+        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
+            tasksOfBeforeSubmit.push(fn);
+        }
+    };
+    $scope.$on('xxt.app.enroll.save', function() {
+        _localSave();
+        $scope.submit(event, 'result', 'save');
+    });
+    $scope.save = function(event, nextAction) {
+        _localSave();
+        $scope.submit(event, nextAction, 'save');
+        /*$scope.gotoPage(event, nextAction);*/
+    };
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var schemasById,
+            dataOfRecord, p, value;
+
+        StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
+        $scope.schemasById = schemasById = params.app._schemasById;
+        /* 恢复用户未提交的数据 */
+        if (window.localStorage) {
+            submitState._cacheKey = StateCacheKey;
+            var cached = submitState.fromCache(StateCacheKey);
+            if (cached) {
+                if (cached.member) {
+                    delete cached.member;
+                }
+                angular.extend($scope.data, cached);
+                submitState.modified = true;
+            }
+        }
+        /* 用户已经登记过，恢复之前的数据 */
+        if (params.record) {
+            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
+            $scope.record = params.record;
+            if (params.record.data_tag) {
+                $scope.tag = params.record.data_tag;
+            }
+        }
+        // 跟踪数据变化
+        $scope.$watch('data', function(nv, ov) {
+            if (nv !== ov) {
+                submitState.modified = true;
+            }
+        }, true);
+        // 如果页面上有保存按钮，隐藏内置的保存按钮
+        if (params.page && params.page.act_schemas) {
+            var actSchemas = JSON.parse(params.page.act_schemas);
+            for (var i = actSchemas.length - 1; i >= 0; i--) {
+                if (actSchemas[i].name === 'save') {
+                    var domSave = document.querySelector('.tms-switch-save');
+                    if (domSave) {
+                        domSave.style.display = 'none';
+                    }
+                    break;
+                }
+            }
+        }
+        if (params.app.end_submit_at > 0 && parseInt(params.app.end_submit_at) < (new Date * 1) / 1000) {
+            fnDisableActions();
+            $scope.$parent.notice.set('活动提交数据时间已经结束，不能提交数据');
+        }
+        // 登录提示
+        if (!params.user.unionid) {
+            //var domTip = document.querySelector('#appLoginTip');
+            //var evt = document.createEvent("HTMLEvents");
+            //evt.initEvent("show", false, false);
+            //domTip.dispatchEvent(evt);
+        }
+    });
+    var hasAutoFillMember = false;
+    $scope.$watch('data.member.schema_id', function(schemaId) {
+        if (false === hasAutoFillMember && schemaId && $scope.user) {
+            ngApp.oUtilSchema.autoFillMember($scope.user, $scope.data.member);
+            hasAutoFillMember = true;
+        }
+    });
+    $scope.submit = function(event, nextAction, type) {
+        var checkResult;
+        if (!submitState.isRunning()) {
+            submitState.start(event, StateCacheKey);
+            if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
+                tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
+            } else {
+                submitState.finish();
+                $scope.$parent.notice.set(checkResult);
+            }
+        }
+    };
+    $scope.tagRecordData = function(schemaId) {
+        var oApp, oSchema, tagsOfData;
+        oApp = $scope.app;
+        oSchema = oApp._schemasById[schemaId];
+        if (oSchema) {
+            tagsOfData = $scope.tag[schemaId];
+            $uibModal.open({
+                templateUrl: 'tagRecordData.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var model;
+                    $scope2.schema = oSchema;
+                    $scope2.apptags = oApp.dataTags;
+                    $scope2.model = model = {
+                        selected: []
+                    };
+                    if (tagsOfData) {
+                        tagsOfData.forEach(function(oTag) {
+                            var index;
+                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
+                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
+                            }
+                        });
+                    }
+                    $scope2.createTag = function() {
+                        var newTags;
+                        if ($scope2.model.newtag) {
+                            newTags = $scope2.model.newtag.replace(/\s/, ',');
+                            newTags = newTags.split(',');
+                            http2.post('/rest/site/fe/matter/enroll/tag/create?site=' + $scope.app.siteid + '&app=' + $scope.app.id, newTags).then(function(rsp) {
+                                rsp.data.forEach(function(oNewTag) {
+                                    $scope2.apptags.push(oNewTag);
+                                });
+                            });
+                            $scope2.model.newtag = '';
+                        }
+                    };
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var tags = [];
+                        model.selected.forEach(function(selected, index) {
+                            if (selected) {
+                                tags.push($scope2.apptags[index]);
+                            }
+                        });
+                        $mi.close(tags);
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(tags) {
+                $scope.tag[schemaId] = tags;
+            });
+        }
+    };
+    $scope.getMyLocation = function(prop) {
+        window.xxt.geo.getAddress(http2, $q.defer(), LS.p.site).then(function(data) {
+            $scope.data[prop] = data.address;
+        });
+    };
+    $scope.dataBySchema = function(schemaId) {
+        var app = $scope.app;
+        $uibModal.open({
+            templateUrl: 'dataBySchema.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {};
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() { $mi.close($scope2.data); };
+                http2.get('/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + app.siteid + '&app=' + app.id + '&schema=' + schemaId).then(function(result) {
+                    $scope2.records = result.data.records;
+                });
+            }],
+            backdrop: 'static',
+        }).result.then(function(result) {
+            $scope.data[schemaId] = result.selected.value;
+        });
+    };
+    $scope.score = function(schemaId, opIndex, number) {
+        var schema = $scope.schemasById[schemaId],
+            op = schema.ops[opIndex];
+
+        if ($scope.data[schemaId] === undefined) {
+            $scope.data[schemaId] = {};
+            schema.ops.forEach(function(op) {
+                $scope.data[schema.id][op.v] = 0;
+            });
+        }
+
+        $scope.data[schemaId][op.v] = number;
+    };
+    $scope.lessScore = function(schemaId, opIndex, number) {
+        if (!$scope.schemasById) return false;
+
+        var schema = $scope.schemasById[schemaId],
+            op = schema.ops[opIndex];
+
+        if ($scope.data[schemaId] === undefined) {
+            return false;
+        }
+
+        return $scope.data[schemaId][op.v] >= number;
+    };
+}]);
+
+/***/ }),
+/* 31 */,
+/* 32 */,
+/* 33 */,
+/* 34 */,
+/* 35 */,
+/* 36 */,
+/* 37 */,
+/* 38 */,
+/* 39 */,
+/* 40 */,
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "img{max-width:100%}\r\nul{margin:0;padding:0;list-style:none}\r\nli{margin:0;padding:0}\r\n.list-group{margin-bottom:0px;}\r\n#notice{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}\r\n#notice.active{opacity:1;height:auto;z-index:999}\r\n\r\n/* score schema */\r\nli[wrap=score]{padding:4px 4px 4px 0;}\r\nli[wrap=score] label{padding:3px;font-weight:400;}\r\nli[wrap=score]>.number{display:inline-block;margin-top:6px;border:1px solid #CCC;}\r\nli[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px 4px;margin:4px 4px;text-align:center;border-bottom:1px dotted #ddd}\r\nli[wrap=score]>.number>.in{background:#33bb99;}\r\n\r\n/* img tiles */\r\nul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}\r\nul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}\r\nul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}\r\nul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}\r\nul.img-tiles li.img-picker button span{font-size:36px}\r\n\r\n/* default form style*/\r\ndiv[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}\r\ndiv[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}\r\ndiv[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}\r\ndiv[wrap=matter]>span{cursor:pointer;text-decoration:underline;}\r\n.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(44);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./input.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./input.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */,
+/* 61 */,
+/* 62 */,
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(30);
+
+
+/***/ })
+/******/ ]);

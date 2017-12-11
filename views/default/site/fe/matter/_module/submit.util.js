@@ -58,10 +58,10 @@ utilSubmit.state = {
             if (!keep) window.localStorage.removeItem(key);
             if (val) {
                 val = JSON.parse(val);
-                if (val._cacheAt && (val._cacheAt + 1800000) < (new Date * 1)) {
+                /*if (val._cacheAt && (val._cacheAt + 1800000) < (new Date * 1)) {
                     val = false;
                 }
-                delete val._cacheAt;
+                delete val._cacheAt;*/
             }
         }
         return val;

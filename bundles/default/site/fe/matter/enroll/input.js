@@ -2898,28 +2898,33 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     function doSubmit(nextAction, type) {
         var ek, submitData;
         ek = $scope.record ? $scope.record.enroll_key : undefined;
-        facInput.submit(ek, $scope.data, $scope.tag, $scope.supplement).then(function(rsp) {
+        facInput.submit(ek, $scope.data, $scope.tag, $scope.supplement, type).then(function(rsp) {
             var url;
-            submitState.finish();
-            if (nextAction === 'closeWindow') {
-                $scope.closeWindow();
-            } else if (nextAction === '_autoForward') {
-                // 根据指定的进入规则自动跳转到对应页面
-                url = LS.j('', 'site', 'app');
-                location.replace(url);
-            } else if (nextAction && nextAction.length) {
-                url = LS.j('', 'site', 'app');
-                url += '&page=' + nextAction;
-                url += '&ek=' + rsp.data;
-                location.replace(url);
-            } else {
-                if (ek === undefined) {
-                    $scope.record = {
-                        enroll_key: rsp.data
+            if(type=='save') {
+               $scope.$parent.notice.set('保存成功，关闭页面后，再次打开时自动恢复当前数据', 'success');
+            }else {
+                submitState.finish();
+                if (nextAction === 'closeWindow') {
+                    $scope.closeWindow();
+                } else if (nextAction === '_autoForward') {
+                    // 根据指定的进入规则自动跳转到对应页面
+                    url = LS.j('', 'site', 'app');
+                    location.replace(url);
+                } else if (nextAction && nextAction.length) {
+                    url = LS.j('', 'site', 'app');
+                    url += '&page=' + nextAction;
+                    url += '&ek=' + rsp.data;
+                    location.replace(url);
+                } else {
+                    if (ek === undefined) {
+                        $scope.record = {
+                            enroll_key: rsp.data
+                        }
                     }
+                    $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
                 }
-                $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
             }
+
         }, function(rsp) {
             // reject
             submitState.finish();
@@ -2930,7 +2935,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         submitState.start(null, StateCacheKey);
         submitState.cache($scope.data);
         submitState.finish(true);
-        $scope.$parent.notice.set('保存成功，关闭页面后，再次打开时自动恢复当前数据', 'success');
     }
 
     window.onbeforeunload = function(e) {
@@ -2966,7 +2970,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     $scope.save = function(event, nextAction) {
         _localSave();
         $scope.submit(event, nextAction, 'save');
-        /*$scope.gotoPage(event, nextAction);*/
+        $scope.gotoPage(event, nextAction);
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById,

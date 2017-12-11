@@ -100,108 +100,17 @@ class record extends base {
 			if (empty($submitkey)) {
 				$submitkey = empty($oUser) ? '' : $oUser->uid;
 			}
-			$dbData = new \stdClass; // 处理后的保存到数据库中的登记记录
+
 			$schemasById = []; // 方便获取登记项定义
 			foreach ($oEnrollApp->dataSchemas as $schema) {
 				$schemasById[$schema->id] = $schema;
 			}
-			foreach ($oEnrolledData as $schemaId => $submitVal) {
-				if ($schemaId === 'member' && is_object($submitVal)) {
-					/* 自定义用户信息 */
-					$treatedValue = $submitVal;
-					$dbData->{$schemaId} = $submitVal;
-				} else if (isset($schemasById[$schemaId])) {
-					/* 活动中定义的登记项 */
-					$schema = $schemasById[$schemaId];
-					if (empty($schema->type)) {
-						return new \ResponseError('登记项【' . $schema->id . '】定义不完整');
-					}
-					switch ($schema->type) {
-					case 'image':
-						if (is_array($submitVal) && (isset($submitVal[0]->serverId) || isset($submitVal[0]->imgSrc))) {
-							/* 上传图片 */
-							$treatedValue = [];
-							$fsuser = $this->model('fs/user', $site);
-							foreach ($submitVal as $img) {
-								$rst = $fsuser->storeImg($img);
-								if (false === $rst[0]) {
-									return $rst;
-								}
-								$treatedValue[] = $rst[1];
-							}
-							$treatedValue = implode(',', $treatedValue);
-							$dbData->{$schemaId} = $treatedValue;
-						} else if (empty($submitVal)) {
-							$dbData->{$schemaId} = $treatedValue = '';
-						} else if (is_string($submitVal)) {
-							$dbData->{$schemaId} = $submitVal;
-						} else {
-							throw new \Exception('登记的数据类型和登记项【image】需要的类型不匹配');
-						}
-						break;
-					case 'file':
-						if (is_array($submitVal)) {
-							$treatedValue = [];
-							foreach ($submitVal as $file) {
-								if (isset($file->uniqueIdentifier)) {
-									/* 新上传的文件 */
-									if (defined('SAE_TMP_PATH')) {
-										$fsAli = $this->model('fs/alioss', $site);
-										$dest = '/' . $oApp->id . '/' . $submitkey . '_' . $file->name;
-										$fileUploaded2 = $fsAli->getBaseURL() . $dest;
-									} else {
-										$fsUser = $this->model('fs/local', $site, '_user');
-										$fsResum = $this->model('fs/local', $site, '_resumable');
-										$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
-										$dirUploaded = $fsUser->rootDir . '/' . $submitkey;
-										if (!file_exists($dirUploaded)) {
-											if (false === mkdir($dirUploaded, 0777, true)) {
-												return array(false, '创建文件上传目录失败');
-											}
-										}
-										if (file_exists($fileUploaded)) {
-											/* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
-											$fileUploaded2 = $dirUploaded . '/' . $file->name;
-											if (false === @rename($fileUploaded, $fileUploaded2)) {
-												return array(false, '移动上传文件失败');
-											}
-										}
-									}
-									unset($file->uniqueIdentifier);
-									$file->url = $fileUploaded2;
-									$treatedValue[] = $file;
-								} else {
-									/* 已经上传过的文件 */
-									$treatedValue[] = $file;
-								}
-							}
-							$dbData->{$schemaId} = $treatedValue;
-						} else if (is_string($submitVal)) {
-							$dbData->{$schemaId} = $submitVal;
-						} else {
-							throw new \Exception('登记的数据类型和登记项【file】需要的类型不匹配');
-						}
-						break;
-					case 'multiple':
-						if (is_object($submitVal)) {
-							// 多选题，将选项合并为逗号分隔的字符串
-							$treatedValue = implode(',', array_keys(array_filter((array) $submitVal, function ($i) {return $i;})));
-							$dbData->{$schemaId} = $treatedValue;
-						} else if (is_string($submitVal)) {
-							$dbData->{$schemaId} = $submitVal;
-						} else {
-							throw new \Exception('登记的数据类型和登记项【multiple】需要的类型不匹配');
-						}
-						break;
-					default:
-						// string & score
-						$dbData->{$schemaId} = $treatedValue = $submitVal;
-					}
-				} else {
-					/* 如果登记活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在登记项定义中 */
-					$dbData->{$schemaId} = $treatedValue = $submitVal;
-				}
+			$dbData = $this->model('matter\enroll\data')->disposRecrdData($oEnrollApp, $schemasById, $oEnrolledData);
+			if ($dbData[0] === false) {
+				return new \ResponseError($dbData[1]);
 			}
+			$dbData = $dbData[1];
+
 			$posted->data = $dbData;
 			$data_tag = new \stdClass;
 			if (isset($posted->tag) && count(get_object_vars($posted->tag))) {

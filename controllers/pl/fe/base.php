@@ -131,7 +131,7 @@ class base extends \TMS_CONTROLLER {
 	public function accessControlUser($path) {
 		$modelWay = \TMS_APP::M('site\fe\way');
 		if (($user = $modelWay->getCookieRegUser()) === false) {
-			return new \ResponseTimeout();
+			return false;
 		}
 
 		$site = !empty($_GET['site'])? $_GET['site'] : '';
@@ -169,7 +169,8 @@ class base extends \TMS_CONTROLLER {
 					'xxt_mission_acl',
 					['mission_id' => $mission->mission_id, 'coworker' => $user->unionid, 'state' => 1],
 				];
-				if($missionUser = $modelSite->query_obj_ss($q2)){
+				$missionUser = $modelSite->query_obj_ss($q2);
+				if($missionUser){
 					$pass = true;
 				}
 			}

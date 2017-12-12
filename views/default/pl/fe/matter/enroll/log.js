@@ -6,10 +6,10 @@ define(['frame'], function(ngApp) {
         $scope.operations = {
             'read': '阅读',
             'submit': '提交',
-            'updateData': '修改数据',
-            'removeData': '删除数据',
-            'restoreData': '恢复数据',
-            'add': '新增数据',
+            'updateData': '修改记录',
+            'removeData': '删除记录',
+            'restoreData': '恢复记录',
+            'add': '新增记录',
             'U': '修改活动'
         };
         $scope.filter = function(type) {

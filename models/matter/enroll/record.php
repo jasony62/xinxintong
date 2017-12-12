@@ -606,6 +606,7 @@ class record_model extends record_base {
 								break;
 							}
 						}
+						// 拼写sql
 						$v2 = explode(',', $v);
 						foreach ($v2 as $index => $v2v) {
 							if ($index > 0) {

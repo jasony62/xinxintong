@@ -1454,16 +1454,16 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
             _plOperations = [{
                 value: 'add',
-                title: '新增数据'
+                title: '新增记录'
             },{
                 value: 'updateData',
-                title: '修改数据'
+                title: '修改记录'
             },{
                 value: 'removeData',
-                title: '删除数据'
+                title: '删除记录'
             },{
                 value: 'restoreData',
-                title: '恢复数据'
+                title: '恢复记录'
             },{
                 value: 'U',
                 title: '修改活动'
@@ -1473,10 +1473,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 title: '提交'
             },{
                 value: 'updateData',
-                title: '修改数据'
+                title: '修改记录'
             },{
                 value: 'removeData',
-                title: '删除数据'
+                title: '删除记录'
             }];
         };
         this.$get = ['$q', 'http2', '$uibModal', function($q, http2, $uibModal) {

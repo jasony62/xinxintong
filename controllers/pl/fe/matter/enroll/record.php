@@ -374,7 +374,7 @@ class record extends \pl\fe\matter\base {
 		isset($record->tags) && $operation->tags = $record->tags;
 		isset($record->comment) && $operation->comment = $record->comment;
 		$operation->rid = $oNewRecord->rid;
-		$operation->round = $oNewRecord->round;
+		isset($oNewRecord->round) && $operation->round = $oNewRecord->round;
 		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'updateData', $operation);
 
 		return new \ResponseData($oNewRecord);

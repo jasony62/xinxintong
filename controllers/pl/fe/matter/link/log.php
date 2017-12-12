@@ -20,7 +20,7 @@ class log extends \pl\fe\matter\main_base {
 	public function list_action($id, $page = 1, $size = 30) {
 		$modelLog = $this->model('matter\log');
 
-		$reads = $modelLog->listUserMatterOp($id, 'link', $page, $size);
+		$reads = $modelLog->listUserMatterOp($id, 'link', [], $page, $size);
 
 		return new \ResponseData($reads);
 	}

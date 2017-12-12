@@ -389,9 +389,14 @@ class main extends base {
 								if (!isset($params['record']->data)) {
 									$params['record']->data = new \stdClass;
 								}
-								$oAssocRecord->data->_round_id = $oGrpPlayer[0]->round_id;
-								$oAssocData = json_decode($oGrpPlayer[0]->data);
-								foreach ($oAssocData as $k => $v) {
+								if (is_string($oGrpPlayer[0]->data)) {
+									$oAssocRecord = json_decode($oGrpPlayer[0]->data);
+								} else {
+									$oAssocRecord = $oGrpPlayer[0]->data;
+								}
+
+								$oAssocRecord->_round_id = $oGrpPlayer[0]->round_id;
+								foreach ($oAssocRecord as $k => $v) {
 									$params['record']->data->{$k} = $v;
 								}
 							}

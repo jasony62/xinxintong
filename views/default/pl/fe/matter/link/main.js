@@ -130,7 +130,7 @@ define(['frame'], function(ngApp) {
             http2.post('/rest/pl/fe/matter/link/paramUpd?site=' + $scope.siteId + '&id=' + updated.id, p);
         };
         $scope.removeParam = function(removed) {
-            http2.get('/rest/mp/matter/link/removeParam?id=' + removed.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/link/removeParam?id=' + removed.id, function(rsp) {
                 var i = $scope.editing.params.indexOf(removed);
                 $scope.editing.params.splice(i, 1);
             });

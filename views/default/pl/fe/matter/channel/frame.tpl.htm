@@ -33,6 +33,7 @@
                         <li><a href="/rest/pl/fe" target='_self'>工作台</a></li>
                         <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{editing.siteid}}" target='_self'>{{site.name}}</a></li>
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                        <li ng-if="editing.mission"><a href="/rest/pl/fe/matter/mission/doc?site={{editing.siteid}}&id={{editing.mission.id}}" target='_self' title="{{editing.mission.title}}">{{editing.mission.title}}</a></li>
                         <li><a href='javascript:void(0)' title='{{editing.title}}'>{{editing.title}}</a></li>
                     </nav>
                 </div>

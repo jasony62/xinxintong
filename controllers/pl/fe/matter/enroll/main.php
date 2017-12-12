@@ -365,8 +365,8 @@ class main extends main_base {
 						}
 						$oEnrolledData = $record->data;
 						$rst = $modelRec->setData($cpUser, $oNewApp, $ek, $oEnrolledData, '', false);
-						if (!empty($record->supplement) && count(get_object_vars($posted->supplement))) {
-							$rst = $modelRec->setSupplement($cpUser, $oEnrollApp, $ek, $posted->supplement);
+						if (!empty($record->supplement) && count(get_object_vars($record->supplement))) {
+							$rst = $modelRec->setSupplement($cpUser, $oEnrollApp, $ek, $record->supplement);
 						}
 						$upDate = [];
 						$upDate['verified'] = $record->verified;

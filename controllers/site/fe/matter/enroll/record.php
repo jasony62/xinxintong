@@ -105,7 +105,7 @@ class record extends base {
 			foreach ($oEnrollApp->dataSchemas as $schema) {
 				$schemasById[$schema->id] = $schema;
 			}
-			$dbData = $this->model('matter\enroll\data')->disposRecrdData($oEnrollApp, $schemasById, $oEnrolledData);
+			$dbData = $this->model('matter\enroll\data')->disposRecrdData($oEnrollApp, $schemasById, $oEnrolledData, $submitkey);
 			if ($dbData[0] === false) {
 				return new \ResponseError($dbData[1]);
 			}

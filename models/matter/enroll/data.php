@@ -20,7 +20,7 @@ class data_model extends \TMS_MODEL {
 		foreach ($oApp->dataSchemas as $schema) {
 			$schemasById[$schema->id] = $schema;
 		}
-		$dbData = $this->disposRecrdData($oApp, $schemasById, $submitData);
+		$dbData = $this->disposRecrdData($oApp, $schemasById, $submitData, $submitkey);
 		if ($dbData[0] === false) {
 			return $dbData;
 		}
@@ -145,7 +145,7 @@ class data_model extends \TMS_MODEL {
 	/*
 	 * 处理提交的数据
 	 */
-	public function disposRecrdData($oApp, $schemasById, $submitData) {
+	public function disposRecrdData($oApp, $schemasById, $submitData, $submitkey) {
 		$dbData = new \stdClass; // 处理后的保存到数据库中的登记记录
 		/* 处理提交的数据，进行格式转换等操作 */
 		foreach ($submitData as $schemaId => $submitVal) {

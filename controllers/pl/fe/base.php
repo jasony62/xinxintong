@@ -10,9 +10,34 @@ class base extends \TMS_CONTROLLER {
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';
 		$rule_action['actions'][] = 'index';
-		$rule_action['actions'][] = 'get';
-		$rule_action['actions'][] = 'update';
-		$rule_action['actions'][] = 'remove';
+		$rule_action['actions'][] = 'preview';
+		// $rule_action['actions'][] = 'get';
+		// $rule_action['actions'][] = 'update';
+		// $rule_action['actions'][] = 'remove';
+
+		return $rule_action;
+	}
+	/**
+	 * 需要检查的素材
+	 */
+	protected function get_access_app() {
+		$rule_action['rule_type'] = 'black';
+		$rule_action['actions'][] = 'article';
+		$rule_action['actions'][] = 'channel';
+		$rule_action['actions'][] = 'contribute';
+		$rule_action['actions'][] = 'custom';
+		$rule_action['actions'][] = 'enroll';
+		$rule_action['actions'][] = 'group';
+		$rule_action['actions'][] = 'inner';
+		$rule_action['actions'][] = 'link';
+		$rule_action['actions'][] = 'lottery';
+		$rule_action['actions'][] = 'merchant';
+		$rule_action['actions'][] = 'mission';
+		$rule_action['actions'][] = 'news';
+		$rule_action['actions'][] = 'signin';
+		$rule_action['actions'][] = 'text';
+		$rule_action['actions'][] = 'tmplmsg';
+		$rule_action['actions'][] = 'wall';
 
 		return $rule_action;
 	}
@@ -131,26 +156,50 @@ class base extends \TMS_CONTROLLER {
 	public function accessControlUser($path) {
 		$modelWay = \TMS_APP::M('site\fe\way');
 		if (($user = $modelWay->getCookieRegUser()) === false) {
-			return false;
+			return [false, '请登陆'];
 		}
 
-		$site = !empty($_GET['site'])? $_GET['site'] : '';
-
+		//暂时未处理pl/fe后没有下一级的情况
 		$path = explode('/', strstr($path, 'fe'));
-		if(empty($path[1]) || empty($site)){
-			return true;
+		if(empty($path[1])){
+			return [true];
 		}
 
-		$pass = false;
-		$modelSite = \TMS_APP::M('site\admin');
-		$site = $modelSite->escape($site);
-		if ($siteUser = $modelSite->byUid($site, $user->unionid)) {
-			$pass = true;
-		}
-
-		if($pass === false && $path[1] === 'matter'){
-			$matter_id = $_GET['id'];
+		if($path[1] === 'matter'){
 			$matter_type = $path[2];
+			if (isset($_GET['id'])) {
+				$matter_id = $_GET['id'];
+			} else if (isset($_GET['app'])) {
+				$matter_id = $_GET['app'];
+			}
+
+			$accessApp = $this->get_access_app();
+			if ($accessApp['rule_type'] === 'black') {
+				if (!in_array($matter_type, $accessApp['actions'])) {
+					return [true];
+				}
+			} else if ($accessApp['rule_type'] === 'white') {
+				if (in_array($matter_type, $accessApp['actions'])) {
+					return [true];
+				}
+			}
+				
+			$options = ['cascaded' => 'N', 'fields' => 'siteid,id,title'];
+			if ($matter_type === 'lottery') {
+				unset($options['cascaded']);
+			}
+			$app = $this->model('matter\\' . $matter_type)->byId($matter_id, $options);
+			if (!$app) {
+				return [false, '指定的素材不存在'];
+			}
+
+			$site = $app->siteid;
+			$modelSite = \TMS_APP::M('site\admin');
+			$siteUser = $modelSite->byUid($site, $user->unionid);
+			if ($siteUser !== false) {
+				return [true];
+			}
+
 			/*检查此素材是否在项目中*/
 			if($matter_type !== 'mission'){
 				$q = [
@@ -171,11 +220,20 @@ class base extends \TMS_CONTROLLER {
 				];
 				$missionUser = $modelSite->query_obj_ss($q2);
 				if($missionUser){
-					$pass = true;
+					return [true];
 				}
 			}
+		} else if ($path[1] === 'site') {
+			$site = $_GET['site'];
+			$modelSite = \TMS_APP::M('site\admin');
+			$siteUser = $modelSite->byUid($site, $user->unionid);
+			if ($siteUser !== false) {
+				return [true];
+			}
+		} else {
+			return [true];
 		}
 		
-		return $pass;
+		return [false, '访问控制未通过'];
 	}
 }

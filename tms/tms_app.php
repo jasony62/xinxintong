@@ -122,7 +122,7 @@ class TMS_APP {
 		}
 	}
 	/**
-	 * 除了API请求
+	 * 处理API请求
 	 *
 	 * @param string $path
 	 */
@@ -396,9 +396,13 @@ class TMS_APP {
 				self::_request_api($oController->authenticateURL());
 			}
 			if (method_exists($oController, 'accessControlUser')) {
-				if (true === $oController->accessControlUser($path)) {
+				$results = $oController->accessControlUser($path);
+				if ($results[0] === true) {
 					return true;
+				} else {
+					die($results[1]);
 				}
+
 				/**
 				 * 返回结果
 				 */

@@ -11,7 +11,7 @@
     <link href="<?php echo auto_version('/views/default/pl/fe/matter/link/frame.css');?>" rel="stylesheet">
 </head>
 
-<body ng-app='app' ng-controller='ctrlLink' ng-cloak class='ng-cloak'>
+<body ng-controller='ctrlLink' ng-cloak class='ng-cloak'>
     <div class='pl-layout'>
         <!--logo+侧边栏-->
         <div class='pl-layout-leftnav'>
@@ -23,6 +23,30 @@
             </div>
             <!--侧边栏-->
             <ul class="nav nav-tabs nav-stacked">
+                <li ng-class="{'opened':opened==='edit'}">
+                    <a href='' ng-click="opened=opened==='edit'?false:'edit';switchTo('main')">制作 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'41px':'0'}">
+                        <li ng-class="{'active':subView==='main'}">
+                            <a href='' ng-click="switchTo('main')">描述</a>
+                        </li>
+                    </ul>
+                </li>
+                <li ng-class="{'opened':opened==='publish'}">
+                    <a href='' ng-click="opened=opened==='publish'?false:'data';switchTo('preview')">发布 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'41px':'0'}">
+                        <li ng-class="{'active':subView==='preview'}">
+                            <a href='' ng-click="switchTo('preview')">预览</a>
+                        </li>
+                    </ul>
+                </li>
+                <li ng-class="{'opened':opened==='other'}">
+                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('log')">其他 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'41px':'0'}">
+                        <li ng-class="{'active':subView==='log'}">
+                            <a href='' ng-click="switchTo('log')">运行日志</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
         <!--导航+主体内容-->
@@ -66,7 +90,7 @@
     <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
     <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
     <script src="/views/default/pl/fe/_module/member.js?_=1"></script>
-    <script src="/views/default/pl/fe/matter/link/frame.js?_=3"></script>
+    <script src="/static/js/require.js" data-main="<?php echo auto_version('/views/default/pl/fe/matter/link/frame-loader.js');?>"></script>
 </body>
 
 </html>

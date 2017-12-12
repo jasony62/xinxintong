@@ -17,10 +17,26 @@ class log extends \pl\fe\matter\base {
 	 * 查询日志
 	 *
 	 */
-	public function list_action($app, $page = 1, $size = 30) {
+	public function list_action($app, $logType = 'site', $page = 1, $size = 30) {
 		$modelLog = $this->model('matter\log');
 
-		$reads = $modelLog->listUserMatterOp($app, 'enroll', $page, $size);
+		$criteria = $this->getPostJson();
+		$options = [];
+		if (!empty($criteria->byUser)) {
+			$options['byUser'] = $criteria->byUser;
+		}
+		if (!empty($criteria->byOp)) {
+			$options['byOp'] = $criteria->byOp;
+		}
+		if (!empty($criteria->byRid) && (strcasecmp('all', $criteria->byRid) != 0)) {
+			$options['byRid'] = $criteria->byRid;
+		}
+
+		if ($logType === 'pl') {
+			$reads = $modelLog->listMatterOp($app, 'enroll', $options, $page, $size);
+		} else {
+			$reads = $modelLog->listUserMatterOp($app, 'enroll', $options, $page, $size);
+		}
 
 		return new \ResponseData($reads);
 	}

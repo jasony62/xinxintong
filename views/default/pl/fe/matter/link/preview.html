@@ -1,0 +1,29 @@
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>链接</label>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{entryUrl}}">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entryUrl}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <div>创建人：{{editing.creater_name}}</div>
+                <div>创建时间：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                <div>修改人：{{editing.modifier_name}}</div>
+                <div>最后一次修改时间：{{editing.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到平台主页</button>
+    </div>
+</div>

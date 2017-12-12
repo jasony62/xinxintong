@@ -18,8 +18,8 @@ class base extends \site\base {
 	 * 对请求进行通用的处理
 	 */
 	public function __construct() {
-		empty($_GET['site']) && die('参数错误！');
-		$siteId = $_GET['site'];
+		//empty($_GET['site']) && die('参数错误！');
+		$siteId = empty($_GET['site']) ? 'platform' : $_GET['site'];
 		$this->siteId = $siteId;
 		/* 获得访问用户的信息 */
 		$modelWay = $this->model('site\fe\way');
@@ -207,6 +207,7 @@ class base extends \site\base {
 			$snsConfig = $modelSns->bySite('platform');
 		}
 		if ($snsConfig === false) {
+			$this->model('log')->log($site, 'snsOAuthUserByCode', 'snsConfig: false', null, $_SERVER['REQUEST_URI']);
 			return false;
 		}
 		$snsProxy = $this->model('sns\\' . $snsName . '\proxy', $snsConfig);
@@ -350,10 +351,12 @@ class base extends \site\base {
 			$rst = $snsProxy->getJssdkSignPackage(urldecode($url));
 			header('Content-Type: text/javascript');
 			if ($rst[0] === false) {
+				$this->model('log')->log($site, 'wxjssdksignpackage', 'url: ' . urldecode($url) . ' ,failed: ' . $rst[1], null, $_SERVER['REQUEST_URI']);
 				die("alert('{$rst[1]}');");
 			}
 			die($rst[1]);
 		} else {
+			$this->model('log')->log($site, 'wxjssdksignpackage', 'snsProxy=false', null, $_SERVER['REQUEST_URI']);
 			die("signPackage=false");
 		}
 	}

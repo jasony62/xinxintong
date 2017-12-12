@@ -17,10 +17,8 @@
     <div class="app">
         <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container'>
-            <div class='row'>
-                <form novalidate dynamic-html="page.html" ng-controller="ctrlPreview">
-                </form>
-            </div>
+            <form novalidate dynamic-html="page.html" ng-controller="ctrlPreview">
+            </form>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

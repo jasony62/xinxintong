@@ -5,16 +5,14 @@ require_once dirname(__FILE__) . '/base.php';
 
 class link_model extends base_model {
 	/**
+	 * 记录日志时需要的列
+	 */
+	const LOG_FIELDS = 'siteid,id,title,summary,pic';
+	/**
 	 *
 	 */
 	protected function table() {
 		return 'xxt_link';
-	}
-	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'link';
 	}
 	/**
 	 * 返回链接和链接的参数

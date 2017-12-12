@@ -1,182 +1,108 @@
-define(['angular'], function(angular) {
+require(['matterService'], function() {
     'use strict';
     var _siteId, _missionId, _accessToken;
     _siteId = location.search.match('site=([^&]*)')[1];
     _missionId = location.search.match('mission=([^&]*)')[1];
     _accessToken = location.search.match('accessToken=([^&]*)')[1];
 
-    var ngApp = angular.module('app', ['ui.bootstrap', 'service.mission']);
-    ngApp.config(['srvSiteProvider', 'srvOpMissionProvider', function(srvSiteProvider, srvOpMissionProvider) {
-        srvSiteProvider.config(_siteId);
+    var ngApp = angular.module('app', ['ui.tms', 'service.matter', 'service.mission']);
+    ngApp.config(['srvOpMissionProvider', function(srvOpMissionProvider) {
         srvOpMissionProvider.config(_siteId, _missionId, _accessToken);
     }]);
-    ngApp.controller('ctrlMission', ['$scope', '$uibModal', '$timeout', 'http2', 'srvSite', 'srvOpMission', 'srvRecordConverter', function($scope, $uibModal, $timeout, http2, srvSite, srvOpMission, srvRecordConverter) {
-        function configUserApps() {
-            var includeApps = [];
-            $scope.report.orderedApps.forEach(function(matter) {
-                includeApps.push({ id: matter.id, type: matter.type });
-            });
-            $scope.makeReport(includeApps);
-        }
-        var _enrollAppSchemas, _includeApps;
-        $scope.enrollAppSchemas = _enrollAppSchemas = {};
-        $scope.moveUp = function(matter, index) {
-            var apps;
-            if (index === 0) return;
-            apps = $scope.report.orderedApps;
-            apps.splice(index, 1);
-            apps.splice(index - 1, 0, matter);
-            apps[index].seq++;
-            configUserApps();
-        };
-        $scope.moveDown = function(matter, index) {
-            var apps;
-            apps = $scope.report.orderedApps;
-            if (index === apps.length - 1) return;
-            apps.splice(index, 1);
-            apps.splice(index + 1, 0, matter);
-            apps[index].seq--;
-            configUserApps();
-        };
-        $scope.removeUserApp = function(matter, index) {
-            var apps;
-            apps = $scope.report.orderedApps;
-            apps.splice(index, 1);
-            configUserApps();
-        };
-        $scope.chooseApps = function() {
-            srvOpMission.chooseApps($scope.mission, _includeApps).then(function(apps) {
-                _includeApps = apps;
-                $scope.makeReport(apps);
-            });
-        };
-        $scope.makeReport = function(apps) {
-            var oMission, url, params;
-            oMission = $scope.mission;
-            url = '/rest/site/op/matter/mission/report/userAndApp?site=' + oMission.siteid + '&mission=' + oMission.id + '&accessToken=' + _accessToken;
-            params = {
-                userSource: { id: oMission.user_app_id, type: oMission.user_app_type }
-            };
-            if (apps && apps.length) {
-                params.apps = [];
-                apps.forEach(function(oApp) {
-                    params.apps.push({ id: oApp.id, type: oApp.type });
-                });
-            }
-            http2.post(url, params, function(rsp) {
-                $scope.report = rsp.data;
-                rsp.data.orderedApps.forEach(function(oMatter) {
-                    if (oMatter.type === 'enroll') {
-                        var schemasById;
-                        if (oMatter.dataSchemas) {
-                            schemasById = {};
-                            oMatter.dataSchemas.forEach(function(schema) {
-                                schemasById[schema.id] = schema;
-                            });
-                            _enrollAppSchemas[oMatter.id] = schemasById;
-                        }
-                    }
-                });
-            });
-        };
-        $scope.chooseUser = function(oUser, oApp) {
-            $scope.recordsByApp = {};
-            $scope.activeUser = oUser;
-            if (oUser.userid) {
-                if ($scope.isSmallLayout) {
-                    if (oApp) {
-                        srvOpMission.recordByUser(oUser, oApp).then(function(result) {
-                            var processedRecords = [];
-                            switch (oApp.type) {
-                                case 'enroll':
-                                    if (result && result.length) {
-                                        var enrollAppSchemas = $scope.enrollAppSchemas[oApp.id];
-                                        result.forEach(function(record) {
-                                            srvRecordConverter.forTable(record, enrollAppSchemas);
-                                            processedRecords.push(record);
-                                        });
-                                    }
-                                    break;
-                                case 'signin':
-                                    processedRecords.push(result);
-                                    break;
-                                case 'group':
-                                    if (result && result.length) {
-                                        result.forEach(function(record) {
-                                            processedRecords.push(record);
-                                        });
-                                    }
-                                    break;
-                            }
-                            $uibModal.open({
-                                templateUrl: 'userAppRecord.html',
-                                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                                    $scope2.app = oApp;
-                                    $scope2.records = processedRecords;
-                                    $scope2.enrollAppSchemas = $scope.enrollAppSchemas[oApp.id];
-                                    $scope2.cancel = function() {
-                                        $mi.dismiss();
-                                    };
-                                }],
-                                windowClass: 'auto-height full-width',
-                                backdrop: 'static'
-                            });
-                        });
-                    }
-                } else {
-                    srvOpMission.recordByUser(oUser).then(function(records) {
-                        var recordsByApp = {};
-                        if (records) {
-                            if (records.enroll && records.enroll.length) {
-                                recordsByApp.enroll = {};
-                                records.enroll.forEach(function(record) {
-                                    srvRecordConverter.forTable(record, $scope.enrollAppSchemas[record.aid]);
-                                    recordsByApp.enroll[record.aid] === undefined && (recordsByApp.enroll[record.aid] = []);
-                                    recordsByApp.enroll[record.aid].push(record);
-                                });
-                            }
-                            if (records.signin && records.signin.length) {
-                                recordsByApp.signin = {};
-                                records.signin.forEach(function(record) {
-                                    recordsByApp.signin[record.aid] === undefined && (recordsByApp.signin[record.aid] = []);
-                                    recordsByApp.signin[record.aid].push(record);
-                                });
-                            }
-                            if (records.group && records.group.length) {
-                                recordsByApp.group = {};
-                                records.group.forEach(function(record) {
-                                    recordsByApp.group[record.aid] === undefined && (recordsByApp.group[record.aid] = []);
-                                    recordsByApp.group[record.aid].push(record);
-                                });
-                            }
-                        }
-                        $scope.recordsByApp = recordsByApp;
-                        $timeout(function() {
-                            var eleList, eleApp, index = $scope.report.orderedApps.indexOf(oApp);
-                            eleList = document.querySelector('#userApps');
-                            eleApp = eleList.children[index];
-                            eleList.parentNode.scrollTop = eleApp.offsetTop;
-                            eleApp.classList.add('blink');
-                            $timeout(function() {
-                                eleApp.classList.remove('blink');
-                            }, 1000);
-                        });
+    ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'srvOpMission', function($scope, $uibModal, http2, srvMission) {
+        $scope.chooseUser = function() {
+            $uibModal.open({
+                templateUrl: 'chooseUser.html',
+                backdrop: 'static',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var url;
+                    url = '/rest/site/op/matter/mission/report/userList?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessToken;
+                    http2.get(url, function(rsp) {
+                        $scope2.users = rsp.data;
                     });
+                    $scope2.chosen = {};
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        if ($scope2.chosen.index !== undefined) {
+                            $mi.close($scope2.users[$scope2.chosen.index]);
+                        }
+                    }
+                }]
+            }).result.then(function(oUser) {
+                if (oUser && oUser.userid) {
+                    location.href = '/rest/site/op/matter/mission/user?site=' + _siteId + '&mission=' + _missionId + '&user=' + oUser.userid + '&accessToken=' + _accessToken;
                 }
-            }
+            });
         };
-        srvSite.get().then(function(oSite) {
-            $scope.site = oSite;
-        });
-        srvOpMission.get().then(function(result) {
+
+        srvMission.get().then(function(result) {
             $scope.mission = result.mission;
-            $scope.makeReport();
-            window.loading.finish();
+            var url;
+            url = '/rest/site/op/matter/mission/report/matterList?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessToken;
+            http2.get(url, function(rsp) {
+                var mattersByTime, orderedTimes;
+                mattersByTime = {};
+                orderedTimes = [];
+                rsp.data.forEach(function(matter) {
+                    if (matter.start_at > 0) {
+                        if (!mattersByTime[matter.start_at]) {
+                            orderedTimes.push(matter.start_at);
+                            mattersByTime[matter.start_at] = [matter];
+                        } else {
+                            mattersByTime[matter.start_at].push(matter);
+                        }
+                    } else {
+                        mattersByTime['0'] ? mattersByTime['0'].push(matter) : mattersByTime['0'] = [matter];
+                    }
+                    if (matter.type === 'enroll') {
+                        var oIndicator = { state: 'running' };
+                        if (/quiz|score_sheet/.test(matter)) {
+                            oIndicator.score = true;
+                        }
+                        if (matter.dataSchemas) {
+                            for (var i = matter.dataSchemas.length - 1; i >= 0; i--) {
+                                if (matter.dataSchemas[i].remarkable && matter.dataSchemas[i].remarkable === 'Y') {
+                                    oIndicator.remark = oIndicator.like = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (matter.can_coin && matter.can_coin === 'Y') {
+                            oIndicator.coin = true;
+                        }
+                        /* 时间状态 */
+                        if (matter.start_at * 1000 > (new Date * 1)) {
+                            oIndicator.state = 'pending';
+                        } else {
+
+                            if (matter.end_at > 0) {
+                                if (matter.end_at * 1000 > (new Date * 1)) {
+                                    oIndicator.end = 'R';
+                                } else {
+                                    oIndicator.end = 'E';
+                                    oIndicator.state = 'end';
+                                }
+                            }
+                            if ((!oIndicator.end || oIndicator.end === 'R') && matter.end_submit_at > 0) {
+                                if (matter.end_submit_at * 1000 > (new Date * 1)) {
+                                    oIndicator.end_submit = 'R';
+                                } else {
+                                    oIndicator.end_submit = 'E';
+                                    oIndicator.state = 'end-submit';
+                                }
+                            }
+                        }
+                        matter.indicator = oIndicator;
+                    } else if (matter.type === 'signin') {}
+                });
+                orderedTimes.sort();
+                $scope.currentTime = parseInt((new Date * 1) / 1000);
+                $scope.times = orderedTimes;
+                $scope.matters = mattersByTime;
+            });
         });
-        $scope.isSmallLayout = false;
-        if (window.screen && window.screen.width < 992) {
-            $scope.isSmallLayout = true;
-        }
     }]);
     /*bootstrap*/
     require(['domReady!'], function(document) {

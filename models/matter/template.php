@@ -456,7 +456,7 @@ class template_model extends \TMS_MODEL {
 	 *
 	 */
 	public function getEntryUrl($site, $tid, $vid = null) {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = "http://" . APP_HTTP_HOST;
 
 		if ($site === 'platform') {
 			$app = $this->byId($tid, ['cascaded' => 'N']);

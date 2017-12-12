@@ -1,144 +1,171 @@
-<div class='col-md-8'>
-    <div class='tile'>
-        <div class='form-group'>
-            <label>标题：最多35个汉字，70个英文字符</label>
-            <input type='text' class='form-control' ng-model="editing.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
-        </div>
-        <div class='form-group'>
-            <label>说明：最多120个汉字，240个英文字符</label>
-            <textarea class='form-control' ng-model="editing.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
-        </div>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <label>固定标题</label>
-            <input type='text' class='form-control' ng-model="editing.fixed_title" tms-auto-update tms-wait=1000 tms-update="update('fixed_title')">
-        </div>
-        <div class='form-group'>
-            <label>素材类型</label>
-            <select class='form-control' ng-model='editing.matter_type' ng-change="update('matter_type')" ng-options='amt.name as amt.title for amt in acceptMatterTypes'></select>
-        </div>
-        <div class='form-group'>
-            <label>显示数量</label>
-            <select class='form-control' ng-model='editing.volume' ng-change="update('volume')" ng-options='v for v in volumes'></select>
-        </div>
-        <div class='form-group'>
-            <label>置顶（可选）</label>
-            <button class='btn btn-default btn-sm' ng-click="setFixed('top')">选择图文</button>
-            <ul class='list-group' style='margin-bottom:0;'>
-                <li class='list-group-item' ng-if='topMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="topMatter" title='{{topMatter.type|typetitle}}'>
-                    <a href='' ng-click="gotoMatter(topMatter)">{{topMatter.title}}</a>
-                    <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="setFixed('top',true)">
-                        <span class='glyphicon glyphicon-remove'></span>
-                    </button>
-                </li>
-            </ul>
-        </div>
-        <div class='form-group'>
-            <label>已有图文</label>
-            <button class='btn btn-default btn-sm' ng-click="addMatter()">选择素材</button>
-            <button class='btn btn-default btn-sm' ng-click="createArticle()">新建图文</button>
-            <button class='btn btn-default btn-sm' ng-click="createLink()">新建外部链接</button>
-            <ul class='list-group' style='margin-bottom:0'>
-                <li class='list-group-item' ng-repeat="m in matters" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
-                    <a href='' ng-click="gotoMatter(m)">{{m.title}}</a>
-                    <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="removeMatter(m)">
-                        <span class='glyphicon glyphicon-remove'></span>
-                    </button>
-                </li>
-            </ul>
-        </div>
-        <div class='form-group'>
-            <label>置底（可选）</label>
-            <button class='btn btn-default btn-sm' ng-click="setFixed('bottom',false)">选择图文</button>
-            <ul class='list-group' style='margin-bottom:0;'>
-                <li class='list-group-item' ng-if='bottomMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="bottomMatter" title='{{bottomMatter.type|typetitle}}'>
-                    <a href='' ng-click="gotoMatter(bottomMatter)">{{bottomMatter.title}}</a>
-                    <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="setFixed('bottom',true)">
-                        <span class='glyphicon glyphicon-remove'></span>
-                    </button>
-                </li>
-            </ul>
-        </div>
-        <div class='form-group' ng-show="editing.matter_type==='article'">
-            <label>排序规则</label>
-            <div>
-                <label class="radio-inline">
-                    <input type='radio' ng-model='editing.orderby' value="time" name='orderby' ng-change="update('orderby')">加入频道时间</label>
-                <label class="radio-inline">
-                    <input type='radio' ng-model='editing.orderby' value="read" name='orderby' ng-change="update('orderby')">阅读数</label>
-                <label class="radio-inline">
-                    <input type='radio' ng-model='editing.orderby' value="share" name='orderby' ng-change="update('orderby')">分享数</label>
-                <label class="radio-inline">
-                    <input type='radio' ng-model='editing.orderby' value="like" name='orderby' ng-change="update('orderby')">点赞数</label>
-                <label class="radio-inline">
-                    <input type='radio' ng-model='editing.orderby' value="remark" name='orderby' ng-change="update('orderby')">评论数</label>
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>标题：最多35个汉字，70个英文字符</label>
+                <input type='text' class='form-control' ng-model="editing.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
             </div>
-        </div>
-        <div class='form-group'>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-model='editing.filter_by_matter_acl' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('filter_by_matter_acl')">根据素材的访问控制规则自动过滤</label>
+            <div class='form-group'>
+                <label>说明：最多120个汉字，240个英文字符</label>
+                <textarea class='form-control' ng-model="editing.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
             </div>
-        </div>
-        <div class='form-group'>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-model='editing.show_pic_in_page' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('show_pic_in_page')">页面形式中显示每条素材的头图</label>
-            </div>
-        </div>
-    </div>
-    <div class='tile'>
-        <label>页面定制</label>
-        <table class='table table-bordered' style='margin:0'>
-            <tr>
-                <td>频道样式</td>
-                <td>频道内图文样式</td>
-                <td>
-                    <a href='' ng-click="editPage($event,'style')">编辑页面</a>
-                    <a href='' ng-click="resetPage($event,'style')" ng-show="editing.style_page_name.length">重置页面</a>
-                </td>
-            </tr>
-        </table>
-    </div>
-</div>
-<div class='col-md-4'>
-    <div class='tile'>
-        <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
-        <button class='btn btn-block btn-default' ng-click="applyToHome()" >申请发布到平台主页</button>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">频道链接</div>
-        <div class="panel-body">
-            <div class='input-group'>
-                <input class='form-control' readonly value="{{entryUrl}}">
-                <span class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entryUrl}}">复制</button>
-                        <a class='btn btn-default' ng-href="{{entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+            <div class='form-group' ng-if="editing.mission">
+                <label>所属项目</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{editing.mission.title}}" value="{{editing.mission.title}}" readonly="">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="quitMission()">
+                            <span class='glyphicon glyphicon-remove'></span>
+                    </button>
                     </span>
+                </div>
+            </div>
+            <div class='form-group' ng-if="editing.mission.multi_phase==='Y'">
+                <label>项目阶段</label>
+                <select class='form-control' ng-model="editing.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in editing.mission.phases">
+                    <option value=''>全部</option>
+                </select>
+            </div>
+            <div class='form-group' ng-if="!editing.mission">
+                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+            </div>
+            <div class='form-group'>
+                <label>管理标签（可选）</label>
+                <p class="form-control" ng-click="tagMatter('M')">
+                    <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
+                </p>
+            </div>
+            <div class='form-group'>
+                <label>频道链接</label>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{editing.entryUrl}}">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{editing.entryUrl}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{editing.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label class="checkbox-inline">
+                    <input type='checkbox' ng-model='editing.public_visible' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('public_visible')">图文中用户是否可见</label>
+            </div>
+            <div class='form-group'>
+                <label>固定标题</label>
+                <input type='text' class='form-control' ng-model="editing.fixed_title" tms-auto-update tms-wait=1000 tms-update="update('fixed_title')">
+            </div>
+            <div class='form-group'>
+                <label>素材类型</label>
+                <select class='form-control' ng-model='editing.matter_type' ng-change="update('matter_type')" ng-options='amt.name as amt.title for amt in acceptMatterTypes'></select>
+            </div>
+            <div class='form-group'>
+                <label>显示数量</label>
+                <select class='form-control' ng-model='editing.volume' ng-change="update('volume')" ng-options='v for v in volumes'></select>
+            </div>
+            <div class='form-group'>
+                <label>置顶（可选）</label>
+                <button class='btn btn-default btn-sm' ng-click="setFixed('top')">选择图文</button>
+                <ul class='list-group' style='margin-bottom:0;'>
+                    <li class='list-group-item' ng-if='topMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="topMatter" title='{{topMatter.type|typetitle}}'>
+                        <a href='' ng-click="gotoMatter(topMatter)">{{topMatter.title}}</a>
+                        <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="setFixed('top',true)">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class='form-group'>
+                <label>已有图文</label>
+                <button class='btn btn-default btn-sm' ng-click="addMatter()">选择素材</button>
+                <button class='btn btn-default btn-sm' ng-click="createArticle()">新建图文</button>
+                <button class='btn btn-default btn-sm' ng-click="createLink()">新建外部链接</button>
+                <ul class='list-group' style='margin-bottom:0'>
+                    <li class='list-group-item' ng-repeat="m in matters" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
+                        <a href='' ng-click="gotoMatter(m)">{{m.title}}</a>
+                        <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="removeMatter(m)">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class='form-group'>
+                <label>置底（可选）</label>
+                <button class='btn btn-default btn-sm' ng-click="setFixed('bottom',false)">选择图文</button>
+                <ul class='list-group' style='margin-bottom:0;'>
+                    <li class='list-group-item' ng-if='bottomMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="bottomMatter" title='{{bottomMatter.type|typetitle}}'>
+                        <a href='' ng-click="gotoMatter(bottomMatter)">{{bottomMatter.title}}</a>
+                        <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="setFixed('bottom',true)">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class='form-group' ng-show="editing.matter_type==='article'">
+                <label>排序规则</label>
+                <div>
+                    <label class="radio-inline">
+                        <input type='radio' ng-model='editing.orderby' value="time" name='orderby' ng-change="update('orderby')">加入频道时间</label>
+                    <label class="radio-inline">
+                        <input type='radio' ng-model='editing.orderby' value="read" name='orderby' ng-change="update('orderby')">阅读数</label>
+                    <label class="radio-inline">
+                        <input type='radio' ng-model='editing.orderby' value="share" name='orderby' ng-change="update('orderby')">分享数</label>
+                    <label class="radio-inline">
+                        <input type='radio' ng-model='editing.orderby' value="like" name='orderby' ng-change="update('orderby')">点赞数</label>
+                    <label class="radio-inline">
+                        <input type='radio' ng-model='editing.orderby' value="remark" name='orderby' ng-change="update('orderby')">评论数</label>
+                </div>
+            </div>
+            <div class='form-group'>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-model='editing.filter_by_matter_acl' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('filter_by_matter_acl')">根据素材的访问控制规则自动过滤</label>
+                </div>
+            </div>
+            <div class='form-group'>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-model='editing.show_pic_in_page' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('show_pic_in_page')">页面形式中显示每条素材的头图</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <label>页面定制</label>
+            <table class='table table-bordered' style='margin:0'>
+                <tr>
+                    <td>频道样式</td>
+                    <td>频道内图文样式</td>
+                    <td>
+                        <a href='' ng-click="editPage($event,'style')">编辑页面</a>
+                        <a href='' ng-click="resetPage($event,'style')" ng-show="editing.style_page_name.length">重置页面</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <div>阅读：{{editing.read_num}}</div>
+                <div>分享好友：{{editing.share_friend_num}}</div>
+                <div>分享朋友圈：{{editing.share_timeline_num}}</div>
+            </div>
+            <div class='form-group'>
+                <div>创建人：{{editing.creater_name}}</div>
+                <div>创建时间：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                <div>修改人：{{editing.modifier_name}}</div>
+                <div>最后一次修改时间：{{editing.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            </div>
+        </div>
+    </div>
+    <hr>
     <div class='form-group'>
-        <label>管理标签（可选）</label>
-        <p class="form-control" ng-click="tagMatter('M')">
-            <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
-        </p>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <div>阅读：{{editing.read_num}}</div>
-            <div>分享好友：{{editing.share_friend_num}}</div>
-            <div>分享朋友圈：{{editing.share_timeline_num}}</div>
-        </div>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <div>创建人：{{editing.creater_name}}</div>
-            <div>创建时间：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-            <div>修改人：{{editing.modifier_name}}</div>
-            <div>最后一次修改时间：{{editing.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-        </div>
+        <button class='btn btn-block btn-default' ng-click="remove()">删除频道</button>
+        <button class='btn btn-block btn-default' ng-click="applyToHome()">申请发布到平台主页</button>
     </div>
 </div>
 <script type="text/ng-template" id="insertMedia.html">

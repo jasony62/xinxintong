@@ -5,7 +5,7 @@
     </div>
     <div class="form-group">
         <label>题目类型</label>
-        <select class='form-control' ng-model='editing.type' ng-change="changeSchemaType()">
+        <select class='form-control' ng-model='editing.type' ng-change="changeSchemaType()" ng-disabled="editing.type==='member'">
             <option value='shorttext'>单行填写题</option>
             <option value='longtext'>多行填写题</option>
             <option value='single'>单选题</option>
@@ -28,14 +28,14 @@
         <label>填写限制</label>
         <div class='radio' style='margin-top:0'>
             <label class="checkbox-inline">
-                <input type='radio' ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">不限</label>
+                <input type='radio' ng-model='activeSchema.format' value='' name='format' ng-change="updSchema(activeSchema)">不限</label>
         </div>
         <div class='radio'>
             <label class="checkbox-inline">
                 <input type='radio' value="number" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">数值</label>
             <label class='checkbox-inline' ng-if='activeSchema.format==="number"'>
                 权重
-                <input type='text' ng-model="activeSchema.weight" ng-change="updSchema(activeSchema)" placeholder="请输入数字">
+                <input type='text' style='width:4em' ng-model="activeSchema.weight" ng-change="updSchema(activeSchema)" placeholder="请输入数字">
             </label>
         </div>
         <div class='radio'>
@@ -47,13 +47,16 @@
                 <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">邮箱</label>
         </div>
     </div>
-    <div class="form-group" ng-if="activeSchema.type==='member'">
-        <select class='form-control' disabled ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas'>
-            <option></option>
-        </select>
-        <select class='form-control' disabled ng-model='selectedMemberSchema.attr' ng-options='a.title for a in selectedMemberSchema.schema._schemas'>
-            <option></option>
-        </select>
+    <div class="form-group" ng-if="activeSchema.type==='multiple'">
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="activeSchema.limitChoice" ng-change="updSchema(activeSchema)">限制选择数量</label>
+        </div>
+        <div class='form-inline'>
+            至少选
+            <input type='text' class='form-control' style='width:3em;' ng-model='activeSchema.range[0]' ng-change="updSchema(activeSchema)">项，最多选
+            <input type='text' class='form-control' style='width:3em;' ng-model='activeSchema.range[1]' ng-change="updSchema(activeSchema)">项
+        </div>
     </div>
     <div class="form-group" ng-if="activeSchema.type==='score'">
         <label>分值范围</label>
@@ -62,15 +65,15 @@
     </div>
     <div class="form-group" ng-if="['single','phase'].indexOf(activeSchema.type)!==-1">
         <label class="radio-inline">
-            <input type='radio' name='component' value='R' ng-model='activeConfig.component' ng-change="updConfig('component')">单选钮</label>
+            <input type='radio' name='component' value='R' ng-model='activeConfig.component' ng-change="updConfig(activeSchema)">单选钮</label>
         <label class="radio-inline">
-            <input type='radio' name='component' value='S' ng-model='activeConfig.component' ng-change="updConfig('component')">下拉框</label>
+            <input type='radio' name='component' value='S' ng-model='activeConfig.component' ng-change="updConfig(activeSchema)">下拉框</label>
     </div>
     <div class="form-group" ng-if="(['single','phase'].indexOf(activeSchema.type)!==-1&&activeConfig.component==='R')||activeSchema.type==='multiple'">
         <label class="radio-inline">
-            <input type='radio' name='align' value='V' ng-model='activeConfig.align' ng-change="updConfig('align')">垂直排列</label>
+            <input type='radio' name='align' value='V' ng-model='activeConfig.align' ng-change="updConfig(activeSchema)">垂直排列</label>
         <label class="radio-inline">
-            <input type='radio' name='align' value='H' ng-model='activeConfig.align' ng-change="updConfig('align')">水平排列</label>
+            <input type='radio' name='align' value='H' ng-model='activeConfig.align' ng-change="updConfig(activeSchema)">水平排列</label>
     </div>
     <div class="checkbox" ng-if="'html'!==activeSchema.type">
         <label>
@@ -90,7 +93,7 @@
     </div>
     <div class="checkbox">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.shareable' ng-change="updSchema(activeSchema)">共享内容</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.shareable' ng-change="updSchema(activeSchema,null,'shareable')">共享内容</label>
     </div>
     <div class="checkbox" ng-show="['image','file','single','multiple'].indexOf(activeSchema.type)!==-1">
         <label>
@@ -107,9 +110,6 @@
     <div class="form-group" ng-show="['image','file'].indexOf(activeSchema.type)!==-1">
         <label>限制数量</label>
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema)">
-    </div>
-    <div class="form-group" ng-show="'Y'===activeSchema.requireCheck">
-        <p class='help-block'>需要在【<span>{{assocAppName(activeSchema.fromApp)}}</span>】中检查</label>
     </div>
     <div ng-if="activeSchema.requireScore==='Y'">
         <!--设置分数-->

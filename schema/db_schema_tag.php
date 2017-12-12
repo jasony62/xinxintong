@@ -14,7 +14,7 @@ $sql .= ',sum int not null default 0';
 $sql .= ',seq int not null default 1';
 $sql .= ",sub_type char(1) not null default 'M'";
 $sql .= ',primary key(id)';
-$sql .= ',UNIQUE KEY `tag` (mpid,title)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+$sql .= ',UNIQUE KEY `tag` (siteid,title,sub_type)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

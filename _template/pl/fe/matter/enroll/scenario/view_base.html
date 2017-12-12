@@ -1,0 +1,25 @@
+<!-- begin: generate by schema -->
+<?php foreach ($this->schema as $oWrap) { 
+$oSchema = $oWrap->schema;
+if ($oSchema->type === 'html') { ?>
+<div id="<?php echo $oWrap->config->id?>" class="form-group" wrap="value" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
+    <?php echo $oSchema->content;?>
+</div>
+<?php } else { ?>
+<div id="<?php echo $oWrap->config->id?>" class="form-group wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
+    <label>
+        <?php echo $oSchema->title;?>
+    </label>
+    <?php if (in_array($oSchema->type,['shorttext','longtext','member'])) { ?>
+    <div>{{Record.current.data.<?php echo $oSchema->id?>}}</div>
+    <?php } else if (in_array($oSchema->type,['_enrollAt'])) { ?>
+    <div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+    <?php } else if (in_array($oSchema->type,['single','phase'])) { ?>
+    <div>{{value2Label("<?php echo $oSchema->id;?>")}}</div>
+    <?php } else if ($oSchema->type === 'score') { ?>
+    <div ng-bind-html="score2Html('<?php echo $oSchema->id;?>')"></div>
+    <?php } ?>
+</div>
+<?php } //end schemas if html else ?>
+<?php } //end schemas foreach ?>
+<!-- end: generate by schema -->

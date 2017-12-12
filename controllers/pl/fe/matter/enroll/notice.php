@@ -16,12 +16,11 @@ class notice extends \pl\fe\matter\base {
 	/**
 	 * 给登记活动的参与人发消息
 	 *
-	 * @param string $site site'id
 	 * @param string $app app'id
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
-	public function send_action($site, $app, $tmplmsg, $rid = null) {
+	public function send_action($app, $tmplmsg, $rid = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -31,24 +30,26 @@ class notice extends \pl\fe\matter\base {
 			return new \ObjectNotFountError();
 		}
 
-		$modelRec = $this->model('matter\enroll\record');
-		$site = $modelRec->escape($site);
+		$modelEnlUsr = $this->model('matter\enroll\user');
 		$posted = $this->getPostJson();
-		$params = $posted->message;
 
 		if (isset($posted->criteria)) {
 			// 筛选条件
-			$criteria = $posted->criteria;
-			$options = [
+			$oCriteria = $posted->criteria;
+			!empty($oCriteria->rid) && $rid = $modelEnlUsr->escape($oCriteria->rid);
+			$aOptions = [
 				'rid' => $rid,
 			];
-			$enrollers = $modelRec->enrolleeByApp($oApp, $options, $criteria);
+			!empty($oCriteria->onlyEnrolled) && $aOptions['onlyEnrolled'] = $oCriteria->onlyEnrolled;
+			$enrollUsers = $modelEnlUsr->enrolleeByApp($oApp, '', '', $aOptions);
+			$enrollers = $enrollUsers->users;
 		} else if (isset($posted->users)) {
 			// 直接指定
 			$enrollers = $posted->users;
 		}
-
+		/* 发送消息 */
 		if (count($enrollers)) {
+			$params = $posted->message;
 			$rst = $this->notifyWithMatter($oApp, $enrollers, $tmplmsg, $params);
 			if ($rst[0] === false) {
 				return new \ResponseError($rst[1]);
@@ -91,10 +92,11 @@ class notice extends \pl\fe\matter\base {
 		}
 
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
+		$batch = $modelTmplBat->escape($batch);
 		$q = [
-			'*',
-			'xxt_log_tmplmsg_detail',
-			["batch_id" => $batch],
+			'de.*,e.nickname',
+			'xxt_log_tmplmsg_detail de,xxt_enroll_user e',
+			"de.batch_id = $batch and e.userid = de.userid and e.rid = 'ALL'",
 		];
 
 		$logs = $modelTmplBat->query_objs_ss($q);
@@ -107,6 +109,11 @@ class notice extends \pl\fe\matter\base {
 			$records = [];
 			foreach ($logs as $log) {
 				if (empty($log->assoc_with)) {
+					$record = new \stdClass;
+					$record->userid = $log->userid;
+					$record->nickname = $log->nickname;
+					$record->noticeStatus = $log->status;
+					$records[] = $record;
 					continue;
 				}
 				if ($record = $modelRec->byId($log->assoc_with)) {

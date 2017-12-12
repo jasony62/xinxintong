@@ -123,7 +123,9 @@ define([], function() {
         forEdit && (html += ' disabled');
         html += '><span ';
         forEdit && (html += 'contenteditable="true"');
-        html += '>' + op.l + '</span></label></li>';
+        html += '>' + op.l + '</span></label>';
+        if (op.desc && op.desc.length) html += '<div class="desc">' + op.desc + '</div>';
+        html += '</li>';
 
         return html;
     }
@@ -144,7 +146,9 @@ define([], function() {
         forEdit && (html += ' disabled');
         html += '><span ';
         forEdit && (html += 'contenteditable="true"');
-        html += '>' + op.l + '</span></label></li>';
+        html += '>' + op.l + '</span></label>';
+        if (op.desc && op.desc.length) html += '<div class="desc">' + op.desc + '</div>';
+        html += '</li>';
 
         return html;
     }
@@ -163,7 +167,9 @@ define([], function() {
         for (var num = schema.range[0]; num <= schema.range[1]; num++) {
             html += "<div ng-class=\"{'in':lessScore('" + schema.id + "'," + index + "," + num + ")}\" ng-click=\"score('" + schema.id + "'," + index + "," + num + ")\">" + num + "</div>";
         }
-        html += '</div></li>';
+        html += '</div>';
+        if (op.desc && op.desc.length) html += '<div class="desc">' + op.desc + '</div>';
+        html += '</li>';
 
         return html;
     }
@@ -351,7 +357,7 @@ define([], function() {
                 html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + schema.id + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
                 html += '</li>';
                 html += '<li class="img-picker">';
-                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + schema.id + '\',' + schema.count + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
+                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + schema.id + '\',' + (schema.count || 1) + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -363,7 +369,7 @@ define([], function() {
                 html += '<span class="file-name" ng-bind="file.name"></span>';
                 html += '</li>';
                 html += '<li class="list-group-item file-picker">';
-                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + schema.id + '\',' + schema.count + ')">' + schema.title + '</button>';
+                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + schema.id + '\',' + (schema.count || 1) + ')">' + schema.title + '</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -489,7 +495,7 @@ define([], function() {
                         var $button = $dom.find('li.img-picker button'),
                             sNgClick;
 
-                        sNgClick = 'chooseImage(' + "'" + oSchema.id + "'," + oSchema.count + ')';
+                        sNgClick = 'chooseImage(' + "'" + oSchema.id + "'," + (oSchema.count || 1) + ')';
                         $button.attr('ng-click', sNgClick);
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
@@ -499,7 +505,7 @@ define([], function() {
                         var $button = $dom.find('li.file-picker button'),
                             sNgClick;
 
-                        sNgClick = 'chooseFile(' + "'" + oSchema.id + "'," + oSchema.count + ')';
+                        sNgClick = 'chooseFile(' + "'" + oSchema.id + "'," + (oSchema.count || 1) + ')';
                         $button.attr('ng-click', sNgClick).html(oSchema.title);
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
@@ -706,6 +712,9 @@ define([], function() {
             case '_enrollAt':
                 html = "<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
                 break;
+            case '_roundTitle':
+                html = "<div>{{Record.current.round.title}}</div>";
+                break;
         }
 
         return html;
@@ -801,7 +810,7 @@ define([], function() {
                 schemaId = $wrap.attr('schema');
                 if (schemaId) {
                     data = oPage.wrapBySchema({ id: schemaId });
-                    if (data.config === undefined) {
+                    if (data && data.config === undefined) {
                         data.config = {
                             inline: $wrap.hasClass('wrap-inline') ? 'Y' : 'N',
                             splitLine: $wrap.hasClass('wrap-splitline') ? 'Y' : 'N'
@@ -871,6 +880,9 @@ define([], function() {
             case '_enrollAt':
                 html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
                 break;
+            case '_roundTitle':
+                html += "<div>{{r.round.title}}</div>";
+                break;
         }
         if (oSchema.supplement && oSchema.supplement === 'Y') {
             html += '<p class="supplement" ng-bind="r.supplement.' + oSchema.id + '"></p>';
@@ -908,9 +920,9 @@ define([], function() {
             'ng-controller': 'ctrlRecords',
             'enroll-records': 'Y',
             'enroll-records-owner': dataWrap.config.dataScope,
-            'enroll-records-type': dataWrap.config.type=='records'?'records':'enrollees',
+            'enroll-records-type': dataWrap.config.type == 'records' ? 'records' : 'enrollees',
             'enroll-records-mschema': mschemaId,
-            wrap: dataWrap.config.type=='records'?'records':'enrollees',
+            wrap: dataWrap.config.type == 'records' ? 'records' : 'enrollees',
             class: 'form-group'
         };
         return {
@@ -925,7 +937,7 @@ define([], function() {
             config = oWrap.config;
 
         attrs['enroll-records-owner'] = config.dataScope;
-        if(Object.keys(oWrap.config).indexOf('mschemaId') !== -1) {
+        if (Object.keys(oWrap.config).indexOf('mschemaId') !== -1) {
             attrs['enroll-records-mschema'] = config.mschemaId;
         }
         $wrap.attr(attrs);
@@ -1098,7 +1110,7 @@ define([], function() {
         dataByDom: function(domWrap, oPage) {
             var wrapType = $(domWrap).attr('wrap'),
                 dataWrap;
-            if(wrapType=='enrollees'){wrapType = 'records'};
+            if (wrapType == 'enrollees') { wrapType = 'records' };
             if (!this[wrapType]) {
                 return false;
             }

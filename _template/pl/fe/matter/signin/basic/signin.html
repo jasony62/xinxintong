@@ -1,3 +1,45 @@
-<div class="form-group form-group-lg" wrap="input" schema="name" schema-type="shorttext"><label>姓名</label><input ng-model="data.name" title="姓名" class="form-control input-lg" type="text" /></div>
-<div class="form-group form-group-lg" wrap="input" schema="mobile" schema-type="shorttext"><label>手机</label><input ng-model="data.mobile" title="手机" class="form-control input-lg" type="text" /></div>
-<div id="btnSubmit" class="form-group" wrap="button"><button class="btn btn-primary btn-block btn-lg" ng-click="submit($event,'_autoForward')"><span>签到</span></button></div>
+<!-- begin: generate by schema -->
+<?php foreach ($this->schema as $def) { 
+$schema = $def->schema;
+?>
+<?php if (in_array($schema->type,['shorttext'])) { ?>
+<div class="form-group form-group-lg" wrap="input" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>">
+    <label class="sr-only">
+        <?php echo $schema->title;?>
+    </label>
+    <input ng-model="data.<?php echo $schema->id;?>" title="<?php echo $schema->title;?>" placeholder="<?php echo $schema->title;?>" class="form-control input-lg" type="text" />
+</div>
+<?php } else if ($schema->type==='member') { ?>
+<div class="form-group form-group-lg" wrap="input" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>">
+    <label class="sr-only">
+        <?php echo $schema->title;?>
+    </label>
+    <input ng-model="data.<?php echo $schema->id;?>" title="<?php echo $schema->title;?>" placeholder="<?php echo $schema->title;?>" class="form-control input-lg" type="text" ng-init="data.member.schema_id=<?php echo $schema->schema_id;?>" />
+</div>
+<?php } else if ($schema->type==='longtext') { ?>
+<div class="form-group form-group-lg" wrap="input" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>">
+    <label class="sr-only">
+        <?php echo $schema->title;?>
+    </label>
+    <textarea style="height:auto;" ng-model="data.<?php echo $schema->id;?>" title="<?php echo $schema->title;?>" placeholder="<?php echo $schema->title;?>" class="form-control input-lg" rows="3"></textarea>
+</div>
+<?php } else if (in_array($schema->type,['single','phase'])) { ?>
+<div wrap="input" class="form-group form-group-lg" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>">
+    <label>
+        <?php echo $schema->title; ?>
+    </label>
+    <ul>
+        <?php foreach ($schema->ops as $op) {?>
+        <li class="radio" wrap="radio">
+            <label>
+                <input type="radio" name="<?php echo $schema->id;?>" value="<?php echo $op->v;?>" ng-model="data.<?php echo $schema->id;?>"><span><?php echo $op->l;?></span></label>
+        </li>
+        <?php } ?>
+    </ul>
+</div>
+<?php } ?>
+<?php } ?>
+<!-- end: generate by schema -->
+<div id="btnSubmit" class="form-group" wrap="button">
+    <button class="btn btn-primary btn-block btn-lg" ng-click="submit($event,'_autoForward')"><span>签到</span></button>
+</div>

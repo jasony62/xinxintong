@@ -1,51 +1,9 @@
-define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
+define(['frame'], function(ngApp) {
     'use strict';
     /**
      * 题目管理
      */
-    ngApp.provider.controller('ctrlSchema', ['$scope', 'srvEnrollPage', 'srvEnrollApp', function($scope, srvEnrollPage, srvEnrollApp) {
-        $scope._submitChange = function(changedPages) {
-            srvEnrollApp.update('data_schemas').then(function() {
-                changedPages.forEach(function(oPage) {
-                    srvEnrollPage.update(oPage, ['data_schemas', 'html']);
-                });
-            });
-        };
-        $scope.importByOther = function() {
-            srvEnrollApp.importSchemaByOther().then(function(schemas) {
-                schemas.forEach(function(schema) {
-                    var newSchema;
-                    newSchema = schemaLib.newSchema(schema.type, $scope.app);
-                    newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
-                    newSchema.title = schema.title;
-                    if (schema.ops) {
-                        newSchema.ops = schema.ops;
-                    }
-                    if (schema.range) {
-                        newSchema.range = schema.range;
-                    }
-                    if (schema.count) {
-                        newSchema.count = schema.count;
-                    }
-                    $scope._appendSchema(newSchema);
-                });
-            });
-        };
-        $scope.assignEnrollApp = function() {
-            srvEnrollApp.assignEnrollApp();
-        };
-        $scope.cancelEnrollApp = function() {
-            $scope.app.enroll_app_id = '';
-            srvEnrollApp.update('enroll_app_id');
-        };
-        $scope.assignGroupApp = function() {
-            srvEnrollApp.assignGroupApp();
-        };
-        $scope.cancelGroupApp = function() {
-            $scope.app.group_app_id = '';
-            srvEnrollApp.update('group_app_id');
-        };
-    }]);
+    ngApp.provider.controller('ctrlSchema', ['$scope', function($scope) {}]);
     /**
      * 导入导出记录
      */

@@ -1,9 +1,4 @@
-.ng-cloak{display:none;}
-body{padding-top:71px;}
-.navbar-nav.tms-breadcrumb>li>a{padding-left:0;padding-right:0;color:#428bca;max-width:12em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-.navbar-nav.tms-breadcrumb>li:last-child>a{color:#777;}
-.navbar-nav.tms-breadcrumb>li+li>a:before{content:'/\00a0';padding-left:5px;color:#ccc;}
-.tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}
+.tag{background:#337ab7;padding:3px 6px;margin:4px;border-radius:4px;color:#fff;}
 
 /*publish-view*/
 #simulator{position:relative;width:360px;height:640px;box-shadow:0px 2px 5px 5px rgba(0,0,0,0.3);}
@@ -35,6 +30,7 @@ body{padding-top:71px;}
 #schema-view .schema-options .option .btn-group{position:absolute;top:50%;right:5px;margin-top:-10px;}
 #schema-view [editable]{cursor:text;}
 #schema-view .actions{margin-top:10px;padding-top:10px;border-top:1px dotted #ddd;}
+#schema-view .schema.active{border-left:4px solid red;margin-left:-3px;}
 
 /*page view*/
 #page-view .schema-switch{position:absolute;top:50%;margin-top:-10px;right:4px;}
@@ -53,3 +49,4 @@ body{padding-top:71px;}
 #signinRecords th.enroll{background:yellow;}
 #signinRecords th.group{background:lightgreen;}
 #signinRecords td span.signin_late{color:red;}
+#signinRecords .nickname{background:lightblue;}

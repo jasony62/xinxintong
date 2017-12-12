@@ -27,6 +27,7 @@ $sql .= ",round_cron text"; // 定时创建轮次规则
 $sql .= ",count_limit int not null default 0"; // 限制登记次数，0不限制
 $sql .= ",start_at int not null default 0"; // 开始时间
 $sql .= ",before_start_page varchar(20) not null default ''";
+$sql .= ",end_submit_at int not null default 0"; // 结束提交时间
 $sql .= ",end_at int not null default 0"; // 结束时间
 $sql .= ",after_end_page varchar(20) not null default ''";
 $sql .= ",access_control char(1) not null default 'N'";
@@ -38,6 +39,7 @@ $sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
 $sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事件通知
 $sql .= ",can_repos char(1) not null default 'N'"; // 打开共享页
 $sql .= ",can_rank char(1) not null default 'N'"; // 打开排行页
+$sql .= ",can_coin char(1) not null default 'N'"; // 是否支持积分
 $sql .= ",can_discuss char(1) not null default 'N'"; // 支持对登记活动进行评论 should be removed
 $sql .= ",can_coinpay char(1) not null default 'N'"; // 是否可以进行打赏
 $sql .= ",can_siteuser char(1) not null default 'N'"; // 是否可以进入用户主页
@@ -45,6 +47,7 @@ $sql .= ",can_cowork char(1) not null default 'N'"; // 是否支持多人修改�
 $sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登记
 $sql .= ",can_invite char(1) not null default 'N'"; // 是否支持邀请 should be removed
 $sql .= ",remark_notice char(1) not null default 'N'"; // 支持评论提醒
+$sql .= ",assigned_nickname text"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
 $sql .= ",tags text"; // 登记记录标签
 $sql .= ",category_tags text"; // 素材分类标签
 $sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的登记活动
@@ -64,6 +67,7 @@ $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面�
 $sql .= ",rp_short_url_code char(4) not null default ''"; // 统计报告页面的短链接编码
 $sql .= ",rp_config text"; // 统计报告页面用户选择的标识信息
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
+$sql .= ",absent_cause text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -84,7 +88,7 @@ $sql .= ",name varchar(20) not null default ''";
 $sql .= ",code_id int not null default 0"; // from xxt_code_page
 $sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
 $sql .= ",share_page char(1) not null default 'Y'"; // 分享时分享当前页还是分享活动，缺省分享活动
-$sql .= ",share_summary varchar(240)"; // 分享时的摘要字段
+$sql .= ",share_summary varchar(240) not null default ''"; // 分享时的摘要字段
 $sql .= ",autoenroll_onenter char(1) not null default 'N'"; // 进入时自动登记
 $sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动登记
 $sql .= ",seq int not null"; //页面序号
@@ -192,6 +196,7 @@ $sql .= ",modify_log longtext"; // 数据修改日志
 $sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
+$sql .= ",agreed_log text"; // 推荐日志
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -249,7 +254,7 @@ $sql = "create table if not exists xxt_enroll_user(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",rid varchar(13) not null default ''";
+$sql .= ",rid varchar(13) not null default ''"; // 登记轮次，ALL代表累计的数据，每个轮次有单独轮次的记录，如果没有设置轮次，轮次rid为空字符串
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
@@ -267,7 +272,8 @@ $sql .= ",last_like_other_at int not null default 0"; // 最后一次对登记�
 $sql .= ",like_other_num int not null default 0"; // 对登记内容进行点赞的次数
 $sql .= ",last_like_other_remark_at int not null default 0"; // 最后一次对评论进行点赞的时间
 $sql .= ",like_other_remark_num int not null default 0"; // 对评论进行点赞的次数
-$sql .= ",user_total_coin int not null default 0"; // 用户在某个活动中的总分数
+$sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
+$sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -323,6 +329,7 @@ $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",mission_phase_id varchar(13) not null default ''"; // 所属项目阶段
 $sql .= ",entry_rule text"; // 进入规则
 $sql .= ",data_schemas text";
+$sql .= ",assigned_nickname text"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
 $sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
 $sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
 $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉
@@ -332,6 +339,7 @@ $sql .= ",tags text";
 $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事件通知
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
+$sql .= ",absent_cause text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -487,10 +495,11 @@ $sql .= ",category_tags text"; // 素材分类标签
 $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",mission_phase_id varchar(13) not null default ''"; // 所属项目阶段
 $sql .= ",scenario varchar(255) not null default ''"; // 分组活动场景
-$sql .= ",source_app varchar(255) not null default ''"; // 关联的登记或签到活动
+$sql .= ",source_app varchar(255) not null default ''"; // 关联的登记或签到活动，{"id":"579e9f186a859","type":"signin"}
 $sql .= ",last_sync_at int not null default 0"; // 最后同步的时间
 $sql .= ",group_rule text"; // 分组规则
 $sql .= ",data_schemas text";
+$sql .= ",assigned_nickname text"; // 导入活动中，填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
 $sql .= ",tags text";
 $sql .= ",page_code_id int not null default 0"; //should remove
 $sql .= ",page_code_name varchar(13) not null default ''";

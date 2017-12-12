@@ -18,17 +18,16 @@ class main extends base {
 	 * 获得指定页面的数据
 	 */
 	public function pageGet_action($scenario, $template, $page = '') {
-		$customConfig = $this->getPostJson();
+		$oCustomConfig = $this->getPostJson();
 		$params = array();
 		/*模版配置信息*/
 		$templateDir = $this->getTemplateDir($scenario, $template);
 		$initialConfig = $this->getConfig($templateDir);
-		!(empty($customConfig->simpleSchema)) && $initialConfig->simpleSchema = $customConfig->simpleSchema;
+		!(empty($oCustomConfig->simpleSchema)) && $initialConfig->simpleSchema = $oCustomConfig->simpleSchema;
 		/*当前访问用户的基本信息*/
-		$user = new \stdClass;
-		$user->fan = new \stdClass;
-		$user->fan->nickname = '演示用户';
-		$params['user'] = $user;
+		$oUser = new \stdClass;
+		$oUser->nickname = '演示用户';
+		$params['user'] = $oUser;
 		/*打开页面*/
 		$params['page'] = $this->getPage($templateDir, $initialConfig, $page);
 		if ($initialConfig->multi_rounds === 'Y') {
@@ -48,9 +47,9 @@ class main extends base {
 	 *
 	 */
 	public function statGet_action($scenario, $template) {
-		$customConfig = $this->getPostJson();
-		if (!empty($customConfig->simpleSchema)) {
-			$schema = $this->model('matter\enroll\page')->schemaByText($customConfig->simpleSchema);
+		$oCustomConfig = $this->getPostJson();
+		if (!empty($oCustomConfig->simpleSchema)) {
+			$schema = $this->model('matter\enroll\page')->schemaByText($oCustomConfig->simpleSchema);
 			$statistic = new \stdClass;
 			foreach ($schema as &$def) {
 				if ($def->type === 'single' || $def->type === 'multiple') {

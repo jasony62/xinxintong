@@ -3,8 +3,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$q', '$uibModal', 'http2', 'srvSigninApp', 'srvSigninPage', function($scope, $location, $q, $uibModal, http2, srvSigninApp, srvSigninPage) {
-        $scope.ep = null;
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$q', '$uibModal', 'http2', 'srvSigninApp', 'srvEnrollPage', function($scope, $location, $q, $uibModal, http2, srvSigninApp, srvAppPage) {
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep && $scope.ep.$$modified) {
@@ -16,6 +15,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 return message;
             }
         };
+        $scope.ep = null;
         $scope.createPage = function() {
             var deferred = $q.defer();
             $uibModal.open({
@@ -56,7 +56,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 editorProxy.purifyPage(page, true);
             }
 
-            return srvSigninPage.update(page, names);
+            return srvAppPage.update(page, names);
         };
         $scope.delPage = function() {
             var oPage, oActSchema, bUserd;
@@ -75,7 +75,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             if (bUserd) {
                 alert('页面已经被【' + oPage.title + '/' + oActSchema.label + '】使用，不能删除');
             } else if (window.confirm('确定删除页面【' + $scope.ep.title + '】？')) {
-                srvSigninPage.remove($scope.ep).then(function() {
+                srvAppPage.remove($scope.ep).then(function() {
                     $scope.app.pages.splice($scope.app.pages.indexOf($scope.ep), 1);
                     if ($scope.app.pages.length) {
                         $scope.choosePage($scope.app.pages[0]);
@@ -98,12 +98,11 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             return $scope.ep = page;
         };
         $scope.cleanPage = function() {
-            $scope.ep.html = '';
-            $scope.ep.data_schemas = [];
-            $scope.ep.act_schemas = [];
-            srvSigninPage.update($scope.ep, ['data_schemas', 'act_schemas', 'html']).then(function() {
-                editorProxy.getEditor().setContent('');
-            });
+            if (window.confirm('确定清除页面【' + $scope.ep.title + '】的所有内容？')) {
+                srvAppPage.clean($scope.ep).then(function() {
+                    editorProxy.getEditor().setContent('');
+                });
+            }
         };
         $scope.gotoCode = function() {
             window.open('/rest/pl/fe/code?site=' + $scope.app.siteid + '&name=' + $scope.ep.code_name, '_self');
@@ -118,13 +117,27 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 }
             });
         });
-        //??? 提交前如何检查数据的一致性？
         $scope.save = function() {
+            var pages, oPage, aCheckResult;
+
+            pages = $scope.app.pages;
+            /* 更新当前编辑页 */
+            $scope.ep.html = editorProxy.getEditor().getContent();
+            editorProxy.purifyPage($scope.ep, true);
+
+            for (var i = pages.length - 1; i >= 0; i--) {
+                oPage = pages[i];
+                aCheckResult = oPage.check();
+                if (aCheckResult[0] !== true) {
+                    srvAppPage.repair(aCheckResult, oPage);
+                    return false;
+                }
+            }
             // 更新应用
             srvSigninApp.update('data_schemas').then(function() {
                 // 更新页面
-                $scope.app.pages.forEach(function(page) {
-                    $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);
+                pages.forEach(function(oPage) {
+                    $scope.updPage(oPage, ['data_schemas', 'act_schemas', 'html']);
                 });
             });
         };

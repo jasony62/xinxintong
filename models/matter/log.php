@@ -103,7 +103,6 @@ class log_model extends \TMS_MODEL {
 		$operation->name = 'share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto];
 		$operation->at = $current;
 		$this->addUserMatterOp($siteId, $user, $matter, $operation, $client, $referer);
-
 		$this->writeUserAction($siteId, $user, $current, 'S' . $shareto, $logid);
 		$this->writeMatterAction($siteId, $matter, $current, 'S' . $shareto, $logid);
 
@@ -113,14 +112,14 @@ class log_model extends \TMS_MODEL {
 	 * 用户行为汇总日志
 	 * 为了便于进行数据统计
 	 */
-	private function writeUserAction($siteId, &$user, $action_at, $action_name, $original_logid) {
-		$d = array();
+	private function writeUserAction($siteId, $oUser, $actionAt, $actionName, $original_logid) {
+		$d = [];
 		$d['siteid'] = $siteId;
-		$d['userid'] = $user->userid;
-		$d['nickname'] = $this->escape($user->nickname);
-		$d['action_at'] = $action_at;
+		$d['userid'] = $oUser->userid;
+		$d['nickname'] = $this->escape($oUser->nickname);
+		$d['action_at'] = $actionAt;
 		$d['original_logid'] = $original_logid;
-		switch ($action_name) {
+		switch ($actionName) {
 		case 'R':
 			$d['act_read'] = 1;
 			break;
@@ -135,18 +134,16 @@ class log_model extends \TMS_MODEL {
 		}
 		$this->insert('xxt_log_user_action', $d, false);
 
-		if (!empty($user->openid)) {
-			switch ($action_name) {
-			case 'R':
-				$this->update("update xxt_fans set read_num=read_num+1 where mpid='$siteId' and openid='$user->openid'");
-				break;
-			case 'SF':
-				$this->update("update xxt_fans set share_friend_num=share_friend_num+1 where mpid='$siteId' and openid='$user->openid'");
-				break;
-			case 'ST':
-				$this->update("update xxt_fans set share_timeline_num=share_timeline_num+1 where mpid='$siteId' and openid='$user->openid'");
-				break;
-			}
+		switch ($actionName) {
+		case 'R':
+			$this->update("update xxt_site_account set read_num=read_num+1,last_active=$actionAt where siteid='$siteId' and uid='$oUser->userid'");
+			break;
+		case 'SF':
+			$this->update("update xxt_site_account set share_friend_num=share_friend_num+1,last_active=$actionAt where siteid='$siteId' and uid='$oUser->userid'");
+			break;
+		case 'ST':
+			$this->update("update xxt_site_account set share_timeline_num=share_timeline_num+1,last_active=$actionAt where siteid='$siteId' and uid='$oUser->userid'");
+			break;
 		}
 
 		return true;
@@ -307,23 +304,77 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 查询用户操作素材日志
 	 */
-	public function &listUserMatterOp($matterId, $matterType, $page, $size) {
+	public function &listUserMatterOp($matterId, $matterType, $options = [], $page, $size) {
 		$result = new \stdClass;
 		$q = [
 			'l.userid,l.nickname,l.operation,l.operate_at,l.user_op_num,l.matter_op_num',
 			'xxt_log_user_matter l',
-			"l.matter_type='$matterType' and l.matter_id='$matterId'",
+			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
 		];
+
+		if (!empty($options['byUser'])) {
+			$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
+		}
+		if (!empty($options['byOp'])) {
+			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
+		}
+		if (!empty($options['byRid'])) {
+			$q[2] .= " and l.operate_data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
+		}
+
 		/**
 		 * 分页数据
 		 */
 		$q2 = [
 			'o' => 'l.operate_at desc',
-			'r' => [
+		];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = [
 				'o' => (($page - 1) * $size),
 				'l' => $size,
-			],
+			];
+		}
+
+		$result->logs = $this->query_objs_ss($q, $q2);
+
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
+	}
+	/**
+	 * 查询用户操作素材日志
+	 */
+	public function &listMatterOp($matterId, $matterType, $options = [], $page, $size) {
+		$result = new \stdClass;
+		$q = [
+			'l.operator userid,l.operator_name nickname,l.operation,l.operate_at',
+			'xxt_log_matter_op l',
+			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
 		];
+
+		if (!empty($options['byUser'])) {
+			$q[2] .= " and l.operator_name like '%" . $this->escape($options['byUser']) . "%'";
+		}
+		if (!empty($options['byOp'])) {
+			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
+		}
+		if (!empty($options['byRid'])) {
+			$q[2] .= " and l.data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
+		}
+
+		/**
+		 * 分页数据
+		 */
+		$q2 = [
+			'o' => 'l.operate_at desc',
+		];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			];
+		}
 
 		$result->logs = $this->query_objs_ss($q, $q2);
 
@@ -383,7 +434,8 @@ class log_model extends \TMS_MODEL {
 			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
 		);
 		// 记录新日志，或更新日志
-		if ($userLastLog === false || $current > $userLastLog->operate_at + 600 || $userLastLog->operation === 'C' || $userLastLog->operation === 'transfer') {
+		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restoreData'];
+		if ($userLastLog === false || in_array($userLastLog->operation, $filterOp) || $current > $userLastLog->operate_at + 600) {
 			/* 两次更新操作的间隔超过10分钟，产生新日志 */
 			$d = array();
 			$d['siteid'] = $siteId;
@@ -453,7 +505,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_log_matter_op',
-			"siteid='". $this->escape($siteId) ."' and last_op='Y' and operation<>'D' and operation<>'Recycle' and matter_type <> 'site'",
+			"siteid='" . $this->escape($siteId) . "' and last_op='Y' and operation<>'D' and operation<>'Recycle' and matter_type <> 'site'",
 		];
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
@@ -661,5 +713,197 @@ class log_model extends \TMS_MODEL {
 		$this->insert('xxt_log_massmsg', $log, false);
 
 		return true;
+	}
+	/*
+		* 获取用户分享过的素材
+	*/
+	public function listUserShare($site = '', $users, $page = null, $size = null) {
+		$user = "'" . implode("','", $users) . "'";
+		$q = [
+			'siteid,max(share_at) share_at,matter_id,matter_type,matter_title,userid,nickname',
+			'xxt_log_matter_share',
+			"userid in ($user)",
+		];
+		if (!empty($site) && $site !== 'platform') {
+			$site = $this->escape($site);
+			$q[2] .= " and siteid = '$site'";
+		}
+
+		$q2['g'] = "userid,matter_id,matter_type";
+		$q2['o'] = "max(share_at) desc";
+		if (!empty($page) && !empty($size)) {
+			$q2['r']['o'] = ($page - 1) * $size;
+			$q2['r']['l'] = $size;
+		}
+
+		$matters = $this->query_objs_ss($q, $q2);
+		$q[0] = "count(distinct userid,matter_id,matter_type)";
+		$total = (int) $this->query_val_ss($q);
+
+		$data = new \stdClass;
+		$data->matters = $matters;
+		$data->total = $total;
+
+		return $data;
+	}
+	/*
+		* 获取我的分享信息
+	*/
+	public function getMyShareLog($oUserid, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
+		$q = [];
+		$q2 = [];
+		switch ($orderBy) {
+		case 'shareF':
+			$q[0] = 's.userid,count(*) shareF_sum,a.nickname,a.headimgurl';
+			$q[1] = 'xxt_log_matter_share s,xxt_site_account a';
+			$q[2] = "s.matter_id = '{$matterId}' and s.matter_type = '{$matterType}' and s.matter_shareby like '" . $oUserid . "_%' and s.share_to ='F' and s.userid = a.uid";
+
+			$q2['g'] = 's.userid';
+			$q2['o'] = 'shareF_sum desc,s.share_at desc';
+
+			if (!empty($page) && !empty($size)) {
+				$q2['r']['o'] = ($page - 1) * $size;
+				$q2['r']['l'] = $size;
+			}
+
+			$users = $this->query_objs_ss($q, $q2);
+			$q[0] = "count(distinct s.userid)";
+			$total = (int) $this->query_val_ss($q);
+
+			break;
+		case 'shareT':
+			$q[0] = 's.userid,count(*) shareT_sum,a.nickname,a.headimgurl';
+			$q[1] = 'xxt_log_matter_share s,xxt_site_account a';
+			$q[2] = "s.matter_id = '{$matterId}' and s.matter_type = '{$matterType}' and s.matter_shareby like '" . $oUserid . "_%' and s.share_to ='T' and s.userid = a.uid";
+
+			$q2['g'] = 's.userid';
+			$q2['o'] = 'shareT_sum desc,s.share_at desc';
+
+			if (!empty($page) && !empty($size)) {
+				$q2['r']['o'] = ($page - 1) * $size;
+				$q2['r']['l'] = $size;
+			}
+
+			$users = $this->query_objs_ss($q, $q2);
+			$q[0] = "count(distinct s.userid)";
+			$total = (int) $this->query_val_ss($q);
+
+			break;
+		case 'attractRead':
+			$q = "select r.userid,(select count(*) from xxt_log_matter_read r1 where r1.matter_id='" . $this->escape($matterId) . "' and r1.matter_type='" . $this->escape($matterType) . "' and r1.matter_shareby like CONCAT(r.userid,'_%')) as attractRead_sum,a.nickname,a.headimgurl from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid group by r.userid order by attractRead_sum desc,r.read_at desc";
+
+			if (!empty($page) && !empty($size)) {
+				$q .= " limit " . ($page - 1) * $size . "," . $size;
+			}
+
+			$users = $this->query_objs($q);
+			$q = "select count(distinct r.userid) from xxt_log_matter_read r,xxt_site_account a where r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid";
+			$total = (int) $this->query_value($q);
+
+			break;
+		default:
+			$q[0] = 'r.userid,count(*) as read_sum,a.nickname,a.headimgurl';
+			$q[1] = 'xxt_log_matter_read r,xxt_site_account a';
+			$q[2] = "r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.matter_shareby like '" . $oUserid . "_%' and r.userid = a.uid";
+
+			$q2['g'] = 'r.userid';
+			$q2['o'] = 'read_sum desc,r.read_at desc';
+
+			if (!empty($page) && !empty($size)) {
+				$q2['r']['o'] = ($page - 1) * $size;
+				$q2['r']['l'] = $size;
+			}
+
+			$users = $this->query_objs_ss($q, $q2);
+			$q[0] = "count(distinct r.userid)";
+			$total = (int) $this->query_val_ss($q);
+
+			break;
+		}
+
+		if ($users) {
+			foreach ($users as $user) {
+				if (!isset($user->read_sum)) {
+					$q = [
+						'count(*) read_sum',
+						'xxt_log_matter_read',
+						[],
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
+					$q[2]["userid"] = $user->userid;
+
+					$rst = $this->query_obj_ss($q);
+					if ($rst) {
+						$user->read_sum = $rst->read_sum;
+					} else {
+						$user->read_sum = 0;
+					}
+				}
+				if (!isset($user->shareF_sum)) {
+					$q = [
+						'count(*) shareF_sum',
+						'xxt_log_matter_share',
+						[],
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
+					$q[2]["userid"] = $user->userid;
+					$q[2]["share_to"] = 'F';
+
+					$rst = $this->query_obj_ss($q);
+					if ($rst) {
+						$user->shareF_sum = $rst->shareF_sum;
+					} else {
+						$user->shareF_sum = 0;
+					}
+				}
+				if (!isset($user->shareT_sum)) {
+					$q = [
+						'count(*) shareT_sum',
+						'xxt_log_matter_share',
+						[],
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
+					$q[2]["userid"] = $user->userid;
+					$q[2]["share_to"] = 'T';
+
+					$rst = $this->query_obj_ss($q);
+					if ($rst) {
+						$user->shareT_sum = $rst->shareT_sum;
+					} else {
+						$user->shareT_sum = 0;
+					}
+				}
+				/*ta带来的阅读数是否加上ta自己的阅读数？？？*/
+				if (!isset($user->attractRead_sum)) {
+					$q = [
+						'count(*) attractRead_sum',
+						'xxt_log_matter_read',
+						[],
+					];
+					$q[2]["matter_id"] = $matterId;
+					$q[2]["matter_type"] = $matterType;
+					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $user->userid . '_%'];
+
+					$rst = $this->query_obj_ss($q);
+					if ($rst) {
+						$user->attractRead_sum = $rst->attractRead_sum;
+					} else {
+						$user->attractRead_sum = 0;
+					}
+				}
+			}
+		}
+
+		$data = new \stdClass;
+		$data->users = $users;
+		$data->total = $total;
+
+		return $data;
 	}
 }

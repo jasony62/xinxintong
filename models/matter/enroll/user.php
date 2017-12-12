@@ -43,48 +43,104 @@ class user_model extends \TMS_MODEL {
 		return $oNewUsr;
 	}
 	/**
+	 * 删除1条记录
+	 */
+	public function removeRecord($oRecord) {
+		if (empty($oRecord->userid) || !isset($oRecord->rid)) {
+			return [false, '参数不完整'];
+		}
+
+		$updateSql = 'update xxt_enroll_user set enroll_num=enroll_num-1 where enroll_num>0 and userid="' . $oRecord->userid . '"';
+		$this->update($updateSql . ' and rid="' . $oRecord->rid . '"');
+		$rst = $this->update($updateSql . ' and rid="ALL"');
+
+		return [true, $rst];
+	}
+	/**
+	 * 恢复1条记录
+	 */
+	public function restoreRecord($oRecord) {
+		if (empty($oRecord->userid) || !isset($oRecord->rid)) {
+			return [false, '参数不完整'];
+		}
+
+		$updateSql = 'update xxt_enroll_user set enroll_num=enroll_num+1 where userid="' . $oRecord->userid . '"';
+		$this->update($updateSql . ' and rid="' . $oRecord->rid . '"');
+		$rst = $this->update($updateSql . ' and rid="ALL"');
+
+		return [true, $rst];
+	}
+	/**
 	 * 活动中提交过数据的用户
 	 */
-	public function enrolleeByApp($oApp, $page = '', $size = '', $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function enrolleeByApp($oApp, $page = '', $size = '', $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 
 		$result = new \stdClass;
 		$q = [
 			$fields,
 			"xxt_enroll_user",
-			"aid='{$oApp->id}' and enroll_num>0",
+			"aid='{$oApp->id}'",
 		];
-		if (!empty($options['rid'])) {
-			$q[2] .= " and rid = '" . $this->escape($options['rid']) . "'";
+		if (!empty($aOptions['onlyEnrolled']) && $aOptions['onlyEnrolled'] === 'Y') {
+			$q[2] .= " and enroll_num>0";
+		}
+		if (!empty($aOptions['rid'])) {
+			$q[2] .= " and rid = '" . $this->escape($aOptions['rid']) . "'";
 		} else {
 			$q[2] .= " and rid = 'ALL'";
 		}
-		$q2 = [
-			'o' => 'last_enroll_at desc',
-		];
+		if (!empty($aOptions['byGroup'])) {
+			$q[2] .= " and group_id = '" . $this->escape($aOptions['byGroup']) . "'";
+		}
+		if (!empty($aOptions['orderby'])) {
+			$q2 = ['o' => $aOptions['orderby'] . ' desc'];
+		} else {
+			$q2 = ['o' => 'last_enroll_at desc'];
+		}
 		if (!empty($page) && !empty($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
-		if ($users = $this->query_objs_ss($q, $q2)) {
-			foreach ($users as $user) {
+		$users = $this->query_objs_ss($q, $q2);
+		if ($cascaded === 'Y' && count($users)) {
+			foreach ($users as $oUser) {
 				$p = [
 					'wx_openid,yx_openid,qy_openid',
 					"xxt_site_account",
-					"uid = '{$user->userid}'",
+					['uid' => $oUser->userid],
 				];
-				if ($openid = $this->query_obj_ss($p)) {
-					$user->wx_openid = $openid->wx_openid;
-					$user->yx_openid = $openid->yx_openid;
-					$user->qy_openid = $openid->qy_openid;
+				if ($oOpenid = $this->query_obj_ss($p)) {
+					$oUser->wx_openid = $oOpenid->wx_openid;
+					if (!empty($oOpenid->wx_openid)) {
+						if (!isset($modelWxfan)) {
+							$modelWxfan = $this->model('sns\wx\fan');
+						}
+						$oWxfan = $modelWxfan->byOpenid($oApp->siteid, $oOpenid->wx_openid, 'nickname,headimgurl', 'Y');
+						if ($oWxfan) {
+							$oUser->wxfan = $oWxfan;
+						}
+					}
+					$oUser->yx_openid = $oOpenid->yx_openid;
+					if (!empty($oOpenid->yx_openid)) {
+						if (!isset($modelYxfan)) {
+							$modelYxfan = $this->model('sns\yx\fan');
+						}
+						$oYxfan = $modelYxfan->byOpenid($oApp->siteid, $oOpenid->yx_openid, 'nickname,headimgurl', 'Y');
+						if ($oYxfan) {
+							$oUser->yxfan = $oYxfan;
+						}
+					}
 				} else {
-					$user->wx_openid = '';
-					$user->yx_openid = '';
-					$user->qy_openid = '';
+					$oUser->wx_openid = '';
+					$oUser->yx_openid = '';
 				}
 			}
 		}
 
 		$result->users = $users;
+
+		/* 符合条件的用户总数 */
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
 		$result->total = $total;
@@ -130,6 +186,140 @@ class user_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
+	 * 缺席用户
+	 *
+	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
+	 * 2、如果活动关联了分组活动
+	 * 3、如果活动所属项目指定了用户名单
+	 *   $oUsers 当前轮次的所有用户
+	 */
+	public function absentByApp($oApp, $oUsers, $rid = '') {
+		empty($rid) && $rid = 'ALL';
+		$oUsers2 = [];
+		foreach ($oUsers as $oUser) {
+			$oUsers2[$oUser->id] = $oUser->userid;
+		}
+
+		/* 获取未签到人员 */
+		$aAbsentUsrs = [];
+		if (isset($oApp->entry_rule->scope) && in_array($oApp->entry_rule->scope, ['group', 'member'])) {
+			if ($oApp->entry_rule->scope === 'group' && isset($oApp->entry_rule->group)) {
+				$oGrpApp = $oApp->entry_rule->group;
+				$modelGrpUsr = $this->model('matter\group\player');
+				$aGrpUsrs = $modelGrpUsr->byRound(
+					$oGrpApp->id,
+					isset($oGrpApp->round->id) ? $oGrpApp->round->id : null,
+					['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']
+				);
+				foreach ($aGrpUsrs as $oGrpUsr) {
+					if (false === in_array($oGrpUsr->userid, $oUsers2)) {
+						$aAbsentUsrs[] = $oGrpUsr;
+					}
+				}
+			} else if ($oApp->entry_rule->scope === 'member' && isset($oApp->entry_rule->member)) {
+				$modelMem = $this->model('site\user\member');
+				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
+					$members = $modelMem->byMschema($mschemaId);
+					foreach ($members as $oMember) {
+						if (false === in_array($oMember->userid, $oUsers2)) {
+							$oUser = new \stdClass;
+							$oUser->userid = $oMember->userid;
+							$oUser->nickname = $oMember->name;
+							$aAbsentUsrs[] = $oUser;
+						}
+					}
+				}
+			}
+		} else if (!empty($oApp->group_app_id)) {
+			$modelGrpUsr = $this->model('matter\group\player');
+			$aGrpUsrs = $modelGrpUsr->byApp($oApp->group_app_id, ['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']);
+			foreach ($aGrpUsrs->players as $oGrpUsr) {
+				if (false === in_array($oGrpUsr->userid, $oUsers2)) {
+					$aAbsentUsrs[] = $oGrpUsr;
+				}
+			}
+		} else if (!empty($oApp->mission_id)) {
+			$modelMis = $this->model('matter\mission');
+			$oMission = $modelMis->byId($oApp->mission_id, ['fields' => 'user_app_id,user_app_type,entry_rule']);
+			if (isset($oMission->entry_rule->scope) && $oMission->entry_rule->scope === 'member') {
+				$modelMem = $this->model('site\user\member');
+				foreach ($oMission->entry_rule->member as $mschemaId => $rule) {
+					$members = $modelMem->byMschema($mschemaId);
+					foreach ($members as $oMember) {
+						if (false === in_array($oMember->userid, $oUsers2)) {
+							$oUser = new \stdClass;
+							$oUser->userid = $oMember->userid;
+							$oUser->nickname = $oMember->name;
+							$aAbsentUsrs[] = $oUser;
+						}
+					}
+				}
+			} else {
+				if ($oMission->user_app_type === 'enroll') {
+					$modelRec = $this->model('matter\enroll\record');
+					$result = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($result->records)) {
+						foreach ($result->records as $oRec) {
+							if (false === in_array($oRec->userid, $oUsers2)) {
+								$aAbsentUsrs[] = $oRec;
+							}
+						}
+					}
+				} else if ($oMission->user_app_type === 'signin') {
+					$modelRec = $this->model('matter\signin\record');
+					$result = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($result->records)) {
+						foreach ($result->records as $oRec) {
+							if (false === in_array($oRec->userid, $oUsers2)) {
+								$aAbsentUsrs[] = $oRec;
+							}
+						}
+					}
+				} else if ($oMission->user_app_type === 'group') {
+					$modelRec = $this->model('matter\group\player');
+					$result = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($result->players)) {
+						foreach ($result->players as $oRec) {
+							if (false === in_array($oRec->userid, $oUsers2)) {
+								$aAbsentUsrs[] = $oRec;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		/* userid去重 */
+		$aAbsentUsrs2 = [];
+		foreach ($aAbsentUsrs as $aAbsentUsr) {
+			$state = true;
+			foreach ($aAbsentUsrs2 as $aAbsentUsr2) {
+				if ($aAbsentUsr->userid === $aAbsentUsr2->userid || empty($aAbsentUsr->userid)) {
+					$state = false;
+					break;
+				}
+			}
+			if ($state) {
+				//获取未签到人员的信息，并从$oApp->absent_cause中筛选出已经签到的人
+				if (isset($oApp->absent_cause->{$aAbsentUsr->userid}) && isset($oApp->absent_cause->{$aAbsentUsr->userid}->{$rid})) {
+					$aAbsentUsr->absent_cause = new \stdClass;
+					$aAbsentUsr->absent_cause->cause = $oApp->absent_cause->{$aAbsentUsr->userid}->{$rid};
+					$aAbsentUsr->absent_cause->rid = $rid;
+				} else {
+					$aAbsentUsr->absent_cause = new \stdClass;
+					$aAbsentUsr->absent_cause->rid = $rid;
+					$aAbsentUsr->absent_cause->cause  = '';
+				}
+				$aAbsentUsrs2[] = $aAbsentUsr;
+			}
+		}
+
+		$result = new \stdClass;
+		$result->users = $aAbsentUsrs2;
+
+		return $result;
+	}
+	/**
 	 * 发表过评论的用户
 	 */
 	public function remarkerByApp($oApp, $page = 1, $size = 30, $options = []) {
@@ -162,9 +352,21 @@ class user_model extends \TMS_MODEL {
 
 		/* 登记次数 */
 		$modelRec = $this->model('matter\enroll\record');
-		$records = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);
+		$records = $modelRec->byUser($oApp, $oUser, ['fields' => 'id,comment']);
+		if (false === $records) {
+			return false;
+		}
 		$result->enroll_num = count($records);
-
+		$result->comment = '';
+		if ($result->enroll_num > 0) {
+			$comments = [];
+			foreach ($records as $record) {
+				if (!empty($record->comment)) {
+					$comments[] = $record->comment;
+				}
+			}
+			$result->comment = implode(',', $comments);
+		}
 		/* 发表评论次数 */
 		$modelRec = $this->model('matter\enroll\remark');
 		$remarks = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);

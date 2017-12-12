@@ -1,14 +1,2 @@
-body{font-family:"Microsoft Yahei","Helvetica Neue",Helvetica,Arial,sans-serif;background:#f8f8f8;padding-top:71px;}
-.navbar-nav.tms-breadcrumb>li>a{padding-left:0;padding-right:0;color:#428bca;max-width:12em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-.navbar-nav.tms-breadcrumb>li:last-child>a{color:#777;}
-.navbar-nav.tms-breadcrumb>li+li>a:before{content:'/\00a0';padding-left:5px;color:#ccc;}
-.tile{position:relative;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f8f8f8;margin-bottom:15px;}
-.tile .tile-toggle{position:absolute;top:-15px;right:-15px;width:32px;height:32px;border:1px solid #ddd;border-radius:50%;background:#fff;}
-.tile .tile-toggle i{display:inline-block;position:absolute;top:50%;left:50%;margin-left:-10px;margin-top:-9px;color:#999;font-size:20px;}
-.tile .tile-toggle i:hover{color:#333;}
-
 /*setting*/
-.form-group,.checkbox{padding:8px;background:#fff;border-radius:4px;}
-.help-block{margin-bottom:0;}
-.tile .form-group:last-child{margin-bottom:0;}
 .tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}

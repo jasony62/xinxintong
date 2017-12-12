@@ -31,45 +31,44 @@
             <div class='form-group' ng-if="!app.enroll_app_id">
                 <button class='btn btn-success btn-block' ng-click="assignEnrollApp()">指定登记匹配名单</button>
             </div>
-            <div class='form-group' ng-if="app.enroll_app_id">
-                <div class="input-group">
-                    <input class='form-control' value="{{app.enrollApp.title}}" title="{{app.enrollApp.title}}" readonly>
-                    <div class="input-group-btn">
-                        <button class="btn btn-default" ng-click="cancelEnrollApp()">
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                    </div>
-                </div>
+            <div ng-if="app.enroll_app_id" class='help-block'>需要与【<a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.enrollApp.id}}' target='_self'>{{app.enrollApp.title}}</a>】中的填写记录匹配的题目
+                <button class='btn btn-default btn-xs' ng-click="cancelEnrollApp()"><span class='glyphicon glyphicon-remove'></span></button>
             </div>
-            <div class='form-group' ng-if="app.enroll_app_id">
-                <button class='btn btn-default' ng-click="newByOtherApp(s,app.enrollApp)" ng-repeat="s in app.enrollApp.dataSchemas">{{s.title}}</button>
-            </div>
-            <div ng-if="app.enroll_app_id" class='help-block'>需要和［<a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.enrollApp.id}}' target='_self'>{{app.enrollApp.title}}</a>］的登记内容匹配的题目</div>
+            <ul class='list-group' ng-if="app.enroll_app_id">
+                <li class='list-group-item' ng-repeat="s in app.enrollApp.dataSchemas" ng-switch on="s.assocState">
+                    <span>{{s.title}}</span>
+                    <span ng-switch-when="yes" class='pull-right'>已关联</span>
+                    <button ng-switch-when="no" class='btn btn-default btn-xs pull-right' ng-click="assocWithOtherApp(s,app.enrollApp)">关联</button>
+                    <button ng-switch-default class='btn btn-default btn-xs pull-right' ng-click="newByOtherApp(s,app.enrollApp)">添加</button>
+                </li>
+            </ul>
         </div>
         <div class='form-group list-group-item'>
             <div class='form-group' ng-if="!app.group_app_id">
                 <button class='btn btn-success btn-block' ng-click="assignGroupApp()">指定分组匹配名单</button>
             </div>
-            <div class='form-group' ng-if="app.group_app_id">
-                <div class="input-group">
-                    <input class='form-control' title="{{app.groupApp.title}}" value="{{app.groupApp.title}}" readonly>
-                    <div class="input-group-btn">
-                        <button class="btn btn-default" ng-click="cancelGroupApp()">
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                    </div>
-                </div>
+            <div ng-if="app.group_app_id" class='help-block'>需要与【<a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self'>{{app.groupApp.title}}</a>】中的分组记录匹配的题目
+                <button class='btn btn-default btn-xs' ng-click="cancelGroupApp()"><span class='glyphicon glyphicon-remove'></span></button>
             </div>
-            <div class='form-group' ng-if="app.group_app_id">
-                <button class='btn btn-default' ng-click="newByOtherApp(s,app.groupApp)" ng-repeat="s in app.groupApp.dataSchemas">{{s.title}}</button>
-            </div>
-            <div ng-if="app.group_app_id" class='help-block'>需要和［<a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self'>{{app.groupApp.title}}</a>］的分组内容匹配的题目</div>
+            <ul class='list-group' ng-if="app.group_app_id">
+                <li class='list-group-item' ng-repeat="s in app.groupApp.dataSchemas" ng-switch on="s.assocState">
+                    <span>{{s.title}}</span>
+                    <span ng-switch-when="yes" class='pull-right'>已关联</span>
+                    <button ng-switch-when="no" class='btn btn-default btn-xs pull-right' ng-click="assocWithOtherApp(s,app.groupApp)">关联</button>
+                    <button ng-switch-default class='btn btn-default btn-xs pull-right' ng-click="newByOtherApp(s,app.groupApp)">添加</button>
+                </li>
+            </ul>
         </div>
         <div class='form-group list-group-item' ng-repeat="(msid,erm) in app.entry_rule.member">
-            <label>通讯录联系人：{{mschemasById[msid].title}}</label>
-            <div>
-                <button class='btn btn-default' ng-click="newMember(mschemasById[msid],s)" ng-repeat="s in mschemasById[msid]._schemas">{{s.title}}</button>
-            </div>
+            <div class='help-block'>通讯录【{{mschemasById[msid].title}}】用户信息</div>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat="s in mschemasById[msid]._schemas" ng-switch on="s.assocState">
+                    <span>{{s.title}}</span>
+                    <span ng-switch-when="yes" class='pull-right'>已关联</span>
+                    <button ng-switch-when="no" class='btn btn-default btn-xs pull-right' ng-click="assocWithMschema(s,mschemasById[msid])">关联</button>
+                    <button ng-switch-default class='btn btn-default btn-xs pull-right' ng-click="newMember(mschemasById[msid],s)">添加</button>
+                </li>
+            </ul>
         </div>
         <!-- end create schema -->
         <!-- actions -->
@@ -88,7 +87,7 @@
     <!-- schema list -->
     <div class='col-md-6' tms-flex-height top='72' bottom='0'>
         <div dnd-list dataset='app.dataSchemas' evt-prefix="schemas" class='schemas'>
-            <div data-schema-index="{{$index}}" class='dndable schema' ng-class="schema.type" ng-repeat="schema in app.dataSchemas">
+            <div data-schema-index="{{$index}}" class='dndable schema {{schema.type}}' ng-class="{'active':schema===activeSchema}" ng-repeat="schema in app.dataSchemas">
                 <div class='title' ng-if="schema.type!=='html'" ng-click="chooseSchema($event,schema)">
                     <div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y" style="min-height:34px;"></div>
                 </div>
@@ -103,95 +102,110 @@
                     <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="removeSchema(schema)"><span class='glyphicon glyphicon-trash'></span></button>
+                    <button ng-if="schema.id==='_round_id'" class='btn btn-sm btn-default' ng-click="refreshSchema(schema)"><span class='glyphicon glyphicon-refresh'></span></button>
+                </div>
+                <div ng-if="'Y'===schema.requireCheck">
+                    <p class='help-block'>需要【<span>{{assocApp(schema.fromApp).title}}</span>】中有题目【<span>{{assocAppSchema(schema).title}}</span>】的值与填写内容匹配的记录
+                        <button class='btn btn-default btn-xs' ng-click="unassocWithOtherApp(schema) "><span class='glyphicon glyphicon-remove'></span></button>
+                    </p>
+                </div>
+                <div ng-if="'member'===schema.type">
+                    <p class='help-block'>用通讯录【<span>{{mschemasById[schema.schema_id].title}}</span>】中【<span>{{mschemasById[schema.schema_id]._schemasById[schema.id].title}}</span>】自动填写
+                        <button class='btn btn-default btn-xs' ng-click="unassocWithMschema(schema) "><span class='glyphicon glyphicon-remove'></span></button>
+                    </p>
                 </div>
             </div>
         </div>
-        <div class='checkbox'>
-            <label class='checkbox-inline'>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.__schemasOrderConsistent">页面显示顺序保持一致</label>
+        <div class='form-inline' ng-if="app.recycleSchemas.length ">
+            <div class="btn-group " uib-dropdown>
+                <button type="button " class="btn btn-default " uib-dropdown-toggle>恢复删除的题目 <i class="caret "></i></button>
+                <ul uib-dropdown-menu>
+                    <li ng-repeat="schema in app.recycleSchemas "><a href=" " ng-click="recycleSchema(schema) ">{{schema.title}}</a></li>
+                </ul>
+            </div>
         </div>
     </div>
     <div class='col-md-3 hidden-xs' tms-flex-height top='72' bottom='0'>
-        <div class='list-group-item' ng-include="schemaEditorHtml()"></div>
+        <div class='list-group-item' ng-include="schemaEditorHtml() "></div>
     </div>
     <!-- end schema list -->
     <nav class='navbar navbar-default navbar-fixed-bottom visible-xs-block'>
         <div class='container-fluid'>
-            <button class='btn navbar-btn btn-default' uib-popover-template="'schemaProto.html'" popover-placement="top-left" popover-trigger="show" popover-title="" ng-click="showSchemaProto($event)">添加</button>
-            <button class="btn navbar-btn btn-default" ng-if="['single','phase','multiple','score'].indexOf(activeSchema.type)!==-1" ng-click="addOption(activeSchema)">添加选项</button>
-            <button class="btn navbar-btn btn-default" ng-click="copySchema(activeSchema)">复制</button>
-            <button class='btn navbar-btn btn-default' ng-click="upSchema(activeSchema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
-            <button class='btn navbar-btn btn-default' ng-click="downSchema(activeSchema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
-            <button class='btn navbar-btn btn-default' ng-click="removeSchema(activeSchema)"><span class='glyphicon glyphicon-trash'></span></button>
+            <button class='btn navbar-btn btn-default' uib-popover-template=" 'schemaProto.html' " popover-placement="top-left " popover-trigger="show " popover-title=" " ng-click="showSchemaProto($event) ">添加</button>
+            <button class="btn navbar-btn btn-default " ng-if="[ 'single', 'phase', 'multiple', 'score'].indexOf(activeSchema.type)!==-1 " ng-click="addOption(activeSchema) ">添加选项</button>
+            <button class="btn navbar-btn btn-default " ng-click="copySchema(activeSchema) ">复制</button>
+            <button class='btn navbar-btn btn-default' ng-click="upSchema(activeSchema) "><span class='glyphicon glyphicon-arrow-up'></span></button>
+            <button class='btn navbar-btn btn-default' ng-click="downSchema(activeSchema) "><span class='glyphicon glyphicon-arrow-down'></span></button>
+            <button class='btn navbar-btn btn-default' ng-click="removeSchema(activeSchema) "><span class='glyphicon glyphicon-trash'></span></button>
         </div>
     </nav>
 </div>
-<script type="text/ng-template" id="schemaProto.html">
+<script type="text/ng-template " id="schemaProto.html ">
     <div class='flexrow'>
-        <button class='btn btn-default' ng-click="newSchema('shorttext')">单行文本</button>
-        <button class='btn btn-default' ng-click="newSchema('longtext')">多行文本</button>
-        <button class='btn btn-default' ng-click="newSchema('date')">日期</button>
+        <button class='btn btn-default' ng-click="newSchema( 'shorttext') ">单行文本</button>
+        <button class='btn btn-default' ng-click="newSchema( 'longtext') ">多行文本</button>
+        <button class='btn btn-default' ng-click="newSchema( 'date') ">日期</button>
     </div>
     <div class='flexrow'>
-        <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
-        <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
-        <button class='btn btn-default' ng-click="newSchema('phase')">{{cstApp.naming.mission_phase}}</button>
+        <button class='btn btn-default' ng-click="newSchema( 'single') ">单选题</button>
+        <button class='btn btn-default' ng-click="newSchema( 'multiple') ">多选题</button>
+        <button class='btn btn-default' ng-click="newSchema( 'phase') ">{{cstApp.naming.mission_phase}}</button>
     </div>
     <div class='flexrow'>
-        <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
-        <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
-        <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
+        <button class='btn btn-default' ng-click="newSchema( 'image') ">上传图片</button>
+        <button class='btn btn-default' ng-click="newSchema( 'file') ">上传文件</button>
+        <button class='btn btn-default' ng-click="newSchema( 'location') ">上传位置</button>
     </div>
     <div class='flexrow'>
-        <button class='btn btn-default' ng-click="newSchema('score')">打分题</button>
+        <button class='btn btn-default' ng-click="newSchema( 'score') ">打分题</button>
     </div>
     <div class='flexrow'>
-        <button class='btn btn-default' ng-click="newSchema('html')">描述说明</button>
+        <button class='btn btn-default' ng-click="newSchema( 'html') ">描述说明</button>
     </div>
 </script>
-<script type="text/ng-template" id="assignEnrollApp.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">关联登记活动</h5>
+<script type="text/ng-template " id="assignEnrollApp.html ">
+    <div class="modal-header ">
+        <button class="close " type="button " ng-click="cancel() ">×</button>
+        <h5 class="modal-title ">关联登记活动</h5>
     </div>
-    <div class="modal-body">
-        <form class="form-horizontal">
+    <div class="modal-body ">
+        <form class="form-horizontal ">
             <div class='form-group'>
-                <label class="col-md-3 control-label">目标活动</label>
-                <div class="col-md-9">
-                    <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
-                    <div class='checkbox' ng-if="app.mission">
+                <label class="col-md-3 control-label ">目标活动</label>
+                <div class="col-md-9 ">
+                    <select class="form-control " ng-model="data.source " ng-options="app.id as app.title for app in apps "></select>
+                    <div class='checkbox' ng-if="app.mission ">
                         <label>
-                            <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                            <input disabled type='checkbox' ng-model="data.sameMission " ng-true-value=" 'Y' " ng-false-value=" 'N' ">选择同一个项目中的活动</label>
                     </div>
                 </div>
             </div>
         </form>
     </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    <div class="modal-footer ">
+        <button class="btn btn-primary " ng-click="ok() ">确定</button>
     </div>
 </script>
-<script type="text/ng-template" id="assignGroupApp.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">关联分组活动</h5>
+<script type="text/ng-template " id="assignGroupApp.html ">
+    <div class="modal-header ">
+        <button class="close " type="button " ng-click="cancel() ">×</button>
+        <h5 class="modal-title ">关联分组活动</h5>
     </div>
-    <div class="modal-body">
-        <form class="form-horizontal">
+    <div class="modal-body ">
+        <form class="form-horizontal ">
             <div class='form-group'>
-                <label class="col-md-3 control-label">目标活动</label>
-                <div class="col-md-9">
-                    <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
-                    <div class='checkbox' ng-if="app.mission">
+                <label class="col-md-3 control-label ">目标活动</label>
+                <div class="col-md-9 ">
+                    <select class="form-control " ng-model="data.source " ng-options="app.id as app.title for app in apps "></select>
+                    <div class='checkbox' ng-if="app.mission ">
                         <label>
-                            <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                            <input disabled type='checkbox' ng-model="data.sameMission " ng-true-value=" 'Y' " ng-false-value=" 'N' "> 选择同一个项目中的活动</label>
                     </div>
                 </div>
             </div>
         </form>
     </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    <div class="modal-footer ">
+        <button class="btn btn-primary " ng-click="ok() ">确定</button>
     </div>
 </script>

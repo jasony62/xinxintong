@@ -1,17 +1,27 @@
 <?php
 namespace matter;
 
-require_once dirname(__FILE__) . '/app_base.php';
+require_once dirname(__FILE__) . '/enroll_base.php';
 /**
  *
  */
-class wall_model extends app_base {
+class wall_model extends enroll_base {
 	/**
 	 * 审核状态
 	 */
 	const APPROVE_PENDING = 0;
 	const APPROVE_PASS = 1;
 	const APPROVE_REJECT = 2;
+	/**
+	 * 记录日志时需要的列
+	 */
+	const LOG_FIELDS = 'siteid,id,title,summary,pic,mission_id';
+	/**
+	 *
+	 */
+	protected function table() {
+		return 'xxt_wall';
+	}
 	/**
 	 *
 	 */
@@ -22,14 +32,40 @@ class wall_model extends app_base {
 			'xxt_wall',
 			['id' => $id],
 		];
-		if ($w = $this->query_obj_ss($q)) {
-			$w->type = 'wall';
-			if(!empty($w->matter_mg_tag)){
-				$w->matter_mg_tag = json_decode($w->matter_mg_tag);
+		if ($oWall = $this->query_obj_ss($q)) {
+			$oWall->type = 'wall';
+			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
+				if (!empty($oWall->data_schemas)) {
+					$oWall->dataSchemas = json_decode($oWall->data_schemas);
+				} else {
+					$oWall->dataSchemas = [];
+				}
+			}
+			if (!empty($oWall->matter_mg_tag)) {
+				$oWall->matter_mg_tag = json_decode($oWall->matter_mg_tag);
+			}
+			if (!empty($oWall->scenario_config)) {
+				$oWall->scenario_config = json_decode($oWall->scenario_config);
+			}
+			if (!empty($oWall->interact_matter)) {
+				$oWall->interact_matter = json_decode($oWall->interact_matter);
+				foreach ($oWall->interact_matter as $key => $matter) {
+					if ($matter->type === 'signin') {
+						$oWall->interact_matter[$key]->entryUrl = '';
+						continue;
+					}
+					$oWall->interact_matter[$key]->entryUrl = $this->model('matter\\' . $matter->type)->getEntryUrl($oWall->siteid, $matter->id);
+				}
+			}
+			if (!empty($oWall->matters_img)) {
+				$oWall->matters_img = json_decode($oWall->matters_img);
+			}
+			if (!empty($oWall->result_img)) {
+				$oWall->result_img = json_decode($oWall->result_img);
 			}
 		}
 
-		return $w;
+		return $oWall;
 	}
 	/**
 	 *
@@ -54,13 +90,22 @@ class wall_model extends app_base {
 	 */
 	public function join($runningSiteId, $wid, $user, $remark = '') {
 		/**
-		 *检查是否启用信息墙
+		 *检查信息墙状态
 		 */
-		$wall = $this->byId($wid, 'join_reply,active');
+		$wall = $this->byId($wid, ['fields' => 'title,join_reply,active,start_at,end_at']);
 		if ($wall->active === 'N') {
-			$reply = [false, '信息墙已停用'];
+			$reply = [false, '【' . $wall->title . '】已停用'];
 			return $reply;
 		}
+		$current = time();
+		if ($wall->start_at != 0 && $current < $wall->start_at) {
+			$reply = [false, '【' . $wall->title . '】没有开始'];
+			return $reply;
+		} else if ($wall->end_at != 0 && $current > $wall->end_at) {
+			$reply = [false, '【' . $wall->title . '】已经结束'];
+			return $reply;
+		}
+
 		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */
@@ -238,6 +283,63 @@ class wall_model extends app_base {
 		$time > 0 && $q[2] .= " and publish_at>=$time";
 		$q2['o'] = 'publish_at desc';
 		return $this->query_objs_ss($q, $q2);
+	}
+	/*
+	* 获取素材分享者列表
+	* $startTime 分享开始时间
+	 and s.matter_id in ($matterId) and s.matter_type = '$matterType'
+	*/
+	public function listPlayer($startTime, $startId = null, &$oApp, $page = null, $size = null) {
+		$this->setOnlyWriteDbConn(true);
+		$startTime = $this->escape($startTime);
+		$interactAction = $oApp->scenario_config->interact_action;
+
+		if ($interactAction->shareF === 'Y' || $interactAction->shareT === 'Y') {
+			$q = [
+				'max(s.id) id,s.share_to,s.share_at,s.matter_id,s.matter_type,s.matter_title,s.userid,a.nickname,a.headimgurl,a.wx_openid,a.yx_openid,a.qy_openid',
+				'xxt_log_matter_share s,xxt_site_account a',
+				"s.share_at > $startTime and s.userid = a.uid and s.siteid = a.siteid"
+			];
+			if (!empty($startId)) {
+				$startId = $this->escape($startId);
+				$q[2] .= ' and s.id > ' . $startId;
+			}
+			if ($interactAction->shareF === 'Y' && $interactAction->shareT === 'N') {
+				$q[2] .= " and s.share_to = 'F'";
+			} else if ($interactAction->shareF === 'N' && $interactAction->shareT === 'Y') {
+				$q[2] .= " and s.share_to = 'T'";
+			}
+
+			$whereMatter = '';
+			foreach ($oApp->interact_matter as $matter) {
+				$whereMatter .= " or ( matter_id = '" . $matter->id . "' and matter_type = '" . $matter->type . "')";
+			}
+			$whereMatter = explode('or', $whereMatter);
+			array_shift($whereMatter);
+			$whereMatters = implode('or', $whereMatter);
+			$q[2] .= ' and (' . $whereMatters . ')';
+
+			$q2 = ['g' => 's.userid', 'o' => 'max(s.id)'];
+			if (!empty($page) && !empty($size)) {
+				$q2['r']['o'] = ($page - 1) * $size;
+				$q2['r']['l'] = $size;
+			}
+
+			$users = $this->query_objs_ss($q, $q2);
+			$data = new \stdClass;
+			$data->users = $users;
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$data->total = $total;
+
+			return $data;
+		} else {
+			$data = new \stdClass;
+			$data->users = [];
+			$data->total = 0;
+
+			return $data;
+		}
 	}
 	/**
 	 * 获得消息列表
@@ -551,7 +653,7 @@ class wall_model extends app_base {
 				if (!empty($groupUsers)) {
 					$message['touser'] = implode('|', $groupUsers);
 					if ($msg['type'] === 'text') {
-						$joinUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/wall?wid=$wid";
+						$joinUrl = 'http://' . APP_HTTP_HOST . "/rest/app/wall?wid=$wid";
 						$message['text']['content'] = $txt . "（<a href='$joinUrl'>参与讨论</a>）";
 					}
 					$this->send2Qyuser($site, $message);
@@ -579,20 +681,8 @@ class wall_model extends app_base {
 	/**
 	 *
 	 */
-	protected function table() {
-		return 'xxt_wall';
-	}
-	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'wall';
-	}
-	/**
-	 *
-	 */
 	public function getEntryUrl($runningSiteId, $id) {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
+		$url = "http://" . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter/wall";
 		$url .= "?site=$runningSiteId&app=" . $id;
 

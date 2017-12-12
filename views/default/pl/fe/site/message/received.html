@@ -26,8 +26,10 @@
             </tbody>
         </table>
         <div class='form-group clearfix'>
-            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-            <ul uib-pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' total-items="page.total" max-size="7" items-per-page="page.size" boundary-links="true" rotate="false" ng-model="page.current" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            <div class='pl-pagination'>
+                <span>总数：{{page.total}}</span>
+                <ul uib-pagination ng-show='page.total>page.size' class='pull-right' total-items="page.total" max-size="7" items-per-page="page.size" boundary-links="true" rotate="false" ng-model="page.current" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            </div>
         </div>
     </div>
 </div>

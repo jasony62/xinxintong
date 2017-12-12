@@ -1,9 +1,4 @@
-html,body{height:auto;width:100%;font-family:Microsoft Yahei,Arial;}
-body{position:relative;font-size:16px;padding:15px;}
 img{max-width:100%}
-.app{margin-top:15px;}
-header{margin:-15px -15px 0 -15px;}
-footer{margin:0 -15px -15px -15px;}
 
 /*criteria*/
 #advCriteriaSwitch span.opened{}
@@ -13,10 +8,10 @@ footer{margin:0 -15px -15px -15px;}
 #advCriteria .form-group:last-child{margin-bottom:0;}
 
 /*record*/
-#repos{background:#fff;padding:1rem 0;}
+#repos{background:#fff;}
 #repos p{word-break:break-all;}
 #repos .record .glyphicon-heart{color:red;}
-#repos .record{border-bottom:1px solid #ddd;}
+#repos .record{border-bottom:1px solid #ddd;padding:8px;}
 #repos .record:last-child{margin-bottom:1rem;}
 #repos .record>*{margin:1rem 0;}
 #repos .record .label{padding-top:.3em}

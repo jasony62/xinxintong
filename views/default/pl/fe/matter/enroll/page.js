@@ -3,8 +3,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
     /**
      *
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, srvEnrollApp, srvEnrollPage) {
-        $scope.ep = null;
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, $uibModal, srvEnrollApp, srvAppPage) {
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep && $scope.ep.$$modified) {
@@ -16,9 +15,11 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
                 return message;
             }
         };
+
+        $scope.ep = null;
         $scope.addPage = function() {
             $('body').click();
-            srvEnrollPage.create().then(function(page) {
+            srvAppPage.create().then(function(page) {
                 $scope.choosePage(page);
             });
         };
@@ -31,12 +32,11 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
                 editorProxy.purifyPage(page, true);
             }
 
-            return srvEnrollPage.update(page, props);
+            return srvAppPage.update(page, props);
         };
         $scope.cleanPage = function() {
-            $('body').click();
             if (window.confirm('确定清除页面【' + $scope.ep.title + '】的所有内容？')) {
-                srvEnrollPage.clean($scope.ep).then(function() {
+                srvAppPage.clean($scope.ep).then(function() {
                     editorProxy.getEditor().setContent('');
                 });
             }
@@ -59,7 +59,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
             if (bUserd) {
                 alert('页面已经被【' + oPage.title + '/' + oActSchema.label + '】使用，不能删除');
             } else if (window.confirm('确定删除页面【' + $scope.ep.title + '】？')) {
-                srvEnrollPage.remove($scope.ep).then(function(pages) {
+                srvAppPage.remove($scope.ep).then(function(pages) {
                     $scope.choosePage(pages.length ? pages[0] : null);
                 });
             }
@@ -88,9 +88,51 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
                 }
             });
         });
-        //@todo 提交前如何检查数据的一致性？所有的页面都需要保存吗？
+        /**
+         * 1,检查页面中是否存在错误
+         * 2,如果页面中有添加记录的操作，活动的限制填写数量应该为0或者大于1
+         */
         $scope.save = function() {
-            srvEnrollApp.update('data_schemas').then(function() {
+            var pages, oPage, aCheckResult, updatedAppProps, bCanAddRecord;
+
+            pages = $scope.app.pages;
+            updatedAppProps = ['data_schemas'];
+            bCanAddRecord = false;
+
+            /* 更新当前编辑页 */
+            $scope.ep.html = editorProxy.getEditor().getContent();
+            editorProxy.purifyPage($scope.ep, true);
+
+            for (var i = pages.length - 1; i >= 0; i--) {
+                oPage = pages[i];
+                aCheckResult = oPage.check();
+                if (aCheckResult[0] !== true) {
+                    srvAppPage.repair(aCheckResult, oPage);
+                    return false;
+                }
+                if (oPage.type === 'V') {
+                    if (oPage.act_schemas && oPage.act_schemas.length) {
+                        for (var j = oPage.act_schemas.length - 1; j >= 0; j--) {
+                            if (oPage.act_schemas[j].name === 'addRecord') {
+                                bCanAddRecord = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (bCanAddRecord) {
+                if ($scope.app.count_limit == 1) {
+                    $scope.app.count_limit = 0;
+                    updatedAppProps.push('count_limit');
+                }
+            } else {
+                if ($scope.app.count_limit != 1) {
+                    $scope.app.count_limit = 1;
+                    updatedAppProps.push('count_limit');
+                }
+            }
+            srvEnrollApp.update(updatedAppProps).then(function() {
                 $scope.app.pages.forEach(function(page) {
                     $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);
                 });

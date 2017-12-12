@@ -1,11 +1,15 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', '$q', 'mattersgallery', 'noticebox', 'srvGroupApp', '$uibModal', 'srvTag', function($scope, http2, $q, mattersgallery, noticebox, srvGroupApp, $uibModal, srvTag) {
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', '$q', 'srvSite', 'noticebox', 'srvGroupApp', '$uibModal', 'srvTag', function($scope, http2, $q, srvSite, noticebox, srvGroupApp, $uibModal, srvTag) {
         $scope.update = function(names) {
             srvGroupApp.update(names).then(function(rsp) {
                 noticebox.success('完成保存');
             });
         };
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            $scope.app[data.state] = data.value;
+            $scope.update(data.state);
+        });
         $scope.choosePhase = function() {
             var phaseId = $scope.app.mission_phase_id,
                 i, phase, newPhase;
@@ -33,20 +37,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.assignMission = function() {
-            mattersgallery.open($scope.app.siteid, function(matters, type) {
-                var app;
-                if (matters.length === 1) {
-                    app = {
-                        id: $scope.app.id,
-                        type: 'group'
-                    };
-                    http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.app.siteid + '&id=' + matters[0].id, app, function(rsp) {
-                        $scope.app.mission = rsp.data;
-                        $scope.app.mission_id = rsp.data.id;
-                        srvGroupApp.update('mission_id');
-                    });
-                }
-            }, {
+            srvSite.openGallery({
                 matterTypes: [{
                     value: 'mission',
                     title: '项目',
@@ -54,6 +45,19 @@ define(['frame'], function(ngApp) {
                 }],
                 hasParent: false,
                 singleMatter: true
+            }).then(function(result) {
+                var app;
+                if (result.matters.length === 1) {
+                    app = {
+                        id: $scope.app.id,
+                        type: 'group'
+                    };
+                    http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.app.siteid + '&id=' + result.matters[0].id, app, function(rsp) {
+                        $scope.app.mission = rsp.data;
+                        $scope.app.mission_id = rsp.data.id;
+                        srvGroupApp.update('mission_id');
+                    });
+                }
             });
         };
         $scope.quitMission = function() {
@@ -69,7 +73,7 @@ define(['frame'], function(ngApp) {
                 srvGroupApp.update(['mission_id']);
             });
         };
-        $scope.tagMatter = function(subType){
+        $scope.tagMatter = function(subType) {
             var oTags;
             oTags = $scope.oTag;
             srvTag._tagMatter($scope.app, oTags, subType);

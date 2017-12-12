@@ -1,37 +1,51 @@
 <style>
-    #stat-result img{max-height:48px}
+#stat-result img {
+    max-height: 48px
+}
 </style>
 <div class="col-md-12">
-    <div id='stat-view'>
-        <button class='btn btn-default' ng-click="export()">导出报告</button>
-        <div class='btn-group' ng-if='rounds.length'>
-            <select class='form-control' title='登记轮次'  ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
-                <option value='ALL'>全部</option>
-                <option ng-if="checkedRound" value='{{checkedRound.rid}}'>选中轮次（{{checkedRound.title}}）</option>
-                <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
-                <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                <option value="more">更多</option>
-            </select>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="export()">导出报告</button>
+            </div>
+            <div class='form-group'>
+                <select ng-if='rounds.length' class='form-control' title='登记轮次' ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
+                    <option value='ALL'>全部</option>
+                    <option ng-if="checkedRound" value='{{checkedRound.rid}}'>选中轮次（{{checkedRound.title}}）</option>
+                    <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
+                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                    <option value="more">更多</option>
+                </select>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="config()">设置</button>
+            </div>
         </div>
-        <button class='btn btn-default' ng-click="show()">选择标识项</button>
-        <div id='stat-result'>
+    </div>
+    <div id='stat-result' class='panel panel-default'>
+        <div class='panel-body'>
             <!--schemas-->
-            <div ng-repeat="schema in app.dataSchemas" ng-if="schema.type!=='html'">
-                <h3><span class='hide'>第{{$index+1}}项：</span><span ng-bind="schema.title"></span></h3>
+            <div ng-repeat="schema in schemasForReport">
+                <h3><span ng-bind="schema.title"></span></h3>
                 <div ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1">
                     <div id="{{schema.id}}" style='height:300px'></div>
                     <table class='table table-bordered'>
                         <thead>
-                        <tr>
-                            <th>选项</th>
-                            <th>数量</th>
-                        </tr>
+                            <tr>
+                                <th style='width:4em'>编号</th>
+                                <th>选项</th>
+                                <th style='width:6em' ng-if="chartConfig.number==='Y'">数量</th>
+                                <th style='width:6em' ng-if="chartConfig.percentage==='Y'">比例</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="op in stat[schema.id].ops">
-                            <td>{{op.l}}</td>
-                            <td>{{op.c}}</td>
-                        </tr>
+                            <tr ng-repeat="op in stat[schema.id].ops">
+                                <td>选项{{$index+1}}</td>
+                                <td>{{op.l}}</td>
+                                <td ng-if="chartConfig.number==='Y'">{{op.c}}</td>
+                                <td ng-if="chartConfig.percentage==='Y'">{{op.p}}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -39,16 +53,18 @@
                     <div id="{{schema.id}}" style='height:300px'></div>
                     <table class='table table-bordered'>
                         <thead>
-                        <tr>
-                            <th>打分项</th>
-                            <th>平均分</th>
-                        </tr>
+                            <tr>
+                                <th style='width:4em'>编号</th>
+                                <th>打分项</th>
+                                <th style='width:6em'>平均分</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="op in stat[schema.id].ops">
-                            <td>{{op.l}}</td>
-                            <td>{{op.c}}</td>
-                        </tr>
+                            <tr ng-repeat="op in stat[schema.id].ops">
+                                <td>选项{{$index+1}}</td>
+                                <td>{{op.l}}</td>
+                                <td>{{op.c}}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -56,40 +72,39 @@
                     <div id="{{schema.id}}" style='height:300px' ng-if="schema.number&&schema.number=='Y'"></div>
                     <table class='table table-bordered'>
                         <thead>
-                        <tr>
-                            <th ng-repeat='mark in app.rpConfig.marks' ng-if="mark.id!==schema.id">{{mark.name}}</th>
-                            <th>登记内容</th>
-                        </tr>
+                            <tr>
+                                <th ng-repeat='mark in app.rpConfig.marks' ng-if="mark.id!==schema.id">{{mark.name}}</th>
+                                <th>登记内容</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="record in getRecords(schema,page).records">
-                            <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)!==-1&&mark.id!==schema.id">
-                                <span ng-bind-html="record.nickname"></span>
-                            </td>
-                            <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)===-1&&mark.id!==schema.id">
-                                <span ng-bind-html="record._data[mark.id]"></span>
-                            </td>
-
-                            <td ng-switch on="schema.type">
-                                <span ng-switch-when="image">
+                            <tr ng-repeat="record in getRecords(schema,page).records">
+                                <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)!==-1&&mark.id!==schema.id">
+                                    <span ng-bind-html="record.nickname"></span>
+                                </td>
+                                <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)===-1&&mark.id!==schema.id">
+                                    <span ng-bind-html="record._data[mark.id]"></span>
+                                </td>
+                                <td ng-switch on="schema.type">
+                                    <span ng-switch-when="image">
                                     <img ng-repeat="img in record._data[schema.id]" ng-src='{{img}}' />
                                 </span>
-                                <span ng-switch-when="file">
+                                    <span ng-switch-when="file">
                                     <span ng-repeat='file in record._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                                </span>
-                                <span ng-switch-when="date">{{(record._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                                <span ng-switch-default ng-bind-html="record._data[schema.id]"></span>
-                            </td>
-                        </tr>
-                        <tr class='text-center' ng-if="schema.number&&schema.number=='Y'">
-                            <td>合计</td>
-                            <td colspan={{app.rpConfig.marks.length}}>{{getRecords(schema,page).sum}}</td>
-                        </tr>
+                                    </span>
+                                    <span ng-switch-when="date">{{(record._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                    <span ng-switch-default ng-bind-html="record._data[schema.id]"></span>
+                                </td>
+                            </tr>
+                            <tr class='text-center' ng-if="schema.number&&schema.number=='Y'">
+                                <td>合计</td>
+                                <td colspan={{app.rpConfig.marks.length}}>{{getRecords(schema,page).sum}}</td>
+                            </tr>
                         </tbody>
                     </table>
-                    <div class='form-inline'>
+                    <div class='pl-pagination'>
                         <span>总数：{{page.total}}</span>
-                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+                        <ul uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
                     </div>
                 </div>
             </div>
@@ -99,43 +114,115 @@
                 <h3><span>打分项汇总</span></h3>
                 <table class='table table-bordered'>
                     <thead>
-                    <tr>
-                        <th>打分项</th>
-                        <th>平均分</th>
-                    </tr>
+                        <tr>
+                            <th>打分项</th>
+                            <th>平均分</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="op in scoreSummary">
-                        <td>{{op.l}}</td>
-                        <td>{{op.c}}</td>
-                    </tr>
+                        <tr ng-repeat="op in scoreSummary">
+                            <td>{{op.l}}</td>
+                            <td>{{op.c}}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-    <script type="text/ng-template" id="showCondition.html">
+    <script type="text/ng-template" id="config.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title">展示条件</h5>
+            <h5 class="modal-title">设置</h5>
         </div>
         <div class="modal-body">
-            <table class='table table-bordered' style='margin-bottom:0;'>
-                <thead>
-                <tr>
-                    <th style='width:50px'>操作</th>
-                    <th>标识登记项</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat='m in appMarkSchemas' class='record'>
-                    <td>
-                        <input type='checkbox' ng-model="rows.selected[$index]">
-                    </td>
-                    <td>{{m.title}}</td>
-                </tr>
-                </tbody>
-            </table>
+            <uib-tabset active="active">
+                <uib-tab index="0" heading="标识项">
+                    <div style='max-height:370px;overflow-y:auto'>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:46px'>操作</th>
+                                    <th>题目</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat='schema in appMarkSchemas' class='record'>
+                                    <td>
+                                        <input type='checkbox' ng-model="markRows.selected[schema.id]">
+                                    </td>
+                                    <td>{{schema.title}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </uib-tab>
+                <uib-tab index="1" heading="默认内容">
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="plConfig.number">选择题表格中显示数量</label>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="plConfig.percentage">选择题表格中显示百分比</label>
+                    </div>
+                    <div class='radio'>
+                        <label>
+                            <input type='radio' name='plLabel' value='number' ng-model="plConfig.label">选择题图片中显示数量</label>
+                        <label>
+                            <input type='radio' name='plLabel' value='percentage' ng-model="plConfig.label">选择题图片中显示百分比</label>
+                    </div>
+                    <label>不包含的题目</label>
+                    <div style='max-height:370px;overflow-y:auto'>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:46px'>操作</th>
+                                    <th>题目</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat='schema in dataSchemas'>
+                                    <td>
+                                        <input type='checkbox' ng-model="plExcludeRows.selected[schema.id]" ng-change="plExcludeRows.change(schema)">
+                                    </td>
+                                    <td>{{schema.title}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </uib-tab>
+                <uib-tab index="2" heading="分享内容">
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.number">选择题表格中显示数量</label>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opConfig.percentage">选择题表格中显示百分比</label>
+                    </div>
+                    <div class='radio'>
+                        <label>
+                            <input type='radio' name='opLabel' value='number' ng-model="opConfig.label">选择题图片中显示数量</label>
+                        <label>
+                            <input type='radio' name='opLabel' value='percentage' ng-model="opConfig.label">选择题图片中显示百分比</label>
+                    </div>
+                    <label>不包含的题目</label>
+                    <div style='max-height:370px;overflow-y:auto'>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:46px'>操作</th>
+                                    <th>题目</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat='schema in dataSchemas'>
+                                    <td>
+                                        <input type='checkbox' ng-model="opExcludeRows.selected[schema.id]" ng-change="opExcludeRows.change(schema)">
+                                    </td>
+                                    <td>{{schema.title}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </uib-tab>
+            </uib-tabset>
         </div>
         <div class="modal-footer">
             <button class="btn btn-default" ng-click="cancel()">关闭</button>
@@ -158,8 +245,10 @@
                             <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
                         </select>
                         <div ng-show="pageOfRound.total>pageOfRound.size">
-                            <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                            <div class='pl-pagination'>
+                                <span>总数：{{pageOfRound.total}}</span>
+                                <ul uib-pagination boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                            </div>
                         </div>
                     </div>
                 </div>

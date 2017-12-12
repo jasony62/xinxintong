@@ -1,33 +1,9 @@
-<div id='time-view' class="col-md-5">
-    <table class='table table-bordered' ng-if="app.scenarioConfig.can_period!=='D'">
-        <tr>
-            <td>活动开始</td>
-            <td style='padding:0;width:180px;'>
-                <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
-            </td>
-            <td style='padding:0'>
-                <select class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
-                    <option value=''>默认提示</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>活动结束</td>
-            <td style='padding:0;width:180px;'>
-                <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
-            </td>
-            <td style='padding:0'>
-                <select class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
-                    <option value=''>默认提示</option>
-                </select>
-            </td>
-        </tr>
-    </table>
+<div class="col-md-6 col-md-offset-3">
     <div class='form-group'>
         <button class='btn btn-default' ng-click="add()">增加轮次</button>
         <button class='btn btn-default' ng-click="openCron()"><i class='glyphicon glyphicon-time'></i> 定时生成</button>
     </div>
-    <table class='table table-bordered table-hover rounds'>
+    <table class='table table-bordered table-hover workspace'>
         <thead>
             <tr>
                 <th class='text-center'>名称</th>
@@ -58,7 +34,9 @@
         </tbody>
     </table>
     <div class='form-group' ng-show="pageOfRound.total>pageOfRound.size">
-        <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="7" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+        <div class='pl-pagination'>
+            <span>总数：{{pageOfRound.total}}</span>
+            <ul uib-pagination boundary-links="true" total-items="pageOfRound.total" max-size="7" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+        </div>
     </div>
 </div>

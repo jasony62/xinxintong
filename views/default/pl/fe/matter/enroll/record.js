@@ -1,10 +1,10 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', function($scope, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', function($scope, $timeout, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
-            if ($scope.numberSchemas.length) {
+            if ($scope.bRequireScore) {
                 srvEnrollRecord.sum4Schema().then(function(result) {
                     $scope.sum4Schema = result;
                     for (var p in result) {
@@ -23,10 +23,49 @@ define(['frame'], function(ngApp) {
                 });
             }
         }
+
+        function fnScore4Schema() {
+            var score4SchemaAtPage;
+            $scope.score4SchemaAtPage = score4SchemaAtPage = {};
+            if ($scope.bRequireScore) {
+                srvEnrollRecord.score4Schema().then(function(result) {
+                    $scope.score4Schema = result;
+                    for (var p in result) {
+                        if ($scope.records.length) {
+                            $scope.records.forEach(function(oRecord) {
+                                if (oRecord.score) {
+                                    if (score4SchemaAtPage[p]) {
+                                        score4SchemaAtPage[p] += parseFloat(oRecord.score[p] || 0);
+                                    } else {
+                                        score4SchemaAtPage[p] = parseFloat(oRecord.score[p] || 0);
+                                    }
+                                    score4SchemaAtPage.sum = parseFloat(oRecord.score.sum || 0);
+                                }
+                            });
+                        } else {
+                            score4SchemaAtPage[p] = 0;
+                        }
+                    }
+                });
+            }
+        }
+        $scope.clickAdvCriteria = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        };
+        $scope.shiftOrderBy = function() {
+            if ($scope.criteria.order.orderby == 'sum') {
+                $scope.criteria.order.schemaId = ''
+            }
+            $scope.doSearch(1);
+        }
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvEnrollRecord.search(pageNumber).then(function() {
-                fnSum4Schema();
+                $scope.bRequireSum && fnSum4Schema();
+                $scope.bRequireScore && $timeout(function() {
+                    fnScore4Schema();
+                });
             });
         };
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
@@ -41,14 +80,19 @@ define(['frame'], function(ngApp) {
         $scope.filter = function() {
             srvEnrollRecord.filter().then(function() {
                 $scope.rows.reset();
-                fnSum4Schema();
+                $scope.bRequireSum && fnSum4Schema();
+                $scope.bRequireScore && $timeout(function() {
+                    fnScore4Schema();
+                });
             });
         };
         $scope.editRecord = function(record) {
             $location.path('/rest/pl/fe/matter/enroll/editor').search({ site: $scope.app.siteid, id: $scope.app.id, ek: record ? record.enroll_key : '' });
         };
         $scope.batchTag = function() {
-            srvEnrollRecord.batchTag($scope.rows);
+            if ($scope.rows.count) {
+                srvEnrollRecord.batchTag($scope.rows);
+            }
         };
         $scope.removeRecord = function(record) {
             srvEnrollRecord.remove(record);
@@ -60,25 +104,15 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.verifyAll();
         };
         $scope.batchVerify = function() {
-            srvEnrollRecord.batchVerify($scope.rows);
-        };
-        $scope.notify = function(isBatch) {
-            srvEnrollRecord.notify(isBatch ? $scope.rows : undefined);
+            if ($scope.rows.count) {
+                srvEnrollRecord.batchVerify($scope.rows);
+            }
         };
         $scope.export = function() {
             srvEnrollRecord.export();
         };
         $scope.exportImage = function() {
             srvEnrollRecord.exportImage();
-        };
-        $scope.countSelected = function() {
-            var count = 0;
-            for (var p in $scope.rows.selected) {
-                if ($scope.rows.selected[p] === true) {
-                    count++;
-                }
-            }
-            return count;
         };
         $scope.importByOther = function() {
             srvEnrollRecord.importByOther().then(function() {
@@ -94,9 +128,14 @@ define(['frame'], function(ngApp) {
         $scope.rows = {
             allSelected: 'N',
             selected: {},
+            count: 0,
+            change: function(index) {
+                this.selected[index] ? this.count++ : this.count--;
+            },
             reset: function() {
                 this.allSelected = 'N';
                 this.selected = {};
+                this.count = 0;
             }
         };
         $scope.$watch('rows.allSelected', function(checked) {
@@ -105,8 +144,9 @@ define(['frame'], function(ngApp) {
                 while (index < $scope.records.length) {
                     $scope.rows.selected[index++] = true;
                 }
+                $scope.rows.count = $scope.records.length;
             } else if (checked === 'N') {
-                $scope.rows.selected = {};
+                $scope.rows.reset();
             }
         });
 
@@ -114,44 +154,54 @@ define(['frame'], function(ngApp) {
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
-        $scope.numberSchemas = []; // 数值型登记项
         srvEnrollApp.get().then(function(app) {
             srvEnrollRecord.init(app, $scope.page, $scope.criteria, $scope.records);
             // schemas
             var recordSchemas = [],
-                recordSchemas2 = [],
+                recordSchemasExt = [],
                 enrollDataSchemas = [],
-                flag=false,
+                bRequireSum = false,
+                bRequireScore = false,
                 groupDataSchemas = [];
-            app.dataSchemas.forEach(function(schema) {
-                if (schema.type !== 'html') {
-                    recordSchemas.push(schema);
-                    recordSchemas2.push(schema);
+            app.dataSchemas.forEach(function(oSchema) {
+                if (oSchema.type !== 'html') {
+                    recordSchemas.push(oSchema);
+                    recordSchemasExt.push(oSchema);
                 }
-                if (schema.remarkable && schema.remarkable === 'Y') {
-                    recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
+                if (oSchema.remarkable && oSchema.remarkable === 'Y') {
+                    recordSchemasExt.push({ type: 'remark', title: '评论数', id: oSchema.id });
                 }
-                if (schema.format && schema.format === 'number') {
-                    $scope.numberSchemas.push(schema);
-                    recordSchemas2.push({ type: 'score', title: '得分', id: schema.id });
-                    flag=true;
+                if (oSchema.requireScore && oSchema.requireScore === 'Y') {
+                    recordSchemasExt.push({ type: 'calcScore', title: '得分', id: oSchema.id });
+                    bRequireScore = true;
+                }
+                if (oSchema.format && oSchema.format === 'number') {
+                    recordSchemasExt.push({ type: 'calcScore', title: '得分', id: oSchema.id });
+                    bRequireSum = true;
+                    bRequireScore = true;
                 }
             });
-           
-            $scope.flag=flag;
+
+            $scope.bRequireNickname = app.assignedNickname.valid !== 'Y' || !app.assignedNickname.schema;
+            $scope.bRequireSum = bRequireSum;
+            $scope.bRequireScore = bRequireScore;
             $scope.recordSchemas = recordSchemas;
-            $scope.recordSchemas2 = recordSchemas2;
-            app._schemasFromEnrollApp.forEach(function(schema) {
-                if (schema.type !== 'html') {
-                    enrollDataSchemas.push(schema);
-                }
-            });
+            $scope.recordSchemasExt = recordSchemasExt;
+            if (app._schemasFromEnrollApp) {
+                app._schemasFromEnrollApp.forEach(function(schema) {
+                    if (schema.type !== 'html') {
+                        enrollDataSchemas.push(schema);
+                    }
+                });
+            }
             $scope.enrollDataSchemas = enrollDataSchemas;
-            app._schemasFromGroupApp.forEach(function(schema) {
-                if (schema.type !== 'html') {
-                    groupDataSchemas.push(schema);
-                }
-            });
+            if (app._schemasFromGroupApp) {
+                app._schemasFromGroupApp.forEach(function(schema) {
+                    if (schema.type !== 'html') {
+                        groupDataSchemas.push(schema);
+                    }
+                });
+            }
             $scope.groupDataSchemas = groupDataSchemas;
             $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();

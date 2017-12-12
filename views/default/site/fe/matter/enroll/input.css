@@ -1,9 +1,4 @@
-html,body{font-family:Microsoft Yahei,Arial;width:100%;height:auto;}
-body{position:relative;font-size:16px;padding:15px;}
-.app{margin-top:15px;}
 img{max-width:100%}
-header{margin:-15px -15px 0 -15px;}
-footer{margin:0 -15px -15px -15px;}
 ul{margin:0;padding:0;list-style:none}
 li{margin:0;padding:0}
 .list-group{margin-bottom:0px;}
@@ -30,6 +25,3 @@ div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 
 div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 .tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
-
-/* auth */
-#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}

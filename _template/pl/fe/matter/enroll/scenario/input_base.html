@@ -1,0 +1,84 @@
+<!-- begin: generate by schema -->
+<?php foreach ($this->schema as $oWrap) { 
+$oSchema = $oWrap->schema;
+?>
+<?php if (in_array($oSchema->type,['shorttext'])) { ?>
+<div class="form-group form-group-lg" wrap="input" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
+    <label class="sr-only">
+        <?php echo $oSchema->title;?>
+    </label>
+    <input ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" placeholder="<?php echo $oSchema->title;?>" class="form-control input-lg" type="text" />
+</div>
+<?php } else if ($oSchema->type === 'member') { ?>
+<div class="form-group form-group-lg" wrap="input" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
+    <label class="sr-only">
+        <?php echo $oSchema->title;?>
+    </label>
+    <input ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" placeholder="<?php echo $oSchema->title;?>" ng-init="data.member.schema_id=<?php echo $oSchema->schema_id;?>" class="form-control input-lg" type="text" />
+</div>
+<?php } else if ($oSchema->type==='longtext') { ?>
+<div class="form-group form-group-lg" wrap="input" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
+    <label class="sr-only">
+        <?php echo $oSchema->title;?>
+    </label>
+    <textarea style="height:auto;" ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" placeholder="<?php echo $oSchema->title;?>" class="form-control input-lg" rows="3"></textarea>
+</div>
+<?php } else if (in_array($oSchema->type,['single','phase'])) { ?>
+<div wrap="input" class="form-group form-group-lg" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
+    <label>
+        <?php echo $oSchema->title; ?>
+    </label>
+    <ul>
+        <?php foreach ($oSchema->ops as $op) {?>
+        <li class="radio" wrap="radio">
+            <label>
+                <input type="radio" name="<?php echo $oSchema->id;?>" value="<?php echo $op->v;?>" ng-model="data.<?php echo $oSchema->id;?>"><span><?php echo $op->l;?></span></label>
+        </li>
+        <?php } //end single's and phase's ops foreach ?>
+    </ul>
+</div>
+<?php } else if ($oSchema->type === 'multiple') { ?>
+<div wrap="input" class="form-group form-group-lg" schema="<?php echo $oSchema->id;?>" schema-type="multiple">
+    <label>
+        <?php echo $oSchema->title; ?>
+    </label>
+    <ul>
+        <?php foreach ($oSchema->ops as $op) {?>
+        <li class="checkbox" wrap="checkbox">
+            <label>
+                <input type="checkbox" name="<?php echo $oSchema->id;?>" ng-model="data.<?php echo $oSchema->id;?>.<?php echo $op->v;?>"><span><?php echo $op->l;?></span></label>
+        </li>
+        <?php } //end single's and phase's ops foreach ?>
+    </ul>
+</div>
+<?php } else if ($oSchema->type==='score') {?>
+<div wrap="input" class="form-group form-group-lg" schema="<?php echo $oSchema->id;?>" schema-type="score">
+    <label>
+        <?php echo $oSchema->title;?>
+    </label>
+    <ul>
+        <?php foreach ($oSchema->ops as $index => $op) {?>
+        <li class="score" wrap="score" opvalue="<?php echo $op->v;?>">
+            <div>
+                <label>
+                    <?php echo $op->l;?>
+                </label>
+            </div>
+            <div class="number">
+                <?php for ($s = $oSchema->range[0]; $s <= $oSchema->range[1]; $s++) {?>
+                <div ng-class="{'in':lessScore('<?php echo $oSchema->id;?>',<?php echo $index;?>,<?php echo $s;?>)}" ng-click="score('<?php echo $oSchema->id;?>',<?php echo $index;?>,<?php echo $s;?>)">
+                    <?php echo $s;?>
+                </div>
+                <?php } //end score range ?>
+            </div>
+        </li>
+        <?php } //end score's ops foreach ?>
+    </ul>
+</div>
+<?php } else if ($oSchema->type==='html') { ?>
+<div class="form-group" wrap="html" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
+    <?php echo $oSchema->content;?>
+</div>
+<?php } ?>
+<?php } //end schemas foreach ?>
+<!-- end: generate by schema -->

@@ -1,24 +1,21 @@
+body{font-family:Microsoft Yahei,Arial;background:#fafafa;margin-bottom:51px;margin-top:20px;}
 .ng-cloak{display:none;}
 
-/*users*/
-#users img{height:48px;}
-@media screen and (max-width:768px){
-	#users table thead{display:none;}
-	#users .table-bordered{background:#ddd;border:0;border-collapse:separate;-webkit-border-vertical-spacing:10px;}
-	#users .table-bordered>tbody>tr>td{background:#fff;display:block;position:relative;border:1px solid #ccc;border-top:0;border-bottom:1px dotted #eee;padding:0;}
-	#users .table-bordered>tbody>tr>td:first-child{border-top:1px solid #ccc;}
-	#users .table-bordered>tbody>tr>td:last-child{border-bottom:1px solid #ccc;}
-	#users .table-bordered>tbody>tr>td>div{display:inline-block;padding:.5em;padding-left:13em;min-height:2em;}
-	#users td:after{content:attr(data-th);display:inline-block;width:12em;background:#eee;padding:.5em;position:absolute;top:0;bottom:0;left:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-	#users .table-bordered>tbody>tr>td.span-cols-sm>div{padding-left:1em;}
-	#users td.span-cols-sm:after{content:' ';display:inline-block;width:0;background:#fff;padding:0;position:absolute;top:0;bottom:0;left:0;}
-}
+/* timeline */
+#times{position:relative;}
+#times:before{content:'';display:block;position:absolute;width:1;top:0;bottom:0;left:16.67%;border-left:1px solid #eee;}
+.timeline{position:relative;padding-top:4px;}
+.timeline .date,.timeline .time{white-space:nowrap;}
+.timeline:after{content:'';display:block;position:absolute;width:16px;height:16px;top:50%;margin-top:-8px;background:lightgreen;border-radius:8px;right:-8px;}
+.timeline.pending:after{background:lightgray;}
 
-/*user apps*/
-#userApps .matter{position:relative;transition:background 1s;}
-#userApps .matter .seq{display:inline-block;width:2em;text-align:center;line-height:1.6em;font-size:.5em;position:absolute;top:0;left:-1em;background:#666;color:#fff;border-radius:1em;}
-#userApps .blink{background:#d9edf7;}
-#userApps .record>div{padding:.5em 0;border-bottom:1px dotted #ccc;}
-#userApps .record>div:last-child{border-bottom:0;}
-#userApps .record label{width:6em;overflow:hidden;vertical-align:bottom;white-space:nowrap;text-overflow:ellipsis;margin-right:1em;margin-bottom:0;}
-.record img{max-width:100%}
+/*track*/
+.track{padding:8px 16px 16px;}
+.track label{font-weight:normal;color:#aaa;margin:0;}
+.track .title{margin-bottom:8px;}
+.track .row>div{margin-bottom:8px;}
+
+/**/
+@media screen and (max-width:768px){
+	.navbar-form{width:auto;border:0;margin-left:0;margin-right:0;padding-top:0;padding-bottom:0;-webkit-box-shadow:none;box-shadow:none;text-align:right;}
+}

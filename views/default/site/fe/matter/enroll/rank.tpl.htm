@@ -15,7 +15,7 @@
 <body ng-app='app' ng-controller='ctrlMain'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar navbar-default main-navbar row'>
+    <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
@@ -32,24 +32,30 @@
             </ul>
         </div>
     </nav>
-    <div ng-cloak class='ng-cloak app'>
-        <div id='rank' class='container' ng-controller="ctrlRank">
-            <div class='row'>
-                <div class='col-xs-4'>
+    <div ng-cloak class='ng-cloak container'>
+        <div id='rank' class='app' ng-controller="ctrlRank">
+            <div class='row filter'>
+                <div class="col-md-2 col-xs-4" ng-if="rounds.length">
+                    <div class='btn-group'>
+                        <select class='form-control' title='登记轮次' ng-model='appState.criteria.round' ng-change="doRound(appState.criteria.round)">
+                            <option value='ALL'>全部轮次</option>
+                            <option ng-if="activeRound" value='{{activeRound.rid}}'>启用（{{activeRound.title}}）</option>
+                            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                            <option value="more" ng-if="rounds.length > 10">更多</option>
+                        </select>
+                    </div>
+                </div>
+                <div class='col-md-2' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']">
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
                         <option value='group' ng-if="app.group_app_id">用户分组</option>
-                        <option value='data'>提交内容</option>
-                        <option value='remark'>内容评论</option>
+                        <option value='data' ng-if="isRemark">提交内容</option>
+                        <option value='data-rec' ng-if="isRemark">提交内容-推荐</option>
+                        <option value='remark' ng-if="isRemark">内容评论</option>
+                        <option value='remark-rec' ng-if="isRemark">内容评论-推荐</option>
                     </select>
                 </div>
-                <div class='col-xs-3' ng-if="appState.criteria.obj==='data'||appState.criteria.obj==='remark'">
-                    <div class='checkbox'>
-                        <label>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'all'" ng-model="appState.criteria.agreed" ng-change="changeCriteria()">推荐</label>
-                    </div>
-                </div>
-                <div class='col-xs-5' ng-if="appState.criteria.obj==='user'">
+                <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='user'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll'>提交记录数量</option>
                         <option value='remark'>获得评论数量</option>
@@ -60,7 +66,7 @@
                         <option value='score'>得分</option>
                     </select>
                 </div>
-                <div class='col-xs-5' ng-if="appState.criteria.obj==='group'">
+                <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='group'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll'>提交记录数量</option>
                         <option value='remark'>获得评论数量</option>
@@ -71,119 +77,259 @@
                         <option value='score'>得分</option>
                     </select>
                 </div>
-                <div class='col-xs-5' ng-if="appState.criteria.obj==='data'">
+                <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='data'||appState.criteria.obj==='data-rec'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='remark'>获得评论数量</option>
                         <option value='like'>获得点赞数量</option>
                     </select>
                 </div>
             </div>
-            <div class='row'>
+            <div class='row result'>
                 <div ng-switch on="appState.criteria.obj">
-                    <table class='table table-striped' ng-switch-when="user">
-                        <thead>
-                            <tr>
-                                <th class='hidden-xs' style='width:3em'></th>
-                                <th>用户</th>
-                                <th style='width:3em'></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="u in users">
-                                <td class='hidden-xs'>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
-                                <td><span>{{u.nickname}}</span></td>
-                                <td><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin||u.score}}</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class='table table-striped' ng-switch-when="group">
-                        <thead>
-                            <tr>
-                                <th class='hidden-xs' style='width:3em'></th>
-                                <th>分组</th>
-                                <th style='width:3em'></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="g in groups">
-                                <td class='hidden-xs'>{{$index+1}}</td>
-                                <td><span>{{g.title}}</span></td>
-                                <td><span>{{g.num}}</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class='table table-striped' ng-switch-when="data">
-                        <thead>
-                            <tr>
-                                <th class='hidden-xs' style='width:3em'></th>
-                                <th style='width:4em'></th>
-                                <th>提交内容</th>
-                                <th style='width:6em'>用户</th>
-                                <th style='width:6em' ng-if="app.group_app_id">分组</th>
-                                <th style='width:3em'></th>
-                                <th style='width:2em'></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="rec in records" ng-click="gotoRemark(rec.enroll_key,rec.schema_id)">
-                                <td class='hidden-xs'>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
-                                <td><span>{{rec._agreed}}</span></td>
-                                <td ng-switch on="app._schemasById[rec.schema_id].type">
-                                    <div ng-switch-when="single">
-                                        <span>{{value2Label(rec,rec.schema_id)}}</span>
-                                    </div>
-                                    <div ng-switch-when="multiple">
-                                        <span>{{value2Label(rec,rec.schema_id)}}</span>
-                                    </div>
-                                    <div ng-switch-when="image">
-                                        <ul>
-                                            <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" style='width:128px' /></li>
-                                        </ul>
-                                    </div>
-                                    <div ng-switch-when="file">
-                                        <div ng-repeat="file in rec.value">
-                                            <p><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></p>
-                                            <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
-                                                <source src="{{file.url}}" type="{{file.type}}" />
-                                            </video>
-                                            <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
-                                                <source src="{{file.url}}" type="{{file.type}}" />
-                                            </audio>
-                                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
-                                        </div>
-                                    </div>
-                                    <span ng-switch-when="date">{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                                    <span ng-switch-default>{{rec.value}}</span>
-                                </td>
-                                <td><span>{{rec.nickname}}</span></td>
-                                <td ng-if="app.group_app_id"><span>{{rec.group_title}}</span></td>
-                                <td class='text-right'><span>{{rec[appState.criteria.orderby+'_num']}}</span></td>
-                                <td><span class='glyphicon glyphicon-menu-right'></span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class='table table-striped' ng-switch-when="remark">
-                        <thead>
-                            <tr>
-                                <th class='hidden-xs' style='width:3em'></th>
-                                <th style='width:4em'></th>
-                                <th>评论内容</th>
-                                <th style='width:6em'>用户</th>
-                                <th style='width:4em'>赞同</th>
-                                <th style='width:2em'></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="rem in remarks" ng-click="gotoRemark(rem.enroll_key,rem.schema_id,rem.id)">
-                                <td class='hidden-xs'>{{(appState.page.at-1)*appState.page.size+$index+1}}</td>
-                                <td><span>{{rem._agreed}}</span></td>
-                                <td><span>{{rem.content}}</span></td>
-                                <td><span>{{rem.nickname}}</span></td>
-                                <td><span>{{rem.like_num}}</span></td>
-                                <td><span class='glyphicon glyphicon-menu-right'></span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <ul ng-switch-when="user">
+                        <li class='hidden-xs'>
+                            <div class='col-md-1'>序号</div>
+                            <div class='col-md-9 text-left'>用户</div>
+                            <div class='col-md-2'>数量</div>
+                        </li>
+                        <li ng-repeat="u in users" class='record'>
+                            <div class='col-md-1 col-xs-1'>
+                                <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                            </div>
+                            <div class="col-md-9 col-xs-8 text-left">
+                                <img class='user-headimg' ng-src="{{u.headimgurl}}" />
+                                <span>{{u.nickname}}</span>
+                                <span ng-if="app.group_app_id">-{{u.group.round_title}}</span>
+                            </div>
+                            <div class='col-md-2 col-xs-1'><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin||u.score}}</span></div>
+                        </li>
+                    </ul>
+                    <ul ng-switch-when="group">
+                        <li class='hidden-xs'>
+                            <div class='col-md-1'>序号</div>
+                            <div class='col-md-9 text-left'>分组名称</div>
+                            <div class='col-md-2'>数量</div>
+                        </li>
+                        <li ng-repeat="g in groups" class='record'>
+                            <div class='col-md-1 col-xs-1'>
+                                <span class='index-user-img mtb3' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                            </div>
+                            <div class="col-md-9 col-xs-8 text-left">
+                                <span>{{g.title}}</span>
+                            </div>
+                            <div class='col-md-2 col-xs-1'><span>{{g.num}}</span></div>
+                        </li>
+                    </ul>
+                    <ul ng-switch-when="data">
+                        <li class='hidden-xs'>
+                            <div class='col-md-1'>序号</div>
+                            <div class='col-md-6 text-left'>提交内容</div>
+                            <div class='col-md-3'>用户</div>
+                            <div class='col-md-2'>数量</div>
+                        </li>
+                        <li ng-repeat="rec in records" class='record' ng-click="gotoRemark(rec.enroll_key,rec.schema_id)">
+                            <div class="visible-xs">
+                                <div class='col-xs-1'>
+                                    <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                    <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                                </div>
+                                <div class='col-xs-8 user-info'>
+                                    <img class='data-headimg' ng-src="{{rec.headimgurl}}" />
+                                    <span>{{rec.nickname}}</span><span ng-if="app.group_app_id">-{{rec.group_title}}</span>
+                                </div>
+                                <div class='col-xs-2 text-color pull-right'><span>{{rec[appState.criteria.orderby+'_num']}}</span>
+                                </div>
+                            </div>
+                            <div class='col-md-1 hidden-xs'>
+                                <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                <span class='index-num' ng-if="$index>=3" ng-class="{'other':$index>=3}">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                            </div>
+                            <div class='col-md-6 col-xs-12 text-left' ng-switch on="app._schemasById[rec.schema_id].type">
+                                <div ng-switch-when="single">
+                                    <span class='content'>{{value2Label(rec,rec.schema_id)}}</span>
+                                </div>
+                                <div ng-switch-when="multiple">
+                                    <span class='content'>{{value2Label(rec,rec.schema_id)}}</span>
+                                </div>
+                                <div ng-switch-when="image" class='f-box'>
+                                    <p class='s-box'>
+                                        <img ng-src="{{rec.value[0]}}" class='c-box' />
+                                        <span class='mask' ng-if="rec.value.length>1"></span>
+                                        <span class='tip' ng-if="rec.value.length>1"><i class='glyphicon glyphicon-picture'></i>
+                                        {{rec.value.length}}图</span>
+                                    </p>
+                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='text-left content'>{{rec.supplement}}</span>
+                                </div>
+                                <div ng-switch-when="file" class='f-box'>
+                                    <p class='s-box' ng-init='file=rec.value[0]'>
+                                        <video class='c-box' ng-if="file.type.indexOf('video')===0" controls="controls">
+                                            <source src="{{file.url}}" type="{{file.type}}" />
+                                        </video>
+                                        <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                            <source src="{{file.url}}" type="{{file.type}}" />
+                                        </audio>
+                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' />
+                                    </p>
+                                    <p>
+                                        <a ng-href="{{file.url}}" target="_blank">{{file.name}}</a>
+                                        <span ng-if="rec.value.length>1" class='pull-right'><i class='glyphicon glyphicon-file'></i>{{rec.value.length}}个文件</span>
+                                    </p>
+                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='text-left content'>{{rec.supplement}}</span>
+                                </div>
+                                <div ng-switch-when="date"><span class='content'>{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</span></div>
+                                <div ng-switch-default><span class='content'>{{rec.value}}</span></div>
+                                <div class='col-xs-12 col-xs-12 text-right text-color visible-xs hidden' ng-click='showStr($event)'>展开&nbsp;&or;</div>
+                            </div>
+                            <div class='col-md-3 hidden-xs'>
+                                <span>{{rec.nickname}}</span><span ng-if="app.group_app_id">-{{rec.group_title}}</span>
+                            </div>
+                            <div class='col-md-2 hidden-xs'><span>{{rec[appState.criteria.orderby+'_num']}}</span></div>
+                            <div class='custom custom-entry text-color hidden-xs'><span class='glyphicon glyphicon-menu-right'></span></div>
+                        </li>
+                    </ul>
+                    <ul ng-switch-when="data-rec">
+                        <li class='hidden-xs'>
+                            <div class='col-md-1'>序号</div>
+                            <div class='col-md-6 text-left'>提交内容</div>
+                            <div class='col-md-3'>用户</div>
+                            <div class='col-md-2'>数量</div>
+                        </li>
+                        <li ng-repeat="rec in recordsRec" class='record' ng-click="gotoRemark(rec.enroll_key,rec.schema_id)">
+                            <div class="visible-xs">
+                                <div class='col-xs-1' style="z-index:100">
+                                    <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                    <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                                </div>
+                                <div class='col-xs-8 user-info'>
+                                    <img class='data-headimg' ng-src="{{rec.headimgurl}}" />
+                                    <span>{{rec.nickname}}</span><span ng-if="app.group_app_id">-{{rec.group_title}}</span>
+                                </div>
+                                <div class='col-xs-2 text-color pull-right'><span>{{rec[appState.criteria.orderby+'_num']}}</span>
+                                </div>
+                                <div class='r-box'><span class='r-text'>{{rec._agreed}}</span></div>
+                            </div>
+                            <div class='col-md-1 hidden-xs'>
+                                <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                <span class='index-num' ng-if="$index>=3" ng-class="{'other':$index>=3}">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                            </div>
+                            <div class='col-md-6 col-xs-12 text-left' ng-switch on="app._schemasById[rec.schema_id].type">
+                                <div ng-switch-when="single">
+                                    <span class='content'>{{value2Label(rec,rec.schema_id)}}</span>
+                                </div>
+                                <div ng-switch-when="multiple">
+                                    <span class='content'>{{value2Label(rec,rec.schema_id)}}</span>
+                                </div>
+                                <div ng-switch-when="image" class='f-box'>
+                                    <p class='s-box'>
+                                        <img ng-src="{{rec.value[0]}}" class='c-box' />
+                                        <span class='mask' ng-if="rec.value.length>1"></span>
+                                        <span class='tip' ng-if="rec.value.length>1"><i class='glyphicon glyphicon-picture'></i>
+                                        {{rec.value.length}}图</span>
+                                    </p>
+                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='content text-left'>{{rec.supplement}}</span>
+                                </div>
+                                <div ng-switch-when="file" class='f-box'>
+                                    <p class='s-box' ng-init='file=rec.value[0]'>
+                                        <video class='c-box' ng-if="file.type.indexOf('video')===0" controls="controls">
+                                            <source src="{{file.url}}" type="{{file.type}}" />
+                                        </video>
+                                        <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                            <source src="{{file.url}}" type="{{file.type}}" />
+                                        </audio>
+                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' />
+                                    </p>
+                                    <p>
+                                        <a ng-href="{{file.url}}" target="_blank">{{file.name}}</a>
+                                        <span ng-if="rec.value.length>1" class='pull-right'><i class='glyphicon glyphicon-file'></i>{{rec.value.length}}个文件</span>
+                                    </p>
+                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='content text-left'>{{rec.supplement}}</span>
+                                </div>
+                                <div ng-switch-when="date"><span class='content'></span>{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</div>
+                                <div ng-switch-default><span class='content'>{{rec.value}}</span></div>
+                                <div class='col-xs-12 text-right text-color visible-xs hidden' ng-click='showStr($event)'>展开&nbsp;&or;</div>
+                            </div>
+                            <div class='col-md-3 hidden-xs'>
+                                <span>{{rec.nickname}}</span><span ng-if="app.group_app_id">-{{rec.group_title}}</span>
+                            </div>
+                            <div class='col-md-2 hidden-xs'><span>{{rec[appState.criteria.orderby+'_num']}}</span></div>
+                            <div class="custom custom-md-like like-color hidden-xs"><span ng-if="rec.agreed=='Y'">荐</span></div>
+                            <div class='custom custom-entry text-color hidden-xs'><span class='glyphicon glyphicon-menu-right'></span></div>
+                        </li>
+                    </ul>
+                    <ul ng-switch-when="remark">
+                        <li class='hidden-xs'>
+                            <div class='col-md-1'>序号</div>
+                            <div class='col-md-6 text-left'>评论内容</div>
+                            <div class='col-md-3'>用户</div>
+                            <div class='col-md-2'>赞同数</div>
+                        </li>
+                        <li ng-repeat="rem in remarks" class='record' ng-click="gotoRemark(rem.enroll_key,rem.schema_id,rem.id)">
+                            <div class="visible-xs">
+                                <div class='col-xs-1'>
+                                    <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                    <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                                </div>
+                                <div class='col-xs-8 user-info'>
+                                    <img class='data-headimg' ng-src="{{rem.headimgurl}}" />
+                                    <span>{{rem.nickname}}</span><span ng-if="app.group_app_id">-{{rem.group_title}}</span>
+                                </div>
+                                <div class='col-xs-2 text-color pull-right'><span>{{rem.like_num}}</span>
+                                </div>
+                            </div>
+                            <div class='col-md-1 hidden-xs'>
+                                <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                            </div>
+                            <div class='col-md-6 col-xs-12 text-left'>
+                                <div><span class='content'>{{rem.content}}</span></div>
+                                <div class='col-xs-12 text-right text-color visible-xs hidden' ng-click='showStr($event)'>展开&nbsp;&or;</div>
+                            </div>
+                            <div class='col-md-3 hidden-xs'>
+                                <span>{{rem.nickname}}</span><span ng-if="app.group_app_id">-{{rem.group.round_title}}</span>
+                            </div>
+                            <div class='col-md-2 hidden-xs'><span>{{rem.like_num}}</span></div>
+                            <div class='custom custom-entry text-color hidden-xs'><span class='glyphicon glyphicon-menu-right'></span></div>
+                        </li>
+                    </ul>
+                    <ul ng-switch-when="remark-rec">
+                        <li class='hidden-xs'>
+                            <div class='col-md-1'>序号</div>
+                            <div class='col-md-6 text-left'>评论内容</div>
+                            <div class='col-md-3'>用户</div>
+                            <div class='col-md-2'>赞同数</div>
+                        </li>
+                        <li ng-repeat="rem in remarksRec" class='record' ng-click="gotoRemark(rem.enroll_key,rem.schema_id,rem.id)">
+                            <div class="visible-xs">
+                                <div class='col-xs-1' style="z-index:100">
+                                    <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                    <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                                </div>
+                                <div class='col-xs-8 user-info'>
+                                    <img class='data-headimg' ng-src="{{rem.headimgurl}}" />
+                                    <span>{{rem.nickname}}</span><span ng-if="app.group_app_id">-{{rem.group_title}}</span>
+                                </div>
+                                <div class='col-xs-2 text-color pull-right'><span>{{rem.like_num}}</span>
+                                </div>
+                                <div class='r-box'><span class='r-text'>{{rem._agreed}}</span></div>
+                            </div>
+                            <div class='col-md-1 hidden-xs'>
+                                <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                            </div>
+                            <div class='col-md-6 col-xs-12 text-left'>
+                                <div><span class='content'>{{rem.content}}</span></div>
+                                <div class='col-xs-12 text-right text-color visible-xs hidden' ng-click='showStr($event)'>展开&nbsp;&or;</div>
+                            </div>
+                            <div class='col-md-3 hidden-xs'>
+                                <span>{{rem.nickname}}</span><span ng-if="app.group_app_id">-{{rem.group.round_title}}</span>
+                            </div>
+                            <div class='col-md-2 hidden-xs'><span>{{rem.like_num}}</span></div>
+                            <div class="custom custom-md-like like-color hidden-xs"><span ng-if="rem.agreed=='Y'">荐</span></div>
+                            <div class='custom custom-entry text-color hidden-xs'><span class='glyphicon glyphicon-menu-right'></span></div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -193,6 +339,33 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script type="text/ng-template" id="moreRound.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">轮次列表</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">全部轮次</label>
+                    <div class="col-md-9">
+                        <select class='form-control' ng-model="moreCriteria.rid" size=5>
+                            <option value='ALL'>全部</option>
+                            <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
+                            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
+                        </select>
+                        <div ng-show="pageOfRound.total>pageOfRound.size">
+                            <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
+                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>

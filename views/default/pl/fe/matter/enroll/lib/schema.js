@@ -85,7 +85,7 @@ define([], function() {
         newSchema: function(type, app, proto) {
             var schema = angular.copy(base);
 
-            schema.id = (proto && proto.id) ? proto.id : 's' + (new Date() * 1);
+            schema.id = (proto && proto.id) ? proto.id : 's' + (new Date * 1);
             schema.required = type === 'html' ? 'N' : 'Y';
             schema.type = type;
             if (prefab[type]) {
@@ -108,9 +108,13 @@ define([], function() {
                     }
                 }
             } else {
-                schema.title = (proto && proto.title) ? proto.title : ('登记项' + (app.dataSchemas.length + 1));
+                schema.title = (proto && proto.title) ? proto.title : ('填写项' + (app.dataSchemas.length + 1));
                 if (type === 'single' || type === 'multiple') {
                     schema.ops = protoOps(type);
+                    if (type === 'multiple') {
+                        schema.limitChoice = 'N';
+                        schema.range = [1, schema.ops.length];
+                    }
                 } else if (type === 'image' || type === 'file') {
                     schema.count = 1;
                 } else if (type === 'score') {
@@ -123,7 +127,9 @@ define([], function() {
             if (/longtext|file|image/.test(type)) {
                 schema.remarkable = 'Y';
             }
-            if (/shorttext/.test(type)) {
+            if (proto && proto.format !== undefined) {
+                schema.format = proto.format;
+            } else if (/shorttext/.test(type)) {
                 schema.format = '';
             }
 
@@ -133,11 +139,23 @@ define([], function() {
             if (/phase/.test(newType) || schema.type === newType) {
                 return false;
             }
+            if ('member' === newType && !/^member\./.test(schema.id)) {
+                return false;
+            }
+            if ('member' === schema.type) {
+                if (!/shorttext/.test(newType)) {
+                    return false;
+                }
+                delete schema.schema_id;
+            }
             if (/single|multiple|score/.test(schema.type) && !/single|multiple|score/.test(newType)) {
                 delete schema.ops;
             }
-            if (schema.type === 'score' && newType !== 'score') {
+            if ((schema.type === 'score' && newType !== 'score') || (schema.type === 'multiple' && newType !== 'multiple')) {
                 delete schema.range;
+            }
+            if (schema.type === 'multiple' && newType !== 'multiple') {
+                delete schema.limitChoice;
             }
             if (/image|file/.test(schema.type) && !/image|file/.test(newType)) {
                 delete schema.count;
@@ -147,13 +165,21 @@ define([], function() {
             }
             if (schema.type !== 'score' && newType === 'score') {
                 schema.range = [1, 5];
+            } else if (schema.type !== 'multiple' && newType === 'multiple') {
+                schema.limitChoice = 'N';
+                schema.range = [1, schema.ops.length];
             }
             if (!/image|file/.test(schema.type) && /image|file/.test(newType)) {
                 schema.count = 1;
             }
             if (/email|mobile|name/.test(schema.type) && /shorttext/.test(newType)) {
                 schema.format = schema.type;
-            } else if (/shorttext|longtext/.test(newType)) { schema.format = ''; }
+            } else if (/shorttext|longtext/.test(newType)) {
+                schema.format = '';
+            }
+            if ('html' === newType) {
+                schema.required = 'N';
+            }
             schema.type = newType;
 
             return true;

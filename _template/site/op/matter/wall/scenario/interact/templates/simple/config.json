@@ -1,0 +1,10 @@
+{
+    "template": "simple",
+    "interact_action":
+    	{
+    		"shareF": "Y",
+    		"shareT": "Y",
+    		"read": "N"
+    	},
+    "player_sum": "24"
+}

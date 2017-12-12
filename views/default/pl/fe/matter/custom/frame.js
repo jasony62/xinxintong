@@ -85,7 +85,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
     };
     $scope.copy = function() {
         http2.get('/rest/pl/fe/matter/custom/copy?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
-            location.href = '/rest/pl/fe/matter/custom?site=' + $scope.siteId + '&id=' + rsp.data;
+            location.href = '/rest/pl/fe/matter/custom?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.remove = function() {

@@ -30,7 +30,7 @@ define(['frame'], function(ngApp) {
         //重置页面
         $scope.resetCode = function(page) {
             if (window.confirm('重置后将丢失已经做过的修改，确定操作？')) {
-                http2.get('/rest/pl/fe/matter/wall/page/reset?page=' + page.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/wall/page/reset?id=' + $scope.id + '&page=' + page.id, function(rsp) {
                     $scope.gotoCode(page);
                 });
             }

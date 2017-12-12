@@ -1,5 +1,5 @@
 <!-- publish -->
-<div class='col-md-6'>
+<div class='col-md-8 col-lg-6 col-md-offset-2 col-lg-offset-3'>
     <table class='table table-bordered'>
         <thead>
             <tr>
@@ -16,48 +16,50 @@
             </tr>
         </tbody>
     </table>
-    <div class="panel panel-default" ng-controller="ctrlRound">
-        <div class="panel-heading">签到轮次</div>
+    <div class="panel panel-default">
         <div class="panel-body">
-            <table class='table table-bordered rounds'>
-                <thead>
-                    <tr>
-                        <th>签到轮次</th>
-                        <th style='width:165px;'>签到开始时间</th>
-                        <th style='width:165px;'>记迟到时间</th>
-                        <th style='width:90px;'></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="round in rounds">
-                        <td style='padding:0'>
-                            <input style='border:0' type='text' class="form-control" ng-model='round.title' tms-auto-update tms-wait=1000 tms-update="update(round,'title')">
-                        </td>
-                        <td style='padding:0'>
-                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="round" tms-date="round.start_at" tms-state='start_at'></tms-datepicker>
-                        </td>
-                        <td style='padding:0'>
-                            <tms-datepicker class='tms-datepicker' tms-title='迟到时间' tms-obj="round" tms-date='round.late_at' tms-state='late_at'></tms-datepicker>
-                        </td>
-                        <td style='padding:0'>
-                            <button class="btn btn-default" ng-click="remove(round)"><span class="glyphicon glyphicon-remove"></span></button>
-                            <button class="btn btn-default" ng-click="qrcode(round)"><span class="glyphicon glyphicon-qrcode"></span></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="4">
-                            <button class="btn btn-success" ng-click="add()"><span class="glyphicon glyphicon-plus"></span></button>
-                            <button class="btn btn-success" ng-click="batch()"><span>批量添加</span></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class='form-group' ng-controller="ctrlRound">
+                <label>签到轮次</label>
+                <table class='table table-bordered rounds'>
+                    <thead>
+                        <tr>
+                            <th>签到轮次</th>
+                            <th style='width:165px;'>签到开始时间</th>
+                            <th style='width:165px;'>记迟到时间</th>
+                            <th style='width:90px;'></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="round in rounds">
+                            <td style='padding:0'>
+                                <input style='border:0' type='text' class="form-control" ng-model='round.title' tms-auto-update tms-wait=1000 tms-update="update(round,'title')">
+                            </td>
+                            <td style='padding:0'>
+                                <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="round" tms-date="round.start_at" tms-state='round.start_at'></tms-datepicker>
+                            </td>
+                            <td style='padding:0'>
+                                <tms-datepicker class='tms-datepicker' tms-title='迟到时间' tms-obj="round" tms-date='round.late_at' tms-state='round.late_at'></tms-datepicker>
+                            </td>
+                            <td style='padding:0'>
+                                <button class="btn btn-default" ng-click="remove(round)"><span class="glyphicon glyphicon-remove"></span></button>
+                                <button class="btn btn-default" ng-click="qrcode(round)"><span class="glyphicon glyphicon-qrcode"></span></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <button class="btn btn-success" ng-click="add()"><span class="glyphicon glyphicon-plus"></span></button>
+                                <button class="btn btn-success" ng-click="batch()"><span>批量添加</span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     <div class="panel panel-default" ng-controller="ctrlOpUrl">
-        <div class="panel-heading">汇总结果分享链接</div>
         <div class="panel-body">
             <div class='form-group'>
+                <label>汇总结果分享链接</label>
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{opEntry.url}}">
                     <div class='input-group-btn'>
@@ -79,10 +81,9 @@
         </div>
     </div>
     <div class="panel panel-default" ng-if="sns.wx.joined==='Y'||sns.yx.joined==='Y'">
-        <div class="panel-heading">公众号分享设置</div>
         <div class="panel-body">
-            <div class='form-group compact'>
-                <div class='help-block'>头图（可选，建议尺寸360*200）</div>
+            <div class='form-group'>
+                <label>公众号分享头图（可选，建议尺寸360*200）</label>
                 <div style='position:relative'>
                     <div style="width:182px;border:1px solid #CCC">
                         <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
@@ -101,8 +102,8 @@
                     </div>
                 </div>
             </div>
-            <div class='form-group compact'>
-                <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
+            <div class='form-group'>
+                <label>公众号分享摘要（可选）：最多120个汉字，240个英文字符</label>
                 <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
             </div>
         </div>

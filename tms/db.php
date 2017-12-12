@@ -154,13 +154,13 @@ class TMS_DB {
 	/**
 	 * 更新数据
 	 */
-	public function update($table, $data = null, $where = '') {
-		if (stripos($table, 'update') === 0) {
-			$sql = $table;
+	public function update($tableOrSql, $data = null, $where = '') {
+		if (stripos($tableOrSql, 'update') === 0) {
+			$sql = $tableOrSql;
 		} else {
 			$where || $this->show_error('DB Update no where string.');
 
-			$sql = 'UPDATE ' . $this->get_table($table);
+			$sql = 'UPDATE ' . $tableOrSql;
 
 			$updateStrs = [];
 			foreach ($data as $key => $val) {
@@ -168,21 +168,12 @@ class TMS_DB {
 			}
 			$sql .= ' SET ' . implode(', ', $updateStrs);
 
-			/* 防止SQL注入 */
-			$clauses = [];
-			if (is_array($where)) {
-				foreach ($where as $k => $v) {
-					$clauses[] = $k . "='" . $this->escape($v) . "'";
-				}
-			} else {
-				$clauses[] = $where;
-			}
-			$sql .= ' WHERE ' . implode(' and ', $clauses);
+			$sql .= ' WHERE ' . $this->_assemble_where($where);
 		}
 
 		$mysqli = $this->_getDbWriteConn();
 		if (!$mysqli->query($sql)) {
-			throw new Exception("database error(update $table):" . $sql . ';' . $mysqli->error);
+			throw new Exception("database error:" . $sql . ';' . $mysqli->error);
 		}
 
 		$rows_affected = $mysqli->affected_rows;
@@ -332,36 +323,16 @@ class TMS_DB {
 
 		is_array($select) && $select = implode(',', $select);
 		if (stripos($select, 'select') === false) {
-			$select = 'select ' . $select;
+			$select = 'SELECT ' . $select;
 			if ($from) {
-				$select .= ' from ';
+				$select .= ' FROM ';
 				$tables = is_array($from) ? $from : array($from);
 				array_walk($tables, array($this, 'get_table'));
 				$select .= implode(',', $tables);
 			}
 			if ($where) {
-				$select .= ' where ';
-				$clauses = [];
-				if (is_array($where)) {
-					foreach ($where as $k => $v) {
-						if (!isset($v)) {
-							continue;
-						}
-						if (is_string($v)) {
-							$clauses[] = $k . "='" . $this->escape($v) . "'";
-						} else if (is_array($v)) {
-							$clause = $k . " in('";
-							$clause .= implode("','", $v);
-							$clause .= "')";
-							$clauses[] = $clause;
-						} else {
-							$clauses[] = $k . "=" . $v;
-						}
-					}
-				} else {
-					$clauses[] = $where;
-				}
-				$select .= implode(' and ', $clauses);
+				$select .= ' WHERE ';
+				$select .= $this->_assemble_where($where);
 			}
 			if ($group) {
 				$select .= ' ';
@@ -369,7 +340,7 @@ class TMS_DB {
 					$group = implode(',', $group);
 				}
 				if (stripos($group, 'group by') === false) {
-					$select .= 'group by ';
+					$select .= 'GROUP BY ';
 				}
 				$select .= $group;
 			}
@@ -379,16 +350,71 @@ class TMS_DB {
 					$order = implode(',', $order);
 				}
 				if (stripos($order, 'order by') === false) {
-					$select .= 'order by ';
+					$select .= 'ORDER BY ';
 				}
 				$select .= $order;
 			}
 			if ($limit) {
-				$select .= " limit $offset,$limit";
+				$select .= " LIMIT $offset,$limit";
 			}
 		}
 
 		return $select;
+	}
+	/**
+	 * assemble a where sql.
+	 */
+	private function _assemble_where($where) {
+		$where || $this->show_error('where is empty.');
+
+		if (is_array($where)) {
+			$clauses = [];
+			foreach ($where as $k => $v) {
+				if (!isset($v)) {
+					continue;
+				}
+				if (is_string($v)) {
+					$clauses[] = $k . "='" . $this->escape($v) . "'";
+				} else if (is_array($v)) {
+					$clause = $k . " in('";
+					$clause .= implode("','", $v);
+					$clause .= "')";
+					$clauses[] = $clause;
+				} else if (is_object($v)) {
+					if (isset($v->op) && isset($v->pat)) {
+						switch ($v->op) {
+						case 'like':
+							$clause = $k . " like '" . $v->pat . "'";
+							$clauses[] = $clause;
+							break;
+						case 'exists':
+							$clause = " exists(" . $v->pat . ")";
+							$clauses[] = $clause;
+							break;
+						case 'between':
+						case 'not between':
+							if (is_array($v->pat) && count($v->pat) === 2) {
+								$clause = $k . ' ' . $v->op . ' ' . $v->pat[0] . ' and ' . $v->pat[1];
+								$clauses[] = $clause;
+							}
+							break;
+						case '>':
+						case '>=':
+						case '<':
+						case '<=':
+							$clause = $k . $v->op . $v->pat;
+							$clauses[] = $clause;
+							break;
+						}
+					}
+				} else {
+					$clauses[] = $k . "=" . $v;
+				}
+			}
+			$where = implode(' and ', $clauses);
+		}
+
+		return $where;
 	}
 	/**
 	 *

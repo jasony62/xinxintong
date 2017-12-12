@@ -1,6 +1,6 @@
 define(['main'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlOther', ['$scope', 'http2', 'matterTypes', 'mattersgallery', function($scope, http2, matterTypes, mattersgallery) {
+	ngApp.provider.controller('ctrlOther', ['$scope', 'http2', 'matterTypes', 'srvSite', function($scope, http2, matterTypes, srvSite) {
 		$scope.edit = function(call) {
 			if (call.name === 'templatemsg' || call.name === 'cardevent') {
 				$scope.matterTypes = matterTypes.slice(matterTypes.length - 1);
@@ -10,22 +10,22 @@ define(['main'], function(ngApp) {
 			$scope.editing = call;
 		};
 		$scope.setReply = function() {
-			mattersgallery.open($scope.siteId, function(aSelected, matterType) {
-				if (aSelected.length === 1) {
-					var matter = aSelected[0],
-						p = {
-							matter_id: matter.id,
-							matter_type: matterType
-						};
-					matter.type = matterType;
-					http2.post('/rest/pl/fe/site/sns/yx/other/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
-						$scope.editing.matter = aSelected[0];
-					});
-				}
-			}, {
+			srvSite.openGallery({
 				matterTypes: matterTypes,
 				hasParent: false,
 				singleMatter: true
+			}).then(function(result) {
+				if (result.matters.length === 1) {
+					var matter = result.matters[0],
+						p = {
+							matter_id: matter.id,
+							matter_type: result.type
+						};
+					matter.type = result.type;
+					http2.post('/rest/pl/fe/site/sns/yx/other/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
+						$scope.editing.matter = result.matters[0];
+					});
+				}
 			});
 		};
 		$scope.remove = function() {

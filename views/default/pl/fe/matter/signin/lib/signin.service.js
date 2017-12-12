@@ -3,7 +3,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * BasesrvSigninRecord
      * srvSigninApp
      * srvSigninRound
-     * srvSigninPage
      * srvSigninRecord
      */
     var BasesrvSigninRecord = function($q, http2, srvRecordConverter, noticebox, $uibModal) {
@@ -165,7 +164,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 signinLate = {},
                 that = this;
 
-            srvRecordConverter.forTable(record, that._oApp._schemasById);
+            srvRecordConverter.forTable(record, that._oApp._assocSchemasById);
             // signin log
             for (var roundId in that._mapOfRoundsById) {
                 round = that._mapOfRoundsById[roundId];
@@ -184,55 +183,68 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     };
     angular.module('service.signin', ['ui.bootstrap', 'ui.xxt', 'service.matter']).
     provider('srvSigninApp', function() {
-        function _mapSchemas(app) {
-            var mapOfSchemaByType = {},
+        function _fnMapAssocEnrollApp(oApp) {
+            var enrollDataSchemas = [];
+            if (oApp.enrollApp && oApp.enrollApp.dataSchemas) {
+                oApp.enrollApp.dataSchemas.forEach(function(item) {
+                    if (oApp._assocSchemasById[item.id] === undefined) {
+                        item.assocState = '';
+                        oApp._assocSchemasById[item.id] = item;
+                        enrollDataSchemas.push(item);
+                    } else if (oApp._assocSchemasById[item.id].fromApp === oApp.enrollApp.id) {
+                        item.assocState = 'yes';
+                    } else {
+                        item.assocState = 'no';
+                    }
+                });
+            }
+            oApp._schemasFromEnrollApp = enrollDataSchemas;
+        }
+
+        function _fnMapAssocGroupApp(oApp) {
+            var groupDataSchemas = [];
+            if (oApp.groupApp && oApp.groupApp.dataSchemas) {
+                oApp.groupApp.dataSchemas.forEach(function(item) {
+                    if (oApp._assocSchemasById[item.id] === undefined) {
+                        item.assocState = '';
+                        oApp._assocSchemasById[item.id] = item;
+                        groupDataSchemas.push(item);
+                    } else if (oApp._assocSchemasById[item.id].fromApp === oApp.groupApp.id) {
+                        item.assocState = 'yes';
+                    } else {
+                        item.assocState = 'no';
+                    }
+                });
+            }
+            oApp._schemasFromGroupApp = groupDataSchemas;
+        }
+
+        function _fnMapSchemas(oApp) {
+            var mapOfAppSchemaById = {},
+                mapOfSchemaByType = {},
                 mapOfSchemaById = {},
-                enrollDataSchemas = [],
-                groupDataSchemas = [],
                 canFilteredSchemas = [];
 
-            app.dataSchemas.forEach(function(schema) {
+            oApp.dataSchemas.forEach(function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema.id);
+                mapOfAppSchemaById[schema.id] = schema;
                 mapOfSchemaById[schema.id] = schema;
                 if (false === /image|file/.test(schema.type)) {
                     canFilteredSchemas.push(schema);
                 }
             });
-            // 关联的报名登记项
-            if (app.enrollApp && app.enrollApp.dataSchemas) {
-                app.enrollApp.dataSchemas.forEach(function(item) {
-                    if (mapOfSchemaById[item.id] === undefined) {
-                        mapOfSchemaById[item.id] = item;
-                        enrollDataSchemas.push(item);
-                    }
-                });
-            }
-            // 关联的分组登记项
-            if (app.groupApp && app.groupApp.dataSchemas) {
-                app.groupApp.dataSchemas.forEach(function(item) {
-                    if (mapOfSchemaById[item.id] === undefined) {
-                        mapOfSchemaById[item.id] = item;
-                        groupDataSchemas.push(item);
-                    }
-                });
-            }
 
-            app._schemasByType = mapOfSchemaByType;
-            app._schemasById = mapOfSchemaById;
-            app._schemasCanFilter = canFilteredSchemas;
-            app._schemasFromEnrollApp = enrollDataSchemas;
-            app._schemasFromGroupApp = groupDataSchemas;
+            oApp._schemasByType = mapOfSchemaByType;
+            oApp._schemasById = mapOfAppSchemaById;
+            oApp._assocSchemasById = mapOfSchemaById;
+            oApp._schemasCanFilter = canFilteredSchemas;
 
-            return {
-                byType: mapOfSchemaByType,
-                byId: mapOfSchemaById,
-                enrollData: enrollDataSchemas,
-                groupData: groupDataSchemas,
-                canFilter: canFilteredSchemas
-            }
+            _fnMapAssocEnrollApp(oApp);
+            _fnMapAssocGroupApp(oApp);
         }
-        var siteId, appId, app, defaultInputPage,
+
+        var siteId, appId, app, _oApp, defaultInputPage,
             pages4NonMember = [],
             pages4Nonfan = [],
             _getAppDeferred = false;;
@@ -245,7 +257,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             appId = app;
             accessId = access;
         }
-        this.$get = ['$q', 'http2', 'noticebox', 'mattersgallery', '$uibModal', function($q, http2, noticebox, mattersgallery, $uibModal) {
+        this.$get = ['$q', 'http2', 'noticebox', 'srvSite', '$uibModal', function($q, http2, noticebox, srvSite, $uibModal) {
             var _ins = new BasesrvSigninRecord();
             return {
                 get: function() {
@@ -257,8 +269,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     _getAppDeferred = $q.defer();
                     url = '/rest/pl/fe/matter/signin/get?site=' + siteId + '&id=' + appId;
                     http2.get(url, function(rsp) {
-                        app = rsp.data;
-                        _ins._bGet(app, _mapSchemas);
+                        _oApp = app = rsp.data;
+                        _ins._bGet(app, _fnMapSchemas);
                         _getAppDeferred.resolve(app);
                     });
 
@@ -274,7 +286,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/site/op/matter/signin/get?site=' + siteId + '&app=' + appId + '&accessToken=' + accessId;
                     http2.get(url, function(rsp) {
                         _opApps = rsp.data, _opApp = rsp.data.app, _opPage = rsp.data.page;
-                        _ins._bGet(_opApp, _mapSchemas);
+                        _ins._bGet(_opApp, _fnMapSchemas);
                         _getAppDeferred.resolve(_opApps);
                     });
 
@@ -287,12 +299,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     angular.isString(names) && (names = [names]);
                     names.forEach(function(name) {
-                        if (name === 'data_schemas') {
-                            modifiedData.data_schemas = app.dataSchemas;
+                        if (name === 'data_schemas' || name === 'dataSchemas') {
+                            modifiedData.data_schemas = _oApp.dataSchemas;
+                        } else if (name === 'recycle_schemas' || name === 'recycleSchemas') {
+                            modifiedData.recycle_schemas = _oApp.recycleSchemas;
                         } else if (name === 'tags') {
-                            modifiedData.tags = app.tags.join(',');
+                            modifiedData.tags = _oApp.tags.join(',');
                         } else {
-                            modifiedData[name] = app[name];
+                            modifiedData[name] = _oApp[name];
                         }
                     });
                     url = '/rest/pl/fe/matter/signin/update?site=' + siteId + '&app=' + appId;
@@ -303,11 +317,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 resetEntryRule: function() {
                     http2.get('/rest/pl/fe/matter/signin/entryRuleReset?site=' + siteId + '&app=' + appId, function(rsp) {
-                        app.entry_rule = rsp.data;
+                        _oApp.entry_rule = rsp.data;
                     });
                 },
                 changeUserScope: function(ruleScope, sns, memberSchemas, defaultInputPage) {
-                    var entryRule = app.entry_rule;
+                    var entryRule = _oApp.entry_rule;
                     entryRule.scope = ruleScope;
                     switch (ruleScope) {
                         case 'member':
@@ -331,71 +345,71 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 assignMission: function() {
                     var _this = this;
-                    mattersgallery.open(siteId, function(missions) {
-                        var matter;
-                        if (missions.length === 1) {
-                            matter = {
-                                id: appId,
-                                type: 'signin'
-                            };
-                            http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + missions[0].id, matter, function(rsp) {
-                                var mission = rsp.data,
-                                    updatedFields = ['mission_id'];
-
-                                app.mission = mission;
-                                app.mission_id = mission.id;
-                                if (!app.pic || app.pic.length === 0) {
-                                    app.pic = mission.pic;
-                                    updatedFields.push('pic');
-                                }
-                                if (!app.summary || app.summary.length === 0) {
-                                    app.summary = mission.summary;
-                                    updatedFields.push('summary');
-                                }
-                                _this.update(updatedFields);
-                            });
-                        }
-                    }, {
+                    srvSite.openGallery({
                         matterTypes: [{
                             value: 'mission',
                             title: '项目',
                             url: '/rest/pl/fe/matter'
                         }],
                         singleMatter: true
-                    });
+                    }).then(function(missions) {
+                        var matter;
+                        if (missions.matters.length === 1) {
+                            matter = {
+                                id: appId,
+                                type: 'signin'
+                            };
+                            http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + missions.matters[0].id, matter, function(rsp) {
+                                var mission = rsp.data,
+                                    updatedFields = ['mission_id'];
+
+                                _oApp.mission = mission;
+                                _oApp.mission_id = mission.id;
+                                if (!_oApp.pic || _oApp.pic.length === 0) {
+                                    _oApp.pic = mission.pic;
+                                    updatedFields.push('pic');
+                                }
+                                if (!_oApp.summary || _oApp.summary.length === 0) {
+                                    _oApp.summary = mission.summary;
+                                    updatedFields.push('summary');
+                                }
+                                _this.update(updatedFields);
+                            });
+                        }
+                    })
                 },
                 quitMission: function() {
                     var _this = this,
                         matter = {
                             id: appId,
                             type: 'signin',
-                            title: app.title
+                            title: _oApp.title
                         };
-                    http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + siteId + '&id=' + app.mission_id, matter, function(rsp) {
-                        delete app.mission;
-                        app.mission_id = null;
+                    http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + siteId + '&id=' + _oApp.mission_id, matter, function(rsp) {
+                        delete _oApp.mission;
+                        _oApp.mission_id = null;
                         _this.update(['mission_id']);
                     });
                 },
                 choosePhase: function() {
                     var _this = this,
-                        phaseId = app.mission_phase_id,
+                        phaseId = _oApp.mission_phase_id,
                         i, phase, newPhase;
 
-                    app.mission.phases.forEach(function(phase) {
-                        app.title = app.title.replace('-' + phase.title, '');
+                    _oApp.mission.phases.forEach(function(phase) {
+                        _oApp.title = _oApp.title.replace('-' + phase.title, '');
                         if (phase.phase_id === phaseId) {
                             newPhase = phase;
                         }
                     });
                     if (newPhase) {
-                        app.title += '-' + newPhase.title;
+                        _oApp.title += '-' + newPhase.title;
                     }
                     _this.update(['mission_phase_id', 'title']).then(function() {
                         /* 如果活动只有一个轮次，且没有指定过时间，用阶段的时间更新 */
-                        if (newPhase && app.rounds.length === 1) {
+                        if (newPhase && _oApp.rounds.length === 1) {
                             (function() {
-                                var round = app.rounds[0],
+                                var round = _oApp.rounds[0],
                                     url;
                                 if (round.start_at === '0' && round.end_at === '0') {
                                     url = '/rest/pl/fe/matter/signin/round/update';
@@ -427,7 +441,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 jumpPages: function() {
                     var defaultInput, inapp = [],
-                        pages = app.pages,
+                        pages = _oApp.pages,
                         pages4NonMember = [{
                             name: '$memberschema',
                             title: '填写联系人信息'
@@ -456,23 +470,24 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                 },
                 assignEnrollApp: function() {
-                    var _this = this;
+                    var _this = this,
+                        defer = $q.defer();
                     $uibModal.open({
                         templateUrl: 'assignEnrollApp.html',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                             function listEnrollApp() {
                                 var url = '/rest/pl/fe/matter/enroll/list?site=' + siteId + '&scenario=registration&size=999';
-                                $scope2.data.sameMission === 'Y' && (url += '&mission=' + app.mission.id);
+                                $scope2.data.sameMission === 'Y' && (url += '&mission=' + _oApp.mission.id);
                                 http2.get(url, function(rsp) {
                                     $scope2.apps = rsp.data.apps;
                                 });
                             }
-                            $scope2.app = app;
+                            $scope2.app = _oApp;
                             $scope2.data = {
                                 filter: {},
                                 source: ''
                             };
-                            app.mission && ($scope2.data.sameMission = 'Y');
+                            _oApp.mission && ($scope2.data.sameMission = 'Y');
                             $scope2.cancel = function() {
                                 $mi.dismiss();
                             };
@@ -483,52 +498,37 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }],
                         backdrop: 'static'
                     }).result.then(function(data) {
-                        app.enroll_app_id = data.source;
+                        _oApp.enroll_app_id = data.source;
                         _this.update('enroll_app_id').then(function(rsp) {
-                            var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&id=' + app.enroll_app_id;
+                            var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&app=' + _oApp.enroll_app_id;
                             http2.get(url, function(rsp) {
-                                rsp.data.data_schemas = rsp.data.dataSchemas;
-                                app.enrollApp = rsp.data;
+                                _oApp.enrollApp = rsp.data;
+                                _fnMapAssocEnrollApp(_oApp);
+                                defer.resolve(_oApp.enrollApp);
                             });
-                            for (var i = app.data_schemas.length - 1; i > 0; i--) {
-                                if (app.data_schemas[i].id === 'mobile') {
-                                    app.data_schemas[i].requireCheck = 'Y';
-                                    break;
-                                }
-                            }
-                            _this.update('data_schemas');
                         });
                     });
-                },
-                cancelEnrollApp: function() {
-                    var _this = this;
-                    app.enroll_app_id = '';
-                    delete app.enrollApp;
-                    this.update('enroll_app_id').then(function() {
-                        app.data_schemas.forEach(function(dataSchema) {
-                            delete dataSchema.requireCheck;
-                        });
-                        _this.update('data_schemas');
-                    });
+                    return defer.promise;
                 },
                 assignGroupApp: function() {
-                    var _this = this;
+                    var _this = this,
+                        defer = $q.defer();;
                     $uibModal.open({
                         templateUrl: 'assignGroupApp.html',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                             function listEnrollApp() {
                                 var url = '/rest/pl/fe/matter/group/list?site=' + siteId;
-                                $scope2.data.sameMission === 'Y' && (url += '&mission=' + app.mission.id);
+                                $scope2.data.sameMission === 'Y' && (url += '&mission=' + _oApp.mission.id);
                                 http2.get(url, function(rsp) {
                                     $scope2.apps = rsp.data.apps;
                                 });
                             }
-                            $scope2.app = app;
+                            $scope2.app = _oApp;
                             $scope2.data = {
                                 filter: {},
                                 source: ''
                             };
-                            app.mission && ($scope2.data.sameMission = 'Y');
+                            _oApp.mission && ($scope2.data.sameMission = 'Y');
                             $scope2.cancel = function() {
                                 $mi.dismiss();
                             };
@@ -539,41 +539,19 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }],
                         backdrop: 'static'
                     }).result.then(function(data) {
-                        app.group_app_id = data.source;
+                        _oApp.group_app_id = data.source;
                         _this.update('group_app_id').then(function(rsp) {
-                            var url = '/rest/pl/fe/matter/group/get?site=' + siteId + '&app=' + app.group_app_id;
+                            var url = '/rest/pl/fe/matter/group/get?site=' + siteId + '&app=' + _oApp.group_app_id;
                             http2.get(url, function(rsp) {
-                                var groupApp = rsp.data,
-                                    roundDS = {
-                                        id: '_round_id',
-                                        type: 'single',
-                                        title: '分组名称',
-                                    },
-                                    ops = [];
-                                groupApp.rounds.forEach(function(round) {
-                                    ops.push({
-                                        v: round.round_id,
-                                        l: round.title
-                                    });
-                                });
-                                roundDS.ops = ops;
-                                groupApp.dataSchemas.splice(0, 0, roundDS);
-                                app.groupApp = groupApp;
+                                _oApp.groupApp = rsp.data;
+                                _fnMapAssocGroupApp(_oApp);
+                                defer.resolve(_oApp.groupApp);
                             });
                         });
                     });
+
+                    return defer.promise;
                 },
-                cancelGroupApp: function() {
-                    var _this = this;
-                    app.group_app_id = '';
-                    delete app.groupApp;
-                    this.update('group_app_id').then(function() {
-                        app.data_schemas.forEach(function(dataSchema) {
-                            delete dataSchema.requireCheck;
-                        });
-                        _this.update('data_schemas');
-                    });
-                }
             };
         }];
     }).provider('srvSigninRound', function() {
@@ -700,7 +678,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                                 url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + siteId;
                                 url += '&matter_type=signin&matter_id=' + appId;
-                                url += '&expire=864000';
+                                //url += '&expire=864000';
 
                                 http2.post(url, {
                                     params: params
@@ -730,59 +708,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                         }]
                     });
-                }
-            };
-        }];
-    }).provider('srvSigninPage', function() {
-        var siteId, appId;
-        this.setSiteId = function(id) {
-            siteId = id;
-        };
-        this.setAppId = function(id) {
-            appId = id;
-        };
-        this.$get = ['$q', 'http2', 'noticebox', function($q, http2, noticebox) {
-            return {
-                update: function(page, names) {
-                    var defer = $q.defer(),
-                        updated = {},
-                        url;
-
-                    angular.isString(names) && (names = [names]);
-                    names.forEach(function(name) {
-                        if (name === 'html') {
-                            updated.html = encodeURIComponent(page.html);
-                        } else {
-                            updated[name] = page[name];
-                        }
-                    });
-                    url = '/rest/pl/fe/matter/signin/page/update';
-                    url += '?site=' + siteId;
-                    url += '&app=' + appId;
-                    url += '&pid=' + page.id;
-                    url += '&cname=' + page.code_name;
-                    http2.post(url, updated, function(rsp) {
-                        page.$$modified = false;
-                        defer.resolve();
-                        noticebox.success('完成保存');
-                    });
-
-                    return defer.promise;
-                },
-                remove: function(page) {
-                    var defer = $q.defer(),
-                        url = '/rest/pl/fe/matter/signin/page/remove';
-
-                    url += '?site=' + siteId;
-                    url += '&app=' + appId;
-                    url += '&pid=' + page.id;
-                    url += '&cname=' + page.code_name;
-                    http2.get(url, function(rsp) {
-                        defer.resolve();
-                        noticebox.success('完成删除');
-                    });
-
-                    return defer.promise;
                 }
             };
         }];
@@ -1096,6 +1021,36 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     defer.resolve(rsp.data);
                 });
 
+                return defer.promise;
+            };
+            _ins.absent = function() {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/matter/signin/record/absent?site=' + siteId + '&app=' + appId, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            };
+            _ins.editCause = function(user) {
+                var defer = $q.defer();
+                $uibModal.open({
+                    templateUrl: 'editCause.html',
+                    controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                        $scope2.cause = '';
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.ok = function() {
+                            var url, params = {};
+                            params[user.userid] = $scope2.cause;
+                            url = '/rest/pl/fe/matter/signin/update?site=' + siteId + '&app=' + appId;
+                            http2.post(url, { 'absent_cause': params }, function(rsp) {
+                                $mi.close();
+                                defer.resolve($scope2.cause);
+                            });
+                        };
+                    }],
+                    backdrop: 'static'
+                });
                 return defer.promise;
             };
             return _ins;

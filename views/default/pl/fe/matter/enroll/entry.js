@@ -29,6 +29,13 @@ define(['frame'], function(ngApp) {
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
         };
+        $('#entry-view').height($('#pl-layout-main').height());
+        $('#entry-view').scrollspy({ target: '#entryScrollspy' });
+        $('#entryScrollspy>ul').affix({
+            offset: {
+                top: 0
+            }
+        });
     }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
         var targetUrl, host, opEntry;
@@ -126,7 +133,7 @@ define(['frame'], function(ngApp) {
             var url;
             url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.app.siteid;
             url += '&matter_type=enroll&matter_id=' + $scope.app.id;
-            url += '&expire=864000';
+            //url += '&expire=864000';
             http2.get(url, function(rsp) {
                 $scope.qrcode = rsp.data;
             });
@@ -137,46 +144,6 @@ define(['frame'], function(ngApp) {
         http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
             var qrcodes = rsp.data;
             $scope.qrcode = qrcodes.length ? qrcodes[0] : false;
-        });
-    }]);
-    ngApp.provider.controller('ctrlPreview', ['$scope', 'srvEnrollApp', function($scope, srvEnrollApp) {
-        function refresh() {
-            $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + params.page.name + '&_=' + (new Date() * 1);
-        }
-        var previewURL, params;
-        $scope.params = params = {
-            openAt: 'ontime',
-        };
-        $scope.showPage = function(page) {
-            params.page = page;
-        };
-        srvEnrollApp.get().then(function(app) {
-            if (app.pages && app.pages.length) {
-                $scope.gotoPage = function(page) {
-                    var url = "/rest/pl/fe/matter/enroll/page";
-                    url += "?site=" + app.siteid;
-                    url += "&id=" + app.id;
-                    url += "&page=" + page.name;
-                    location.href = url;
-                };
-                previewURL = '/rest/site/fe/matter/enroll/preview?site=' + app.siteid + '&app=' + app.id + '&start=Y';
-                params.page = app.pages[0];
-                $scope.$watch('params', function() {
-                    refresh();
-                }, true);
-                $scope.$watch('app.use_site_header', function(nv, ov) {
-                    nv !== ov && refresh();
-                });
-                $scope.$watch('app.use_site_footer', function(nv, ov) {
-                    nv !== ov && refresh();
-                });
-                $scope.$watch('app.use_mission_header', function(nv, ov) {
-                    nv !== ov && refresh();
-                });
-                $scope.$watch('app.use_mission_header', function(nv, ov) {
-                    nv !== ov && refresh();
-                });
-            }
         });
     }]);
     ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvEnrollApp', function($scope, http2, $interval, $uibModal, srvEnrollApp) {
@@ -245,93 +212,83 @@ define(['frame'], function(ngApp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
             });
         };
-        $scope.chooseQy = function() {
-            $uibModal.open({
-                templateUrl: 'chooseUser.html',
-                controller: 'ctrlChooseUser',
-            }).result.then(function(data) {
-                var app = $scope.app,
-                    url;
-                url = '/rest/pl/fe/matter/enroll/receiver/add';
-                url += '?site=' + app.siteid;
-                url += '&app=' + app.id;
-                http2.post(url, data, function(rsp) {
-                    listReceivers(app);
+        var oTimerTask;
+        $scope.timerTask = oTimerTask = {
+            report: {
+                modified: false,
+                state: 'N'
+            },
+            remind: {
+                modified: false,
+                state: 'N'
+            },
+        };
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            oTimerTask[data.state].task.task_expire_at = data.value;
+        });
+        $scope.shiftTimerTask = function(model) {
+            var oOneTask;
+            oOneTask = oTimerTask[model];
+            if (oOneTask.state === 'Y') {
+                var oConfig;
+                oConfig = {
+                    matter: { id: $scope.app.id, type: 'enroll' },
+                    task: { model: model }
+                }
+                http2.post('/rest/pl/fe/matter/timer/create?site=' + $scope.app.siteid, oConfig, function(rsp) {
+                    oOneTask.state = 'Y';
+                    oOneTask.taskId = rsp.data.id;
+                    oOneTask.task = {};
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
+                        oOneTask.task[prop] = '' + rsp.data[prop];
+                    });
+                    $scope.$watch('timerTask.' + model, function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
                 });
-            })
+            } else {
+                http2.get('/rest/pl/fe/matter/timer/remove?site=' + $scope.app.siteid + '&id=' + oOneTask.taskId, function(rsp) {
+                    oOneTask.state = 'N';
+                    delete oOneTask.taskId;
+                    delete oOneTask.task;
+                });
+            }
+        };
+        $scope.saveTimerTask = function(model) {
+            var oOneTask;
+            oOneTask = oTimerTask[model];
+            if (oOneTask.state === 'Y') {
+                http2.post('/rest/pl/fe/matter/timer/update?site=' + $scope.app.siteid + '&id=' + oOneTask.taskId, oOneTask.task, function(rsp) {
+                    ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
+                        oOneTask.task[prop] = '' + rsp.data[prop];
+                    });
+                    oOneTask.modified = false;
+                });
+            }
         };
         srvEnrollApp.get().then(function(app) {
             listReceivers(app);
-        });
-    }]);
-    ngApp.provider.controller('ctrlChooseUser', ['$scope', '$uibModalInstance', 'http2', 'srvEnrollApp', function($scope, $mi, http2, srvEnrollApp) {
-        $scope.page = {
-            at: 1,
-            size: 15,
-            total: 0,
-            param: function() {
-                return 'page=' + this.at + '&size=' + this.size;
-            }
-        };
-        $scope.search = function(name) {
-            var url = '/rest/pl/fe/matter/enroll/receiver/qymem';
-            url += '?site=' + $scope.app.siteid;
-            url += '&' + $scope.page.param();
-            http2.post(url, { keyword: name }, function(rsp) {
-                $scope.users = rsp.data.data;
-                $scope.page.total = rsp.data.total;
-            });
-        }
-        $scope.doSearch = function(page, name) {
-            var url;
-            page && ($scope.page.at = page);
-            url = '/rest/pl/fe/matter/enroll/receiver/qymem';
-            url += '?site=' + $scope.app.siteid;
-            url += '&' + $scope.page.param();
-            if (name) {
-                http2.post(url, { keyword: name }, function(rsp) {
-                    $scope.users = rsp.data.data;
-                    $scope.page.total = rsp.data.total;
-                })
-            } else {
-                http2.get(url, function(rsp) {
-                    $scope.users = rsp.data.data;
-                    $scope.page.total = rsp.data.total;
+            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + app.siteid + '&type=enroll&id=' + app.id, function(rsp) {
+                rsp.data.forEach(function(oTask) {
+                    oTimerTask[oTask.task_model].state = 'Y';
+                    oTimerTask[oTask.task_model].taskId = oTask.id;
+                    oTimerTask[oTask.task_model].task = {};
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
+                        oTimerTask[oTask.task_model].task[prop] = oTask[prop];
+                    });
+                    $scope.$watch('timerTask.' + oTask.task_model, function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
                 });
-            }
-        }
-        $scope.selected = [];
-        var updateSelected = function(action, option) {
-            if (action == 'add') {
-                $scope.selected.push(option);
-
-            }
-            if (action == 'remove') {
-                angular.forEach($scope.selected, function(item, index) {
-                    if (item.uid == option.uid) {
-                        $scope.selected.splice(index, 1);
-                    }
-                })
-            }
-        }
-        $scope.updateSelection = function($event, data) {
-            var checkbox = $event.target;
-            var action = (checkbox.checked ? 'add' : 'remove');
-            var option = {
-                nickname: data.nickname,
-                uid: data.userid
-            };
-            updateSelected(action, option);
-        }
-        $scope.ok = function() {
-            $mi.close($scope.selected);
-        };
-        $scope.cancel = function() {
-            $mi.dismiss();
-        };
-        srvEnrollApp.get().then(function(app) {
-            $scope.app = app;
-            $scope.doSearch(1);
+            });
         });
     }]);
 });

@@ -70,4 +70,43 @@ class receiver_model extends \TMS_MODEL {
 
 		return $receivers;
 	}
+	/**
+	 * 通知登记活动事件接收人
+	 *
+	 * @param object $app
+	 * @param string $ek
+	 *
+	 */
+	public function notify($oApp, $eventName, $options = []) {
+		$receivers = $this->byApp($oApp->siteid, $oApp->id);
+		if (count($receivers) === 0) {
+			return [false, '没有指定事件接收人'];
+		}
+
+		/* 模板消息参数 */
+		$options2 = ['onlySite' => false];
+		if (!empty($options['noticeURL'])) {
+			$options2['noticeURL'] = $options['noticeURL'];
+		}
+		$tmpConfig = $this->model('matter\tmplmsg\config')->getTmplConfig($oApp, $eventName, $options2);
+		if ($tmpConfig[0] === false) {
+			return [false, $tmpConfig[1]];
+		}
+		$tmpConfig = $tmpConfig[1];
+
+		/* 发送消息 */
+		foreach ($receivers as &$oReceiver) {
+			if (!empty($oReceiver->sns_user)) {
+				$snsUser = json_decode($oReceiver->sns_user);
+				if (isset($snsUser->src) && isset($snsUser->openid)) {
+					$oReceiver->{$snsUser->src . '_openid'} = $snsUser->openid;
+				}
+			}
+		}
+
+		$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
+		$modelTmplBat->send($oApp->siteid, $tmpConfig->tmplmsgId, $receivers, $tmpConfig->oParams, $options);
+
+		return [true];
+	}
 }

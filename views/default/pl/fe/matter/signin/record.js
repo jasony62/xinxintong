@@ -1,6 +1,19 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvSigninApp', 'srvSigninRecord', function($scope, $uibModal, srvSigninApp, srvSigninRecord) {
+        $scope.absent = function() {
+            srvSigninRecord.absent().then(function(data) {
+                $scope.absentUsers = data.users;
+            });
+        };
+        $scope.editCause = function(user) {
+            srvSigninRecord.editCause(user).then(function(data) {
+                user.absent_cause = data;
+            });
+        }
+        $scope.toggleAbsent = function() {
+            $scope.category = $scope.category === 'absent' ? 'record' : 'absent';
+        };
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvSigninRecord.search(pageNumber);
@@ -65,9 +78,14 @@ define(['frame'], function(ngApp) {
         $scope.rows = {
             allSelected: 'N',
             selected: {},
+            count: 0,
+            change: function(index) {
+                this.selected[index] ? this.count++ : this.count--;
+            },
             reset: function() {
                 this.allSelected = 'N';
                 this.selected = {};
+                this.count = 0;
             }
         };
         $scope.$watch('rows.allSelected', function(checked) {
@@ -76,40 +94,48 @@ define(['frame'], function(ngApp) {
                 while (index < $scope.records.length) {
                     $scope.rows.selected[index++] = true;
                 }
+                $scope.rows.count = $scope.records.length;
             } else if (checked === 'N') {
-                $scope.rows.selected = {};
+                $scope.rows.reset();
             }
         });
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
-        srvSigninApp.get().then(function(app) {
-            srvSigninRecord.init(app, $scope.page, $scope.criteria, $scope.records);
+        $scope.category = 'record';
+        $scope.bHasAbsent = false; // 是否有缺席名单
+        srvSigninApp.get().then(function(oApp) {
+            srvSigninRecord.init(oApp, $scope.page, $scope.criteria, $scope.records);
             // schemas
             var recordSchemas = [],
                 enrollDataSchemas = [],
                 groupDataSchemas = [];
-            app.dataSchemas.forEach(function(schema) {
+            oApp.dataSchemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
                 }
             });
             $scope.recordSchemas = recordSchemas;
-            app._schemasFromEnrollApp.forEach(function(schema) {
+            oApp._schemasFromEnrollApp.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     enrollDataSchemas.push(schema);
                 }
             });
             $scope.enrollDataSchemas = enrollDataSchemas;
-            app._schemasFromGroupApp.forEach(function(schema) {
+            oApp._schemasFromGroupApp.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     groupDataSchemas.push(schema);
                 }
             });
             $scope.groupDataSchemas = groupDataSchemas;
             $scope.tmsTableWrapReady = 'Y';
+            $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
             $scope.doSearch();
+            if (oApp.group_app_id || oApp.enroll_app_id || oApp.entry_rule.scope === 'member') {
+                $scope.bHasAbsent = true;
+                $scope.absent();
+            }
         });
     }]);
 });

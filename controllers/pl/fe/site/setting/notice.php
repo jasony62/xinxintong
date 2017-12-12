@@ -22,6 +22,7 @@ class notice extends \pl\fe\base {
 		}
 
 		$modelNot = $this->model('site\notice');
+		$modelNot->setOnlyWriteDbConn(true);
 		if (false === ($notice = $modelNot->byName($site, $name))) {
 			/**
 			 * 如果不存在就创建

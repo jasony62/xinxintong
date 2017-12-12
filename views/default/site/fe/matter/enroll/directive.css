@@ -12,7 +12,7 @@ div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;paddin
 div[wrap=filter] .detail .actions .btn{border-radius:0}
 
 /*switch*/
-.tms-switch{position:fixed;right:15px;width:70px;box-shadow:0px 2px 6px rgba(18,27,32,0.425);height:35px;color: #2994d0;background:#f8fcfe;border-radius:21px;font-size:24px;line-height:27px;text-align:center;cursor:pointer;z-index:1050;}
+.tms-switch{position:fixed;right:15px;width:70px;box-shadow:0px 2px 6px rgba(18,27,32,0.425);height:35px;color:#2994d0;background:#f8fcfe;border-radius:21px;font-size:24px;line-height:27px;text-align:center;cursor:pointer;z-index:1050;}
 .tms-switch:before{font-size:0.7em;}
 .tms-switch:nth-last-of-type(1){bottom:8px;}
 .tms-switch:nth-last-of-type(2){bottom:64px;}
@@ -26,7 +26,6 @@ div[wrap=filter] .detail .actions .btn{border-radius:0}
 .tms-switch-rank:before{content:'排行';}
 .tms-switch-repos:before{content:'共享';}
 .tms-switch-coinpay:before{content:'打赏';}
-.tms-discuss-switch{position:fixed;bottom:48px;right:15px;width:48px;height:48px;background:rgba(192,192,192,0.5);border-radius:4px;color:#666;font-size:24px;line-height:48px;text-align:center;}
 @media screen and (max-width:768px){
 	body{margin-bottom:60px;}
 	.tms-switch:nth-last-of-type(1){right:8px;bottom:10px;}

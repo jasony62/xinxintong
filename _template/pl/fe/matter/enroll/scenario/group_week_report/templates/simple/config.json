@@ -1,121 +1,148 @@
 {
     "scenario": "group_week_report",
-    "pages": [{
+    "pages": [
+    {
         "name": "enroll",
         "title": "登记页",
         "type": "I",
-        "data_schemas": [{
-            "schema": {
+        "data_schemas": [
+        {
+            "schema":
+            {
                 "id": "c1",
                 "title": "任务名称",
                 "type": "shorttext",
-                "format": "name",
+                "format": "",
                 "required": "Y"
             },
-            "config": {
+            "config":
+            {
                 "showname": "label"
             }
-        }, {
-            "schema": {
+        },
+        {
+            "schema":
+            {
                 "id": "c2",
                 "title": "本周情况",
                 "type": "longtext",
                 "required": "Y"
             },
-            "config": {
+            "config":
+            {
                 "showname": "label"
             }
-        }, {
-            "schema": {
+        },
+        {
+            "schema":
+            {
                 "id": "c3",
                 "title": "下周计划",
                 "type": "longtext",
                 "required": "Y"
             },
-            "config": {
+            "config":
+            {
                 "showname": "label"
             }
         }],
-        "act_schemas": [{
+        "act_schemas": [
+        {
             "id": "btnSubmit",
             "name": "submit",
             "label": "提交信息",
             "next": "list"
-        }, {
+        },
+        {
             "id": "btnGotoPage_list",
             "name": "gotoPage",
             "label": "已有记录",
             "next": "list"
         }]
-    }, {
+    },
+    {
         "name": "list",
         "title": "登记清单页",
         "type": "L",
-        "data_schemas": [{
-            "config": {
+        "data_schemas": [
+        {
+            "config":
+            {
                 "id": "week_report_list",
                 "pattern": "records",
                 "dataScope": "U",
                 "onclick": "enroll"
             },
-            "schemas": [{
+            "schemas": [
+            {
                 "id": "c1",
                 "title": "任务名称",
                 "type": "shorttext",
-                "format": "name",
+                "format": "",
                 "required": "Y",
                 "unique": "N"
-            }, {
+            },
+            {
                 "id": "c2",
                 "title": "本周情况",
                 "type": "longtext",
                 "required": "Y",
                 "unique": "N"
-            }, {
+            },
+            {
                 "id": "c3",
                 "title": "下周计划",
                 "type": "longtext",
                 "required": "Y",
                 "unique": "N"
-            }, {
+            },
+            {
                 "id": "enrollAt",
                 "type": "_enrollAt",
                 "title": "登记时间"
             }]
         }],
-        "act_schemas": [{
+        "act_schemas": [
+        {
             "id": "btnNewRecord",
             "name": "addRecord",
             "label": "添加记录",
             "next": "enroll"
         }]
     }],
-    "schema": [{
+    "schema": [
+    {
         "id": "c1",
         "title": "任务名称",
         "type": "shorttext",
-        "format": "name",
+        "format": "",
         "required": "Y"
-    }, {
+    },
+    {
         "id": "c2",
         "title": "本周情况",
         "type": "longtext",
         "required": "Y"
-    }, {
+    },
+    {
         "id": "c3",
         "title": "下周计划",
         "type": "longtext",
         "required": "Y"
     }],
-    "scenarioConfig": {
+    "scenarioConfig":
+    {
         "can_period": "D",
         "can_rounds": "Y"
     },
-    "entryRule": {
-        "otherwise": {
+    "entryRule":
+    {
+        "otherwise":
+        {
             "entry": "enroll"
         }
     },
+    "count_limit": "0",
     "multi_rounds": "Y",
     "enrolled_entry_page": "enroll"
 }

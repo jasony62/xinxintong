@@ -1,55 +1,81 @@
-<div class='col-md-6'>
-    <div class='form-group'>
-        <label>活动名称</label>
-        <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-    </div>
-    <div class='form-group'>
-        <label>分组类型</label>
-        <select class='form-control' ng-model='app.scenario' ng-change="update('scenario');">
-            <option value='split'>拆分</option>
-            <option value='extract'>抽取</option>
-        </select>
-    </div>
-    <div class='form-group'>
-        <label class='help-block'>管理标签（可选）</label>
-        <p class="form-control" ng-click="tagMatter('M')">
-            <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
-        </p>
-    </div>
-    <div class='form-group' ng-if="!app.mission">
-        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
-    </div>
-    <div class='form-group' ng-if="app.mission">
-        <label>所属项目</label>
-        <div class="input-group">
-            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
-            <div class="input-group-btn">
-                <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
-                    <span class='glyphicon glyphicon-remove'></span>
-                </button>
-                <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>活动名称</label>
+                <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+            <div class='form-group'>
+                <label>分组方式</label>
+                <select class='form-control' ng-model='app.scenario' ng-change="update('scenario');">
+                    <option value='split'>拆分</option>
+                    <option value='extract'>抽取</option>
+                </select>
+            </div>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>开始时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
+                    </div>
+                </div>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>结束时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='help-block'>管理标签（可选）</label>
+                <p class="form-control" ng-click="tagMatter('M')">
+                    <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
+                </p>
+            </div>
+            <div class='form-group' ng-if="!app.mission">
+                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+            </div>
+            <div class='form-group' ng-if="app.mission">
+                <label>所属项目</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
                     <span class='glyphicon glyphicon-new-window'></span>
                 </a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
+                <label>{{cstApp.naming.mission_phase}}</label>
+                <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                    <option>全部</option>
+                </select>
             </div>
         </div>
     </div>
-    <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
-        <label>{{cstApp.naming.mission_phase}}</label>
-        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
-            <option>全部</option>
-        </select>
-    </div>
-    <div class='form-group'>
-        <div class='list-group-item'>
-            <div>创建人：{{app.creater_name}}</div>
-            <div>创建时间：{{app.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-            <div>修改人：{{app.modifier_name}}</div>
-            <div>最后一次修改时间：{{app.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+    <div class='panel panel-default '>
+        <div class='panel-body'>
+            <div class='form-group' ng-if="!app.sourceApp">
+                <button class='btn btn-block btn-success' ng-click="assocWithApp()">导入用户</button>
+            </div>
+            <div class='form-group' ng-if="app.sourceApp">
+                <label>分组用户来源</label>
+                <div class="input-group">
+                    <input class='form-control' value="{{app.sourceApp.title}}" disabled="">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" ng-click="cancelSourceApp()">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <a class='btn btn-default' href='' ng-click="gotoSourceApp()"><span class='glyphicon glyphicon-new-window'></span></a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <button class='btn btn-default' ng-click="remove()">删除活动</button>
-</div>
-<div class='col-md-6'>
     <div class="panel panel-default" ng-controller="ctrlOpUrl">
         <div class="panel-heading">汇总结果分享链接</div>
         <div class="panel-body">
@@ -79,5 +105,9 @@
                 </div>
             </form>
         </div>
+    </div>
+    <hr>
+    <div class='form-group'>
+        <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
     </div>
 </div>

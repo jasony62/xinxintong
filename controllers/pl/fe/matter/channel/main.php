@@ -1,9 +1,11 @@
 <?php
 namespace pl\fe\matter\channel;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
-
-class main extends \pl\fe\matter\base {
+require_once dirname(dirname(__FILE__)) . '/main_base.php';
+/**
+ *
+ */
+class main extends \pl\fe\matter\main_base {
 	/**
 	 *
 	 */
@@ -20,13 +22,20 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelChn = $this->model('matter\channel');
-		if ($channel = $modelChn->byId($id)) {
-			!empty($channel->matter_mg_tag) && $channel->matter_mg_tag = json_decode($channel->matter_mg_tag);
-			$channel->matters = $modelChn->getMatters($id, $channel, $site);
-			$channel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
+		if ($oChannel = $modelChn->byId($id)) {
+			$oChannel->entryUrl = $modelChn->getEntryUrl($site, $id);
+			/* 所属项目 */
+			if ($oChannel->mission_id) {
+				$oChannel->mission = $this->model('matter\mission')->byId($oChannel->mission_id, ['cascaded' => 'phase']);
+			}
+			!empty($oChannel->matter_mg_tag) && $oChannel->matter_mg_tag = json_decode($oChannel->matter_mg_tag);
+
+			$oChannel->matters = $modelChn->getMatters($id, $oChannel, $site);
+
+			$oChannel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
 		}
 
-		return new \ResponseData($channel);
+		return new \ResponseData($oChannel);
 	}
 	/**
 	 *
@@ -35,18 +44,18 @@ class main extends \pl\fe\matter\base {
 	 * @param string $cascade 是否获得频道内的素材和访问控制列表
 	 */
 	public function list_action($site, $acceptType = null, $cascade = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelChn = $this->model('matter\channel');
-		$options = $this->getPostJson();
+		$oOptions = $this->getPostJson();
 		/**
 		 * 素材的来源
 		 */
 		$q = [
 			'*',
-			'xxt_channel',
+			'xxt_channel c',
 			"siteid = '" . $modelChn->escape($site) . "' and state = 1",
 		];
 		if (!empty($acceptType)) {
@@ -56,13 +65,16 @@ class main extends \pl\fe\matter\base {
 			$acceptType .= "')";
 			$q[2] .= " and matter_type in $acceptType";
 		}
-		if (!empty($options->byTitle)) {
-			$q[2] .= " and title like '%" . $modelChn->escape($options->byTitle) . "%'";
+		if (!empty($oOptions->byTitle)) {
+			$q[2] .= " and title like '%" . $modelChn->escape($oOptions->byTitle) . "%'";
 		}
-		if (!empty($options->byTags)) {
-			foreach ($options->byTags as $tag) {
+		if (!empty($oOptions->byTags)) {
+			foreach ($oOptions->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $modelChn->escape($tag->id) . "%'";
 			}
+		}
+		if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='channel' and t.matter_id=c.id and userid='{$oUser->id}')";
 		}
 
 		$q2['o'] = 'create_at desc';
@@ -82,41 +94,50 @@ class main extends \pl\fe\matter\base {
 			}
 		}
 
-		return new \ResponseData($channels);
+		return new \ResponseData(['docs' => $channels, 'total' => count($channels)]);
 	}
 	/**
 	 * 在指定团队下创建频道素材
 	 */
-	public function create_action($site) {
-		if (false === ($user = $this->accountUser())) {
+	public function create_action($site = null, $mission = null) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		if (empty($site) && empty($mission)) {
+			return new \ParameterError();
+		}
 
-		$modelCh = $this->model('matter\channel');
-		$modelCh->setOnlyWriteDbConn(true);
-		$posted = $this->getPostJson();
-		$current = time();
+		$oPosted = $this->getPostJson();
+		$oChannel = new \stdClass;
+		if (!empty($mission)) {
+			$oMission = $this->model('matter\mission')->byId($mission);
+			if (false === $oMission) {
+				return new \ObjectNotFoundError();
+			}
+			$oChannel->siteid = $oMission->siteid;
+			$oChannel->mission_id = $oMission->id;
+		} else if (!empty($site)) {
+			$oSite = $this->model('site')->byId($site);
+			if (false === $oSite) {
+				return new \ObjectNotFoundError();
+			}
+			$oChannel->siteid = $oSite->id;
+		}
 
-		$channel = array();
-		$channel['siteid'] = $site;
-		$channel['creater'] = $user->id;
-		$channel['create_at'] = $current;
-		$channel['creater_src'] = 'A';
-		$channel['creater_name'] = $modelCh->escape($user->name);
-		$channel['modifier'] = $user->id;
-		$channel['modifier_src'] = 'A';
-		$channel['modifier_name'] = $modelCh->escape($user->name);
-		$channel['modify_at'] = $current;
-		$channel['title'] = isset($posted->title) ? $modelCh->escape($posted->title) : '新频道';
-		$channel['matter_type'] = '';
+		$modelCh = $this->model('matter\channel')->setOnlyWriteDbConn(true);
 
-		$id = $modelCh->insert('xxt_channel', $channel, true);
-		$channel = $modelCh->byId($id);
+		$q = ['count(*)', 'xxt_channel', ['siteid' => $site, 'state' => 1]];
+		$countOfChn = (int) $modelCh->query_val_ss($q);
+
+		$oChannel->title = isset($oPosted->title) ? $modelCh->escape($oPosted->title) : ('新频道-' . ++$countOfChn);
+		$oChannel->matter_type = '';
+
+		$oChannel = $modelCh->create($oUser, $oChannel);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $channel, 'C');
+		$this->model('matter\log')->matterOp($site, $oUser, $oChannel, 'C');
 
-		return new \ResponseData($channel);
+		return new \ResponseData($oChannel);
 	}
 	/**
 	 * 更新频道的属性信息
@@ -126,47 +147,38 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function update_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelCh = $this->model('matter\channel');
-		$channel = $modelCh->byId($id, 'id,title');
+		$oChannel = $modelCh->byId($id, 'id,title');
+		if (false === $oChannel) {
+			return new \ObjectNotFoundError();
+		}
 
-		$updatedHomeCh = []; // 更新站点频道
-		$updated = new \stdClass;
-		$posted = $this->getPostJson();
-		foreach ($posted as $k => $v) {
+		$aUpdatedHomeCh = []; // 更新站点频道
+		$oUpdated = new \stdClass;
+		$oPosted = $this->getPostJson();
+		foreach ($oPosted as $k => $v) {
 			if (in_array($k, ['title', 'summary', 'fixed_title'])) {
-				$updatedHomeCh[$k] = $updated->{$k} = $modelCh->escape($v);
+				$aUpdatedHomeCh[$k] = $oUpdated->{$k} = $modelCh->escape($v);
 			}if ($k === 'pic') {
-				$updatedHomeCh[$k] = $updated->{$k} = $v;
+				$aUpdatedHomeCh[$k] = $oUpdated->{$k} = $v;
 			} else {
-				$updated->{$k} = $v;
+				$oUpdated->{$k} = $v;
 			}
 		}
 
-		$current = time();
-		$updated->modifier = $user->id;
-		$updated->modifier_src = 'A';
-		$updated->modifier_name = $modelCh->escape($user->name);
-		$updated->modify_at = $current;
-
-		$rst = $modelCh->update('xxt_channel',
-			$updated,
-			["siteid" => $site, "id" => $id]
-		);
-		if ($rst) {
+		if ($oChannel = $modelCh->modify($oUser, $oChannel, $oUpdated)) {
 			/* 更新站点频道中的信息 */
-			if (count($updatedHomeCh)) {
-				$modelCh->update('xxt_site_home_channel', $updatedHomeCh, ['channel_id' => $id]);
+			if (count($aUpdatedHomeCh)) {
+				$modelCh->update('xxt_site_home_channel', $aUpdatedHomeCh, ['channel_id' => $id]);
 			}
-			/* 记录操作日志 */
-			isset($updated->title) && $channel->title = $updated->title;
-			$this->model('matter\log')->matterOp($site, $user, $channel, 'U');
+			$this->model('matter\log')->matterOp($site, $oUser, $oChannel, 'U');
 		}
 
-		return new \ResponseData($rst);
+		return new \ResponseData($oChannel);
 	}
 	/**
 	 *
@@ -179,12 +191,11 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function setfixed_action($site, $id, $pos) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$matter = $this->getPostJson();
-		$modelChn = $this->model('matter\channel');
-		$modelChn->setOnlyWriteDbConn(true);
+		$modelChn = $this->model('matter\channel')->setOnlyWriteDbConn(true);
 
 		if ($pos === 'top') {
 			$modelChn->update('xxt_channel',
@@ -216,27 +227,26 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function addMatter_action($site, $channel = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$relations = $this->getPostJson();
-		$modelCh = $this->model('matter\channel');
-		$modelCh->setOnlyWriteDbConn(true);
+		$modelCh = $this->model('matter\channel')->setOnlyWriteDbConn(true);
 
 		$matters = is_array($relations->matter) ? $relations->matter : [$relations->matter];
 		if (empty($channel)) {
 			$channels = $relations->channels;
 			foreach ($channels as $channel) {
 				foreach ($matters as $matter) {
-					$modelCh->addMatter($channel->id, $matter, $user->id, $user->name);
+					$modelCh->addMatter($channel->id, $matter, $oUser->id, $oUser->name);
 				}
 			}
 
 			return new \ResponseData('ok');
 		} else {
 			foreach ($matters as $matter) {
-				$modelCh->addMatter($channel, $matter, $user->id, $user->name);
+				$modelCh->addMatter($channel, $matter, $oUser->id, $oUser->name);
 			}
 			$matters = $modelCh->getMatters($channel);
 
@@ -247,7 +257,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function removeMatter_action($site, $id, $reload = 'N') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$matter = $this->getPostJson();
@@ -267,57 +277,29 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 删除频道
 	 */
-	public function delete_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+	public function remove_action($site, $id) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelCh = $this->model('matter\channel');
-		$channel = $modelCh->byId($id, 'id,title');
-		$rst = $modelCh->update('xxt_channel', ['state' => 0], ['siteid' => $site, 'id' => $id]);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $channel, 'Recycle');
+		$oChannel = $modelCh->byId($id, 'id,title');
+		if (false === $oChannel) {
+			return new \ObjectNotFoundError();
+		}
+		$rst = $modelCh->remove($oUser, $oChannel);
 
 		return new \ResponseData($rst);
-	}
-	/**
-	 * 恢复被删除的频道
-	 */
-	public function restore_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelCh = $this->model('matter\channel');
-		$channel = $modelCh->byId($id, 'id,title');
-		if (false === $channel) {
-			return new \ResponseError('数据已经被彻底删除，无法恢复');
-		}
-
-		/* 恢复数据 */
-		$rst = $modelCh->update('xxt_channel', ['state' => 1], ['siteid' => $site, 'id' => $id]);
-
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $user, $channel, 'Restore');
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 *
-	 */
-	protected function getMatterType() {
-		return 'channel';
 	}
 	/**
 	 * 创建频道定制页面
 	 */
 	public function pageCreate_action($site, $id, $page) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$code = $this->model('code\page')->create($site, $user->id);
+		$code = $this->model('code\page')->create($site, $oUser->id);
 
 		$rst = $this->model()->update(
 			'xxt_channel',
@@ -336,7 +318,7 @@ class main extends \pl\fe\matter\base {
 	 * @param int $codeId
 	 */
 	public function pageReset_action($site, $id, $page) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$modelChn = $this->model('matter\channel');

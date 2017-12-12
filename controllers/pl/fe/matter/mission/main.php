@@ -21,11 +21,11 @@ class main extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 获得指定的任务
+	 * 获得指定的项目
 	 *
 	 * @param int $id
 	 */
-	public function get_action($id) {
+	public function get_action($id, $cascaded = 'Y') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -34,21 +34,35 @@ class main extends \pl\fe\matter\base {
 		if (false === ($acl = $modelAcl->byCoworker($id, $oUser->id))) {
 			return new \ResponseError('项目不存在');
 		}
-		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name,phase']);
-		/* 关联的用户名单活动 */
-		if ($oMission->user_app_id) {
-			if ($oMission->user_app_type === 'enroll') {
-				$oMission->userApp = $this->model('matter\enroll')->byId($oMission->user_app_id, ['cascaded' => 'N']);
-			} else if ($oMission->user_app_type === 'signin') {
-				$oMission->userApp = $this->model('matter\signin')->byId($oMission->user_app_id, ['cascaded' => 'N']);
-			} else if ($oMission->user_app_type === 'mschema') {
-				$oMission->userApp = $this->model('site\user\memberschema')->byId($oMission->user_app_id);
+		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => ($cascaded === 'Y' ? 'header_page_name,footer_page_name,phase' : '')]);
+		if ($cascaded === 'Y') {
+			/* 关联的用户名单活动 */
+			if ($oMission->user_app_id) {
+				if ($oMission->user_app_type === 'group') {
+					$oMission->userApp = $this->model('matter\group')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+				} else if ($oMission->user_app_type === 'enroll') {
+					$oMission->userApp = $this->model('matter\enroll')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+				} else if ($oMission->user_app_type === 'signin') {
+					$oMission->userApp = $this->model('matter\signin')->byId($oMission->user_app_id, ['cascaded' => 'N']);
+				} else if ($oMission->user_app_type === 'mschema') {
+					$oMission->userApp = $this->model('site\user\memberschema')->byId($oMission->user_app_id, ['cascaded' => 'N', 'fields' => 'siteid,id,title,create_at,start_at,end_at,url,attr_email,attr_mobile,attr_name,extattr']);
+					$data_schemas = [];
+					($oMission->userApp->attr_mobile[0] == '0') && $data_schemas[] = (object) ['id' => 'mobile', 'title' => '手机'];
+					($oMission->userApp->attr_email[0] == '0') && $data_schemas[] = (object) ['id' => 'email', 'title' => '邮箱'];
+					($oMission->userApp->attr_name[0] == '0') && $data_schemas[] = (object) ['id' => 'name', 'title' => '姓名'];
+					if (!empty($oMission->userApp->extattr)) {
+						$extattrs = $oMission->userApp->extattr;
+						foreach ($extattrs as $extattr) {
+							$data_schemas[] = (object) ['id' => $extattr->id, 'title' => $extattr->label];
+						}
+					}
+					$oMission->userApp->dataSchemas = $data_schemas;
+				}
 			}
+			/* 汇总报告配置信息 */
+			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
+			$oMission->reportConfig = $rpConfig;
 		}
-
-		/* 汇总报告配置信息 */
-		$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
-		$oMission->reportConfig = $rpConfig;
 
 		/* 检查当前用户的角色 */
 		if ($oUser->id === $oMission->creater) {
@@ -72,19 +86,19 @@ class main extends \pl\fe\matter\base {
 
 		$filter = $this->getPostJson();
 		$modelMis = $this->model('matter\mission');
-		$options = [
+		$aOptions = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
 		if (!empty($filter->byTitle)) {
-			$options['byTitle'] = $modelMis->escape($filter->byTitle);
+			$aOptions['byTitle'] = $modelMis->escape($filter->byTitle);
 		}
 		$site = $modelMis->escape($site);
-		$result = $modelMis->bySite($site, $options);
+		$result = $modelMis->bySite($site, $aOptions);
 
 		return new \ResponseData($result);
 	}
 	/**
-	 * 当前用户可访问任务列表
+	 * 当前用户可访问项目列表
 	 *
 	 * @param int $page
 	 * @param int $size
@@ -94,22 +108,27 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$filter = $this->getPostJson();
+		$oFilter = $this->getPostJson();
 		$modelMis = $this->model('matter\mission');
-		$options = [
+		$aOptions = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
-		if (!empty($filter->bySite)) {
-			$options['bySite'] = $modelMis->escape($filter->bySite);
+		if (!empty($oFilter->bySite)) {
+			$aOptions['bySite'] = $oFilter->bySite;
 		}
-		if (!empty($filter->byTitle)) {
-			$options['byTitle'] = $modelMis->escape($filter->byTitle);
+		if (!empty($oFilter->filter->by) && !empty($oFilter->filter->keyword)) {
+			if ($oFilter->filter->by === 'title') {
+				$aOptions['byTitle'] = $oFilter->filter->keyword;
+			}
 		}
-		if (!empty($filter->byTags)) {
-			$options['byTags'] = $filter->byTags;
+		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
+			$aOptions['byStar'] = 'Y';
 		}
-
-		$result = $modelMis->byAcl($oUser, $options);
+		if (!empty($oFilter->byTags)) {
+			$aOptions['byTags'] = $oFilter->byTags;
+		}
+		$aOptiions['cascaded'] = 'top';
+		$result = $modelMis->byAcl($oUser, $aOptions);
 
 		return new \ResponseData($result);
 	}
@@ -127,7 +146,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 新建任务
+	 * 新建项目
 	 *
 	 * @param string $site site'id
 	 */
@@ -136,33 +155,68 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$current = time();
 		$modelSite = $this->model('site');
-		$modelMis = $this->model('matter\mission');
-		$modelMis->setOnlyWriteDbConn(true);
+		$oSite = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
 
-		$site = $modelSite->byId($site, ['fields' => 'id,heading_pic']);
+		$oProto = $this->getPostJson();
+		$current = time();
+		$modelMis = $this->model('matter\mission')->setOnlyWriteDbConn(true);
 
-		$mission = new \stdClass;
-		/*create empty mission*/
-		$mission->siteid = $site->id;
-		$mission->title = $modelSite->escape($oUser->name) . '的项目';
-		$mission->summary = '';
-		$mission->pic = $site->heading_pic;
-		$mission->creater = $oUser->id;
-		$mission->creater_src = $oUser->src;
-		$mission->creater_name = $modelSite->escape($oUser->name);
-		$mission->create_at = $current;
-		$mission->modifier = $oUser->id;
-		$mission->modifier_src = $oUser->src;
-		$mission->modifier_name = $modelSite->escape($oUser->name);
-		$mission->modify_at = $current;
-		$mission->state = 1;
-		$mission->id = $modelMis->insert('xxt_mission', $mission, true);
+		$oNewMis = new \stdClass;
 
+		/* basic */
+		$oNewMis->siteid = $oSite->id;
+		$oNewMis->title = isset($oProto->title) ? $modelSite->escape($oProto->title) : $modelSite->escape($oUser->name) . '的项目';
+		$oNewMis->summary = isset($oProto->summary) ? $modelSite->escape($oProto->summary) : '';
+		$oNewMis->pic = isset($oProto->pic) ? $modelSite->escape($oProto->pic) : $oSite->heading_pic;
+		$oNewMis->start_at = isset($oProto->start_at) ? $modelSite->escape($oProto->start_at) : 0;
+		$oNewMis->end_at = isset($oProto->end_at) ? $modelSite->escape($oProto->end_at) : 0;
+		$oNewMis->creater = $oUser->id;
+		$oNewMis->creater_src = $oUser->src;
+		$oNewMis->creater_name = $modelSite->escape($oUser->name);
+		$oNewMis->create_at = $current;
+		$oNewMis->modifier = $oUser->id;
+		$oNewMis->modifier_src = $oUser->src;
+		$oNewMis->modifier_name = $modelSite->escape($oUser->name);
+		$oNewMis->modify_at = $current;
+		$oNewMis->state = 1;
+		$oNewMis->id = $modelMis->insert('xxt_mission', $oNewMis, true);
 		/*记录操作日志*/
-		$mission = $modelMis->byId($mission->id);
-		$this->model('matter\log')->matterOp($site->id, $oUser, $mission, 'C');
+		$oNewMis->type = 'mission';
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewMis, 'C');
+
+		/* entry rule */
+		if (isset($oProto->entryRule)) {
+			$oMisEntryRule = new \stdClass;
+			$oMisEntryRule->scope = isset($oProto->entryRule->scope) ? $oProto->entryRule->scope : 'none';
+			if ($oMisEntryRule->scope === 'member' && !empty($oProto->entryRule->mschema)) {
+				$oMisEntryRule->member = new \stdClass;
+				if ($oProto->entryRule->mschema->id === '_pending') {
+					/* 给项目创建通讯录 */
+					$oMschemaConfig = new \stdClass;
+					$oMschemaConfig->matter_id = $oNewMis->id;
+					$oMschemaConfig->matter_type = 'mission';
+					$oMschemaConfig->valid = 'Y';
+					$oMschemaConfig->title = $oNewMis->title . '-通讯录';
+					$oMisMschema = $this->model('site\user\memberschema')->create($oSite, $oUser, $oMschemaConfig);
+					$oProto->entryRule->mschema->id = $oMisMschema->id;
+				}
+				$oMisEntryRule->member->{$oProto->entryRule->mschema->id} = (object) ['entry' => ''];
+			} else if ($oMisEntryRule->scope === 'sns' && isset($oProto->entryRule->sns)) {
+				$oMisEntryRule->sns = new \stdClass;
+				foreach ($oProto->entryRule->sns as $snsName => $valid) {
+					if ($valid === 'Y') {
+						$oMisEntryRule->sns->{$snsName} = (object) ['entry' => 'Y'];
+					}
+				}
+			}
+			$modelMis->update('xxt_mission', ['entry_rule' => json_encode($oMisEntryRule)], ['id' => $oNewMis->id]);
+			$oNewMis->entry_rule = $oMisEntryRule;
+		}
+
 		/**
 		 * 建立缺省的ACL
 		 * @todo 是否应该挪到消息队列中实现
@@ -172,13 +226,69 @@ class main extends \pl\fe\matter\base {
 		$coworker = new \stdClass;
 		$coworker->id = $oUser->id;
 		$coworker->label = $oUser->name;
-		$modelAcl->add($oUser, $mission, $coworker, 'O');
+		$modelAcl->add($oUser, $oNewMis, $coworker, 'O');
 		/*站点的系统管理员加入ACL*/
-		$modelAcl->addSiteAdmin($site->id, $oUser, null, $mission);
+		$modelAcl->addSiteAdmin($oSite->id, $oUser, null, $oNewMis);
 
-		/*返回结果*/
+		/* create apps */
+		if (isset($oProto->app)) {
+			$oAppProto = $oProto->app;
+			if (isset($oAppProto->enroll->create) && $oAppProto->enroll->create === 'Y') {
+				/* 在项目下创建报名活动 */
+				$modelEnl = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
+				$oEnlConfig = new \stdClass;
+				$oEnlConfig->proto = new \stdClass;
+				$oEnlConfig->proto->title = $oNewMis->title . '-报名';
+				$oEnlConfig->proto->summary = $oNewMis->summary;
+				$oNewEnlApp = $modelEnl->createByTemplate($oUser, $oSite, $oEnlConfig, $oNewMis, 'registration', 'simple');
+			}
+			if (isset($oAppProto->signin->create) && $oAppProto->signin->create === 'Y') {
+				/* 在项目下创建签到活动 */
+				$modelSig = $this->model('matter\signin')->setOnlyWriteDbConn(true);
+				$oSigConfig = new \stdClass;
+				$oSigConfig->proto = new \stdClass;
+				$oSigConfig->proto->title = $oNewMis->title . '-签到';
+				if (isset($oAppProto->signin->enrollApp) && $oAppProto->signin->enrollApp === 'Y' && isset($oNewEnlApp)) {
+					$oSigConfig->proto->enrollApp = $oNewEnlApp;
+				}
+				$oNewSigApp = $modelSig->createByTemplate($oUser, $oSite, $oSigConfig, $oNewMis, 'basic');
+			}
+			if (isset($oAppProto->group->create) && $oAppProto->group->create === 'Y') {
+				/* 在项目下创建分组活动 */
+				$modelGrp = $this->model('matter\group')->setOnlyWriteDbConn(true);
+				$oGrpConfig = new \stdClass;
+				$oGrpConfig->proto = new \stdClass;
+				$oGrpConfig->proto->title = $oNewMis->title . '-分组';
+				/* 分组用户数据源 */
+				if (isset($oAppProto->group->source)) {
+					if ($oAppProto->group->source === 'enroll' && isset($oNewEnlApp)) {
+						$oGrpConfig->proto->sourceApp = (object) ['id' => $oNewEnlApp->id, 'type' => 'enroll'];
+					} else if ($oAppProto->group->source === 'signin' && isset($oNewSigApp)) {
+						$oGrpConfig->proto->sourceApp = (object) ['id' => $oNewSigApp->id, 'type' => 'signin'];
+					} else if ($oAppProto->group->source === 'mschema' && isset($oMisEntryRule->member)) {
+						$oGrpConfig->proto->sourceApp = (object) ['id' => $oProto->entryRule->mschema->id, 'type' => 'mschema'];
+					}
+				}
+				//$oNewGrpApp = $modelGrp->createByMission($oUser, $oSite, $oNewMis, 'split', $oGrpConfig);
+				$oNewGrpApp = $modelGrp->createByConfig($oUser, $oSite, $oGrpConfig, $oNewMis, 'split');
+			}
+			/* 项目的用户名单应用 */
+			if (isset($oProto->userApp)) {
+				$oUserApp = $oProto->userApp;
+				if ($oUserApp === 'mschema' && isset($oMisEntryRule) && $oMisEntryRule->scope === 'member' && isset($oProto->entryRule->mschema)) {
+					$oMschema = $oProto->entryRule->mschema;
+					$modelMis->update('xxt_mission', ['user_app_id' => $oMschema->id, 'user_app_type' => 'mschema'], ['id' => $oNewMis->id]);
+				} else if ($oUserApp === 'enroll' && isset($oNewEnlApp)) {
+					$modelMis->update('xxt_mission', ['user_app_id' => $oNewEnlApp->id, 'user_app_type' => 'enroll'], ['id' => $oNewMis->id]);
+				} else if ($oUserApp === 'signin' && isset($oNewSigApp)) {
+					$modelMis->update('xxt_mission', ['user_app_id' => $oNewSigApp->id, 'user_app_type' => 'signin'], ['id' => $oNewMis->id]);
+				} else if ($oUserApp === 'group' && isset($oNewGrpApp)) {
+					$modelMis->update('xxt_mission', ['user_app_id' => $oNewGrpApp->id, 'user_app_type' => 'group'], ['id' => $oNewMis->id]);
+				}
+			}
+		}
 
-		return new \ResponseData($mission);
+		return new \ResponseData($oNewMis);
 	}
 	/**
 	 * 更新任务设置
@@ -259,7 +369,11 @@ class main extends \pl\fe\matter\base {
 				$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'Recycle');
 				/*给项目下的活动素材打标记*/
 				foreach ($cnts as $cnt) {
-					$modelMis->update('xxt_' . $cnt->matter_type, ['state' => 0], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
+					if ($cnt->matter_type === 'memberschema') {
+						$modelMis->update('xxt_site_member_schema', ['state' => 0], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
+					} else {
+						$modelMis->update('xxt_' . $cnt->matter_type, ['state' => 0], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
+					}
 					$cnt->id = $cnt->matter_id;
 					$cnt->type = $cnt->matter_type;
 					$cnt->title = $cnt->matter_title;

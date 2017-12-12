@@ -445,7 +445,7 @@ class record extends \pl\fe\matter\base {
 		$modelApp = $this->model('matter\signin');
 		$signinApp = $modelApp->byId(
 			$app,
-			['fields' => 'id,title,data_schemas,enroll_app_id,tags', 'cascaded' => 'Y']
+			['fields' => 'id,title,data_schemas,assigned_nickname,enroll_app_id,tags,siteid,mission_id,entry_rule,group_app_id,absent_cause', 'cascaded' => 'Y']
 		);
 		$schemas = json_decode($signinApp->data_schemas);
 		if (!empty($round)) {
@@ -475,7 +475,7 @@ class record extends \pl\fe\matter\base {
 		// 关联的报名活动
 		if (!empty($signinApp->group_app_id)) {
 			$groupApp = $this->model('matter\group')->byId($signinApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$groupSchemas = json_decode($groupApp->data_schemas);
+			$groupSchemas = $groupApp->dataSchemas;
 			$mapOfSigninSchemas = [];
 			foreach ($schemas as $schema) {
 				$mapOfSigninSchemas[] = $schema->id;
@@ -509,7 +509,9 @@ class record extends \pl\fe\matter\base {
 			->setSubject($signinApp->title)
 			->setDescription($signinApp->title);
 
+		$objPHPExcel->setActiveSheetIndex(0);
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
+		$objActiveSheet->setTitle('签到人员数据');
 
 		$colNumber = 0;
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '登记时间');
@@ -648,6 +650,38 @@ class record extends \pl\fe\matter\base {
 			}
 			// next row
 			$rowNumber++;
+		}
+
+		/* 未签到用户名单 */
+		$modelUsr = $this->model('matter\signin\record');
+		/* 获取未签到人员 */
+		$result = $modelUsr->absentByApp($signinApp, $round);
+		$absentUsers = $result->users;
+		if (count($absentUsers)) {
+			$objPHPExcel->createSheet();
+			$objPHPExcel->setActiveSheetIndex(1);
+			$objActiveSheet2 = $objPHPExcel->getActiveSheet();
+			$objActiveSheet2->setTitle('未签到人员数据');
+
+			$colNumber = 0;
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '序号');
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '分组');
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '姓名');
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '备注');
+
+			$rowNumber = 2;
+			foreach ($absentUsers as $k => $absentUser) {
+				$colNumber = 0;
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $k + 1);
+				if (isset($absentUser->round_title)) {
+					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->round_title);
+				} else {
+					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
+				}
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->nickname);
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->absent_cause);
+				$rowNumber++;
+			}
 		}
 
 		// 输出
@@ -801,5 +835,28 @@ class record extends \pl\fe\matter\base {
 		$this->model('matter\log')->matterOp($site, $user, $app, 'verify.batch', $eks);
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 缺席用户列表
+	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
+	 * 2、如果活动关联了分组活动
+	 * 3、如果活动所属项目指定了用户名单
+	 */
+	public function absent_action($app, $rid = '') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelSin = $this->model('matter\signin');
+		$oApp = $modelSin->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,enroll_app_id,absent_cause']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelUsr = $this->model('matter\signin\record');
+
+		$result = $modelUsr->absentByApp($oApp, $rid);
+
+		return new \ResponseData($result);
 	}
 }

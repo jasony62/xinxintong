@@ -2,19 +2,19 @@
 namespace matter;
 
 require_once dirname(__FILE__) . '/article_base.php';
-
+/**
+ *
+ */
 class news_model extends article_base {
+	/**
+	 * 记录日志时需要的列
+	 */
+	const LOG_FIELDS = 'siteid,id,title';
 	/**
 	 *
 	 */
 	protected function table() {
 		return 'xxt_news';
-	}
-	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'news';
 	}
 	/**
 	 * $mid member's 仅限认证用户

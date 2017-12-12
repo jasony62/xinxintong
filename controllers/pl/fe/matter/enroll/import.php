@@ -75,43 +75,45 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 上传文件结束
 	 */
-	public function endUpload_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+	public function endUpload_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
+		}
+		if (defined('SAE_TMP_PATH')) {
+			return new \ResponseError('not support');
 		}
 
 		$file = $this->getPostJson();
 
-		if (defined('SAE_TMP_PATH')) {
-			return new \ResponseError('not support');
-		} else {
-			// 文件存储在本地
-			$modelFs = $this->model('fs/local', $site, '_resumable');
-			$fileUploaded = 'enroll_' . $app . '_' . $file->name;
-			$records = $this->_extract($site, $app, $modelFs->rootDir . '/' . $fileUploaded);
-			$modelFs->delete($fileUploaded);
-		}
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$modelFs = $this->model('fs/local', $oApp->siteid, '_resumable');
+		$fileUploaded = 'enroll_' . $oApp->id . '_' . $file->name;
+		$records = $this->_extract($oApp, $modelFs->rootDir . '/' . $fileUploaded);
+		$modelFs->delete($fileUploaded);
 
-		$eks = $this->_persist($site, $app, $records);
-
-		// 记录操作日志
-		//$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		//$app->type = 'enroll';
-		//$this->model('matter\log')->matterOp($site, $user, $app, 'add', $ek);
+		$eks = $this->_persist($oApp, $records);
 
 		return new \ResponseData($eks);
 	}
 	/**
 	 * 从文件中提取数据
 	 */
-	private function &_extract($site, $app, $filename) {
+	private function &_extract($oApp, $filename) {
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		$schemas = json_decode($app->data_schemas);
+		/**
+		 * 用作用户昵称的题目
+		 */
+		if (isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y' && isset($oApp->assignedNickname->schema->id)) {
+			$nicknameSchemaId = $oApp->assignedNickname->schema->id;
+		}
+		$schemas = $oApp->dataSchemas;
 		$schemasByTitle = [];
 		foreach ($schemas as $schema) {
 			$schemasByTitle[$schema->title] = $schema;
+			if (isset($nicknameSchemaId) && $nicknameSchemaId === $schema->id) {
+				$oNicknameSchema = $schema;
+			}
 		}
 		$filename = \TMS_MODEL::toLocalEncoding($filename);
 		$objPHPExcel = \PHPExcel_IOFactory::load($filename);
@@ -145,52 +147,59 @@ class import extends \pl\fe\matter\base {
 		/**
 		 * 提取数据
 		 */
+		$modelRec = $this->model('matter\enroll\record');
 		$records = [];
 		for ($row = 2; $row <= $highestRow; $row++) {
-			$record = new \stdClass;
-			$data = new \stdClass;
+			$oRecord = new \stdClass;
+			$oRecData = new \stdClass;
 			for ($col = 0; $col < $highestColumnIndex; $col++) {
-				$schema = $schemasByCol[$col];
-				if ($schema === false) {
+				$oSchema = $schemasByCol[$col];
+				if ($oSchema === false) {
 					continue;
 				}
-				$value = (string) $objWorksheet->getCellByColumnAndRow($col, $row)->getValue();
-				if ($schema === 'verified') {
-					if (in_array($value, ['Y', '是'])) {
-						$record->verified = 'Y';
-					} else {
-						$record->verified = 'N';
+				$fileValue = (string) $objWorksheet->getCellByColumnAndRow($col, $row)->getValue();
+				$fileValue = trim($fileValue);
+				if ($oSchema === 'verified') {
+					$oRecord->verified = in_array($fileValue, ['Y', '是']) ? 'Y' : 'N';
+				} else if ($oSchema === 'comment') {
+					$oRecord->comment = $fileValue;
+				} else if ($oSchema === 'tags') {
+					$oRecord->tags = $fileValue;
+				} else if ($oSchema->type === 'member') {
+					if (!isset($oRecData->member)) {
+						$oRecData->member = new \stdClass;
 					}
-				} else if ($schema === 'comment') {
-					$record->comment = $value;
-				} else if ($schema === 'tags') {
-					$record->tags = $value;
-				} else if (in_array($schema->type, ['single', 'phase'])) {
-					foreach ($schema->ops as $op) {
-						if ($op->l === $value) {
-							$data->{$schema->id} = $op->v;
+					$schemaId = explode('.', $oSchema->id);
+					if (count($schemaId) === 2 && $schemaId[0] === 'member') {
+						$schemaId = $schemaId[1];
+						$oRecData->member->{$schemaId} = $fileValue;
+					}
+				} else if (in_array($oSchema->type, ['single', 'phase'])) {
+					foreach ($oSchema->ops as $op) {
+						if ($op->l === $fileValue) {
+							$oRecData->{$oSchema->id} = $op->v;
 							break;
 						}
 					}
-				} else if ('multiple' === $schema->type) {
-					$values = explode(',', $value);
-					foreach ($schema->ops as $op) {
+				} else if ('multiple' === $oSchema->type) {
+					$values = explode(',', $fileValue);
+					foreach ($oSchema->ops as $op) {
 						if (in_array($op->l, $values)) {
-							!isset($data->{$schema->id}) && $data->{$schema->id} = '';
-							$data->{$schema->id} .= $op->v . ',';
+							!isset($oRecData->{$oSchema->id}) && $oRecData->{$oSchema->id} = '';
+							$oRecData->{$oSchema->id} .= $op->v . ',';
 						}
 					}
-					if (isset($data->{$schema->id})) {
-						$data->{$schema->id} = rtrim($data->{$schema->id}, ',');
+					if (isset($oRecData->{$oSchema->id})) {
+						$oRecData->{$oSchema->id} = rtrim($oRecData->{$oSchema->id}, ',');
 					}
-				} else if ('score' === $schema->type) {
+				} else if ('score' === $oSchema->type) {
 					$treatedValue = new \stdClass;
-					$values = explode('/', $value);
+					$values = explode('/', $fileValue);
 					foreach ($values as $value) {
 						if (!empty($value) && strpos($value, ':')) {
 							list($label, $score) = explode(':', $value);
 							$label = trim($label);
-							foreach ($schema->ops as $op) {
+							foreach ($oSchema->ops as $op) {
 								if ($op->l === $label) {
 									$treatedValue->{$op->v} = trim($score);
 									break;
@@ -198,13 +207,20 @@ class import extends \pl\fe\matter\base {
 							}
 						}
 					}
-					$data->{$schema->id} = $treatedValue;
+					$oRecData->{$oSchema->id} = $treatedValue;
 				} else {
-					$data->{$schema->id} = $value;
+					$oRecData->{$oSchema->id} = $fileValue;
 				}
 			}
-			$record->data = $data;
-			$records[] = $record;
+			$oRecord->data = $oRecData;
+			/**
+			 * 指定的用户昵称
+			 */
+			if (isset($oNicknameSchema)) {
+				$oRecord->nickname = $modelRec->getValueBySchema($oNicknameSchema, $oRecData);
+			}
+
+			$records[] = $oRecord;
 		}
 
 		return $records;
@@ -212,44 +228,45 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 保存数据
 	 */
-	private function _persist($site, $appId, &$records) {
+	private function _persist($oApp, $records) {
 		$current = time();
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 		$enrollKeys = [];
 
-		foreach ($records as $record) {
-			$ek = $modelRec->genKey($site, $appId);
+		foreach ($records as $oRecord) {
+			$ek = $modelRec->genKey($oApp->siteid, $oApp->id);
 
 			$r = array();
-			$r['aid'] = $appId;
-			$r['siteid'] = $site;
+			$r['aid'] = $oApp->id;
+			$r['siteid'] = $oApp->siteid;
 			$r['enroll_key'] = $ek;
 			$r['enroll_at'] = $current;
-			$r['verified'] = isset($record->verified) ? $record->verified : 'N';
-			$r['comment'] = isset($record->comment) ? $record->comment : '';
-			if (isset($record->tags)) {
-				$r['tags'] = $record->tags;
-				$modelApp->updateTags($appId, $record->tags);
+			$r['nickname'] = isset($oRecord->nickname) ? $oRecord->nickname : '';
+			$r['verified'] = isset($oRecord->verified) ? $oRecord->verified : 'N';
+			$r['comment'] = isset($oRecord->comment) ? $oRecord->comment : '';
+			if (isset($oRecord->tags)) {
+				$r['tags'] = $oRecord->tags;
+				$modelApp->updateTags($oApp->id, $oRecord->tags);
 			}
 			$id = $modelRec->insert('xxt_enroll_record', $r, true);
 			$r['id'] = $id;
 			/**
 			 * 登记数据
 			 */
-			if (isset($record->data)) {
+			if (isset($oRecord->data)) {
 				//
-				$jsonData = $modelRec->toJson($record->data);
+				$jsonData = $modelRec->toJson($oRecord->data);
 				$modelRec->update('xxt_enroll_record', ['data' => $jsonData], "enroll_key='$ek'");
 				$enrollKeys[] = $ek;
 				//
-				foreach ($record->data as $n => $v) {
+				foreach ($oRecord->data as $n => $v) {
 					if (is_object($v) || is_array($v)) {
 						$v = json_encode($v);
 					}
 					if (count($v)) {
 						$cd = [
-							'aid' => $appId,
+							'aid' => $oApp->id,
 							'enroll_key' => $ek,
 							'schema_id' => $n,
 							'value' => $v,

@@ -38,11 +38,11 @@ app.controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $
     /*输入框需要绑定的内容*/
     $scope.searchKeyword = keyWord;
     /*发送请求*/
-    if(tagid){
-        $http.get('/rest/site/fe/matter/article/list?site=' + siteId + '&tagid=' + tagid ).success(function(rsp) {
-            $scope.matters = rsp.data.articles;
+    if (tagid) {
+        $http.get('/rest/site/fe/matter/article/list?site=' + siteId + '&tagid=' + tagid).success(function(rsp) {
+            $scope.matters = rsp.data.docs;
         });
-    }else{
+    } else {
         $http.get('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + keyWord).success(function(rsp) {
             $scope.matters = rsp.data;
         });

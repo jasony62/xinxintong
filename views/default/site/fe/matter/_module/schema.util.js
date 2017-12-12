@@ -62,6 +62,17 @@ utilSchema.checkValue = function(oSchema, value) {
                 return sCheckResult;
             }
         }
+        if (oSchema.type === 'multiple' && oSchema.limitChoice === 'Y' && oSchema.range) {
+            var opCount = 0;
+            for (var i in value) {
+                if (value[i]) {
+                    opCount++;
+                }
+            }
+            if (opCount < oSchema.range[0] || opCount > oSchema.range[1]) {
+                return '【' + oSchema.title + '】中最多只能选择(' + oSchema.range[1] +')项，最少需要选择(' + oSchema.range[0] +')项';
+            }
+        }
         if (/image|file/.test(oSchema.type) && oSchema.count) {
             if (true !== (sCheckResult = this.checkCount(oSchema, value))) {
                 return sCheckResult;

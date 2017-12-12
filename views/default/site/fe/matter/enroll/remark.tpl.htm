@@ -15,7 +15,7 @@
 <body ng-app='app' ng-controller='ctrlMain'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar navbar-default main-navbar row'>
+    <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
@@ -79,14 +79,18 @@
                     </blockquote>
                     <div class='bottom-bar'>
                         <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                        <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>&nbsp;&nbsp;&nbsp;
-                        <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>
+                        <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>&nbsp;&nbsp;
+                        <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>&nbsp;&nbsp;
+                        <div ng-if="params.groupUser.is_leader==='Y'&&groupOthers[record.userid]">
+                            <button ng-if="data.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(data,'Y')">推荐</button>
+                            <button ng-if="data.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(data,'')">取消推荐</button>
+                        </div>
                     </div>
                 </div>
                 <div id='remarks'>
                     <div class='remarkList'>
                         <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
-                            <div>
+                            <div ng-if="remark.agreed==='Y'||remark.agreed==='N'">
                                 <span ng-if="remark.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="remark.agreed==='N'" class="label label-danger">屏蔽</span>
                             </div>

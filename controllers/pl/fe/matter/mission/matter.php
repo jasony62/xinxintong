@@ -29,13 +29,30 @@ class matter extends \pl\fe\matter\base {
 			return new \ResponseError('数据不存在');
 		}
 
-		$criteria = $this->getPostJson();
-		$options = [];
-		if (isset($criteria->mission_phase_id) && !empty($criteria->mission_phase_id) && strcasecmp($criteria->mission_phase_id, 'all') !== 0) {
-			$options['mission_phase_id'] = $criteria->mission_phase_id;
+		$oCriteria = $this->getPostJson();
+		$aOptions = [];
+		if (isset($oCriteria->mission_phase_id) && !empty($oCriteria->mission_phase_id) && strcasecmp($oCriteria->mission_phase_id, 'all') !== 0) {
+			$aOptions['byPhase'] = $oCriteria->mission_phase_id;
+		}
+		if (!empty($oCriteria->byTitle)) {
+			$aOptions['byTitle'] = $oCriteria->byTitle;
+		}
+		if (!empty($oCriteria->byTime)) {
+			$aOptions['byTime'] = $oCriteria->byTime;
+		}
+		if (!empty($oCriteria->byScenario)) {
+			$aOptions['byScenario'] = $oCriteria->byScenario;
 		}
 
-		$matters = $this->model('matter\mission\matter')->byMission($id, $matterType, $options, $verbose);
+		if (!empty($matterType)) {
+			if ($matterType === 'doc') {
+				$matterType = ['article', 'link', 'channel'];
+			} else if ($matterType === 'app') {
+				$matterType = ['enroll', 'signin', 'group', 'wall', 'memberschema'];
+			}
+		}
+
+		$matters = $this->model('matter\mission\matter')->byMission($id, $matterType, $aOptions, $verbose);
 
 		return new \ResponseData($matters);
 	}

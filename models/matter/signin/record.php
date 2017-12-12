@@ -1,9 +1,11 @@
 <?php
 namespace matter\signin;
+
+require_once dirname(dirname(__FILE__)) . '/enroll/record_base.php';
 /**
  * 签到记录
  */
-class record_model extends \TMS_MODEL {
+class record_model extends \matter\enroll\record_base {
 	/**
 	 * 活动登记（不包括登记数据）
 	 *
@@ -48,6 +50,20 @@ class record_model extends \TMS_MODEL {
 					$record['headimgurl'] = $userOpenids->headimgurl;
 				}
 			}
+			/* 移动用户未签到的原因 */
+			if (!empty($oUser->uid)) {
+				if (isset($oApp->absent_cause->{$oUser->uid})) {
+					$record['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid});
+					unset($oApp->absent_cause->{$oUser->uid});
+					/* 更新原未签到记录 */
+					$newAbsentCause = $this->escape($this->toJson($oApp->absent_cause));
+					$this->update(
+						'xxt_signin',
+						['absent_cause' => $newAbsentCause],
+						['id' => $oApp->id]
+					);
+				}
+			}
 
 			$this->insert('xxt_signin_record', $record, false);
 		}
@@ -64,12 +80,12 @@ class record_model extends \TMS_MODEL {
 	public function &signin(&$oUser, $oApp, $signinData = null) {
 		$modelRnd = $this->model('matter\signin\round');
 		$modelLog = $this->model('matter\signin\log');
-		$state = new \stdClass;
+		$oSigninState = new \stdClass;
 
 		if ($record = $this->byUser($oUser, $oApp)) {
 			// 已经登记过，不需要再登记
 			$ek = $record->enroll_key;
-			$state->enrolled = true;
+			$oSigninState->enrolled = true;
 		} else if ($signinData && ($records = $this->byData($oApp, $signinData)) && count($records) === 1) {
 			// 已经有手工添加的记录，不需要再登记
 			$ek = $records[0]->enroll_key;
@@ -78,24 +94,29 @@ class record_model extends \TMS_MODEL {
 				['userid' => $oUser->uid, 'nickname' => $this->escape($oUser->nickname)],
 				"enroll_key='$ek' and state=1"
 			);
-			$state->enrolled = true;
+			$oSigninState->enrolled = true;
 		} else {
 			// 没有登记过，先登记
 			$ek = $this->enroll($oApp, $oUser);
-			$state->enrolled = false;
+			$oSigninState->enrolled = false;
 		}
 		/**
 		 * 执行签到，在每个轮次上只能进行一次签到，第一次签到后再提交也不会更改签到时间等信息
 		 */
-		$activeRound = $modelRnd->getActive($oApp->siteid, $oApp->id);
-		if ($singinLog = $modelLog->byRecord($ek, $activeRound->rid)) {
+		$oActiveRnd = $modelRnd->getActive($oApp->siteid, $oApp->id);
+		if ($oSinginLog = $modelLog->byRecord($ek, $oActiveRnd->rid)) {
 			/* 登记记录有对应的签到记录 */
-			$state->signed = true;
-			if (empty($singinLog->userid) || empty($singinLog->nickname)) {
+			$oSigninState->signed = true;
+			if (!empty($oActiveRnd->late_at)) {
+				$oSigninState->late = $oSinginLog->signin_at + 60 > $oActiveRnd->late_at;
+			} else {
+				$oSigninState->late = false;
+			}
+			if (empty($oSinginLog->userid) || empty($oSinginLog->nickname)) {
 				$this->update(
 					'xxt_signin_log',
 					['userid' => $oUser->uid, 'nickname' => $this->escape($oUser->nickname)],
-					"enroll_key='$ek' and rid='{$activeRound->rid}' and state=1"
+					['enroll_key' => $ek, 'rid' => $oActiveRnd->rid, 'state' => 1]
 				);
 			}
 		} else {
@@ -106,7 +127,7 @@ class record_model extends \TMS_MODEL {
 				[
 					'siteid' => $oApp->siteid,
 					'aid' => $oApp->id,
-					'rid' => $activeRound->rid,
+					'rid' => $oActiveRnd->rid,
 					'enroll_key' => $ek,
 					'userid' => $oUser->uid,
 					'nickname' => $this->escape($oUser->nickname),
@@ -117,19 +138,24 @@ class record_model extends \TMS_MODEL {
 			// 记录签到摘要
 			$record = $this->byId($ek);
 			$signinLog = $record->signin_log;
-			$signinLog->{$activeRound->rid} = $signinAt;
+			$signinLog->{$oActiveRnd->rid} = $signinAt;
 			$signinLog = $this->toJson($signinLog);
 			// 更新状态
 			$sql = "update xxt_signin_record set signin_at=$signinAt,signin_num=signin_num+1,signin_log='$signinLog'";
 			$sql .= " where aid='{$oApp->id}' and enroll_key='$ek'";
 			$rst = $this->update($sql);
 
-			$state->signed = false;
+			$oSigninState->signed = false;
+			if (!empty($oActiveRnd->late_at)) {
+				$oSigninState->late = $signinAt + 60 > $oActiveRnd->late_at;
+			} else {
+				$oSigninState->late = false;
+			}
 		}
 
-		$state->ek = $ek;
+		$oSigninState->ek = $ek;
 
-		return $state;
+		return $oSigninState;
 	}
 	/**
 	 * 检查用户在指定轮次是否已经签到
@@ -278,7 +304,7 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记记录
 	 */
-	public function &byUser(&$oUser, &$oApp, $options = []) {
+	public function byUser(&$oUser, &$oApp, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');
@@ -383,7 +409,7 @@ class record_model extends \TMS_MODEL {
 	 *
 	 * 不是所有的字段都检查，只检查字符串类型
 	 */
-	public function &byData(&$oApp, &$data, $options = []) {
+	public function &byData($oApp, $data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$records = false;
 
@@ -391,6 +417,10 @@ class record_model extends \TMS_MODEL {
 		$whereByData = '';
 		foreach ($data as $k => $v) {
 			if (!empty($v) && is_string($v)) {
+				/* 通讯录字段简化处理 */
+				if (strpos($k, 'member.') === 0) {
+					$k = str_replace('member.', '', $k);
+				}
 				$whereByData .= ' and (';
 				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
@@ -660,52 +690,6 @@ class record_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 * 签到情况统计
-	 */
-	public function &summary($siteId, $appId) {
-		$summary = [];
-
-		$modelRnd = \TMS_APP::M('matter\signin\round');
-		$rounds = $modelRnd->byApp($appId, ['fields' => 'rid,title,start_at,end_at,late_at']);
-
-		if (empty($rounds)) {
-
-		} else {
-			$activeRound = $modelRnd->getActive($siteId, $appId);
-			foreach ($rounds as $round) {
-				/* total */
-				$q = [
-					'count(*)',
-					'xxt_signin_log',
-					['aid' => $appId, 'state' => 1, 'rid' => $round->rid],
-				];
-				$round->total = $this->query_val_ss($q);
-				/* late */
-				if ($round->total) {
-					if ($round->late_at) {
-						$q = [
-							'count(*)',
-							'xxt_signin_log',
-							"aid='" . $this->escape($appId) . "' and rid='{$round->rid}' and state=1 and signin_at>" . ((int) $round->late_at + 59),
-						];
-						$round->late = $this->query_val_ss($q);
-					} else {
-						$round->late = 0;
-					}
-				} else {
-					$round->late = 0;
-				}
-				if ($activeRound && $round->rid === $activeRound->rid) {
-					$round->active = 'Y';
-				}
-
-				$summary[] = $round;
-			}
-		}
-
-		return $summary;
-	}
-	/**
 	 * 活动登记人名单
 	 *
 	 * @param object $oApp
@@ -726,5 +710,79 @@ class record_model extends \TMS_MODEL {
 		$enrollees = $this->query_objs_ss($q);
 
 		return $enrollees;
+	}
+	/**
+	 * 缺席用户
+	 *
+	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
+	 * 2、如果活动关联了分组活动
+	 * 3、如果活动所属项目指定了用户名单
+	 */
+	public function absentByApp($oApp, $rid = '') {
+		/* 获得当前活动的参与人 */
+		$oUsers = $this->enrolleeByApp($oApp, ['fields' => 'id,userid']);
+		$oUsers2 = [];
+		foreach ($oUsers as $oUser) {
+			$oUsers2[$oUser->id] = $oUser->userid;
+		}
+		$aAbsentUsrs = [];
+		if (isset($oApp->entry_rule->scope) && in_array($oApp->entry_rule->scope, ['member'])) {
+			if ($oApp->entry_rule->scope === 'member' && isset($oApp->entry_rule->member)) {
+				$modelMem = $this->model('site\user\member');
+				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
+					$members = $modelMem->byMschema($mschemaId);
+					foreach ($members as $oMember) {
+						if (false === in_array($oMember->userid, $oUsers2)) {
+							$oUser = new \stdClass;
+							$oUser->userid = $oMember->userid;
+							$oUser->nickname = $oMember->name;
+							$aAbsentUsrs[] = $oUser;
+						}
+					}
+				}
+			}
+		} else if (!empty($oApp->group_app_id)) {
+			$modelGrpUsr = $this->model('matter\group\player');
+			$aGrpUsrs = $modelGrpUsr->byApp($oApp->group_app_id, ['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']);
+			foreach ($aGrpUsrs->players as $oGrpUsr) {
+				if (false === in_array($oGrpUsr->userid, $oUsers2)) {
+					$aAbsentUsrs[] = $oGrpUsr;
+				}
+			}
+		} else if (!empty($oApp->enroll_app_id)) {
+			$modelRec = $this->model('matter\enroll\record');
+			$result = $modelRec->byApp($oApp->enroll_app_id);
+			if (!empty($result->records)) {
+				foreach ($result->records as $oRec) {
+					if (false === in_array($oRec->userid, $oUsers2)) {
+						$aAbsentUsrs[] = $oRec;
+					}
+				}
+			}
+		}
+		/* userid去重 */
+		$aAbsentUsrs2 = [];
+		foreach ($aAbsentUsrs as $aAbsentUsr) {
+			$state = true;
+			foreach ($aAbsentUsrs2 as $aAbsentUsr2) {
+				if ($aAbsentUsr->userid === $aAbsentUsr2->userid || empty($aAbsentUsr->userid)) {
+					$state = false;
+					break;
+				}
+			}
+			if ($state) {
+				if (isset($oApp->absent_cause->{$aAbsentUsr->userid})) {
+					$aAbsentUsr->absent_cause = $oApp->absent_cause->{$aAbsentUsr->userid};
+				} else {
+					$aAbsentUsr->absent_cause = '';
+				}
+				$aAbsentUsrs2[] = $aAbsentUsr;
+			}
+		}
+
+		$result = new \stdClass;
+		$result->users = $aAbsentUsrs2;
+
+		return $result;
 	}
 }

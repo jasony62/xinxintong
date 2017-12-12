@@ -63,6 +63,8 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     var errmsg;
                     if (angular.isString(rsp.err_msg)) {
                         errmsg = rsp.err_msg;
+                    } else if (angular.isArray(rsp.err_msg)) {
+                        errmsg = rsp.err_msg.join('<br>');
                     } else {
                         errmsg = JSON.stringify(rsp.err_msg);
                     }
@@ -121,6 +123,8 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     var errmsg;
                     if (angular.isString(rsp.err_msg)) {
                         errmsg = rsp.err_msg;
+                    } else if (angular.isArray(rsp.err_msg)) {
+                        errmsg = rsp.err_msg.join('<br>');
                     } else {
                         errmsg = JSON.stringify(rsp.err_msg);
                     }

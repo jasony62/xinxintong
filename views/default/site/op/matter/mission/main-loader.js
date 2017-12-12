@@ -16,35 +16,13 @@ window.loading = {
             waitSeconds: 0,
             paths: {
                 "domReady": '/static/js/domReady',
-                "angular": "/static/js/angular.min",
-                "angular-sanitize": "/static/js/angular-sanitize.min",
-                "ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
                 "ui-tms": "/static/js/ui-tms",
-                "ui-xxt": "/static/js/xxt.ui",
                 "matterService": "/views/default/pl/fe/_module/matter.service",
                 "missionService": '/views/default/pl/fe/matter/mission/lib/mission.service',
-                "main": '/views/default/site/op/matter/mission/main',
-            },
-            shim: {
-                "angular": {
-                    exports: "angular"
-                },
-                "angular-sanitize": {
-                    deps: ['angular'],
-                    exports: "angular-sanitize"
-                },
-                "ui-tms": {
-                    deps: ['angular-sanitize'],
-                },
-                "matterService": {
-                    deps: ['ui-xxt', 'ui-bootstrap', 'angular-sanitize'],
-                },
-                "missionService": {
-                    deps: ['matterService'],
-                },
+                "main": "/views/default/site/op/matter/mission/main",
             },
             urlArgs: function(id, url) {
-                if (/domReady|angular|angular-sanitize|ui-bootstrap/.test(id)) {
+                if (/domReady/.test(id)) {
                     return '';
                 }
                 return "?bust=" + (timestamp * 1);
@@ -52,7 +30,7 @@ window.loading = {
         });
         require(['ui-tms'], function() {
             require(['missionService'], function() {
-                require(['main']);
+                require(['main'], function() {});
             });
         });
     }

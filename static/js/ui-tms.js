@@ -142,7 +142,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             }
             if (rsp.err_code != 0) {
                 if (options.autoNotice) {
-                    noticebox.error($sce.trustAsHtml(rsp.err_msg));
+                    noticebox.error($sce.trustAsHtml(angular.isArray(rsp.err_msg) ? rsp.err_msg.join('<br>') : rsp.err_msg));
                 }
                 if (options.autoBreak) return;
             }
@@ -498,7 +498,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                             return d;
                         })();
                         $scope.mask = mask;
-                        $scope.years = [2015, 2016, 2017];
+                        $scope.years = [2015, 2016, 2017, 2018, 2019, 2020];
                         $scope.months = [];
                         $scope.days = [];
                         $scope.hours = [];
@@ -901,4 +901,55 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             })
         }
     }
-});
+}).factory('facListFilter', ['$timeout', function($timeout) {
+    var oFacFilter;
+    oFacFilter = {
+        keyword: '',
+        target: null,
+        init: function(fnCallbck, oOutside) {
+            this.fnCallbck = fnCallbck;
+            this.oOutside = oOutside || {};
+            return this;
+        },
+        show: function(event) {
+            var eleKw;
+            this.target = event.target;
+            while (this.target.tagName !== 'TH') {
+                this.target = this.target.parentNode;
+            }
+            if (!this.target.dataset.filterBy) {
+                alert('没有指定过滤字段【data-filter-by】');
+                return;
+            }
+            this.keyword = this.oOutside.keyword || '';
+            $(this.target).trigger('show');
+            $timeout(function() {
+                var el = document.querySelector('input[ng-model="filter.keyword"]');
+                if (el && el.hasAttribute('autofocus')) {
+                    el.focus();
+                }
+            }, 200);
+        },
+        close: function() {
+            if (this.keyword) {
+                this.target.classList.add('active');
+            } else {
+                this.target.classList.remove('active');
+            }
+            $(this.target).trigger('hide');
+        },
+        cancel: function() {
+            this.oOutside.keyword = this.keyword = '';
+            this.oOutside.by = '';
+            this.close();
+            this.fnCallbck && this.fnCallbck(this.oOutside);
+        },
+        exec: function() {
+            this.oOutside.keyword = this.keyword;
+            this.oOutside.by = this.keyword ? this.target.dataset.filterBy : '';
+            this.fnCallbck && this.fnCallbck(this.oOutside);
+            this.close();
+        }
+    };
+    return oFacFilter;
+}]);

@@ -7,16 +7,14 @@ require_once dirname(__FILE__) . '/app_base.php';
  */
 class lottery_model extends app_base {
 	/**
+	 * 记录日志时需要的列
+	 */
+	const LOG_FIELDS = 'siteid,id,title,summary,pic';
+	/**
 	 *
 	 */
 	protected function table() {
 		return 'xxt_lottery';
-	}
-	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'lottery';
 	}
 	/**
 	 *
@@ -49,7 +47,7 @@ class lottery_model extends app_base {
 		$q = array($fields, 'xxt_lottery', "id='$lid'");
 		if ($lot = $this->query_obj_ss($q)) {
 			$lot->type = 'lottery';
-			if(!empty($lot->matter_mg_tag)){
+			if (!empty($lot->matter_mg_tag)) {
 				$lot->matter_mg_tag = json_decode($lot->matter_mg_tag);
 			}
 			if (in_array('award', $cascaded)) {

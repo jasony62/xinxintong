@@ -7,25 +7,92 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class data extends \pl\fe\matter\base {
 	/**
+	 * 根据record中的data数据，修复reocrd_data
+	 */
+	public function repairByRecord_action($ek = '') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek);
+		if (false === $oRecord) {
+			return new \ObjectNotFoundError();
+		}
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = new \stdClass;
+		$oUser->uid = $oRecord->userid;
+		$oUser->group_id = $oRecord->group_id;
+
+		$this->model('matter\enroll\data')->setData($oUser, $oApp, $oRecord, $oRecord->data);
+
+		return new \ResponseData('ok');
+	}
+	/**
+	 * 根据record中的data数据，修复reocrd_data
+	 */
+	public function repairByApp_action($app) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$modelRecDat = $this->model('matter\enroll\data');
+		$result = $modelRec->byApp($oApp->id);
+
+		foreach ($result->records as $oRecord) {
+			$oUser = new \stdClass;
+			$oUser->uid = $oRecord->userid;
+			$oUser->group_id = $oRecord->group_id;
+
+			$modelRecDat->setData($oUser, $oApp, $oRecord, $oRecord->data);
+		}
+
+		return new \ResponseData(count($result->records));
+	}
+	/**
 	 *
 	 */
 	public function agree_action($ek, $schema, $value = '') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelData = $this->model('matter\enroll\data');
+		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,userid,agreed,agreed_log']);
+		if (false === $oRecData) {
+			return new \ObjectNotFoundError();
+		}
+
 		if (!in_array($value, ['Y', 'N', 'A'])) {
 			$value = '';
 		}
-		//确定模板名称
-		if($value=='Y'){
-			$name='site.enroll.submit.recommend';
-		}else if($value=='N'){
-			$name='site.enroll.submit.mask';
+
+		$oAgreedLog = $oRecData->agreed_log;
+		if (isset($oAgreedLog->{$oUser->id})) {
+			$oLog = $oAgreedLog->{$oUser->id};
+			$oLog->time = time();
+			$oLog->value = $value;
+		} else {
+			$oAgreedLog->{$oUser->id} = (object) ['time' => time(), 'value' => $value];
 		}
 
-		if(!empty($name)){
+		//确定模板名称
+		if ($value == 'Y') {
+			$name = 'site.enroll.submit.recommend';
+		} else if ($value == 'N') {
+			$name = 'site.enroll.submit.mask';
+		}
+
+		if (!empty($name)) {
 			$modelRec = $this->model('matter\enroll\record');
 			$oRecord = $modelRec->byId($ek);
 			$modelEnl = $this->model('matter\enroll');
@@ -35,7 +102,7 @@ class data extends \pl\fe\matter\base {
 
 		$rst = $modelData->update(
 			'xxt_enroll_record_data',
-			['agreed' => $value],
+			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
 			['enroll_key' => $ek, 'schema_id' => $schema, 'state' => 1]
 		);
 
@@ -54,7 +121,7 @@ class data extends \pl\fe\matter\base {
 		if (!isset($tmplConfig->tmplmsg)) {
 			return false;
 		}
-		
+
 		$params = new \stdClass;
 		foreach ($tmplConfig->tmplmsg->params as $param) {
 			if (!isset($tmplConfig->mapping->{$param->pname})) {
@@ -64,7 +131,7 @@ class data extends \pl\fe\matter\base {
 			if ($mapping->src === 'matter') {
 				if (isset($oApp->{$mapping->id})) {
 					$value = $oApp->{$mapping->id};
-				}else if($mapping->id==='event_at'){
+				} else if ($mapping->id === 'event_at') {
 					$value = date('Y-m-d H:i:s');
 				}
 			} else if ($mapping->src === 'text') {
@@ -82,7 +149,7 @@ class data extends \pl\fe\matter\base {
 
 		/* 消息的创建人 */
 		$modelWay = $this->model('site\fe\way');
-		$who=$modelWay->who($oRecord->siteid);
+		$who = $modelWay->who($oRecord->siteid);
 		$creater = new \stdClass;
 		$creater->uid = $who->uid;
 		$creater->name = $who->nickname;
@@ -94,10 +161,10 @@ class data extends \pl\fe\matter\base {
 		$receiver->userid = $oRecord->userid;
 
 		/*判断是否是同一个人*/
-		if($creater->uid==$receiver->userid){
+		if ($creater->uid == $receiver->userid) {
 			return false;
 		}
-		
+
 		/* 给用户发通知消息 */
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
 		$modelTmplBat->send($oRecord->siteid, $tmplConfig->msgid, $creater, [$receiver], $params, ['send_from' => 'enroll:' . $oRecord->aid . ':' . $oRecord->enroll_key]);

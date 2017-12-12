@@ -23,7 +23,7 @@ class TMS_CONTROLLER {
 	protected function getRequestUrl() {
 		$url[] = strtolower(strtok($_SERVER['SERVER_PROTOCOL'], '/'));
 		$url[] = '://';
-		$url[] = $_SERVER['HTTP_HOST'];
+		$url[] = APP_HTTP_HOST;
 		$url[] = $_SERVER['REQUEST_URI'];
 
 		return implode('', $url);
@@ -35,7 +35,7 @@ class TMS_CONTROLLER {
 		if (false !== strpos($path, 'http')) {
 			$url = $path;
 		} else {
-			$url = 'http://' . $_SERVER['HTTP_HOST'];
+			$url = 'http://' . APP_HTTP_HOST;
 			$url .= $path;
 		}
 		header("Location: $url");
@@ -54,11 +54,13 @@ class TMS_CONTROLLER {
 		return isset($_GET[$name]) ? $_GET[$name] : $default;
 	}
 	/**
-	 *
+	 * 将post数据转换为对象
 	 */
 	protected function &getPostJson() {
 		if ('POST' === $_SERVER['REQUEST_METHOD']) {
 			$json = file_get_contents("php://input");
+			// 过滤掉数据的emoji字符
+			$json = $this->model()->cleanEmoji($json);
 			$obj = json_decode($json);
 			if (JSON_ERROR_NONE !== json_last_error()) {
 				throw new \Exception('参数解析错误：' . json_last_error_msg());

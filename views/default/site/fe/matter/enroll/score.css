@@ -1,9 +1,4 @@
-html,body{height:auto;width:100%;font-family:Microsoft Yahei,Arial;}
-body{position:relative;font-size:16px;padding: 15px;}
-.app{margin-top:15px;}
 img{max-width:100%}
-header{margin:-15px -15px 0 -15px;}
-footer{margin:0 -15px -15px -15px;}
 .schema{border-bottom:1px dashed #aaa;}
 .schema:last-child{border-bottom:0;}
 .schema.fail{background:#eee;}

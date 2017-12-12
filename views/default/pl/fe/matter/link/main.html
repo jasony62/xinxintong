@@ -1,151 +1,158 @@
-<div class='col-md-8'>
-    <div class='tile'>
-        <div class='form-group'>
-            <label>标题：最多35个汉字，70个英文字符</label>
-            <input type='text' class='form-control' ng-model='editing.title' ng-change="update('title');">
-        </div>
-        <div class='form-group'>
-            <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
-            <div style='position:relative'>
-                <div style="width:182px;border:1px solid #CCC">
-                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.pic">
-                        <button class='btn btn-default' ng-click='setPic();'>
-                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
-                    </div>
-                    <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                        <img name='pic' ng-src="{{editing.pic}}" width='180px' />
-                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                            <span class='glyphicon glyphicon-picture'></span>
-                        </button>
-                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                            <span class='glyphicon glyphicon-trash'></span>
-                        </button>
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>标题：最多35个汉字，70个英文字符</label>
+                <input type='text' class='form-control' ng-model='editing.title' ng-change="update('title');">
+            </div>
+            <div class='form-group'>
+                <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
+                <div style='position:relative'>
+                    <div style="width:182px;border:1px solid #CCC">
+                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.pic">
+                            <button class='btn btn-default' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                        </div>
+                        <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                            <img name='pic' ng-src="{{editing.pic}}" width='180px' />
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                            </button>
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class='form-group'>
-            <label>摘要（可选）：最多120个汉字，240个英文字符</label>
-            <textarea class='form-control' ng-model='editing.summary' ng-change="update('summary');"></textarea>
+            <div class='form-group'>
+                <label>摘要（可选）：最多120个汉字，240个英文字符</label>
+                <textarea class='form-control' ng-model='editing.summary' ng-change="update('summary');"></textarea>
+            </div>
+            <div class='form-group' ng-if="editing.mission">
+                <label>所属项目</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{editing.mission.title}}" value="{{editing.mission.title}}" readonly="">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="quitMission()">
+                            <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                    </span>
+                </div>
+            </div>
+            <div class='form-group' ng-if="editing.mission.multi_phase==='Y'">
+                <label>项目阶段</label>
+                <select class='form-control' ng-model="editing.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in editing.mission.phases">
+                    <option value=''>全部</option>
+                </select>
+            </div>
+            <div class='form-group' ng-if="!editing.mission">
+                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+            </div>
         </div>
     </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <label>链接</label>
-            <select class='form-control' ng-model='editing.urlsrc' ng-options='k as v for (k,v) in urlsrcs' ng-change="update('urlsrc')"></select>
-            <div ng-switch='editing.urlsrc'>
-                <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url')" ng-switch-when="0"></textarea>
-                <select class='form-control' ng-model='editing.url' ng-options='n.id as n.title for n in news' ng-change="update('url')" ng-switch-when="1"></select>
-                <select class='form-control' ng-model='editing.url' ng-options='c.id as c.title for c in channels' ng-change="update('url')" ng-switch-when="2"></select>
-                <select class='form-control' ng-model='editing.url' ng-options='i.id as i.title for i in inners' ng-change="update('url')" ng-switch-when="3"></select>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='link';matterObj='editing'">
+                <label class='help-block'>所属频道（可选）</label>
+                <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
+            </div>
+            <div class='form-group'>
+                <label class='help-block'>管理标签（可选）</label>
+                <p class="form-control" ng-click="tagMatter('M')">
+                    <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
+                </p>
             </div>
         </div>
-        <div class='form-group' ng-show='editing.urlsrc==0'>
-            <label>方法</label>
-            <div>
-                <label class='radio-inline'>
-                    <input type='radio' ng-model='editing.method' value='GET' ng-change="update('method')">GET</label>
-                <label class='radio-inline'>
-                    <input type='radio' ng-model='editing.method' value='POST' ng-change="update('method')">POST</label>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>链接</label>
+                <select class='form-control' ng-model='editing.urlsrc' ng-options='k as v for (k,v) in urlsrcs' ng-change="update('urlsrc')"></select>
+                <div ng-switch='editing.urlsrc'>
+                    <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url')" ng-switch-when="0"></textarea>
+                    <select class='form-control' ng-model='editing.url' ng-options='n.id as n.title for n in news' ng-change="update('url')" ng-switch-when="1"></select>
+                    <select class='form-control' ng-model='editing.url' ng-options='c.id as c.title for c in channels' ng-change="update('url')" ng-switch-when="2"></select>
+                    <select class='form-control' ng-model='editing.url' ng-options='i.id as i.title for i in inners' ng-change="update('url')" ng-switch-when="3"></select>
+                </div>
             </div>
-        </div>
-        <div class='form-group' ng-show='editing.urlsrc==0'>
-            <label>参数（可选）</label>
-            <div>
-                <button class='btn btn-default btn-sm' ng-click='addParam()'>添加</button>
-                <ul class='list-group' name='params' style='margin-bottom:0'>
-                    <li class='list-group-item' ng-repeat='p in editing.params'>
-                        <div>
-                            <div class='col-md-8' style='padding-left:0'>
-                                <div class='input-group'>
-                                    <input type='text' placeholder='参数名称' class='form-control' ng-model='p.pname' ng-blur='updateParam(p)'>
-                                    <span class='input-group-btn'>
-                                        <button class='btn btn-default' ng-click='removeParam(p)'>
-                                            <span class='glyphicon glyphicon-remove'></span>
-                                    </button>
-                                    </span>
+            <div class='form-group' ng-show='editing.urlsrc==0'>
+                <label>方法</label>
+                <div>
+                    <label class='radio-inline'>
+                        <input type='radio' ng-model='editing.method' value='GET' ng-change="update('method')">GET</label>
+                    <label class='radio-inline'>
+                        <input type='radio' ng-model='editing.method' value='POST' ng-change="update('method')">POST</label>
+                </div>
+            </div>
+            <div class='form-group' ng-show='editing.urlsrc==0'>
+                <label>参数（可选）</label>
+                <div>
+                    <button class='btn btn-default btn-sm' ng-click='addParam()'>添加</button>
+                    <ul class='list-group' name='params' style='margin-bottom:0'>
+                        <li class='list-group-item' ng-repeat='p in editing.params'>
+                            <div>
+                                <div class='col-md-8' style='padding-left:0'>
+                                    <div class='input-group'>
+                                        <input type='text' placeholder='参数名称' class='form-control' ng-model='p.pname' ng-blur='updateParam(p)'>
+                                        <span class='input-group-btn'>
+                                            <button class='btn btn-default' ng-click='removeParam(p)'>
+                                                <span class='glyphicon glyphicon-remove'></span>
+                                        </button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class='col-md-4' style='padding-left:0'>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model='p.customValue' ng-change='changePValueMode(p)'>自定义值</label>
+                                    </div>
                                 </div>
                             </div>
-                            <div class='col-md-4' style='padding-left:0'>
-                                <div class='checkbox'>
-                                    <label>
-                                        <input type='checkbox' ng-model='p.customValue' ng-change='changePValueMode(p)'>自定义值</label>
-                                </div>
+                            <select class='form-control' ng-model='p.pvalue' ng-options="k as v for (k,v) in linkparams " ng-change='updateParam(p)' ng-if='!p.customValue'></select>
+                            <input type='text' class='form-control' ng-model='p.pvalue' ng-if='p.customValue' tms-auto-update tms-wait=1000 tms-update='updateParam(p)'>
+                            <select class='form-control' ng-if="p.pvalue==='{{authed_identity}}'" ng-model='p.authapi_id' ng-options="aapi.authid as aapi.name for aapi in authapis" ng-change='updateParam(p)'></select>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class='form-group' ng-show='editing.urlsrc==3||editing.url==9'>
+                <label>参数（可选）</label>
+                <div>
+                    <button class='btn btn-default btn-sm' ng-click='addParam()'>添加</button>
+                    <ul class='list-group' name='params' style='margin-bottom:0'>
+                        <li class='list-group-item' ng-repeat='p in editing.params'>
+                            <div class='input-group'>
+                                <p title='参数名称' class='form-control'>{{p.pname}}</p>
+                                <span class='input-group-btn'>
+                                    <button class='btn btn-default' ng-click='removeParam(p)'>
+                                        <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                                </span>
                             </div>
-                        </div>
-                        <select class='form-control' ng-model='p.pvalue' ng-options="k as v for (k,v) in linkparams " ng-change='updateParam(p)' ng-if='!p.customValue'></select>
-                        <input type='text' class='form-control' ng-model='p.pvalue' ng-if='p.customValue' tms-auto-update tms-wait=1000 tms-update='updateParam(p)'>
-                        <select class='form-control' ng-if="p.pvalue==='{{authed_identity}}'" ng-model='p.authapi_id' ng-options="aapi.authid as aapi.name for aapi in authapis" ng-change='updateParam(p)'></select>
-                    </li>
-                </ul>
+                            <select class='form-control' ng-model='p.pvalue' ng-options="c.id as c.title for c in channels" ng-change='updateParam(p)'></select>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class='checkbox' ng-if="editing.urlsrc==0 && editing.method=='GET'">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_directly' ng-change="update('open_directly')">跳过日志和访问控制</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.fans_only' ng-change="update('fans_only')">仅限公众号关注用户访问</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.embedded' ng-change="update('embedded')">采用嵌入方式打开链接内容</label>
             </div>
         </div>
-        <div class='form-group' ng-show='editing.urlsrc==3||editing.url==9'>
-            <label>参数（可选）</label>
-            <div>
-                <button class='btn btn-default btn-sm' ng-click='addParam()'>添加</button>
-                <ul class='list-group' name='params' style='margin-bottom:0'>
-                    <li class='list-group-item' ng-repeat='p in editing.params'>
-                        <div class='input-group'>
-                            <p title='参数名称' class='form-control'>{{p.pname}}</p>
-                            <span class='input-group-btn'>
-                                <button class='btn btn-default' ng-click='removeParam(p)'>
-                                    <span class='glyphicon glyphicon-remove'></span>
-                            </button>
-                            </span>
-                        </div>
-                        <select class='form-control' ng-model='p.pvalue' ng-options="c.id as c.title for c in channels" ng-change='updateParam(p)'></select>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class='checkbox' ng-if="editing.urlsrc==0 && editing.method=='GET'">
-            <label>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_directly' ng-change="update('open_directly')">跳过日志和访问控制</label>
-        </div>
     </div>
-    <div class='tile'>
-        <div class='checkbox'>
-            <label>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.fans_only' ng-change="update('fans_only')">仅限公众号关注用户访问</label>
-        </div>
-    </div>
-</div>
-<div class='col-md-4'>
-    <div class='tile'>
+    <div class='panel panel-default'>
         <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
         <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">链接</div>
-        <div class="panel-body">
-            <div class='input-group'>
-                <input class='form-control' readonly value="{{entryUrl}}">
-                <span class='input-group-btn'>
-                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entryUrl}}">复制</button>
-                    <a class='btn btn-default' ng-href="{{entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                </span>
-            </div>
-        </div>
-    </div>
-    <div class='tile'>
-        <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='link';matterObj='editing'">
-            <div class='help-block'>频道（可选）</div>
-            <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
-        </div>
-        <div class='form-group'>
-            <label class='help-block'>管理标签（可选）</label>
-            <p class="form-control" ng-click="tagMatter('M')">
-                <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
-            </p>
-        </div>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <div>创建人：{{editing.creater_name}}</div>
-            <div>创建时间：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-            <div>修改人：{{editing.modifier_name}}</div>
-            <div>最后一次修改时间：{{editing.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-        </div>
-    </div>
 </div>
+

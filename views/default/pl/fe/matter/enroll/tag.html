@@ -1,81 +1,78 @@
-<div id='tag-view'>
-    <div class='col-md-6'>
-        <nav class="navbar-default navbar">
-            <div class="container-fluid">
-                <form class="navbar-form navbar-left">
-                    <div class='input-group'>
-                        <input class='form-control' ng-model="newtag" placeholder="输入逗号分隔的新标签">
-                        <div class='input-group-btn'>
-                            <button class='btn btn-default' ng-click="createTag()"><span class='glyphicon glyphicon-plus'></span></button>
-                        </div>
+<div class='col-md-6'>
+    <nav class="navbar-default navbar">
+        <div class="container-fluid">
+            <form class="navbar-form navbar-left">
+                <div class='input-group'>
+                    <input class='form-control' ng-model="newtag" placeholder="输入逗号分隔的新标签">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="createTag()"><span class='glyphicon glyphicon-plus'></span></button>
                     </div>
-                </form>
-            </div>
-        </nav>
-        <div class="form-group">
-            <div id="enrollRecords">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th style='width:50px'>序号</th>
-                            <th style="width:100px">创建时间</th>
-                            <th style="width:80px">来源</th>
-                            <th class="custom-col row">标签内容</th>
-                            <th style='width:80px'>使用次数</th>
-                            <th style='width:98px'>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="tag in tags" ng-click="list4Schema($event,$index,tag)" style="cursor: pointer;" ng-class="{'active': $index==focus}">
-                            <td>{{(page.at-1)*page.size+$index+1}}</td>
-                            <td>{{(tag.create_at*1000)|date:'MM-dd HH:mm'}}</td>
-                            <td>{{scopeNames[tag.creater_src]}}</td>
-                            <td>
-                                <input type='text' class='form-control' size='40' ng-model='tag.label' tms-auto-update tms-wait=1000 tms-update="modify(tag)">
-                            </td>
-                            <td ng-bind="tag.use_num"></td>
-                            <td>
-                                <button class="btn btn-xs btn-danger" ng-click="removeTag(tag)"><i class="glyphicon glyphicon-remove"></i></button>
-                                <button class="btn btn-xs btn-default" ng-click="upTag(tag, $index)"><i class="glyphicon glyphicon-chevron-up"></i></button>
-                                <button class='btn btn-xs btn-default' ng-click="downTag(tag, $index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class='form-group form-inline'>
-                <div class="pull-right">
-                    <span style="margin-right:20px;line-height:2;">总数：{{page.total}}</span>
-                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
                 </div>
+            </form>
+        </div>
+    </nav>
+    <div class="form-group">
+        <div id="enrollRecords">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th style='width:50px'>序号</th>
+                        <th style="width:100px">创建时间</th>
+                        <th style="width:80px">来源</th>
+                        <th class="custom-col row">标签内容</th>
+                        <th style='width:80px'>使用次数</th>
+                        <th style='width:98px'>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="tag in tags" ng-click="list4Schema($event,$index,tag)" style="cursor: pointer;" ng-class="{'active': $index==focus}">
+                        <td>{{(page.at-1)*page.size+$index+1}}</td>
+                        <td>{{(tag.create_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{scopeNames[tag.creater_src]}}</td>
+                        <td>
+                            <input type='text' class='form-control' size='40' ng-model='tag.label' tms-auto-update tms-wait=1000 tms-update="modify(tag)">
+                        </td>
+                        <td ng-bind="tag.use_num"></td>
+                        <td>
+                            <button class="btn btn-xs btn-danger" ng-click="removeTag(tag)"><i class="glyphicon glyphicon-remove"></i></button>
+                            <button class="btn btn-xs btn-default" ng-click="upTag(tag, $index)"><i class="glyphicon glyphicon-chevron-up"></i></button>
+                            <button class='btn btn-xs btn-default' ng-click="downTag(tag, $index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class='form-group form-inline'>
+            <div class="pull-right">
+                <span style="margin-right:20px;line-height:2;">总数：{{page.total}}</span>
+                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
             </div>
         </div>
     </div>
-    <div class="col-md-6" ng-if="records.length">
-        <div class='form-group'>
-            <div class='records'>
-                <div class='record' ng-repeat="rec in records">
-                    <div>
-                        <span class="label label-default">{{schemas[rec.schema_id].title}}</span>
-                    </div>
-                    <blockquote ng-switch on="schemas[rec.schema_id].type" ng-click="gotoRemark(rec)">
-                        <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>
-                        <p ng-switch-default>{{rec.value}}</p>
-                        <p ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
-                            <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>
-                        </p>
-                        <footer>
-                            <span>{{rec.nickname||'匿名用户'}}</span>
-                            <span class="pull-right text-muted">{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</span>
-                        </footer>
-                    </blockquote>
-                    </div>
+</div>
+<div class="col-md-6" ng-if="records.length">
+    <div class='form-group'>
+        <div class='records'>
+            <div class='record' ng-repeat="rec in records">
+                <div>
+                    <span class="label label-default">{{schemas[rec.schema_id].title}}</span>
                 </div>
-            </div>
-            <div class='form-group form-inline'>
-                <span style="float:left;margin-right:20px;line-height:2;">总数：{{oPage.total}}</span>
-                <ul uib-pagination style="float:right;margin:0;vertical-align:bottom;cursor:pointer;" ng-show="oPage.total>oPage.size" boundary-links="true" total-items="oPage.total" max-size="7" items-per-page="oPage.size" rotate="false" ng-model="oPage.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list4Schema()"></ul>
+                <blockquote ng-switch on="schemas[rec.schema_id].type" ng-click="gotoRemark(rec)">
+                    <p ng-switch-when="image"><img ng-src="{{rec.value}}"></p>
+                    <p ng-switch-default>{{rec.value}}</p>
+                    <p ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
+                        <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>
+                    </p>
+                    <footer>
+                        <span>{{rec.nickname||'匿名用户'}}</span>
+                        <span class="pull-right text-muted">{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</span>
+                    </footer>
+                </blockquote>
             </div>
         </div>
+    </div>
+    <div class='form-group form-inline'>
+        <span style="float:left;margin-right:20px;line-height:2;">总数：{{oPage.total}}</span>
+        <ul uib-pagination style="float:right;margin:0;vertical-align:bottom;cursor:pointer;" ng-show="oPage.total>oPage.size" boundary-links="true" total-items="oPage.total" max-size="7" items-per-page="oPage.size" rotate="false" ng-model="oPage.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list4Schema()"></ul>
     </div>
 </div>

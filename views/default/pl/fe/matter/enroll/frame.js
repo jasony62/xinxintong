@@ -1,6 +1,6 @@
 define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'service.enroll', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'ui.xxt', 'sys.chart']);
     ngApp.constant('cstApp', {
         notifyMatter: [{
             value: 'tmplmsg',
@@ -42,11 +42,13 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
         },
         naming: { 'mission_phase': '项目阶段' }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider) {
-        var RouteParam = function(name, baseURL) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', 'srvEnrollSchemaProvider', 'srvEnrollLogProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider, srvEnrollSchemaProvider, srvEnrollLogProvider) {
+        var RouteParam = function(name) {
+            var baseURL;
             !baseURL && (baseURL = '/views/default/pl/fe/matter/enroll/');
-            this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
+            this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+            this.reloadOnSearch = false;
             this.resolve = {
                 load: function($q) {
                     var defer = $q.defer();
@@ -65,7 +67,6 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             .when('/rest/pl/fe/matter/enroll/main', new RouteParam('main'))
             .when('/rest/pl/fe/matter/enroll/schema', new RouteParam('schema'))
             .when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
-            .when('/rest/pl/fe/matter/enroll/access', new RouteParam('access'))
             .when('/rest/pl/fe/matter/enroll/time', new RouteParam('time'))
             .when('/rest/pl/fe/matter/enroll/preview', new RouteParam('preview'))
             .when('/rest/pl/fe/matter/enroll/entry', new RouteParam('entry'))
@@ -79,7 +80,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/enrollee', new RouteParam('enrollee'))
             .when('/rest/pl/fe/matter/enroll/tag', new RouteParam('tag'))
-            .otherwise(new RouteParam('entry'));
+            .otherwise(new RouteParam('preview'));
 
         $locationProvider.html5Mode(true);
 
@@ -95,60 +96,54 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             //
             srvSiteProvider.config(siteId);
             srvTagProvider.config(siteId);
+            srvEnrollSchemaProvider.config(siteId);
             srvEnrollAppProvider.config(siteId, appId);
             srvEnrollRoundProvider.config(siteId, appId);
             srvEnrollPageProvider.config(siteId, appId);
             srvEnrollRecordProvider.config(siteId, appId);
+            srvEnrollLogProvider.config(siteId, appId);
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'cstApp', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function($scope, cstApp, srvSite, srvEnrollApp, templateShop, $location) {
+    ngApp.controller('ctrlFrame', ['$scope', 'CstNaming', 'cstApp', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function($scope, CstNaming, cstApp, srvSite, srvEnrollApp, templateShop, $location) {
         $scope.cstApp = cstApp;
-        $scope.scenarioNames = {
-            'common': '通用登记',
-            'registration': '报名',
-            'voting': '投票',
-            'quiz': '测验',
-            'group_week_report': '周报',
-            'score_sheet': '记分表'
+        $scope.scenarioes = {
+            names: CstNaming.scenario.enroll,
+            index: CstNaming.scenario.enrollIndex,
         };
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'enroll' ? 'entry' : subView[1];
+            $scope.subView = subView[1] === 'enroll' ? 'preview' : subView[1];
             switch ($scope.subView) {
                 case 'main':
                 case 'page':
                 case 'schema':
-                case 'preview':
                     $scope.opened = 'edit';
                     break;
-                case 'access':
                 case 'time':
-                case 'entry':
                     $scope.opened = 'publish';
                     break;
                 case 'record':
                 case 'remark':
                 case 'stat':
                 case 'enrollee':
+                case 'log':
                 case 'tag':
                     $scope.opened = 'data';
                     break;
                 case 'recycle':
-                case 'log':
                 case 'coin':
                 case 'notice':
-                case 'overview':
                     $scope.opened = 'other';
                     break;
                 default:
                     $scope.opened = '';
             }
         });
-        $scope.switchTo = function(subView) {
+        $scope.switchTo = function(subView, hash) {
             var url = '/rest/pl/fe/matter/enroll/' + subView;
-            $location.path(url);
+            $location.path(url).hash(hash || '');
         };
         $scope.update = function(name) {
             srvEnrollApp.update(name);
@@ -172,7 +167,6 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                     tagById[tag.id] = tag;
                 });
                 oApp._tagsById = tagById;
-                oApp.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
                 if (oApp.matter_mg_tag !== '') {
                     oApp.matter_mg_tag.forEach(function(cTag, index) {
                         $scope.oTag.forEach(function(oTag) {
@@ -185,6 +179,10 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                 $scope.app = oApp;
                 srvSite.memberSchemaList(oApp).then(function(aMemberSchemas) {
                     $scope.memberSchemas = aMemberSchemas;
+                    $scope.mschemasById = {};
+                    $scope.memberSchemas.forEach(function(mschema) {
+                        $scope.mschemasById[mschema.id] = mschema;
+                    });
                 });
             });
         });

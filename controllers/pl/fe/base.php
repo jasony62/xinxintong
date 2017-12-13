@@ -11,9 +11,7 @@ class base extends \TMS_CONTROLLER {
 		$rule_action['rule_type'] = 'black';
 		$rule_action['actions'][] = 'index';
 		$rule_action['actions'][] = 'preview';
-		// $rule_action['actions'][] = 'get';
-		// $rule_action['actions'][] = 'update';
-		// $rule_action['actions'][] = 'remove';
+		$rule_action['actions'][] = 'approve';
 
 		return $rule_action;
 	}
@@ -171,6 +169,19 @@ class base extends \TMS_CONTROLLER {
 				$matter_id = $_GET['id'];
 			} else if (isset($_GET['app'])) {
 				$matter_id = $_GET['app'];
+			} else {
+				if (isset($_GET['site'])) {
+					$site = $_GET['site'];
+					$modelSite = \TMS_APP::M('site\admin');
+					$siteUser = $modelSite->byUid($site, $user->unionid);
+					if ($siteUser !== false) {
+						return [true];
+					} else {
+						return [false, '访问控制未通过'];
+					}
+				} else {
+					return [true];
+				}
 			}
 
 			$accessApp = $this->get_access_app();
@@ -224,10 +235,14 @@ class base extends \TMS_CONTROLLER {
 				}
 			}
 		} else if ($path[1] === 'site') {
-			$site = $_GET['site'];
-			$modelSite = \TMS_APP::M('site\admin');
-			$siteUser = $modelSite->byUid($site, $user->unionid);
-			if ($siteUser !== false) {
+			if (isset($_GET['site'])) {
+				$site = $_GET['site'];
+				$modelSite = \TMS_APP::M('site\admin');
+				$siteUser = $modelSite->byUid($site, $user->unionid);
+				if ($siteUser !== false) {
+					return [true];
+				}
+			} else {
 				return [true];
 			}
 		} else {

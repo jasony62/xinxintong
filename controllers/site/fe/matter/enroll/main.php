@@ -353,6 +353,16 @@ class main extends base {
 				$params['page'] = $oOpenPage;
 				/* 是否需要返回登记记录 */
 				if ($oOpenPage->type === 'I' && ($newRecord === 'Y' || empty($ek))) {
+					/* 查询是否有保存的数据 */
+					$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
+					$params['record'] = new \stdClass;
+					if (count($saveRecode) == 1) {
+						$saveRecode = $saveRecode[0];
+						$saveRecode->opData = json_decode($saveRecode->operate_data);
+						$params['record']->data = $saveRecode->opData->data;
+						$params['record']->supplement = $saveRecode->opData->supplement;
+						$params['record']->data_tag = $saveRecode->opData->data_tag;
+					}
 					/* 返回当前用户在关联活动中填写的数据 */
 					if (!empty($oApp->enroll_app_id)) {
 						$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
@@ -360,9 +370,13 @@ class main extends base {
 							$oAssocRec = $modelRec->byUser($oAssocApp, $oUser);
 							if (count($oAssocRec) === 1) {
 								if (!empty($oAssocRec[0]->data)) {
-									$oAssocRecord = new \stdClass;
-									$oAssocRecord->data = $oAssocRec[0]->data;
-									$params['record'] = $oAssocRecord;
+									$oAssocRecord = $oAssocRec[0]->data;
+									if (!isset($params['record']->data)) {
+										$params['record']->data = new \stdClass;
+									}
+									foreach ($oAssocRecord as $key => $value) {
+										$params['record']->data->{$key} = $value;	
+									}
 								}
 							}
 						}
@@ -372,18 +386,18 @@ class main extends base {
 						$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
 						if (count($oGrpPlayer) === 1) {
 							if (!empty($oGrpPlayer[0]->data)) {
-								if (isset($params['record'])) {
-									$oAssocRecord = $params['record'];
-									$oAssocData = json_decode($oGrpPlayer[0]->data);
-									$oAssocRecord->data->_round_id = $oGrpPlayer[0]->round_id;
-									foreach ($oAssocData as $k => $v) {
-										$oAssocRecord->data->{$k} = $v;
-									}
+								if (!isset($params['record']->data)) {
+									$params['record']->data = new \stdClass;
+								}
+								if (is_string($oGrpPlayer[0]->data)) {
+									$oAssocRecord = json_decode($oGrpPlayer[0]->data);
 								} else {
-									$oAssocRecord = new \stdClass;
-									$oAssocRecord->data = json_decode($oGrpPlayer[0]->data);
-									$oAssocRecord->data->_round_id = $oGrpPlayer[0]->round_id;
-									$params['record'] = $oAssocRecord;
+									$oAssocRecord = $oGrpPlayer[0]->data;
+								}
+
+								$oAssocRecord->_round_id = $oGrpPlayer[0]->round_id;
+								foreach ($oAssocRecord as $k => $v) {
+									$params['record']->data->{$k} = $v;
 								}
 							}
 						}
@@ -404,6 +418,17 @@ class main extends base {
 						} else {
 							$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
 							$params['record'] = $oRecord;
+						}
+						if ($oOpenPage->type === 'I') {
+							/* 查询是否有保存的数据 */
+							$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);;
+							if (count($saveRecode) == 1) {
+								$saveRecode = $saveRecode[0];
+								$saveRecode->opData = json_decode($saveRecode->operate_data);
+								$params['record']->data = $saveRecode->opData->data;
+								$params['record']->supplement = $saveRecode->opData->supplement;
+								$params['record']->data_tag = $saveRecode->opData->data_tag;
+							}
 						}
 					}
 				}

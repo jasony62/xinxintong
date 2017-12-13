@@ -263,6 +263,14 @@ class log_model extends \TMS_MODEL {
 		} else {
 			$userOpNum = 1;
 		}
+		/* 如果是登记活动提交操作处理之前保存的数据 */
+		if ($operation->name === 'submit' || $operation->name === 'updateData') {
+			$this->update(
+				'xxt_log_user_matter',
+				['user_last_op' => 'N'],
+				"userid='{$user->userid}' and matter_id='$matter->id' and matter_type='$matter->type' and operation='saveData' and user_last_op='Y'"
+			);
+		}
 		// 新建日志
 		$log = array();
 		$log['siteid'] = $siteId;
@@ -905,5 +913,23 @@ class log_model extends \TMS_MODEL {
 		$data->total = $total;
 
 		return $data;
+	}
+	/* 
+	 * 查询用户最后一条行为记录
+	*/
+	public function lastByUser($matterId, $matterType, $userId, $options = []) {
+		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		$q = [
+			$fields,
+			'xxt_log_user_matter',
+			['userid' => $userId, 'matter_id' => $matterId, 'matter_type' => $matterType, 'user_last_op' => 'Y'],
+		];
+		if (!empty($options['byOp'])) {
+			$q[2]['operation'] = $options['byOp'];
+		}
+
+		$logs = $this->query_objs_ss($q);
+
+		return $logs;
 	}
 }

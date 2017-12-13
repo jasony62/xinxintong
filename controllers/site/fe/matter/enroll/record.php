@@ -26,7 +26,7 @@ class record extends base {
 	 * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
 	 * @param string $submitkey 支持文件分段上传
 	 */
-	public function submit_action($site, $app, $rid = '', $ek = null, $submitkey = '') {
+	public function submit_action($site, $app, $rid = '', $ek = null, $submitkey = '', $subType = 'submit') {
 		/* support CORS */
 		//header('Access-Control-Allow-Origin:*');
 		//header('Access-Control-Allow-Methods:POST');
@@ -94,6 +94,42 @@ class record extends base {
 			/* 当前访问用户的基本信息 */
 			$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
 			$oUser->nickname = $userNickname;
+		}
+
+		if ($subType === 'save') {
+			if (empty($submitkey)) {
+				$submitkey = empty($oUser) ? '' : $oUser->uid;
+			}
+
+			$schemasById = []; // 方便获取登记项定义
+			foreach ($oEnrollApp->dataSchemas as $schema) {
+				$schemasById[$schema->id] = $schema;
+			}
+			$dbData = $this->model('matter\enroll\data')->disposRecrdData($oEnrollApp, $schemasById, $oEnrolledData, $submitkey);
+			if ($dbData[0] === false) {
+				return new \ResponseError($dbData[1]);
+			}
+			$dbData = $dbData[1];
+
+			$posted->data = $dbData;
+			$data_tag = new \stdClass;
+			if (isset($posted->tag) && count(get_object_vars($posted->tag))) {
+				foreach ($posted->tag as $schId => $saveTags) {
+					$data_tag->{$schId} = [];
+					foreach ($saveTags as $saveTag) {
+						$data_tag->{$schId}[] = $saveTag->id;
+					}
+				}
+				unset($posted->tag);
+			}
+			$posted->data_tag = $data_tag;
+			/* 插入到用户对素材的行为日志中 */
+			$operation = new \stdClass;
+			$operation->name = 'saveData';
+			$operation->data = $modelEnl->toJson($posted);
+			$logid = $this->_logUserOp($oEnrollApp, $operation);
+
+			return new \ResponseData($logid);
 		}
 
 		// 检查是否允许登记

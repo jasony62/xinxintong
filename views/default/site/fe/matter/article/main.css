@@ -5,7 +5,7 @@ blockquote{background-color:#fafafa;}
 
 /* left-column */
 #title{font-size:28px;font-weight:700;margin-top:24px;}
-#attribute{margin-top:10px;margin-bottom:30px;padding:0 10px;}
+#attribute{margin-top:10px;margin-bottom:30px;padding:0;}
 #attribute>span{margin-right:15px;color:#999;}
 .article{background-color:#fff;}
 .article .headpic{margin:10px 0}

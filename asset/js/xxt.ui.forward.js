@@ -97,7 +97,7 @@ ngMod.service('tmsForward', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsMod
             event.stopPropagation();
             $rootScope.$apply(function() {
                 if (!oUser.loginExpire) {
-                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + oMatter.siteid).then(function(data) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                         oUser.loginExpire = data.loginExpire;
                         _this.open(oMatter);
                     });

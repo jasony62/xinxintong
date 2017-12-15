@@ -174,7 +174,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', '
                 });
                 window.sessionStorage.setItem('xxt.site.home.auth.pending', method);
             }
-            location.href = '/rest/site/fe/user/login?site=' + siteId;
+            location.href = '/rest/site/fe/user/access?site=platform#login';
         } else {
             tmsContribute.open(oUser, $scope.site);
         }
@@ -187,7 +187,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', '
                 });
                 window.sessionStorage.setItem('xxt.site.home.auth.pending', method);
             }
-            location.href = '/rest/site/fe/user/login?site=' + siteId;
+            location.href = '/rest/site/fe/user/access?site=platform#login';
         } else {
             tmsSubscribe.open(oUser, $scope.site);
         }

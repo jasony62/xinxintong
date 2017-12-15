@@ -9,6 +9,245 @@ class data_model extends \TMS_MODEL {
 	 */
 	const DEFAULT_FIELDS = 'id,value,tag,supplement,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log';
 	/**
+	 * 按题目记录数据
+	 */
+	public function setData($oUser, $oApp, $oRecord, $submitData, $submitkey = '') {
+		if (empty($submitkey)) {
+			$submitkey = empty($oUser) ? '' : $oUser->uid;
+		}
+		
+		$schemasById = []; // 方便获取登记项定义
+		foreach ($oApp->dataSchemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
+		$dbData = $this->disposRecrdData($oApp, $schemasById, $submitData, $submitkey);
+		if ($dbData[0] === false) {
+			return $dbData;
+		}
+		$dbData = $dbData[1];
+
+		$oRecordScore = new \stdClass;
+		$oRecordScore->sum = 0; //记录总分
+		foreach ($dbData as $schemaId => $treatedValue) {
+			if (is_object($treatedValue) || is_array($treatedValue)) {
+				$treatedValue = $this->toJson($treatedValue);
+			}
+
+			$lastSchemaValue = $this->query_obj_ss(
+				[
+					'submit_at,value,modify_log,score',
+					'xxt_enroll_record_data',
+					['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId, 'state' => 1],
+				]
+			);
+			// 计算题目的得分
+			if (isset($schemasById[$schemaId])) {
+				$schema = $schemasById[$schemaId];
+				if ($schema->type == 'shorttext' && isset($schema->format) && $schema->format == 'number') {
+					$weight = isset($schema->weight) ? $schema->weight : 1;
+					$oRecordScore->{$schemaId} = $treatedValue * $weight;
+					$oRecordScore->sum += $oRecordScore->{$schemaId};
+				}
+				/* 计算题目的分数。只支持对单选题和多选题自动打分 */
+				if ($oApp->scenario === 'quiz') {
+					$quizScore = null;
+					if (isset($schema->requireScore) && $schema->requireScore === 'Y') {
+						if (!empty($schema->answer)) {
+							switch ($schema->type) {
+							case 'single':
+								$quizScore = $treatedValue === $schema->answer ? ($schema->score ? $schema->score : 0) : 0;
+								break;
+							case 'multiple':
+								$correct = 0;
+								$pendingValues = explode(',', $treatedValue);
+								is_string($schema->answer) && $schema->answer = explode(',', $schema->answer);
+								foreach ($pendingValues as $pending) {
+									if (in_array($pending, $schema->answer)) {
+										$correct++;
+									} else {
+										$correct = 0;
+										break;
+									}
+								}
+								$quizScore = ($schema->score ? $schema->score : 0) / count($schema->answer) * $correct;
+								break;
+							//主观题
+							default:
+								if (!empty($assignScore) && isset($assignScore->{$schemaId})) {
+									//有指定的优先使用指定的评分
+									$quizScore = $assignScore->{$schemaId};
+								} elseif (!empty($lastSchemaValue) && ($lastSchemaValue->value == $treatedValue) && !empty($lastSchemaValue->score)) {
+									//有提交记录且没修改且已经评分
+									$quizScore = $lastSchemaValue->score;
+								} elseif ($treatedValue === $schema->answer) {
+									$quizScore = $schema->score;
+								} else {
+									$quizScore = 0;
+								}
+								break;
+							}
+						}
+						//记录分数
+						if (isset($quizScore)) {
+							$oRecordScore->{$schemaId} = $quizScore;
+							$oRecordScore->sum += (int) $quizScore;
+						}
+					}
+				}
+			}
+			//记录结果
+			if (false === $lastSchemaValue) {
+				$schemaValue = [
+					'aid' => $oApp->id,
+					'rid' => $oRecord->rid,
+					'enroll_key' => $oRecord->enroll_key,
+					'submit_at' => $oRecord->enroll_at,
+					'userid' => isset($oUser->uid) ? $oUser->uid : '',
+					'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+					'schema_id' => $schemaId,
+					'value' => $this->escape($treatedValue),
+				];
+				isset($oRecordScore->{$schemaId}) && $schemaValue['score'] = $oRecordScore->{$schemaId};
+				$this->insert('xxt_enroll_record_data', $schemaValue, false);
+			} else {
+				if ($treatedValue !== $lastSchemaValue->value) {
+					if (strlen($lastSchemaValue->modify_log)) {
+						$valueModifyLogs = json_decode($lastSchemaValue->modify_log);
+					} else {
+						$valueModifyLogs = [];
+					}
+					$newModifyLog = new \stdClass;
+					$newModifyLog->submitAt = $lastSchemaValue->submit_at;
+					$newModifyLog->value = $this->escape($lastSchemaValue->value);
+					$valueModifyLogs[] = $newModifyLog;
+					$schemaValue = [
+						'submit_at' => $oRecord->enroll_at,
+						'userid' => isset($oUser->uid) ? $oUser->uid : '',
+						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+						'value' => $this->escape($treatedValue),
+						'modify_log' => $this->toJson($valueModifyLogs),
+					];
+				}
+				$schemaValue['score'] = isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0;
+
+				if (!empty($schemaValue)) {
+					$this->update(
+						'xxt_enroll_record_data',
+						$schemaValue,
+						['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId, 'state' => 1]
+					);
+				}
+			}
+		}
+
+		return (object) ['dbData' => $dbData, 'score' => $oRecordScore];
+	}
+	/*
+	 * 处理提交的数据
+	 */
+	public function disposRecrdData($oApp, $schemasById, $submitData, $submitkey) {
+		$dbData = new \stdClass; // 处理后的保存到数据库中的登记记录
+		/* 处理提交的数据，进行格式转换等操作 */
+		foreach ($submitData as $schemaId => $submitVal) {
+			if ($schemaId === 'member' && is_object($submitVal)) {
+				/* 自定义用户信息 */
+				$dbData->{$schemaId} = $submitVal;
+			} else if (isset($schemasById[$schemaId])) {
+				/* 活动中定义的登记项 */
+				$schema = $schemasById[$schemaId];
+				if (empty($schema->type)) {
+					return [false, '登记项【' . $schema->id . '】定义不完整'];
+				}
+				switch ($schema->type) {
+				case 'image':
+					if (is_array($submitVal) && (isset($submitVal[0]->serverId) || isset($submitVal[0]->imgSrc))) {
+						/* 上传图片 */
+						$treatedValue = [];
+						$fsuser = $this->model('fs/user', $oApp->siteid);
+						foreach ($submitVal as $img) {
+							$rst = $fsuser->storeImg($img);
+							if (false === $rst[0]) {
+								return $rst;
+							}
+							$treatedValue[] = $rst[1];
+						}
+						$treatedValue = implode(',', $treatedValue);
+						$dbData->{$schemaId} = $treatedValue;
+					} else if (empty($submitVal)) {
+						$dbData->{$schemaId} = $treatedValue = '';
+					} else if (is_string($submitVal)) {
+						$dbData->{$schemaId} = $submitVal;
+					} else {
+						throw new \Exception('登记的数据类型和登记项【image】需要的类型不匹配');
+					}
+					break;
+				case 'file':
+					if (is_array($submitVal)) {
+						$treatedValue = [];
+						foreach ($submitVal as $file) {
+							if (isset($file->uniqueIdentifier)) {
+								/* 新上传的文件 */
+								if (defined('SAE_TMP_PATH')) {
+									$fsAli = $this->model('fs/alioss', $oApp->siteid);
+									$dest = '/' . $oApp->id . '/' . $submitkey . '_' . $file->name;
+									$fileUploaded2 = $fsAli->getBaseURL() . $dest;
+								} else {
+									$fsUser = $this->model('fs/local', $oApp->siteid, '_user');
+									$fsResum = $this->model('fs/local', $oApp->siteid, '_resumable');
+									$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
+									$dirUploaded = $fsUser->rootDir . '/' . $submitkey;
+									if (!file_exists($dirUploaded)) {
+										if (false === mkdir($dirUploaded, 0777, true)) {
+											return array(false, '创建文件上传目录失败');
+										}
+									}
+									if (file_exists($fileUploaded)) {
+										/* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
+										$fileUploaded2 = $dirUploaded . '/' . $file->name;
+										if (false === @rename($fileUploaded, $fileUploaded2)) {
+											return array(false, '移动上传文件失败');
+										}
+									}
+								}
+								unset($file->uniqueIdentifier);
+								$file->url = $fileUploaded2;
+								$treatedValue[] = $file;
+							} else {
+								/* 已经上传过的文件 */
+								$treatedValue[] = $file;
+							}
+						}
+						$dbData->{$schemaId} = $treatedValue;
+					} else if (is_string($submitVal)) {
+						$dbData->{$schemaId} = $submitVal;
+					} else {
+						throw new \Exception('登记的数据类型和登记项【file】需要的类型不匹配');
+					}
+					break;
+				case 'multiple':
+					if (is_object($submitVal)) {
+						// 多选题，将选项合并为逗号分隔的字符串
+						$treatedValue = implode(',', array_keys(array_filter((array) $submitVal, function ($i) {return $i;})));
+						$dbData->{$schemaId} = $treatedValue;
+					} else if (is_string($submitVal)) {
+						$dbData->{$schemaId} = $submitVal;
+					} else {
+						throw new \Exception('登记的数据类型和登记项【multiple】需要的类型不匹配');
+					}
+					break;
+				default:
+					// string & score
+					$dbData->{$schemaId} = $treatedValue = $submitVal;
+				}
+			} else {
+				/* 如果登记活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在登记项定义中 */
+				$dbData->{$schemaId} = $treatedValue = $submitVal;
+			}
+		}
+
+		return [true, $dbData];
+	}
+	/**
 	 * 获得指定登记记录登记数据的详细信息
 	 */
 	public function byRecord($ek, $options = []) {

@@ -3,7 +3,7 @@
         <div class='form-inline'>
             <button class='btn btn-default' ng-click="toggleAbsent()">缺席<span ng-bind="absentUsers.length"></span>人，<span ng-if="category!=='absent'">查看</span><span ng-if="category==='absent'">关闭</span></button>
             <section style='display:inline-block' ng-if="category==='enrollee'">
-                <button class='btn btn-default' ng-click='filter()' ng-if="app.groupApp||app.multi_rounds=='Y'"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                 <div class="btn-group" uib-dropdown>
                     <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                         排序
@@ -22,7 +22,7 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">更多操作 <i class="caret"></i></button>
                     <ul class="dropdown-menu">
                         <li><a href="" ng-click="notify(true)">给选中用户发消息<span>（{{rows.count}}）</span></a></li>
-                        <li><a href="" ng-click="notify()">给全部用户发消息</a></li>
+                        <li><a href="" ng-click="notify()">给全部用户发消息<span>（{{page.total}}）</span></a></li>
                         <li class="divider"></li>
                         <li><a href="" ng-click="export()">导出全部数据</a></li>
                     </ul>
@@ -30,6 +30,12 @@
             </section>
             <div class='form-group pull-right' ng-if="category==='enrollee'">
                 <button type='button' class='btn btn-default' ng-click="searchEnrollee()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
+            </div>
+            <div class='form-group pull-right' ng-if="category==='absent'">
+                <div class='input-group'>
+                    <span class="input-group-addon">当前选中轮次</span>
+                    <input class='form-control' ng-model='criteria.turn_title' readonly="readonly" style='width:100px'>
+                </div>
             </div>
         </div>
     </div>
@@ -128,6 +134,8 @@
                         <th style='width:48px'>序号</th>
                         <th>姓名</th>
                         <th>分组</th>
+                        <th>备注</th>
+                        <th style='width:48px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,9 +146,34 @@
                         <td>{{$index+1}}</td>
                         <td>{{user.nickname}}</td>
                         <td>{{user.round_title}}</td>
+                        <td>{{user.absent_cause.cause}}</td>
+                        <td>
+                            <button class="btn btn-xs btn-default" ng-click="editCause(user)">
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+<script type='text/ng-template' id='editCause.html'>
+    <div class="modal-header">
+        <h5 class="modal-title">修改备注</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-3 control-label">备注</label>
+                <div class="col-md-9">
+                    <textarea name="cause" ng-model="cause" style="width:100%;height:100px;resize:none;"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

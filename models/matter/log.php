@@ -263,6 +263,14 @@ class log_model extends \TMS_MODEL {
 		} else {
 			$userOpNum = 1;
 		}
+		/* 如果是登记活动提交操作处理之前保存的数据 */
+		if ($operation->name === 'submit' || $operation->name === 'updateData') {
+			$this->update(
+				'xxt_log_user_matter',
+				['user_last_op' => 'N'],
+				"userid='{$user->userid}' and matter_id='$matter->id' and matter_type='$matter->type' and operation='saveData' and user_last_op='Y'"
+			);
+		}
 		// 新建日志
 		$log = array();
 		$log['siteid'] = $siteId;
@@ -304,23 +312,77 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 查询用户操作素材日志
 	 */
-	public function &listUserMatterOp($matterId, $matterType, $page, $size) {
+	public function &listUserMatterOp($matterId, $matterType, $options = [], $page, $size) {
 		$result = new \stdClass;
 		$q = [
 			'l.userid,l.nickname,l.operation,l.operate_at,l.user_op_num,l.matter_op_num',
 			'xxt_log_user_matter l',
-			"l.matter_type='$matterType' and l.matter_id='$matterId'",
+			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
 		];
+
+		if (!empty($options['byUser'])) {
+			$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
+		}
+		if (!empty($options['byOp'])) {
+			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
+		}
+		if (!empty($options['byRid'])) {
+			$q[2] .= " and l.operate_data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
+		}
+
 		/**
 		 * 分页数据
 		 */
 		$q2 = [
 			'o' => 'l.operate_at desc',
-			'r' => [
+		];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = [
 				'o' => (($page - 1) * $size),
 				'l' => $size,
-			],
+			];
+		}
+
+		$result->logs = $this->query_objs_ss($q, $q2);
+
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
+	}
+	/**
+	 * 查询用户操作素材日志
+	 */
+	public function &listMatterOp($matterId, $matterType, $options = [], $page, $size) {
+		$result = new \stdClass;
+		$q = [
+			'l.operator userid,l.operator_name nickname,l.operation,l.operate_at',
+			'xxt_log_matter_op l',
+			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
 		];
+
+		if (!empty($options['byUser'])) {
+			$q[2] .= " and l.operator_name like '%" . $this->escape($options['byUser']) . "%'";
+		}
+		if (!empty($options['byOp'])) {
+			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
+		}
+		if (!empty($options['byRid'])) {
+			$q[2] .= " and l.data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
+		}
+
+		/**
+		 * 分页数据
+		 */
+		$q2 = [
+			'o' => 'l.operate_at desc',
+		];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			];
+		}
 
 		$result->logs = $this->query_objs_ss($q, $q2);
 
@@ -380,7 +442,8 @@ class log_model extends \TMS_MODEL {
 			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
 		);
 		// 记录新日志，或更新日志
-		if ($userLastLog === false || $current > $userLastLog->operate_at + 600 || $userLastLog->operation === 'C' || $userLastLog->operation === 'transfer') {
+		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restoreData'];
+		if ($userLastLog === false || in_array($userLastLog->operation, $filterOp) || $current > $userLastLog->operate_at + 600) {
 			/* 两次更新操作的间隔超过10分钟，产生新日志 */
 			$d = array();
 			$d['siteid'] = $siteId;
@@ -850,5 +913,23 @@ class log_model extends \TMS_MODEL {
 		$data->total = $total;
 
 		return $data;
+	}
+	/* 
+	 * 查询用户最后一条行为记录
+	*/
+	public function lastByUser($matterId, $matterType, $userId, $options = []) {
+		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		$q = [
+			$fields,
+			'xxt_log_user_matter',
+			['userid' => $userId, 'matter_id' => $matterId, 'matter_type' => $matterType, 'user_last_op' => 'Y'],
+		];
+		if (!empty($options['byOp'])) {
+			$q[2]['operation'] = $options['byOp'];
+		}
+
+		$logs = $this->query_objs_ss($q);
+
+		return $logs;
 	}
 }

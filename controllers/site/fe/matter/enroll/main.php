@@ -25,7 +25,7 @@ class main extends base {
 	 * @param string $page 要进入活动的哪一页，页面的名称
 	 *
 	 */
-	public function index_action($site, $app, $page = '', $ignoretime = 'N') {
+	public function index_action($site, $app, $rid = '', $page = '', $ignoretime = 'N') {
 		empty($site) && $this->outputError('没有指定当前站点的ID');
 		empty($app) && $this->outputError('登记活动ID为空');
 
@@ -66,7 +66,7 @@ class main extends base {
 		} else {
 			if (empty($page)) {
 				/* 计算打开哪个页面 */
-				$oOpenPage = $this->_defaultPage($oApp, true, $ignoretime);
+				$oOpenPage = $this->_defaultPage($oApp, $rid, true, $ignoretime);
 			} else {
 				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp->id, $page);
 			}
@@ -175,7 +175,7 @@ class main extends base {
 	 * 2、如果已经登记过，且指定了登记过访问页面，进入指定的页面
 	 * 3、如果已经登记过，且没有指定登记过访问页面，进入第一个查看页
 	 */
-	private function _defaultPage(&$oApp, $redirect = false, $ignoretime = 'N') {
+	private function _defaultPage(&$oApp, $rid = '', $redirect = false, $ignoretime = 'N') {
 		$oUser = $this->who;
 		$oOpenPage = null;
 		$modelPage = $this->model('matter\enroll\page');
@@ -197,7 +197,7 @@ class main extends base {
 		if ($oOpenPage === null) {
 			// 根据登记状态确定进入页面
 			$modelRec = $this->model('matter\enroll\record');
-			$userEnrolled = $modelRec->lastByUser($oApp, $oUser);
+			$userEnrolled = $modelRec->lastByUser($oApp, $oUser, ['assignRid' => $rid]);
 			if ($userEnrolled) {
 				if (empty($oApp->enrolled_entry_page)) {
 					$pages = $modelPage->byApp($oApp->id);
@@ -243,7 +243,7 @@ class main extends base {
 	 * @param string $ek record's enroll key
 	 * @param string $newRecord
 	 */
-	public function get_action($app, $rid = null, $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
+	public function get_action($app, $rid = '', $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
 		/* 登记活动定义 */
 		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded]);
 		if ($oApp === false) {
@@ -306,18 +306,28 @@ class main extends base {
 			}
 		}
 		if ($oApp->multi_rounds === 'Y') {
-			$params['activeRound'] = $this->model('matter\enroll\round')->getActive($oApp);
+			$modelRnd = $this->model('matter\enroll\round');
+			if (empty($rid)) {
+				$oActiveRnd = $modelRnd->getActive($oApp);
+				if ($oActiveRnd) {
+					$rid = $oActiveRnd->rid;
+				}
+				$params['activeRound'] = $oActiveRnd;
+			} else {
+				$params['activeRound'] = $modelRnd->byId($rid);
+			}
 		}
 
 		$modelRec = $this->model('matter\enroll\record');
 		if (!in_array($page, ['repos', 'remark', 'rank', 'score'])) {
-			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser);
+			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 自动登记???，解决之要打开了页面就登记？ */
 			if (!$oUserEnrolled && $oApp->can_autoenroll === 'Y' && $oOpenPage->autoenroll_onenter === 'Y') {
 				$options = [
 					'fields' => 'enroll_key,enroll_at',
+					'asaignRid' => $rid,
 				];
-				$lastRecord = $modelRec->lastByUser($oApp->id, $oUser, $options);
+				$lastRecord = $modelRec->lastByUser($oApp, $oUser, $options);
 				if (false === $lastRecord) {
 					$modelRec->add($oApp->siteid, $oApp, $oUser, (empty($posted->referrer) ? '' : $posted->referrer));
 				} else if ($lastRecord->enroll_at === '0') {
@@ -330,7 +340,7 @@ class main extends base {
 			}
 			/* 计算打开哪个页面 */
 			if (empty($page)) {
-				$oOpenPage = $this->_defaultPage($oApp, false, $ignoretime);
+				$oOpenPage = $this->_defaultPage($oApp, $rid, false, $ignoretime);
 			} else {
 				$modelPage = $this->model('matter\enroll\page');
 				$oOpenPage = $modelPage->byName($oApp->id, $page);
@@ -343,6 +353,16 @@ class main extends base {
 				$params['page'] = $oOpenPage;
 				/* 是否需要返回登记记录 */
 				if ($oOpenPage->type === 'I' && ($newRecord === 'Y' || empty($ek))) {
+					/* 查询是否有保存的数据 */
+					$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
+					$params['record'] = new \stdClass;
+					if (count($saveRecode) == 1) {
+						$saveRecode = $saveRecode[0];
+						$saveRecode->opData = json_decode($saveRecode->operate_data);
+						$params['record']->data = $saveRecode->opData->data;
+						$params['record']->supplement = $saveRecode->opData->supplement;
+						$params['record']->data_tag = $saveRecode->opData->data_tag;
+					}
 					/* 返回当前用户在关联活动中填写的数据 */
 					if (!empty($oApp->enroll_app_id)) {
 						$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
@@ -350,9 +370,13 @@ class main extends base {
 							$oAssocRec = $modelRec->byUser($oAssocApp, $oUser);
 							if (count($oAssocRec) === 1) {
 								if (!empty($oAssocRec[0]->data)) {
-									$oAssocRecord = new \stdClass;
-									$oAssocRecord->data = $oAssocRec[0]->data;
-									$params['record'] = $oAssocRecord;
+									$oAssocRecord = $oAssocRec[0]->data;
+									if (!isset($params['record']->data)) {
+										$params['record']->data = new \stdClass;
+									}
+									foreach ($oAssocRecord as $key => $value) {
+										$params['record']->data->{$key} = $value;	
+									}
 								}
 							}
 						}
@@ -362,18 +386,18 @@ class main extends base {
 						$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
 						if (count($oGrpPlayer) === 1) {
 							if (!empty($oGrpPlayer[0]->data)) {
-								if (isset($params['record'])) {
-									$oAssocRecord = $params['record'];
-									$oAssocData = json_decode($oGrpPlayer[0]->data);
-									$oAssocRecord->data->_round_id = $oGrpPlayer[0]->round_id;
-									foreach ($oAssocData as $k => $v) {
-										$oAssocRecord->data->{$k} = $v;
-									}
+								if (!isset($params['record']->data)) {
+									$params['record']->data = new \stdClass;
+								}
+								if (is_string($oGrpPlayer[0]->data)) {
+									$oAssocRecord = json_decode($oGrpPlayer[0]->data);
 								} else {
-									$oAssocRecord = new \stdClass;
-									$oAssocRecord->data = json_decode($oGrpPlayer[0]->data);
-									$oAssocRecord->data->_round_id = $oGrpPlayer[0]->round_id;
-									$params['record'] = $oAssocRecord;
+									$oAssocRecord = $oGrpPlayer[0]->data;
+								}
+
+								$oAssocRecord->_round_id = $oGrpPlayer[0]->round_id;
+								foreach ($oAssocRecord as $k => $v) {
+									$params['record']->data->{$k} = $v;
 								}
 							}
 						}
@@ -386,6 +410,7 @@ class main extends base {
 								$options = [
 									'fields' => '*',
 									'verbose' => 'Y',
+									'assignRid' => $rid,
 								];
 								$oLastRecord = $modelRec->lastByUser($oApp, $oUser, $options);
 								$params['record'] = $oLastRecord;
@@ -393,6 +418,17 @@ class main extends base {
 						} else {
 							$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
 							$params['record'] = $oRecord;
+						}
+						if ($oOpenPage->type === 'I') {
+							/* 查询是否有保存的数据 */
+							$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);;
+							if (count($saveRecode) == 1) {
+								$saveRecode = $saveRecode[0];
+								$saveRecode->opData = json_decode($saveRecode->operate_data);
+								$params['record']->data = $saveRecode->opData->data;
+								$params['record']->supplement = $saveRecode->opData->supplement;
+								$params['record']->data_tag = $saveRecode->opData->data_tag;
+							}
 						}
 					}
 				}

@@ -17,7 +17,7 @@ class matter extends \site\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$aMatterTypes = ['article', 'news', 'channel'];
+		$aMatterTypes = ['article', 'link', 'channel'];
 		$docs = $this->model('matter\mission\matter')->byMission($oMission->id, $aMatterTypes, ['is_public' => 'Y']);
 
 		return new \ResponseData($docs);

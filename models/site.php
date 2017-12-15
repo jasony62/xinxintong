@@ -472,7 +472,7 @@ class site_model extends \TMS_MODEL {
 		}
 		$relation = [
 			'siteid' => $oMatter->siteid,
-			'mission_id' => isset($oMatter->mission_id) ? $oMatter->mission_id : 0,
+			'mission_id' => !empty($oMatter->mission_id) ? $oMatter->mission_id : 0,
 			'matter_id' => $oMatter->id,
 			'matter_type' => $oMatter->type,
 			'matter_title' => $this->escape($oMatter->title),

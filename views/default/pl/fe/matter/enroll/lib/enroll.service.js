@@ -160,13 +160,47 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * app
      */
     ngModule.provider('srvEnrollApp', function() {
+        function _fnMapAssocEnrollApp(oApp) {
+            var enrollDataSchemas = [];
+            if (oApp.enrollApp && oApp.enrollApp.dataSchemas) {
+                oApp.enrollApp.dataSchemas.forEach(function(item) {
+                    if (oApp._unionSchemasById[item.id] === undefined) {
+                        item.assocState = '';
+                        oApp._unionSchemasById[item.id] = item;
+                        enrollDataSchemas.push(item);
+                    } else if (oApp._unionSchemasById[item.id].fromApp === oApp.enrollApp.id) {
+                        item.assocState = 'yes';
+                    } else {
+                        item.assocState = 'no';
+                    }
+                });
+            }
+            oApp._schemasFromEnrollApp = enrollDataSchemas;
+        }
+
+        function _fnMapAssocGroupApp(oApp) {
+            var groupDataSchemas = [];
+            if (oApp.groupApp && oApp.groupApp.dataSchemas) {
+                oApp.groupApp.dataSchemas.forEach(function(item) {
+                    if (oApp._unionSchemasById[item.id] === undefined) {
+                        item.assocState = '';
+                        oApp._unionSchemasById[item.id] = item;
+                        groupDataSchemas.push(item);
+                    } else if (oApp._unionSchemasById[item.id].fromApp === oApp.groupApp.id) {
+                        item.assocState = 'yes';
+                    } else {
+                        item.assocState = 'no';
+                    }
+                });
+            }
+            oApp._schemasFromGroupApp = groupDataSchemas;
+        }
+
         function _fnMapSchemas(oApp) {
             var mapOfSchemaByType = {},
                 mapOfSchemaById = {},
                 mapOfUnionSchemaById = {},
                 inputSchemas = [],
-                enrollDataSchemas = [],
-                groupDataSchemas = [],
                 canFilteredSchemas = [];
 
             oApp.dataSchemas.forEach(function(schema) {
@@ -181,32 +215,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     canFilteredSchemas.push(schema);
                 }
             });
-            // 关联的报名登记项
-            if (oApp.enrollApp && oApp.enrollApp.dataSchemas) {
-                oApp.enrollApp.dataSchemas.forEach(function(item) {
-                    if (mapOfUnionSchemaById[item.id] === undefined) {
-                        mapOfUnionSchemaById[item.id] = item;
-                        enrollDataSchemas.push(item);
-                    }
-                });
-            }
-            // 关联的分组活动的登记项
-            if (oApp.groupApp && oApp.groupApp.dataSchemas) {
-                oApp.groupApp.dataSchemas.forEach(function(item) {
-                    if (mapOfUnionSchemaById[item.id] === undefined) {
-                        mapOfUnionSchemaById[item.id] = item;
-                        groupDataSchemas.push(item);
-                    }
-                });
-            }
-
             oApp._schemasByType = mapOfSchemaByType;
             oApp._schemasById = mapOfSchemaById;
             oApp._schemasForInput = inputSchemas;
             oApp._unionSchemasById = mapOfUnionSchemaById;
             oApp._schemasCanFilter = canFilteredSchemas;
-            oApp._schemasFromEnrollApp = enrollDataSchemas;
-            oApp._schemasFromGroupApp = groupDataSchemas;
+
+            _fnMapAssocEnrollApp(oApp);
+            _fnMapAssocGroupApp(oApp);
         }
 
 
@@ -437,6 +453,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     return deferred.promise;
                 },
                 assignEnrollApp: function() {
+                    var defer = $q.defer();
                     $uibModal.open({
                         templateUrl: 'assignEnrollApp.html',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -464,11 +481,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _self.update('enroll_app_id').then(function(rsp) {
                             var url = '/rest/pl/fe/matter/enroll/get?site=' + _siteId + '&app=' + _oApp.enroll_app_id;
                             http2.get(url, function(rsp) {
-                                rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
                                 _oApp.enrollApp = rsp.data;
+                                _fnMapAssocEnrollApp(_oApp);
+                                defer.resolve(_oApp.enrollApp);
                             });
                         });
                     });
+                    return defer.promise;
                 },
                 assignGroupApp: function() {
                     var defer = $q.defer();
@@ -500,6 +519,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             var url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _oApp.group_app_id;
                             http2.get(url, function(rsp) {
                                 _oApp.groupApp = rsp.data;
+                                _fnMapAssocGroupApp(_oApp);
                                 defer.resolve(_oApp.groupApp);
                             });
                         });
@@ -571,7 +591,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 add: function() {
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=1',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                             $scope.round = {
@@ -612,10 +632,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 edit: function(round) {
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=1',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = { title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
+                            $scope.round = { rid: round.rid, title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
                             $scope.roundState = RoundState;
                             $scope.$on('xxt.tms-datepicker.change', function(event, data) {
                                 if (data.state === 'start_at') {
@@ -655,6 +675,17 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     data: $scope.round
                                 });
                             };
+                            $scope.downloadQrcode = function(url) {
+                                $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+                            };
+                            srvEnrollApp.get().then(function(oApp) {
+                                var rndEntryUrl;
+                                rndEntryUrl = oApp.entryUrl + '&rid=' + round.rid;
+                                $scope.entry = {
+                                    url: rndEntryUrl,
+                                    qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + oApp.siteid + '&url=' + encodeURIComponent(rndEntryUrl),
+                                }
+                            });
                         }]
                     }).result.then(function(rst) {
                         var url = _RestURL;
@@ -899,7 +930,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     http2.get('/rest/pl/fe/matter/enroll/record/restore?site=' + _siteId + '&app=' + _appId + '&key=' + record.enroll_key, function(rsp) {
                         var i = _ins._aRecords.indexOf(record);
                         _ins._aRecords.splice(i, 1);
-                        _ins._oPage.total = _oPage.total - 1;
+                        _ins._oPage.total = _ins._oPage.total - 1;
                     });
                 }
             };
@@ -965,7 +996,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url += '?site=' + _siteId;
                         url += '&app=' + _appId;
                         url += '&tmplmsg=' + notify.tmplmsg.id;
-                        url += _ins._oPage.joinParams();
 
                         http2.post(url, targetAndMsg, function(data) {
                             noticebox.success('发送完成');
@@ -1355,7 +1385,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * op round
      */
     ngModule.provider('srvOpEnrollRound', function() {
-        var _siteId, _appId, _accessId, _rounds, _oPage,
+        var _siteId, _appId, _accessId, _rounds, _oPage, _checked,
             _RestURL = '/rest/site/op/matter/enroll/round/',
             RoundState = ['新建', '启用', '停止'];
 
@@ -1417,9 +1447,41 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * log
      */
     ngModule.provider('srvEnrollLog', function() {
-        this.$get = ['$q', 'http2', function($q, http2) {
+        var _siteId, _appId, _plOperations, _siteOperations;
+
+        this.config = function(siteId, appId) {
+            _siteId = siteId;
+            _appId = appId;
+            _plOperations = [{
+                value: 'add',
+                title: '新增记录'
+            },{
+                value: 'updateData',
+                title: '修改记录'
+            },{
+                value: 'removeData',
+                title: '删除记录'
+            },{
+                value: 'restoreData',
+                title: '恢复记录'
+            },{
+                value: 'U',
+                title: '修改活动'
+            }];
+            _siteOperations = [{
+                value: 'submit',
+                title: '提交'
+            },{
+                value: 'updateData',
+                title: '修改记录'
+            },{
+                value: 'removeData',
+                title: '删除记录'
+            }];
+        };
+        this.$get = ['$q', 'http2', '$uibModal', function($q, http2, $uibModal) {
             return {
-                list: function(_appId, page) {
+                list: function(page, type, criteria) {
                     var defer = $q.defer(),
                         url;
                     if (!page || !page._j) {
@@ -1435,12 +1497,55 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }
                         });
                     }
-                    url = '/rest/pl/fe/matter/enroll/log/list?app=' + _appId + page._j();
-                    http2.get(url, function(rsp) {
+                    url = '/rest/pl/fe/matter/enroll/log/list?logType=' + type + '&app=' + _appId + page._j();
+                    http2.post(url, criteria, function(rsp) {
                         rsp.data.total && (page.total = rsp.data.total);
                         defer.resolve(rsp.data.logs);
                     });
 
+                    return defer.promise;
+                },
+                filter: function(type) {
+                    var defer = $q.defer();
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/logFilter.html?_=1',
+                        controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                            var oCriteria;
+                            $scope2.type = type;
+                            $scope2.siteOperations = _siteOperations;
+                            $scope2.plOperations = _plOperations;
+                            $scope2.pageOfRound = {
+                                at: 1,
+                                size: 5,
+                                j: function() {
+                                    return '&page=' + this.at + '&size=' + this.size;
+                                }
+                            };
+                            $scope2.criteria = oCriteria = {
+                                byUser: '',
+                                byRid: '',
+                                byOp: ''
+                            };
+                            $scope2.doSearchRound = function() {
+                                var url = '/rest/pl/fe/matter/enroll/round/list?site=' + _siteId + '&app=' + _appId + $scope2.pageOfRound.j();
+                                http2.get(url, function(rsp) {
+                                    oCriteria.byRid = rsp.data.active.rid;
+                                    $scope2.activeRound = rsp.data.active;
+                                    $scope2.rounds = rsp.data.rounds;
+                                    $scope2.rounds.total = rsp.data.total;
+                                });
+                            };
+                            $scope2.cancel = function() {
+                                $mi.dismiss();
+                            };
+                            $scope2.ok = function() {
+                                defer.resolve(oCriteria);
+                                $mi.close();
+                            };
+                            $scope2.doSearchRound();
+                        }],
+                        backdrop: 'static',
+                    });
                     return defer.promise;
                 }
             };

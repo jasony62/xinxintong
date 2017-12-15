@@ -33,10 +33,10 @@ class page extends \pl\fe\matter\base {
 	 * 更新活动的页面的属性信息
 	 *
 	 * $aid 活动的id
-	 * $pid 页面的id，如果id==0，是固定页面
+	 * $page 页面的id，如果id==0，是固定页面
 	 * $cid 页面对应code page id
 	 */
-	public function update_action($site, $app, $pid, $cname) {
+	public function update_action($site, $app, $page, $cname) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -52,7 +52,7 @@ class page extends \pl\fe\matter\base {
 			$rst = $modelCode->modify($code->id, $data);
 			unset($nv->html);
 		}
-		if ($pid != 0 && count(array_keys(get_object_vars($nv)))) {
+		if ($page != 0 && count(array_keys(get_object_vars($nv)))) {
 			$model = $this->model();
 			if (isset($nv->data_schemas)) {
 				$nv->data_schemas = $model->escape($model->toJson($nv->data_schemas));
@@ -66,7 +66,7 @@ class page extends \pl\fe\matter\base {
 			$rst = $model->update(
 				'xxt_signin_page',
 				$nv,
-				["aid" => $app, "id" => $pid]
+				["aid" => $app, "id" => $page]
 			);
 		}
 

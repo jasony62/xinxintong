@@ -16,18 +16,59 @@ class coin extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function rules_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+	public function rules_action($app) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
+		}
+		$modelEnl = $this->model('matter\enroll');
+		if (false === ($oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid']))) {
+			return new \ResponseError();
 		}
 
 		$modelRule = $this->model('site\coin\rule');
 
-		$filter = 'ID:' . $app;
-
-		$rules = $modelRule->byMatterFilter($filter);
+		$filter = 'ID:' . $oApp->id;
+		$rules = $modelRule->byMatterFilter($filter, ['fields' => 'id,act,actor_delta,actor_overlap,matter_type']);
 
 		return new \ResponseData($rules);
+	}
+	/**
+	 *
+	 */
+	public function saveRules_action($app) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+		$modelEnl = $this->model('matter\enroll');
+		if (false === ($oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid']))) {
+			return new \ResponseError();
+		}
+
+		$newRules = [];
+		$rules = $this->getPostJson();
+
+		foreach ($rules as $rule) {
+			if (empty($rule->id)) {
+				if ($rule->actor_delta != 0) {
+					$rule->siteid = $oApp->siteid;
+					$rule->matter_type = 'enroll';
+					$rule->matter_filter = 'ID:' . $oApp->id;
+					$id = $modelEnl->insert('xxt_coin_rule', $rule, true);
+					$newRules[$rule->act] = $id;
+				}
+			} else {
+				$modelEnl->update(
+					'xxt_coin_rule',
+					[
+						'actor_delta' => $rule->actor_delta,
+						'actor_overlap' => $rule->actor_overlap,
+					],
+					['id' => $rule->id]
+				);
+			}
+		}
+
+		return new \ResponseData($newRules);
 	}
 	/**
 	 *
@@ -61,37 +102,6 @@ class coin extends \pl\fe\matter\base {
 		$q[0] = 'count(*)';
 		$result->total = $model->query_val_ss($q);
 
-
 		return new \ResponseData($result);
-	}
-	/**
-	 *
-	 */
-	public function saveRules_action($site) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$newRules = [];
-		$model = $this->model();
-		$rules = $this->getPostJson();
-
-		foreach ($rules as $rule) {
-			if (empty($rule->id) && ($rule->actor_delta != 0)) {
-				$rule->siteid = $site;
-				$id = $model->insert('xxt_coin_rule', $rule, true);
-				$newRules[$rule->act] = $id;
-			} else {
-				$model->update(
-					'xxt_coin_rule',
-					[
-						'actor_delta' => $rule->actor_delta,
-					],
-					"id=$rule->id"
-				);
-			}
-		}
-
-		return new \ResponseData($newRules);
 	}
 }

@@ -52,45 +52,47 @@
         <div class='pl-layout-main pl-layout-main-topnav'>
             <nav class='navbar pl-navbar-default pl-navbar-fixed-top'>
                 <div class='container-fluid ng-cloak' ng-cloak>
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle" ng-click="isNavCollapsed=!isNavCollapsed">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                    </div>
-                    <div class="collapse navbar-collapse" uib-collapse="isNavCollapsed">
-                        <form class='navbar-form navbar-left'>
-                            <div class='input-group'>
-                                <select class='form-control' title='团队列表' ng-model="frameState.sid ">
-                                    <option value="{{site.id}} " ng-repeat="site in sites ">{{site.name}}</option>
-                                </select>
-                                <div class='input-group-btn' ng-if="frameState.sid ">
-                                    <button class='btn btn-default' ng-click="openSite(frameState.sid) "><span class='glyphicon glyphicon-cog'></span> 设置</button>
-                                </div>
-                            </div>
-                            <button class='btn btn-default' ng-click="createSite() "><span class='glyphicon glyphicon-plus'></span> 新团队</button>
-                        </form>
-                        <form class='navbar-form navbar-right ng-cloak' ng-cloak>
-                            <button class="btn btn-default " ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
-                                <span class='glyphicon glyphicon-bell'> </span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
+                    <div class='row'>
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" ng-click="isNavCollapsed=!isNavCollapsed">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
                             </button>
-                            <div class="btn-group" uib-dropdown>
-                                <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
-                                <button type="button" class="btn btn-default" uib-dropdown-toggle>
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
+                        </div>
+                        <div class="collapse navbar-collapse" uib-collapse="isNavCollapsed">
+                            <form class='navbar-form navbar-left'>
+                                <div class='input-group'>
+                                    <select class='form-control' title='团队列表' ng-model="frameState.sid ">
+                                        <option value="{{site.id}} " ng-repeat="site in sites ">{{site.name}}</option>
+                                    </select>
+                                    <div class='input-group-btn' ng-if="frameState.sid ">
+                                        <button class='btn btn-default' ng-click="openSite(frameState.sid) "><span class='glyphicon glyphicon-cog'></span> 设置</button>
+                                    </div>
+                                </div>
+                                <button class='btn btn-default' ng-click="createSite() "><span class='glyphicon glyphicon-plus'></span> 新团队</button>
+                            </form>
+                            <form class='navbar-form navbar-right ng-cloak' ng-cloak>
+                                <button class="btn btn-default " ng-if="notice.page.total>0" uib-popover-template="'userNotice.html'" popover-title="未读消息" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-class='user-notice'>
+                                    <span class='glyphicon glyphicon-bell'> </span>&nbsp;&nbsp;<span class="badge">{{notice.page.total}}</span>
                                 </button>
-                                <ul class="dropdown-menu" uib-dropdown-menu role="menu">
-                                    <li>
-                                        <a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a>
-                                    </li>
-                                    <li class="divider"></li>
-                                    <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-                                </ul>
-                            </div>
-                        </form>
+                                <div class="btn-group" uib-dropdown>
+                                    <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
+                                    <button type="button" class="btn btn-default" uib-dropdown-toggle>
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu" uib-dropdown-menu role="menu">
+                                        <li>
+                                            <a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a>
+                                        </li>
+                                        <li class="divider"></li>
+                                        <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                                    </ul>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </nav>

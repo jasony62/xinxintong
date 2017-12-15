@@ -14,9 +14,9 @@ class user extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 返回提交过登记记录的用户列表
+	 * 返回提交过填写记录的用户列表
 	 */
-	public function enrollee_action($app, $rid = '', $page = 1, $size = 30) {
+	public function enrollee_action($app, $page = 1, $size = 30) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -26,33 +26,37 @@ class user extends \pl\fe\matter\base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
-		if (!empty($oApp->group_app_id)) {
-			foreach ($oApp->dataSchemas as $schema) {
-				if ($schema->id == '_round_id') {
-					$ops = $schema->ops;
-				}
-			}
-		}
 		$modelUsr = $this->model('matter\enroll\user');
 		$post = $this->getPostJson();
-		$options = [];
-		!empty($post->orderby) && $options['orderby'] = $post->orderby;
-		!empty($post->byGroup) && $options['byGroup'] = $post->byGroup;
-		!empty($post->rid) && $options['rid'] = $post->rid;
-		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $options);
+		$aOptions = [];
+		!empty($post->orderby) && $aOptions['orderby'] = $post->orderby;
+		!empty($post->byGroup) && $aOptions['byGroup'] = $post->byGroup;
+		!empty($post->rid) && $aOptions['rid'] = $post->rid;
+		!empty($post->onlyEnrolled) && $aOptions['onlyEnrolled'] = $post->onlyEnrolled;
+
+		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
 		/* 由于版本原因，判断是否需要系统获取填写人信息 */
 		if (0 === count($result->users)) {
 			if ($this->_refresh($oApp) > 0) {
-				$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $options);
+				$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
 			}
 		}
+
 		/* 查询有openid的用户发送消息的情况 */
 		if (count($result->users)) {
+			if (!empty($oApp->group_app_id)) {
+				foreach ($oApp->dataSchemas as $schema) {
+					if ($schema->id == '_round_id') {
+						$aUserRounds = $schema->ops;
+						break;
+					}
+				}
+			}
 			foreach ($result->users as &$user) {
 				$q = [
 					'd.tmplmsg_id,d.status,b.create_at',
 					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
-					"d.userid = '{$user->userid}' and d.batch_id = b.id and b.send_from = 'enroll:" . $user->aid . "'",
+					"d.userid = '{$user->userid}' and d.openid<>'' and d.batch_id = b.id and b.send_from = 'enroll:" . $user->aid . "'",
 				];
 				$q2 = [
 					'r' => ['o' => 0, 'l' => 1],
@@ -63,8 +67,8 @@ class user extends \pl\fe\matter\base {
 				} else {
 					$user->tmplmsg = new \stdClass;
 				}
-				if (isset($ops) && $user->group_id) {
-					foreach ($ops as $v) {
+				if (isset($aUserRounds) && $user->group_id) {
+					foreach ($aUserRounds as $v) {
 						if ($v->v == $user->group_id) {
 							$user->group = $v;
 						}
@@ -85,16 +89,18 @@ class user extends \pl\fe\matter\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		empty($rid) && $rid = 'ALL';
 
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id']);
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-
-		$result = $modelUsr->absentByApp($oApp, $rid);
+		/* 获得当前活动的参与人 */
+		$oUsers = $modelUsr->enrolleeByApp($oApp,'', '', ['fields' => 'id,userid', 'onlyEnrolled' => 'Y', 'cascaded' => 'N', 'rid' => $rid]);
+		$result = $modelUsr->absentByApp($oApp, $oUsers->users, $rid);
 
 		return new \ResponseData($result);
 	}
@@ -172,7 +178,7 @@ class user extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,user_task,group_app_id,data_schemas', 'cascaded' => 'N']))) {
+		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,user_task,group_app_id,data_schemas,absent_cause', 'cascaded' => 'N']))) {
 			return new \ParameterError();
 		}
 		$oUserTask = $oApp->userTask;
@@ -266,7 +272,9 @@ class user extends \pl\fe\matter\base {
 			->setSubject($oApp->title)
 			->setDescription($oApp->title);
 
+		$objPHPExcel->setActiveSheetIndex(0);
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
+		$objActiveSheet->setTitle('签到人员完成情况');
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
 		// 转换标题
@@ -452,6 +460,37 @@ class user extends \pl\fe\matter\base {
 				}
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->tmplmsg->create_at) ? date('Y-m-d H:i:s') : '');
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, isset($record->tmplmsg->status) ? $record->tmplmsg->status : '');
+			}
+		}
+
+		/* 未签到用户 */
+		$result = $modelUsr->absentByApp($oApp, $data, $rid);
+		$absentUsers = $result->users;
+		if (count($absentUsers)) {
+			$objPHPExcel->createSheet();
+			$objPHPExcel->setActiveSheetIndex(1);
+			$objActiveSheet2 = $objPHPExcel->getActiveSheet();
+			$objActiveSheet2->setTitle('未签到人员数据');
+
+			$colNumber = 0;
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '序号');
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '姓名');
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '分组');
+			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '备注');
+
+			$rowNumber = 2;
+			foreach ($absentUsers as $k => $absentUser) {
+				$colNumber = 0;
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $k + 1);
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->nickname);
+				if (isset($absentUser->round_title)) {
+					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->round_title);
+				} else {
+					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
+				}
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->absent_cause->cause);
+
+				$rowNumber++;
 			}
 		}
 

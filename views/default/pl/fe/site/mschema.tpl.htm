@@ -188,7 +188,7 @@
                                     <label class='checkbox-inline'>
                                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.require_invite' ng-change="updSchema('require_invite')">通过邀请码验证</label>
                                     <label class='checkbox-inline' ng-if="choosedSchema.require_invite==='N'">
-                                        <input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'" ng-model='choosedSchema.auto_verified' ng-change="updSchema('auto_verified')">不进行管理员手工审核</label>
+                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.auto_verified' ng-change="updSchema('auto_verified')">不进行管理员手工审核</label>
                                 </div>
                                 <table class='table table-bordered'>
                                     <thead>

@@ -1,6 +1,7 @@
 .ng-cloak{display:none;}
 html,body{min-height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
-body{position:relative;padding:0 15px;font-size:16px;}
+body{position:relative;font-size:16px;}
+.app{padding:15px 0;}
 img{max-width:100%}
 ul{margin:0;padding:0;list-style:none}
 li{margin:0;padding:0}

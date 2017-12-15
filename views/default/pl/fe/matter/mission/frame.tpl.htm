@@ -65,7 +65,10 @@
                 </li>
                 <li ng-class="{'opened':opened==='other'}">
                     <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('notice')">其他 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'41px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'82px':'0'}">
+                        <li ng-class="{'active':subView==='coin'}">
+                            <a href='' ng-click="switchTo('coin')">积分</a>
+                        </li>
                         <li ng-class="{'active':subView==='notice'}">
                             <a href='' ng-click="switchTo('notice')">通知记录</a>
                         </li>
@@ -81,22 +84,24 @@
         <!--导航+主体内容-->
         <div class="pl-layout-main pl-layout-main-topnav">
             <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
-                <div class="contaienr-fluid">
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle" ng-click="isNavCollapsed=!isNavCollapsed">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                    </div>
-                    <div class='collapse navbar-collapse' uib-collapse="isNavCollapsed">
-                        <nav class='nav navbar-nav tms-breadcrumb'>
-                            <li><a href="/rest/pl/fe?view=main&scope=mission&sid={{mission.siteid}}" target='_self'>工作台</a></li>
-                            <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=mission&sid={{mission.siteid}}" target='_self'>{{site.name}}</a></li>
-                            <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
-                            <li><a href="/rest/pl/fe/matter/mission/main?site={{mission.siteid}}&id={{mission.id}}" title="{{mission.title}}">{{mission.title}}</a></li>
-                        </nav>
+                <div class="container-fluid">
+                    <div class='row'>
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" ng-click="isNavCollapsed=!isNavCollapsed">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+                        <div class='collapse navbar-collapse' uib-collapse="isNavCollapsed">
+                            <nav class='nav navbar-nav tms-breadcrumb'>
+                                <li><a href="/rest/pl/fe?view=main&scope=mission&sid={{mission.siteid}}" target='_self'>工作台</a></li>
+                                <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=mission&sid={{mission.siteid}}" target='_self'>{{site.name}}</a></li>
+                                <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
+                                <li><a href="/rest/pl/fe/matter/mission/main?site={{mission.siteid}}&id={{mission.id}}" title="{{mission.title}}">{{mission.title}}</a></li>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -108,7 +113,7 @@
     <script type="text/ng-template" id="filterBy.html">
         <div class="form-group">
             <div class='input-group'>
-                <input type="text" ng-model="filter.keyword" class="form-control" autofocus>
+                <input type="text" ng-model="filter.keyword" class="form-control" ng-keypress="filter.keyUp($event)" autofocus>
                 <div class="input-group-btn">
                     <button class='btn btn-default' ng-disabled="!filter.keyword" ng-click="filter.keyword=''"><i class='glyphicon glyphicon-erase'></i></button>
                 </div>

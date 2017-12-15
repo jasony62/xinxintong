@@ -30,6 +30,7 @@
 #schema-view .schema-options .option .btn-group{position:absolute;top:50%;right:5px;margin-top:-10px;}
 #schema-view [editable]{cursor:text;}
 #schema-view .actions{margin-top:10px;padding-top:10px;border-top:1px dotted #ddd;}
+#schema-view .schema.active{border-left:4px solid red;margin-left:-3px;}
 
 /*page view*/
 #page-view .schema-switch{position:absolute;top:50%;margin-top:-10px;right:4px;}

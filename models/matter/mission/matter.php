@@ -122,7 +122,7 @@ class matter_model extends \TMS_MODEL {
 					if (in_array($mm->matter_type, ['enroll', 'signin'])) {
 						$oMatter->opData = $modelMat->opData($oMatter, true);
 					}
-					if ($mm->matter_type === 'memberschema') {
+					if (in_array($mm->matter_type, ['memberschema', 'link', 'channel'])) {
 						$oMatter->entryUrl = $modelMat->getEntryUrl($oMatter->siteid, $oMatter->id);
 					}
 					$matters[] = $oMatter;

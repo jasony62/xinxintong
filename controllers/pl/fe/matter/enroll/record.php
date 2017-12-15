@@ -271,6 +271,45 @@ class record extends \pl\fe\matter\base {
 		}
 		if (isset($record->rid)) {
 			$updated->rid = $modelEnl->escape($record->rid);
+
+			/* 修改enroll_user表中的用户轮次 */
+			$userRecord = $modelRec->byId($ek, ['fields' => 'id,rid,userid']);
+			if ($userRecord === false) {
+				return new \ResponseError('用户指定错误');
+			}
+			$userOldRid = $userRecord->rid;
+			$userNewRid = $record->rid;
+			/* 在新的轮次中用户是否以有记录 */
+			$modelUser = $this->model('matter\enroll\user');
+			$resNew = $modelUser->byId($oApp, $userRecord->userid, ['rid' => $userNewRid]);
+			/* 获取enroll_user中用户现在的轮次 */
+			$resOld = $modelUser->byId($oApp, $userRecord->userid, ['rid' => $userOldRid]);
+			if ($resNew === false) {
+				if ($resOld->enroll_num > 1) {
+					$modelRec->update("update xxt_enroll_user set enroll_num = enroll_num - 1 where id = $resOld->id");
+					//插入新的数据
+					$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
+					$inData['rid'] = $userNewRid;
+					$oUser = new \stdClass;
+					$oUser->uid = $resOld->userid;
+					$oUser->nickname = $resOld->nickname;
+					$oUser->group_id = empty($resOld->group_id) ? '' : $resOld->group_id;
+					$modelUser->add($oApp, $oUser, $inData);
+				} else {
+					$modelRec->update('xxt_enroll_user',
+							['rid' => $userNewRid],
+							['aid' => $oApp->id, 'rid' => $userOldRid, 'userid' => $userRecord->userid]
+						);
+				}
+			} else { //是否叠加数据（提交数，点赞数等）
+				if ($resOld->enroll_num > 1) {
+					$modelRec->update("update xxt_enroll_user set enroll_num = enroll_num - 1 where id = $resOld->id");
+				} else {
+					$modelRec->delete('xxt_enroll_user', ['id' => $resOld->id]);
+				}
+				
+				$modelRec->update("update xxt_enroll_user set enroll_num = enroll_num + 1 where id = $resNew->id");
+			}
 		}
 		if (isset($record->supplement)) {
 			$updated->supplement = $modelEnl->toJson($record->supplement);

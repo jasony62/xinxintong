@@ -83,32 +83,27 @@ class base extends \pl\fe\base {
 		if ($matterType === 'lottery') {
 			unset($options['cascaded']);
 		}
-		$oApp = $this->model('matter\\' . $matterType)->byId($matterId, $options);
-		if (!$oApp) {
+		$oMatter = $this->model('matter\\' . $matterType)->byId($matterId, $options);
+		if (!$oMatter) {
 			return [false, '指定的素材不存在'];
 		}
 
-		$siteid = $oApp->siteid;
+		$siteid = $oMatter->siteid;
 		$modelSite = $this->model('site\admin');
-		$siteUser = $modelSite->byUid($siteid, $oUser->id);
-		if ($siteUser !== false) {
+		$oSiteUser = $modelSite->byUid($siteid, $oUser->id);
+		if ($oSiteUser !== false) {
 			return [true];
 		}
 
 		/*检查此素材是否在项目中*/
-		if($matterType !== 'mission' && !empty($oApp->mission_id)){
-			$mission_id = $oApp->mission_id;
+		if($matterType !== 'mission' && !empty($oMatter->mission_id)){
+			$mission_id = $oMatter->mission_id;
 		}else if ($matterType === 'mission') {
 			$mission_id = $matterId;
 		}
 		if (isset($mission_id)) {
-			$q2 = [
-				'id',
-				'xxt_mission_acl',
-				['mission_id' => $mission_id, 'coworker' => $oUser->id, 'state' => 1],
-			];
-			$missionUser = $modelSite->query_obj_ss($q2);
-			if($missionUser){
+			$oMissionUser = $this->model('matter\mission\acl')->byCoworker($mission_id, $oUser->id, ['fields' => 'id']);
+			if($oMissionUser){
 				return [true];
 			}
 		}

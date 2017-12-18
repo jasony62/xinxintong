@@ -65,7 +65,7 @@ class acl_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_mission_acl',
-			["mission_id" => $missionId, "coworker" => $coworkerId, "last_invite" => 'Y'],
+			["mission_id" => $missionId, "coworker" => $coworkerId, "last_invite" => 'Y', "state" => 1],
 		];
 
 		$acl = $this->query_obj_ss($q);

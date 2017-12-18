@@ -8,6 +8,7 @@ define(['frame'], function(ngApp) {
                 var _this = this;
                 srvLog.list($scope.editing, this.page, 'log').then(function(data) {
                     _this.logs = data.logs;
+                    _this.page.total = data.total;
                 });
             }
         };
@@ -17,6 +18,7 @@ define(['frame'], function(ngApp) {
                 var _this = this;
                 srvLog.list($scope.editing, this.page, 'favor').then(function(favorers) {
                     _this.favorers = favorers.data;
+                    _this.page.total = favorers.total;
                 });
             }
         };

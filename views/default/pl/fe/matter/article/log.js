@@ -20,7 +20,10 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        read.list();
-        favor.list();
+        $scope.$watch('editing', function(nv) {
+            if(!nv) return;
+            read.list();
+            favor.list();
+        });
     }]);
 });

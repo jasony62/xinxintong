@@ -8,8 +8,8 @@ class base extends \TMS_CONTROLLER {
 	 *
 	 */
 	public function get_access_rule() {
-		$rule_action['rule_type'] = 'black';
-		$rule_action['actions'] = [];
+		$rule_action['rule_type'] = 'white';
+		$rule_action['actions'][] = 'hello';
 
 		return $rule_action;
 	}

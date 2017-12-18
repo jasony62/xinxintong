@@ -252,7 +252,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
             oUser = params.user,
             schemasById = {},
             tagsById = {},
-            shareid, sharelink, shareby, summary;
+            shareid, sharelink, shareby, summary, activeRid, assignedNickname;
 
         oApp.dataSchemas.forEach(function(schema) {
             schemasById[schema.id] = schema;
@@ -269,6 +269,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
         $scope.user = oUser;
         if (oApp.multi_rounds === 'Y') {
             $scope.activeRound = params.activeRound;
+            activeRid = params.activeRound.rid;
         }
         if (params.record) {
             if (params.record.data_tag) {
@@ -280,6 +281,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
                     });
                     params.record.data_tag[schemaId] = converted;
                 }
+            }
+            if(oApp.assignedNickname.schema.id=='member.name'|| oApp.assignedNickname.schema.id=='name') {
+                assignedNickname = params.record.data[oApp.assignedNickname.schema.id];
             }
         }
 
@@ -396,7 +400,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
         //
         $http.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid + '&id=' + oApp.id + '&type=enroll&title=' + oApp.title + '&shareby=', {
             search: location.search.replace('?', ''),
-            referer: document.referrer
+            referer: document.referrer,
+            rid: activeRid,
+            assignedNickname: assignedNickname
         });
     }).error(function(content, httpCode) {
         if (httpCode === 401) {

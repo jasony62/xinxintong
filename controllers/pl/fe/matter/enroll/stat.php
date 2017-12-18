@@ -562,8 +562,8 @@ class stat extends \pl\fe\matter\base {
 						$rpConfig = json_decode($oApp->rp_config);
 						if (!empty($rpConfig->marks)) {
 							foreach ($rpConfig->marks as $key => $mark) {
-								if ($schema->title !== $mark->name) {
-									$html .= "<th>" . $mark->name . "</th>";
+								if ($schema->title !== $mark->title) {
+									$html .= "<th>" . $mark->title . "</th>";
 									$sumNumber++;
 								}
 							}
@@ -632,9 +632,9 @@ class stat extends \pl\fe\matter\base {
 			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
 				$oSchemaStat = $aStatResult[$schema->id];
 				if (in_array($schema->type, ['single', 'phase'])) {
-					$graph = $this->_setSingleSchemaGraph($oSchemaStat->ops, $oPlConfig);
+					$graph = $this->_setSingleSchemaGraph($oSchemaStat->ops, isset($oPlConfig) ? $oPlConfig : null);
 				} else if ($schema->type === 'multiple') {
-					$graph = $this->_setMultipleSchemaGraph($oSchemaStat, $oPlConfig);
+					$graph = $this->_setMultipleSchemaGraph($oSchemaStat, isset($oPlConfig) ? $oPlConfig : null);
 				}
 				if ($graph) {
 					$graph->Stroke(_IMG_HANDLER);
@@ -693,7 +693,7 @@ class stat extends \pl\fe\matter\base {
 				$html .= "<tbody>";
 				for ($i = 0, $l = count($oSchemaStat->ops); $i < $l; $i++) {
 					$op2 = $oSchemaStat->ops[$i];
-					$html .= "<tr><td>打分项" . ($i + 1) . "</td><td>{$op2['l']}</td><td>{$op2['c']}</td></tr>";
+					$html .= "<tr><td>打分项" . ($i + 1) . "</td><td>{$op2->l}</td><td>{$op2->c}</td></tr>";
 				}
 				$avgScore = round($oSchemaStat->sum / count($oSchemaStat->ops), 2);
 				$html .= "<tr><td>本项平均分</td><td>{$avgScore}</td></tr>";

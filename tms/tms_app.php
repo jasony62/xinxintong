@@ -122,7 +122,7 @@ class TMS_APP {
 		}
 	}
 	/**
-	 * 除了API请求
+	 * 处理API请求
 	 *
 	 * @param string $path
 	 */
@@ -162,15 +162,15 @@ class TMS_APP {
 		if (isset($access_rule)) {
 			if (isset($access_rule['rule_type']) && ($access_rule['rule_type'] == 'white')) {
 				if ((!$access_rule['actions']) || (!in_array($__action, $access_rule['actions']))) {
-					self::_authenticate($obj_controller);
+					self::_authenticate($obj_controller, $path);
 				}
 			} else if (isset($access_rule['actions']) && in_array($__action, $access_rule['actions'])) {
 				// 非白就是黑名单
-				self::_authenticate($obj_controller);
+				self::_authenticate($obj_controller, $path);
 			}
 		} else {
 			// 不指定就都检查
-			self::_authenticate($obj_controller);
+			self::_authenticate($obj_controller, $path);
 		}
 		/**
 		 * parameters
@@ -384,7 +384,7 @@ class TMS_APP {
 	 * @param object $oController 要调用的controller
 	 *
 	 */
-	private static function _authenticate($oController = null) {
+	private static function _authenticate($oController = null, $path = '') {
 		/**
 		 * 如果指定了controller，优先使用controller定义的认证方法
 		 */
@@ -394,6 +394,19 @@ class TMS_APP {
 					return true;
 				}
 				self::_request_api($oController->authenticateURL());
+			}
+			if (method_exists($oController, 'accessControlUser')) {
+				$results = $oController->accessControlUser($path);
+				if ($results[0] === true) {
+					return true;
+				} else {
+					die($results[1]);
+				}
+
+				/**
+				 * 返回结果
+				 */
+				die('没有访问权限');
 			}
 		}
 		/**

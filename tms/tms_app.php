@@ -122,7 +122,7 @@ class TMS_APP {
 		}
 	}
 	/**
-	 * 除了API请求
+	 * 处理API请求
 	 *
 	 * @param string $path
 	 */

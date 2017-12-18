@@ -113,6 +113,7 @@ class main extends \site\fe\matter\base {
 		$id = $model->escape($id);
 		$type = $model->escape($type);
 		$shareby = $model->escape($shareby);
+		$post = $this->getPostJson();
 		if (defined('TMS_PHP_RESQUE') && TMS_PHP_RESQUE === 'Y' && defined('TMS_PHP_RESQUE_REDIS') && strlen(TMS_PHP_RESQUE_REDIS)) {
 			require_once TMS_APP_DIR . '/vendor/chrisboulton/php-resque/lib/Resque.php';
 
@@ -124,12 +125,13 @@ class main extends \site\fe\matter\base {
 				'title' => $model->escape($title),
 				'type' => $type,
 				'user_uid' => $this->who->uid,
-				'user_nickname' => $this->who->nickname,
+				'user_nickname' => (!empty($post->assignedNickname)) ? $post->assignedNickname : $this->who->nickname,
 				'clientIp' => $this->client_ip(),
 				'HTTP_USER_AGENT' => $_SERVER['HTTP_USER_AGENT'],
 				'QUERY_STRING' => isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '',
 				'HTTP_REFERER' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '',
 			];
+			!empty($post->rid) && $args['rid'] = $post->rid;
 			\Resque::enqueue('default', 'job\log\site\fe\matter\access', $args);
 		} else {
 
@@ -148,8 +150,10 @@ class main extends \site\fe\matter\base {
 			}
 
 			$user = $this->who;
-
-			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby);
+			!empty($post->assignedNickname) && $user->nickname = $post->assignedNickname;
+			$options = [];
+			!empty($post->rid) && $options['rid'] = $post->rid;
+			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $options);
 		}
 
 		return new \ResponseData('ok');
@@ -157,7 +161,7 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 记录访问日志
 	 */
-	protected function logRead($siteId, $user, $id, $type, $title, $shareby = '') {
+	protected function logRead($siteId, $user, $id, $type, $title, $shareby = '', $options = []) {
 		$logUser = new \stdClass;
 		$logUser->userid = $user->uid;
 		$logUser->nickname = $user->nickname;
@@ -174,7 +178,7 @@ class main extends \site\fe\matter\base {
 		$search = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
+		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer, $options);
 		/**
 		 * coin log
 		 */

@@ -6,6 +6,7 @@ define(['frame'], function(ngApp) {
         $scope.operations = {
             'read': '阅读',
             'submit': '提交',
+            'saveData': '保存',
             'updateData': '修改记录',
             'removeData': '删除记录',
             'restoreData': '恢复记录',

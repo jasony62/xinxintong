@@ -71,4 +71,54 @@ class base extends \pl\fe\base {
 
 		return new \ResponseData($reads);
 	}
+	/**
+	 * 素材访问控制
+	 */
+	public function accessControlUser($matterType, $matterId) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$options = ['cascaded' => 'N', 'fields' => 'siteid,id,title'];
+		if ($matterType === 'lottery') {
+			unset($options['cascaded']);
+		}
+		$app = $this->model('matter\\' . $matterType)->byId($matterId, $options);
+		if (!$app) {
+			return [false, '指定的素材不存在'];
+		}
+
+		$site = $app->siteid;
+		$modelSite = \TMS_APP::M('site\admin');
+		$siteUser = $modelSite->byUid($site, $oUser->id);
+		if ($siteUser !== false) {
+			return [true];
+		}
+
+		/*检查此素材是否在项目中*/
+		if($matterType !== 'mission'){
+			$q = [
+				'mission_id',
+				'xxt_mission_matter',
+				['matter_id' => $matterId, 'matter_type' => $matterType],
+			];
+			$mission = $modelSite->query_obj_ss($q);
+		}else{
+			$mission = new \stdClass;
+			$mission->mission_id = $matterId;
+		}
+		if ($mission) {
+			$q2 = [
+				'id',
+				'xxt_mission_acl',
+				['mission_id' => $mission->mission_id, 'coworker' => $oUser->id, 'state' => 1],
+			];
+			$missionUser = $modelSite->query_obj_ss($q2);
+			if($missionUser){
+				return [true];
+			}
+		}
+		
+		return [false, '访问控制未通过'];
+	}
 }

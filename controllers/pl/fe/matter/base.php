@@ -76,42 +76,36 @@ class base extends \pl\fe\base {
 	 */
 	public function accessControlUser($matterType, $matterId) {
 		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
+			return [false, '未登陆'];
 		}
 
-		$options = ['cascaded' => 'N', 'fields' => 'siteid,id,title'];
+		$options = ['cascaded' => 'N', 'fields' => 'siteid,id,title,mission_id'];
 		if ($matterType === 'lottery') {
 			unset($options['cascaded']);
 		}
-		$app = $this->model('matter\\' . $matterType)->byId($matterId, $options);
-		if (!$app) {
+		$oApp = $this->model('matter\\' . $matterType)->byId($matterId, $options);
+		if (!$oApp) {
 			return [false, '指定的素材不存在'];
 		}
 
-		$site = $app->siteid;
-		$modelSite = \TMS_APP::M('site\admin');
-		$siteUser = $modelSite->byUid($site, $oUser->id);
+		$siteid = $oApp->siteid;
+		$modelSite = $this->model('site\admin');
+		$siteUser = $modelSite->byUid($siteid, $oUser->id);
 		if ($siteUser !== false) {
 			return [true];
 		}
 
 		/*检查此素材是否在项目中*/
-		if($matterType !== 'mission'){
-			$q = [
-				'mission_id',
-				'xxt_mission_matter',
-				['matter_id' => $matterId, 'matter_type' => $matterType],
-			];
-			$mission = $modelSite->query_obj_ss($q);
-		}else{
-			$mission = new \stdClass;
-			$mission->mission_id = $matterId;
+		if($matterType !== 'mission' && !empty($oApp->mission_id)){
+			$mission_id = $oApp->mission_id;
+		}else if ($matterType === 'mission') {
+			$mission_id = $matterId;
 		}
-		if ($mission) {
+		if (isset($mission_id)) {
 			$q2 = [
 				'id',
 				'xxt_mission_acl',
-				['mission_id' => $mission->mission_id, 'coworker' => $oUser->id, 'state' => 1],
+				['mission_id' => $mission_id, 'coworker' => $oUser->id, 'state' => 1],
 			];
 			$missionUser = $modelSite->query_obj_ss($q2);
 			if($missionUser){

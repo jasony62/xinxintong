@@ -270,7 +270,64 @@ class record extends \pl\fe\matter\base {
 			$updated->verified = $modelEnl->escape($record->verified);
 		}
 		if (isset($record->rid)) {
-			$updated->rid = $modelEnl->escape($record->rid);
+			$userRecord = $modelRec->byId($ek, ['fields' => 'id,rid,userid']);
+			if ($userRecord === false) {
+				return new \ResponseError('用户指定错误');
+			}
+
+			$userOldRid = $userRecord->rid;
+			$userNewRid = $record->rid;
+			/* 同步enroll_user中的轮次 */
+			if ($userOldRid !== $userNewRid) {
+				$modelUser = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+				/* 获取enroll_user中用户现在的轮次,如果有积分则不能移动 */
+				$resOld = $modelUser->byId($oApp, $userRecord->userid, ['rid' => $userOldRid]);
+				if ($resOld->user_total_coin > 0) {
+					return new \ResponseError('用户在当前轮次上以获得积分，不能更换轮次！！');
+				}
+				/* 查询此用户的记录是否被点赞或者被评论，如果有就不能更改 */
+				$qd = [
+					'count(*)',
+					'xxt_enroll_record_data',
+					"enroll_key = '$ek' and state = 1 and (like_num > 0 or remark_num > 0)",
+				];
+				$UsrDataSum = $modelRec->query_val_ss($qd);
+				if ($UsrDataSum > 0) {
+					return new \ResponseError('此数据在当前轮次上被点赞或被评论，不能更换轮次！！');
+				}
+
+				/* 在新的轮次中用户是否以有记录 */
+				$resNew = $modelUser->byId($oApp, $userRecord->userid, ['rid' => $userNewRid]);
+				if ($resNew === false) {
+					if ($resOld->enroll_num > 1) {
+						$modelRec->update("update xxt_enroll_user set enroll_num = enroll_num - 1 where id = $resOld->id");
+						//插入新的数据
+						$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
+						$inData['rid'] = $userNewRid;
+						$oUser = new \stdClass;
+						$oUser->uid = $resOld->userid;
+						$oUser->nickname = $resOld->nickname;
+						$oUser->group_id = empty($resOld->group_id) ? '' : $resOld->group_id;
+						$modelUser->add($oApp, $oUser, $inData);
+					} else {
+						$modelRec->update('xxt_enroll_user',
+								['rid' => $userNewRid],
+								['id' => $resOld->id]
+							);
+					}
+				} else {
+					if ($resOld->enroll_num > 1) {
+						$modelRec->update("update xxt_enroll_user set enroll_num = enroll_num - 1 where id = $resOld->id");
+					} else {
+						$modelRec->delete('xxt_enroll_user', ['id' => $resOld->id]);
+					}
+					
+					$modelRec->update("update xxt_enroll_user set enroll_num = enroll_num + 1 where id = $resNew->id");
+				}
+
+				$updated->rid = $modelEnl->escape($record->rid);
+			}
 		}
 		if (isset($record->supplement)) {
 			$updated->supplement = $modelEnl->toJson($record->supplement);

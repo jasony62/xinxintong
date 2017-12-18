@@ -205,7 +205,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             //} else {
             $scope.favor = function(user, article) {
                 if (!user.loginExpire) {
-                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                         user.loginExpire = data.loginExpire;
                         tmsFavor.open(article);
                     });
@@ -306,7 +306,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 });
                 window.sessionStorage.setItem('xxt.site.fe.matter.article.auth.pending', method);
             }
-            location.href = '/rest/site/fe/user/login?site=' + siteId;
+            location.href = '/rest/site/fe/user/access?site=platform#login';
         } else {
             tmsSubscribe.open($scope.user, $scope.site);
         }

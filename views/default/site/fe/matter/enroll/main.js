@@ -357,7 +357,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
                 event.stopPropagation();
 
                 if (!user.loginExpire) {
-                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                         user.loginExpire = data.loginExpire;
                         tmsFavor.open(article);
                     });

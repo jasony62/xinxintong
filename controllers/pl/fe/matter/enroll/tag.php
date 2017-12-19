@@ -9,7 +9,12 @@ class tag extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function index_action($app) {
+	public function index_action($id) {
+		$access = $this->accessControlUser('enroll', $id);
+		if ($access[0] === false) {
+			die($access[1]);
+		}
+
 		\TPL::output('/pl/fe/matter/enroll/frame');
 		exit;
 	}

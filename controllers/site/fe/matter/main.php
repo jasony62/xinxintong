@@ -108,12 +108,32 @@ class main extends \site\fe\matter\base {
 		//	exit;
 		//}
 
+		$user = $this->who;
 		$model = $this->model();
 		$site = $model->escape($site);
 		$id = $model->escape($id);
 		$type = $model->escape($type);
 		$shareby = $model->escape($shareby);
+
 		$post = $this->getPostJson();
+		if ($type === 'enroll') {
+			$userRid = !empty($post->rid) ? $post->rid : '';
+			if (empty($post->assignedNickname)) {
+				$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,multi_rounds,assigned_nickname', 'cascaded' => 'N']);
+				if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
+					$options = [];
+					$options['fields'] = 'nickname'; 
+					$options['assignRid'] = $userRid;
+					$userRec = $this->model('matter\enroll\record')->lastByUser($oApp, $user, $options);
+					if ($userRec) {
+						$assignedNickname = $userRec->nickname;
+					}
+				}
+			} else {
+				$assignedNickname = $post->assignedNickname;
+			}
+		}
+
 		if (defined('TMS_PHP_RESQUE') && TMS_PHP_RESQUE === 'Y' && defined('TMS_PHP_RESQUE_REDIS') && strlen(TMS_PHP_RESQUE_REDIS)) {
 			require_once TMS_APP_DIR . '/vendor/chrisboulton/php-resque/lib/Resque.php';
 
@@ -124,17 +144,16 @@ class main extends \site\fe\matter\base {
 				'id' => $id,
 				'title' => $model->escape($title),
 				'type' => $type,
-				'user_uid' => $this->who->uid,
-				'user_nickname' => (!empty($post->assignedNickname)) ? $post->assignedNickname : $this->who->nickname,
+				'user_uid' => $user->uid,
+				'user_nickname' => (!empty($assignedNickname)) ? $assignedNickname : $user->nickname,
 				'clientIp' => $this->client_ip(),
 				'HTTP_USER_AGENT' => $_SERVER['HTTP_USER_AGENT'],
 				'QUERY_STRING' => isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '',
 				'HTTP_REFERER' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '',
 			];
-			!empty($post->rid) && $args['rid'] = $post->rid;
+			isset($userRid) && $args['rid'] = $userRid;
 			\Resque::enqueue('default', 'job\log\site\fe\matter\access', $args);
 		} else {
-
 			switch ($type) {
 			case 'article':
 				$model->update("update xxt_article set read_num=read_num+1 where id='$id'");
@@ -149,10 +168,9 @@ class main extends \site\fe\matter\base {
 				$model->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
 			}
 
-			$user = $this->who;
-			!empty($post->assignedNickname) && $user->nickname = $post->assignedNickname;
+			!empty($assignedNickname) && $user->nickname = $assignedNickname;
 			$options = [];
-			!empty($post->rid) && $options['rid'] = $post->rid;
+			isset($userRid) && $options['rid'] = $userRid;
 			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $options);
 		}
 

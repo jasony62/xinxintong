@@ -27,7 +27,7 @@ class log_model extends \TMS_MODEL {
 		$operation = new \stdClass;
 		$operation->name = 'read';
 		$operation->at = $current;
-		if (!empty($options['rid'])) {
+		if (isset($options['rid'])) {
 			$operation->data = new \stdClass;
 			$operation->data->rid = $options['rid'];
 		}

@@ -24,7 +24,7 @@ class access extends \TMS_MODEL {
 		$user->nickname = $this->args['user_nickname'];
 		//
 		$options = [];
-		!empty($this->args['rid']) && $options['rid'] = $this->args['rid'];
+		isset($this->args['rid']) && $options['rid'] = $this->args['rid'];
 		//
 		$clientIp = $this->args['clientIp'];
 		$HTTP_USER_AGENT = isset($this->args['HTTP_USER_AGENT']) ? $this->args['HTTP_USER_AGENT'] : '';

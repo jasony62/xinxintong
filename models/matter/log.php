@@ -327,7 +327,7 @@ class log_model extends \TMS_MODEL {
 		if (!empty($options['byUser'])) {
 			$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
 		}
-		if (!empty($options['byOp'])) {
+		if (!empty($options['byOp']) && strcasecmp($options['byOp'], 'all') !== 0) {
 			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
 		}
 		if (!empty($options['byRid'])) {
@@ -346,7 +346,7 @@ class log_model extends \TMS_MODEL {
 				'l' => $size,
 			];
 		}
-
+		
 		$result->logs = $this->query_objs_ss($q, $q2);
 
 		$q[0] = 'count(*)';

@@ -123,6 +123,7 @@ class record extends base {
 				unset($posted->tag);
 			}
 			$posted->data_tag = $data_tag;
+			!empty($rid) && $posted->rid = $rid;
 			/* 插入到用户对素材的行为日志中 */
 			$operation = new \stdClass;
 			$operation->name = 'saveData';

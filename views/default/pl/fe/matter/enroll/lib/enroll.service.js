@@ -1469,6 +1469,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 title: '修改活动'
             }];
             _siteOperations = [{
+                value: 'read',
+                title: '阅读'
+            },{
                 value: 'saveData',
                 title: '保存'
             },{

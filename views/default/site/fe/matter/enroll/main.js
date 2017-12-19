@@ -252,7 +252,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
             oUser = params.user,
             schemasById = {},
             tagsById = {},
-            shareid, sharelink, shareby, summary, activeRid, assignedNickname;
+            assignedNickname = '',
+            activeRid = '',
+            shareid, sharelink, shareby, summary;
 
         oApp.dataSchemas.forEach(function(schema) {
             schemasById[schema.id] = schema;

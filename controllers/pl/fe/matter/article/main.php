@@ -9,7 +9,12 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 返回单图文视图
 	 */
-	public function index_action() {
+	public function index_action($site, $id) {
+		$access = $this->accessControlUser('article', $id);
+		if ($access[0] === false) {
+			die($access[1]);
+		}
+
 		\TPL::output('/pl/fe/matter/article/frame');
 		exit;
 	}

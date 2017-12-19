@@ -471,7 +471,6 @@ class log_model extends \TMS_MODEL {
 					$d['data'] = $data;
 				}
 			}
-
 			$logid = $this->insert('xxt_log_matter_op', $d, true);
 		} else {
 			/* 更新之前的日志 */

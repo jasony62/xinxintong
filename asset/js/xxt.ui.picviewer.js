@@ -2,7 +2,7 @@
 var eViewer, js, body;
 eViewer = document.createElement('div');
 eViewer.setAttribute('id', 'picViewer');
-eViewer.innerHTML = "<div><span class='page'></span><span class='prev'><i class='fa fa-angle-left'></i></span><span class='next'><i class='fa fa-angle-right'></i></span><span class='exit'><i class='fa fa-times-circle-o'></i></span></div><img>";
+eViewer.innerHTML = "<div><span class='page'></span><span class='prev'><i class='glyphicon glyphicon-menu-left'></i></span><span class='next'><i class='glyphicon glyphicon-menu-right'></i></span><span class='exit'><i class='glyphicon glyphicon-remove'></i></span></div><img>";
 document.body.appendChild(eViewer);
 body = document.querySelector('body');
 var eImgs, aImgs, currentIndex;

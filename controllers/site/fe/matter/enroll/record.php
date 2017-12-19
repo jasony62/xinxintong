@@ -123,11 +123,12 @@ class record extends base {
 				unset($posted->tag);
 			}
 			$posted->data_tag = $data_tag;
+			!empty($rid) && $posted->rid = $rid;
 			/* 插入到用户对素材的行为日志中 */
 			$operation = new \stdClass;
 			$operation->name = 'saveData';
 			$operation->data = $modelEnl->toJson($posted);
-			$logid = $this->_logUserOp($oEnrollApp, $operation);
+			$logid = $this->_logUserOp($oEnrollApp, $operation, $oUser);
 
 			return new \ResponseData($logid);
 		}
@@ -307,7 +308,7 @@ class record extends base {
 		$operation = new \stdClass;
 		$operation->name = $bSubmitNewRecord ? 'submit' : 'updateData';
 		$operation->data = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
-		$this->_logUserOp($oEnrollApp, $operation);
+		$this->_logUserOp($oEnrollApp, $operation, $oUser);
 		/* 登记用户行为及积分 */
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
@@ -472,12 +473,12 @@ class record extends base {
 	 * @param object $app
 	 *
 	 */
-	private function _logUserOp($oApp, $operation) {
+	private function _logUserOp($oApp, $operation, $user) {
 		$modelLog = $this->model('matter\log');
 
 		$logUser = new \stdClass;
-		$logUser->userid = $this->who->uid;
-		$logUser->nickname = $this->who->nickname;
+		$logUser->userid = $user->uid;
+		$logUser->nickname = $user->nickname;
 
 		$client = new \stdClass;
 		$client->agent = $_SERVER['HTTP_USER_AGENT'];
@@ -1143,7 +1144,7 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek, ['fields' => 'userid,state,enroll_key,data,rid']);
+		$oRecord = $modelRec->byId($ek, ['fields' => 'userid,nickname,state,enroll_key,data,rid']);
 		if (false === $oRecord) {
 			return new \ResponseError('记录已经被删除，不能再次删除');
 		}
@@ -1185,13 +1186,16 @@ class record extends base {
 
 
 		/* 记录操作日志 */
+		$user = $this->who;
+		$user->nickname = $oRecord->nickname;
 		$operation = new \stdClass;
 		$operation->name = 'removeData';
 		unset($oRecord->userid);
+		unset($oRecord->nickname);
 		unset($oRecord->state);
 		$operation->data = $oRecord;
 
-		$this->_logUserOp($oApp, $operation);
+		$this->_logUserOp($oApp, $operation, $user);
 
 		return new \ResponseData($rst);
 	}

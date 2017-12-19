@@ -5,7 +5,7 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 记录访问素材日志
 	 */
-	public function addMatterRead($siteId, &$user, $matter, $client, $shareby, $search, $referer) {
+	public function addMatterRead($siteId, &$user, $matter, $client, $shareby, $search, $referer, $options = []) {
 		$current = time();
 		$d = array();
 		$d['siteid'] = $siteId;
@@ -27,6 +27,10 @@ class log_model extends \TMS_MODEL {
 		$operation = new \stdClass;
 		$operation->name = 'read';
 		$operation->at = $current;
+		if (isset($options['rid'])) {
+			$operation->data = new \stdClass;
+			$operation->data->rid = $options['rid'];
+		}
 		$this->addUserMatterOp($siteId, $user, $matter, $operation, $client, $referer);
 		$this->writeUserAction($siteId, $user, $current, 'R', $logid);
 		$this->writeMatterAction($siteId, $matter, $current, 'R', $logid);
@@ -323,7 +327,7 @@ class log_model extends \TMS_MODEL {
 		if (!empty($options['byUser'])) {
 			$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
 		}
-		if (!empty($options['byOp'])) {
+		if (!empty($options['byOp']) && strcasecmp($options['byOp'], 'all') !== 0) {
 			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
 		}
 		if (!empty($options['byRid'])) {
@@ -342,7 +346,7 @@ class log_model extends \TMS_MODEL {
 				'l' => $size,
 			];
 		}
-
+		
 		$result->logs = $this->query_objs_ss($q, $q2);
 
 		$q[0] = 'count(*)';

@@ -27,11 +27,15 @@
         <div class="form-group" ng-switch on="type">
             <label class="col-md-3 control-label">事件类型</label>
             <div class="col-md-9" ng-switch-when="site">
-                <select class='form-control' ng-model="criteria.byOp" ng-options="op.value as op.title for op in siteOperations">
+                <select class='form-control' ng-model="criteria.byOp">
+                    <option value="ALL">全部类型</option>
+                    <option value="{{op.value}}" ng-repeat="op in siteOperations">{{op.title}}</option>
                 </select>
             </div>
             <div class="col-md-9" ng-switch-when="pl">
-                <select class='form-control' ng-model="criteria.byOp" ng-options="op.value as op.title for op in plOperations">
+                <select class='form-control' ng-model="criteria.byOp">
+                    <option value="ALL">全部类型</option>
+                    <option value="{{op.value}}" ng-repeat="op in plOperations">{{op.title}}</option>
                 </select>
             </div>
         </div>

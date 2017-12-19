@@ -284,8 +284,10 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
                     params.record.data_tag[schemaId] = converted;
                 }
             }
-            if(oApp.assignedNickname.schema.id=='member.name'|| oApp.assignedNickname.schema.id=='name') {
-                assignedNickname = params.record.data[oApp.assignedNickname.schema.id];
+            if(oApp.assignedNickname.schema) {
+                if((oApp.assignedNickname.schema.id=='member.name'|| oApp.assignedNickname.schema.id=='name') && params.record.data) {
+                    assignedNickname = params.record.data[oApp.assignedNickname.schema.id];
+                }
             }
         }
 

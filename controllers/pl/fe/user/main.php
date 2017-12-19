@@ -67,7 +67,7 @@ class main extends \pl\fe\base {
 
 		$rst = $modelWay->update(
 			'account',
-			['nickname' => $data->nickname],
+			['nickname' => $modelWay->escape($data->nickname)],
 			['uid' => $loginUser->id]
 		);
 

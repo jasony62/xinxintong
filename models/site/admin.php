@@ -67,7 +67,7 @@ class admin_model extends \TMS_MODEL {
 				'ulabel' => $admin->ulabel,
 				'urole' => isset($admin->urole) ? $this->escape($admin->urole) : 'A',
 				'creater' => $user->id,
-				'creater_name' => $user->name,
+				'creater_name' => $this->escape($user->name),
 				'create_at' => time(),
 			],
 			false

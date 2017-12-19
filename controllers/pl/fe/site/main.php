@@ -362,6 +362,8 @@ class main extends \pl\fe\base {
 				$nv->{$n} = json_encode($v);
 			} else if ($n === 'home_qrcode_group') {
 				$nv->{$n} = $modelSite->escape($modelSite->toJson($v));
+			} else {
+				$nv->{$n} = $modelSite->escape($v);
 			}
 		}
 		$rst = $modelSite->update(

@@ -106,7 +106,10 @@ class main extends \site\fe\matter\base {
 
 		$oLink->fullUrl = $url;
 
-		return new \ResponseData(['link' => $oLink]);
+		$data = [];
+		$data['link'] = $oLink;
+		$data['user'] = $this->who;
+		return new \ResponseData($data);
 	}
 	/**
 	 * 检查是否需要第三方社交帐号认证

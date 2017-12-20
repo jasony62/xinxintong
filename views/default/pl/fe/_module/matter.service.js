@@ -391,10 +391,11 @@ provider('srvTag', function() {
                 template += '<div class=\'input-group\'>';
                 template += '<input class=\'form-control\' ng-model="model.newtag">';
                 template += '<div class=\'input-group-btn\'>';
-                template += '<button class=\'btn btn-default\' ng-click="createTag()"><span class=\'glyphicon glyphicon-plus\'></span></button>';
+                template += '<button ng-disabled="model.newtag.length > 16" class=\'btn btn-default\' ng-click="createTag()" ><span class=\'glyphicon glyphicon-plus\'></span></button>';
                 template += '</div>';
                 template += '</div>';
                 template += '</div>';
+                template += '<div ng-show="model.newtag.length > 16" class=\'text-danger\'>标签最多支持16个字，已超过{{model.newtag.length - 16}}字</div>';
                 template += '</div>';
                 template += '<div class="modal-footer">';
                 template += '<button class="btn btn-default" ng-click="cancel()">关闭</button>';

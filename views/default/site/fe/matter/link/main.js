@@ -1,12 +1,14 @@
 'use strict';
+require('../../../../../../asset/js/xxt.ui.favor.js');
+
 if (/MicroMessenger/.test(navigator.userAgent)) {
     //signPackage.debug = true;
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-angular.module('app', ['ui.bootstrap']).config(['$locationProvider', function($locationProvider) {
+angular.module('app', ['ui.bootstrap','page.ui.xxt','favor.ui.xxt']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
-}]).controller('ctrl', ['$scope', '$location', '$http', function($scope, $location, $http) {
+}]).controller('ctrl', ['$scope', '$location', '$http', 'tmsFavor',function($scope, $location, $http, tmsFavor) {
     var siteId, linkId;
     siteId = $location.search().site;
     linkId = $location.search().id;
@@ -19,6 +21,22 @@ angular.module('app', ['ui.bootstrap']).config(['$locationProvider', function($l
                 elDropdownMenu.style.right = 0;
             }
         }
+    };
+    $scope.favor = function(user, link) {
+        if (!user.loginExpire) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                user.loginExpire = data.loginExpire;
+                tmsFavor.open(link);
+            });
+        } else {
+            tmsFavor.open(link);
+        }
+    };
+    $scope.siteUser = function(id) {
+        var url = 'http://' + location.host;
+        url += '/rest/site/fe/user';
+        url += "?site=" + siteId;
+        location.href = url;
     };
     $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {
         $scope.siteInfo = rsp.data;

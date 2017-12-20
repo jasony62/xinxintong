@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <meta content="width=device-width,user-scalable=yes" name="viewport">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css" rel="stylesheet">
+</head>
+
+<body ng-app='app' ng-controller='ctrlMain'>
+    <div class='container'>
+        <div class='row'>
+            <div class='col-md-12'>
+                <div class='form-group'>
+                    <label>你的专属邀请链接</label>
+                    <p>{{invite.entryUrl}}</p>
+                </div>
+                <a ng-href="/rest/site/fe/user/invite/detail?invite={{invite.id}}">设置邀请码</a>
+                <a ng-href="/rest/site/fe/user/invite/detail?invite={{invite.id}}">查看邀请结果</a>
+                <a href=''>查看所有邀请</a>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js"></script>
+    <script src="<?php echo auto_version('/views/default/site/fe/invite/matter.js');?>"></script>
+</body>
+
+</html>

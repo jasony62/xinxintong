@@ -6,7 +6,7 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-angular.module('app', ['ui.bootstrap','page.ui.xxt','favor.ui.xxt']).config(['$locationProvider', function($locationProvider) {
+angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
 }]).controller('ctrl', ['$scope', '$location', '$http', 'tmsFavor', 'tmsDynaPage', function($scope, $location, $http, tmsFavor, tmsDynaPage) {
     var siteId, linkId;
@@ -30,6 +30,16 @@ angular.module('app', ['ui.bootstrap','page.ui.xxt','favor.ui.xxt']).config(['$l
             });
         } else {
             tmsFavor.open(link);
+        }
+    };
+    $scope.invite = function(user, link) {
+        if (!user.loginExpire) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                user.loginExpire = data.loginExpire;
+                location.href = "/rest/site/fe/invite?matter=link," + link.id;
+            });
+        } else {
+            location.href = "/rest/site/fe/invite?matter=link," + link.id;
         }
     };
     $scope.siteUser = function(id) {

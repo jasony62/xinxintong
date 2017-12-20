@@ -18,22 +18,21 @@ class link_model extends base_model {
 	 * 返回链接和链接的参数
 	 */
 	public function byIdWithParams($id, $fields = '*') {
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_link',
 			"id=$id",
-		);
+		];
 		if ($link = $this->query_obj_ss($q)) {
 			$link->type = 'link';
-			$q = array(
+			$q = [
 				'pname,pvalue,authapi_id',
 				'xxt_link_param',
 				"link_id=$id",
-			);
+			];
 			if ($params = $this->query_objs_ss($q)) {
 				$link->params = $params;
 			}
-
 		}
 
 		return $link;

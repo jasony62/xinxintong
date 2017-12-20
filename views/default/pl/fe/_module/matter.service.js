@@ -818,4 +818,42 @@ provider('srvTmplmsgNotice', function() {
     http2.get('/rest/pl/fe/matter/channel/list?site=' + srvSite.getSiteId() + '&cascade=N', function(rsp) {
         $scope.channels = rsp.data.docs;
     });
-}]);
+}]).
+provider('srvInvite', function() {
+    var _matterType, _matterId;
+    this.config = function(matterType, matterId) {
+        _matterType = matterType;
+        _matterId = matterId;
+    };
+    this.$get = ['$q', 'http2', function($q, http2) {
+        return {
+            get: function() {
+                var defer = $q.defer(),
+                    url;
+
+                url = '/rest/pl/fe/invite/get?matter=' + _matterType + ',' + _matterId;
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            },
+            make: function() {
+                var defer = $q.defer(),
+                    url;
+
+                url = '/rest/pl/fe/invite/create?matter=' + _matterType + ',' + _matterId;
+                http2.get(url, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            },
+            addCode: function(oInvite) {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/invite/code/add?invite=' + oInvite.id, function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            }
+        }
+    }];
+});

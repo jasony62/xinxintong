@@ -24,6 +24,7 @@ class link_model extends base_model {
 			"id=$id",
 		);
 		if ($link = $this->query_obj_ss($q)) {
+			$link->type = 'link';
 			$q = array(
 				'pname,pvalue,authapi_id',
 				'xxt_link_param',

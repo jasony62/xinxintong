@@ -8,7 +8,7 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
 }
 angular.module('app', ['ui.bootstrap','page.ui.xxt','favor.ui.xxt']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
-}]).controller('ctrl', ['$scope', '$location', '$http', 'tmsFavor',function($scope, $location, $http, tmsFavor) {
+}]).controller('ctrl', ['$scope', '$location', '$http', 'tmsFavor', 'tmsDynaPage', function($scope, $location, $http, tmsFavor, tmsDynaPage) {
     var siteId, linkId;
     siteId = $location.search().site;
     linkId = $location.search().id;
@@ -42,6 +42,7 @@ angular.module('app', ['ui.bootstrap','page.ui.xxt','favor.ui.xxt']).config(['$l
         $scope.siteInfo = rsp.data;
         $http.get('/rest/site/fe/matter/link/get?site=' + siteId + '&id=' + linkId).success(function(rsp) {
             $scope.link = rsp.data.link;
+            $scope.user = rsp.data.user;
             $scope.qrcode = '/rest/site/fe/matter/link/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
             document.querySelector('#link>iframe').setAttribute('src', $scope.link.fullUrl);
             $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + linkId + '&type=link&title=' + $scope.link.title, {

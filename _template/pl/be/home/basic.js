@@ -151,7 +151,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + matter.siteid).then(function(data) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsFavor.open(matter);
             });
@@ -165,7 +165,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + matter.siteid).then(function(data) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsForward.open(matter);
             });

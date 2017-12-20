@@ -23,6 +23,9 @@ class access extends \TMS_MODEL {
 		$user->uid = $this->args['user_uid'];
 		$user->nickname = $this->args['user_nickname'];
 		//
+		$options = [];
+		isset($this->args['rid']) && $options['rid'] = $this->args['rid'];
+		//
 		$clientIp = $this->args['clientIp'];
 		$HTTP_USER_AGENT = isset($this->args['HTTP_USER_AGENT']) ? $this->args['HTTP_USER_AGENT'] : '';
 		$QUERY_STRING = isset($this->args['QUERY_STRING']) ? $this->args['QUERY_STRING'] : '';
@@ -56,7 +59,7 @@ class access extends \TMS_MODEL {
 		$logClient->ip = $clientIp;
 		$logClient->agent = $HTTP_USER_AGENT;
 
-		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $QUERY_STRING, $HTTP_REFERER);
+		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $QUERY_STRING, $HTTP_REFERER, $options);
 		/**
 		 * coin log
 		 */

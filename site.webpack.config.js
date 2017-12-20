@@ -4,6 +4,7 @@ module.exports = {
         '/home': ['./views/default/home.js'],
         '/site/home': ['./views/default/site/home.js'],
         '/site/fe/matter/article/main': ['./views/default/site/fe/matter/article/main.js'],
+        '/site/fe/matter/link/main': ['./views/default/site/fe/matter/link/main.js'],
         '/site/fe/matter/enroll/input': ['./views/default/site/fe/matter/enroll/input.js'],
         '/site/fe/matter/enroll/view': ['./views/default/site/fe/matter/enroll/view.js'],
         '/site/fe/matter/enroll/list': ['./views/default/site/fe/matter/enroll/list.js'],

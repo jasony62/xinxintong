@@ -27,8 +27,10 @@ define(['require', 'angular'], function(require, angular) {
             });
         };
         $scope.openMatter = function(id, type) {
-            if (/article|custom|news|channel|link/.test(type)) {
+            if (/article|custom|news|channel/.test(type)) {
                 location.href = '/rest/site/fe/matter?site=' + siteId + '&id=' + id + '&type=' + type;
+            } else if(/link/.test(type)){
+                location.href = '/rest/site/fe/matter/' + type + '?site=' + siteId + '&id=' + id;
             } else {
                 location.href = '/rest/site/fe/matter/' + type + '?site=' + siteId + '&app=' + id;
             }

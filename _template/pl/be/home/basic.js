@@ -146,7 +146,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         });
     };
     $scope.favor = function(user, matter) {
-        matter.type = matter.matter_type;
+        matter.type = matter.matter_type || matter.type;
         event.preventDefault();
         event.stopPropagation();
 

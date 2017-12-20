@@ -82,6 +82,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
             if (rsp.data.matters.length) {
                 rsp.data.matters.forEach(function(item) {
                     dealImgSrc(item);
+                    item.id = item.matter_id;
                     _matters.push(item);
                 });
                 $scope.matters = _matters;

@@ -411,7 +411,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'*',
 			'xxt_log_matter_op',
-			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'",
+			['siteid' => $siteId, 'operator' => $user->id, 'matter_type' => $matter->type, 'matter_id' => $matter->id, 'user_last_op' => 'Y'],
 		];
 		$userLastLog = $this->query_obj_ss($q);
 
@@ -425,7 +425,7 @@ class log_model extends \TMS_MODEL {
 			$this->update(
 				'xxt_log_matter_op',
 				$d,
-				"matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
+				['matter_type' => $matter->type, 'matter_id' => $matter->id, 'last_op' => 'Y']
 			);
 		} else if ($op !== 'C') {
 			/* 更新操作记录，需要将之前的操作设置为非最后操作 */
@@ -434,7 +434,7 @@ class log_model extends \TMS_MODEL {
 				[
 					'last_op' => 'N',
 				],
-				"siteid='$siteId' and matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
+				['siteid' => $siteId, 'matter_type' => $matter->type, 'matter_id' => $matter->id, 'last_op' => 'Y']
 			);
 		}
 		/* 更新当前用户的最后一次操作记录 */
@@ -443,7 +443,7 @@ class log_model extends \TMS_MODEL {
 			[
 				'user_last_op' => 'N',
 			],
-			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
+			['siteid' => $siteId, 'operator' => $user->id, 'matter_type' => $matter->type, 'matter_id' => $matter->id, 'user_last_op' => 'Y']
 		);
 		// 记录新日志，或更新日志
 		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restoreData'];
@@ -452,7 +452,7 @@ class log_model extends \TMS_MODEL {
 			$d = array();
 			$d['siteid'] = $siteId;
 			$d['operator'] = $user->id;
-			$d['operator_name'] = $user->name;
+			$d['operator_name'] = $this->escape($user->name);
 			$d['operator_src'] = $user->src;
 			$d['operate_at'] = $current;
 			$d['operation'] = $op;
@@ -471,12 +471,11 @@ class log_model extends \TMS_MODEL {
 					$d['data'] = $data;
 				}
 			}
-
 			$logid = $this->insert('xxt_log_matter_op', $d, true);
 		} else {
 			/* 更新之前的日志 */
 			$d = array();
-			$d['operator_name'] = $user->name;
+			$d['operator_name'] = $this->escape($user->name);
 			$d['operate_at'] = $current;
 			$d['operation'] = $op;
 			$d['matter_title'] = $this->escape($matter->title);

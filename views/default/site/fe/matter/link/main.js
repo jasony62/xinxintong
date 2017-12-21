@@ -51,18 +51,16 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['
     $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {
         $scope.siteInfo = rsp.data;
         $http.get('/rest/site/fe/matter/link/get?site=' + siteId + '&id=' + linkId).success(function(rsp) {
-            if (rsp.err_code !== 0) {
-                document.body.innerHTML = rsp.err_msg;
-                return;
+            if(rsp.data) {
+                $scope.link = rsp.data.link;
+                $scope.user = rsp.data.user;
+                $scope.qrcode = '/rest/site/fe/matter/link/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
+                document.querySelector('#link>iframe').setAttribute('src', $scope.link.fullUrl);
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + linkId + '&type=link&title=' + $scope.link.title, {
+                    search: location.search.replace('?', ''),
+                    referer: document.referrer
+                });
             }
-            $scope.link = rsp.data.link;
-            $scope.user = rsp.data.user;
-            $scope.qrcode = '/rest/site/fe/matter/link/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
-            document.querySelector('#link>iframe').setAttribute('src', $scope.link.fullUrl);
-            $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + linkId + '&type=link&title=' + $scope.link.title, {
-                search: location.search.replace('?', ''),
-                referer: document.referrer
-            });
         }).error(function(content, httpCode) {});
     });
 }]);

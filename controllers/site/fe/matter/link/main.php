@@ -19,7 +19,6 @@ class main extends \site\fe\matter\base {
 		}
 		switch ($oLink->urlsrc) {
 		case 0: // 外部链接
-
 			if ($oLink->embedded === 'Y') {
 				\TPL::assign('title', $oLink->title);
 				\TPL::output('/site/fe/matter/link/main');
@@ -93,8 +92,12 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 返回链接定义
 	 */
-	public function get_action($site, $id) {
+	public function get_action($id) {
 		$oLink = $this->model('matter\link')->byIdWithParams($id);
+		if (false === $oLink) {
+			return new \ObjectNotFoundError();
+		}
+
 		$url = $oLink->url;
 		if (preg_match('/^(http:|https:)/', $url) === 0) {
 			$url = 'http://' . $url;
@@ -103,10 +106,21 @@ class main extends \site\fe\matter\base {
 			$url .= (strpos($url, '?') === false) ? '?' : '&';
 			$url .= $this->_spliceParams($oLink->siteid, $oLink->params);
 		}
-
 		$oLink->fullUrl = $url;
 
-		return new \ResponseData(['link' => $oLink]);
+		$oInvitee = new \stdClass;
+		$oInvitee->id = $oLink->siteid;
+		$oInvitee->type = 'S';
+		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at']);
+		if ($oInvite) {
+			$oLink->invite = $oInvite;
+		}
+
+		$data = [];
+		$data['link'] = $oLink;
+		$data['user'] = $this->who;
+
+		return new \ResponseData($data);
 	}
 	/**
 	 * 检查是否需要第三方社交帐号认证

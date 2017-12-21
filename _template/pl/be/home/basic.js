@@ -82,6 +82,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
             if (rsp.data.matters.length) {
                 rsp.data.matters.forEach(function(item) {
                     dealImgSrc(item);
+                    item.id = item.matter_id;
                     _matters.push(item);
                 });
                 $scope.matters = _matters;
@@ -146,12 +147,12 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         });
     };
     $scope.favor = function(user, matter) {
-        matter.type = matter.matter_type;
+        matter.type = matter.matter_type || matter.type;
         event.preventDefault();
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + matter.siteid).then(function(data) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsFavor.open(matter);
             });
@@ -165,7 +166,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + matter.siteid).then(function(data) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsForward.open(matter);
             });

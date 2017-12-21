@@ -224,17 +224,20 @@ class main extends \site\fe\matter\base {
 		$result = '';
 		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'group') {
 			/* 限分组用户访问 */
-			if (isset($oEntryRule->group->id)) {
+			if (isset($oEntryRule->group) {
+				!is_object($oEntryRule->group) && $oEntryRule->group = (object) $oEntryRule->group;
 				$oGroupApp = $oEntryRule->group;
-				$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
-				if (count($oGroupUsr)) {
-					$oGroupUsr = $oGroupUsr[0];
-					if (isset($oGroupApp->round->id)) {
-						if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+				if (isset($oGroupApp->id)) {
+					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
+					if (count($oGroupUsr)) {
+						$oGroupUsr = $oGroupUsr[0];
+						if (isset($oGroupApp->round) && isset($oGroupApp->round->id)) {
+							if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+								$bMatched = true;
+							}
+						} else {
 							$bMatched = true;
 						}
-					} else {
-						$bMatched = true;
 					}
 				}
 			}

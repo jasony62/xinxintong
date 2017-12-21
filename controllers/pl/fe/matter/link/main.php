@@ -205,6 +205,16 @@ class main extends \pl\fe\matter\main_base {
 		foreach ($oUpdated as $n => $v) {
 			if (in_array($n, ['title'])) {
 				$oUpdated->{$n} = $modelLink->escape($v);
+			} else if ($n === 'entry_rule') {
+				if ($v->scope === 'group') {
+					if (isset($v->group->title)) {
+						unset($v->group->title);
+					}
+					if (isset($v->group->round->title)) {
+						unset($v->group->round->title);
+					}
+				}
+				$oUpdated->entry_rule = $modelLink->escape($modelLink->toJson($v));
 			}
 			$oLink->{$n} = $v;
 		}

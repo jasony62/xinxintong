@@ -123,9 +123,36 @@ class main extends \site\fe\matter\base {
 			$oLink->invite = $oInvite;
 		}
 
+		/* 当前访问用户的基本信息 */
+		$oUser = $this->who;
+
+		/* 补充联系人信息，是在什么情况下都需要补充吗？ 应该在限制了联系人访问的情况下，而且应该只返回相关的 */
+		$modelMem = $this->model('site\user\member');
+		if (empty($oUser->unionid)) {
+			$aMembers = $modelMem->byUser($oUser->uid);
+			if (count($aMembers)) {
+				!isset($oUser->members) && $oUser->members = new \stdClass;
+				foreach ($aMembers as $oMember) {
+					$oUser->members->{$oMember->schema_id} = $oMember;
+				}
+			}
+		} else {
+			$modelAcnt = $this->model('site\user\account');
+			$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oLink->siteid, 'fields' => 'uid']);
+			foreach ($aUnionUsers as $oUnionUser) {
+				$aMembers = $modelMem->byUser($oUnionUser->uid);
+				if (count($aMembers)) {
+					!isset($oUser->members) && $oUser->members = new \stdClass;
+					foreach ($aMembers as $oMember) {
+						$oUser->members->{$oMember->schema_id} = $oMember;
+					}
+				}
+			}
+		}
+
 		$data = [];
 		$data['link'] = $oLink;
-		$data['user'] = $this->who;
+		$data['user'] = $oUser;
 
 		return new \ResponseData($data);
 	}
@@ -224,7 +251,7 @@ class main extends \site\fe\matter\base {
 		$result = '';
 		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'group') {
 			/* 限分组用户访问 */
-			if (isset($oEntryRule->group) {
+			if (isset($oEntryRule->group)) {
 				!is_object($oEntryRule->group) && $oEntryRule->group = (object) $oEntryRule->group;
 				$oGroupApp = $oEntryRule->group;
 				if (isset($oGroupApp->id)) {

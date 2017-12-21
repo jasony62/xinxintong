@@ -9,15 +9,34 @@
     <meta content="width=device-width,user-scalable=yes" name="viewport">
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/invite/matter.css');?>" rel="stylesheet">
 </head>
 
 <body ng-app='app' ng-controller='ctrlMain'>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a class='navbar-brand' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+        </div>
+    </nav>
     <div class='container'>
         <div class='row'>
             <div class='col-md-12'>
+                <div class='form-group' ng-if="loginUsr.headimgurl">
+                    <img ng-src="loginUsr.headimgurl">
+                </div>
                 <div class='form-group'>
-                    <label>你的专属邀请链接</label>
+                    <label><span>{{loginUser.nickname}}</span>的邀请链接</label>
                     <p>{{invite.entryUrl}}</p>
+                </div>
+                <div id='matter' class='form-group'>
+                    <div>{{invite.matter_title}}</div>
+                    <div ng-if="invite.matter_summary">{{invite.matter_summary}}</div>
+                    <div ng-if="invite.matter_pic"><img ng-src="{{invite.matter_pic}}"></div>
                 </div>
                 <a ng-href="/rest/site/fe/user/invite/detail?invite={{invite.id}}">设置邀请码</a>
                 <a ng-href="/rest/site/fe/user/invite/detail?invite={{invite.id}}">查看邀请结果</a>

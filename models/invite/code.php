@@ -47,6 +47,7 @@ class code_model extends \TMS_MODEL {
 		$oNewCode->last_use_at = 0;
 		$oNewCode->max_count = 0;
 		$oNewCode->used_count = 0;
+		$oNewCode->relay_invitee_count = 0;
 		$oNewCode->stop = 'N';
 		$oNewCode->state = 1;
 

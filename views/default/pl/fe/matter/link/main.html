@@ -29,6 +29,16 @@
                 <label>摘要（可选）：最多120个汉字，240个英文字符</label>
                 <textarea class='form-control' ng-model='editing.summary' ng-change="update('summary');"></textarea>
             </div>
+            <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='link';matterObj='editing'">
+                <label>所属频道（可选）</label>
+                <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
+            </div>
+            <div class='form-group'>
+                <label>管理标签（可选）</label>
+                <p class="form-control" ng-click="tagMatter('M')">
+                    <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
+                </p>
+            </div>
             <div class='form-group' ng-if="editing.mission">
                 <label>所属项目</label>
                 <div class="input-group">
@@ -53,15 +63,60 @@
     </div>
     <div class='panel panel-default'>
         <div class='panel-body'>
-            <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='link';matterObj='editing'">
-                <label class='help-block'>所属频道（可选）</label>
-                <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
-            </div>
             <div class='form-group'>
-                <label class='help-block'>管理标签（可选）</label>
-                <p class="form-control" ng-click="tagMatter('M')">
-                    <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
-                </p>
+                <label>设置进入条件</label>
+                <div class='radio'>
+                    <label><input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+                </div>
+                <div class='radio'>
+                    <label><input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
+                </div>
+                <div class='radio'>
+                    <label><input type='radio' value='group' ng-model="rule.scope" ng-change="changeUserScope()">限同项目内分组活动用户访问</label>
+                </div>
+                <div class='radio' >
+                    <label><input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
+                </div>
+            </div>
+            <div class='form-group' ng-if="rule.scope==='member'">
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr ng-repeat="(msid,erm) in app.entry_rule.member">
+                            <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
+                            <td>
+                                <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
+                                <button class='btn btn-default btn-xs' ng-click="editMschema(mschemasById[msid])"><span class='glyphicon glyphicon-edit'></span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
+            </div>
+            <div class='form-group' ng-if="rule.scope==='group'">
+                <div class="input-group">
+                    <input class='form-control' title="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" value="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" readonly>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" ng-click="removeGroupApp()">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </div>
+                </div>
+                <button class='btn btn-default' ng-click="chooseGroupApp()">选择分组活动</button>
+            </div>
+            <div class='form-group' ng-if="rule.scope==='sns'">
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr ng-if="sns.wx">
+                            <td>公众号【<span>{{sns.wx.title}}</span>】关注用户</td>
+                        </tr>
+                        <tr ng-if="sns.qy">
+                            <td>公众号【<span>{{sns.qy.title}}</span>】关注用户</td>
+                        </tr>
+                        <tr ng-if="sns.yx">
+                            <td>公众号【<span>{{sns.yx.title}}</span>】关注用户</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

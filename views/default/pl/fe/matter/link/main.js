@@ -1,6 +1,7 @@
 define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 'srvTag', 'srvSite', function($scope, http2, mediagallery, $uibModal, srvTag, srvSite) {
-        var modifiedData = {};
+        var _oAppRule, _oBeforeRule, modifiedData = {};
+        $scope.rule = {};
         $scope.modified = false;
         $scope.urlsrcs = {
             '0': '外部链接',
@@ -35,6 +36,9 @@ define(['frame'], function(ngApp) {
                 });
             }
             $scope.editing = link;
+            _oAppRule = link.entry_rule;
+            $scope.rule.scope = _oAppRule.scope || 'none';
+            _oBeforeRule = angular.copy($scope.rule);
             $scope.persisted = angular.copy(link);
             $('[ng-model="editing.title"]').focus();
         };
@@ -59,6 +63,40 @@ define(['frame'], function(ngApp) {
                 modifiedData = {};
                 $scope.modified = false;
             });
+        };
+        var _changeUserScope = function(ruleScope, oSiteSns) {
+            _oAppRule.scope = ruleScope;
+            switch (ruleScope) {
+                case 'member':
+                    oEntryRule.member === undefined && (oEntryRule.member = {});
+                    break;
+                case 'sns':
+                    oEntryRule.sns === undefined && (oEntryRule.sns = {});
+                    break;
+                default:
+            }
+            $scope.update('entry_rule');
+            _oBeforeRule = angular.copy($scope.rule);
+        }
+        $scope.changeUserScope = function() {
+            if ($scope.rule.scope === 'member' && (!_oAppRule.member || Object.keys(_oAppRule.member).length === 0)) {
+                srvSite.chooseMschema($scope.editing).then(function(result) {
+                    setMschemaEntry(result.chosen.id);
+                    _changeUserScope($scope.rule.scope, $scope.sns);
+                }, function(reason) {
+                    $scope.rule.scope = _oBeforeRule.scope;
+                });
+            } else if ($scope.rule.scope === 'group' && (!_oAppRule.group || !_oAppRule.group.id)) {
+                chooseGroupApp().then(function(result) {
+                    if (setGroupEntry(result)) {
+                        _changeUserScope($scope.rule.scope, $scope.sns);
+                    }
+                }, function(reason) {
+                    $scope.rule.scope = _oBeforeRule.scope;
+                });
+            } else {
+                _changeUserScope($scope.rule.scope, $scope.sns);
+            }
         };
         $scope.update = function(names) {
             angular.isString(names) && (names = [names]);

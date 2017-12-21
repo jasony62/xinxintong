@@ -74,14 +74,14 @@
                 <div class='radio'>
                     <label><input type='radio' value='group' ng-model="rule.scope" ng-change="changeUserScope()">限同项目内分组活动用户访问</label>
                 </div>
-                <div class='radio' >
+                <div class='radio' ng-if="sns">
                     <label><input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
                 </div>
             </div>
             <div class='form-group' ng-if="rule.scope==='member'">
                 <table class='table table-bordered'>
                     <tbody>
-                        <tr ng-repeat="(msid,erm) in app.entry_rule.member">
+                        <tr ng-repeat="msid in editing.entry_rule.member">
                             <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
                             <td>
                                 <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
@@ -94,14 +94,14 @@
             </div>
             <div class='form-group' ng-if="rule.scope==='group'">
                 <div class="input-group">
-                    <input class='form-control' title="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" value="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" readonly>
+                    <input class='form-control' title="{{editing.entry_rule.group.title}} - {{editing.entry_rule.group.round.title}}" value="{{editing.entry_rule.group.title}} - {{editing.entry_rule.group.round.title}}" readonly>
                     <div class="input-group-btn">
-                        <button class="btn btn-default" ng-click="removeGroupApp()">
+                        <button class="btn btn-default" ng-click="removeGroupEditing()">
                             <span class='glyphicon glyphicon-remove'></span>
                         </button>
                     </div>
                 </div>
-                <button class='btn btn-default' ng-click="chooseGroupApp()">选择分组活动</button>
+                <button class='btn btn-default' ng-click="chooseGroupEditing()">选择分组活动</button>
             </div>
             <div class='form-group' ng-if="rule.scope==='sns'">
                 <table class='table table-bordered'>
@@ -210,4 +210,34 @@
         <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
     </div>
 </div>
-
+<script type="text/ng-template" id="chooseGroupApp.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()">×</button>
+        <h5 class="modal-title">分组活动</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标活动</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                    <div class='checkbox' ng-if="app.mission">
+                        <label>
+                            <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'"> 选择同一个项目中的活动</label>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标分组</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in data.app.rounds">
+                        <option>全部分组</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

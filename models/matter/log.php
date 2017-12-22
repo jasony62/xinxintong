@@ -456,7 +456,7 @@ class log_model extends \TMS_MODEL {
 			['siteid' => $siteId, 'operator' => $user->id, 'matter_type' => $matter->type, 'matter_id' => $matter->id, 'user_last_op' => 'Y']
 		);
 		// 记录新日志，或更新日志
-		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restoreData'];
+		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restoreData', 'verify.all', 'verify.batch'];
 		if ($userLastLog === false || in_array($userLastLog->operation, $filterOp) || $current > $userLastLog->operate_at + 600) {
 			/* 两次更新操作的间隔超过10分钟，产生新日志 */
 			$d = array();

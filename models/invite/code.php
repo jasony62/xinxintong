@@ -28,20 +28,21 @@ class code_model extends \TMS_MODEL {
 			'xxt_invite_code',
 			['invite_id' => $oInvite->id],
 		];
-		$oCodes = $this->query_objs_ss($q);
+		$q2 = ['o' => 'create_at desc'];
+		$oCodes = $this->query_objs_ss($q, $q2);
 
 		return $oCodes;
 	}
 	/**
 	 *
 	 */
-	public function add($oInvite) {
+	public function add($oInvite, $aProto = []) {
 		$code = $this->_genCode($oInvite);
 		$oNewCode = new \stdClass;
 		$oNewCode->invite_id = $oInvite->id;
 		$oNewCode->from_invite_code_id = $oInvite->from_invite_code_id;
 		$oNewCode->code = $code;
-		$oNewCode->remark = '';
+		$oNewCode->remark = empty($aProto['remark']) ? '' : $aProto['remark'];
 		$oNewCode->create_at = time();
 		$oNewCode->expire_at = 0;
 		$oNewCode->last_use_at = 0;

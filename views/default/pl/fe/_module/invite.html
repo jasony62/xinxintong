@@ -1,43 +1,104 @@
+<div class='col-md-12' ng-if="!invite">
+    <button class='btn btn-default' ng-click="makeInvite()">开通邀请方式</button>
+</div>
 <div class='col-md-12'>
     <div class='form-group'>
-        <button class='btn btn-default' ng-click="makeInvite()">开通邀请方式</button>
+        <span>邀请成功：<span>直接{{invite.invitee_count}}</span>，<span>间接{{invite.relay_invitee_count}}</span></span>
     </div>
-    <div class='form-group'>
-        <p ng-bind="invite.entryUrl"></p>
-        <p>本级邀请成功数：{{invite.invitee_count}}</p>
-        <p>下级邀请成功数：{{invite.relay_invitee_count}}</p>
-    </div>
-    <div class='checkbox'>
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="invite.require_code" ng-change="update('require_code')"> 需要邀请码
-        </label>
-    </div>
-    <div class='list-group' ng-if="invite.require_code==='Y'">
-        <div class='list-group-item' ng-repeat="code in codes">
-            <div ng-bind="code.code"></div>
-            <div>本级邀请成功数：<span ng-bind="code.used_count"></span></div>
-            <div>下级邀请成功数：<span ng-bind="code.relay_invitee_count"></span></div>
-            <div ng-bind="code.remark"></div>
-            <button class='btn btn-default' ng-click="configCode(code)">设置</button>
-        </div>
-        <button class='btn btn-default' ng-click="addCode()">添加邀请码</button>
-    </div>
-    <label>本级邀请成功日志</label>
-    <div class='list-group'>
-        <div class='list-group-item' ng-repeat="log in logs">
-            <div ng-bind="log.inviteCode.code"></div>
-            <div ng-bind="log.nickname"></div>
-            <div>{{log.use_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-        </div>
-    </div>
-    <label>发出的所有邀请</label>
-    <div class='list-group'>
-        <div class='list-group-item' ng-repeat="ri in relayInvites">
-            <div><span ng-bind="ri.creator_name"></span></div>
-            <div>本级邀请成功数：<span ng-bind="ri.invitee_count"></span></div>
-            <div>下级邀请成功数：<span ng-bind="ri.relay_invitee_count"></span></div>
-        </div>
-    </div>
+</div>
+<div class='col-md-12' ng-if="invite">
+    <uib-tabset active="active">
+        <uib-tab index="1" heading="邀请设置">
+            <div class='panel'>
+                <div class='panel-body'>
+                    <div class='col-md-8 col-md-offset-2'>
+                        <div class='form-group'>
+                            邀请链接：<span ng-bind="invite.entryUrl"></span>
+                        </div>
+                        <div class='form-group'>
+                            <textarea class='form-control' ng-model="invite.message"></textarea>
+                            <button class='btn btn-default' ng-click="update('message')">保存邀请留言</button>
+                        </div>
+                        <hr>
+                        <button class='btn btn-default' ng-click="closeInvite()">关闭邀请方式</button>
+                    </div>
+                </div>
+            </div>
+        </uib-tab>
+        <uib-tab index="2" heading="邀请码">
+            <div class='panel'>
+                <div class='panel-body'>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <th style='width:42px'></th>
+                            <th style='width:80px'>编码</th>
+                            <th style='width:80px'>直接邀请</th>
+                            <th style='width:80px'>间接邀请</th>
+                            <th>备注</th>
+                            <th style='width:52px'>操作</th>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="code in codes">
+                                <td>{{$index+1}}</td>
+                                <td>{{code.code}}</td>
+                                <td>{{code.used_count}}</td>
+                                <td>{{code.relay_invitee_count}}</td>
+                                <td>{{code.remark}}</td>
+                                <td>
+                                    <button class='btn btn-default btn-xs' ng-click="configCode(code)">设置</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class='btn btn-default' ng-click="addCode()">添加邀请码</button>
+                </div>
+            </div>
+        </uib-tab>
+        <uib-tab index="3" heading="所有邀请">
+            <div class='panel'>
+                <div class='panel-body'>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <th style='width:42px'></th>
+                            <th>发起人</th>
+                            <th style='width:80px'>直接邀请</th>
+                            <th style='width:80px'>间接邀请</th>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="ri in relayInvites">
+                                <td>{{$index+1}}</td>
+                                <td>{{ri.creator_name}}</td>
+                                <td>{{ri.invitee_count}}</td>
+                                <td>{{ri.relay_invitee_count}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </uib-tab>
+        <uib-tab index="4" heading="直接访问记录">
+            <div class='panel'>
+                <div class='panel-body'>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <th style='width:42px'></th>
+                            <th style='width:80px'>邀请码</th>
+                            <th>访问人</th>
+                            <th style='width:120px'>访问时间</th>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="log in logs">
+                                <td>{{$index+1}}</td>
+                                <td>{{log.inviteCode.code}}</td>
+                                <td>{{log.nickname}}</td>
+                                <td>{{log.use_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </uib-tab>
+    </uib-tabset>
 </div>
 <script type='text/ng-template' id='codeEditor.html'>
     <div class="modal-header">

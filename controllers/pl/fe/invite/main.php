@@ -40,7 +40,7 @@ class main extends \pl\fe\base {
 		$oCreator->type = 'S';
 
 		$modelInv = $this->model('invite');
-		$oInvite = $modelInv->byMatter($oMatter, $oCreator, ['fields' => 'id,code,expire_at,require_code,invitee_count,relay_invitee_count,matter_type,matter_id']);
+		$oInvite = $modelInv->byMatter($oMatter, $oCreator, ['fields' => 'id,code,expire_at,require_code,message,invitee_count,relay_invitee_count,matter_type,matter_id']);
 		if ($oInvite) {
 			$oInvite->entryUrl = $modelInv->getEntryUrl($oInvite);
 		}
@@ -53,7 +53,7 @@ class main extends \pl\fe\base {
 	 * @return
 	 */
 	public function create_action($matter) {
-		if (false === $this->accountUser()) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -64,7 +64,7 @@ class main extends \pl\fe\base {
 
 		$oCreator = new \stdClass;
 		$oCreator->id = $oMatter->siteid;
-		$oCreator->name = '';
+		$oCreator->name = $oUser->name;
 		$oCreator->type = 'S';
 
 		$modelInv = $this->model('invite')->setOnlyWriteDbConn(true);
@@ -121,10 +121,17 @@ class main extends \pl\fe\base {
 		$aUpdated = [];
 		$posted = $this->getPostJson();
 		foreach ($posted as $prop => $val) {
-			if ($prop === 'require_code') {
+			switch ($prop) {
+			case 'require_code':
 				$aUpdated[$prop] = $val === 'Y' ? 'Y' : 'N';
+				break;
+			case 'message':
+				$aUpdated[$prop] = $modelInv->escape($val);
+				break;
 			}
 		}
+
+		$aUpdated['creator_name'] = $oUser->name;
 		if (!empty($aUpdated)) {
 			$modelInv->update('xxt_invite', $aUpdated, ['id' => $oInvite->id]);
 		}

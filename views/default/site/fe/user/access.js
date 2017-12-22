@@ -30,6 +30,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
             if (rsp.err_code != 0) {
                 $scope.errmsg = rsp.err_msg;
+                $scope.refreshPin();
                 return;
             }
             if ($scope.loginData.rememberMe === 'Y') {
@@ -69,7 +70,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             if (window.parent && window.parent.onClosePlugin) {
                 window.parent.onClosePlugin(rsp.data);
             } else {
-                location.replace('/rest/site/fe/user/login?site=' + site);
+                location.replace('/rest/site/fe/user/login?site=' + _siteId);
             }
         }).error(function(data, header, config, status) {
             $http.post('/rest/log/add', { src: 'site.fe.user.logout', msg: JSON.stringify(arguments) });
@@ -111,11 +112,9 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         location.href = '/rest/site/fe/user?site=' + _siteId;
     };
     $scope.refreshPin = function() {
-        var url = '/rest/site/fe/user/login/getCaptcha?site=platform';
-            url += '&codelen=4&width=130&height=34&fontsize=20';
-        $http.get(url).success(function(rsp) {
-            $scope.pinImg = rsp.data;
-        });
+        var time = new Date().getTime(),
+            url = '/rest/site/fe/user/login/getCaptcha?site=platform&codelen=4&width=130&height=34&fontsize=20';
+        $scope.pinImg = url + '&' + time;
     };
     $http.get('/rest/site/fe/get?site=' + _siteId).success(function(rsp) {
         $scope.site = rsp.data;

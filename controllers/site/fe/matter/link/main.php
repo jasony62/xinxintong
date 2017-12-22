@@ -306,23 +306,25 @@ class main extends \site\fe\matter\base {
 			}
 		} else if (isset($oEntryRule->scope) && $oEntryRule->scope === 'sns') {
 			foreach ($oEntryRule->sns as $snsName) {
-				// 检查用户对应的公众号
-				if ($snsName === 'wx') {
-					$modelWx = $this->model('sns\wx');
-					if (($wxConfig = $modelWx->bySite($oMatter->siteid)) && $wxConfig->joined === 'Y') {
-						$snsSiteId = $oMatter->siteid;
+				if (isset($oUser->sns) && isset($oUser->sns->{$snsName})) {
+					// 检查用户对应的公众号
+					if ($snsName === 'wx') {
+						$modelWx = $this->model('sns\wx');
+						if (($wxConfig = $modelWx->bySite($oMatter->siteid)) && $wxConfig->joined === 'Y') {
+							$snsSiteId = $oMatter->siteid;
+						} else {
+							$snsSiteId = 'platform';
+						}
 					} else {
-						$snsSiteId = 'platform';
+						$snsSiteId = $oMatter->siteid;
 					}
-				} else {
-					$snsSiteId = $oMatter->siteid;
-				}
-				// 检查用户是否已经关注
-				if ($snsUser = $oUser->sns->{$snsName}) {
-					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-					if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
-						$bMatched = true;
-						break;
+					// 检查用户是否已经关注
+					if ($snsUser = $oUser->sns->{$snsName}) {
+						$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+						if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
+							$bMatched = true;
+							break;
+						}
 					}
 				}
 			}

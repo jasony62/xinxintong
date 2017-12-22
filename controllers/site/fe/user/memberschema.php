@@ -19,6 +19,9 @@ class memberschema extends \site\fe\base {
 	 *
 	 */
 	public function list_action($site, $schema) {
+		if (empty($schema)) {
+			return new \ParameterError();
+		}
 		$modelSch = $this->model('site\user\memberschema');
 		$aMemberSchemas = [];
 		$aSchemaIds = explode(',', $schema);

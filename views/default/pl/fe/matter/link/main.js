@@ -121,6 +121,9 @@ define(['frame'], function(ngApp) {
             switch (ruleScope) {
                 case 'sns':
                     _oAppRule.sns === undefined && (_oAppRule.sns = []);
+                    Object.keys(oSiteSns).forEach(function(snsName) {
+                        _oAppRule.sns.push(snsName);
+                    });
                     break;
                 default:
             }
@@ -145,6 +148,7 @@ define(['frame'], function(ngApp) {
                     $scope.rule.scope = _oBeforeRule.scope;
                 });
             } else {
+                console.log($scope.sns);
                 _changeUserScope($scope.rule.scope, $scope.sns);
             }
         };

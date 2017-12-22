@@ -31,8 +31,8 @@ class main extends \site\fe\matter\base {
 		$oInvitee = new \stdClass;
 		$oInvitee->id = $oLink->siteid;
 		$oInvitee->type = 'S';
-		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at']);
-		if ($oInvite) {
+		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+		if ($oInvite && $oInvite->state === '1') {
 			$this->_checkInviteToken($this->who->uid, $oLink);
 		}
 
@@ -136,8 +136,8 @@ class main extends \site\fe\matter\base {
 		$oInvitee = new \stdClass;
 		$oInvitee->id = $oLink->siteid;
 		$oInvitee->type = 'S';
-		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at']);
-		if ($oInvite) {
+		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+		if ($oInvite && $oInvite->state === '1') {
 			$oLink->invite = $oInvite;
 		}
 

@@ -25,13 +25,13 @@ class login extends \site\fe\base {
 			return new \ResponseError("登录信息不完整");
 		}
 
-		$codeSession = \TMS_APP::S('auth_code');
+		$codeSession = $_SESSION['_login_auth_code'];
 		if (empty($codeSession) ||  $codeSession !== $data->pin) {
-			\TMS_APP::setS('auth_code', '');
+			$_SESSION['_login_auth_code'] = '';
 			return new \ResponseError("验证码错误请重新输入");
 		}
 
-		\TMS_APP::setS('auth_code', '');
+		$_SESSION['_login_auth_code'] = '';
 		$modelWay = $this->model('site\fe\way');
 		$modelReg = $this->model('site\user\registration');
 
@@ -94,6 +94,6 @@ class login extends \site\fe\base {
 		$captcha->doImg();
 
 		$code = $captcha->getCode();
-		\TMS_APP::setS('auth_code', $code);
+		$_SESSION['_login_auth_code'] = $code;
 	}
 }

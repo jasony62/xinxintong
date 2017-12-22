@@ -465,16 +465,6 @@ class TMS_APP {
 		return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
 	}
 	/**
-	 * 设置session中的数据
-	 *
-	 * $name
-	 */
-	public static function setS($name, $value) {
-		$_SESSION[$name] = $value;
-
-		return true;
-	}
-	/**
 	 * 获得model对象
 	 *
 	 * $path

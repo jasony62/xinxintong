@@ -69,7 +69,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             if (window.parent && window.parent.onClosePlugin) {
                 window.parent.onClosePlugin(rsp.data);
             } else {
-                location.replace('/rest/site/fe/user/login?site=' + site);
+                location.replace('/rest/site/fe/user/login?site=' + _siteId);
             }
         }).error(function(data, header, config, status) {
             $http.post('/rest/log/add', { src: 'site.fe.user.logout', msg: JSON.stringify(arguments) });

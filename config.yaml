@@ -2,6 +2,7 @@ name: xinxintong
 version: 1
 handle:
 - rewrite: if ( !is_dir() && !is_file() && path ~ "^/q/(.*)" ) goto "http://%{HTTP_HOST}/rest/q?code=$1"
+- rewrite: if ( !is_dir() && !is_file() && path ~ "^/i/(.*)" ) goto "http://%{HTTP_HOST}/rest/i?code=$1"
 - rewrite: if ( !is_dir() && !is_file() && path ~ "^/rest/(.*)" ) goto "/app.php"
 - rewrite: if ( !is_dir() && !is_file() && path ~ "^/page/(.*)" ) goto "/app.php"
 - rewrite: if ( !is_dir() && !is_file() && path ~ "^/site/(.*)" ) goto "/app.php"

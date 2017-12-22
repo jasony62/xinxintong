@@ -48,7 +48,9 @@ class i extends TMS_CONTROLLER {
 		$oInvitee = $modelWay->who($oInvite->matter_siteid);
 
 		/* 如果当前用户已经被邀请过，就不再进行验证或记录日志 */
-		if (false === $this->model('invite\log')->hasPassed($oMatter, $oInvitee->uid)) {
+		$modelInvLog = $this->model('invite\log');
+		$aInviteLogs = $modelInvLog->byUser($oMatter, $oInvitee->uid);
+		if (0 === count($aInviteLogs)) {
 			if (!empty($oInvite->require_code) && $oInvite->require_code === 'Y') {
 				/* 需要邀请码 */
 				if (!empty($_POST['inviteCode'])) {
@@ -58,6 +60,7 @@ class i extends TMS_CONTROLLER {
 					if (false === $result[0]) {
 						$this->outputError($result[1]);
 					}
+					$oInviteLog = $result[1];
 				} else {
 					TPL::assign('title', empty($oInvite->matter_title) ? APP_TITLE : $oInvite->matter_title);
 					TPL::output('site/fe/invite/code');
@@ -69,25 +72,24 @@ class i extends TMS_CONTROLLER {
 				$oInviteCode->invite_id = $oInvite->id;
 				$oInviteCode->id = 0;
 				$oInviteCode->last_use_at = time();
-				$this->model('invite\log')->add($oInvite, $oInviteCode, $oInvitee);
+				$oInviteLog = $modelInvLog->add($oInvite, $oInviteCode, $oInvitee);
 			}
+		} else {
+			$oInviteLog = $aInviteLogs[0];
 		}
 
 		/* 更新邀请访问数据 */
 		$modelInv->addInviterCount($oInvite);
 
 		/**
-		 * 设置访问控制
+		 * 设置访问控制，生成token
 		 */
-		//$expire = 3600;
-		//$accessToken = $this->_setAccessToken($code, $expire);
+		$oAccessToken = $this->model('invite\token')->add($oInviteLog);
 
 		$matterUrl = $modelMat->getEntryUrl($oMatter->siteid, $oMatter->id);
-		//if (strpos($matterUrl, '?') === false) {
-		//	$matterUrl .= '?accessToken=' . $accesToken;
-		//} else {
-		//	$matterUrl .= '&accessToken=' . $accessToken;
-		//}
+		$matterUrl .= strpos($matterUrl, '?') === false ? '?' : '&';
+		$matterUrl .= 'inviteToken=' . $oAccessToken->token;
+
 		$this->redirect($matterUrl);
 	}
 	/**
@@ -98,15 +100,5 @@ class i extends TMS_CONTROLLER {
 		TPL::assign('body', $err);
 		TPL::output('error');
 		exit;
-	}
-	/**
-	 * 设置访问令牌
-	 */
-	private function _setAccessToken($code, $expire) {
-		$userAgent = $_SERVER['HTTP_USER_AGENT'];
-
-		$token = $this->model('q\urltoken')->add($code, $userAgent, $expire);
-
-		return $token;
 	}
 }

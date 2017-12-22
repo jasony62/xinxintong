@@ -86,6 +86,9 @@ class log_model extends \TMS_MODEL {
 			'xxt_invite_log',
 			['matter_type' => $oMatter->type, 'matter_id' => $oMatter->id, 'userid' => $userid],
 		];
+		if (!empty($aOptions['invite_id'])) {
+			$q[2]['invite_id'] = $aOptions['invite_id'];
+		}
 		$q2 = ['o' => 'use_at'];
 
 		$logs = $this->query_objs_ss($q, $q2);

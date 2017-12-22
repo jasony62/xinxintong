@@ -20,6 +20,7 @@ define(['frame'], function(ngApp) {
                 $scope.invite = _oInvite = oInvite;
             });
         };
+        $scope.closeInvite = function() {};
         $scope.addCode = function() {
             srvInvite.addCode(_oInvite).then(function(oCode) {
                 $scope.codes === undefined && ($scope.codes = []);

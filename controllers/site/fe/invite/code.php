@@ -22,8 +22,19 @@ class code extends \site\fe\base {
 			return new \ResponseError('没有访问当前对象的权限');
 		}
 
+		$aProto = [];
+		if ($posted = $this->getPostJson()) {
+			foreach ($posted as $prop => $val) {
+				switch ($prop) {
+				case 'remark':
+					$aProto[$prop] = $modelInv->escape($val);
+					break;
+				}
+			}
+		}
+
 		$modelCode = $this->model('invite\code')->setOnlyWriteDbConn(true);
-		$oCode = $modelCode->add($oInvite);
+		$oCode = $modelCode->add($oInvite, $aProto);
 
 		return new \ResponseData($oCode);
 	}

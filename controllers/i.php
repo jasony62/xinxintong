@@ -63,7 +63,7 @@ class i extends TMS_CONTROLLER {
 					$oInviteLog = $result[1];
 				} else {
 					TPL::assign('title', empty($oInvite->matter_title) ? APP_TITLE : $oInvite->matter_title);
-					TPL::output('site/fe/invite/code');
+					TPL::output('site/fe/invite/access');
 					exit;
 				}
 			} else {

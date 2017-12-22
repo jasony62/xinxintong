@@ -36,6 +36,16 @@ class main extends \site\fe\base {
 		exit;
 	}
 	/**
+	 * 根据邀请的编码获得邀请
+	 */
+	public function get_action($code) {
+		$modelInv = $this->model('invite')->setOnlyWriteDbConn(true);
+		$code = $modelInv->escape($code);
+		$oInvite = $modelInv->byCode($code);
+
+		return new \ResponseData($oInvite);
+	}
+	/**
 	 * 给指定素材创建邀请
 	 * 1、必须是注册用户才能创建邀请
 	 * 2、必须是已经参加邀请的用户才能创建邀请
@@ -103,9 +113,16 @@ class main extends \site\fe\base {
 
 		$aUpdated = [];
 		$posted = $this->getPostJson();
-		foreach ($posted as $prop => $val) {
-			if ($prop === 'require_code') {
-				$aUpdated[$prop] = $val === 'Y' ? 'Y' : 'N';
+		if ($posted) {
+			foreach ($posted as $prop => $val) {
+				switch ($prop) {
+				case 'require_code':
+					$aUpdated[$prop] = $val === 'Y' ? 'Y' : 'N';
+					break;
+				case 'message':
+					$aUpdated[$prop] = $modelInv->escape($val);
+					break;
+				}
 			}
 		}
 		if (!empty($aUpdated)) {

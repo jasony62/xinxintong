@@ -1,0 +1,9 @@
+body{padding-top:70px;}
+#matter img{width:100%}
+.invitee .count{font-size:1.5em;padding:0 .3em;color:red;}
+.inviteCode{position:relative;}
+.inviteCode>div:first-child{display:flex;}
+.inviteCode>div:first-child>div:first-child{margin-right:8px;}
+.inviteCode>button{position:absolute;right:-1px;top:-1px;}
+.inviteLog>div:first-child{display:flex;}
+.inviteLog>div:first-child>div:first-child{flex-grow:1;}

@@ -9,15 +9,39 @@ class main extends \site\fe\matter\base {
 	/**
 	 *
 	 */
+	private function _checkInviteToken($userid, $oMatter) {
+		if (empty($_GET['inviteToken'])) {
+			die('参数不完整，未通过邀请访问控制');
+		}
+		$inviteToken = $_GET['inviteToken'];
+
+		$rst = $this->model('invite\token')->checkToken($inviteToken, $userid, $oMatter);
+		if (false === $rst[0]) {
+			die($rst[1]);
+		}
+
+		return true;
+	}
+	/**
+	 *
+	 */
 	public function index_action($site, $id) {
 		$oLink = $this->model('matter\link')->byIdWithParams($id);
-		if (!$this->afterSnsOAuth()) {
+
+		$oInvitee = new \stdClass;
+		$oInvitee->id = $oLink->siteid;
+		$oInvitee->type = 'S';
+		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+		if ($oInvite && $oInvite->state === '1') {
+			$this->_checkInviteToken($this->who->uid, $oLink);
+		}
+
+    if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site);
 		}
-
-		// 检查进入活动规则
-		$result = $this->checkEntryRule($oLink, true);
+    
+    $result = $this->checkEntryRule($oLink, true);
 		if ($result[0] === false) {
 			$this->outputInfo($result[1]);
 		}
@@ -116,8 +140,8 @@ class main extends \site\fe\matter\base {
 		$oInvitee = new \stdClass;
 		$oInvitee->id = $oLink->siteid;
 		$oInvitee->type = 'S';
-		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at']);
-		if ($oInvite) {
+		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+		if ($oInvite && $oInvite->state === '1') {
 			$oLink->invite = $oInvite;
 		}
 

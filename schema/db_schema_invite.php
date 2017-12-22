@@ -25,6 +25,7 @@ $sql .= ",from_invite_id bigint not null"; // 创建邀请的用户是通过哪�
 $sql .= ",from_invite_code_id bigint not null"; // 创建邀请的用户是通过哪个邀请码接受的邀请
 $sql .= ",invitee_count int not null default 0"; // 直接邀请的用户数
 $sql .= ",relay_invitee_count int not null default 0"; // 累计直接邀请的用户数
+$sql .= ",message text null"; // 邀请留言
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 /**

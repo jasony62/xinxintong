@@ -324,8 +324,18 @@ class log_model extends \TMS_MODEL {
 			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
 		];
 
+		if ($matterType === 'enroll') {
+			$q[0] = 'l.userid,u.nickname,l.operation,l.operate_at,l.user_op_num,l.matter_op_num';
+			$q[1] .= ',xxt_enroll_user u';
+			$q[2] .= " and u.userid = l.userid and u.rid = 'ALL' and u.aid = l.matter_id";
+		}
+
 		if (!empty($options['byUser'])) {
-			$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
+			if ($matterType === 'enroll') {
+				$q[2] .= " and u.nickname like '%" . $this->escape($options['byUser']) . "%'";
+			} else {
+				$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
+			}
 		}
 		if (!empty($options['byOp']) && strcasecmp($options['byOp'], 'all') !== 0) {
 			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";

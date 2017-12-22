@@ -71,6 +71,9 @@ define(['require'], function() {
         srvSite.tagList().then(function(oTag) {
             $scope.oTag = oTag;
         });
+        srvSite.snsList().then(function(oSns) {
+            $scope.sns = oSns;
+        });
         http2.get('/rest/pl/fe/matter/link/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
             $scope.editing = rsp.data;
             $scope.entryUrl = 'http://' + location.host + '/rest/site/fe/matter/link?site=' + $scope.siteId + '&id=' + $scope.id;

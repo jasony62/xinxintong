@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <meta content="width=device-width,user-scalable=yes" name="viewport">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/invite/access.css');?>" rel="stylesheet">
+    <style>
+
+    </style>
+</head>
+
+<body ng-app='app' ng-controller='ctrlMain'>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a class='navbar-brand' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class='container' ng-cloak class='ng-cloak'>
+        <div class='row'>
+            <div class='col-md-6 col-md-offset-3'>
+                <div class='panel'>
+                    <div class='panel-body'>
+                        <form action='/rest/i?code=<?php echo $_GET["code"];?>' method='POST'>
+                            <section id='inviter'>
+                                <div class='form-group'>
+                                    邀请人：<span ng-bind="invite.creator_name"></span>
+                                </div>
+                                <div class='form-group' ng-if="invite.create_at>0">
+                                    发起时间：<span ng-bind="invite.create_at*1000|date:'yy年M月dd日'"></span>
+                                </div>
+                                <div class='form-group' ng-if="invite.message">
+                                    邀请留言：<span ng-bind="invite.message"></span>
+                                </div>
+                            </section>
+                            <hr>
+                            <section id='matter'>
+                                <div class='form-group'>
+                                    <span ng-bind="invite.matter_title"></span>
+                                </div>
+                                <div class='form-group' ng-if="invite.matter_pic">
+                                    <img ng-src="{{invite.matter_pic}}">
+                                </div>
+                                <div class='form-group' ng-if="invite.matter_summary">
+                                    <span ng-bind="invite.matter_summary"></span>
+                                </div>
+                            </section>
+                            <hr>
+                            <div class='input-group'>
+                                <input class='form-control' placeholder='请输入邀请码' type='text' name='inviteCode' autofocus></input>
+                                <div class='input-group-btn'>
+                                    <button type='submit' class='btn btn-default'>进入</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class='panel'>
+                    <div class='panel-body'>
+                        <span class='glyphicon glyphicon-info-sign'></span> 如果您想邀请其他人参与，请进入后申请自己的专属邀请链接，并设置邀请码，以便于掌握邀请情况。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js"></script>
+    <script src="<?php echo auto_version('/views/default/site/fe/invite/access.js');?>"></script>
+</body>
+
+</html>

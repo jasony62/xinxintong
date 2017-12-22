@@ -28,25 +28,27 @@ class code_model extends \TMS_MODEL {
 			'xxt_invite_code',
 			['invite_id' => $oInvite->id],
 		];
-		$oCodes = $this->query_objs_ss($q);
+		$q2 = ['o' => 'create_at desc'];
+		$oCodes = $this->query_objs_ss($q, $q2);
 
 		return $oCodes;
 	}
 	/**
 	 *
 	 */
-	public function add($oInvite) {
+	public function add($oInvite, $aProto = []) {
 		$code = $this->_genCode($oInvite);
 		$oNewCode = new \stdClass;
 		$oNewCode->invite_id = $oInvite->id;
 		$oNewCode->from_invite_code_id = $oInvite->from_invite_code_id;
 		$oNewCode->code = $code;
-		$oNewCode->remark = '';
+		$oNewCode->remark = empty($aProto['remark']) ? '' : $aProto['remark'];
 		$oNewCode->create_at = time();
 		$oNewCode->expire_at = 0;
 		$oNewCode->last_use_at = 0;
 		$oNewCode->max_count = 0;
 		$oNewCode->used_count = 0;
+		$oNewCode->relay_invitee_count = 0;
 		$oNewCode->stop = 'N';
 		$oNewCode->state = 1;
 
@@ -71,28 +73,29 @@ class code_model extends \TMS_MODEL {
 		if ($oInviteCode->max_count > 0 && $oInviteCode->used_count >= $$oInviteCode->max_count) {
 			return [false, '邀请码已经超过使用次数'];
 		}
-		if (!$onlyCheck) {
-			/* 修改邀请码使用状态 */
-			$current = time();
-			$bSuccess = false;
-			while (!$bSuccess) {
-				$rst = $this->update('update xxt_invite_code set used_count=used_count+1,last_use_at=' . $current . ' where id=' . $oInviteCode->id . ' and used_count=' . $oInviteCode->used_count);
-				$bSuccess = $rst === 1;
-				if (!$bSuccess) {
-					$oInviteCode = $this->byId($oInviteCode->id, ['fields' => 'id,invite_id,max_count,used_count']);
-					if ($$oInviteCode->max_count > 0 && $oInviteCode->used_count >= $$oInviteCode->max_count) {
-						return [false, '邀请码已经超过使用次数'];
-					}
+		if ($onlyCheck) {
+			return [true, false];
+		}
+		/* 修改邀请码使用状态 */
+		$current = time();
+		$bSuccess = false;
+		while (!$bSuccess) {
+			$rst = $this->update('update xxt_invite_code set used_count=used_count+1,last_use_at=' . $current . ' where id=' . $oInviteCode->id . ' and used_count=' . $oInviteCode->used_count);
+			$bSuccess = $rst === 1;
+			if (!$bSuccess) {
+				$oInviteCode = $this->byId($oInviteCode->id, ['fields' => 'id,invite_id,max_count,used_count']);
+				if ($$oInviteCode->max_count > 0 && $oInviteCode->used_count >= $$oInviteCode->max_count) {
+					return [false, '邀请码已经超过使用次数'];
 				}
 			}
-			$this->_addRelayCount($oInviteCode);
-
-			/* 记录使用日志 */
-			$oInviteCode->last_use_at = $current;
-			$this->model('invite\log')->add($oInvite, $oInviteCode, $oInvitee);
 		}
+		$this->_addRelayCount($oInviteCode);
 
-		return [true];
+		/* 记录使用日志 */
+		$oInviteCode->last_use_at = $current;
+		$oInviteLog = $this->model('invite\log')->add($oInvite, $oInviteCode, $oInvitee);
+
+		return [true, $oInviteLog];
 	}
 	/**
 	 * 更新邀请的成功被邀请人数量

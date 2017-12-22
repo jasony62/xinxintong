@@ -18,20 +18,36 @@ class link_model extends base_model {
 	 * 返回链接和链接的参数
 	 */
 	public function byIdWithParams($id, $fields = '*') {
-		$q = [
+		$q = array(
 			$fields,
 			'xxt_link',
-			"id=$id",
-		];
+			"id='$id' and state=1",
+		);
 		if ($link = $this->query_obj_ss($q)) {
 			$link->type = 'link';
-			$q = [
-				'pname,pvalue,authapi_id',
+			!empty($link->matter_mg_tag) && $link->matter_mg_tag = json_decode($link->matter_mg_tag);
+			if (empty($link->entry_rule)) {
+				$link->entry_rule = new \stdClass;
+				$link->entry_rule->scope = 'none';
+			} else {
+				$link->entry_rule = json_decode($link->entry_rule);
+			}
+			/**
+			 * params
+			 */
+			$q2 = array(
+				'id,pname,pvalue,authapi_id',
 				'xxt_link_param',
-				"link_id=$id",
-			];
-			if ($params = $this->query_objs_ss($q)) {
-				$link->params = $params;
+				"link_id='$id'",
+			);
+			$link->params = $this->query_objs_ss($q2);
+			/**
+			 * channels
+			 */
+			$link->channels = $this->model('matter\channel')->byMatter($id, 'link');
+			/* 所属项目 */
+			if ($link->mission_id) {
+				$link->mission = $this->model('matter\mission')->byId($link->mission_id, ['cascaded' => 'phase']);
 			}
 		}
 

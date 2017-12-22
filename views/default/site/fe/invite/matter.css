@@ -1,2 +1,6 @@
-body{padding-top:50px;}
+body{padding-top:70px;}
 #matter img{width:100%}
+.inviteCode{display:flex;}
+.inviteCode>div:first-child{margin-right:8px;}
+.message{display:flex;align-items:center;}
+.message>div:first-child{flex-grow:1;margin-right:8px;}

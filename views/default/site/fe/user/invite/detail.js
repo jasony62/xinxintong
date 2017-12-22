@@ -2,11 +2,12 @@
 
 var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms']);
 ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', function($scope, $q, $uibModal, http2) {
-    var _inviteId, _oInvite, _oPage;
+    var _inviteId, _oInvite, _oNewInvite, _oPage;
     _inviteId = location.search.match('invite=(.*)')[1];
+    $scope.newInvite = _oNewInvite = {};
     $scope.page = _oPage = {
         at: 1,
-        size: 30,
+        size: 10,
         join: function() {
             return '&page=' + this.at + '&size=' + this.size;
         }
@@ -14,13 +15,29 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', function($
     $scope.update = function(prop) {
         var posted;
         posted = {};
-        posted[prop] = _oInvite[prop];
-        http2.post('/rest/site/fe/invite/update?invite=' + _oInvite.id, posted);
+        posted[prop] = _oNewInvite[prop];
+        http2.post('/rest/site/fe/invite/update?invite=' + _oInvite.id, posted, function() {
+            _oInvite[prop] = _oNewInvite[prop];
+        });
     };
     $scope.addCode = function() {
-        http2.get('/rest/site/fe/invite/code/add?invite=' + _oInvite.id, function(rsp) {
-            $scope.codes === undefined && ($scope.codes = []);
-            $scope.codes.splice(0, 0, rsp.data);
+        $uibModal.open({
+            templateUrl: 'codeEditor.html',
+            backdrop: 'static',
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
+                $scope.code = {};
+                $scope.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope.ok = function() {
+                    $mi.close($scope.code);
+                };
+            }]
+        }).result.then(function(oNewCode) {
+            http2.post('/rest/site/fe/invite/code/add?invite=' + _oInvite.id, oNewCode, function(rsp) {
+                $scope.codes === undefined && ($scope.codes = []);
+                $scope.codes.splice(0, 0, rsp.data);
+            });
         });
     };
     $scope.configCode = function(oCode) {
@@ -70,6 +87,8 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', function($
     };
     http2.get('/rest/site/fe/user/invite/get?invite=' + _inviteId, function(rsp) {
         $scope.invite = _oInvite = rsp.data;
+        _oNewInvite.message = _oInvite.message;
+        $scope.newInvite = _oNewInvite;
         if (_oInvite.require_code === 'Y') {
             $scope.codeList().then(function() {
                 $scope.logList().then(function() {

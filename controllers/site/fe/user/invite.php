@@ -50,7 +50,7 @@ class invite extends \site\fe\base {
 		}
 		$modelInv = $this->model('invite');
 
-		$aOptions['fields'] = 'id,code,require_code,invitee_count,relay_invitee_count,expire_at,matter_siteid,matter_id,matter_title,matter_summary,matter_pic,creator,creator_type';
+		$aOptions['fields'] = 'id,code,require_code,message,invitee_count,relay_invitee_count,expire_at,matter_siteid,matter_id,matter_title,matter_summary,matter_pic,creator,creator_type';
 
 		$oInvite = $modelInv->byId($invite, $aOptions);
 		if (false === $oInvite) {

@@ -11,17 +11,15 @@ class main extends \site\fe\matter\base {
 	 */
 	public function index_action($site, $id) {
 		$oLink = $this->model('matter\link')->byIdWithParams($id);
-		// if ($oLink->fans_only === 'Y') {
-			if (!$this->afterSnsOAuth()) {
-				/* 检查是否需要第三方社交帐号OAuth */
-				$this->_requireSnsOAuth($site);
-			}
-		// }
+		if (!$this->afterSnsOAuth()) {
+			/* 检查是否需要第三方社交帐号OAuth */
+			$this->_requireSnsOAuth($site);
+		}
 
 		// 检查进入活动规则
 		$result = $this->checkEntryRule($oLink, true);
 		if ($result[0] === false) {
-			return new \ResponseError($result[1]);
+			$this->outputInfo($result[1]);
 		}
 
 		switch ($oLink->urlsrc) {

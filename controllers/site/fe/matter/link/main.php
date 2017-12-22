@@ -351,11 +351,15 @@ class main extends \site\fe\matter\base {
 				}
 				break;
 			case '$mpfollow':
-				if (!empty($oEntryRule->sns['wx'])) {
+				$snss = array();
+				foreach ($oEntryRule->sns as $sns) {
+					$snss[] = $sns;
+				}
+				if (in_array('wx', $snss)) {
 					$this->snsFollow($oMatter->siteid, 'wx', $oMatter);
-				} else if (!empty($oEntryRule->sns['qy'])) {
+				} else if (in_array('qy', $snss)) {
 					$this->snsFollow($oMatter->siteid, 'qy', $oMatter);
-				} else if (!empty($oEntryRule->sns['yx'])) {
+				} else if (in_array('yx', $snss)) {
 					$this->snsFollow($oMatter->siteid, 'yx', $oMatter);
 				}
 				break;

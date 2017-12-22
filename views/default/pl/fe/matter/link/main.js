@@ -122,7 +122,9 @@ define(['frame'], function(ngApp) {
                 case 'sns':
                     _oAppRule.sns === undefined && (_oAppRule.sns = []);
                     Object.keys(oSiteSns).forEach(function(snsName) {
-                        _oAppRule.sns.push(snsName);
+                        if(_oAppRule.sns.indexOf(snsName) === -1) {
+                            _oAppRule.sns.push(snsName);
+                        }
                     });
                     break;
                 default:

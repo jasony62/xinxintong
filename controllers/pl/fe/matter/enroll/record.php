@@ -608,6 +608,11 @@ class record extends \pl\fe\matter\base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
+		$modelRun = $this->model('matter\enroll\round');
+		if ($activeRound = $modelRun->getActive($oApp)) {
+			$rid = $activeRound->rid;
+		}
+
 		if ($all === 'Y') {
 			$modelApp->update(
 				'xxt_enroll_record',
@@ -615,7 +620,11 @@ class record extends \pl\fe\matter\base {
 				['aid' => $oApp->id]
 			);
 			// 记录操作日志
-			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.all');
+			$operationData = new \stdClass;
+			if (isset($rid)) {
+				$operationData->rid = $rid;
+			}
+			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.all', $operationData);
 		} else {
 
 			$posted = $this->getPostJson();
@@ -632,7 +641,12 @@ class record extends \pl\fe\matter\base {
 				$this->_whenVerifyRecord($oApp, $ek);
 			}
 			// 记录操作日志
-			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.batch', $eks);
+			$operationData = new \stdClass;
+			$operationData->data = $eks;
+			if (isset($rid)) {
+				$operationData->rid = $rid;
+			}
+			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.batch', $operationData);
 		}
 
 		return new \ResponseData('ok');

@@ -81,7 +81,7 @@
                                     <div ng-bind="log.inviteCode.code"></div>
                                     <div>{{log.use_at*1000|date:'yy-MM-dd HH:mm'}}</div>
                                 </div>
-                                <div ng-bind="log.nickname"></div>
+                                <div ng-bind="log.member.name||log.member.mobile||log.member.email||log.user.nickname||log.nickname"></div>
                             </div>
                         </div>
                     </div>

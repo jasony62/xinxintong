@@ -51,8 +51,8 @@ define(['require'], function() {
                     $scope.opened = 'edit';
                     break;
                 case 'preview':
+                case 'invite':
                     $scope.opened = 'publish';
-                    $scope.opened = 'invite';
                     break;
                 case 'log':
                     $scope.opened = 'other';

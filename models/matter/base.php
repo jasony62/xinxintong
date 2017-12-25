@@ -91,11 +91,15 @@ class base_model extends \TMS_MODEL {
 			$this->table(),
 			["id" => $id],
 		];
-		if ($matter = $this->query_obj_ss($q)) {
-			$matter->type = $this->getTypeName();
+		if ($oMatter = $this->query_obj_ss($q)) {
+			$oMatter->type = $this->getTypeName();
+			/* entry rule */
+			if (isset($oMatter->entry_rule)) {
+				$oMatter->entry_rule = json_decode($oMatter->entry_rule);
+			}
 		}
 
-		return $matter;
+		return $oMatter;
 	}
 	/**
 	 * 新建素材

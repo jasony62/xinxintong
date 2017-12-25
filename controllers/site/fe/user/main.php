@@ -17,20 +17,41 @@ class main extends \site\fe\base {
 	 * 登录和注册页
 	 */
 	public function access_action() {
+		/* 整理cookie中的数据，便于后续处理 */
+		$modelWay = $this->model('site\fe\way');
+		$modelWay->resetAllCookieUser();
+
+		/* 保存页面来源 */
+		if (isset($_SERVER['HTTP_REFERER'])) {
+			$referer = $_SERVER['HTTP_REFERER'];
+			if (!empty($referer) && !in_array($referer, array('/'))) {
+				if (false === strpos($referer, '/fe/user')) {
+					$this->mySetCookie('_user_access_referer', $referer);
+				}
+			}
+		}
+
 		\TPL::output('/site/fe/user/access');
 		exit;
 	}
 	/**
-	 *
+	 * 当前用户信息
 	 */
 	public function get_action() {
+		$oUser = clone $this->who;
 		/* 站点用户信息 */
 		if ($account = $this->model('site\user\account')->byId($this->who->uid, ['fields' => 'coin,headimgurl'])) {
-			$this->who->coin = $account->coin;
-			$this->who->headimgurl = $account->headimgurl;
+			$oUser->coin = $account->coin;
+			$oUser->headimgurl = $account->headimgurl;
+		}
+		if (!empty($oUser->unionid)) {
+			$oReg = $this->model('site\user\registration')->byId($oUser->unionid);
+			if ($oReg) {
+				$oUser->uname = $oReg->uname;
+			}
 		}
 
-		return new \ResponseData($this->who);
+		return new \ResponseData($oUser);
 	}
 	/**
 	 * 修改用户昵称

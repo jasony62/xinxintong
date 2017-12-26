@@ -66,16 +66,20 @@
             <div class='form-group'>
                 <label>设置进入条件</label>
                 <div class='radio'>
-                    <label><input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+                    <label>
+                        <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
                 </div>
                 <div class='radio'>
-                    <label><input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
+                    <label>
+                        <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
                 </div>
                 <div class='radio'>
-                    <label><input type='radio' value='group' ng-model="rule.scope" ng-change="changeUserScope()">限同项目内分组活动用户访问</label>
+                    <label>
+                        <input type='radio' value='group' ng-model="rule.scope" ng-change="changeUserScope()">限同项目内分组活动用户访问</label>
                 </div>
                 <div class='radio' ng-if="sns">
-                    <label><input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
+                    <label>
+                        <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
                 </div>
             </div>
             <div class='form-group' ng-if="rule.scope==='member'">

@@ -12,7 +12,9 @@ define(['frame'], function(ngApp) {
             'restoreData': '恢复记录',
             'add': '新增记录',
             'U': '修改活动',
-            'C': '创建活动'
+            'C': '创建活动',
+            'verify.batch': '审核通过指定记录',
+            'verify.all': '审核通过全部记录'
         };
         $scope.filter = function(type) {
             srvEnrollLog.filter(type).then(function(data) {

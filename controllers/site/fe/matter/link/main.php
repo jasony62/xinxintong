@@ -36,12 +36,12 @@ class main extends \site\fe\matter\base {
 			$this->_checkInviteToken($this->who->uid, $oLink);
 		}
 
-    if (!$this->afterSnsOAuth()) {
+		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site);
 		}
-    
-    $result = $this->checkEntryRule($oLink, true);
+
+		$result = $this->checkEntryRule($oLink, true);
 		if ($result[0] === false) {
 			$this->outputInfo($result[1]);
 		}
@@ -291,7 +291,7 @@ class main extends \site\fe\matter\base {
 				}
 			}
 			if (!$bMatched) {
-				$result =  '您目前不满足【' . $oMatter->title . '】的进入规则，无法访问，请联系活动的组织者解决';
+				$result = '您目前不满足【' . $oMatter->title . '】的进入规则，无法访问，请联系活动的组织者解决';
 			}
 		} else if (isset($oEntryRule->scope) && $oEntryRule->scope === 'member') {
 			/* 限通讯录用户访问 */

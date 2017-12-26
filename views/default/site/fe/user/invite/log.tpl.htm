@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>我的邀请</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/user/invite/log.css');?>" rel="stylesheet">
+</head>
+
+<body ng-app='app' ng-controller='ctrlInvite'>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a class='navbar-brand' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="container ng-cloak" ng-cloak>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class='panel'>
+                    <div class='panel-body'>
+                        <div class='inviteCode'>
+                            <div class='form-group'>
+                                <div ng-bind="inviteCode.code"></div>
+                                <div ng-bind="inviteCode.remark"></div>
+                            </div>
+                            <div class='invitee'>
+                                <div>邀请成功：直接<span class='count' ng-bind="inviteCode.used_count"></span>，间接<span class='count' ng-bind="inviteCode.relay_invitee_count"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='panel' ng-if="logs.length">
+                    <div class='panel-body'>
+                        <div class='list-group'>
+                            <div class='inviteLog list-group-item' ng-repeat="log in logs">
+                                <div class='form-group'>
+                                    <div ng-bind="log.member.name||log.member.mobile||log.member.email||log.user.nickname||log.nickname"></div>
+                                </div>
+                                <div>{{log.use_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js"></script>
+    <script src="<?php echo auto_version('/views/default/site/fe/user/invite/log.js');?>"></script>
+</body>
+
+</html>

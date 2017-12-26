@@ -71,6 +71,7 @@ define(['frame'], function(ngApp) {
                 $scope.modified = false;
             });
         };
+
         function chooseGroupApp() {
             return $uibModal.open({
                 templateUrl: 'chooseGroupApp.html',
@@ -96,16 +97,18 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static'
             }).result;
         }
+
         function setMschemaEntry(mschemaId) {
             if (!_oAppRule.member) {
                 _oAppRule.member = [];
             }
-            if(!_oAppRule.member[mschemaId]) {
+            if (!_oAppRule.member[mschemaId]) {
                 _oAppRule.member.push(mschemaId);
                 return true;
             }
             return false;
         };
+
         function setGroupEntry(oResult) {
             if (oResult.app) {
                 _oAppRule.group = { id: oResult.app.id, title: oResult.app.title };
@@ -116,13 +119,14 @@ define(['frame'], function(ngApp) {
             }
             return false;
         };
+
         function _changeUserScope(ruleScope, oSiteSns) {
             _oAppRule.scope = ruleScope;
             switch (ruleScope) {
                 case 'sns':
                     _oAppRule.sns === undefined && (_oAppRule.sns = []);
                     Object.keys(oSiteSns).forEach(function(snsName) {
-                        if(_oAppRule.sns.indexOf(snsName) === -1) {
+                        if (_oAppRule.sns.indexOf(snsName) === -1) {
                             _oAppRule.sns.push(snsName);
                         }
                     });

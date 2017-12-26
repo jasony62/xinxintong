@@ -1,6 +1,6 @@
 'use strict';
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms']);
-ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt']);
+ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', function($scope, $uibModal, http2, tmsSnsShare) {
     var _oNewInvite;
     $scope.newInvite = _oNewInvite = {};
     $scope.addInviteCode = function() {
@@ -40,6 +40,15 @@ ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', function($scope, $
                     var codes = rsp.data;
                     $scope.inviteCodes = codes;
                 });
+                if (/MicroMessenger/i.test(navigator.userAgent)) {
+                    $scope.wxAgent = true;
+                    tmsSnsShare.config({
+                        siteId: oInvite.matter_siteid,
+                        logger: function(shareto) {},
+                        jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage']
+                    });
+                    tmsSnsShare.set(oInvite.matter_title, oInvite.entryUrl, oInvite.matter_summary, oInvite.matter_pic);
+                }
             });
         }
     });

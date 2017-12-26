@@ -1467,6 +1467,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             },{
                 value: 'U',
                 title: '修改活动'
+            },{
+                value: 'verify.batch',
+                title: '审核通过指定记录'
+            },{
+                value: 'verify.all',
+                title: '审核通过全部记录'
             }];
             _siteOperations = [{
                 value: 'read',

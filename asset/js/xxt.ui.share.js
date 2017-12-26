@@ -16,7 +16,7 @@
              },
              cancel: function() {},
              fail: function() {
-                alert('shareT: fail');
+                 alert('shareT: fail');
              }
          });
          window.wx.onMenuShareAppMessage({
@@ -33,7 +33,7 @@
              },
              cancel: function() {},
              fail: function() {
-                alert('shareF: fail');
+                 alert('shareF: fail');
              }
          });
      }
@@ -92,10 +92,10 @@
                                      signPackage.jsApiList = _this.options.jsApiList;
                                      wx.config(signPackage);
                                      wx.ready(function() {
-                                        setWxShare(title, link, desc, img, _this.options);
+                                         setWxShare(title, link, desc, img, _this.options);
                                      });
-                                     wx.error(function(res){
-                                        alert(res);
+                                     wx.error(function(res) {
+                                         alert(res);
                                      });
                                  }
                              } catch (e) {

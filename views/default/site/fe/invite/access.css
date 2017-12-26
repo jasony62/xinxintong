@@ -1,3 +1,5 @@
 body{padding-top:70px;}
 .ng-cloak{display:none;}
 #matter img{width:100%}
+#loginAction{display:flex;}
+#loginAction>a{flex-grow:1;}

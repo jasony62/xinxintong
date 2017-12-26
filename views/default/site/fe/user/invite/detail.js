@@ -1,7 +1,7 @@
 'use strict';
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms']);
-ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', function($scope, $q, $uibModal, http2) {
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt']);
+ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsShare', function($scope, $q, $uibModal, http2, tmsSnsShare) {
     var _inviteId, _oInvite, _oNewInvite, _oPage;
     _inviteId = location.search.match('invite=(.*)')[1];
     $scope.newInvite = _oNewInvite = {};
@@ -79,6 +79,15 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', function($
     };
     http2.get('/rest/site/fe/user/invite/get?invite=' + _inviteId, function(rsp) {
         $scope.invite = _oInvite = rsp.data;
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            $scope.wxAgent = true;
+            tmsSnsShare.config({
+                siteId: _oInvite.matter_siteid,
+                logger: function(shareto) {},
+                jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage']
+            });
+            tmsSnsShare.set(_oInvite.matter_title, _oInvite.entryUrl, _oInvite.matter_summary, _oInvite.matter_pic);
+        }
         _oNewInvite.message = _oInvite.message;
         $scope.newInvite = _oNewInvite;
         $scope.codeList().then(function() {

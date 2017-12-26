@@ -58,32 +58,19 @@
                 </div>
                 <div class='panel'>
                     <div class='panel-body'>
-                        <div class='list-group' ng-if="invite.require_code==='Y'">
+                        <div class='list-group'>
                             <div class='inviteCode list-group-item' ng-repeat="code in codes">
                                 <div class='form-group'>
                                     <div ng-bind="code.code"></div>
                                     <div ng-bind="code.remark"></div>
                                 </div>
-                                <div class='invitee'>
+                                <div class='invitee' ng-click="gotoLog(code)">
                                     <div>邀请成功：直接<span class='count' ng-bind="code.used_count"></span>，间接<span class='count' ng-bind="code.relay_invitee_count"></span></div>
                                 </div>
                                 <button class='btn btn-default btn-sm' ng-click="configCode(code)"><span class='glyphicon glyphicon-cog'></span></button>
                             </div>
                         </div>
                         <button class='btn btn-default' ng-click="addCode()"><span class='glyphicon glyphicon-plus'></span> 添加邀请码</button>
-                    </div>
-                </div>
-                <div class='panel' ng-if="logs.length">
-                    <div class='panel-body'>
-                        <div class='list-group'>
-                            <div class='inviteLog list-group-item' ng-repeat="log in logs">
-                                <div class='form-group'>
-                                    <div ng-bind="log.inviteCode.code"></div>
-                                    <div>{{log.use_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-                                </div>
-                                <div ng-bind="log.member.name||log.member.mobile||log.member.email||log.user.nickname||log.nickname"></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

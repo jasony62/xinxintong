@@ -74,35 +74,17 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', function($
         });
         return defer.promise;
     };
-    $scope.logList = function() {
-        var defer, url;
-        defer = $q.defer();
-        url = '/rest/site/fe/user/invite/logList?invite=' + _inviteId + _oPage.join();
-        http2.get(url, function(rsp) {
-            $scope.logs = rsp.data.logs;
-            _oPage.total = rsp.data.total;
-            defer.resolve(rsp.data);
-        });
-        return defer.promise;
+    $scope.gotoLog = function(oInviteCode) {
+        location.href = '/rest/site/fe/user/invite/log?inviteCode=' + oInviteCode.id;
     };
     http2.get('/rest/site/fe/user/invite/get?invite=' + _inviteId, function(rsp) {
         $scope.invite = _oInvite = rsp.data;
         _oNewInvite.message = _oInvite.message;
         $scope.newInvite = _oNewInvite;
-        if (_oInvite.require_code === 'Y') {
-            $scope.codeList().then(function() {
-                $scope.logList().then(function() {
-                    var eleLoading;
-                    eleLoading = document.querySelector('.loading');
-                    eleLoading.parentNode.removeChild(eleLoading);
-                });
-            });
-        } else {
-            $scope.logList().then(function() {
-                var eleLoading;
-                eleLoading = document.querySelector('.loading');
-                eleLoading.parentNode.removeChild(eleLoading);
-            });
-        }
+        $scope.codeList().then(function() {
+            var eleLoading;
+            eleLoading = document.querySelector('.loading');
+            eleLoading.parentNode.removeChild(eleLoading);
+        });
     });
 }]);

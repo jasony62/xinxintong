@@ -21,6 +21,13 @@ class invite extends \site\fe\base {
 		exit;
 	}
 	/**
+	 *
+	 */
+	public function log_action() {
+		\TPL::output('/site/fe/user/invite/log');
+		exit;
+	}
+	/**
 	 * 当前用户发起的邀请
 	 */
 	public function list_action($page = 1, $size = 30) {
@@ -65,6 +72,30 @@ class invite extends \site\fe\base {
 		return new \ResponseData($oInvite);
 	}
 	/**
+	 * 获得邀请码定义
+	 */
+	public function codeGet_action($inviteCode) {
+		if (empty($this->who->unionid)) {
+			return new \ResponseError('仅限注册用户访问');
+		}
+		$modelCode = $this->model('invite\code');
+		$oInviteCode = $modelCode->byId($inviteCode, ['fields' => 'id,invite_id,code,remark,used_count,relay_invitee_count']);
+		if (false === $oInviteCode) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelInv = $this->model('invite');
+		$oInvite = $modelInv->byId($oInviteCode->invite_id, ['fields' => 'id,creator,creator_type,matter_id,matter_type']);
+		if (false === $oInvite) {
+			return new \ObjectNotFoundError();
+		}
+		if ($oInvite->creator_type !== 'A' || $oInvite->creator !== $this->who->unionid) {
+			return new \ResponseError('没有访问当前对象的权限');
+		}
+
+		return new \ResponseData($oInviteCode);
+	}
+	/**
 	 * 指定邀请的用户邀请码
 	 */
 	public function codeList_action($invite) {
@@ -91,12 +122,19 @@ class invite extends \site\fe\base {
 	/**
 	 * 指定邀请对应的使用日志
 	 */
-	public function logList_action($invite, $page = 1, $size = 30) {
+	public function logList_action($inviteCode, $page = 1, $size = 30) {
 		if (empty($this->who->unionid)) {
 			return new \ResponseError('仅限注册用户访问');
 		}
+
+		$modelCode = $this->model('invite\code');
+		$oInviteCode = $modelCode->byId($inviteCode, ['fields' => 'id,invite_id,code,remark']);
+		if (false === $oInviteCode) {
+			return new \ObjectNotFoundError();
+		}
+
 		$modelInv = $this->model('invite');
-		$oInvite = $modelInv->byId($invite, ['fields' => 'id,creator,creator_type,matter_id,matter_type']);
+		$oInvite = $modelInv->byId($oInviteCode->invite_id, ['fields' => 'id,creator,creator_type,matter_id,matter_type']);
 		if (false === $oInvite) {
 			return new \ObjectNotFoundError();
 		}

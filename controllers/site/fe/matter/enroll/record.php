@@ -857,7 +857,7 @@ class record extends base {
 	 * @param string $schema
 	 *
 	 */
-	public function like_action($ek, $schema) {
+	public function like_action($ek, $schema, $id = '') {
 		$modelData = $this->model('matter\enroll\data');
 		$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid']);
 		if (false === $oRecordData) {

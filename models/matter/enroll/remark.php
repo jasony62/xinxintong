@@ -61,6 +61,15 @@ class remark_model extends \TMS_MODEL {
 		if (isset($options['agreed']) && $options['agreed'] === 'Y') {
 			$q[2] .= " and agreed='Y'";
 		}
+		if (isset($options['record_data_id'])) {
+			$rdId = $options['record_data_id'];
+			if (is_array($rdId)) {
+				$rdId = implode('","', $options['record_data_id']);
+			}
+			$rdId = '("' . $rdId . '")';
+			$q[2] .= " and record_data_id in $rdId";
+		}
+		
 		$q2 = [
 			'o' => 'agreed desc,create_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],

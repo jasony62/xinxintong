@@ -109,7 +109,7 @@ class data_model extends \TMS_MODEL {
 				];
 				isset($oRecordScore->{$schemaId}) && $schemaValue['score'] = $oRecordScore->{$schemaId};
 				$this->insert('xxt_enroll_record_data', $schemaValue, false);
-				/* 处理定制题型 */
+				/* 处理多项填写题型 */
 				if (isset($schemasById[$schemaId])) {
 					$schema = $schemasById[$schemaId];
 					if ($schema->type == 'multitext') {
@@ -159,7 +159,7 @@ class data_model extends \TMS_MODEL {
 					);
 				}
 
-				/* 处理定制题型 */
+				/* 处理多项填写题型 */
 				if (isset($schemasById[$schemaId])) {
 					$schema = $schemasById[$schemaId];
 					if ($schema->type == 'multitext') {
@@ -180,18 +180,18 @@ class data_model extends \TMS_MODEL {
 						}
 					}
 				}
-			} else { // 处理可定制题型
+			} else { // 处理可多项填写题型
 				if (isset($schemasById[$schemaId])) {
 					$schema = $schemasById[$schemaId];
 					if ($schema->type === 'multitext') {
-						$ctTreatedVals = []; // 定制题的所有自定义的条
+						$ctTreatedVals = []; // 多项填写题的所有自定义的条
 						$ctTreatedVals[0] = $treatedValue; // (第一条为总数据)
 						$treatedValues = json_decode($treatedValue);
 						foreach ($treatedValues as $k => $v) {
 							$seq = (int)$k + 1; // 保持与插入时的seq一致
 							$ctTreatedVals[$seq] = $v;
 						}
-						// 修改定制题的总记录
+						// 修改多项填写题的总记录
 						foreach ($lastSchemaValues as $lastSchemaValue) {
 							$multitext_seq = $lastSchemaValue->multitext_seq;
 							// 是否在新提交的数据总找到了这一条，找到了就处理，没有找到就说明已经删除了

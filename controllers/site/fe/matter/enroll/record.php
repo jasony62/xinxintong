@@ -861,9 +861,9 @@ class record extends base {
 	public function like_action($ek, $schema, $id = '') {
 		$modelData = $this->model('matter\enroll\data');
 		if (empty($id)) {
-			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid']);
+			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid,multitext_seq']);
 		} else {
-			$oRecordData = $modelData->byId($id, ['fields' => 'aid,id,like_log,userid']);
+			$oRecordData = $modelData->byId($id, ['fields' => 'aid,id,like_log,userid,multitext_seq']);
 		}
 		if (false === $oRecordData) {
 			return new \ObjectNotFoundError();
@@ -874,10 +874,11 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		/* 检查是否是多行文本题的点赞，如果是需要$id */
+		/* 检查是否是多项填写题题的点赞，如果是，需要$id */
 		foreach ($oApp->dataSchemas as $dataSchema) {
 			if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
 				if (empty($id)) {
+					$schmeaType = 'multitext';
 					return new \ComplianceError('参数错误，此题型需要指定唯一标识');
 				}
 			}
@@ -894,12 +895,19 @@ class record extends base {
 			$incLikeNum = 1;
 		}
 		$likeNum = count(get_object_vars($oLikeLog));
-
 		$modelData->update(
 			'xxt_enroll_record_data',
 			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],
 			['id' => $oRecordData->id]
 		);
+		if (isset($schmeaType) && $schmeaType === 'multitext' && $oRecordData->multitext_seq != 0) {
+			// 总数据点赞数 +1
+			if ($incLikeNum > 0) {
+				$modelData->update("update xxt_enroll_record_data set like_num=like_num +1 where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
+			} else {
+				$modelData->update("update xxt_enroll_record_data set like_num=like_num -1 where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
+			}
+		}
 
 		$modelUsr = $this->model('matter\enroll\user');
 		$modelUsr->setOnlyWriteDbConn(true);

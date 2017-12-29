@@ -141,12 +141,12 @@ class record_model extends record_base {
 			/*题目中对应的标签*/
 			$tagOlds = [];
 			$q = [
-				'tag',
+				'id,tag',
 				'xxt_enroll_record_data',
-				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1],
+				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1, 'multitext_seq' => 0],
 			];
-			if ($tagOld = $this->query_obj_ss($q)) {
-				!empty($tagOld->tag) && $tagOlds = json_decode($tagOld->tag);
+			if ($recordData = $this->query_obj_ss($q)) {
+				!empty($recordData->tag) && $tagOlds = json_decode($recordData->tag);
 			}
 
 			/* 保证以字符串的格式存储标签id，便于以后检索 */
@@ -176,7 +176,7 @@ class record_model extends record_base {
 			$rst = $this->update(
 				'xxt_enroll_record_data',
 				['tag' => $this->escape($jsonTags)],
-				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
+				['id' => $recordData->id]
 			);
 		}
 

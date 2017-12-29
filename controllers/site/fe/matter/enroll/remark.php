@@ -21,7 +21,7 @@ class remark extends base {
 		return new \ResponseData($result);
 	}
 	/*
-	* 返回多行文本的所有评论
+	* 返回多项填写题的所有评论
 	*/
 	public function listMultitext_action($ek, $schema, $page = 1, $size = 99, $id = '') {
 		$oUser = $this->who;
@@ -105,7 +105,7 @@ class remark extends base {
 		 * 发表评论的用户
 		 */
 		$record_data_id = 0; 
-		//如果是多行文本题需要指定id，否则，则不需要
+		//如果是多项填写题需要指定id，否则，则不需要
 		if (!empty($schema)) {
 			foreach ($oApp->dataSchemas as $dataSchema) {
 				if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
@@ -114,6 +114,10 @@ class remark extends base {
 					}
 					$schemaType = 'multitext';
 					$record_data_id = $id;
+					$oRecordData = $this->model('matter\enroll\data')->byId($record_data_id, ['fields' => 'aid,id,like_log,userid,multitext_seq']);
+					if (false === $oRecordData) {
+						return new \ObjectNotFoundError();
+					}
 				}
 			}
 		}
@@ -141,8 +145,12 @@ class remark extends base {
 		if (isset($schema)) {
 			if (isset($schemaType) && $schemaType === 'multitext' && !empty($record_data_id)) {
 				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = $modelRec->escape($record_data_id)");
+				// 如果每一条的数据呗评论了那么这道题的中数据+1
+				if ($oRecordData->multitext_seq != 0) {
+					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
+				}
 			} else {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema'");
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
 			}
 		}
 

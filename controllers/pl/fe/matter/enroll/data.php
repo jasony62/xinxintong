@@ -67,7 +67,7 @@ class data extends \pl\fe\matter\base {
 		}
 
 		$modelData = $this->model('matter\enroll\data');
-		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,userid,agreed,agreed_log']);
+		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,userid,agreed,agreed_log']);
 		if (false === $oRecData) {
 			return new \ObjectNotFoundError();
 		}
@@ -103,7 +103,7 @@ class data extends \pl\fe\matter\base {
 		$rst = $modelData->update(
 			'xxt_enroll_record_data',
 			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
-			['enroll_key' => $ek, 'schema_id' => $schema, 'state' => 1]
+			['id' => $oRecData->id]
 		);
 
 		return new \ResponseData($rst);

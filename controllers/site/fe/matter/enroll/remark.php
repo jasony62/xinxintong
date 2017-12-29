@@ -28,6 +28,11 @@ class remark extends base {
 
 		$oRecordDatas = $this->model('matter\enroll\data')->getMultitext($ek, $schema, ['fields' => 'id,multitext_seq,agreed,value,like_num,like_log,remark_num,supplement,tag']);
 
+		if ($oRecordDatas[0] === false) {
+			return new \ResponseError($oRecordDatas[1]);
+		}
+
+		$oRecordDatas = $oRecordDatas[1];
 		$options = [];
 		if (count($oRecordDatas)) {
 			$record_data_id = [];

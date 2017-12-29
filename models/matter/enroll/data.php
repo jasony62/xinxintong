@@ -569,12 +569,28 @@ class data_model extends \TMS_MODEL {
 
 		return $result;
 	}
+	/**
+	 * 返回指定活动，指定数据项的填写数据
+	 */
+	public function byId($id, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS;
+
+		// 查询参数
+		$q = [
+			$fields,
+			"xxt_enroll_record_data",
+			['id' => $id, 'state' => 1],
+		];
+		$result = $this->query_obj_ss($q);
+
+		return $result;
+	}
 	/*
 	*
 	*/
 	public function getMultitext($ek, $schema, $options = []) {
 		if (empty($schema)) {
-			return [false, '没有指定schema_id'];
+			return [false, '没有指定题目id'];
 		}
 
 		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS . ',multitext_seq';
@@ -603,6 +619,6 @@ class data_model extends \TMS_MODEL {
 			}
 		}
 
-		return $data;
+		return [true, $data];
 	}
 }

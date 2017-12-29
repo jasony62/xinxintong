@@ -855,13 +855,32 @@ class record extends base {
 	 *
 	 * @param string $ek
 	 * @param string $schema
+	 * @param int $id xxt_enroll_record_data 的id
 	 *
 	 */
 	public function like_action($ek, $schema, $id = '') {
 		$modelData = $this->model('matter\enroll\data');
-		$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid']);
+		if (empty($id)) {
+			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid']);
+		} else {
+			$oRecordData = $modelData->byId($id, ['fields' => 'aid,id,like_log,userid']);
+		}
 		if (false === $oRecordData) {
 			return new \ObjectNotFoundError();
+		}
+		
+		$oApp = $this->model('matter\enroll')->byId($oRecordData->aid, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 检查是否是多行文本题的点赞，如果是需要$id */
+		foreach ($oApp->dataSchemas as $dataSchema) {
+			if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
+				if (empty($id)) {
+					return new \ComplianceError('参数错误，此题型需要指定唯一标识');
+				}
+			}
 		}
 
 		$oUser = $this->who;
@@ -882,7 +901,6 @@ class record extends base {
 			['id' => $oRecordData->id]
 		);
 
-		$oApp = $this->model('matter\enroll')->byId($oRecordData->aid, ['cascaded' => 'N']);
 		$modelUsr = $this->model('matter\enroll\user');
 		$modelUsr->setOnlyWriteDbConn(true);
 		if ($incLikeNum > 0) {

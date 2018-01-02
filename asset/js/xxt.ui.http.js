@@ -56,7 +56,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                 if (options.autoNotice) {
                     createAlert(rsp, 'warning');
                 }
-                return;
+                if (options.autoBreak) return;
             }
             if (rsp.err_code != 0) {
                 if (options.autoNotice) {
@@ -116,7 +116,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     createAlert(rsp, 'warning');
                     _alert = null;
                 }
-                return;
+                if (options.autoBreak) return;
             }
             if (rsp.err_code != 0) {
                 if (options.autoNotice) {

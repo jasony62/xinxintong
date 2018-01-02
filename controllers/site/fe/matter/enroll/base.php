@@ -17,7 +17,7 @@ class base extends \site\fe\matter\base {
 	 * @param string $memberSchemas
 	 */
 	protected function canAccessObj($site, $appId, &$member, $memberSchemas, &$app) {
-		return $this->model('acl')->canAccessMatter($site, 'enroll', $app, $member, $memberSchemas);
+		return $this->model('matter\acl')->canAccessMatter($site, 'enroll', $app, $member, $memberSchemas);
 	}
 	/**
 	 * 检查登记活动进入规则

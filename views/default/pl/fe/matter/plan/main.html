@@ -1,0 +1,188 @@
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>活动名称</label>
+                <input type='text' class='form-control' size='40' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+            <div class='form-group'>
+                <label>活动说明</label>
+                <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+            </div>
+            <div class='form-group'>
+                <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
+                <div style='position:relative'>
+                    <div style="width:182px;border:1px solid #CCC">
+                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+                            <button class='btn btn-default' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span> 选择图片</button>
+                        </div>
+                        <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                            <img name='pic' ng-src="{{app.pic}}" width='180px' />
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                            </button>
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group' ng-if="!app.mission">
+                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+            </div>
+            <div class='form-group' ng-if="app.mission">
+                <label>所属项目</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
+                    <span class='glyphicon glyphicon-new-window'></span>
+                </a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
+                <label>{{cstApp.naming.mission_phase}}</label>
+                <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                    <option value=''>全部</option>
+                </select>
+            </div>
+            <hr>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.jump_delayed" ng-change="update('jump_delayed')">跳过未按时间计划的任务</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.auto_verify" ng-change="update('auto_verify')">提交数据不用审核</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_patch" ng-change="update('can_patch')">允许补填延期任务</label>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default' ng-controller="ctrlAccess ">
+        <div class='panel-body'>
+            <div class='radio'>
+                <label>
+                    <input type='radio' value='none' ng-model="rule.scope " ng-change="changeUserScope() ">不限用户来源</label>
+            </div>
+            <div class='radio'>
+                <label>
+                    <input type='radio' value='member' ng-model="rule.scope " ng-change="changeUserScope() ">限通讯录联系人访问</label>
+            </div>
+            <div class='radio' ng-if="sns ">
+                <label>
+                    <input type='radio' value='sns' ng-model="rule.scope " ng-change="changeUserScope() ">限公众号关注用户访问</label>
+            </div>
+            <div class='radio'>
+                <label>
+                    <input type='radio' value='group' ng-model="rule.scope" ng-change="changeUserScope()">限同项目内分组活动用户访问</label>
+            </div>
+            <hr>
+            <div class='form-group' ng-if="rule.scope==='group'">
+                <div class="input-group">
+                    <input class='form-control' title="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" value="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" readonly>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" ng-click="removeGroupApp()">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </div>
+                </div>
+                <button class='btn btn-default' ng-click="chooseGroupApp()">选择分组活动</button>
+            </div>
+            <div ng-if="rule.scope==='member'">
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>通讯录</th>
+                            <th style='width:69px'>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="(msid,erm) in app.entry_rule.member">
+                            <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
+                            <td>
+                                <button class='btn btn-default btn-xs' ng-click="editMschema(mschemasById[msid])"><span class='glyphicon glyphicon-edit'></span></button>
+                                <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
+            </div>
+            <div ng-if="rule.scope==='sns'&&snsCount>1">
+                <table class='table table-bordered'>
+                    <tbody>
+                        <tr>
+                            <th>公众号</th>
+                            <th style='width:69px'>操作</th>
+                        </tr>
+                        <tr ng-if="sns.wx">
+                            <td>微信公众号关注用户</td>
+                            <td>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.wx.entry'>生效</label>
+                            </td>
+                        </tr>
+                        <tr ng-if="sns.qy">
+                            <td>微信企业号关注用户</td>
+                            <td>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.qy.entry'>生效</label>
+                            </td>
+                        </tr>
+                        <tr ng-if="sns.yx">
+                            <td>易信公众号关注用户</td>
+                            <td>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.yx.entry'>生效</label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class='form-group'>
+        <button class='btn btn-default btn-block' ng-click="remove() ">删除活动</button>
+    </div>
+</div>
+<script type="text/ng-template" id="chooseGroupApp.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()">×</button>
+        <h5 class="modal-title">分组活动</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标活动</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                    <div class='checkbox' ng-if="app.mission">
+                        <label>
+                            <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'"> 选择同一个项目中的活动</label>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标分组</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in data.app.rounds">
+                        <option>全部分组</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

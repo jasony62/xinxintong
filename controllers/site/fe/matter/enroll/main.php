@@ -375,7 +375,7 @@ class main extends base {
 										$params['record']->data = new \stdClass;
 									}
 									foreach ($oAssocRecord as $key => $value) {
-										$params['record']->data->{$key} = $value;	
+										$params['record']->data->{$key} = $value;
 									}
 								}
 							}
@@ -421,7 +421,7 @@ class main extends base {
 						}
 						if ($oOpenPage->type === 'I') {
 							/* 查询是否有保存的数据 */
-							$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);;
+							$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
 							if (count($saveRecode) == 1) {
 								$saveRecode = $saveRecode[0];
 								$saveRecode->opData = json_decode($saveRecode->operate_data);
@@ -514,15 +514,6 @@ class main extends base {
 		$geo['address'] = $rsp->result->address;
 
 		return new \ResponseData($geo);
-	}
-	/**
-	 * 根据邀请用户数的排名
-	 */
-	public function rankByFollower_action($siteid, $appid) {
-		$user = $this->who;
-		$rank = $this->modelApp->rankByFollower($siteid, $appid, $user->userid);
-
-		return new \ResponseData(array('rank' => $rank));
 	}
 	/**
 	 * 给登记用户看的统计登记信息

@@ -61,33 +61,7 @@ class user extends \pl\fe\base {
 	 * 更新粉丝信息
 	 */
 	public function update_action($openid) {
-		$mpa = $this->model('mp\mpaccount')->byId($this->mpid);
-
-		$nv = $this->getPostJson();
-		/**
-		 * 如果要更新粉丝的分组，需要先在公众平台上更新
-		 */
-		if (isset($nv->groupid)) {
-			/**
-			 * 更新公众平台上的数据
-			 */
-			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
-			$rst = $mpproxy->groupsMembersUpdate($openid, $nv->groupid);
-			if ($rst[0] === false) {
-				return new \ResponseError($rst[1]);
-			}
-
-		}
-		/**
-		 * 更新本地数据
-		 */
-		$rst = $this->model()->update(
-			'xxt_fans',
-			(array) $nv,
-			"mpid='$this->mpid' and openid='$openid'"
-		);
-
-		return new \ResponseData($rst);
+		return new \ResponseData('not support');
 	}
 	/**
 	 * 从公众平台同步所有粉丝的基本信息和分组信息
@@ -279,21 +253,7 @@ class user extends \pl\fe\base {
 	/**
 	 * 删除一个关注用户
 	 */
-	public function removeOne_action($fid) {
-		$mpa = $this->model('mp\mpaccount')->getApis($this->mpid);
-		if ($mpa->qy_joined === 'Y') {
-			$fan = $this->model('user/fans')->byId($fid, 'openid');
-			$rst = $this->model('mpproxy/qy', $this->mpid)->userDelete($fan->openid);
-			if ($rst[0] === false) {
-				return new \ResponseError($rst[1]);
-			}
-
-		}
-
-		$this->model()->update('xxt_member', array('forbidden' => 'Y'), "fid='$fid'");
-
-		$this->model()->update('xxt_fans', array('forbidden' => 'Y'), "fid='$fid'");
-
-		return new \ResponseData('success');
+	public function removeOne_action() {
+		return new \ResponseData('not support');
 	}
 }

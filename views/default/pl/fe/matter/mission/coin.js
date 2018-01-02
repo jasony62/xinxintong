@@ -27,12 +27,6 @@ define(['frame'], function(ngApp) {
         }, {
             data: { act: 'site.matter.enroll.share.timeline', matter_type: 'enroll' },
             desc: '用户A分享活动至朋友圈',
-            //}, {
-            //    data:{act: 'site.matter.enroll.discuss.like',matter_type:'enroll'},
-            //    desc: '用户A对活动赞同',
-            //}, {
-            //    data:{act: 'site.matter.enroll.discuss.comment',matter_type:'enroll'},
-            //    desc: '用户A对活动评论',
         }, {
             data: { act: 'site.matter.enroll.data.like', matter_type: 'enroll' },
             desc: '用户A填写数据被赞同',

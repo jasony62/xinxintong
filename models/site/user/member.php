@@ -245,61 +245,6 @@ class member_model extends \TMS_MODEL {
 		return array(true);
 	}
 	/**
-	 * 获得指定成员的部门
-	 */
-	public function getDepts($mid, $depts = '') {
-		if (empty($depts)) {
-			$member = $this->byId($mid, 'depts');
-			$depts = $member->depts;
-		}
-		if (empty($depts) || $depts === '[]') {
-			return array();
-		}
-
-		$ids = array();
-		$depts = json_decode($depts);
-		foreach ($depts as $ds) {
-			$ids = array_merge($ids, $ds);
-		}
-
-		$ids = implode(',', $ids);
-		$q = array(
-			'distinct id,name',
-			'xxt_member_department',
-			"id in ($ids)",
-		);
-		$q2 = array('o' => 'fullpath');
-
-		$depts = $this->query_objs_ss($q, $q2);
-
-		return $depts;
-	}
-	/**
-	 *
-	 * $mid
-	 * $tags ids
-	 * $type
-	 *
-	 */
-	public function getTags($mid, $tags = '', $type = 0) {
-		if (empty($tags)) {
-			$member = $this->byId($mid, 'tags');
-			$tags = $member->tags;
-		}
-		if (empty($tags)) {
-			return array();
-		}
-
-		$q = array(
-			'distinct id,name',
-			'xxt_member_tag',
-			"type=$type and id in ($tags)",
-		);
-		$tags = $this->query_objs_ss($q);
-
-		return $tags;
-	}
-	/**
 	 * 判断当前用户信息是否有效
 	 *
 	 * @param object $member

@@ -79,10 +79,6 @@ $sql[] = "drop table if exists xxt_lottery_log";
  * matter
  */
 $sql[] = "drop table if exists xxt_article";
-$sql[] = "drop table if exists xxt_article_extinfo";
-$sql[] = "drop table if exists xxt_article_ext_distance";
-$sql[] = "drop table if exists xxt_article_remark";
-$sql[] = "drop table if exists xxt_article_score";
 $sql[] = "drop table if exists xxt_article_attachment";
 $sql[] = "drop table if exists xxt_article_download_log";
 $sql[] = "drop table if exists xxt_article_review_log";
@@ -135,27 +131,22 @@ $sql[] = "drop table if exists xxt_mission_phase";
 /**
  * reply
  */
-$sql[] = "drop table if exists xxt_call_text";
 $sql[] = "drop table if exists xxt_call_text_yx";
 $sql[] = "drop table if exists xxt_call_text_wx";
 $sql[] = "drop table if exists xxt_call_text_qy";
 //
-$sql[] = "drop table if exists xxt_call_menu";
 $sql[] = "drop table if exists xxt_call_menu_yx";
 $sql[] = "drop table if exists xxt_call_menu_wx";
 $sql[] = "drop table if exists xxt_call_menu_qy";
 //
-$sql[] = "drop table if exists xxt_call_qrcode";
 $sql[] = "drop table if exists xxt_call_qrcode_yx";
 $sql[] = "drop table if exists xxt_call_qrcode_wx";
 //
-$sql[] = "drop table if exists xxt_call_other";
 $sql[] = "drop table if exists xxt_call_other_yx";
 $sql[] = "drop table if exists xxt_call_other_wx";
 $sql[] = "drop table if exists xxt_call_other_qy";
 //
-$sql[] = "drop table if exists xxt_call_acl";
-$sql[] = "drop table if exists xxt_timer_push";
+$sql[] = "drop table if exists xxt_timer_task";
 //
 $sql[] = "drop table if exists xxt_call_relay_yx";
 $sql[] = "drop table if exists xxt_call_relay_wx";
@@ -187,14 +178,6 @@ $sql[] = "drop table if exists xxt_site_yxfan";
 $sql[] = "drop table if exists xxt_site_yxfangroup";
 //
 $sql[] = "drop table if exists xxt_site_qy";
-//
-$sql[] = "drop table if exists xxt_pl_wx";
-$sql[] = "drop table if exists xxt_pl_wxfan";
-$sql[] = "drop table if exists xxt_pl_wxfangroup";
-//
-$sql[] = "drop table if exists xxt_pl_yx";
-$sql[] = "drop table if exists xxt_pl_yxfan";
-$sql[] = "drop table if exists xxt_pl_yxfangroup";
 /**
  * tag
  */
@@ -204,18 +187,6 @@ $sql[] = 'drop table if exists xxt_article_tag';
  * task
  */
 $sql[] = 'drop table if exists xxt_task';
-/**
- * user
- */
-$sql[] = 'drop table if exists xxt_visitor';
-$sql[] = "drop table if exists xxt_fans";
-$sql[] = "drop table if exists xxt_fansgroup";
-$sql[] = 'drop table if exists xxt_member';
-$sql[] = 'drop table if exists xxt_member_authapi';
-$sql[] = 'drop table if exists xxt_member_department';
-$sql[] = 'drop table if exists xxt_member_tag';
-$sql[] = 'drop table if exists xxt_member_card';
-$sql[] = "drop table if exists xxt_access_token";
 /*
  * wall
  */

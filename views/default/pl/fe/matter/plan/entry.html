@@ -1,0 +1,16 @@
+<div id='entry-view' class="col-md-6 col-md-offset-3">
+    <div id='enrollee' class="panel panel-default">
+        <div class="panel-body">
+            <div class='form-group'>
+                <label>进入活动链接</label>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{entry.url}}">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                        <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

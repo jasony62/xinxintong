@@ -89,7 +89,7 @@ class main extends \pl\fe\matter\main_base {
 		 */
 		if ($cascade === 'Y') {
 			$modelChn = $this->model('matter\channel');
-			$modelAcl = $this->model('acl');
+			$modelAcl = $this->model('matter\acl');
 			foreach ($links as $l) {
 				/**
 				 * params
@@ -135,7 +135,7 @@ class main extends \pl\fe\matter\main_base {
 		/**
 		 * acl
 		 */
-		$l['acl'] = $this->model('acl')->byMatter($site, 'link', $id);
+		$l['acl'] = $this->model('matter\acl')->byMatter($site, 'link', $id);
 
 		return new \ResponseData($l);
 	}

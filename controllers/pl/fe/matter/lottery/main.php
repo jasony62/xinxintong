@@ -41,8 +41,6 @@ class main extends \pl\fe\matter\main_base {
 			'cascaded' => array('award', 'task'),
 		);
 		$lot = $this->model('matter\lottery')->byId($app, $options);
-		/*acl*/
-		//$lot->acl = $this->model('acl')->byMatter($site, 'lottery', $lottery);
 
 		return new \ResponseData($lot);
 	}

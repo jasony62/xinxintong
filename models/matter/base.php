@@ -85,7 +85,6 @@ class base_model extends \TMS_MODEL {
 	 */
 	public function &byId($id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-
 		$q = [
 			$fields,
 			$this->table(),
@@ -111,7 +110,7 @@ class base_model extends \TMS_MODEL {
 		/* 记录操作人信息 */
 		$oNewMatter->creater = $oNewMatter->modifier = $oUser->id;
 		$oNewMatter->creater_name = $oNewMatter->modifier_name = $this->escape($oUser->name);
-		$oNewMatter->creater_src = $oNewMatter->modifier_src = 'A';
+		//$oNewMatter->creater_src = $oNewMatter->modifier_src = 'A';
 		$oNewMatter->create_at = $oNewMatter->modify_at = time();
 
 		if (empty($oNewMatter->id)) {
@@ -145,7 +144,7 @@ class base_model extends \TMS_MODEL {
 
 		/* 记录修改日志 */
 		$oUpdated->modifier = $oUser->id;
-		$oUpdated->modifier_src = $oUser->src;
+		//$oUpdated->modifier_src = $oUser->src;
 		$oUpdated->modifier_name = $this->escape($oUser->name);
 		$oUpdated->modify_at = $current;
 

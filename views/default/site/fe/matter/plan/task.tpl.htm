@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html ng-app="app" ng-controller='ctrlMain'>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+</head>
+
+<body>
+    <div ng-cloak class='ng-cloak app'>
+        <div class='container'>
+            <div class='row' ng-controller='ctrlTask' ng-switch on="subView">
+                <div class='col-md-12'>
+                    <div class='form-group'>
+                        <button class='btn btn-default' ng-click="toggleView('plan')">计划</button>
+                        <button class='btn btn-default' ng-click="toggleView('rank')">排行</button>
+                    </div>
+                </div>
+                <div class='col-md-12' ng-switch-when="plan">
+                    <div id='plan' class='panel panel-default'>
+                        <div class='panel-body'>
+                            <div ng-bind="app.title"></div>
+                            <div><img ng-src="{{app.pic}}"></div>
+                            <div ng-bind="app.summary"></div>
+                        </div>
+                    </div>
+                    <div class='list-group'>
+                        <div class='task list-group-item' ng-class="{'task-last':task.id===app.lastUserTask.task_schema_id}" ng-repeat="task in app.tasks" ng-click="toggleTask(task)">
+                            <div>#<span ng-bind="task.task_seq"></span>&nbsp;-&nbsp;<span ng-bind="task.title"></span></div>
+                            <div ng-if="task.userTask">
+                                <div>开始时间：<span ng-bind="task.userTask.bornAt"></span></div>
+                            </div>
+                            <div ng-if="task.mockTask">
+                                <div>开始时间：<span ng-bind="task.mockTask.bornAt"></span></div>
+                            </div>
+                            <span class="task-label label label-info" ng-if="task.userTask">已执行</span>
+                            <span class="task-label label label-info" ng-if="task.userTask.verified==='Y'">已通过</span>
+                            <span class="task-label label label-info" ng-if="task.userTask.verified==='N'">未通过</span>
+                            <span class="task-label label label-default" ng-if="task.userTask.patch_at>0">补录</span>
+                            <span class="task-label label label-warning" ng-if="task.isDelayed==='Y'">已延误</span>
+                            <span class="task-label label label-success" ng-if="task.id===app.lastUserTask.task_schema_id">上次执行到这项任务</span>
+                            <span class="task-label label label-primary" ng-if="task.id===app.nowTaskSchema.id">应执行</span>
+                            <span class="task-label label label-default" ng-if="task.as_placeholder==='Y'">间隔</span>
+                        </div>
+                    </div>
+                </div>
+                <div class='col-md-12' ng-switch-when="task">
+                    <button class='btn btn-default' ng-click="closeTask()">关闭</button>
+                    <div class='panel panel-default' ng-repeat="action in activeTask.actions">
+                        <div class='panel-body'>
+                            <div>
+                                #<span ng-bind="action.action_seq"></span>&nbsp;-&nbsp;<span ng-bind="action.action_desc"></span>
+                            </div>
+                            <div ng-if="activeTask.userTask">
+                                开始时间：<span ng-bind="activeTask.userTask.bornAt"></span>
+                            </div>
+                            <hr>
+                            <div class='form-group' ng-repeat="schema in action.checkSchemas" ng-switch on="schema.type">
+                                <label ng-bind="schema.title" ng-if="schema.type!=='html'"></label>
+                                <input type='text' class='form-control' ng-model="data[action.id][schema.id]" ng-switch-when="shorttext">
+                                <textarea class="form-control" ng-model="data[action.id][schema.id]" rows="3" ng-switch-when="longtext"></textarea>
+                                <ul ng-switch-when="single">
+                                    <li class="radio" ng-repeat="op in schema.ops">
+                                        <label>
+                                            <input type="radio" name="{{action.id+'_'+schema.id}}" value="{{op.v}}" ng-model="data[action.id][schema.id]"><span>{{op.l}}</span></label>
+                                    </li>
+                                </ul>
+                                <ul ng-switch-when="multiple">
+                                    <li class="checkbox" ng-repeat="op in schema.ops">
+                                        <label>
+                                            <input type="checkbox" ng-model="data[action.id][schema.id][op.v]"><span>{{op.l}}</span></label>
+                                    </li>
+                                </ul>
+                                <div tms-image-input="Y" ng-switch-when="image">
+                                    <ul class="img-tiles clearfix" name="{{action.id+'.'+schema.id}}">
+                                        <li wrap="img" ng-repeat="img in data[action.id][schema.id]" class="img-thumbnail">
+                                            <img flex-img>
+                                            <button class="btn btn-default btn-xs" ng-click="removeImage(action,schema,$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                                        </li>
+                                        <li class="img-picker">
+                                            <button class="btn btn-default" ng-click="chooseImage(action,schema)"><span class="glyphicon glyphicon-picture"></span>
+                                                <br>上传图片</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div tms-file-input="Y" ng-switch-when="file">
+                                    <ul class="list-group file" name="{{action.id+'.'+schema.id}}">
+                                        <li class="list-group-item" ng-show="progressOfUploadFile">
+                                            <div class="progressOfUploadFile" ng-bind="progressOfUploadFile">
+                                        </li>
+                                        <li wrap="file" ng-repeat="file in data[action.id][schema.id]" class="list-group-item">
+                                            <span class="file-name" ng-bind="file.name"></span>
+                                        </li>
+                                        <li class="list-group-item file-picker">
+                                            <button class="btn btn-success" ng-click="chooseFile(action,schema)">{{schema.title}}</button>
+                                        </li>
+                                    </ul>
+                                    </div>
+                                    <div ng-bind-html="schema.content"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class='btn btn-default' ng-click="submit()">提交</button>
+                    </div>
+                    <div class='col-md-12' ng-switch-when="rank">
+                        <div ng-controller="ctrlRank" ng-switch on="rankView.obj">
+                            <ul ng-switch-when="user">
+                                <li class='hidden-xs'>
+                                    <div class='col-md-1'>序号</div>
+                                    <div class='col-md-9 text-left'>用户</div>
+                                    <div class='col-md-2'>数量</div>
+                                </li>
+                                <li ng-repeat="u in users" class='record'>
+                                    <div class='col-md-1 col-xs-1'>
+                                        <span class='index-num'>{{$index+1}}</span>
+                                    </div>
+                                    <div class="col-md-9 col-xs-8 text-left">
+                                        <img class='user-headimg' ng-src="{{u.headimgurl}}" />
+                                        <span>{{u.nickname}}</span>
+                                        <span ng-if="app.group_app_id">-{{u.group.round_title}}</span>
+                                    </div>
+                                    <div class='col-md-2 col-xs-1'><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin||u.score}}</span></div>
+                                </li>
+                            </ul>
+                            <ul ng-switch-when="group">
+                                <li class='hidden-xs'>
+                                    <div class='col-md-1'>序号</div>
+                                    <div class='col-md-9 text-left'>分组名称</div>
+                                    <div class='col-md-2'>数量</div>
+                                </li>
+                                <li ng-repeat="g in groups" class='record'>
+                                    <div class='col-md-1 col-xs-1'>
+                                        <span class='index-user-img mtb3' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                        <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                                    </div>
+                                    <div class="col-md-9 col-xs-8 text-left">
+                                        <span>{{g.title}}</span>
+                                    </div>
+                                    <div class='col-md-2 col-xs-1'><span>{{g.num}}</span></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="loading">
+            <div class='loading-indicator'><i></i></div>
+        </div>
+        <script src="/static/js/xxt.ui.error.js"></script>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/resumable.js"></script>
+        <script src="<?php echo auto_version('/bundles/default/site/fe/matter/plan/task.js');?>"></script>
+</body>
+
+</html>

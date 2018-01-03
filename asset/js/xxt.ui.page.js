@@ -108,10 +108,10 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
             deferred.resolve();
         }
         return deferred.promise;
-        18810091009
     };
     this.openPlugin = function(content) {
         var frag, wrap, frm, body, deferred = $q.defer();
+        document.documentElement.scrollTop = 0;
         body = document.getElementsByTagName('body')[0];
         body.style.cssText="overflow-y:hidden";
         frag = document.createDocumentFragment();

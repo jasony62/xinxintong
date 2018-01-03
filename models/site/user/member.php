@@ -41,6 +41,24 @@ class member_model extends \TMS_MODEL {
 		return $members;
 	}
 	/**
+	 * 获得注册用户关联的通讯录用户
+	 */
+	public function byUnionid($siteId, $mschemaId, $unionid) {
+		$modelAcnt = $this->model('site\user\account');
+		$aUnionUsers = $modelAcnt->byUnionid($unionid, ['siteid' => $siteId, 'fields' => 'uid']);
+		$oMembers = [];
+		foreach ($aUnionUsers as $oUnionUser) {
+			$aMembers = $this->byUser($oUnionUser->uid, ['schemas' => $mschemaId]);
+			if (count($aMembers) === 1) {
+				$oMember = $aMembers[0];
+				if ($oMember->verified === 'Y') {
+					$oMembers[] = $oMember;
+				}
+			}
+		}
+		return $oMembers;
+	}
+	/**
 	 * 获取自定义用户信息
 	 *
 	 * @param string $userid

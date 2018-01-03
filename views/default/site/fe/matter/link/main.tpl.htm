@@ -50,6 +50,22 @@
             </div>
             <div id="link" class='col-md-9 col-md-pull-3 col-xs-12'>
                 <iframe></iframe>
+                <div id="behavior" class="behavior">
+                    <div id="action">
+                        <a href="" ng-click="siteUser(siteInfo.id)">
+                            <i class="glyphicon glyphicon-user"></i>
+                            <span> 个人中心</span>
+                        </a>
+                        <a href="" ng-click="favor(user,link)">
+                            <i class="glyphicon glyphicon-star-empty"></i>
+                            <span> 收藏</span>
+                        </a>
+                        <a href="" ng-click="invite(user,link)" ng-if="link.invite">
+                            <i class="glyphicon glyphicon-share"></i>
+                            <span> 邀请</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -64,7 +80,7 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/xxt.share.js?_=1"></script>
-    <script src="<?php echo auto_version('/views/default/site/fe/matter/link/main.js');?>"></script>
+    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/link/main.js');?>"></script>
 </body>
 
 </html>

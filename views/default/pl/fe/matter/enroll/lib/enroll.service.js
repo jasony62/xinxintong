@@ -1467,8 +1467,20 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             },{
                 value: 'U',
                 title: '修改活动'
+            },{
+                value: 'verify.batch',
+                title: '审核通过指定记录'
+            },{
+                value: 'verify.all',
+                title: '审核通过全部记录'
             }];
             _siteOperations = [{
+                value: 'read',
+                title: '阅读'
+            },{
+                value: 'saveData',
+                title: '保存'
+            },{
                 value: 'submit',
                 title: '提交'
             },{
@@ -1524,7 +1536,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             $scope2.criteria = oCriteria = {
                                 byUser: '',
                                 byRid: '',
-                                byOp: ''
+                                byOp: 'ALL'
                             };
                             $scope2.doSearchRound = function() {
                                 var url = '/rest/pl/fe/matter/enroll/round/list?site=' + _siteId + '&app=' + _appId + $scope2.pageOfRound.j();

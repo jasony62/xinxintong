@@ -9,7 +9,12 @@ class log extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function index_action() {
+	public function index_action($id) {
+		$access = $this->accessControlUser('enroll', $id);
+		if ($access[0] === false) {
+			die($access[1]);
+		}
+
 		\TPL::output('/pl/fe/matter/enroll/frame');
 		exit;
 	}
@@ -25,13 +30,13 @@ class log extends \pl\fe\matter\base {
 		if (!empty($criteria->byUser)) {
 			$options['byUser'] = $criteria->byUser;
 		}
-		if (!empty($criteria->byOp)) {
+		if (!empty($criteria->byOp) && (strcasecmp('all', $criteria->byOp) != 0)) {
 			$options['byOp'] = $criteria->byOp;
 		}
 		if (!empty($criteria->byRid) && (strcasecmp('all', $criteria->byRid) != 0)) {
 			$options['byRid'] = $criteria->byRid;
 		}
-
+		
 		if ($logType === 'pl') {
 			$reads = $modelLog->listMatterOp($app, 'enroll', $options, $page, $size);
 		} else {

@@ -19,7 +19,7 @@ blockquote{background-color:#fafafa;}
 #action>a{display:inline-block;color:#999;border:1px solid #999;border-radius:16px;padding:8px 16px;}
 #action>a+a{margin-left:16px;}
 .behavior .md-attr{position:absolute;top:20px;right:0;}
-.btn-custom-default{margin-left:0;margin-right:20px;border:1px solid #2994d0;background-color:#fff;color:#2994d0;}
+.btn-custom-default{padding:8px 10px;margin:0 5px 5px 0;border:1px solid #2994d0;background-color:#fff;color:#2994d0;}
 .btn-custom-default:hover,.btn-custom-default:active,.btn-custom-default:focus{color:#fff;background-color:#2994d0;}
 @media screen and (max-width:768px){
 	.behavior{padding-bottom:0;}

@@ -5,7 +5,7 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 记录访问素材日志
 	 */
-	public function addMatterRead($siteId, &$user, $matter, $client, $shareby, $search, $referer) {
+	public function addMatterRead($siteId, &$user, $matter, $client, $shareby, $search, $referer, $options = []) {
 		$current = time();
 		$d = array();
 		$d['siteid'] = $siteId;
@@ -27,6 +27,10 @@ class log_model extends \TMS_MODEL {
 		$operation = new \stdClass;
 		$operation->name = 'read';
 		$operation->at = $current;
+		if (isset($options['rid'])) {
+			$operation->data = new \stdClass;
+			$operation->data->rid = $options['rid'];
+		}
 		$this->addUserMatterOp($siteId, $user, $matter, $operation, $client, $referer);
 		$this->writeUserAction($siteId, $user, $current, 'R', $logid);
 		$this->writeMatterAction($siteId, $matter, $current, 'R', $logid);
@@ -320,10 +324,20 @@ class log_model extends \TMS_MODEL {
 			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
 		];
 
-		if (!empty($options['byUser'])) {
-			$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
+		if ($matterType === 'enroll') {
+			$q[0] = 'l.userid,u.nickname,l.operation,l.operate_at,l.user_op_num,l.matter_op_num';
+			$q[1] .= ',xxt_enroll_user u';
+			$q[2] .= " and u.userid = l.userid and u.rid = 'ALL' and u.aid = l.matter_id";
 		}
-		if (!empty($options['byOp'])) {
+
+		if (!empty($options['byUser'])) {
+			if ($matterType === 'enroll') {
+				$q[2] .= " and u.nickname like '%" . $this->escape($options['byUser']) . "%'";
+			} else {
+				$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
+			}
+		}
+		if (!empty($options['byOp']) && strcasecmp($options['byOp'], 'all') !== 0) {
 			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
 		}
 		if (!empty($options['byRid'])) {
@@ -342,7 +356,7 @@ class log_model extends \TMS_MODEL {
 				'l' => $size,
 			];
 		}
-
+		
 		$result->logs = $this->query_objs_ss($q, $q2);
 
 		$q[0] = 'count(*)';
@@ -407,7 +421,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'*',
 			'xxt_log_matter_op',
-			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'",
+			['siteid' => $siteId, 'operator' => $user->id, 'matter_type' => $matter->type, 'matter_id' => $matter->id, 'user_last_op' => 'Y'],
 		];
 		$userLastLog = $this->query_obj_ss($q);
 
@@ -421,7 +435,7 @@ class log_model extends \TMS_MODEL {
 			$this->update(
 				'xxt_log_matter_op',
 				$d,
-				"matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
+				['matter_type' => $matter->type, 'matter_id' => $matter->id, 'last_op' => 'Y']
 			);
 		} else if ($op !== 'C') {
 			/* 更新操作记录，需要将之前的操作设置为非最后操作 */
@@ -430,7 +444,7 @@ class log_model extends \TMS_MODEL {
 				[
 					'last_op' => 'N',
 				],
-				"siteid='$siteId' and matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
+				['siteid' => $siteId, 'matter_type' => $matter->type, 'matter_id' => $matter->id, 'last_op' => 'Y']
 			);
 		}
 		/* 更新当前用户的最后一次操作记录 */
@@ -439,16 +453,16 @@ class log_model extends \TMS_MODEL {
 			[
 				'user_last_op' => 'N',
 			],
-			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
+			['siteid' => $siteId, 'operator' => $user->id, 'matter_type' => $matter->type, 'matter_id' => $matter->id, 'user_last_op' => 'Y']
 		);
 		// 记录新日志，或更新日志
-		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restoreData'];
+		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restoreData', 'verify.all', 'verify.batch'];
 		if ($userLastLog === false || in_array($userLastLog->operation, $filterOp) || $current > $userLastLog->operate_at + 600) {
 			/* 两次更新操作的间隔超过10分钟，产生新日志 */
 			$d = array();
 			$d['siteid'] = $siteId;
 			$d['operator'] = $user->id;
-			$d['operator_name'] = $user->name;
+			$d['operator_name'] = $this->escape($user->name);
 			$d['operator_src'] = $user->src;
 			$d['operate_at'] = $current;
 			$d['operation'] = $op;
@@ -467,12 +481,11 @@ class log_model extends \TMS_MODEL {
 					$d['data'] = $data;
 				}
 			}
-
 			$logid = $this->insert('xxt_log_matter_op', $d, true);
 		} else {
 			/* 更新之前的日志 */
 			$d = array();
-			$d['operator_name'] = $user->name;
+			$d['operator_name'] = $this->escape($user->name);
 			$d['operate_at'] = $current;
 			$d['operation'] = $op;
 			$d['matter_title'] = $this->escape($matter->title);

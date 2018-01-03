@@ -10,6 +10,11 @@ class main extends main_base {
 	 * 返回视图
 	 */
 	public function index_action($site, $id) {
+		$access = $this->accessControlUser('enroll', $id);
+		if ($access[0] === false) {
+			die($access[1]);
+		}
+
 		\TPL::output('/pl/fe/matter/enroll/frame');
 		exit;
 	}

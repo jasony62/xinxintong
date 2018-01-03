@@ -232,6 +232,7 @@ $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ",fans_only char(1) not null default 'N'"; // 仅限关注用户打开
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
+$sql .= ",entry_rule text"; // 参与规则
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

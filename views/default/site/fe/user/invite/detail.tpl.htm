@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>我的邀请</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/user/invite/detail.css');?>" rel="stylesheet">
+</head>
+
+<body ng-app='app' ng-controller='ctrlInvite'>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a class='navbar-brand' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="container ng-cloak" ng-cloak>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class='panel'>
+                    <div class='panel-body'>
+                        <section id='matter'>
+                            <div class='form-group'>
+                                <div ng-bind="invite.matter_title"></div>
+                            </div>
+                            <div class='form-group' ng-if="invite.matter_pic">
+                                <img ng-src="{{invite.matter_pic}}">
+                            </div>
+                            <div class='form-group' ng-if="invite.matter_summary">
+                                <div ng-bind="invite.matter_summary"></div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div class='panel'>
+                    <div class='panel-body'>
+                        <div class='form-group' ng-if="wxAgent">
+                            通过微信直接将邀请分享至好友或朋友圈
+                        </div>
+                        <div class='form-group'>
+                            邀请链接：<span>{{invite.entryUrl}}</span>
+                        </div>
+                        <div class='form-group'>
+                            <textarea class='form-control' rows='3' ng-model="newInvite.message"></textarea>
+                            <button class='btn btn-default btn-block' ng-click="update('message')">提交邀请留言</button>
+                        </div>
+                        <div class='invitee'>
+                            <div>邀请成功：直接<span class='count' ng-bind="invite.invitee_count"></span>，间接<span class='count' ng-bind="invite.relay_invitee_count"></span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class='panel'>
+                    <div class='panel-body'>
+                        <div class='list-group'>
+                            <div class='inviteCode list-group-item' ng-repeat="code in codes">
+                                <div class='form-group'>
+                                    <div ng-bind="code.code"></div>
+                                    <div ng-bind="code.remark"></div>
+                                </div>
+                                <div class='invitee' ng-click="gotoLog(code)">
+                                    <div>邀请成功：直接<span class='count' ng-bind="code.used_count"></span>，间接<span class='count' ng-bind="code.relay_invitee_count"></span></div>
+                                </div>
+                                <button class='btn btn-default btn-sm' ng-click="configCode(code)"><span class='glyphicon glyphicon-cog'></span></button>
+                            </div>
+                        </div>
+                        <button class='btn btn-default' ng-click="addCode()"><span class='glyphicon glyphicon-plus'></span> 添加邀请码</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type='text/ng-template' id='codeEditor.html'>
+        <div class="modal-header">
+            <h5 class="modal-title">设置邀请码</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">备注</label>
+                    <div class="col-md-9">
+                        <textarea class='form-control' ng-model="code.remark"></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js"></script>
+    <script src="/asset/js/xxt.ui.share.js"></script>
+    <script src="<?php echo auto_version('/views/default/site/fe/user/invite/detail.js');?>"></script>
+</body>
+
+</html>

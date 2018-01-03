@@ -70,9 +70,9 @@ class register extends \site\fe\base {
 		/* cookie中保留注册信息 */
 		$cookieRegUser = $modelWay->shiftRegUser($registration, false);
 
-		if ($referer = $this->myGetCookie('_auth_referer')) {
+		if ($referer = $this->myGetCookie('_user_access_referer')) {
 			$cookieRegUser->_loginReferer = $referer;
-			$this->mySetCookie('_auth_referer', null);
+			$this->mySetCookie('_user_access_referer', null);
 		}
 
 		return new \ResponseData($cookieRegUser);

@@ -17,25 +17,29 @@ class link_model extends base_model {
 	/**
 	 * 返回链接和链接的参数
 	 */
-	public function byIdWithParams($id, $fields = '*') {
-		$q = array(
-			$fields,
-			'xxt_link',
-			"id=$id",
-		);
-		if ($link = $this->query_obj_ss($q)) {
-			$q = array(
-				'pname,pvalue,authapi_id',
-				'xxt_link_param',
-				"link_id=$id",
-			);
-			if ($params = $this->query_objs_ss($q)) {
-				$link->params = $params;
+	public function byIdWithParams($id) {
+		if ($oLink = $this->byId($id)) {
+			!empty($oLink->matter_mg_tag) && $oLink->matter_mg_tag = json_decode($oLink->matter_mg_tag);
+			if (empty($oLink->entry_rule)) {
+				$oLink->entry_rule = new \stdClass;
+				$oLink->entry_rule->scope = 'none';
 			}
-
+			/* params */
+			$q2 = [
+				'id,pname,pvalue,authapi_id',
+				'xxt_link_param',
+				"link_id='$id'",
+			];
+			$oLink->params = $this->query_objs_ss($q2);
+			/* channels */
+			$oLink->channels = $this->model('matter\channel')->byMatter($id, 'link');
+			/* 所属项目 */
+			if ($oLink->mission_id) {
+				$oLink->mission = $this->model('matter\mission')->byId($oLink->mission_id, ['cascaded' => 'phase']);
+			}
 		}
 
-		return $link;
+		return $oLink;
 	}
 	/**
 	 * 返回进行推送的消息格式

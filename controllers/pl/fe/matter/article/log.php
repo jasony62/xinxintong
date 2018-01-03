@@ -9,7 +9,12 @@ class log extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function index_action() {
+	public function index_action($id) {
+		$access = $this->accessControlUser('article', $id);
+		if ($access[0] === false) {
+			die($access[1]);
+		}
+
 		\TPL::output('/pl/fe/matter/article/frame');
 		exit;
 	}
@@ -20,7 +25,7 @@ class log extends \pl\fe\matter\base {
 	public function list_action($id, $page = 1, $size = 30) {
 		$modelLog = $this->model('matter\log');
 
-		$reads = $modelLog->listUserMatterOp($id, 'article', $page, $size);
+		$reads = $modelLog->listUserMatterOp($id, 'article', [], $page, $size);
 
 		return new \ResponseData($reads);
 	}

@@ -27,7 +27,7 @@ class url_model extends \TMS_MODEL {
 			'code' => $code,
 			'siteid' => $siteId,
 			'creater' => $user->id,
-			'creater_name' => $user->name,
+			'creater_name' => $this->escape($user->name),
 			'target_title' => $title,
 			'target_url' => $url,
 			'create_at' => time(),

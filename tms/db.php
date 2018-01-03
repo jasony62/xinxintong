@@ -402,6 +402,7 @@ class TMS_DB {
 						case '>=':
 						case '<':
 						case '<=':
+						case '<>':
 							$clause = $k . $v->op . $v->pat;
 							$clauses[] = $clause;
 							break;

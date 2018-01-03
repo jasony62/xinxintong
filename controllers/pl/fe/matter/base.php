@@ -71,4 +71,43 @@ class base extends \pl\fe\base {
 
 		return new \ResponseData($reads);
 	}
+	/**
+	 * 素材访问控制
+	 */
+	public function accessControlUser($matterType, $matterId) {
+		if (false === ($oUser = $this->accountUser())) {
+			return [false, '未登陆'];
+		}
+
+		$options = ['cascaded' => 'N', 'fields' => 'siteid,id,title,mission_id'];
+		if ($matterType === 'lottery') {
+			unset($options['cascaded']);
+		}
+		$oMatter = $this->model('matter\\' . $matterType)->byId($matterId, $options);
+		if (!$oMatter) {
+			return [false, '指定的素材不存在'];
+		}
+
+		$siteid = $oMatter->siteid;
+		$modelSite = $this->model('site\admin');
+		$oSiteUser = $modelSite->byUid($siteid, $oUser->id);
+		if ($oSiteUser !== false) {
+			return [true];
+		}
+
+		/*检查此素材是否在项目中*/
+		if($matterType !== 'mission' && !empty($oMatter->mission_id)){
+			$mission_id = $oMatter->mission_id;
+		}else if ($matterType === 'mission') {
+			$mission_id = $matterId;
+		}
+		if (isset($mission_id)) {
+			$oMissionUser = $this->model('matter\mission\acl')->byCoworker($mission_id, $oUser->id, ['fields' => 'id']);
+			if($oMissionUser){
+				return [true];
+			}
+		}
+		
+		return [false, '访问控制未通过'];
+	}
 }

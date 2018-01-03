@@ -898,10 +898,10 @@
                 html += '<ul><li ng-repeat="img in r.data.' + oSchema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
                 break;
             case 'file':
-                html = '<ul><li ng-repeat="file in r.data.' + oSchema.id + '"><span ng-bind="file.name"></span></li></ul>';
+                html += '<ul><li ng-repeat="file in r.data.' + oSchema.id + '"><span ng-bind="file.name"></span></li></ul>';
                 break;
             case 'multitext':
-                html = '<ul><li ng-repeat="text in r.data.' + oSchema.id + '"><span ng-bind="text"></span></li></ul>';
+                html += '<ul><li ng-repeat="text in r.data.' + oSchema.id + '"><span ng-bind="text"></span></li></ul>';
                 break;
             case '_enrollAt':
                 html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";

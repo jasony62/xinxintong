@@ -230,6 +230,13 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
         sendRequest(LS.j('doReauth', 'site', 'schema'), deferred);
         return deferred.promise;
     };
+    $scope.refreshPin = function(preEle) {
+        preEle ? preEle : preEle = document.getElementById('pinInput');
+        var time = new Date().getTime(),
+            pinWidth = preEle.offsetWidth - 20,
+            url = '/rest/site/fe/user/login/getCaptcha?site=platform&codelen=4&width='+ pinWidth +'&height=34&fontsize=20';
+        $scope.pinImg = url + '&' + time;
+    };
     $http.get('/rest/site/fe/get?site=' + LS.p.site).success(function(rsp) {
         $scope.site = rsp.data;
     });
@@ -270,6 +277,11 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
             $scope.page = rsp.data.schema.page;
             $timeout(function() {
                 $scope.$broadcast('xxt.member.auth.ready', rsp.data);
+                $timeout(function() {
+                    var preEle = document.getElementById('pinInput');
+                    $scope.refreshPin(preEle);
+                });
+
             });
         });
     }).error(function(content, httpCode) {

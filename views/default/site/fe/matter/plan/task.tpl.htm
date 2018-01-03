@@ -92,7 +92,7 @@
                                 <div tms-file-input="Y" ng-switch-when="file">
                                     <ul class="list-group file" name="{{action.id+'.'+schema.id}}">
                                         <li class="list-group-item" ng-show="progressOfUploadFile">
-                                            <div class="progressOfUploadFile" ng-bind="progressOfUploadFile">
+                                            <div class="progressOfUploadFile" ng-bind="progressOfUploadFile"></div>
                                         </li>
                                         <li wrap="file" ng-repeat="file in data[action.id][schema.id]" class="list-group-item">
                                             <span class="file-name" ng-bind="file.name"></span>
@@ -101,8 +101,12 @@
                                             <button class="btn btn-success" ng-click="chooseFile(action,schema)">{{schema.title}}</button>
                                         </li>
                                     </ul>
-                                    </div>
+                                </div>
+                                <div ng-switch-when="html">
                                     <div ng-bind-html="schema.content"></div>
+                                </div>
+                                <div ng-if="schema.supplement==='Y'">
+                                    <textarea placeholder="补充说明" rows="3" class="form-control supplement" ng-model="supplement[action.id][schema.id]"></textarea>
                                 </div>
                             </div>
                         </div>

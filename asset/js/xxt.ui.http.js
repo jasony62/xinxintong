@@ -56,9 +56,12 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                 if (options.autoNotice) {
                     createAlert(rsp, 'warning');
                 }
-                if (options.autoBreak) return;
-            }
-            if (rsp.err_code != 0) {
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else if (rsp.err_code != 0) {
                 if (options.autoNotice) {
                     var errmsg;
                     if (angular.isString(rsp.err_msg)) {
@@ -70,9 +73,14 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     }
                     createAlert(errmsg, 'warning');
                 }
-                if (options.autoBreak) return;
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else {
+                _defer.resolve(rsp);
             }
-            _defer.resolve(rsp);
         }).error(function(data, status) {
             if (options.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
@@ -83,6 +91,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             }
             createAlert(data === null ? '网络不可用' : data, 'danger');
         });
+
         return _defer.promise;
     };
     this.post = function(url, posted, options) {
@@ -116,9 +125,12 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     createAlert(rsp, 'warning');
                     _alert = null;
                 }
-                if (options.autoBreak) return;
-            }
-            if (rsp.err_code != 0) {
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else if (rsp.err_code != 0) {
                 if (options.autoNotice) {
                     var errmsg;
                     if (angular.isString(rsp.err_msg)) {
@@ -130,9 +142,14 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     }
                     createAlert(errmsg, 'warning');
                 }
-                if (options.autoBreak) return;
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else {
+                _defer.resolve(rsp);
             }
-            _defer.resolve(rsp);
         }).error(function(data, status) {
             if (options.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
@@ -143,6 +160,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             }
             createAlert(data === null ? '网络不可用' : data, 'danger');
         });
+
         return _defer.promise;
     };
 }]);

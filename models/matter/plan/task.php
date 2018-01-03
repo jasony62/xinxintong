@@ -20,6 +20,9 @@ class task_model extends \TMS_MODEL {
 			if (property_exists($oUsrTask, 'data')) {
 				$oUsrTask->data = empty($oUsrTask->data) ? new \stdClass : json_decode($oUsrTask->data);
 			}
+			if (property_exists($oUsrTask, 'supplement')) {
+				$oUsrTask->supplement = empty($oUsrTask->supplement) ? new \stdClass : json_decode($oUsrTask->supplement);
+			}
 		}
 
 		return $oUsrTask;

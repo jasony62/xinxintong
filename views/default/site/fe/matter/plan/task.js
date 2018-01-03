@@ -67,7 +67,7 @@ ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.factory('Input', ['$q', '$timeout', 'http2', 'ls', function($q, $timeout, http2, LS) {
     var Input, _ins;
     Input = function() {};
-    Input.prototype.check = function(oTaskData, oTask) {
+    Input.prototype.check = function(oTask, oTaskData) {
         var oAction, oActionData, schemas, oSchema, value, sCheckResult;
         if (oTask.actions && oTask.actions.length) {
             for (var i = 0, ii = oTask.actions.length; i < ii; i++) {
@@ -89,28 +89,22 @@ ngApp.factory('Input', ['$q', '$timeout', 'http2', 'ls', function($q, $timeout, 
         }
         return true;
     };
-    Input.prototype.submit = function(data, oTask) {
-        var defer, url, d, d2, posted;
-        defer = $q.defer();
-        posted = angular.copy(data);
+    Input.prototype.submit = function(oTask, oTaskData, oSupplement) {
+        var posted, d, url;
+        posted = {
+            data: angular.copy(oTaskData),
+            supplement: oSupplement
+        };
         url = '/rest/site/fe/matter/plan/task/submit?site=' + LS.p.site + '&task=' + oTask.id;
-        for (var i in posted) {
-            d = posted[i];
+        for (var i in posted.data) {
+            d = posted.data[i];
             if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
-                for (var j in d) {
-                    d2 = d[j];
+                d.forEach(function(d2) {
                     delete d2.imgSrc;
-                }
+                });
             }
         }
-        http2.post(url, posted, { autoNotice: false, autoBreak: false }).then(function(rsp) {
-            if (typeof rsp === 'string' || rsp.err_code != 0) {
-                defer.reject(rsp);
-            } else {
-                defer.resolve(rsp);
-            }
-        });
-        return defer.promise;
+        return http2.post(url, posted, { autoNotice: false, autoBreak: false });
     };
     return {
         ins: function() {
@@ -319,7 +313,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$filter', 'http2', 'ls', 't
  */
 ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input', 'ls', function($scope, $filter, noticebox, http2, Input, LS) {
     function doSubmit() {
-        facInput.submit($scope.data, $scope.activeTask).then(function(rsp) {
+        facInput.submit($scope.activeTask, $scope.data, $scope.supplement).then(function(rsp) {
             _oSubmitState.finish();
             _oToggledTask.userTask = rsp.data;
             delete _oToggledTask.mockTask;
@@ -358,7 +352,7 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
     tasksOfBeforeSubmit = [];
     facInput = Input.ins();
     $scope.data = {};
-    $scope.supplement = {};
+    //$scope.supplement = null;
     $scope._oSubmitState = _oSubmitState = ngApp.oUtilSubmit.state;
     $scope.beforeSubmit = function(fn) {
         if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
@@ -369,7 +363,7 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
         var sCheckResult;
         if (!_oSubmitState.isRunning()) {
             _oSubmitState.start(event);
-            if (true === (sCheckResult = facInput.check($scope.data, $scope.activeTask))) {
+            if (true === (sCheckResult = facInput.check($scope.activeTask, $scope.data))) {
                 tasksOfBeforeSubmit.length ? doTask(0) : doSubmit();
             } else {
                 _oSubmitState.finish();
@@ -385,6 +379,7 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
         http2.get(LS.j('task/get', 'site') + '&task=' + oToggledTask.id).then(function(rsp) {
             var oTask;
             oTask = rsp.data;
+            /* 任务数据 */
             if (oTask.actions) {
                 oTask.actions.forEach(function(oAction) {
                     if ($scope.app.checkSchemas.length) {
@@ -403,6 +398,12 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
                         oTask.userTask.bornAt = $filter('date')(oTask.userTask.born_at * 1000, 'yy-MM-dd HH:mm') + ',' + i18n.weekday[$filter('date')(oTask.userTask.born_at * 1000, 'EEE')]
                     }
                 });
+            }
+            // 数据补充说明
+            if (oTask.userTask && oTask.userTask.supplement) {
+                $scope.supplement = oTask.userTask.supplement;
+            } else {
+                $scope.supplement = {};
             }
             $scope.activeTask = oTask;
             $scope.subView = 'task';

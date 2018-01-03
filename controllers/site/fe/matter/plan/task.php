@@ -20,7 +20,7 @@ class task extends base {
 		$oUser = $this->who;
 
 		$modelUsrTsk = $this->model('matter\plan\task');
-		$oTaskSchema->userTask = $modelUsrTsk->bySchema($oUser, $oTaskSchema, ['fields' => 'id,verified,born_at,first_enroll_at,last_enroll_at,data']);
+		$oTaskSchema->userTask = $modelUsrTsk->bySchema($oUser, $oTaskSchema, ['fields' => 'id,verified,born_at,first_enroll_at,last_enroll_at,data,supplement']);
 
 		return new \ResponseData($oTaskSchema);
 	}
@@ -138,14 +138,17 @@ class task extends base {
 			$oActionsById->{$oAction->id} = $oAction;
 		}
 
+		$modelUsrAct = $this->model('matter\plan\action');
 		$oPosted = $this->getPostJson();
-
+		/**
+		 * 处理提交的任务数据
+		 */
+		$oTaskData = $oPosted->data;
 		$oUsrTask->last_enroll_at = $current;
 		$oCheckData = new \stdClass;
 		$oScoreData = new \stdClass;
 		$fScoreSum = 0; // 所有任务的累积得分
-		$modelUsrAct = $this->model('matter\plan\action');
-		foreach ($oPosted as $actionId => $oActionData) {
+		foreach ($oTaskData as $actionId => $oActionData) {
 			$oAction = $oActionsById->{$actionId};
 			$oAction->siteid = $oTaskSchema->siteid; // 保存数据时需要这个参数
 			if (count($oApp->checkSchemas)) {
@@ -156,8 +159,24 @@ class task extends base {
 			$oScoreData->{$actionId} = $oResult->score;
 			$fScoreSum += $oResult->score->sum;
 		}
-
-		/* 更新任务状态 */
+		/**
+		 * 提交补充说明
+		 */
+		if (isset($oPosted->supplement) && count(get_object_vars($oPosted->supplement))) {
+			$oTaskSupl = $oPosted->supplement;
+			foreach ($oTaskSupl as $actionId => $oActionSupl) {
+				$oAction = $oActionsById->{$actionId};
+				$modelUsrAct->setSupplement($oUser, $oAction, $oUsrTask, $oActionSupl);
+			}
+			$modelUsrAct->update(
+				'xxt_plan_task',
+				['supplement' => $modelUsrAct->escape($modelUsrAct->toJson($oTaskSupl))],
+				['id' => $oUsrTask->id]
+			);
+		}
+		/**
+		 * 更新任务状态
+		 */
 		$aUpdated = [
 			'last_enroll_at' => $oUsrTask->last_enroll_at,
 			'data' => $modelUsrTsk->escape($modelUsrTsk->toJson($oCheckData)),

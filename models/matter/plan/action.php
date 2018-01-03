@@ -239,4 +239,28 @@ class action_model extends \TMS_MODEL {
 
 		return [true, $dbData];
 	}
+	/**
+	 * 保存补充说明
+	 *
+	 * @param object $oUser [uid]
+	 * @param object $oAction
+	 * @param string $oUserTask
+	 * @param array $submitSupp 用户提交的补充说明
+	 *
+	 */
+	public function setSupplement($oUser, $oAction, $oUsrTask, $submitSupl) {
+		$count = 0;
+		foreach ($submitSupl as $schemaId => $sSupplement) {
+			$rst = $this->update(
+				'xxt_plan_task_action',
+				['supplement' => $this->escape($sSupplement)],
+				['userid' => $oUser->uid, 'task_id' => $oUsrTask->id, 'action_schema_id' => $oAction->id, 'check_schema_id' => $schemaId]
+			);
+			if ($rst) {
+				$count++;
+			}
+		}
+
+		return $count;
+	}
 }

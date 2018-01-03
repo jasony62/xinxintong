@@ -12,6 +12,7 @@ class login extends \site\fe\base {
 		$rule_action['actions'] = array();
 		$rule_action['actions'][] = 'index';
 		$rule_action['actions'][] = 'do';
+		$rule_action['actions'][] = 'getCaptcha';
 
 		return $rule_action;
 	}
@@ -20,10 +21,17 @@ class login extends \site\fe\base {
 	 */
 	public function do_action() {
 		$data = $this->getPostJson();
-		if (empty($data->uname) || empty($data->password)) {
+		if (empty($data->uname) || empty($data->password) || empty($data->pin)) {
 			return new \ResponseError("登录信息不完整");
 		}
 
+		$codeSession = $_SESSION['_login_auth_code'];
+		if (empty($codeSession) ||  $codeSession !== $data->pin) {
+			$_SESSION['_login_auth_code'] = '';
+			return new \ResponseError("验证码错误请重新输入");
+		}
+
+		$_SESSION['_login_auth_code'] = '';
 		$modelWay = $this->model('site\fe\way');
 		$modelReg = $this->model('site\user\registration');
 
@@ -71,5 +79,21 @@ class login extends \site\fe\base {
 		}
 
 		return new \ResponseData($cookieUser);
+	}
+	/*
+	* 获取验证码
+	* $codelen  验证码的个数
+	* $width  验证码的宽度
+	* $height  验证码的高度
+	* $fontsize  验证码的字体大小
+	*/
+	public function getCaptcha_action($codelen = 4, $width = 130, $height = 50, $fontsize = 20) {
+		require_once TMS_APP_DIR . '/lib/validatecode.php';
+
+		$captcha = new \ValidateCode($codelen, $width, $height, $fontsize);
+		$captcha->doImg();
+
+		$code = $captcha->getCode();
+		$_SESSION['_login_auth_code'] = $code;
 	}
 }

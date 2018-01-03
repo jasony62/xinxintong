@@ -91,7 +91,7 @@
                             <tr ng-repeat="log in logs">
                                 <td>{{$index+1}}</td>
                                 <td>{{log.inviteCode.code}}</td>
-                                <td>{{log.nickname}}</td>
+                                <td>{{log.member.name||log.member.mobile||log.member.email||log.user.nickname||log.nickname}}</td>
                                 <td>{{log.use_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                             </tr>
                         </tbody>

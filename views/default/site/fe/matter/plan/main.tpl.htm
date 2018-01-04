@@ -85,14 +85,17 @@
                         <div class='form-group'>
                             #{{activeTask.task_seq}}&nbsp;-&nbsp;{{activeTask.title}}
                         </div>
-                        <div class='form-group' ng-if="activeTask.userTask">
-                            计划开始时间：<span ng-bind="activeTask.userTask.bornAt"></span>
+                        <div class='form-group' ng-if="userTask">
+                            计划开始时间：<span ng-bind="userTask.bornAt"></span>
                         </div>
-                        <div class='form-group' ng-if="activeTask.userTask.patchAt">
-                            实际开始时间：<span ng-bind="activeTask.bornAt"></span>
+                        <div class='form-group' ng-if="userTask.patchAt">
+                            实际开始时间：<span ng-bind="userTask.patchAt"></span>
                         </div>
-                        <div ng-if="activeTask.userTask">
-                            审核通过：<span ng-bind="activeTask.userTask.verified==='Y'?'是':'否'"></span>
+                        <div class='form-group' ng-if="userTask">
+                            审核通过：<span ng-bind="userTask.verified==='Y'?'是':userTask.verified==='N'?'否':'待定'"></span>
+                        </div>
+                        <div ng-if="userTask.comment">
+                            组织者备注：{{userTask.comment}}
                         </div>
                     </div>
                 </div>

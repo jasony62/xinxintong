@@ -192,7 +192,7 @@ class task_model extends \TMS_MODEL {
 		$oNewTask->state = 1;
 		$oNewTask->data = '';
 		$oNewTask->comment = '';
-		$oNewTask->verified = 'N';
+		$oNewTask->verified = 'P';
 		$oNewTask->submit_log = '';
 
 		$oNewTask->id = $this->insert('xxt_plan_task', $oNewTask, true);

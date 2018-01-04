@@ -3,24 +3,6 @@ require_once '../db.php';
 /**
  * 文本事件响应映射关系
  */
-$sql = "create table if not exists xxt_call_text(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',siteid varchar(32) not null';
-$sql .= ",mpid varchar(32) not null";
-$sql .= ',keyword varchar(100) not null';
-$sql .= ',match_mode varchar(10) not null default "full"';
-$sql .= ',matter_type varchar(20) not null';
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",access_control char(1) not null default 'N'";
-$sql .= ",authapis text"; // 限定访问控制的认证接口
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 文本事件响应映射关系
- */
 $sql = "create table if not exists xxt_call_text_wx(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',siteid varchar(32) not null';

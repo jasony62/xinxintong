@@ -11,10 +11,28 @@
                 <div class='form-group' ng-if="task.patch_at>0">
                     <div>补填时间：<span>{{task.patch_at*1000|date:'yy-MM-dd HH:mm'}}</span></div>
                 </div>
+                <div class='form-group'>
+                    <label>审核通过</label>
+                    <div>
+                        <label class='radio-inline'>
+                            <input type='radio' name='verified' value='P' ng-model="task.verified" ng-change="updateTask('verified')">待定</label>
+                        <label class='radio-inline'>
+                            <input type='radio' name='verified' value='Y' ng-model="task.verified" ng-change="updateTask('verified')">是</label>
+                        <label class='radio-inline'>
+                            <input type='radio' name='verified' value='N' ng-model="task.verified" ng-change="updateTask('verified')">否</label>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label>备注</label>
+                    <textarea class='form-control' ng-model="task.comment" row=3 ng-change="updateTask('comment')"></textarea>
+                </div>
+                <div class='text-right'>
+                    <button class='btn' ng-class="modified?'btn-success':'btn-default'" ng-disabled="!modified" ng-click="saveTask()">保存</button>
+                </div>
             </div>
         </div>
-        <div class='panel panel-default' ng-repeat="action in task.taskSchema.actions">
-            <div class='panel-body'>
+        <div class='panel panel-default'>
+            <div class='panel-body' ng-repeat="action in task.taskSchema.actions">
                 <div class='form-group'>
                     <div>#<span>{{action.action_seq}}</span>&nbsp;-&nbsp;<span>{{action.action_desc}}</span></div>
                 </div>
@@ -73,6 +91,11 @@
                     <div ng-if="schema.supplement==='Y'">
                         <textarea placeholder="补充说明" rows="3" class="form-control supplement" ng-model="supplement[action.id][schema.id]"></textarea>
                     </div>
+                </div>
+            </div>
+            <div class='panel-body'>
+                <div class='text-right'>
+                    <button class='btn btn-default' ng-click="saveData()" disabled="">保存</button>
                 </div>
             </div>
         </div>

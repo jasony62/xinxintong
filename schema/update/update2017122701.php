@@ -81,7 +81,7 @@ $sql .= ",data longtext null"; // 登记的数据项
 $sql .= ",supplement longtext null"; // 补充说明
 $sql .= ",score text null"; // 打分题的得分记录
 $sql .= ",comment text null";
-$sql .= ",verified char(1) not null default 'N'"; // 记录是否已通过审核
+$sql .= ",verified char(1) not null default 'P'"; // 记录是否已通过审核 Yes,No,Pending
 $sql .= ",submit_log text null"; // 数据提交日志
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;

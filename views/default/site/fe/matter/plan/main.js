@@ -403,6 +403,7 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
             $scope.supplement = {};
         }
         $scope.activeTask = oTask;
+        $scope.userTask = oTask.userTask;
     });
 }]);
 /**

@@ -42,8 +42,11 @@ class task extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$oApp = $this->model('matter\plan')->byId($app);
-		if (false === $oApp) {
+		$modelApp = $this->model('matter\plan');
+		$app = $modelApp->escape($app);
+
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -53,6 +56,52 @@ class task extends \pl\fe\matter\base {
 		return new \ResponseData($oResult);
 	}
 	/**
+	 * 更新任务
+	 */
+	public function update_action($task) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelTsk = $this->model('matter\plan\task');
+		$task = $modelTsk->escape($task);
+
+		$oTask = $modelTsk->byId($task, ['fields' => 'id,state,aid']);
+		if (false === $oTask && $oTask->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelApp = $this->model('matter\plan');
+		$oApp = $modelApp->byId($oTask->aid, ['fields' => 'id,state,siteid,title,summary,pic']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oPosted = $this->getPostJson();
+		$aUpdated = [];
+		if (isset($oPosted)) {
+			foreach ($oPosted as $prop => $val) {
+				switch ($prop) {
+				case 'verified':
+					if (in_array($val, ['Y', 'N', 'P'])) {
+						$aUpdated['verified'] = $val;
+					}
+					break;
+				case 'comment':
+					$aUpdated['comment'] = $modelApp->escape($val);
+				}
+			}
+		}
+
+		$rst = 0;
+		if (count($aUpdated)) {
+			$rst = $modelApp->update('xxt_plan_task', $aUpdated, ['id' => $oTask->id]);
+			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'updateTask', $oPosted);
+		}
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 *
 	 */
 	public function batchVerify_action($app) {
@@ -60,8 +109,11 @@ class task extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$oApp = $this->model('matter\plan')->byId($app);
-		if (false === $oApp) {
+		$modelApp = $this->model('matter\plan');
+		$app = $modelApp->escape($app);
+
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,title,summary,pic']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -76,6 +128,8 @@ class task extends \pl\fe\matter\base {
 				}
 			}
 		}
+
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.batch', $taskIds);
 
 		return new \ResponseData($updatedCount);
 	}

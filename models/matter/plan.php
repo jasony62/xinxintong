@@ -64,23 +64,60 @@ class plan_model extends app_base {
 		$appId = uniqid();
 		$oNewApp->siteid = $oSite->id;
 		$oNewApp->id = $appId;
+		$oProto = $oCustomConfig->proto;
 
 		/* 从站点和项目中获得pic定义 */
 		if (!empty($oMission)) {
-			$oNewApp->summary = $oMission->summary;
+			$oNewApp->summary = empty($oProto->summary) ? $oMission->summary : $oProto->summary;
 			$oNewApp->pic = $oMission->pic;
 			$oNewApp->mission_id = $oMission->id;
 			$oMisEntryRule = $oMission->entry_rule;
 		} else {
-			$oNewApp->summary = '';
+			$oNewApp->summary = empty($oProto->summary) ? '' : $oProto->summary;
 			$oNewApp->pic = $oSite->heading_pic;
 		}
+
 		/* 用户指定的属性 */
-		$title = empty($oCustomConfig->proto->title) ? '新计划活动' : $this->escape($oCustomConfig->proto->title);
+		$title = empty($oProto->title) ? '新计划活动' : $this->escape($oProto->title);
 		$oNewApp->title = $title;
+		$oNewApp->summary = $this->escape($oNewApp->summary);
 
 		$oEntryRule = new \stdClass;
-		$oEntryRule->scope = 'none';
+		if (empty($oProto->entryRule)) {
+			$oEntryRule->scope = 'none';
+		} else {
+			switch ($oProto->entryRule->scope) {
+			case 'member':
+				$oEntryRule->scope = 'member';
+				$oEntryRule->member = new \stdClass;
+				if (!empty($oProto->entryRule->mschemas)) {
+					foreach ($oProto->entryRule->mschemas as $oMschema) {
+						$oEntryRule->member->{$oMschema->id} = (object) ['entry' => ''];
+					}
+				}
+				break;
+			case 'sns':
+				$oEntryRule->scope = 'sns';
+				$oEntryRule->sns = new \stdClass;
+				if (isset($oProto->entryRule->sns)) {
+					foreach ($oProto->entryRule->sns as $snsName => $valid) {
+						if ($valid) {
+							$oEntryRule->sns->{$snsName} = (object) ['entry' => 'Y'];
+						}
+					}
+				}
+				break;
+			case 'group':
+				$oEntryRule->scope = 'group';
+				$oEntryRule->group = new \stdClass;
+				if (!empty($oProto->entryRule->group->id)) {
+					$oEntryRule->group->id = $oProto->entryRule->group->id;
+				}
+				break;
+			default:
+				$oEntryRule->scope = 'none';
+			}
+		}
 
 		$oNewApp->entry_rule = $this->toJson($oEntryRule);
 

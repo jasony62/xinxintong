@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', 'mediagallery', function($scope, mediagallery) {
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
@@ -13,6 +13,17 @@ define(['frame'], function(ngApp) {
         $scope.removePic = function() {
             $scope.app.pic = '';
             $scope.update('pic');
+        };
+        $scope.remove = function() {
+            if (window.confirm('确定删除？')) {
+                http2.get('/rest/pl/fe/matter/plan/remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
+                    if ($scope.app.mission) {
+                        location.href = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
+                    } else {
+                        location.href = '/rest/pl/fe/site/console?site=' + $scope.app.siteid;
+                    }
+                });
+            }
         };
     }]);
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvPlanApp', function($scope, $uibModal, http2, srvSite, srvPlanApp) {

@@ -14,6 +14,13 @@ class main extends \pl\fe\matter\main_base {
 		exit;
 	}
 	/**
+	 * 返回视图
+	 */
+	public function plan_action() {
+		\TPL::output('/pl/fe/matter/plan/plan');
+		exit;
+	}
+	/**
 	 * 返回一个计划活动
 	 */
 	public function get_action($id) {
@@ -237,39 +244,34 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$modelPlan = $this->model('matter\plan');
-		$oApp = $modelPlan->byId($app, ['fields' => 'siteid,id,title,summary,pic,mission_id,creator', 'cascaded' => 'N']);
+		$oApp = $modelPlan->byId($app, ['fields' => 'siteid,id,title,summary,pic,mission_id,creater', 'cascaded' => 'N']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
-		if ($oApp->creator !== $oUser->id) {
+		if ($oApp->creater !== $oUser->id) {
 			if (!$this->model('site')->isAdmin($oApp->siteid, $oUser->id)) {
 				return new \ResponseError('没有删除数据的权限');
 			}
 			$rst = $modelApp->remove($oUser, $oApp, 'Recycle');
 		} else {
-
 			$q = [
 				'count(*)',
-				'xxt_signin_record',
+				'xxt_plan_task',
 				["aid" => $oApp->id],
 			];
 			if ((int) $modelPlan->query_val_ss($q) > 0) {
 				$rst = $modelPlan->remove($oUser, $oApp, 'Recycle');
 			} else {
 				$modelPlan->delete(
-					'xxt_signin_log',
+					'xxt_plan_user',
 					["aid" => $oApp->id]
 				);
 				$modelPlan->delete(
-					'xxt_signin_round',
+					'xxt_plan_action_schema',
 					["aid" => $oApp->id]
 				);
 				$modelPlan->delete(
-					'xxt_code_page',
-					"id in (select code_id from xxt_signin_page where aid='" . $modelPlan->escape($oApp->id) . "')"
-				);
-				$modelPlan->delete(
-					'xxt_signin_page',
+					'xxt_plan_task_schema',
 					["aid" => $oApp->id]
 				);
 				$rst = $modelPlan->remove($oUser, $oApp, 'D');

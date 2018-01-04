@@ -92,6 +92,24 @@ class remind_model extends \TMS_MODEL {
 			}
 
 			$noticeName = 'timer.enroll.remind';
+		} else if ($oMatter->type === 'plan') {
+			$modelPlan = $this->model('matter\plan');
+			$oMatter = $modelPlan->byId($oMatter->id, ['fields' => 'id,state,siteid']);
+			if (false === $oMatter || $oMatter->state !== '1') {
+				return [false, '指定的活动不存在'];
+			}
+			/* 获得活动的进入链接 */
+			$noticeURL = $oMatter->entryUrl;
+
+			/* 处理要发送的填写人 */
+			$modelUsr = $this->model('matter\plan\user');
+			$planUsers = $modelUsr->byApp($oMatter);
+			$receivers = $enrollUsers->users;
+			if (count($receivers) === 0) {
+				return [false, '没有填写人'];
+			}
+
+			$noticeName = 'timer.plan.remind';
 		}
 
 		/*获取模板消息id*/

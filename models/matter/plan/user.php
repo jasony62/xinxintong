@@ -19,6 +19,52 @@ class user_model extends \TMS_MODEL {
 		return $oAppUsr;
 	}
 	/**
+	 *
+	 */
+	public function byApp($oApp, $aOptions = []) {
+		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
+		$q = [
+			$fields,
+			'xxt_plan_user',
+			['aid' => $oApp->id],
+		];
+		$oAppUsrs = $this->query_objs_ss($q);
+		foreach ($oAppUsrs as $oUser) {
+			$p = [
+				'wx_openid,yx_openid,qy_openid',
+				"xxt_site_account",
+				['uid' => $oUser->userid],
+			];
+			if ($oOpenid = $this->query_obj_ss($p)) {
+				$oUser->wx_openid = $oOpenid->wx_openid;
+				if (!empty($oOpenid->wx_openid)) {
+					if (!isset($modelWxfan)) {
+						$modelWxfan = $this->model('sns\wx\fan');
+					}
+					$oWxfan = $modelWxfan->byOpenid($oApp->siteid, $oOpenid->wx_openid, 'nickname,headimgurl', 'Y');
+					if ($oWxfan) {
+						$oUser->wxfan = $oWxfan;
+					}
+				}
+				$oUser->yx_openid = $oOpenid->yx_openid;
+				if (!empty($oOpenid->yx_openid)) {
+					if (!isset($modelYxfan)) {
+						$modelYxfan = $this->model('sns\yx\fan');
+					}
+					$oYxfan = $modelYxfan->byOpenid($oApp->siteid, $oOpenid->yx_openid, 'nickname,headimgurl', 'Y');
+					if ($oYxfan) {
+						$oUser->yxfan = $oYxfan;
+					}
+				}
+			} else {
+				$oUser->wx_openid = '';
+				$oUser->yx_openid = '';
+			}
+		}
+
+		return $oAppUsrs;
+	}
+	/**
 	 * 添加或更新
 	 */
 	public function createOrUpdate($oApp, $oUser, $aData = []) {

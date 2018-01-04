@@ -91,7 +91,7 @@
                                 <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
                             </div>
-                            <blockquote ng-switch on="schemas[rec.schema_id].type" ng-click="gotoRemark(rec)">
+                            <blockquote ng-switch on="schemas[rec.schema_id].type">
                                 <p ng-switch-when="single"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
                                 <p ng-switch-when="multiple"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
                                 <div ng-switch-when="file">
@@ -108,6 +108,15 @@
                                 </div>
                                 <ul ng-switch-when="image">
                                     <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" /></li>
+                                </ul>
+                                <ul ng-switch-when="multitext">
+                                    <li ng-repeat="item in rec.items">
+                                        <span ng-bind="item.value"></span>
+                                        <div>
+                                            <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, item.id)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>&nbsp;&nbsp;
+                                            <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoItemRemark($event, rec, item.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
+                                        </div>
+                                    </li>
                                 </ul>
                                 <p ng-switch-default>{{rec.value}}</p>
                                 <p ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>

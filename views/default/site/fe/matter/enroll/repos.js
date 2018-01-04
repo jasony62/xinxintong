@@ -115,12 +115,13 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
     $scope.shiftTag = function() {
         $scope.list4Schema(1);
     };
-    $scope.likeRecordData = function(oRecord) {
+    $scope.likeRecordData = function(oRecord, id) {
         var url;
         url = '/rest/site/fe/matter/enroll/record/like';
         url += '?site=' + oApp.siteid;
         url += '&ek=' + oRecord.enroll_key;
         url += '&schema=' + oRecord.schema_id;
+        url += '&id=' + id;
         http2.get(url).then(function(rsp) {
             oRecord.like_log = rsp.data.like_log;
             oRecord.like_num = rsp.data.like_num;

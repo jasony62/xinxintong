@@ -450,7 +450,7 @@
                     $dom.find('[class="description"]').remove();
                 }
 
-                if (/shorttext|longtext|member|date|location/.test(oSchema.type)) {
+                if (/shorttext|longtext|multitext|member|date|location/.test(oSchema.type)) {
                     $input = $dom.find('input,select,textarea');
                     if (config.showname === 'label') {
                         $label.removeClass('sr-only');

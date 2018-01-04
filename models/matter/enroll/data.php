@@ -190,10 +190,10 @@ class data_model extends \TMS_MODEL {
 					if ($schema->type === 'multitext') {
 						$newSchemaValues = json_decode($treatedValue);
 						$oldSchemaVal = ''; //旧的总数据
-						$oldSchemaValues = [];
+						$oldSchemaValues = []; //旧的项
 						foreach ($lastSchemaValues as $v) {
 							if ($v->multitext_seq > 0) {
-								$oldSchemaValues[$v->id] = $v
+								$oldSchemaValues[$v->id] = $v;
 							} else if ($v->multitext_seq == 0) {
 								$oldSchemaVal = $v;
 							}
@@ -585,6 +585,14 @@ class data_model extends \TMS_MODEL {
 		$mapOfNicknames = [];
 		$aRecords = $this->query_objs_ss($q, $q2);
 		if (count($aRecords)) {
+			// 题的类型
+			$dataSchemas = new \stdClass;
+			if (isset($oApp->dataSchemas)) {
+				foreach ($oApp->dataSchemas as $dataSchema) {
+					$dataSchemas->{$dataSchema->id} = $dataSchema;
+				}
+			}
+
 			$modelRec = $this->model('matter\enroll\record');
 			foreach ($aRecords as &$oRecord) {
 				/* 获得nickname */
@@ -596,6 +604,15 @@ class data_model extends \TMS_MODEL {
 				/* like log */
 				if ($oRecord->like_log) {
 					$oRecord->like_log = json_decode($oRecord->like_log);
+				}
+				// 处理多行文本题
+				if (isset($oRecord->schema_id) && isset($dataSchemas->{$oRecord->schema_id}) && $dataSchemas->{$oRecord->schema_id}->type === 'multitext') {
+					$oRecord->value = empty($oRecord->value) ? [] : json_decode($oRecord->value);
+					$items = [];
+					foreach ($oRecord->value as $val) {
+						$items[] = $this->byId($val->id, ['fields' => $fields]);
+					}
+					$oRecord->items = $items;
 				}
 			}
 		}
@@ -628,10 +645,6 @@ class data_model extends \TMS_MODEL {
 	*
 	*/
 	public function getMultitext($ek, $schema, $options = []) {
-		if (empty($schema)) {
-			return [false, '没有指定题目id'];
-		}
-
 		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS . ',multitext_seq';
 
 		$q = [
@@ -658,6 +671,6 @@ class data_model extends \TMS_MODEL {
 			}
 		}
 
-		return [true, $data];
+		return $data;
 	}
 }

@@ -23,16 +23,23 @@ class remark extends \pl\fe\matter\base {
 	 *
 	 * @param string $ek
 	 * @param string $schema schema's id，如果不指定，返回的是对整条记录的评论
+	 * @param string $id xxt_enroll_record_data's id
 	 *
 	 */
-	public function list_action($ek, $schema = '', $page = 1, $size = 99) {
+	public function list_action($ek, $schema = '', $page = 1, $size = 99, $id = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		// 会按照指定的用户id进行过滤，所以去掉用户id，获得所有数据
 		$oUser = new \stdClass;
 
-		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size);
+		$options = [];
+		if (!empty($id)) {
+			$data_id = [];
+			$data_id[] = $id;
+			$options['data_id'] = $data_id;
+		}
+		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $options);
 
 		return new \ResponseData($result);
 	}

@@ -199,7 +199,7 @@ class rank extends base {
 		$q = [
 			'd.value,d.enroll_key,d.schema_id,d.agreed,a.headimgurl',
 			"xxt_enroll_record_data d left join xxt_site_account a on d.userid = a.uid and a.siteid = '{$oApp->siteid}'",
-			"d.aid='{$oApp->id}' and d.state=1 and multitext_seq = 0",
+			"d.aid='{$oApp->id}' and d.state=1 and d.multitext_seq = 0",
 		];
 		if (!empty($aAssocGroups)) {
 			$q[0] .= ',d.group_id';
@@ -262,7 +262,7 @@ class rank extends base {
 		$modelRem = $this->model('matter\enroll\remark');
 
 		$q = [
-			'r.id,r.userid,r.nickname,r.content,r.enroll_key,r.schema_id,r.record_data_id,r.like_num,r.agreed,a.headimgurl',
+			'r.id,r.userid,r.nickname,r.content,r.enroll_key,r.schema_id,r.data_id,r.like_num,r.agreed,a.headimgurl',
 			"xxt_enroll_record_remark r left join xxt_site_account a on r.userid = a.uid and a.siteid = '{$oApp->siteid}'",
 			"r.aid='{$oApp->id}' and r.like_num>0",
 		];

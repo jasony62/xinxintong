@@ -663,7 +663,7 @@ class record_model extends record_base {
 			$schemaId = $oCriteria->order->schemaId;
 			$orderby = $oCriteria->order->orderby;
 			$q[1] .= ",xxt_enroll_record_data d";
-			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId'";
+			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId' and d.multitext_seq = 0";
 			$q2['o'] = 'd.' . $orderby . ' desc';
 		} elseif (!empty($oCriteria->order->orderby) && $oCriteria->order->orderby === 'sum') {
 			$q2['o'] = 'r.score desc';

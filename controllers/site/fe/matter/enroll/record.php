@@ -1083,7 +1083,13 @@ class record extends base {
 			}
 		}
 
-		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
+		$result = ['like_log' => $oLikeLog, 'like_num' => $likeNum];
+		if (isset($schmeaType) && $schmeaType === 'multitext' && $oRecordData->multitext_seq != 0) {
+			$schemaLike = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'like_log,like_num']);
+			$result['schemaLike_log'] = $schemaLike->like_log;
+			$result['schemaLike_num'] = $schemaLike->like_num;
+		}
+		return new \ResponseData();
 	}
 	/**
 	 * 推荐登记记录中的某一个题

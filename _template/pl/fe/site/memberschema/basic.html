@@ -1,4 +1,4 @@
-<div class='col-md-6 col-md-offset-3' ng-controller="myCtrlMember">
+<div class='col-md-6 col-md-offset-3' ng-controller="myCtrlMember" >
     <div ng-if="!user.loginExpire">
         <div class='alert alert-info'>
             请注册登录账号或用已有账号登录。
@@ -31,6 +31,11 @@
             </div>
             <div class='form-group'>
                 <input type='password' class='form-control input-lg' name='password' ng-model="loginUser.password" ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'>
+            </div>
+            <div class="form-group">
+                <input id="pinInput" type="text" class="form-control input-lg" name="pin" ng-model="loginUser.pin" placeholder='输入验证码(不区分大小写)' required />
+                <img ng-src="{{pinImg}}" />
+                <span style="cursor:pointer"><i class="glyphicon glyphicon-refresh" ng-click="refreshPin()"></i></span>
             </div>
             <div class='form-group'>
                 <button class="btn btn-lg btn-block btn-success" ng-click="login()">登录</button>

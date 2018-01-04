@@ -418,13 +418,16 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             hasAutoFillMember = true;
         }
     });
-    $scope.removeItem = function(schema,index) {
-        $scope.data[schema].splice(index, 1);
+    $scope.removeItem = function(items, index) {
+        items.splice(index, 1);
     };
-    $scope.addItem = function(schema) {
-        var text = ''
-        $scope.data[schema] === undefined && ($scope.data[schema] = []);
-        $scope.data[schema].push(text);
+    $scope.addItem = function(schemaId) {
+        var item = {
+            id: 0,
+            value: ''
+        }
+        $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
+        $scope.data[schemaId].push(item);
     }
     $scope.submit = function(event, nextAction, type) {
         var checkResult;

@@ -31,8 +31,8 @@ define(['frame'], function(ngApp) {
                 $scope.tasks = rsp.data.tasks;
             });
         };
-        $scope.editTask = function() {
-
+        $scope.gotoTask = function(oTask) {
+            location.href = '/rest/pl/fe/matter/plan/taskDetail?id=' + _oApp.id + '&site=' + _oApp.siteid + '&task=' + oTask.id;
         };
         $scope.batchVerify = function(rows) {
             var ids = [],

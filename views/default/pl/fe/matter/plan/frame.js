@@ -46,6 +46,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             .when('/rest/pl/fe/matter/plan/schemaTask', new RouteParam('schemaTask'))
             .when('/rest/pl/fe/matter/plan/schemaAction', new RouteParam('schemaAction'))
             .when('/rest/pl/fe/matter/plan/task', new RouteParam('task'))
+            .when('/rest/pl/fe/matter/plan/taskDetail', new RouteParam('taskDetail'))
             .when('/rest/pl/fe/matter/plan/user', new RouteParam('user'))
             .when('/rest/pl/fe/matter/plan/entry', new RouteParam('entry'))
             .when('/rest/pl/fe/matter/plan/coin', new RouteParam('coin'))

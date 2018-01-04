@@ -1,6 +1,15 @@
 .ng-cloak{display:none;}
 html,body{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
 body{position:relative;font-size:16px;}
+@media screen and (min-width:768px){
+	.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1;}
+}
+@media screen and (max-width:768px){
+	.navbar-brand{width:100%;text-align:center;}
+	.navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+	.navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}
+	.nav>li>a{padding:10px 10px;}
+}
 img{max-width:100%}
 ul{margin:0;padding:0;list-style:none}
 li{margin:0;padding:0}

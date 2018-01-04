@@ -17,7 +17,7 @@ module.exports = {
         '/site/fe/matter/signin/signin': ['./views/default/site/fe/matter/signin/signin.js'],
         '/site/fe/matter/signin/view': ['./views/default/site/fe/matter/signin/view.js'],
         '/site/fe/matter/signin/preview': ['./views/default/site/fe/matter/signin/preview.js'],
-        '/site/fe/matter/plan/task': ['./views/default/site/fe/matter/plan/task.js'],
+        '/site/fe/matter/plan/main': ['./views/default/site/fe/matter/plan/main.js'],
     },
     output: {
         path: path.resolve(__dirname, 'bundles/default'),

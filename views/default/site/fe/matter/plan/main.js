@@ -1,70 +1,19 @@
 'use strict';
-require('./task.css');
+require('./main.css');
 require('../../../../../../asset/js/xxt.ui.notice.js');
 require('../../../../../../asset/js/xxt.ui.http.js');
+require('../../../../../../asset/js/xxt.ui.date.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
-
-require('../enroll/directive.css');
-
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
 
+require('../enroll/directive.css');
 require('../enroll/directive.js');
 
-var i18n = {
-    weekday: {
-        'Mon': '星期一',
-        'Tue': '星期二',
-        'Wed': '星期三',
-        'Thu': '星期四',
-        'Fri': '星期五',
-        'Sat': '星期六',
-        'Sun': '星期日',
-    }
-};
-var ngApp = angular.module('app', ['ngSanitize', 'directive.enroll', 'notice.ui.xxt', 'http.ui.xxt', 'snsshare.ui.xxt']);
-ngApp.provider('ls', function() {
-    var _baseUrl = '/rest/site/fe/matter/plan',
-        _params = {};
-
-    this.params = function(params) {
-        var ls;
-        ls = location.search;
-        angular.forEach(params, function(q) {
-            var match, pattern;
-            pattern = new RegExp(q + '=([^&]*)');
-            match = ls.match(pattern);
-            _params[q] = match ? match[1] : '';
-        });
-        return _params;
-    };
-
-    this.$get = function() {
-        return {
-            p: _params,
-            j: function(method) {
-                var i = 1,
-                    l = arguments.length,
-                    url = _baseUrl,
-                    _this = this,
-                    search = [];
-                method && method.length && (url += '/' + method);
-                for (; i < l; i++) {
-                    search.push(arguments[i] + '=' + _params[arguments[i]]);
-                };
-                search.length && (url += '?' + search.join('&'));
-                return url;
-            }
-        };
-    };
-});
-ngApp.config(['$compileProvider', 'lsProvider', function($compileProvider, lsProvider) {
-    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
-    lsProvider.params(['site', 'app']);
-}]);
+var ngApp = angular.module('app', ['ngSanitize', 'ngRoute', 'directive.enroll', 'notice.ui.xxt', 'http.ui.xxt', 'date.ui.xxt', 'snsshare.ui.xxt']);
 ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.oUtilSubmit = require('../_module/submit.util.js');
-ngApp.factory('Input', ['$q', '$timeout', 'http2', 'ls', function($q, $timeout, http2, LS) {
+ngApp.factory('Input', ['$q', '$timeout', 'http2', 'tmsLocation', function($q, $timeout, http2, LS) {
     var Input, _ins;
     Input = function() {};
     Input.prototype.check = function(oTask, oTaskData) {
@@ -95,7 +44,7 @@ ngApp.factory('Input', ['$q', '$timeout', 'http2', 'ls', function($q, $timeout, 
             data: angular.copy(oTaskData),
             supplement: oSupplement
         };
-        url = '/rest/site/fe/matter/plan/task/submit?site=' + LS.p.site + '&task=' + oTask.id;
+        url = '/rest/site/fe/matter/plan/task/submit?site=' + LS.s().site + '&task=' + oTask.id;
         for (var i in posted.data) {
             d = posted.data[i];
             if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
@@ -168,12 +117,14 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', 'noticebox', function($compi
 /**
  * 上传文件
  */
-ngApp.directive('tmsFileInput', ['$q', 'ls', function($q, LS) {
+ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', function($q, LS) {
     function onSubmit($scope) {
         var defer;
+
         defer = $q.defer();
-        if (!oResumable.files || oResumable.files.length === 0)
+        if (!oResumable.files || oResumable.files.length === 0) {
             defer.resolve('empty');
+        }
         oResumable.on('progress', function() {
             var phase, p;
             p = oResumable.progress();
@@ -199,11 +150,12 @@ ngApp.directive('tmsFileInput', ['$q', 'ls', function($q, LS) {
             defer.resolve('ok');
         });
         oResumable.upload();
+
         return defer.promise;
     };
     var oResumable;
     oResumable = new Resumable({
-        target: '/rest/site/fe/matter/plan/task/uploadFile?site=' + LS.p.site + '&app=' + LS.p.app,
+        target: '/rest/site/fe/matter/plan/task/uploadFile?site=' + LS.s().site + '&app=' + LS.s().app,
         testChunks: false,
         chunkSize: 512 * 1024
     });
@@ -244,21 +196,51 @@ ngApp.directive('tmsFileInput', ['$q', 'ls', function($q, LS) {
         }]
     }
 }]);
+ngApp.config(['$compileProvider', '$routeProvider', '$locationProvider', 'tmsLocationProvider', function($compileProvider, $routeProvider, $locationProvider, tmsLocationProvider) {
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
+    var RouteParam = function(name) {
+        this.templateUrl = name + '.html';
+        this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+        this.reloadOnSearch = false;
+    };
+    $routeProvider
+        .when('/rest/site/fe/matter/plan/task', new RouteParam('task'))
+        .when('/rest/site/fe/matter/plan/rank', new RouteParam('rank'))
+        .otherwise(new RouteParam('plan'));
+    $locationProvider.html5Mode(true);
+    tmsLocationProvider.config('/rest/site/fe/matter/plan');
+}]);
 /**
  * 计划任务活动
  */
-ngApp.controller('ctrlMain', ['$scope', '$timeout', '$filter', 'http2', 'ls', 'tmsSnsShare', function($scope, $timeout, $filter, http2, LS, tmsSnsShare) {
+ngApp.controller('ctrlMain', ['$scope', '$location', 'http2', 'tmsLocation', 'tmsSnsShare', function($scope, $location, http2, LS, tmsSnsShare) {
     var _oApp;
-    $scope.subView = 'plan';
-    $scope.toggleView = function(view) {
-        $scope.subView = view;
-    };
-    $scope.$on('xxt.app.plan.submit.done', function() {
-        /* 提交任务数据后，有可能更改当前任务 */
-        http2.get(LS.j('nowTask', 'site', 'app')).then(function(rsp) {
-            _oApp.nowTaskSchema = rsp.data;
-        });
+    $scope.subView = '';
+    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        var subView = currentRoute.match(/([^\/]+?)\?/);
+        $scope.subView = subView[1] === 'plan' ? 'plan' : subView[1];
     });
+    $scope.toggleView = function(view, obj) {
+        var oSearch = angular.copy($location.search());
+        delete oSearch.task;
+        switch (view) {
+            case 'rank':
+                $location.path('/rest/site/fe/matter/plan/rank').search(oSearch);
+                break;
+            case 'task':
+                oSearch.task = obj.id;
+                $location.path('/rest/site/fe/matter/plan/task').search(oSearch);
+                break;
+            default:
+                $location.path('/rest/site/fe/matter/plan').search(oSearch);
+        }
+    };
+    $scope.siteUser = function() {
+        var url;
+        url = '/rest/site/fe/user';
+        url += "?site=" + LS.s().site;
+        location.href = url;
+    };
     http2.get(LS.j('get', 'site', 'app')).then(function(rsp) {
         $scope.app = _oApp = rsp.data.app;
 
@@ -275,43 +257,55 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$filter', 'http2', 'ls', 't
             });
             tmsSnsShare.set(_oApp.title, _oApp.entryUrl, _oApp.summary, _oApp.pic);
         }
-        /* 已经执行的任务 */
-        http2.get(LS.j('task/listByUser', 'site', 'app')).then(function(rsp) {
-            var userTasks, mockTasks;
-            userTasks = rsp.data.tasks;
-            mockTasks = rsp.data.mocks;
-            userTasks.forEach(function(oTask) {
-                oTask.bornAt = $filter('date')(oTask.born_at * 1000, 'yy-MM-dd HH:mm') + ',' + i18n.weekday[$filter('date')(oTask.born_at * 1000, 'EEE')];
-                if (_oApp._taskSchemasById[oTask.task_schema_id]) {
-                    _oApp._taskSchemasById[oTask.task_schema_id].userTask = oTask;
-                }
-            });
-            mockTasks.forEach(function(oMock) {
-                oMock.bornAt = $filter('date')(oMock.born_at * 1000, 'yy-MM-dd HH:mm') + ',' + i18n.weekday[$filter('date')(oMock.born_at * 1000, 'EEE')];
-                if (_oApp._taskSchemasById[oMock.id]) {
-                    _oApp._taskSchemasById[oMock.id].mockTask = oMock;
-                }
-            });
-            _oApp.tasks.forEach(function(oTaskSchema) {
-                if (oTaskSchema.as_placeholder === 'N' && !oTaskSchema.userTask && oTaskSchema.mockTask) {
-                    if (_oApp.nowTaskSchema && oTaskSchema.task_seq < _oApp.nowTaskSchema.task_seq) {
-                        oTaskSchema.isDelayed = 'Y';
-                    } else if (_oApp.lastUserTask && oTaskSchema.task_seq < _oApp.lastUserTask.task_seq) {
-                        oTaskSchema.isDelayed = 'Y';
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
+    });
+}]);
+/**
+ * 任务列表
+ */
+ngApp.controller('ctrlPlan', ['$scope', '$filter', 'http2', 'tmsLocation', function($scope, $filter, http2, LS) {
+    var _oApp, _oOverview;
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) return;
+        _oApp = oApp;
+        http2.get(LS.j('overview', 'site', 'app')).then(function(rsp) {
+            $scope.overview = _oOverview = rsp.data;
+            http2.get(LS.j('task/listByUser', 'site', 'app')).then(function(rsp) {
+                var userTasks, mockTasks;
+                userTasks = rsp.data.tasks;
+                mockTasks = rsp.data.mocks;
+                userTasks.forEach(function(oTask) {
+                    oTask.bornAt = $filter('tmsDate')(oTask.born_at * 1000, 'yy-MM-dd HH:mm,EEE');
+                    if (_oApp._taskSchemasById[oTask.task_schema_id]) {
+                        _oApp._taskSchemasById[oTask.task_schema_id].userTask = oTask;
                     }
-                }
+                });
+                mockTasks.forEach(function(oMock) {
+                    oMock.bornAt = $filter('tmsDate')(oMock.born_at * 1000, 'yy-MM-dd HH:mm,EEE');
+                    if (_oApp._taskSchemasById[oMock.id]) {
+                        _oApp._taskSchemasById[oMock.id].mockTask = oMock;
+                    }
+                });
+                _oApp.tasks.forEach(function(oTaskSchema) {
+                    if (oTaskSchema.as_placeholder === 'N' && !oTaskSchema.userTask && oTaskSchema.mockTask) {
+                        if (_oOverview.nowTaskSchema && oTaskSchema.task_seq < _oOverview.nowTaskSchema.task_seq) {
+                            oTaskSchema.isDelayed = 'Y';
+                        } else if (_oOverview.lastUserTask && oTaskSchema.task_seq < _oOverview.lastUserTask.task_seq) {
+                            oTaskSchema.isDelayed = 'Y';
+                        }
+                    }
+                });
             });
-            var eleLoading;
-            if (eleLoading = document.querySelector('.loading')) {
-                eleLoading.parentNode.removeChild(eleLoading);
-            }
         });
     });
 }]);
 /**
- * 计划任务
+ * 单个任务
  */
-ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input', 'ls', function($scope, $filter, noticebox, http2, Input, LS) {
+ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input', 'tmsLocation', function($scope, $filter, noticebox, http2, Input, LS) {
     function doSubmit() {
         facInput.submit($scope.activeTask, $scope.data, $scope.supplement).then(function(rsp) {
             _oSubmitState.finish();
@@ -371,51 +365,50 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
             }
         }
     };
-    $scope.toggleTask = function(oToggledTask) {
-        if (oToggledTask.as_placeholder === 'Y') {
-            return;
-        }
-        _oToggledTask = oToggledTask;
-        http2.get(LS.j('task/get', 'site') + '&task=' + oToggledTask.id).then(function(rsp) {
-            var oTask;
-            oTask = rsp.data;
-            /* 任务数据 */
-            if (oTask.actions) {
-                oTask.actions.forEach(function(oAction) {
-                    if ($scope.app.checkSchemas.length) {
-                        $scope.app.checkSchemas.forEach(function(oSchema) {
-                            oAction.checkSchemas.splice(0, 0, oSchema);
-                        });
+    http2.get(LS.j('task/get', 'site', 'task')).then(function(rsp) {
+        var oTask;
+        oTask = rsp.data;
+        /* 任务数据 */
+        if (oTask.actions) {
+            oTask.actions.forEach(function(oAction) {
+                if ($scope.app.checkSchemas.length) {
+                    $scope.app.checkSchemas.forEach(function(oSchema) {
+                        oAction.checkSchemas.splice(0, 0, oSchema);
+                    });
+                }
+                if (oTask.userTask) {
+                    var schemasById, oUserTask;
+                    oUserTask = oTask.userTask;
+                    /* 处理任务时间 */
+                    oUserTask.bornAt = $filter('tmsDate')(oUserTask.born_at * 1000, 'yy-MM-dd HH:mm,EEE');
+                    if (oUserTask.patch_at > 0) {
+                        oUserTask.patchAt = $filter('tmsDate')(oUserTask.patch_at * 1000, 'yy-MM-dd HH:mm,EEE');
                     }
-                    if (oTask.userTask && oTask.userTask.data[oAction.id]) {
-                        var schemasById;
+                    /* 处理任务数据 */
+                    if (oUserTask.data[oAction.id]) {
                         schemasById = {};
                         oAction.checkSchemas.forEach(function(oSchema) {
                             schemasById[oSchema.id] = oSchema;
                         });
                         $scope.data[oAction.id] = {};
-                        ngApp.oUtilSchema.loadRecord(schemasById, $scope.data[oAction.id], oTask.userTask.data[oAction.id]);
-                        oTask.userTask.bornAt = $filter('date')(oTask.userTask.born_at * 1000, 'yy-MM-dd HH:mm') + ',' + i18n.weekday[$filter('date')(oTask.userTask.born_at * 1000, 'EEE')]
+                        ngApp.oUtilSchema.loadRecord(schemasById, $scope.data[oAction.id], oUserTask.data[oAction.id]);
                     }
-                });
-            }
-            // 数据补充说明
-            if (oTask.userTask && oTask.userTask.supplement) {
-                $scope.supplement = oTask.userTask.supplement;
-            } else {
-                $scope.supplement = {};
-            }
-            $scope.activeTask = oTask;
-            $scope.subView = 'task';
-        });
-    };
-    $scope.closeTask = function() {
-        _oToggledTask = null;
-        $scope.activeTask = null;
-        $scope.subView = 'plan';
-    };
+                }
+            });
+        }
+        // 数据补充说明
+        if (oTask.userTask && oTask.userTask.supplement) {
+            $scope.supplement = oTask.userTask.supplement;
+        } else {
+            $scope.supplement = {};
+        }
+        $scope.activeTask = oTask;
+    });
 }]);
-ngApp.controller('ctrlRank', ['$scope', 'http2', 'ls', function($scope, http2, LS) {
+/**
+ * 排行
+ */
+ngApp.controller('ctrlRank', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
     function byUser() {
         http2.get(LS.j('rank/byUser', 'site', 'app')).then(function(rsp) {
             $scope.users = rsp.data;

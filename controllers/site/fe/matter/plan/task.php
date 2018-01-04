@@ -20,7 +20,7 @@ class task extends base {
 		$oUser = $this->who;
 
 		$modelUsrTsk = $this->model('matter\plan\task');
-		$oTaskSchema->userTask = $modelUsrTsk->bySchema($oUser, $oTaskSchema, ['fields' => 'id,verified,born_at,first_enroll_at,last_enroll_at,data,supplement']);
+		$oTaskSchema->userTask = $modelUsrTsk->bySchema($oUser, $oTaskSchema, ['fields' => 'id,verified,born_at,patch_at,first_enroll_at,last_enroll_at,data,supplement']);
 
 		return new \ResponseData($oTaskSchema);
 	}

@@ -7,6 +7,23 @@ include_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class base extends \site\fe\matter\base {
 	/**
+	 *
+	 */
+	public function index_action($app) {
+		$modelApp = $this->model('matter\plan');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,title,entry_rule']);
+
+		$this->checkEntryRule($oApp, true);
+
+		if ($oApp) {
+			\TPL::assign('title', $oApp->title);
+		} else {
+			\TPL::assign('title', '任务计划活动');
+		}
+		\TPL::output('/site/fe/matter/plan/main');
+		exit;
+	}
+	/**
 	 * 获得当前用户所属分组活动分组
 	 */
 	protected function getUserGroup($oApp) {

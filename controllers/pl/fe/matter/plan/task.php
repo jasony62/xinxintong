@@ -16,6 +16,27 @@ class task extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
+	public function get_action($task) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelTsk = $this->model('matter\plan\task');
+		$task = $modelTsk->escape($task);
+
+		$oTask = $modelTsk->byId($task, ['fields' => 'id,state,task_schema_id,userid,group_id,nickname,verified,born_at,patch_at,first_enroll_at,last_enroll_at,data,supplement']);
+		if (false === $oTask && $oTask->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelSchTsk = $this->model('matter\plan\schema\task');
+		$oTask->taskSchema = $modelSchTsk->byId($oTask->task_schema_id, ['fields' => 'id,state,title,task_seq,born_mode,born_offset,jump_delayed,can_patch,as_placeholder,auto_verify']);
+
+		return new \ResponseData($oTask);
+	}
+	/**
+	 *
+	 */
 	public function list_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();

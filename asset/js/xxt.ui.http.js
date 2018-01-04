@@ -1,5 +1,36 @@
 'use strict';
 var ngMod = angular.module('http.ui.xxt', []);
+ngMod.provider('tmsLocation', function() {
+    var _baseUrl;
+
+    this.config = function(baseUrl) {
+        _baseUrl = baseUrl || location.pathname;
+    };
+
+    this.$get = ['$location', function($location) {
+        if (!_baseUrl) {
+            _baseUrl = location.pathname;
+        }
+        return {
+            s: function() {
+                return $location.search();
+            },
+            j: function(method) {
+                var i = 1,
+                    l = arguments.length,
+                    url = _baseUrl,
+                    _this = this,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (; i < l; i++) {
+                    search.push(arguments[i] + '=' + $location.search()[arguments[i]]);
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            }
+        };
+    }];
+});
 ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
     function createAlert(msg, type, keep) {
         var alertDomEl;

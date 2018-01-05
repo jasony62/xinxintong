@@ -199,13 +199,15 @@ class rank extends base {
 		$q = [
 			'd.value,d.enroll_key,d.schema_id,d.agreed,a.headimgurl,d.multitext_seq',
 			"xxt_enroll_record_data d left join xxt_site_account a on d.userid = a.uid and a.siteid = '{$oApp->siteid}'",
-			"d.aid='{$oApp->id}' and d.state=1 and d.multitext_seq = 0",
+			"d.aid='{$oApp->id}' and d.state=1",
 		];
 		if (!empty($aAssocGroups)) {
 			$q[0] .= ',d.group_id';
 		}
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and d.agreed='Y'";
+		} else {
+			$q[2] .= " and d.multitext_seq = 0";
 		}
 		if (!empty($oCriteria->round) && $oCriteria->round !== 'ALL') {
 			$round = $modelData->escape($oCriteria->round);
@@ -249,13 +251,8 @@ class rank extends base {
 					$record->group_title = isset($aAssocGroups[$record->group_id]) ? $aAssocGroups[$record->group_id] : '';
 				}
 				// 处理多项填写题
-				if (isset($record->schema_id) && isset($dataSchemas->{$record->schema_id}) && $dataSchemas->{$record->schema_id}->type === 'multitext') {
+				if (isset($record->schema_id) && isset($dataSchemas->{$record->schema_id}) && $dataSchemas->{$record->schema_id}->type === 'multitext' && $record->multitext_seq == 0) {
 					$record->value = empty($record->value) ? [] : json_decode($record->value);
-					$items = [];
-					foreach ($record->value as $val) {
-						$items[] = $this->byId($val->id, ['fields' => 'value,enroll_key,schema_id,agreed,headimgurl,multitext_seq']);
-					}
-					$record->items = $items;
 				}
 			}
 		}

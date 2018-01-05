@@ -127,10 +127,8 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         url += '&id=' + id;
         http2.get(url).then(function(rsp) {
             if(schemas[oRecord.schema_id].type=='multitext') {
-                $scope.$apply(function() {
-                    oRecord.items[index].like_log = rsp.data.itemLike_log;
-                    oRecord.items[index].like_num = rsp.data.itemLike_num;
-                });
+                oRecord.items[index].like_log = rsp.data.itemLike_log;
+                oRecord.items[index].like_num = rsp.data.itemLike_num;
             }
             oRecord.like_log = rsp.data.like_log;
             oRecord.like_num = rsp.data.like_num;

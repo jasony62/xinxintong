@@ -154,7 +154,7 @@ class remark extends base {
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
 		if (isset($schema)) {
 			if (isset($schemaType) && $schemaType === 'multitext' && !empty($data_id)) {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = $modelRec->escape($data_id)");
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $modelRec->escape($data_id));
 				// 如果每一条的数据呗评论了那么这道题的总数据+1
 				if ($oRecordData->multitext_seq != 0) {
 					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");

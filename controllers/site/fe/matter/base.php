@@ -25,13 +25,11 @@ class base extends \site\fe\base {
 		return isset($_SESSION['AGENTENTER_' . $matterId . '_' . $user->uid]);
 	}
 	/**
-	 * 跳转到用户认证页
+	 * 跳转到通讯录认证页
 	 */
-	protected function gotoMember($siteId, $aMemberSchemas, $userid, $targetUrl = null) {
+	protected function gotoMember($oMatter, $aMemberSchemas, $targetUrl = null) {
+		$siteId = $oMatter->siteid;
 		is_string($aMemberSchemas) && $aMemberSchemas = explode(',', $aMemberSchemas);
-		/**
-		 * 如果不是注册用户，要求先进行认证
-		 */
 		if (count($aMemberSchemas) === 1) {
 			$schema = $this->model('site\user\memberschema')->byId($aMemberSchemas[0], ['fields' => 'id,url']);
 			strpos($schema->url, 'http') === false && $authUrl = 'http://' . APP_HTTP_HOST;
@@ -45,6 +43,9 @@ class base extends \site\fe\base {
 			$authUrl = 'http://' . APP_HTTP_HOST . '/rest/site/fe/user/memberschema';
 			$authUrl .= "?site=$siteId";
 			$authUrl .= "&schema=" . implode(',', $aMemberSchemas);
+		}
+		if (!empty($oMatter->type) && !empty($oMatter->id)) {
+			$authUrl .= '&matter=' . $oMatter->type . ',' . $oMatter->id;
 		}
 		/**
 		 * 返回身份认证页
@@ -127,7 +128,7 @@ class base extends \site\fe\base {
 			/**
 			 * 如果不是认证用户，先进行认证
 			 */
-			$this->gotoMember($siteId, $aMemberSchemas, $userid, $targetUrl);
+			$this->gotoMember($obj, $aMemberSchemas, $targetUrl);
 		} else {
 			$passed = false;
 			//如果时从企业号进入的用户不需要认证

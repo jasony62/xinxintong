@@ -99,7 +99,7 @@ class member extends \site\fe\base {
 	/**
 	 * 获得自定义用户的定义
 	 */
-	public function schemaGet_action($site, $schema) {
+	public function schemaGet_action($site, $schema, $matter = null) {
 		$params = array();
 
 		$oSchema = $this->model('site\user\memberschema')->byId($schema);
@@ -134,6 +134,17 @@ class member extends \site\fe\base {
 			$oUser->members->{$schema} = $oMember;
 		}
 		$params['user'] = $oUser;
+		/* 要访问的素材 */
+		if (!empty($matter)) {
+			$matter = $modelMem->escape($matter);
+			$matter = explode(',', $matter);
+			if (count($matter) === 2) {
+				list($type, $id) = $matter;
+				$modelMat = $this->model('matter\\' . $type);
+				$oMatter = $modelMat->byId($id, ['fields' => 'title,summary,pic']);
+				$params['matter'] = $oMatter;
+			}
+		}
 
 		return new \ResponseData($params);
 	}

@@ -41,10 +41,10 @@ class ordernew extends \site\fe\matter\base {
 			$aMemberSchemas = array($app->buyer_api->authid);
 			if ($redirect) {
 				/*页面跳转*/
-				$this->gotoMember($siteId, $aMemberSchemas, $user->uid);
+				$this->gotoMember($app, $aMemberSchemas);
 			} else {
 				/*返回地址*/
-				$this->gotoMember($siteId, $aMemberSchemas, $user->uid, false);
+				$this->gotoMember($app, $aMemberSchemas, false);
 			}
 		}
 

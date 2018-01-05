@@ -1,5 +1,9 @@
-body{font-family:'Microsoft Yahei',Arial;margin-bottom:51px;}
+body{font-family:'Microsoft Yahei',Arial;}
+.app{margin-top:70px;margin-bottom:50px;}
 .ng-cloak{display:none;}
 #errmsg,#infomsg{position:fixed;top:0;left:0;right:0;text-align:center;z-index:999;}
 .navbar-form{width:auto;padding-top:0;padding-bottom:0;margin-right:0;margin-left:0;border:0;box-shadow:none;}
 .navbar-right{float:right!important;margin-right:-15px;}
+#matter .matter-pic img{max-width:100%;}
+#matter .matter-title{font-size:1.2em;margin-bottom:8px;}
+#matter .matter-pic{margin-bottom:8px;}

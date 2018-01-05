@@ -18,7 +18,7 @@
     <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind="errmsg" ng-show="errmsg"></div>
     <div id='infomsg' class='alert alert-success' ng-class="{'active':infomsg}" ng-click="infomsg=''" ng-bind="infomsg" ng-show="infomsg"></div>
     <div class="app">
-        <nav class='navbar site-navbar-default'>
+        <nav class='navbar site-navbar-default navbar-fixed-top'>
             <div class='container-fluid'>
                 <div class="navbar-header">
                     <a class='navbar-brand' href='/rest/site/home?site={{site.id}}' target='_self'>{{site.name}}</a>
@@ -28,6 +28,18 @@
         </nav>
         <div class='container'>
             <div class='row'>
+                <div id='matter' class='col-md-6 col-md-offset-3' ng-if="matter">
+                    <div class='alert alert-info'>
+                        <span class='glyphicon glyphicon-info-sign'></span> 访问下面内容需填写【{{schema.title}}】联系人信息。
+                    </div>
+                    <div class='panel panel-default'>
+                        <div class='panel-body'>
+                            <div class='matter-title' ng-bind="matter.title"></div>
+                            <div class='matter-pic' ng-if="matter.pic"><img ng-src="{{matter.pic}}" class='img-thumbnail'></div>
+                            <div class='matter-summary text-muted' ng-bind="matter.summary"></div>
+                        </div>
+                    </div>
+                </div>
                 <div dynamic-html="page.html">
                 </div>
             </div>
@@ -52,7 +64,7 @@
                     <li>
                         <a href='' ng-click="gotoHome()">我的首页</a>
                     </li>
-                    <li>
+                    <li ng-if="user.loginExpire">
                         <a href='' ng-click="logout()" nh-if="user.loginExpire">退出登录</a>
                     </li>
                 </ul>

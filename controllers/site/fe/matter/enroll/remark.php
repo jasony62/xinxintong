@@ -17,11 +17,10 @@ class remark extends base {
 			$oRecordData = $this->model('matter\enroll\data')->byRecord($ek, ['schema' => $schema, 'fields' => 'id,agreed,value,like_num,like_log,remark_num,supplement,tag']);
 		} else {
 			$oRecordData = $this->model('matter\enroll\data')->byId($id, ['fields' => 'id,agreed,value,like_num,like_log,remark_num,supplement,tag']);
-			
-			if ($oRecordDatas) {
-				$data_id = [];
-				$data_id[] = $oRecordData->id;
-				$options['data_id'] = $data_id;
+			if ($oRecordData) {
+				$data_ids = [];
+				$data_ids[] = $oRecordData->id;
+				$options['data_id'] = $data_ids;
 			}
 		}
 
@@ -45,11 +44,11 @@ class remark extends base {
 
 		$options = [];
 		if (count($oRecordDatas)) {
-			$data_id = [];
+			$data_ids = [];
 			foreach ($oRecordDatas as $oRecordData) {
-				$data_id[] = $oRecordData->id;
+				$data_ids[] = $oRecordData->id;
 			}
-			$options['data_id'] = $data_id;
+			$options['data_id'] = $data_ids;
 		}
 
 		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $options);

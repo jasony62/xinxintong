@@ -38,12 +38,17 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         return http2.post(url, { content: content });
     }
 
-    var oApp, aRemarkable, oFilter, ek, schemaId;
+    var oApp, aRemarkable, oFilter, ek, schemaId, itemId;
     ek = location.search.match(/[\?&]ek=([^&]*)/)[1];
     if (location.search.match(/[\?&]schema=[^&]*/)) {
         schemaId = location.search.match(/[\?&]schema=([^&]*)/)[1];
     } else {
         schemaId = null;
+    }
+    if(location.search.match(/[\?&]id=([^&]*)/)) {
+        itemId = location.search.match(/[\?&]id=([^&]*)/)[1];
+    }else {
+        itemId = null;
     }
     $scope.newRemark = {};
     $scope.filter = oFilter = {};
@@ -196,6 +201,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         }
         if (oSchema) {
             oFilter.schema = oSchema;
+            console.log(oFilter.schema);
         } else if (aRemarkable.length) {
             oFilter.schema = aRemarkable[0];
         }
@@ -229,11 +235,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
                         oRemarks[oRemark.id] = oRemark;
                     }
                 }
-                if ($scope.data) {
-                    if ($scope.data.tag) {
-                        $scope.data.tag.forEach(function(index, tagId) {
+                if (data.data) {
+                    if (data.data.tag) {
+                        data.data.tag.forEach(function(index, tagId) {
                             if (oApp._tagsById[index]) {
-                                $scope.data.tag[tagId] = oApp._tagsById[index];
+                                data.data.tag[tagId] = oApp._tagsById[index];
                             }
                         });
                     }

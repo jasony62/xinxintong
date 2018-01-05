@@ -113,8 +113,8 @@
                                     <li ng-repeat="item in rec.items">
                                         <span ng-bind="item.value"></span>
                                         <div>
-                                            <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, item.id)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>&nbsp;&nbsp;
-                                            <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoItemRemark($event, rec, item.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
+                                            <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, item.id, $index)"><span class='glyphicon' ng-class="{'glyphicon-heart':item.like_log[user.uid],'glyphicon-heart-empty':!item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>&nbsp;&nbsp;
+                                            <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec, item.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="item.remark_num"></span></button>
                                         </div>
                                     </li>
                                 </ul>

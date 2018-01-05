@@ -81,11 +81,14 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             }
         });
     }
-    $scope.gotoRemark = function(oRecordData) {
+    $scope.gotoRemark = function(oRecordData, id) {
         var url;
         url = '/rest/site/fe/matter/enroll?site=' + oApp.siteid + '&app=' + oApp.id + '&page=remark';
         url += '&ek=' + oRecordData.enroll_key;
         url += '&schema=' + oRecordData.schema_id;
+        if(id) {
+            url += '&id=' + id;
+        }
         location.href = url;
     };
     $scope.shiftRound = function() {
@@ -115,7 +118,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
     $scope.shiftTag = function() {
         $scope.list4Schema(1);
     };
-    $scope.likeRecordData = function(oRecord, id) {
+    $scope.likeRecordData = function(oRecord, id, index) {
         var url;
         url = '/rest/site/fe/matter/enroll/record/like';
         url += '?site=' + oApp.siteid;
@@ -123,6 +126,12 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         url += '&schema=' + oRecord.schema_id;
         url += '&id=' + id;
         http2.get(url).then(function(rsp) {
+            if(schemas[oRecord.schema_id].type=='multitext') {
+                $scope.$apply(function() {
+                    oRecord.items[index].like_log = rsp.data.itemLike_log;
+                    oRecord.items[index].like_num = rsp.data.itemLike_num;
+                });
+            }
             oRecord.like_log = rsp.data.like_log;
             oRecord.like_num = rsp.data.like_num;
         });

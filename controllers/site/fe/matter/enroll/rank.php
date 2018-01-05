@@ -197,7 +197,7 @@ class rank extends base {
 		$modelData = $this->model('matter\enroll\data');
 
 		$q = [
-			'd.value,d.enroll_key,d.schema_id,d.agreed,a.headimgurl,d.multitext_seq',
+			'd.id,d.value,d.enroll_key,d.schema_id,d.agreed,a.headimgurl,d.multitext_seq',
 			"xxt_enroll_record_data d left join xxt_site_account a on d.userid = a.uid and a.siteid = '{$oApp->siteid}'",
 			"d.aid='{$oApp->id}' and d.state=1",
 		];

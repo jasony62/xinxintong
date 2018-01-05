@@ -86,9 +86,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         url = '/rest/site/fe/matter/enroll?site=' + oApp.siteid + '&app=' + oApp.id + '&page=remark';
         url += '&ek=' + oRecordData.enroll_key;
         url += '&schema=' + oRecordData.schema_id;
-        if(id) {
-            url += '&id=' + id;
-        }
+        id ? url += '&id=' + id : url += '&id=' + oRecordData.id;
         location.href = url;
     };
     $scope.shiftRound = function() {
@@ -124,7 +122,11 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         url += '?site=' + oApp.siteid;
         url += '&ek=' + oRecord.enroll_key;
         url += '&schema=' + oRecord.schema_id;
-        url += '&id=' + id;
+        if(id) {
+            url += '&id=' + id;
+        }else {
+            url += '&id=' + oRecord.id;
+        }
         http2.get(url).then(function(rsp) {
             if(schemas[oRecord.schema_id].type=='multitext') {
                 oRecord.items[index].like_log = rsp.data.itemLike_log;

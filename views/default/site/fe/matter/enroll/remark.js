@@ -50,7 +50,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
     if(location.search.match(/[\?&]id=([^&]*)/)) {
         $scope.itemId = itemId = location.search.match(/[\?&]id=([^&]*)/)[1];
     }else {
-        $scope.itemId = itemId = null;
+        $scope.itemId = itemId = 'null';
     }
     $scope.newRemark = {};
     $scope.filter = oFilter = {};

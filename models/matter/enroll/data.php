@@ -95,6 +95,7 @@ class data_model extends \TMS_MODEL {
 					}
 				}
 			}
+
 			//记录结果
 			if (empty($lastSchemaValues)) {
 				/* 处理多项填写题型 */
@@ -117,6 +118,7 @@ class data_model extends \TMS_MODEL {
 							$dataId = $this->insert('xxt_enroll_record_data', $schemaValue, true);
 							$treatedValues[$k]->id = $dataId;
 						}
+						$dbData->{$schemaId} = $treatedValues;
 						$treatedValue = json_encode($treatedValues);
 					}
 				}
@@ -153,6 +155,7 @@ class data_model extends \TMS_MODEL {
 							$dataId = $this->insert('xxt_enroll_record_data', $schemaValue2, true);
 							$treatedValues[$v]->id = $dataId;
 						}
+						$dbData->{$schemaId} = $treatedValues;
 						$treatedValue = json_encode($treatedValues);
 					}
 				}
@@ -215,7 +218,7 @@ class data_model extends \TMS_MODEL {
 								$newSchemaValues[$k]->id = $dataId;
 							} else {
 								if (isset($oldSchemaValues[$newSchemaValue->id])) {
-									if ($oldSchemaValues[$newSchemaValue->id]->value !== $newSchemaValue->value) {
+									if ($oldSchemaValues[$newSchemaValue->id]->value !== $newSchemaValue->value || $oldSchemaValues[$newSchemaValue->id]->multitext_seq != ($k+1)) {
 										if (strlen($oldSchemaValues[$newSchemaValue->id]->modify_log)) {
 											$valueModifyLogs = json_decode($oldSchemaValues[$newSchemaValue->id]->modify_log);
 										} else {
@@ -256,7 +259,9 @@ class data_model extends \TMS_MODEL {
 							}
 						}
 						/* 修改总数据 */
+						$dbData->{$schemaId} = $newSchemaValues;
 						$treatedValue = json_encode($newSchemaValues);
+
 						if ($oldSchemaVal->value !== $treatedValue) {
 							if (strlen($oldSchemaVal->modify_log)) {
 								$valueModifyLogs = json_decode($oldSchemaVal->modify_log);
@@ -638,7 +643,11 @@ class data_model extends \TMS_MODEL {
 			['id' => $id, 'state' => 1],
 		];
 		$result = $this->query_obj_ss($q);
-
+		if ($result) {
+			$result->tag = empty($result->tag) ? [] : json_decode($result->tag);
+			$result->like_log = empty($result->like_log) ? new \stdClass : json_decode($result->like_log);
+			$result->agreed_log = empty($result->agreed_log) ? new \stdClass : json_decode($result->agreed_log);
+		}
 		return $result;
 	}
 	/*

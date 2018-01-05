@@ -877,8 +877,8 @@ class record extends base {
 		/* 检查是否是多项填写题题的点赞，如果是，需要$id */
 		foreach ($oApp->dataSchemas as $dataSchema) {
 			if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
+				$schmeaType = 'multitext';
 				if (empty($id)) {
-					$schmeaType = 'multitext';
 					return new \ComplianceError('参数错误，此题型需要指定唯一标识');
 				}
 			}

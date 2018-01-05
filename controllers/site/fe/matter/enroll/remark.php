@@ -14,9 +14,9 @@ class remark extends base {
 
 		$options = [];
 		if (empty($id)) {
-			$oRecordData = $this->model('matter\enroll\data')->byRecord($ek, ['schema' => $schema, 'fields' => 'id,agreed,value,like_num,like_log,remark_num,supplement,tag']);
+			$oRecordData = $this->model('matter\enroll\data')->byRecord($ek, ['schema' => $schema, 'fields' => 'id,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
 		} else {
-			$oRecordData = $this->model('matter\enroll\data')->byId($id, ['fields' => 'id,agreed,value,like_num,like_log,remark_num,supplement,tag']);
+			$oRecordData = $this->model('matter\enroll\data')->byId($id, ['fields' => 'id,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
 			if ($oRecordData) {
 				$data_ids = [];
 				$data_ids[] = $oRecordData->id;
@@ -40,7 +40,7 @@ class remark extends base {
 		}
 
 		$oUser = $this->who;
-		$oRecordDatas = $this->model('matter\enroll\data')->getMultitext($ek, $schema, ['fields' => 'id,multitext_seq,agreed,value,like_num,like_log,remark_num,supplement,tag']);
+		$oRecordDatas = $this->model('matter\enroll\data')->getMultitext($ek, $schema, ['fields' => 'id,multitext_seq,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
 
 		$options = [];
 		if (count($oRecordDatas)) {

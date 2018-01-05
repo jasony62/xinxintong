@@ -7,10 +7,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         var url, defer = $q.defer();
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + $scope.filter.schema.id;
+        url += '&id=' + itemId;
         http2.get(url).then(function(rsp) {
             var oRecordData;
             if (oRecordData = rsp.data.data) {
-                if (oFilter.schema.type == 'file') {
+                if (oFilter.schema.type == 'file'||oFilter.schema.type == 'multitext') {
                     oRecordData.value = angular.fromJson(oRecordData.value);
                 }
             }
@@ -32,6 +33,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         var url;
         url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + $scope.filter.schema.id;
+        url += '&id=' + itemId;
         if (oRemark) {
             url += '&remark=' + oRemark.id;
         }
@@ -46,9 +48,9 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         schemaId = null;
     }
     if(location.search.match(/[\?&]id=([^&]*)/)) {
-        itemId = location.search.match(/[\?&]id=([^&]*)/)[1];
+        $scope.itemId = itemId = location.search.match(/[\?&]id=([^&]*)/)[1];
     }else {
-        itemId = null;
+        $scope.itemId = itemId = null;
     }
     $scope.newRemark = {};
     $scope.filter = oFilter = {};
@@ -135,6 +137,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         url += '?site=' + oApp.siteid;
         url += '&ek=' + $scope.record.enroll_key;
         url += '&schema=' + $scope.filter.schema.id;
+        url += '&id=' + itemId;
         http2.get(url).then(function(rsp) {
             $scope.data.like_log = rsp.data.like_log;
             $scope.data.like_num = rsp.data.like_num;
@@ -201,7 +204,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         }
         if (oSchema) {
             oFilter.schema = oSchema;
-            console.log(oFilter.schema);
         } else if (aRemarkable.length) {
             oFilter.schema = aRemarkable[0];
         }

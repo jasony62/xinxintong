@@ -69,6 +69,12 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
                     if (schemas[oRecord.schema_id].type == 'file') {
                         oRecord.value = angular.fromJson(oRecord.value);
                     }
+                    if(schemas[oRecord.schema_id].type == 'multitext') {
+                        angular.forEach(oRecord.items, function(item) {
+                            oRecord._items = {};
+                            oRecord._items[item.id] = item;
+                        });
+                    }
                     if (oRecord.tag) {
                         oRecord.tag.forEach(function(index, tagId) {
                             if (oApp._tagsById[index]) {
@@ -86,7 +92,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         url = '/rest/site/fe/matter/enroll?site=' + oApp.siteid + '&app=' + oApp.id + '&page=remark';
         url += '&ek=' + oRecordData.enroll_key;
         url += '&schema=' + oRecordData.schema_id;
-        id ? url += '&id=' + id : url += '&id=' + oRecordData.id;
+        url += '&id=' + id;
         location.href = url;
     };
     $scope.shiftRound = function() {
@@ -122,13 +128,10 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         url += '?site=' + oApp.siteid;
         url += '&ek=' + oRecord.enroll_key;
         url += '&schema=' + oRecord.schema_id;
-        if(id) {
-            url += '&id=' + id;
-        }else {
-            url += '&id=' + oRecord.id;
-        }
+        url += '&id=' + id;
+
         http2.get(url).then(function(rsp) {
-            if(schemas[oRecord.schema_id].type=='multitext') {
+            if(schemas[oRecord.schema_id].type=='multitext'&&oRecord._items[id]) {
                 oRecord.items[index].like_log = rsp.data.itemLike_log;
                 oRecord.items[index].like_num = rsp.data.itemLike_num;
             }

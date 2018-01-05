@@ -11,7 +11,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         http2.get(url).then(function(rsp) {
             var oRecordData;
             if (oRecordData = rsp.data.data) {
-                if (oFilter.schema.type == 'file'||oFilter.schema.type == 'multitext') {
+                if (oFilter.schema.type == 'file'|| (oFilter.schema.type == 'multitext'&& oRecordData.multitext_seq=='0')) {
                     oRecordData.value = angular.fromJson(oRecordData.value);
                 }
             }

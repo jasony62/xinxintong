@@ -357,9 +357,16 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById,
             dataOfRecord, p, value;
-
         StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = params.app._schemasById;
+        /* 判断多项类型 */
+        if(params.app.dataSchemas.length) {
+            angular.forEach(params.app.dataSchemas, function(dataSchema) {
+                if(dataSchema.type=='multitext') {
+                    $scope.data[dataSchema.id] === undefined && ($scope.data[dataSchema.id] = []);
+                }
+            });
+        }
         /* 恢复用户未提交的数据 */
         if (window.localStorage) {
             submitState._cacheKey = StateCacheKey;
@@ -419,7 +426,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     });
     $scope.removeItem = function(items, index) {
-        console.log(items);
         items.splice(items, 1);
     };
     $scope.addItem = function(schemaId) {
@@ -427,13 +433,23 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             id: 0,
             value: ''
         }
-        $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
         $scope.data[schemaId].push(item);
     }
     $scope.submit = function(event, nextAction, type) {
         var checkResult;
+        /*多项填空题，如果值为空则删掉*/
+        for(var k in $scope.data){
+            if(k!=='member' && $scope.app._schemasById[k].type=='multitext') {
+                angular.forEach($scope.data[k], function(item,index) {
+                    if(item.value=='') {
+                        $scope.data[k].splice(index,1);
+                    }
+                });
+            }
+        }
         if (!submitState.isRunning()) {
             submitState.start(event, StateCacheKey);
+
             if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
                 tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
             } else {

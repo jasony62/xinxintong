@@ -88,16 +88,22 @@ abstract class Reply {
 	 */
 	private function _articleReply($matters) {
 		$r = '';
-		foreach ($matters as $matter) {
+		foreach ($matters as $oMatter) {
 			$r .= '<item>';
-			$r .= '<Title><![CDATA[' . $matter->title . ']]></Title>';
-			$r .= '<Description><![CDATA[' . $matter->summary . ']]></Description>';
-			if (!empty($matter->pic) && stripos($matter->pic, 'http') === false) {
-				$r .= '<PicUrl><![CDATA[' . 'http://' . APP_HTTP_HOST . $matter->pic . ']]></PicUrl>';
+			$r .= '<Title><![CDATA[' . $oMatter->title . ']]></Title>';
+			$r .= '<Description><![CDATA[' . $oMatter->summary . ']]></Description>';
+			if (!empty($oMatter->pic) && stripos($oMatter->pic, 'http') === false) {
+				$r .= '<PicUrl><![CDATA[' . 'http://' . APP_HTTP_HOST . $oMatter->pic . ']]></PicUrl>';
 			} else {
-				$r .= '<PicUrl><![CDATA[' . $matter->pic . ']]></PicUrl>';
+				$r .= '<PicUrl><![CDATA[' . $oMatter->pic . ']]></PicUrl>';
 			}
-			$url = isset($matter->entryURL) ? $matter->entryURL : isset($matter->entryUrl) ? $matter->entryUrl : '';
+			if (!empty($oMatter->entryURL)) {
+				$url = $oMatter->entryURL;
+			} else if (!empty($oMatter->entryUrl)) {
+				$url = $oMatter->entryUrl;
+			} else {
+				$url = '';
+			}
 			$r .= '<Url><![CDATA[' . $url . ']]></Url>';
 			$r .= '</item>';
 		}

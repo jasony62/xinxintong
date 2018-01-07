@@ -35,38 +35,7 @@ class base extends \site\fe\matter\base {
 	 */
 	private function _requireSnsOAuth($oApp) {
 		/* 检查进入规则 */
-		$oEntryRule = $oApp->entry_rule;
-		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'sns') {
-			if ($this->userAgent() === 'wx') {
-				if (!empty($oEntryRule->sns->wx->entry)) {
-					if (!isset($this->who->sns->wx)) {
-						$modelWx = $this->model('sns\wx');
-						if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
-							$this->snsOAuth($wxConfig, 'wx');
-						} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
-							$this->snsOAuth($wxConfig, 'wx');
-						}
-					}
-				}
-				if (!empty($oEntryRule->sns->qy->entry)) {
-					if (!isset($this->who->sns->qy)) {
-						if ($qyConfig = $this->model('sns\qy')->bySite($oApp->siteid)) {
-							if ($qyConfig->joined === 'Y') {
-								$this->snsOAuth($qyConfig, 'qy');
-							}
-						}
-					}
-				}
-			} else if (!empty($oEntryRule->sns->yx->entry) && $this->userAgent() === 'yx') {
-				if (!isset($this->who->sns->yx)) {
-					if ($yxConfig = $this->model('sns\yx')->bySite($oApp->siteid)) {
-						if ($yxConfig->joined === 'Y') {
-							$this->snsOAuth($yxConfig, 'yx');
-						}
-					}
-				}
-			}
-		}
+		$this->requireSnsOAuth($oApp);
 		/* 检查sns关联规则 */
 		$oAssocSns = $oApp->assocSns;
 		if ($this->userAgent() === 'wx') {
@@ -246,31 +215,8 @@ class base extends \site\fe\matter\base {
 					}
 				}
 			} else if ($oEntryRule->scope === 'sns') {
-				$bMatched = false;
-				foreach ($oEntryRule->sns as $snsName => $rule) {
-					if (isset($oUser->sns->{$snsName})) {
-						// 检查用户对应的公众号
-						if ($snsName === 'wx') {
-							$modelWx = $this->model('sns\wx');
-							if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
-								$snsSiteId = $oApp->siteid;
-							} else {
-								$snsSiteId = 'platform';
-							}
-						} else {
-							$snsSiteId = $oApp->siteid;
-						}
-						// 检查用户是否已经关注
-						if ($snsUser = $oUser->sns->{$snsName}) {
-							$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-							if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
-								$bMatched = true;
-								break;
-							}
-						}
-					}
-				}
-				if (false === $bMatched) {
+				$aResult = $this->enterAsSns($oApp);
+				if (false === $aResult[0]) {
 					$msg = '您目前不满足【' . $oApp->title . '】的进入规则，无法访问，请联系活动的组织者解决';
 					if (true === $bRedirect) {
 						if (!empty($oEntryRule->sns->wx->entry) && $oEntryRule->sns->wx->entry === 'Y') {
@@ -279,13 +225,7 @@ class base extends \site\fe\matter\base {
 								$oApp->params = new \stdClass;
 								$oApp->params->inviteToken = $_GET['inviteToken'];
 							}
-							$rst = $this->model('sns\wx\call\qrcode')->createOneOff($oApp->siteid, $oApp);
-							if ($rst[0] === false) {
-								$this->snsFollow($oApp->siteid, 'wx', $oApp);
-							} else {
-								$sceneId = $rst[1]->scene_id;
-								$this->snsFollow($oApp->siteid, 'wx', false, $sceneId);
-							}
+							$this->snsWxQrcodeFollow($oApp);
 						} else if (!empty($oEntryRule->sns->qy->entry) && $oEntryRule->sns->qy->entry === 'Y') {
 							$this->snsFollow($oApp->siteid, 'qy', $oApp);
 						} else if (!empty($oEntryRule->sns->yx->entry) && $oEntryRule->sns->yx->entry === 'Y') {

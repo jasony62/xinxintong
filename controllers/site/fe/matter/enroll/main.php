@@ -28,15 +28,16 @@ class main extends base {
 	public function index_action($site, $app, $rid = '', $page = '', $ignoretime = 'N') {
 		empty($site) && $this->outputError('没有指定当前站点的ID');
 		empty($app) && $this->outputError('登记活动ID为空');
+		$app = $this->escape($app);
 
 		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false) {
+		if ($oApp === false || $oApp->state !== '1') {
 			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
 		}
 
+		/* 检查是否需要第三方社交帐号OAuth */
 		if (!$this->afterSnsOAuth()) {
-			/* 检查是否需要第三方社交帐号OAuth */
-			$this->_requireSnsOAuth($site, $oApp);
+			$this->requireSnsOAuth($oApp);
 		}
 
 		$skipEntryCheck = false;
@@ -92,53 +93,6 @@ class main extends base {
 			}
 		}
 		exit;
-	}
-	/**
-	 * 检查是否需要第三方社交帐号认证
-	 * 检查条件：
-	 * 0、应用是否设置了需要认证
-	 * 1、站点是否绑定了第三方社交帐号认证
-	 * 2、平台是否绑定了第三方社交帐号认证
-	 * 3、用户客户端是否可以发起认证
-	 *
-	 * @param string $site
-	 * @param object $app
-	 */
-	private function _requireSnsOAuth($siteid, &$app) {
-		$entryRule = $app->entry_rule;
-		if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-			if ($this->userAgent() === 'wx') {
-				if (!empty($entryRule->sns->wx->entry)) {
-					if (!isset($this->who->sns->wx)) {
-						$modelWx = $this->model('sns\wx');
-						if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
-							$this->snsOAuth($wxConfig, 'wx');
-						} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
-							$this->snsOAuth($wxConfig, 'wx');
-						}
-					}
-				}
-				if (!empty($entryRule->sns->qy->entry)) {
-					if (!isset($this->who->sns->qy)) {
-						if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
-							if ($qyConfig->joined === 'Y') {
-								$this->snsOAuth($qyConfig, 'qy');
-							}
-						}
-					}
-				}
-			} else if (!empty($entryRule->sns->yx->entry) && $this->userAgent() === 'yx') {
-				if (!isset($this->who->sns->yx)) {
-					if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
-						if ($yxConfig->joined === 'Y') {
-							$this->snsOAuth($yxConfig, 'yx');
-						}
-					}
-				}
-			}
-		}
-
-		return false;
 	}
 	/**
 	 * 登记活动是否可用

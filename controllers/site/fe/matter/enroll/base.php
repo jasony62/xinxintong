@@ -100,30 +100,8 @@ class base extends \site\fe\matter\base {
 				}
 			}
 		} else if (isset($oEntryRule->scope) && $oEntryRule->scope === 'sns') {
-			foreach ($oEntryRule->sns as $snsName => $rule) {
-				if (isset($oUser->sns->{$snsName})) {
-					// 检查用户对应的公众号
-					if ($snsName === 'wx') {
-						$modelWx = $this->model('sns\wx');
-						if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
-							$snsSiteId = $oApp->siteid;
-						} else {
-							$snsSiteId = 'platform';
-						}
-					} else {
-						$snsSiteId = $oApp->siteid;
-					}
-					// 检查用户是否已经关注
-					if ($snsUser = $oUser->sns->{$snsName}) {
-						$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-						if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
-							$page = $rule->entry;
-							break;
-						}
-					}
-				}
-			}
-			!isset($page) && $page = $oEntryRule->other->entry;
+			$aResult = $this->enterAsSns($oApp);
+			$page = empty($aResult[1]->entry) ? $oEntryRule->other->entry : $aResult[1]->entry;
 		} else {
 			if (isset($oEntryRule->otherwise->entry)) {
 				$page = $oEntryRule->otherwise->entry;
@@ -151,7 +129,19 @@ class base extends \site\fe\matter\base {
 				break;
 			case '$mpfollow':
 				if (!empty($oEntryRule->sns->wx->entry)) {
-					$this->snsFollow($oApp->siteid, 'wx', $oApp);
+					/* 指定了登记轮次 */
+					$aParams = [];
+					if (!empty($_GET['rid'])) {
+						$aParams['rid'] = $_GET['rid'];
+					}
+					/* 指定了进入页面 */
+					if (!empty($_GET['page'])) {
+						$aParams['page'] = $_GET['page'];
+					}
+					if (!empty($aParams)) {
+						$oApp->params = $aParams;
+					}
+					$this->snsWxQrcodeFollow($oApp);
 				} else if (!empty($oEntryRule->sns->qy->entry)) {
 					$this->snsFollow($oApp->siteid, 'qy', $oApp);
 				} else if (!empty($oEntryRule->sns->yx->entry)) {

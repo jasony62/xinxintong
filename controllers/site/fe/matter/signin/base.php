@@ -29,7 +29,7 @@ class base extends \site\fe\matter\base {
 	 * @param object $app
 	 * @param boolean $redirect
 	 */
-	protected function checkEntryRule(&$oApp, $redirect = false, &$oRound = null) {
+	protected function checkEntryRule($oApp, $redirect = false, &$oRound = null) {
 		$oUser = $this->who;
 		$entryRule = $oApp->entry_rule;
 		$modelRec = $this->model('matter\signin\record');
@@ -52,80 +52,60 @@ class base extends \site\fe\matter\base {
 					$page = $entryRule->success->entry;
 				}
 			}
-		} elseif (isset($entryRule->scope) && $entryRule->scope === 'member') {
-			/* 限自定义用户参与 */
-			foreach ($entryRule->member as $schemaId => $rule) {
-				if (!empty($rule->entry)) {
-					/* 检查用户的信息是否完整，是否已经通过审核 */
-					$modelMem = $this->model('site\user\member');
-					if (empty($oUser->unionid)) {
-						$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
-						if (count($aMembers) === 1) {
-							$oMember = $aMembers[0];
-							if ($oMember->verified === 'Y') {
-								$page = $rule->entry;
-								break;
-							}
-						}
-					} else {
-						$modelAcnt = $this->model('site\user\account');
-						$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-						foreach ($aUnionUsers as $oUnionUser) {
-							$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
-							if (count($aMembers) === 1) {
-								$oMember = $aMembers[0];
-								if ($oMember->verified === 'Y') {
-									$page = $rule->entry;
+		} else {
+			if (!empty($entryRule->scope)) {
+				if ($entryRule->scope === 'member') {
+					/* 限自定义用户参与 */
+					foreach ($entryRule->member as $schemaId => $rule) {
+						if (!empty($rule->entry)) {
+							/* 检查用户的信息是否完整，是否已经通过审核 */
+							$modelMem = $this->model('site\user\member');
+							if (empty($oUser->unionid)) {
+								$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
+								if (count($aMembers) === 1) {
+									$oMember = $aMembers[0];
+									if ($oMember->verified === 'Y') {
+										$page = $rule->entry;
+										break;
+									}
+								}
+							} else {
+								$modelAcnt = $this->model('site\user\account');
+								$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+								foreach ($aUnionUsers as $oUnionUser) {
+									$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+									if (count($aMembers) === 1) {
+										$oMember = $aMembers[0];
+										if ($oMember->verified === 'Y') {
+											$page = $rule->entry;
+											break;
+										}
+									}
+								}
+								if (isset($page)) {
 									break;
 								}
 							}
 						}
-						if (isset($page)) {
-							break;
-						}
 					}
-				}
-			}
-			if (!isset($page)) {
-				if (isset($oEntryRule->other->entry)) {
-					$page = $oEntryRule->other->entry;
-				} else {
-					$page = '$memberschema';
-				}
-			}
-		} elseif (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-			// 限社交网站用户参与
-			foreach ($entryRule->sns as $snsName => $rule) {
-				if (isset($oUser->sns->{$snsName})) {
-					// 检查用户对应的公众号
-					if ($snsName === 'wx') {
-						$modelWx = $this->model('sns\wx');
-						if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
-							$snsSiteId = $oApp->siteid;
+					if (!isset($page)) {
+						if (isset($oEntryRule->other->entry)) {
+							$page = $oEntryRule->other->entry;
 						} else {
-							$snsSiteId = 'platform';
+							$page = '$memberschema';
 						}
-					} else {
-						$snsSiteId = $oApp->siteid;
 					}
-					// 检查用户是否已经关注
-					$snsUser = $oUser->sns->{$snsName};
-					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-					if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
-						$page = $rule->entry;
-						break;
+				} elseif ($entryRule->scope === 'sns') {
+					$aResult = $this->enterAsSns($oApp);
+					$page = empty($aResult[1]->entry) ? $entryRule->other->entry : $aResult[1]->entry;
+				} else {
+					/* 不限用户来源，默认进入页面 */
+					if (isset($entryRule->otherwise->entry)) {
+						$page = $entryRule->otherwise->entry;
 					}
 				}
-			}
-			!isset($page) && $page = $entryRule->other->entry;
-		} else {
-			/* 不限用户来源，默认进入页面 */
-			if (isset($entryRule->otherwise->entry)) {
-				$page = $entryRule->otherwise->entry;
 			}
 		}
-		/* 如果没有设置对应的页面 */
-		if (empty($page)) {}
 
 		/* 内置页面 */
 		switch ($page) {
@@ -144,7 +124,12 @@ class base extends \site\fe\matter\base {
 			break;
 		case '$mpfollow':
 			if (isset($entryRule->sns->wx)) {
-				$this->snsFollow($oApp->siteid, 'wx', $oApp);
+				/* 指定了签到轮次 */
+				if (!empty($_GET['round'])) {
+					$oApp->params = new \stdClass;
+					$oApp->params->round = $_GET['round'];
+				}
+				$this->snsWxQrcodeFollow($oApp);
 			} elseif (isset($entryRule->sns->qy)) {
 				$this->snsFollow($oApp->siteid, 'qy', $oApp);
 			} elseif (isset($entryRule->sns->yx)) {

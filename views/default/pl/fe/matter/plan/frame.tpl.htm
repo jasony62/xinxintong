@@ -37,6 +37,14 @@
                         </li>
                     </ul>
                 </li>
+                <li ng-class="{'opened':opened==='publish'}">
+                    <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('invite')">发布 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'41px':'0'}">
+                        <li ng-class="{'active':subView==='invite'}">
+                            <a href='' ng-click="switchTo('invite')">邀请</a>
+                        </li>
+                    </ul>
+                </li>
                 <li ng-class="{'opened':opened==='data'}">
                     <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('task')">数据 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'82px':'0'}">

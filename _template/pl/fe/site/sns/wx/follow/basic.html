@@ -1,13 +1,32 @@
 <div ng-controller="ctrlFollow">
-    <div id='tip'>
+    <div id='tip' ng-if="!matter">
         <p>感谢关注</p>
         <p>
             <?php echo empty($this->site)? '' : $this->site->name;?>
         </p>
         <hr/>
     </div>
+    <div id='matter' ng-if="matter">
+        <div class='panel panel-default'>
+            <div class='panel-body'>
+                <div class='form-group'>
+                    <div ng-bind="matter.title"></div>
+                </div>
+                <div class='form-group' ng-if="matter.pic">
+                    <div class='matter-pic'>
+                        <div class='img-thumbnail' ng-style="{'background-image':'url('+matter.pic+')'}"></div>
+                    </div>
+                </div>
+                <div ng-if="matter.summary">
+                    <div class='text-muted' ng-bind="matter.summary"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id='qrcode'>
-        <img ng-src="{{qrcode}}" />
-        <p>长按二维码关注公众号</p>
+        <div class='form-group'>
+            <img ng-src="{{qrcode}}" />
+        </div>
+        <p>请<span ng-if="userAgent.wx||userAgent.yx">长按</span><span ng-if="!userAgent.wx&&!userAgent.yx">扫描</span>二维码关注公众号<span ng-if="matter">后继续访问</span></p>
     </div>
 </div>

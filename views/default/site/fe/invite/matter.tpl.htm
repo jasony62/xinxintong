@@ -33,9 +33,11 @@
                                 <div ng-bind="invite.matter_title"></div>
                             </div>
                             <div class='form-group' ng-if="invite.matter_pic">
-                                <img ng-src="{{invite.matter_pic}}">
+                                <div class='matter-pic'>
+                                    <div class='img-thumbnail' ng-style="{'background-image':'url('+invite.matter_pic+')'}"></div>
+                                </div>
                             </div>
-                            <div class='form-group' ng-if="invite.matter_summary">
+                            <div class='text-muted' ng-if="invite.matter_summary">
                                 <div ng-bind="invite.matter_summary"></div>
                             </div>
                         </section>

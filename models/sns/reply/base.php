@@ -97,8 +97,8 @@ abstract class Reply {
 			} else {
 				$r .= '<PicUrl><![CDATA[' . $matter->pic . ']]></PicUrl>';
 			}
-
-			$r .= '<Url><![CDATA[' . $matter->entryURL . ']]></Url>';
+			$url = isset($matter->entryURL) ? $matter->entryURL : isset($matter->entryUrl) ? $matter->entryUrl : '';
+			$r .= '<Url><![CDATA[' . $url . ']]></Url>';
 			$r .= '</item>';
 		}
 		return $r;

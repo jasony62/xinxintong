@@ -77,16 +77,16 @@
                 <label>
                     <input type='radio' value='member' ng-model="rule.scope " ng-change="changeUserScope() ">限通讯录联系人访问</label>
             </div>
-            <div class='radio' ng-if="sns ">
-                <label>
-                    <input type='radio' value='sns' ng-model="rule.scope " ng-change="changeUserScope() ">限公众号关注用户访问</label>
-            </div>
             <div class='radio'>
                 <label>
                     <input type='radio' value='group' ng-model="rule.scope" ng-change="changeUserScope()">限同项目内分组活动用户访问</label>
             </div>
-            <hr>
+            <div class='radio' ng-if="siteSnsCount>0">
+                <label>
+                    <input type='radio' value='sns' ng-model="rule.scope " ng-change="changeUserScope() ">限公众号关注用户访问</label>
+            </div>
             <div class='form-group' ng-if="rule.scope==='group'">
+                <hr>
                 <div class="input-group">
                     <input class='form-control' title="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" value="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" readonly>
                     <div class="input-group-btn">
@@ -98,6 +98,7 @@
                 <button class='btn btn-default' ng-click="chooseGroupApp()">选择分组活动</button>
             </div>
             <div ng-if="rule.scope==='member'">
+                <hr>
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
@@ -117,28 +118,29 @@
                 </table>
                 <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
             </div>
-            <div ng-if="rule.scope==='sns'&&snsCount>1">
+            <div ng-if="rule.scope==='sns'&&siteSnsCount>1">
+                <hr>
                 <table class='table table-bordered'>
                     <tbody>
                         <tr>
                             <th>公众号</th>
                             <th style='width:69px'>操作</th>
                         </tr>
-                        <tr ng-if="sns.wx">
+                        <tr ng-if="siteSns.wx">
                             <td>微信公众号关注用户</td>
                             <td>
                                 <label class='checkbox-inline'>
                                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.wx.entry'>生效</label>
                             </td>
                         </tr>
-                        <tr ng-if="sns.qy">
+                        <tr ng-if="siteSns.qy">
                             <td>微信企业号关注用户</td>
                             <td>
                                 <label class='checkbox-inline'>
                                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.qy.entry'>生效</label>
                             </td>
                         </tr>
-                        <tr ng-if="sns.yx">
+                        <tr ng-if="siteSns.yx">
                             <td>易信公众号关注用户</td>
                             <td>
                                 <label class='checkbox-inline'>
@@ -147,6 +149,22 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div ng-if="snsCount>0&&rule.scope!=='sns'">
+                <hr>
+                <div>邀请用户关注公众号，以便获取用户的昵称和头像，并接收活动通知。</div>
+                <div class='checkbox' ng-if="sns.wx">
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="app.assocSns.wx" ng-change="update('assocSns')">{{sns.wx.title}}</label>
+                </div>
+                <div class='checkbox' ng-if="sns.yx">
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="app.assocSns.yx" ng-change="update('assocSns')">{{sns.yx.title}}</label>
+                </div>
+                <div class='checkbox' ng-if="sns.qy">
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="app.assocSns.qy" ng-change="update('assocSns')">{{sns.qy.title}}</label>
+                </div>
             </div>
         </div>
     </div>

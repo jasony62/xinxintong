@@ -228,7 +228,7 @@ class qrcode_model extends \TMS_MODEL {
 		$oNewQrcode->matter_type = $oMatter->type;
 		$oNewQrcode->matter_id = $oMatter->id;
 		$oNewQrcode->pic = $oWxQrcode->pic;
-		isset($oMatter->params) && $oNewQrcode->params = $this->toJson($oMatter->params);
+		isset($oMatter->params) && $oNewQrcode->params = $this->escape($this->toJson($oMatter->params));
 
 		$oNewQrcode->id = $modelWx->insert('xxt_call_qrcode_wx', $oNewQrcode, true);
 

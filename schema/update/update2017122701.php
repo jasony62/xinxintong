@@ -21,6 +21,7 @@ $sql .= ",pic text null"; // 分享或生成链接时的图片
 $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",mission_phase_id varchar(13) not null default ''"; // 所属项目阶段
 $sql .= ",entry_rule text null"; // 参与规则
+$sql .= ",assoc_sns text null"; // 关联社交网络
 $sql .= ",check_schemas text null"; // 行动项的核对数据
 $sql .= ",jump_delayed char(1) not null default 'Y'"; // Y:跳过；N:不跳过
 $sql .= ",auto_verify char(1) not null default 'Y'";

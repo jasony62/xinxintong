@@ -41,8 +41,8 @@ class i extends TMS_CONTROLLER {
 
 		/* 要访问的素材 */
 		$modelMat = $this->model('matter\\' . $oInvite->matter_type);
-		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => 'siteid,id,entry_rule']);
-		if (false === $oMatter) {
+		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => 'id,state,siteid,entry_rule']);
+		if (false === $oMatter || $oMatter->state !== '1') {
 			$this->outputError('邀请访问的素材【' . $oInvite->matter_title . '】不存在');
 		}
 
@@ -85,8 +85,8 @@ class i extends TMS_CONTROLLER {
 		}
 		/* 要访问的素材 */
 		$modelMat = $this->model('matter\\' . $oInvite->matter_type);
-		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => 'siteid,id,entry_rule']);
-		if (false === $oMatter) {
+		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => 'id,state,siteid,entry_rule']);
+		if (false === $oMatter || $oMatter->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		/* 被邀请的用户 */
@@ -100,17 +100,27 @@ class i extends TMS_CONTROLLER {
 			$oEntryRule = is_string($oMatter->entry_rule) ? json_decode($oMatter->entry_rule) : $oMatter->entry_rule;
 			if (isset($oEntryRule->scope)) {
 				switch ($oEntryRule->scope) {
-				case 'member';
+				case 'member':
 					if (empty($oInvitee->unionid)) {
 						return new \ResponseError('请登录后再提交通讯录信息');
 					}
 					$isMember = false;
 					$modelMem = $this->model('site\user\member');
-					foreach ($oEntryRule->member as $mschemaId) {
-						$oMembers = $modelMem->byUnionid($oMatter->siteid, $mschemaId, $oInvitee->unionid);
-						if (!empty($oMembers)) {
-							$isMember = true;
-							break;
+					if (is_array($oEntryRule->member)) {
+						foreach ($oEntryRule->member as $mschemaId) {
+							$oMembers = $modelMem->byUnionid($oMatter->siteid, $mschemaId, $oInvitee->unionid);
+							if (!empty($oMembers)) {
+								$isMember = true;
+								break;
+							}
+						}
+					} else {
+						foreach ($oEntryRule->member as $mschemaId => $oRule) {
+							$oMembers = $modelMem->byUnionid($oMatter->siteid, $mschemaId, $oInvitee->unionid);
+							if (!empty($oMembers)) {
+								$isMember = true;
+								break;
+							}
 						}
 					}
 					if (false === $isMember) {
@@ -123,6 +133,8 @@ class i extends TMS_CONTROLLER {
 							return new ResponseError($rst[1]);
 						}
 					}
+					break;
+				case 'group':
 					break;
 				}
 			}

@@ -48,6 +48,11 @@ class plan_model extends app_base {
 				$oMatter->checkSchemas = empty($oMatter->check_schemas) ? [] : json_decode($oMatter->check_schemas);
 				unset($oMatter->check_schemas);
 			}
+			/* notify by */
+			if (property_exists($oMatter, 'assoc_sns')) {
+				$oMatter->assocSns = empty($oMatter->assoc_sns) ? new \stdClass : json_decode($oMatter->assoc_sns);
+				unset($oMatter->assoc_sns);
+			}
 		}
 
 		return $oMatter;

@@ -21,15 +21,17 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             'schema.duplicated': '不允许重复添加登记项',
         },
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvSiteProvider', 'srvPlanAppProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvSiteProvider, srvPlanAppProvider) {
-        var RouteParam = function(name) {
-            var baseURL = '/views/default/pl/fe/matter/plan/';
-            this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvInviteProvider', 'srvSiteProvider', 'srvPlanAppProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvInviteProvider, srvSiteProvider, srvPlanAppProvider) {
+        var RouteParam = function(name, baseURL) {
+            !baseURL && (baseURL = '/views/default/pl/fe/matter/plan/');
+            this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+            this.reloadOnSearch = false;
             this.resolve = {
                 load: function($q) {
                     var defer = $q.defer();
                     require([baseURL + name + '.js'], function() {
+
                         defer.resolve();
                     });
                     return defer.promise;
@@ -49,6 +51,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             .when('/rest/pl/fe/matter/plan/taskDetail', new RouteParam('taskDetail'))
             .when('/rest/pl/fe/matter/plan/user', new RouteParam('user'))
             .when('/rest/pl/fe/matter/plan/entry', new RouteParam('entry'))
+            .when('/rest/pl/fe/matter/plan/invite', new RouteParam('invite', '/views/default/pl/fe/_module/'))
             .when('/rest/pl/fe/matter/plan/coin', new RouteParam('coin'))
             .otherwise(new RouteParam('main'));
 
@@ -61,6 +64,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
             srvSiteProvider.config(siteId);
             srvPlanAppProvider.config(siteId, appId);
+            srvInviteProvider.config('plan', appId);
         })();
     }]);
     ngApp.controller('ctrlFrame', ['$scope', '$location', 'cstApp', 'srvSite', 'srvPlanApp', function($scope, $location, cstApp, srvSite, srvPlanApp) {
@@ -74,7 +78,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
                 case 'schemaTask':
                     $scope.opened = 'edit';
                     break;
-                case 'preview':
+                case 'invite':
                     $scope.opened = 'publish';
                     break;
                 case 'task':
@@ -100,8 +104,20 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             $scope.site = oSite;
         });
         srvSite.snsList().then(function(oSns) {
+            var oSiteSns;
             $scope.sns = oSns;
             $scope.snsCount = Object.keys(oSns).length;
+            if ($scope.snsCount) {
+                oSiteSns = {};
+                for (var snsName in oSns) {
+                    if (oSns[snsName].platform && oSns[snsName].platform === 'Y') {
+                        continue;
+                    }
+                    oSiteSns[snsName] = oSns[snsName];
+                }
+                $scope.siteSns = oSiteSns;
+                $scope.siteSnsCount = Object.keys(oSiteSns).length;
+            }
             srvPlanApp.get().then(function(oApp) {
                 oApp.scenario = 'quiz';
                 $scope.app = oApp;

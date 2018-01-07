@@ -29,7 +29,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$oApp = $this->model('matter\plan')->byId($id);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		/*所属项目*/
@@ -210,6 +210,9 @@ class main extends \pl\fe\matter\main_base {
 					}
 				}
 				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($v));
+				break;
+			case 'assocSns':
+				$oUpdated->assoc_sns = $modelApp->escape($modelApp->toJson($v));
 				break;
 			case 'title':
 			case 'summary':

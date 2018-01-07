@@ -54,8 +54,10 @@ class main extends base {
 
 		$modelUsrTsk = $this->model('matter\plan\task');
 		$oLastUserTask = $modelUsrTsk->lastByApp($this->who, $oApp, ['fields' => 'id,task_schema_id,verified,born_at']);
-		$modelSchTsk = $this->model('matter\plan\schema\task');
-		$oLastUserTask->task_schema = $modelSchTsk->byId($oLastUserTask->task_schema_id, ['fields' => 'id,task_seq,title,jump_delayed,auto_verify,can_patch,as_placeholder']);
+		if ($oLastUserTask) {
+			$modelSchTsk = $this->model('matter\plan\schema\task');
+			$oLastUserTask->task_schema = $modelSchTsk->byId($oLastUserTask->task_schema_id, ['fields' => 'id,task_seq,title,jump_delayed,auto_verify,can_patch,as_placeholder']);
+		}
 		$oOverview->lastUserTask = $oLastUserTask;
 
 		$oOverview->nowTaskSchema = $modelUsrTsk->nowSchemaByApp($this->who, $oApp);

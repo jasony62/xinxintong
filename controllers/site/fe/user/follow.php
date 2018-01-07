@@ -42,7 +42,7 @@ class follow extends \site\fe\base {
 	 *
 	 */
 	public function pageGet_action($site, $sns, $matter = null, $sceneid = null) {
-		$siteId = $site;
+		$siteId = $this->escape($site);
 		$modelSns = $this->model('sns\\' . $sns);
 		/* 公众号配置信息 */
 		$snsConfig = $modelSns->bySite($siteId, ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
@@ -50,18 +50,18 @@ class follow extends \site\fe\base {
 			$siteId = 'platform';
 			$snsConfig = $modelSns->bySite('platform', ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
 		}
+
+		$oSite = $this->model('site')->byId($siteId, ['fields' => 'state,name,summary']);
 		if (empty($snsConfig->follow_page_name)) {
-			$page = new \stdClass;
-			if ($siteId !== 'platform') {
-				$site = $this->model('site')->byId($siteId);
-				$page->html = '请关注公众号：' . $site->name;
-			}
+			$oPage = new \stdClass;
+			$oPage->html = '请关注公众号：' . $oSite->name;
 		} else {
-			$page = $this->model('code\page')->lastPublishedByName($siteId, $snsConfig->follow_page_name);
+			$oPage = $this->model('code\page')->lastPublishedByName($siteId, $snsConfig->follow_page_name);
 		}
 		$aParams = [
-			'page' => $page,
+			'page' => $oPage,
 			'snsConfig' => $snsConfig,
+			'site' => $oSite,
 			'user' => $this->who,
 		];
 		/* 访问素材信息 */

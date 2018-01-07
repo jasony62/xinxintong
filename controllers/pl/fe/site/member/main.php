@@ -68,7 +68,7 @@ class main extends \pl\fe\base {
 			'email' => empty($data->email) ? '' : $data->email,
 			'name' => empty($data->name) ? '' : $data->name,
 			'email_verified' => $emailVerified,
-			'verified' => (isset($data->verified) && $data->verified === 'Y') ? 'Y' : 'N',
+			'verified' => in_array($data->verified, ['Y', 'N', 'P']) ? $data->verified : 'P',
 		);
 		if ($attrs->attr_mobile[5] === '1') {
 			$newMember['identity'] = $data->mobile;

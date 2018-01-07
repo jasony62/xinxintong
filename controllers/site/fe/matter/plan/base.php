@@ -173,45 +173,15 @@ class base extends \site\fe\matter\base {
 					}
 				}
 			} else if ($oEntryRule->scope === 'member') {
+				$oResult = $this->enterAsMember($oApp);
 				/* 限通讯录用户访问 */
-				$bMatched = false;
-				foreach ($oEntryRule->member as $schemaId => $rule) {
-					/* 检查用户的信息是否完整，是否已经通过审核 */
-					$modelMem = $this->model('site\user\member');
-					if (empty($oUser->unionid)) {
-						$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
-						if (count($aMembers) === 1) {
-							$oMember = $aMembers[0];
-							if ($oMember->verified === 'Y') {
-								$bMatched = true;
-								break;
-							}
-						}
+				if (false === $oResult[0]) {
+					if (true === $bRedirect) {
+						$aMemberSchemas = array_keys(get_object_vars($oEntryRule->member));
+						$this->gotoMember($oApp, $aMemberSchemas);
 					} else {
-						$modelAcnt = $this->model('site\user\account');
-						$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-						foreach ($aUnionUsers as $oUnionUser) {
-							$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
-							if (count($aMembers) === 1) {
-								$oMember = $aMembers[0];
-								if ($oMember->verified === 'Y') {
-									$bMatched = true;
-									break;
-								}
-							}
-						}
-						if ($bMatched) {
-							break;
-						}
-					}
-					if (false === $bMatched) {
-						if (true === $bRedirect) {
-							$aMemberSchemas = array_keys(get_object_vars($oEntryRule->member));
-							$this->gotoMember($oApp, $aMemberSchemas);
-						} else {
-							$msg = '您目前不满足【' . $oApp->title . '】的进入规则，无法访问，请联系活动的组织者解决';
-							return [false, $msg];
-						}
+						$msg = '您目前不满足【' . $oApp->title . '】的进入规则，无法访问，请联系活动的组织者解决';
+						return [false, $msg];
 					}
 				}
 			} else if ($oEntryRule->scope === 'sns') {

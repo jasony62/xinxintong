@@ -29,6 +29,7 @@ define(["angular"], function(angular) {
             params = rsp.data;
             $scope.snsConfig = params.snsConfig;
             $scope.user = params.user;
+            $scope.site = params.site;
             $scope.matter = params.matter;
             tmsDynaPage.loadCode(ngApp, params.page).then(function() {
                 $scope.page = params.page;

@@ -27,6 +27,6 @@
         <div class='form-group'>
             <img ng-src="{{qrcode}}" />
         </div>
-        <p>请<span ng-if="userAgent.wx||userAgent.yx">长按</span><span ng-if="!userAgent.wx&&!userAgent.yx">扫描</span>二维码关注公众号<span ng-if="matter">后继续访问</span></p>
+        <p>请<span ng-if="userAgent.wx||userAgent.yx">长按</span><span ng-if="!userAgent.wx&&!userAgent.yx">扫描</span>二维码关注公众号【<span ng-bind="site.name"></span>】<span ng-if="matter">后继续访问</span></p>
     </div>
 </div>

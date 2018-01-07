@@ -34,9 +34,17 @@
                     </div>
                     <div class='panel panel-default'>
                         <div class='panel-body'>
-                            <div class='matter-title' ng-bind="matter.title"></div>
-                            <div class='matter-pic' ng-if="matter.pic"><img ng-src="{{matter.pic}}" class='img-thumbnail'></div>
-                            <div class='matter-summary text-muted' ng-bind="matter.summary"></div>
+                            <div class='form-group'>
+                                <div ng-bind="matter.title"></div>
+                            </div>
+                            <div class='form-group' ng-if="matter.pic">
+                                <div class='matter-pic'>
+                                    <div class='img-thumbnail' ng-style="{'background-image':'url('+matter.pic+')'}"></div>
+                                </div>
+                            </div>
+                            <div ng-if="matter.summary">
+                                <div class='text-muted' ng-bind="matter.summary"></div>
+                            </div>
                         </div>
                     </div>
                 </div>

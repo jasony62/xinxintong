@@ -72,7 +72,9 @@ class main extends base {
 	 */
 	private function &_defaultPage($oApp, $redirect = false, $round = null) {
 		$page = $this->checkEntryRule($oApp, $redirect, $round);
-		$oPage = $this->model('matter\signin\page')->byName($oApp->id, $page);
+		if ($page) {
+			$oPage = $this->model('matter\signin\page')->byName($oApp->id, $page);
+		}
 		if (empty($oPage)) {
 			if ($redirect === true) {
 				$this->outputError('指定的页面[' . $page . ']不存在');

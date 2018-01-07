@@ -23,6 +23,7 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function index_action($schema) {
+		$schema = $this->escape($schema);
 		$oSchema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,title,valid,is_wx_fan,is_yx_fan,is_qy_fan']);
 		if ($oSchema === false || $oSchema->valid === 'N') {
 			return new \ObjectNotFoundError();
@@ -141,7 +142,7 @@ class member extends \site\fe\base {
 			if (count($matter) === 2) {
 				list($type, $id) = $matter;
 				$modelMat = $this->model('matter\\' . $type);
-				$oMatter = $modelMat->byId($id, ['fields' => 'title,summary,pic']);
+				$oMatter = $modelMat->byId($id, ['fields' => 'id,state,title,summary,pic']);
 				$params['matter'] = $oMatter;
 			}
 		}
@@ -240,7 +241,8 @@ class member extends \site\fe\base {
 		if ($oMschema->require_invite === 'Y' && isset($oNewMember->invite_code)) {
 			$oNewMember->verified = 'Y';
 		} else {
-			$oNewMember->verified = $oMschema->auto_verified;
+			// 设置为通过或等待审核
+			$oNewMember->verified = $oMschema->auto_verified === 'Y' ? 'Y' : 'P';
 		}
 		/* 创建新的自定义用户 */
 		$rst = $modelMem->create($siteUser->uid, $oMschema, $oNewMember);
@@ -278,30 +280,31 @@ class member extends \site\fe\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$member = $this->getPostJson();
+		$oMember = $this->getPostJson();
 		/* 检查数据合法性。根据用户填写的自定义信息，找回数据。 */
 		$modelMem = $this->model('site\user\member');
-		if (false === ($found = $modelMem->findMember($member, $oMschema, false))) {
+		if (false === ($oFound = $modelMem->findMember($oMember, $oMschema, false))) {
 			return new \ParameterError('找不到匹配的联系人信息');
 		}
-		if ($found->userid !== $siteUser->uid) {
+		if ($oFound->userid !== $siteUser->uid) {
 			return new \ResponseError('指定的用户信息错误，和当前登录用户不一致');
 		}
 
 		/* 更新用户信息 */
-		$member->verified = $found->verified;
-		$member->identity = $found->identity;
-		$rst = $modelMem->modify($oMschema, $found->id, $member);
+		$oMember->verified = $oMschema->auto_verified === 'Y' ? 'Y' : 'P';
+
+		$oMember->identity = $oFound->identity;
+		$rst = $modelMem->modify($oMschema, $oFound->id, $oMember);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		$found = $modelMem->byId($found->id);
+		$oFound = $modelMem->byId($oFound->id);
 
 		/* 绑定当前站点用户 */
 		$modelWay = $this->model('site\fe\way');
-		$modelWay->bindMember($oMschema->siteid, $found);
+		$modelWay->bindMember($oMschema->siteid, $oFound);
 
-		return new \ResponseData($found);
+		return new \ResponseData($oFound);
 	}
 	/**
 	 * 认证完成后的回调地址

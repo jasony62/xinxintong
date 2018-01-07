@@ -105,6 +105,51 @@ class base extends \site\fe\base {
 		return [$bFollowed, $oFollowedRule];
 	}
 	/**
+	 * 限通讯录用户参与
+	 */
+	protected function enterAsMember($oApp) {
+		$oEntryRule = $oApp->entry_rule;
+		$oUser = $this->who;
+		$bMatched = false;
+		$bMatchedRule = null;
+
+		foreach ($oEntryRule->member as $schemaId => $rule) {
+			/* 检查用户的信息是否完整，是否已经通过审核 */
+			$modelMem = $this->model('site\user\member');
+			if (empty($oUser->unionid)) {
+				$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
+				if (count($aMembers) === 1) {
+					$oMember = $aMembers[0];
+					if ($oMember->verified === 'Y') {
+						$bMatched = true;
+						$bMatchedRule = $rule;
+						break;
+					}
+				}
+			} else {
+				$modelAcnt = $this->model('site\user\account');
+				$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+				foreach ($aUnionUsers as $oUnionUser) {
+					$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+					if (count($aMembers) === 1) {
+						$oMember = $aMembers[0];
+						if ($oMember->verified === 'Y') {
+							$bMatched = true;
+							$bMatchedRule = $rule;
+							break;
+						}
+					}
+				}
+				if ($bMatched) {
+					break;
+				}
+			}
+
+		}
+
+		return [$bMatched, $bMatchedRule];
+	}
+	/**
 	 * 跳转到素材微信场景二维码关注页面
 	 */
 	protected function snsWxQrcodeFollow($oApp) {

@@ -31,124 +31,86 @@ class base extends \site\fe\matter\base {
 	protected function checkEntryRule($oApp, $bRedirect = false) {
 		$oUser = $this->who;
 		$oEntryRule = $oApp->entry_rule;
-		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'group') {
-			$bMatched = false;
-			/* 限分组用户访问 */
-			if (isset($oEntryRule->group->id)) {
-				$oGroupApp = $oEntryRule->group;
-				$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
-				if (count($oGroupUsr)) {
-					$oGroupUsr = $oGroupUsr[0];
-					if (isset($oGroupApp->round->id)) {
-						if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+		if (isset($oEntryRule->scope)) {
+			if ($oEntryRule->scope === 'group') {
+				$bMatched = false;
+				/* 限分组用户访问 */
+				if (isset($oEntryRule->group->id)) {
+					$oGroupApp = $oEntryRule->group;
+					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
+					if (count($oGroupUsr)) {
+						$oGroupUsr = $oGroupUsr[0];
+						if (isset($oGroupApp->round->id)) {
+							if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+								$bMatched = true;
+							}
+						} else {
 							$bMatched = true;
 						}
-					} else {
-						$bMatched = true;
 					}
 				}
-			}
-			if (false === $bMatched) {
-				if (true === $bRedirect) {
-					$this->outputInfo('您目前不满足【' . $oApp->title . '】的进入规则，无法访问，请联系活动的组织者解决');
-				}
-			}
-			if (isset($oEntryRule->otherwise->entry)) {
-				$page = $oEntryRule->otherwise->entry;
-			} else {
-				$page = null;
-			}
-		} else if (isset($oEntryRule->scope) && $oEntryRule->scope === 'member') {
-			/* 限通讯录用户访问 */
-			foreach ($oEntryRule->member as $schemaId => $rule) {
-				if (!empty($rule->entry)) {
-					/* 检查用户的信息是否完整，是否已经通过审核 */
-					$modelMem = $this->model('site\user\member');
-					if (empty($oUser->unionid)) {
-						$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
-						if (count($aMembers) === 1) {
-							$oMember = $aMembers[0];
-							if ($oMember->verified === 'Y') {
-								$page = $rule->entry;
-								break;
-							}
-						}
-					} else {
-						$modelAcnt = $this->model('site\user\account');
-						$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-						foreach ($aUnionUsers as $oUnionUser) {
-							$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
-							if (count($aMembers) === 1) {
-								$oMember = $aMembers[0];
-								if ($oMember->verified === 'Y') {
-									$page = $rule->entry;
-									break;
-								}
-							}
-						}
-						if (isset($page)) {
-							break;
-						}
+				if (false === $bMatched) {
+					if (true === $bRedirect) {
+						$this->outputInfo('您目前不满足【' . $oApp->title . '】的进入规则，无法访问，请联系活动的组织者解决');
 					}
 				}
-			}
-			if (!isset($page)) {
-				if (isset($oEntryRule->other->entry)) {
-					$page = $oEntryRule->other->entry;
+				if (isset($oEntryRule->otherwise->entry)) {
+					$page = $oEntryRule->otherwise->entry;
 				} else {
-					$page = '$memberschema';
+					$page = null;
 				}
-			}
-		} else if (isset($oEntryRule->scope) && $oEntryRule->scope === 'sns') {
-			$aResult = $this->enterAsSns($oApp);
-			$page = empty($aResult[1]->entry) ? $oEntryRule->other->entry : $aResult[1]->entry;
-		} else {
-			if (isset($oEntryRule->otherwise->entry)) {
-				$page = $oEntryRule->otherwise->entry;
 			} else {
-				$page = null;
+				if ($oEntryRule->scope === 'member') {
+					$aResult = $this->enterAsMember($oApp);
+				} elseif ($oEntryRule->scope === 'sns') {
+					$aResult = $this->enterAsSns($oApp);
+				}
+				if (true === $aResult[0]) {
+					$page = isset($aResult[1]->entry) ? $aResult[1]->entry : '';
+				} else {
+					if (isset($oEntryRule->other->entry)) {
+						$page = $oEntryRule->other->entry;
+					} else {
+						$page = $oEntryRule->scope === 'member' ? '$memberschema' : '$mpfollow';
+					}
+				}
 			}
 		}
+		if (empty($page) && isset($oEntryRule->otherwise->entry)) {
+			/* 应用的默认页 */
+			$page = $oEntryRule->otherwise->entry;
+		}
+		if (empty($page)) {
+			return false;
+		}
+
 		/* 内置页面 */
-		if (isset($page)) {
-			switch ($page) {
-			case '$memberschema':
-				$aMemberSchemas = array();
-				foreach ($oEntryRule->member as $schemaId => $rule) {
-					if (!empty($rule->entry)) {
-						$aMemberSchemas[] = $schemaId;
-					}
+		switch ($page) {
+		case '$memberschema':
+			$aMemberSchemas = array_keys(get_object_vars($oEntryRule->member));
+			$this->gotoMember($oApp, $aMemberSchemas, $bRedirect ? null : false);
+			break;
+		case '$mpfollow':
+			if (!empty($oEntryRule->sns->wx->entry)) {
+				/* 指定了登记轮次 */
+				$aParams = [];
+				if (!empty($_GET['rid'])) {
+					$aParams['rid'] = $_GET['rid'];
 				}
-				if ($bRedirect) {
-					/*页面跳转*/
-					$this->gotoMember($oApp, $aMemberSchemas);
-				} else {
-					/*返回地址*/
-					$this->gotoMember($oApp, $aMemberSchemas, false);
+				/* 指定了进入页面 */
+				if (!empty($_GET['page'])) {
+					$aParams['page'] = $_GET['page'];
 				}
-				break;
-			case '$mpfollow':
-				if (!empty($oEntryRule->sns->wx->entry)) {
-					/* 指定了登记轮次 */
-					$aParams = [];
-					if (!empty($_GET['rid'])) {
-						$aParams['rid'] = $_GET['rid'];
-					}
-					/* 指定了进入页面 */
-					if (!empty($_GET['page'])) {
-						$aParams['page'] = $_GET['page'];
-					}
-					if (!empty($aParams)) {
-						$oApp->params = $aParams;
-					}
-					$this->snsWxQrcodeFollow($oApp);
-				} else if (!empty($oEntryRule->sns->qy->entry)) {
-					$this->snsFollow($oApp->siteid, 'qy', $oApp);
-				} else if (!empty($oEntryRule->sns->yx->entry)) {
-					$this->snsFollow($oApp->siteid, 'yx', $oApp);
+				if (!empty($aParams)) {
+					$oApp->params = $aParams;
 				}
-				break;
+				$this->snsWxQrcodeFollow($oApp);
+			} else if (!empty($oEntryRule->sns->qy->entry)) {
+				$this->snsFollow($oApp->siteid, 'qy', $oApp);
+			} else if (!empty($oEntryRule->sns->yx->entry)) {
+				$this->snsFollow($oApp->siteid, 'yx', $oApp);
 			}
+			break;
 		}
 
 		return $page;

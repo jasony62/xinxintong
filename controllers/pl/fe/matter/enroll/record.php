@@ -39,6 +39,25 @@ class record extends \pl\fe\matter\base {
 
 		$mdoelRec = $this->model('matter\enroll\record');
 		$record = $mdoelRec->byId($ek, ['verbose' => 'Y']);
+		if ($record) {
+			$modelApp = $this->model('matter\enroll');
+			$oApp = $modelApp->byId($record->aid);
+			$dataSchemas = new \stdClass;
+			foreach ($oApp->dataSchemas as $schema) {
+				$dataSchemas->{$schema->id} = $schema;
+			}
+			foreach ($record->data as $k => $data) {
+				if (isset($dataSchemas->{$k}) && $dataSchemas->{$k}->type === 'multitext') {
+					$verboseVals = json_decode($record->verbose->{$k}->value);
+					$items = [];
+					foreach ($verboseVals as $verboseVal) {
+						$res = $this->model('matter\enroll\data')->byId($verboseVal->id);
+						$items[] = $res;
+					}
+					$record->verbose->{$k}->items = $items;
+				}
+			}
+		}
 
 		return new \ResponseData($record);
 	}

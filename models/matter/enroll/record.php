@@ -968,7 +968,7 @@ class record_model extends record_base {
 		$q = [
 			'enroll_key,value,like_log,like_num',
 			"xxt_enroll_record_data",
-			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>''",
+			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>'' and multitext_seq = 0",
 		];
 		if ($oDataSchema->type === 'date') {
 

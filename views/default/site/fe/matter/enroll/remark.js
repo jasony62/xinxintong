@@ -225,6 +225,9 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
             listRemarks().then(function(data) {
                 var oRemark, oUpperRemark, oRemarks = {};
                 if (data.remarks && data.remarks.length) {
+                    angular.forEach(data.remarks, function(remark) {
+                        oRemarks[remark.id] = remark;
+                    });
                     for (var i = data.remarks.length - 1; i >= 0; i--) {
                         oRemark = data.remarks[i];
                         if (oRemark.content) {
@@ -234,7 +237,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
                             oUpperRemark = oRemarks[oRemark.remark_id];
                             oRemark.content = '<a href="" ng-click="gotoUpper(' + oRemark.remark_id + ')">回复 ' + oUpperRemark.nickname + ' 的评论：</a><br/>' + oRemark.content;
                         }
-                        oRemarks[oRemark.id] = oRemark;
                     }
                 }
                 if (data.data) {

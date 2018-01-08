@@ -88,41 +88,37 @@ class plan_model extends app_base {
 		$oNewApp->summary = $this->escape($oNewApp->summary);
 
 		$oEntryRule = new \stdClass;
-		// if (empty($oProto->entryRule)) {
-		// 	$oEntryRule->scope = 'none';
-		// } else {
-		// 	switch ($oProto->entryRule->scope) {
-		// 	case 'member':
-		// 		$oEntryRule->scope = 'member';
-		// 		$oEntryRule->member = new \stdClass;
-		// 		if (!empty($oProto->entryRule->mschemas)) {
-		// 			foreach ($oProto->entryRule->mschemas as $oMschema) {
-		// 				$oEntryRule->member->{$oMschema->id} = (object) ['entry' => ''];
-		// 			}
-		// 		}
-		// 		break;
-		// 	case 'sns':
-		// 		$oEntryRule->scope = 'sns';
-		// 		$oEntryRule->sns = new \stdClass;
-		// 		if (isset($oProto->entryRule->sns)) {
-		// 			foreach ($oProto->entryRule->sns as $snsName => $valid) {
-		// 				if ($valid) {
-		// 					$oEntryRule->sns->{$snsName} = (object) ['entry' => 'Y'];
-		// 				}
-		// 			}
-		// 		}
-		// 		break;
-		// 	case 'group':
-		// 		$oEntryRule->scope = 'group';
-		// 		$oEntryRule->group = new \stdClass;
-		// 		if (!empty($oProto->entryRule->group->id)) {
-		// 			$oEntryRule->group->id = $oProto->entryRule->group->id;
-		// 		}
-		// 		break;
-		// 	default:
-		// 		$oEntryRule->scope = 'none';
-		// 	}
-		// }
+		if (isset($oProto->entryRule->scope)) {
+			$oScope = $oProto->entryRule->scope;
+			$oEntryRule->scope = new \stdClass;
+			if (!empty($oScope->member) && $oScope->member === 'Y') {
+				$oEntryRule->scope->member = 'Y';
+				$oEntryRule->member = new \stdClass;
+				if (!empty($oProto->entryRule->mschemas)) {
+					foreach ($oProto->entryRule->mschemas as $oMschema) {
+						$oEntryRule->member->{$oMschema->id} = (object) ['entry' => ''];
+					}
+				}
+			}
+			if (!empty($oScope->sns) && $oScope->sns === 'Y') {
+				$oEntryRule->scope->sns = 'Y';
+				$oEntryRule->sns = new \stdClass;
+				if (isset($oProto->entryRule->sns)) {
+					foreach ($oProto->entryRule->sns as $snsName => $valid) {
+						if ($valid) {
+							$oEntryRule->sns->{$snsName} = (object) ['entry' => 'Y'];
+						}
+					}
+				}
+			}
+			if (!empty($oScope->group) && $oScope->group === 'Y') {
+				$oEntryRule->scope->group = 'Y';
+				$oEntryRule->group = new \stdClass;
+				if (!empty($oProto->entryRule->group->id)) {
+					$oEntryRule->group->id = $oProto->entryRule->group->id;
+				}
+			}
+		}
 
 		$oNewApp->entry_rule = $this->toJson($oEntryRule);
 

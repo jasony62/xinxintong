@@ -14,7 +14,7 @@ define(['require'], function(require) {
         var _oProto, _oEntryRule;
         $scope.proto = _oProto = {
             entryRule: {
-                scope: '',
+                scope: {},
                 mschemas: [],
             }
         };
@@ -31,7 +31,7 @@ define(['require'], function(require) {
                 var oMission;
                 $scope.mission = oMission = rsp.data;
                 _oProto.mission = { id: oMission.id, title: oMission.title };
-                _oEntryRule.scope = oMission.entry_rule.scope || 'none';
+                //_oEntryRule.scope = oMission.entry_rule.scope || 'none';
                 if ('member' === oMission.entry_rule.scope) {
                     srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
                         var oMschemasById = {};
@@ -90,20 +90,17 @@ define(['require'], function(require) {
                 }
             });
         };
-        $scope.changeUserScope = function() {
-            switch (_oEntryRule.scope) {
-                case 'member':
-                    if (!_oEntryRule.mschemas || _oEntryRule.mschemas.length === 0) {
-                        $scope.chooseMschema();
-                    }
-                    break;
-                case 'sns':
-                    _oEntryRule.sns = {};
-                    $scope.snsNames.forEach(function(snsName) {
-                        _oEntryRule.sns[snsName] = true;
-                    });
-                    break;
-            }
+        $scope.changeUserScope = function(scope) {
+            // if (scope === 'member') {
+            //     if (!_oEntryRule.mschemas || _oEntryRule.mschemas.length === 0) {
+            //         $scope.chooseMschema();
+            //     }
+            // } else if (scope === 'sns') {
+            //     _oEntryRule.sns = {};
+            //     $scope.snsNames.forEach(function(snsName) {
+            //         _oEntryRule.sns[snsName] = true;
+            //     });
+            // }
         };
         $scope.doCreate = function() {
             var url, data;

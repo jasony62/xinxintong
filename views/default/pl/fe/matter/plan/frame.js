@@ -104,20 +104,8 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             $scope.site = oSite;
         });
         srvSite.snsList().then(function(oSns) {
-            var oSiteSns;
             $scope.sns = oSns;
             $scope.snsCount = Object.keys(oSns).length;
-            if ($scope.snsCount) {
-                oSiteSns = {};
-                for (var snsName in oSns) {
-                    if (oSns[snsName].platform && oSns[snsName].platform === 'Y') {
-                        continue;
-                    }
-                    oSiteSns[snsName] = oSns[snsName];
-                }
-                $scope.siteSns = oSiteSns;
-                $scope.siteSnsCount = Object.keys(oSiteSns).length;
-            }
             srvPlanApp.get().then(function(oApp) {
                 oApp.scenario = 'quiz';
                 $scope.app = oApp;

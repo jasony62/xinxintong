@@ -65,27 +65,26 @@ define(['frame'], function(ngApp) {
         }
 
         var _oApp, _oEntryRule;
-        $scope.rule = {};
-        $scope.changeUserScope = function() {
-            srvPlanApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.memberSchemas);
+        $scope.changeUserScope = function(scope) {
+            srvPlanApp.changeUserScope(scope, $scope.sns);
         };
 
         $scope.chooseGroupApp = function() {
             chooseGroupApp().then(function(result) {
                 if (setGroupEntry(result)) {
-                    $scope.update('entry_rule');
+                    $scope.update('entryRule');
                 }
             });
         };
         $scope.removeGroupApp = function() {
             delete _oEntryRule.group;
-            $scope.update('entry_rule');
+            $scope.update('entryRule');
         };
         $scope.chooseMschema = function() {
             srvSite.chooseMschema($scope.app).then(function(result) {
                 if (!_oEntryRule.member[result.chosen.id]) {
                     _oEntryRule.member[result.chosen.id] = { entry: '' };
-                    $scope.update('entry_rule');
+                    $scope.update('entryRule');
                 }
             });
         };
@@ -104,13 +103,12 @@ define(['frame'], function(ngApp) {
             var bSchemaChanged;
             if (_oEntryRule.member[mschemaId]) {
                 delete _oEntryRule.member[mschemaId];
-                $scope.update('entry_rule');
+                $scope.update('entryRule');
             }
         };
         srvPlanApp.get().then(function(oApp) {
             _oApp = oApp;
-            $scope.rule.scope = oApp.entry_rule.scope || 'none';
-            _oEntryRule = oApp.entry_rule;
+            $scope.entryRule = _oEntryRule = oApp.entryRule;
         });
     }]);
 });

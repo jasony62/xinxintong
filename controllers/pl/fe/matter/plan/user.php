@@ -39,7 +39,8 @@ class user extends \pl\fe\matter\base {
 		$q2 = ['o' => 'last_enroll_at desc'];
 
 		$users = $modelUsr->query_objs_ss($q, $q2);
-		if (!empty($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id)) {
+		$oEntryRule = $oApp->entryRule;
+		if (!empty($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y' && !empty($oEntryRule->group->id)) {
 			$modelGrpRnd = $this->model('matter\group\round');
 			foreach ($users as $oUser) {
 				if (!empty($oUser->group_id)) {

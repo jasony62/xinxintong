@@ -36,7 +36,7 @@ class base extends \site\fe\base {
 	 * @param object $app
 	 */
 	protected function requireSnsOAuth($oApp) {
-		$oEntryRule = $oApp->entry_rule;
+		$oEntryRule = isset($oApp->entryRule) ? $oApp->entryRule : $oApp->entry_rule;
 		if ($this->userAgent() === 'wx') {
 			if (!empty($oEntryRule->sns->wx->entry)) {
 				if (!isset($this->who->sns->wx)) {
@@ -73,7 +73,7 @@ class base extends \site\fe\base {
 	 * 限社交网站用户参与
 	 */
 	protected function enterAsSns($oApp) {
-		$oEntryRule = $oApp->entry_rule;
+		$oEntryRule = isset($oApp->entryRule) ? $oApp->entryRule : $oApp->entry_rule;
 		$oUser = $this->who;
 		$bFollowed = false;
 		$oFollowedRule = null;
@@ -108,7 +108,7 @@ class base extends \site\fe\base {
 	 * 限通讯录用户参与
 	 */
 	protected function enterAsMember($oApp) {
-		$oEntryRule = $oApp->entry_rule;
+		$oEntryRule = isset($oApp->entryRule) ? $oApp->entryRule : $oApp->entry_rule;
 		$oUser = $this->who;
 		$bMatched = false;
 		$bMatchedRule = null;

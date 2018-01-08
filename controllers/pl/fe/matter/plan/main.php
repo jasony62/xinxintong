@@ -37,9 +37,10 @@ class main extends \pl\fe\matter\main_base {
 			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, ['cascaded' => 'phase']);
 		}
 		/* 指定分组活动访问 */
-		if (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'group') {
-			if (isset($oApp->entry_rule->group)) {
-				$oRuleApp = $oApp->entry_rule->group;
+		$oEntryRule = $oApp->entryRule;
+		if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
+			if (isset($oEntryRule->group)) {
+				$oRuleApp = $oEntryRule->group;
 				if (!empty($oRuleApp->id)) {
 					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'N']);
 					if ($oGroupApp) {
@@ -200,8 +201,8 @@ class main extends \pl\fe\matter\main_base {
 		$oUpdated = new \stdClass;
 		foreach ($posted as $n => $v) {
 			switch ($n) {
-			case 'entry_rule':
-				if ($v->scope === 'group') {
+			case 'entryRule':
+				if (isset($v->scope->group) && $v->scope->group === 'Y') {
 					if (isset($v->group->title)) {
 						unset($v->group->title);
 					}
@@ -210,9 +211,6 @@ class main extends \pl\fe\matter\main_base {
 					}
 				}
 				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($v));
-				break;
-			case 'assocSns':
-				$oUpdated->assoc_sns = $modelApp->escape($modelApp->toJson($v));
 				break;
 			case 'title':
 			case 'summary':

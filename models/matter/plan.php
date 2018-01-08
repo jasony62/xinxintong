@@ -43,15 +43,15 @@ class plan_model extends app_base {
 			if (!empty($oMatter->siteid) && !empty($oMatter->id)) {
 				$oMatter->entryUrl = $this->getEntryUrl($oMatter->siteid, $oMatter->id);
 			}
+			/* entry rule */
+			if (property_exists($oMatter, 'entry_rule')) {
+				$oMatter->entryRule = $oMatter->entry_rule;
+				unset($oMatter->entry_rule);
+			}
 			/* check schemas */
 			if (property_exists($oMatter, 'check_schemas')) {
 				$oMatter->checkSchemas = empty($oMatter->check_schemas) ? [] : json_decode($oMatter->check_schemas);
 				unset($oMatter->check_schemas);
-			}
-			/* notify by */
-			if (property_exists($oMatter, 'assoc_sns')) {
-				$oMatter->assocSns = empty($oMatter->assoc_sns) ? new \stdClass : json_decode($oMatter->assoc_sns);
-				unset($oMatter->assoc_sns);
 			}
 		}
 
@@ -88,41 +88,41 @@ class plan_model extends app_base {
 		$oNewApp->summary = $this->escape($oNewApp->summary);
 
 		$oEntryRule = new \stdClass;
-		if (empty($oProto->entryRule)) {
-			$oEntryRule->scope = 'none';
-		} else {
-			switch ($oProto->entryRule->scope) {
-			case 'member':
-				$oEntryRule->scope = 'member';
-				$oEntryRule->member = new \stdClass;
-				if (!empty($oProto->entryRule->mschemas)) {
-					foreach ($oProto->entryRule->mschemas as $oMschema) {
-						$oEntryRule->member->{$oMschema->id} = (object) ['entry' => ''];
-					}
-				}
-				break;
-			case 'sns':
-				$oEntryRule->scope = 'sns';
-				$oEntryRule->sns = new \stdClass;
-				if (isset($oProto->entryRule->sns)) {
-					foreach ($oProto->entryRule->sns as $snsName => $valid) {
-						if ($valid) {
-							$oEntryRule->sns->{$snsName} = (object) ['entry' => 'Y'];
-						}
-					}
-				}
-				break;
-			case 'group':
-				$oEntryRule->scope = 'group';
-				$oEntryRule->group = new \stdClass;
-				if (!empty($oProto->entryRule->group->id)) {
-					$oEntryRule->group->id = $oProto->entryRule->group->id;
-				}
-				break;
-			default:
-				$oEntryRule->scope = 'none';
-			}
-		}
+		// if (empty($oProto->entryRule)) {
+		// 	$oEntryRule->scope = 'none';
+		// } else {
+		// 	switch ($oProto->entryRule->scope) {
+		// 	case 'member':
+		// 		$oEntryRule->scope = 'member';
+		// 		$oEntryRule->member = new \stdClass;
+		// 		if (!empty($oProto->entryRule->mschemas)) {
+		// 			foreach ($oProto->entryRule->mschemas as $oMschema) {
+		// 				$oEntryRule->member->{$oMschema->id} = (object) ['entry' => ''];
+		// 			}
+		// 		}
+		// 		break;
+		// 	case 'sns':
+		// 		$oEntryRule->scope = 'sns';
+		// 		$oEntryRule->sns = new \stdClass;
+		// 		if (isset($oProto->entryRule->sns)) {
+		// 			foreach ($oProto->entryRule->sns as $snsName => $valid) {
+		// 				if ($valid) {
+		// 					$oEntryRule->sns->{$snsName} = (object) ['entry' => 'Y'];
+		// 				}
+		// 			}
+		// 		}
+		// 		break;
+		// 	case 'group':
+		// 		$oEntryRule->scope = 'group';
+		// 		$oEntryRule->group = new \stdClass;
+		// 		if (!empty($oProto->entryRule->group->id)) {
+		// 			$oEntryRule->group->id = $oProto->entryRule->group->id;
+		// 		}
+		// 		break;
+		// 	default:
+		// 		$oEntryRule->scope = 'none';
+		// 	}
+		// }
 
 		$oNewApp->entry_rule = $this->toJson($oEntryRule);
 

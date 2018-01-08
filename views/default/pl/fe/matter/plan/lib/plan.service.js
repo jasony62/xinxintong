@@ -39,9 +39,8 @@ define(['require'], function(require) {
                     return defer.promise;
                 },
                 changeUserScope: function(ruleScope, oSiteSns) {
-                    var oEntryRule = _oApp.entry_rule;
-                    oEntryRule.scope = ruleScope;
-                    switch (oEntryRule.scope) {
+                    var oEntryRule = _oApp.entryRule;
+                    switch (ruleScope) {
                         case 'member':
                             oEntryRule.member === undefined && (oEntryRule.member = {});
                             break;
@@ -55,7 +54,7 @@ define(['require'], function(require) {
                             break;
                         default:
                     }
-                    return this.update('entry_rule');
+                    return this.update('entryRule');
                 },
             };
             return oInstance;

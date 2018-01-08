@@ -124,7 +124,7 @@
                 <div ng-repeat="schema in app.dataSchemas" ng-if="schema.type!=='html'">
                     <div class="form-group">
                         <label class='form-label col-md-3'>{{schema.title}}</label>
-                        <div ng-switch on="schema.type" class='col-md-6'>
+                        <div ng-switch on="schema.type" class='col-md-9'>
                             <textarea class='form-control' ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
                             <select class='form-control' ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                                 <option></option>
@@ -181,17 +181,25 @@
                                 <button class="btn btn-default" ng-click="chooseFile(schema.id)">上传文件</button>
                             </div>
                             <div ng-switch-when='multitext'>
-                                <p ng-repeat="item in record.data[schema.id]">
-                                    <input type='text' class='form-control' ng-model="item.value">
-                                    <span ng-if="schema.shareable==='Y'">
-                                        <select class='form-control input-sm' ng-change="agree(record,schema)" ng-model="record.verbose[schema.id].agreed">
-                                            <option value=''>未表态</option>
-                                            <option value='Y'>推荐</option>
-                                            <option value='A'>接受</option>
-                                            <option value='N'>屏蔽</option>
-                                        </select>
-                                    </span>
-                                </p>
+                                <div ng-repeat="item in record.data[schema.id]" style="margin-bottom:10px">
+                                    <input type='text' class='form-control' ng-model="item.value" />
+                                    <div class='bottom-bar'>
+                                        <div ng-if="schema.shareable==='Y'">
+                                            <span>赞同<span class='badge'>{{record.verbose[schema.id]._items[item.id].like_num||0}}</span></span>
+                                        </div>
+                                        <div ng-if="schema.remarkable==='Y'">
+                                            <button class='btn btn-default btn-sm' ng-click="switchSchemaRemarks(schema,item.id)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id]._items[item.id].remark_num||0}}</span></button>
+                                        </div>
+                                        <span ng-if="schema.shareable==='Y'">
+                                            <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id]._items[item.id].agreed,item.id)" ng-model="record.verbose[schema.id]._items[item.id].agreed">
+                                                <option value=''>未表态</option>
+                                                <option value='Y'>推荐</option>
+                                                <option value='A'>接受</option>
+                                                <option value='N'>屏蔽</option>
+                                            </select>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                             <div ng-switch-when='date'>
                                 <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
@@ -206,7 +214,7 @@
                         </div>
                     </div>
                     <div class='form-group'>
-                        <div class='col-md-6 col-md-offset-2'>
+                        <div class='col-md-9 col-md-offset-3'>
                             <div class='bottom-bar'>
                                 <div ng-if="schema.cantag==='Y'&&record.data_tag[schema.id]!=''">
                                     <label>标签：</label>
@@ -223,7 +231,7 @@
                                     <button class='btn btn-default btn-sm' ng-click="switchSchemaRemarks(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span></button>
                                 </div>
                                 <div ng-if="schema.shareable==='Y'">
-                                    <select class='form-control input-sm' ng-change="agree(record,schema)" ng-model="record.verbose[schema.id].agreed">
+                                    <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id].agreed)" ng-model="record.verbose[schema.id].agreed">
                                         <option value=''>未表态</option>
                                         <option value='Y'>推荐</option>
                                         <option value='A'>接受</option>
@@ -234,7 +242,7 @@
                         </div>
                     </div>
                     <div class='form-group remarks' ng-if="openedRemarksSchema===schema">
-                        <div class='col-md-6 col-md-offset-2'>
+                        <div class='col-md-9 col-md-offset-3'>
                             <div class='remark' ng-repeat="remark in schemaRemarks[schema.id]">
                                 <blockquote>
                                     <p>{{remark.content}}</p>

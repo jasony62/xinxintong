@@ -268,6 +268,13 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 oBeforeQuizScore = angular.copy(oQuizScore);
             }
         }
+        function _items(schema) {
+            var _item = {};
+            angular.forEach(oBeforeRecord.verbose[schema.id].items, function(item) {
+                _item[item.id] = item;
+                oBeforeRecord.verbose[schema.id]._items = _item;
+            });
+        }
         var oApp, oRecord, oBeforeRecord, oQuizScore, oBeforeQuizScore;
 
         $scope.scoreRangeArray = function(schema) {
@@ -324,9 +331,9 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
         $scope.openedRemarksSchema = false;
-        $scope.switchSchemaRemarks = function(schema) {
+        $scope.switchSchemaRemarks = function(schema, itemId) {
             $scope.openedRemarksSchema = schema;
-            srvEnrollRecord.listRemark(oRecord.enroll_key, schema.id).then(function(result) {
+            srvEnrollRecord.listRemark(oRecord.enroll_key, schema.id, itemId).then(function(result) {
                 schemaRemarks[schema.id] = result.remarks;
             });
         };
@@ -345,8 +352,8 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 $scope.newRemark.content = '';
             });
         };
-        $scope.agree = function(oSchema) {
-            srvEnrollRecord.agree(oRecord.enroll_key, oSchema.id, oRecord.verbose[oSchema.id].agreed).then(function() {});
+        $scope.agree = function(oRecord, oSchema, oAgreed, oItemId) {
+            srvEnrollRecord.agree(oRecord.enroll_key, oSchema.id, oAgreed, oItemId).then(function() {});
         };
         $scope.agreeRemark = function(oRemark) {
             srvEnrollRecord.agreeRemark(oRemark.id, oRemark.agreed).then(function() {});
@@ -360,6 +367,9 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     oApp.dataSchemas.forEach(function(schema) {
                         if (oBeforeRecord.data[schema.id]) {
                             srvRecordConverter.forEdit(schema, oBeforeRecord.data);
+                            if(schema.type=='multitext') {
+                                _items(schema);
+                            }
                         }
                     });
                     oApp._schemasFromEnrollApp.forEach(function(schema) {

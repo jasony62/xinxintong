@@ -81,6 +81,9 @@
                                 <div ng-switch-when="file">
                                     <span ng-repeat='file in records[r.enroll_key]._data[r.schema_id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                                 </div>
+                                <div ng-switch-when="multitext">
+                                    <p ng-repeat='item in records[r.enroll_key]._data[r.schema_id]'><span ng-bind="item.value"></span></p>
+                                </div>
                                 <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                                 <span ng-switch-default ng-bind-html="records[r.enroll_key]._data[r.schema_id]"></span>
                             </td>

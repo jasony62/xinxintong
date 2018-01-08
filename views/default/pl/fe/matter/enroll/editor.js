@@ -7,6 +7,9 @@ define(['frame'], function(ngApp) {
                 app.dataSchemas.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
                         srvRecordConverter.forEdit(schema, oRecord.data);
+                        if(schema.type=='multitext') {
+                            _items(schema);
+                        }
                     }
                 });
                 app._schemasFromEnrollApp.forEach(function(schema) {
@@ -54,6 +57,14 @@ define(['frame'], function(ngApp) {
             $scope.remarkableSchemas = remarkableSchemas;
         }
 
+        function _items(schema) {
+            var _item = {};
+            angular.forEach(oRecord.verbose[schema.id].items, function(item) {
+                _item[item.id] = item;
+                oRecord.verbose[schema.id]._items = _item;
+            });
+        }
+
         function _quizScore(oRecord) {
             if (oRecord.verbose) {
                 for (var schemaId in oRecord.verbose) {
@@ -84,7 +95,7 @@ define(['frame'], function(ngApp) {
             updated.verified = oRecord.verified;
             updated.rid = oRecord.rid;
             updated.userid = oRecord.userid;
-        
+
             if (oRecord.enroll_key) {
                 if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
                     updated.data = oRecord.data;
@@ -257,8 +268,8 @@ define(['frame'], function(ngApp) {
                 $scope.pageOfRound = result.page;
             });
         };
-        $scope.agree = function(oRecord, oSchema) {
-            srvEnrollRecord.agree(oRecord.enroll_key, oSchema.id, oRecord.verbose[oSchema.id].agreed).then(function() {});
+        $scope.agree = function(oRecord, oSchema, oAgreed, oItemId) {
+            srvEnrollRecord.agree(oRecord.enroll_key, oSchema.id, oAgreed, oItemId).then(function() {});
         };
         $scope.agreeRemark = function(oRemark) {
             srvEnrollRecord.agreeRemark(oRemark.id, oRemark.agreed).then(function() {});
@@ -271,9 +282,9 @@ define(['frame'], function(ngApp) {
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
         $scope.openedRemarksSchema = false;
-        $scope.switchSchemaRemarks = function(schema) {
+        $scope.switchSchemaRemarks = function(schema, itemId) {
             $scope.openedRemarksSchema = schema;
-            srvEnrollRecord.listRemark(ek, schema.id).then(function(result) {
+            srvEnrollRecord.listRemark(ek, schema.id, itemId).then(function(result) {
                 schemaRemarks[schema.id] = result.remarks;
             });
         };

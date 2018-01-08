@@ -1246,12 +1246,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 })
                 return defer.promise;
             };
-            _ins.listRemark = function(ek, schemaId) {
+            _ins.listRemark = function(ek, schemaId, itemId) {
                 var url, defer = $q.defer();
                 url = '/rest/pl/fe/matter/enroll/remark/list';
                 url += '?site=' + _siteId;
                 url += '&ek=' + ek;
                 schemaId && (url += '&schema=' + schemaId);
+                itemId && (url += '&id=' + itemId);
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
                 });
@@ -1266,11 +1267,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
-            _ins.agree = function(ek, schemaId, value) {
+            _ins.agree = function(ek, schemaId, value, itemId) {
                 var url, defer = $q.defer();
                 url = '/rest/pl/fe/matter/enroll/data/agree?ek=' + ek;
                 url += '&schema=' + schemaId;
                 url += '&value=' + value;
+                itemId && (url += '&id=' + itemId);
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
                 });

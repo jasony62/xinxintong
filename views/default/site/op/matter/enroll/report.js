@@ -37,7 +37,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {
             $scope.user = rsp.data;
             srvEnrollApp.opGet().then(function(data) {
-                var oApp = data.app;
+                var oApp = data;
                 // schemas
                 var recordSchemas = [],
                     recordSchemas2 = [],

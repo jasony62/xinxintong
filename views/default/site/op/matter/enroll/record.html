@@ -102,6 +102,27 @@
                                     </ul>
                                     <button class="btn btn-default" ng-click="chooseFile(schema.id)">上传文件</button>
                                 </div>
+                                <div ng-switch-when='multitext'>
+                                    <div ng-repeat="item in record.data[schema.id]" style="margin-bottom:10px">
+                                        <input type='text' class='form-control' ng-model="item.value" />
+                                        <div class='bottom-bar'>
+                                            <div ng-if="schema.shareable==='Y'">
+                                                <span>赞同<span class='badge'>{{record.verbose[schema.id]._items[item.id].like_num||0}}</span></span>
+                                            </div>
+                                            <div ng-if="schema.remarkable==='Y'">
+                                                <button class='btn btn-default btn-sm' ng-click="switchSchemaRemarks(schema,item.id)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id]._items[item.id].remark_num||0}}</span></button>
+                                            </div>
+                                            <span ng-if="schema.shareable==='Y'">
+                                                <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id]._items[item.id].agreed,item.id)" ng-model="record.verbose[schema.id]._items[item.id].agreed">
+                                                    <option value=''>未表态</option>
+                                                    <option value='Y'>推荐</option>
+                                                    <option value='A'>接受</option>
+                                                    <option value='N'>屏蔽</option>
+                                                </select>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div ng-switch-when='date'>
                                     <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
                                 </div>
@@ -123,7 +144,7 @@
                                         <button class='btn btn-default btn-sm' ng-click="switchSchemaRemarks(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge" ng-class="{unread:record.verbose[schema.id].last_remark_at>lastCachedStatus.lastAt}">{{record.verbose[schema.id].remark_num||0}}</span></button>
                                     </div>
                                     <div class="tms-keep-inline" ng-if="schema.shareable==='Y'">
-                                        <select class='form-control input-sm' ng-change="agree(schema)" ng-model="record.verbose[schema.id].agreed">
+                                        <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id].agreed)" ng-model="record.verbose[schema.id].agreed">
                                             <option value=''>不表态</option>
                                             <option value='A'>接受</option>
                                             <option value='Y'>推荐</option>

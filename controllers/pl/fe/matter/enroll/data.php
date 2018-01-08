@@ -61,13 +61,17 @@ class data extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function agree_action($ek, $schema, $value = '') {
+	public function agree_action($ek, $schema, $value = '', $id = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelData = $this->model('matter\enroll\data');
-		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,userid,agreed,agreed_log']);
+		if (empty($id)) {
+			$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,userid,agreed,agreed_log']);
+		} else {
+			$oRecData = $modelData->byId($id, ['fields' => 'id,aid,userid,agreed,agreed_log']);
+		}
 		if (false === $oRecData) {
 			return new \ObjectNotFoundError();
 		}

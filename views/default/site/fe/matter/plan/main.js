@@ -214,7 +214,7 @@ ngApp.config(['$compileProvider', '$routeProvider', '$locationProvider', 'tmsLoc
  * 计划任务活动
  */
 ngApp.controller('ctrlMain', ['$scope', '$location', 'http2', 'tmsLocation', 'tmsSnsShare', function($scope, $location, http2, LS, tmsSnsShare) {
-    var _oApp;
+    var _oApp, _oUser;
     $scope.subView = '';
     $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
         var subView = currentRoute.match(/([^\/]+?)\?/);
@@ -241,8 +241,19 @@ ngApp.controller('ctrlMain', ['$scope', '$location', 'http2', 'tmsLocation', 'tm
         url += "?site=" + LS.s().site;
         location.href = url;
     };
+    $scope.invite = function() {
+        if (!_oUser.loginExpire) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                _oUser.loginExpire = data.loginExpire;
+                location.href = "/rest/site/fe/invite?matter=plan," + _oApp.id;
+            });
+        } else {
+            location.href = "/rest/site/fe/invite?matter=plan," + _oApp.id;
+        }
+    };
     http2.get(LS.j('get', 'site', 'app')).then(function(rsp) {
         $scope.app = _oApp = rsp.data.app;
+        $scope.user = _oUser = rsp.data.user;
 
         _oApp._taskSchemasById = {};
         _oApp.tasks.forEach(function(oTaskSchema) {

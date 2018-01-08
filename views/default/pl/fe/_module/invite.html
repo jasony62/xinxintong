@@ -20,6 +20,10 @@
                             <textarea class='form-control' ng-model="invite.message"></textarea>
                             <button class='btn btn-default' ng-click="update('message')">保存邀请留言</button>
                         </div>
+                        <div class='checkbox'>
+                            <label>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="invite.can_relay" ng-change="update('can_relay')">支持间接邀请</label>
+                        </div>
                         <hr>
                         <button ng-if="invite.state==='1'" class='btn btn-default' ng-click="closeInvite()">关闭仅能通过邀请链接访问的显示</button>
                         <button ng-if="invite.state!=='1'" class='btn btn-default' ng-click="openInvite()">恢复仅能通过邀请链接访问的显示</button>

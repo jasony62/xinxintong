@@ -142,6 +142,38 @@ class base extends \site\base {
 		return $fan;
 	}
 	/**
+	 * 当前用户在指定通讯录中的用户
+	 */
+	protected function whoMember($siteId, $mschemaId) {
+		$oUserMember = false;
+		$oUser = $this->who;
+		/* 检查用户的信息是否完整，是否已经通过审核 */
+		$modelMem = $this->model('site\user\member');
+		if (empty($oUser->unionid)) {
+			$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $mschemaId]);
+			if (count($aMembers) === 1) {
+				$oMember = $aMembers[0];
+				if ($oMember->verified === 'Y') {
+					$oUserMember = $oMember;
+				}
+			}
+		} else {
+			$modelAcnt = $this->model('site\user\account');
+			$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $siteId, 'fields' => 'uid']);
+			foreach ($aUnionUsers as $oUnionUser) {
+				$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $mschemaId]);
+				if (count($aMembers) === 1) {
+					$oMember = $aMembers[0];
+					if ($oMember->verified === 'Y') {
+						$oUserMember = $oMember;
+						break;
+					}
+				}
+			}
+		}
+		return $oUserMember;
+	}
+	/**
 	 * 检查当前用户是否已经登录，且在有效期内
 	 */
 	public function isLogined() {
@@ -312,6 +344,8 @@ class base extends \site\base {
 	 *
 	 * @param string $siteId
 	 * @param string $snsName
+	 * @param object $oMatter 要访问的素材
+	 * @param string $sceneId 场景二维码id
 	 *
 	 */
 	protected function snsFollow($siteId, $snsName, $oMatter = null, $sceneId = null) {
@@ -321,6 +355,9 @@ class base extends \site\base {
 			$followUrl .= '&sceneid=' . $sceneId;
 		} else if (!empty($oMatter)) {
 			$followUrl .= '&matter=' . $oMatter->type . ',' . $oMatter->id;
+			if (isset($oMatter->params->inviteToken)) {
+				$followUrl .= '&inviteToken=' . $oMatter->params->inviteToken;
+			}
 		}
 
 		$this->redirect($followUrl);

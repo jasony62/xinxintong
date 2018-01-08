@@ -30,6 +30,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
             if (rsp.err_code != 0) {
                 $scope.errmsg = rsp.err_msg;
+                $scope.refreshPin();
                 return;
             }
             if ($scope.loginData.rememberMe === 'Y') {
@@ -110,6 +111,11 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
     $scope.gotoHome = function() {
         location.href = '/rest/site/fe/user?site=' + _siteId;
     };
+    $scope.refreshPin = function() {
+        var time = new Date().getTime(),
+            url = '/rest/site/fe/user/login/getCaptcha?site=platform&codelen=4&width=130&height=34&fontsize=20';
+        $scope.pinImg = url + '&' + time;
+    };
     $http.get('/rest/site/fe/get?site=' + _siteId).success(function(rsp) {
         $scope.site = rsp.data;
         $http.get('/rest/site/fe/user/get?site=' + _siteId).success(function(rsp) {
@@ -117,9 +123,10 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             eleLoading = document.querySelector('.loading');
             eleLoading.parentNode.removeChild(eleLoading);
             $scope.user = rsp.data;
+            $scope.refreshPin();
         }).error(function(data, header, config, status) {
             $http.post('/rest/log/add', { src: 'site.fe.user.access', msg: JSON.stringify(arguments) });
             alert('操作失败：' + (data === null ? '网络不可用' : data));
-        });;
+        });
     });
 }]);

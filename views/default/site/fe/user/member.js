@@ -29,7 +29,7 @@ var LS = (function(fields) {
         p: locationSearch(),
         j: j
     };
-})(['site', 'schema', 'debug']);
+})(['site', 'schema', 'matter', 'debug']);
 var ngApp = angular.module('app', ['ui.bootstrap', 'page.ui.xxt']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
@@ -230,16 +230,28 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
         sendRequest(LS.j('doReauth', 'site', 'schema'), deferred);
         return deferred.promise;
     };
+    $scope.refreshPin = function(preEle) {
+        var time, url;
+        preEle ? preEle : preEle = document.getElementById('pinInput');
+        if (preEle) {
+            time = new Date * 1;
+            //pinWidth = preEle.offsetWidth - 20;
+            pinWidth = 120;
+            url = '/rest/site/fe/user/login/getCaptcha?site=platform&codelen=4&width=' + pinWidth + '&height=32&fontsize=20';
+            $scope.pinImg = url + '&' + time;
+        }
+    };
     $http.get('/rest/site/fe/get?site=' + LS.p.site).success(function(rsp) {
         $scope.site = rsp.data;
     });
-    $http.get(LS.j('schemaGet', 'site', 'schema')).success(function(rsp) {
+    $http.get(LS.j('schemaGet', 'site', 'schema', 'matter')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;
         }
         $scope.user = rsp.data.user;
         $scope.schema = rsp.data.schema;
+        $scope.matter = rsp.data.matter;
         $scope.attrs = {};
         angular.forEach(rsp.data.attrs, function(attr, name) {
             if (name === 'extattrs') {
@@ -247,9 +259,9 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
             } else if (attr && attr[0] === '0') {
                 $scope.attrs[name] = true;
                 var schemaId = $scope.schema.id;
-                if(attr[5] === '1' && typeof($scope.user.members) !='undefined' && typeof($scope.user.members[schemaId]) != 'undefined' && $scope.user.members[schemaId].verified === 'Y'){
+                if (attr[5] === '1' && typeof($scope.user.members) != 'undefined' && typeof($scope.user.members[schemaId]) != 'undefined' && $scope.user.members[schemaId].verified === 'Y') {
                     $scope.attrs[name + '_identity'] = true;
-                }else{
+                } else {
                     $scope.attrs[name + '_identity'] = false;
                 }
             } else {
@@ -270,6 +282,13 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
             $scope.page = rsp.data.schema.page;
             $timeout(function() {
                 $scope.$broadcast('xxt.member.auth.ready', rsp.data);
+                $timeout(function() {
+                    var preEle = document.getElementById('pinInput');
+                    if (preEle) {
+                        $scope.refreshPin(preEle);
+                    }
+                });
+
             });
         });
     }).error(function(content, httpCode) {

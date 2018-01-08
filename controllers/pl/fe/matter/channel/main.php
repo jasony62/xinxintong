@@ -37,7 +37,7 @@ class main extends \pl\fe\matter\main_base {
 
 			$oChannel->matters = $modelChn->getMatters($id, $oChannel, $site);
 
-			$oChannel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
+			$oChannel->acl = $this->model('matter\acl')->byMatter($site, 'channel', $id);
 		}
 
 		return new \ResponseData($oChannel);
@@ -90,7 +90,7 @@ class main extends \pl\fe\matter\main_base {
 				$c->type = 'channel';
 			}
 			if ($cascade == 'Y') {
-				$modelAcl = $this->model('acl');
+				$modelAcl = $this->model('matter\acl');
 				foreach ($channels as $c) {
 					$c->url = $modelChn->getEntryUrl($site, $c->id);
 					$c->matters = $modelChn->getMatters($c->id, $c, $site);

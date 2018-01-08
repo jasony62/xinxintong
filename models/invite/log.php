@@ -47,6 +47,32 @@ class log_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
+	 *
+	 */
+	public function byInviteCode($oInviteCode, $aOptions = []) {
+		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
+		$oPage = isset($aOptions['page']) ? $aOptions['page'] : (object) ['at' => 1, 'size' => 30];
+
+		$q = [
+			$fields,
+			'xxt_invite_log',
+			['invite_code_id' => $oInviteCode->id],
+		];
+		$q2 = ['r' => ['o' => ($oPage->at - 1) * $oPage->size, 'l' => $oPage->size]];
+		$logs = $this->query_objs_ss($q, $q2);
+
+		$result = new \stdClass;
+		$result->logs = $logs;
+		if (count($logs) < $oPage->size) {
+			$result->total = (($oPage->at - 1) * $oPage->size) + count($logs);
+		} else {
+			$q[0] = 'count(*)';
+			$result->total = (int) $this->query_val_ss($q);
+		}
+
+		return $result;
+	}
+	/**
 	 * 添加邀请码使用日志
 	 */
 	public function add($oInvite, $oInviteCode, $oInvitee) {

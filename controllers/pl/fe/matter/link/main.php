@@ -30,35 +30,25 @@ class main extends \pl\fe\matter\main_base {
 		$model = $this->model();
 		$options = $this->getPostJson();
 
-		$q = array(
-			"*",
-			'xxt_link',
-			"siteid='$site' and id='$id' and state=1",
-		);
-		if ($link = $model->query_obj_ss($q)) {
-			$link->type = 'link';
-			!empty($link->matter_mg_tag) && $link->matter_mg_tag = json_decode($link->matter_mg_tag);
-			/**
-			 * params
-			 */
-			$q = array(
-				'id,pname,pvalue',
-				'xxt_link_param',
-				"link_id='$id'",
-			);
-			$link->params = $model->query_objs_ss($q);
-			/**
-			 * channels
-			 */
-			$link->channels = $this->model('matter\channel')->byMatter($id, 'link');
-			/* 所属项目 */
-			if ($link->mission_id) {
-				$link->mission = $this->model('matter\mission')->byId($link->mission_id, ['cascaded' => 'phase']);
+		$link = $this->model('matter\link')->byIdWithParams($id);
+		/* 指定分组活动访问 */
+		if (isset($link->entry_rule->scope) && $link->entry_rule->scope === 'group') {
+			if (isset($link->entry_rule->group)) {
+				!is_object($link->entry_rule->group) && $link->entry_rule->group = (object) $link->entry_rule->group;
+				$oRuleApp = $link->entry_rule->group;
+				if (!empty($oRuleApp->id)) {
+					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'N']);
+					if ($oGroupApp) {
+						$oRuleApp->title = $oGroupApp->title;
+						if (!empty($oRuleApp->round->id)) {
+							$oGroupRnd = $this->model('matter\group\round')->byId($oRuleApp->round->id, ['fields' => 'title']);
+							if ($oGroupRnd) {
+								$oRuleApp->round->title = $oGroupRnd->title;
+							}
+						}
+					}
+				}
 			}
-			/**
-			 * acl
-			 */
-			$link->acl = $this->model('acl')->byMatter($site, 'link', $id);
 		}
 
 		return new \ResponseData($link);
@@ -99,7 +89,7 @@ class main extends \pl\fe\matter\main_base {
 		 */
 		if ($cascade === 'Y') {
 			$modelChn = $this->model('matter\channel');
-			$modelAcl = $this->model('acl');
+			$modelAcl = $this->model('matter\acl');
 			foreach ($links as $l) {
 				/**
 				 * params
@@ -145,7 +135,7 @@ class main extends \pl\fe\matter\main_base {
 		/**
 		 * acl
 		 */
-		$l['acl'] = $this->model('acl')->byMatter($site, 'link', $id);
+		$l['acl'] = $this->model('matter\acl')->byMatter($site, 'link', $id);
 
 		return new \ResponseData($l);
 	}
@@ -205,6 +195,16 @@ class main extends \pl\fe\matter\main_base {
 		foreach ($oUpdated as $n => $v) {
 			if (in_array($n, ['title'])) {
 				$oUpdated->{$n} = $modelLink->escape($v);
+			} else if ($n === 'entry_rule') {
+				if ($v->scope === 'group') {
+					if (isset($v->group->title)) {
+						unset($v->group->title);
+					}
+					if (isset($v->group->round->title)) {
+						unset($v->group->round->title);
+					}
+				}
+				$oUpdated->entry_rule = $modelLink->escape($modelLink->toJson($v));
 			}
 			$oLink->{$n} = $v;
 		}

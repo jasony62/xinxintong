@@ -34,7 +34,7 @@ class main extends \pl\fe\matter\main_base {
 		/**
 		 * acl
 		 */
-		$oWall->acl = $this->model('acl')->byMatter($site, 'wall', $id);
+		$oWall->acl = $this->model('matter\acl')->byMatter($site, 'wall', $id);
 		if (!empty($oWall->source_app)) {
 			$sourceApp = json_decode($oWall->source_app);
 			$options = array('cascaded' => 'N', 'fields' => 'id,title');
@@ -110,7 +110,7 @@ class main extends \pl\fe\matter\main_base {
 			$oNewApp->siteid = $oSite->id;
 			$oNewApp->pic = $oSite->heading_pic; //使用站点的缺省头图
 			$oNewApp->summary = '';
-			$title = '信息墙-' . (($scenario === 'interact')? '互动' : '讨论');
+			$title = '信息墙-' . (($scenario === 'interact') ? '互动' : '讨论');
 		} else {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($mission);
@@ -121,7 +121,7 @@ class main extends \pl\fe\matter\main_base {
 			$oNewApp->summary = $oMission->summary;
 			$oNewApp->pic = $oMission->pic;
 			$oNewApp->mission_id = $oMission->id;
-			$title = $oMission->title . '-' . (($scenario === 'interact')? '互动' : '讨论');
+			$title = $oMission->title . '-' . (($scenario === 'interact') ? '互动' : '讨论');
 		}
 
 		$modelWall = $this->model('matter\wall')->setOnlyWriteDbConn(true);
@@ -397,7 +397,7 @@ class main extends \pl\fe\matter\main_base {
 		return new \ResponseData($rst);
 	}
 	/*
-	*互动场景添加素材
+		*互动场景添加素材
 	*/
 	public function addInteractMatter_action($site, $app) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -409,12 +409,12 @@ class main extends \pl\fe\matter\main_base {
 			return new \ObjectNotFoundError();
 		}
 		$oInteractMatters = $oApp->interact_matter;
-		if(empty($oInteractMatters)){
+		if (empty($oInteractMatters)) {
 			$oInteractMatters = [];
 		}
 
 		$post = $this->getPostJson();
-		if(empty($post->matters)){
+		if (empty($post->matters)) {
 			return new \ResponseError('没有选择素材');
 		}
 
@@ -440,7 +440,7 @@ class main extends \pl\fe\matter\main_base {
 		return new \ResponseData($oApp);
 	}
 	/*
-	*
+		*
 	*/
 	public function removeInteractMatter_action($site, $app) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -452,12 +452,12 @@ class main extends \pl\fe\matter\main_base {
 			return new \ObjectNotFoundError();
 		}
 		$oInteractMatters = $oApp->interact_matter;
-		if(empty($oInteractMatters)){
+		if (empty($oInteractMatters)) {
 			return new \ResponseError('未指定互动素材');
 		}
 
 		$post = $this->getPostJson();
-		if(empty($post)){
+		if (empty($post)) {
 			return new \ResponseError('没有选择素材');
 		}
 
@@ -467,7 +467,7 @@ class main extends \pl\fe\matter\main_base {
 		$removeMatter->title = $post->title;
 
 		$key = array_search($removeMatter, $oInteractMatters);
-		array_splice($oInteractMatters,$key,1);
+		array_splice($oInteractMatters, $key, 1);
 
 		$interactMatters = $modelWall->tojson($oInteractMatters);
 

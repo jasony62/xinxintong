@@ -31,17 +31,21 @@ class main extends \site\fe\matter\base {
 		$oInvitee = new \stdClass;
 		$oInvitee->id = $oLink->siteid;
 		$oInvitee->type = 'S';
-		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at']);
-		if ($oInvite) {
+		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+		if ($oInvite && $oInvite->state === '1') {
 			$this->_checkInviteToken($this->who->uid, $oLink);
 		}
 
-		if ($oLink->fans_only === 'Y') {
-			if (!$this->afterSnsOAuth()) {
-				/* 检查是否需要第三方社交帐号OAuth */
-				$this->_requireSnsOAuth($site);
-			}
+		if (!$this->afterSnsOAuth()) {
+			/* 检查是否需要第三方社交帐号OAuth */
+			$this->_requireSnsOAuth($site);
 		}
+
+		$result = $this->checkEntryRule($oLink, true);
+		if ($result[0] === false) {
+			$this->outputInfo($result[1]);
+		}
+
 		switch ($oLink->urlsrc) {
 		case 0: // 外部链接
 			if ($oLink->embedded === 'Y') {
@@ -136,14 +140,41 @@ class main extends \site\fe\matter\base {
 		$oInvitee = new \stdClass;
 		$oInvitee->id = $oLink->siteid;
 		$oInvitee->type = 'S';
-		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at']);
-		if ($oInvite) {
+		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+		if ($oInvite && $oInvite->state === '1') {
 			$oLink->invite = $oInvite;
+		}
+
+		/* 当前访问用户的基本信息 */
+		$oUser = $this->who;
+
+		/* 补充联系人信息，是在什么情况下都需要补充吗？ 应该在限制了联系人访问的情况下，而且应该只返回相关的 */
+		$modelMem = $this->model('site\user\member');
+		if (empty($oUser->unionid)) {
+			$aMembers = $modelMem->byUser($oUser->uid);
+			if (count($aMembers)) {
+				!isset($oUser->members) && $oUser->members = new \stdClass;
+				foreach ($aMembers as $oMember) {
+					$oUser->members->{$oMember->schema_id} = $oMember;
+				}
+			}
+		} else {
+			$modelAcnt = $this->model('site\user\account');
+			$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oLink->siteid, 'fields' => 'uid']);
+			foreach ($aUnionUsers as $oUnionUser) {
+				$aMembers = $modelMem->byUser($oUnionUser->uid);
+				if (count($aMembers)) {
+					!isset($oUser->members) && $oUser->members = new \stdClass;
+					foreach ($aMembers as $oMember) {
+						$oUser->members->{$oMember->schema_id} = $oMember;
+					}
+				}
+			}
 		}
 
 		$data = [];
 		$data['link'] = $oLink;
-		$data['user'] = $this->who;
+		$data['user'] = $oUser;
 
 		return new \ResponseData($data);
 	}
@@ -160,10 +191,11 @@ class main extends \site\fe\matter\base {
 	private function _requireSnsOAuth($siteid) {
 		if ($this->userAgent() === 'wx') {
 			if (!isset($this->who->sns->wx)) {
-				if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
-					if ($wxConfig->joined === 'Y') {
-						$this->snsOAuth($wxConfig, 'wx');
-					}
+				$modelWx = $this->model('sns\wx');
+				if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
+					$this->snsOAuth($wxConfig, 'wx');
+				} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+					$this->snsOAuth($wxConfig, 'wx');
 				}
 			}
 			if (!isset($this->who->sns->qy)) {
@@ -224,5 +256,140 @@ class main extends \site\fe\matter\base {
 		$spliced = implode('&', $pairs);
 
 		return $spliced;
+	}
+	/**
+	 * 检查素材进入规则
+	 *
+	 * @param object $oMatter
+	 * @param boolean $redirect
+	 *
+	 * @return string page 页面名称
+	 *
+	 */
+	private function checkEntryRule($oMatter, $bRedirect = false) {
+		$oUser = $this->who;
+		$oEntryRule = $oMatter->entry_rule;
+		$bMatched = false;
+		$result = '';
+		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'group') {
+			/* 限分组用户访问 */
+			if (isset($oEntryRule->group)) {
+				!is_object($oEntryRule->group) && $oEntryRule->group = (object) $oEntryRule->group;
+				$oGroupApp = $oEntryRule->group;
+				if (isset($oGroupApp->id)) {
+					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
+					if (count($oGroupUsr)) {
+						$oGroupUsr = $oGroupUsr[0];
+						if (isset($oGroupApp->round) && isset($oGroupApp->round->id)) {
+							if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+								$bMatched = true;
+							}
+						} else {
+							$bMatched = true;
+						}
+					}
+				}
+			}
+			if (!$bMatched) {
+				$result = '您目前不满足【' . $oMatter->title . '】的进入规则，无法访问，请联系活动的组织者解决';
+			}
+		} else if (isset($oEntryRule->scope) && $oEntryRule->scope === 'member') {
+			/* 限通讯录用户访问 */
+			foreach ($oEntryRule->member as $schemaId) {
+				/* 检查用户的信息是否完整，是否已经通过审核 */
+				$modelMem = $this->model('site\user\member');
+				if (empty($oUser->unionid)) {
+					$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
+					if (count($aMembers) === 1) {
+						$oMember = $aMembers[0];
+						if ($oMember->verified === 'Y') {
+							$bMatched = true;
+							break;
+						}
+					}
+				} else {
+					$modelAcnt = $this->model('site\user\account');
+					$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oMatter->siteid, 'fields' => 'uid']);
+					foreach ($aUnionUsers as $oUnionUser) {
+						$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+						if (count($aMembers) === 1) {
+							$oMember = $aMembers[0];
+							if ($oMember->verified === 'Y') {
+								$bMatched = true;
+								break;
+							}
+						}
+					}
+					if ($bMatched) {
+						break;
+					}
+				}
+			}
+			if (!$bMatched) {
+				$result = '$memberschema';
+			}
+		} else if (isset($oEntryRule->scope) && $oEntryRule->scope === 'sns') {
+			foreach ($oEntryRule->sns as $snsName) {
+				if (isset($oUser->sns) && isset($oUser->sns->{$snsName})) {
+					// 检查用户对应的公众号
+					if ($snsName === 'wx') {
+						$modelWx = $this->model('sns\wx');
+						if (($wxConfig = $modelWx->bySite($oMatter->siteid)) && $wxConfig->joined === 'Y') {
+							$snsSiteId = $oMatter->siteid;
+						} else {
+							$snsSiteId = 'platform';
+						}
+					} else {
+						$snsSiteId = $oMatter->siteid;
+					}
+					// 检查用户是否已经关注
+					if ($snsUser = $oUser->sns->{$snsName}) {
+						$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+						if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
+							$bMatched = true;
+							break;
+						}
+					}
+				}
+			}
+			if (!$bMatched) {
+				$result = '$mpfollow';
+			}
+		} else {
+			$bMatched = true;
+		}
+		/* 内置页面 */
+		if (!empty($result)) {
+			switch ($result) {
+			case '$memberschema':
+				$aMemberSchemas = array();
+				foreach ($oEntryRule->member as $schemaId) {
+					$aMemberSchemas[] = $schemaId;
+				}
+				if ($bRedirect) {
+					/*页面跳转*/
+					$this->gotoMember($oMatter, $aMemberSchemas);
+				} else {
+					/*返回地址*/
+					$this->gotoMember($oMatter, $aMemberSchemas, false);
+				}
+				break;
+			case '$mpfollow':
+				$snss = array();
+				foreach ($oEntryRule->sns as $sns) {
+					$snss[] = $sns;
+				}
+				if (in_array('wx', $snss)) {
+					$this->snsFollow($oMatter->siteid, 'wx', $oMatter);
+				} else if (in_array('qy', $snss)) {
+					$this->snsFollow($oMatter->siteid, 'qy', $oMatter);
+				} else if (in_array('yx', $snss)) {
+					$this->snsFollow($oMatter->siteid, 'yx', $oMatter);
+				}
+				break;
+			}
+		}
+
+		return [$bMatched, $result];
 	}
 }

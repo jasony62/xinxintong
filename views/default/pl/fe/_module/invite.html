@@ -13,14 +13,16 @@
                 <div class='panel-body'>
                     <div class='col-md-8 col-md-offset-2'>
                         <div class='form-group'>
-                            邀请链接：<span ng-bind="invite.entryUrl"></span>
+                            <label>邀请链接</label>
+                            <div ng-bind="invite.entryUrl"></div>
                         </div>
                         <div class='form-group'>
                             <textarea class='form-control' ng-model="invite.message"></textarea>
                             <button class='btn btn-default' ng-click="update('message')">保存邀请留言</button>
                         </div>
                         <hr>
-                        <button class='btn btn-default' ng-click="closeInvite()">关闭邀请方式</button>
+                        <button ng-if="invite.state==='1'" class='btn btn-default' ng-click="closeInvite()">关闭仅能通过邀请链接访问的显示</button>
+                        <button ng-if="invite.state!=='1'" class='btn btn-default' ng-click="openInvite()">恢复仅能通过邀请链接访问的显示</button>
                     </div>
                 </div>
             </div>
@@ -90,7 +92,7 @@
                             <tr ng-repeat="log in logs">
                                 <td>{{$index+1}}</td>
                                 <td>{{log.inviteCode.code}}</td>
-                                <td>{{log.nickname}}</td>
+                                <td>{{log.member.name||log.member.mobile||log.member.email||log.user.nickname||log.nickname}}</td>
                                 <td>{{log.use_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                             </tr>
                         </tbody>

@@ -11,9 +11,6 @@
     <link href="/static/css/tms.css" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/fe/invite/access.css');?>" rel="stylesheet">
-    <style>
-
-    </style>
 </head>
 
 <body ng-app='app' ng-controller='ctrlMain'>
@@ -31,38 +28,84 @@
             <div class='col-md-6 col-md-offset-3'>
                 <div class='panel'>
                     <div class='panel-body'>
-                        <form action='/rest/i?code=<?php echo $_GET["code"];?>' method='POST'>
-                            <section id='inviter'>
-                                <div class='form-group'>
-                                    邀请人：<span ng-bind="invite.creator_name"></span>
-                                </div>
-                                <div class='form-group' ng-if="invite.create_at>0">
-                                    发起时间：<span ng-bind="invite.create_at*1000|date:'yy年M月dd日'"></span>
-                                </div>
-                                <div class='form-group' ng-if="invite.message">
-                                    邀请留言：<span ng-bind="invite.message"></span>
-                                </div>
-                            </section>
-                            <hr>
-                            <section id='matter'>
-                                <div class='form-group'>
-                                    <span ng-bind="invite.matter_title"></span>
-                                </div>
-                                <div class='form-group' ng-if="invite.matter_pic">
-                                    <img ng-src="{{invite.matter_pic}}">
-                                </div>
-                                <div class='form-group' ng-if="invite.matter_summary">
-                                    <span ng-bind="invite.matter_summary"></span>
-                                </div>
-                            </section>
-                            <hr>
-                            <div class='input-group'>
-                                <input class='form-control' placeholder='请输入邀请码' type='text' name='inviteCode' autofocus></input>
-                                <div class='input-group-btn'>
-                                    <button type='submit' class='btn btn-default'>进入</button>
+                        <section id='inviter'>
+                            <div class='form-group'>
+                                邀请人：<span ng-bind="invite.creator_name"></span>
+                            </div>
+                            <div class='form-group' ng-if="invite.create_at>0">
+                                发起时间：<span ng-bind="invite.create_at*1000|date:'yy年M月dd日'"></span>
+                            </div>
+                            <div class='form-group' ng-if="invite.message">
+                                邀请留言：<span ng-bind="invite.message"></span>
+                            </div>
+                        </section>
+                        <hr>
+                        <section id='matter'>
+                            <div class='form-group'>
+                                <div ng-bind="invite.matter_title"></div>
+                            </div>
+                            <div class='form-group' ng-if="invite.matter_pic">
+                                <div class='matter-pic'>
+                                    <div class='img-thumbnail' ng-style="{'background-image':'url('+invite.matter_pic+')'}"></div>
                                 </div>
                             </div>
-                        </form>
+                            <div class='form-group' ng-if="invite.matter_summary">
+                                <div class='text-muted' ng-bind="invite.matter_summary"></div>
+                            </div>
+                        </section>
+                        <section ng-if="entryRule.scope==='member'&&!entryRule.passed">
+                            <hr>
+                            <div class='form-group'>
+                                <div>{{mschema.title}}</div>
+                            </div>
+                            <div class='form-group' ng-if="mschema.attrs.name">
+                                <div class="input-group">
+                                    <div class='input-group-addon'>
+                                        <div style='width:4em'>姓名</div>
+                                    </div>
+                                    <input type='text' required="" ng-model="data.member.name" class='form-control' ng-disabled="!loginUser.unionid">
+                                </div>
+                            </div>
+                            <div class='form-group' ng-if="mschema.attrs.mobile">
+                                <div class="input-group">
+                                    <div class='input-group-addon'>
+                                        <div style='width:4em'>手机</div>
+                                    </div>
+                                    <input type='text' required="" ng-model="data.member.mobile" class='form-control' ng-disabled="!loginUser.unionid">
+                                </div>
+                            </div>
+                            <div class='form-group' ng-if="mschema.attrs.email">
+                                <div class="input-group">
+                                    <div class='input-group-addon'>
+                                        <div style='width:4em'>邮箱</div>
+                                    </div>
+                                    <input type='text' required="" ng-model="data.member.email" class='form-control' ng-disabled="!loginUser.unionid">
+                                </div>
+                            </div>
+                            <div class='form-group' ng-repeat="ea in mschema.attrs.extattrs">
+                                <div class="input-group">
+                                    <div class='input-group-addon'>
+                                        <div style='width:4em'>{{ea.label}}</div>
+                                    </div>
+                                    <input type='text' ng-model="member.extattr[ea.id]" class='form-control' ng-disabled="!loginUser.unionid">
+                                </div>
+                            </div>
+                        </section>
+                        <hr>
+                        <div class='input-group'>
+                            <input class='form-control' placeholder='请输入邀请码' type='text' required="" ng-model='data.inviteCode' ng-disabled="requireLogin&&!loginUser.unionid"></input>
+                            <div class='input-group-btn'>
+                                <button class='btn btn-default' ng-click="submit()" ng-disabled="requireLogin&&!loginUser.unionid">进入</button>
+                            </div>
+                        </div>
+                        <section ng-if="requireLogin&&!loginUser.unionid">
+                            <hr>
+                            <div class='help-block'>请登录后再完成填写</div>
+                            <div id='loginAction'>
+                                <a class='btn btn-default' href="/rest/site/fe/user/access?site={{invite.matter_siteid}}#register">注册</a>
+                                <a class='btn btn-default' href='/rest/site/fe/user/access?site={{invite.matter_siteid}}#login'>登录</a>
+                            </div>
+                        </section>
                     </div>
                 </div>
                 <div class='panel'>

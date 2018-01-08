@@ -11,10 +11,16 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-md-2 control-label">完成审核</label>
+            <label class="col-md-2 control-label">通过审核</label>
             <div class="col-md-10">
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.verified'>是
+                <label class='radio-inline'>
+                    <input type='radio' name='verified' value='Y' ng-model='member.verified'>是
+                </label>
+                <label class='radio-inline'>
+                    <input type='radio' name='verified' value='N' ng-model='member.verified'>否
+                </label>
+                <label class='radio-inline'>
+                    <input type='radio' name='verified' value='P' ng-model='member.verified'>待定
                 </label>
             </div>
         </div>

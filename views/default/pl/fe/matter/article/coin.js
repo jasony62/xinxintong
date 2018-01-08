@@ -10,12 +10,6 @@ define(['frame'], function(ngApp) {
         }, {
             name: 'site.matter.article.share.timeline',
             desc: '用户A分享图文至朋友圈',
-        }, {
-            name: 'site.matter.article.discuss.like',
-            desc: '用户A对图文点赞',
-        }, {
-            name: 'site.matter.article.discuss.comment',
-            desc: '用户A对图文评论',
         }];
         $scope.rules = {};
         actions.forEach(function(act) {

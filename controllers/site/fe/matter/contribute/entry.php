@@ -44,7 +44,7 @@ class entry extends \site\fe\base {
 
 			$member = $members[0];
 			if (!empty($entries)) {
-				$modelAcl = $this->model('acl');
+				$modelAcl = $this->model('matter\acl');
 				foreach ($entries as $entry) {
 					/* 可以参与投稿？ */
 					$set = "cid='$entry->id' and role='I'";

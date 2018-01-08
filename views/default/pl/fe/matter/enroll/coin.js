@@ -38,12 +38,6 @@ define(['frame'], function(ngApp) {
         }, {
             data: { act: 'site.matter.enroll.share.timeline' },
             desc: '用户A分享活动至朋友圈',
-            //}, {
-            //    act: 'site.matter.enroll.discuss.like',
-            //    desc: '用户A对活动赞同',
-            //}, {
-            //    act: 'site.matter.enroll.discuss.comment',
-            //    desc: '用户A对活动评论',
         }, {
             data: { act: 'site.matter.enroll.data.like' },
             desc: '用户A填写数据被赞同',

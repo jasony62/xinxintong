@@ -4,26 +4,23 @@ die('danger');
  * create all tables.
  */
 include_once dirname(__FILE__) . '/db_schema_account.php';
-include_once dirname(__FILE__) . '/db_schema_app.php';
-include_once dirname(__FILE__) . '/db_schema_checkin.php';
 include_once dirname(__FILE__) . '/db_schema_code.php';
 include_once dirname(__FILE__) . '/db_schema_coin.php';
+include_once dirname(__FILE__) . '/db_schema_contribute.php';
 include_once dirname(__FILE__) . '/db_schema_enroll.php';
+include_once dirname(__FILE__) . '/db_schema_invite.php';
 include_once dirname(__FILE__) . '/db_schema_log.php';
 include_once dirname(__FILE__) . '/db_schema_lottery.php';
 include_once dirname(__FILE__) . '/db_schema_matter.php';
 include_once dirname(__FILE__) . '/db_schema_merchant.php';
 include_once dirname(__FILE__) . '/db_schema_mission.php';
-include_once dirname(__FILE__) . '/db_schema_mpa.php';
 include_once dirname(__FILE__) . '/db_schema_reply.php';
 include_once dirname(__FILE__) . '/db_schema_shop.php';
 include_once dirname(__FILE__) . '/db_schema_site.php';
 include_once dirname(__FILE__) . '/db_schema_sns.php';
 include_once dirname(__FILE__) . '/db_schema_tag.php';
 include_once dirname(__FILE__) . '/db_schema_task.php';
-include_once dirname(__FILE__) . '/db_schema_user.php';
 include_once dirname(__FILE__) . '/db_schema_wall.php';
-include_once dirname(__FILE__) . '/db_schema_discuss.php';
 /**
  * init data.
  */

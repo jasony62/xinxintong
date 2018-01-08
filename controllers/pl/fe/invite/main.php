@@ -40,7 +40,7 @@ class main extends \pl\fe\base {
 		$oCreator->type = 'S';
 
 		$modelInv = $this->model('invite');
-		$oInvite = $modelInv->byMatter($oMatter, $oCreator, ['fields' => 'id,code,expire_at,require_code,message,invitee_count,relay_invitee_count,matter_type,matter_id']);
+		$oInvite = $modelInv->byMatter($oMatter, $oCreator, ['fields' => 'id,code,expire_at,require_code,message,invitee_count,relay_invitee_count,matter_type,matter_id,state']);
 		if ($oInvite) {
 			$oInvite->entryUrl = $modelInv->getEntryUrl($oInvite);
 		}
@@ -84,18 +84,48 @@ class main extends \pl\fe\base {
 		return new \ResponseData($oInvite);
 	}
 	/**
-	 * 删除素材邀请
+	 * 关闭素材邀请
 	 *
 	 * @return
 	 */
-	public function remove_action($code) {
+	public function close_action($invite) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelInv = $this->model('invite');
+		$oInvite = $modelInv->byId($invite, ['fields' => 'id,creator,creator_type']);
+		if (false === $oInvite) {
+			return new \ObjectNotFoundError();
+		}
+		if ($oInvite->creator_type !== 'S') {
+			return new \ResponseError('没有访问当前对象的权限');
+		}
 
-		$rst = $modelInv->removeByCode($code);
+		$rst = $modelInv->update('xxt_invite', ['state' => 0], ['id' => $oInvite->id]);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 打开素材邀请
+	 *
+	 * @return
+	 */
+	public function open_action($invite) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelInv = $this->model('invite');
+		$oInvite = $modelInv->byId($invite, ['fields' => 'id,creator,creator_type']);
+		if (false === $oInvite) {
+			return new \ObjectNotFoundError();
+		}
+		if ($oInvite->creator_type !== 'S') {
+			return new \ResponseError('没有访问当前对象的权限');
+		}
+
+		$rst = $modelInv->update('xxt_invite', ['state' => 1], ['id' => $oInvite->id]);
 
 		return new \ResponseData($rst);
 	}

@@ -1,0 +1,40 @@
+<div class="col-md-12">
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='width:48px'>操作</th>
+                <th style='width:40px'></th>
+                <th style='width:40px'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                </th>
+                <th>昵称</th>
+                <th ng-if="app.entryRule.scope.group==='Y'">分组</th>
+                <th style='width:106px'>首次登记时间</th>
+                <th style='width:106px'>最后登记时间</th>
+                <th style='width:76px'>活动分数</th>
+                <th style='width:76px'>活动积分</th>
+                <th>备注</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='user in users'>
+                <td>
+                    <button class='btn btn-xs btn-default' ng-click='editUser(user)'>
+                        <span class='glyphicon glyphicon-edit'></span>
+                    </button>
+                </td>
+                <td>{{$index+1}}</td>
+                <td>
+                    <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                </td>
+                <td>{{user.nickname}}</td>
+                <td ng-if="app.entryRule.scope.group==='Y'">{{user.group_title}}</td>
+                <td>{{(user.start_at*1000)|date:'MM-dd HH:mm'}}</td>
+                <td>{{(user.last_enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                <td>{{user.score}}</td>
+                <td>{{user.coin}}</td>
+                <td>{{user.comment}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

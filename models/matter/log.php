@@ -324,8 +324,18 @@ class log_model extends \TMS_MODEL {
 			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
 		];
 
+		if ($matterType === 'enroll') {
+			$q[0] = 'l.userid,u.nickname,l.operation,l.operate_at,l.user_op_num,l.matter_op_num';
+			$q[1] .= ',xxt_enroll_user u';
+			$q[2] .= " and u.userid = l.userid and u.rid = 'ALL' and u.aid = l.matter_id";
+		}
+
 		if (!empty($options['byUser'])) {
-			$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
+			if ($matterType === 'enroll') {
+				$q[2] .= " and u.nickname like '%" . $this->escape($options['byUser']) . "%'";
+			} else {
+				$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
+			}
 		}
 		if (!empty($options['byOp']) && strcasecmp($options['byOp'], 'all') !== 0) {
 			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
@@ -446,7 +456,7 @@ class log_model extends \TMS_MODEL {
 			['siteid' => $siteId, 'operator' => $user->id, 'matter_type' => $matter->type, 'matter_id' => $matter->id, 'user_last_op' => 'Y']
 		);
 		// 记录新日志，或更新日志
-		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restoreData'];
+		$filterOp = ['C', 'transfer', 'updateData', 'add', 'removeData', 'restoreData', 'verify.all', 'verify.batch'];
 		if ($userLastLog === false || in_array($userLastLog->operation, $filterOp) || $current > $userLastLog->operate_at + 600) {
 			/* 两次更新操作的间隔超过10分钟，产生新日志 */
 			$d = array();

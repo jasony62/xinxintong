@@ -5,5 +5,3 @@ body{padding-top:70px;}
 .inviteCode>div:first-child{display:flex;}
 .inviteCode>div:first-child>div:first-child{margin-right:8px;}
 .inviteCode>button{position:absolute;right:-1px;top:-1px;}
-.inviteLog>div:first-child{display:flex;}
-.inviteLog>div:first-child>div:first-child{flex-grow:1;}

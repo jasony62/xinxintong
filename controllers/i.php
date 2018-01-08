@@ -7,10 +7,11 @@ class i extends TMS_CONTROLLER {
 	 *
 	 */
 	public function get_access_rule() {
-		$rule_action['rule_type'] = 'white';
-		$rule_action['actions'][] = 'index';
+		$ruleAction = [
+			'rule_type' => 'black',
+		];
 
-		return $rule_action;
+		return $ruleAction;
 	}
 	/**
 	 * 访问用户邀请页
@@ -37,9 +38,11 @@ class i extends TMS_CONTROLLER {
 			TPL::assign('title', APP_TITLE);
 			$this->outputError('指定编码【' . $code . '】的邀请不可用');
 		}
+
+		/* 要访问的素材 */
 		$modelMat = $this->model('matter\\' . $oInvite->matter_type);
-		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => 'siteid,id']);
-		if (false === $oMatter) {
+		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => 'id,state,siteid,entry_rule']);
+		if (false === $oMatter || $oMatter->state !== '1') {
 			$this->outputError('邀请访问的素材【' . $oInvite->matter_title . '】不存在');
 		}
 
@@ -51,32 +54,103 @@ class i extends TMS_CONTROLLER {
 		$modelInvLog = $this->model('invite\log');
 		$aInviteLogs = $modelInvLog->byUser($oMatter, $oInvitee->uid);
 		if (0 === count($aInviteLogs)) {
-			if (!empty($oInvite->require_code) && $oInvite->require_code === 'Y') {
-				/* 需要邀请码 */
-				if (!empty($_POST['inviteCode'])) {
-					$inviteCode = $_POST['inviteCode'];
-					$modelCode = $this->model('invite\code');
-					$result = $modelCode->checkAndUse($oInvite, $inviteCode, $oInvitee);
-					if (false === $result[0]) {
-						$this->outputError($result[1]);
-					}
-					$oInviteLog = $result[1];
-				} else {
-					TPL::assign('title', empty($oInvite->matter_title) ? APP_TITLE : $oInvite->matter_title);
-					TPL::output('site/fe/invite/access');
-					exit;
-				}
-			} else {
-				/* 记录访问日志 */
-				$oInviteCode = new \stdClass;
-				$oInviteCode->invite_id = $oInvite->id;
-				$oInviteCode->id = 0;
-				$oInviteCode->last_use_at = time();
-				$oInviteLog = $modelInvLog->add($oInvite, $oInviteCode, $oInvitee);
-			}
+			TPL::assign('title', empty($oInvite->matter_title) ? APP_TITLE : $oInvite->matter_title);
+			TPL::output('site/fe/invite/access');
+			exit;
 		} else {
 			$oInviteLog = $aInviteLogs[0];
 		}
+
+		/* 更新邀请访问数据 */
+		$modelInv->addInviterCount($oInvite);
+		/**
+		 * 设置访问控制，生成token
+		 */
+		$oAccessToken = $this->model('invite\token')->add($oInviteLog);
+
+		$matterUrl = $modelMat->getEntryUrl($oMatter->siteid, $oMatter->id);
+		$matterUrl .= strpos($matterUrl, '?') === false ? '?' : '&';
+		$matterUrl .= 'inviteToken=' . $oAccessToken->token;
+
+		$this->redirect($matterUrl);
+	}
+	/**
+	 * 获得邀请对应的素材的访问地址
+	 */
+	public function matterUrl_action($invite) {
+		$modelInv = $this->model('invite');
+		$oInvite = $modelInv->byId($invite);
+		if (false === $oInvite) {
+			return new \ObjectNotFoundError();
+		}
+		/* 要访问的素材 */
+		$modelMat = $this->model('matter\\' . $oInvite->matter_type);
+		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => 'id,state,siteid,entry_rule']);
+		if (false === $oMatter || $oMatter->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		/* 被邀请的用户 */
+		$modelWay = $this->model('site\fe\way');
+		$oInvitee = $modelWay->who($oInvite->matter_siteid);
+
+		$posted = $this->getPostJson();
+
+		/* 检查进入规则 */
+		if (isset($oMatter->entry_rule)) {
+			$oEntryRule = is_string($oMatter->entry_rule) ? json_decode($oMatter->entry_rule) : $oMatter->entry_rule;
+			if (isset($oEntryRule->scope)) {
+				switch ($oEntryRule->scope) {
+				case 'member':
+					if (empty($oInvitee->unionid)) {
+						return new \ResponseError('请登录后再提交通讯录信息');
+					}
+					$isMember = false;
+					$modelMem = $this->model('site\user\member');
+					if (is_array($oEntryRule->member)) {
+						foreach ($oEntryRule->member as $mschemaId) {
+							$oMembers = $modelMem->byUnionid($oMatter->siteid, $mschemaId, $oInvitee->unionid);
+							if (!empty($oMembers)) {
+								$isMember = true;
+								break;
+							}
+						}
+					} else {
+						foreach ($oEntryRule->member as $mschemaId => $oRule) {
+							$oMembers = $modelMem->byUnionid($oMatter->siteid, $mschemaId, $oInvitee->unionid);
+							if (!empty($oMembers)) {
+								$isMember = true;
+								break;
+							}
+						}
+					}
+					if (false === $isMember) {
+						/* 需要提交通讯录用户信息 */
+						if (empty($posted->member)) {
+							return new \ResponseError('参数不完整，没有提交通讯录所需信息');
+						}
+						$rst = $this->_submitMember($oMatter->siteid, $posted->member, $oInvitee);
+						if (false === $rst[0]) {
+							return new ResponseError($rst[1]);
+						}
+					}
+					break;
+				case 'group':
+					break;
+				}
+			}
+		}
+
+		/* 检查邀请码 */
+		if (empty($posted->inviteCode)) {
+			return new \ResponseError('请提供邀请码');
+		}
+		$inviteCode = $posted->inviteCode;
+		$modelCode = $this->model('invite\code');
+		$result = $modelCode->checkAndUse($oInvite, $inviteCode, $oInvitee);
+		if (false === $result[0]) {
+			return new \ResponseError($result[1]);
+		}
+		$oInviteLog = $result[1];
 
 		/* 更新邀请访问数据 */
 		$modelInv->addInviterCount($oInvite);
@@ -90,7 +164,36 @@ class i extends TMS_CONTROLLER {
 		$matterUrl .= strpos($matterUrl, '?') === false ? '?' : '&';
 		$matterUrl .= 'inviteToken=' . $oAccessToken->token;
 
-		$this->redirect($matterUrl);
+		return new \ResponseData($matterUrl);
+
+	}
+	/**
+	 * 提交信息中包含的自定义用户信息
+	 */
+	private function _submitMember($siteId, $oMember, $oUser) {
+		$schemaId = $oMember->schema_id;
+		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, ['fields' => 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr']);
+		$modelMem = $this->model('site\user\member');
+
+		$existentMember = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
+		if (count($existentMember)) {
+			$memberId = $existentMember[0]->id;
+			$oMember->id = $memberId;
+			$oMember->verified = $existentMember[0]->verified;
+			$oMember->identity = $existentMember[0]->identity;
+			$rst = $modelMem->modify($oMschema, $memberId, $oMember);
+		} else {
+			$rst = $modelMem->createByApp($oMschema, $oUser->uid, $oMember);
+			/**
+			 * 将用户自定义信息和当前用户进行绑定
+			 */
+			if ($rst[0] === true) {
+				$oMember = $rst[1];
+				$this->model('site\fe\way')->bindMember($siteId, $oMember);
+			}
+		}
+
+		return $rst;
 	}
 	/**
 	 *

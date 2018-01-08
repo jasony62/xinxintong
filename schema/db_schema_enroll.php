@@ -154,20 +154,20 @@ $sql .= ",headimgurl varchar(255) not null default ''";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
 $sql .= ",first_enroll_at int not null"; // 填写报名信息时间
-$sql .= ",tags text";
-$sql .= ",data_tag text";
-$sql .= ",comment text";
+$sql .= ",tags text null";
+$sql .= ",data_tag text null";
+$sql .= ",comment text null";
 $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",follower_num int not null default 0"; // 接收邀请的下家
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log,100:后台删除,101:用户删除;
-$sql .= ",referrer text"; //
-$sql .= ",data text"; // 登记的数据项
-$sql .= ",supplement longtext"; // 补充说明
-$sql .= ",score text"; // 测试活动，登记记录的得分
+$sql .= ",referrer text null"; //
+$sql .= ",data longtext null"; // 登记的数据项
+$sql .= ",supplement longtext null"; // 补充说明
+$sql .= ",score text null"; // 测试活动，登记记录的得分
 $sql .= ",verified char(1) not null default 'N'"; // 记录是否已通过审核
 $sql .= ",matched_enroll_key varchar(32) not null default ''"; // 如果关联了登记活动，记录关联的登记记录
 $sql .= ",group_enroll_key varchar(32) not null default ''"; // 如果关联了分组活动，记录关联的分组记录
-$sql .= ",submit_log text"; // 数据提交日志
+$sql .= ",submit_log text null"; // 数据提交日志
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -185,9 +185,9 @@ $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",submit_at int not null default 0"; // 数据的提交时间，和modify_log中的数据对应
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",schema_id varchar(40) not null";
-$sql .= ",value text";
-$sql .= ",tag text"; // 标签的id，json格式的数组
-$sql .= ",supplement text"; // 补充说明
+$sql .= ",value text null";
+$sql .= ",tag text null"; // 标签的id，json格式的数组
+$sql .= ",supplement text null"; // 补充说明
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",last_remark_at int not null default 0"; // 最后一次被评论的时间
@@ -196,7 +196,7 @@ $sql .= ",modify_log longtext"; // 数据修改日志
 $sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
-$sql .= ",agreed_log text"; // 推荐日志
+$sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

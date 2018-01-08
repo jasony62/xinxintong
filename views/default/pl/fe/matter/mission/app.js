@@ -48,6 +48,9 @@ define(['frame'], function(ngApp) {
         $scope.addGroup = function() {
             location.href = '/rest/pl/fe/matter/group/plan?site=' + _oMission.siteid + '&mission=' + _oMission.id;
         };
+        $scope.addPlan = function() {
+            location.href = '/rest/pl/fe/matter/plan/plan?site=' + _oMission.siteid + '&mission=' + _oMission.id;
+        };
         $scope.addMatter = function(matterType) {
             if (!matterType) {
                 matterType = $scope.matterType;

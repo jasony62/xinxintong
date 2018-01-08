@@ -20,7 +20,16 @@ define(['frame'], function(ngApp) {
                 $scope.invite = _oInvite = oInvite;
             });
         };
-        $scope.closeInvite = function() {};
+        $scope.closeInvite = function() {
+            http2.get('/rest/pl/fe/invite/close?invite=' + _oInvite.id, function(rsp) {
+                _oInvite.state = '0';
+            });
+        };
+        $scope.openInvite = function() {
+            http2.get('/rest/pl/fe/invite/open?invite=' + _oInvite.id, function(rsp) {
+                _oInvite.state = '1';
+            });
+        };
         $scope.addCode = function() {
             srvInvite.addCode(_oInvite).then(function(oCode) {
                 $scope.codes === undefined && ($scope.codes = []);

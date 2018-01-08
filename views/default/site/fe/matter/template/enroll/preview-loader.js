@@ -18,7 +18,6 @@ window.loading = {
                 "domReady": '/static/js/domReady',
                 "angular": "/static/js/angular.min",
                 "angular-sanitize": "/static/js/angular-sanitize.min",
-                "tms-discuss": "/static/js/xxt.ui.discuss2",
                 "tms-coinpay": "/static/js/xxt.ui.coinpay",
                 "tms-favor": "/static/js/xxt.ui.favor",
                 "tms-siteuser": "/static/js/xxt.ui.siteuser",

@@ -51,8 +51,8 @@ define(['require'], function() {
                     $scope.opened = 'edit';
                     break;
                 case 'preview':
+                case 'invite':
                     $scope.opened = 'publish';
-                    $scope.opened = 'invite';
                     break;
                 case 'log':
                     $scope.opened = 'other';
@@ -70,6 +70,9 @@ define(['require'], function() {
         });
         srvSite.tagList().then(function(oTag) {
             $scope.oTag = oTag;
+        });
+        srvSite.snsList().then(function(oSns) {
+            $scope.sns = oSns;
         });
         http2.get('/rest/pl/fe/matter/link/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
             $scope.editing = rsp.data;

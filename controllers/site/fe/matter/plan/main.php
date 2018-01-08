@@ -28,9 +28,7 @@ class main extends base {
 		$oInvitee->type = 'S';
 		$oInvite = $modelInv->byMatter($oApp, $oInvitee, ['fields' => 'id,state,can_relay,code,expire_at']);
 		if ($oInvite && $oInvite->state === '1') {
-			if ($oInvite->can_relay === 'N') {
-				$oApp->entryUrl = $modelInv->getEntryUrl($oInvite);
-			}
+			$oApp->entryUrl = $modelInv->getEntryUrl($oInvite);
 			$oApp->invite = $oInvite;
 		}
 

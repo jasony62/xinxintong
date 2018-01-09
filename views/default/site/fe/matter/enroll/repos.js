@@ -39,7 +39,8 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     };
 }]);
 ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($scope, http2, srvRound, $sce) {
-    var oApp, facRound, page, criteria, schemas, userGroups;
+    var oApp, facRound, page, criteria, schemas, userGroups, _items;
+    _items = {};
     $scope.schemaCount = 0;
     $scope.page = page = { at: 1, size: 12 };
     $scope.criteria = criteria = { owner: 'all' };
@@ -71,9 +72,9 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
                     }
                     if(schemas[oRecord.schema_id].type == 'multitext') {
                         angular.forEach(oRecord.items, function(item) {
-                            oRecord._items = {};
-                            oRecord._items[item.id] = item;
+                            _items[item.id] = item;
                         });
+                        oRecord._items = _items;
                     }
                     if (oRecord.tag) {
                         oRecord.tag.forEach(function(index, tagId) {

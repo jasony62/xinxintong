@@ -107,7 +107,7 @@ class follow extends \site\fe\base {
 		if (!empty($oQrcode->matter_type) && !empty($oQrcode->matter_id)) {
 			if ($oQrcode->matter_type === 'mschema') {
 				$modelMs = $this->model('site\user\memberschema');
-				$aParams['referer'] = $modelMsch->getEntryUrl($site, $matter[1]);
+				$aParams['referer'] = $modelMs->getEntryUrl($site, $matter[1]);
 				$oMschema = $modelMs->byId($id);
 				$oMatter = new \stdClass;
 				$oMatter->id = $id;

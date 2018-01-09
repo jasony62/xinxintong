@@ -230,7 +230,18 @@ define(['frame'], function(ngApp) {
         };
         $scope.removeFile = function(field, index) {
             field.splice(index, 1);
-        }
+        };
+        $scope.addItem = function(schemaId) {
+            var data = oRecord.data;
+            var item = {
+                id: 0,
+                value: ''
+            }
+            data[schemaId].push(item);
+        };
+        $scope.removeItem = function(items, index) {
+            items.splice(index, 1);
+        };
         $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
             var aNewTags = [];
             for (var i in aSelected) {
@@ -298,7 +309,7 @@ define(['frame'], function(ngApp) {
                     if (oRecord.verbose[schema.id] === undefined) {
                         oRecord.verbose[schema.id] = {};
                     }
-                    if(schema=='multitext'&&oRecord.verbose[schema.id].id!==itemId) {
+                    if(schema.type=='multitext'&&oRecord.verbose[schema.id].id!==itemId) {
                         oRecord.verbose[schema.id]._items[itemId].remark_num = schemaRemarks[itemId].length;
                     }else{
                         oRecord.verbose[schema.id].remark_num = schemaRemarks[itemId].length;

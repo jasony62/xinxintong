@@ -182,7 +182,10 @@
                             </div>
                             <div ng-switch-when='multitext'>
                                 <div ng-repeat="item in record.data[schema.id]" style="margin-bottom:10px">
-                                    <input type='text' class='form-control' ng-model="item.value" />
+                                    <div class="input-group">
+                                        <input type='text' class='form-control' ng-model="item.value" />
+                                        <span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(record.data[schema.id], $index)"><i class="glyphicon glyphicon-trash"></i></button></span>
+                                    </div>
                                     <div class='bottom-bar'>
                                         <div ng-if="schema.shareable==='Y'">
                                             <span>赞同<span class='badge'>{{record.verbose[schema.id]._items[item.id].like_num||0}}</span></span>
@@ -226,6 +229,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <button class="btn btn-default" ng-click="addItem(schema.id)">添加内容</button>
                             </div>
                             <div ng-switch-when='date'>
                                 <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>

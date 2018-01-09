@@ -3,11 +3,10 @@
         <label>题目ID</label>
         <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema(activeSchema)" readonly>
     </div>
-    <div class="form-group">
+    <div class="form-group" ng-if="editing.type!=='multitext'">
         <label>题目类型</label>
         <select class='form-control' ng-model='editing.type' ng-change="changeSchemaType()" ng-disabled="editing.type==='member'">
             <option value='shorttext'>单行填写题</option>
-            <option value='multitext'>多项填空题</option>
             <option value='longtext'>多行填写题</option>
             <option value='single'>单选题</option>
             <option value='multiple'>多选题</option>

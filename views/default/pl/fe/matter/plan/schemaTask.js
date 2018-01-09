@@ -3,12 +3,23 @@ define(['frame'], function(ngApp) {
     /**
      * 模板任务
      */
-    ngApp.provider.controller('ctrlSchemaTask', ['$scope', '$uibModal', 'http2', 'cstApp', 'srvPlanApp', function($scope, $uibModal, http2, CstApp, srvPlanApp) {
+    ngApp.provider.controller('ctrlSchemaTask', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'http2', 'cstApp', 'srvPlanApp', function($scope, $timeout, $anchorScroll, $uibModal, http2, CstApp, srvPlanApp) {
         var _oApp;
         $scope.cstApp = CstApp;
         $scope.addTask = function() {
             http2.post('/rest/pl/fe/matter/plan/schema/task/add?plan=' + _oApp.id, {}, function(rsp) {
+                var oNewTask;
+                oNewTask = rsp.data;
                 $scope.tasks.push(rsp.data);
+                $timeout(function() {
+                    var eleTask;
+                    eleTask = document.querySelector('#task-' + oNewTask.id);
+                    eleTask.classList.add('blink');
+                    $anchorScroll('task-' + oNewTask.id);
+                    $timeout(function() {
+                        eleTask.classList.remove('blink');
+                    }, 1000);
+                });
             });
         };
         $scope.listTask = function() {
@@ -68,6 +79,14 @@ define(['frame'], function(ngApp) {
                 for (var i = oNewTask.task_seq, ii = $scope.tasks.length; i < ii; i++) {
                     $scope.tasks[i].task_seq++;
                 }
+                $timeout(function() {
+                    var eleTask;
+                    eleTask = document.querySelector('#task-' + oNewTask.id);
+                    eleTask.classList.add('blink');
+                    $timeout(function() {
+                        eleTask.classList.remove('blink');
+                    }, 1000);
+                });
             });
         };
         $scope.moveTask = function(oTask, step) {

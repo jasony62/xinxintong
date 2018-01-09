@@ -3,6 +3,7 @@
 #task-view .task-cog{position:absolute;top:-1px;right:-1px;}
 #task-view .task-cog>button{border-top-left-radius:0;border-top-right-radius:0;border-bottom-right-radius:0;}
 #task-view .task:first-child .task-cog>button{border-top-right-radius:4px;}
+#task-view .blink{background:#d9edf7;}
 
 /*action-view*/
 #action-view .action{position:relative;}

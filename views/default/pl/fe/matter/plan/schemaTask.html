@@ -5,7 +5,7 @@
                 <button class='btn btn-default' ng-click="addTask()"><span class='glyphicon glyphicon-plus'></span> 添加任务</button>
             </div>
             <div class='list-group'>
-                <div class='list-group-item task' ng-class="{'active':task===activeTask}" ng-repeat="task in tasks">
+                <div id="task-{{task.id}}" class='list-group-item task' ng-class="{'active':task===activeTask}" ng-repeat="task in tasks">
                     <div ng-click="toggleTask(task)">
                         <div class='form-group'>
                             #<span ng-bind="task.task_seq"></span>&nbsp;-&nbsp;<span ng-bind="task.title"></span>
@@ -27,7 +27,7 @@
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="glyphicon glyphicon-cog"></span>
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" style='left:auto;right:0;min-width:auto;'>
                             <li><a href="#" ng-click="editTask(task)">设置</a></li>
                             <li><a href="#" ng-click="removeTask(task)">删除</a></li>
                             <li><a href="#" ng-click="copyTask(task)">复制</a></li>
@@ -65,7 +65,7 @@
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="glyphicon glyphicon-cog"></span>
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" style='left:auto;right:0;min-width:auto;'>
                             <li><a href="#" ng-click="editAction(action)">设置</a></li>
                             <li><a href="#" ng-click="removeAction(action)">删除</a></li>
                             <li><a href="#" ng-click="moveAction(action,-1)">上移</a></li>

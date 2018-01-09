@@ -65,11 +65,11 @@ class base extends \site\fe\matter\base {
 				} elseif ($oEntryRule->scope === 'sns') {
 					$aResult = $this->enterAsSns($oApp);
 				}
-				if (true === $aResult[0]) {
+				if (isset($aResult) && true === $aResult[0]) {
 					$page = isset($aResult[1]->entry) ? $aResult[1]->entry : '';
 				} else {
-					if (isset($oEntryRule->other->entry)) {
-						$page = $oEntryRule->other->entry;
+					if (isset($oEntryRule->otherwise->entry)) {
+						$page = $oEntryRule->otherwise->entry;
 					} else {
 						$page = $oEntryRule->scope === 'member' ? '$memberschema' : '$mpfollow';
 					}

@@ -119,7 +119,13 @@ class member extends \site\fe\base {
 
 		/* 已填写的用户信息 */
 		$modelMem = $this->model('site\user\member');
-		$oUser = $this->who;
+		$oUser = clone $this->who;
+		if (!empty($oUser->unionid)) {
+			$oRegAccount = $this->model('account')->byId($oUser->unionid, ['fields' => 'nickname,email']);
+			$oUser->registration = $oRegAccount;
+			$oUser->registration->uname = $oUser->registration->email;
+			unset($oUser->registration->email);
+		}
 		if (isset($oUser->members) && isset($oUser->members->{$schema})) {
 			unset($oUser->members->{$schema});
 		}

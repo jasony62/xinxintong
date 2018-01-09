@@ -90,7 +90,23 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.moveTask = function(oTask, step) {
-            http2.get('/rest/pl/fe/matter/plan/schema/task/move?task=' + oTask.id + '&step=' + step, function(rsp) {});
+            var index;
+            if (step === 0 || (parseInt(oTask.task_seq) + step < 1) || (parseInt(oTask.task_seq) + step > $scope.tasks.length)) {
+                return;
+            }
+            index = $scope.tasks.indexOf(oTask);
+            http2.get('/rest/pl/fe/matter/plan/schema/task/move?task=' + oTask.id + '&step=' + step, function(rsp) {
+                var oMovedTask;
+                oMovedTask = rsp.data;
+                $scope.tasks.splice(index, 1);
+                $scope.tasks.splice(oMovedTask.task_seq - 1, 0, oTask);
+                oTask.task_seq = oMovedTask.task_seq;
+                if (step > 0) {
+                    $scope.tasks[index].task_seq--;
+                } else if (step < 0) {
+                    $scope.tasks[index].task_seq++;
+                }
+            });
         };
         $scope.toggleTask = function(oTask) {
             $scope.activeTask = oTask;
@@ -112,9 +128,11 @@ define(['frame'], function(ngApp) {
 
         var _oTask;
         $scope.addAction = function() {
-            http2.post('/rest/pl/fe/matter/plan/schema/action/add?task=' + _oTask.id, {}, function(rsp) {
-                $scope.actions.push(rsp.data);
-            });
+            if (_oTask) {
+                http2.post('/rest/pl/fe/matter/plan/schema/action/add?task=' + _oTask.id, {}, function(rsp) {
+                    $scope.actions.push(rsp.data);
+                });
+            }
         };
         $scope.editAction = function(oAction) {
             $uibModal.open({

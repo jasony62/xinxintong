@@ -42,7 +42,7 @@ class follow extends \site\fe\base {
 	 *
 	 */
 	public function pageGet_action($site, $sns, $matter = null, $sceneid = null) {
-		$snsSiteId = $this->escape($site);
+		$matterSiteId = $snsSiteId = $this->escape($site);
 		$modelSns = $this->model('sns\\' . $sns);
 		/* 公众号配置信息 */
 		$snsConfig = $modelSns->bySite($snsSiteId, ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
@@ -89,10 +89,10 @@ class follow extends \site\fe\base {
 				if (!isset($oQrcode)) {
 					if ($type === 'mschema') {
 						$modelMs = $this->model('site\user\memberschema');
-						$aParams['referer'] = $modelMs->getEntryUrl($site, $id);
+						$aParams['referer'] = $modelMs->getEntryUrl($matterSiteId, $id);
 					} else {
 						$modelMat = $this->model('matter\\' . $type);
-						$aParams['referer'] = $modelMat->getEntryUrl($site, $id);
+						$aParams['referer'] = $modelMat->getEntryUrl($matterSiteId, $id);
 					}
 				}
 			}

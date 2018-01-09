@@ -119,7 +119,7 @@ class data_model extends \TMS_MODEL {
 							$treatedValues[$k]->id = $dataId;
 						}
 						$dbData->{$schemaId} = $treatedValues;
-						$treatedValue = json_encode($treatedValues);
+						$treatedValue = $this->toJson($treatedValues);
 					}
 				}
 				$schemaValue = [
@@ -156,7 +156,7 @@ class data_model extends \TMS_MODEL {
 							$treatedValues[$v]->id = $dataId;
 						}
 						$dbData->{$schemaId} = $treatedValues;
-						$treatedValue = json_encode($treatedValues);
+						$treatedValue = $this->toJson($treatedValues);
 					}
 				}
 				if ($treatedValue !== $lastSchemaValues[0]->value) {
@@ -260,7 +260,7 @@ class data_model extends \TMS_MODEL {
 						}
 						/* 修改总数据 */
 						$dbData->{$schemaId} = $newSchemaValues;
-						$treatedValue = json_encode($newSchemaValues);
+						$treatedValue = $this->toJson($newSchemaValues);
 
 						if ($oldSchemaVal->value !== $treatedValue) {
 							if (strlen($oldSchemaVal->modify_log)) {

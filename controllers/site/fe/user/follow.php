@@ -107,12 +107,12 @@ class follow extends \site\fe\base {
 		if (!empty($oQrcode->matter_type) && !empty($oQrcode->matter_id)) {
 			if ($oQrcode->matter_type === 'mschema') {
 				$modelMs = $this->model('site\user\memberschema');
-				$aParams['referer'] = $modelMs->getEntryUrl($site, $matter[1]);
-				$oMschema = $modelMs->byId($id);
+				$oMschema = $modelMs->byId($oQrcode->matter_id);
 				$oMatter = new \stdClass;
-				$oMatter->id = $id;
+				$oMatter->id = $oMschema->id;
 				$oMatter->siteid = $oMschema->siteid;
 				$oMatter->title = $oMschema->title;
+				$aParams['referer'] = $modelMs->getEntryUrl($oMschema->siteid, $oMschema->id);
 			} else {
 				$oMatter = $this->model('matter\\' . $oQrcode->matter_type)->byId($oQrcode->matter_id, ['fields' => 'id,siteid,state,title,summary,pic']);
 			}

@@ -89,6 +89,16 @@ define(['frame'], function(ngApp) {
                 //数组 转 字符串
                 tags: oRecord.aTags.join(','),
             };
+            /*多项填空题，如果值为空则删掉*/
+            for(var k in oRecord.data) {
+                if(oApp._schemasById[k].type=='multitext') {
+                    angular.forEach(oRecord.data[k], function(data, index) {
+                        if(data.value=='') {
+                            oRecord.data[k].splice(index,1);
+                        }
+                    });
+                }
+            };
 
             oRecord.tags = updated.tags;
             updated.comment = oRecord.comment; //oRecord 信息

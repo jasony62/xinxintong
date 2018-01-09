@@ -1253,6 +1253,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '&ek=' + ek;
                 schemaId && (url += '&schema=' + schemaId);
                 itemId && (url += '&id=' + itemId);
+                if(itemId =='0') {
+                    url += '&id=null';
+                }
                 http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
                 });

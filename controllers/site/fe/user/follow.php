@@ -68,8 +68,10 @@ class follow extends \site\fe\base {
 		if (!empty($sceneid)) {
 			$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');
 			$oQrcode = $modelQrcode->bySceneId($site, $sceneid);
-			$aParams['matterQrcode'] = $oQrcode;
-			$aParams['matter'] = $this->_getMatterByQrcode($oQrcode);
+			if ($oQrcode) {
+				$aParams['matterQrcode'] = $oQrcode;
+				$aParams['matter'] = $this->_getMatterByQrcode($oQrcode);
+			}
 		} else if (!empty($matter)) {
 			$matter = explode(',', $matter);
 			if (count($matter) === 2) {

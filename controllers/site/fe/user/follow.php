@@ -42,21 +42,21 @@ class follow extends \site\fe\base {
 	 *
 	 */
 	public function pageGet_action($site, $sns, $matter = null, $sceneid = null) {
-		$siteId = $this->escape($site);
+		$snsSiteId = $this->escape($site);
 		$modelSns = $this->model('sns\\' . $sns);
 		/* 公众号配置信息 */
-		$snsConfig = $modelSns->bySite($siteId, ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
+		$snsConfig = $modelSns->bySite($snsSiteId, ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
 		if ($snsConfig === false || ($snsConfig->joined === 'N' && $sns === 'wx')) {
-			$siteId = 'platform';
+			$snsSiteId = 'platform';
 			$snsConfig = $modelSns->bySite('platform', ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
 		}
 
-		$oSite = $this->model('site')->byId($siteId, ['fields' => 'state,name,summary']);
+		$oSite = $this->model('site')->byId($snsSiteId, ['fields' => 'state,name,summary']);
 		if (empty($snsConfig->follow_page_name)) {
 			$oPage = new \stdClass;
 			$oPage->html = '请关注公众号：' . $oSite->name;
 		} else {
-			$oPage = $this->model('code\page')->lastPublishedByName($siteId, $snsConfig->follow_page_name);
+			$oPage = $this->model('code\page')->lastPublishedByName($snsSiteId, $snsConfig->follow_page_name);
 		}
 		$aParams = [
 			'page' => $oPage,
@@ -67,7 +67,7 @@ class follow extends \site\fe\base {
 		/* 访问素材信息 */
 		if (!empty($sceneid)) {
 			$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');
-			$oQrcode = $modelQrcode->bySceneId($oSite->id, $sceneid);
+			$oQrcode = $modelQrcode->bySceneId($snsSiteId, $sceneid);
 			if ($oQrcode) {
 				$aParams['matterQrcode'] = $oQrcode;
 				$aParams['matter'] = $this->_getMatterByQrcode($oQrcode);

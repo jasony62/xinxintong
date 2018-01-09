@@ -35,7 +35,7 @@ class data_model extends \TMS_MODEL {
 
 			$lastSchemaValues = $this->query_objs_ss(
 				[
-					'id,submit_at,value,modify_log,score,multitext_seq',
+					'id,submit_at,value,modify_log,score,multitext_seq,remark_num,like_num',
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId, 'state' => 1],
 				]
@@ -98,6 +98,7 @@ class data_model extends \TMS_MODEL {
 
 			//记录结果
 			if (empty($lastSchemaValues)) {
+				$schemaValue = '';
 				/* 处理多项填写题型 */
 				if (isset($schemasById[$schemaId])) {
 					$schema = $schemasById[$schemaId];
@@ -135,6 +136,7 @@ class data_model extends \TMS_MODEL {
 				isset($oRecordScore->{$schemaId}) && $schemaValue['score'] = $oRecordScore->{$schemaId};
 				$this->insert('xxt_enroll_record_data', $schemaValue, false);
 			} else if (count($lastSchemaValues) == 1) {
+				$schemaValue = '';
 				/* 处理多项填写题型 */
 				if (isset($schemasById[$schemaId])) {
 					$schema = $schemasById[$schemaId];
@@ -153,7 +155,7 @@ class data_model extends \TMS_MODEL {
 								'value' => $this->escape($v->value),
 							];
 							$dataId = $this->insert('xxt_enroll_record_data', $schemaValue2, true);
-							$treatedValues[$v]->id = $dataId;
+							$treatedValues[$k]->id = $dataId;
 						}
 						$dbData->{$schemaId} = $treatedValues;
 						$treatedValue = $this->toJson($treatedValues);
@@ -188,6 +190,7 @@ class data_model extends \TMS_MODEL {
 				}
 
 			} else { // 处理可多项填写题型
+				$schemaValue = '';
 				if (isset($schemasById[$schemaId])) {
 					$schema = $schemasById[$schemaId];
 					if ($schema->type === 'multitext') {
@@ -251,6 +254,8 @@ class data_model extends \TMS_MODEL {
 						/* 处理被删除的数据 */
 						if (count($oldSchemaValues) > 0) {
 							foreach ($oldSchemaValues as $oldSchemaValue) {
+								// 如果删除某项，需要删除其对应的点赞数和评论数
+								$this->update("update xxt_enroll_record_data set remark_num = remark_num - " . $oldSchemaValue->remark_num . " , like_num = like_num - " . $oldSchemaValue->like_num . " where aid = '{$oApp->id}' and rid = '{$oRecord->rid}' and enroll_key = '{$oRecord->enroll_key}' and schema_id = '{$schemaId}' and multitext_seq = 0");
 								$this->update(
 									'xxt_enroll_record_data',
 									['state' => 101],

@@ -57,6 +57,7 @@ class qrcode_model extends \TMS_MODEL {
 				'xxt_call_qrcode_wx',
 				['siteid' => 'platform', 'scene_id' => $sceneId],
 			];
+			$call = $this->query_obj_ss($q);
 		}
 
 		return $call;

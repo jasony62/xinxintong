@@ -67,7 +67,7 @@ class follow extends \site\fe\base {
 		/* 访问素材信息 */
 		if (!empty($sceneid)) {
 			$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');
-			$oQrcode = $modelQrcode->bySceneId($site, $sceneid);
+			$oQrcode = $modelQrcode->bySceneId($oSite->id, $sceneid);
 			if ($oQrcode) {
 				$aParams['matterQrcode'] = $oQrcode;
 				$aParams['matter'] = $this->_getMatterByQrcode($oQrcode);

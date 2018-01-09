@@ -96,6 +96,16 @@ class plan_model extends app_base {
 				$oEntryRule->member = new \stdClass;
 				if (!empty($oProto->entryRule->mschemas)) {
 					foreach ($oProto->entryRule->mschemas as $oMschema) {
+						if ($oMschema->id === '_pending') {
+							/* 给活动创建通讯录 */
+							$oMschemaConfig = new \stdClass;
+							$oMschemaConfig->matter_id = $oNewApp->id;
+							$oMschemaConfig->matter_type = 'plan';
+							$oMschemaConfig->valid = 'Y';
+							$oMschemaConfig->title = $oNewApp->title . '-通讯录';
+							$oAppMschema = $this->model('site\user\memberschema')->create($oSite, $oUser, $oMschemaConfig);
+							$oMschema->id = $oAppMschema->id;
+						}
 						$oEntryRule->member->{$oMschema->id} = (object) ['entry' => ''];
 					}
 				}

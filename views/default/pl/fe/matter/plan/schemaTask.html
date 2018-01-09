@@ -1,10 +1,10 @@
-<div id='task-view' class='col-md-6'>
+<div id='task-view' class='col-md-6' tms-flex-height top='70' bottom='0'>
     <div class='panel panel-default'>
         <div class='panel-body'>
             <div class='form-group'>
                 <button class='btn btn-default' ng-click="addTask()"><span class='glyphicon glyphicon-plus'></span> 添加任务</button>
             </div>
-            <div class='list-group' style='margin-bottom:0'>
+            <div class='list-group'>
                 <div class='list-group-item task' ng-class="{'active':task===activeTask}" ng-repeat="task in tasks">
                     <div ng-click="toggleTask(task)">
                         <div class='form-group'>
@@ -30,17 +30,21 @@
                         <ul class="dropdown-menu">
                             <li><a href="#" ng-click="editTask(task)">设置</a></li>
                             <li><a href="#" ng-click="removeTask(task)">删除</a></li>
+                            <li><a href="#" ng-click="copyTask(task)">复制</a></li>
                             <li><a href="#" ng-click="moveTask(task,-1)">上移</a></li>
                             <li><a href="#" ng-click="moveTask(task,1)">下移</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
+            <div>
+                <button class='btn btn-default' ng-click="addTask()"><span class='glyphicon glyphicon-plus'></span> 添加任务</button>
+            </div>
         </div>
     </div>
 </div>
-<div id='action-view' class='col-md-6' ng-controller="ctrlAction">
-    <div class='panel panel-default'>
+<div id='action-view' class='col-md-6' tms-flex-height top='70' bottom='0'>
+    <div class='panel panel-default' ng-controller="ctrlAction">
         <div class='panel-body'>
             <div class='form-group'>
                 <a href="/rest/pl/fe/matter/plan/schemaPlan?id={{app.id}}&site={{app.siteid}}">设置全局任务核对题目（{{app.checkSchemas.length}}）</a>

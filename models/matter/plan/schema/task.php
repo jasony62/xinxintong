@@ -66,10 +66,39 @@ class task_model extends \TMS_MODEL {
 
 		$oNewTask->jump_delayed = 'U';
 		$oNewTask->auto_verify = 'U';
+		$oNewTask->can_patch = 'U';
 
 		$oNewTask->id = $this->insert('xxt_plan_task_schema', $oNewTask, true);
 
 		return $oNewTask;
+	}
+	/**
+	 * 改变任务的顺序
+	 */
+	public function moveSeq(&$oTask, $step) {
+		$newSeq = $oTask->task_seq + $step;
+		if ($step > 0) {
+			$lastSeq = $this->lastSeq($oTask->aid);
+			if ($lastSeq == $oTask->task_seq) {
+				return [true, $lastSeq];
+			}
+			if ($newSeq > $lastSeq) {
+				return [false, '移动位置【' . $newSeq . '】超出范围'];
+			}
+			// 调整其他任务的序号
+			$this->update('update xxt_plan_task_schema set task_seq=task_seq-1 where state=1 and task_seq>' . $oTask->task_seq . ' and task_seq<=' . $newSeq);
+		} else {
+			if ($newSeq < 1) {
+				return [false, '移动位置【' . $newSeq . '】超出范围'];
+			}
+			// 调整其他任务的序号
+			$this->update('update xxt_plan_task_schema set task_seq=task_seq+1 where state=1 and task_seq>=' . $newSeq . ' and task_seq<' . $oTask->task_seq);
+		}
+
+		$this->update('xxt_plan_task_schema', ['task_seq' => $newSeq], ['id' => $oTask->id]);
+		$oTask->task_seq = $newSeq;
+
+		return $newSeq;
 	}
 	/**
 	 * 模板任务的最大序号

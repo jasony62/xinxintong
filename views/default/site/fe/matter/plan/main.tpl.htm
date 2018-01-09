@@ -166,7 +166,7 @@
                         </div>
                     </div>
                 </div>
-                <button class='btn btn-default btn-block' ng-click="submit()">提交</button>
+                <button ng-if="activeTask.actions.length" class='btn btn-default btn-block' ng-click="submit()">提交</button>
             </div>
         </script>
         <script type="text/ng-template" id="rank.html">

@@ -46,13 +46,26 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.removeTask = function(oTask) {
-            http2.get('/rest/pl/fe/matter/plan/schema/task/remove?task=' + oTask.id, function(rsp) {
-                var tasks, index;
-                tasks = $scope.tasks;
-                index = tasks.indexOf(oTask);
-                tasks.splice(index, 1);
-                for (; index < tasks.length; index++) {
-                    tasks[index].task_seq--;
+            if (window.confirm('确认删除？')) {
+                http2.get('/rest/pl/fe/matter/plan/schema/task/remove?task=' + oTask.id, function(rsp) {
+                    var tasks, index;
+                    tasks = $scope.tasks;
+                    index = tasks.indexOf(oTask);
+                    tasks.splice(index, 1);
+                    for (; index < tasks.length; index++) {
+                        tasks[index].task_seq--;
+                    }
+                });
+            }
+        };
+        $scope.copyTask = function(oTask) {
+            http2.get('/rest/pl/fe/matter/plan/schema/task/copy?task=' + oTask.id, function(rsp) {
+                var index, oNewTask;
+                index = $scope.tasks.indexOf(oTask);
+                oNewTask = rsp.data;
+                $scope.tasks.splice(index + 1, 0, oNewTask);
+                for (var i = oNewTask.task_seq, ii = $scope.tasks.length; i < ii; i++) {
+                    $scope.tasks[i].task_seq++;
                 }
             });
         };

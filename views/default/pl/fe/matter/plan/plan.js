@@ -50,13 +50,17 @@ define(['require'], function(require) {
                 _oProto.title = oMission.title + '-计划任务';
             });
         }
-        $scope.chooseMschema = function() {
+        $scope.chooseMschema = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
             srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(function(result) {
                 var oChosen = result.chosen;
                 _oEntryRule.mschemas.push({ id: oChosen.id, title: oChosen.title });
             });
         };
-        $scope.removeMschema = function(oMschema) {
+        $scope.removeMschema = function(event, oMschema) {
+            event.preventDefault();
+            event.stopPropagation();
             var mschemas = _oEntryRule.mschemas;
             mschemas.splice(mschemas.indexOf(oMschema), 1);
         };
@@ -90,18 +94,6 @@ define(['require'], function(require) {
                 }
             });
         };
-        $scope.changeUserScope = function(scope) {
-            // if (scope === 'member') {
-            //     if (!_oEntryRule.mschemas || _oEntryRule.mschemas.length === 0) {
-            //         $scope.chooseMschema();
-            //     }
-            // } else if (scope === 'sns') {
-            //     _oEntryRule.sns = {};
-            //     $scope.snsNames.forEach(function(snsName) {
-            //         _oEntryRule.sns[snsName] = true;
-            //     });
-            // }
-        };
         $scope.doCreate = function() {
             var url, data;
             var oConfig;
@@ -113,7 +105,7 @@ define(['require'], function(require) {
                 proto: $scope.proto
             };
             http2.post(url, oConfig, function(rsp) {
-                location.href = '/rest/pl/fe/matter/plan?site=' + _siteId + '&id=' + rsp.data.id;
+                location.href = '/rest/pl/fe/matter/plan/schemaTask?site=' + _siteId + '&id=' + rsp.data.id;
             });
         };
     }]);

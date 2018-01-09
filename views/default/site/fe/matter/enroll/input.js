@@ -426,7 +426,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     });
     $scope.removeItem = function(items, index) {
-        items.splice(items, 1);
+        items.splice(index, 1);
     };
     $scope.addItem = function(schemaId) {
         var item = {

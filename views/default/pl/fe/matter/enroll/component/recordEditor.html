@@ -199,6 +199,32 @@
                                             </select>
                                         </span>
                                     </div>
+                                    <div class='form-group remarks' ng-if="openedItemRemarksSchema===item.id">
+                                        <div class='col-md-9'>
+                                            <div class='remark' ng-repeat="remark in schemaRemarks[item.id]">
+                                                <blockquote>
+                                                    <p>{{remark.content}}</p>
+                                                    <footer>{{remark.nickname}}</footer>
+                                                </blockquote>
+                                                <div class='bottom-bar'>
+                                                    <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
+                                                    <span>赞同 <span class='badge'>{{remark.like_num}}</span></span>
+                                                    <select class='form-control input-sm' style='width:7em' ng-change="agreeRemark(remark)" ng-model="remark.agreed">
+                                                        <option value=''>未表态</option>
+                                                        <option value='Y'>推荐</option>
+                                                        <option value='A'>接受</option>
+                                                        <option value='N'>屏蔽</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="input-group" style='margin-top:1em'>
+                                                <textarea class='form-control' ng-model="newRemark.content"></textarea>
+                                                <div class="input-group-btn" style='padding-left:10px;'>
+                                                    <button class='btn btn-success' ng-click="addRemark(schema, item.id)">发表</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div ng-switch-when='date'>
@@ -228,7 +254,7 @@
                                     <span>赞同<span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
                                 </div>
                                 <div ng-if="schema.remarkable==='Y'">
-                                    <button class='btn btn-default btn-sm' ng-click="switchSchemaRemarks(schema)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span></button>
+                                    <button class='btn btn-default btn-sm' ng-click="switchSchemaRemarks(schema, record.verbose[schema.id].id)"><span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span></button>
                                 </div>
                                 <div ng-if="schema.shareable==='Y'">
                                     <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id].agreed)" ng-model="record.verbose[schema.id].agreed">
@@ -243,7 +269,7 @@
                     </div>
                     <div class='form-group remarks' ng-if="openedRemarksSchema===schema">
                         <div class='col-md-9 col-md-offset-3'>
-                            <div class='remark' ng-repeat="remark in schemaRemarks[schema.id]">
+                            <div class='remark' ng-repeat="remark in schemaRemarks[record.verbose[schema.id].id]">
                                 <blockquote>
                                     <p>{{remark.content}}</p>
                                     <footer>{{remark.nickname}}</footer>
@@ -262,7 +288,7 @@
                             <div class="input-group" style='margin-top:1em'>
                                 <textarea class='form-control' ng-model="newRemark.content"></textarea>
                                 <div class="input-group-btn" style='padding-left:10px;'>
-                                    <button class='btn btn-success' ng-click="addRemark(schema)">发表</button>
+                                    <button class='btn btn-success' ng-click="addRemark(schema, record.verbose[schema.id].id)">发表</button>
                                 </div>
                             </div>
                         </div>

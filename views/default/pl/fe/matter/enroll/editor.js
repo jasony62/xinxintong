@@ -282,21 +282,27 @@ define(['frame'], function(ngApp) {
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
         $scope.openedRemarksSchema = false;
+        $scope.openedItemRemarksSchema = false;
         $scope.switchSchemaRemarks = function(schema, itemId) {
             $scope.openedRemarksSchema = schema;
+            $scope.openedItemRemarksSchema = itemId;
             srvEnrollRecord.listRemark(ek, schema.id, itemId).then(function(result) {
-                schemaRemarks[schema.id] = result.remarks;
+                schemaRemarks[itemId] = result.remarks;
             });
         };
-        $scope.addRemark = function(schema) {
-            srvEnrollRecord.addRemark(ek, schema ? schema.id : null, $scope.newRemark).then(function(remark) {
-                if (schema) {
-                    !schemaRemarks[schema.id] && (schemaRemarks[schema.id] = []);
-                    schemaRemarks[schema.id].push(remark);
+        $scope.addRemark = function(schema, itemId) {
+            srvEnrollRecord.addRemark(ek, schema ? schema.id : null, $scope.newRemark, itemId).then(function(remark) {
+                if (itemId) {
+                    !schemaRemarks[itemId] && (schemaRemarks[itemId] = []);
+                    schemaRemarks[itemId].push(remark);
                     if (oRecord.verbose[schema.id] === undefined) {
                         oRecord.verbose[schema.id] = {};
                     }
-                    oRecord.verbose[schema.id].remark_num = schemaRemarks[schema.id].length;
+                    if(schema=='multitext'&&oRecord.verbose[schema.id].id!==itemId) {
+                        oRecord.verbose[schema.id]._items[itemId].remark_num = schemaRemarks[itemId].length;
+                    }else{
+                        oRecord.verbose[schema.id].remark_num = schemaRemarks[itemId].length;
+                    }
                 } else {
                     $scope.remarks.push(remark);
                 }

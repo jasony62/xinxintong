@@ -389,7 +389,7 @@ class base extends \site\base {
 			header('Content-Type: text/javascript');
 			if ($rst[0] === false) {
 				$this->model('log')->log($site, 'wxjssdksignpackage', 'url: ' . urldecode($url) . ' ,failed: ' . $rst[1], null, $_SERVER['REQUEST_URI']);
-				die("alert('{$rst[1]}');");
+				die("alert('{$rst[1]}')");
 			}
 			die($rst[1]);
 		} else {

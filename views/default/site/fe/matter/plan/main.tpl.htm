@@ -26,6 +26,9 @@
                     <li class="pull-left" ng-if="subView!=='rank'">
                         <a href="" ng-click="toggleView('rank')"><i class="glyphicon glyphicon-stats"></i><span class="visible-lg-inline"> 排行</span></a>
                     </li>
+                    <li class="pull-left" ng-if="app.invite.can_relay==='Y'">
+                        <a href="" ng-click="invite()"><i class="glyphicon glyphicon-share"></i><span class="visible-lg-inline"> 邀请</span></a>
+                    </li>
                     <li class="pull-left">
                         <a href="" ng-click="siteUser()"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 我的</span></a>
                     </li>

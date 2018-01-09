@@ -28,9 +28,13 @@ class main extends \pl\fe\matter\main_base {
 			return new \ResponseTimeout();
 		}
 
-		$oApp = $this->model('matter\plan')->byId($id);
+		$modelApp = $this->model('matter\plan');
+		$oApp = $modelApp->byId($id);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
+		}
+		if ($inviteUrl = $modelApp->getInviteUrl($oApp->id, $oApp->siteid)) {
+			$oApp->entryUrl = $inviteUrl;
 		}
 		/*所属项目*/
 		if ($oApp->mission_id) {

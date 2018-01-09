@@ -87,7 +87,7 @@ class follow extends \site\fe\base {
 				if (!isset($oQrcode)) {
 					if ($type === 'mschema') {
 						$modelMs = $this->model('site\user\memberschema');
-						$aParams['referer'] = $modelMsch->getEntryUrl($site, $id);
+						$aParams['referer'] = $modelMs->getEntryUrl($site, $id);
 					} else {
 						$modelMat = $this->model('matter\\' . $type);
 						$aParams['referer'] = $modelMat->getEntryUrl($site, $id);

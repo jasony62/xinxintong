@@ -40,7 +40,7 @@ class main extends \pl\fe\base {
 		$oCreator->type = 'S';
 
 		$modelInv = $this->model('invite');
-		$oInvite = $modelInv->byMatter($oMatter, $oCreator, ['fields' => 'id,code,expire_at,require_code,message,invitee_count,relay_invitee_count,matter_type,matter_id,state']);
+		$oInvite = $modelInv->byMatter($oMatter, $oCreator, ['fields' => 'id,code,expire_at,require_code,can_relay,message,invitee_count,relay_invitee_count,matter_type,matter_id,state']);
 		if ($oInvite) {
 			$oInvite->entryUrl = $modelInv->getEntryUrl($oInvite);
 		}
@@ -153,6 +153,7 @@ class main extends \pl\fe\base {
 		foreach ($posted as $prop => $val) {
 			switch ($prop) {
 			case 'require_code':
+			case 'can_relay':
 				$aUpdated[$prop] = $val === 'Y' ? 'Y' : 'N';
 				break;
 			case 'message':

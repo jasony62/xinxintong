@@ -20,6 +20,7 @@ $sql .= ",creator_type char(1) not null default 'A'"; // S:site,U:account
 $sql .= ",create_at int not null";
 $sql .= ",expire_at int not null default 0";
 $sql .= ",require_code char(1) not null default 'N'"; // 是否需要邀请码
+$sql .= ",can_relay char(1) not null default 'N'"; // 是否支持间接邀请
 $sql .= ",state int not null default 1"; // 1:可用
 $sql .= ",from_invite_id bigint not null"; // 创建邀请的用户是通过哪个邀请接受的邀请
 $sql .= ",from_invite_code_id bigint not null"; // 创建邀请的用户是通过哪个邀请码接受的邀请

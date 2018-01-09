@@ -61,13 +61,13 @@ define(['frame'], function(ngApp) {
                                 'isMatterAction': 'N'
                             };
                             $scope2.$watch('criteria.isMatterData', function(nv) {
-                                if(nv==='Y') {criteria.isMatterAction='Y'};
+                                if (nv === 'Y') { criteria.isMatterAction = 'Y' };
                             });
                             $scope2.doMission = function() {
                                 var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j() + '&field=id,title',
-                                    params = {byTitle: criteria.byTitle};
+                                    params = { byTitle: criteria.byTitle };
                                 http2.post(url, params, function(rsp) {
-                                    if(rsp.data) {
+                                    if (rsp.data) {
                                         $scope2.missions = rsp.data.missions;
                                         $scope2.pageOfMission.total = rsp.data.total;
                                     }
@@ -91,7 +91,7 @@ define(['frame'], function(ngApp) {
                         }],
                         backdrop: 'static'
                     }).result.then(function(result) {
-                        url += type + '/copy?site=' + siteid + '&app=' + id +'&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
+                        url += type + '/copy?site=' + siteid + '&app=' + id + '&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
                         http2.get(url, function(rsp) {
                             location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                         });
@@ -106,12 +106,17 @@ define(['frame'], function(ngApp) {
                     alert('指定素材不支持复制');
                     return;
             }
-            if(type !== 'enroll') {
+            if (type !== 'enroll') {
                 http2.get(url, function(rsp) {
                     location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                 });
             }
         };
+        $scope.$watch('frameState.sid', function(nv) {
+            if (nv === '_coworker') {
+                $scope.changeScope('mission');
+            }
+        });
     }]);
     ngApp.provider.controller('ctrlMission', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {
         var _oPage, filter2, t = (new Date() * 1);

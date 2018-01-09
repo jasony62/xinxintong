@@ -1,7 +1,7 @@
 <div ng-switch on="frameState.scope">
     <div ng-controller="ctrlMission" ng-switch-when="mission">
         <div class='col-md-12'>
-            <div class='form-group' ng-if="frameState.sid!=='coworker'">
+            <div class='form-group' ng-if="frameState.sid!=='_coworker'">
                 <div class='form-inline'>
                     <button class='btn btn-default' ng-click="criteria.byStar=criteria.byStar==='N'?'Y':'N'"><i class='glyphicon' ng-class="criteria.byStar==='Y'?'glyphicon-star':'glyphicon-star-empty'"></i> 星标</button>
                     <div class='form-group hide'>

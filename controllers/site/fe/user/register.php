@@ -69,6 +69,7 @@ class register extends \site\fe\base {
 
 		/* cookie中保留注册信息 */
 		$cookieRegUser = $modelWay->shiftRegUser($registration, false);
+		$cookieRegUser->login = (object) ['uname' => $uname, 'nickname' => $options['nickname']];
 
 		if ($referer = $this->myGetCookie('_user_access_referer')) {
 			$cookieRegUser->_loginReferer = $referer;

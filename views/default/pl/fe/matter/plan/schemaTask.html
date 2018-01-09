@@ -104,7 +104,7 @@
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="task.as_placeholder" ng-change="update('as_placeholder')">仅作为时间间隔</label>
         </div>
         <div class='form-group' ng-if="task.as_placeholder!=='Y'">
-            <label>任务数据不需要审核</label>
+            <label>任务数据不需要审核（活动：<span ng-bind="app.auto_verify==='Y'?'是':'否'"></span>）</label>
             <div>
                 <label class='radio-inline'>
                     <input type='radio' name='auto_verify' value='U' ng-model="task.auto_verify" ng-change="update('auto_verify')">与活动设置一致</label>
@@ -115,7 +115,7 @@
             </div>
         </div>
         <div class='form-group' ng-if="task.as_placeholder!=='Y'">
-            <label>延误时允许跳过</label>
+            <label>延误时允许跳过（活动：<span ng-bind="app.jump_delayed==='Y'?'是':'否'"></span>）</label>
             <div>
                 <label class='radio-inline'>
                     <input type='radio' name='jump_delayed' value='U' ng-model="task.jump_delayed" ng-change="update('jump_delayed')">与活动设置一致</label>
@@ -126,7 +126,7 @@
             </div>
         </div>
         <div class='form-group' ng-if="task.as_placeholder!=='Y'">
-            <label>延误后允许补填</label>
+            <label>延误后允许补填（活动：<span ng-bind="app.can_patch==='Y'?'是':'否'"></span>）</label>
             <div>
                 <label class='radio-inline'>
                     <input type='radio' name='can_patch' value='U' ng-model="task.can_patch" ng-change="update('can_patch')">与活动设置一致</label>

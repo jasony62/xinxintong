@@ -22,6 +22,7 @@ define(['frame'], function(ngApp) {
                 controller: ['$scope', '$uibModalInstance', 'cstApp', function($scope2, $mi, CstApp) {
                     var oUpdated;
                     oUpdated = {};
+                    $scope2.app = _oApp;
                     $scope2.cstApp = CstApp;
                     $scope2.task = angular.copy(oTask);
                     $scope2.update = function(prop) {

@@ -1381,7 +1381,7 @@ class record_model extends record_base {
 
 		$dataSchemas = $oApp->dataSchemas;
 		foreach ($dataSchemas as $oSchema) {
-			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score'])) {
+			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score', 'multitext'])) {
 				continue;
 			}
 			$result[$oSchema->id] = $oDataBySchema = (object) [

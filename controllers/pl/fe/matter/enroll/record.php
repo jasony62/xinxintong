@@ -1100,6 +1100,16 @@ class record extends \pl\fe\matter\base {
 				case 'shorttext':
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
+				case 'multitext':
+					if (is_array($v)) {
+						$values = [];
+						foreach ($v as $val) {
+							$values[] = $val->value;
+						}
+						$v = implode(',', $values);
+					}
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
 				default:
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;

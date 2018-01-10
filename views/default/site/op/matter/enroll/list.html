@@ -83,6 +83,9 @@
                             <div ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                             <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
                             <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
                         </td>
@@ -92,6 +95,9 @@
                             </div>
                             <div ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
                             </div>
                             <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
                             <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>

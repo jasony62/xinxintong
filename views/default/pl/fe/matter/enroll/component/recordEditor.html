@@ -332,6 +332,15 @@
                         <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                         </span>
                         </span>
+                        <div ng-switch-when='multitext'>
+                            <div ng-repeat="item in record.data[schema.id]" style="margin-bottom:10px">
+                                <div class="input-group">
+                                    <input type='text' class='form-control' ng-model="item.value" />
+                                    <span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(record.data[schema.id], $index)"><i class="glyphicon glyphicon-trash"></i></button></span>
+                                </div>
+                            </div>
+                            <button class="btn btn-default" ng-click="addItem(schema.id)">添加内容</button>
+                        </div>
                         <input type='text' class='form-control' disabled ng-switch-default ng-model="record.data[schema.id]">
                     </div>
                 </div>
@@ -373,6 +382,15 @@
                         <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                         </span>
                         </span>
+                        <div ng-switch-when='multitext'>
+                            <div ng-repeat="item in record.data[schema.id]" style="margin-bottom:10px">
+                                <div class="input-group">
+                                    <input type='text' class='form-control' ng-model="item.value" />
+                                    <span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(record.data[schema.id], $index)"><i class="glyphicon glyphicon-trash"></i></button></span>
+                                </div>
+                            </div>
+                            <button class="btn btn-default" ng-click="addItem(schema.id)">添加内容</button>
+                        </div>
                         <input type='text' class='form-control' disabled ng-switch-default ng-model="record.data[schema.id]">
                     </div>
                 </div>

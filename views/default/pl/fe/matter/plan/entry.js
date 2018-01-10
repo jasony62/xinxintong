@@ -12,6 +12,9 @@ define(['frame'], function(ngApp) {
             };
             $scope.entry = oEntry;
         });
+        $scope.downloadQrcode = function(url) {
+            $('<a href="' + url + '" download="' + $scope.app.title + '.png"></a>')[0].click();
+        };
     }]);
     ngApp.provider.controller('ctrlTimerNotice', ['$scope', 'http2', 'srvPlanApp', function($scope, http2, srvPlanApp) {
         var _oApp, _oTimerTask;

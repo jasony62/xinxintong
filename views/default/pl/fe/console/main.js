@@ -395,7 +395,6 @@ define(['frame'], function(ngApp) {
                         } else {
                             oSelected.mschema = $scope.mschemas[0];
                         }
-                        //$scope.chooseMschema();
                     }
                 });
             } else {

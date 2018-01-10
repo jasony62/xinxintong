@@ -110,6 +110,33 @@ class main extends \pl\fe\matter\main_base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 根据设置的进入规则获得活动关联的通讯录
+	 */
+	public function assocMschema_action($app) {
+		$app = $this->escape($app);
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\plan');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,entry_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oEntryRule = $oApp->entryRule;
+		if (empty($oEntryRule->scope->member) || $oEntryRule->scope->member !== 'Y' || empty($oEntryRule->member)) {
+			return new \ResponseData([]);
+		}
+		$modelMs = $this->model('site\user\memberschema');
+		$mschemas = [];
+		foreach ($oEntryRule->member as $mschemaId => $rule) {
+			$oSchema = $modelMs->byId($mschemaId);
+			$mschemas[] = $oSchema;
+		}
+
+		return new \ResponseData($mschemas);
+	}
+	/**
 	 * 创建一个空的计划活动
 	 *
 	 * @param string $site site's id

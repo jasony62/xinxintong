@@ -4,7 +4,7 @@ utilSubmit.state = {
     modified: false,
     state: 'waiting',
     _cacheKey: false,
-    start: function(event, cacheKey) {
+    start: function(event, cacheKey, type) {
         var submitButton;
         if (event) {
             submitButton = event.target;
@@ -19,7 +19,7 @@ utilSubmit.state = {
                 }
             }
         }
-        this.state = 'running';
+        this.state = type =='save' ? 'waiting' : 'running';
         this._cacheKey = cacheKey ? cacheKey : (new Date * 1);
     },
     finish: function(keep) {

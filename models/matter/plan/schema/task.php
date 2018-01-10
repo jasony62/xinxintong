@@ -52,21 +52,40 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 添加1个模板任务
 	 */
-	public function add($oNewTask) {
+	public function add($oNewTask, $oNaming = null) {
 		$oNewTask->state = 1;
 		$oNewTask->task_seq = $this->lastSeq($oNewTask->aid) + 1;
-		$oNewTask->title = '任务-' . $oNewTask->task_seq;
-		if ($oNewTask->task_seq === 1) {
-			$oNewTask->born_mode = 'U'; // 用户首次执行生成
-			$oNewTask->born_offset = ''; // 0点开始
+		if (empty($oNaming) || empty($oNaming->prefix)) {
+			$oNewTask->title = '任务-' . $oNewTask->task_seq;
 		} else {
-			$oNewTask->born_mode = 'P'; // 上一个任务之后
-			$oNewTask->born_offset = 'P1D'; // 1天
+			$oNewTask->title = $this->escape($oNaming->prefix . (empty($oNaming->separator) ? '' : $oNaming->separator)) . $oNewTask->task_seq;
 		}
 
-		$oNewTask->jump_delayed = 'U';
-		$oNewTask->auto_verify = 'U';
-		$oNewTask->can_patch = 'U';
+		if (!isset($oNewTask->born_mode) || !in_array($oNewTask->born_mode, ['U', 'P', 'A'])) {
+			if ($oNewTask->task_seq === 1) {
+				$oNewTask->born_mode = 'U'; // 用户首次执行生成
+				$oNewTask->born_offset = ''; // 0点开始
+			} else {
+				$oNewTask->born_mode = 'P'; // 上一个任务之后
+				$oNewTask->born_offset = 'P1D'; // 1天
+			}
+		} else if (!isset($oNewTask->born_offset) || !in_array($oNewTask->born_offset, ['', 'P1D'])) {
+			if ($oNewTask->born_mode === 'U') {
+				$oNewTask->born_offset = '';
+			} else if ($oNewTask->born_mode === 'P') {
+				$oNewTask->born_offset = 'P1D';
+			}
+		}
+
+		if (!isset($oNewTask->jump_delayed) || !in_array($oNewTask->jump_delayed, ['U', 'Y', 'N'])) {
+			$oNewTask->jump_delayed = 'U';
+		}
+		if (!isset($oNewTask->auto_verify) || !in_array($oNewTask->auto_verify, ['U', 'Y', 'N'])) {
+			$oNewTask->auto_verify = 'U';
+		}
+		if (!isset($oNewTask->can_patch) || !in_array($oNewTask->can_patch, ['U', 'Y', 'N'])) {
+			$oNewTask->can_patch = 'U';
+		}
 
 		$oNewTask->id = $this->insert('xxt_plan_task_schema', $oNewTask, true);
 

@@ -439,7 +439,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         var checkResult;
         /*多项填空题，如果值为空则删掉*/
         for(var k in $scope.data){
-            if(k!=='member' && $scope.app._schemasById[k].type=='multitext') {
+            if(k!=='member' && $scope.app._schemasById[k] && $scope.app._schemasById[k].type=='multitext') {
                 angular.forEach($scope.data[k], function(item,index) {
                     if(item.value=='') {
                         $scope.data[k].splice(index,1);

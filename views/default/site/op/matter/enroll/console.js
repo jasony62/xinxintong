@@ -293,6 +293,17 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 updated.tags = oRecord.aTags.join(',');
                 oRecord.tags = updated.tags;
             }
+            /*多项填空题，如果值为空则删掉*/
+            for(var k in oRecord.data) {
+                if(oApp._schemasById[k].type=='multitext') {
+                    angular.forEach(oRecord.data[k], function(data, index) {
+                        if(data.value=='') {
+                            oRecord.data[k].splice(index,1);
+                        }
+                    });
+                }
+            };
+
             updated.comment = oRecord.comment; //oRecord 信息
             updated.verified = oRecord.verified;
             updated.rid = oRecord.rid;
@@ -331,10 +342,12 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
         $scope.openedRemarksSchema = false;
+        $scope.openedItemRemarksSchema = false;
         $scope.switchSchemaRemarks = function(schema, itemId) {
             $scope.openedRemarksSchema = schema;
+            $scope.openedItemRemarksSchema = itemId;
             srvEnrollRecord.listRemark(oRecord.enroll_key, schema.id, itemId).then(function(result) {
-                schemaRemarks[schema.id] = result.remarks;
+                schemaRemarks[itemId] = result.remarks;
             });
         };
         $scope.addRemark = function(oSchema) {
@@ -357,6 +370,17 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         };
         $scope.agreeRemark = function(oRemark) {
             srvEnrollRecord.agreeRemark(oRemark.id, oRemark.agreed).then(function() {});
+        };
+        $scope.addItem = function(schemaId) {
+            var data = oRecord.data;
+            var item = {
+                id: 0,
+                value: ''
+            }
+            data[schemaId].push(item);
+        };
+        $scope.removeItem = function(items, index) {
+            items.splice(index, 1);
         };
         $scope.$watch('app', function(app) {
             if (!app) return;

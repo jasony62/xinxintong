@@ -97,7 +97,7 @@ class remind_model extends \TMS_MODEL {
 				return [false, '指定的活动不存在'];
 			}
 			/* 获得活动的进入链接 */
-			if ($inviteUrl = $modelApp->getInviteUrl($oMatter->id, $oMatter->siteid)) {
+			if ($inviteUrl = $modelPlan->getInviteUrl($oMatter->id, $oMatter->siteid)) {
 				$noticeURL = $inviteUrl;
 			} else {
 				$noticeURL = $oMatter->entryUrl;

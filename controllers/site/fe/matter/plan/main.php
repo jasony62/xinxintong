@@ -53,7 +53,7 @@ class main extends base {
 		$oOverview = new \stdClass;
 
 		$modelUsr = $this->model('matter\plan\user');
-		$oAppUsr = $modelUsr->byUser($this->who, ['fields' => 'nickname,group_id,start_at,last_enroll_at,task_num,score,coin']);
+		$oAppUsr = $modelUsr->byUser($oApp, $this->who, ['fields' => 'nickname,group_id,start_at,last_enroll_at,task_num,score,coin']);
 		if (!empty($oAppUsr->group_id)) {
 			$modelGrpRnd = $this->model('matter\group\round');
 			$oGroupRnd = $modelGrpRnd->byId($oAppUsr->group_id, ['fields' => 'title']);

@@ -35,12 +35,12 @@ class config_model extends \TMS_MODEL {
 		return $config;
 	}
 	/*
-	* 获取模板消息id和参数
+		* 获取模板消息id和参数
 	*/
 	public function getTmplConfig($oApp, $noticeName, $options = []) {
 		$oParams = new \stdClass;
 		$options2 = [];
-		$options2['onlySite'] = empty($options['onlySite'])? false : $options['onlySite'];
+		$options2['onlySite'] = empty($options['onlySite']) ? false : $options['onlySite'];
 		$oNotice = $this->model('site\notice')->byName($oApp->siteid, $noticeName, $options2);
 		if ($oNotice === false) {
 			return [false, '没有指定事件的模板消息1'];
@@ -60,6 +60,8 @@ class config_model extends \TMS_MODEL {
 						$value = $oApp->{$mapping->id};
 					} else if ($mapping->id === 'event_at') {
 						$value = date('Y-m-d H:i:s');
+					} else {
+						$value = '';
 					}
 				} else if ($mapping->src === 'text') {
 					$value = $mapping->name;

@@ -92,7 +92,7 @@ class remind_model extends \TMS_MODEL {
 			$noticeName = 'timer.enroll.remind';
 		} else if ($oMatter->type === 'plan') {
 			$modelPlan = $this->model('matter\plan');
-			$oMatter = $modelPlan->byId($oMatter->id, ['fields' => 'id,state,siteid']);
+			$oMatter = $modelPlan->byId($oMatter->id, ['fields' => 'id,state,siteid,title,summary']);
 			if (false === $oMatter || $oMatter->state !== '1') {
 				return [false, '指定的活动不存在'];
 			}

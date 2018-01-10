@@ -215,94 +215,6 @@ class send extends \pl\fe\base {
 		return $rst;
 	}
 	/**
-	 * 发送给认证用户
-	 *
-	 * $mpaccount mpid or mpaccount object
-	 * $userSet
-	 * $message
-	 */
-	public function send2Member($site, $src = 'wx', $userSet, $matter) {
-		$model = $this->model();
-		/**
-		 * 消息内容
-		 */
-		$model = $this->model('matter\\' . $matter->type);
-		$message = $model->forCustomPush($site, $matter->id, 'OLD');
-		/**
-		 * 发送给认证用户
-		 */
-		if ($src === 'qy') {
-			/**
-			 * 发送给企业号用户
-			 */
-			$parties = array();
-			$tags = array();
-			$users = array();
-			foreach ($userSet as $us) {
-				switch ($us->idsrc) {
-				case 'D':
-					$dept = $this->model('user/department')->byId($us->identity, 'extattr');
-					if (!empty($dept->extattr)) {
-						$dept->extattr = json_decode($dept->extattr);
-						$parties[] = $dept->extattr->id;
-					}
-					break;
-				case 'T':
-					$tag = $this->model('user/tag')->byId($us->identity, 'extattr');
-					if (!empty($tag->extattr)) {
-						$tag->extattr = json_decode($tag->extattr);
-						$tags[] = $tag->extattr->tagid;
-					}
-					break;
-				case 'DT':
-					$deptAndTagIds = explode(',', $us->identity);
-					$deptid = $deptAndTagIds[0];
-					$tagids = array_slice($deptAndTagIds, 1);
-					$fans = $this->model('user/department')->getFansByTag($deptid, $tagids, 'openid');
-					foreach ($fans as $fan) {
-						$users[] = $fan->openid;
-					}
-
-					break;
-				case 'M':
-					$member = $this->model('user/member')->byId($us->identity, 'fid');
-					$fan = $this->model('user/fans')->byId($member->fid, 'openid');
-					$users[] = $fan->openid;
-					break;
-				}
-			}
-			if (empty($parties) && empty($tags) && empty($users)) {
-				return array(false, '没有获得接收消息的用户');
-			}
-			if (!empty($parties)) {
-				$message['toparty'] = implode('|', $parties);
-			}
-			if (!empty($tags)) {
-				$message['totag'] = implode('|', $tags);
-			}
-			if (!empty($users)) {
-				$message['touser'] = implode('|', $users);
-			}
-			/**
-			 * 发送消息
-			 */
-			$this->send2Qyuser($mpaccount->mpid, $message);
-		} else if ($mpaccount->mpsrc === 'yx') {
-			/**
-			 * 发送给开通了点对点接口的易信用户
-			 */
-			$rst = $this->getOpenid($userSet);
-			if ($rst[0] === false) {
-				return $rst;
-			}
-			$openids = $rst[1];
-			$rst = $this->send2YxUserByP2p($site, $message, $openids);
-			if (false === $rst[0]) {
-				return array(false, $rst[1]);
-			}
-		}
-	}
-	/**
 	 * 群发消息
 	 * 需要开通高级接口
 	 *
@@ -375,10 +287,6 @@ class send extends \pl\fe\base {
 			/**
 			 * 发送给认证用户
 			 */
-			$rst = $this->send2Member($site, $src, $matter->userSet, $matter);
-			if ($rst[0] === false) {
-				is_array($rst[1]) ? $warning = $rst[1] : $warning[] = $rst[1];
-			}
 		}
 		if (!empty($warning)) {
 			return new \ResponseError(implode(';', $warning));

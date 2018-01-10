@@ -94,7 +94,7 @@ require(['matterService'], function() {
             url += '/rest/site/fe/user';
             url += "?site=" + siteId;
             location.href = url;
-        }
+        };
         $scope.gotoMatter = function(matter) {
             if (matter.entryUrl) {
                 location.href = matter.entryUrl;

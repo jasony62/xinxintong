@@ -78,7 +78,6 @@ class main extends \site\fe\matter\base {
 		}
 		if ($article->custom_body === 'N') {
 			$article->remarks = $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
-			$article->praised = $modelArticle->praised($user, $id);
 		} else if ($article->page_id) {
 			/* 定制页 */
 			$modelCode = $this->model('code\page');
@@ -127,59 +126,6 @@ class main extends \site\fe\matter\base {
 		$result = $model->find($site, $user, $page, $size, $options);
 
 		return new \ResponseData($result);
-	}
-	/**
-	 * 文章点赞
-	 *
-	 * $siteId
-	 * $id article's id.
-	 * $scope 分数
-	 */
-	public function score_action($site, $id, $score = 1) {
-		$modelArt = $this->model('matter\article');
-		$article = $modelArt->byId($id);
-		$user = $this->who;
-		if ($modelArt->praised($user, $id)) {
-			/* 点了赞，再次点击，取消赞 */
-			$this->model()->delete('xxt_article_score', "article_id='$id' and userid='{$user->uid}'");
-			$this->model()->update("update xxt_article set score=score-$score where id='$id'");
-			$praised = false;
-			$article->score--;
-		} else {
-			/* 点赞 */
-			$log = array(
-				'siteid' => $site,
-				'userid' => $user->uid,
-				'nickname' => $user->nickname,
-				'article_id' => $id,
-				'article_title' => $article->title,
-				'create_at' => time(),
-				'score' => $score,
-			);
-			$this->model()->insert('xxt_article_score', $log);
-			$this->model()->update("update xxt_article set score=score+$score where id='$id'");
-			$praised = true;
-			$article->score++;
-			/**
-			 * coin log
-			 * 用户a点赞b的投稿两个人都奖励积分
-			 */
-			$modelCoin = $this->model('site\coin\log');
-			$modelCoin->award($article, $user, 'site.matter.article.like');
-			/*$modelCoin = $this->model('coin\log');
-				$contribution = $modelArt->getContributionInfo($id);
-				if (!empty($contribution->openid) && $contribution->openid !== $user->openid) {
-					// for contributor
-					$action = 'app.' . $contribution->entry . '.article.appraise';
-					$modelCoin->income($siteId, $action, $id, 'sys', $contribution->openid);
-				}
-				if (empty($contribution->openid) || $contribution->openid !== $user->openid) {
-					// for reader
-					$modelCoin->income($site, 'mp.matter.article.appraise', $id, 'sys', $user->uid);
-			*/
-		}
-
-		return new \ResponseData(array($article->score, $praised));
 	}
 	/**
 	 * 下载附件

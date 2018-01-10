@@ -54,27 +54,7 @@ class group extends \pl\fe\base {
 	 * 同时在公众平台和本地添加
 	 */
 	public function add_action() {
-		$mpa = $this->getMpaccount();
-		$group = $this->getPostJson();
-		$name = $group->name;
-		/**
-		 * 在公众平台上添加
-		 */
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
-		$rst = $mpproxy->groupsCreate($group);
-		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
-		}
-
-		$group = $rst[1]->group;
-		/**
-		 * 在本地添加
-		 */
-		$group->mpid = $this->mpid;
-		$group->name = $name;
-		$this->model()->insert('xxt_fansgroup', (array) $group, false);
-
-		return new \ResponseData($group);
+		return new \ResponseData('not support');
 	}
 	/**
 	 * 更新粉丝分组的名称
@@ -82,27 +62,7 @@ class group extends \pl\fe\base {
 	 * 同时修改公众平台的数据和本地数据
 	 */
 	public function update_action() {
-		$mpa = $this->getMpaccount();
-		$group = $this->getPostJson();
-		/**
-		 * 更新公众平台上的数据
-		 */
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
-		$rst = $mpproxy->groupsUpdate($group);
-		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
-		}
-
-		/**
-		 * 更新本地数据
-		 */
-		$rst = $this->model()->update(
-			'xxt_fansgroup',
-			array('name' => $group->name),
-			"mpid='$this->mpid' and id='$group->id'"
-		);
-
-		return new \ResponseData($rst);
+		return new \ResponseData('not support');
 	}
 	/**
 	 * 删除粉丝分组
@@ -110,23 +70,6 @@ class group extends \pl\fe\base {
 	 * 同时删除公众平台上的数据和本地数据
 	 */
 	public function remove_action() {
-		$mpa = $this->getMpaccount();
-		$group = $this->getPostJson();
-		/**
-		 * 删除公众平台数据
-		 */
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
-		$rst = $mpproxy->groupsDelete($group);
-		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
-		}
-
-		/**
-		 * 删除本地数据
-		 * todo 级联更新粉丝所属分组数据
-		 */
-		$rst = $this->model()->delete('xxt_fansgroup', "mpid='$this->mpid' and id='$group->id'");
-
-		return new \ResponseData($rst);
+		return new \ResponseData('not support');
 	}
 }

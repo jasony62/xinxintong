@@ -71,8 +71,22 @@ abstract class page_base extends \TMS_MODEL {
 		$modelSch = $this->model('matter\enroll\schema');
 		$aPageDataSchemas = json_decode($oPage->data_schemas);
 		foreach ($aPageDataSchemas as $oPageWrap) {
-			$oSchema = $oPageWrap->schema;
-			$modelSch->wipeAssoc($oSchema, $aAssocAppIds);
+			switch ($oPage->type) {
+			case 'I':
+			case 'V':if (isset($oPageWrap->schema)) {
+					$oSchema = $oPageWrap->schema;
+					$modelSch->wipeAssoc($oSchema, $aAssocAppIds);
+				}
+				break;
+			case 'L':
+				if (!empty($oPageWrap->schemas)) {
+					$oSchemas = $oPageWrap->schemas;
+					foreach ($oSchemas as $oSchema) {
+						$modelSch->wipeAssoc($oSchema, $aAssocAppIds);
+					}
+				}
+				break;
+			}
 		}
 		$oPage->data_schemas = $this->toJson($aPageDataSchemas);
 

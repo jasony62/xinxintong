@@ -344,6 +344,8 @@ class base extends \site\base {
 	 *
 	 * @param string $siteId
 	 * @param string $snsName
+	 * @param object $oMatter 要访问的素材
+	 * @param string $sceneId 场景二维码id
 	 *
 	 */
 	protected function snsFollow($siteId, $snsName, $oMatter = null, $sceneId = null) {
@@ -353,6 +355,9 @@ class base extends \site\base {
 			$followUrl .= '&sceneid=' . $sceneId;
 		} else if (!empty($oMatter)) {
 			$followUrl .= '&matter=' . $oMatter->type . ',' . $oMatter->id;
+			if (isset($oMatter->params->inviteToken)) {
+				$followUrl .= '&inviteToken=' . $oMatter->params->inviteToken;
+			}
 		}
 
 		$this->redirect($followUrl);
@@ -384,7 +389,7 @@ class base extends \site\base {
 			header('Content-Type: text/javascript');
 			if ($rst[0] === false) {
 				$this->model('log')->log($site, 'wxjssdksignpackage', 'url: ' . urldecode($url) . ' ,failed: ' . $rst[1], null, $_SERVER['REQUEST_URI']);
-				die("alert('{$rst[1]}');");
+				die("alert('{$rst[1]}')");
 			}
 			die($rst[1]);
 		} else {

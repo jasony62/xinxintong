@@ -154,10 +154,10 @@ class initiate extends base {
 			if (!$pass) {
 				if ($redirect) {
 					/*页面跳转*/
-					$this->gotoMember($site, $aMemberSchemas, $user->uid);
+					$this->gotoMember($app, $aMemberSchemas);
 				} else {
 					/*返回地址*/
-					$this->gotoMember($site, $aMemberSchemas, $user->uid, false);
+					$this->gotoMember($app, $aMemberSchemas, false);
 				}
 			}
 		}

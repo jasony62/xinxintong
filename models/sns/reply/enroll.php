@@ -6,23 +6,23 @@ require_once dirname(__FILE__) . '/base.php';
  * 登记活动的信息卡片
  */
 class enroll_model extends MultiArticleReply {
-
+	/**
+	 *
+	 */
 	protected function loadMatters() {
-		$oApp = \TMS_APP::model('matter\base')->getCardInfoById('enroll', $this->set_id);
 		$modelApp = \TMS_APP::model('matter\enroll');
+		$oApp = $modelApp->byId($this->set_id, ['fields' => 'id,state,siteid,title,summary,pic']);
 		if (!empty($this->params)) {
-			if (is_object($this->params)) {
-				$oApp->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id, $this->params);
-			} else if (is_string($this->params)) {
+			if (is_string($this->params)) {
 				$oParams = json_decode($this->params);
-				$oApp->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id, $oParams);
 			} else {
-				$oApp->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id);
+				$oParams = $this->params;
 			}
-		} else {
-			$oApp->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id);
+			if (isset($oParams)) {
+				$oApp->entryUrl = $modelApp->getEntryUrl($oApp->siteid, $oApp->id, $oParams);
+			}
 		}
 
-		return array($oApp);
+		return [$oApp];
 	}
 }

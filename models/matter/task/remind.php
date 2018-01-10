@@ -62,7 +62,6 @@ class remind_model extends \TMS_MODEL {
 			if (empty($receivers)) {
 				return [false, '没有填写人'];
 			}
-
 			$noticeName = 'timer.mission.remind';
 		} else if ($oMatter->type === 'enroll') {
 			$modelEnl = $this->model('matter\enroll');
@@ -90,8 +89,27 @@ class remind_model extends \TMS_MODEL {
 			if (count($receivers) === 0) {
 				return [false, '没有填写人'];
 			}
-
 			$noticeName = 'timer.enroll.remind';
+		} else if ($oMatter->type === 'plan') {
+			$modelPlan = $this->model('matter\plan');
+			$oMatter = $modelPlan->byId($oMatter->id, ['fields' => 'id,state,siteid,title,summary']);
+			if (false === $oMatter || $oMatter->state !== '1') {
+				return [false, '指定的活动不存在'];
+			}
+			/* 获得活动的进入链接 */
+			if ($inviteUrl = $modelPlan->getInviteUrl($oMatter->id, $oMatter->siteid)) {
+				$noticeURL = $inviteUrl;
+			} else {
+				$noticeURL = $oMatter->entryUrl;
+			}
+
+			/* 处理要发送的填写人 */
+			$modelUsr = $this->model('matter\plan\user');
+			$receivers = $modelUsr->byApp($oMatter);
+			if (count($receivers) === 0) {
+				return [false, '没有填写人'];
+			}
+			$noticeName = 'timer.plan.remind';
 		}
 
 		/*获取模板消息id*/

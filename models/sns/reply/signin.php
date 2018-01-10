@@ -9,18 +9,10 @@ class signin_model extends MultiArticleReply {
 	/**
 	 *
 	 */
-	public function __construct($call, $matterId, $params = null) {
-		parent::__construct($call, $matterId);
-	}
-	/**
-	 *
-	 */
 	protected function loadMatters() {
-		$oApp = \TMS_APP::M('matter\base')->getCardInfoById('signin', $this->set_id);
 		$modelApp = \TMS_APP::M('matter\signin');
-		if (empty($this->params)) {
-			$oApp->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id);
-		} else {
+		$oApp = $modelApp->byId($this->set_id, ['fiedls' => 'id,state,siteid,title,summary,pic']);
+		if (!empty($this->params)) {
 			/* 指定了签到对应的轮次 */
 			if (is_string($this->params)) {
 				$oParams = json_decode($this->params);
@@ -29,10 +21,10 @@ class signin_model extends MultiArticleReply {
 			}
 			if (isset($oParams) && !empty($oParams->round)) {
 				$oSigninRnd = \TMS_APP::M('matter\signin\round')->byId($oParams->round, ['fields' => 'title']);
-				$oApp->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id, $this->oParams->round);
-				$oApp->title .= '-' . $oSigninRnd->title;
-			} else {
-				$oApp->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id);
+				if ($oSigninRnd) {
+					$oApp->entryUrl = $modelApp->getEntryUrl($oApp->siteid, $oApp->id, $oParams->round);
+					$oApp->title .= '-' . $oSigninRnd->title;
+				}
 			}
 		}
 

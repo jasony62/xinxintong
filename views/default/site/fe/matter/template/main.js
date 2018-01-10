@@ -1,6 +1,6 @@
 define(["angular", "xxt-page"], function(angular, codeAssembler) {
     'use strict';
-    var ngApp = angular.module('tmpl', ['ui.bootstrap', 'ui.tms', 'discuss.ui.xxt']);
+    var ngApp = angular.module('tmpl', ['ui.bootstrap', 'ui.tms']);
     ngApp.config(['$locationProvider', function($lp) {
         $lp.html5Mode(true);
     }]);

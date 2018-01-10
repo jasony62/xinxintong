@@ -85,7 +85,6 @@ class base_model extends \TMS_MODEL {
 	 */
 	public function &byId($id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-
 		$q = [
 			$fields,
 			$this->table(),
@@ -102,6 +101,36 @@ class base_model extends \TMS_MODEL {
 		return $oMatter;
 	}
 	/**
+	 * 获得素材的邀请链接
+	 * 只返回平台生成的邀请链接
+	 */
+	public function getInviteUrl($id, $siteId = null) {
+		if (empty($siteId)) {
+			$oMatter = $this->byId($id, ['fields' => 'siteid']);
+		} else {
+			$oMatter = (object) ['id' => $id, 'siteid' => $siteId, 'type' => $this->getTypeName()];
+		}
+		if ($oMatter) {
+			$oMatter->id = $id;
+			$oCreator = new \stdClass;
+			$oCreator->id = $oMatter->siteid;
+			$oCreator->name = '';
+			$oCreator->type = 'S';
+
+			$modelInv = $this->model('invite');
+			$oInvite = $modelInv->byMatter($oMatter, $oCreator, ['fields' => 'id,state,code,expire_at']);
+			if ($oInvite) {
+				$entryUrl = $modelInv->getEntryUrl($oInvite);
+			} else {
+				$entryUrl = false;
+			}
+		} else {
+			$entryUrl = false;
+		}
+
+		return $entryUrl;
+	}
+	/**
 	 * 新建素材
 	 * 1、记录和项目的关系
 	 * 2、记录和团队的关系
@@ -111,7 +140,7 @@ class base_model extends \TMS_MODEL {
 		/* 记录操作人信息 */
 		$oNewMatter->creater = $oNewMatter->modifier = $oUser->id;
 		$oNewMatter->creater_name = $oNewMatter->modifier_name = $this->escape($oUser->name);
-		$oNewMatter->creater_src = $oNewMatter->modifier_src = 'A';
+		//$oNewMatter->creater_src = $oNewMatter->modifier_src = 'A';
 		$oNewMatter->create_at = $oNewMatter->modify_at = time();
 
 		if (empty($oNewMatter->id)) {
@@ -145,7 +174,7 @@ class base_model extends \TMS_MODEL {
 
 		/* 记录修改日志 */
 		$oUpdated->modifier = $oUser->id;
-		$oUpdated->modifier_src = $oUser->src;
+		//$oUpdated->modifier_src = $oUser->src;
 		$oUpdated->modifier_name = $this->escape($oUser->name);
 		$oUpdated->modify_at = $current;
 

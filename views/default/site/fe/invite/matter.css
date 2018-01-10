@@ -1,5 +1,6 @@
 body{padding-top:70px;}
-#matter img{width:100%}
+#matter .matter-pic{width:100%;}
+#matter .matter-pic>div{width:100%;height:0;padding-bottom:56%;background-size:contain;background-repeat:no-repeat;background-position:center;}
 .inviteCode{display:flex;}
 .inviteCode>div:first-child{margin-right:8px;}
 .message{display:flex;align-items:center;}

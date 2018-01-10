@@ -130,14 +130,6 @@ define(['require', 'enrollService'], function(require) {
         });
         srvTempApp.tempEnrollGet().then(function(app) {
             $scope.app = app;
-            // 用户评论
-            if (app.can_discuss === 'Y') {
-                $scope.discussParams = {
-                    title: app.title,
-                    threadKey: 'enroll,' + app.id,
-                    domain: app.siteid
-                };
-            }
         });
     }]);
     /***/

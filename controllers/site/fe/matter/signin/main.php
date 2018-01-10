@@ -29,34 +29,37 @@ class main extends base {
 	public function index_action($site, $app, $round = null, $page = '', $ignoretime = 'N') {
 		empty($site) && $this->outputError('没有指定团队ID');
 		empty($app) && $this->outputError('签到活动ID为空');
+		$app = $this->escape($app);
 
-		$app = $this->modelApp->byId($app, ['cascade' => 'N']);
-		if ($app === false) {
+		$oApp = $this->modelApp->byId($app, ['cascade' => 'N']);
+		if ($oApp === false || $oApp->state !== '1') {
 			$this->outputError('指定的签到活动不存在，请检查参数是否正确');
 		}
+
+		/* 检查是否需要第三方社交帐号OAuth */
 		if (!$this->afterSnsOAuth()) {
-			/* 检查是否需要第三方社交帐号OAuth */
-			$this->_requireSnsOAuth($site, $app);
+			$this->requireSnsOAuth($oApp);
 		}
+
 		if ($ignoretime === 'N') {
-			$activeRound = $this->model('matter\signin\round')->getActive($site, $app->id);
+			$activeRound = $this->model('matter\signin\round')->getActive($site, $oApp->id);
 			if (!$activeRound) {
-				$this->outputError('签到还没有开始', $app->title);
+				$this->outputError('签到还没有开始', $oApp->title);
 			} else if (!empty($round) && $round !== $activeRound->rid) {
-				$this->outputError('您签到的场次或时间不正确', $app->title);
+				$this->outputError('您签到的场次或时间不正确', $oApp->title);
 			}
 		}
 		/* 计算打开哪个页面 */
 		if (empty($page)) {
 			/*没有指定页面*/
-			$oPage = $this->_defaultPage($app, true, isset($activeRound) ? $activeRound : null);
+			$oPage = $this->_defaultPage($oApp, true, isset($activeRound) ? $activeRound : null);
 		} else {
-			$oPage = $this->model('matter\signin\page')->byName($app->id, $page);
+			$oPage = $this->model('matter\signin\page')->byName($oApp->id, $page);
 		}
 		empty($oPage) && $this->outputError('没有可访问的页面');
 
 		/* 返回签到活动页面 */
-		\TPL::assign('title', $app->title);
+		\TPL::assign('title', $oApp->title);
 		if ($oPage->type === 'V') {
 			\TPL::output('/site/fe/matter/signin/view');
 		} elseif ($oPage->type === 'I') {
@@ -65,58 +68,13 @@ class main extends base {
 		exit;
 	}
 	/**
-	 * 检查是否需要第三方社交帐号认证
-	 * 检查条件：
-	 * 0、应用是否设置了需要认证
-	 * 1、团队是否绑定了第三方社交帐号认证
-	 * 2、平台是否绑定了第三方社交帐号认证
-	 * 3、用户客户端是否可以发起认证
-	 *
-	 * @param string $site
-	 * @param object $app
-	 */
-	private function _requireSnsOAuth($siteid, &$app) {
-		$entryRule = $app->entry_rule;
-		if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
-			if ($this->userAgent() === 'wx') {
-				if (!empty($entryRule->sns->wx->entry)) {
-					if (!isset($this->who->sns->wx)) {
-						$modelWx = $this->model('sns\wx');
-						if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
-							$this->snsOAuth($wxConfig, 'wx');
-						} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
-							$this->snsOAuth($wxConfig, 'wx');
-						}
-					}
-				}
-				if (!empty($entryRule->sns->qy->entry)) {
-					if (!isset($this->who->sns->qy)) {
-						if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
-							if ($qyConfig->joined === 'Y') {
-								$this->snsOAuth($qyConfig, 'qy');
-							}
-						}
-					}
-				}
-			} else if (!empty($entryRule->sns->yx->entry) && $this->userAgent() === 'yx') {
-				if (!isset($this->who->sns->yx)) {
-					if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
-						if ($yxConfig->joined === 'Y') {
-							$this->snsOAuth($yxConfig, 'yx');
-						}
-					}
-				}
-			}
-		}
-
-		return false;
-	}
-	/**
 	 * 当前用户进入的缺省页面
 	 */
-	private function &_defaultPage(&$app, $redirect = false, $round = null) {
-		$page = $this->checkEntryRule($app, $redirect, $round);
-		$oPage = $this->model('matter\signin\page')->byName($app->id, $page);
+	private function &_defaultPage($oApp, $redirect = false, $round = null) {
+		$page = $this->checkEntryRule($oApp, $redirect, $round);
+		if ($page) {
+			$oPage = $this->model('matter\signin\page')->byName($oApp->id, $page);
+		}
 		if (empty($oPage)) {
 			if ($redirect === true) {
 				$this->outputError('指定的页面[' . $page . ']不存在');

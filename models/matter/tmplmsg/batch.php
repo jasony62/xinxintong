@@ -77,7 +77,6 @@ class batch_model extends \TMS_MODEL {
 			'siteid' => $siteId,
 			'tmplmsg_id' => $tmplmsgId,
 		];
-
 		foreach ($mapOfUsers as $userid => $user) {
 			$log['userid'] = $userid;
 			isset($user->assoc_with) && $log['assoc_with'] = $user->assoc_with;

@@ -165,7 +165,7 @@ class main extends \pl\fe\matter\main_base {
 			/* channels */
 			$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
 			/* acl */
-			$article->acl = $this->model('acl')->byMatter($article->siteid, 'article', $id);
+			$article->acl = $this->model('matter\acl')->byMatter($article->siteid, 'article', $id);
 			/* attachments */
 			if ($article->has_attachment === 'Y') {
 				$article->attachments = $modelAct->query_objs_ss(array('*', 'xxt_article_attachment', "article_id='$id'"));
@@ -196,22 +196,6 @@ class main extends \pl\fe\matter\main_base {
 			's' => $size,
 		);
 		$rst = $this->model('matter\article')->remarks($id, null, $range);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 *
-	 */
-	public function remarkDel_action($id) {
-		$rst = $this->model()->delete('xxt_article_remark', "id=$id");
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 *
-	 */
-	public function remarkClean_action($articleid) {
-		$rst = $this->model()->delete('xxt_article_remark', "article_id=$articleid");
 
 		return new \ResponseData($rst);
 	}

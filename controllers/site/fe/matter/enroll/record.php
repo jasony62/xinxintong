@@ -861,9 +861,9 @@ class record extends base {
 	public function like_action($ek, $schema, $id = '') {
 		$modelData = $this->model('matter\enroll\data');
 		if (empty($id)) {
-			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid,multitext_seq']);
+			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
 		} else {
-			$oRecordData = $modelData->byId($id, ['fields' => 'aid,id,like_log,userid,multitext_seq']);
+			$oRecordData = $modelData->byId($id, ['fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
 		}
 		if (false === $oRecordData) {
 			return new \ObjectNotFoundError();
@@ -894,7 +894,7 @@ class record extends base {
 			$oLikeLog->{$oUser->uid} = time();
 			$incLikeNum = 1;
 		}
-		$likeNum = count(get_object_vars($oLikeLog));
+		$likeNum = $oRecordData->like_num + $incLikeNum;
 		$modelData->update(
 			'xxt_enroll_record_data',
 			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],

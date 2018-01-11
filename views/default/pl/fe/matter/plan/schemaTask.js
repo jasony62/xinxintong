@@ -3,9 +3,9 @@ define(['frame'], function(ngApp) {
     /**
      * 模板任务
      */
-    ngApp.provider.controller('ctrlSchemaTask', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'http2', 'cstApp', 'srvPlanApp', function($scope, $timeout, $anchorScroll, $uibModal, http2, CstApp, srvPlanApp) {
+    ngApp.provider.controller('ctrlSchemaTask', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'http2', 'CstApp', 'srvPlanApp', function($scope, $timeout, $anchorScroll, $uibModal, http2, CstApp, srvPlanApp) {
         var _oApp;
-        $scope.cstApp = CstApp;
+        $scope.CstApp = CstApp;
         $scope.addTask = function() {
             http2.post('/rest/pl/fe/matter/plan/schema/task/add?plan=' + _oApp.id, {}, function(rsp) {
                 var oNewTask;
@@ -22,6 +22,38 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
+        $scope.batchTask = function() {
+            $uibModal.open({
+                templateUrl: 'batchTask.html',
+                controller: ['$scope', '$uibModalInstance', 'CstApp', function($scope2, $mi, CstApp) {
+                    var _oBatch;
+                    $scope2.CstApp = CstApp;
+                    $scope2.app = _oApp;
+                    $scope2.batch = _oBatch = {
+                        count: 1,
+                        naming: { prefix: '任务', separator: '-' },
+                        proto: {
+                            born_mode: 'P',
+                            born_offset: 'P1D',
+                            auto_verify: 'U',
+                            jump_delayed: 'U',
+                            can_patch: 'U'
+                        }
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close(_oBatch);
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(oBatch) {
+                http2.post('/rest/pl/fe/matter/plan/schema/task/batch?plan=' + _oApp.id, oBatch, function(rsp) {
+                    $scope.listTask();
+                });
+            });
+        };
         $scope.listTask = function() {
             http2.get('/rest/pl/fe/matter/plan/schema/task/list?plan=' + _oApp.id, function(rsp) {
                 $scope.tasks = rsp.data.tasks;
@@ -30,11 +62,11 @@ define(['frame'], function(ngApp) {
         $scope.editTask = function(oTask) {
             $uibModal.open({
                 templateUrl: 'editTask.html',
-                controller: ['$scope', '$uibModalInstance', 'cstApp', function($scope2, $mi, CstApp) {
+                controller: ['$scope', '$uibModalInstance', 'CstApp', function($scope2, $mi, CstApp) {
                     var oUpdated;
                     oUpdated = {};
                     $scope2.app = _oApp;
-                    $scope2.cstApp = CstApp;
+                    $scope2.CstApp = CstApp;
                     $scope2.task = angular.copy(oTask);
                     $scope2.update = function(prop) {
                         oUpdated[prop] = $scope2.task[prop];

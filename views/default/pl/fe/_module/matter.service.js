@@ -642,7 +642,15 @@ provider('srvQuickEntry', function() {
                 }
             },
             forTable: function(record, mapOfSchemas) {
-                _forTable(record, mapOfSchemas ? mapOfSchemas : _mapOfSchemas);
+                var map;
+                if (mapOfSchemas && angular.isArray(mapOfSchemas)) {
+                    map = {};
+                    mapOfSchemas.forEach(function(oSchema) {
+                        map[oSchema.id] = oSchema;
+                    });
+                    mapOfSchemas = map;
+                }
+                return _forTable(record, mapOfSchemas ? mapOfSchemas : _mapOfSchemas);
             },
             forEdit: function(schema, data) {
                 if (schema.type === 'file') {

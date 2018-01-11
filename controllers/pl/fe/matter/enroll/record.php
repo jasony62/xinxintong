@@ -1005,7 +1005,16 @@ class record extends \pl\fe\matter\base {
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
 				$columnNum3 = $columnNum2; //列号
 				$schema = $schemas[$i2];
-				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+				if (isset($data->{$schema->id})) {
+					$v = $data->{$schema->id};
+				} else if ((strpos($schema->id, 'member.') === 0) && isset($data->member)) {
+					$mbSchemaId = $schema->id;
+					$mbSchemaId = explode('.', $mbSchemaId);
+					$mbSchemaId = $mbSchemaId[1];
+					$v = $data->member->$mbSchemaId;
+				} else {
+					$v = '';
+				}
 
 				if (in_array($schema->type, ['html'])) {
 					continue;

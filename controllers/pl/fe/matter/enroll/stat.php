@@ -262,7 +262,7 @@ class stat extends \pl\fe\matter\base {
 			}
 			$section->addTextBreak(1, null, null);
 
-			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
+			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext', 'member'])) {
 				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
 					//拼装表格
@@ -368,6 +368,12 @@ class stat extends \pl\fe\matter\base {
 								$recDataSch = str_replace(['&'], ['&amp;'], $record->data->$schemaId);
 								$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($recDataSch, $cellTextStyle);
 							}
+						}  else if ((strpos($schemaId, 'member.') === 0) && isset($record->data->member)) {
+							$mbSchemaId = $schemaId;
+							$mbSchemaId = explode('.', $mbSchemaId);
+							$mbSchemaId = $mbSchemaId[1];
+							$v = $record->data->member->$mbSchemaId;
+							$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($v, $cellTextStyle);
 						} else {
 							$table1->addCell($cell_w2, $fancyTableCellStyle)->addText('');
 						}
@@ -583,7 +589,7 @@ class stat extends \pl\fe\matter\base {
 		$totalScoreSummary = 0; //所有打分题的平局分合计
 		foreach ($schemas as $index => $schema) {
 			$html .= "<h3><span>{$schema->title}</span></h3>";
-			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
+			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext', 'member'])) {
 				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
 					//拼装表格
@@ -654,6 +660,12 @@ class stat extends \pl\fe\matter\base {
 						$schemaId = $schema->id;
 						if (isset($record->data->$schemaId)) {
 							$html .= "<td>" . $record->data->$schemaId . "</td>";
+						} else if ((strpos($schemaId, 'member.') === 0) && isset($record->data->member)) {
+							$mbSchemaId = $schemaId;
+							$mbSchemaId = explode('.', $mbSchemaId);
+							$mbSchemaId = $mbSchemaId[1];
+							$v = $record->data->member->$mbSchemaId;
+							$html .= "<td>" . $v . "</td>";
 						} else {
 							$html .= "<td></td>";
 						}

@@ -76,10 +76,10 @@
                     <div id='task-{{task.task_seq}}' class='task list-group-item' ng-class="{'task-last':task.id===app.lastUserTask.task_schema_id}" ng-repeat="task in app.tasks" ng-click="toggleView('task',task)">
                         <div>#<span ng-bind="task.task_seq"></span>&nbsp;-&nbsp;<span ng-bind="task.title"></span></div>
                         <div ng-if="task.userTask">
-                            <div>开始时间：<span ng-bind="task.userTask.bornAt"></span></div>
+                            <div class='text-muted'><span class='glyphicon glyphicon-time'></span> <span ng-bind="task.userTask.bornAt"></span></div>
                         </div>
                         <div ng-if="task.mockTask">
-                            <div>开始时间：<span ng-bind="task.mockTask.bornAt"></span></div>
+                            <div class='text-muted'><span class='glyphicon glyphicon-time'></span> <span ng-bind="task.mockTask.bornAt"></span></div>
                         </div>
                         <span class="task-label label label-info" ng-if="task.userTask">已执行</span>
                         <span class="task-label label label-info" ng-if="task.userTask.verified==='Y'">已通过</span>

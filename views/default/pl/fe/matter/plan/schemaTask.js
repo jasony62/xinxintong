@@ -30,6 +30,7 @@ define(['frame'], function(ngApp) {
                     $scope2.CstApp = CstApp;
                     $scope2.app = _oApp;
                     $scope2.batch = _oBatch = {
+                        mode: 'count',
                         count: 1,
                         naming: { prefix: '任务', separator: '-' },
                         proto: {

@@ -30,7 +30,7 @@ class task extends base {
 	public function listByUser_action($app, $withMock = 'Y') {
 		$modelApp = $this->model('matter\plan');
 		$app = $modelApp->escape($app);
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,notweekend']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

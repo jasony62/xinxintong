@@ -196,12 +196,19 @@ class task_model extends \TMS_MODEL {
 			$bornAt = 0;
 			break;
 		case 'P': // 与前一个活动的间隔
-			$prevBornAt = new \DateTime();
-			$prevBornAt->setTimestamp($prveBornAt);
+			$oPrevBornAt = new \DateTime();
+			$oPrevBornAt->setTimestamp($prveBornAt);
 			if (!empty($oTaskSchema->born_offset)) {
-				$prevBornAt->add(new \DateInterval($oTaskSchema->born_offset));
+				$oPrevBornAt->add(new \DateInterval($oTaskSchema->born_offset));
 			}
-			$bornAt = $prevBornAt->getTimestamp();
+			if (isset($oApp->notweekend) && $oApp->notweekend === 'Y') {
+				/* 如果是周六日需要跳过 */
+				$weekday = (int) $oPrevBornAt->format('N');
+				if ($weekday > 5) {
+					$oPrevBornAt->add(new \DateInterval('P' . (8 - $weekday) . 'D'));
+				}
+			}
+			$bornAt = $oPrevBornAt->getTimestamp();
 			break;
 		}
 

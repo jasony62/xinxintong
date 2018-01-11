@@ -40,19 +40,74 @@ class task extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 		$oBatch = $this->getPostJson();
-		if (empty($oBatch->count)) {
-			return new \ParameterError('没有指定批量生成的数量');
+		if (empty($oBatch->mode)) {
+			return new \ParameterError();
 		}
 
-		for ($i = 1; $i <= $oBatch->count; $i++) {
+		$modelSchTsk = $this->model('matter\plan\schema\task');
+		$oTaskNaming = isset($oBatch->naming) ? $oBatch->naming : null;
+		switch ($oBatch->mode) {
+		case 'count':
+			if (empty($oBatch->count)) {
+				return new \ParameterError('没有指定批量生成的数量');
+			}
+			for ($count = 1; $count <= $oBatch->count; $count++) {
+				$oProto = isset($oBatch->proto) ? clone $oBatch->proto : new \stdClass;
+				$oProto->aid = $oPlan->id;
+				$oProto->siteid = $oPlan->siteid;
+
+				$modelSchTsk->add($oProto, $oTaskNaming);
+			}
+			break;
+		case 'time':
+			if (empty($oBatch->startAt) || empty($oBatch->endAt) || (int) $oBatch->startAt > (int) $oBatch->endAt) {
+				return new \ParameterError('指定的时间范围不正确');
+			}
+			/**
+			 * 首个任务
+			 */
 			$oProto = isset($oBatch->proto) ? clone $oBatch->proto : new \stdClass;
 			$oProto->aid = $oPlan->id;
 			$oProto->siteid = $oPlan->siteid;
+			$oProto->born_mode = 'A';
+			$oProto->born_offset = $oBatch->startAt;
 
-			$oNewTask = $this->model('matter\plan\schema\task')->add($oProto, isset($oBatch->naming) ? $oBatch->naming : null);
+			$oPrevBornAt = new \DateTime();
+			$oPrevBornAt->setTimestamp($oBatch->startAt);
+			if (isset($oApp->notweekend) && $oApp->notweekend === 'Y') {
+				/* 如果是周六日需要跳过 */
+				$weekday = (int) $oPrevBornAt->format('N');
+				if ($weekday > 5) {
+					$oPrevBornAt->add(new \DateInterval('P' . (8 - $weekday) . 'D'));
+				}
+			}
+			$modelSchTsk->add($oProto, $oTaskNaming);
+			$count = 1;
+			/**
+			 * 后续任务
+			 */
+			$oPrevBornAt->add(new \DateInterval($oBatch->proto->born_offset));
+			while ($oPrevBornAt->getTimestamp() < $oBatch->endAt) {
+				$oProto = isset($oBatch->proto) ? clone $oBatch->proto : new \stdClass;
+				$oProto->aid = $oPlan->id;
+				$oProto->siteid = $oPlan->siteid;
+
+				if (isset($oApp->notweekend) && $oApp->notweekend === 'Y') {
+					/* 如果是周六日需要跳过 */
+					$weekday = (int) $oPrevBornAt->format('N');
+					if ($weekday > 5) {
+						$oPrevBornAt->add(new \DateInterval('P' . (8 - $weekday) . 'D'));
+					}
+				}
+				$modelSchTsk->add($oProto, $oTaskNaming);
+				$count++;
+				$oPrevBornAt->add(new \DateInterval($oBatch->proto->born_offset));
+			}
+
+			break;
 		}
 
-		return new \ResponseData($i);
+		return new \ResponseData($count);
 	}
 	/**
 	 *

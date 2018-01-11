@@ -5,6 +5,8 @@
                 <div class='form-inline'>
                     <button class='btn btn-default' ng-click="addTask()"><span class='glyphicon glyphicon-plus'></span> 添加任务</button>
                     <button class='btn btn-default' ng-click="batchTask()"><span class='glyphicon glyphicon-plus'></span> 批量添加任务</button>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notweekend" ng-change="update('notweekend')"> 周六、周日不生成任务</label>
                 </div>
             </div>
             <div class='list-group' style='flex-grow:1;overflow-y:auto;'>
@@ -18,7 +20,7 @@
                                 任务开始时间：<span ng-if="task.born_offset>0" ng-bind="task.born_offset*1000|date:'yy-MM-dd HH:mm'"></span>
                             </div>
                             <div ng-switch-when="P">
-                                任务开始时间：<span ng-bind="CstApp.bornOffset[task.born_offset].l"></span>
+                                任务开始时间：前一任务后<span ng-bind="CstApp.bornOffset[task.born_offset].l"></span>
                             </div>
                             <div ng-switch-default>
                                 任务开始时间：<span ng-bind="CstApp.bornMode[task.born_mode].l"></span>
@@ -89,11 +91,36 @@
     </div>
     <div class="modal-body">
         <div class='form-group'>
-            <label>数量</label>
-            <input type='text' class="form-control" ng-model="batch.count">
+            <label class='radio-inline'>
+                <input type='radio' name='mode' value='count' ng-model="batch.mode">指定数量
+            </label>
+            <label class='radio-inline'>
+                <input type='radio' name='mode' value='time' ng-model="batch.mode">指定时间段
+            </label>
         </div>
+        <section ng-switch on="batch.mode">
+            <div class='form-inline' ng-switch-when="count">
+                <div class='form-group'>
+                    <label>数量</label>
+                    <input type='text' class="form-control" ng-model="batch.count">
+                </div>
+            </div>
+            <div class='form-group' ng-switch-when="time">
+                <div class='row'>
+                    <div class='col-md-6'>
+                        <label>开始时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='batch.startAt' tms-state='startAt'></tms-datepicker>
+                    </div>
+                    <div class='col-md-6'>
+                        <label>结束时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='batch.endAt' tms-state='endAt'></tms-datepicker>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <hr>
         <div class='form-group'>
-            <label>命名</label>
+            <label>命名规则</label>
             <div class='row'>
                 <div class='col-md-6'>
                     <div class='input-group'>
@@ -111,15 +138,15 @@
             <div class='help-block'>任务名称为：前缀+连接符+任务序号，例如：批量任务-6</div>
         </div>
         <div class='form-group'>
-            <label>开始时间</label>
+            <label>时间规则</label>
             <div class='row'>
                 <div class='col-md-6'>
-                    <select class="form-control" ng-model="batch.proto.born_mode">
+                    <select class="form-control" ng-model="batch.proto.born_mode" disabled>
                         <option value="{{mode}}" ng-repeat="mode in CstApp.bornModeIndex">{{CstApp.bornMode[mode].l}}</option>
                     </select>
                 </div>
                 <div class='col-md-6'>
-                    <select ng-if="batch.proto.born_mode==='P'" class="form-control" ng-model="batch.proto.born_offset">
+                    <select ng-if="batch.proto.born_mode==='P'" class="form-control" ng-model="batch.proto.born_offset" disabled>
                         <option value="{{offset}}" ng-repeat="offset in CstApp.bornOffsetIndex">{{CstApp.bornOffset[offset].l}}</option>
                     </select>
                 </div>

@@ -60,18 +60,20 @@ class base extends \site\fe\matter\base {
 					$page = null;
 				}
 			} else {
-				if ($oEntryRule->scope === 'member') {
-					$aResult = $this->enterAsMember($oApp);
-				} elseif ($oEntryRule->scope === 'sns') {
-					$aResult = $this->enterAsSns($oApp);
-				}
-				if (true === $aResult[0]) {
-					$page = isset($aResult[1]->entry) ? $aResult[1]->entry : '';
-				} else {
-					if (isset($oEntryRule->other->entry)) {
-						$page = $oEntryRule->other->entry;
+				if ($oEntryRule->scope !== 'none') {
+					if ($oEntryRule->scope === 'member') {
+						$aResult = $this->enterAsMember($oApp);
+					} elseif ($oEntryRule->scope === 'sns') {
+						$aResult = $this->enterAsSns($oApp);
+					}
+					if (true === $aResult[0]) {
+						$page = isset($aResult[1]->entry) ? $aResult[1]->entry : '';
 					} else {
-						$page = $oEntryRule->scope === 'member' ? '$memberschema' : '$mpfollow';
+						if (isset($oEntryRule->other->entry)) {
+							$page = $oEntryRule->other->entry;
+						} else {
+							$page = $oEntryRule->scope === 'member' ? '$memberschema' : '$mpfollow';
+						}
 					}
 				}
 			}

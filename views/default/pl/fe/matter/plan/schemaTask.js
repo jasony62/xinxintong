@@ -3,12 +3,55 @@ define(['frame'], function(ngApp) {
     /**
      * 模板任务
      */
-    ngApp.provider.controller('ctrlSchemaTask', ['$scope', '$uibModal', 'http2', 'cstApp', 'srvPlanApp', function($scope, $uibModal, http2, CstApp, srvPlanApp) {
+    ngApp.provider.controller('ctrlSchemaTask', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'http2', 'CstApp', 'srvPlanApp', function($scope, $timeout, $anchorScroll, $uibModal, http2, CstApp, srvPlanApp) {
         var _oApp;
-        $scope.cstApp = CstApp;
+        $scope.CstApp = CstApp;
         $scope.addTask = function() {
             http2.post('/rest/pl/fe/matter/plan/schema/task/add?plan=' + _oApp.id, {}, function(rsp) {
+                var oNewTask;
+                oNewTask = rsp.data;
                 $scope.tasks.push(rsp.data);
+                $timeout(function() {
+                    var eleTask;
+                    eleTask = document.querySelector('#task-' + oNewTask.id);
+                    eleTask.classList.add('blink');
+                    $anchorScroll('task-' + oNewTask.id);
+                    $timeout(function() {
+                        eleTask.classList.remove('blink');
+                    }, 1000);
+                });
+            });
+        };
+        $scope.batchTask = function() {
+            $uibModal.open({
+                templateUrl: 'batchTask.html',
+                controller: ['$scope', '$uibModalInstance', 'CstApp', function($scope2, $mi, CstApp) {
+                    var _oBatch;
+                    $scope2.CstApp = CstApp;
+                    $scope2.app = _oApp;
+                    $scope2.batch = _oBatch = {
+                        count: 1,
+                        naming: { prefix: '任务', separator: '-' },
+                        proto: {
+                            born_mode: 'P',
+                            born_offset: 'P1D',
+                            auto_verify: 'U',
+                            jump_delayed: 'U',
+                            can_patch: 'U'
+                        }
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close(_oBatch);
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(oBatch) {
+                http2.post('/rest/pl/fe/matter/plan/schema/task/batch?plan=' + _oApp.id, oBatch, function(rsp) {
+                    $scope.listTask();
+                });
             });
         };
         $scope.listTask = function() {
@@ -19,10 +62,11 @@ define(['frame'], function(ngApp) {
         $scope.editTask = function(oTask) {
             $uibModal.open({
                 templateUrl: 'editTask.html',
-                controller: ['$scope', '$uibModalInstance', 'cstApp', function($scope2, $mi, CstApp) {
+                controller: ['$scope', '$uibModalInstance', 'CstApp', function($scope2, $mi, CstApp) {
                     var oUpdated;
                     oUpdated = {};
-                    $scope2.cstApp = CstApp;
+                    $scope2.app = _oApp;
+                    $scope2.CstApp = CstApp;
                     $scope2.task = angular.copy(oTask);
                     $scope2.update = function(prop) {
                         oUpdated[prop] = $scope2.task[prop];
@@ -46,18 +90,55 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.removeTask = function(oTask) {
-            http2.get('/rest/pl/fe/matter/plan/schema/task/remove?task=' + oTask.id, function(rsp) {
-                var tasks, index;
-                tasks = $scope.tasks;
-                index = tasks.indexOf(oTask);
-                tasks.splice(index, 1);
-                for (; index < tasks.length; index++) {
-                    tasks[index].task_seq--;
+            if (window.confirm('确认删除？')) {
+                http2.get('/rest/pl/fe/matter/plan/schema/task/remove?task=' + oTask.id, function(rsp) {
+                    var tasks, index;
+                    tasks = $scope.tasks;
+                    index = tasks.indexOf(oTask);
+                    tasks.splice(index, 1);
+                    for (; index < tasks.length; index++) {
+                        tasks[index].task_seq--;
+                    }
+                });
+            }
+        };
+        $scope.copyTask = function(oTask) {
+            http2.get('/rest/pl/fe/matter/plan/schema/task/copy?task=' + oTask.id, function(rsp) {
+                var index, oNewTask;
+                index = $scope.tasks.indexOf(oTask);
+                oNewTask = rsp.data;
+                $scope.tasks.splice(index + 1, 0, oNewTask);
+                for (var i = oNewTask.task_seq, ii = $scope.tasks.length; i < ii; i++) {
+                    $scope.tasks[i].task_seq++;
                 }
+                $timeout(function() {
+                    var eleTask;
+                    eleTask = document.querySelector('#task-' + oNewTask.id);
+                    eleTask.classList.add('blink');
+                    $timeout(function() {
+                        eleTask.classList.remove('blink');
+                    }, 1000);
+                });
             });
         };
         $scope.moveTask = function(oTask, step) {
-            http2.get('/rest/pl/fe/matter/plan/schema/task/move?task=' + oTask.id + '&step=' + step, function(rsp) {});
+            var index;
+            if (step === 0 || (parseInt(oTask.task_seq) + step < 1) || (parseInt(oTask.task_seq) + step > $scope.tasks.length)) {
+                return;
+            }
+            index = $scope.tasks.indexOf(oTask);
+            http2.get('/rest/pl/fe/matter/plan/schema/task/move?task=' + oTask.id + '&step=' + step, function(rsp) {
+                var oMovedTask;
+                oMovedTask = rsp.data;
+                $scope.tasks.splice(index, 1);
+                $scope.tasks.splice(oMovedTask.task_seq - 1, 0, oTask);
+                oTask.task_seq = oMovedTask.task_seq;
+                if (step > 0) {
+                    $scope.tasks[index].task_seq--;
+                } else if (step < 0) {
+                    $scope.tasks[index].task_seq++;
+                }
+            });
         };
         $scope.toggleTask = function(oTask) {
             $scope.activeTask = oTask;
@@ -79,9 +160,11 @@ define(['frame'], function(ngApp) {
 
         var _oTask;
         $scope.addAction = function() {
-            http2.post('/rest/pl/fe/matter/plan/schema/action/add?task=' + _oTask.id, {}, function(rsp) {
-                $scope.actions.push(rsp.data);
-            });
+            if (_oTask) {
+                http2.post('/rest/pl/fe/matter/plan/schema/action/add?task=' + _oTask.id, {}, function(rsp) {
+                    $scope.actions.push(rsp.data);
+                });
+            }
         };
         $scope.editAction = function(oAction) {
             $uibModal.open({

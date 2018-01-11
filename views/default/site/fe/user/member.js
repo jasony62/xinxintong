@@ -125,6 +125,14 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
                     $scope.member.extattr[ea.id] = member.extattr[ea.id];
                 });
             }
+        } else if (user.login) {
+            $scope.attrs.name && ($scope.member.name = user.login.nickname);
+            if ($scope.attrs.mobile && /^1[3|4|5|7|8][0-9]\d{4,8}$/.test(user.login.uname)) {
+                $scope.member.mobile = user.login.uname
+            }
+            if ($scope.attrs.mobile && user.login.uname.indexOf("@") !== -1) {
+                $scope.member.email = user.login.uname
+            }
         }
     }
 

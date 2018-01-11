@@ -85,6 +85,12 @@ class base extends \site\fe\matter\base {
 		return null;
 	}
 	/**
+	 * 获得用户在活动中的昵称
+	 */
+	protected function getUserNickname($oApp) {
+
+	}
+	/**
 	 * 检查登记活动进入规则
 	 *
 	 * @param object $oApp

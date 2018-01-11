@@ -10,8 +10,8 @@ class main extends base {
 	 *
 	 */
 	public function get_action($app) {
+		$app = $this->escape($app);
 		$modelApp = $this->model('matter\plan');
-		$app = $modelApp->escape($app);
 
 		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,mission_id,mission_phase_id,title,summary,pic,check_schemas,jump_delayed']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -21,8 +21,20 @@ class main extends base {
 		$tasks = $modelSchTsk->byApp($oApp->id, ['fields' => 'id,task_seq,title,jump_delayed,auto_verify,can_patch,as_placeholder']);
 		$oApp->tasks = $tasks;
 
+		/* 是否支持邀请 */
+		$modelInv = $this->model('invite');
+		$oInvitee = new \stdClass;
+		$oInvitee->id = $oApp->siteid;
+		$oInvitee->type = 'S';
+		$oInvite = $modelInv->byMatter($oApp, $oInvitee, ['fields' => 'id,state,can_relay,code,expire_at']);
+		if ($oInvite && $oInvite->state === '1') {
+			$oApp->entryUrl = $modelInv->getEntryUrl($oInvite);
+			$oApp->invite = $oInvite;
+		}
+
 		$result = new \stdClass;
 		$result->app = $oApp;
+		$result->user = $this->who;
 
 		return new \ResponseData($result);
 	}
@@ -41,7 +53,7 @@ class main extends base {
 		$oOverview = new \stdClass;
 
 		$modelUsr = $this->model('matter\plan\user');
-		$oAppUsr = $modelUsr->byUser($this->who, ['fields' => 'nickname,group_id,start_at,last_enroll_at,task_num,score,coin']);
+		$oAppUsr = $modelUsr->byUser($oApp, $this->who, ['fields' => 'nickname,group_id,start_at,last_enroll_at,task_num,score,coin']);
 		if (!empty($oAppUsr->group_id)) {
 			$modelGrpRnd = $this->model('matter\group\round');
 			$oGroupRnd = $modelGrpRnd->byId($oAppUsr->group_id, ['fields' => 'title']);

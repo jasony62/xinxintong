@@ -1,11 +1,14 @@
-<div id='task-view' class='col-md-6'>
-    <div class='panel panel-default'>
-        <div class='panel-body'>
+<div id='task-view' class='col-md-6' tms-flex-height top='70' bottom='20' overflow-y='hidden'>
+    <div class='panel panel-default' style='height:100%;'>
+        <div class='panel-body' style='height:100%;display:flex;flex-direction:column;'>
             <div class='form-group'>
-                <button class='btn btn-default' ng-click="addTask()"><span class='glyphicon glyphicon-plus'></span> 添加任务</button>
+                <div class='form-inline'>
+                    <button class='btn btn-default' ng-click="addTask()"><span class='glyphicon glyphicon-plus'></span> 添加任务</button>
+                    <button class='btn btn-default' ng-click="batchTask()"><span class='glyphicon glyphicon-plus'></span> 批量添加任务</button>
+                </div>
             </div>
-            <div class='list-group' style='margin-bottom:0'>
-                <div class='list-group-item task' ng-class="{'active':task===activeTask}" ng-repeat="task in tasks">
+            <div class='list-group' style='flex-grow:1;overflow-y:auto;'>
+                <div id="task-{{task.id}}" class='list-group-item task' ng-class="{'active':task===activeTask}" ng-repeat="task in tasks">
                     <div ng-click="toggleTask(task)">
                         <div class='form-group'>
                             #<span ng-bind="task.task_seq"></span>&nbsp;-&nbsp;<span ng-bind="task.title"></span>
@@ -13,23 +16,24 @@
                         <div class='form-group'>
                             任务开始时间：
                             <span ng-if="task.born_mode==='A'" ng-bind="task.born_offset*1000|date:'yy-MM-dd HH:mm'"></span>
-                            <span ng-if="task.born_mode!=='A'" ng-bind="cstApp.bornMode[task.born_mode].l"></span>
-                            <span ng-if="task.born_mode==='P'" ng-bind="cstApp.bornOffset[task.born_offset].l"></span>
+                            <span ng-if="task.born_mode!=='A'" ng-bind="CstApp.bornMode[task.born_mode].l"></span>
+                            <span ng-if="task.born_mode==='P'" ng-bind="CstApp.bornOffset[task.born_offset].l"></span>
                         </div>
-                        <div ng-if="task.as_placeholder==='Y'">仅作为时间间隔：<span ng-bind="cstApp.switch[task.as_placeholder].l"></span></div>
+                        <div ng-if="task.as_placeholder==='Y'">仅作为时间间隔：<span ng-bind="CstApp.switch[task.as_placeholder].l"></span></div>
                         <div ng-if="task.as_placeholder!=='Y'">
-                            <div ng-if="task.auto_verify!=='U'">任务数据不需要审核：<span ng-bind="cstApp.switch[task.auto_verify].l"></span></div>
-                            <div ng-if="task.jump_delayed!=='U'">延误时允许跳过：<span ng-bind="cstApp.switch[task.jump_delayed].l"></span></div>
-                            <div ng-if="task.can_patch!=='U'">延误后允许补填：<span ng-bind="cstApp.switch[task.can_patch].l"></span></div>
+                            <div ng-if="task.auto_verify!=='U'">任务数据不需要审核：<span ng-bind="CstApp.switch[task.auto_verify].l"></span></div>
+                            <div ng-if="task.jump_delayed!=='U'">延误时允许跳过：<span ng-bind="CstApp.switch[task.jump_delayed].l"></span></div>
+                            <div ng-if="task.can_patch!=='U'">延误后允许补填：<span ng-bind="CstApp.switch[task.can_patch].l"></span></div>
                         </div>
                     </div>
                     <div class="btn-group task-cog">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="glyphicon glyphicon-cog"></span>
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" style='left:auto;right:0;min-width:auto;'>
                             <li><a href="#" ng-click="editTask(task)">设置</a></li>
                             <li><a href="#" ng-click="removeTask(task)">删除</a></li>
+                            <li><a href="#" ng-click="copyTask(task)">复制</a></li>
                             <li><a href="#" ng-click="moveTask(task,-1)">上移</a></li>
                             <li><a href="#" ng-click="moveTask(task,1)">下移</a></li>
                         </ul>
@@ -39,14 +43,14 @@
         </div>
     </div>
 </div>
-<div id='action-view' class='col-md-6' ng-controller="ctrlAction">
-    <div class='panel panel-default'>
+<div id='action-view' class='col-md-6' tms-flex-height top='70' bottom='20'>
+    <div class='panel panel-default' style='height:100%;' ng-controller="ctrlAction">
         <div class='panel-body'>
             <div class='form-group'>
                 <a href="/rest/pl/fe/matter/plan/schemaPlan?id={{app.id}}&site={{app.siteid}}">设置全局任务核对题目（{{app.checkSchemas.length}}）</a>
             </div>
             <hr>
-            <div class='form-group'>
+            <div class='form-group' ng-if="activeTask">
                 <button class='btn btn-default' ng-click="addAction()"><span class='glyphicon glyphicon-plus'></span> 添加行动项</button>
             </div>
             <div class='list-group' style='margin-bottom:0'>
@@ -61,7 +65,7 @@
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="glyphicon glyphicon-cog"></span>
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" style='left:auto;right:0;min-width:auto;'>
                             <li><a href="#" ng-click="editAction(action)">设置</a></li>
                             <li><a href="#" ng-click="removeAction(action)">删除</a></li>
                             <li><a href="#" ng-click="moveAction(action,-1)">上移</a></li>
@@ -73,6 +77,87 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="batchTask.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()">×</button>
+        <h5 class="modal-title">批量添加任务</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-group'>
+            <label>数量</label>
+            <input type='text' class="form-control" ng-model="batch.count">
+        </div>
+        <div class='form-group'>
+            <label>命名</label>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <div class='input-group'>
+                        <div class='input-group-addon'>前缀</div>
+                        <input type='text' class="form-control" ng-model="batch.naming.prefix">
+                    </div>
+                </div>
+                <div class='col-md-6'>
+                    <div class='input-group'>
+                        <div class='input-group-addon'>分隔符</div>
+                        <input type='text' class="form-control" ng-model="batch.naming.separator">
+                    </div>
+                </div>
+            </div>
+            <div class='help-block'>任务名称为：前缀+连接符+任务序号，例如：批量任务-6</div>
+        </div>
+        <div class='form-group'>
+            <label>开始时间</label>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <select class="form-control" ng-model="batch.proto.born_mode">
+                        <option value="{{mode}}" ng-repeat="mode in CstApp.bornModeIndex">{{CstApp.bornMode[mode].l}}</option>
+                    </select>
+                </div>
+                <div class='col-md-6'>
+                    <select ng-if="batch.proto.born_mode==='P'" class="form-control" ng-model="batch.proto.born_offset">
+                        <option value="{{offset}}" ng-repeat="offset in CstApp.bornOffsetIndex">{{CstApp.bornOffset[offset].l}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label>任务数据不需要审核（活动设置：<span ng-bind="app.auto_verify==='Y'?'是':'否'"></span>）</label>
+            <div>
+                <label class='radio-inline'>
+                    <input type='radio' name='auto_verify' value='U' ng-model="batch.proto.auto_verify">与活动设置一致</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='auto_verify' value='Y' ng-model="batch.proto.auto_verify">是</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='auto_verify' value='N' ng-model="batch.proto.auto_verify">否</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label>延误时允许跳过（活动设置：<span ng-bind="app.jump_delayed==='Y'?'是':'否'"></span>）</label>
+            <div>
+                <label class='radio-inline'>
+                    <input type='radio' name='jump_delayed' value='U' ng-model="batch.proto.jump_delayed">与活动设置一致</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='jump_delayed' value='Y' ng-model="batch.proto.jump_delayed">是</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='jump_delayed' value='N' ng-model="batch.proto.jump_delayed">否</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label>延误后允许补填（活动设置：<span ng-bind="app.can_patch==='Y'?'是':'否'"></span>）</label>
+            <div>
+                <label class='radio-inline'>
+                    <input type='radio' name='can_patch' value='U' ng-model="batch.proto.can_patch">与活动设置一致</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='can_patch' value='Y' ng-model="batch.proto.can_patch">是</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='can_patch' value='N' ng-model="batch.proto.can_patch">否</label>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>
 <script type="text/ng-template" id="editTask.html">
     <div class="modal-header">
         <button class="close" ng-click="cancel()">×</button>
@@ -86,10 +171,10 @@
         <div class='form-group'>
             <label>开始时间</label>
             <select class="form-control" ng-model="task.born_mode" ng-change="update('born_mode')">
-                <option value="{{mode}}" ng-repeat="mode in cstApp.bornModeIndex">{{cstApp.bornMode[mode].l}}</option>
+                <option value="{{mode}}" ng-repeat="mode in CstApp.bornModeIndex">{{CstApp.bornMode[mode].l}}</option>
             </select>
             <select ng-if="task.born_mode==='P'" class="form-control" ng-model="task.born_offset" ng-change="update('born_offset')">
-                <option value="{{offset}}" ng-repeat="offset in cstApp.bornOffsetIndex">{{cstApp.bornOffset[offset].l}}</option>
+                <option value="{{offset}}" ng-repeat="offset in CstApp.bornOffsetIndex">{{CstApp.bornOffset[offset].l}}</option>
             </select>
             <div ng-if="task.born_mode==='A'">
                 <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='task.born_offset' tms-state='born_offset'></tms-datepicker>
@@ -100,7 +185,7 @@
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="task.as_placeholder" ng-change="update('as_placeholder')">仅作为时间间隔</label>
         </div>
         <div class='form-group' ng-if="task.as_placeholder!=='Y'">
-            <label>任务数据不需要审核</label>
+            <label>任务数据不需要审核（活动：<span ng-bind="app.auto_verify==='Y'?'是':'否'"></span>）</label>
             <div>
                 <label class='radio-inline'>
                     <input type='radio' name='auto_verify' value='U' ng-model="task.auto_verify" ng-change="update('auto_verify')">与活动设置一致</label>
@@ -111,7 +196,7 @@
             </div>
         </div>
         <div class='form-group' ng-if="task.as_placeholder!=='Y'">
-            <label>延误时允许跳过</label>
+            <label>延误时允许跳过（活动：<span ng-bind="app.jump_delayed==='Y'?'是':'否'"></span>）</label>
             <div>
                 <label class='radio-inline'>
                     <input type='radio' name='jump_delayed' value='U' ng-model="task.jump_delayed" ng-change="update('jump_delayed')">与活动设置一致</label>
@@ -122,7 +207,7 @@
             </div>
         </div>
         <div class='form-group' ng-if="task.as_placeholder!=='Y'">
-            <label>延误后允许补填</label>
+            <label>延误后允许补填（活动：<span ng-bind="app.can_patch==='Y'?'是':'否'"></span>）</label>
             <div>
                 <label class='radio-inline'>
                     <input type='radio' name='can_patch' value='U' ng-model="task.can_patch" ng-change="update('can_patch')">与活动设置一致</label>

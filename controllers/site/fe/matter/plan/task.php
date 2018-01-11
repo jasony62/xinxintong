@@ -96,8 +96,8 @@ class task extends base {
 	 * 提交任务数据
 	 */
 	public function submit_action($task) {
+		$task = $this->escape($task);
 		$modelSchTsk = $this->model('matter\plan\schema\task');
-		$task = $modelSchTsk->escape($task);
 
 		$oTaskSchema = $modelSchTsk->byId($task, ['fields' => 'id,siteid,aid,title,task_seq,born_mode,born_offset,auto_verify,can_patch']);
 		if (false === $oTaskSchema) {

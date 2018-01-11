@@ -52,7 +52,7 @@ class base extends \site\fe\matter\base {
 					$page = $oEntryRule->success->entry;
 				}
 			}
-		} else if (!empty($oEntryRule->scope)) {
+		} else if (!empty($oEntryRule->scope) && $oEntryRule->scope !== 'none') {
 			if ($oEntryRule->scope === 'member') {
 				$aResult = $this->enterAsMember($oApp);
 			} elseif ($oEntryRule->scope === 'sns') {

@@ -11,6 +11,10 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group">
+                <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+                <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
+            </div>
         </div>
     </div>
     <div id='notice' class='panel panel-default' ng-controller="ctrlTimerNotice">

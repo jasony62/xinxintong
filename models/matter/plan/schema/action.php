@@ -27,14 +27,14 @@ class action_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function add($oNewAction) {
+	public function add($oNewAction, $oProto = null) {
 		$oNewAction->state = 1;
 		$oNewAction->action_seq = $this->lastSeq($oNewAction->task_schema_id) + 1;
-		$oNewAction->action_desc = '行动-' . $oNewAction->action_seq;
-		$oNewAction->check_schemas = '[]';
+		$oNewAction->action_desc = empty($oProto->action_desc) ? '行动-' . $oNewAction->action_seq : $this->escape($oProto->action_desc);
+		$oNewAction->check_schemas = empty($oProto->checkSchemas) ? '[]' : $this->escape($this->toJson($oProto->checkSchemas));
 
 		$oNewAction->id = $this->insert('xxt_plan_action_schema', $oNewAction, true);
-		$oNewAction->checkSchemas = [];
+		$oNewAction->checkSchemas = json_decode($oNewAction->check_schemas);
 
 		return $oNewAction;
 	}

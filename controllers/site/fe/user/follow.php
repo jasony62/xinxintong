@@ -42,21 +42,21 @@ class follow extends \site\fe\base {
 	 *
 	 */
 	public function pageGet_action($site, $sns, $matter = null, $sceneid = null) {
-		$siteId = $this->escape($site);
+		$matterSiteId = $snsSiteId = $this->escape($site);
 		$modelSns = $this->model('sns\\' . $sns);
 		/* 公众号配置信息 */
-		$snsConfig = $modelSns->bySite($siteId, ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
+		$snsConfig = $modelSns->bySite($snsSiteId, ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
 		if ($snsConfig === false || ($snsConfig->joined === 'N' && $sns === 'wx')) {
-			$siteId = 'platform';
+			$snsSiteId = 'platform';
 			$snsConfig = $modelSns->bySite('platform', ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);
 		}
 
-		$oSite = $this->model('site')->byId($siteId, ['fields' => 'state,name,summary']);
+		$oSite = $this->model('site')->byId($snsSiteId, ['fields' => 'state,name,summary']);
 		if (empty($snsConfig->follow_page_name)) {
 			$oPage = new \stdClass;
 			$oPage->html = '请关注公众号：' . $oSite->name;
 		} else {
-			$oPage = $this->model('code\page')->lastPublishedByName($siteId, $snsConfig->follow_page_name);
+			$oPage = $this->model('code\page')->lastPublishedByName($snsSiteId, $snsConfig->follow_page_name);
 		}
 		$aParams = [
 			'page' => $oPage,
@@ -67,9 +67,11 @@ class follow extends \site\fe\base {
 		/* 访问素材信息 */
 		if (!empty($sceneid)) {
 			$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');
-			$oQrcode = $modelQrcode->bySceneId($site, $sceneid);
-			$aParams['matterQrcode'] = $oQrcode;
-			$aParams['matter'] = $this->_getMatterByQrcode($oQrcode);
+			$oQrcode = $modelQrcode->bySceneId($snsSiteId, $sceneid);
+			if ($oQrcode) {
+				$aParams['matterQrcode'] = $oQrcode;
+				$aParams['matter'] = $this->_getMatterByQrcode($oQrcode);
+			}
 		} else if (!empty($matter)) {
 			$matter = explode(',', $matter);
 			if (count($matter) === 2) {
@@ -87,10 +89,10 @@ class follow extends \site\fe\base {
 				if (!isset($oQrcode)) {
 					if ($type === 'mschema') {
 						$modelMs = $this->model('site\user\memberschema');
-						$aParams['referer'] = $modelMsch->getEntryUrl($site, $id);
+						$aParams['referer'] = $modelMs->getEntryUrl($matterSiteId, $id);
 					} else {
 						$modelMat = $this->model('matter\\' . $type);
-						$aParams['referer'] = $modelMat->getEntryUrl($site, $id);
+						$aParams['referer'] = $modelMat->getEntryUrl($matterSiteId, $id);
 					}
 				}
 			}
@@ -105,12 +107,12 @@ class follow extends \site\fe\base {
 		if (!empty($oQrcode->matter_type) && !empty($oQrcode->matter_id)) {
 			if ($oQrcode->matter_type === 'mschema') {
 				$modelMs = $this->model('site\user\memberschema');
-				$aParams['referer'] = $modelMsch->getEntryUrl($site, $matter[1]);
-				$oMschema = $modelMs->byId($id);
+				$oMschema = $modelMs->byId($oQrcode->matter_id);
 				$oMatter = new \stdClass;
-				$oMatter->id = $id;
+				$oMatter->id = $oMschema->id;
 				$oMatter->siteid = $oMschema->siteid;
 				$oMatter->title = $oMschema->title;
+				$aParams['referer'] = $modelMs->getEntryUrl($oMschema->siteid, $oMschema->id);
 			} else {
 				$oMatter = $this->model('matter\\' . $oQrcode->matter_type)->byId($oQrcode->matter_id, ['fields' => 'id,siteid,state,title,summary,pic']);
 			}

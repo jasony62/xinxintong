@@ -866,7 +866,11 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         link: function(scope, elem, attrs) {
             var bodyHeight = document.documentElement.clientHeight;
             elem[0].style.height = (bodyHeight - scope.top - scope.bottom) + 'px';
-            elem[0].style.overflowY = 'auto';
+            if (attrs.overflowY) {
+                elem[0].style.overflowY = attrs.overflowY;
+            } else {
+                elem[0].style.overflowY = 'auto';
+            }
         }
     }
 }).directive('flexImg', function() {
@@ -951,7 +955,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             this.close();
         },
         keyUp: function(event) {
-            if(event.keyCode==13) {
+            if (event.keyCode == 13) {
                 this.exec();
             }
         }

@@ -1,7 +1,7 @@
 body{font-family:'Microsoft Yahei',Arial;}
 .app{margin-top:70px;margin-bottom:50px;}
 .ng-cloak{display:none;}
-#errmsg,#infomsg{position:fixed;top:0;left:0;right:0;text-align:center;z-index:999;}
+#errmsg,#infomsg{position:fixed;top:0;left:0;right:0;text-align:center;z-index:1040;}
 .navbar-form{width:auto;padding-top:0;padding-bottom:0;margin-right:0;margin-left:0;border:0;box-shadow:none;}
 .navbar-right{float:right!important;margin-right:-15px;}
 #matter .matter-pic{width:100%;}

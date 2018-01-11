@@ -123,16 +123,22 @@ class mission_model extends app_base {
 	 *
 	 * @param object $oUser
 	 */
-	public function &byAcl(&$oUser, $aOptions = []) {
+	public function &byAcl($oUser, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$limit = isset($aOptions['limit']) ? $aOptions['limit'] : (object) ['page' => 1, 'size' => 20];
 		$q = [
 			$fields,
 			'xxt_mission m',
-			"m.state=1 and exists(select 1 from xxt_mission_acl a where a.coworker='{$oUser->id}' and a.last_invite='Y' and a.mission_id=m.id)",
+			"m.state=1",
 		];
 		if (isset($aOptions['bySite'])) {
-			$q[2] .= " and m.siteid='{$aOptions['bySite']}'";
+			$bySite = $aOptions['bySite'];
+			if ($bySite === '_coworker') {
+				$q[2] .= " and exists(select 1 from xxt_mission_acl a where a.coworker='{$oUser->id}' and coworker_role='C' and a.last_invite='Y' and a.mission_id=m.id)";
+			} else {
+				$q[2] .= " and m.siteid='{$bySite}'";
+				$q[2] .= " and exists(select 1 from xxt_mission_acl a where a.coworker='{$oUser->id}' and a.last_invite='Y' and a.mission_id=m.id)";
+			}
 		}
 		if (isset($aOptions['byTitle'])) {
 			$q[2] .= " and m.title like '%{$aOptions['byTitle']}%'";

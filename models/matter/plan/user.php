@@ -7,12 +7,12 @@ class user_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byUser($oUser, $aOptions = []) {
+	public function byUser($oApp, $oUser, $aOptions = []) {
 		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
 		$q = [
 			$fields,
 			'xxt_plan_user',
-			['userid' => $oUser->uid],
+			['aid' => $oApp->id, 'userid' => $oUser->uid],
 		];
 		$oAppUsr = $this->query_obj_ss($q);
 
@@ -68,7 +68,7 @@ class user_model extends \TMS_MODEL {
 	 * 添加或更新
 	 */
 	public function createOrUpdate($oApp, $oUser, $aData = []) {
-		$oAppUsr = $this->byUser($oUser);
+		$oAppUsr = $this->byUser($oApp, $oUser);
 
 		$oNewAppUsr = new \stdClass;
 		if ($oAppUsr) {

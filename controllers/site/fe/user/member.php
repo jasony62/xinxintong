@@ -119,7 +119,13 @@ class member extends \site\fe\base {
 
 		/* 已填写的用户信息 */
 		$modelMem = $this->model('site\user\member');
-		$oUser = $this->who;
+		$oUser = clone $this->who;
+		if (!empty($oUser->unionid)) {
+			$oRegAccount = $this->model('account')->byId($oUser->unionid, ['fields' => 'nickname,email']);
+			$oUser->login = $oRegAccount;
+			$oUser->login->uname = $oUser->login->email;
+			unset($oUser->login->email);
+		}
 		if (isset($oUser->members) && isset($oUser->members->{$schema})) {
 			unset($oUser->members->{$schema});
 		}
@@ -152,15 +158,21 @@ class member extends \site\fe\base {
 	/**
 	 * 获得自定义用户的定义
 	 */
-	public function get_action($site, $schema) {
-
+	public function get_action($schema) {
+		$schema = $this->escape($schema);
 		$oSchema = $this->model('site\user\memberschema')->byId($schema);
 		if ($oSchema === false) {
 			return new \ResponseError('指定的自定义用户定义不存在');
 		}
 		/* 已填写的用户信息 */
 		$modelMem = $this->model('site\user\member');
-		$oUser = $this->who;
+		$oUser = clone $this->who;
+		if (!empty($oUser->unionid)) {
+			$oRegAccount = $this->model('account')->byId($oUser->unionid, ['fields' => 'nickname,email']);
+			$oUser->login = $oRegAccount;
+			$oUser->login->uname = $oUser->login->email;
+			unset($oUser->login->email);
+		}
 		$oMember = $modelMem->byUser($oUser->uid, ['schemas' => $schema]);
 		if (count($oMember) > 1) {
 			return new \ResponseError('数据错误，当前用户已经绑定多个联系人信息，请检查');

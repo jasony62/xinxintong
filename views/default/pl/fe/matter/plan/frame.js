@@ -1,7 +1,7 @@
 define(['require', 'schema', 'planService'], function(require, schemaLib) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll']);
-    ngApp.constant('cstApp', {
+    ngApp.constant('CstApp', {
         bornMode: {
             'U': { l: '用户提交时间' },
             'P': { l: '与上一任务间隔' },
@@ -67,8 +67,8 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             srvInviteProvider.config('plan', appId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', '$location', 'cstApp', 'srvSite', 'srvPlanApp', function($scope, $location, cstApp, srvSite, srvPlanApp) {
-        $scope.cstApp = cstApp;
+    ngApp.controller('ctrlFrame', ['$scope', '$location', 'CstApp', 'srvSite', 'srvPlanApp', function($scope, $location, CstApp, srvSite, srvPlanApp) {
+        $scope.CstApp = CstApp;
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);

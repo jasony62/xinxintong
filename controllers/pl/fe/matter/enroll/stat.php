@@ -370,9 +370,18 @@ class stat extends \pl\fe\matter\base {
 							}
 						}  else if ((strpos($schemaId, 'member.') === 0) && isset($record->data->member)) {
 							$mbSchemaId = $schemaId;
-							$mbSchemaId = explode('.', $mbSchemaId);
-							$mbSchemaId = $mbSchemaId[1];
-							$v = $record->data->member->$mbSchemaId;
+							$mbSchemaIds = explode('.', $mbSchemaId);
+							$mbSchemaId = $mbSchemaIds[1];
+							if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
+								$mbSchemaId = $mbSchemaIds[2];
+								$v = $record->data->member->extattr->{$mbSchemaId};
+							} else {
+								$v = $record->data->member->{$mbSchemaId};
+							}
+							if (strpos($v, '&') !== false) {
+								$v = str_replace(['&'], ['&amp;'], $v);
+							}
+
 							$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($v, $cellTextStyle);
 						} else {
 							$table1->addCell($cell_w2, $fancyTableCellStyle)->addText('');
@@ -661,10 +670,15 @@ class stat extends \pl\fe\matter\base {
 						if (isset($record->data->$schemaId)) {
 							$html .= "<td>" . $record->data->$schemaId . "</td>";
 						} else if ((strpos($schemaId, 'member.') === 0) && isset($record->data->member)) {
-							$mbSchemaId = $schemaId;
-							$mbSchemaId = explode('.', $mbSchemaId);
-							$mbSchemaId = $mbSchemaId[1];
-							$v = $record->data->member->$mbSchemaId;
+							$mbSchemaId = $schema->id;
+							$mbSchemaIds = explode('.', $mbSchemaId);
+							$mbSchemaId = $mbSchemaIds[1];
+							if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
+								$mbSchemaId = $mbSchemaIds[2];
+								$v = $record->data->member->extattr->{$mbSchemaId};
+							} else {
+								$v = $record->data->member->{$mbSchemaId};
+							}
 							$html .= "<td>" . $v . "</td>";
 						} else {
 							$html .= "<td></td>";

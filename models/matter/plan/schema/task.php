@@ -89,6 +89,15 @@ class task_model extends \TMS_MODEL {
 
 		$oNewTask->id = $this->insert('xxt_plan_task_schema', $oNewTask, true);
 
+		/* 添加默认行动项 */
+		$oNewTask->actions = [];
+		$oProto = new \stdClass;
+		$oProto->aid = $oNewTask->aid;
+		$oProto->siteid = $oNewTask->siteid;
+		$oProto->task_schema_id = $oNewTask->id;
+
+		$oNewTask->actions[] = $this->model('matter\plan\schema\action')->add($oProto);
+
 		return $oNewTask;
 	}
 	/**
@@ -159,9 +168,9 @@ class task_model extends \TMS_MODEL {
 				$today->setTimestamp($prveBornAt);
 			}
 			$today->setTime(0, 0); // 设置为0点
-			if (!empty($oTaskSchema->born_offset)) {
-				$today->add(new \DateInterval($oTaskSchema->born_offset));
-			}
+			//if (!empty($oTaskSchema->born_offset)) {
+			//	$today->add(new \DateInterval($oTaskSchema->born_offset));
+			//}
 			$bornAt = $today->getTimestamp();
 			break;
 		case 'A':

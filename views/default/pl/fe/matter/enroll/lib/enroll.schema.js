@@ -881,5 +881,5 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 }
             }
         });
-    }])
+    }]);
 });

@@ -131,6 +131,7 @@ class invite_model extends \TMS_MODEL {
 		$oNewInvite->create_at = time();
 		$oNewInvite->expire_at = 0;
 		$oNewInvite->require_code = 'Y';
+		$oNewInvite->can_relay = 'N';
 		$oNewInvite->state = 1;
 
 		$oNewInvite->id = $this->insert('xxt_invite', $oNewInvite, true);

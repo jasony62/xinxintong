@@ -1,5 +1,6 @@
 body{padding-top:70px;}
 .ng-cloak{display:none;}
-#matter img{width:100%}
+#matter .matter-pic{width:100%;}
+#matter .matter-pic>div{width:100%;height:0;padding-bottom:56%;background-size:contain;background-repeat:no-repeat;background-position:center;}
 #loginAction{display:flex;}
 #loginAction>a{flex-grow:1;}

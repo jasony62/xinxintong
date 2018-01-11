@@ -39,8 +39,9 @@ class main extends \site\fe\base {
 	 * 根据邀请的编码获得邀请
 	 */
 	public function get_action($code) {
+		$code = $this->escape($code);
+
 		$modelInv = $this->model('invite')->setOnlyWriteDbConn(true);
-		$code = $modelInv->escape($code);
 		$oInvite = $modelInv->byCode($code);
 		if (empty($oInvite->matter_type) || empty($oInvite->matter_id)) {
 			return new \ResponseError('邀请没有指定的素材');
@@ -49,20 +50,38 @@ class main extends \site\fe\base {
 		if (false === $oMatter) {
 			return new \ObjectNotFoundError('邀请指定的素材不存在');
 		}
-		if (!empty($oMatter->entry_rule)) {
-			$oEntryRule = is_string($oMatter->entry_rule) ? json_decode($oMatter->entry_rule) : $oMatter->entry_rule;
+		if (!empty($oMatter->entry_rule) || !empty($oMatter->entryRule)) {
+			if (isset($oMatter->entryRule)) {
+				$oEntryRule = $oMatter->entryRule;
+			} else {
+				$oEntryRule = is_string($oMatter->entry_rule) ? json_decode($oMatter->entry_rule) : $oMatter->entry_rule;
+			}
 			if (isset($oEntryRule->scope) && $oEntryRule->scope === 'member') {
-				foreach ($oEntryRule->member as $mschemaId) {
-					if ($oUserMember = $this->whoMember($oMatter->siteid, $mschemaId)) {
-						break;
+				if (is_array($oEntryRule->member)) {
+					foreach ($oEntryRule->member as $mschemaId) {
+						if ($oUserMember = $this->whoMember($oMatter->siteid, $mschemaId)) {
+							break;
+						}
+					}
+				} else {
+					foreach ($oEntryRule->member as $mschemaId => $oRule) {
+						if ($oUserMember = $this->whoMember($oMatter->siteid, $mschemaId)) {
+							break;
+						}
 					}
 				}
 				$oEntryRule->passed = $oUserMember;
 				if (false === $oUserMember) {
 					$oMschemas = [];
 					$modelMs = $this->model('site\user\memberschema');
-					foreach ($oEntryRule->member as $mschemaId) {
-						$oMschemas[] = $modelMs->byId($mschemaId);
+					if (is_array($oEntryRule->member)) {
+						foreach ($oEntryRule->member as $mschemaId) {
+							$oMschemas[] = $modelMs->byId($mschemaId);
+						}
+					} else {
+						foreach ($oEntryRule->member as $mschemaId => $oRule) {
+							$oMschemas[] = $modelMs->byId($mschemaId);
+						}
 					}
 					$oEntryRule->mschemas = $oMschemas;
 				}

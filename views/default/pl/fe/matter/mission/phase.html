@@ -2,8 +2,8 @@
     <div class='form-group'>
         <div class='input-group'>
             <span class="input-group-addon">
-                <span ng-if="!phases.length">指定{{cstApp.naming.phase}}数量</span>
-            <span ng-if="phases.length">增加{{cstApp.naming.phase}}数量</span>
+                <span ng-if="!phases.length">指定{{CstNaming.mission.phase}}数量</span>
+            <span ng-if="phases.length">增加{{CstNaming.mission.phase}}数量</span>
             </span>
             <input type='text' class='form-control' ng-model="numberOfNewPhases">
             <div class='input-group-btn'>
@@ -15,11 +15,11 @@
         <div class='panel-body'>
             <button class='btn btn-default pl-btn-remove' ng-click="remove(p)"><i class='glyphicon glyphicon-remove'></i></button>
             <div class='form-group'>
-                <label>{{cstApp.naming.phase}}名称</label>
+                <label>{{CstNaming.mission.phase}}名称</label>
                 <input type="text" class="form-control" ng-model="p.title" tms-auto-update tms-wait=1000 tms-update="update(p,'title')">
             </div>
             <div class='form-group'>
-                <label>{{cstApp.naming.phase}}说明</label>
+                <label>{{CstNaming.mission.phase}}说明</label>
                 <textarea class="form-control" ng-model="p.summary" tms-auto-update tms-wait=1000 tms-update="update(p,'summary')"></textarea>
             </div>
             <div class='row'>

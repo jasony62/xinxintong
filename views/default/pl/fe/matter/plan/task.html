@@ -1,0 +1,63 @@
+<div class="col-md-12">
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div style='display:inline-block'>
+                <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                <div class="btn-group" uib-dropdown>
+                    <button class="btn btn-default" uib-dropdown-toggle>
+                        更多操作 <span class="caret"></span>
+                    </button>
+                    <ul uib-dropdown-menu>
+                        <li><a href="" ng-click="batchVerify(rows)">选中记录通过审核<span>（{{rows.count}}）</span></a></li>
+                        <li><a href="" ng-click="verifyAll()">全部记录通过审核</a></li>
+                        <li class="divider"></li>
+                        <li><a href="" ng-click="export()">导出全部记录</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class='form-group pull-right'>
+                <div class='input-group'>
+                    <span class="input-group-addon">每页条数</span>
+                    <input class='form-control' ng-model='page.size' style='width:48px'>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click='doSearch(1)'><i class='glyphicon glyphicon-refresh'></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='width:48px'>操作</th>
+                <th style='width:40px'></th>
+                <th style='width:40px'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                </th>
+                <th style='width:120px'>用户</th>
+                <th style='width:120px'>首次登记时间</th>
+                <th style='width:120px'>最后登记时间</th>
+                <th style='width:100px'>审核结果</th>
+                <th>备注</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='task in tasks'>
+                <td>
+                    <button class='btn btn-xs btn-default' ng-click='gotoTask(task)'>
+                        <span class='glyphicon glyphicon-edit'></span>
+                    </button>
+                </td>
+                <td>{{$index+1}}</td>
+                <td>
+                    <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                </td>
+                <td>{{task.nickname}}</td>
+                <td>{{(task.first_enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                <td>{{(task.last_enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                <td>{{task.verified}}</td>
+                <td>{{task.comment}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

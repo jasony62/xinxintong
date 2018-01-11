@@ -40,8 +40,8 @@
                         <th style='width:120px'>填写日期</th>
                         <th style='width:80px'>通过审核</th>
                         <th ng-if='selected.mschema.attr_name[0]==0'>姓名</th>
-                        <th ng-if='selected.mschema.attr_mobile[0]==0'>手机号</th>
-                        <th ng-if='selected.mschema.attr_email[0]==0'>电子邮件</th>
+                        <th ng-if='selected.mschema.attr_mobile[0]==0'>手机</th>
+                        <th ng-if='selected.mschema.attr_email[0]==0'>邮箱</th>
                         <th style='width:80px' ng-if='selected.mschema.attr_email[0]==0&&selected.mschema.attr_email[4]==1'>邮箱验证</th>
                         <th ng-repeat='ea in selected.mschema.extattr'>{{ea.label}}</th>
                         <th style='width:48px'>操作</th>
@@ -50,7 +50,7 @@
                 <tbody>
                     <tr ng-repeat='m in members'>
                         <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
-                        <td>{{m.verified==='Y'?'是':'否'}}</td>
+                        <td>{{m.verified==='Y'?'是':(m.verified==='N'?'否':'待定')}}</td>
                         <td ng-if='selected.mschema.attr_name[0]==0'>{{m.name}}</td>
                         <td ng-if="selected.mschema.attr_mobile[0]==0">{{m.mobile}}</td>
                         <td ng-if="selected.mschema.attr_email[0]==0">{{m.email}}</td>

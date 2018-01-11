@@ -1,0 +1,49 @@
+<div id='schema-view' ng-controller="ctrlSchemaList">
+    <div class='col-md-3' tms-flex-height top='72' bottom='0'>
+        <!--create schema-->
+        <div class='form-group list-group-item'>
+            <div class='help-block'>添加用户填写项</div>
+            <div class='flexrow'>
+                <button class='btn btn-default' ng-click="newSchema('shorttext')">填写题</button>
+                <button class='btn btn-default' ng-click="newSchema('date')">日期</button>
+            </div>
+            <div class='flexrow'>
+                <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
+                <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
+            </div>
+            <div class='flexrow'>
+                <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
+                <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
+                <button class='btn btn-default hide' ng-click="newSchema('location')">上传位置</button>
+            </div>
+            <div class='flexrow'>
+                <button class='btn btn-default' ng-click="newSchema('html')">描述说明</button>
+            </div>
+        </div>
+        <!-- end create schema -->
+    </div>
+    <!-- schema list -->
+    <div class='col-md-6' tms-flex-height top='72' bottom='0'>
+        <div dnd-list dataset='appSchemas' evt-prefix="schemas" class='schemas'>
+            <div data-schema-index="{{$index}}" class='dndable schema' ng-class="schema.type" ng-repeat="schema in app.checkSchemas">
+                <div class='title' ng-if="schema.type!=='html'" ng-click="chooseSchema($event,schema)">
+                    <div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y" style="min-height:34px;"></div>
+                </div>
+                <div ng-include="schemaHtml(schema)"></div>
+                <div class='actions'>
+                    <button class='btn btn-sm btn-default' ng-if="'html'===schema.type" ng-click="makePagelet(schema)"><span class='glyphicon glyphicon-pencil'> 编辑</span></button>
+                    <button class="btn btn-default btn-sm" ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1" ng-click="addOption(schema)">添加选项</button>
+                    <button class="btn btn-sm btn-default" ng-click="copySchema(schema)">复制登记项</button>
+                    <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
+                    <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
+                    <button class='btn btn-sm btn-default' ng-click="removeSchema(schema)"><span class='glyphicon glyphicon-trash'></span></button>
+                    <button ng-if="schema.id==='_round_id'" class='btn btn-sm btn-default' ng-click="refreshSchema(schema)"><span class='glyphicon glyphicon-refresh'></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end schema list -->
+    <div class='col-md-3' tms-flex-height top='72' bottom='0'>
+        <div class='list-group-item' ng-include="schemaEditorHtml() "></div>
+    </div>
+</div>

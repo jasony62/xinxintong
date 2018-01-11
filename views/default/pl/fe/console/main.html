@@ -1,7 +1,7 @@
 <div ng-switch on="frameState.scope">
     <div ng-controller="ctrlMission" ng-switch-when="mission">
         <div class='col-md-12'>
-            <div class='form-group'>
+            <div class='form-group' ng-if="frameState.sid!=='_coworker'">
                 <div class='form-inline'>
                     <button class='btn btn-default' ng-click="criteria.byStar=criteria.byStar==='N'?'Y':'N'"><i class='glyphicon' ng-class="criteria.byStar==='Y'?'glyphicon-star':'glyphicon-star-empty'"></i> 星标</button>
                     <div class='form-group hide'>
@@ -262,9 +262,8 @@
                                 <th style='width:120px'>填写日期</th>
                                 <th style='width:80px'>通过审核</th>
                                 <th ng-if='mschema.attr_name[0]==0' data-filter-by='name' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
-                                <th ng-if='mschema.attr_mobile[0]==0' data-filter-by='mobile' ng-if='mschema.attr_name[0]==0' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">手机号 <i class='glyphicon glyphicon-filter'></i></th>
-                                <th ng-if='mschema.attr_email[0]==0' data-filter-by='email' ng-if='mschema.attr_name[0]==0' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">电子邮箱 <i class='glyphicon glyphicon-filter'></i></th>
-                                <th style='width:80px' ng-if='selected.mschema.attr_email[0]==0&&selected.mschema.attr_email[4]==1'>邮箱验证</th>
+                                <th ng-if='mschema.attr_mobile[0]==0' data-filter-by='mobile' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">手机 <i class='glyphicon glyphicon-filter'></i></th>
+                                <th ng-if='mschema.attr_email[0]==0' data-filter-by='email' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">邮箱 <i class='glyphicon glyphicon-filter'></i></th>
                                 <th ng-repeat='ea in mschema.extattr'>{{ea.label}}</th>
                                 <th style='width:48px'>操作</th>
                             </tr>
@@ -273,11 +272,10 @@
                             <tr ng-repeat='m in members'>
                                 <td>{{$index+1}}</td>
                                 <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
-                                <td>{{m.verified==='Y'?'是':'否'}}</td>
+                                <td>{{m.verified==='Y'?'是':(m.verified==='N'?'否':'待定')}}</td>
                                 <td ng-if='mschema.attr_name[0]==0'>{{m.name}}</td>
                                 <td ng-if="mschema.attr_mobile[0]==0">{{m.mobile}}</td>
                                 <td ng-if="mschema.attr_email[0]==0">{{m.email}}</td>
-                                <td ng-if="mschema.attr_email[0]==0&&schema.attr_email[4]==1">{{m.email_verified==='Y'?'通过':'未通过'}}</td>
                                 <td ng-repeat='ea in mschema.extattr'>{{m.extattr[ea.id]}}</td>
                                 <td>
                                     <a href='' ng-click='editMember(m)'>修改</a>

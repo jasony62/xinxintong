@@ -19,10 +19,18 @@ define(["angular"], function(angular) {
         } else if (matter) {
             url += '&matter=' + matter;
         }
+        $scope.userAgent = {};
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            $scope.userAgent.wx = true;
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            $scope.userAgent.yx = true;
+        }
         http2.get(url).then(function(rsp) {
             params = rsp.data;
             $scope.snsConfig = params.snsConfig;
             $scope.user = params.user;
+            $scope.site = params.site;
+            $scope.matter = params.matter;
             tmsDynaPage.loadCode(ngApp, params.page).then(function() {
                 $scope.page = params.page;
                 if (params.matterQrcode && params.matterQrcode.pic) {

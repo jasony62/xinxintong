@@ -320,8 +320,6 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
     function doSubmit() {
         facInput.submit($scope.activeTask, $scope.data, $scope.supplement).then(function(rsp) {
             _oSubmitState.finish();
-            _oToggledTask.userTask = rsp.data;
-            delete _oToggledTask.mockTask;
             noticebox.success('完成提交');
             $scope.$emit('xxt.app.plan.submit.done', rsp.data);
         }, function(rsp) {
@@ -353,11 +351,10 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
         _oSubmitState.modified && _oSubmitState.cache($scope.data);
     };
 
-    var _oToggledTask, facInput, _oSubmitState, tasksOfBeforeSubmit;
+    var facInput, _oSubmitState, tasksOfBeforeSubmit;
     tasksOfBeforeSubmit = [];
     facInput = Input.ins();
     $scope.data = {};
-    //$scope.supplement = null;
     $scope._oSubmitState = _oSubmitState = ngApp.oUtilSubmit.state;
     $scope.beforeSubmit = function(fn) {
         if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
@@ -383,8 +380,9 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
         if (oTask.actions) {
             oTask.actions.forEach(function(oAction) {
                 if ($scope.app.checkSchemas.length) {
+                    var pos = 0;
                     $scope.app.checkSchemas.forEach(function(oSchema) {
-                        oAction.checkSchemas.splice(0, 0, oSchema);
+                        oAction.checkSchemas.splice(pos++, 0, oSchema);
                     });
                 }
                 if (oTask.userTask) {

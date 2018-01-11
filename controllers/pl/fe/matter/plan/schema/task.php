@@ -13,7 +13,8 @@ class task extends \pl\fe\matter\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$oPlan = $this->model('matter\plan')->byId($plan);
+		$plan = $this->escape($plan);
+		$oPlan = $this->model('matter\plan')->byId($plan, ['fields' => 'id,state']);
 		if (false === $oPlan) {
 			return new \ObjectNotFoundError();
 		}
@@ -25,6 +26,33 @@ class task extends \pl\fe\matter\base {
 		$oNewTask = $this->model('matter\plan\schema\task')->add($oProto);
 
 		return new \ResponseData($oNewTask);
+	}
+	/**
+	 * 批量添加任务
+	 */
+	public function batch_action($plan) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$plan = $this->escape($plan);
+		$oPlan = $this->model('matter\plan')->byId($plan, ['fields' => 'id,siteid,state']);
+		if (false === $oPlan || $oPlan->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oBatch = $this->getPostJson();
+		if (empty($oBatch->count)) {
+			return new \ParameterError('没有指定批量生成的数量');
+		}
+
+		for ($i = 1; $i <= $oBatch->count; $i++) {
+			$oProto = isset($oBatch->proto) ? clone $oBatch->proto : new \stdClass;
+			$oProto->aid = $oPlan->id;
+			$oProto->siteid = $oPlan->siteid;
+
+			$oNewTask = $this->model('matter\plan\schema\task')->add($oProto, isset($oBatch->naming) ? $oBatch->naming : null);
+		}
+
+		return new \ResponseData($i);
 	}
 	/**
 	 *

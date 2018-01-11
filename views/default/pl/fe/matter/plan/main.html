@@ -47,7 +47,7 @@
                 </div>
             </div>
             <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
-                <label>{{cstApp.naming.mission_phase}}</label>
+                <label>{{CstApp.naming.mission_phase}}</label>
                 <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
                     <option value=''>全部</option>
                 </select>

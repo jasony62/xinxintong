@@ -241,15 +241,36 @@ class task_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byApp($oApp) {
+	public function byApp($oApp, $aOptions = []) {
+		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
 		$q = [
-			'*',
+			$fields,
 			'xxt_plan_task',
 			['aid' => $oApp->id, 'state' => 1],
 		];
 		$q2 = ['o' => 'first_enroll_at desc'];
 
 		$tasks = $this->query_objs_ss($q, $q2);
+		if (count($tasks)) {
+			$modelSchAct = $this->model('matter\plan\schema\action');
+			$aActOptions = ['fields' => 'id,action_desc,action_seq,check_schemas'];
+			foreach ($tasks as $oTask) {
+				/* 行动项 */
+				if (isset($oTask->task_schema_id)) {
+					$oTask->actions = $modelSchAct->byTask($oTask->task_schema_id, $aActOptions);
+				}
+				/* 处理数据 */
+				if (!empty($oTask->data)) {
+					$oTask->data = json_decode($oTask->data);
+				}
+				if (!empty($oTask->score)) {
+					$oTask->score = json_decode($oTask->score);
+				}
+				if (!empty($oTask->supplement)) {
+					$oTask->supplement = json_decode($oTask->supplement);
+				}
+			}
+		}
 
 		$result = new \stdClass;
 		$result->tasks = $tasks;

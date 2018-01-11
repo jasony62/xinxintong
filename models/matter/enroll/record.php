@@ -953,6 +953,10 @@ class record_model extends record_base {
 			return false;
 		}
 
+		if (strpos($schemaId, 'member.') === 0) {
+			$schemaId = 'member';
+		}
+
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;

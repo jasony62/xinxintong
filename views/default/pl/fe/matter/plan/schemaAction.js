@@ -67,7 +67,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
     }]);
     ngApp.provider.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', 'cstApp', function($scope, $timeout, $sce, cstApp) {
         $scope.activeSchema = null;
-        $scope.cstApp = cstApp;
+        $scope.CstApp = CstApp;
 
         $scope.newSchema = function(type) {
             var oMockApp, newSchema, oProto;
@@ -107,7 +107,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             oAction = $scope.action;
             checkSchemas = oAction.checkSchemas;
             if (oAction._schemasById[newSchema.id]) {
-                alert(cstApp.alertMsg['schema.duplicated']);
+                alert(CstApp.alertMsg['schema.duplicated']);
                 return;
             }
             if (undefined === oAfterSchema) {

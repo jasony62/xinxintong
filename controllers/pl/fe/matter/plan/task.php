@@ -51,7 +51,8 @@ class task extends \pl\fe\matter\base {
 		}
 
 		$modelTsk = $this->model('matter\plan\task');
-		$oResult = $modelTsk->byApp($oApp);
+		$aOptions = ['fields' => 'id,born_at,patch_at,userid,group_id,nickname,verified,comment,first_enroll_at,last_enroll_at,task_schema_id,task_seq,data,score'];
+		$oResult = $modelTsk->byApp($oApp, $aOptions);
 
 		return new \ResponseData($oResult);
 	}

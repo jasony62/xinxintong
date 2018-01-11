@@ -13,11 +13,16 @@
                         <div class='form-group'>
                             #<span ng-bind="task.task_seq"></span>&nbsp;-&nbsp;<span ng-bind="task.title"></span>
                         </div>
-                        <div class='form-group'>
-                            任务开始时间：
-                            <span ng-if="task.born_mode==='A'" ng-bind="task.born_offset*1000|date:'yy-MM-dd HH:mm'"></span>
-                            <span ng-if="task.born_mode!=='A'" ng-bind="CstApp.bornMode[task.born_mode].l"></span>
-                            <span ng-if="task.born_mode==='P'" ng-bind="CstApp.bornOffset[task.born_offset].l"></span>
+                        <div class='form-group' ng-switch on="task.born_mode">
+                            <div ng-switch-when="A">
+                                任务开始时间：<span ng-if="task.born_offset>0" ng-bind="task.born_offset*1000|date:'yy-MM-dd HH:mm'"></span>
+                            </div>
+                            <div ng-switch-when="P">
+                                任务开始时间：<span ng-bind="CstApp.bornOffset[task.born_offset].l"></span>
+                            </div>
+                            <div ng-switch-default>
+                                任务开始时间：<span ng-bind="CstApp.bornMode[task.born_mode].l"></span>
+                            </div>
                         </div>
                         <div ng-if="task.as_placeholder==='Y'">仅作为时间间隔：<span ng-bind="CstApp.switch[task.as_placeholder].l"></span></div>
                         <div ng-if="task.as_placeholder!=='Y'">
@@ -170,14 +175,20 @@
         </div>
         <div class='form-group'>
             <label>开始时间</label>
-            <select class="form-control" ng-model="task.born_mode" ng-change="update('born_mode')">
-                <option value="{{mode}}" ng-repeat="mode in CstApp.bornModeIndex">{{CstApp.bornMode[mode].l}}</option>
-            </select>
-            <select ng-if="task.born_mode==='P'" class="form-control" ng-model="task.born_offset" ng-change="update('born_offset')">
-                <option value="{{offset}}" ng-repeat="offset in CstApp.bornOffsetIndex">{{CstApp.bornOffset[offset].l}}</option>
-            </select>
-            <div ng-if="task.born_mode==='A'">
-                <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='task.born_offset' tms-state='born_offset'></tms-datepicker>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <select class="form-control" ng-model="task.born_mode" ng-change="update('born_mode')">
+                        <option value="{{mode}}" ng-repeat="mode in CstApp.bornModeIndex">{{CstApp.bornMode[mode].l}}</option>
+                    </select>
+                </div>
+                <div class='col-md-6'>
+                    <select ng-if="task.born_mode==='P'" class="form-control" ng-model="task.born_offset" ng-change="update('born_offset')">
+                        <option value="{{offset}}" ng-repeat="offset in CstApp.bornOffsetIndex">{{CstApp.bornOffset[offset].l}}</option>
+                    </select>
+                    <div ng-if="task.born_mode==='A'">
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='task.born_offset' tms-state='born_offset'></tms-datepicker>
+                    </div>
+                </div>
             </div>
         </div>
         <div class='checkbox'>

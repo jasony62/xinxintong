@@ -66,6 +66,10 @@
                         <div class='form-group' ng-if="overview.nowTaskSchema">
                             当前应该进行的任务：<a href="#task-{{overview.nowTaskSchema.task_seq}}">#{{overview.nowTaskSchema.task_seq}}&nbsp;-&nbsp;{{overview.nowTaskSchema.title}}</a>
                         </div>
+                        <div class='form-group' ng-if="app.tasks[0].born_mode==='U'">
+                            <div>您指定的任务开始时间：</div>
+                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-data='overview.user.start_at' tms-state='start_at'></tms-datepicker>
+                        </div>
                     </div>
                 </div>
                 <div class='list-group'>
@@ -215,6 +219,7 @@
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/angular-route.min.js"></script>
         <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
         <script src="/static/js/resumable.js"></script>
         <script src="<?php echo auto_version('/bundles/default/site/fe/matter/plan/main.js');?>"></script>
 </body>

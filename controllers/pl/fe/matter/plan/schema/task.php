@@ -14,8 +14,8 @@ class task extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$plan = $this->escape($plan);
-		$oPlan = $this->model('matter\plan')->byId($plan, ['fields' => 'id,state']);
-		if (false === $oPlan) {
+		$oPlan = $this->model('matter\plan')->byId($plan, ['fields' => 'id,siteid,state']);
+		if (false === $oPlan || $oPlan->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 

@@ -1009,9 +1009,14 @@ class record extends \pl\fe\matter\base {
 					$v = $data->{$schema->id};
 				} else if ((strpos($schema->id, 'member.') === 0) && isset($data->member)) {
 					$mbSchemaId = $schema->id;
-					$mbSchemaId = explode('.', $mbSchemaId);
-					$mbSchemaId = $mbSchemaId[1];
-					$v = $data->member->$mbSchemaId;
+					$mbSchemaIds = explode('.', $mbSchemaId);
+					$mbSchemaId = $mbSchemaIds[1];
+					if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
+						$mbSchemaId = $mbSchemaIds[2];
+						$v = $data->member->extattr->{$mbSchemaId};
+					} else {
+						$v = $data->member->{$mbSchemaId};
+					}
 				} else {
 					$v = '';
 				}

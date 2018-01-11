@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'srvPlanApp', '$uibModal', function($scope, http2, srvPlanApp, $uibModal) {
+    ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'srvPlanApp', '$uibModal', 'srvRecordConverter', function($scope, http2, srvPlanApp, $uibModal, srvRecordConverter) {
         var _oApp;
         $scope.rows = {
             allSelected: 'N',
@@ -28,7 +28,24 @@ define(['frame'], function(ngApp) {
         });
         $scope.doSearch = function() {
             http2.get('/rest/pl/fe/matter/plan/task/list?app=' + _oApp.id, function(rsp) {
-                $scope.tasks = rsp.data.tasks;
+                var tasks, oSchemasById;
+                tasks = rsp.data.tasks;
+                oSchemasById = {};
+                _oApp.checkSchemas.forEach(function(oSchema) {
+                    oSchemasById[oSchema.id] = oSchema;
+                });
+                tasks.forEach(function(oTask) {
+                    var oFirstAction, oFirstData;
+                    if (oTask.actions.length) {
+                        oFirstAction = oTask.actions[0];
+                    }
+                    if (oFirstAction && oTask.data && oTask.data[oFirstAction.id]) {
+                        oFirstData = oTask.data[oFirstAction.id];
+                        oFirstData = srvRecordConverter.forTable({ data: oFirstData }, oSchemasById);
+                        oTask._data = oFirstData._data;
+                    }
+                });
+                $scope.tasks = tasks;
             });
         };
         $scope.gotoTask = function(oTask) {

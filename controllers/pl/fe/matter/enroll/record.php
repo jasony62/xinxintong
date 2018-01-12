@@ -570,7 +570,21 @@ class record extends \pl\fe\matter\base {
 		/* 清除填写记录 */
 		$rst = $modelRec->clean($oApp->id);
 		/* 更新用户记录 */
-		$modelRec->update('xxt_enroll_user', ['enroll_num' => 0], ['aid' => $oApp->id]);
+		$modelRec->update(
+			'xxt_enroll_user',
+			[
+				'enroll_num' => 0,
+				'remark_num' => 0,
+				'like_num' => 0,
+				'like_remark_num' => 0,
+				'remark_other_num' => 0,
+				'like_other_num' => 0,
+				'like_other_remark_num' => 0,
+				'user_total_coin' => 0,
+				'score' => 0,
+			],
+			['aid' => $oApp->id]
+		);
 
 		// 记录操作日志
 		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'empty');

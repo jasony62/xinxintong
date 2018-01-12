@@ -222,7 +222,7 @@ class qrcode_model extends \TMS_MODEL {
 		if (isset($expire)) {
 			$rst = $proxy->qrcodeCreate($sceneId, true, $expire);
 		} else {
-			$rst = $proxy->qrcodeCreate($sceneId, true);
+			$rst = $proxy->qrcodeCreate($sceneId);
 		}
 		if ($rst[0] === false) {
 			return $rst;

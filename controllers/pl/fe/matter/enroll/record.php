@@ -317,9 +317,9 @@ class record extends \pl\fe\matter\base {
 						$modelUser->add($oApp, $oUser, $inData);
 					} else {
 						$modelRec->update('xxt_enroll_user',
-								['rid' => $userNewRid],
-								['id' => $resOld->id]
-							);
+							['rid' => $userNewRid],
+							['id' => $resOld->id]
+						);
 					}
 				} else {
 					if ($resOld->enroll_num > 1) {
@@ -327,7 +327,7 @@ class record extends \pl\fe\matter\base {
 					} else {
 						$modelRec->delete('xxt_enroll_user', ['id' => $resOld->id]);
 					}
-					
+
 					$modelRec->update("update xxt_enroll_user set enroll_num = enroll_num + 1 where id = $resNew->id");
 				}
 
@@ -559,17 +559,21 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 清空登记信息
 	 */
-	public function empty_action($site, $app) {
+	public function empty_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$app = $this->escape($app);
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 
-		$rst = $this->model('matter\enroll\record')->clean($app);
+		$modelRec = $this->model('matter\enroll\record');
+		/* 清除填写记录 */
+		$rst = $modelRec->clean($oApp->id);
+		/* 更新用户记录 */
+		$modelRec->update('xxt_enroll_user', ['enroll_num' => 0], ['aid' => $oApp->id]);
 
 		// 记录操作日志
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'empty');
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'empty');
 
 		return new \ResponseData($rst);
 	}

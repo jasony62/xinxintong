@@ -20,7 +20,7 @@ class mschema_model extends MultiArticleReply {
 		switch ($oMschema->matter_type) {
 		case 'mission':
 			if (!empty($oMschema->matter_id)) {
-				$oMission = $this->model('matter\mission')->byId($oMschema->matter_id, ['fields' => 'title,pic']);
+				$oMission = \TMS_APP::->model('matter\mission')->byId($oMschema->matter_id, ['fields' => 'title,pic']);
 				if ($oMission) {
 					$oCard->summary = $oMission->title . '需要您填写【' . $oMschema->title . '】信息。';
 					$oCard->pic = $oMission->pic;

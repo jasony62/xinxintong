@@ -267,7 +267,7 @@ class enroll_model extends enroll_base {
 	 *
 	 * @return
 	 */
-	public function &opData(&$oApp, $onlyActiveRound = false) {
+	public function &opData($oApp, $onlyActiveRound = false) {
 		$modelUsr = $this->model('matter\enroll\user');
 		$modelRnd = $this->model('matter\enroll\round');
 
@@ -309,7 +309,7 @@ class enroll_model extends enroll_base {
 			];
 			$oRound->remark_total = $this->query_val_ss($q);
 			/* enrollee */
-			$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['cascaded' => 'N']);
+			$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['cascaded' => 'N', 'onlyEnrolled' => 'Y']);
 			$oRound->enrollee_num = $oEnrollees->total;
 			/* member */
 			if (!empty($mschemaIds)) {
@@ -341,7 +341,7 @@ class enroll_model extends enroll_base {
 				];
 				$oRound->remark_total = $this->query_val_ss($q);
 				/* enrollee */
-				$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $oRound->rid, 'cascaded' => 'N']);
+				$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $oRound->rid, 'cascaded' => 'N', 'onlyEnrolled' => 'Y']);
 				$oRound->enrollee_num = $oEnrollees->total;
 
 				/* member */

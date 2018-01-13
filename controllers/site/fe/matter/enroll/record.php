@@ -240,16 +240,6 @@ class record extends base {
 			}
 		}
 		/**
-		 * 提交用户身份信息
-		 */
-		// if (isset($oEnrolledData->member) && isset($oEnrolledData->member->schema_id)) {
-		// 	$member = clone $oEnrolledData->member;
-		// 	$rst = $this->_submitMember($site, $member, $oUser);
-		// 	if ($rst[0] === false) {
-		// 		return new \ParameterError($rst[1]);
-		// 	}
-		// }
-		/**
 		 * 提交登记数据
 		 */
 		$oUpdatedEnrollRec = [];
@@ -313,7 +303,7 @@ class record extends base {
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 更新活动用户轮次数据 */
-		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => $rid]);
+		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,state,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => $rid]);
 		if (false === $oEnrollUsr) {
 			$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
 			if (!empty($rules)) {
@@ -328,7 +318,7 @@ class record extends base {
 			}
 			$modelUsr->add($oEnrollApp, $oUser, $inData);
 		} else {
-			$upData = [];
+			$upData = ['state' => 1];
 			if ($oEnrollUsr->nickname !== $oUser->nickname) {
 				$upData['nickname'] = $oUser->nickname;
 			}
@@ -357,7 +347,7 @@ class record extends base {
 			);
 		}
 		/* 更新活动用户总数据 */
-		$oEnrollUsrALL = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => 'ALL']);
+		$oEnrollUsrALL = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,state,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => 'ALL']);
 		if (false === $oEnrollUsrALL) {
 			$inDataALL = ['last_enroll_at' => time(), 'enroll_num' => 1];
 			if (!empty($rules)) {
@@ -369,7 +359,7 @@ class record extends base {
 			$inDataALL['rid'] = 'ALL';
 			$modelUsr->add($oEnrollApp, $oUser, $inDataALL);
 		} else {
-			$upDataALL = [];
+			$upDataALL = ['state' => 1];
 			if ($oEnrollUsrALL->nickname !== $oUser->nickname) {
 				$upDataALL['nickname'] = $oUser->nickname;
 			}
@@ -393,7 +383,7 @@ class record extends base {
 			$enrollees = $modelUsr->query_objs_ss([
 				'id,score',
 				'xxt_enroll_user',
-				"siteid='$oEnrollApp->siteid' and aid='$oEnrollApp->id' and userid='$oUser->uid' and rid !='ALL'",
+				"siteid='$oEnrollApp->siteid' and aid='$oEnrollApp->id' and userid='$oUser->uid' and state=1 and rid !='ALL'",
 			]);
 			$total = 0;
 			foreach ($enrollees as $oEnrollee) {
@@ -412,8 +402,7 @@ class record extends base {
 		 * 更新项目用户数据
 		 */
 		if (!empty($oEnrollApp->mission_id)) {
-			$modelMisUsr = $this->model('matter\mission\user');
-			$modelMisUsr->setOnlyWriteDbConn(true);
+			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
 			$oMission = $this->model('matter\mission')->byId($oEnrollApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
 			if ($oMission->user_app_type === 'group') {
 				$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
@@ -581,35 +570,6 @@ class record extends base {
 		}
 
 		return [true];
-	}
-	/**
-	 * 提交信息中包含的自定义用户信息
-	 */
-	private function _submitMember($siteId, &$member, &$user) {
-		$schemaId = $member->schema_id;
-		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, ['fields' => 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr']);
-		$modelMem = $this->model('site\user\member');
-
-		$existentMember = $modelMem->byUser($user->uid, ['schemas' => $schemaId]);
-		if (count($existentMember)) {
-			$memberId = $existentMember[0]->id;
-			$member->id = $memberId;
-			$member->verified = $existentMember[0]->verified;
-			$member->identity = $existentMember[0]->identity;
-			$rst = $modelMem->modify($oMschema, $memberId, $member);
-		} else {
-			$rst = $modelMem->createByApp($oMschema, $user->uid, $member);
-			/**
-			 * 将用户自定义信息和当前用户进行绑定
-			 */
-			if ($rst[0] === true) {
-				$member = $rst[1];
-				$this->model('site\fe\way')->bindMember($siteId, $member);
-			}
-		}
-		$member->schema_id = $schemaId;
-
-		return $rst;
 	}
 	/**
 	 * 通知登记活动事件接收人
@@ -1138,18 +1098,21 @@ class record extends base {
 	 *
 	 */
 	public function remove_action($app, $ek) {
+		$app = $this->escape($app);
+		$ek = $this->escape($ek);
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false) {
+		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$modelRec = $this->model('matter\enroll\record');
 		$oRecord = $modelRec->byId($ek, ['fields' => 'userid,nickname,state,enroll_key,data,rid']);
-		if (false === $oRecord) {
+		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ResponseError('记录已经被删除，不能再次删除');
 		}
+		$oUser = clone $this->who;
 		// 判断删除人是否为提交人
-		if ($oRecord->userid !== $this->who->uid) {
+		if ($oRecord->userid !== $oUser->uid) {
 			return new \ResponseError('仅允许记录的提交者删除记录');
 		}
 		// 判断活动是否添加了轮次
@@ -1161,40 +1124,26 @@ class record extends base {
 				return new \ResponseError('记录所在活动轮次已结束，不能提交、修改、保存或删除！');
 			}
 		}
-		// 是否已经删除
-		if ($oRecord->state !== '1') {
-			return new \ResponseError('记录已经被删除，不能再次删除');
-		}
 		// 如果已经获得积分不允许删除
 		$modelEnlUsr = $this->model('matter\enroll\user');
-		$oEnlUsrRnd = $modelEnlUsr->byId($oApp, $this->who->uid, ['fields' => 'id,enroll_num,user_total_coin', 'rid' => $oRecord->rid]);
+		$oEnlUsrRnd = $modelEnlUsr->byId($oApp, $oUser->uid, ['fields' => 'id,enroll_num,user_total_coin', 'rid' => $oRecord->rid]);
 		if ($oEnlUsrRnd && $oEnlUsrRnd->user_total_coin > 0) {
 			return new \ResponseError('提交的记录已经获得活动积分，不能删除');
 		}
 
 		// 删除数据
-		$rst = $modelRec->removeByUser($oApp->id, $ek);
-
-		// 更新活动的累计数据
-		$modelEnlUsr->removeRecord($oRecord);
-
-		// 更新项目的累计数据
-		if (!empty($oApp->mission_id)) {
-			$modelMisUsr = $this->model('matter\mission\user');
-			$modelMisUsr->removeRecord($oApp->mission_id, $oRecord);
-		}
+		$rst = $modelRec->removeByUser($oApp, $oRecord);
 
 		/* 记录操作日志 */
-		$user = $this->who;
-		$user->nickname = $oRecord->nickname;
-		$operation = new \stdClass;
-		$operation->name = 'removeData';
+		$oUser->nickname = $oRecord->nickname;
+		$oOperation = new \stdClass;
+		$oOperation->name = 'removeData';
 		unset($oRecord->userid);
 		unset($oRecord->nickname);
 		unset($oRecord->state);
-		$operation->data = $oRecord;
+		$oOperation->data = $oRecord;
 
-		$this->_logUserOp($oApp, $operation, $user);
+		$this->_logUserOp($oApp, $oOperation, $oUser);
 
 		return new \ResponseData($rst);
 	}

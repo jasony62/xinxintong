@@ -40,12 +40,15 @@ class user_model extends \TMS_MODEL {
 	 * 删除1条记录
 	 */
 	public function removeRecord($missionId, $oRecord) {
-		if (empty($missionId) || empty($oRecord->userid) || !isset($oRecord->rid)) {
+		if (empty($missionId) || empty($oRecord->userid)) {
 			return [false, '参数不完整'];
 		}
 
-		$updateSql = 'update xxt_mission_user set enroll_num=enroll_num-1 where enroll_num>0 and mission_id="' . $missionId . '" and userid="' . $oRecord->userid . '"';
-		$rst = $this->update($updateSql);
+		$rst = $this->update(
+			'xxt_mission_user',
+			['enroll_num' => (object) ['op' => '-=', 'pat' => 1]],
+			['mission_id' => $missionId, 'userid' => $oRecord->userid, 'enroll_num' => (object) ['op' => '>', 'pat' => 0]]
+		);
 
 		return [true, $rst];
 	}
@@ -53,12 +56,15 @@ class user_model extends \TMS_MODEL {
 	 * 恢复1条记录
 	 */
 	public function restoreRecord($missionId, $oRecord) {
-		if (empty($missionId) || empty($oRecord->userid) || !isset($oRecord->rid)) {
+		if (empty($missionId) || empty($oRecord->userid)) {
 			return [false, '参数不完整'];
 		}
 
-		$updateSql = 'update xxt_mission_user set enroll_num=enroll_num+1 where mission_id="' . $missionId . '" and userid="' . $oRecord->userid . '"';
-		$rst = $this->update($updateSql);
+		$rst = $this->update(
+			'xxt_mission_user',
+			['enroll_num' => (object) ['op' => '+=', 'pat' => 1]],
+			['mission_id' => $missionId, 'userid' => $oRecord->userid]
+		);
 
 		return [true, $rst];
 	}

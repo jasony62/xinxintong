@@ -159,7 +159,7 @@ $sql .= ",data_tag text null";
 $sql .= ",comment text null";
 $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",follower_num int not null default 0"; // 接收邀请的下家
-$sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log,100:后台删除,101:用户删除;
+$sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",referrer text null"; //
 $sql .= ",data longtext null"; // 登记的数据项
 $sql .= ",supplement longtext null"; // 补充说明
@@ -242,6 +242,7 @@ $sql .= ",remark_id int not null default 0"; // 是对哪条评论进行的评�
 $sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
+$sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -274,6 +275,7 @@ $sql .= ",last_like_other_remark_at int not null default 0"; // 最后一次对�
 $sql .= ",like_other_remark_num int not null default 0"; // 对评论进行点赞的次数
 $sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
 $sql .= ",score float default 0 COMMENT '得分'"; //
+$sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -294,6 +296,7 @@ $sql .= ',level int not null default 0'; // 标签的层级
 $sql .= ",seq int not null default 0"; // 标签的顺序
 $sql .= ",use_num int not null default 0"; // 使用次数
 $sql .= ",scope char(1) not null default 'U'"; // 使用范围，U：参与人，I：发起人
+$sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

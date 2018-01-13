@@ -466,39 +466,35 @@ class record_model extends \matter\enroll\record_base {
 	/**
 	 * 清除一条用户记录
 	 *
-	 * @param string $appId
-	 * @param string $ek
+	 * @param object $oApp
+	 * @param object $oRecord
 	 *
 	 */
-	public function remove($appId, $ek, $byDelete = false) {
-		if ($byDelete) {
-			$rst = $this->delete(
-				'xxt_signin_log',
-				["aid" => $appId, "enroll_key" => $ek]
-			);
-			$rst = $this->delete(
-				'xxt_signin_record_data',
-				["aid" => $appId, "enroll_key" => $ek]
-			);
-			$rst = $this->delete(
-				'xxt_signin_record',
-				["aid" => $appId, "enroll_key" => $ek]
-			);
-		} else {
-			$rst = $this->update(
-				'xxt_signin_log',
-				['state' => 100],
-				["aid" => $appId, "enroll_key" => $ek]
-			);
-			$rst = $this->update(
-				'xxt_signin_record_data',
-				['state' => 100],
-				["aid" => $appId, "enroll_key" => $ek]
-			);
-			$rst = $this->update(
-				'xxt_signin_record',
-				['state' => 100],
-				["aid" => $appId, "enroll_key" => $ek]
+	public function remove($oApp, $oRecord) {
+		$rst = $this->update(
+			'xxt_signin_record',
+			['state' => 100],
+			["aid" => $oApp->id, "enroll_key" => $oRecord->enroll_key, 'state' => 1]
+		);
+		if ($rst !== 1) {
+			return $rst;
+		}
+		$this->update(
+			'xxt_signin_log',
+			['state' => 100],
+			["aid" => $oApp->id, "enroll_key" => $oRecord->enroll_key, 'state' => 1]
+		);
+		$this->update(
+			'xxt_signin_record_data',
+			['state' => 100],
+			["aid" => $oApp->id, "enroll_key" => $oRecord->enroll_key, 'state' => 1]
+		);
+
+		if (!empty($oApp->mission_id) && !empty($oRecord->userid)) {
+			$this->update(
+				'xxt_mission_user',
+				['signin_num' => (object) ['op' => '-=', 'pat' => $oRecord->signin_num]],
+				['mission_id' => $oApp->mission_id, 'userid' => $oRecord->userid, 'state' => 1, 'signin_num' => (object) ['op' => '>', 'pat' => 0]]
 			);
 		}
 
@@ -507,39 +503,39 @@ class record_model extends \matter\enroll\record_base {
 	/**
 	 * 清除用户记录
 	 *
-	 * @param string $appId
+	 * @param object $oApp
 	 */
-	public function clean($appId, $byDelete = false) {
-		if ($byDelete) {
-			$rst = $this->delete(
-				'xxt_signin_log',
-				["aid" => $appId]
-			);
-			$rst = $this->delete(
-				'xxt_signin_record_data',
-				["aid" => $appId]
-			);
-			$rst = $this->delete(
+	public function clean($oApp) {
+		if (!empty($oApp->mission_id)) {
+			$q = [
+				'userid,signin_num',
 				'xxt_signin_record',
-				["aid" => $appId]
-			);
-		} else {
-			$rst = $this->update(
-				'xxt_signin_log',
-				['state' => 0],
-				["aid" => $appId]
-			);
-			$rst = $this->update(
-				'xxt_signin_record_data',
-				['state' => 0],
-				["aid" => $appId]
-			);
-			$rst = $this->update(
-				'xxt_signin_record',
-				['state' => 0],
-				["aid" => $appId]
-			);
+				['aid' => $oApp->id, 'state' => 1],
+			];
+			$users = $this->query_objs_ss($q);
+			foreach ($users as $oUser) {
+				$this->update(
+					'xxt_mission_user',
+					['signin_num' => (object) ['op' => '-=', 'pat' => $oUser->signin_num]],
+					['mission_id' => $oApp->mission_id, 'userid' => $oUser->userid, 'state' => 1, 'signin_num' => (object) ['op' => '>', 'pat' => 0]]
+				);
+			}
 		}
+		$rst = $this->update(
+			'xxt_signin_record',
+			['state' => 0],
+			["aid" => $oApp->id, 'state' => 1]
+		);
+		$this->update(
+			'xxt_signin_log',
+			['state' => 0],
+			["aid" => $oApp->id, 'state' => 1]
+		);
+		$this->update(
+			'xxt_signin_record_data',
+			['state' => 0],
+			["aid" => $oApp->id, 'state' => 1]
+		);
 
 		return $rst;
 	}

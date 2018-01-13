@@ -305,11 +305,11 @@ class enroll_model extends enroll_base {
 			$q = [
 				'count(*)',
 				'xxt_enroll_record_remark',
-				['aid' => $oApp->id],
+				['aid' => $oApp->id, 'state' => 1],
 			];
 			$oRound->remark_total = $this->query_val_ss($q);
 			/* enrollee */
-			$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['cascaded' => 'N', 'onlyEnrolled' => 'Y']);
+			$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['cascaded' => 'N']);
 			$oRound->enrollee_num = $oEnrollees->total;
 			/* member */
 			if (!empty($mschemaIds)) {
@@ -337,11 +337,11 @@ class enroll_model extends enroll_base {
 				$q = [
 					'count(*)',
 					'xxt_enroll_record_remark',
-					['aid' => $oApp->id, 'rid' => $oRound->rid],
+					['aid' => $oApp->id, 'state' => 1, 'rid' => $oRound->rid],
 				];
 				$oRound->remark_total = $this->query_val_ss($q);
 				/* enrollee */
-				$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $oRound->rid, 'cascaded' => 'N', 'onlyEnrolled' => 'Y']);
+				$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $oRound->rid, 'cascaded' => 'N']);
 				$oRound->enrollee_num = $oEnrollees->total;
 
 				/* member */

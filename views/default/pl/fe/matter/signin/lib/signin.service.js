@@ -871,7 +871,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _ins.empty = function() {
                 var vcode;
                 vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
-                if (vcode === _oApp.title) {
+                if (vcode === _ins._oApp.title) {
                     http2.get('/rest/pl/fe/matter/signin/record/empty?site=' + siteId + '&app=' + appId, function(rsp) {
                         _ins._aRecords.splice(0, _ins._aRecords.length);
                         _ins._oPage.total = 0;

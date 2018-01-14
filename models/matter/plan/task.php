@@ -302,21 +302,22 @@ class task_model extends \TMS_MODEL {
 	 * 获得首个任务的开始时间
 	 */
 	public function getStartAt($oApp, $oUser) {
+		$startAt = 0;
 		$modelSchTsk = $this->model('matter\plan\schema\task');
 		$oFirst = $modelSchTsk->bySeq($oApp, 1, ['fields' => 'id,born_mode,born_offset']);
-		if ($oFirst && $oFirst->born_mode === 'A' && $oFirst->born_offset > 0) {
-			$startAt = $oFirst->born_offset;
-		} else {
-			if ($oFirst->born_mode === 'U') {
-				$modelUsr = $this->model('matter\plan\user');
-				$oAppUser = $modelUsr->byUser($oApp, $oUser);
-				if ($oAppUser && !empty($oAppUser->start_at)) {
-					$startAt = $oAppUser->start_at;
-				} else {
-					$startAt = 0;
-				}
+		if ($oFirst) {
+			if ($oFirst->born_mode === 'A' && $oFirst->born_offset > 0) {
+				$startAt = $oFirst->born_offset;
 			} else {
-				$startAt = time();
+				if ($oFirst->born_mode === 'U') {
+					$modelUsr = $this->model('matter\plan\user');
+					$oAppUser = $modelUsr->byUser($oApp, $oUser);
+					if ($oAppUser && !empty($oAppUser->start_at)) {
+						$startAt = $oAppUser->start_at;
+					}
+				} else {
+					$startAt = time();
+				}
 			}
 		}
 

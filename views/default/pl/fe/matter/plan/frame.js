@@ -1,6 +1,6 @@
 define(['require', 'schema', 'planService'], function(require, schemaLib) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll', 'date.ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll']);
     ngApp.constant('CstApp', {
         bornMode: {
             'A': { l: '组织者指定统一时间' },

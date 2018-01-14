@@ -83,7 +83,7 @@
                                 #<span ng-bind="mock.task.task_seq"></span>&nbsp;-&nbsp;<span ng-bind="mock.task.title"></span>
                             </div>
                             <div class='form-group'>
-                                任务开始时间：<span ng-if="mock.born_at>0" ng-bind="mock.born_at*1000|tmsDate:'yy-MM-dd HH:mm,EEE'"></span>
+                                任务开始时间：<span ng-if="mock.born_at>0" ng-bind="mock.born_at*1000|tmsDateFilter:'yy-MM-dd HH:mm,EEE'"></span>
                             </div>
                         </div>
                     </div>

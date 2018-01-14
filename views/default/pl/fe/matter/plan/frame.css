@@ -1,3 +1,6 @@
+/*main-view*/
+#main-view .badge a{color:#fff;text-decoration:none;}
+
 /*task-view*/
 #task-view .task{position:relative;}
 #task-view .task-cog{position:absolute;top:-1px;right:-1px;}

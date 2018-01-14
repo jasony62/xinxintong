@@ -1,6 +1,6 @@
 define(['require', 'schema', 'planService'], function(require, schemaLib) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll', 'date.ui.xxt']);
     ngApp.constant('CstApp', {
         bornMode: {
             'A': { l: '组织者指定统一时间' },
@@ -107,6 +107,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
         });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
+            $scope.snsNames = Object.keys(oSns);
             $scope.snsCount = Object.keys(oSns).length;
             srvPlanApp.get().then(function(oApp) {
                 oApp.scenario = 'quiz';

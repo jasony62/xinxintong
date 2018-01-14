@@ -204,6 +204,30 @@ class task extends \pl\fe\matter\base {
 		return new \ResponseData(['tasks' => $tasks]);
 	}
 	/**
+	 * 按计划生成的模拟任务
+	 */
+	public function mockList_action($plan) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$oApp = $this->model('matter\plan')->byId($plan);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelUsrTsk = $this->model('matter\plan\task');
+		$modelSchTsk = $this->model('matter\plan\schema\task');
+
+		$oMockUser = new \stdClass;
+		$oMockUser->uid = '';
+		$lastSeq = $modelSchTsk->lastSeq($oApp->id);
+		$startAt = $modelUsrTsk->getStartAt($oApp, $oMockUser);
+
+		$mocks = $modelSchTsk->bornMock($oApp, $oMockUser, 1, $lastSeq, $startAt);
+
+		return new \ResponseData($mocks);
+	}
+	/**
 	 *
 	 */
 	public function move_action($task, $step) {

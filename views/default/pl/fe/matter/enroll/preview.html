@@ -87,7 +87,7 @@
             <label>填写记录</label>
             <ul class='status-group'>
                 <li class='status' ng-if="app.multi_rounds==='Y'">轮次：{{opData.title}}</li>
-                <li class='status'>已有<a href='' ng-click="switchTo('enrollee')"><span ng-bind="opData.enrollee_num"></span></a>人参与</li>
+                <li class='status'>已有<a href='' ng-click="switchTo('enrollee')"><span ng-bind="opData.enrollee_num"></span></a>人参与（含进入了应用但未提交数据用户）</li>
                 <li class='status'>已有<a href='' ng-click="switchTo('record')"><span ng-bind="opData.total"></span></a>条记录提交</li>
                 <li class='status' ng-repeat="mschema in status.user.member">通信录【<span ng-bind="mschema.title"></span>】中已有<span ng-bind="opData.mschema[mschema.id].enrolled"></span>人提交记录，<span>{{mschema.count.verified-opData.mschema[mschema.id].enrolled}}</span>人未提交记录</li>
                 <li class='status'>已有<a href='' ng-click="switchTo('remark')"><span ng-bind="opData.remark_total"></span></a>条评论</li>

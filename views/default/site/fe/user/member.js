@@ -126,7 +126,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
                 });
             }
         } else if (user.login) {
-            $scope.attrs.name && ($scope.member.name = user.login.nickname);
+            //$scope.attrs.name && ($scope.member.name = user.login.nickname);
             if ($scope.attrs.mobile && /^1[3|4|5|7|8][0-9]\d{4,8}$/.test(user.login.uname)) {
                 $scope.member.mobile = user.login.uname
             }

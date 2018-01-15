@@ -311,6 +311,14 @@ class enroll_model extends enroll_base {
 			/* enrollee */
 			$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['cascaded' => 'N']);
 			$oRound->enrollee_num = $oEnrollees->total;
+			$oRound->enrollee_unsubmit_num = 0;
+			if (!empty($oEnrollees->users)) {
+				foreach ($oEnrollees->users as $oEnrollee) {
+					if ($oEnrollee->enroll_num == 0) {
+						$oRound->enrollee_unsubmit_num++;
+					}
+				}
+			}
 			/* member */
 			if (!empty($mschemaIds)) {
 				$oRound->mschema = new \stdClass;
@@ -343,6 +351,14 @@ class enroll_model extends enroll_base {
 				/* enrollee */
 				$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $oRound->rid, 'cascaded' => 'N']);
 				$oRound->enrollee_num = $oEnrollees->total;
+				$oRound->enrollee_unsubmit_num = 0;
+				if (!empty($oEnrollees->users)) {
+					foreach ($oEnrollees->users as $oEnrollee) {
+						if ($oEnrollee->enroll_num == 0) {
+							$oRound->enrollee_unsubmit_num++;
+						}
+					}
+				}
 
 				/* member */
 				if (!empty($mschemaIds)) {

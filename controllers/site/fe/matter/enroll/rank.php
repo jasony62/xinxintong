@@ -158,7 +158,11 @@ class rank extends base {
 			$oUserGroup->title = $oUserGroup->l;
 			unset($oUserGroup->v);
 			unset($oUserGroup->l);
-			$oUserGroup->num = (float) $modelUsr->query_value($sqlByGroup);
+			if ($oCriteria->orderby === 'score') {
+				$oUserGroup->num = (float) $modelUsr->query_value($sqlByGroup);
+			} else {
+				$oUserGroup->num = (int) $modelUsr->query_value($sqlByGroup);
+			}
 		}
 		/* 对分组数据进行排讯 */
 		usort($userGroups, function ($a, $b) {

@@ -261,32 +261,13 @@ class enroll_model extends enroll_base {
 		return true;
 	}
 	/**
-	 * 根据邀请到的用户数量进行的排名
-	 */
-	public function rankByFollower($mpid, $aid, $openid) {
-		$modelRec = \TMS_APP::M('matter\enroll\record');
-		$user = new \stdClass;
-		$user->openid = $openid;
-		$last = $modelRec->lastByUser($aid, $user);
-
-		$q = array(
-			'count(*)',
-			'xxt_enroll_record',
-			"state=1 and aid='$aid' and follower_num>$last->follower_num",
-		);
-
-		$rank = (int) $this->query_val_ss($q);
-
-		return $rank + 1;
-	}
-	/**
 	 * 登记活动运行情况摘要
 	 *
 	 * @param object $oApp
 	 *
 	 * @return
 	 */
-	public function &opData(&$oApp, $onlyActiveRound = false) {
+	public function &opData($oApp, $onlyActiveRound = false) {
 		$modelUsr = $this->model('matter\enroll\user');
 		$modelRnd = $this->model('matter\enroll\round');
 
@@ -324,7 +305,7 @@ class enroll_model extends enroll_base {
 			$q = [
 				'count(*)',
 				'xxt_enroll_record_remark',
-				['aid' => $oApp->id],
+				['aid' => $oApp->id, 'state' => 1],
 			];
 			$oRound->remark_total = $this->query_val_ss($q);
 			/* enrollee */
@@ -356,7 +337,7 @@ class enroll_model extends enroll_base {
 				$q = [
 					'count(*)',
 					'xxt_enroll_record_remark',
-					['aid' => $oApp->id, 'rid' => $oRound->rid],
+					['aid' => $oApp->id, 'state' => 1, 'rid' => $oRound->rid],
 				];
 				$oRound->remark_total = $this->query_val_ss($q);
 				/* enrollee */

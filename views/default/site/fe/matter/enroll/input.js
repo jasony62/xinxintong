@@ -313,8 +313,8 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         });
     }
 
-    function _localSave() {
-        submitState.start(null, StateCacheKey);
+    function _localSave(type) {
+        submitState.start(null, StateCacheKey, type);
         submitState.cache($scope.data);
         submitState.finish(true);
     }
@@ -346,11 +346,11 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     };
     $scope.$on('xxt.app.enroll.save', function() {
-        _localSave();
+        _localSave('save');
         $scope.submit(event, 'result', 'save');
     });
     $scope.save = function(event, nextAction) {
-        _localSave();
+        _localSave('save');
         $scope.submit(event, nextAction, 'save');
         $scope.gotoPage(event, nextAction);
     };
@@ -448,8 +448,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         }
         if (!submitState.isRunning()) {
-            submitState.start(event, StateCacheKey);
-
+            submitState.start(event, StateCacheKey, type);
             if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
                 tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
             } else {

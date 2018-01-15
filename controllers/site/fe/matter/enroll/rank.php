@@ -24,7 +24,7 @@ class rank extends base {
 		$q = [
 			'u.userid,u.nickname,u.rid,a.headimgurl',
 			'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
-			"u.aid='{$oApp->id}'",
+			"u.aid='{$oApp->id}' and u.state=1",
 		];
 		$round = empty($oCriteria->round) ? 'ALL' : $modelUsr->escape($oCriteria->round);
 		$q[2] .= " and u.rid = '$round'";
@@ -146,7 +146,7 @@ class rank extends base {
 			$sql .= 'sum(score)';
 			break;
 		}
-		$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "'";
+		$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "' and state=1";
 		$round = empty($oCriteria->round) ? 'ALL' : $modelApp->escape($oCriteria->round);
 		$sql .= " and rid='" . $round . "'";
 
@@ -264,7 +264,7 @@ class rank extends base {
 		$q = [
 			'r.id,r.userid,r.nickname,r.content,r.enroll_key,r.schema_id,r.like_num,r.agreed,a.headimgurl',
 			"xxt_enroll_record_remark r left join xxt_site_account a on r.userid = a.uid and a.siteid = '{$oApp->siteid}'",
-			"r.aid='{$oApp->id}' and r.like_num>0",
+			"r.aid='{$oApp->id}' and and r.state=1 and r.like_num>0",
 		];
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and r.agreed='Y'";

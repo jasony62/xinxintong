@@ -164,7 +164,7 @@ class main extends \pl\fe\matter\base {
 			/**
 			 * acl
 			 */
-			$article->acl = $this->model('acl')->byMatter($site, 'article', $id);
+			$article->acl = $this->model('matter\acl')->byMatter($site, 'article', $id);
 			/*所属项目*/
 			if ($article->mission_id) {
 				$article->mission = $this->model('matter\mission')->byMatter($site, $app->id, 'custom');

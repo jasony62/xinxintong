@@ -409,6 +409,32 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         }],
         replace: true
     };
+}]).filter('tmsDateFilter', ['$filter', function($filter) {
+    var i18n = {
+        weekday: {
+            'Mon': '星期一',
+            'Tue': '星期二',
+            'Wed': '星期三',
+            'Thu': '星期四',
+            'Fri': '星期五',
+            'Sat': '星期六',
+            'Sun': '星期日',
+        }
+    };
+
+    return function(timestamp, format) {
+        var str, weekday;
+
+        if (!format) return timestamp;
+
+        str = $filter('date')(timestamp, format);
+        if (format.indexOf('EEE') !== -1) {
+            weekday = $filter('date')(timestamp, 'EEE');
+            str = str.replace(weekday, i18n.weekday[weekday]);
+        }
+
+        return str;
+    }
 }]).directive('tmsDatepicker', function() {
     var _version = 7;
     return {
@@ -866,7 +892,11 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         link: function(scope, elem, attrs) {
             var bodyHeight = document.documentElement.clientHeight;
             elem[0].style.height = (bodyHeight - scope.top - scope.bottom) + 'px';
-            elem[0].style.overflowY = 'auto';
+            if (attrs.overflowY) {
+                elem[0].style.overflowY = attrs.overflowY;
+            } else {
+                elem[0].style.overflowY = 'auto';
+            }
         }
     }
 }).directive('flexImg', function() {
@@ -951,7 +981,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             this.close();
         },
         keyUp: function(event) {
-            if(event.keyCode==13) {
+            if (event.keyCode == 13) {
                 this.exec();
             }
         }

@@ -23,102 +23,117 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function index_action($schema) {
-		$oSchema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,title,valid,is_wx_fan,is_yx_fan,is_qy_fan']);
-		if ($oSchema === false || $oSchema->valid === 'N') {
+		$schema = $this->escape($schema);
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'id,siteid,title,valid,is_wx_fan,is_yx_fan,is_qy_fan']);
+		if ($oMschema === false || $oMschema->valid === 'N') {
 			return new \ObjectNotFoundError();
 		}
 
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
-			$this->requireSnsOAuth($oSchema->siteid);
+			$this->requireSnsOAuth($oMschema->siteid);
 		}
 
-		if ($oSchema->is_wx_fan === 'Y' || $oSchema->is_qy_fan === 'Y' || $oSchema->is_yx_fan === 'Y') {
+		if ($oMschema->is_wx_fan === 'Y' || $oMschema->is_qy_fan === 'Y' || $oMschema->is_yx_fan === 'Y') {
 			$cookieUser = $this->who;
 			$modelSiteUser = $this->model('site\user\account');
 			$siteUser = $modelSiteUser->byId($cookieUser->uid);
 
 			$oMschema2 = new \stdClass;
 			$oMschema2->type = 'mschema';
-			$oMschema2->id = $schema;
+			$oMschema2->id = $oMschema->id;
 
 			/* 保存页面来源 */
-			if (empty($this->myGetCookie("_{$oSchema->siteid}_mauth_t"))) {
+			if (empty($this->myGetCookie("_{$oMschema->siteid}_mauth_t"))) {
 				if (isset($_SERVER['HTTP_REFERER'])) {
 					$referer = $_SERVER['HTTP_REFERER'];
 					if (!empty($referer) && !in_array($referer, array('/'))) {
 						if (false === strpos($referer, '/fe/user/member')) {
-							$referer = $modelSiteUser->encrypt($referer, 'ENCODE', $oSchema->siteid);
-							$this->mySetCookie("_{$oSchema->siteid}_mauth_t", $referer, time() + 600);
+							$referer = $modelSiteUser->encrypt($referer, 'ENCODE', $oMschema->siteid);
+							$this->mySetCookie("_{$oMschema->siteid}_mauth_t", $referer, time() + 600);
 						}
 					}
 				}
 			}
 
-			if ($oSchema->is_wx_fan === 'Y') {
-				if (empty($siteUser->wx_openid)) {
-					$this->snsFollow($oSchema->siteid, 'wx', $oMschema2);
-				} else {
+			if ($oMschema->is_wx_fan === 'Y') {
+				$bFollowed = false;
+				if (!empty($siteUser->wx_openid)) {
 					$modelWx = $this->model('sns\wx');
-					if (($wxConfig = $modelWx->bySite($oSchema->siteid)) && $wxConfig->joined === 'Y') {
-						$snsSiteId = $oSchema->siteid;
+					if (($wxConfig = $modelWx->bySite($oMschema->siteid)) && $wxConfig->joined === 'Y') {
+						$snsSiteId = $oMschema->siteid;
 					} else {
 						$snsSiteId = 'platform';
 					}
 					$modelSnsUser = $this->model('sns\wx\fan');
-					if (false === $modelSnsUser->isFollow($snsSiteId, $siteUser->wx_openid)) {
-						$this->snsFollow($snsSiteId, 'wx', $oMschema2);
+					if ($modelSnsUser->isFollow($snsSiteId, $siteUser->wx_openid)) {
+						$bFollowed = true;
+					}
+				}
+				if (false === $bFollowed) {
+					$rst = $this->model('sns\wx\call\qrcode')->createOneOff($oMschema->siteid, $oMschema2);
+					if ($rst[0] === false) {
+						$this->snsFollow($oMschema->siteid, 'wx', $oApp);
+					} else {
+						$sceneId = $rst[1]->scene_id;
+						$this->snsFollow($oMschema->siteid, 'wx', false, $sceneId);
 					}
 				}
 			}
-			if ($oSchema->is_qy_fan === 'Y') {
+			if ($oMschema->is_qy_fan === 'Y') {
 				if (empty($siteUser->qy_openid)) {
-					$this->snsFollow($oSchema->siteid, 'qy');
+					$this->snsFollow($oMschema->siteid, 'qy');
 				} else {
 					$modelSnsUser = $this->model('sns\qy\fan');
-					if (false === $modelSnsUser->isFollow($oSchema->siteid, $siteUser->qy_openid)) {
-						$this->snsFollow($oSchema->siteid, 'qy', $oMschema2);
+					if (false === $modelSnsUser->isFollow($oMschema->siteid, $siteUser->qy_openid)) {
+						$this->snsFollow($oMschema->siteid, 'qy', $oMschema2);
 					}
 				}
 			}
-			if ($oSchema->is_yx_fan === 'Y') {
+			if ($oMschema->is_yx_fan === 'Y') {
 				if (empty($siteUser->yx_openid)) {
-					$this->snsFollow($oSchema->siteid, 'yx');
+					$this->snsFollow($oMschema->siteid, 'yx');
 				} else {
 					$modelSnsUser = $this->model('sns\yx\fan');
-					if (false === $modelSnsUser->isFollow($oSchema->siteid, $siteUser->yx_openid)) {
-						$this->snsFollow($oSchema->siteid, 'yx', $oMschema2);
+					if (false === $modelSnsUser->isFollow($oMschema->siteid, $siteUser->yx_openid)) {
+						$this->snsFollow($oMschema->siteid, 'yx', $oMschema2);
 					}
 				}
 			}
 		}
-		\TPL::assign('title', $oSchema->title);
+		\TPL::assign('title', $oMschema->title);
 		\TPL::output('/site/fe/user/member');
 		exit;
 	}
 	/**
 	 * 获得自定义用户的定义
 	 */
-	public function schemaGet_action($site, $schema) {
+	public function schemaGet_action($site, $schema, $matter = null) {
 		$params = array();
 
-		$oSchema = $this->model('site\user\memberschema')->byId($schema);
-		if ($oSchema === false) {
+		$oMschema = $this->model('site\user\memberschema')->byId($schema);
+		if ($oMschema === false) {
 			return new \ResponseError('指定的自定义用户定义不存在');
 		}
-		$params['schema'] = $oSchema;
+		$params['schema'] = $oMschema;
 		/* 属性定义 */
 		$attrs = [
-			'mobile' => $oSchema->attr_mobile,
-			'email' => $oSchema->attr_email,
-			'name' => $oSchema->attr_name,
-			'extattrs' => $oSchema->extattr,
+			'mobile' => $oMschema->attr_mobile,
+			'email' => $oMschema->attr_email,
+			'name' => $oMschema->attr_name,
+			'extattrs' => $oMschema->extattr,
 		];
 		$params['attrs'] = $attrs;
 
 		/* 已填写的用户信息 */
 		$modelMem = $this->model('site\user\member');
-		$oUser = $this->who;
+		$oUser = clone $this->who;
+		if (!empty($oUser->unionid)) {
+			$oRegAccount = $this->model('account')->byId($oUser->unionid, ['fields' => 'nickname,email']);
+			$oUser->login = $oRegAccount;
+			$oUser->login->uname = $oUser->login->email;
+			unset($oUser->login->email);
+		}
 		if (isset($oUser->members) && isset($oUser->members->{$schema})) {
 			unset($oUser->members->{$schema});
 		}
@@ -134,21 +149,38 @@ class member extends \site\fe\base {
 			$oUser->members->{$schema} = $oMember;
 		}
 		$params['user'] = $oUser;
+		/* 要访问的素材 */
+		if (!empty($matter)) {
+			$matter = $modelMem->escape($matter);
+			$matter = explode(',', $matter);
+			if (count($matter) === 2) {
+				list($type, $id) = $matter;
+				$modelMat = $this->model('matter\\' . $type);
+				$oMatter = $modelMat->byId($id, ['fields' => 'id,state,title,summary,pic']);
+				$params['matter'] = $oMatter;
+			}
+		}
 
 		return new \ResponseData($params);
 	}
 	/**
 	 * 获得自定义用户的定义
 	 */
-	public function get_action($site, $schema) {
-
-		$oSchema = $this->model('site\user\memberschema')->byId($schema);
-		if ($oSchema === false) {
+	public function get_action($schema) {
+		$schema = $this->escape($schema);
+		$oMschema = $this->model('site\user\memberschema')->byId($schema);
+		if ($oMschema === false) {
 			return new \ResponseError('指定的自定义用户定义不存在');
 		}
 		/* 已填写的用户信息 */
 		$modelMem = $this->model('site\user\member');
-		$oUser = $this->who;
+		$oUser = clone $this->who;
+		if (!empty($oUser->unionid)) {
+			$oRegAccount = $this->model('account')->byId($oUser->unionid, ['fields' => 'nickname,email']);
+			$oUser->login = $oRegAccount;
+			$oUser->login->uname = $oUser->login->email;
+			unset($oUser->login->email);
+		}
 		$oMember = $modelMem->byUser($oUser->uid, ['schemas' => $schema]);
 		if (count($oMember) > 1) {
 			return new \ResponseError('数据错误，当前用户已经绑定多个联系人信息，请检查');
@@ -229,7 +261,8 @@ class member extends \site\fe\base {
 		if ($oMschema->require_invite === 'Y' && isset($oNewMember->invite_code)) {
 			$oNewMember->verified = 'Y';
 		} else {
-			$oNewMember->verified = $oMschema->auto_verified;
+			// 设置为通过或等待审核
+			$oNewMember->verified = $oMschema->auto_verified === 'Y' ? 'Y' : 'P';
 		}
 		/* 创建新的自定义用户 */
 		$rst = $modelMem->create($siteUser->uid, $oMschema, $oNewMember);
@@ -267,30 +300,31 @@ class member extends \site\fe\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$member = $this->getPostJson();
+		$oMember = $this->getPostJson();
 		/* 检查数据合法性。根据用户填写的自定义信息，找回数据。 */
 		$modelMem = $this->model('site\user\member');
-		if (false === ($found = $modelMem->findMember($member, $oMschema, false))) {
+		if (false === ($oFound = $modelMem->findMember($oMember, $oMschema, false))) {
 			return new \ParameterError('找不到匹配的联系人信息');
 		}
-		if ($found->userid !== $siteUser->uid) {
+		if ($oFound->userid !== $siteUser->uid) {
 			return new \ResponseError('指定的用户信息错误，和当前登录用户不一致');
 		}
 
 		/* 更新用户信息 */
-		$member->verified = $found->verified;
-		$member->identity = $found->identity;
-		$rst = $modelMem->modify($oMschema, $found->id, $member);
+		$oMember->verified = $oMschema->auto_verified === 'Y' ? 'Y' : 'P';
+
+		$oMember->identity = $oFound->identity;
+		$rst = $modelMem->modify($oMschema, $oFound->id, $oMember);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		$found = $modelMem->byId($found->id);
+		$oFound = $modelMem->byId($oFound->id);
 
 		/* 绑定当前站点用户 */
 		$modelWay = $this->model('site\fe\way');
-		$modelWay->bindMember($oMschema->siteid, $found);
+		$modelWay->bindMember($oMschema->siteid, $oFound);
 
-		return new \ResponseData($found);
+		return new \ResponseData($oFound);
 	}
 	/**
 	 * 认证完成后的回调地址
@@ -328,71 +362,6 @@ class member extends \site\fe\base {
 				return new \ResponseData($target);
 			}
 		}
-	}
-	/**
-	 * 发送验证邮件
-	 *
-	 * $email 在一个公众账号内是唯一的
-	 */
-	private function _sendVerifyEmail($site, $email) {
-		$mp = $this->model('mp\mpaccount')->byId($site, 'name');
-		$subject = $mp->name . "用户身份验证";
-
-		/**
-		 * store token.
-		 */
-		$access_token = md5(uniqid($email) . mt_rand());
-		$i['token'] = $access_token;
-		$i['create_at'] = time();
-		$i['data'] = json_encode(array($site, $email));
-		$this->model()->insert('xxt_access_token', $i);
-
-		$url = "http://" . APP_HTTP_HOST;
-		$url .= "/rest/member/auth/emailpassed?token=$access_token";
-
-		$content = "<p>欢迎关注【" . $mp->name . "】</p>";
-		$content .= "<p></p>";
-		$content .= "<p>为了向您更好地供个性化服务，请点击下面的链接完成用户身份验证。</p>";
-		$content .= "<p></p>";
-		$content .= "<p><a href='$url'>完成身份验证</a></p>";
-
-		if (true !== ($msg = $this->sendEmail($site, $subject, $content, $email))) {
-			return $msg;
-		}
-
-		return true;
-	}
-	/**
-	 * 绑定的邮件是否已经通过验证
-	 *
-	 * //todo 认证信息真实性验证
-	 */
-	public function emailpassed_action($token) {
-		$q = array('data', 'xxt_access_token', "token='$token'");
-		$data = $this->model()->query_val_ss($q);
-		if ($data === false) {
-			die('非法访问被拒绝！');
-		}
-
-		$data = json_decode($data);
-		/**
-		 * update user state.
-		 */
-		$u = array();
-		$u['verified'] = 'Y';
-		$u['email_verified'] = 'Y';
-		$this->model()->update(
-			'xxt_member',
-			$u,
-			"mpid='{$data[0]}' and forbidden='N' and email='{$data[1]}'"
-		);
-		/**
-		 * remove token.
-		 */
-		$this->model()->delete('xxt_access_token', "token='$token'");
-
-		// todo 邮件验证的信息应该允许定制
-		\TPL::output('emailpassed');
 	}
 	/**
 	 * 返回组织机构组件

@@ -246,36 +246,36 @@ class round_model extends \TMS_MODEL {
 				}
 				//算出开始的日期
 				$mday = (int) $rule->mday;
-				$rule->end_mday=empty($rule->end_mday) ? 1 : $rule->end_mday;
+				$rule->end_mday = empty($rule->end_mday) ? 1 : $rule->end_mday;
 				$hour = empty($rule->hour) ? 0 : (int) $rule->hour;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
 				//算出结束的日期
-				if($rule->mday==$rule->end_mday){
-					if($hour<$end_hour){
-						$end_month=$month;
-						$end_year=$year;
-					}else{
-						if($month < 12){
-							$end_month=$month+1;
-							$end_year=$year;
-						}else{
-							$end_month=1;
-							$end_year=$year+1;
+				if ($rule->mday == $rule->end_mday) {
+					if ($hour < $end_hour) {
+						$end_month = $month;
+						$end_year = $year;
+					} else {
+						if ($month < 12) {
+							$end_month = $month + 1;
+							$end_year = $year;
+						} else {
+							$end_month = 1;
+							$end_year = $year + 1;
 						}
 					}
-				}else if($rule->mday > $rule->end_mday){
-					if($month < 12){
-						$end_month=$month+1;
-						$end_year=$year;
-					}else{
-						$end_month=1;
-						$end_year=$year+1;
+				} else if ($rule->mday > $rule->end_mday) {
+					if ($month < 12) {
+						$end_month = $month + 1;
+						$end_year = $year;
+					} else {
+						$end_month = 1;
+						$end_year = $year + 1;
 					}
-				}else{
-					$end_month=$month;
-					$end_year=$year;
+				} else {
+					$end_month = $month;
+					$end_year = $year;
 				}
-				$end_mday=(int) $rule->end_mday;
+				$end_mday = (int) $rule->end_mday;
 			} else if ($rule->period === 'W' && isset($rule->wday) && strlen($rule->wday)) {
 				/* 某周的某一天 */
 				if ($wday === (int) $rule->wday) {
@@ -300,21 +300,21 @@ class round_model extends \TMS_MODEL {
 					$hour = empty($rule->hour) ? 0 : (int) $rule->hour;
 					$week--;
 				}
-				$rule->end_wday=empty($rule->end_wday) ? 0 : $rule->end_wday;
+				$rule->end_wday = empty($rule->end_wday) ? 0 : $rule->end_wday;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
-				if($rule->wday==$rule->end_wday){
-					if($hour<$end_hour){
-						$end_mday=$mday+((int)$rule->end_wday-(int)$rule->wday);
-					}else{
-						$end_mday=$mday+7-((int)$rule->wday-(int)$rule->end_wday);
+				if ($rule->wday == $rule->end_wday) {
+					if ($hour < $end_hour) {
+						$end_mday = $mday + ((int) $rule->end_wday - (int) $rule->wday);
+					} else {
+						$end_mday = $mday + 7 - ((int) $rule->wday - (int) $rule->end_wday);
 					}
-				}else if($rule->wday > $rule->end_wday){
-					$end_mday=$mday+7-((int)$rule->wday-(int)$rule->end_wday);
-				}else{
-					$end_mday=$mday+((int)$rule->end_wday-(int)$rule->wday);
-				}			
-				$end_year=$year;
-				$end_month=$month;
+				} else if ($rule->wday > $rule->end_wday) {
+					$end_mday = $mday + 7 - ((int) $rule->wday - (int) $rule->end_wday);
+				} else {
+					$end_mday = $mday + ((int) $rule->end_wday - (int) $rule->wday);
+				}
+				$end_year = $year;
+				$end_month = $month;
 			} else if ($rule->period === 'D' && isset($rule->hour) && strlen($rule->hour)) {
 				/* 每天指定时间 */
 				if ($hour < (int) $rule->hour) {
@@ -323,23 +323,23 @@ class round_model extends \TMS_MODEL {
 				}
 				$hour = (int) $rule->hour;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
-				if($hour>=$end_hour){
-					$end_mday=$mday+1;
-				}else{
-					$end_mday=$mday;
+				if ($hour >= $end_hour) {
+					$end_mday = $mday + 1;
+				} else {
+					$end_mday = $mday;
 				}
-				$end_month=$month;
-				$end_year=$year;
-			}else{
-				isset($rule->hour) && $hour=(int) $rule->hour;
+				$end_month = $month;
+				$end_year = $year;
+			} else {
+				isset($rule->hour) && $hour = (int) $rule->hour;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
-				$end_month=$month;
-				$end_year=$year;
-				$end_mday=$mday+1;
+				$end_month = $month;
+				$end_year = $year;
+				$end_mday = $mday + 1;
 			}
-			
+
 			$startAt = mktime($hour, 0, 0, $month, $mday, $year);
-			$endAt=mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
+			$endAt = mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
 			// 记录活动的轮次生成时间
 			if ($startAt > $latest) {
 				$latest = $startAt;
@@ -418,36 +418,36 @@ class round_model extends \TMS_MODEL {
 				}
 				//算出开始的日期
 				$mday = (int) $rule->mday;
-				$rule->end_mday=empty($rule->end_mday) ? 1 : $rule->end_mday;
+				$rule->end_mday = empty($rule->end_mday) ? 1 : $rule->end_mday;
 				$hour = empty($rule->hour) ? 0 : (int) $rule->hour;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
 				//算出结束的日期
-				if($rule->mday==$rule->end_mday){
-					if($hour<$end_hour){
-						$end_month=$month;
-						$end_year=$year;
-					}else{
-						if($month < 12){
-							$end_month=$month+1;
-							$end_year=$year;
-						}else{
-							$end_month=1;
-							$end_year=$year+1;
+				if ($rule->mday == $rule->end_mday) {
+					if ($hour < $end_hour) {
+						$end_month = $month;
+						$end_year = $year;
+					} else {
+						if ($month < 12) {
+							$end_month = $month + 1;
+							$end_year = $year;
+						} else {
+							$end_month = 1;
+							$end_year = $year + 1;
 						}
 					}
-				}else if($rule->mday > $rule->end_mday){
-					if($month < 12){
-						$end_month=$month+1;
-						$end_year=$year;
-					}else{
-						$end_month=1;
-						$end_year=$year+1;
+				} else if ($rule->mday > $rule->end_mday) {
+					if ($month < 12) {
+						$end_month = $month + 1;
+						$end_year = $year;
+					} else {
+						$end_month = 1;
+						$end_year = $year + 1;
 					}
-				}else{
-					$end_month=$month;
-					$end_year=$year;
+				} else {
+					$end_month = $month;
+					$end_year = $year;
 				}
-				$end_mday=(int) $rule->end_mday;
+				$end_mday = (int) $rule->end_mday;
 			} else if ($rule->period === 'W' && isset($rule->wday) && strlen($rule->wday)) {
 				/* 某周的某一天 */
 				if ($wday === (int) $rule->wday) {
@@ -472,21 +472,21 @@ class round_model extends \TMS_MODEL {
 					$hour = empty($rule->hour) ? 0 : (int) $rule->hour;
 					$week--;
 				}
-				$rule->end_wday=empty($rule->end_wday) ? 0 : $rule->end_wday;
+				$rule->end_wday = empty($rule->end_wday) ? 0 : $rule->end_wday;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
-				if($rule->wday==$rule->end_wday){
-					if($hour<$end_hour){
-						$end_mday=$mday+((int)$rule->end_wday-(int)$rule->wday);
-					}else{
-						$end_mday=$mday+7-((int)$rule->wday-(int)$rule->end_wday);
+				if ($rule->wday == $rule->end_wday) {
+					if ($hour < $end_hour) {
+						$end_mday = $mday + ((int) $rule->end_wday - (int) $rule->wday);
+					} else {
+						$end_mday = $mday + 7 - ((int) $rule->wday - (int) $rule->end_wday);
 					}
-				}else if($rule->wday > $rule->end_wday){
-					$end_mday=$mday+7-((int)$rule->wday-(int)$rule->end_wday);
-				}else{
-					$end_mday=$mday+((int)$rule->end_wday-(int)$rule->wday);
-				}			
-				$end_year=$year;
-				$end_month=$month;
+				} else if ($rule->wday > $rule->end_wday) {
+					$end_mday = $mday + 7 - ((int) $rule->wday - (int) $rule->end_wday);
+				} else {
+					$end_mday = $mday + ((int) $rule->end_wday - (int) $rule->wday);
+				}
+				$end_year = $year;
+				$end_month = $month;
 			} else if ($rule->period === 'D' && isset($rule->hour) && strlen($rule->hour)) {
 				/* 每天指定时间 */
 				if ($hour < (int) $rule->hour) {
@@ -495,23 +495,23 @@ class round_model extends \TMS_MODEL {
 				}
 				$hour = (int) $rule->hour;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
-				if($hour>=$end_hour){
-					$end_mday=$mday+1;
-				}else{
-					$end_mday=$mday;
+				if ($hour >= $end_hour) {
+					$end_mday = $mday + 1;
+				} else {
+					$end_mday = $mday;
 				}
-				$end_month=$month;
-				$end_year=$year;
-			}else{
-				isset($rule->hour) && $hour=(int) $rule->hour;
+				$end_month = $month;
+				$end_year = $year;
+			} else {
+				isset($rule->hour) && $hour = (int) $rule->hour;
 				$end_hour = empty($rule->end_hour) ? 0 : (int) $rule->end_hour;
-				$end_month=$month;
-				$end_year=$year;
-				$end_mday=$mday+1;
+				$end_month = $month;
+				$end_year = $year;
+				$end_mday = $mday + 1;
 			}
-			
+
 			$startAt = mktime($hour, 0, 0, $month, $mday, $year);
-			$endAt=mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
+			$endAt = mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
 			// 记录活动的轮次生成时间
 			if ($startAt > $latest) {
 				$latest = $startAt;
@@ -533,9 +533,9 @@ class round_model extends \TMS_MODEL {
 		$newRound = new \stdClass;
 		$newRound->title = '轮次-' . $latestLabel;
 		$newRound->start_at = $latest;
-		$newRound->start = date('Y-m-d H:i',$latest);
+		$newRound->start = date('Y-m-d H:i', $latest);
 		$newRound->end_at = $endAt;
-		$newRound->end=date('Y-m-d H:i',$endAt);
+		$newRound->end = date('Y-m-d H:i', $endAt);
 		$newRound->state = 1;
 
 		return $newRound;

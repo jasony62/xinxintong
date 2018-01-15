@@ -6,6 +6,7 @@
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
     <base href="/" />
     <title>邀请关注</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/fe/user/follow.css');?>" rel="stylesheet">
 </head>
@@ -14,9 +15,15 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <div dynamic-html="page.html"></div>
-    <div id='gotoLogin' ng-if="!user.unionid">
-        <a href='' ng-click="gotoLogin()">已有账号绑定过公众号，去登录</a>
+    <div class='container'>
+        <div class='row'>
+            <div class='col-md-6 col-md-offset-3'>
+                <div dynamic-html="page.html"></div>
+                <div id='gotoLogin' ng-if="!user.unionid">
+                    <a href='' ng-click="gotoLogin()">已有账号绑定过公众号，去登录</a>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="/static/js/require.js?_=1" defer async data-main="/views/default/site/fe/user/follow-loader.js?_=2"></script>
 </body>

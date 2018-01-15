@@ -66,15 +66,6 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
-        $scope.countSelected = function() {
-            var count = 0;
-            for (var p in $scope.rows.selected) {
-                if ($scope.rows.selected[p] === true) {
-                    count++;
-                }
-            }
-            return count;
-        };
         $scope.rows = {
             allSelected: 'N',
             selected: {},

@@ -249,7 +249,6 @@ class record extends \pl\fe\matter\base {
 		$modelRec->setData($site, $signinApp, $ek, $posted->data, $user->id);
 
 		// 记录操作日志
-		$signinApp->type = 'signin';
 		$this->model('matter\log')->matterOp($site, $user, $signinApp, 'add', $ek);
 
 		$record = $modelRec->byId($ek);
@@ -352,7 +351,6 @@ class record extends \pl\fe\matter\base {
 		$modelRec->setData($site, $signinApp, $ek, $record->data, $user->id);
 
 		// 记录操作日志
-		$signinApp->type = 'signin';
 		$this->model('matter\log')->matterOp($site, $user, $signinApp, 'update', $record);
 
 		// 返回完整的记录
@@ -400,34 +398,44 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 清空一条登记信息
 	 */
-	public function remove_action($site, $app, $key, $keepData = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+	public function remove_action($app, $key) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$oApp = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
-		$rst = $this->model('matter\signin\record')->remove($app, $key, $keepData !== 'Y');
+		$modelRec = $this->model('matter\signin\record');
+		$oRecord = $modelRec->byId($key);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$rst = $modelRec->remove($oApp, $oRecord);
 
 		// 记录操作日志
-		$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'signin';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'remove', $key);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'remove', $key);
 
 		return new \ResponseData($rst);
 	}
 	/**
 	 * 清空登记信息
 	 */
-	public function empty_action($site, $app, $keepData = 'Y') {
-		if (false === ($user = $this->accountUser())) {
+	public function empty_action($site, $app) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$oApp = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
-		$rst = $this->model('matter\signin\record')->clean($app, $keepData !== 'Y');
+		$rst = $this->model('matter\signin\record')->clean($oApp);
 
 		// 记录操作日志
-		$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'signin';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'empty');
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'empty');
 
 		return new \ResponseData($rst);
 	}
@@ -437,7 +445,7 @@ class record extends \pl\fe\matter\base {
 	 * 如果活动关联了报名活动，需要将关联的数据导出
 	 */
 	public function export_action($site, $app, $round = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -697,7 +705,7 @@ class record extends \pl\fe\matter\base {
 	 * 导出登记数据中的图片
 	 */
 	public function exportImage_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			die('请先登录系统');
 		}
 		if (defined('SAE_TMP_PATH')) {
@@ -812,7 +820,7 @@ class record extends \pl\fe\matter\base {
 	 * 指定记录通过审核
 	 */
 	public function batchVerify_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -832,7 +840,7 @@ class record extends \pl\fe\matter\base {
 
 		// 记录操作日志
 		$app->type = 'signin';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'verify.batch', $eks);
+		$this->model('matter\log')->matterOp($site, $oUser, $app, 'verify.batch', $eks);
 
 		return new \ResponseData('ok');
 	}
@@ -843,7 +851,7 @@ class record extends \pl\fe\matter\base {
 	 * 3、如果活动所属项目指定了用户名单
 	 */
 	public function absent_action($app, $rid = '') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

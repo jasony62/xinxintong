@@ -50,8 +50,15 @@ class qrcode_model extends \TMS_MODEL {
 			'xxt_call_qrcode_wx',
 			['siteid' => $siteId, 'scene_id' => $sceneId],
 		];
-
 		$call = $this->query_obj_ss($q);
+		if (false === $call && $sceneId !== 'platform') {
+			$q = [
+				'*',
+				'xxt_call_qrcode_wx',
+				['siteid' => 'platform', 'scene_id' => $sceneId],
+			];
+			$call = $this->query_obj_ss($q);
+		}
 
 		return $call;
 	}
@@ -175,7 +182,7 @@ class qrcode_model extends \TMS_MODEL {
 	 * 创建二维码时直接指定回复的素材
 	 * 只要做了扫描，二维码就失效（删除掉）
 	 */
-	public function createOneOff($snsSiteId, $oMatter) {
+	public function createOneOff($snsSiteId, $oMatter, $expire = null) {
 		$modelWx = $this->model('sns\wx');
 		if (false === ($oWxConfig = $modelWx->bySite($snsSiteId)) || $oWxConfig->joined !== 'Y') {
 			$snsSiteId = 'platform';
@@ -212,7 +219,11 @@ class qrcode_model extends \TMS_MODEL {
 		 * 获取二维码
 		 */
 		$proxy = $this->model('sns\wx\proxy', $oWxConfig);
-		$rst = $proxy->qrcodeCreate($sceneId);
+		if (isset($expire)) {
+			$rst = $proxy->qrcodeCreate($sceneId, true, $expire);
+		} else {
+			$rst = $proxy->qrcodeCreate($sceneId);
+		}
 		if ($rst[0] === false) {
 			return $rst;
 		}
@@ -228,7 +239,7 @@ class qrcode_model extends \TMS_MODEL {
 		$oNewQrcode->matter_type = $oMatter->type;
 		$oNewQrcode->matter_id = $oMatter->id;
 		$oNewQrcode->pic = $oWxQrcode->pic;
-		isset($oMatter->params) && $oNewQrcode->params = $this->toJson($oMatter->params);
+		isset($oMatter->params) && $oNewQrcode->params = $this->escape($this->toJson($oMatter->params));
 
 		$oNewQrcode->id = $modelWx->insert('xxt_call_qrcode_wx', $oNewQrcode, true);
 

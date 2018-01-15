@@ -66,16 +66,6 @@ class record extends base {
 			$oUser->nickname = $userNickname;
 		}
 		/**
-		 * 包含用户身份信息
-		 */
-		// if (isset($oSigninData->member) && isset($oSigninData->member->schema_id)) {
-		// 	$oMember = clone $oSigninData->member;
-		// 	$rst = $this->_submitMember($site, $oMember, $oUser);
-		// 	if ($rst[0] === false) {
-		// 		return new \ParameterError($rst[1]);
-		// 	}
-		// }
-		/**
 		 * 检查是否存在匹配的分组记录
 		 */
 		if (!empty($oSigninApp->group_app_id)) {
@@ -307,28 +297,6 @@ class record extends base {
 		$logid = $modelLog->addUserMatterOp($oApp->siteid, $logUser, $oApp, $operation, $client, $referer);
 
 		return $logid;
-	}
-	/**
-	 * 提交信息中包含的自定义用户信息
-	 */
-	private function _submitMember($siteId, $oSubmitMember, $oUser) {
-		$schemaId = $oSubmitMember->schema_id;
-		$oMschema = $this->model('site\user\memberschema')->byId($schemaId, ['fields' => 'siteid,id,title,auto_verified,attr_mobile,attr_email,attr_name,extattr']);
-		$modelMem = $this->model('site\user\member');
-
-		$existentMember = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
-		if (count($existentMember)) {
-			$memberId = $existentMember[0]->id;
-			$oSubmitMember->id = $memberId;
-			$oSubmitMember->verified = $existentMember[0]->verified;
-			$oSubmitMember->identity = $existentMember[0]->identity;
-			$rst = $modelMem->modify($oMschema, $memberId, $oSubmitMember);
-		} else {
-			$rst = $modelMem->createByApp($oMschema, $oUser->uid, $oSubmitMember);
-		}
-		$oSubmitMember->schema_id = $schemaId;
-
-		return $rst;
 	}
 	/**
 	 * 通知签到活动事件接收人

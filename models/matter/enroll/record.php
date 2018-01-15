@@ -953,6 +953,10 @@ class record_model extends record_base {
 			return false;
 		}
 
+		if (strpos($schemaId, 'member.') === 0) {
+			$schemaId = 'member';
+		}
+
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
@@ -1168,102 +1172,194 @@ class record_model extends record_base {
 		return $rst;
 	}
 	/**
+	 * 更新用户数据
+	 *
+	 * @param object $oApp(id,mission_id)
+	 * @param object $oRecord(enroll_key,userid,rid)
+	 *
+	 */
+	private function _updateUser($oApp, $oRecord) {
+		// 更新活动的累计数据
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		$aResult = $modelEnlUsr->removeRecord($oApp, $oRecord);
+		if (false === $aResult[0]) {
+			return $aResult;
+		}
+		// 更新项目的累计数据
+		if (!empty($oApp->mission_id)) {
+			$modelMisUsr = $this->model('matter\mission\user');
+			$aResult = $modelMisUsr->removeRecord($oApp->mission_id, $oRecord);
+			if (false === $aResult[0]) {
+				return $aResult;
+			}
+		}
+
+		return [true];
+	}
+	/**
 	 * 登记人清除一条登记记录
 	 *
-	 * @param string $aid
-	 * @param string $ek
+	 * @param object $oApp
+	 * @param object $oRecord
 	 */
-	public function removeByUser($appId, $ek) {
-		$rst = $this->update(
-			'xxt_enroll_record_data',
-			['state' => 101],
-			['aid' => $appId, 'enroll_key' => $ek]
-		);
+	public function removeByUser($oApp, $oRecord) {
 		$rst = $this->update(
 			'xxt_enroll_record',
 			['state' => 101],
-			['aid' => $appId, 'enroll_key' => $ek]
+			['aid' => $oApp->id, 'enroll_key' => $oRecord->enroll_key, 'state' => 1]
 		);
+		if ($rst !== 1) {
+			return $rst;
+		}
+
+		$this->delete(
+			'xxt_enroll_record_stat',
+			['aid' => $oApp->id]
+		);
+		$this->update(
+			'xxt_enroll_record_data',
+			['state' => 101],
+			['aid' => $oApp->id, 'enroll_key' => $oRecord->enroll_key]
+		);
+
+		$this->_updateUser($oApp, $oRecord);
 
 		return $rst;
 	}
 	/**
 	 * 清除一条登记记录
 	 *
-	 * @param string $aid
-	 * @param string $ek
+	 * @param object $oApp
+	 * @param object $oRecord
 	 */
-	public function remove($appId, $ek, $byDelete = false) {
-		if ($byDelete) {
-			$rst = $this->delete(
-				'xxt_enroll_record_data',
-				['aid' => $appId, 'enroll_key' => $ek]
-			);
-			$rst = $this->delete(
-				'xxt_enroll_record',
-				['aid' => $appId, 'enroll_key' => $ek]
-			);
-		} else {
-			$rst = $this->update(
-				'xxt_enroll_record_data',
-				['state' => 100],
-				['aid' => $appId, 'enroll_key' => $ek]
-			);
-			$rst = $this->update(
-				'xxt_enroll_record',
-				['state' => 100],
-				['aid' => $appId, 'enroll_key' => $ek]
-			);
+	public function remove($oApp, $oRecord) {
+		$rst = $this->update(
+			'xxt_enroll_record',
+			['state' => 100],
+			['aid' => $oApp->id, 'enroll_key' => $oRecord->enroll_key, 'state' => 1]
+		);
+		if ($rst !== 1) {
+			return $rst;
 		}
+		$this->update(
+			'xxt_enroll_record_data',
+			['state' => 100],
+			['aid' => $oApp->id, 'enroll_key' => $oRecord->enroll_key, 'state' => 1]
+		);
+		$this->delete(
+			'xxt_enroll_record_stat',
+			['aid' => $oApp->id]
+		);
+		/**
+		 * 更新用户累计数据
+		 */
+		if (!empty($oRecord->userid)) {
+			$this->_updateUser($oApp, $oRecord);
+		}
+
+		return $rst;
+	}
+	/**
+	 * 清空填写记录
+	 * 更新项目中的用户数据
+	 *
+	 * @param object $oApp
+	 */
+	public function clean($oApp) {
+		$rst = $this->delete(
+			'xxt_enroll_record_stat',
+			['aid' => $oApp->id]
+		);
+		/* 更新项目的用户数据 */
+		if (!empty($oApp->mission_id)) {
+			$q = [
+				'userid,enroll_num,remark_num,like_num,like_remark_num,remark_other_num,like_other_num,like_other_remark_num,user_total_coin',
+				'xxt_enroll_user',
+				['aid' => $oApp->id, 'state' => 1, 'rid' => 'ALL'],
+			];
+			$users = $this->query_objs_ss($q);
+			foreach ($users as $oUser) {
+				$this->update(
+					'xxt_mission_user',
+					[
+						'enroll_num' => (object) ['op' => '-=', 'pat' => $oUser->enroll_num],
+						'remark_num' => (object) ['op' => '-=', 'pat' => $oUser->remark_num],
+						'like_num' => (object) ['op' => '-=', 'pat' => $oUser->like_num],
+						'like_remark_num' => (object) ['op' => '-=', 'pat' => $oUser->like_remark_num],
+						'remark_other_num' => (object) ['op' => '-=', 'pat' => $oUser->remark_other_num],
+						'like_other_num' => (object) ['op' => '-=', 'pat' => $oUser->like_other_num],
+						'like_other_remark_num' => (object) ['op' => '-=', 'pat' => $oUser->like_other_remark_num],
+						'user_total_coin' => (object) ['op' => '-=', 'pat' => $oUser->user_total_coin],
+					],
+					['mission_id' => $oApp->mission_id, 'userid' => $oUser->userid, 'state' => 1]
+				);
+			}
+		}
+		$rst = $this->update(
+			'xxt_enroll_user',
+			[
+				'state' => 0,
+				'enroll_num' => 0,
+				'remark_num' => 0,
+				'like_num' => 0,
+				'like_remark_num' => 0,
+				'remark_other_num' => 0,
+				'like_other_num' => 0,
+				'like_other_remark_num' => 0,
+				'user_total_coin' => 0,
+			],
+			['aid' => $oApp->id]
+		);
+		$this->update(
+			'xxt_enroll_record_tag',
+			['state' => 0],
+			['aid' => $oApp->id, 'state' => 1]
+		);
+		$this->update(
+			'xxt_enroll_record_remark',
+			['state' => 0],
+			['aid' => $oApp->id, 'state' => 1]
+		);
+		$this->update(
+			'xxt_enroll_record_data',
+			['state' => 0],
+			['aid' => $oApp->id, 'state' => 1]
+		);
+		$rst = $this->update(
+			'xxt_enroll_record',
+			['state' => 0],
+			['aid' => $oApp->id, 'state' => 1]
+		);
 
 		return $rst;
 	}
 	/**
 	 *  恢复一条登记记录
 	 *
-	 * @param string $aid
-	 * @param string $ek
+	 * @param object $oApp
+	 * @param object $oRecord
+	 *
 	 */
-	public function restore($appId, $ek) {
-		$rst = $this->update(
-			'xxt_enroll_record_data',
-			['state' => 1],
-			['aid' => $appId, 'enroll_key' => $ek]
-		);
+	public function restore($oApp, $oRecord) {
 		$rst = $this->update(
 			'xxt_enroll_record',
 			['state' => 1],
-			['aid' => $appId, 'enroll_key' => $ek]
+			['aid' => $oApp->id, 'state' => (object) ['op' => '<>', 'pat' => 1], 'enroll_key' => $oRecord->enroll_key]
 		);
-
-		return $rst;
-	}
-	/**
-	 * 清除登记记录
-	 *
-	 * @param string $appId
-	 */
-	public function clean($appId, $byDelete = false) {
-		if ($byDelete) {
-			$rst = $this->delete(
-				'xxt_enroll_record_data',
-				['aid' => $appId]
-			);
-			$rst = $this->delete(
-				'xxt_enroll_record',
-				['aid' => $appId]
-			);
-		} else {
-			$rst = $this->update(
-				'xxt_enroll_record_data',
-				['state' => 0],
-				['aid' => $appId]
-			);
-			$rst = $this->update(
-				'xxt_enroll_record',
-				['state' => 0],
-				['aid' => $appId]
-			);
+		if ($rst !== 1) {
+			return $rst;
+		}
+		$this->update(
+			'xxt_enroll_record_data',
+			['state' => 1],
+			['aid' => $oApp->id, 'enroll_key' => $oRecord->enroll_key]
+		);
+		/* 更新用户的累计数据 */
+		if (!empty($oRecord->userid)) {
+			$this->model('matter\enroll\user')->restoreRecord($oApp, $oRecord);
+			if (!empty($oApp->mission_id)) {
+				$this->model('matter\mission\user')->restoreRecord($oApp->mission_id, $oRecord);
+			}
 		}
 
 		return $rst;
@@ -1303,7 +1399,7 @@ class record_model extends record_base {
 				$q = [
 					'count(*)',
 					'xxt_enroll_record',
-					"aid='$oApp->id' and enroll_at>={$last->create_at}",
+					"aid='$oApp->id' and state=1 and enroll_at>={$last->create_at}",
 				];
 				if ($rid !== 'ALL' && !empty($rid)) {
 					$q[2] .= " and rid = '$rid'";

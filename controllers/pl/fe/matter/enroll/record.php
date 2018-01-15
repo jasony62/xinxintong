@@ -317,9 +317,9 @@ class record extends \pl\fe\matter\base {
 						$modelUser->add($oApp, $oUser, $inData);
 					} else {
 						$modelRec->update('xxt_enroll_user',
-								['rid' => $userNewRid],
-								['id' => $resOld->id]
-							);
+							['rid' => $userNewRid],
+							['id' => $resOld->id]
+						);
 					}
 				} else {
 					if ($resOld->enroll_num > 1) {
@@ -327,7 +327,7 @@ class record extends \pl\fe\matter\base {
 					} else {
 						$modelRec->delete('xxt_enroll_user', ['id' => $resOld->id]);
 					}
-					
+
 					$modelRec->update("update xxt_enroll_user set enroll_num = enroll_num + 1 where id = $resNew->id");
 				}
 
@@ -487,17 +487,13 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$modelEnlRec = $this->model('matter\enroll\record');
 		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,state,enroll_key,data,rid']);
-		if (false === $oRecord) {
+		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
-		}
-		// 是否已经删除
-		if ($oRecord->state !== '1') {
-			return new \ResponseError('记录已经被删除，不能再次删除');
 		}
 		// 如果已经获得积分不允许删除
 		if (!empty($oRecord->userid)) {
@@ -508,24 +504,12 @@ class record extends \pl\fe\matter\base {
 			}
 		}
 		// 删除数据
-		$rst = $modelEnlRec->remove($oApp->id, $key);
-		/**
-		 * 更新用户累计数据
-		 */
-		if (!empty($oRecord->userid)) {
-			// 活动的累计数据
-			$modelEnlUsr->removeRecord($oRecord);
-			// 项目的累计数据
-			if (!empty($oApp->mission_id)) {
-				$modelMisUsr = $this->model('matter\mission\user');
-				$modelMisUsr->removeRecord($oApp->mission_id, $oRecord);
-			}
-		}
+		$rst = $modelEnlRec->remove($oApp, $oRecord);
 
 		// 记录操作日志
 		unset($oRecord->userid);
-		$operation = $oRecord;
-		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'removeData', $operation);
+		unset($oRecord->state);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'removeData', $oRecord);
 
 		return new \ResponseData($rst);
 	}
@@ -537,19 +521,16 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
 		$modelEnlRec = $this->model('matter\enroll\record');
-		$rst = $modelEnlRec->restore($oApp->id, $key);
-
-		// 更新用户的累计数据
 		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,enroll_key,data,rid']);
-		$this->model('matter\enroll\user')->restoreRecord($oRecord);
-		if (!empty($oApp->mission_id)) {
-			$this->model('matter\mission\user')->restoreRecord($oApp->mission_id, $oRecord);
+		if (false === $oRecord) {
+			return new ObjectNotFoundError();
 		}
+
+		$rst = $modelEnlRec->restore($oApp, $oRecord);
 
 		// 记录操作日志
 		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'restoreData', $oRecord);
@@ -559,17 +540,22 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 清空登记信息
 	 */
-	public function empty_action($site, $app) {
+	public function empty_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$app = $this->escape($app);
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
-		$rst = $this->model('matter\enroll\record')->clean($app);
+		$modelRec = $this->model('matter\enroll\record');
+		/* 清除填写记录 */
+		$rst = $modelRec->clean($oApp);
 
 		// 记录操作日志
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'empty');
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'empty');
 
 		return new \ResponseData($rst);
 	}
@@ -1005,7 +991,21 @@ class record extends \pl\fe\matter\base {
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
 				$columnNum3 = $columnNum2; //列号
 				$schema = $schemas[$i2];
-				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+				if (isset($data->{$schema->id})) {
+					$v = $data->{$schema->id};
+				} else if ((strpos($schema->id, 'member.') === 0) && isset($data->member)) {
+					$mbSchemaId = $schema->id;
+					$mbSchemaIds = explode('.', $mbSchemaId);
+					$mbSchemaId = $mbSchemaIds[1];
+					if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
+						$mbSchemaId = $mbSchemaIds[2];
+						$v = $data->member->extattr->{$mbSchemaId};
+					} else {
+						$v = $data->member->{$mbSchemaId};
+					}
+				} else {
+					$v = '';
+				}
 
 				if (in_array($schema->type, ['html'])) {
 					continue;

@@ -87,7 +87,7 @@
                                 </td>
                                 <td>{{(page.at-1)*page.size+$index+1}}</td>
                                 <td>
-                                    <input type='checkbox' ng-model="rows.selected[$index]">
+                                    <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
                                 </td>
                                 <td ng-if="bRequireNickname">{{r.nickname}}</td>
                                 <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>

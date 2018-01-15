@@ -94,7 +94,7 @@ require(['matterService'], function() {
             url += '/rest/site/fe/user';
             url += "?site=" + siteId;
             location.href = url;
-        }
+        };
         $scope.gotoMatter = function(matter) {
             if (matter.entryUrl) {
                 location.href = matter.entryUrl;
@@ -106,14 +106,20 @@ require(['matterService'], function() {
         http2.get('/rest/site/fe/matter/mission/get?site=' + siteId + '&mission=' + missionId, function(rsp) {
             var groupUsers;
             $scope.mission = _oMission = rsp.data;
-            if (_oMission.groupUser && _oMission.groupOthers) {
-                groupUsers = [];
-                groupUsers.push({ nickname: _oMission.groupUser.nickname + '（自己）', userid: _oMission.groupUser.userid });
-                _oMission.groupOthers.forEach(function(oOtherGrpUsr) {
-                    groupUsers.push({ nickname: oOtherGrpUsr.nickname, userid: oOtherGrpUsr.userid });
+            if (_oMission) {
+                if (_oMission.groupUser && _oMission.groupOthers) {
+                    groupUsers = [];
+                    groupUsers.push({ nickname: _oMission.groupUser.nickname + '（自己）', userid: _oMission.groupUser.userid });
+                    _oMission.groupOthers.forEach(function(oOtherGrpUsr) {
+                        groupUsers.push({ nickname: oOtherGrpUsr.nickname, userid: oOtherGrpUsr.userid });
+                    });
+                    $scope.groupUsers = groupUsers;
+                    _oCriteria.groupUser = groupUsers[0];
+                }
+                http2.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + missionId + '&type=mission&title=' + _oMission.title, {
+                    search: location.search.replace('?', ''),
+                    referer: document.referrer
                 });
-                $scope.groupUsers = groupUsers;
-                _oCriteria.groupUser = groupUsers[0];
             }
         });
         getUserTrack();

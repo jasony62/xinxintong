@@ -109,6 +109,12 @@ class TMS_CONTROLLER {
 		return call_user_func_array(array('TMS_APP', "model"), $args);
 	}
 	/**
+	 *
+	 */
+	public function escape($data) {
+		return TMS_MODEL::escape($data);
+	}
+	/**
 	 * 获得URL对应的view
 	 *
 	 * 查找规则：

@@ -96,18 +96,18 @@ class base extends \pl\fe\base {
 		}
 
 		/*检查此素材是否在项目中*/
-		if($matterType !== 'mission' && !empty($oMatter->mission_id)){
+		if ($matterType !== 'mission' && !empty($oMatter->mission_id)) {
 			$mission_id = $oMatter->mission_id;
-		}else if ($matterType === 'mission') {
+		} else if ($matterType === 'mission') {
 			$mission_id = $matterId;
 		}
 		if (isset($mission_id)) {
 			$oMissionUser = $this->model('matter\mission\acl')->byCoworker($mission_id, $oUser->id, ['fields' => 'id']);
-			if($oMissionUser){
+			if ($oMissionUser) {
 				return [true];
 			}
 		}
-		
+
 		return [false, '访问控制未通过'];
 	}
 }

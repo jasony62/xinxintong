@@ -368,10 +368,10 @@ class main extends \site\fe\matter\base {
 				}
 				if ($bRedirect) {
 					/*页面跳转*/
-					$this->gotoMember($oMatter->siteid, $aMemberSchemas, $oUser->uid);
+					$this->gotoMember($oMatter, $aMemberSchemas);
 				} else {
 					/*返回地址*/
-					$this->gotoMember($oMatter->siteid, $aMemberSchemas, $oUser->uid, false);
+					$this->gotoMember($oMatter, $aMemberSchemas, false);
 				}
 				break;
 			case '$mpfollow':

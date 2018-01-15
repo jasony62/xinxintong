@@ -316,13 +316,15 @@ class main extends \pl\fe\base {
 	 * 获得团队绑定的第三方公众号
 	 */
 	public function snsList_action($site) {
-		$sns = array();
+		$site = $this->escape($site);
+		$sns = [];
 
 		$modelWx = $this->model('sns\wx');
 		$wxOptions = ['fields' => 'title,joined,can_qrcode '];
 		if (($wx = $modelWx->bySite($site, $wxOptions)) && $wx->joined === 'Y') {
 			$sns['wx'] = $wx;
 		} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
+			$wx->platform = 'Y';
 			$sns['wx'] = $wx;
 		}
 

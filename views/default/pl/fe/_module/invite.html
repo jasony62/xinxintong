@@ -1,7 +1,12 @@
 <div class='col-md-12' ng-if="!invite">
-    <button class='btn btn-default' ng-click="makeInvite()">开通邀请方式</button>
+    <div class='form-group'>
+        <button class='btn btn-default' ng-click="makeInvite()">开启邀请方式</button>
+    </div>
+    <div class='help-block'>开启邀请模式后，用户需要通过发放的邀请码才能参与活动。</div>
+    <div class='help-block'>通过邀请参与活动的用户也可以生成自己的邀请链接和邀请码，邀请其他用户参与活动。</div>
+    <div class='help-block'>发出邀请的用户可以查看每一个邀请码的使用情况。</div>
 </div>
-<div class='col-md-12'>
+<div class='col-md-12' ng-if="invite">
     <div class='form-group'>
         <span>邀请成功：<span>直接{{invite.invitee_count}}</span>，<span>间接{{invite.relay_invitee_count}}</span></span>
     </div>
@@ -13,11 +18,16 @@
                 <div class='panel-body'>
                     <div class='col-md-8 col-md-offset-2'>
                         <div class='form-group'>
-                            邀请链接：<span ng-bind="invite.entryUrl"></span>
+                            <label>邀请链接</label>
+                            <div ng-bind="invite.entryUrl"></div>
                         </div>
                         <div class='form-group'>
                             <textarea class='form-control' ng-model="invite.message"></textarea>
                             <button class='btn btn-default' ng-click="update('message')">保存邀请留言</button>
+                        </div>
+                        <div class='checkbox'>
+                            <label>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="invite.can_relay" ng-change="update('can_relay')">支持间接邀请</label>
                         </div>
                         <hr>
                         <button ng-if="invite.state==='1'" class='btn btn-default' ng-click="closeInvite()">关闭仅能通过邀请链接访问的显示</button>

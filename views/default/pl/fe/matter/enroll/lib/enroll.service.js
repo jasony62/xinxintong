@@ -1004,7 +1004,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }, options);
             };
             _ins.export = function() {
-                var url, postUrl, params = {
+                var url, params = {
                     criteria: _ins._oCriteria
                 };
 

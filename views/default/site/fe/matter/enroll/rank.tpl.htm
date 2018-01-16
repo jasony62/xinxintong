@@ -102,7 +102,7 @@
                                 <span>{{u.nickname}}</span>
                                 <span ng-if="app.group_app_id">-{{u.group.round_title}}</span>
                             </div>
-                            <div class='col-md-2 col-xs-1'><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin||u.score}}</span></div>
+                            <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{u[appState.criteria.orderby+'_num']||u.user_total_coin}}</span><span ng-if="appState.criteria.orderby==='score'">{{u.score|number:2}}</span></div>
                         </li>
                     </ul>
                     <ul ng-switch-when="group">
@@ -119,7 +119,7 @@
                             <div class="col-md-9 col-xs-8 text-left">
                                 <span>{{g.title}}</span>
                             </div>
-                            <div class='col-md-2 col-xs-1'><span>{{g.num}}</span></div>
+                            <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{g.num}}</span><span ng-if="appState.criteria.orderby==='score'">{{g.num|number:2}}</span></div>
                         </li>
                     </ul>
                     <ul ng-switch-when="data">

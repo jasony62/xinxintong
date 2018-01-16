@@ -7,6 +7,20 @@ class user_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
+	public function byId($id, $aOptions = []) {
+		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
+		$q = [
+			$fields,
+			'xxt_plan_user',
+			['id' => $id],
+		];
+		$oAppUsr = $this->query_obj_ss($q);
+
+		return $oAppUsr;
+	}
+	/**
+	 *
+	 */
 	public function byUser($oApp, $oUser, $aOptions = []) {
 		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
 		$q = [

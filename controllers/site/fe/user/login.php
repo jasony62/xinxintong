@@ -26,7 +26,7 @@ class login extends \site\fe\base {
 		}
 
 		$codeSession = $_SESSION['_login_auth_code'];
-		if (empty($codeSession) ||  $codeSession !== $data->pin) {
+		if (empty($codeSession) || strcasecmp($codeSession, $data->pin)) {
 			$_SESSION['_login_auth_code'] = '';
 			return new \ResponseError("验证码错误请重新输入");
 		}
@@ -81,11 +81,11 @@ class login extends \site\fe\base {
 		return new \ResponseData($cookieUser);
 	}
 	/*
-	* 获取验证码
-	* $codelen  验证码的个数
-	* $width  验证码的宽度
-	* $height  验证码的高度
-	* $fontsize  验证码的字体大小
+		* 获取验证码
+		* $codelen  验证码的个数
+		* $width  验证码的宽度
+		* $height  验证码的高度
+		* $fontsize  验证码的字体大小
 	*/
 	public function getCaptcha_action($codelen = 4, $width = 130, $height = 50, $fontsize = 20) {
 		require_once TMS_APP_DIR . '/lib/validatecode.php';

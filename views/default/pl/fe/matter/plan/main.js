@@ -67,8 +67,16 @@ define(['frame'], function(ngApp) {
         var _oApp, _oEntryRule;
         $scope.changeUserScope = function(scope) {
             srvPlanApp.changeUserScope(scope, $scope.sns);
+            if (scope === 'member' && _oEntryRule.scope.member === 'Y') {
+                if (!_oEntryRule.member || Object.keys(_oEntryRule.member).length === 0) {
+                    $scope.chooseMschema();
+                }
+            } else if (scope === 'group' && _oEntryRule.scope.group === 'Y') {
+                if (!_oEntryRule.group) {
+                    $scope.chooseGroupApp();
+                }
+            }
         };
-
         $scope.chooseGroupApp = function() {
             chooseGroupApp().then(function(result) {
                 if (setGroupEntry(result)) {
@@ -88,15 +96,18 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
-        $scope.editMschema = function(oMschema) {
-            if (oMschema.matter_id) {
-                if (oMschema.matter_type === 'mission') {
-                    location.href = '/rest/pl/fe/matter/mission/mschema?id=' + oMschema.matter_id + '&site=' + $scope.app.siteid + '#' + oMschema.id;
+        $scope.editMschema = function(mschemaId) {
+            var oMschema;
+            if (oMschema = $scope.mschemasById[mschemaId]) {
+                if (oMschema.matter_id) {
+                    if (oMschema.matter_type === 'mission') {
+                        location.href = '/rest/pl/fe/matter/mission/mschema?id=' + oMschema.matter_id + '&site=' + $scope.app.siteid + '#' + oMschema.id;
+                    } else {
+                        location.href = '/rest/pl/fe/site/mschema?site=' + $scope.app.siteid + '#' + oMschema.id;
+                    }
                 } else {
-                    location.href = '/rest/pl/fe/site/mschema?site=' + $scope.app.siteid + '#' + oMschema.id;
+                    location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '#' + oMschema.id;
                 }
-            } else {
-                location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '#' + oMschema.id;
             }
         };
         $scope.removeMschema = function(mschemaId) {

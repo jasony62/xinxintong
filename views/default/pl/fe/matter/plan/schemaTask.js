@@ -3,8 +3,34 @@ define(['frame'], function(ngApp) {
     /**
      * 模板任务
      */
-    ngApp.provider.controller('ctrlSchemaTask', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'http2', 'CstApp', 'srvPlanApp', function($scope, $timeout, $anchorScroll, $uibModal, http2, CstApp, srvPlanApp) {
+    ngApp.provider.controller('ctrlSchemaTask', ['$scope', '$q', '$timeout', '$anchorScroll', '$uibModal', 'http2', 'CstApp', 'srvPlanApp', function($scope, $q, $timeout, $anchorScroll, $uibModal, http2, CstApp, srvPlanApp) {
+        function mockTasks(tasks) {
+            $scope.mocks = null;
+            var oFirstTask;
+            if (tasks && tasks.length) {
+                oFirstTask = tasks[0];
+                if (oFirstTask.born_mode === 'A' && oFirstTask.born_offset > 0) {
+                    http2.get('/rest/pl/fe/matter/plan/schema/task/mockList?plan=' + _oApp.id, function(rsp) {
+                        var tasksBySeq;
+                        if (rsp.data && rsp.data.length) {
+                            tasksBySeq = {};
+                            tasks.forEach(function(oTask) {
+                                tasksBySeq[oTask.task_seq] = oTask;
+                            });
+                            rsp.data.forEach(function(oMock) {
+                                if (tasksBySeq[oMock.task_seq]) {
+                                    oMock.task = tasksBySeq[oMock.task_seq];
+                                }
+                            });
+                            $scope.mocks = rsp.data;
+                        }
+                    });
+                }
+            }
+        }
+
         var _oApp;
+        $scope.onPreview = false;
         $scope.CstApp = CstApp;
         $scope.addTask = function() {
             http2.post('/rest/pl/fe/matter/plan/schema/task/add?plan=' + _oApp.id, {}, function(rsp) {
@@ -30,6 +56,7 @@ define(['frame'], function(ngApp) {
                     $scope2.CstApp = CstApp;
                     $scope2.app = _oApp;
                     $scope2.batch = _oBatch = {
+                        mode: 'count',
                         count: 1,
                         naming: { prefix: '任务', separator: '-' },
                         proto: {
@@ -55,9 +82,13 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.listTask = function() {
+            var deferred;
+            deferred = $q.defer();
             http2.get('/rest/pl/fe/matter/plan/schema/task/list?plan=' + _oApp.id, function(rsp) {
                 $scope.tasks = rsp.data.tasks;
+                deferred.resolve($scope.tasks);
             });
+            return deferred.promise;
         };
         $scope.editTask = function(oTask) {
             $uibModal.open({
@@ -142,6 +173,14 @@ define(['frame'], function(ngApp) {
         };
         $scope.toggleTask = function(oTask) {
             $scope.activeTask = oTask;
+        };
+        $scope.togglePreview = function(open) {
+            if (open) {
+                $scope.onPreview = true;
+                mockTasks($scope.tasks);
+            } else {
+                $scope.onPreview = false;
+            }
         };
         srvPlanApp.get().then(function(oApp) {
             _oApp = oApp;

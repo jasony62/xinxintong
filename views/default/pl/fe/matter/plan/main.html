@@ -1,4 +1,4 @@
-<div class='col-md-6 col-md-offset-3'>
+<div id='main-view' class='col-md-6 col-md-offset-3'>
     <div class='panel panel-default'>
         <div class='panel-body'>
             <div class='form-group'>
@@ -52,99 +52,29 @@
                     <option value=''>全部</option>
                 </select>
             </div>
-            <hr>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.jump_delayed" ng-change="update('jump_delayed')">允许跳过未按计划执行的任务</label>
-            </div>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.auto_verify" ng-change="update('auto_verify')">提交数据不用审核</label>
-            </div>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_patch" ng-change="update('can_patch')">允许补填延期任务</label>
-            </div>
         </div>
     </div>
     <div class='panel panel-default' ng-controller="ctrlAccess ">
         <div class='panel-body'>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label><span ng-if="entryRule.scope.member==='Y'"><span class='badge' ng-repeat="(msid,entry) in entryRule.member"><a href title='进入查看' ng-click="editMschema(msid)">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a> <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid)"></a></span> <a href ng-click="chooseMschema()">添加</a></span>
             </div>
-            <div class='checkbox' ng-if="snsCount>0">
+            <div class='checkbox' ng-if="snsCount===1">
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号，以便获取用户的昵称和头像，并接收活动通知</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号【{{sns[snsNames[0]].title}}】，以便获取用户的昵称和头像，发送活动通知</label>
+            </div>
+            <div class='checkbox' ng-if="snsCount>1">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号，以便获取用户的昵称和头像，发送活动通知</label>
+                <span ng-if="entryRule.scope.sns==='Y'">
+                    <label class='checkbox-inline' ng-repeat="snsName in snsNames">
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="entryRule.sns[snsName].entry" ng-change="update('entryRule')"> {{sns[snsName].title}}</label>
+                </span>
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要先进行分组</label>
-            </div>
-            <div ng-if="entryRule.scope.member==='Y'">
-                <hr>
-                <table class='table table-bordered'>
-                    <thead>
-                        <tr>
-                            <th>通讯录</th>
-                            <th style='width:69px'>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="(msid,erm) in entryRule.member">
-                            <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
-                            <td>
-                                <button class='btn btn-default btn-xs' ng-click="editMschema(mschemasById[msid])"><span class='glyphicon glyphicon-edit'></span></button>
-                                <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
-            </div>
-            <div ng-if="entryRule.scope.sns==='Y'">
-                <hr>
-                <table class='table table-bordered'>
-                    <tbody>
-                        <tr>
-                            <th>公众号</th>
-                            <th style='width:69px'>操作</th>
-                        </tr>
-                        <tr ng-if="sns.wx">
-                            <td>微信公众号【{{sns.wx.title}}】</td>
-                            <td>
-                                <label class='checkbox-inline'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entryRule')" ng-model='entryRule.sns.wx.entry'>生效</label>
-                            </td>
-                        </tr>
-                        <tr ng-if="sns.qy">
-                            <td>微信企业号【{{sns.qy.title}}】</td>
-                            <td>
-                                <label class='checkbox-inline'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entryRule')" ng-model='entryRule.sns.qy.entry'>生效</label>
-                            </td>
-                        </tr>
-                        <tr ng-if="sns.yx">
-                            <td>易信公众号【{{sns.yx.title}}】</td>
-                            <td>
-                                <label class='checkbox-inline'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entryRule')" ng-model='entryRule.sns.yx.entry'>生效</label>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div ng-if="entryRule.scope.group==='Y'">
-                <hr>
-                <div class="input-group">
-                    <input class='form-control' title="{{entryRule.group.title}} - {{entryRule.group.round.title}}" value="{{entryRule.group.title}} - {{entryRule.group.round.title}}" readonly>
-                    <div class="input-group-btn">
-                        <button class="btn btn-default" ng-click="removeGroupApp()">
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                        <button class='btn btn-default' ng-click="chooseGroupApp()">选择</button>
-                    </div>
-                </div>
+                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要在<span ng-if="entryRule.scope.group==='Y'">【{{entryRule.group.title}} - {{entryRule.group.round.title}}】</span>分组活动中分组</label> <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a>
             </div>
         </div>
     </div>

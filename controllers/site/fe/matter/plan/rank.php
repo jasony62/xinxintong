@@ -13,7 +13,7 @@ class rank extends base {
 		$modelApp = $this->model('matter\plan');
 		$app = $modelApp->escape($app);
 
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state,entry_rule']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,entry_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

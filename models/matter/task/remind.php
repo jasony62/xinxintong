@@ -12,33 +12,33 @@ class remind_model extends \TMS_MODEL {
 	public function exec($oMatter, $arguments = null) {
 		if ($oMatter->type === 'mission') {
 			$modelMission = $this->model('matter\mission');
-			$oMission = $modelMission->byId($oMatter->id);
-			if (false === $oMission) {
+			$oMatter = $modelMission->byId($oMatter->id);
+			if (false === $oMatter) {
 				return [false, '指定的项目不存在'];
 			}
-			if (isset($oMission->state) && $oMission->state === '0') {
+			if (isset($oMatter->state) && $oMatter->state === '0') {
 				return [false, '指定的项目已经不可用'];
 			}
 
 			/* 获得活动的进入链接 */
-			$noticeURL = $oMission->entryUrl;
+			$noticeURL = $oMatter->entryUrl;
 
 			/* 获得用户 */
-			if (empty($oMission->user_app_id)) {
-				$receivers = $this->model('matter\mission\user')->enrolleeByMission($oMission, ['fields' => 'distinct userid']);
+			if (empty($oMatter->user_app_id)) {
+				$receivers = $this->model('matter\mission\user')->enrolleeByMission($oMatter, ['fields' => 'distinct userid']);
 			} else {
-				switch ($oMission->user_app_type) {
+				switch ($oMatter->user_app_type) {
 				case 'group':
 					$q = [
 						'distinct userid,enroll_key assoc_with',
 						'xxt_group_player',
-						['state' => 1, 'aid' => $oMission->user_app_id],
+						['state' => 1, 'aid' => $oMatter->user_app_id],
 					];
 					$receivers = $modelMission->query_objs_ss($q);
 					break;
 				case 'enroll':
 					$matterEnroll = new \stdClass;
-					$matterEnroll->id = $oMission->user_app_id;
+					$matterEnroll->id = $oMatter->user_app_id;
 					$modelEnlUsr = $this->model('matter\enroll\user');
 					$options = [
 						'rid' => 'ALL',
@@ -51,11 +51,11 @@ class remind_model extends \TMS_MODEL {
 					break;
 				case 'signin':
 					$matterSignin = new \stdClass;
-					$matterSignin->id = $oMission->user_app_id;
+					$matterSignin->id = $oMatter->user_app_id;
 					$receivers = $this->model('matter\signin\record')->enrolleeByApp($matterSignin, ['fields' => 'distinct userid,enroll_key assoc_with']);
 					break;
 				case 'mschema':
-					$receivers = $this->model('site\user\member')->byMschema($oMission->user_app_id, ['fields' => 'userid']);
+					$receivers = $this->model('site\user\member')->byMschema($oMatter->user_app_id, ['fields' => 'userid']);
 					break;
 				}
 			}

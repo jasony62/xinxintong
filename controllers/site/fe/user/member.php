@@ -24,76 +24,84 @@ class member extends \site\fe\base {
 	 */
 	public function index_action($schema) {
 		$schema = $this->escape($schema);
-		$oSchema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,title,valid,is_wx_fan,is_yx_fan,is_qy_fan']);
-		if ($oSchema === false || $oSchema->valid === 'N') {
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'id,siteid,title,valid,is_wx_fan,is_yx_fan,is_qy_fan']);
+		if ($oMschema === false || $oMschema->valid === 'N') {
 			return new \ObjectNotFoundError();
 		}
 
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
-			$this->requireSnsOAuth($oSchema->siteid);
+			$this->requireSnsOAuth($oMschema->siteid);
 		}
 
-		if ($oSchema->is_wx_fan === 'Y' || $oSchema->is_qy_fan === 'Y' || $oSchema->is_yx_fan === 'Y') {
+		if ($oMschema->is_wx_fan === 'Y' || $oMschema->is_qy_fan === 'Y' || $oMschema->is_yx_fan === 'Y') {
 			$cookieUser = $this->who;
 			$modelSiteUser = $this->model('site\user\account');
 			$siteUser = $modelSiteUser->byId($cookieUser->uid);
 
 			$oMschema2 = new \stdClass;
 			$oMschema2->type = 'mschema';
-			$oMschema2->id = $schema;
+			$oMschema2->id = $oMschema->id;
 
 			/* 保存页面来源 */
-			if (empty($this->myGetCookie("_{$oSchema->siteid}_mauth_t"))) {
+			if (empty($this->myGetCookie("_{$oMschema->siteid}_mauth_t"))) {
 				if (isset($_SERVER['HTTP_REFERER'])) {
 					$referer = $_SERVER['HTTP_REFERER'];
 					if (!empty($referer) && !in_array($referer, array('/'))) {
 						if (false === strpos($referer, '/fe/user/member')) {
-							$referer = $modelSiteUser->encrypt($referer, 'ENCODE', $oSchema->siteid);
-							$this->mySetCookie("_{$oSchema->siteid}_mauth_t", $referer, time() + 600);
+							$referer = $modelSiteUser->encrypt($referer, 'ENCODE', $oMschema->siteid);
+							$this->mySetCookie("_{$oMschema->siteid}_mauth_t", $referer, time() + 600);
 						}
 					}
 				}
 			}
 
-			if ($oSchema->is_wx_fan === 'Y') {
-				if (empty($siteUser->wx_openid)) {
-					$this->snsFollow($oSchema->siteid, 'wx', $oMschema2);
-				} else {
+			if ($oMschema->is_wx_fan === 'Y') {
+				$bFollowed = false;
+				if (!empty($siteUser->wx_openid)) {
 					$modelWx = $this->model('sns\wx');
-					if (($wxConfig = $modelWx->bySite($oSchema->siteid)) && $wxConfig->joined === 'Y') {
-						$snsSiteId = $oSchema->siteid;
+					if (($wxConfig = $modelWx->bySite($oMschema->siteid)) && $wxConfig->joined === 'Y') {
+						$snsSiteId = $oMschema->siteid;
 					} else {
 						$snsSiteId = 'platform';
 					}
 					$modelSnsUser = $this->model('sns\wx\fan');
-					if (false === $modelSnsUser->isFollow($snsSiteId, $siteUser->wx_openid)) {
-						$this->snsFollow($snsSiteId, 'wx', $oMschema2);
+					if ($modelSnsUser->isFollow($snsSiteId, $siteUser->wx_openid)) {
+						$bFollowed = true;
+					}
+				}
+				if (false === $bFollowed) {
+					$rst = $this->model('sns\wx\call\qrcode')->createOneOff($oMschema->siteid, $oMschema2);
+					if ($rst[0] === false) {
+						$this->snsFollow($oMschema->siteid, 'wx', $oApp);
+					} else {
+						$sceneId = $rst[1]->scene_id;
+						$this->snsFollow($oMschema->siteid, 'wx', false, $sceneId);
 					}
 				}
 			}
-			if ($oSchema->is_qy_fan === 'Y') {
+			if ($oMschema->is_qy_fan === 'Y') {
 				if (empty($siteUser->qy_openid)) {
-					$this->snsFollow($oSchema->siteid, 'qy');
+					$this->snsFollow($oMschema->siteid, 'qy');
 				} else {
 					$modelSnsUser = $this->model('sns\qy\fan');
-					if (false === $modelSnsUser->isFollow($oSchema->siteid, $siteUser->qy_openid)) {
-						$this->snsFollow($oSchema->siteid, 'qy', $oMschema2);
+					if (false === $modelSnsUser->isFollow($oMschema->siteid, $siteUser->qy_openid)) {
+						$this->snsFollow($oMschema->siteid, 'qy', $oMschema2);
 					}
 				}
 			}
-			if ($oSchema->is_yx_fan === 'Y') {
+			if ($oMschema->is_yx_fan === 'Y') {
 				if (empty($siteUser->yx_openid)) {
-					$this->snsFollow($oSchema->siteid, 'yx');
+					$this->snsFollow($oMschema->siteid, 'yx');
 				} else {
 					$modelSnsUser = $this->model('sns\yx\fan');
-					if (false === $modelSnsUser->isFollow($oSchema->siteid, $siteUser->yx_openid)) {
-						$this->snsFollow($oSchema->siteid, 'yx', $oMschema2);
+					if (false === $modelSnsUser->isFollow($oMschema->siteid, $siteUser->yx_openid)) {
+						$this->snsFollow($oMschema->siteid, 'yx', $oMschema2);
 					}
 				}
 			}
 		}
-		\TPL::assign('title', $oSchema->title);
+		\TPL::assign('title', $oMschema->title);
 		\TPL::output('/site/fe/user/member');
 		exit;
 	}
@@ -103,17 +111,17 @@ class member extends \site\fe\base {
 	public function schemaGet_action($site, $schema, $matter = null) {
 		$params = array();
 
-		$oSchema = $this->model('site\user\memberschema')->byId($schema);
-		if ($oSchema === false) {
+		$oMschema = $this->model('site\user\memberschema')->byId($schema);
+		if ($oMschema === false) {
 			return new \ResponseError('指定的自定义用户定义不存在');
 		}
-		$params['schema'] = $oSchema;
+		$params['schema'] = $oMschema;
 		/* 属性定义 */
 		$attrs = [
-			'mobile' => $oSchema->attr_mobile,
-			'email' => $oSchema->attr_email,
-			'name' => $oSchema->attr_name,
-			'extattrs' => $oSchema->extattr,
+			'mobile' => $oMschema->attr_mobile,
+			'email' => $oMschema->attr_email,
+			'name' => $oMschema->attr_name,
+			'extattrs' => $oMschema->extattr,
 		];
 		$params['attrs'] = $attrs;
 
@@ -160,8 +168,8 @@ class member extends \site\fe\base {
 	 */
 	public function get_action($schema) {
 		$schema = $this->escape($schema);
-		$oSchema = $this->model('site\user\memberschema')->byId($schema);
-		if ($oSchema === false) {
+		$oMschema = $this->model('site\user\memberschema')->byId($schema);
+		if ($oMschema === false) {
 			return new \ResponseError('指定的自定义用户定义不存在');
 		}
 		/* 已填写的用户信息 */

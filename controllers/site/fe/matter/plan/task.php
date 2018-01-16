@@ -30,7 +30,7 @@ class task extends base {
 	public function listByUser_action($app, $withMock = 'Y') {
 		$modelApp = $this->model('matter\plan');
 		$app = $modelApp->escape($app);
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,notweekend']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -48,18 +48,18 @@ class task extends base {
 				$oPrevTask = null;
 				foreach ($tasks as $oTask) {
 					if ($oPrevTask && ($oTask->task_seq - $oPrevTask->task_seq > 1)) {
-						$mocks = $modelSchTsk->bornMock($oApp, $oPrevTask->task_seq + 1, $oTask->task_seq - 1, $oPrevTask->born_at);
+						$mocks = $modelSchTsk->bornMock($oApp, $oUser, $oPrevTask->task_seq + 1, $oTask->task_seq - 1, $oPrevTask->born_at);
 						$oResult->mocks = array_merge($oResult->mocks, $mocks);
 					}
 					$oPrevTask = $oTask;
 				}
 				if ($oPrevTask->task_seq < $lastSeq) {
-					$mocks = $modelSchTsk->bornMock($oApp, $oPrevTask->task_seq + 1, $lastSeq, $oPrevTask->born_at);
+					$mocks = $modelSchTsk->bornMock($oApp, $oUser, $oPrevTask->task_seq + 1, $lastSeq, $oPrevTask->born_at);
 					$oResult->mocks = array_merge($oResult->mocks, $mocks);
 				}
 			} else {
 				$startAt = $modelUsrTsk->getStartAt($oApp, $oUser);
-				$oResult->mocks = $modelSchTsk->bornMock($oApp, 1, $lastSeq, $startAt);
+				$oResult->mocks = $modelSchTsk->bornMock($oApp, $oUser, 1, $lastSeq, $startAt);
 			}
 		}
 

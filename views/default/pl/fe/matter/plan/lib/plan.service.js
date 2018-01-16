@@ -1,4 +1,5 @@
 define(['require'], function(require) {
+    'use strict';
     var ngMod;
     ngMod = angular.module('service.plan', ['ui.xxt']);
     ngMod.provider('srvPlanApp', function() {
@@ -17,8 +18,11 @@ define(['require'], function(require) {
                     _getAppDeferred = $q.defer();
                     url = '/rest/pl/fe/matter/plan/get?site=' + _siteId + '&id=' + _appId;
                     http2.get(url, function(rsp) {
-                        _oApp = app = rsp.data;
-                        _getAppDeferred.resolve(app);
+                        _oApp = rsp.data;
+                        if (!_oApp.entryRule) {
+                            _oApp.entryRule = {};
+                        }
+                        _getAppDeferred.resolve(_oApp);
                     });
 
                     return _getAppDeferred.promise;

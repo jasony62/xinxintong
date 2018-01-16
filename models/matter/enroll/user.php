@@ -45,33 +45,40 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 删除1条记录
 	 */
-	public function removeRecord($oRecord) {
-		if (empty($oRecord->userid) || !isset($oRecord->rid)) {
+	public function removeRecord($oApp, $oRecord) {
+		if (empty($oApp->id) || empty($oRecord->userid) || !isset($oRecord->rid)) {
 			return [false, '参数不完整'];
 		}
 
-		$updateSql = 'update xxt_enroll_user set enroll_num=enroll_num-1 where enroll_num>0 and userid="' . $oRecord->userid . '"';
-		$this->update($updateSql . ' and rid="' . $oRecord->rid . '"');
-		$rst = $this->update($updateSql . ' and rid="ALL"');
+		$rst = $this->update(
+			'xxt_enroll_user',
+			['enroll_num' => (object) ['op' => '-=', 'pat' => 1]],
+			['aid' => $oApp->id, 'userid' => $oRecord->userid, 'rid' => [$oRecord->rid, 'ALL'], 'enroll_num' => (object) ['op' => '>', 'pat' => 0]]
+		);
 
 		return [true, $rst];
 	}
 	/**
 	 * 恢复1条记录
 	 */
-	public function restoreRecord($oRecord) {
-		if (empty($oRecord->userid) || !isset($oRecord->rid)) {
+	public function restoreRecord($oApp, $oRecord) {
+		if (empty($oApp->id) || empty($oRecord->userid) || !isset($oRecord->rid)) {
 			return [false, '参数不完整'];
 		}
 
-		$updateSql = 'update xxt_enroll_user set enroll_num=enroll_num+1 where userid="' . $oRecord->userid . '"';
-		$this->update($updateSql . ' and rid="' . $oRecord->rid . '"');
-		$rst = $this->update($updateSql . ' and rid="ALL"');
+		$rst = $this->update(
+			'xxt_enroll_user',
+			[
+				'enroll_num' => (object) ['op' => '+=', 'pat' => 1],
+				'state' => 1,
+			],
+			['aid' => $oApp->id, 'userid' => $oRecord->userid, 'rid' => [$oRecord->rid, 'ALL']]
+		);
 
 		return [true, $rst];
 	}
 	/**
-	 * 活动中提交过数据的用户
+	 * 参与活动的用户
 	 */
 	public function enrolleeByApp($oApp, $page = '', $size = '', $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
@@ -81,7 +88,7 @@ class user_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			"xxt_enroll_user",
-			"aid='{$oApp->id}'",
+			"aid='{$oApp->id}' and state=1",
 		];
 		if (!empty($aOptions['onlyEnrolled']) && $aOptions['onlyEnrolled'] === 'Y') {
 			$q[2] .= " and enroll_num>0";
@@ -308,7 +315,7 @@ class user_model extends \TMS_MODEL {
 				} else {
 					$aAbsentUsr->absent_cause = new \stdClass;
 					$aAbsentUsr->absent_cause->rid = $rid;
-					$aAbsentUsr->absent_cause->cause  = '';
+					$aAbsentUsr->absent_cause->cause = '';
 				}
 				$aAbsentUsrs2[] = $aAbsentUsr;
 			}

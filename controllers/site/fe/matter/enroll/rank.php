@@ -282,7 +282,7 @@ class rank extends base {
 		$q = [
 			'r.id,r.userid,r.nickname,r.content,r.enroll_key,r.schema_id,r.data_id,r.like_num,r.agreed,a.headimgurl',
 			"xxt_enroll_record_remark r left join xxt_site_account a on r.userid = a.uid and a.siteid = '{$oApp->siteid}'",
-			"r.aid='{$oApp->id}' and and r.state=1 and r.like_num>0",
+			"r.aid='{$oApp->id}' and r.state=1 and r.like_num>0",
 		];
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and r.agreed='Y'";

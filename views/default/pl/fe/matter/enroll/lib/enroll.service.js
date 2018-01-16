@@ -1010,6 +1010,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                 url = '/rest/pl/fe/matter/enroll/record/export';
                 url += '?site=' + _siteId + '&app=' + _appId + '&rid=' + params.criteria.record.rid;
+
                 window.open(url);
             };
             _ins.exportImage = function() {

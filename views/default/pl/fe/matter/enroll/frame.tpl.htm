@@ -105,15 +105,17 @@
                             <span class="icon-bar"></span>
                         </button>
                     </div>
-                    <nav class='nav navbar-nav tms-breadcrumb' uib-collapse="isNavCollapsed">
-                        <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>工作台</a></li>
-                        <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
-                        <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
-                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
-                        <li>
-                            <a href='' ng-click="switchTo('preview')">{{app.title}}</a>
-                        </li>
-                    </nav>
+                    <div uib-collapse="isNavCollapsed">
+                        <nav class='nav navbar-nav tms-breadcrumb'>
+                            <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>工作台</a></li>
+                            <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
+                            <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
+                            <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                            <li>
+                                <a href='' ng-click="switchTo('preview')">{{app.title}}</a>
+                            </li>
+                        </nav>
+                    </div>
                 </div>
             </nav>
             <div class='container-fluid'>

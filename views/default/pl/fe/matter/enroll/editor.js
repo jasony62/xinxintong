@@ -91,7 +91,7 @@ define(['frame'], function(ngApp) {
             };
             /*多项填空题，如果值为空则删掉*/
             for(var k in oRecord.data) {
-                if(oApp._schemasById[k].type=='multitext') {
+                if(k!=='member' && oApp._schemasById[k] && oApp._schemasById[k].type=='multitext') {
                     angular.forEach(oRecord.data[k], function(data, index) {
                         if(data.value=='') {
                             oRecord.data[k].splice(index,1);

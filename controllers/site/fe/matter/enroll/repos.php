@@ -14,38 +14,41 @@ class repos extends base {
 
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,data_schemas', 'cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 		// 登记数据过滤条件
-		$criteria = $this->getPostJson();
+		$oCriteria = $this->getPostJson();
 
 		// 登记记录过滤条件
-		$options = new \stdClass;
-		$options->page = $page;
-		$options->size = $size;
+		$oOptions = new \stdClass;
+		$oOptions->page = $page;
+		$oOptions->size = $size;
 
-		!empty($criteria->keyword) && $options->keyword = $criteria->keyword;
-		!empty($criteria->rid) && $options->rid = $criteria->rid;
-		!empty($criteria->agreed) && $options->agreed = $criteria->agreed;
-		!empty($criteria->owner) && $options->owner = $criteria->owner;
-		!empty($criteria->userGroup) && $options->userGroup = $criteria->userGroup;
-		!empty($criteria->tag) && $options->tag = $criteria->tag;
-		if (empty($criteria->schema)) {
-			$options->schemas = [];
+		!empty($oCriteria->keyword) && $oOptions->keyword = $oCriteria->keyword;
+		!empty($oCriteria->rid) && $oOptions->rid = $oCriteria->rid;
+		!empty($oCriteria->agreed) && $oOptions->agreed = $oCriteria->agreed;
+		!empty($oCriteria->owner) && $oOptions->owner = $oCriteria->owner;
+		!empty($oCriteria->userGroup) && $oOptions->userGroup = $oCriteria->userGroup;
+		!empty($oCriteria->tag) && $oOptions->tag = $oCriteria->tag;
+		if (empty($oCriteria->schema)) {
+			$oOptions->schemas = [];
 			foreach ($oApp->dataSchemas as $dataSchema) {
 				if (isset($dataSchema->shareable) && $dataSchema->shareable === 'Y') {
-					$options->schemas[] = $dataSchema->id;
+					$oOptions->schemas[] = $dataSchema->id;
 				}
 			}
-			if (empty($options->schemas)) {
+			if (empty($oOptions->schemas)) {
 				return new \ResponseData(['total' => 0]);
 			}
 		} else {
-			$options->schemas = [$criteria->schema];
+			$oOptions->schemas = [$oCriteria->schema];
 		}
 
 		// 查询结果
 		$mdoelData = $this->model('matter\enroll\data');
-		$result = $mdoelData->byApp($oApp, $oUser, $options);
+		$result = $mdoelData->byApp($oApp, $oUser, $oOptions);
 		if (count($result->records)) {
 			$modelRem = $this->model('matter\enroll\remark');
 			foreach ($result->records as &$oRec) {

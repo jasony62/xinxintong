@@ -249,6 +249,9 @@
                                     </p>
                                     <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='content text-left'>{{rec.supplement}}</span>
                                 </div>
+                                <div ng-switch-when="multitext">
+                                    <p ng-repeat="item in rec.value"><span ng-bind="item.value"></span></p>
+                                </div>
                                 <div ng-switch-when="date"><span class='content'></span>{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</div>
                                 <div ng-switch-default><span class='content'>{{rec.value}}</span></div>
                                 <div class='col-xs-12 text-right text-color visible-xs hidden' ng-click='showStr($event)'>展开&nbsp;&or;</div>

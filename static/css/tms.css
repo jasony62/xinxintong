@@ -57,6 +57,9 @@ body,pre,code{font-family:Arial,'Microsoft YaHei'}
 .modal.auto-height .modal-dialog .modal-content{height:100%}
 .modal.auto-height .modal-dialog .modal-content .modal-body{position:absolute;top:65px;bottom:65px;left:0;right:0;overflow:auto}
 .modal.auto-height .modal-dialog .modal-content .modal-footer{position:absolute;bottom:0;left:0;right:0;margin-top:0}
+@media screen and (max-width:768px){
+    .modal.auto-height .modal-dialog,.modal.auto-height .modal-dialog.modal-lg{width:100%;position:absolute;top:0;bottom:0;left:0;margin-left:0;}
+}
 
 /* media gallery*/
 .modal.media-gallery{display:none;}

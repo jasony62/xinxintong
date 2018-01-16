@@ -365,7 +365,7 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 返回指定活动，填写的数据
 	 */
-	public function byApp(&$oApp, $oUser, $options = null) {
+	public function byApp(&$oApp, $oUser, $oOptions = null) {
 		if ($oOptions && is_array($oOptions)) {
 			$oOptions = (object) $oOptions;
 		}

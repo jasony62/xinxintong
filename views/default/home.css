@@ -1,7 +1,13 @@
 .popover.bottom{margin-top:0;}
 .popover-content{padding:0;}
-.btn-group > .btn{padding-left:43px;}
+.btn-group>.btn{padding-left:43px;}
 .user-login a,.user-register a,.user-subscribe a{position:relative;display:block;padding:5px 22px 5px 45px;clear:both;font-weight:400;line-height:1.5;color:#333;white-space:nowrap;}
 .user-login a:hover,.user-register a:hover,.user-subscribe a:hover{color:#fff;text-decoration:none;background-color:#388dbf;}
 .user-login a:hover .xxt_team,.user-register a:hover .xxt_team,.dropdown-menu>li>a:hover .xxt_team,.user-subscribe a:hover .xxt_team{background-position:-40px -68px;}
 .user-login a:hover .xxt_person,.user-register a:hover .xxt_person,.dropdown-menu>li>a:hover .xxt_person,.user-subscribe a:hover .xxt_person{background-position:-43px -32px;}
+@media screen and (max-width:768px){
+	#navbar-collapse-1 .navbar-form a{float:none;padding-left:20px;}
+	#navbar-collapse-1 .navbar-form span.site_fe_home_icon{display:none;}
+	#navbar-collapse-1 .navbar-form .dropdown-menu{float:none;position:static;}
+	#navbar-collapse-1 .navbar-form .dropdown-menu a{padding-left:20px;}
+}

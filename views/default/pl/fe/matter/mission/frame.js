@@ -55,6 +55,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
     ngApp.controller('ctrlFrame', ['$scope', '$location', 'CstNaming', 'srvSite', 'srvMission', function($scope, $location, CstNaming, srvSite, srvMission) {
         $scope.subView = '';
         $scope.CstNaming = CstNaming;
+        $scope.isNavCollapsed = true;
         $scope.update = function(name) {
             var modifiedData = {};
             if (angular.isObject(name)) {

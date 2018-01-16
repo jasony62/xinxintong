@@ -1009,11 +1009,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 };
 
                 url = '/rest/pl/fe/matter/enroll/record/export';
-                url += '?site=' + _siteId + '&app=' + _appId;
-                url += '&filter=' + params.criteria;
-
-                postUrl = encodeURIComponent(url);
-                window.open(postUrl);
+                url += '?site=' + _siteId + '&app=' + _appId + '&rid=' + params.criteria.record.rid;
+                url += '&filter=' + JSON.stringify(params.criteria);
+                window.open(url);
             };
             _ins.exportImage = function() {
                 var url, params = {

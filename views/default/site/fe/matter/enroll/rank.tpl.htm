@@ -102,7 +102,7 @@
                                 <span>{{u.nickname}}</span>
                                 <span ng-if="app.group_app_id">-{{u.group.round_title}}</span>
                             </div>
-                            <div class='col-md-2 col-xs-1'><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin||u.score}}</span></div>
+                            <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{u[appState.criteria.orderby+'_num']||u.user_total_coin}}</span><span ng-if="appState.criteria.orderby==='score'">{{u.score|number:2}}</span></div>
                         </li>
                     </ul>
                     <ul ng-switch-when="group">
@@ -119,7 +119,7 @@
                             <div class="col-md-9 col-xs-8 text-left">
                                 <span>{{g.title}}</span>
                             </div>
-                            <div class='col-md-2 col-xs-1'><span>{{g.num}}</span></div>
+                            <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{g.num}}</span><span ng-if="appState.criteria.orderby==='score'">{{g.num|number:2}}</span></div>
                         </li>
                     </ul>
                     <ul ng-switch-when="data">
@@ -250,7 +250,12 @@
                                     <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='content text-left'>{{rec.supplement}}</span>
                                 </div>
                                 <div ng-switch-when="multitext">
-                                    <p ng-repeat="item in rec.value"><span ng-bind="item.value"></span></p>
+                                    <div ng-if="rec.multitext_seq=='0'">
+                                        <p ng-repeat="item in rec.value"><span ng-bind="item.value"></span></p>
+                                    </div>
+                                    <div ng-if="rec.multitext_seq!='0'">
+                                        <span ng-bind="rec.value"></span>
+                                    </div>
                                 </div>
                                 <div ng-switch-when="date"><span class='content'></span>{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</div>
                                 <div ng-switch-default><span class='content'>{{rec.value}}</span></div>

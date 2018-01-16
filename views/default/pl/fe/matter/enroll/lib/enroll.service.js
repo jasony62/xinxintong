@@ -1004,14 +1004,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }, options);
             };
             _ins.export = function() {
-                var url, postUrl, params = {
+                var url, params = {
                     criteria: _ins._oCriteria
                 };
 
                 url = '/rest/pl/fe/matter/enroll/record/export';
                 url += '?site=' + _siteId + '&app=' + _appId + '&rid=' + params.criteria.record.rid;
 
-                window.open(postUrl);
+                window.open(url);
             };
             _ins.exportImage = function() {
                 var url, params = {

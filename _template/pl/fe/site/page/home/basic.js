@@ -3,7 +3,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         siteId = ls.match(/site=([^&]*)/)[1],
         width = angular.element(window).width(),
         page;
-    $scope.cTotal = [];
+    $scope.cTotal = {};
     $scope.siteId = siteId;
     $scope.page = page = {
         at: 1,
@@ -42,10 +42,12 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             $scope.c_channels_matters = $scope.c_prev_channels;
             $scope.c_channels_matters.forEach(function(channel) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + '&' + page.j()).success(function(rsp) {
+
                     var chid = channel.channel_id,
                         data = [];
                     data.data = rsp.data.matters;
                     data.pageAt = $scope.page.at;
+                    data.total = rsp.data.total;
                     if (data.data.length > 0) {
                         data.data.forEach(function(matter, index1) {
                             if (matter.matter_cont_tag != '' && matter.matter_cont_tag != undefined) {
@@ -97,14 +99,13 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
     $scope.moreMatters = function(id) {
         $scope.cTotal[id].pageAt++;
         $scope.page.at = $scope.cTotal[id].pageAt;
-        $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + id + '&' + page.j()).success(function(rsp) {
-            var matterData = $scope.cTotal[id].data.matters;
+        $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + id + page.j()).success(function(rsp) {
+            var matterData = $scope.cTotal[id].data;
             rsp.data.matters.forEach(function(item) {
                 dealImgSrc(item);
                 matterData.push(item);
             });
             $scope.cTotal[id].data = matterData;
-            $scope.cTotal[id].total = rsp.data.length;
         });
     };
     $scope.favor = function(user, matter) {

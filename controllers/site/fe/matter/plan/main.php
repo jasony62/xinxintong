@@ -18,7 +18,7 @@ class main extends base {
 			return new \ObjectNotFoundError();
 		}
 		$modelSchTsk = $this->model('matter\plan\schema\task');
-		$tasks = $modelSchTsk->byApp($oApp->id, ['fields' => 'id,task_seq,title,jump_delayed,auto_verify,can_patch,as_placeholder']);
+		$tasks = $modelSchTsk->byApp($oApp->id, ['fields' => 'id,task_seq,title,jump_delayed,auto_verify,can_patch,as_placeholder,born_mode']);
 		$oApp->tasks = $tasks;
 
 		/* 是否支持邀请 */
@@ -80,8 +80,8 @@ class main extends base {
 	 *
 	 */
 	public function nowTask_action($app) {
+		$app = $this->escape($app);
 		$modelApp = $this->model('matter\plan');
-		$app = $modelApp->escape($app);
 
 		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,mission_id,mission_phase_id,title,summary,pic,check_schemas,jump_delayed']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -92,5 +92,39 @@ class main extends base {
 		$oNowTaskSchema = $modelUsrTsk->nowSchemaByApp($this->who, $oApp);
 
 		return new \ResponseData($oNowTaskSchema);
+	}
+	/**
+	 * 进行用户端的活动设置
+	 */
+	public function config_action($app) {
+		$app = $this->escape($app);
+		$modelApp = $this->model('matter\plan');
+
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,mission_id,mission_phase_id,title,summary,pic,check_schemas,jump_delayed']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->who;
+		$modelUsr = $this->model('matter\plan\user');
+		$oAppUser = $modelUsr->byUser($oApp, $oUser);
+		if (false === $oAppUser) {
+			$oAppUser = $modelUsr->createOrUpdate($oApp, $oUser);
+		}
+
+		$updateCount = 0;
+		$oPosted = $this->getPostJson();
+		if (isset($oPosted)) {
+			foreach ($oPosted as $prop => $val) {
+				switch ($prop) {
+				case 'start_at':
+					$updateCount++;
+					$modelUsr->update('xxt_plan_user', ['start_at' => $val], ['id' => $oAppUser->id]);
+					break;
+				}
+			}
+		}
+
+		return new \ResponseData($updateCount);
 	}
 }

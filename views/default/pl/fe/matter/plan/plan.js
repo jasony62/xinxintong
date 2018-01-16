@@ -16,6 +16,7 @@ define(['require'], function(require) {
             entryRule: {
                 scope: {},
                 mschemas: [],
+                sns: {}
             }
         };
         $scope.entryRule = _oEntryRule = _oProto.entryRule;
@@ -25,13 +26,21 @@ define(['require'], function(require) {
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
             $scope.snsNames = Object.keys(oSns);
+            $scope.$watch('entryRule.scope.sns', function(valid) {
+                if ($scope.snsNames.length === 1) {
+                    if (valid === 'Y') {
+                        _oEntryRule.sns[$scope.snsNames[0]] = true;
+                    } else {
+                        _oEntryRule.sns[$scope.snsNames[0]] = false;
+                    }
+                }
+            });
         });
         if (_missionId) {
             http2.get('/rest/pl/fe/matter/mission/get?site=' + _siteId + '&id=' + _missionId, function(rsp) {
                 var oMission;
                 $scope.mission = oMission = rsp.data;
                 _oProto.mission = { id: oMission.id, title: oMission.title };
-                //_oEntryRule.scope = oMission.entry_rule.scope || 'none';
                 if ('member' === oMission.entry_rule.scope) {
                     srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
                         var oMschemasById = {};
@@ -50,20 +59,30 @@ define(['require'], function(require) {
                 _oProto.title = oMission.title + '-计划任务';
             });
         }
-        $scope.chooseMschema = function(event) {
-            event.preventDefault();
-            event.stopPropagation();
+        $scope.$watch('entryRule.scope.member', function(valid) {
+            if (valid === 'Y') {
+                if (_oEntryRule.mschemas.length === 0) {
+                    $scope.chooseMschema();
+                }
+            }
+        });
+        $scope.chooseMschema = function() {
             srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(function(result) {
                 var oChosen = result.chosen;
                 _oEntryRule.mschemas.push({ id: oChosen.id, title: oChosen.title });
             });
         };
-        $scope.removeMschema = function(event, oMschema) {
-            event.preventDefault();
-            event.stopPropagation();
+        $scope.removeMschema = function(oMschema) {
             var mschemas = _oEntryRule.mschemas;
             mschemas.splice(mschemas.indexOf(oMschema), 1);
         };
+        $scope.$watch('entryRule.scope.group', function(valid) {
+            if (valid === 'Y') {
+                if (!_oEntryRule.group) {
+                    $scope.chooseGroupApp();
+                }
+            }
+        });
         $scope.chooseGroupApp = function() {
             $uibModal.open({
                 templateUrl: 'chooseGroupApp.html',

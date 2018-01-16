@@ -267,7 +267,7 @@ class enroll_model extends enroll_base {
 	 *
 	 * @return
 	 */
-	public function &opData(&$oApp, $onlyActiveRound = false) {
+	public function &opData($oApp, $onlyActiveRound = false) {
 		$modelUsr = $this->model('matter\enroll\user');
 		$modelRnd = $this->model('matter\enroll\round');
 
@@ -305,12 +305,20 @@ class enroll_model extends enroll_base {
 			$q = [
 				'count(*)',
 				'xxt_enroll_record_remark',
-				['aid' => $oApp->id],
+				['aid' => $oApp->id, 'state' => 1],
 			];
 			$oRound->remark_total = $this->query_val_ss($q);
 			/* enrollee */
 			$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['cascaded' => 'N']);
 			$oRound->enrollee_num = $oEnrollees->total;
+			$oRound->enrollee_unsubmit_num = 0;
+			if (!empty($oEnrollees->users)) {
+				foreach ($oEnrollees->users as $oEnrollee) {
+					if ($oEnrollee->enroll_num == 0) {
+						$oRound->enrollee_unsubmit_num++;
+					}
+				}
+			}
 			/* member */
 			if (!empty($mschemaIds)) {
 				$oRound->mschema = new \stdClass;
@@ -337,12 +345,20 @@ class enroll_model extends enroll_base {
 				$q = [
 					'count(*)',
 					'xxt_enroll_record_remark',
-					['aid' => $oApp->id, 'rid' => $oRound->rid],
+					['aid' => $oApp->id, 'state' => 1, 'rid' => $oRound->rid],
 				];
 				$oRound->remark_total = $this->query_val_ss($q);
 				/* enrollee */
 				$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $oRound->rid, 'cascaded' => 'N']);
 				$oRound->enrollee_num = $oEnrollees->total;
+				$oRound->enrollee_unsubmit_num = 0;
+				if (!empty($oEnrollees->users)) {
+					foreach ($oEnrollees->users as $oEnrollee) {
+						if ($oEnrollee->enroll_num == 0) {
+							$oRound->enrollee_unsubmit_num++;
+						}
+					}
+				}
 
 				/* member */
 				if (!empty($mschemaIds)) {

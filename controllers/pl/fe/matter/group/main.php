@@ -16,14 +16,14 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 返回一个分组活动
 	 */
-	public function get_action($site, $app = null, $id = null) {
+	public function get_action($app = null, $id = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$app = isset($app) ? $app : $id;
 		$oApp = $this->model('matter\group')->byId($app);
-		if (false === $oApp) {
+		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -36,6 +36,7 @@ class main extends \pl\fe\matter\main_base {
 			$sourceApp = json_decode($oApp->source_app);
 			if ($sourceApp->type === 'mschema') {
 				$oApp->sourceApp = $this->model('site\user\memberschema')->byId($sourceApp->id);
+				$oApp->sourceApp->type = 'mschema';
 			} else {
 				$options = ['cascaded' => 'N', 'fields' => 'siteid,id,title'];
 				if (in_array($sourceApp->type, ['enroll', 'signin'])) {

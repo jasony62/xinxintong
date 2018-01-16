@@ -14,8 +14,8 @@ class task extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$plan = $this->escape($plan);
-		$oPlan = $this->model('matter\plan')->byId($plan, ['fields' => 'id,state']);
-		if (false === $oPlan) {
+		$oPlan = $this->model('matter\plan')->byId($plan, ['fields' => 'id,siteid,state']);
+		if (false === $oPlan || $oPlan->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -40,19 +40,74 @@ class task extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 		$oBatch = $this->getPostJson();
-		if (empty($oBatch->count)) {
-			return new \ParameterError('没有指定批量生成的数量');
+		if (empty($oBatch->mode)) {
+			return new \ParameterError();
 		}
 
-		for ($i = 1; $i <= $oBatch->count; $i++) {
+		$modelSchTsk = $this->model('matter\plan\schema\task');
+		$oTaskNaming = isset($oBatch->naming) ? $oBatch->naming : null;
+		switch ($oBatch->mode) {
+		case 'count':
+			if (empty($oBatch->count)) {
+				return new \ParameterError('没有指定批量生成的数量');
+			}
+			for ($count = 1; $count <= $oBatch->count; $count++) {
+				$oProto = isset($oBatch->proto) ? clone $oBatch->proto : new \stdClass;
+				$oProto->aid = $oPlan->id;
+				$oProto->siteid = $oPlan->siteid;
+
+				$modelSchTsk->add($oProto, $oTaskNaming);
+			}
+			break;
+		case 'time':
+			if (empty($oBatch->startAt) || empty($oBatch->endAt) || (int) $oBatch->startAt > (int) $oBatch->endAt) {
+				return new \ParameterError('指定的时间范围不正确');
+			}
+			/**
+			 * 首个任务
+			 */
 			$oProto = isset($oBatch->proto) ? clone $oBatch->proto : new \stdClass;
 			$oProto->aid = $oPlan->id;
 			$oProto->siteid = $oPlan->siteid;
+			$oProto->born_mode = 'A';
+			$oProto->born_offset = $oBatch->startAt;
 
-			$oNewTask = $this->model('matter\plan\schema\task')->add($oProto, isset($oBatch->naming) ? $oBatch->naming : null);
+			$oPrevBornAt = new \DateTime();
+			$oPrevBornAt->setTimestamp($oBatch->startAt);
+			if (isset($oApp->notweekend) && $oApp->notweekend === 'Y') {
+				/* 如果是周六日需要跳过 */
+				$weekday = (int) $oPrevBornAt->format('N');
+				if ($weekday > 5) {
+					$oPrevBornAt->add(new \DateInterval('P' . (8 - $weekday) . 'D'));
+				}
+			}
+			$modelSchTsk->add($oProto, $oTaskNaming);
+			$count = 1;
+			/**
+			 * 后续任务
+			 */
+			$oPrevBornAt->add(new \DateInterval($oBatch->proto->born_offset));
+			while ($oPrevBornAt->getTimestamp() < $oBatch->endAt) {
+				$oProto = isset($oBatch->proto) ? clone $oBatch->proto : new \stdClass;
+				$oProto->aid = $oPlan->id;
+				$oProto->siteid = $oPlan->siteid;
+
+				if (isset($oApp->notweekend) && $oApp->notweekend === 'Y') {
+					/* 如果是周六日需要跳过 */
+					$weekday = (int) $oPrevBornAt->format('N');
+					if ($weekday > 5) {
+						$oPrevBornAt->add(new \DateInterval('P' . (8 - $weekday) . 'D'));
+					}
+				}
+				$modelSchTsk->add($oProto, $oTaskNaming);
+				$count++;
+				$oPrevBornAt->add(new \DateInterval($oBatch->proto->born_offset));
+			}
+
+			break;
 		}
 
-		return new \ResponseData($i);
+		return new \ResponseData($count);
 	}
 	/**
 	 *
@@ -147,6 +202,30 @@ class task extends \pl\fe\matter\base {
 		$tasks = $this->model('matter\plan\schema\task')->byApp($oPlan->id, ['fields' => 'id,title,task_seq,born_mode,born_offset,jump_delayed,auto_verify,can_patch,as_placeholder']);
 
 		return new \ResponseData(['tasks' => $tasks]);
+	}
+	/**
+	 * 按计划生成的模拟任务
+	 */
+	public function mockList_action($plan) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$oApp = $this->model('matter\plan')->byId($plan);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelUsrTsk = $this->model('matter\plan\task');
+		$modelSchTsk = $this->model('matter\plan\schema\task');
+
+		$oMockUser = new \stdClass;
+		$oMockUser->uid = '';
+		$lastSeq = $modelSchTsk->lastSeq($oApp->id);
+		$startAt = $modelUsrTsk->getStartAt($oApp, $oMockUser);
+
+		$mocks = $modelSchTsk->bornMock($oApp, $oMockUser, 1, $lastSeq, $startAt);
+
+		return new \ResponseData($mocks);
 	}
 	/**
 	 *

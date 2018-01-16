@@ -83,6 +83,41 @@ class user extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
+	public function update_action($user) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$user = $this->escape($user);
+		$modelUsr = $this->model('matter\plan\user');
+		$oUser = $modelUsr->byId($user, ['fields' => 'id,start_at']);
+		if (false === $oUser) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oPosted = $this->getPostJson();
+		$aUpdated = [];
+		if (isset($oPosted)) {
+			foreach ($oPosted as $prop => $val) {
+				switch ($prop) {
+				case 'start_at':
+					$aUpdated['start_at'] = $val;
+					break;
+				case 'comment':
+					$aUpdated['comment'] = $modelUsr->escape($val);
+					break;
+				}
+			}
+			if (count($aUpdated)) {
+				$modelUsr->update('xxt_plan_user', $aUpdated, ['id' => $oUser->id]);
+			}
+		}
+
+		return new \ResponseData($aUpdated);
+	}
+	/**
+	 *
+	 */
 	public function list_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();

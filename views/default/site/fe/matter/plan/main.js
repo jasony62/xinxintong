@@ -10,7 +10,7 @@ require('../../../../../../asset/js/xxt.ui.geo.js');
 require('../enroll/directive.css');
 require('../enroll/directive.js');
 
-var ngApp = angular.module('app', ['ngSanitize', 'ngRoute', 'directive.enroll', 'notice.ui.xxt', 'http.ui.xxt', 'date.ui.xxt', 'snsshare.ui.xxt']);
+var ngApp = angular.module('app', ['ngSanitize', 'ngRoute', 'ui.bootstrap', 'directive.enroll', 'notice.ui.xxt', 'http.ui.xxt', 'date.ui.xxt', 'snsshare.ui.xxt']);
 ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.factory('Input', ['$q', '$timeout', 'http2', 'tmsLocation', function($q, $timeout, http2, LS) {
@@ -278,10 +278,7 @@ ngApp.controller('ctrlMain', ['$scope', '$location', 'http2', 'tmsLocation', 'tm
  * 任务列表
  */
 ngApp.controller('ctrlPlan', ['$scope', '$filter', 'http2', 'tmsLocation', function($scope, $filter, http2, LS) {
-    var _oApp, _oOverview;
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
-        _oApp = oApp;
+    function getUserPlan() {
         http2.get(LS.j('overview', 'site', 'app')).then(function(rsp) {
             $scope.overview = _oOverview = rsp.data;
             http2.get(LS.j('task/listByUser', 'site', 'app')).then(function(rsp) {
@@ -294,12 +291,14 @@ ngApp.controller('ctrlPlan', ['$scope', '$filter', 'http2', 'tmsLocation', funct
                         _oApp._taskSchemasById[oTask.task_schema_id].userTask = oTask;
                     }
                 });
-                mockTasks.forEach(function(oMock) {
-                    oMock.bornAt = $filter('tmsDate')(oMock.born_at * 1000, 'yy-MM-dd HH:mm,EEE');
-                    if (_oApp._taskSchemasById[oMock.id]) {
-                        _oApp._taskSchemasById[oMock.id].mockTask = oMock;
-                    }
-                });
+                if (mockTasks) {
+                    mockTasks.forEach(function(oMock) {
+                        oMock.bornAt = $filter('tmsDate')(oMock.born_at * 1000, 'yy-MM-dd HH:mm,EEE');
+                        if (_oApp._taskSchemasById[oMock.id]) {
+                            _oApp._taskSchemasById[oMock.id].mockTask = oMock;
+                        }
+                    });
+                }
                 _oApp.tasks.forEach(function(oTaskSchema) {
                     if (oTaskSchema.as_placeholder === 'N' && !oTaskSchema.userTask && oTaskSchema.mockTask) {
                         if (_oOverview.nowTaskSchema && oTaskSchema.task_seq < _oOverview.nowTaskSchema.task_seq) {
@@ -311,6 +310,17 @@ ngApp.controller('ctrlPlan', ['$scope', '$filter', 'http2', 'tmsLocation', funct
                 });
             });
         });
+    }
+    var _oApp, _oOverview;
+    $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+        http2.post(LS.j('config', 'site', 'app'), { 'start_at': data.value }).then(function(rsp) {
+            getUserPlan();
+        });
+    });
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) return;
+        _oApp = oApp;
+        getUserPlan();
     });
 }]);
 /**
@@ -320,8 +330,6 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
     function doSubmit() {
         facInput.submit($scope.activeTask, $scope.data, $scope.supplement).then(function(rsp) {
             _oSubmitState.finish();
-            _oToggledTask.userTask = rsp.data;
-            delete _oToggledTask.mockTask;
             noticebox.success('完成提交');
             $scope.$emit('xxt.app.plan.submit.done', rsp.data);
         }, function(rsp) {
@@ -353,11 +361,10 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
         _oSubmitState.modified && _oSubmitState.cache($scope.data);
     };
 
-    var _oToggledTask, facInput, _oSubmitState, tasksOfBeforeSubmit;
+    var facInput, _oSubmitState, tasksOfBeforeSubmit;
     tasksOfBeforeSubmit = [];
     facInput = Input.ins();
     $scope.data = {};
-    //$scope.supplement = null;
     $scope._oSubmitState = _oSubmitState = ngApp.oUtilSubmit.state;
     $scope.beforeSubmit = function(fn) {
         if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
@@ -383,8 +390,9 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
         if (oTask.actions) {
             oTask.actions.forEach(function(oAction) {
                 if ($scope.app.checkSchemas.length) {
+                    var pos = 0;
                     $scope.app.checkSchemas.forEach(function(oSchema) {
-                        oAction.checkSchemas.splice(0, 0, oSchema);
+                        oAction.checkSchemas.splice(pos++, 0, oSchema);
                     });
                 }
                 if (oTask.userTask) {

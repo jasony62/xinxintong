@@ -356,7 +356,7 @@ class log_model extends \TMS_MODEL {
 				'l' => $size,
 			];
 		}
-		
+
 		$result->logs = $this->query_objs_ss($q, $q2);
 
 		$q[0] = 'count(*)';
@@ -414,7 +414,7 @@ class log_model extends \TMS_MODEL {
 	 * @param string $op
 	 * @param object|string $data
 	 */
-	public function matterOp($siteId, &$user, &$matter, $op, $data = null) {
+	public function matterOp($siteId, $user, $matter, $op, $data = null) {
 		// 避免数据库双机同步延迟问题
 		$this->setOnlyWriteDbConn(true);
 
@@ -927,8 +927,8 @@ class log_model extends \TMS_MODEL {
 
 		return $data;
 	}
-	/* 
-	 * 查询用户最后一条行为记录
+	/*
+		 * 查询用户最后一条行为记录
 	*/
 	public function lastByUser($matterId, $matterType, $userId, $options = []) {
 		$fields = empty($options['fields']) ? '*' : $options['fields'];

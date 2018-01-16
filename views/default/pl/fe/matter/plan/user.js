@@ -97,6 +97,42 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
+        $scope.editUser = function(oUser) {
+            $uibModal.open({
+                templateUrl: 'editUser.html',
+                controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                    var _oUpdated;
+                    _oUpdated = {};
+                    $scope2.user = angular.copy(oUser);
+                    $scope2.app = _oApp;
+                    $scope2.update = function(prop) {
+                        _oUpdated[prop] = $scope2.user[prop];
+                    };
+                    $scope2.$on('xxt.tms-datepicker.change', function(event, data) {
+                        _oUpdated[data.state] = data.value;
+                    });
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close(_oUpdated);
+                    };
+                    http2.get('/rest/pl/fe/matter/plan/schema/task/list?plan=' + _oApp.id, function(rsp) {
+                        if (rsp.data.tasks.length) {
+                            $scope2.firstTask = rsp.data.tasks[0];
+                            console.log($scope2.firstTask);
+                        }
+                    });
+                }],
+                backdrop: 'static'
+            }).result.then(function(oUpdated) {
+                if (Object.keys(oUpdated).length) {
+                    http2.post('/rest/pl/fe/matter/plan/user/update?user=' + oUser.id, oUpdated, function(rsp) {
+                        angular.extend(oUser, rsp.data);
+                    });
+                }
+            });
+        };
         $scope.doSearch = function() {
             http2.get('/rest/pl/fe/matter/plan/user/list?app=' + _oApp.id, function(rsp) {
                 $scope.users = rsp.data.users;

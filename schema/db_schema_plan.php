@@ -25,6 +25,7 @@ $sql .= ",check_schemas text null"; // 行动项的核对数据
 $sql .= ",jump_delayed char(1) not null default 'Y'"; // Y:跳过；N:不跳过
 $sql .= ",auto_verify char(1) not null default 'Y'";
 $sql .= ",can_patch char(1) not null default 'Y'"; // 是否允许补填数据
+$sql .= ",notweekend char(1) not null default 'N'"; // 周六周日是否生成任务
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 /**

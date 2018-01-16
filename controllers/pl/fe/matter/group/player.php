@@ -200,7 +200,7 @@ class player extends \pl\fe\matter\base {
 			} else if ($sourceApp->type === 'wall') {
 				$count = $this->_syncByWall($site, $oApp, $sourceApp->id, $onlySpeaker);
 			} else if ($sourceApp->type === 'mschema') {
-				$count = $this->_syncByMschema($oApp, $sourceApp->id);
+				$count = $this->_syncByMschema($site, $oApp, $sourceApp->id);
 			}
 			// 更新同步时间
 			$modelGrp->update(
@@ -211,6 +211,23 @@ class player extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($count);
+	}
+	/**
+	 * 从通讯录导入数据
+	 *
+	 * 同步在最后一次同步之后的数据或已经删除的数据
+	 */
+	private function _syncByMschema($siteId, &$objGrp, $bySchema) {
+		/* 获取变化的登记数据 */
+		$modelRec = $this->model('site\user\member');
+		$q = [
+			'id enroll_key,forbidden state',
+			'xxt_site_member',
+			"schema_id = $bySchema and (modify_at > {$objGrp->last_sync_at} or forbidden <> 'N')",
+		];
+		$records = $modelRec->query_objs_ss($q);
+
+		return $this->_syncRecord($siteId, $objGrp, $records, $modelRec, 'mschema');
 	}
 	/**
 	 * 从登记活动导入数据
@@ -289,14 +306,18 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 同步数据
 	 */
-	private function _syncRecord($siteId, &$objGrp, &$records, &$modelRec) {
+	private function _syncRecord($siteId, &$objGrp, &$records, &$modelRec, $type = '') {
 		$cnt = 0;
 		$modelPly = $this->model('matter\group\player');
 		if (!empty($records)) {
 			$options = ['cascaded' => 'Y'];
 			foreach ($records as $record) {
-				if ($record->state === '1') {
-					$record = $modelRec->byId($record->enroll_key, $options);
+				if ($record->state === '1' || $record->state === 'N') {
+					if ($type === 'mschema') {
+						$record = $this->getMschData($objGrp, $record->enroll_key);
+					} else {
+						$record = $modelRec->byId($record->enroll_key, $options);
+					}
 					$user = new \stdClass;
 					$user->uid = $record->userid;
 					$user->nickname = $record->nickname;
@@ -323,6 +344,38 @@ class player extends \pl\fe\matter\base {
 		}
 
 		return $cnt;
+	}
+	/**
+	 * 获取通讯录用户的data
+	 *
+	 */
+	private function getMschData($objGrp, $id) {
+		/* 获取变化的登记数据 */
+		$modelRec = $this->model('site\user\member');
+		$q = [
+			'm.id enroll_key,m.modify_at enroll_at,m.name nickname,m.name,m.mobile,m.email,m.extattr,m.forbidden,m.userid,a.wx_openid,a.yx_openid,a.qy_openid,a.headimgurl',
+			'xxt_site_member m,xxt_site_account a',
+			"m.id = $id and a.uid = m.userid",
+		];
+		$record = $modelRec->query_obj_ss($q);
+		if ($record === false) {
+			return new \ResponseError('用户数据未查到');
+		}
+		if (!empty($record->extattr)) {
+			$extattr = json_decode($record->extattr);
+			foreach ($extattr as $k => $e) {
+				$record->{$k} = $e;
+			}
+		}
+
+		$dataSchemas = json_decode($objGrp->data_schemas);
+		$data = new \stdClass;
+		foreach ($dataSchemas as $ds) {
+			$data->{$ds->id} = isset($ds->format) ? $record->{$ds->format} : (isset($record->{$ds->id})? $record->{$ds->id} : '');
+		}
+
+		$record->data = $data;
+		return $record;
 	}
 	/**
 	 * 手工添加分组用户信息

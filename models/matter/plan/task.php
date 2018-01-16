@@ -131,7 +131,7 @@ class task_model extends \TMS_MODEL {
 		$current = time();
 		$oTaskSchema = $modelSchTsk->bySeq($oApp, (int) $oLastUserTask->task_seq + 1, $aSchemaOptions);
 		if ($oTaskSchema) {
-			$bornAt = $modelSchTsk->getBornAt($oTaskSchema, $oLastUserTask->born_at);
+			$bornAt = $modelSchTsk->getBornAt($oApp, $oUser, $oTaskSchema, $oLastUserTask->born_at);
 			$oTaskSchema->born_at = $bornAt;
 			$bCanJump = empty($oTaskSchema->actions) || $oTaskSchema->jump_delayed === 'Y' || ($oTaskSchema->jump_delayed === 'U' && $oApp->jump_delayed === 'Y');
 			if ($bCanJump) {
@@ -141,7 +141,7 @@ class task_model extends \TMS_MODEL {
 					if (false === $oNextTaskSchema) {
 						break;
 					}
-					$nextBornAt = $modelSchTsk->getBornAt($oNextTaskSchema, $oTaskSchema->born_at);
+					$nextBornAt = $modelSchTsk->getBornAt($oApp, $oUser, $oNextTaskSchema, $oTaskSchema->born_at);
 					if ($nextBornAt > $current) {
 						break;
 					}
@@ -226,7 +226,7 @@ class task_model extends \TMS_MODEL {
 		if ($oLastUserTask) {
 			$modelSchTsk = $this->model('matter\plan\schema\task');
 			if ($oTaskSchema->task_seq > $oLastUserTask->task_seq) {
-				$mocks = $modelSchTsk->bornMock($oApp, (int) $oLastUserTask->task_seq + 1, (int) $oTaskSchema->task_seq, $oLastUserTask->born_at);
+				$mocks = $modelSchTsk->bornMock($oApp, $oUser, (int) $oLastUserTask->task_seq + 1, (int) $oTaskSchema->task_seq, $oLastUserTask->born_at);
 				if (!empty($mocks)) {
 					$oMock = $mocks[count($mocks) - 1];
 					if ($oMock->id === $oTaskSchema->id) {
@@ -241,15 +241,36 @@ class task_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byApp($oApp) {
+	public function byApp($oApp, $aOptions = []) {
+		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
 		$q = [
-			'*',
+			$fields,
 			'xxt_plan_task',
 			['aid' => $oApp->id, 'state' => 1],
 		];
 		$q2 = ['o' => 'first_enroll_at desc'];
 
 		$tasks = $this->query_objs_ss($q, $q2);
+		if (count($tasks)) {
+			$modelSchAct = $this->model('matter\plan\schema\action');
+			$aActOptions = ['fields' => 'id,action_desc,action_seq,check_schemas'];
+			foreach ($tasks as $oTask) {
+				/* 行动项 */
+				if (isset($oTask->task_schema_id)) {
+					$oTask->actions = $modelSchAct->byTask($oTask->task_schema_id, $aActOptions);
+				}
+				/* 处理数据 */
+				if (!empty($oTask->data)) {
+					$oTask->data = json_decode($oTask->data);
+				}
+				if (!empty($oTask->score)) {
+					$oTask->score = json_decode($oTask->score);
+				}
+				if (!empty($oTask->supplement)) {
+					$oTask->supplement = json_decode($oTask->supplement);
+				}
+			}
+		}
 
 		$result = new \stdClass;
 		$result->tasks = $tasks;
@@ -281,12 +302,23 @@ class task_model extends \TMS_MODEL {
 	 * 获得首个任务的开始时间
 	 */
 	public function getStartAt($oApp, $oUser) {
+		$startAt = 0;
 		$modelSchTsk = $this->model('matter\plan\schema\task');
 		$oFirst = $modelSchTsk->bySeq($oApp, 1, ['fields' => 'id,born_mode,born_offset']);
-		if ($oFirst && $oFirst->born_mode === 'A' && $oFirst->born_offset > 0) {
-			$startAt = $oFirst->born_offset;
-		} else {
-			$startAt = time();
+		if ($oFirst) {
+			if ($oFirst->born_mode === 'A' && $oFirst->born_offset > 0) {
+				$startAt = $oFirst->born_offset;
+			} else {
+				if ($oFirst->born_mode === 'U') {
+					$modelUsr = $this->model('matter\plan\user');
+					$oAppUser = $modelUsr->byUser($oApp, $oUser);
+					if ($oAppUser && !empty($oAppUser->start_at)) {
+						$startAt = $oAppUser->start_at;
+					}
+				} else {
+					$startAt = time();
+				}
+			}
 		}
 
 		return $startAt;

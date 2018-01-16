@@ -182,7 +182,7 @@ class qrcode_model extends \TMS_MODEL {
 	 * 创建二维码时直接指定回复的素材
 	 * 只要做了扫描，二维码就失效（删除掉）
 	 */
-	public function createOneOff($snsSiteId, $oMatter) {
+	public function createOneOff($snsSiteId, $oMatter, $expire = null) {
 		$modelWx = $this->model('sns\wx');
 		if (false === ($oWxConfig = $modelWx->bySite($snsSiteId)) || $oWxConfig->joined !== 'Y') {
 			$snsSiteId = 'platform';
@@ -219,7 +219,11 @@ class qrcode_model extends \TMS_MODEL {
 		 * 获取二维码
 		 */
 		$proxy = $this->model('sns\wx\proxy', $oWxConfig);
-		$rst = $proxy->qrcodeCreate($sceneId);
+		if (isset($expire)) {
+			$rst = $proxy->qrcodeCreate($sceneId, true, $expire);
+		} else {
+			$rst = $proxy->qrcodeCreate($sceneId);
+		}
 		if ($rst[0] === false) {
 			return $rst;
 		}

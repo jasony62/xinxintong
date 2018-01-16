@@ -61,16 +61,16 @@ class task_model extends \TMS_MODEL {
 			$oNewTask->title = $this->escape($oNaming->prefix . (empty($oNaming->separator) ? '' : $oNaming->separator)) . $oNewTask->task_seq;
 		}
 
-		if (!isset($oNewTask->born_mode) || !in_array($oNewTask->born_mode, ['U', 'P', 'A'])) {
+		if (!isset($oNewTask->born_mode) || !in_array($oNewTask->born_mode, ['U', 'S', 'P', 'A', 'G'])) {
 			if ($oNewTask->task_seq === 1) {
-				$oNewTask->born_mode = 'U'; // 用户首次执行生成
+				$oNewTask->born_mode = 'S'; // 用户首次执行生成
 				$oNewTask->born_offset = ''; // 0点开始
 			} else {
 				$oNewTask->born_mode = 'P'; // 上一个任务之后
 				$oNewTask->born_offset = 'P1D'; // 1天
 			}
 		} else if (!isset($oNewTask->born_offset) || !in_array($oNewTask->born_offset, ['', 'P1D'])) {
-			if ($oNewTask->born_mode === 'U') {
+			if ($oNewTask->born_mode === 'S') {
 				$oNewTask->born_offset = '';
 			} else if ($oNewTask->born_mode === 'P') {
 				$oNewTask->born_offset = 'P1D';
@@ -88,6 +88,15 @@ class task_model extends \TMS_MODEL {
 		}
 
 		$oNewTask->id = $this->insert('xxt_plan_task_schema', $oNewTask, true);
+
+		/* 添加默认行动项 */
+		$oNewTask->actions = [];
+		$oProto = new \stdClass;
+		$oProto->aid = $oNewTask->aid;
+		$oProto->siteid = $oNewTask->siteid;
+		$oProto->task_schema_id = $oNewTask->id;
+
+		$oNewTask->actions[] = $this->model('matter\plan\schema\action')->add($oProto);
 
 		return $oNewTask;
 	}
@@ -151,20 +160,9 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 获得指定模板任务的生成时间
 	 */
-	public function getBornAt($oTaskSchema, $prveBornAt = false) {
+	public function getBornAt($oApp, $oUser, $oTaskSchema, $prveBornAt = false) {
 		switch ($oTaskSchema->born_mode) {
-		case 'U':
-			$today = new \DateTime();
-			if ($prveBornAt) {
-				$today->setTimestamp($prveBornAt);
-			}
-			$today->setTime(0, 0); // 设置为0点
-			if (!empty($oTaskSchema->born_offset)) {
-				$today->add(new \DateInterval($oTaskSchema->born_offset));
-			}
-			$bornAt = $today->getTimestamp();
-			break;
-		case 'A':
+		case 'A': // 组织者指定时间
 			$today = new \DateTime();
 			if (empty($oTaskSchema->born_offset)) {
 				$bornAt = 0;
@@ -174,16 +172,43 @@ class task_model extends \TMS_MODEL {
 				$bornAt = $today->getTimestamp();
 			}
 			break;
-		case 'F':
+		case 'U': // 用户指定时间
+			$modelUsr = $this->model('matter\plan\user');
+			$oAppUser = $modelUsr->byUser($oApp, $oUser);
+			if ($oAppUser && !empty($oAppUser->start_at)) {
+				$bornAt = $oAppUser->start_at;
+			} else {
+				$bornAt = 0;
+			}
+			break;
+		case 'G': // 组织者给每个用户指定的开始时间
 			$bornAt = 0;
 			break;
-		case 'P':
-			$prevBornAt = new \DateTime();
-			$prevBornAt->setTimestamp($prveBornAt);
-			if (!empty($oTaskSchema->born_offset)) {
-				$prevBornAt->add(new \DateInterval($oTaskSchema->born_offset));
+		case 'S': // 用户提交时间
+			$today = new \DateTime();
+			if ($prveBornAt) {
+				$today->setTimestamp($prveBornAt);
 			}
-			$bornAt = $prevBornAt->getTimestamp();
+			$today->setTime(0, 0); // 设置为0点
+			$bornAt = $today->getTimestamp();
+			break;
+		case 'F': // 与第一个活动的间隔
+			$bornAt = 0;
+			break;
+		case 'P': // 与前一个活动的间隔
+			$oPrevBornAt = new \DateTime();
+			$oPrevBornAt->setTimestamp($prveBornAt);
+			if (!empty($oTaskSchema->born_offset)) {
+				$oPrevBornAt->add(new \DateInterval($oTaskSchema->born_offset));
+			}
+			if (isset($oApp->notweekend) && $oApp->notweekend === 'Y') {
+				/* 如果是周六日需要跳过 */
+				$weekday = (int) $oPrevBornAt->format('N');
+				if ($weekday > 5) {
+					$oPrevBornAt->add(new \DateInterval('P' . (8 - $weekday) . 'D'));
+				}
+			}
+			$bornAt = $oPrevBornAt->getTimestamp();
 			break;
 		}
 
@@ -192,7 +217,7 @@ class task_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function bornMock($oApp, $beginSeq, $endSeq, $prevBornAt) {
+	public function bornMock($oApp, $oUser, $beginSeq, $endSeq, $prevBornAt) {
 		$mocks = [];
 		$q = [
 			'id,born_mode,born_offset,task_seq',
@@ -202,7 +227,7 @@ class task_model extends \TMS_MODEL {
 		$q2 = ['o' => 'task_seq'];
 		$tasks = $this->query_objs_ss($q, $q2);
 		foreach ($tasks as $oTask) {
-			$bornAt = $this->getBornAt($oTask, $prevBornAt);
+			$bornAt = $this->getBornAt($oApp, $oUser, $oTask, $prevBornAt);
 			if ($bornAt == 0) {
 				return false;
 			}

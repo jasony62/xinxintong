@@ -159,15 +159,8 @@ class TMS_DB {
 			$sql = $tableOrSql;
 		} else {
 			$where || $this->show_error('DB Update no where string.');
-
 			$sql = 'UPDATE ' . $tableOrSql;
-
-			$updateStrs = [];
-			foreach ($data as $key => $val) {
-				$updateStrs[] = '`' . $key . "` = '" . $val . "'";
-			}
-			$sql .= ' SET ' . implode(', ', $updateStrs);
-
+			$sql .= ' SET ' . $this->_assemble_set($data);
 			$sql .= ' WHERE ' . $this->_assemble_where($where);
 		}
 
@@ -360,6 +353,34 @@ class TMS_DB {
 		}
 
 		return $select;
+	}
+	/**
+	 * assemble a set sql.
+	 */
+	private function _assemble_set($data) {
+		$clauses = [];
+		foreach ($data as $key => $val) {
+			if (is_object($val)) {
+				if (isset($val->op) && isset($val->pat)) {
+					switch ($val->op) {
+					case '+=':
+						$clause = $key . '=' . $key . '+' . $val->pat;
+						$clauses[] = $clause;
+						break;
+					case '-=':
+						$clause = $key . '=' . $key . '-' . $val->pat;
+						$clauses[] = $clause;
+						break;
+					}
+				}
+			} else {
+				$clauses[] = '`' . $key . "` = '" . $val . "'";
+			}
+		}
+
+		$sql = implode(', ', $clauses);
+
+		return $sql;
 	}
 	/**
 	 * assemble a where sql.

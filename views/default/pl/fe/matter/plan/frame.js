@@ -3,11 +3,13 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
     var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll']);
     ngApp.constant('CstApp', {
         bornMode: {
-            'U': { l: '用户提交时间' },
+            'A': { l: '组织者指定统一时间' },
+            'S': { l: '用户提交时间' },
+            'U': { l: '用户指定时间' },
+            'G': { l: '组织者给每个用户指定时间' },
             'P': { l: '与上一任务间隔' },
-            'A': { l: '指定时间' }
         },
-        bornModeIndex: ['U', 'P', 'A'],
+        bornModeIndex: ['A', 'P', 'S', 'U', 'G'],
         bornOffset: {
             'P1D': { l: '1天' }
         },
@@ -105,6 +107,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
         });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
+            $scope.snsNames = Object.keys(oSns);
             $scope.snsCount = Object.keys(oSns).length;
             srvPlanApp.get().then(function(oApp) {
                 oApp.scenario = 'quiz';

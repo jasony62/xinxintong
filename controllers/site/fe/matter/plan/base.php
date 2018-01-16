@@ -91,6 +91,36 @@ class base extends \site\fe\matter\base {
 
 	}
 	/**
+	 *
+	 */
+	private function _checkSnsEntryRule($oApp, $bRedirect) {
+		$aResult = $this->enterAsSns($oApp);
+		if (false === $aResult[0]) {
+			$msg = '您没有关注公众号，不满足【' . $oApp->title . '】的进入规则，无法访问，请联系活动的组织者解决。';
+			if (true === $bRedirect) {
+				$oEntryRule = $oApp->entryRule;
+				if (!empty($oEntryRule->sns->wx->entry) && $oEntryRule->sns->wx->entry === 'Y') {
+					/* 通过邀请链接访问 */
+					if (!empty($_GET['inviteToken'])) {
+						$oApp->params = new \stdClass;
+						$oApp->params->inviteToken = $_GET['inviteToken'];
+					}
+					$this->snsWxQrcodeFollow($oApp);
+				} else if (!empty($oEntryRule->sns->qy->entry) && $oEntryRule->sns->qy->entry === 'Y') {
+					$this->snsFollow($oApp->siteid, 'qy', $oApp);
+				} else if (!empty($oEntryRule->sns->yx->entry) && $oEntryRule->sns->yx->entry === 'Y') {
+					$this->snsFollow($oApp->siteid, 'yx', $oApp);
+				} else {
+					$this->outputInfo($msg);
+				}
+			} else {
+				return [false, $msg];
+			}
+		}
+
+		return [true];
+	}
+	/**
 	 * 检查登记活动进入规则
 	 *
 	 * @param object $oApp
@@ -108,11 +138,28 @@ class base extends \site\fe\matter\base {
 
 		if (isset($oScope->member) && $oScope->member === 'Y') {
 			$oResult = $this->enterAsMember($oApp);
-			/* 限通讯录用户访问 */
+			/**
+			 * 限通讯录用户访问
+			 * 如果指定的任何一个通讯录要求用户关注公众号，但是用户还没有关注，那么就要求用户先关注公众号，再填写通讯录
+			 */
 			if (false === $oResult[0]) {
 				if (true === $bRedirect) {
-					$aMemberSchemas = array_keys(get_object_vars($oEntryRule->member));
-					$this->gotoMember($oApp, $aMemberSchemas);
+					$aMemberSchemaIds = [];
+					$modelMs = $this->model('site\user\memberschema');
+					foreach ($oEntryRule->member as $mschemaId => $oRule) {
+						$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+						if ($oMschema->is_wx_fan === 'Y') {
+							$oApp2 = clone $oApp;
+							$oApp2->entryRule = new \stdClass;
+							$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
+							$aResult = $this->_checkSnsEntryRule($oApp2, $bRedirect);
+							if (false === $aResult[0]) {
+								return $aResult;
+							}
+						}
+						$aMemberSchemaIds[] = $mschemaId;
+					}
+					$this->gotoMember($oApp, $aMemberSchemaIds);
 				} else {
 					$msg = '您没有填写通讯录信息，不满足【' . $oApp->title . '】的进入规则，无法访问，请联系活动的组织者解决。';
 					return [false, $msg];
@@ -120,27 +167,9 @@ class base extends \site\fe\matter\base {
 			}
 		}
 		if (isset($oScope->sns) && $oScope->sns === 'Y') {
-			$aResult = $this->enterAsSns($oApp);
+			$aResult = $this->_checkSnsEntryRule($oApp, $bRedirect);
 			if (false === $aResult[0]) {
-				$msg = '您没有关注公众号，不满足【' . $oApp->title . '】的进入规则，无法访问，请联系活动的组织者解决。';
-				if (true === $bRedirect) {
-					if (!empty($oEntryRule->sns->wx->entry) && $oEntryRule->sns->wx->entry === 'Y') {
-						/* 通过邀请链接访问 */
-						if (!empty($_GET['inviteToken'])) {
-							$oApp->params = new \stdClass;
-							$oApp->params->inviteToken = $_GET['inviteToken'];
-						}
-						$this->snsWxQrcodeFollow($oApp);
-					} else if (!empty($oEntryRule->sns->qy->entry) && $oEntryRule->sns->qy->entry === 'Y') {
-						$this->snsFollow($oApp->siteid, 'qy', $oApp);
-					} else if (!empty($oEntryRule->sns->yx->entry) && $oEntryRule->sns->yx->entry === 'Y') {
-						$this->snsFollow($oApp->siteid, 'yx', $oApp);
-					} else {
-						$this->outputInfo($msg);
-					}
-				} else {
-					return [false, $msg];
-				}
+				return $aResult;
 			}
 		}
 		if (isset($oScope->group) && $oScope->group === 'Y') {

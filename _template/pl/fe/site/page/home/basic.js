@@ -41,8 +41,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             });
             $scope.c_channels_matters = $scope.c_prev_channels;
             $scope.c_channels_matters.forEach(function(channel) {
-                $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + '&' + page.j()).success(function(rsp) {
-
+                $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + page.j()).success(function(rsp) {
                     var chid = channel.channel_id,
                         data = [];
                     data.data = rsp.data.matters;

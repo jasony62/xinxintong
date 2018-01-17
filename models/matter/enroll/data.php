@@ -7,7 +7,7 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 缺省返回的列
 	 */
-	const DEFAULT_FIELDS = 'id,value,tag,supplement,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log';
+	const DEFAULT_FIELDS = 'id,value,tag,supplement,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq';
 	/**
 	 * 按题目记录数据
 	 */
@@ -15,7 +15,7 @@ class data_model extends \TMS_MODEL {
 		if (empty($submitkey)) {
 			$submitkey = empty($oUser) ? '' : $oUser->uid;
 		}
-		
+
 		$schemasById = []; // 方便获取登记项定义
 		foreach ($oApp->dataSchemas as $schema) {
 			$schemasById[$schema->id] = $schema;
@@ -33,9 +33,9 @@ class data_model extends \TMS_MODEL {
 				$treatedValue = $this->toJson($treatedValue);
 			}
 
-			$lastSchemaValue = $this->query_obj_ss(
+			$oLastSchemaValues = $this->query_objs_ss(
 				[
-					'submit_at,value,modify_log,score',
+					'id,submit_at,value,modify_log,score,multitext_seq,remark_num,like_num',
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId, 'state' => 1],
 				]
@@ -76,9 +76,9 @@ class data_model extends \TMS_MODEL {
 								if (!empty($assignScore) && isset($assignScore->{$schemaId})) {
 									//有指定的优先使用指定的评分
 									$quizScore = $assignScore->{$schemaId};
-								} elseif (!empty($lastSchemaValue) && ($lastSchemaValue->value == $treatedValue) && !empty($lastSchemaValue->score)) {
+								} elseif (!empty($oLastSchemaValues) && (count($oLastSchemaValues) == 1) && ($oLastSchemaValues[0]->value == $treatedValue) && !empty($oLastSchemaValues[0]->score)) {
 									//有提交记录且没修改且已经评分
-									$quizScore = $lastSchemaValue->score;
+									$quizScore = $oLastSchemaValues[0]->score;
 								} elseif ($treatedValue === $schema->answer) {
 									$quizScore = $schema->score;
 								} else {
@@ -95,9 +95,35 @@ class data_model extends \TMS_MODEL {
 					}
 				}
 			}
+
 			//记录结果
-			if (false === $lastSchemaValue) {
-				$schemaValue = [
+			if (empty($oLastSchemaValues)) {
+				$aSchemaValue = '';
+				/* 处理多项填写题型 */
+				if (isset($schemasById[$schemaId])) {
+					$schema = $schemasById[$schemaId];
+					if ($schema->type == 'multitext') {
+						$treatedValues = json_decode($treatedValue);
+						foreach ($treatedValues as $k => $v) {
+							$aSchemaValue = [
+								'aid' => $oApp->id,
+								'rid' => $oRecord->rid,
+								'enroll_key' => $oRecord->enroll_key,
+								'submit_at' => $oRecord->enroll_at,
+								'userid' => isset($oUser->uid) ? $oUser->uid : '',
+								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+								'schema_id' => $schemaId,
+								'multitext_seq' => (int)$k + 1,
+								'value' => $this->escape($v->value),
+							];
+							$dataId = $this->insert('xxt_enroll_record_data', $aSchemaValue, true);
+							$treatedValues[$k]->id = $dataId;
+						}
+						$dbData->{$schemaId} = $treatedValues;
+						$treatedValue = $this->toJson($treatedValues);
+					}
+				}
+				$aSchemaValue = [
 					'aid' => $oApp->id,
 					'rid' => $oRecord->rid,
 					'enroll_key' => $oRecord->enroll_key,
@@ -107,35 +133,170 @@ class data_model extends \TMS_MODEL {
 					'schema_id' => $schemaId,
 					'value' => $this->escape($treatedValue),
 				];
-				isset($oRecordScore->{$schemaId}) && $schemaValue['score'] = $oRecordScore->{$schemaId};
-				$this->insert('xxt_enroll_record_data', $schemaValue, false);
-			} else {
-				if ($treatedValue !== $lastSchemaValue->value) {
-					if (strlen($lastSchemaValue->modify_log)) {
-						$valueModifyLogs = json_decode($lastSchemaValue->modify_log);
+				isset($oRecordScore->{$schemaId}) && $aSchemaValue['score'] = $oRecordScore->{$schemaId};
+				$this->insert('xxt_enroll_record_data', $aSchemaValue, false);
+			} else if (count($oLastSchemaValues) == 1) {
+				$aSchemaValue = '';
+				/* 处理多项填写题型 */
+				if (isset($schemasById[$schemaId])) {
+					$schema = $schemasById[$schemaId];
+					if ($schema->type == 'multitext') {
+						$treatedValues = json_decode($treatedValue);
+						foreach ($treatedValues as $k => $v) {
+							$aSchemaValue2 = [
+								'aid' => $oApp->id,
+								'rid' => $oRecord->rid,
+								'enroll_key' => $oRecord->enroll_key,
+								'submit_at' => $oRecord->enroll_at,
+								'userid' => isset($oUser->uid) ? $oUser->uid : '',
+								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+								'schema_id' => $schemaId,
+								'multitext_seq' => (int)$k + 1,
+								'value' => $this->escape($v->value),
+							];
+							$dataId = $this->insert('xxt_enroll_record_data', $aSchemaValue2, true);
+							$treatedValues[$k]->id = $dataId;
+						}
+						$dbData->{$schemaId} = $treatedValues;
+						$treatedValue = $this->toJson($treatedValues);
+					}
+				}
+				if ($treatedValue !== $oLastSchemaValues[0]->value) {
+					if (strlen($oLastSchemaValues[0]->modify_log)) {
+						$valueModifyLogs = json_decode($oLastSchemaValues[0]->modify_log);
 					} else {
 						$valueModifyLogs = [];
 					}
 					$newModifyLog = new \stdClass;
-					$newModifyLog->submitAt = $lastSchemaValue->submit_at;
-					$newModifyLog->value = $this->escape($lastSchemaValue->value);
+					$newModifyLog->submitAt = $oLastSchemaValues[0]->submit_at;
+					$newModifyLog->value = $this->escape($oLastSchemaValues[0]->value);
 					$valueModifyLogs[] = $newModifyLog;
-					$schemaValue = [
+					$aSchemaValue = [
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
 						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'value' => $this->escape($treatedValue),
 						'modify_log' => $this->toJson($valueModifyLogs),
+						'score' => isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0,
+					];
+				} else {
+					$aSchemaValue = [
+						'score' => isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0,
 					];
 				}
-				$schemaValue['score'] = isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0;
 
-				if (!empty($schemaValue)) {
+				if (!empty($aSchemaValue)) {
 					$this->update(
 						'xxt_enroll_record_data',
-						$schemaValue,
-						['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId, 'state' => 1]
+						$aSchemaValue,
+						['id' => $oLastSchemaValues[0]->id]
 					);
+				}
+
+			} else { // 处理可多项填写题型
+				$aSchemaValue = '';
+				if (isset($schemasById[$schemaId])) {
+					$schema = $schemasById[$schemaId];
+					if ($schema->type === 'multitext') {
+						$newSchemaValues = json_decode($treatedValue);
+						$oldSchemaVal = ''; //旧的总数据
+						$oldSchemaValues = []; //旧的项
+						foreach ($oLastSchemaValues as $v) {
+							if ($v->multitext_seq > 0) {
+								$oldSchemaValues[$v->id] = $v;
+							} else if ($v->multitext_seq == 0) {
+								$oldSchemaVal = $v;
+							}
+						}
+						foreach ($newSchemaValues as $k => $newSchemaValue) {
+							if ($newSchemaValue->id == 0) {
+								$aSchemaValue = [
+									'aid' => $oApp->id,
+									'rid' => $oRecord->rid,
+									'enroll_key' => $oRecord->enroll_key,
+									'submit_at' => $oRecord->enroll_at,
+									'userid' => isset($oUser->uid) ? $oUser->uid : '',
+									'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+									'schema_id' => $schemaId,
+									'multitext_seq' => (int)$k + 1,
+									'value' => $this->escape($newSchemaValue->value),
+								];
+								$dataId = $this->insert('xxt_enroll_record_data', $aSchemaValue, true);
+								$newSchemaValues[$k]->id = $dataId;
+							} else {
+								if (isset($oldSchemaValues[$newSchemaValue->id])) {
+									if ($oldSchemaValues[$newSchemaValue->id]->value !== $newSchemaValue->value || $oldSchemaValues[$newSchemaValue->id]->multitext_seq != ($k+1)) {
+										if (strlen($oldSchemaValues[$newSchemaValue->id]->modify_log)) {
+											$valueModifyLogs = json_decode($oldSchemaValues[$newSchemaValue->id]->modify_log);
+										} else {
+											$valueModifyLogs = [];
+										}
+										$newModifyLog = new \stdClass;
+										$newModifyLog->submitAt = $oldSchemaValues[$newSchemaValue->id]->submit_at;
+										$newModifyLog->value = $this->escape($oldSchemaValues[$newSchemaValue->id]->value);
+										$valueModifyLogs[] = $newModifyLog;
+										$aSchemaValue = [
+											'submit_at' => $oRecord->enroll_at,
+											'userid' => isset($oUser->uid) ? $oUser->uid : '',
+											'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+											'value' => $this->escape($newSchemaValue->value),
+											'modify_log' => $this->toJson($valueModifyLogs),
+											'multitext_seq' => (int)$k + 1,
+										];
+
+										$this->update(
+											'xxt_enroll_record_data',
+											$aSchemaValue,
+											['id' => $newSchemaValue->id]
+										);
+									}
+									// 处理完后就去除这一条如果还有剩余的说明是本次用户修改已经删除的
+									unset($oldSchemaValues[$newSchemaValue->id]);
+								}
+							}
+						}
+						/* 处理被删除的数据 */
+						if (count($oldSchemaValues) > 0) {
+							foreach ($oldSchemaValues as $oldSchemaValue) {
+								// 如果删除某项，需要删除其对应的点赞数和评论数
+								$this->update("update xxt_enroll_record_data set remark_num = remark_num - " . $oldSchemaValue->remark_num . " , like_num = like_num - " . $oldSchemaValue->like_num . " where aid = '{$oApp->id}' and rid = '{$oRecord->rid}' and enroll_key = '{$oRecord->enroll_key}' and schema_id = '{$schemaId}' and multitext_seq = 0");
+								$this->update(
+									'xxt_enroll_record_data',
+									['state' => 101],
+									['id' => $oldSchemaValue->id]
+								);
+							}
+						}
+						/* 修改总数据 */
+						$dbData->{$schemaId} = $newSchemaValues;
+						$treatedValue = $this->toJson($newSchemaValues);
+
+						if ($oldSchemaVal->value !== $treatedValue) {
+							if (strlen($oldSchemaVal->modify_log)) {
+								$valueModifyLogs = json_decode($oldSchemaVal->modify_log);
+							} else {
+								$valueModifyLogs = [];
+							}
+							$newModifyLog = new \stdClass;
+							$newModifyLog->submitAt = $oldSchemaVal->submit_at;
+							$newModifyLog->value = $this->escape($oldSchemaVal->value);
+							$valueModifyLogs[] = $newModifyLog;
+							$aSchemaValue = [
+								'submit_at' => $oRecord->enroll_at,
+								'userid' => isset($oUser->uid) ? $oUser->uid : '',
+								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+								'value' => $this->escape($treatedValue),
+								'modify_log' => $this->toJson($valueModifyLogs),
+								'multitext_seq' => 0,
+							];
+
+							$this->update(
+								'xxt_enroll_record_data',
+								$aSchemaValue,
+								['id' => $oldSchemaVal->id]
+							);
+						}
+					}
 				}
 			}
 		}
@@ -143,15 +304,15 @@ class data_model extends \TMS_MODEL {
 		return (object) ['dbData' => $dbData, 'score' => $oRecordScore];
 	}
 	/*
-	 * 处理提交的数据
-	 */
+		 * 处理提交的数据
+	*/
 	public function disposRecrdData($oApp, $schemasById, $submitData, $submitkey) {
-		$dbData = new \stdClass; // 处理后的保存到数据库中的登记记录
+		$oDbData = new \stdClass; // 处理后的保存到数据库中的登记记录
 		/* 处理提交的数据，进行格式转换等操作 */
 		foreach ($submitData as $schemaId => $submitVal) {
 			if ($schemaId === 'member' && is_object($submitVal)) {
 				/* 自定义用户信息 */
-				$dbData->{$schemaId} = $submitVal;
+				$oDbData->{$schemaId} = $submitVal;
 			} else if (isset($schemasById[$schemaId])) {
 				/* 活动中定义的登记项 */
 				$schema = $schemasById[$schemaId];
@@ -172,11 +333,11 @@ class data_model extends \TMS_MODEL {
 							$treatedValue[] = $rst[1];
 						}
 						$treatedValue = implode(',', $treatedValue);
-						$dbData->{$schemaId} = $treatedValue;
+						$oDbData->{$schemaId} = $treatedValue;
 					} else if (empty($submitVal)) {
-						$dbData->{$schemaId} = $treatedValue = '';
+						$oDbData->{$schemaId} = $treatedValue = '';
 					} else if (is_string($submitVal)) {
-						$dbData->{$schemaId} = $submitVal;
+						$oDbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【image】需要的类型不匹配');
 					}
@@ -217,9 +378,9 @@ class data_model extends \TMS_MODEL {
 								$treatedValue[] = $file;
 							}
 						}
-						$dbData->{$schemaId} = $treatedValue;
+						$oDbData->{$schemaId} = $treatedValue;
 					} else if (is_string($submitVal)) {
-						$dbData->{$schemaId} = $submitVal;
+						$oDbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【file】需要的类型不匹配');
 					}
@@ -228,24 +389,24 @@ class data_model extends \TMS_MODEL {
 					if (is_object($submitVal)) {
 						// 多选题，将选项合并为逗号分隔的字符串
 						$treatedValue = implode(',', array_keys(array_filter((array) $submitVal, function ($i) {return $i;})));
-						$dbData->{$schemaId} = $treatedValue;
+						$oDbData->{$schemaId} = $treatedValue;
 					} else if (is_string($submitVal)) {
-						$dbData->{$schemaId} = $submitVal;
+						$oDbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【multiple】需要的类型不匹配');
 					}
 					break;
 				default:
 					// string & score
-					$dbData->{$schemaId} = $treatedValue = $submitVal;
+					$oDbData->{$schemaId} = $treatedValue = $submitVal;
 				}
 			} else {
 				/* 如果登记活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在登记项定义中 */
-				$dbData->{$schemaId} = $treatedValue = $submitVal;
+				$oDbData->{$schemaId} = $treatedValue = $submitVal;
 			}
 		}
 
-		return [true, $dbData];
+		return [true, $oDbData];
 	}
 	/**
 	 * 获得指定登记记录登记数据的详细信息
@@ -256,7 +417,7 @@ class data_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_enroll_record_data',
-			['enroll_key' => $ek, 'state' => 1],
+			['enroll_key' => $ek, 'state' => 1, 'multitext_seq' => 0],
 		];
 
 		$fnHandler = function (&$oData) {
@@ -361,15 +522,15 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 返回指定活动，填写的数据
 	 */
-	public function byApp(&$oApp, $oUser, $options = null) {
-		if ($options) {
-			is_array($options) && $options = (object) $options;
+	public function byApp(&$oApp, $oUser, $oOptions = null) {
+		if ($oOptions && is_array($oOptions)) {
+			$oOptions = (object) $oOptions;
 		}
-		$fields = isset($options->fields) ? $options->fields : self::DEFAULT_FIELDS;
-		$page = isset($options->page) ? $options->page : null;
-		$size = isset($options->size) ? $options->size : null;
-		$rid = isset($options->rid) ? $this->escape($options->rid) : null;
-		$tag = isset($options->tag) ? $this->escape($options->tag) : null;
+		$fields = isset($oOptions->fields) ? $oOptions->fields : self::DEFAULT_FIELDS;
+		$page = isset($oOptions->page) ? $oOptions->page : null;
+		$size = isset($oOptions->size) ? $oOptions->size : null;
+		$rid = isset($oOptions->rid) ? $this->escape($oOptions->rid) : null;
+		$tag = isset($oOptions->tag) ? $this->escape($oOptions->tag) : null;
 
 		$result = new \stdClass; // 返回的结果
 
@@ -377,16 +538,16 @@ class data_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			"xxt_enroll_record_data",
-			"state=1 and aid='{$oApp->id}'",
+			"state=1 and aid='{$oApp->id}' and multitext_seq = 0",
 		];
-		if (empty($options->keyword)) {
+		if (empty($oOptions->keyword)) {
 			$q[2] .= " and value<>''";
 		} else {
-			$q[2] .= " and (value like '%" . $options->keyword . "%' or supplement like '%" . $options->keyword . "%')";
+			$q[2] .= " and (value like '%" . $oOptions->keyword . "%' or supplement like '%" . $oOptions->keyword . "%')";
 		}
-		if (isset($options->schemas) && count($options->schemas)) {
+		if (isset($oOptions->schemas) && count($oOptions->schemas)) {
 			$q[2] .= " and schema_id in(";
-			foreach ($options->schemas as $index => $schemaId) {
+			foreach ($oOptions->schemas as $index => $schemaId) {
 				if ($index > 0) {
 					$q[2] .= ',';
 				}
@@ -406,16 +567,16 @@ class data_model extends \TMS_MODEL {
 			}
 		}
 		/* 限制管理员态度 */
-		if (!empty($options->agreed) && $options->agreed === 'Y') {
+		if (!empty($oOptions->agreed) && $oOptions->agreed === 'Y') {
 			$q[2] .= " and agreed='Y'";
 		}
 		/* 根据用户分组进行筛选 */
-		if (!empty($options->userGroup)) {
-			$q[2] .= " and group_id='{$options->userGroup}'";
+		if (!empty($oOptions->userGroup)) {
+			$q[2] .= " and group_id='{$oOptions->userGroup}'";
 		}
 		/* 限制填写用户 */
-		if (!empty($options->owner) && strcasecmp($options->owner, 'all') !== 0) {
-			$q[2] .= " and userid='{$options->owner}'";
+		if (!empty($oOptions->owner) && strcasecmp($oOptions->owner, 'all') !== 0) {
+			$q[2] .= " and userid='{$oOptions->owner}'";
 		} else if (!empty($oUser->uid)) {
 			$q[2] .= " and (agreed<>'N' or userid='{$oUser->uid}')";
 		} else {
@@ -438,6 +599,14 @@ class data_model extends \TMS_MODEL {
 		$mapOfNicknames = [];
 		$aRecords = $this->query_objs_ss($q, $q2);
 		if (count($aRecords)) {
+			// 题目类型
+			$dataSchemas = new \stdClass;
+			if (isset($oApp->dataSchemas)) {
+				foreach ($oApp->dataSchemas as $dataSchema) {
+					$dataSchemas->{$dataSchema->id} = $dataSchema;
+				}
+			}
+
 			$modelRec = $this->model('matter\enroll\record');
 			foreach ($aRecords as &$oRecord) {
 				/* 获得nickname */
@@ -450,6 +619,15 @@ class data_model extends \TMS_MODEL {
 				if ($oRecord->like_log) {
 					$oRecord->like_log = json_decode($oRecord->like_log);
 				}
+				// 处理多项填写题
+				if (isset($oRecord->schema_id) && isset($dataSchemas->{$oRecord->schema_id}) && $dataSchemas->{$oRecord->schema_id}->type === 'multitext') {
+					$oRecord->value = empty($oRecord->value) ? [] : json_decode($oRecord->value);
+					$items = [];
+					foreach ($oRecord->value as $val) {
+						$items[] = $this->byId($val->id, ['fields' => $fields]);
+					}
+					$oRecord->items = $items;
+				}
 			}
 		}
 		$result->records = $aRecords;
@@ -460,5 +638,57 @@ class data_model extends \TMS_MODEL {
 		$result->total = $total;
 
 		return $result;
+	}
+	/**
+	 * 返回指定活动，指定数据项的填写数据
+	 */
+	public function byId($id, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS;
+
+		// 查询参数
+		$q = [
+			$fields,
+			"xxt_enroll_record_data",
+			['id' => $id, 'state' => 1],
+		];
+		$result = $this->query_obj_ss($q);
+		if ($result) {
+			$result->tag = empty($result->tag) ? [] : json_decode($result->tag);
+			$result->like_log = empty($result->like_log) ? new \stdClass : json_decode($result->like_log);
+			$result->agreed_log = empty($result->agreed_log) ? new \stdClass : json_decode($result->agreed_log);
+		}
+		return $result;
+	}
+	/*
+	*
+	*/
+	public function getMultitext($ek, $schema, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS . ',multitext_seq';
+
+		$q = [
+			$fields,
+			'xxt_enroll_record_data',
+			"enroll_key = '" . $this->escape($ek) . "' and state = 1 and schema_id = '" . $this->escape($schema) . "'",
+		];
+
+		$fnHandler = function (&$oData) {
+			$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
+			$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
+			$oData->agreed_log = empty($oData->agreed_log) ? new \stdClass : json_decode($oData->agreed_log);
+		};
+
+		$q2 = [];
+		// 排序规则
+		$q2['o'] = "multitext_seq";
+		$data = $this->query_objs_ss($q);
+		if (count($data)) {
+			foreach ($data as $schemaData) {
+				if (isset($fnHandler)) {
+					$fnHandler($schemaData);
+				}
+			}
+		}
+
+		return $data;
 	}
 }

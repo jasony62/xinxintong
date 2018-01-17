@@ -109,13 +109,15 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$oFilter = $this->getPostJson();
+		if (empty($oFilter->bySite)) {
+			return new \ParameterError();
+		}
+
 		$modelMis = $this->model('matter\mission');
 		$aOptions = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
+			'bySite' => $oFilter->bySite,
 		];
-		if (!empty($oFilter->bySite)) {
-			$aOptions['bySite'] = $oFilter->bySite;
-		}
 		if (!empty($oFilter->filter->by) && !empty($oFilter->filter->keyword)) {
 			if ($oFilter->filter->by === 'title') {
 				$aOptions['byTitle'] = $oFilter->filter->keyword;

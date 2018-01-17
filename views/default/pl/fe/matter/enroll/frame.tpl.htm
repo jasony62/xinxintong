@@ -9,7 +9,6 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/bootstrap-switch.min.css" rel="stylesheet">
     <link href="/static/css/font-awesome.min.css" rel="stylesheet">
-    <link href="/static/css/tms.css?_=2" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/pl/fe/matter/enroll/frame.css');?>" rel="stylesheet">
 </head>
@@ -105,15 +104,17 @@
                             <span class="icon-bar"></span>
                         </button>
                     </div>
-                    <nav class='nav navbar-nav tms-breadcrumb' uib-collapse="isNavCollapsed">
-                        <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>工作台</a></li>
-                        <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
-                        <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
-                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
-                        <li>
-                            <a href='' ng-click="switchTo('preview')">{{app.title}}</a>
-                        </li>
-                    </nav>
+                    <div uib-collapse="isNavCollapsed">
+                        <nav class='nav navbar-nav tms-breadcrumb'>
+                            <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>工作台</a></li>
+                            <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
+                            <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
+                            <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                            <li>
+                                <a href='' ng-click="switchTo('preview')">{{app.title}}</a>
+                            </li>
+                        </nav>
+                    </div>
                 </div>
             </nav>
             <div class='container-fluid'>
@@ -137,7 +138,7 @@
     <script src="/static/js/ZeroClipboard.min.js"></script>
     <script src="/static/js/highcharts.js"></script>
     <script src="/static/js/highcharts/exporting.js"></script>
-    <script src="/static/js/ui-tms.js?_=4"></script>
+    <script src="/static/js/ui-tms.js?_=5"></script>
     <script src="/static/js/xxt.ui.js?_=4"></script>
     <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
     <script src="<?php echo custom_version('/pl/fe/_module/const.js');?>"></script>

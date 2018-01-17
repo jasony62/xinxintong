@@ -124,7 +124,7 @@ define([], function() {
                     schema.content = '请点击下面“编辑”按钮，编辑本说明文字';
                 }
             }
-            if (/longtext|file|image/.test(type)) {
+            if (/longtext|file|image|multitext/.test(type)) {
                 schema.remarkable = 'Y';
             }
             if (proto && proto.format !== undefined) {

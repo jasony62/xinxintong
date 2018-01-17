@@ -10,19 +10,19 @@
             <div class="btn-group" uib-dropdown>
                 <button type="button" class="btn btn-default" uib-dropdown-toggle>更多操作 <i class="caret"></i></button>
                 <ul uib-dropdown-menu>
-                    <li><a href="" ng-click="batchVerify()">选中记录通过审核<span>（{{rows.count}}）</span></a></li>
-                    <li><a href="" ng-click="verifyAll()">全部记录通过审核</a></li>
+                    <li><a href ng-click="batchVerify()">选中记录通过审核<span>（{{rows.count}}）</span></a></li>
+                    <li><a href ng-click="verifyAll()">全部记录通过审核</a></li>
                     <li class="divider"></li>
-                    <li><a href="" ng-click="batchTag()">选中记录打标签<span>（{{rows.count}}）</span></a></li>
+                    <li><a href ng-click="batchTag()">选中记录打标签<span>（{{rows.count}}）</span></a></li>
                     <li class="divider"></li>
-                    <li><a href="" ng-click="export()">导出全部记录</a></li>
-                    <li><a href="" ng-click="exportImage()">导出全部记录中的图片</a></li>
+                    <li><a href ng-click="export()">导出填写记录</a></li>
+                    <li><a href ng-click="exportImage()">导出填写记录中的图片</a></li>
                     <li class="divider"></li>
-                    <li><a href="" ng-click="editRecord()">添加记录</a></li>
-                    <li><a href="" ng-click="empty()">清空记录</a></li>
+                    <li><a href ng-click="editRecord()">添加记录</a></li>
+                    <li><a href ng-click="empty()">清空记录</a></li>
                     <li class="divider"></li>
-                    <li><a href="" ng-click="importByOther()">从其他活动导入记录</a></li>
-                    <li><a href="" ng-click="createAppByRecords()">根据选中记录创建活动<span>（{{rows.count}}）</span></a></li>
+                    <li><a href ng-click="importByOther()">从其他活动导入记录</a></li>
+                    <li><a href ng-click="createAppByRecords()">根据选中记录创建活动<span>（{{rows.count}}）</span></a></li>
                 </ul>
             </div>
             <div class='form-group pull-right'>
@@ -40,7 +40,7 @@
     </div>
     <!-- end actions -->
     <!-- records -->
-    <div tms-flex-height top='72' bottom='135' class='form-group'>
+    <div tms-flex-height top='72' bottom='135' class='form-group' style='width:100%;'>
         <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
             <table class='table table-bordered'>
                 <thead>
@@ -85,6 +85,9 @@
                             <div ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
                             <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
@@ -99,6 +102,9 @@
                             <div ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
@@ -109,6 +115,9 @@
                             <span ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>

@@ -2,7 +2,7 @@
     <div id='list' class='row'>
         <nav class="navbar navbar-default navbar-fixed-top">
             <form class="navbar-form navbar-left tms-keep-inline">
-                <div class="btn-group dropup" uib-dropdown>
+                <div class="btn-group dropdown" uib-dropdown>
                     <button uib-dropdown-toggle ng-disabled="!countSelected()" class="btn btn-default">
                         选中记录 <span class="caret"></span>
                     </button>
@@ -60,6 +60,9 @@
                             <div ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                             <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
                             <div ng-switch-when="remark" ng-class="{unread:r.verbose.data[schema.id].last_remark_at>lastCachedStatus.lastAt}">{{r.verbose.data[schema.id].remark_num}}</div>
                             <div ng-switch-when="agreed">
@@ -80,6 +83,9 @@
                             <div ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                             <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
                             <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
                         </td>
@@ -89,6 +95,9 @@
                             </div>
                             <div ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
                             </div>
                             <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
                             <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>

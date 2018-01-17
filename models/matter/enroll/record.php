@@ -141,12 +141,12 @@ class record_model extends record_base {
 			/*题目中对应的标签*/
 			$tagOlds = [];
 			$q = [
-				'tag',
+				'id,tag',
 				'xxt_enroll_record_data',
-				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1],
+				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1, 'multitext_seq' => 0],
 			];
-			if ($tagOld = $this->query_obj_ss($q)) {
-				!empty($tagOld->tag) && $tagOlds = json_decode($tagOld->tag);
+			if ($recordData = $this->query_obj_ss($q)) {
+				!empty($recordData->tag) && $tagOlds = json_decode($recordData->tag);
 			}
 
 			/* 保证以字符串的格式存储标签id，便于以后检索 */
@@ -176,7 +176,7 @@ class record_model extends record_base {
 			$rst = $this->update(
 				'xxt_enroll_record_data',
 				['tag' => $this->escape($jsonTags)],
-				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
+				['id' => $recordData->id]
 			);
 		}
 
@@ -663,7 +663,7 @@ class record_model extends record_base {
 			$schemaId = $oCriteria->order->schemaId;
 			$orderby = $oCriteria->order->orderby;
 			$q[1] .= ",xxt_enroll_record_data d";
-			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId'";
+			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId' and d.multitext_seq = 0";
 			$q2['o'] = 'd.' . $orderby . ' desc';
 		} elseif (!empty($oCriteria->order->orderby) && $oCriteria->order->orderby === 'sum') {
 			$q2['o'] = 'r.score desc';
@@ -972,7 +972,7 @@ class record_model extends record_base {
 		$q = [
 			'enroll_key,value,like_log,like_num',
 			"xxt_enroll_record_data",
-			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>''",
+			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>'' and multitext_seq = 0",
 		];
 		if ($oDataSchema->type === 'date') {
 
@@ -1477,7 +1477,7 @@ class record_model extends record_base {
 
 		$dataSchemas = $oApp->dataSchemas;
 		foreach ($dataSchemas as $oSchema) {
-			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score'])) {
+			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score', 'multitext'])) {
 				continue;
 			}
 			$result[$oSchema->id] = $oDataBySchema = (object) [

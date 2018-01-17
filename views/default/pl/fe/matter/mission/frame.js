@@ -53,6 +53,11 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         })();
     }]);
     ngApp.controller('ctrlFrame', ['$scope', '$location', 'CstNaming', 'srvSite', 'srvMission', function($scope, $location, CstNaming, srvSite, srvMission) {
+        $scope.isSmallLayout = false;
+        if (window.screen && window.screen.width < 768) {
+            $scope.isSmallLayout = true;
+        }
+        $scope.isNavCollapsed = $scope.isSmallLayout;
         $scope.subView = '';
         $scope.CstNaming = CstNaming;
         $scope.update = function(name) {

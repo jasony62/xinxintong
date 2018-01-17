@@ -77,10 +77,11 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$
     }
     var oApp, oAppState, oAgreedLabel;
     oAgreedLabel = { 'Y': '推荐', 'N': '屏蔽', 'A': '' };
-    $scope.gotoRemark = function(ek, schemaId, remarkId) {
+    $scope.gotoRemark = function(ek, schemaId, id, remarkId) {
         var url = LS.j('', 'site', 'app');
         url += '&ek=' + ek;
         url += '&schema=' + schemaId;
+        url += '&id=' + id;
         remarkId && (url += '&remark=' + remarkId);
         url += '&page=remark';
         location.href = url;

@@ -106,6 +106,11 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
         })();
     }]);
     ngApp.controller('ctrlFrame', ['$scope', 'CstNaming', 'cstApp', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function($scope, CstNaming, cstApp, srvSite, srvEnrollApp, templateShop, $location) {
+        $scope.isSmallLayout = false;
+        if (window.screen && window.screen.width < 768) {
+            $scope.isSmallLayout = true;
+        }
+        $scope.isNavCollapsed = $scope.isSmallLayout;
         $scope.cstApp = cstApp;
         $scope.scenarioes = {
             names: CstNaming.scenario.enroll,

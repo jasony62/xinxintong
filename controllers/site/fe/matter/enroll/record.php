@@ -815,13 +815,33 @@ class record extends base {
 	 *
 	 * @param string $ek
 	 * @param string $schema
+	 * @param int $id xxt_enroll_record_data 的id
 	 *
 	 */
-	public function like_action($ek, $schema) {
+	public function like_action($ek, $schema, $id = '') {
 		$modelData = $this->model('matter\enroll\data');
-		$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid']);
+		if (empty($id)) {
+			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
+		} else {
+			$oRecordData = $modelData->byId($id, ['fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
+		}
 		if (false === $oRecordData) {
 			return new \ObjectNotFoundError();
+		}
+		
+		$oApp = $this->model('matter\enroll')->byId($oRecordData->aid, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 检查是否是多项填写题题的点赞，如果是，需要$id */
+		foreach ($oApp->dataSchemas as $dataSchema) {
+			if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
+				$schmeaType = 'multitext';
+				if (empty($id)) {
+					return new \ComplianceError('参数错误，此题型需要指定唯一标识');
+				}
+			}
 		}
 
 		$oUser = $this->who;
@@ -834,15 +854,21 @@ class record extends base {
 			$oLikeLog->{$oUser->uid} = time();
 			$incLikeNum = 1;
 		}
-		$likeNum = count(get_object_vars($oLikeLog));
-
+		$likeNum = $oRecordData->like_num + $incLikeNum;
 		$modelData->update(
 			'xxt_enroll_record_data',
 			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],
 			['id' => $oRecordData->id]
 		);
+		if (isset($schmeaType) && $schmeaType === 'multitext' && $oRecordData->multitext_seq != 0) {
+			// 总数据点赞数 +1
+			if ($incLikeNum > 0) {
+				$modelData->update("update xxt_enroll_record_data set like_num=like_num +1 where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
+			} else {
+				$modelData->update("update xxt_enroll_record_data set like_num=like_num -1 where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
+			}
+		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecordData->aid, ['cascaded' => 'N']);
 		$modelUsr = $this->model('matter\enroll\user');
 		$modelUsr->setOnlyWriteDbConn(true);
 		if ($incLikeNum > 0) {
@@ -1017,7 +1043,19 @@ class record extends base {
 			}
 		}
 
-		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
+		$result = [];
+		if (isset($schmeaType) && $schmeaType === 'multitext' && $oRecordData->multitext_seq != 0) {
+			$leader = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'like_log,like_num']);
+			$result['itemLike_log'] = $oLikeLog;
+			$result['itemLike_num'] = $likeNum;
+			$result['like_log'] = $leader->like_log;
+			$result['like_num'] = $leader->like_num;
+		} else {
+			$result['like_log'] = $oLikeLog;
+			$result['like_num'] = $likeNum;
+		}
+		
+		return new \ResponseData($result);
 	}
 	/**
 	 * 推荐登记记录中的某一个题

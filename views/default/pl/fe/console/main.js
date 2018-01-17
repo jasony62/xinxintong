@@ -169,6 +169,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.filter = facListFilter.init(null, _oCriteria.filter);
         $scope.$watch('frameState.sid', function(nv) {
+            if (!nv) return;
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
             $scope.$watch('criteria', function(nv) {
@@ -268,6 +269,7 @@ define(['frame'], function(ngApp) {
         //    $scope.matterTagsFram(filter, filter2);
         //};
         $scope.$watch('frameState.sid', function(nv) {
+            if (!nv) return;
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
             $scope.$watch('unionType', function(nv) {
@@ -357,6 +359,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.filter = facListFilter.init(null, _oCriteria.filter);
         $scope.$watch('frameState.sid', function(nv) {
+            if (!nv) return;
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
             $scope.$watch('criteria', function(nv) {

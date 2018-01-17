@@ -23,16 +23,23 @@ class remark extends \pl\fe\matter\base {
 	 *
 	 * @param string $ek
 	 * @param string $schema schema's id，如果不指定，返回的是对整条记录的评论
+	 * @param string $id xxt_enroll_record_data's id
 	 *
 	 */
-	public function list_action($ek, $schema = '', $page = 1, $size = 99) {
+	public function list_action($ek, $schema = '', $page = 1, $size = 99, $id = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		// 会按照指定的用户id进行过滤，所以去掉用户id，获得所有数据
 		$oUser = new \stdClass;
 
-		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size);
+		$options = [];
+		if (!empty($id)) {
+			$data_id = [];
+			$data_id[] = $id;
+			$options['data_id'] = $data_id;
+		}
+		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $options);
 
 		return new \ResponseData($result);
 	}
@@ -76,7 +83,7 @@ class remark extends \pl\fe\matter\base {
 	 * 给指定的登记记录的添加评论
 	 * 需要处理用户没有提交评论的登记项数据的情况（用户提交数据后又增加了登记项）
 	 */
-	public function add_action($ek, $schema = null) {
+	public function add_action($ek, $schema = null, $id = 0) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -96,6 +103,19 @@ class remark extends \pl\fe\matter\base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
+
+		//如果是多项填写题需要指定id，否则，则不需要
+		if (!empty($schema)) {
+			foreach ($oApp->dataSchemas as $dataSchema) {
+				if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
+					if (empty($id)) {
+						return new \ComplianceError('参数错误，此题型需要指定唯一标识');
+					}
+					$schemaType = 'multitext';
+				}
+			}
+		}
+
 		/**
 		 * 发表评论的用户
 		 */
@@ -109,6 +129,7 @@ class remark extends \pl\fe\matter\base {
 		$oRemark->enroll_key = $ek;
 		$oRemark->enroll_userid = $oRecord->userid;
 		$oRemark->schema_id = $schema;
+		$oRemark->data_id = $modelRec->escape($id);
 		$oRemark->create_at = $current;
 		$oRemark->content = $modelRec->escape($data->content);
 
@@ -117,9 +138,21 @@ class remark extends \pl\fe\matter\base {
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
 
 		if (isset($schema)) {
-			$oSchemaData = $modelRec->query_obj_ss(['id', 'xxt_enroll_record_data', ['enroll_key' => $ek, 'schema_id' => $schema, 'state' => 1]]);
+			if (empty($id)) {
+				$oSchemaData = $modelRec->query_obj_ss(['id,multitext_seq', 'xxt_enroll_record_data', ['enroll_key' => $ek, 'schema_id' => $schema, 'state' => 1, 'multitext_seq' => 0]]);
+			} else {
+				$oSchemaData = $modelRec->query_obj_ss(['id,multitext_seq', 'xxt_enroll_record_data', ['id' => $id]]);
+			}
 			if ($oSchemaData) {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id='{$oSchemaData->id}'");
+				if (isset($schemaType) && $schemaType === 'multitext' && !empty($id)) {
+					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = $oSchemaData->id");
+					// 如果某项的数据被评论了那么这道题的总数据+1
+					if ($oSchemaData->multitext_seq != 0) {
+						$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
+					}
+				} else {
+					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = $oSchemaData->id");
+				}
 			} else {
 				/* 用户没有提交过数据，创建一条记录 */
 				$aNewSchemaData = [

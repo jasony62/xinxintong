@@ -7,10 +7,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         var url, defer = $q.defer();
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + $scope.filter.schema.id;
+        url += '&id=' + itemId;
         http2.get(url).then(function(rsp) {
             var oRecordData;
             if (oRecordData = rsp.data.data) {
-                if (oFilter.schema.type == 'file') {
+                if (oFilter.schema.type == 'file'|| (oFilter.schema.type == 'multitext'&& oRecordData.multitext_seq=='0')) {
                     oRecordData.value = angular.fromJson(oRecordData.value);
                 }
             }
@@ -32,18 +33,24 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         var url;
         url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + $scope.filter.schema.id;
+        url += '&id=' + itemId;
         if (oRemark) {
             url += '&remark=' + oRemark.id;
         }
         return http2.post(url, { content: content });
     }
 
-    var oApp, aRemarkable, oFilter, ek, schemaId;
+    var oApp, aRemarkable, oFilter, ek, schemaId, itemId;
     ek = location.search.match(/[\?&]ek=([^&]*)/)[1];
     if (location.search.match(/[\?&]schema=[^&]*/)) {
         schemaId = location.search.match(/[\?&]schema=([^&]*)/)[1];
     } else {
         schemaId = null;
+    }
+    if(location.search.match(/[\?&]id=([^&]*)/)) {
+        $scope.itemId = itemId = location.search.match(/[\?&]id=([^&]*)/)[1];
+    }else {
+        $scope.itemId = itemId = 'null';
     }
     $scope.newRemark = {};
     $scope.filter = oFilter = {};
@@ -130,6 +137,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         url += '?site=' + oApp.siteid;
         url += '&ek=' + $scope.record.enroll_key;
         url += '&schema=' + $scope.filter.schema.id;
+        url += '&id=' + itemId;
         http2.get(url).then(function(rsp) {
             $scope.data.like_log = rsp.data.like_log;
             $scope.data.like_num = rsp.data.like_num;
@@ -217,6 +225,9 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
             listRemarks().then(function(data) {
                 var oRemark, oUpperRemark, oRemarks = {};
                 if (data.remarks && data.remarks.length) {
+                    angular.forEach(data.remarks, function(remark) {
+                        oRemarks[remark.id] = remark;
+                    });
                     for (var i = data.remarks.length - 1; i >= 0; i--) {
                         oRemark = data.remarks[i];
                         if (oRemark.content) {
@@ -226,14 +237,13 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
                             oUpperRemark = oRemarks[oRemark.remark_id];
                             oRemark.content = '<a href="" ng-click="gotoUpper(' + oRemark.remark_id + ')">回复 ' + oUpperRemark.nickname + ' 的评论：</a><br/>' + oRemark.content;
                         }
-                        oRemarks[oRemark.id] = oRemark;
                     }
                 }
-                if ($scope.data) {
-                    if ($scope.data.tag) {
-                        $scope.data.tag.forEach(function(index, tagId) {
+                if (data.data) {
+                    if (data.data.tag) {
+                        data.data.tag.forEach(function(index, tagId) {
                             if (oApp._tagsById[index]) {
-                                $scope.data.tag[tagId] = oApp._tagsById[index];
+                                data.data.tag[tagId] = oApp._tagsById[index];
                             }
                         });
                     }

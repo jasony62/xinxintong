@@ -608,6 +608,10 @@ provider('srvQuickEntry', function() {
                             var files = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : {};
                             data[oSchema.id] = files;
                             break;
+                        case 'multitext':
+                            var multitexts = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : [];
+                            data[oSchema.id] = multitexts;
+                            break;
                         case 'member':
                             data[oSchema.id] = _memberAttr(oRecord.data.member, oSchema);
                             break;

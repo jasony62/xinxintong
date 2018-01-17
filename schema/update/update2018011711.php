@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "update xxt_enroll_record_remark r set r.data_id = CASE WHEN ((select d.id from xxt_enroll_record_data d where d.enroll_key = r.enroll_key and d.schema_id = r.schema_id and d.aid = r.aid and d.rid = r.rid and d.multitext_seq = 0) is null) THEN 0 else (select d.id from xxt_enroll_record_data d where d.enroll_key = r.enroll_key and d.schema_id = r.schema_id and d.aid = r.aid and d.rid = r.rid and d.multitext_seq = 0) END";
+$sqls[] = "update xxt_enroll_record_remark r,xxt_enroll_record_data d set r.data_id = d.id where r.enroll_key = d.enroll_key and r.schema_id = d.schema_id and d.multitext_seq = 0";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

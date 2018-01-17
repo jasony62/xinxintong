@@ -46,31 +46,40 @@
                         <td>{{r._state}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td ng-repeat="c in recordSchemas">
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='multitext'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
                             <span ng-if="c.type==='file'">
                                 <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <div ng-if="c.type==='multitext'">
+                                <p ng-repeat='item in r._data[c.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                         </td>
                         <td class='matched enroll' ng-repeat="c in enrollDataSchemas">
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='multitext'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
                             <span ng-if="c.type==='file'">
                                 <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <div ng-if="c.type==='multitext'">
+                                <p ng-repeat='item in r._data[c.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                         </td>
                         <td class='matched group' ng-repeat="c in groupDataSchemas">
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='multitext'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
                             <span ng-if="c.type==='file'">
                                 <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <div ng-if="c.type==='multitext'">
+                                <p ng-repeat='item in r._data[c.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                         </td>
                         <td>{{r.nickname}}</td>
                         <td>{{r.verified}}</td>

@@ -145,6 +145,7 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
                         url += '&ek=' + oRecord.enroll_key;
                         url += '&schema=' + oSchema.id;
                         url += '&page=remark';
+                        url += '&id=' + oRecord.verbose[oSchema.id].id;
                         location.href = url;
                     }, true);
                 }

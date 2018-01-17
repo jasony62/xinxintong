@@ -3,7 +3,7 @@
         <label>题目ID</label>
         <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema(activeSchema)" readonly>
     </div>
-    <div class="form-group">
+    <div class="form-group" ng-if="editing.type!=='multitext'">
         <label>题目类型</label>
         <select class='form-control' ng-model='editing.type' ng-change="changeSchemaType()" ng-disabled="editing.type==='member'">
             <option value='shorttext'>单行填写题</option>
@@ -99,11 +99,11 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.supplement' ng-change="updSchema(activeSchema)">允许填写补充说明</label>
     </div>
-    <div class="checkbox" ng-show="['shorttext','longtext','image', 'file'].indexOf(activeSchema.type)!==-1">
+    <div class="checkbox" ng-show="['shorttext','longtext','multitext', 'image', 'file'].indexOf(activeSchema.type)!==-1">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.cantag' ng-change="updSchema(activeSchema)">允许用户给填写内容打标签</label>
     </div>
-    <div class="checkbox" ng-show="'shorttext'===activeSchema.type">
+    <div class="checkbox" ng-show="['shorttext','multitext'].indexOf(activeSchema.type)!==-1">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.history' ng-change="updSchema(activeSchema,'history')">选择已填数据</label>
     </div>

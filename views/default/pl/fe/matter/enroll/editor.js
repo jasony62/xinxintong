@@ -7,6 +7,9 @@ define(['frame'], function(ngApp) {
                 app.dataSchemas.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
                         srvRecordConverter.forEdit(schema, oRecord.data);
+                        if(schema.type=='multitext') {
+                            _items(schema);
+                        }
                     }
                 });
                 app._schemasFromEnrollApp.forEach(function(schema) {
@@ -54,6 +57,14 @@ define(['frame'], function(ngApp) {
             $scope.remarkableSchemas = remarkableSchemas;
         }
 
+        function _items(schema) {
+            var _item = {};
+            angular.forEach(oRecord.verbose[schema.id].items, function(item) {
+                _item[item.id] = item;
+                oRecord.verbose[schema.id]._items = _item;
+            });
+        }
+
         function _quizScore(oRecord) {
             if (oRecord.verbose) {
                 for (var schemaId in oRecord.verbose) {
@@ -78,13 +89,23 @@ define(['frame'], function(ngApp) {
                 //数组 转 字符串
                 tags: oRecord.aTags.join(','),
             };
+            /*多项填空题，如果值为空则删掉*/
+            for(var k in oRecord.data) {
+                if(k!=='member' && oApp._schemasById[k] && oApp._schemasById[k].type=='multitext') {
+                    angular.forEach(oRecord.data[k], function(data, index) {
+                        if(data.value=='') {
+                            oRecord.data[k].splice(index,1);
+                        }
+                    });
+                }
+            };
 
             oRecord.tags = updated.tags;
             updated.comment = oRecord.comment; //oRecord 信息
             updated.verified = oRecord.verified;
             updated.rid = oRecord.rid;
             updated.userid = oRecord.userid;
-        
+
             if (oRecord.enroll_key) {
                 if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
                     updated.data = oRecord.data;
@@ -219,7 +240,18 @@ define(['frame'], function(ngApp) {
         };
         $scope.removeFile = function(field, index) {
             field.splice(index, 1);
-        }
+        };
+        $scope.addItem = function(schemaId) {
+            var data = oRecord.data;
+            var item = {
+                id: 0,
+                value: ''
+            }
+            data[schemaId].push(item);
+        };
+        $scope.removeItem = function(items, index) {
+            items.splice(index, 1);
+        };
         $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
             var aNewTags = [];
             for (var i in aSelected) {
@@ -257,8 +289,8 @@ define(['frame'], function(ngApp) {
                 $scope.pageOfRound = result.page;
             });
         };
-        $scope.agree = function(oRecord, oSchema) {
-            srvEnrollRecord.agree(oRecord.enroll_key, oSchema.id, oRecord.verbose[oSchema.id].agreed).then(function() {});
+        $scope.agree = function(oRecord, oSchema, oAgreed, oItemId) {
+            srvEnrollRecord.agree(oRecord.enroll_key, oSchema.id, oAgreed, oItemId).then(function() {});
         };
         $scope.agreeRemark = function(oRemark) {
             srvEnrollRecord.agreeRemark(oRemark.id, oRemark.agreed).then(function() {});
@@ -271,21 +303,27 @@ define(['frame'], function(ngApp) {
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
         $scope.openedRemarksSchema = false;
-        $scope.switchSchemaRemarks = function(schema) {
+        $scope.openedItemRemarksSchema = false;
+        $scope.switchSchemaRemarks = function(schema, itemId) {
             $scope.openedRemarksSchema = schema;
-            srvEnrollRecord.listRemark(ek, schema.id).then(function(result) {
-                schemaRemarks[schema.id] = result.remarks;
+            $scope.openedItemRemarksSchema = itemId;
+            srvEnrollRecord.listRemark(ek, schema.id, itemId).then(function(result) {
+                schemaRemarks[itemId] = result.remarks;
             });
         };
-        $scope.addRemark = function(schema) {
-            srvEnrollRecord.addRemark(ek, schema ? schema.id : null, $scope.newRemark).then(function(remark) {
-                if (schema) {
-                    !schemaRemarks[schema.id] && (schemaRemarks[schema.id] = []);
-                    schemaRemarks[schema.id].push(remark);
+        $scope.addRemark = function(schema, itemId) {
+            srvEnrollRecord.addRemark(ek, schema ? schema.id : null, $scope.newRemark, itemId).then(function(remark) {
+                if (itemId) {
+                    !schemaRemarks[itemId] && (schemaRemarks[itemId] = []);
+                    schemaRemarks[itemId].push(remark);
                     if (oRecord.verbose[schema.id] === undefined) {
                         oRecord.verbose[schema.id] = {};
                     }
-                    oRecord.verbose[schema.id].remark_num = schemaRemarks[schema.id].length;
+                    if(schema.type=='multitext'&&oRecord.verbose[schema.id].id!==itemId) {
+                        oRecord.verbose[schema.id]._items[itemId].remark_num = schemaRemarks[itemId].length;
+                    }else{
+                        oRecord.verbose[schema.id].remark_num = schemaRemarks[itemId].length;
+                    }
                 } else {
                     $scope.remarks.push(remark);
                 }

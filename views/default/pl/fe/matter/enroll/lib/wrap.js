@@ -1,4 +1,4 @@
-define([], function() {
+ define([], function() {
     'use strict';
     /**/
     var _editor = null;
@@ -294,6 +294,23 @@ define([], function() {
         forEdit && (inpAttrs.contenteditable = 'false');
 
         switch (schema.type) {
+            case 'multitext':
+                html += '<ul class="list-group multitext">';
+                html += '<li class="list-group-item" ng-repeat="item in data.'+ schema.id +' track by $index">';
+                html += '<div wrap="multitext-history" class="input-group input-group-lg">';
+                schema.history === 'Y' && (html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="' + 'dataBySchema(\'' + schema.id + '\')' + '">查找</button></span>');
+                html += '<input type="text" ng-model="data.' + schema.id + '[$index].value" title="' + schema.title + '"';
+                config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
+                schema.required === 'Y' && (html += 'required=""');
+                html += ' class="form-control input-lg"';
+                forEdit && (html += ' readonly');
+                html += '>';
+                html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(data.'+ schema.id +', $index)"><i class="glyphicon glyphicon-trash"></i></button></span>';
+                html += '</div>';
+                html += '</li>';
+                html += '<li class="list-group-item"><button class="btn btn-success"  ng-click="addItem(\'' + schema.id + '\')">添加内容</button></li>';
+                html += '</ul>';
+                break;
             case 'shorttext':
             case 'member':
                 if (schema.type === 'shorttext' && schema.history === 'Y') {
@@ -433,7 +450,7 @@ define([], function() {
                     $dom.find('[class="description"]').remove();
                 }
 
-                if (/shorttext|longtext|member|date|location/.test(oSchema.type)) {
+                if (/shorttext|longtext|multitext|member|date|location/.test(oSchema.type)) {
                     $input = $dom.find('input,select,textarea');
                     if (config.showname === 'label') {
                         $label.removeClass('sr-only');
@@ -709,6 +726,9 @@ define([], function() {
             case 'file':
                 html = '<ul><li ng-repeat="file in Record.current.data.' + schema.id + '"><span ng-bind="file.name"></span></li></ul>';
                 break;
+            case 'multitext':
+                html = '<ul><li ng-repeat="item in Record.current.data.' + schema.id + '"><span ng-bind="item.value"></span></li></ul>';
+                break;
             case '_enrollAt':
                 html = "<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
                 break;
@@ -876,6 +896,12 @@ define([], function() {
                 break;
             case 'image':
                 html += '<ul><li ng-repeat="img in r.data.' + oSchema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
+                break;
+            case 'file':
+                html += '<ul><li ng-repeat="file in r.data.' + oSchema.id + '"><span ng-bind="file.name"></span></li></ul>';
+                break;
+            case 'multitext':
+                html += '<ul><li ng-repeat="item in r.data.' + oSchema.id + '"><span ng-bind="item.value"></span></li></ul>';
                 break;
             case '_enrollAt':
                 html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";

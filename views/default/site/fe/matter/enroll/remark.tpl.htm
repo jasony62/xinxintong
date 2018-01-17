@@ -58,6 +58,12 @@
                         <ul ng-switch-when="image">
                             <li ng-repeat="img in data.value.split(',')"><img ng-src="{{img}}" /></li>
                         </ul>
+                        <div ng-switch-when="multitext">
+                            <ul ng-if="data.multitext_seq == 0" >
+                                <li ng-repeat="item in data.value"><span ng-bind="item.value"></span></li>
+                            </ul>
+                            <span ng-if="data.multitext_seq > 0" ng-bind="data.value"></span>
+                        </div>
                         <div ng-switch-when="file">
                             <div ng-repeat="file in data.value">
                                 <p><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></p>

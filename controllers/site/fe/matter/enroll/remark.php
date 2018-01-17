@@ -114,7 +114,7 @@ class remark extends base {
 		/**
 		 * 发表评论的用户
 		 */
-		$data_id = 0; 
+		$data_id = $id; 
 		//如果是多项填写题需要指定id，否则，则不需要
 		if (!empty($schema)) {
 			foreach ($oApp->dataSchemas as $dataSchema) {
@@ -123,7 +123,6 @@ class remark extends base {
 						return new \ComplianceError('参数错误，此题型需要指定唯一标识');
 					}
 					$schemaType = 'multitext';
-					$data_id = $id;
 					$oRecordData = $this->model('matter\enroll\data')->byId($data_id, ['fields' => 'aid,id,like_log,userid,multitext_seq']);
 					if (false === $oRecordData) {
 						return new \ObjectNotFoundError();

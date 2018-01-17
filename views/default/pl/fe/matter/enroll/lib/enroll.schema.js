@@ -541,6 +541,28 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     $scope.updSchema(schema);
                 });
             };
+            $scope.setOptGroup = function(oSchema) {
+                if (!oSchema || !/single|multiple/.test(oSchema.type)) {
+                    return false;
+                }
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setOptGroup.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var _oSchema;
+                        _oSchema = angular.copy(oSchema);
+                        if (_oSchema.optGroups === undefined) {
+                            _oSchema.optGroups = [];
+                        }
+                        $scope2.ok = function() {
+                            $mi.close();
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                    }],
+                    backdrop: 'static',
+                }).result.then(function() {});
+            };
             /**
              * oAfterSchema: false - first, undefined - after active schema
              */

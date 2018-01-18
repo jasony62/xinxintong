@@ -542,7 +542,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', 'http2', '$uibModal', 'srvEnrollApp', function($q, http2, $uibModal, srvEnrollApp) {
+        this.$get = ['$q', '$uibModal', 'http2', 'srvEnrollApp', function($q, $uibModal, http2, srvEnrollApp) {
             return {
                 RoundState: RoundState,
                 init: function(rounds, page) {
@@ -733,11 +733,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 };
                                 $scope.blur = function(rule) {
                                     var index = cron.indexOf(rule);
-                                    var div = document.querySelector('#round' + index);
-                                    var html;
-                                    $http2.post('/rest/pl/fe/matter/enroll/round/getcron', { roundCron: rule }, function(rsp) {
-                                        html = '<p>开始时间：' + rsp.data.start + '</p>结束时间：' + rsp.data.end;
-                                        div.innerHTML = html;
+                                    http2.post('/rest/pl/fe/matter/enroll/round/getcron', { roundCron: rule }, function(rsp) {
                                         cron[index].case = rsp.data;
                                     });
                                 };
@@ -1254,7 +1250,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '&ek=' + ek;
                 schemaId && (url += '&schema=' + schemaId);
                 itemId && (url += '&id=' + itemId);
-                if(itemId =='0') {
+                if (itemId == '0') {
                     url += '&id=null';
                 }
                 http2.get(url, function(rsp) {
@@ -1462,38 +1458,38 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _plOperations = [{
                 value: 'add',
                 title: '新增记录'
-            },{
+            }, {
                 value: 'updateData',
                 title: '修改记录'
-            },{
+            }, {
                 value: 'removeData',
                 title: '删除记录'
-            },{
+            }, {
                 value: 'restoreData',
                 title: '恢复记录'
-            },{
+            }, {
                 value: 'U',
                 title: '修改活动'
-            },{
+            }, {
                 value: 'verify.batch',
                 title: '审核通过指定记录'
-            },{
+            }, {
                 value: 'verify.all',
                 title: '审核通过全部记录'
             }];
             _siteOperations = [{
                 value: 'read',
                 title: '阅读'
-            },{
+            }, {
                 value: 'saveData',
                 title: '保存'
-            },{
+            }, {
                 value: 'submit',
                 title: '提交'
-            },{
+            }, {
                 value: 'updateData',
                 title: '修改记录'
-            },{
+            }, {
                 value: 'removeData',
                 title: '删除记录'
             }];

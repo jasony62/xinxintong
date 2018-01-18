@@ -55,7 +55,7 @@ class user_model extends \TMS_MODEL {
 		}
 		/* 记录得分 */
 		$score = 0;
-		if ($oRecord2->score->sum) {
+		if (isset($oRecord2->score->sum)) {
 			$score = $oRecord2->score->sum;
 		}
 
@@ -83,7 +83,7 @@ class user_model extends \TMS_MODEL {
 		}
 		/* 记录得分 */
 		$score = 0;
-		if ($oRecord2->score->sum) {
+		if (isset($oRecord2->score->sum)) {
 			$score = $oRecord2->score->sum;
 		}
 

@@ -25,3 +25,8 @@ div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 
 div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 .tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
+
+/* 关联选项可见性控制 */
+li[wrap].option-hide{height:0;margin:0;visibility:hidden;}
+li[wrap].option-hide>label{height:0;min-height:0;}
+li[wrap].option-hide>label>*{height:0;display:inline-block;overflow:hidden;}

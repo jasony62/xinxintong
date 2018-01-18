@@ -153,6 +153,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             }
         }
     };
+    $scope.gotoApp = function(event) {
+        location.replace($scope.app.entryUrl);
+    };
     $scope.gotoPage = function(event, page, ek, rid, newRecord) {
         if (event) {
             event.preventDefault();
@@ -172,7 +175,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         }
     };
     $scope.openMatter = function(id, type, replace, newWindow) {
-        var url = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + id + '&type=' + type;
+        var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;
         if (replace) {
             location.replace(url);
         } else {

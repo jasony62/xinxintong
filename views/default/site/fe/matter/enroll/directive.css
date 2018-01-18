@@ -21,6 +21,7 @@ div[wrap=filter] .detail .actions .btn{border-radius:0}
 .tms-switch:nth-last-of-type(5){bottom:232px;}
 .tms-switch:nth-last-of-type(6){bottom:288px;}
 .tms-switch-back:before{content:'返回';}
+.tms-switch-app:before{content:'活动';}
 .tms-switch-task:before{content:'任务';}
 .tms-switch-save:before{content:'保存';}
 .tms-switch-rank:before{content:'排行';}
@@ -28,12 +29,12 @@ div[wrap=filter] .detail .actions .btn{border-radius:0}
 .tms-switch-coinpay:before{content:'打赏';}
 @media screen and (max-width:768px){
 	body{margin-bottom:60px;}
-	.tms-switch:nth-last-of-type(1){right:8px;bottom:10px;}
+	.tms-switch:nth-last-of-type(1){right:5px;bottom:10px;}
 	.tms-switch:nth-last-of-type(2){right:85px;bottom:10px;}
 	.tms-switch:nth-last-of-type(3){right:165px;bottom:10px;}
-	.tms-switch:nth-last-of-type(4){right:176px;bottom:10px;}
-	.tms-switch:nth-last-of-type(5){right:232px;bottom:10px;}
-	.tms-switch:nth-last-of-type(6){right:288px;bottom:10px;}
+	.tms-switch:nth-last-of-type(4){right:245px;bottom:10px;}
+	.tms-switch:nth-last-of-type(5){right:325px;bottom:10px;}
+	.tms-switch:nth-last-of-type(6){right:405px;bottom:10px;}
 }
 #frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff;}
 #frmPlugin iframe{width:100%;height:100%;border:0;}

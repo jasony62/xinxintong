@@ -2,7 +2,7 @@
 require('./remark.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$uibModal', function($scope, $q, $timeout, http2, $sce, $uibModal) {
+ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$uibModal', '$location', function($scope, $q, $timeout, http2, $sce, $uibModal, $location) {
     function listRemarks() {
         var url, defer = $q.defer();
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
@@ -40,7 +40,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
     var oApp, aRemarkable, oFilter, ek, schemaId, itemId;
     ek = $location.search().ek;
     schemaId = $location.search().schema || null;
-    $scope.itemId = itemId = location.search().id || 'null';
+    $scope.itemId = itemId = $location.search().id || 'null';
     $scope.newRemark = {};
     $scope.filter = oFilter = {};
     $scope.openOptions = function() {

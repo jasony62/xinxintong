@@ -7,17 +7,17 @@ define(['frame'], function(ngApp) {
             if ($scope.bRequireScore) {
                 srvEnrollRecord.sum4Schema().then(function(result) {
                     $scope.sum4Schema = result;
-                    for (var p in result) {
+                    for (var schemaId in result) {
                         if ($scope.records.length) {
                             $scope.records.forEach(function(oRecord) {
-                                if (sum4SchemaAtPage[p]) {
-                                    sum4SchemaAtPage[p] += oRecord.data[p] ? parseInt(oRecord.data[p]) : 0;
+                                if (sum4SchemaAtPage[schemaId]) {
+                                    sum4SchemaAtPage[schemaId] += oRecord.data[schemaId] ? parseInt(oRecord.data[schemaId]) : 0;
                                 } else {
-                                    sum4SchemaAtPage[p] = oRecord.data[p] ? parseInt(oRecord.data[p]) : 0;
+                                    sum4SchemaAtPage[schemaId] = oRecord.data[schemaId] ? parseInt(oRecord.data[schemaId]) : 0;
                                 }
                             });
                         } else {
-                            sum4SchemaAtPage[p] = 0;
+                            sum4SchemaAtPage[schemaId] = 0;
                         }
                     }
                 });
@@ -30,20 +30,20 @@ define(['frame'], function(ngApp) {
             if ($scope.bRequireScore) {
                 srvEnrollRecord.score4Schema().then(function(result) {
                     $scope.score4Schema = result;
-                    for (var p in result) {
+                    for (var schemaId in result) {
                         if ($scope.records.length) {
                             $scope.records.forEach(function(oRecord) {
                                 if (oRecord.score) {
-                                    if (score4SchemaAtPage[p]) {
-                                        score4SchemaAtPage[p] += parseFloat(oRecord.score[p] || 0);
+                                    if (score4SchemaAtPage[schemaId]) {
+                                        score4SchemaAtPage[schemaId] += parseFloat(oRecord.score[schemaId] || 0);
                                     } else {
-                                        score4SchemaAtPage[p] = parseFloat(oRecord.score[p] || 0);
+                                        score4SchemaAtPage[schemaId] = parseFloat(oRecord.score[schemaId] || 0);
                                     }
                                     score4SchemaAtPage.sum = parseFloat(oRecord.score.sum || 0);
                                 }
                             });
                         } else {
-                            score4SchemaAtPage[p] = 0;
+                            score4SchemaAtPage[schemaId] = 0;
                         }
                     }
                 });

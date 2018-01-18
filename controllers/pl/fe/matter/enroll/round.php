@@ -18,7 +18,7 @@ class round extends \pl\fe\matter\base {
 		}
 
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -29,21 +29,21 @@ class round extends \pl\fe\matter\base {
 		$oPage->size = $size;
 
 		$result = $modelRnd->byApp($oApp, ['page' => $oPage]);
-		if(!empty($checked)){
-			if($checked = $modelRnd->byId($checked)){
+		if (!empty($checked)) {
+			if ($checked = $modelRnd->byId($checked)) {
 				$result->checked = $checked;
 			}
 		}
-		
+
 		return new \ResponseData($result);
 	}
 	/**
 	 * 获取设置定时轮次的时间
-	 * 
+	 *
 	 * @param string $app
 	 *
 	 */
-	public function getCron_action(){
+	public function getCron_action() {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -51,13 +51,13 @@ class round extends \pl\fe\matter\base {
 		$modelRnd = $this->model('matter\enroll\round');
 
 		$posted = $this->getPostJson();
-	
-		if(empty($posted->roundCron)){
+
+		if (empty($posted->roundCron)) {
 			return new \ResponseError('请先设置定时规则！');
 		}
 
-		$rules[]=$posted->roundCron;
-		$rst=$modelRnd->byCron($rules);
+		$rules[] = $posted->roundCron;
+		$rst = $modelRnd->byCron($rules);
 
 		return new \ResponseData($rst);
 	}
@@ -80,7 +80,7 @@ class round extends \pl\fe\matter\base {
 		$modelRnd = $this->model('matter\enroll\round');
 		$posted = $this->getPostJson();
 
-		if(isset($posted->start_at) && isset($posted->end_at) && $posted->start_at>$posted->end_at){
+		if (isset($posted->start_at) && isset($posted->end_at) && $posted->start_at > $posted->end_at) {
 			return new \ResponseError('添加失败，本轮次的开始时间不能晚于结束时间！');
 		}
 
@@ -115,7 +115,7 @@ class round extends \pl\fe\matter\base {
 
 		$posted = $this->getPostJson();
 
-		if(isset($posted->start_at) && isset($posted->end_at) && $posted->start_at>$posted->end_at){
+		if (isset($posted->start_at) && isset($posted->end_at) && $posted->start_at > $posted->end_at) {
 			return new \ResponseError('更新失败，本轮次的开始时间不能晚于结束时间！');
 		}
 		/* 指定了开始时间的轮次，自动指定为启用状态 */

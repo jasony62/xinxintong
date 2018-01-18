@@ -2,21 +2,11 @@
 require('./list.css');
 
 var ngApp = require('./main.js');
-ngApp.factory('Round', ['http2', '$q', 'ls', function(http2, $q, LS) {
+ngApp.factory('Round', ['http2', 'tmsLocation', function(http2, LS) {
     var Round, _ins;
     Round = function() {};
     Round.prototype.list = function() {
-        var deferred, url;
-        deferred = $q.defer();
-        url = LS.j('round/list', 'site', 'app');
-        http2.get(url).then(function(rsp) {
-            if (rsp.err_code != 0) {
-                alert(rsp.data);
-                return;
-            }
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
+        return http2.get(LS.j('round/list', 'site', 'app'));
     };
     return {
         ins: function() {
@@ -25,7 +15,7 @@ ngApp.factory('Round', ['http2', '$q', 'ls', function(http2, $q, LS) {
         }
     };
 }]);
-ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
+ngApp.factory('Record', ['http2', '$q', 'tmsLocation', function(http2, $q, LS) {
     var Record, _ins;
     Record = function() {};
     Record.prototype.list = function(options, oCriteria) {
@@ -34,7 +24,7 @@ ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
         url = LS.j(options.type == 'enrollees' ? 'user/list' : 'record/list', 'site', 'app');
         url += '&' + options.j();
         http2.post(url, oCriteria ? oCriteria : {}).then(function(rsp) {
-            var records, record;
+            var records;
             records = rsp.data.records;
             options.page.total = rsp.data.total;
             deferred.resolve(records);
@@ -68,7 +58,7 @@ ngApp.directive('enrollRecords', function() {
         }
     }
 });
-ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'ls', '$sce', function($scope, $uibModal, Record, LS, $sce) {
+ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation', '$sce', function($scope, $uibModal, Record, LS, $sce) {
     function fnFetch(pageAt) {
         if (pageAt) {
             options.page.at = pageAt;

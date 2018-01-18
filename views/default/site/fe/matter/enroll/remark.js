@@ -11,7 +11,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         http2.get(url).then(function(rsp) {
             var oRecordData;
             if (oRecordData = rsp.data.data) {
-                if (oFilter.schema.type == 'file'|| (oFilter.schema.type == 'multitext'&& oRecordData.multitext_seq=='0')) {
+                if (oFilter.schema.type == 'file' || (oFilter.schema.type == 'multitext' && oRecordData.multitext_seq == '0')) {
                     oRecordData.value = angular.fromJson(oRecordData.value);
                 }
             }
@@ -21,12 +21,9 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
     }
 
     function summary() {
-        var url, defer = $q.defer();
+        var url;
         url = '/rest/site/fe/matter/enroll/remark/summary?site=' + oApp.siteid + '&ek=' + ek;
-        http2.get(url).then(function(rsp) {
-            defer.resolve(rsp.data)
-        });
-        return defer.promise;
+        return http2.get(url);
     }
 
     function addRemark(content, oRemark) {
@@ -41,17 +38,9 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
     }
 
     var oApp, aRemarkable, oFilter, ek, schemaId, itemId;
-    ek = location.search.match(/[\?&]ek=([^&]*)/)[1];
-    if (location.search.match(/[\?&]schema=[^&]*/)) {
-        schemaId = location.search.match(/[\?&]schema=([^&]*)/)[1];
-    } else {
-        schemaId = null;
-    }
-    if(location.search.match(/[\?&]id=([^&]*)/)) {
-        $scope.itemId = itemId = location.search.match(/[\?&]id=([^&]*)/)[1];
-    }else {
-        $scope.itemId = itemId = 'null';
-    }
+    ek = $location.search().ek;
+    schemaId = $location.search().schema || null;
+    $scope.itemId = itemId = location.search().id || 'null';
     $scope.newRemark = {};
     $scope.filter = oFilter = {};
     $scope.openOptions = function() {

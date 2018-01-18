@@ -22,10 +22,6 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
         url += this.oPage.j();
         http2.get(url).then(function(rsp) {
-            if (rsp.err_code != 0) {
-                alert(rsp.data);
-                return;
-            }
             _this.oPage.total = rsp.data.total;
             deferred.resolve(rsp.data);
         });
@@ -38,7 +34,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'ls', 'Round', '$uibModal', function($scope, $q, $sce, http2, LS, srvRound, $uibModal) {
+ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'Round', '$uibModal', function($scope, $q, $sce, http2, LS, srvRound, $uibModal) {
     function list() {
         var defer = $q.defer();
         switch (oAppState.criteria.obj) {

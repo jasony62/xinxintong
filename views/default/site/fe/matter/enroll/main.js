@@ -12,7 +12,7 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.
 
 require('./directive.css');
 require('./main.css');
-
+require('../../../../../../asset/js/xxt.ui.notice.js');
 require('../../../../../../asset/js/xxt.ui.http.js');
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');
@@ -21,48 +21,13 @@ require('../../../../../../asset/js/xxt.ui.coinpay.js');
 
 require('./directive.js');
 
-var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll', 'siteuser.ui.xxt', 'favor.ui.xxt']);
-ngApp.provider('ls', function() {
-    var _baseUrl = '/rest/site/fe/matter/enroll',
-        _params = {};
-
-    this.params = function(params) {
-        var ls;
-        ls = location.search;
-        angular.forEach(params, function(q) {
-            var match, pattern;
-            pattern = new RegExp(q + '=([^&]*)');
-            match = ls.match(pattern);
-            _params[q] = match ? match[1] : '';
-        });
-        return _params;
-    };
-
-    this.$get = function() {
-        return {
-            p: _params,
-            j: function(method) {
-                var i = 1,
-                    l = arguments.length,
-                    url = _baseUrl,
-                    _this = this,
-                    search = [];
-                method && method.length && (url += '/' + method);
-                for (; i < l; i++) {
-                    search.push(arguments[i] + '=' + _params[arguments[i]]);
-                };
-                search.length && (url += '?' + search.join('&'));
-                return url;
-            }
-        };
-    };
-});
-ngApp.config(['$controllerProvider', '$uibTooltipProvider', 'lsProvider', function($cp, $uibTooltipProvider, lsProvider) {
+var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'directive.enroll']);
+ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider', function($cp, $uibTooltipProvider, $locationProvider) {
     ngApp.provider = {
         controller: $cp.register
     };
     $uibTooltipProvider.setTriggers({ 'show': 'hide' });
-    lsProvider.params(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
+    $locationProvider.html5Mode(true);
 }]);
 ngApp.controller('ctrlAppTip', ['$scope', '$interval', function($scope, $interval) {
     var timer;
@@ -82,7 +47,7 @@ ngApp.controller('ctrlAppTip', ['$scope', '$interval', function($scope, $interva
         }
     }, 1000);
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask', 'ls', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, $http, $timeout, srvUserTask, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
+ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
     function refreshActionRule() {
         var url, defer;
         defer = $q.defer();
@@ -140,14 +105,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
         }
     }
     var tasksOfOnReady = [];
-    // 消息提醒
-    $scope.notice = {
-        msg: '',
-        set: function(msg, type) {
-            this.msg = msg;
-            this.type = type || 'error'
-        }
-    };
     $scope.back = function() {
         history.back();
     };
@@ -196,9 +153,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
             }
         }
     };
-    $scope.showUserTask = function() {
-        srvUserTask.open($scope.app);
-    };
     $scope.gotoPage = function(event, page, ek, rid, newRecord) {
         if (event) {
             event.preventDefault();
@@ -239,11 +193,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
     $scope.save = function() {
         $scope.$broadcast('xxt.app.enroll.save');
     };
-    $http.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
-        if (rsp.err_code !== 0) {
-            $scope.errmsg = rsp.err_msg;
-            return;
-        }
+    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function success(rsp) {
         var params = rsp.data,
             oSite = params.site,
             oApp = params.app,
@@ -284,15 +234,32 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
                     params.record.data_tag[schemaId] = converted;
                 }
             }
-            if(oApp.assignedNickname.schema) {
-                if((oApp.assignedNickname.schema.id=='member.name'|| oApp.assignedNickname.schema.id=='name') && params.record.data) {
+            if (oApp.assignedNickname.schema) {
+                if ((oApp.assignedNickname.schema.id == 'member.name' || oApp.assignedNickname.schema.id == 'name') && params.record.data) {
                     assignedNickname = params.record.data[oApp.assignedNickname.schema.id];
                 }
             }
         }
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
+        }
 
         /* 设置活动的当前链接 */
-        shareid = oUser.uid + '_' + (new Date() * 1);
+        shareid = oUser.uid + '_' + (new Date * 1);
         sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid', 'newRecord');
         sharelink += "&shareby=" + shareid;
         if (oPage && oPage.share_page && oPage.share_page === 'Y') {
@@ -300,9 +267,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
             params.record && params.record.enroll_key && (sharelink += '&ek=' + params.record.enroll_key);
             if (!(/iphone|ipad/i.test(navigator.userAgent))) {
                 /*ios下操作无效，且导致微信jssdk失败*/
-                if (window.history && window.history.replaceState) {
-                    window.history.replaceState({}, oApp.title, sharelink);
-                }
+                // if (window.history && window.history.replaceState) {
+                //     window.history.replaceState({}, oApp.title, sharelink);
+                // }
             }
         }
         /* 设置分享 */
@@ -325,7 +292,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
                     url += "&title=" + oApp.title;
                     url += "&shareby=" + shareid;
                     url += "&shareto=" + shareto;
-                    $http.get(url);
+                    http2.get(url);
                     window.shareCounter++;
                     if (oApp.can_autoenroll === 'Y' && oPage.autoenroll_onshare === 'Y') {
                         $http.get(LS.j('emptyGet', 'site', 'app') + '&once=Y');
@@ -337,26 +304,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
             tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
         }
 
-        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
-            tmsDynaPage.loadCode(ngApp, oSite.header_page);
-        }
-        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
-            tmsDynaPage.loadCode(ngApp, oMission.header_page);
-        }
-        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
-            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
-        }
-        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
-            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
-        }
-        if (params.page) {
-            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
-                $scope.page = params.page;
-            });
-        }
-        if (tasksOfOnReady.length) {
-            angular.forEach(tasksOfOnReady, PG.exec);
-        }
         if (!document.querySelector('.tms-switch-favor')) {
             tmsFavor.showSwitch($scope.user, oApp);
         } else {
@@ -393,44 +340,45 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$http', '$timeout', 'srvUserTask'
         if (window.screen && window.screen.width < 992) {
             $scope.isSmallLayout = true;
         }
-        $timeout(function() {
-            $scope.$broadcast('xxt.app.enroll.ready', params);
-        });
-        //
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, PG.exec);
+        }
         var eleLoading;
         if (eleLoading = document.querySelector('.loading')) {
             eleLoading.parentNode.removeChild(eleLoading);
         }
-        //
-        $http.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid + '&id=' + oApp.id + '&type=enroll&title=' + oApp.title + '&shareby=', {
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.enroll.ready', params);
+        });
+        http2.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid + '&id=' + oApp.id + '&type=enroll&title=' + oApp.title, {
             search: location.search.replace('?', ''),
             referer: document.referrer,
             rid: activeRid,
             assignedNickname: assignedNickname
         });
-    }).error(function(content, httpCode) {
-        if (httpCode === 401) {
-            var el = document.createElement('iframe');
-            el.setAttribute('id', 'frmPopup');
-            el.onload = function() {
-                this.height = document.querySelector('body').clientHeight;
-            };
-            document.body.appendChild(el);
-            if (content.indexOf('http') === 0) {
-                window.onAuthSuccess = function() {
-                    el.style.display = 'none';
-                };
-                el.setAttribute('src', content);
-                el.style.display = 'block';
-            } else {
-                if (el.contentDocument && el.contentDocument.body) {
-                    el.contentDocument.body.innerHTML = content;
-                    el.style.display = 'block';
-                }
-            }
-        } else {
-            $scope.errmsg = content;
-        }
+    }, function error(content, httpCode) {
+        // if (httpCode === 401) {
+        //     var el = document.createElement('iframe');
+        //     el.setAttribute('id', 'frmPopup');
+        //     el.onload = function() {
+        //         this.height = document.querySelector('body').clientHeight;
+        //     };
+        //     document.body.appendChild(el);
+        //     if (content.indexOf('http') === 0) {
+        //         window.onAuthSuccess = function() {
+        //             el.style.display = 'none';
+        //         };
+        //         el.setAttribute('src', content);
+        //         el.style.display = 'block';
+        //     } else {
+        //         if (el.contentDocument && el.contentDocument.body) {
+        //             el.contentDocument.body.innerHTML = content;
+        //             el.style.display = 'block';
+        //         }
+        //     }
+        // } else {
+        //     $scope.errmsg = content;
+        // }
     });
 }]);
 module.exports = ngApp;

@@ -167,7 +167,7 @@ class round_model extends \TMS_MODEL {
 	 *
 	 */
 	private function _getRoundByCron($oApp, $rules) {
-		if (false === ($cronRound = $this->_lastRoundByCron($rules))) {
+		if (false === ($oCronRound = $this->_lastRoundByCron($rules))) {
 			return [false, '无法生成定时轮次'];
 		}
 
@@ -177,15 +177,14 @@ class round_model extends \TMS_MODEL {
 		$q = [
 			'*',
 			'xxt_enroll_round',
-			['aid' => $oApp->id, 'state' => 1, 'start_at' => $cronRound->start_at],
+			['aid' => $oApp->id, 'state' => 1, 'start_at' => $oCronRound->start_at],
 		];
 		if ($round = $this->query_obj_ss($q)) {
 			return [true, $round];
 		}
-
 		/* 创建新论次 */
 		if (false === $round) {
-			$rst = $this->create($oApp, $cronRound);
+			$rst = $this->create($oApp, $oCronRound);
 			if (false === $rst[0]) {
 				return $rst;
 			}
@@ -203,7 +202,7 @@ class round_model extends \TMS_MODEL {
 	 *
 	 */
 	private function _lastRoundByCron($rules) {
-		$latest = 0;
+		$latest = $latestEnd = 0;
 		$latestLabel = '';
 		foreach ($rules as $rule) {
 			if (empty($rule->period)) {
@@ -343,28 +342,29 @@ class round_model extends \TMS_MODEL {
 			// 记录活动的轮次生成时间
 			if ($startAt > $latest) {
 				$latest = $startAt;
+				$latestEnd = $endAt;
 				switch ($rule->period) {
 				case 'M':
-					$latestLabel = (int) date('n', $startAt) . '月';
+					$latestLabel = (int) date('n', $startAt) . '月（' . date('d H:i', $latest) . '）';
 					break;
 				case 'W':
-					$latestLabel = ((int) date('W', $startAt)) . '周';
+					$latestLabel = ((int) date('W', $startAt)) . '周（' . date('m-d H:i', $latest) . '）';
 					break;
 				case 'D':
-					$latestLabel = ((int) date('z', $startAt) + 1) . '日';
+					$latestLabel = ((int) date('z', $startAt) + 1) . '日（' . date('Y-m-d H:i', $latest) . '）';
 					break;
 				}
 			}
 		}
 
-		//die("y:$year,m:$month,d:$mday,h:$hour,——,$end_year/$end_month/$end_mday 小时$end_hour");
-		$newRound = new \stdClass;
-		$newRound->title = '轮次-' . $latestLabel;
-		$newRound->start_at = $latest;
-		$newRound->end_at = $endAt;
-		$newRound->state = 1;
+		//die("y:$year,m:$month,w:$wday,d:$mday,h:$hour,——,$end_year/$end_month/$end_mday 小时$end_hour");
+		$oNewRound = new \stdClass;
+		$oNewRound->title = '轮次-' . $latestLabel;
+		$oNewRound->start_at = $latest;
+		$oNewRound->end_at = $latestEnd;
+		$oNewRound->state = 1;
 
-		return $newRound;
+		return $oNewRound;
 	}
 	/**
 	 * 根据定时规则生成轮次 公共方法，外部可访问
@@ -530,14 +530,14 @@ class round_model extends \TMS_MODEL {
 		}
 
 		//die("y:$year,m:$month,d:$mday,h:$hour,——,$end_year/$end_month/$end_mday 小时$end_hour");
-		$newRound = new \stdClass;
-		$newRound->title = '轮次-' . $latestLabel;
-		$newRound->start_at = $latest;
-		$newRound->start = date('Y-m-d H:i', $latest);
-		$newRound->end_at = $endAt;
-		$newRound->end = date('Y-m-d H:i', $endAt);
-		$newRound->state = 1;
+		$oNewRound = new \stdClass;
+		$oNewRound->title = '轮次-' . $latestLabel;
+		$oNewRound->start_at = $latest;
+		$oNewRound->start = date('Y-m-d H:i', $latest);
+		$oNewRound->end_at = $endAt;
+		$oNewRound->end = date('Y-m-d H:i', $endAt);
+		$oNewRound->state = 1;
 
-		return $newRound;
+		return $oNewRound;
 	}
 }

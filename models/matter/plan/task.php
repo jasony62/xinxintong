@@ -241,15 +241,76 @@ class task_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byApp($oApp, $aOptions = []) {
+	public function byApp($oApp, $aOptions = [], $oCriteria = null) {
 		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
 		$q = [
 			$fields,
 			'xxt_plan_task',
-			['aid' => $oApp->id, 'state' => 1],
+			"aid = '{$oApp->id}' and state = 1",
 		];
-		$q2 = ['o' => 'first_enroll_at desc'];
 
+		if (!empty($oCriteria->byNickname)) {
+			$q[2] .= " and nickname like '" . $this->escape($oCriteria->byNickname) . "'";
+		}
+		if (!empty($oCriteria->byComment)) {
+			$q[2] .= " and comment like '" . $this->escape($oCriteria->byComment) . "'";
+		}
+		if (!empty($oCriteria->byTaskSchema)) {
+			$q[2] .= " and task_schema_id = " . $this->escape($oCriteria->byTaskSchema);
+		}
+		if (isset($oCriteria->data)) {
+			$oSchemasById = new \stdClass;
+			foreach ($oApp->checkSchemas as $oSchema) {
+				$oSchemasById->{$oSchema->id} = $oSchema;
+			}
+
+			$where = '';
+			foreach ($oCriteria->data as $k => $v) {
+				if (!empty($v) && isset($oSchemasById->{$k})) {
+					$oSchema = $oSchemasById->{$k};
+					$where .= ' and (';
+					if ($oSchema->type === 'multiple') {
+						// 选项ID是否互斥，不存在，例如：v1和v11
+						$bOpExclusive = true;
+						$strOpVals = '';
+						foreach ($oSchema->ops as $op) {
+							$strOpVals .= ',' . $op->v;
+						}
+						foreach ($oSchema->ops as $op) {
+							if (false !== strpos($strOpVals, $op->v)) {
+								$bOpExclusive = false;
+								break;
+							}
+						}
+						// 拼写sql
+						$v2 = explode(',', $v);
+						foreach ($v2 as $index => $v2v) {
+							if ($index > 0) {
+								$where .= ' and ';
+							}
+							// 获得和题目匹配的子字符串
+							$dataBySchema = 'substr(substr(data,locate(\'"' . $k . '":"\',data)),1,locate(\'"\',substr(data,locate(\'"' . $k . '":"\',data)),' . (strlen($k) + 5) . '))';
+							$where .= '(';
+							if ($bOpExclusive) {
+								$where .= $dataBySchema . ' like \'%' . $v2v . '%\'';
+							} else {
+								$where .= $dataBySchema . ' like \'%"' . $v2v . '"%\'';
+								$where .= ' or ' . $dataBySchema . ' like \'%"' . $v2v . ',%\'';
+								$where .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . ',%\'';
+								$where .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . '"%\'';
+							}
+							$where .= ')';
+						}
+					} else {
+						$where .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					}
+					$where .= ')';
+				}
+			}
+			$q[2] .= $where;
+		}
+
+		$q2 = ['o' => 'first_enroll_at desc'];
 		$tasks = $this->query_objs_ss($q, $q2);
 		if (count($tasks)) {
 			$modelSchAct = $this->model('matter\plan\schema\action');
@@ -258,6 +319,15 @@ class task_model extends \TMS_MODEL {
 				/* 行动项 */
 				if (isset($oTask->task_schema_id)) {
 					$oTask->actions = $modelSchAct->byTask($oTask->task_schema_id, $aActOptions);
+					/* 获取对应的任务名称 */
+					if (!isset($tskSchmTitle)) {
+						$taskSchemas = $this->model('matter\plan\schema\task')->byApp($oApp->id, ['fields' => 'id,title']);
+						$tskSchmTitle = new \stdClass;
+						foreach ($taskSchemas as $taskSchema) {
+							$tskSchmTitle->{$taskSchema->id} = $taskSchema->title;
+						}
+					}
+					$oTask->taskSchemaTitle = $tskSchmTitle->{$oTask->task_schema_id};
 				}
 				/* 处理数据 */
 				if (!empty($oTask->data)) {

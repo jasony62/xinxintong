@@ -45,14 +45,17 @@ class task extends \pl\fe\matter\base {
 		$modelApp = $this->model('matter\plan');
 		$app = $modelApp->escape($app);
 
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,check_schemas']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
+		// 数据过滤条件
+		$oCriteria = $this->getPostJson();
+
 		$modelTsk = $this->model('matter\plan\task');
 		$aOptions = ['fields' => 'id,born_at,patch_at,userid,group_id,nickname,verified,comment,first_enroll_at,last_enroll_at,task_schema_id,task_seq,data,score'];
-		$oResult = $modelTsk->byApp($oApp, $aOptions);
+		$oResult = $modelTsk->byApp($oApp, $aOptions, $oCriteria);
 
 		return new \ResponseData($oResult);
 	}
@@ -83,13 +86,22 @@ class task extends \pl\fe\matter\base {
 		if (isset($oPosted)) {
 			foreach ($oPosted as $prop => $val) {
 				switch ($prop) {
-				case 'verified':
-					if (in_array($val, ['Y', 'N', 'P'])) {
-						$aUpdated['verified'] = $val;
-					}
-					break;
-				case 'comment':
-					$aUpdated['comment'] = $modelApp->escape($val);
+					case 'verified':
+						if (in_array($val, ['Y', 'N', 'P'])) {
+							$aUpdated['verified'] = $val;
+						}
+						break;
+					case 'comment':
+						$aUpdated['comment'] = $modelApp->escape($val);
+						break;
+					case 'data':
+						$data = $this->updateUserTask($task, $oApp, $oTask, $val);
+						$aUpdated['data'] = $modelApp->escape($modelApp->toJson($data['oCheckData']));
+						$aUpdated['score'] = $modelApp->escape($modelApp->toJson($data['oScoreData']));
+						break;
+					case 'quizScore':
+						$aUpdated['quizScore'] = $modelApp->escape($val);
+						break;
 				}
 			}
 		}
@@ -101,6 +113,37 @@ class task extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($rst);
+	}
+	/*
+	* 修改用户任务
+	*/
+	private function updateUserTask($task, $oApp, $oTask, $data) {
+		$modelSchTsk = $this->model('matter\plan\schema\task');
+		$oTaskSchema = $modelSchTsk->byId($task, ['fields' => 'id,siteid,aid,title,task_seq,born_mode,born_offset,auto_verify,can_patch']);
+		if (false === $oTaskSchema) {
+			return new \ObjectNotFoundError();
+		}
+		$oActionsById = new \stdClass;
+		foreach ($oTaskSchema->actions as $oAction) {
+			$oActionsById->{$oAction->id} = $oAction;
+		}
+
+		$userSite = $this->model('site\fe\way')->who($oApp->siteid);
+		$oCheckData = new \stdClass;
+		$oScoreData = new \stdClass;
+		foreach ($data as $actionId => $oActionData) {
+			$oAction = $oActionsById->{$actionId};
+			$oAction->siteid = $oTaskSchema->siteid;
+			if (count($oApp->checkSchemas)) {
+				$oAction->checkSchemas = array_merge($oAction->checkSchemas, $oApp->checkSchemas);
+			}
+			$this->model('matter\plan\action')->setData($userSite, $oAction, $oTask, $oActionData);
+			$oCheckData->{$actionId} = $oResult->dbData;
+			$oScoreData->{$actionId} = $oResult->score;
+		}
+
+		$data = ['oCheckData' => $oCheckData, 'oScoreData' => $oScoreData];
+		return $data;
 	}
 	/**
 	 *

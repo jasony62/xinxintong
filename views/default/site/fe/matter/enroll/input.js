@@ -224,11 +224,15 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                                 oSchema.ops.forEach(function(oOption) {
                                     var domOption;
                                     if (oOption.g && oOption.g === oOptGroup.i) {
-                                        if (oConfig.component === 'S') {
+                                        if (oSchema.type === 'single' && oConfig.component === 'S') {
                                             domOption = document.querySelector('option[name="data.' + oSchema.id + '"][value=' + oOption.v + ']');
                                             domOption.disabled = true;
                                         } else {
-                                            domOption = document.querySelector('input[name=' + oSchema.id + '][value=' + oOption.v + ']');
+                                            if (oSchema.type === 'single') {
+                                                domOption = document.querySelector('input[name=' + oSchema.id + '][value=' + oOption.v + ']');
+                                            } else if (oSchema.type === 'multiple') {
+                                                domOption = document.querySelector('input[ng-model="data.' + oSchema.id + '.' + oOption.v + '"]');
+                                            }
                                             if (domOption && (domOption = domOption.parentNode) && (domOption = domOption.parentNode)) {
                                                 domOption.classList.add('option-hide');
                                             }
@@ -242,11 +246,15 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                                 oSchema.ops.forEach(function(oOption) {
                                     var domOption;
                                     if (oOption.g && oOption.g === oOptGroup.i) {
-                                        if (oConfig.component === 'S') {
+                                        if (oSchema.type === 'single' && oConfig.component === 'S') {
                                             domOption = document.querySelector('option[name="data.' + oSchema.id + '"][value=' + oOption.v + ']');
                                             domOption.disabled = false;
                                         } else {
-                                            domOption = document.querySelector('input[name=' + oSchema.id + '][value=' + oOption.v + ']');
+                                            if (oSchema.type === 'single') {
+                                                domOption = document.querySelector('input[name=' + oSchema.id + '][value=' + oOption.v + ']');
+                                            } else if (oSchema.type === 'multiple') {
+                                                domOption = document.querySelector('input[ng-model="data.' + oSchema.id + '.' + oOption.v + '"]');
+                                            }
                                             if (domOption && (domOption = domOption.parentNode) && (domOption = domOption.parentNode)) {
                                                 domOption.classList.remove('option-hide');
                                             }

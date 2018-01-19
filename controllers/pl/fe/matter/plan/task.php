@@ -70,7 +70,7 @@ class task extends \pl\fe\matter\base {
 		$modelTsk = $this->model('matter\plan\task');
 		$task = $modelTsk->escape($task);
 
-		$oTask = $modelTsk->byId($task, ['fields' => 'id,state,aid']);
+		$oTask = $modelTsk->byId($task, ['fields' => 'id,state,aid,task_schema_id']);
 		if (false === $oTask && $oTask->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -95,7 +95,7 @@ class task extends \pl\fe\matter\base {
 						$aUpdated['comment'] = $modelApp->escape($val);
 						break;
 					case 'data':
-						$data = $this->updateUserTask($task, $oApp, $oTask, $val);
+						$data = $this->updateUserTask($oTask->task_schema_id, $oApp, $oTask, $val);
 						$aUpdated['data'] = $modelApp->escape($modelApp->toJson($data['oCheckData']));
 						$aUpdated['score'] = $modelApp->escape($modelApp->toJson($data['oScoreData']));
 						break;
@@ -117,9 +117,9 @@ class task extends \pl\fe\matter\base {
 	/*
 	* 修改用户任务
 	*/
-	private function updateUserTask($task, $oApp, $oTask, $data) {
+	private function updateUserTask($taskSchmId, $oApp, $oTask, $data) {
 		$modelSchTsk = $this->model('matter\plan\schema\task');
-		$oTaskSchema = $modelSchTsk->byId($task, ['fields' => 'id,siteid,aid,title,task_seq,born_mode,born_offset,auto_verify,can_patch']);
+		$oTaskSchema = $modelSchTsk->byId($taskSchmId, ['fields' => 'id,siteid,aid,title,task_seq,born_mode,born_offset,auto_verify,can_patch']);
 		if (false === $oTaskSchema) {
 			return new \ObjectNotFoundError();
 		}

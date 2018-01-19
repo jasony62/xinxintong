@@ -16,14 +16,11 @@ ngMod.provider('tmsLocation', function() {
                 return $location.search();
             },
             j: function(method) {
-                var i = 1,
-                    l = arguments.length,
-                    url = _baseUrl,
-                    _this = this,
+                var url = _baseUrl,
                     search = [];
                 method && method.length && (url += '/' + method);
-                for (; i < l; i++) {
-                    search.push(arguments[i] + '=' + $location.search()[arguments[i]]);
+                for (var i = 1, l = arguments.length; i < l; i++) {
+                    search.push(arguments[i] + '=' + ($location.search()[arguments[i]] || ''));
                 };
                 search.length && (url += '?' + search.join('&'));
                 return url;

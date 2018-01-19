@@ -2,59 +2,18 @@
 require('./directive.css');
 require('./preview.css');
 
+require('../../../../../../asset/js/xxt.ui.http.js');
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('./directive.js');
 
-var ngApp = angular.module('app', ['ngSanitize', 'page.ui.xxt', 'directive.enroll']);
-ngApp.provider('ls', function() {
-    var _baseUrl = '/rest/site/fe/matter/enroll/preview',
-        _params = {};
-
-    this.params = function(params) {
-        var ls;
-        ls = location.search;
-        angular.forEach(params, function(q) {
-            var match, pattern;
-            pattern = new RegExp(q + '=([^&]*)');
-            match = ls.match(pattern);
-            _params[q] = match ? match[1] : '';
-        });
-        return _params;
-    };
-
-    this.$get = function() {
-        return {
-            p: _params,
-            j: function(method) {
-                var i = 1,
-                    l = arguments.length,
-                    url = _baseUrl,
-                    _this = this,
-                    search = [];
-                method && method.length && (url += '/' + method);
-                for (; i < l; i++) {
-                    search.push(arguments[i] + '=' + _params[arguments[i]]);
-                };
-                search.length && (url += '?' + search.join('&'));
-                return url;
-            }
-        };
-    };
-});
-ngApp.config(['$controllerProvider', 'lsProvider', function($cp, lsProvider) {
-    ngApp.provider = {
-        controller: $cp.register
-    };
-    lsProvider.params(['start', 'site', 'app', 'rid', 'page', 'ek', 'newRecord', 'openAt']);
+var ngApp = angular.module('app', ['ngSanitize', 'http.ui.xxt', 'page.ui.xxt', 'directive.enroll']);
+ngApp.config(['$locationProvider', function($locationProvider) {
+    $locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage', function($scope, $http, $timeout, LS, tmsDynaPage) {
+ngApp.controller('ctrlMain', ['$scope', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', function($scope, http2, $timeout, LS, tmsDynaPage) {
     function gotoPage() {
         var url = LS.j('get', 'site', 'app', 'ek', 'openAt', 'page');
-        $http.get(url).success(function(rsp) {
-            if (rsp.err_code !== 0) {
-                $scope.errmsg = rsp.err_msg;
-                return;
-            }
+        http2.get(url, { autoBreak: false }).then(function(rsp) {
             var params = rsp.data,
                 site = params.site,
                 app = params.app,
@@ -94,28 +53,10 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
             if (eleLoading = document.querySelector('.loading')) {
                 eleLoading.parentNode.removeChild(eleLoading);
             }
-        }).error(function(content, httpCode) {
-            if (httpCode === 401) {
-                var el = document.createElement('iframe');
-                el.setAttribute('id', 'frmPopup');
-                el.onload = function() {
-                    this.height = document.querySelector('body').clientHeight;
-                };
-                document.body.appendChild(el);
-                if (content.indexOf('http') === 0) {
-                    window.onAuthSuccess = function() {
-                        el.style.display = 'none';
-                    };
-                    el.setAttribute('src', content);
-                    el.style.display = 'block';
-                } else {
-                    if (el.contentDocument && el.contentDocument.body) {
-                        el.contentDocument.body.innerHTML = content;
-                        el.style.display = 'block';
-                    }
-                }
-            } else {
-                $scope.errmsg = content;
+        }, function() {
+            var eleLoading;
+            if (eleLoading = document.querySelector('.loading')) {
+                eleLoading.parentNode.removeChild(eleLoading);
             }
         });
     };
@@ -151,7 +92,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
         location.replace(url);
     };
     $scope.openMatter = function(id, type, replace, newWindow) {
-        var url = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + id + '&type=' + type;
+        var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;
         if (replace) {
             location.replace(url);
         } else {
@@ -164,7 +105,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', 'tmsDynaPage'
     };
     gotoPage();
 }]);
-ngApp.service('srvStorage', ['ls', function(LS) {
+ngApp.service('srvStorage', ['tmsLocation', function(LS) {
     var cache;
 
     cache = window.localStorage.getItem('enroll-preview');
@@ -205,10 +146,10 @@ ngApp.service('Record', ['srvStorage', function(srvStorage) {
         };
     };
 }]);
-ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
+ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', function($scope, Record, LS, $sce) {
     var schemasById = $scope.app._schemasById;
 
-    Record.get(LS.p['ek']);
+    Record.get(LS.s()['ek']);
     $scope.Record = Record;
 
     $scope.value2Label = function(schemaId) {
@@ -247,18 +188,18 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
         return $sce.trustAsHtml(label);
     };
 }]);
-ngApp.controller('ctrlRecords', ['$scope', '$http', 'ls', function($scope, $http, LS) {}]);
-ngApp.controller('ctrlRounds', ['$scope', '$http', 'ls', function($scope, $http, LS) {}]);
-ngApp.controller('ctrlOwnerOptions', ['$scope', '$http', 'ls', function($scope, $http, LS) {}]);
-ngApp.controller('ctrlStatistic', ['$scope', '$http', 'ls', function($scope, $http, LS) {}]);
-ngApp.controller('ctrlPreview', ['$scope', 'ls', 'srvStorage', function($scope, LS, srvStorage) {
+ngApp.controller('ctrlRecords', [function() {}]);
+ngApp.controller('ctrlRounds', [function() {}]);
+ngApp.controller('ctrlOwnerOptions', [function() {}]);
+ngApp.controller('ctrlStatistic', [function() {}]);
+ngApp.controller('ctrlPreview', ['$scope', 'tmsLocation', 'srvStorage', function($scope, LS, srvStorage) {
     $scope.data = {};
-    if (LS.p['start'] === 'Y') {
+    if (LS.s().start === 'Y') {
         srvStorage.clean();
     }
-    if (LS.p['ek']) {
+    if (LS.s().ek) {
         (function() {
-            var ek = LS.p['ek'],
+            var ek = LS.s().ek,
                 record = srvStorage.getRecord(ek);
             angular.extend($scope.data, record.data);
         })();
@@ -325,7 +266,7 @@ ngApp.controller('ctrlPreview', ['$scope', 'ls', 'srvStorage', function($scope, 
         if (nextAction !== undefined && nextAction.length) {
             url = LS.j('', 'site', 'app');
             url += '&page=' + nextAction;
-            url += '&ek=' + LS.p['ek'];
+            url += '&ek=' + LS.s()['ek'];
             location.replace(url);
         }
     };

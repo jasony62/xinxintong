@@ -43,6 +43,7 @@ class record extends base {
 		}
 
 		$modelEnl = $this->model('matter\enroll');
+		$modelRnd = $this->model('matter\enroll\round');
 		$modelEnlRec = $this->model('matter\enroll\record');
 
 		if (false === ($oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
@@ -53,13 +54,12 @@ class record extends base {
 		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
 
 		// 判断活动是否添加了轮次
-		$modelRnd = $this->model('matter\enroll\round');
 		if (empty($rid)) {
 			if ($oEnrollApp->multi_rounds === 'Y') {
 				$oActiveRnd = $modelRnd->getActive($oEnrollApp);
 				$now = time();
 				if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now)) {
-					return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
+					return new \ResponseError('活动轮次【' . $oActiveRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！');
 				}
 				$rid = $oActiveRnd->rid;
 			}
@@ -828,7 +828,7 @@ class record extends base {
 		if (false === $oRecordData) {
 			return new \ObjectNotFoundError();
 		}
-		
+
 		$oApp = $this->model('matter\enroll')->byId($oRecordData->aid, ['cascaded' => 'N']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
@@ -1054,7 +1054,7 @@ class record extends base {
 			$result['like_log'] = $oLikeLog;
 			$result['like_num'] = $likeNum;
 		}
-		
+
 		return new \ResponseData($result);
 	}
 	/**

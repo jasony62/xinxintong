@@ -226,7 +226,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                                     if (oOption.g && oOption.g === oOptGroup.i) {
                                         if (oSchema.type === 'single' && oConfig.component === 'S') {
                                             domOption = document.querySelector('option[name="data.' + oSchema.id + '"][value=' + oOption.v + ']');
-                                            domOption.disabled = true;
+                                            if (domOption && domOption.parentNode) {
+                                                domOption.parentNode.removeChild(domOption);
+                                            }
                                         } else {
                                             if (oSchema.type === 'single') {
                                                 domOption = document.querySelector('input[name=' + oSchema.id + '][value=' + oOption.v + ']');
@@ -237,18 +239,33 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                                                 domOption.classList.add('option-hide');
                                             }
                                         }
-                                        if (oRecordData[oSchema.id] === oOption.v) {
-                                            oRecordData[oSchema.id] = '';
+                                        if (oSchema.type === 'single') {
+                                            if (oRecordData[oSchema.id] === oOption.v) {
+                                                oRecordData[oSchema.id] = '';
+                                            }
+                                        } else {
+                                            if (oRecordData[oSchema.id] && oRecordData[oSchema.id][oOption.v]) {
+                                                delete oRecordData[oSchema.id][oOption.v];
+                                            }
                                         }
                                     }
                                 });
                             } else {
                                 oSchema.ops.forEach(function(oOption) {
-                                    var domOption;
+                                    var domOption, domSelect;
                                     if (oOption.g && oOption.g === oOptGroup.i) {
                                         if (oSchema.type === 'single' && oConfig.component === 'S') {
-                                            domOption = document.querySelector('option[name="data.' + oSchema.id + '"][value=' + oOption.v + ']');
-                                            domOption.disabled = false;
+                                            domSelect = document.querySelector('select[ng-model="data.' + oSchema.id + '"]');
+                                            if (domSelect) {
+                                                domOption = domSelect.querySelector('option[name="data.' + oSchema.id + '"][value=' + oOption.v + ']');
+                                                if (!domOption) {
+                                                    domOption = document.createElement('option');
+                                                    domOption.setAttribute('value', oOption.v);
+                                                    domOption.setAttribute('name', 'data.' + oSchema.id);
+                                                    domOption.innerHTML = oOption.l;
+                                                    domSelect.appendChild(domOption);
+                                                }
+                                            }
                                         } else {
                                             if (oSchema.type === 'single') {
                                                 domOption = document.querySelector('input[name=' + oSchema.id + '][value=' + oOption.v + ']');

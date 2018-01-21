@@ -63,7 +63,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
     $scope.recommend = function(oRecData, value) {
         var url;
         if (oRecData.agreed !== value) {
-            url = '/rest/site/fe/matter/enroll/record/recommend';
+            url = '/rest/site/fe/matter/enroll/data/recommend';
             url += '?site=' + oApp.siteid;
             url += '&ek=' + $scope.record.enroll_key;
             url += '&schema=' + schemaId;
@@ -122,7 +122,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
     };
     $scope.likeRecordData = function() {
         var url;
-        url = '/rest/site/fe/matter/enroll/record/like';
+        url = '/rest/site/fe/matter/enroll/data/like';
         url += '?site=' + oApp.siteid;
         url += '&ek=' + $scope.record.enroll_key;
         url += '&schema=' + $scope.filter.schema.id;

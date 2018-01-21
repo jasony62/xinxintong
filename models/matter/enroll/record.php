@@ -231,6 +231,12 @@ class record_model extends record_base {
 		if ($fields === '*' || false !== strpos($fields, 'score')) {
 			$oRecord->score = empty($oRecord->score) ? new \stdClass : json_decode($oRecord->score);
 		}
+		if ($fields === '*' || false !== strpos($fields, 'agreed_log')) {
+			$oRecord->agreed_log = empty($oRecord->agreed_log) ? new \stdClass : json_decode($oRecord->agreed_log);
+		}
+		if ($fields === '*' || false !== strpos($fields, 'like_log')) {
+			$oRecord->like_log = empty($oRecord->like_log) ? new \stdClass : json_decode($oRecord->like_log);
+		}
 		if ($verbose === 'Y' && isset($oRecord->enroll_key)) {
 			$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
 		}
@@ -643,7 +649,7 @@ class record_model extends record_base {
 
 		// 查询参数
 		$q = [
-			'r.enroll_key,r.rid,r.enroll_at,r.tags,r.userid,r.group_id,r.nickname,r.wx_openid,r.yx_openid,r.qy_openid,r.headimgurl,r.verified,r.comment,r.data,r.supplement,r.data_tag',
+			'r.enroll_key,r.rid,r.enroll_at,r.tags,r.userid,r.group_id,r.nickname,r.wx_openid,r.yx_openid,r.qy_openid,r.headimgurl,r.verified,r.comment,r.data,r.supplement,r.data_tag,r.agreed,r.like_num,r.like_log',
 			"xxt_enroll_record r",
 			$w,
 		];
@@ -673,7 +679,8 @@ class record_model extends record_base {
 		/* 处理获得的数据 */
 		$aRoundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
-			foreach ($records as &$oRec) {
+			foreach ($records as $oRec) {
+				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
 				$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
 				$data = str_replace("\n", ' ', $oRec->data);
 				$data = json_decode($data);

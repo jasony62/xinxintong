@@ -54,7 +54,13 @@ class main extends base {
 		/* 返回登记活动页面 */
 		if ($page === 'repos') {
 			\TPL::assign('title', $oApp->title);
-			\TPL::output('/site/fe/matter/enroll/repos');
+			if ($oApp->repos_unit === 'R') {
+				// 按记录进行共享
+				\TPL::output('/site/fe/matter/enroll/repos2');
+			} else {
+				// 按数据进行共享
+				\TPL::output('/site/fe/matter/enroll/repos');
+			}
 		} elseif ($page === 'remark') {
 			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/remark');

@@ -810,35 +810,21 @@ class record extends base {
 	 * @param int $id xxt_enroll_record_data 的id
 	 *
 	 */
-	public function like_action($ek, $schema, $id = '') {
-		$modelData = $this->model('matter\enroll\data');
-		if (empty($id)) {
-			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
-		} else {
-			$oRecordData = $modelData->byId($id, ['fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
-		}
-		if (false === $oRecordData) {
+	public function like_action($ek) {
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek, ['fields' => 'enroll_key,state,aid,userid,like_log,like_num']);
+		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecordData->aid, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
-		}
-
-		/* 检查是否是多项填写题题的点赞，如果是，需要$id */
-		foreach ($oApp->dataSchemas as $dataSchema) {
-			if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
-				$schmeaType = 'multitext';
-				if (empty($id)) {
-					return new \ComplianceError('参数错误，此题型需要指定唯一标识');
-				}
-			}
 		}
 
 		$oUser = $this->who;
 
-		$oLikeLog = $oRecordData->like_log;
+		$oLikeLog = $oRecord->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {
 			unset($oLikeLog->{$oUser->uid});
 			$incLikeNum = -1;
@@ -846,30 +832,19 @@ class record extends base {
 			$oLikeLog->{$oUser->uid} = time();
 			$incLikeNum = 1;
 		}
-		$likeNum = $oRecordData->like_num + $incLikeNum;
-		$modelData->update(
-			'xxt_enroll_record_data',
+		$likeNum = $oRecord->like_num + $incLikeNum;
+		$modelRec->update(
+			'xxt_enroll_record',
 			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],
-			['id' => $oRecordData->id]
+			['enroll_key' => $oRecord->enroll_key]
 		);
-		if (isset($schmeaType) && $schmeaType === 'multitext' && $oRecordData->multitext_seq != 0) {
-			// 总数据点赞数 +1
-			if ($incLikeNum > 0) {
-				$modelData->update("update xxt_enroll_record_data set like_num=like_num +1 where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
-			} else {
-				$modelData->update("update xxt_enroll_record_data set like_num=like_num -1 where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
-			}
-		}
 
-		$modelUsr = $this->model('matter\enroll\user');
-		$modelUsr->setOnlyWriteDbConn(true);
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		if ($incLikeNum > 0) {
 			/* 更新进行点赞的活动用户的积分奖励 */
-			$modelMat = $this->model('matter\enroll\coin');
-			$modelMat->setOnlyWriteDbConn(true);
+			$modelMat = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
 			$rulesOther = $modelMat->rulesByMatter('site.matter.enroll.data.other.like', $oApp);
-			$modelCoin = $this->model('site\coin\log');
-			$modelCoin->setOnlyWriteDbConn(true);
+			$modelCoin = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
 			$modelCoin->award($oApp, $oUser, 'site.matter.enroll.data.other.like', $rulesOther);
 		}
 
@@ -937,7 +912,7 @@ class record extends base {
 		}
 
 		/* 更新被点赞的活动用户的轮次数据 */
-		$oEnrollUsr = $modelUsr->byId($oApp, $oRecordData->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => $rid]);
+		$oEnrollUsr = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => $rid]);
 		if ($oEnrollUsr) {
 			if ($incLikeNum > 0) {
 				$user = new \stdClass;
@@ -961,7 +936,7 @@ class record extends base {
 			);
 		}
 		/* 更新被点赞的活动用户的总数据 */
-		$oEnrollUsrALL = $modelUsr->byId($oApp, $oRecordData->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => 'ALL']);
+		$oEnrollUsrALL = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => 'ALL']);
 		if ($oEnrollUsrALL) {
 			if ($incLikeNum > 0 && !isset($rulesOwner)) {
 				/* 更新被点赞的活动用户的积分奖励 */
@@ -984,8 +959,7 @@ class record extends base {
 		 * 更新项目用户数据
 		 */
 		if (!empty($oApp->mission_id)) {
-			$modelMisUsr = $this->model('matter\mission\user');
-			$modelMisUsr->setOnlyWriteDbConn(true);
+			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
 			$oMission = new \stdClass;
 			$oMission->siteid = $oApp->siteid;
 			$oMission->id = $oApp->mission_id;
@@ -1015,7 +989,7 @@ class record extends base {
 				);
 			}
 			/* 更新被点赞的活动用户的总数据 */
-			$oMisUser = $modelMisUsr->byId($oMission, $oRecordData->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin']);
+			$oMisUser = $modelMisUsr->byId($oMission, $oRecord->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin']);
 			if ($oMisUser) {
 				if ($incLikeNum > 0 && !isset($rulesOwner)) {
 					$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.like', $oApp);
@@ -1035,37 +1009,28 @@ class record extends base {
 			}
 		}
 
-		$result = [];
-		if (isset($schmeaType) && $schmeaType === 'multitext' && $oRecordData->multitext_seq != 0) {
-			$leader = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'like_log,like_num']);
-			$result['itemLike_log'] = $oLikeLog;
-			$result['itemLike_num'] = $likeNum;
-			$result['like_log'] = $leader->like_log;
-			$result['like_num'] = $leader->like_num;
-		} else {
-			$result['like_log'] = $oLikeLog;
-			$result['like_num'] = $likeNum;
-		}
+		$oResult = new \stdClass;
+		$oResult->like_log = $oLikeLog;
+		$oResult->like_num = $likeNum;
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 推荐登记记录中的某一个题
 	 * 只有组长才有权限做
 	 *
 	 * @param string $ek
-	 * @param string $schema
 	 * @param string $value
 	 *
 	 */
-	public function recommend_action($ek, $schema, $value = '') {
-		$modelData = $this->model('matter\enroll\data');
-		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,userid,group_id,agreed,agreed_log']);
-		if (false === $oRecData) {
+	public function recommend_action($ek, $value = '') {
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek, ['fields' => 'state,aid,agreed,agreed_log']);
+		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N', 'fields' => 'state,entry_rule']);
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'state,entry_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -1102,7 +1067,7 @@ class record extends base {
 		// 	$this->_notifyAgree($oApp, $oRecord, $name, $schema);
 		// }
 
-		$oAgreedLog = $oRecData->agreed_log;
+		$oAgreedLog = $oRecord->agreed_log;
 		if (isset($oAgreedLog->{$this->who->uid})) {
 			$oLog = $oAgreedLog->{$this->who->uid};
 			$oLog->time = time();
@@ -1111,10 +1076,10 @@ class record extends base {
 			$oAgreedLog->{$this->who->uid} = (object) ['time' => time(), 'value' => $value];
 		}
 
-		$rst = $modelData->update(
-			'xxt_enroll_record_data',
+		$rst = $modelRec->update(
+			'xxt_enroll_record',
 			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
-			['enroll_key' => $ek, 'schema_id' => $schema, 'state' => 1]
+			['enroll_key' => $ek, 'state' => 1]
 		);
 
 		return new \ResponseData($rst);

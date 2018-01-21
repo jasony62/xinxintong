@@ -25,7 +25,6 @@ class record extends base {
 			$record->enroll_at = time();
 			$record->signin_at = "0";
 			$record->tags = null;
-			$record->follower_num = "0";
 			$record->score = null;
 			$record->remark_num = "0";
 			$record->fid = "fid1";

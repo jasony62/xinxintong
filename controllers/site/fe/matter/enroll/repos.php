@@ -92,15 +92,59 @@ class repos extends base {
 		}
 
 		$modelData = $this->model('matter\enroll\data');
-		$options = new \stdClass;
-		$options->rid = $rid;
-		$options->page = $page;
-		$options->size = $size;
+		$oOptions = new \stdClass;
+		$oOptions->rid = $rid;
+		$oOptions->page = $page;
+		$oOptions->size = $size;
 		if ($onlyMine === 'Y') {
-			//$options->userid = $this->who->uid;
+			//$oOptions->userid = $this->who->uid;
 		}
-		$result = $modelData->bySchema($oApp, $oSchema, $options);
+		$result = $modelData->bySchema($oApp, $oSchema, $oOptions);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 按记录整体返回共享内容
+	 */
+	public function list4Record_action($app, $page = 1, $size = 12) {
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,scenario,assigned_nickname,data_schemas', 'cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$mdoelRec = $this->model('matter\enroll\record');
+		$oOptions = new \stdClass;
+		$oOptions->page = $page;
+		$oOptions->size = $size;
+
+		$oResult = $mdoelRec->byApp($oApp, $oOptions);
+		if (!empty($oResult->records)) {
+			$aShareableSchemas = [];
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
+					$aShareableSchemas[] = $oSchema->id;
+				}
+			}
+			foreach ($oResult->records as $oRecord) {
+				if (isset($oRecord->data)) {
+					foreach ($oRecord->data as $schemaId => $value) {
+						if (!in_array($schemaId, $aShareableSchemas)) {
+							unset($oRecord->data->{$schemaId});
+						}
+					}
+				}
+				/* 清除不必要的数据 */
+				unset($oRecord->comment);
+				unset($oRecord->wx_openid);
+				unset($oRecord->yx_openid);
+				unset($oRecord->qy_openid);
+				unset($oRecord->data_tags);
+				unset($oRecord->headimgurl);
+				unset($oRecord->verified);
+			}
+		}
+
+		return new \ResponseData($oResult);
 	}
 }

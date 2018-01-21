@@ -76,6 +76,10 @@ img {
 	display: flex;
 }
 
+#repos .record .bottom-bar>*+* {
+	margin-left: 8px;
+}
+
 #repos .record .bottom-bar .datetime {
 	flex: 1;
 	line-height: 30px;

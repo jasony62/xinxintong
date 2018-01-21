@@ -33,6 +33,10 @@ button.option {
 	display: flex;
 }
 
+.bottom-bar>*+* {
+	margin-left: 8px;
+}
+
 .bottom-bar .datetime {
 	color: #777;
 	flex: 1;

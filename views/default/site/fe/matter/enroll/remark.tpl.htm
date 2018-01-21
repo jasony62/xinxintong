@@ -85,8 +85,8 @@
                     </blockquote>
                     <div class='bottom-bar'>
                         <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                        <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>&nbsp;&nbsp;
-                        <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>&nbsp;&nbsp;
+                        <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>
+                        <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>
                         <div ng-if="params.groupUser.is_leader==='Y'&&(record.userid===params.groupUser.userid||groupOthers[record.userid])">
                             <button ng-if="data.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(data,'Y')">推荐</button>
                             <button ng-if="data.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(data,'')">取消推荐</button>
@@ -106,7 +106,7 @@
                             </blockquote>
                             <div class='bottom-bar'>
                                 <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
-                                <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>&nbsp;&nbsp;&nbsp;
+                                <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
                                 <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark(remark)"><span class='glyphicon glyphicon-share-alt'></span></button>
                             </div>
                         </div>

@@ -70,7 +70,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
                     if (schemas[oRecord.schema_id].type == 'file') {
                         oRecord.value = angular.fromJson(oRecord.value);
                     }
-                    if(schemas[oRecord.schema_id].type == 'multitext') {
+                    if (schemas[oRecord.schema_id].type == 'multitext') {
                         angular.forEach(oRecord.items, function(item) {
                             _items[item.id] = item;
                         });
@@ -132,7 +132,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         url += '&id=' + id;
 
         http2.get(url).then(function(rsp) {
-            if(schemas[oRecord.schema_id].type=='multitext'&&oRecord._items[id]) {
+            if (schemas[oRecord.schema_id].type == 'multitext' && oRecord._items[id]) {
                 oRecord.items[index].like_log = rsp.data.itemLike_log;
                 oRecord.items[index].like_num = rsp.data.itemLike_num;
             }
@@ -149,6 +149,19 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             oRemark.like_log = rsp.data.like_log;
             oRemark.like_num = rsp.data.like_num;
         });
+    };
+    $scope.recommend = function(oRecData, value) {
+        var url;
+        if (oRecData.agreed !== value) {
+            url = '/rest/site/fe/matter/enroll/record/recommend';
+            url += '?site=' + oApp.siteid;
+            url += '&ek=' + oRecData.enroll_key;
+            url += '&schema=' + oRecData.schema_id;
+            url += '&value=' + value;
+            http2.get(url).then(function(rsp) {
+                oRecData.agreed = value;
+            });
+        }
     };
     $scope.value2Label = function(value, schemaId) {
         var val, schema, aVal, aLab = [];
@@ -181,6 +194,14 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
                 });
             }
         });
+        $scope.groupUser = params.groupUser;
+        var groupOthersById = {};
+        if (params.groupOthers && params.groupOthers.length) {
+            params.groupOthers.forEach(function(oOther) {
+                groupOthersById[oOther.userid] = oOther;
+            });
+        }
+        $scope.groupOthers = groupOthersById;
         $scope.dataTags = oApp.dataTags;
         $scope.list4Schema(1);
         $scope.facRound = facRound = srvRound.ins(oApp);

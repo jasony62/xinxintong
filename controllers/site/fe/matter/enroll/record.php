@@ -70,31 +70,23 @@ class record extends base {
 			}
 		}
 
-		$oUser = clone $this->who;
-
-		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
-		$rawPosted = file_get_contents("php://input");
-		$modelLog = $this->model('log');
-		$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
-
 		// 提交的数据
 		$posted = $this->getPostJson();
 		if (empty($posted) || count(get_object_vars($posted)) === 0) {
 			return new \ResponseError('没有提交有效数据');
 		}
-
 		if (isset($posted->data)) {
 			$oEnrolledData = $posted->data;
 		} else {
 			$oEnrolledData = $posted;
 		}
-		if ((isset($oEnrollApp->assignedNickname->valid) && $oEnrollApp->assignedNickname->valid === 'Y') && isset($oEnrollApp->assignedNickname->schema->id)) {
-			$oUser->nickname = $modelEnlRec->getValueBySchema($oEnrollApp->assignedNickname->schema, $oEnrolledData);
-		} else {
-			/* 当前访问用户的基本信息 */
-			$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
-			$oUser->nickname = $userNickname;
-		}
+		// 提交数据的用户
+		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
+
+		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
+		$rawPosted = file_get_contents("php://input");
+		$modelLog = $this->model('log');
+		$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
 
 		if ($subType === 'save') {
 			if (empty($submitkey)) {
@@ -1068,29 +1060,28 @@ class record extends base {
 	 */
 	public function recommend_action($ek, $schema, $value = '') {
 		$modelData = $this->model('matter\enroll\data');
-		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,userid,agreed,agreed_log']);
+		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,userid,group_id,agreed,agreed_log']);
 		if (false === $oRecData) {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N', 'fields' => 'entry_rule']);
-		if (false === $oApp) {
+		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N', 'fields' => 'state,entry_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		if (empty($oApp->entry_rule->group->id) || empty($oApp->entry_rule->group->round->id)) {
+		if (empty($oApp->entry_rule->group->id)) {
 			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
 		}
+
 		$modelGrpUsr = $this->model('matter\group\player');
 		$oGrpLeader = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || $oGrpLeader->is_leader !== 'Y') {
 			return new \ParameterError('只有允许组长进行推荐');
 		}
-		if ($oGrpLeader->round_id !== $oApp->entry_rule->group->round->id) {
-			return new \ParameterError('只允许推荐本组数据');
-		}
+
 		$oGrpMemb = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'round_id', 'onlyOne' => true]);
-		if (false === $oGrpMemb || $oGrpMemb->round_id !== $oApp->entry_rule->group->round->id) {
-			return new \ParameterError('被推荐的数据必须在指定分组内');
+		if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
+			return new \ParameterError('只允许组长推荐本组数据');
 		}
 
 		if (!in_array($value, ['Y', 'N', 'A'])) {

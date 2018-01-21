@@ -394,9 +394,10 @@ class main extends base {
 		/**
 		 * 获得当前用户所属的分组，是否为组长，及同组成员
 		 */
-		if (!empty($oApp->entry_rule->group->id)) {
+		if (!empty($oApp->entry_rule->group->id) || !empty($oApp->group_app_id)) {
 			$modelGrpUsr = $this->model('matter\group\player');
-			$oGrpApp = (object) ['id' => $oApp->entry_rule->group->id];
+			$assocGroupAppId = empty($oApp->entry_rule->group->id) ? $oApp->group_app_id : $oApp->entry_rule->group->id;
+			$oGrpApp = (object) ['id' => $assocGroupAppId];
 			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,round_id,round_title,userid,nickname', 'onlyOne' => true]);
 			if ($oGrpUsr) {
 				$others = $modelGrpUsr->byRound($oGrpApp->id, $oGrpUsr->round_id, ['fields' => 'is_leader,userid,nickname']);

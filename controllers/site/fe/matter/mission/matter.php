@@ -83,7 +83,7 @@ class matter extends \site\fe\matter\base {
 					}
 				}
 				/* user */
-				$oEnlUser = $modelEnlUsr->byId($oEnlApp, $oRecData->userid, ['fields' => 'nickname']);
+				$oEnlUser = $modelEnlUsr->byId($oEnlApp, $oRecData->userid, ['fields' => 'nickname,group_id']);
 				if ($oEnlUser) {
 					$oRecData->nickname = $oEnlUser->nickname;
 					$oSiteUsr = $modelSiteAct->byId($oRecData->userid, ['fields' => 'headimgurl']);
@@ -95,7 +95,7 @@ class matter extends \site\fe\matter\base {
 				if (!empty($oRecData->group_id)) {
 					$oGrpRnd = $modelGrpRnd->byId($oRecData->group_id, ['fields' => 'title']);
 					if ($oGrpRnd) {
-						$oRecData->group = (object) ['id' => $oEnlUser->group_id, 'title' => $oGrpRnd->title];
+						$oRecData->group = (object) ['id' => $oRecData->group_id, 'title' => $oGrpRnd->title];
 					}
 				} else if (!empty($oEnlUser->group_id)) {
 					$oGrpRnd = $modelGrpRnd->byId($oEnlUser->group_id, ['fields' => 'title']);

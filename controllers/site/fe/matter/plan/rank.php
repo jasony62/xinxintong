@@ -23,13 +23,28 @@ class rank extends base {
 			return new \ResponseError($aResult[1]);
 		}
 
+		$oCriteria = $this->getPostJson();
+		if (empty($oCriteria->orderby)) {
+			$oCriteria = new \stdClass;
+			$oCriteria->orderby = 'task_num';
+		}
 		$modelUsr = $this->model('matter\plan\user');
 		$q = [
-			'id,nickname,userid,group_id,start_at,last_enroll_at,task_num,score',
+			'id,nickname,userid,group_id,start_at,last_enroll_at,task_num,score,coin',
 			'xxt_plan_user',
 			['aid' => $oApp->id],
 		];
-		$q2 = ['o' => 'task_num desc'];
+		switch ($oCriteria->orderby) {
+			case 'score':
+				$q2 = ['o' => 'score desc'];
+				break;
+			case 'coin':
+				$q2 = ['o' => 'coin desc'];
+				break;
+			default:
+				$q2 = ['o' => 'task_num desc'];
+				break;
+		}
 
 		$oUsers = $modelUsr->query_objs_ss($q, $q2);
 

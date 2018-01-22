@@ -165,9 +165,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         if (ek) {
             url += '&ek=' + ek;
         }
-        rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
-        page !== undefined && page !== null && page.length && (url += '&page=' + page);
-        newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
+        rid && (url += '&rid=' + rid);
+        page && (url += '&page=' + page);
+        newRecord && newRecord === 'Y' && (url += '&newRecord=Y');
         if (/remark|repos/.test(page)) {
             location = url;
         } else {
@@ -222,7 +222,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         $scope.mission = oMission;
         $scope.app = oApp;
         $scope.user = oUser;
-        if (oApp.multi_rounds === 'Y') {
+        if (oApp.multi_rounds === 'Y' && params.activeRound) {
             $scope.activeRound = params.activeRound;
             activeRid = params.activeRound.rid;
         }
@@ -297,9 +297,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                     url += "&shareto=" + shareto;
                     http2.get(url);
                     window.shareCounter++;
-                    if (oApp.can_autoenroll === 'Y' && oPage.autoenroll_onshare === 'Y') {
-                        $http.get(LS.j('emptyGet', 'site', 'app') + '&once=Y');
-                    }
                     window.onshare && window.onshare(window.shareCounter);
                 },
                 jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']

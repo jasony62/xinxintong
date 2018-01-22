@@ -1,0 +1,61 @@
+blockquote {
+	font-size: 16px;
+	margin-bottom: 8px;
+}
+
+img {
+	max-width: 100%
+}
+
+@media screen and (max-width:768px) {
+	.site-navbar-default {
+		margin-bottom: 0;
+	}
+
+}
+
+/*record*/
+#repos {
+	background: #fff;
+}
+
+#repos p {
+	word-break: break-all;
+}
+
+#repos .record .glyphicon-heart {
+	color: red;
+}
+
+#repos .record {
+	border-bottom: 1px solid #ddd;
+	padding: 8px;
+}
+
+#repos .record:last-child {
+	margin-bottom: 1rem;
+}
+
+#repos .record>* {
+	margin: 1rem 0;
+}
+
+#repos .record .label {
+	padding-top: .3em
+}
+
+#repos .record .user {
+	display: flex;
+}
+
+#repos .record .user .seq {
+	margin-right: 8px;
+}
+
+#repos .record .user .datetime {
+	flex-grow: 1;
+}
+
+#repos .record .bottom-bar>*+* {
+	margin-left: 8px;
+}

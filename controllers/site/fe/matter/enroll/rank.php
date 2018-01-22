@@ -103,14 +103,25 @@ class rank extends base {
 	 */
 	public function groupByApp_action($app) {
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false) {
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'id,state,entry_rule,data_schemas,group_app_id']);
+		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
-		foreach ($oApp->dataSchemas as $oSchema) {
-			if ($oSchema->id === '_round_id') {
-				$userGroups = $oSchema->ops;
+		if (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id)) {
+			$modelGrpRnd = $this->model('matter\group\round');
+			$rounds = $modelGrpRnd->byApp($oApp->entry_rule->group->id);
+			$userGroups = [];
+			foreach ($rounds as $oRound) {
+				$oNewGroup = new \stdClass;
+				$oNewGroup->v = $oRound->round_id;
+				$oNewGroup->l = $oRound->title;
+				$userGroups[] = $oNewGroup;
+			}
+		} else if (!empty($oApp->group_app_id)) {
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if ($oSchema->id === '_round_id') {
+					$userGroups = $oSchema->ops;
+				}
 			}
 		}
 		if (empty($userGroups)) {

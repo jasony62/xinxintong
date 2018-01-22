@@ -11,7 +11,6 @@ class record extends \pl\fe\matter\base {
 	 */
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'white';
-		$rule_action['actions'][] = 'index';
 		$rule_action['actions'][] = 'get';
 
 		return $rule_action;

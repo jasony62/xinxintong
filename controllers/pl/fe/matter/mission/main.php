@@ -329,7 +329,7 @@ class main extends \pl\fe\matter\base {
 		if ($rst) {
 			$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic');
 			/*记录操作日志*/
-			$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'U');
+			$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'U', $posted);
 			/*更新acl*/
 			$mission = $this->model('matter\mission\acl')->updateMission($mission);
 		}

@@ -20,6 +20,36 @@ class base extends \site\fe\matter\base {
 		return $this->model('matter\acl')->canAccessMatter($site, 'enroll', $app, $member, $memberSchemas);
 	}
 	/**
+	 * 获得当前用户的完整信息
+	 * 1、活动中指定的用户昵称
+	 * 2、用户在活动中所属的分组
+	 */
+	protected function getUser($oApp, $oEnrolledData = null) {
+		$oUser = clone $this->who;
+
+		/* 指定的用户昵称 */
+		if (isset($oEnrolledData) && (isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
+			$modelEnlRec = $this->model('matter\enroll\record');
+			$oUser->nickname = $modelEnlRec->getValueBySchema($oApp->assignedNickname->schema, $oEnrolledData);
+		} else {
+			$modelEnl = $this->model('matter\enroll');
+			$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
+			$oUser->nickname = $userNickname;
+		}
+
+		/* 用户所属的分组 */
+		$oEntryRule = $oApp->entry_rule;
+		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'group' && isset($oEntryRule->group->id)) {
+			$modelGrpUsr = $this->model('matter\group\player');
+			$oGrpMemb = $modelGrpUsr->byUser($oEntryRule->group, $oUser->uid, ['fields' => 'round_id', 'onlyOne' => true]);
+			if ($oGrpMemb) {
+				$oUser->group_id = $oGrpMemb->round_id;
+			}
+		}
+
+		return $oUser;
+	}
+	/**
 	 * 检查登记活动进入规则
 	 *
 	 * @param object $oApp

@@ -92,15 +92,66 @@ class repos extends base {
 		}
 
 		$modelData = $this->model('matter\enroll\data');
-		$options = new \stdClass;
-		$options->rid = $rid;
-		$options->page = $page;
-		$options->size = $size;
+		$oOptions = new \stdClass;
+		$oOptions->rid = $rid;
+		$oOptions->page = $page;
+		$oOptions->size = $size;
 		if ($onlyMine === 'Y') {
-			//$options->userid = $this->who->uid;
+			//$oOptions->userid = $this->who->uid;
 		}
-		$result = $modelData->bySchema($oApp, $oSchema, $options);
+		$result = $modelData->bySchema($oApp, $oSchema, $oOptions);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 返回指定登记项的活动登记名单
+	 */
+	public function list4Record_action($app, $page = 1, $size = 12) {
+		$oUser = $this->who;
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,scenario,assigned_nickname,data_schemas', 'cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		// 登记数据过滤条件
+		$oCriteria = $this->getPostJson();
+
+		// 登记记录过滤条件
+		$oOptions = new \stdClass;
+		$oOptions->page = $page;
+		$oOptions->size = $size;
+
+		// 查询结果
+		$mdoelRec = $this->model('matter\enroll\record');
+		$oResult = $mdoelRec->byApp($oApp, $oOptions);
+		if (count($oResult->records)) {
+			$aSchareableSchemas = [];
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
+					$aSchareableSchemas[] = $oSchema->id;
+				}
+			}
+			foreach ($oResult->records as $oRecord) {
+				/* 清除非共享数据 */
+				if (isset($oRecord->data)) {
+					foreach ($oRecord->data as $schemaId => $value) {
+						if (!in_array($schemaId, $aSchareableSchemas)) {
+							unset($oRecord->data->{$schemaId});
+						}
+					}
+				}
+				/* 清除不必要的内容 */
+				unset($oRecord->comment);
+				unset($oRecord->verified);
+				unset($oRecord->wx_openid);
+				unset($oRecord->yx_openid);
+				unset($oRecord->qy_openid);
+				unset($oRecord->headimgurl);
+			}
+		}
+
+		return new \ResponseData($oResult);
 	}
 }

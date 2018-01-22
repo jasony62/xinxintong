@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlTaskDetail', ['$scope', 'http2', 'srvRecordConverter', 'srvPlanApp', 'srvPlanRecord', '$uibModal', function($scope, http2, srvRecordConverter, srvPlanApp, srvPlanRecord, $uibModal) {
+    ngApp.provider.controller('ctrlTaskDetail', ['$scope', 'http2', 'noticebox', 'srvRecordConverter', 'srvPlanApp', 'srvPlanRecord', '$uibModal', function($scope, http2, noticebox, srvRecordConverter, srvPlanApp, srvPlanRecord, $uibModal) {
         function doTask(seq) {
             var task = _oTasksOfBeforeSubmit[seq];
             task().then(function(rsp) {
@@ -12,43 +12,14 @@ define(['frame'], function(ngApp) {
         function doSave (){
             //oRecord 原始数据
             //updated 上传数据包
-            var updated = {};
-
-            if (oRecord.enroll_key) {
-                if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
-                    updated.data = oRecord.data;
-                }
-                if (!angular.equals(oRecord.supplement, oBeforeRecord.supplement)) {
-                    updated.supplement = oRecord.supplement;
-                }
-                if (!angular.equals(oRecord.score, oBeforeRecord.score)) {
-                    updated.score = oRecord.score;
-                }
-                if (!angular.equals(oQuizScore, oBeforeQuizScore)) {
-                    updated.quizScore = oQuizScore;
-                }
-                srvEnrollRecord.update(oRecord, updated).then(function(newRecord) {
-                    if (oApp.scenario === 'quiz') {
-                        _quizScore(newRecord);
-                    }
-                    noticebox.success('完成保存');
-                });
-            } else {
-                updated.data = oRecord.data;
-                updated.supplement = oRecord.supplement;
-                updated.quizScore = oQuizScore;
-                srvEnrollRecord.add(updated).then(function(newRecord) {
-                    oRecord.enroll_key = newRecord.enroll_key;
-                    oRecord.enroll_at = newRecord.enroll_at;
-                    $location.search({ site: oApp.siteid, id: oApp.id, ek: newRecord.enroll_key });
-                    if (oApp.scenario === 'quiz') {
-                        _quizScore(newRecord);
-                    }
-                    noticebox.success('完成保存');
-                });
-            }
-            oBeforeRecord = angular.copy(oRecord);
-        };
+            var updated = {},
+                url = '/rest/pl/fe/matter/plan/task/update' + location.search;
+            updated.data = _oTask.data;
+            updated.supplement = _oTask.supplement;
+            http2.post(url, updated, function(rsp) {
+                noticebox.success('完成保存');
+            });
+        }
 
         $scope.chooseImage = function(action, schema) {
             var data = _oTask.data;

@@ -302,7 +302,7 @@ class task_model extends \TMS_MODEL {
 							$where .= ')';
 						}
 					} else {
-						$where .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+						$where .= 'data like \'%"' . $k . '":"' . $v . '%\'';
 					}
 					$where .= ')';
 				}

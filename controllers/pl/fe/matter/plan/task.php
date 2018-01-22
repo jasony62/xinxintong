@@ -70,13 +70,13 @@ class task extends \pl\fe\matter\base {
 		$modelTsk = $this->model('matter\plan\task');
 		$task = $modelTsk->escape($task);
 
-		$oTask = $modelTsk->byId($task, ['fields' => 'id,state,aid,task_schema_id']);
+		$oTask = $modelTsk->byId($task, ['fields' => 'id,state,aid,task_schema_id,last_enroll_at']);
 		if (false === $oTask && $oTask->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
 		$modelApp = $this->model('matter\plan');
-		$oApp = $modelApp->byId($oTask->aid, ['fields' => 'id,state,siteid,title,summary,pic']);
+		$oApp = $modelApp->byId($oTask->aid, ['fields' => 'id,state,siteid,title,summary,pic,check_schemas']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

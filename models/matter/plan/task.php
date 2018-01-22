@@ -250,30 +250,33 @@ class task_model extends \TMS_MODEL {
 		];
 
 		if (!empty($oCriteria->byComment)) {
-			$q[2] .= " and comment like '" . $this->escape($oCriteria->byComment) . "'";
+			$q[2] .= " and comment like '%" . $this->escape($oCriteria->byComment) . "%'";
 		}
 		if (!empty($oCriteria->byTaskSchema)) {
 			$q[2] .= " and task_schema_id = " . $this->escape($oCriteria->byTaskSchema);
 		}
+		if (!empty($oCriteria->record->verified)) {
+			$q[2] .= " and verified = '" . $this->escape($oCriteria->record->verified) . "'";
+		}
 		if (isset($oCriteria->data)) {
-			$oSchemasById = new \stdClass;
+			$oAppSchemasById = new \stdClass;
 			foreach ($oApp->checkSchemas as $oSchema) {
-				$oSchemasById->{$oSchema->id} = $oSchema;
+				$oAppSchemasById->{$oSchema->id} = $oSchema;
 			}
 
 			$where = '';
 			foreach ($oCriteria->data as $k => $v) {
-				if (!empty($v) && isset($oSchemasById->{$k})) {
-					$oSchema = $oSchemasById->{$k};
+				if (!empty($v) && isset($oAppSchemasById->{$k})) {
+					$oAppSchema = $oAppSchemasById->{$k};
 					$where .= ' and (';
-					if ($oSchema->type === 'multiple') {
+					if ($oAppSchema->type === 'multiple') {
 						// 选项ID是否互斥，不存在，例如：v1和v11
 						$bOpExclusive = true;
 						$strOpVals = '';
-						foreach ($oSchema->ops as $op) {
+						foreach ($oAppSchema->ops as $op) {
 							$strOpVals .= ',' . $op->v;
 						}
-						foreach ($oSchema->ops as $op) {
+						foreach ($oAppSchema->ops as $op) {
 							if (false !== strpos($strOpVals, $op->v)) {
 								$bOpExclusive = false;
 								break;

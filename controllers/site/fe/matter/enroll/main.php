@@ -194,6 +194,31 @@ class main extends base {
 		return $oOpenPage;
 	}
 	/**
+	 * 用保存的数据填写指定的记录数据
+	 */
+	private function _fillWithSaved($oApp, $oUser, $rid, &$oRecord) {
+		$oSaveLog = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
+		if (count($oSaveLog) == 1) {
+			$oSaveLog = $oSaveLog[0];
+			$oSaveLog->opData = json_decode($oSaveLog->operate_data);
+			$bMatched = true;
+			if (!empty($rid) && (isset($oSaveLog->opData->rid) && $oSaveLog->opData->rid !== $rid)) {
+				$bMatched = false;
+			}
+			if ($bMatched) {
+				$oLogData = $oSaveLog->opData;
+				if (isset($oLogData)) {
+					$oRecord->data = $oLogData->data;
+					$oRecord->supplement = $oLogData->supplement;
+					$oRecord->data_tag = $oLogData->data_tag;
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+	/**
 	 * 返回登记记录
 	 *
 	 * @param string $siteid
@@ -309,18 +334,14 @@ class main extends base {
 			}
 
 			$params['page'] = $oOpenPage;
+
 			if ($oOpenPage->type === 'I' && ($newRecord === 'Y' || empty($ek))) {
 				/* 新登记数据 */
 				/* 查询是否有保存的数据 */
-				$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
-				$params['record'] = new \stdClass;
-				if (count($saveRecode) == 1) {
-					$saveRecode = $saveRecode[0];
-					$saveRecode->opData = json_decode($saveRecode->operate_data);
-					$params['record']->data = $saveRecode->opData->data;
-					$params['record']->supplement = $saveRecode->opData->supplement;
-					$params['record']->data_tag = $saveRecode->opData->data_tag;
-				}
+				$oNewRecord = new \stdClass;
+				$this->_fillWithSaved($oApp, $oUser, $rid, $oNewRecord);
+				$params['record'] = $oNewRecord;
+
 				/* 返回当前用户在关联活动中填写的数据 */
 				if (!empty($oApp->enroll_app_id)) {
 					$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
@@ -375,15 +396,8 @@ class main extends base {
 						}
 					}
 					if ($oOpenPage->type === 'I') {
-						/* 查询是否有保存的数据 */
-						$saveRecode = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
-						if (count($saveRecode) == 1) {
-							$saveRecode = $saveRecode[0];
-							$saveRecode->opData = json_decode($saveRecode->operate_data);
-							$params['record']->data = $saveRecode->opData->data;
-							$params['record']->supplement = $saveRecode->opData->supplement;
-							$params['record']->data_tag = $saveRecode->opData->data_tag;
-						}
+						/* 查询是否有匹配的保存数据 */
+						$this->_fillWithSaved($oApp, $oUser, $rid, $params['record']);
 					}
 				}
 			}

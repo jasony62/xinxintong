@@ -363,11 +363,11 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     };
     $scope.$on('xxt.app.enroll.save', function() {
-        _localSave('save');
+        //_localSave('save');
         $scope.submit(event, 'result', 'save');
     });
     $scope.save = function(event, nextAction) {
-        _localSave('save');
+        //_localSave('save');
         $scope.submit(event, nextAction, 'save');
         $scope.gotoPage(event, nextAction);
     };

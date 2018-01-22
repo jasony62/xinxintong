@@ -57,9 +57,13 @@ class record extends base {
 		if (empty($rid)) {
 			if ($oEnrollApp->multi_rounds === 'Y') {
 				$oActiveRnd = $modelRnd->getActive($oEnrollApp);
-				$now = time();
-				if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now)) {
-					return new \ResponseError('活动轮次【' . $oActiveRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！');
+				if (empty($oActiveRnd)) {
+					return new \ResponseError('没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用');
+				} else {
+					$now = time();
+					if ($oActiveRnd->end_at != 0 && $oActiveRnd->end_at < $now) {
+						return new \ResponseError('活动轮次【' . $oActiveRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！');
+					}
 				}
 				$rid = $oActiveRnd->rid;
 			}
@@ -656,63 +660,6 @@ class record extends base {
 		}
 
 		return new \ResponseData('ok');
-	}
-	/**
-	 * 给当前用户产生一条空的登记记录，记录传递的数据，并返回这条记录
-	 * 适用于抽奖后记录兑奖信息
-	 *
-	 * @param string $site
-	 * @param string $app
-	 * @param string $once 如果已经有登记记录，不生成新的登记记录
-	 */
-	public function emptyGet_action($site, $app, $once = 'N') {
-		$posted = $this->getPostJson();
-
-		$model = $this->model('matter\enroll');
-		if (false === ($oApp = $model->byId($app))) {
-			return new \ParameterError("指定的活动（$app）不存在");
-		}
-		/**
-		 * 当前访问用户的基本信息
-		 */
-		$user = $this->who;
-		/* 如果已经有登记记录则不登记 */
-		$modelRec = $this->model('matter\enroll\record');
-		if ($once === 'Y') {
-			$ek = $modelRec->lastKeyByUser($oApp, $user);
-		}
-		/* 创建登记记录*/
-		if (empty($ek)) {
-			$options = [
-				'enrollAt' => time(),
-				'referrer' => (empty($posted->referrer) ? '' : $posted->referrer),
-			];
-			$ek = $modelRec->enroll($oApp, $user, $options);
-			/**
-			 * 处理提交数据
-			 */
-			$data = $_GET;
-			unset($data['site']);
-			unset($data['app']);
-			if (!empty($data)) {
-				$data = (object) $data;
-				$rst = $modelRec->setData($user, $oApp, $ek, $data);
-				if (false === $rst[0]) {
-					return new ResponseError($rst[1]);
-				}
-			}
-		}
-		/*登记记录的URL*/
-		$url = '/rest/site/fe/matter/enroll';
-		$url .= '?site=' . $site;
-		$url .= '&app=' . $oApp->id;
-		$url .= '&ek=' . $ek;
-
-		$rsp = new \stdClass;
-		$rsp->url = $url;
-		$rsp->ek = $ek;
-
-		return new \ResponseData($rsp);
 	}
 	/**
 	 * 返回指定记录或最后一条记录

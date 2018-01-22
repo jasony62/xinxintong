@@ -297,9 +297,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                     url += "&shareto=" + shareto;
                     http2.get(url);
                     window.shareCounter++;
-                    if (oApp.can_autoenroll === 'Y' && oPage.autoenroll_onshare === 'Y') {
-                        $http.get(LS.j('emptyGet', 'site', 'app') + '&once=Y');
-                    }
                     window.onshare && window.onshare(window.shareCounter);
                 },
                 jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']

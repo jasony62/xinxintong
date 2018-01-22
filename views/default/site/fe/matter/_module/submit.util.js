@@ -19,7 +19,7 @@ utilSubmit.state = {
                 }
             }
         }
-        this.state = type =='save' ? 'waiting' : 'running';
+        this.state = type == 'save' ? 'waiting' : 'running';
         this._cacheKey = cacheKey ? cacheKey : (new Date * 1);
     },
     finish: function(keep) {

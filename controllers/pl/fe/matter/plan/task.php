@@ -96,8 +96,8 @@ class task extends \pl\fe\matter\base {
 						break;
 					case 'data':
 						$data = $this->updateUserTask($oTask->task_schema_id, $oApp, $oTask, $val);
-						$aUpdated['data'] = $modelApp->escape($modelApp->toJson($data['oCheckData']));
-						$aUpdated['score'] = $modelApp->escape($modelApp->toJson($data['oScoreData']));
+						$aUpdated['data'] = $modelApp->escape($modelApp->toJson($data->oCheckData));
+						$aUpdated['score'] = $modelApp->escape($modelApp->toJson($data->oScoreData));
 						break;
 					case 'quizScore':
 						$aUpdated['quizScore'] = $modelApp->escape($val);
@@ -137,12 +137,12 @@ class task extends \pl\fe\matter\base {
 			if (count($oApp->checkSchemas)) {
 				$oAction->checkSchemas = array_merge($oAction->checkSchemas, $oApp->checkSchemas);
 			}
-			$this->model('matter\plan\action')->setData($userSite, $oAction, $oTask, $oActionData);
+			$oResult = $this->model('matter\plan\action')->setData($userSite, $oAction, $oTask, $oActionData);
 			$oCheckData->{$actionId} = $oResult->dbData;
 			$oScoreData->{$actionId} = $oResult->score;
 		}
 
-		$data = ['oCheckData' => $oCheckData, 'oScoreData' => $oScoreData];
+		$data = (object) ['oCheckData' => $oCheckData, 'oScoreData' => $oScoreData];
 		return $data;
 	}
 	/**

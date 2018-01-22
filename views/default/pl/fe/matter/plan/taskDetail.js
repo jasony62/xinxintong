@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlTaskDetail', ['$scope', 'http2', 'noticebox', 'srvRecordConverter', 'srvPlanApp', 'srvPlanRecord', '$uibModal', function($scope, http2, noticebox, srvRecordConverter, srvPlanApp, srvPlanRecord, $uibModal) {
+    ngApp.provider.controller('ctrlTaskDetail', ['$scope', 'http2', '$q', 'noticebox', 'srvRecordConverter', 'srvPlanApp', 'srvPlanRecord', '$uibModal', function($scope, http2, $q, noticebox, srvRecordConverter, srvPlanApp, srvPlanRecord, $uibModal) {
         function doTask(seq) {
             var task = _oTasksOfBeforeSubmit[seq];
             task().then(function(rsp) {

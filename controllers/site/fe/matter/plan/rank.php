@@ -30,19 +30,31 @@ class rank extends base {
 		}
 		$modelUsr = $this->model('matter\plan\user');
 		$q = [
-			'id,nickname,userid,group_id,start_at,last_enroll_at,task_num,score,coin',
+			'id,nickname,userid,group_id,start_at,last_enroll_at',
 			'xxt_plan_user',
 			['aid' => $oApp->id],
 		];
 		switch ($oCriteria->orderby) {
 			case 'score':
-				$q2 = ['o' => 'score desc'];
+				$q[0] .= ',score';
+				$q[2]['score'] = new \stdClass;
+				$q[2]['score']->op = '>';
+				$q[2]['score']->pat = 0;
+				$q2 = ['o' => 'score desc,id'];
 				break;
 			case 'coin':
-				$q2 = ['o' => 'coin desc'];
+				$q[0] .= ',coin';
+				$q[2]['coin'] = new \stdClass;
+				$q[2]['coin']->op = '>';
+				$q[2]['coin']->pat = 0;
+				$q2 = ['o' => 'coin desc,id'];
 				break;
 			default:
-				$q2 = ['o' => 'task_num desc'];
+				$q[0] .= ',task_num';
+				$q[2]['task_num'] = new \stdClass;
+				$q[2]['task_num']->op = '>';
+				$q[2]['task_num']->pat = 0;
+				$q2 = ['o' => 'task_num desc,id'];
 				break;
 		}
 

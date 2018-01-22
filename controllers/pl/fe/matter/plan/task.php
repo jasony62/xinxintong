@@ -24,7 +24,7 @@ class task extends \pl\fe\matter\base {
 		$modelTsk = $this->model('matter\plan\task');
 		$task = $modelTsk->escape($task);
 
-		$oTask = $modelTsk->byId($task, ['fields' => 'id,state,task_schema_id,userid,group_id,nickname,verified,born_at,patch_at,first_enroll_at,last_enroll_at,data,supplement']);
+		$oTask = $modelTsk->byId($task, ['fields' => 'id,state,task_schema_id,userid,group_id,nickname,verified,born_at,patch_at,first_enroll_at,last_enroll_at,data,supplement,comment']);
 		if (false === $oTask && $oTask->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

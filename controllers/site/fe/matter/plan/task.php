@@ -162,26 +162,21 @@ class task extends base {
 		/**
 		 * 提交补充说明
 		 */
+		$aUpdated = [];
 		if (isset($oPosted->supplement) && count(get_object_vars($oPosted->supplement))) {
 			$oTaskSupl = $oPosted->supplement;
 			foreach ($oTaskSupl as $actionId => $oActionSupl) {
 				$oAction = $oActionsById->{$actionId};
 				$modelUsrAct->setSupplement($oUser, $oAction, $oUsrTask, $oActionSupl);
 			}
-			$modelUsrAct->update(
-				'xxt_plan_task',
-				['supplement' => $modelUsrAct->escape($modelUsrAct->toJson($oTaskSupl))],
-				['id' => $oUsrTask->id]
-			);
+			$aUpdated['supplement'] = $modelUsrAct->escape($modelUsrAct->toJson($oTaskSupl));
 		}
 		/**
 		 * 更新任务状态
 		 */
-		$aUpdated = [
-			'last_enroll_at' => $oUsrTask->last_enroll_at,
-			'data' => $modelUsrTsk->escape($modelUsrTsk->toJson($oCheckData)),
-			'score' => $modelUsrTsk->escape($modelUsrTsk->toJson($oScoreData)),
-		];
+		$aUpdated['last_enroll_at'] = $oUsrTask->last_enroll_at;
+		$aUpdated['data'] = $modelUsrTsk->escape($modelUsrTsk->toJson($oCheckData));
+		$aUpdated['score'] = $modelUsrTsk->escape($modelUsrTsk->toJson($oScoreData));
 		if (isset($oUser->group_id) && $oUser->group_id !== $oUsrTask->group_id) {
 			$aUpdated['group_id'] = $oUser->group_id;
 		}

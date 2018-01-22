@@ -249,9 +249,6 @@ class task_model extends \TMS_MODEL {
 			"aid = '{$oApp->id}' and state = 1",
 		];
 
-		if (!empty($oCriteria->byNickname)) {
-			$q[2] .= " and nickname like '" . $this->escape($oCriteria->byNickname) . "'";
-		}
 		if (!empty($oCriteria->byComment)) {
 			$q[2] .= " and comment like '" . $this->escape($oCriteria->byComment) . "'";
 		}

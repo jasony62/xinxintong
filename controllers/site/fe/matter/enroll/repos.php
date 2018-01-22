@@ -104,44 +104,51 @@ class repos extends base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 按记录整体返回共享内容
+	 * 返回指定登记项的活动登记名单
 	 */
 	public function list4Record_action($app, $page = 1, $size = 12) {
+		$oUser = $this->who;
+
+		// 登记活动
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['fields' => 'id,state,scenario,assigned_nickname,data_schemas', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		// 登记数据过滤条件
+		$oCriteria = $this->getPostJson();
 
-		$mdoelRec = $this->model('matter\enroll\record');
+		// 登记记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
 
+		// 查询结果
+		$mdoelRec = $this->model('matter\enroll\record');
 		$oResult = $mdoelRec->byApp($oApp, $oOptions);
-		if (!empty($oResult->records)) {
-			$aShareableSchemas = [];
+		if (count($oResult->records)) {
+			$aSchareableSchemas = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
-					$aShareableSchemas[] = $oSchema->id;
+					$aSchareableSchemas[] = $oSchema->id;
 				}
 			}
 			foreach ($oResult->records as $oRecord) {
+				/* 清除非共享数据 */
 				if (isset($oRecord->data)) {
 					foreach ($oRecord->data as $schemaId => $value) {
-						if (!in_array($schemaId, $aShareableSchemas)) {
+						if (!in_array($schemaId, $aSchareableSchemas)) {
 							unset($oRecord->data->{$schemaId});
 						}
 					}
 				}
-				/* 清除不必要的数据 */
+				/* 清除不必要的内容 */
 				unset($oRecord->comment);
+				unset($oRecord->verified);
 				unset($oRecord->wx_openid);
 				unset($oRecord->yx_openid);
 				unset($oRecord->qy_openid);
-				unset($oRecord->data_tags);
 				unset($oRecord->headimgurl);
-				unset($oRecord->verified);
 			}
 		}
 

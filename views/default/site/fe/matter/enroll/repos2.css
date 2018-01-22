@@ -1,3 +1,8 @@
+blockquote {
+	font-size: 16px;
+	margin-bottom: 8px;
+}
+
 img {
 	max-width: 100%
 }
@@ -7,39 +12,6 @@ img {
 		margin-bottom: 0;
 	}
 
-	#filterCriteria .form-control, #filterCriteria .input-group-btn .btn {
-		border-radius: 0;
-	}
-
-}
-
-/*criteria*/
-#advCriteriaSwitch span.opened {
-}
-
-#advCriteria {
-	position: absolute;
-	top: 100%;
-	right: 0;
-	margin-top: 1px;
-	width: 300px;
-	background: #fff;
-	padding: 1rem;
-	border: 1px solid #ccc;
-	border-top: 0;
-	z-index: 1000;
-}
-
-#advCriteria .form-control {
-	float: none;
-}
-
-#advCriteria .form-group {
-	display: block;
-}
-
-#advCriteria .form-group:last-child {
-	margin-bottom: 0;
 }
 
 /*record*/
@@ -72,53 +44,18 @@ img {
 	padding-top: .3em
 }
 
-#repos .record .bottom-bar {
+#repos .record .user {
 	display: flex;
+}
+
+#repos .record .user .seq {
+	margin-right: 8px;
+}
+
+#repos .record .user .datetime {
+	flex-grow: 1;
 }
 
 #repos .record .bottom-bar>*+* {
 	margin-left: 8px;
-}
-
-#repos .record .bottom-bar .datetime {
-	flex: 1;
-	line-height: 30px;
-	font-size: .8rem;
-}
-
-#repos .record .remarks {
-	font-size: .9em;
-	border-top: 1px dashed #ddd;
-	padding: 1rem 0 1rem 2rem;
-	position: relative;
-}
-
-#repos .record .remarks:before {
-	content: '推荐评论';
-	position: absolute;
-	left: 50%;
-	margin-left: -1em;
-	top: -0.7em;
-	color: #999;
-}
-
-#repos .record .remarks .remark {
-	margin-bottom: 1em;
-}
-
-#repos .record .remarks .remark .bottom-bar>:first-child {
-	flex: 1;
-}
-
-#repos .record .remarks .remark .bottom-bar>:first-child:before {
-	content: '\2014 \00A0';
-}
-
-.tag {
-	background: #3af;
-	padding: 4px 6px;
-	margin: 4px;
-	border-radius: 2px;
-	font-size: .8em;
-	color: #fff;
 }

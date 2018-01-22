@@ -35,115 +35,32 @@
     <div ng-cloak class='ng-cloak app' ng-controller="ctrlRepos">
         <div class='container'>
             <div class='row'>
-                <div class='form-group'>
-                    <div id='filterCriteria' class='input-group'>
-                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
-                        <div class='input-group-btn'>
-                            <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';list4Schema(1)"><span class='glyphicon glyphicon-remove'></span></button>
-                            <button class='btn btn-default' ng-click="list4Schema(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button id='advCriteriaSwitch' class="btn btn-default" ng-click="status.opened=!status.opened">
-                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':status.opened}"></span>
-                            </button>
-                            <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
-                                <div class='form-group' ng-if='rounds.length'>
-                                    <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
-                                        <option value='all'>全部轮次</option>
-                                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                                    </select>
-                                </div>
-                                <div class='form-group'>
-                                    <select class='form-control' ng-model="criteria.agreed" ng-change="shiftAgreed()" size=2>
-                                        <option value=''>全部状态</option>
-                                        <option value='Y'>推荐</option>
-                                    </select>
-                                </div>
-                                <div class='form-group' ng-if="userGroups.length">
-                                    <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.v as grp.l for grp in userGroups">
-                                        <option value>全部分组</option>
-                                    </select>
-                                </div>
-                                <div class='form-group'>
-                                    <select class='form-control' ng-model="criteria.owner" ng-change="shiftOwner()" size=2>
-                                        <option value='all'>全部用户</option>
-                                        <option value='{{params.user.uid}}'>我的</option>
-                                    </select>
-                                </div>
-                                <div class='form-group' ng-if="schemaCount>1">
-                                    <select class='form-control' ng-model="criteria.schema" ng-options="schema.id as schema.title for schema in schemas" ng-change="shiftSchema()" size='6'>
-                                        <option value>全部题目</option>
-                                    </select>
-                                </div>
-                                <div class='form-group' ng-if="dataTags">
-                                    <select class='form-control' ng-model="criteria.tag" ng-options="tag.id as tag.label for tag in dataTags" ng-change="shiftTag()" size='6'>
-                                        <option value>全部标签</option>
-                                    </select>
-                                </div>
-                            </form>
-                            <button class='btn btn-default' ng-click="addRecord($event)"><span class='glyphicon glyphicon-pencil'></span></button>
-                        </div>
-                    </div>
-                </div>
                 <div id='repos'>
                     <div class='records'>
                         <div class='record' ng-repeat="rec in repos">
                             <div>
-                                <span ng-if="schemaCount>1" class="label label-default">{{schemas[rec.schema_id].title}}</span>
                                 <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
                             </div>
-                            <blockquote ng-switch on="schemas[rec.schema_id].type">
-                                <p ng-switch-when="single"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
-                                <p ng-switch-when="multiple"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
-                                <div ng-switch-when="file">
-                                    <div ng-repeat="file in rec.value">
-                                        <p><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></p>
-                                        <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
-                                            <source src="{{file.url}}" type="{{file.type}}" />
-                                        </video>
-                                        <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
-                                            <source src="{{file.url}}" type="{{file.type}}" />
-                                        </audio>
-                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
-                                    </div>
-                                </div>
-                                <ul ng-switch-when="image">
-                                    <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" /></li>
-                                </ul>
-                                <ul ng-switch-when="multitext">
-                                    <li ng-repeat="item in rec.items">
-                                        <span ng-bind="item.value"></span>
-                                        <div>
-                                            <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, item.id, $index)"><span class='glyphicon' ng-class="{'glyphicon-heart':item.like_log[user.uid],'glyphicon-heart-empty':!item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>&nbsp;&nbsp;
-                                            <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec, item.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="item.remark_num"></span></button>
-                                        </div>
-                                    </li>
-                                </ul>
-                                <p ng-switch-default>{{rec.value}}</p>
-                                <p ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
-                                    <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>
-                                </p>
-                                <p ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</p>
-                                <footer>{{rec.nickname||'匿名用户'}}</footer>
-                            </blockquote>
-                            <div class='bottom-bar'>
-                                <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
-                                <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, rec.id)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
-                                <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec, rec.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
-                                <div ng-if="groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])">
-                                    <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
-                                    <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
+                            <div class='user'>
+                                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
+                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                                <div class='nickname'>{{rec.nickname}}</div>
+                            </div>
+                            <div class='data'>
+                                <div class='schema' ng-repeat="schema in schemas" ng-switch on="schema.type">
+                                    <blockquote ng-switch-default>
+                                        <span class='text-muted'>{{schema.title}}：</span>
+                                        <span>{{rec.data[schema.id]}}</span>
+                                    </blockquote>
                                 </div>
                             </div>
-                            <div class='remarks' ng-if="schemas[rec.schema_id].remarkable==='Y'&&rec.agreedRemarks.remarks.length">
-                                <div class='remark' ng-repeat="remark in rec.agreedRemarks.remarks">
-                                    <p ng-bind-html="remark.content"></p>
-                                    <div class='bottom-bar text-muted'>
-                                        <div ng-bind-html="remark.nickname"></div>
-                                        <div>
-                                            <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class='bottom-bar text-right'>
+                                <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
+                                <span ng-if="groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])">
+                                    <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
+                                    <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
+                                </span>
                             </div>
                         </div>
                     </div>

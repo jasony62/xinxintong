@@ -125,7 +125,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
     };
     $scope.likeRecordData = function(oRecord, id, index) {
         var url;
-        url = '/rest/site/fe/matter/enroll/record/like';
+        url = '/rest/site/fe/matter/enroll/data/like';
         url += '?site=' + oApp.siteid;
         url += '&ek=' + oRecord.enroll_key;
         url += '&schema=' + oRecord.schema_id;
@@ -153,7 +153,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
     $scope.recommend = function(oRecData, value) {
         var url;
         if (oRecData.agreed !== value) {
-            url = '/rest/site/fe/matter/enroll/record/recommend';
+            url = '/rest/site/fe/matter/enroll/data/recommend';
             url += '?site=' + oApp.siteid;
             url += '&ek=' + oRecData.enroll_key;
             url += '&schema=' + oRecData.schema_id;

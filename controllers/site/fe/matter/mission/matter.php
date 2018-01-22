@@ -43,7 +43,6 @@ class matter extends \site\fe\matter\base {
 		$matterType = 'enroll';
 		$options = ['fields' => 'matter_id'];
 		$aEnlApps = $modelMisMat->byMission($oMission->id, $matterType, $options, 'N');
-
 		$aids = [];
 		foreach ($aEnlApps as $oEnlApp) {
 			$aids[] = $oEnlApp->matter_id;

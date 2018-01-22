@@ -165,9 +165,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         if (ek) {
             url += '&ek=' + ek;
         }
-        rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
-        page !== undefined && page !== null && page.length && (url += '&page=' + page);
-        newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
+        rid && (url += '&rid=' + rid);
+        page && (url += '&page=' + page);
+        newRecord && newRecord === 'Y' && (url += '&newRecord=Y');
         if (/remark|repos/.test(page)) {
             location = url;
         } else {

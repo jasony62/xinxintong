@@ -23,10 +23,12 @@ require(['matterService'], function() {
         $scope.gotoDetail = function(oRecommend) {
             var url;
             url = '/rest/site/fe/matter/enroll?site=' + siteId;
-            url += '&app=' + oRecommend.app.id;
-            url += '&ek=' + oRecommend.enroll_key;
-            url += '&schema=' + oRecommend.schema.id;
+            url += '&app=' + oRecommend.matter.id;
             url += '&page=remark';
+            url += '&ek=' + oRecommend.obj_key;
+            if (oRecommend.obj_unit === 'D') {
+                url += '&schema=' + oRecommend.obj.schema_id;
+            }
             location.href = url;
         };
         http2.get('/rest/site/fe/matter/mission/matter/agreedList?site=' + siteId + '&mission=' + missionId, function(rsp) {

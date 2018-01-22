@@ -7,7 +7,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         var url, defer = $q.defer();
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + $scope.filter.schema.id;
-        url += '&id=' + itemId;
+        itemId && (url += '&id=' + itemId);
         http2.get(url).then(function(rsp) {
             var oRecordData;
             if (oRecordData = rsp.data.data) {
@@ -40,7 +40,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
     var oApp, aRemarkable, oFilter, ek, schemaId, itemId;
     ek = $location.search().ek;
     schemaId = $location.search().schema || null;
-    $scope.itemId = itemId = $location.search().id || 'null';
+    $scope.itemId = itemId = $location.search().id || null;
     $scope.newRemark = {};
     $scope.filter = oFilter = {};
     $scope.openOptions = function() {

@@ -59,25 +59,27 @@
                     </div>
                     <!--end doc-->
                     <div id='recommends' class='row' ng-switch-when="recommend" ng-controller="ctrlRecommend">
-                        <div ng-repeat='recommend in recommends'>
+                        <div ng-repeat='recommend in recommends' ng-switch on="recommend.obj_unit">
                             <div class='col-xs-2 timeline'>
-                                <div class='date' ng-bind="recommend.submit_at*1000|date:'MM-dd'"></div>
-                                <div class='time' ng-bind="recommend.submit_at*1000|date:'HH:mm'"></div>
+                                <div class='date' ng-bind="recommend.op_at*1000|date:'MM-dd'"></div>
+                                <div class='time' ng-bind="recommend.op_at*1000|date:'HH:mm'"></div>
                             </div>
                             <div class='col-xs-10'>
                                 <div class='thumbnail recommend' ng-click="gotoDetail(recommend)">
-                                    <div class='form-group'>
-                                        <div class='nickname'>{{recommend.nickname}}</div>
-                                        <div class='group' ng-if="recommend.group.title"> - {{recommend.group.title}}</div>
+                                    <div class='user text-muted'>
+                                        <div class='nickname'><span>{{recommend.obj.nickname}}</span><span ng-if="recommend.group.title">- {{recommend.group.title}}</span></div>
+                                        <div class='enroll_at'>{{recommend.obj.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                     </div>
-                                    <div class='form-group title'>{{recommend.schema.title}}</div>
-                                    <div class='form-group value'>
-                                        <div ng-switch on="recommend.schema.type">
+                                    <hr>
+                                    <div class='data'>
+                                        <div class='schema' ng-repeat="schema in recommend.matter.dataSchemas" ng-switch on="schema.type">
                                             <div ng-switch-when="image">
-                                                <div ng-repeat="img in recommend.value.split(',')"><img ng-src="{{img}}" /></div>
+                                                <div class='text-muted'>{{schema.title}}</div>
+                                                <div ng-repeat="img in recommend.obj.data[schema.id].split(',')"><img ng-src="{{img}}" /></div>
                                             </div>
                                             <div ng-switch-when="file">
-                                                <div ng-repeat="file in recommend.value">
+                                                <div class='text-muted'>{{schema.title}}</div>
+                                                <div ng-repeat="file in recommend.obj.data[schema.id]">
                                                     <p>{{file.name}}</p>
                                                     <video ng-if="file.type.indexOf('video')===0" controls="controls">
                                                         <source src="{{file.url}}" type="{{file.type}}" />
@@ -88,13 +90,16 @@
                                                     <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' />
                                                 </div>
                                             </div>
-                                            <div ng-switch-default>{{recommend.value}}</div>
+                                            <div ng-switch-default>
+                                                <span class='text-muted'>{{schema.title}}：</span>
+                                                <span>{{recommend.obj.data[schema.id]}}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <hr>
                                     <div>
-                                        <div class='remark_num'>评论 {{recommend.remark_num}}</div>
-                                        <div class='like_num'>赞同 {{recommend.like_num}}</div>
+                                        <div class='remark_num'>评论 {{recommend.obj.remark_num}}</div>
+                                        <div class='like_num'>赞同 {{recommend.obj.like_num}}</div>
                                     </div>
                                 </div>
                             </div>

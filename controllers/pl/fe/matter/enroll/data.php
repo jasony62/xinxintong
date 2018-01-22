@@ -59,7 +59,7 @@ class data extends \pl\fe\matter\base {
 		return new \ResponseData(count($result->records));
 	}
 	/**
-	 *
+	 * 推荐登记记录的题目
 	 */
 	public function agree_action($ek, $schema, $value = '', $id = '') {
 		if (false === ($oUser = $this->accountUser())) {
@@ -68,11 +68,16 @@ class data extends \pl\fe\matter\base {
 
 		$modelData = $this->model('matter\enroll\data');
 		if (empty($id)) {
-			$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,userid,agreed,agreed_log']);
+			$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,enroll_key,schema_id,userid,agreed,agreed_log']);
 		} else {
-			$oRecData = $modelData->byId($id, ['fields' => 'id,aid,userid,agreed,agreed_log']);
+			$oRecData = $modelData->byId($id, ['fields' => 'id,aid,enroll_key,schema_id,userid,agreed,agreed_log']);
 		}
 		if (false === $oRecData) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,mission_id,state,entry_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -109,6 +114,12 @@ class data extends \pl\fe\matter\base {
 			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
 			['id' => $oRecData->id]
 		);
+
+		/* 如果活动属于项目，更新项目内的推荐内容 */
+		if (!empty($oApp->mission_id)) {
+			$modelMisMat = $this->model('matter\mission\matter');
+			$modelMisMat->agreed($oApp, 'D', $oRecData, $value);
+		}
 
 		return new \ResponseData($rst);
 	}

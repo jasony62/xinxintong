@@ -972,12 +972,12 @@ class record extends base {
 	 */
 	public function recommend_action($ek, $value = '') {
 		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek, ['fields' => 'state,aid,agreed,agreed_log']);
+		$oRecord = $modelRec->byId($ek, ['fields' => 'state,aid,enroll_key,userid,agreed,agreed_log']);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'state,entry_rule']);
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,mission_id,state,entry_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -986,12 +986,13 @@ class record extends base {
 		}
 
 		$modelGrpUsr = $this->model('matter\group\player');
+		/* 当前用户所属分组及角色 */
 		$oGrpLeader = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || $oGrpLeader->is_leader !== 'Y') {
 			return new \ParameterError('只有允许组长进行推荐');
 		}
-
-		$oGrpMemb = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'round_id', 'onlyOne' => true]);
+		/* 填写记录用户所属分组 */
+		$oGrpMemb = $modelGrpUsr->byUser($oApp->entry_rule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
 		if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
 			return new \ParameterError('只允许组长推荐本组数据');
 		}
@@ -999,20 +1000,6 @@ class record extends base {
 		if (!in_array($value, ['Y', 'N', 'A'])) {
 			$value = '';
 		}
-		// 确定模板名称
-		// if ($value == 'Y') {
-		// 	$name = 'site.enroll.submit.recommend';
-		// } else if ($value == 'N') {
-		// 	$name = 'site.enroll.submit.mask';
-		// }
-
-		// if (!empty($name)) {
-		// 	$modelRec = $this->model('matter\enroll\record');
-		// 	$oRecord = $modelRec->byId($ek);
-		// 	$modelEnl = $this->model('matter\enroll');
-		// 	$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
-		// 	$this->_notifyAgree($oApp, $oRecord, $name, $schema);
-		// }
 
 		$oAgreedLog = $oRecord->agreed_log;
 		if (isset($oAgreedLog->{$this->who->uid})) {
@@ -1028,6 +1015,12 @@ class record extends base {
 			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
 			['enroll_key' => $ek, 'state' => 1]
 		);
+
+		/* 如果活动属于项目，更新项目内的推荐内容 */
+		if (!empty($oApp->mission_id)) {
+			$modelMisMat = $this->model('matter\mission\matter');
+			$modelMisMat->agreed($oApp, 'R', $oRecord, $value);
+		}
 
 		return new \ResponseData($rst);
 	}

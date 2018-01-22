@@ -48,7 +48,7 @@ class main extends \pl\fe\matter\main_base {
 			if (isset($oEntryRule->group)) {
 				$oRuleApp = $oEntryRule->group;
 				if (!empty($oRuleApp->id)) {
-					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'N']);
+					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'Y']);
 					if ($oGroupApp) {
 						$oRuleApp->title = $oGroupApp->title;
 						if (!empty($oRuleApp->round->id)) {
@@ -57,6 +57,8 @@ class main extends \pl\fe\matter\main_base {
 								$oRuleApp->round->title = $oGroupRnd->title;
 							}
 						}
+						$oApp->groupApp = $oGroupApp;
+						$oApp->oRuleApp = $oRuleApp;
 					}
 				}
 			}

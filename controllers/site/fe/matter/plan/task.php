@@ -182,6 +182,9 @@ class task extends base {
 			'data' => $modelUsrTsk->escape($modelUsrTsk->toJson($oCheckData)),
 			'score' => $modelUsrTsk->escape($modelUsrTsk->toJson($oScoreData)),
 		];
+		if (isset($oUser->group_id) && $oUser->group_id !== $oUsrTask->group_id) {
+			$aUpdated['group_id'] = $oUser->group_id;
+		}
 		if ($bNewTask) {
 			$aUpdated['first_enroll_at'] = $oUsrTask->last_enroll_at;
 		}

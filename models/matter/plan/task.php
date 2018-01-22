@@ -185,7 +185,7 @@ class task_model extends \TMS_MODEL {
 		$oNewTask->born_at = $bornAt;
 		$oNewTask->patch_at = $bDelayed ? $current : 0;
 		$oNewTask->userid = $oUser->uid;
-		$oNewTask->group_id = '';
+		$oNewTask->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
 		$oNewTask->nickname = $oUser->nickname;
 		$oNewTask->first_enroll_at = 0;
 		$oNewTask->last_enroll_at = 0;

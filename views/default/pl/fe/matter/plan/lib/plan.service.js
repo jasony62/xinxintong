@@ -67,4 +67,46 @@ define(['require'], function(require) {
     ngMod.provider('srvEnrollPage', function() {
         this.$get = [function() {}];
     });
+    ngMod.provider('srvPlanRecord', function() {
+        var _siteId, _appId;
+        this.config = function(site, app) {
+            _siteId = site;
+            _appId = app;
+        };
+        this.$get = ['$q', 'http2', function($q, http2) {
+            return {
+                chooseImage: function(imgFieldName) {
+                    var defer = $q.defer();
+                    if (imgFieldName !== null) {
+                        var ele = document.createElement('input');
+                        ele.setAttribute('type', 'file');
+                        ele.addEventListener('change', function(evt) {
+                            var i, cnt, f, type;
+                            cnt = evt.target.files.length;
+                            for (i = 0; i < cnt; i++) {
+                                f = evt.target.files[i];
+                                type = {
+                                    ".jp": "image/jpeg",
+                                    ".pn": "image/png",
+                                    ".gi": "image/gif"
+                                }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                                f.type2 = f.type || type;
+                                var reader = new FileReader();
+                                reader.onload = (function(theFile) {
+                                    return function(e) {
+                                        var img = {};
+                                        img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                                        defer.resolve(img);
+                                    };
+                                })(f);
+                                reader.readAsDataURL(f);
+                            }
+                        }, false);
+                        ele.click();
+                    }
+                    return defer.promise;
+                }
+            }
+        }];
+    })
 });

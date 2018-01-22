@@ -1,7 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'srvPlanApp', '$uibModal', 'srvRecordConverter', function($scope, http2, srvPlanApp, $uibModal, srvRecordConverter) {
-        var _oApp;
+        var _oApp, _oCriteria;
         $scope.rows = {
             allSelected: 'N',
             selected: {},
@@ -15,6 +15,15 @@ define(['frame'], function(ngApp) {
                 this.count = 0;
             }
         };
+        $scope.criteria = _oCriteria = {
+            record: {
+                verified: '',
+            },
+            byTaskSchema: '',
+            tags: [],
+            data: {},
+            keyword: '',
+        };
         $scope.$watch('rows.allSelected', function(checked) {
             var index = 0;
             if (checked === 'Y') {
@@ -27,7 +36,8 @@ define(['frame'], function(ngApp) {
             }
         });
         $scope.doSearch = function() {
-            http2.get('/rest/pl/fe/matter/plan/task/list?app=' + _oApp.id, function(rsp) {
+            var url = '/rest/pl/fe/matter/plan/task/list?app=' + _oApp.id;
+            http2.post(url, _oCriteria, function(rsp) {
                 var tasks, oSchemasById;
                 tasks = rsp.data.tasks;
                 oSchemasById = {};
@@ -46,6 +56,29 @@ define(['frame'], function(ngApp) {
                     }
                 });
                 $scope.tasks = tasks;
+            });
+        };
+        $scope.filter = function() {
+            var that = this;
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/plan/component/planFilter.html?_=1',
+                controller: 'ctrlPlanFilter',
+                windowClass: 'auto-height',
+                backdrop: 'static',
+                resolve: {
+                    tasks: function() {
+                        return angular.copy(_oApp.taskSchemas);
+                    },
+                    dataSchemas: function() {
+                        return angular.copy(_oApp.checkSchemas);
+                    },
+                    criteria: function() {
+                        return angular.copy(that.criteria);
+                    }
+                }
+            }).result.then(function(criteria) {
+                angular.extend(that.criteria, criteria);
+                that.doSearch(1);
             });
         };
         $scope.gotoTask = function(oTask) {
@@ -74,5 +107,59 @@ define(['frame'], function(ngApp) {
             _oApp = oApp;
             $scope.doSearch();
         });
+    }]);
+    ngApp.provider.controller('ctrlPlanFilter', ['$scope', '$uibModalInstance', 'tasks', 'dataSchemas', 'criteria', function($scope, $mi, tasks, dataSchemas, lastCriteria) {
+        var canFilteredSchemas = [];
+        $scope.tasks = tasks;
+        dataSchemas.forEach(function(schema) {
+            if (false === /image|file|score|html/.test(schema.type) && schema.id.indexOf('member') !== 0) {
+                canFilteredSchemas.push(schema);
+            }
+            if (/multiple/.test(schema.type)) {
+                var options = {};
+                if (lastCriteria.data[schema.id]) {
+                    lastCriteria.data[schema.id].split(',').forEach(function(key) {
+                        options[key] = true;
+                    })
+                }
+                lastCriteria.data[schema.id] = options;
+            }
+            $scope.schemas = canFilteredSchemas;
+            $scope.criteria = lastCriteria;
+        });
+        $scope.clean = function() {
+            var criteria = $scope.criteria;
+            if (criteria.record) {
+                if (criteria.record.verified) {
+                    criteria.record.verified = '';
+                }
+            }
+            if (criteria.data) {
+                angular.forEach(criteria.data, function(val, key) {
+                    criteria.data[key] = '';
+                });
+            }
+        };
+        $scope.ok = function() {
+            var criteria = $scope.criteria,
+                optionCriteria;
+            // 将单选题/多选题的结果拼成字符串
+            canFilteredSchemas.forEach(function(schema) {
+                var result;
+                if (/multiple/.test(schema.type)) {
+                    if ((optionCriteria = criteria.data[schema.id])) {
+                        result = [];
+                        Object.keys(optionCriteria).forEach(function(key) {
+                            optionCriteria[key] && result.push(key);
+                        });
+                        criteria.data[schema.id] = result.join(',');
+                    }
+                }
+            });
+            $mi.close(criteria);
+        };
+        $scope.cancel = function() {
+            $mi.dismiss('cancel');
+        };
     }]);
 });

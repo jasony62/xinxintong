@@ -38,6 +38,7 @@
                 <th style='width:120px'>首次登记时间</th>
                 <th style='width:120px'>最后登记时间</th>
                 <th style='width:100px'>审核结果</th>
+                <th style='width:100px'>任务名称</th>
                 <th ng-repeat="schema in app.checkSchemas">{{schema.title}}</th>
                 <th>备注</th>
             </tr>
@@ -57,6 +58,7 @@
                 <td>{{(task.first_enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                 <td>{{(task.last_enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                 <td>{{task.verified==='Y'?'是':(task.verified==='N'?'否':'待定')}}</td>
+                <td>{{task.taskSchemaTitle}}</td>
                 <td ng-repeat="schema in app.checkSchemas" ng-switch on="schema.type">
                     <div ng-switch-when="image">
                         <img ng-repeat="img in task._data[schema.id]" ng-src='{{img}}' />

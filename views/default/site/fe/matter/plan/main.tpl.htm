@@ -122,6 +122,7 @@
                         <hr>
                         <div class='form-group' ng-repeat="schema in action.checkSchemas" ng-switch on="schema.type">
                             <label ng-bind="schema.title" ng-if="schema.type!=='html'"></label>
+                            <div class="description" ng-if="'html'!==schema.type&&schema.description"><span ng-bind-html="schema.description"></span></div>
                             <input type='text' class='form-control' ng-model="data[action.id][schema.id]" ng-switch-when="shorttext">
                             <textarea class="form-control" ng-model="data[action.id][schema.id]" rows="3" ng-switch-when="longtext"></textarea>
                             <ul ng-switch-when="single">
@@ -160,6 +161,9 @@
                                         <button class="btn btn-success" ng-click="chooseFile(action,schema)">选择文件</button>
                                     </li>
                                 </ul>
+                            </div>
+                            <div tms-date-input="Y" tms-date-value="{{data[action.id][schemd.id]}}" ng-switch-when="date">
+                                <div wrap="date" class="form-control input-lg" ng-bind="data[action.id][schemd.id]*1000|date:'yy-MM-dd HH:mm'"></div>
                             </div>
                             <div ng-switch-when="html">
                                 <div ng-bind-html="schema.content"></div>

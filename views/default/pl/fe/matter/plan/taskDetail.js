@@ -1,7 +1,141 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlTaskDetail', ['$scope', 'http2', 'srvRecordConverter', 'srvPlanApp', '$uibModal', function($scope, http2, srvRecordConverter, srvPlanApp, $uibModal) {
-        var _oTask, _oUpdated;
+    ngApp.provider.controller('ctrlTaskDetail', ['$scope', 'http2', 'srvRecordConverter', 'srvPlanApp', 'srvPlanRecord', '$uibModal', function($scope, http2, srvRecordConverter, srvPlanApp, srvPlanRecord, $uibModal) {
+        function doTask(seq) {
+            var task = _oTasksOfBeforeSubmit[seq];
+            task().then(function(rsp) {
+                seq++;
+                seq < _oTasksOfBeforeSubmit.length ? doTask(seq) : doSave();
+            });
+        }
+
+        function doSave (){
+            //oRecord 原始数据
+            //updated 上传数据包
+            var updated = {};
+
+            if (oRecord.enroll_key) {
+                if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
+                    updated.data = oRecord.data;
+                }
+                if (!angular.equals(oRecord.supplement, oBeforeRecord.supplement)) {
+                    updated.supplement = oRecord.supplement;
+                }
+                if (!angular.equals(oRecord.score, oBeforeRecord.score)) {
+                    updated.score = oRecord.score;
+                }
+                if (!angular.equals(oQuizScore, oBeforeQuizScore)) {
+                    updated.quizScore = oQuizScore;
+                }
+                srvEnrollRecord.update(oRecord, updated).then(function(newRecord) {
+                    if (oApp.scenario === 'quiz') {
+                        _quizScore(newRecord);
+                    }
+                    noticebox.success('完成保存');
+                });
+            } else {
+                updated.data = oRecord.data;
+                updated.supplement = oRecord.supplement;
+                updated.quizScore = oQuizScore;
+                srvEnrollRecord.add(updated).then(function(newRecord) {
+                    oRecord.enroll_key = newRecord.enroll_key;
+                    oRecord.enroll_at = newRecord.enroll_at;
+                    $location.search({ site: oApp.siteid, id: oApp.id, ek: newRecord.enroll_key });
+                    if (oApp.scenario === 'quiz') {
+                        _quizScore(newRecord);
+                    }
+                    noticebox.success('完成保存');
+                });
+            }
+            oBeforeRecord = angular.copy(oRecord);
+        };
+
+        $scope.chooseImage = function(action, schema) {
+            var data = _oTask.data;
+            srvPlanRecord.chooseImage(schema.id).then(function(img) {
+                !data[action.id][schema.id] && (data[action.id][schema.id] = []);
+                data[action.id][schema.id].push(img);
+            });
+        };
+        $scope.removeImage = function(field, index) {
+            field.splice(index, 1);
+        };
+        $scope.chooseFile = function(action, schema) {
+            var r, onSubmit;
+            r = new Resumable({
+                target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + _oTask.siteid + '&app=' + _oTask.id,
+                testChunks: false,
+                chunkSize: 512 * 1024
+            });
+            onSubmit = function($scope) {
+                var defer;
+                defer = $q.defer();
+                if (!r.files || r.files.length === 0)
+                    defer.resolve('empty');
+                r.on('progress', function() {
+                    var phase, p;
+                    p = r.progress();
+                    var phase = $scope.$root.$$phase;
+                    if (phase === '$digest' || phase === '$apply') {
+                        $scope.progressOfUploadFile = Math.ceil(p * 100);
+                    } else {
+                        $scope.$apply(function() {
+                            $scope.progressOfUploadFile = Math.ceil(p * 100);
+                        });
+                    }
+                });
+                r.on('complete', function() {
+                    var phase = $scope.$root.$$phase;
+                    if (phase === '$digest' || phase === '$apply') {
+                        $scope.progressOfUploadFile = '完成';
+                    } else {
+                        $scope.$apply(function() {
+                            $scope.progressOfUploadFile = '完成';
+                        });
+                    }
+                    r.cancel();
+                    defer.resolve('ok');
+                });
+                r.upload();
+                return defer.promise;
+            };
+            $scope.beforeSubmit(function() {
+                return onSubmit($scope);
+            });
+            var data = _oTask.data;
+            var ele = document.createElement('input');
+            ele.setAttribute('type', 'file');
+            ele.addEventListener('change', function(evt) {
+                var i, cnt, f;
+                cnt = evt.target.files.length;
+                for (i = 0; i < cnt; i++) {
+                    f = evt.target.files[i];
+                    r.addFile(f);
+                    $scope.$apply(function() {
+                        data[action.id][schema.id] === undefined && (data[action.id][schema.id] = []);
+                        data[action.id][schema.id].push({
+                            uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,
+                            name: f.name,
+                            size: f.size,
+                            type: f.type,
+                            url: ''
+                        });
+                    });
+                }
+                ele = null;
+            }, true);
+            ele.click();
+        };
+        $scope.removeFile = function(field, index) {
+            field.splice(index, 1);
+        };
+        $scope.beforeSubmit = function(fn) {
+            if (_oTasksOfBeforeSubmit.indexOf(fn) === -1) {
+                _oTasksOfBeforeSubmit.push(fn);
+            }
+        };
+        var _oTask, _oUpdated, _oTasksOfBeforeSubmit;
+        _oTasksOfBeforeSubmit = [];
 
         // 更新的任务数据
         _oUpdated = {};
@@ -14,6 +148,9 @@ define(['frame'], function(ngApp) {
             http2.post('/rest/pl/fe/matter/plan/task/update' + location.search, _oUpdated, function(rsp) {
                 $scope.modified = false;
             });
+        };
+        $scope.saveData = function() {
+            _oTasksOfBeforeSubmit.length ? doTask(0) : doSave();
         };
         srvPlanApp.get().then(function(oApp) {
             http2.get('/rest/pl/fe/matter/plan/task/get' + location.search, function(rsp) {

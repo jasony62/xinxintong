@@ -48,7 +48,7 @@
                 <div class='col-md-2' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']">
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
-                        <option value='group' ng-if="app.group_app_id">用户分组</option>
+                        <option value='group' ng-if="app.group_app_id||app.entry_rule.scope==='group'">用户分组</option>
                         <option value='data' ng-if="isRemark">提交内容</option>
                         <option value='data-rec' ng-if="isRemark">提交内容-推荐</option>
                         <option value='remark' ng-if="isRemark">内容评论</option>

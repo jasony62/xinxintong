@@ -43,7 +43,6 @@ class matter extends \site\fe\matter\base {
 		$matterType = 'enroll';
 		$options = ['fields' => 'matter_id'];
 		$aEnlApps = $modelMisMat->byMission($oMission->id, $matterType, $options, 'N');
-
 		$aids = [];
 		foreach ($aEnlApps as $oEnlApp) {
 			$aids[] = $oEnlApp->matter_id;
@@ -83,7 +82,7 @@ class matter extends \site\fe\matter\base {
 					}
 				}
 				/* user */
-				$oEnlUser = $modelEnlUsr->byId($oEnlApp, $oRecData->userid, ['fields' => 'nickname']);
+				$oEnlUser = $modelEnlUsr->byId($oEnlApp, $oRecData->userid, ['fields' => 'nickname,group_id']);
 				if ($oEnlUser) {
 					$oRecData->nickname = $oEnlUser->nickname;
 					$oSiteUsr = $modelSiteAct->byId($oRecData->userid, ['fields' => 'headimgurl']);
@@ -93,14 +92,14 @@ class matter extends \site\fe\matter\base {
 				}
 				/* group */
 				if (!empty($oRecData->group_id)) {
-					$oGrpRnd = $modelGrpRnd->byId($oRecData->group_id, ['fields' => 'round_title']);
+					$oGrpRnd = $modelGrpRnd->byId($oRecData->group_id, ['fields' => 'title']);
 					if ($oGrpRnd) {
-						$oRecData->group = (object) ['id' => $oEnlUser->group_id, 'title' => $oGrpRnd->round_title];
+						$oRecData->group = (object) ['id' => $oRecData->group_id, 'title' => $oGrpRnd->title];
 					}
 				} else if (!empty($oEnlUser->group_id)) {
-					$oGrpRnd = $modelGrpRnd->byId($oEnlUser->group_id, ['fields' => 'round_title']);
+					$oGrpRnd = $modelGrpRnd->byId($oEnlUser->group_id, ['fields' => 'title']);
 					if ($oGrpRnd) {
-						$oRecData->group = (object) ['id' => $oEnlUser->group_id, 'title' => $oGrpRnd->round_title];
+						$oRecData->group = (object) ['id' => $oEnlUser->group_id, 'title' => $oGrpRnd->title];
 					}
 				} else if (isset($oMisUsrGrpApp)) {
 					$oGrpUsr = $modelGrpUsr->byUser($oMisUsrGrpApp, $oRecData->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);

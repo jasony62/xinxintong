@@ -396,7 +396,7 @@ class enroll_model extends enroll_base {
 	 * @param object $oApp
 	 * @param object $oUser [uid,nickname]
 	 */
-	public function getUserNickname(&$oApp, $oUser) {
+	public function getUserNickname($oApp, $oUser) {
 		if (empty($oUser->uid)) {
 			return '';
 		}

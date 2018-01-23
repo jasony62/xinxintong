@@ -174,13 +174,14 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', function($q, LS) {
                 accept !== undefined && ele.setAttribute('accept', accept);
                 ele.addEventListener('change', function(evt) {
                     var i, cnt, f;
+                    $scope.data[oAction.id] === undefined && ($scope.data[oAction.id] = {});
                     $scope.data[oAction.id][oSchema.id] === undefined && ($scope.data[oAction.id][oSchema.id] = []);
                     cnt = evt.target.files.length;
                     for (i = 0; i < cnt; i++) {
                         f = evt.target.files[i];
                         oResumable.addFile(f);
                         $scope.data[oAction.id][oSchema.id].push({
-                            uniqueIdentifier: oResumable.files[0].uniqueIdentifier,
+                            uniqueIdentifier: oResumable.files[oResumable.files.length - 1].uniqueIdentifier,
                             name: f.name,
                             size: f.size,
                             type: f.type,

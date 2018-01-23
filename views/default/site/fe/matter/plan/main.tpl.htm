@@ -162,8 +162,8 @@
                                     </li>
                                 </ul>
                             </div>
-                            <div tms-date-input="Y" tms-date-value="{{data[action.id][schemd.id]}}" ng-switch-when="date">
-                                <div wrap="date" class="form-control input-lg" ng-bind="data[action.id][schemd.id]*1000|date:'yy-MM-dd HH:mm'"></div>
+                            <div tms-date="'Y'" tms-date-value="data[action.id][schema.id]" ng-switch-when="date">
+                                <div wrap="date" class="form-control input-lg" ng-bind="data[action.id][schema.id]*1000|date:'yy-MM-dd HH:mm'"></div>
                             </div>
                             <div ng-switch-when="html">
                                 <div ng-bind-html="schema.content"></div>

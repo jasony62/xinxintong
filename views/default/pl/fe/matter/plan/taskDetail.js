@@ -83,6 +83,7 @@ define(['frame'], function(ngApp) {
                     f = evt.target.files[i];
                     r.addFile(f);
                     $scope.$apply(function() {
+                        data[action.id] === undefined && (data[action.id] = {});
                         data[action.id][schema.id] === undefined && (data[action.id][schema.id] = []);
                         data[action.id][schema.id].push({
                             uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,

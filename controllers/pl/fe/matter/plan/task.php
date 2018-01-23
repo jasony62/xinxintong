@@ -109,6 +109,9 @@ class task extends \pl\fe\matter\base {
 		$rst = 0;
 		if (count($aUpdated)) {
 			$rst = $modelApp->update('xxt_plan_task', $aUpdated, ['id' => $oTask->id]);
+			if (!empty($oPosted)) {
+				$oPosted->task_schema_id = $oTask->task_schema_id;
+			}
 			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'updateTask', $oPosted);
 		}
 

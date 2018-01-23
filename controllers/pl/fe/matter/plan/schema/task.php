@@ -14,7 +14,7 @@ class task extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$plan = $this->escape($plan);
-		$oPlan = $this->model('matter\plan')->byId($plan, ['fields' => 'id,siteid,state']);
+		$oPlan = $this->model('matter\plan')->byId($plan, ['fields' => 'id,siteid,state,title,summary']);
 		if (false === $oPlan || $oPlan->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -24,6 +24,8 @@ class task extends \pl\fe\matter\base {
 		$oProto->siteid = $oPlan->siteid;
 
 		$oNewTask = $this->model('matter\plan\schema\task')->add($oProto);
+
+		$this->model('matter\log')->matterOp($oPlan->siteid, $oUser, $oPlan, 'addSchemaTask');
 
 		return new \ResponseData($oNewTask);
 	}
@@ -35,7 +37,7 @@ class task extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$plan = $this->escape($plan);
-		$oPlan = $this->model('matter\plan')->byId($plan, ['fields' => 'id,siteid,state']);
+		$oPlan = $this->model('matter\plan')->byId($plan, ['fields' => 'id,siteid,state,title,summary']);
 		if (false === $oPlan || $oPlan->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -107,6 +109,8 @@ class task extends \pl\fe\matter\base {
 			break;
 		}
 
+		$this->model('matter\log')->matterOp($oPlan->siteid, $oUser, $oPlan, 'batchSchemaTask', $oBatch);
+
 		return new \ResponseData($count);
 	}
 	/**
@@ -162,8 +166,12 @@ class task extends \pl\fe\matter\base {
 		$task = $this->escape($task);
 		$modelTsk = $this->model('matter\plan\schema\task');
 
-		$oTask = $modelTsk->byId($task, ['fields' => 'id,state']);
+		$oTask = $modelTsk->byId($task, ['fields' => 'id,aid,state']);
 		if (false === $oTask || $oTask->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oPlan = $this->model('matter\plan')->byId($oTask->aid, ['fields' => 'id,siteid,state,title,summary']);
+		if (false === $oPlan || $oPlan->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -185,6 +193,8 @@ class task extends \pl\fe\matter\base {
 			$rst = 0;
 		}
 
+		$this->model('matter\log')->matterOp($oPlan->siteid, $oUser, $oPlan, 'updateSchemaTask', $oPosted);
+		
 		return new \ResponseData($rst);
 	}
 	/**
@@ -245,6 +255,7 @@ class task extends \pl\fe\matter\base {
 		if (false === $oTask || $oTask->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
 		$modelTsk->moveSeq($oTask, $step);
 
 		return new \ResponseData($oTask);
@@ -258,8 +269,12 @@ class task extends \pl\fe\matter\base {
 		}
 
 		$modelTsk = $this->model('matter\plan\schema\task');
-		$oTask = $modelTsk->byId($task, ['fields' => 'id,task_seq,state']);
+		$oTask = $modelTsk->byId($task, ['fields' => 'id,aid,task_seq,state']);
 		if (false === $oTask || $oTask->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oPlan = $this->model('matter\plan')->byId($oTask->aid, ['fields' => 'id,siteid,state,title,summary']);
+		if (false === $oPlan || $oPlan->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -268,6 +283,8 @@ class task extends \pl\fe\matter\base {
 
 		// 调整其他任务的序号
 		$modelTsk->update('update xxt_plan_task_schema set task_seq=task_seq-1 where state=1 and task_seq>' . $oTask->task_seq);
+
+		$this->model('matter\log')->matterOp($oPlan->siteid, $oUser, $oPlan, 'removeSchemaTask');
 
 		return new \ResponseData($oTask);
 	}

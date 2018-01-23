@@ -104,7 +104,7 @@ class task extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\plan')->byId($oTaskSchema->aid, ['fields' => 'id,entry_rule,jump_delayed,auto_verify,can_patch,check_schemas']);
+		$oApp = $this->model('matter\plan')->byId($oTaskSchema->aid, ['fields' => 'id,siteid,title,summary,entry_rule,jump_delayed,auto_verify,can_patch,check_schemas']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -199,9 +199,39 @@ class task extends base {
 		if ($bNewTask) {
 			$aUsrData['task_num'] = 1;
 		}
-		$oApp = (object) ['id' => $oTaskSchema->aid, 'siteid' => $oTaskSchema->siteid];
+
 		$this->model('matter\plan\user')->createOrUpdate($oApp, $oUser, $aUsrData);
 
+		/* 记录操作日志 */
+		$operation = new \stdClass;
+		$operation->name = $bNewTask ? 'submit' : 'updateData';
+		$oCheckData->task_schema_id = $task;
+		$operation->data = $oCheckData;
+		$this->_logUserOp($oApp, $operation, $oUser);
+
 		return new \ResponseData($oUsrTask);
+	}
+	/**
+	 * 记录用户提交日志
+	 *
+	 * @param object $app
+	 *
+	 */
+	private function _logUserOp($oApp, $operation, $user) {
+		$modelLog = $this->model('matter\log');
+
+		$logUser = new \stdClass;
+		$logUser->userid = $user->uid;
+		$logUser->nickname = $user->nickname;
+
+		$client = new \stdClass;
+		$client->agent = $_SERVER['HTTP_USER_AGENT'];
+		$client->ip = $this->client_ip();
+
+		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+
+		$logid = $modelLog->addUserMatterOp($oApp->siteid, $logUser, $oApp, $operation, $client, $referer);
+
+		return $logid;
 	}
 }

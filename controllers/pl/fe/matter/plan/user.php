@@ -44,14 +44,14 @@ class user extends \pl\fe\matter\base {
 	 *
 	 */
 	public function add_action($app) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oUserP = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$app = $this->escape($app);
 		$modelApp = $this->model('matter\plan');
 
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,entry_rule']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,entry_rule,title,summary']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -78,20 +78,28 @@ class user extends \pl\fe\matter\base {
 			}
 		}
 
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUserP, $oApp, 'addUser', $oPosted);
+
 		return new \ResponseData($users);
 	}
 	/**
 	 *
 	 */
 	public function update_action($user) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oUserP = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$user = $this->escape($user);
 		$modelUsr = $this->model('matter\plan\user');
-		$oUser = $modelUsr->byId($user, ['fields' => 'id,start_at']);
+		$oUser = $modelUsr->byId($user, ['fields' => 'id,aid,start_at']);
 		if (false === $oUser) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oApp = $this->model('matter\plan')->byId($oUser->aid, ['fields' => 'id,siteid,title,summary']);
+		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
 
@@ -112,6 +120,9 @@ class user extends \pl\fe\matter\base {
 				$modelUsr->update('xxt_plan_user', $aUpdated, ['id' => $oUser->id]);
 			}
 		}
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUserP, $oApp, 'updateUser', $oPosted);
 
 		return new \ResponseData($aUpdated);
 	}

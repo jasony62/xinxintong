@@ -105,7 +105,7 @@ define(['frame'], function(ngApp) {
             }
         };
         srvPlanApp.get().then(function(oApp) {
-            if(oApp.groupApp.rounds && oApp.groupApp.rounds.length) {
+            if(oApp.entryRule.scope.group && oApp.entryRule.scope.group=='Y' && oApp.groupApp.rounds.length) {
                 oApp.groupApp.rounds.forEach(function(round) {
                     _oGroup[round.round_id] = round;
                 });

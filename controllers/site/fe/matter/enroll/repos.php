@@ -154,4 +154,44 @@ class repos extends base {
 
 		return new \ResponseData($oResult);
 	}
+	/**
+	 * 获得一条记录可共享的内容
+	 */
+	public function recordGet_action($app, $ek) {
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,data_schemas']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,agreed';
+		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		/* 清除非共享数据 */
+		$oSchareableSchemas = new \stdClass;
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
+				$oSchareableSchemas->{$oSchema->id} = $oSchema;
+			}
+		}
+		if (isset($oRecord->verbose)) {
+			foreach ($oRecord->verbose as $schemaId => $value) {
+				if (!isset($oSchareableSchemas->{$schemaId})) {
+					unset($oRecord->verbose->{$schemaId});
+					continue;
+				}
+				if ($oSchareableSchemas->{$schemaId}->type === 'multitext') {
+					if (!empty($oRecord->verbose->{$schemaId}->value)) {
+						$oRecord->verbose->{$schemaId}->value = json_decode($oRecord->verbose->{$schemaId}->value);
+					}
+				}
+			}
+		}
+
+		return new \ResponseData($oRecord);
+	}
 }

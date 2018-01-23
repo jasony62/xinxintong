@@ -219,10 +219,10 @@ class record_model extends record_base {
 	 *
 	 */
 	private function _processRecord(&$oRecord, $fields, $verbose = 'Y') {
-		if ($fields === '*' || false !== strpos($fields, 'data')) {
+		if (property_exists($oRecord, 'data')) {
 			$oRecord->data = empty($oRecord->data) ? new \stdClass : json_decode($oRecord->data);
 		}
-		if ($fields === '*' || false !== strpos($fields, 'data_tag')) {
+		if (property_exists($oRecord, 'data_tag')) {
 			$oRecord->data_tag = empty($oRecord->data_tag) ? new \stdClass : json_decode($oRecord->data_tag);
 		}
 		if ($fields === '*' || false !== strpos($fields, 'supplement')) {
@@ -566,11 +566,6 @@ class record_model extends record_base {
 		// 根据填写人筛选（填写端列表页需要）
 		if (!empty($creater)) {
 			$w .= " and r.userid='$creater'";
-		} else if (!empty($inviter)) {
-			$oUser = new \stdClass;
-			$oUser->openid = $inviter;
-			$inviterek = $this->lastKeyByUser($oApp, $oUser);
-			$w .= " and r.referrer='ek:$inviterek'";
 		}
 
 		// 指定了登记记录属性过滤条件

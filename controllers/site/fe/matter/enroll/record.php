@@ -751,11 +751,6 @@ class record extends base {
 		$oCriteria = $this->getPostJson();
 
 		switch ($owner) {
-		case 'I':
-			$options = array(
-				'inviter' => $oUser->uid,
-			);
-			break;
 		case 'A':
 			$options = array();
 			break;

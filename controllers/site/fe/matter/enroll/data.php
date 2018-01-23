@@ -10,21 +10,24 @@ class data extends base {
 	 * 获得登记记录中的数据
 	 */
 	public function get_action($ek, $schema = '', $data = '') {
-		$fields = 'id,state,aid,rid,enroll_key,schema_id,multitext_seq,userid,group_id,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
+		$ek = $this->escape($ek);
+		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'aid,rid,enroll_key,userid,group_id,nickname,enroll_at']);
+		if (false === $oRecord) {
+			return new \ObjectNotFoundError();
+		}
+
+		$fields = 'id,state,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
 		$modelRecDat = $this->model('matter\enroll\data');
 		if (empty($data)) {
 			$oRecData = $modelRecDat->byRecord($ek, ['schema' => $schema, 'fields' => $fields]);
 		} else {
 			$oRecData = $modelRecDat->byId($data, ['fields' => $fields]);
 		}
-		if ($oRecData) {
-			$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['fields' => 'nickname']);
-			if ($oRecord) {
-				$oRecData->nickname = $oRecord->nickname;
-			}
-		}
 
-		return new \ResponseData($oRecData);
+		$oRecord->verbose = new \stdClass;
+		$oRecord->verbose->{$oRecData->schema_id} = $oRecData;
+
+		return new \ResponseData($oRecord);
 	}
 	/**
 	 * 推荐登记记录中的某一个题
@@ -94,15 +97,15 @@ class data extends base {
 	 *
 	 * @param string $ek
 	 * @param string $schema
-	 * @param int $id xxt_enroll_record_data 的id
+	 * @param int $data xxt_enroll_record_data 的id
 	 *
 	 */
-	public function like_action($ek, $schema, $id = '') {
+	public function like_action($ek, $schema, $data = '') {
 		$modelData = $this->model('matter\enroll\data');
-		if (empty($id)) {
-			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
+		if (empty($data)) {
+			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,like_log,userid,multitext_seq,like_num']);
 		} else {
-			$oRecordData = $modelData->byId($id, ['fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
+			$oRecordData = $modelData->byId($data, ['fields' => 'id,aid,like_log,userid,multitext_seq,like_num']);
 		}
 		if (false === $oRecordData) {
 			return new \ObjectNotFoundError();
@@ -117,7 +120,7 @@ class data extends base {
 		foreach ($oApp->dataSchemas as $dataSchema) {
 			if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
 				$schmeaType = 'multitext';
-				if (empty($id)) {
+				if (empty($data)) {
 					return new \ComplianceError('参数错误，此题型需要指定唯一标识');
 				}
 			}

@@ -430,15 +430,6 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
  * 排行
  */
 ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($scope, http2, $q, LS) {
-    function byUser() {
-        http2.get(LS.j('rank/byUser', 'site', 'app')).then(function(rsp) {
-            $scope.users = rsp.data;
-        });
-    }
-
-    function byGroup() {
-        http2.get(LS.j('rank/byGroup', 'site', 'app')).then(function(rsp) {});
-    }
     function list() {
         var defer = $q.defer();
         switch (oAppState.criteria.obj) {
@@ -508,7 +499,6 @@ ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
         _oApp = oApp;
-        /*byUser();*/
         $scope.changeCriteria();
     });
 }]);

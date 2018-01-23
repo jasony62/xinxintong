@@ -208,7 +208,7 @@
                             <span>{{u.nickname}}</span>
                             <span ng-if="app.group_app_id">-{{u.group.round_title}}</span>
                         </div>
-                        <div class='col-md-2 col-xs-1'><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin||u.score}}</span></div>
+                        <div class='col-md-2 col-xs-1'><span>{{u.task_num||u.coin||u.score}}</span></div>
                     </li>
                 </ul>
                 <ul ng-switch-when="group">

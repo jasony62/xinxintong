@@ -34,3 +34,4 @@ div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 
 /* rank */
 .result{margin-top: 10px;}
+.result ul, .result li{overflow: hidden; margin-bottom: 10px;}

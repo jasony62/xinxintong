@@ -435,21 +435,13 @@ ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($
         switch (oAppState.criteria.obj) {
             case 'user':
                 http2.post(LS.j('rank/byUser', 'site', 'app'), oAppState.criteria).then(function(rsp) {
-                    defer.resolve(rsp.data)
-                });
-                break;
-            case 'group':
-                http2.post(LS.j('rank/byGroup', 'site', 'app'), oAppState.criteria).then(function(rsp) {
-                    defer.resolve(rsp.data)
+                    defer.resolve(rsp.data);
                 });
                 break;
         }
         return defer.promise;
     }
-    $scope.doSearch = function(pageAt) {
-        if (pageAt) {
-            oAppState.page.at = pageAt;
-        }
+    $scope.doSearch = function() {
         list().then(function(data) {
             var oSchema;
             switch (oAppState.criteria.obj) {
@@ -461,7 +453,6 @@ ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($
                     }
                     break;
             }
-            oAppState.page.total = data.total;
         });
     };
     $scope.changeCriteria = function() {
@@ -478,10 +469,6 @@ ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($
             criteria: {
                 obj: 'user',
                 orderby: 'task_num',
-            },
-            page: {
-                at: 1,
-                size: 12
             }
         };
     }
@@ -490,7 +477,7 @@ ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($
         if (oNew && oOld && oNew !== oOld) {
             switch (oNew) {
                 case 'user':
-                    oAppState.criteria.orderby = 'enroll';
+                    oAppState.criteria.orderby = 'task_num';
                     break;
             }
             $scope.changeCriteria();

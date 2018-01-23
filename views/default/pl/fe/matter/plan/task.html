@@ -60,7 +60,7 @@
                 <td>{{(task.last_enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                 <td>{{task.verified==='Y'?'是':(task.verified==='N'?'否':'待定')}}</td>
                 <td>{{task.taskSchemaTitle}}</td>
-                <td>
+                <td ng-if="app.entryRule.scope.group&&app.entryRule.scope.group=='Y'">
                     <span ng-if="task.group_id!==''">{{app._rounds[task.group_id].title}}</span>
                     <span ng-if="task.group_id===''">未分组</span>
                 </td>

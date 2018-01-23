@@ -99,9 +99,6 @@ class task extends \pl\fe\matter\base {
 						$aUpdated['data'] = $modelApp->escape($modelApp->toJson($data->oCheckData));
 						$aUpdated['score'] = $modelApp->escape($modelApp->toJson($data->oScoreData));
 						break;
-					case 'quizScore':
-						$aUpdated['quizScore'] = $modelApp->escape($val);
-						break;
 				}
 			}
 		}

@@ -9,7 +9,7 @@ class rank extends base {
 	/**
 	 *
 	 */
-	public function byUser_action($app) {
+	public function byUser_action($app, $page = 1, $size = 10) {
 		$modelApp = $this->model('matter\plan');
 		$app = $modelApp->escape($app);
 
@@ -58,6 +58,9 @@ class rank extends base {
 				break;
 		}
 
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
 		$oUsers = $modelUsr->query_objs_ss($q, $q2);
 
 		return new \ResponseData($oUsers);

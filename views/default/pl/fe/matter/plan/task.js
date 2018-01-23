@@ -1,7 +1,8 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'srvPlanApp', '$uibModal', 'srvRecordConverter', function($scope, http2, srvPlanApp, $uibModal, srvRecordConverter) {
-        var _oApp, _oCriteria;
+        var _oApp, _oCriteria, _oGroup;
+        _oGroup = {};
         $scope.rows = {
             allSelected: 'N',
             selected: {},
@@ -104,6 +105,12 @@ define(['frame'], function(ngApp) {
             }
         };
         srvPlanApp.get().then(function(oApp) {
+            if(oApp.groupApp.rounds && oApp.groupApp.rounds.length) {
+                oApp.groupApp.rounds.forEach(function(round) {
+                    _oGroup[round.round_id] = round;
+                });
+            }
+            oApp._rounds = _oGroup;
             _oApp = oApp;
             $scope.doSearch();
         });

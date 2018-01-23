@@ -70,7 +70,7 @@ class task extends \pl\fe\matter\base {
 		$modelTsk = $this->model('matter\plan\task');
 		$task = $modelTsk->escape($task);
 
-		$oTask = $modelTsk->byId($task, ['fields' => 'id,state,aid,task_schema_id,last_enroll_at']);
+		$oTask = $modelTsk->byId($task, ['fields' => 'id,siteid,state,aid,task_schema_id,last_enroll_at']);
 		if (false === $oTask && $oTask->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

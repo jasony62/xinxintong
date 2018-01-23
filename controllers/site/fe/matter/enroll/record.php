@@ -662,34 +662,68 @@ class record extends base {
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 返回指定记录或最后一条记录
-	 *
-	 * @param string $site
-	 * @param string $app
-	 * @param string $ek
+	 * 用保存的数据填写指定的记录数据
 	 */
-	public function get_action($site, $app, $ek = '') {
-		$modelApp = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
-		$openedek = $ek;
-		$record = null;
-
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		/*当前访问用户的基本信息*/
-		$oUser = $this->who;
-		/**登记数据*/
-		if (empty($openedek)) {
-			// 获得最后一条登记数据。登记记录有可能未进行过登记
-			$record = $modelRec->lastByUser($oApp, $oUser, ['fields' => '*', 'verbose' => 'Y']);
-			if ($record) {
-				$openedek = $record->enroll_key;
+	private function _fillWithSaved($oApp, $oUser, &$oRecord) {
+		$oSaveLog = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
+		if (count($oSaveLog) == 1) {
+			$oSaveLog = $oSaveLog[0];
+			$oSaveLog->opData = json_decode($oSaveLog->operate_data);
+			$bMatched = true;
+			if (!empty($oRecord->rid) && (isset($oSaveLog->opData->rid) && $oSaveLog->opData->rid !== $oRecord->rid)) {
+				$bMatched = false;
 			}
-		} else {
-			// 打开指定的登记记录
-			$record = $modelRec->byId($openedek, ['verbose' => 'Y']);
+			if ($bMatched) {
+				$oLogData = $oSaveLog->opData;
+				if (isset($oLogData)) {
+					$oRecord->data = $oLogData->data;
+					$oRecord->supplement = $oLogData->supplement;
+					$oRecord->data_tag = $oLogData->data_tag;
+
+					return true;
+				}
+			}
 		}
 
-		return new \ResponseData($record);
+		return false;
+	}
+	/**
+	 * 返回指定记录或最后一条记录
+	 *
+	 * @param string $app
+	 * @param string $ek
+	 *
+	 */
+	public function get_action($app, $ek = '') {
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,data_tag,score,like_num,like_log,remark_num';
+
+		$oUser = $this->who;
+
+		if (empty($ek)) {
+			$oRecord = $modelRec->lastByUser($oApp, $oUser, ['verbose' => 'Y', 'fields' => $fields]);
+		} else {
+			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
+		}
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$this->_fillWithSaved($oApp, $oUser, $oRecord->rid, $oRecord);
+
+		if (!empty($oRecord->rid)) {
+			$oRecRound = $this->model('matter\enroll\round')->byId($oRecord->rid);
+			$oRecord->round = $oRecRound;
+		}
+
+		return new \ResponseData($oRecord);
 	}
 	/**
 	 * 列出所有的登记记录

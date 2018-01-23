@@ -298,7 +298,6 @@ class record_model extends record_base {
 		} else {
 			$q[2]['rid'] = $assignRid;
 		}
-
 		/* 登记的时间 */
 		$q2 = [
 			'o' => 'enroll_at desc',

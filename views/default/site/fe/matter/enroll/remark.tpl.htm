@@ -43,7 +43,7 @@
                             </button>
                             <ul class="dropdown-menu" uib-dropdown-menu>
                                 <li>
-                                    <a href ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看所在记录</a>
+                                    <a href ng-click="gotoRecord()" ng-if="data.userid===user.uid">查看所在记录</a>
                                 </li>
                                 <li>
                                     <a href ng-click="openOptions()" ng-if="remarkableSchemas.length">查看其他题目</a>
@@ -81,13 +81,13 @@
                             <span class="tag" ng-repeat="t in data.tag" ng-bind="t.label"></span>
                         </p>
                         <p ng-if="filter.schema.supplement==='Y'" class='supplement'>{{data.supplement}}</p>
-                        <footer>{{record.nickname||'匿名用户'}}</footer>
+                        <footer>{{data.nickname||'匿名用户'}}</footer>
                     </blockquote>
                     <div class='bottom-bar'>
-                        <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                        <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>
+                        <div class='datetime'>{{data.submit_at*1000|date:'MM-dd HH:mm'}}</div>
+                        <button class='btn btn-default btn-sm' ng-click="likeRecordData()"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>
                         <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>
-                        <div ng-if="params.groupUser.is_leader==='Y'&&(record.userid===params.groupUser.userid||groupOthers[record.userid])">
+                        <div ng-if="params.groupUser.is_leader==='Y'&&(data.userid===params.groupUser.userid||groupOthers[data.userid])">
                             <button ng-if="data.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(data,'Y')">推荐</button>
                             <button ng-if="data.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(data,'')">取消推荐</button>
                         </div>

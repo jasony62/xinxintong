@@ -7,6 +7,26 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class data extends base {
 	/**
+	 * 获得登记记录中的数据
+	 */
+	public function get_action($ek, $schema = '', $data = '') {
+		$fields = 'id,state,aid,rid,enroll_key,schema_id,multitext_seq,userid,group_id,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
+		$modelRecDat = $this->model('matter\enroll\data');
+		if (empty($data)) {
+			$oRecData = $modelRecDat->byRecord($ek, ['schema' => $schema, 'fields' => $fields]);
+		} else {
+			$oRecData = $modelRecDat->byId($data, ['fields' => $fields]);
+		}
+		if ($oRecData) {
+			$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['fields' => 'nickname']);
+			if ($oRecord) {
+				$oRecData->nickname = $oRecord->nickname;
+			}
+		}
+
+		return new \ResponseData($oRecData);
+	}
+	/**
 	 * 推荐登记记录中的某一个题
 	 * 只有组长才有权限做
 	 *

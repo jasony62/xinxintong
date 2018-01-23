@@ -2,22 +2,13 @@
 require('./remark.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$uibModal', '$location', function($scope, $q, $timeout, http2, $sce, $uibModal, $location) {
+ngApp.controller('ctrlRemark', ['$scope', '$timeout', 'tmsLocation', 'http2', '$sce', '$uibModal', function($scope, $timeout, LS, http2, $sce, $uibModal) {
     function listRemarks() {
-        var url, defer = $q.defer();
+        var url;
         url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + $scope.filter.schema.id;
-        itemId && (url += '&id=' + itemId);
-        http2.get(url).then(function(rsp) {
-            var oRecordData;
-            if (oRecordData = rsp.data.data) {
-                if (oFilter.schema.type == 'file' || (oFilter.schema.type == 'multitext' && oRecordData.multitext_seq == '0')) {
-                    oRecordData.value = angular.fromJson(oRecordData.value);
-                }
-            }
-            defer.resolve(rsp.data)
-        });
-        return defer.promise;
+        _recDataId && (url += '&data=' + _recDataId);
+        return http2.get(url);
     }
 
     function summary() {
@@ -30,17 +21,17 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         var url;
         url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
         url += '&schema=' + $scope.filter.schema.id;
-        url += '&id=' + itemId;
+        url += '&id=' + _recDataId;
         if (oRemark) {
             url += '&remark=' + oRemark.id;
         }
         return http2.post(url, { content: content });
     }
 
-    var oApp, aRemarkable, oFilter, ek, schemaId, itemId;
-    ek = $location.search().ek;
-    schemaId = $location.search().schema || null;
-    $scope.itemId = itemId = $location.search().id || null;
+    var oApp, aRemarkable, oFilter, ek, schemaId, _recDataId;
+    ek = LS.s().ek;
+    schemaId = LS.s().schema;
+    _recDataId = LS.s().data;
     $scope.newRemark = {};
     $scope.filter = oFilter = {};
     $scope.openOptions = function() {
@@ -65,7 +56,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         if (oRecData.agreed !== value) {
             url = '/rest/site/fe/matter/enroll/data/recommend';
             url += '?site=' + oApp.siteid;
-            url += '&ek=' + $scope.record.enroll_key;
+            url += '&ek=' + $scope.data.enroll_key;
             url += '&schema=' + schemaId;
             url += '&value=' + value;
             http2.get(url).then(function(rsp) {
@@ -124,9 +115,9 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         var url;
         url = '/rest/site/fe/matter/enroll/data/like';
         url += '?site=' + oApp.siteid;
-        url += '&ek=' + $scope.record.enroll_key;
+        url += '&ek=' + $scope.data.enroll_key;
         url += '&schema=' + $scope.filter.schema.id;
-        url += '&id=' + itemId;
+        url += '&id=' + _recDataId;
         http2.get(url).then(function(rsp) {
             $scope.data.like_log = rsp.data.like_log;
             $scope.data.like_num = rsp.data.like_num;
@@ -149,11 +140,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
     };
     $scope.gotoRecord = function() {
         var oPage;
-        if ($scope.record.userid === $scope.user.uid) {
+        if ($scope.data.userid === $scope.user.uid) {
             for (var i in $scope.app.pages) {
                 oPage = $scope.app.pages[i];
                 if (oPage.type === 'V') {
-                    $scope.gotoPage(null, oPage.name, $scope.record.enroll_key);
+                    $scope.gotoPage(null, oPage.name, $scope.data.enroll_key);
                     break;
                 }
             }
@@ -162,8 +153,8 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
     $scope.value2Label = function(schemaId) {
         var val, schema, aVal, aLab = [];
 
-        if ((schema = $scope.app._schemasById[schemaId]) && $scope.record.data) {
-            if (val = $scope.record.data[schemaId]) {
+        if ((schema = $scope.app._schemasById[schemaId])) {
+            if (val = $scope.data.value) {
                 if (schema.ops && schema.ops.length) {
                     aVal = val.split(',');
                     schema.ops.forEach(function(op) {
@@ -182,7 +173,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
         var oSchema;
         oApp = params.app;
         aRemarkable = [];
-        $scope.record = params.record;
         for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
             if (oApp.dataSchemas[i].remarkable && oApp.dataSchemas[i].remarkable === 'Y') {
                 aRemarkable.push(oApp.dataSchemas[i]);
@@ -197,9 +187,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
             oFilter.schema = aRemarkable[0];
         }
         $scope.remarkableSchemas = aRemarkable;
-        if (aRemarkable.length <= 1 && $scope.record.userid !== $scope.user.uid) {
-            $scope.bRequireOption = false;
-        }
         var groupOthersById;
         if (params.groupOthers && params.groupOthers.length) {
             groupOthersById = {};
@@ -208,17 +195,38 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
             });
             $scope.groupOthers = groupOthersById;
         }
+        http2.get(LS.j('data/get', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
+            var oRecData;
+            if (oRecData = rsp.data) {
+                if (oFilter.schema.type == 'file' || (oFilter.schema.type == 'multitext' && oRecData.multitext_seq == '0')) {
+                    oRecData.value = angular.fromJson(oRecData.value);
+                }
+                if (oRecData.tag) {
+                    oRecData.tag.forEach(function(index, tagId) {
+                        if (oApp._tagsById[index]) {
+                            oRecData.tag[tagId] = oApp._tagsById[index];
+                        }
+                    });
+                }
+                $scope.data = oRecData;
+                if (aRemarkable.length <= 1 && oRecData.userid !== $scope.user.uid) {
+                    $scope.bRequireOption = false;
+                }
+            }
+        });
     });
     $scope.$watch('filter', function(nv) {
         if (nv && nv.schema) {
-            listRemarks().then(function(data) {
-                var oRemark, oUpperRemark, oRemarks = {};
-                if (data.remarks && data.remarks.length) {
-                    angular.forEach(data.remarks, function(remark) {
-                        oRemarks[remark.id] = remark;
+            listRemarks().then(function(rsp) {
+                var remarks, oRemark, oUpperRemark, oRemarks;
+                remarks = rsp.data.remarks;
+                if (remarks && remarks.length) {
+                    oRemarks = {};
+                    remarks.forEach(function(oRemark) {
+                        oRemarks[oRemark.id] = oRemark;
                     });
-                    for (var i = data.remarks.length - 1; i >= 0; i--) {
-                        oRemark = data.remarks[i];
+                    for (var i = remarks.length - 1; i >= 0; i--) {
+                        oRemark = remarks[i];
                         if (oRemark.content) {
                             oRemark.content = oRemark.content.replace(/\n/g, '<br/>');
                         }
@@ -228,17 +236,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
                         }
                     }
                 }
-                if (data.data) {
-                    if (data.data.tag) {
-                        data.data.tag.forEach(function(index, tagId) {
-                            if (oApp._tagsById[index]) {
-                                data.data.tag[tagId] = oApp._tagsById[index];
-                            }
-                        });
-                    }
-                }
-                $scope.data = data.data;
-                $scope.remarks = data.remarks;
+                $scope.remarks = remarks;
             });
         }
     }, true);

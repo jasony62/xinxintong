@@ -9,30 +9,21 @@ class remark extends base {
 	/**
 	 * 返回一条登记记录的所有评论
 	 */
-	public function list_action($ek, $schema, $page = 1, $size = 99, $id = '') {
+	public function list_action($ek, $schema, $page = 1, $size = 99, $data = '') {
 		$oUser = $this->who;
 
 		$options = [];
-		if (empty($id)) {
-			$oRecordData = $this->model('matter\enroll\data')->byRecord($ek, ['schema' => $schema, 'fields' => 'id,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
-		} else {
-			$oRecordData = $this->model('matter\enroll\data')->byId($id, ['fields' => 'id,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
-			if ($oRecordData) {
-				$data_ids = [];
-				$data_ids[] = $oRecordData->id;
-				$options['data_id'] = $data_ids;
-			}
+		if (!empty($data)) {
+			$options['data_id'] = $data;
 		}
 
 		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $options);
 
-		$result->data = $oRecordData;
-
 		return new \ResponseData($result);
 	}
 	/*
-	* 返回多项填写题的所有评论
-	* $id xxt_enroll_record_data id
+		* 返回多项填写题的所有评论
+		* $id xxt_enroll_record_data id
 	*/
 	public function listMultitext_action($ek, $schema, $page = 1, $size = 99) {
 		if (empty($schema)) {
@@ -114,7 +105,7 @@ class remark extends base {
 		/**
 		 * 发表评论的用户
 		 */
-		$data_id = $id; 
+		$data_id = $id;
 		//如果是多项填写题需要指定id，否则，则不需要
 		if (!empty($schema)) {
 			foreach ($oApp->dataSchemas as $dataSchema) {

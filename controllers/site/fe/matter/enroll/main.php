@@ -227,6 +227,7 @@ class main extends base {
 	 * @param string $page page's name
 	 * @param string $ek record's enroll key
 	 * @param string $newRecord
+	 *
 	 */
 	public function get_action($app, $rid = '', $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
 		/* 登记活动定义 */

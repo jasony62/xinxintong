@@ -31,3 +31,6 @@ div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 
 /* auth */
 #frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}
+
+/* rank */
+.result{margin-top: 10px;}

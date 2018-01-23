@@ -429,7 +429,7 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
 /**
  * 排行
  */
-ngApp.controller('ctrlRank', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
+ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($scope, http2, $q, LS) {
     function byUser() {
         http2.get(LS.j('rank/byUser', 'site', 'app')).then(function(rsp) {
             $scope.users = rsp.data;
@@ -439,13 +439,76 @@ ngApp.controller('ctrlRank', ['$scope', 'http2', 'tmsLocation', function($scope,
     function byGroup() {
         http2.get(LS.j('rank/byGroup', 'site', 'app')).then(function(rsp) {});
     }
-    var _oApp;
+    function list() {
+        var defer = $q.defer();
+        switch (oAppState.criteria.obj) {
+            case 'user':
+                http2.post(LS.j('rank/byUser', 'site', 'app'), oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
+            case 'group':
+                http2.post(LS.j('rank/byGroup', 'site', 'app'), oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
+        }
+        return defer.promise;
+    }
+    $scope.doSearch = function(pageAt) {
+        if (pageAt) {
+            oAppState.page.at = pageAt;
+        }
+        list().then(function(data) {
+            var oSchema;
+            switch (oAppState.criteria.obj) {
+                case 'user':
+                    if (data) {
+                        data.forEach(function(user) {
+                            $scope.users.push(user);
+                        });
+                    }
+                    break;
+            }
+            oAppState.page.total = data.total;
+        });
+    };
+    $scope.changeCriteria = function() {
+        $scope.users = [];
+        $scope.groups = [];
+        $scope.doSearch(1);
+    };
+    var _oApp, oAppState;
     $scope.rankView = {
         obj: 'user'
     };
+    if (!oAppState) {
+        oAppState = {
+            criteria: {
+                obj: 'user',
+                orderby: 'task_num',
+            },
+            page: {
+                at: 1,
+                size: 12
+            }
+        };
+    }
+    $scope.appState = oAppState;
+    $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
+        if (oNew && oOld && oNew !== oOld) {
+            switch (oNew) {
+                case 'user':
+                    oAppState.criteria.orderby = 'enroll';
+                    break;
+            }
+            $scope.changeCriteria();
+        }
+    });
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
         _oApp = oApp;
-        byUser();
+        /*byUser();*/
+        $scope.changeCriteria();
     });
 }]);

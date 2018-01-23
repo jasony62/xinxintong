@@ -178,7 +178,21 @@
             </div>
         </script>
         <script type="text/ng-template" id="rank.html">
-            <div class='col-md-12' ng-switch on="rankView.obj">
+            <div class="col-md-12 filter">
+                <div class='col-md-2 col-xs-6'>
+                    <select class='form-control' ng-model="appState.criteria.obj">
+                        <option value='user'>用户</option>
+                    </select>
+                </div>
+                <div class='col-md-3 col-xs-6' ng-if="appState.criteria.obj==='user'">
+                    <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
+                        <option value='task_num'>提交记录数量</option>
+                        <option value='coin'>积分</option>
+                        <option value='score'>得分</option>
+                    </select>
+                </div>
+            </div>
+            <div class='col-md-12 result' ng-switch on="rankView.obj">
                 <ul ng-switch-when="user">
                     <li class='hidden-xs'>
                         <div class='col-md-1'>序号</div>

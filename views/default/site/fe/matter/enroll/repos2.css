@@ -70,6 +70,7 @@ img {
 #repos .record .header .nickname {
 	flex-grow: 1;
 	text-align: right;
+	font-size: .9em;
 }
 
 #repos .record .data blockquote>div+div {

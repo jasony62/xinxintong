@@ -536,7 +536,6 @@ class record_model extends record_base {
 		if ($oOptions) {
 			is_array($oOptions) && $oOptions = (object) $oOptions;
 			$creator = isset($oOptions->creator) ? $oOptions->creator : null;
-			$orderby = isset($oOptions->orderby) ? $oOptions->orderby : '';
 			$page = isset($oOptions->page) ? $oOptions->page : null;
 			$size = isset($oOptions->size) ? $oOptions->size : null;
 		}
@@ -671,6 +670,8 @@ class record_model extends record_base {
 			$q2['o'] = 'd.' . $orderby . ' desc';
 		} elseif (!empty($oCriteria->order->orderby) && $oCriteria->order->orderby === 'sum') {
 			$q2['o'] = 'r.score desc';
+		} elseif (!empty($oCriteria->order->orderby) && $oCriteria->order->orderby === 'agreed') {
+			$q2['o'] = 'r.agreed desc';
 		} else {
 			$q2['o'] = 'r.enroll_at desc';
 		}

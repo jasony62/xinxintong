@@ -130,34 +130,36 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
 
         fnGetRecord().then(function(rsp) {
             var schemaId, domWrap, aRemarkableSchemas, oRecord;
-            aRemarkableSchemas = [];
-            dataSchemas.forEach(function(oSchema) {
-                if (oSchema.remarkable && oSchema.remarkable === 'Y') {
-                    aRemarkableSchemas.push(oSchema);
-                    var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
-                    if (domWrap) {
-                        domWrap.classList.add('remarkable');
-                        domWrap.addEventListener('click', function() {
-                            var url = LS.j('', 'site', 'app');
-                            url += '&page=remark';
-                            url += '&ek=' + oRecord.enroll_key;
-                            url += '&schema=' + oSchema.id;
-                            url += '&data=' + oRecord.verbose[oSchema.id].id;
-                            location.href = url;
-                        }, true);
-                    }
-                }
-            });
             facRecord.current = oRecord = rsp.data;
             facRecord.current.tag = facRecord.current.data_tag ? facRecord.current.data_tag : {};
-            if (oRecord.verbose) {
-                aRemarkableSchemas.forEach(function(oSchema) {
-                    var num;
-                    if (domWrap = document.querySelector('[schema=' + oSchema.id + ']')) {
-                        num = oRecord.verbose[oSchema.id] ? oRecord.verbose[oSchema.id].remark_num : 0;
-                        domWrap.setAttribute('data-remark', num);
+            aRemarkableSchemas = [];
+            if (oApp.repos_unit === 'D') {
+                dataSchemas.forEach(function(oSchema) {
+                    if (oSchema.remarkable && oSchema.remarkable === 'Y') {
+                        aRemarkableSchemas.push(oSchema);
+                        var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
+                        if (domWrap) {
+                            domWrap.classList.add('remarkable');
+                            domWrap.addEventListener('click', function() {
+                                var url = LS.j('', 'site', 'app');
+                                url += '&page=remark';
+                                url += '&ek=' + oRecord.enroll_key;
+                                url += '&schema=' + oSchema.id;
+                                url += '&data=' + oRecord.verbose[oSchema.id].id;
+                                location.href = url;
+                            }, true);
+                        }
                     }
                 });
+                if (oRecord.verbose) {
+                    aRemarkableSchemas.forEach(function(oSchema) {
+                        var num;
+                        if (domWrap = document.querySelector('[schema=' + oSchema.id + ']')) {
+                            num = oRecord.verbose[oSchema.id] ? oRecord.verbose[oSchema.id].remark_num : 0;
+                            domWrap.setAttribute('data-remark', num);
+                        }
+                    });
+                }
             }
             /* disable actions */
             if (oApp.end_submit_at > 0 && parseInt(oApp.end_submit_at) < (new Date * 1) / 1000) {

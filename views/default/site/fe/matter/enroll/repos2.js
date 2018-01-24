@@ -94,7 +94,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     };
     $scope.value2Label = function(oSchema, value) {
         var val, aVal, aLab = [];
-console.log('xxxxx');
         if (val = value) {
             if (oSchema.ops && oSchema.ops.length) {
                 aVal = val.split(',');

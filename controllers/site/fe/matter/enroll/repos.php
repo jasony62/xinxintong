@@ -132,7 +132,10 @@ class repos extends base {
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$oResult = $mdoelRec->byApp($oApp, $oOptions);
+		$oOptions2 = new \stdClass;
+		$oOptions2->order = new \stdClass;
+		$oOptions2->order->orderby = 'agreed';
+		$oResult = $mdoelRec->byApp($oApp, $oOptions, $oOptions2);
 
 		if (!empty($oResult->records)) {
 			$aSchareableSchemas = [];

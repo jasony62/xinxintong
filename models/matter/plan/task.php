@@ -311,6 +311,11 @@ class task_model extends \TMS_MODEL {
 		}
 
 		$q2 = ['o' => 'first_enroll_at desc'];
+		if (isset($aOptions['paging'])) {
+			$q2['r'] = [];
+			$q2['r']['o'] = ($aOptions['paging']->page - 1) * $aOptions['paging']->size;
+			$q2['r']['l'] = $aOptions['paging']->size;
+		}
 		$tasks = $this->query_objs_ss($q, $q2);
 		if (count($tasks)) {
 			$modelSchAct = $this->model('matter\plan\schema\action');
@@ -344,7 +349,9 @@ class task_model extends \TMS_MODEL {
 
 		$result = new \stdClass;
 		$result->tasks = $tasks;
-		$result->total = count($tasks);
+		$q[0] = 'count(id)';
+		$total = (int) $this->query_val_ss($q);
+		$result->total = $total;
 
 		return $result;
 	}

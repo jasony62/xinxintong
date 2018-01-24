@@ -183,4 +183,434 @@ class task extends \pl\fe\matter\base {
 
 		return new \ResponseData($updatedCount);
 	}
+	/**
+	 * 登记数据导出
+	 */
+	public function export_action($site, $app, $taskId = '') {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\plan');
+		$app = $modelApp->escape($app);
+
+		$oApp = $modelApp->byId($app, ['fields' => 'siteid,id,title,state,check_schemas,entry_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		/*包含的所有任务*/
+		$oApp->taskSchemas = $this->model('matter\plan\schema\task')->byApp($oApp->id, ['fields' => 'id,title']);
+
+		$schemas = $oApp->checkSchemas;
+
+		// 获得有效的填写记录
+		$modelTsk = $this->model('matter\plan\task');
+		$oCriteria = new \stdClass;
+		!empty($taskId) && $oCriteria->byTaskSchema = $taskId;
+		$aOptions = ['fields' => 'id,born_at,patch_at,userid,group_id,nickname,verified,comment,first_enroll_at,last_enroll_at,task_schema_id,task_seq,data,score,supplement'];
+		$result = $modelTsk->byApp($oApp, $aOptions, $oCriteria);
+
+		if ($result->total === 0) {
+			die('record empty');
+		}
+
+		if (!empty($result->tasks)) {
+			$remarkables = [];
+			foreach ($oApp->checkSchemas as $oSchema) {
+				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
+					$remarkables[] = $oSchema->id;
+				}
+			}
+			if (count($remarkables)) {
+				foreach ($result->tasks as &$oRec) {
+					$modelTskAct = $this->model('matter\plan\action');
+					$oRecordData = $modelTskAct->byRecord($oRec->id, ['schema' => $remarkables]);
+					$oRec->verbose = new \stdClass;
+					$oRec->verbose->data = $oRecordData;
+				}
+			}
+		}
+
+		$tasks = $result->tasks;
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
+
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator("信信通")
+			->setLastModifiedBy("信信通")
+			->setTitle($oApp->title)
+			->setSubject($oApp->title)
+			->setDescription($oApp->title);
+
+		$objPHPExcel->setActiveSheetIndex(0);
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+		$objActiveSheet->setTitle('用户任务列表');
+		$columnNum1 = 0; //列号
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '用户');
+		$oEntryRule = $oApp->entryRule;
+		if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
+			if (isset($oEntryRule->group)) {
+				$oRuleApp = $oEntryRule->group;
+				if (!empty($oRuleApp->id)) {
+					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'Y']);
+					$groupRounds = [];
+					foreach ($oGroupApp->rounds as $oGroupRound) {
+						$groupRounds[$oGroupRound->round_id] = $oGroupRound->title;
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
+				}
+			}
+		}
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '任务名称');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '首次登记时间');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '最后登记时间');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核结果');
+
+		// 转换标题
+		$aNumberSum = []; // 数值型题目的合计
+		$aScoreSum = []; // 题目的分数合计
+		$columnNum4 = $columnNum1; //列号
+		$bRequireSum = false;
+		$bRequireScore = false;
+		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {
+			$schema = $schemas[$a];
+			/* 跳过图片,描述说明和文件 */
+			if (in_array($schema->type, ['html'])) {
+				continue;
+			}
+			/* 数值型，需要计算合计 */
+			if (isset($schema->format) && $schema->format === 'number') {
+				$aNumberSum[$columnNum4] = $schema->id;
+				$bRequireSum = true;
+			}
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $schema->title);
+			/* 需要计算得分 */
+			// if ((isset($schema->requireScore) && $schema->requireScore === 'Y') || (isset($schema->format) && $schema->format === 'number')) {
+			// 	$aScoreSum[$columnNum4] = $schema->id;
+			// 	$bRequireScore = true;
+			// 	$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
+			// }
+		}
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
+		// if ($bRequireScore) {
+		// 	$aScoreSum[$columnNum4] = 'sum';
+		// 	$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分');
+		// 	$titles[] = '总分';
+		// }
+		// 转换数据
+		for ($j = 0, $jj = count($tasks); $j < $jj; $j++) {
+			$oRecord = $tasks[$j];
+			$rowIndex = $j + 2;
+			$columnNum2 = 0; //列号
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $j+1);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->nickname);
+			if (isset($groupRounds)) {
+				if (!empty($oRecord->group_id)) {
+					if (isset($groupRounds[$oRecord->group_id])) {
+						$val = $groupRounds[$oRecord->group_id];
+					} else {
+						$val = '未分组';
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $val);
+				} else {
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '未分组');
+				}
+			}
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->taskSchemaTitle);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, date('y-m-j H:i', $oRecord->first_enroll_at));
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, date('y-m-j H:i', $oRecord->last_enroll_at));
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->verified);
+			// 处理登记项
+			$data = (array) $oRecord->data;
+			$data = reset($data);
+			$oRecScore = empty($oRecord->score) ? null : $oRecord->score;
+			$supplement = $oRecord->supplement;
+			$i = 0; // 列序号
+			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
+				$columnNum3 = $columnNum2; //列号
+				$schema = $schemas[$i2];
+				if (isset($data->{$schema->id})) {
+					$v = $data->{$schema->id};
+				} else if ((strpos($schema->id, 'member.') === 0) && isset($data->member)) {
+					$mbSchemaId = $schema->id;
+					$mbSchemaIds = explode('.', $mbSchemaId);
+					$mbSchemaId = $mbSchemaIds[1];
+					if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
+						$mbSchemaId = $mbSchemaIds[2];
+						$v = $data->member->extattr->{$mbSchemaId};
+					} else {
+						$v = $data->member->{$mbSchemaId};
+					}
+				} else {
+					$v = '';
+				}
+
+				if (in_array($schema->type, ['html'])) {
+					continue;
+				}
+				switch ($schema->type) {
+				case 'single':
+					$cellValue = '';
+					foreach ($schema->ops as $op) {
+						if ($op->v === $v) {
+							$cellValue = $op->l;
+						}
+					}
+					if (isset($schema->supplement) && $schema->supplement === 'Y') {
+						$cellValue .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
+					}
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				case 'phase':
+					$disposed = null;
+					foreach ($schema->ops as $op) {
+						if ($op->v === $v) {
+							$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $op->l);
+							$disposed = true;
+							break;
+						}
+					}
+					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $v);
+					break;
+				case 'multiple':
+					$labels = [];
+					$v = explode(',', $v);
+					foreach ($v as $oneV) {
+						foreach ($schema->ops as $op) {
+							if ($op->v === $oneV) {
+								$labels[] = $op->l;
+								break;
+							}
+						}
+					}
+					$cellValue = implode(',', $labels);
+					if (isset($schema->supplement) && $schema->supplement === 'Y') {
+						$cellValue .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
+					break;
+				case 'score':
+					$labels = [];
+					foreach ($schema->ops as $op) {
+						if (isset($v->{$op->v})) {
+							$labels[] = $op->l . ':' . $v->{$op->v};
+						}
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(' / ', $labels));
+					break;
+				case 'image':
+					$v0 = '';
+					if (isset($schema->supplement) && $schema->supplement === 'Y') {
+						$v0 .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
+					}
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				case 'file':
+					$v0 = '';
+					if (isset($schema->supplement) && $schema->supplement === 'Y') {
+						$v0 .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
+					}
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				case 'date':
+					!empty($v) && $v = date('y-m-j H:i', $v);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				case 'shorttext':
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				case 'multitext':
+					if (is_array($v)) {
+						$values = [];
+						foreach ($v as $val) {
+							$values[] = $val->value;
+						}
+						$v = implode(',', $values);
+					}
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				default:
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				}
+				$one = $i + $columnNum3;
+				// 分数
+				if (isset($oRecScore->{$schema->id})) {
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $oRecScore->{$schema->id}, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+				}
+				$i++;
+			}
+			// 备注
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);
+			// 记录测验分数
+			// if ($bRequireScore) {
+			// 	$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecScore->sum) ? $oRecScore->sum : '');
+			// }
+		}
+		// if (!empty($aNumberSum)) {
+		// 	// 数值型合计
+		// 	$rowIndex = count($tasks) + 2;
+		// 	$oSum4Schema = $this->model('matter\plan\action')->sum4Schema($oApp, $taskId);
+		// 	$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
+		// 	foreach ($aNumberSum as $key => $val) {
+		// 		$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $oSum4Schema->$val);
+		// 	}
+		// }
+		// if (!empty($aScoreSum)) {
+		// 	// 分数合计
+		// 	$rowIndex = count($tasks) + 2;
+		// 	$oScore4Schema = $this->model('matter\plan\action')->score4Schema($oApp, $taskId);
+		// 	$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
+		// 	foreach ($aScoreSum as $key => $val) {
+		// 		$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $oScore4Schema->$val);
+		// 	}
+		// }
+		// 输出
+		header('Content-Type: application/vnd.ms-excel');
+		header('Cache-Control: max-age=0');
+
+		$filename = $oApp->title . '.xlsx';
+		$ua = $_SERVER["HTTP_USER_AGENT"];
+		if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
+			$encoded_filename = urlencode($filename);
+			$encoded_filename = str_replace("+", "%20", $encoded_filename);
+			header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
+		} else if (preg_match("/Firefox/", $ua)) {
+			header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '"');
+		} else {
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+		}
+
+		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+		exit;
+	}
+	/**
+	 * 导出登记数据中的图片
+	 */
+	public function exportImage_action($site, $app) {
+		if (false === ($oUser = $this->accountUser())) {
+			die('请先登录系统');
+		}
+		if (defined('SAE_TMP_PATH')) {
+			die('部署环境不支持该功能');
+		}
+
+		$nameSchema = null;
+		$imageSchemas = [];
+
+		// 登记活动
+		$enrollApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
+		$schemas = json_decode($enrollApp->data_schemas);
+
+		// 关联的登记活动
+		if (!empty($enrollApp->enroll_app_id)) {
+			$matchApp = $this->model('matter\enroll')->byId($enrollApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$enrollSchemas = json_decode($matchApp->data_schemas);
+			$mapOfAppSchemas = [];
+			foreach ($schemas as $schema) {
+				$mapOfAppSchemas[] = $schema->id;
+			}
+			foreach ($enrollSchemas as $schema) {
+				if (!in_array($schema->id, $mapOfAppSchemas)) {
+					$schemas[] = $schema;
+				}
+			}
+		}
+		// 关联的分组活动
+		if (!empty($enrollApp->group_app_id)) {
+			$matchApp = $this->model('matter\group')->byId($enrollApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$groupSchemas = json_decode($matchApp->data_schemas);
+			$mapOfAppSchemas = [];
+			foreach ($schemas as $schema) {
+				$mapOfAppSchemas[] = $schema->id;
+			}
+			foreach ($groupSchemas as $schema) {
+				if (!in_array($schema->id, $mapOfAppSchemas)) {
+					$schemas[] = $schema;
+				}
+			}
+		}
+
+		foreach ($schemas as $schema) {
+			if ($schema->type === 'image') {
+				$imageSchemas[] = $schema;
+			} else if ($schema->id === 'name' || (in_array($schema->title, array('姓名', '名称')))) {
+				$nameSchema = $schema;
+			}
+		}
+
+		if (count($imageSchemas) === 0) {
+			die('活动不包含图片数据');
+		}
+
+		// 获得所有有效的登记记录
+		$tasks = $this->model('matter\enroll\record')->byApp($enrollApp);
+		if ($tasks->total === 0) {
+			die('record empty');
+		}
+		$tasks = $tasks->tasks;
+
+		// 转换数据
+		$aImages = [];
+		for ($j = 0, $jj = count($tasks); $j < $jj; $j++) {
+			$record = $tasks[$j];
+			// 处理登记项
+			$data = $record->data;
+			for ($i = 0, $ii = count($imageSchemas); $i < $ii; $i++) {
+				$schema = $imageSchemas[$i];
+				if (!empty($data->{$schema->id})) {
+					$aImages[] = ['url' => $data->{$schema->id}, 'schema' => $schema, 'data' => $data];
+				}
+			}
+		}
+
+		// 输出
+		$usedRecordName = [];
+		// 输出打包文件
+		$zipFilename = tempnam('/tmp', $enrollApp->id);
+		$zip = new \ZipArchive;
+		if ($zip->open($zipFilename, \ZIPARCHIVE::CREATE) === false) {
+			die('无法打开压缩文件，或者文件创建失败');
+		}
+		foreach ($aImages as $image) {
+			$imageFilename = TMS_APP_DIR . '/' . $image['url'];
+			if (file_exists($imageFilename)) {
+				$imageName = basename($imageFilename);
+				/**
+				 * 图片文件名称替换
+				 */
+				if (isset($nameSchema)) {
+					$data = $image['data'];
+					$recordName = $data->{$nameSchema->id};
+					if (!empty($recordName)) {
+						if (isset($usedRecordName[$recordName])) {
+							$usedRecordName[$recordName]++;
+							$recordName = $recordName . '_' . $usedRecordName[$recordName];
+						} else {
+							$usedRecordName[$recordName] = 0;
+						}
+						$imageName = $recordName . '.' . explode('.', $imageName)[1];
+					}
+				}
+				$zip->addFile($imageFilename, $image['schema']->title . '/' . $imageName);
+			}
+		}
+		$zip->close();
+
+		if (!file_exists($zipFilename)) {
+			exit("无法找到压缩文件");
+		}
+		header("Cache-Control: public");
+		header("Content-Description: File Transfer");
+		header('Content-disposition: attachment; filename=' . $enrollApp->title . '.zip');
+		header("Content-Type: application/zip");
+		header("Content-Transfer-Encoding: binary");
+		header('Content-Length: ' . filesize($zipFilename));
+		@readfile($zipFilename);
+
+		exit;
+	}
 }

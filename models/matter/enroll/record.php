@@ -535,8 +535,7 @@ class record_model extends record_base {
 
 		if ($oOptions) {
 			is_array($oOptions) && $oOptions = (object) $oOptions;
-			$creater = isset($oOptions->creater) ? $oOptions->creater : null;
-			$inviter = isset($oOptions->inviter) ? $oOptions->inviter : null;
+			$creator = isset($oOptions->creator) ? $oOptions->creator : null;
 			$orderby = isset($oOptions->orderby) ? $oOptions->orderby : '';
 			$page = isset($oOptions->page) ? $oOptions->page : null;
 			$size = isset($oOptions->size) ? $oOptions->size : null;
@@ -548,7 +547,11 @@ class record_model extends record_base {
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
 		// 指定轮次，或者当前激活轮次
-		if (isset($oCriteria->record->assignRid)) {
+		if (!empty($oOptions->rid)) {
+			if (strcasecmp('all', $oOptions->rid) !== 0) {
+				$rid = $oOptions->rid;
+			}
+		} else if (isset($oCriteria->record->assignRid)) {
 			$rid = $oCriteria->record->assignRid;
 		} else if (!empty($oCriteria->record->rid)) {
 			if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
@@ -564,8 +567,8 @@ class record_model extends record_base {
 			$w .= " and r.group_id='{$oOptions->userGroup}'";
 		}
 		// 根据填写人筛选（填写端列表页需要）
-		if (!empty($creater)) {
-			$w .= " and r.userid='$creater'";
+		if (!empty($creator)) {
+			$w .= " and r.userid='$creator'";
 		}
 
 		// 指定了登记记录属性过滤条件
@@ -635,9 +638,10 @@ class record_model extends record_base {
 		}
 
 		// 指定了按关键字过滤
-		if (!empty($oCriteria->keyword)) {
+		if (!empty($oOptions->keyword) || !empty($oCriteria->keyword)) {
+			$keyword = !empty($oOptions->keyword) ? $oOptions->keyword : $oCriteria->keyword;
 			$whereByData = '';
-			$whereByData .= ' and (data like \'%' . $oCriteria->keyword . '%\')';
+			$whereByData .= ' and (data like \'%' . $keyword . '%\')';
 			$w .= $whereByData;
 		}
 

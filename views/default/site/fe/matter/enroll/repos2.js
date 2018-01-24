@@ -39,13 +39,11 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     };
 }]);
 ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', function($scope, $sce, http2, LS, srvRound) {
-    var oApp, facRound, _oPage, _oCriteria, _oShareableSchemas, userGroups, _items;
-    _items = {};
-    $scope.schemaCount = 0;
+    var oApp, facRound, _oPage, _oCriteria, _oShareableSchemas;
     $scope.page = _oPage = { at: 1, size: 12 };
-    $scope.criteria = _oCriteria = { owner: 'all' };
-    $scope.schemas = _oShareableSchemas = {};
-    $scope.repos = [];
+    $scope.criteria = _oCriteria = { creator: 'all' };
+    $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
+    $scope.repos = []; // 分享的记录
     $scope.recordList = function(pageAt) {
         var url;
         if (pageAt) {
@@ -112,19 +110,23 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         }
         return $sce.trustAsHtml(val);
     };
+    $scope.shiftRound = function() {
+        $scope.recordList(1);
+    };
+    $scope.shiftUserGroup = function() {
+        $scope.recordList(1);
+    };
+    $scope.shiftOwner = function() {
+        $scope.recordList(1);
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
-                $scope.schemaCount++;
-            }
-            if (schema.id === '_round_id' && schema.ops && schema.ops.length) {
-                schema.ops.forEach(function(op) {
-                    userGroups.push(op);
-                });
             }
         });
+        $scope.userGroups = params.groups;
         $scope.groupUser = params.groupUser;
         var groupOthersById = {};
         if (params.groupOthers && params.groupOthers.length) {
@@ -133,7 +135,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
             });
         }
         $scope.groupOthers = groupOthersById;
-        $scope.dataTags = oApp.dataTags;
         $scope.recordList(1);
         $scope.facRound = facRound = srvRound.ins(oApp);
         if (oApp.multi_rounds === 'Y') {
@@ -141,7 +142,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                 if (result.active) {
                     for (var i = 0, ii = result.rounds.length; i < ii; i++) {
                         if (result.rounds[i].rid === result.active.rid) {
-                            criteria.rid = result.active.rid;
+                            _oCriteria.rid = result.active.rid;
                             break;
                         }
                     }

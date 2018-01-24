@@ -19,7 +19,7 @@
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i><span>数据共享</span>
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span>数据共享</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -35,6 +35,37 @@
     <div ng-cloak class='ng-cloak app' ng-controller="ctrlRepos">
         <div class='container'>
             <div class='row'>
+                <div class='form-group'>
+                    <div id='filterCriteria' class='input-group'>
+                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
+                        <div class='input-group-btn'>
+                            <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
+                            <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
+                            <button id='advCriteriaSwitch' class="btn btn-default" ng-click="status.opened=!status.opened">
+                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':status.opened}"></span>
+                            </button>
+                            <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
+                                <div class='form-group' ng-if='rounds.length'>
+                                    <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
+                                        <option value='all'>全部轮次</option>
+                                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                                    </select>
+                                </div>
+                                <div class='form-group' ng-if="userGroups.length">
+                                    <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.round_id as grp.title for grp in userGroups">
+                                        <option value>全部分组</option>
+                                    </select>
+                                </div>
+                                <div class='form-group'>
+                                    <select class='form-control' ng-model="criteria.creator" ng-change="shiftOwner()" size=2>
+                                        <option value='all'>全部用户</option>
+                                        <option value='{{params.user.uid}}'>我的</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <div id='repos'>
                     <div class='records'>
                         <div class='record' ng-repeat="rec in repos">

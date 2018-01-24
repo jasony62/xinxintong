@@ -123,10 +123,18 @@ class repos extends base {
 		$oOptions->page = $page;
 		$oOptions->size = $size;
 
+		!empty($oCriteria->keyword) && $oOptions->keyword = $oCriteria->keyword;
+		!empty($oCriteria->rid) && $oOptions->rid = $oCriteria->rid;
+		!empty($oCriteria->userGroup) && $oOptions->userGroup = $oCriteria->userGroup;
+		if (!empty($oCriteria->creator) && $oCriteria->creator !== 'all') {
+			$oOptions->creator = $oCriteria->creator;
+		}
+
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
 		$oResult = $mdoelRec->byApp($oApp, $oOptions);
-		if (count($oResult->records)) {
+
+		if (!empty($oResult->records)) {
 			$aSchareableSchemas = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {

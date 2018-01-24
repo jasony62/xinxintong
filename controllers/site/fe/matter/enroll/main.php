@@ -405,11 +405,16 @@ class main extends base {
 		}
 
 		/**
-		 * 获得当前用户所属的分组，是否为组长，及同组成员
+		 * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
 		 */
 		if (!empty($oApp->entry_rule->group->id) || !empty($oApp->group_app_id)) {
-			$modelGrpUsr = $this->model('matter\group\player');
 			$assocGroupAppId = empty($oApp->entry_rule->group->id) ? $oApp->group_app_id : $oApp->entry_rule->group->id;
+			/* 获得的分组信息 */
+			$modelGrpRnd = $this->model('matter\group\round');
+			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
+			$params['groups'] = $groups;
+			/* 用户所属分组 */
+			$modelGrpUsr = $this->model('matter\group\player');
 			$oGrpApp = (object) ['id' => $assocGroupAppId];
 			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,round_id,round_title,userid,nickname', 'onlyOne' => true]);
 			if ($oGrpUsr) {

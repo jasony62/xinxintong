@@ -98,8 +98,8 @@
                                                 <li ng-repeat="item in rec.data[schema.id].value"><span ng-bind="item.value"></span></li>
                                             </ul>
                                         </div>
-                                        <div ng-switch-when="single"><span>{{value2Label(rec.data[schema.id],schema.id)}}</span></div>
-                                        <div ng-switch-when="multiple"><span>{{value2Label(rec.data[schema.id],schema.id)}}</span></div>
+                                        <div ng-switch-when="single"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
+                                        <div ng-switch-when="multiple"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
                                         <div ng-switch-default>
                                             <span>{{rec.data[schema.id]}}</span>
                                         </div>

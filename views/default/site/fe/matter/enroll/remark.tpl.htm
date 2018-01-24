@@ -57,21 +57,18 @@
                         <blockquote>
                             <div ng-repeat="schema in visibleSchemas" ng-switch on="schema.type">
                                 <div class='text-muted data-title'>{{schema.title}}</div>
-                                <div ng-switch-when="single"><span>{{value2Label(schema.id)}}</span></div>
-                                <div ng-switch-when="multiple"><span>{{value2Label(schema.id)}}</span></div>
                                 <ul ng-switch-when="image">
-                                    <li ng-repeat="img in record.verbose[schema.id].value.split(',')"><img ng-src="{{img}}" /></li>
+                                    <li ng-repeat="img in record.verbose[schema.id].value"><img ng-src="{{img}}" /></li>
                                 </ul>
                                 <div ng-switch-when="file">
                                     <div ng-repeat="file in record.verbose[schema.id].value">
-                                        <p><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></p>
-                                        <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
+                                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
                                             <source src="{{file.url}}" type="{{file.type}}" />
                                         </video>
                                         <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
                                             <source src="{{file.url}}" type="{{file.type}}" />
                                         </audio>
-                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
+                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                                     </div>
                                 </div>
                                 <div ng-switch-when="multitext">

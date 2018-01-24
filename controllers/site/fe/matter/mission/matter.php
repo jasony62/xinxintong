@@ -64,7 +64,7 @@ class matter extends \site\fe\matter\base {
 		if (!isset($this->_modelEnlRec)) {
 			$this->_modelEnlRec = $this->model('matter\enroll\record');
 		}
-		$oMisAgreed->obj = $this->_modelEnlRec->byId($oMisAgreed->obj_key, ['fields' => 'nickname,data,enroll_at,like_num,remark_num,score']);
+		$oMisAgreed->obj = $this->_modelEnlRec->byId($oMisAgreed->obj_key, ['fields' => 'nickname,data,enroll_at,like_num,like_log,remark_num,score']);
 		foreach ($oMisAgreed->obj->data as $schemaId => $value) {
 			if (!isset($oMisAgreed->matter->dataSchemas->{$schemaId})) {
 				unset($oMisAgreed->obj->data->{$schemaId});
@@ -86,6 +86,7 @@ class matter extends \site\fe\matter\base {
 		$oMisAgreed->obj = new \stdClass;
 		$oMisAgreed->obj->enroll_at = $oRecData->submit_at;
 		$oMisAgreed->obj->like_num = $oRecData->like_num;
+		$oMisAgreed->obj->like_log = $oRecData->like_log;
 		$oMisAgreed->obj->remark_num = $oRecData->remark_num;
 		$oMisAgreed->obj->score = $oRecData->score;
 		$oMisAgreed->obj->schema_id = $oRecData->schema_id;

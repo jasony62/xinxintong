@@ -92,21 +92,19 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
             });
         }
     };
-    $scope.value2Label = function(value, schemaId) {
-        var val, schema, aVal, aLab = [];
-
-        if ((schema = $scope.app._schemasById[schemaId]) && value) {
-            if (val = value) {
-                if (schema.ops && schema.ops.length) {
-                    aVal = val.split(',');
-                    schema.ops.forEach(function(op) {
-                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                    });
-                    val = aLab.join(',');
-                }
-            } else {
-                val = '';
+    $scope.value2Label = function(oSchema, value) {
+        var val, aVal, aLab = [];
+console.log('xxxxx');
+        if (val = value) {
+            if (oSchema.ops && oSchema.ops.length) {
+                aVal = val.split(',');
+                oSchema.ops.forEach(function(op) {
+                    aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                });
+                val = aLab.join(',');
             }
+        } else {
+            val = '';
         }
         return $sce.trustAsHtml(val);
     };

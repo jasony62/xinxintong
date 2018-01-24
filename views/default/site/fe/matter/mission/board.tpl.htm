@@ -65,7 +65,7 @@
                                 <div class='time' ng-bind="recommend.op_at*1000|date:'HH:mm'"></div>
                             </div>
                             <div class='col-xs-10'>
-                                <div class='thumbnail recommend' ng-click="gotoDetail(recommend)">
+                                <div class='thumbnail recommend'>
                                     <div class='user text-muted'>
                                         <div class='nickname'><span>{{recommend.obj.nickname}}</span><span ng-if="recommend.group.title">- {{recommend.group.title}}</span></div>
                                         <div class='enroll_at'>{{recommend.obj.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
@@ -80,7 +80,6 @@
                                             <div ng-switch-when="file">
                                                 <div class='text-muted'>{{schema.title}}</div>
                                                 <div ng-repeat="file in recommend.obj.data[schema.id]">
-                                                    <p>{{file.name}}</p>
                                                     <video ng-if="file.type.indexOf('video')===0" controls="controls">
                                                         <source src="{{file.url}}" type="{{file.type}}" />
                                                     </video>
@@ -90,6 +89,13 @@
                                                     <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' />
                                                 </div>
                                             </div>
+                                            <div ng-switch-when="multitext">
+                                                <ul ng-if="recommend.obj.data[schema.id]">
+                                                    <li ng-repeat="item in recommend.obj.data[schema.id].value"><span ng-bind="item.value"></span></li>
+                                                </ul>
+                                            </div>
+                                            <div ng-switch-when="single"><span class='text-muted'>{{schema.title}}：</span><span>{{value2Label(schema,recommend.obj.data[schema.id])}}</span></div>
+                                            <div ng-switch-when="multiple"><span class='text-muted'>{{schema.title}}：</span><span>{{value2Label(schema,recommend.obj.data[schema.id])}}</span></div>
                                             <div ng-switch-default>
                                                 <span class='text-muted'>{{schema.title}}：</span>
                                                 <span>{{recommend.obj.data[schema.id]}}</span>
@@ -97,9 +103,9 @@
                                         </div>
                                     </div>
                                     <hr>
-                                    <div>
-                                        <div class='remark_num'>评论 {{recommend.obj.remark_num}}</div>
-                                        <div class='like_num'>赞同 {{recommend.obj.like_num}}</div>
+                                    <div class='footer'>
+                                        <div class='remark_num' ng-click="remarkRecommend(recommend)">评论 {{recommend.obj.remark_num}}</div>
+                                        <div class='like_num' ng-click="likeRecommend(recommend)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':recommend.obj.like_log[mission.user.uid]}"></span> {{recommend.obj.like_num}}</div>
                                     </div>
                                 </div>
                             </div>

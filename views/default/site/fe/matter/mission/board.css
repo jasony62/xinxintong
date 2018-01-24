@@ -322,6 +322,15 @@ nav form label {
     margin-bottom: 8px;
 }
 
+#recommends .glyphicon-thumbs-up.like {
+    color: red;
+}
+
+#recommends .footer {
+    padding: 8px 0;
+}
+
+/* rank */
 #rank .index>div {
     padding-top: 8px;
     padding-bottom: 8px;

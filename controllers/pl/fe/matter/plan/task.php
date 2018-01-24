@@ -70,7 +70,7 @@ class task extends \pl\fe\matter\base {
 		$modelTsk = $this->model('matter\plan\task');
 		$task = $modelTsk->escape($task);
 
-		$oTask = $modelTsk->byId($task, ['fields' => 'id,siteid,state,aid,task_schema_id,last_enroll_at']);
+		$oTask = $modelTsk->byId($task, ['fields' => 'id,siteid,state,aid,task_schema_id,last_enroll_at,userid']);
 		if (false === $oTask && $oTask->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -98,9 +98,6 @@ class task extends \pl\fe\matter\base {
 						$data = $this->updateUserTask($oTask->task_schema_id, $oApp, $oTask, $val);
 						$aUpdated['data'] = $modelApp->escape($modelApp->toJson($data->oCheckData));
 						$aUpdated['score'] = $modelApp->escape($modelApp->toJson($data->oScoreData));
-						break;
-					case 'quizScore':
-						$aUpdated['quizScore'] = $modelApp->escape($val);
 						break;
 				}
 			}
@@ -134,6 +131,7 @@ class task extends \pl\fe\matter\base {
 		$userSite = $this->model('site\fe\way')->who($oApp->siteid);
 		$oCheckData = new \stdClass;
 		$oScoreData = new \stdClass;
+		$fScoreSum = 0; // 所有任务的累积得分
 		foreach ($data as $actionId => $oActionData) {
 			$oAction = $oActionsById->{$actionId};
 			$oAction->siteid = $oTaskSchema->siteid;
@@ -143,7 +141,12 @@ class task extends \pl\fe\matter\base {
 			$oResult = $this->model('matter\plan\action')->setData($userSite, $oAction, $oTask, $oActionData);
 			$oCheckData->{$actionId} = $oResult->dbData;
 			$oScoreData->{$actionId} = $oResult->score;
+			$fScoreSum += $oResult->score->sum;
 		}
+
+		/* 更新用户数据 */
+		$aUsrData = ['last_enroll_at' => time(), 'score' => $fScoreSum];
+		$modelSchTsk->update('xxt_plan_user', $aUsrData, ['aid' => $oApp->id, 'userid' => $oTask->userid]);
 
 		$data = (object) ['oCheckData' => $oCheckData, 'oScoreData' => $oScoreData];
 		return $data;

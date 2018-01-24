@@ -38,7 +38,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($scope, http2, srvRound, $sce) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', function($scope, $sce, http2, LS, srvRound) {
     var oApp, facRound, _oPage, _oCriteria, _oShareableSchemas, userGroups, _items;
     _items = {};
     $scope.schemaCount = 0;
@@ -46,7 +46,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
     $scope.criteria = _oCriteria = { owner: 'all' };
     $scope.schemas = _oShareableSchemas = {};
     $scope.repos = [];
-    $scope.list4Record = function(pageAt) {
+    $scope.recordList = function(pageAt) {
         var url;
         if (pageAt) {
             _oPage.at = pageAt;
@@ -56,7 +56,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         if (_oPage.at == 1) {
             $scope.repos = [];
         }
-        url = '/rest/site/fe/matter/enroll/repos/list4Record?site=' + oApp.siteid + '&app=' + oApp.id;
+        url = LS.j('repos/recordList', 'site', 'app');
         url += '&page=' + _oPage.at + '&size=' + _oPage.size;
         http2.post(url, _oCriteria).then(function(result) {
             _oPage.total = result.data.total;
@@ -69,19 +69,24 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
     }
     $scope.likeRecord = function(oRecord) {
         var url;
-        url = '/rest/site/fe/matter/enroll/record/like';
-        url += '?site=' + oApp.siteid;
+        url = LS.j('record/like', 'site');
         url += '&ek=' + oRecord.enroll_key;
         http2.get(url).then(function(rsp) {
             oRecord.like_log = rsp.data.like_log;
             oRecord.like_num = rsp.data.like_num;
         });
     };
+    $scope.remarkRecord = function(oRecord) {
+        var url;
+        url = LS.j('', 'site', 'app');
+        url += '&ek=' + oRecord.enroll_key;
+        url += '&page=remark';
+        location.href = url;
+    };
     $scope.recommend = function(oRecord, value) {
         var url;
         if (oRecord.agreed !== value) {
-            url = '/rest/site/fe/matter/enroll/record/recommend';
-            url += '?site=' + oApp.siteid;
+            url = LS.j('record/recommend', 'site');
             url += '&ek=' + oRecord.enroll_key;
             url += '&value=' + value;
             http2.get(url).then(function(rsp) {
@@ -129,7 +134,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         }
         $scope.groupOthers = groupOthersById;
         $scope.dataTags = oApp.dataTags;
-        $scope.list4Record(1);
+        $scope.recordList(1);
         $scope.facRound = facRound = srvRound.ins(oApp);
         if (oApp.multi_rounds === 'Y') {
             facRound.list().then(function(result) {

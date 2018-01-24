@@ -104,9 +104,9 @@ class repos extends base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 返回指定登记项的活动登记名单
+	 * 返回指定活动的登记记录的共享内容
 	 */
-	public function list4Record_action($app, $page = 1, $size = 12) {
+	public function recordList_action($app, $page = 1, $size = 12) {
 		$oUser = $this->who;
 
 		// 登记活动

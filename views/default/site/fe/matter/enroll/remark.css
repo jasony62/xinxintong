@@ -17,10 +17,6 @@ blockquote {
 	font-size: 16px;
 }
 
-blockquote p {
-	line-height: 1.5;
-}
-
 button.option {
 	padding: 0;
 }
@@ -29,7 +25,7 @@ button.option {
 	padding-left: 20px;
 }
 
-.glyphicon-heart {
+.glyphicon.like {
 	color: red;
 }
 
@@ -83,7 +79,7 @@ p {
 	flex-grow: 1;
 }
 
-#record .data>div+div {
+#record .data blockquote>div+div {
 	margin-top: 8px;
 }
 

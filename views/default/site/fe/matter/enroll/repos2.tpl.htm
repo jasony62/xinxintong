@@ -18,16 +18,16 @@
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
-                <a href="" class="navbar-brand">
+                <a href class="navbar-brand">
                     <i class="glyphicon glyphicon-edit visible-lg-inline"></i><span>数据共享</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
                 <li class="pull-left">
-                    <a href="" ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline">收藏</span></a>
+                    <a href ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline">收藏</span></a>
                 </li>
                 <li class="pull-left">
-                    <a href="" ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
+                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
                 </li>
             </ul>
         </div>
@@ -38,25 +38,31 @@
                 <div id='repos'>
                     <div class='records'>
                         <div class='record' ng-repeat="rec in repos">
-                            <div>
+                            <div class='header'>
+                                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
                                 <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
-                            </div>
-                            <div class='user'>
-                                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
-                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                                <div class='nickname'>{{rec.nickname}}</div>
+                                <div class='nickname text-muted'>{{rec.nickname}}</div>
                             </div>
                             <div class='data'>
-                                <div class='schema' ng-repeat="schema in schemas" ng-switch on="schema.type">
-                                    <blockquote ng-switch-default>
-                                        <span class='text-muted'>{{schema.title}}：</span>
-                                        <span>{{rec.data[schema.id]}}</span>
-                                    </blockquote>
-                                </div>
+                                <blockquote>
+                                    <div class='schema' ng-repeat="schema in schemas" ng-switch on="schema.type">
+                                        <div class='text-muted data-title'>{{schema.title}}</div>
+                                        <div ng-switch-when="multitext">
+                                            <ul ng-if="rec.data[schema.id]">
+                                                <li ng-repeat="item in rec.data[schema.id].value"><span ng-bind="item.value"></span></li>
+                                            </ul>
+                                        </div>
+                                        <div ng-switch-default>
+                                            <span>{{rec.data[schema.id]}}</span>
+                                        </div>
+                                    </div>
+                                </blockquote>
+                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                             </div>
                             <div class='bottom-bar text-right'>
-                                <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
+                                <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
+                                <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)">评论&nbsp;<span ng-bind="rec.remark_num"></span></button>
                                 <span ng-if="groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])">
                                     <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
                                     <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
@@ -65,7 +71,7 @@
                         </div>
                     </div>
                     <div class='text-center' ng-if="page.total>repos.length">
-                        <button class='btn btn-default' ng-click="list4Schema()">更多 【{{repos.length}}/{{page.total}}】</button>
+                        <button class='btn btn-default' ng-click="recordList()">更多 【{{repos.length}}/{{page.total}}】</button>
                     </div>
                 </div>
             </div>

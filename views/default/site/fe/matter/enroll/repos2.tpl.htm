@@ -79,11 +79,27 @@
                                 <blockquote>
                                     <div class='schema' ng-repeat="schema in schemas" ng-switch on="schema.type">
                                         <div class='text-muted data-title'>{{schema.title}}</div>
+                                        <div ng-switch-when="file">
+                                            <div ng-repeat="file in rec.data[schema.id]">
+                                                <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
+                                                    <source src="{{file.url}}" type="{{file.type}}" />
+                                                </video>
+                                                <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                                    <source src="{{file.url}}" type="{{file.type}}" />
+                                                </audio>
+                                                <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
+                                            </div>
+                                        </div>
+                                        <ul ng-switch-when="image">
+                                            <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
+                                        </ul>
                                         <div ng-switch-when="multitext">
                                             <ul ng-if="rec.data[schema.id]">
                                                 <li ng-repeat="item in rec.data[schema.id].value"><span ng-bind="item.value"></span></li>
                                             </ul>
                                         </div>
+                                        <div ng-switch-when="single"><span>{{value2Label(rec.data[schema.id],schema.id)}}</span></div>
+                                        <div ng-switch-when="multiple"><span>{{value2Label(rec.data[schema.id],schema.id)}}</span></div>
                                         <div ng-switch-default>
                                             <span>{{rec.data[schema.id]}}</span>
                                         </div>

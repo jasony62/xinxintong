@@ -930,7 +930,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 是否需要分组信息
-		$bRequireGroup = $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id);
+		$bRequireGroup = empty($oApp->group_app_id) && $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id);
 
 		$records = $oResult->records;
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';

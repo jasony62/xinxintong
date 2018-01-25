@@ -1118,7 +1118,8 @@ class record extends \pl\fe\matter\base {
 				$one = $i + $columnNum3;
 				// 分数
 				if (isset($oRecScore->{$schema->id})) {
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $oRecScore->{$schema->id}, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+					$cellScore = empty($oRecScore->{$schema->id}) ? 0 : $oRecScore->{$schema->id};
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 				}
 				// 评论数
 				if (isset($remarkables) && in_array($schema->id, $remarkables)) {

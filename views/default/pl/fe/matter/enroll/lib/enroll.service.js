@@ -1000,20 +1000,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }, options);
             };
             _ins.export = function() {
-                var url, params = {
-                    criteria: _ins._oCriteria
-                };
-
+                var url;
                 url = '/rest/pl/fe/matter/enroll/record/export';
-                url += '?site=' + _siteId + '&app=' + _appId + '&rid=' + params.criteria.record.rid;
-                url += '&filter=' + JSON.stringify(params.criteria);
+                url += '?site=' + _siteId + '&app=' + _appId;
+                url += '&filter=' + JSON.stringify(_ins._oCriteria);
                 window.open(url);
             };
             _ins.exportImage = function() {
-                var url, params = {
-                    criteria: _ins._oCriteria
-                };
-
+                var url;
                 url = '/rest/pl/fe/matter/enroll/record/exportImage';
                 url += '?site=' + _siteId + '&app=' + _appId;
                 window.open(url);

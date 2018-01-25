@@ -852,13 +852,16 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 登记数据导出
 	 */
-	public function export_action($site, $app, $rid = '', $filter = '') {
+	public function export_action($site, $app, $filter = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		// 登记活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,data_schemas,assigned_nickname,scenario,enroll_app_id,group_app_id,multi_rounds', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,assigned_nickname,scenario,enroll_app_id,group_app_id,multi_rounds', 'cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			die('指定的对象不存在或者已经不可用');
+		}
 		$schemas = $oApp->dataSchemas;
 
 		// 关联的登记活动
@@ -892,21 +895,17 @@ class record extends \pl\fe\matter\base {
 
 		// 获得所有有效的登记记录
 		$modelRec = $this->model('matter\enroll\record');
-		//选择对应轮次
-		if (!empty($filter)) {
-			$oCriteria = json_decode($filter);
-		} else {
-			$oCriteria = new \stdClass;
-			$oCriteria->record = new \stdClass;
-			$oCriteria->record->rid = new \stdClass;
-			$oCriteria->record->rid = $rid;
-		}
-		$result = $modelRec->byApp($oApp, null, $oCriteria);
-		if ($result->total === 0) {
-			die('record empty');
+
+		// 筛选条件
+		$oCriteria = empty($filter) ? new \stdClass : json_decode($filter);
+		$rid = empty($oCriteria->record->rid) ? '' : $oCriteria->record->rid;
+
+		$oResult = $modelRec->byApp($oApp, null, $oCriteria);
+		if ($oResult->total === 0) {
+			die('导出数据为空');
 		}
 
-		if (!empty($result->records)) {
+		if (!empty($oResult->records)) {
 			$remarkables = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
@@ -914,7 +913,7 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			if (count($remarkables)) {
-				foreach ($result->records as &$oRec) {
+				foreach ($oResult->records as &$oRec) {
 					$modelRem = $this->model('matter\enroll\data');
 					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
 					$oRec->verbose = new \stdClass;
@@ -923,14 +922,14 @@ class record extends \pl\fe\matter\base {
 			}
 		}
 
-		$records = $result->records;
+		$records = $oResult->records;
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
 		// Set properties
-		$objPHPExcel->getProperties()->setCreator("信信通")
-			->setLastModifiedBy("信信通")
+		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
+			->setLastModifiedBy(APP_TITLE)
 			->setTitle($oApp->title)
 			->setSubject($oApp->title)
 			->setDescription($oApp->title);

@@ -159,8 +159,8 @@ define(['frame'], function(ngApp) {
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
-        srvEnrollApp.get().then(function(app) {
-            srvEnrollRecord.init(app, $scope.page, $scope.criteria, $scope.records);
+        srvEnrollApp.get().then(function(oApp) {
+            srvEnrollRecord.init(oApp, $scope.page, $scope.criteria, $scope.records);
             // schemas
             var recordSchemas = [],
                 recordSchemasExt = [],
@@ -168,7 +168,7 @@ define(['frame'], function(ngApp) {
                 bRequireSum = false,
                 bRequireScore = false,
                 groupDataSchemas = [];
-            app.dataSchemas.forEach(function(oSchema) {
+            oApp.dataSchemas.forEach(function(oSchema) {
                 if (oSchema.type !== 'html') {
                     recordSchemas.push(oSchema);
                     recordSchemasExt.push(oSchema);
@@ -187,21 +187,22 @@ define(['frame'], function(ngApp) {
                 }
             });
 
-            $scope.bRequireNickname = app.assignedNickname.valid !== 'Y' || !app.assignedNickname.schema;
+            $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
+            $scope.bRequireGroup = oApp.entry_rule.scope === 'group' && oApp.entry_rule.group && oApp.entry_rule.group.id;
             $scope.bRequireSum = bRequireSum;
             $scope.bRequireScore = bRequireScore;
             $scope.recordSchemas = recordSchemas;
             $scope.recordSchemasExt = recordSchemasExt;
-            if (app._schemasFromEnrollApp) {
-                app._schemasFromEnrollApp.forEach(function(schema) {
+            if (oApp._schemasFromEnrollApp) {
+                oApp._schemasFromEnrollApp.forEach(function(schema) {
                     if (schema.type !== 'html') {
                         enrollDataSchemas.push(schema);
                     }
                 });
             }
             $scope.enrollDataSchemas = enrollDataSchemas;
-            if (app._schemasFromGroupApp) {
-                app._schemasFromGroupApp.forEach(function(schema) {
+            if (oApp._schemasFromGroupApp) {
+                oApp._schemasFromGroupApp.forEach(function(schema) {
                     if (schema.type !== 'html') {
                         groupDataSchemas.push(schema);
                     }

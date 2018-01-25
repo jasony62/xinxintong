@@ -865,7 +865,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,assigned_nickname,scenario,enroll_app_id,group_app_id,multi_rounds', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,enroll_app_id,group_app_id,multi_rounds', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			die('指定的对象不存在或者已经不可用');
 		}
@@ -929,6 +929,9 @@ class record extends \pl\fe\matter\base {
 			}
 		}
 
+		// 是否需要分组信息
+		$bRequireGroup = $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id);
+
 		$records = $oResult->records;
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
@@ -983,6 +986,9 @@ class record extends \pl\fe\matter\base {
 		}
 		if ($bRequireNickname) {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '昵称');
+		}
+		if ($bRequireGroup) {
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '分组');
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '标签');
@@ -1150,6 +1156,10 @@ class record extends \pl\fe\matter\base {
 			// 昵称
 			if ($bRequireNickname) {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->nickname);
+			}
+			// 分组
+			if ($bRequireGroup) {
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecord->group->title) ? $oRecord->group->title : '');
 			}
 			// 备注
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);

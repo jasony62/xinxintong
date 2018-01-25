@@ -24,7 +24,7 @@ class record extends \site\op\base {
 	/**
 	 *
 	 */
-	public function list_action($site, $app, $rid = null, $page = 1, $size = 30, $tags = null, $orderby = null) {
+	public function list_action($site, $app, $page = 1, $size = 30, $tags = null) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
@@ -39,8 +39,6 @@ class record extends \site\op\base {
 		$options = [
 			'page' => $page,
 			'size' => $size,
-			'orderby' => $orderby,
-			'rid' => $rid,
 		];
 
 		$mdoelRec = $this->model('matter\enroll\record');

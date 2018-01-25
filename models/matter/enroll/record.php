@@ -572,7 +572,7 @@ class record_model extends record_base {
 
 		// 根据用户分组过滤
 		if (!empty($oCriteria->record->group_id)) {
-			$w .= " and r.userid='{$oCriteria->record->group_id}'";
+			$w .= " and r.group_id='{$oCriteria->record->group_id}'";
 		}
 
 		// 根据填写人筛选（填写端列表页需要）
@@ -684,13 +684,12 @@ class record_model extends record_base {
 		/**
 		 * 处理获得的数据
 		 */
+		$aGroupsById = []; // 缓存分组数据
 		$aRoundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as $oRec) {
 				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
 				$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
-				$data = str_replace("\n", ' ', $oRec->data);
-				$data = json_decode($data);
 				//测验场景或数值填空题共用score字段
 				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($oRec->score)) {
 					$score = str_replace("\n", ' ', $oRec->score);
@@ -714,6 +713,8 @@ class record_model extends record_base {
 					}
 				}
 
+				$data = str_replace("\n", ' ', $oRec->data);
+				$data = json_decode($data);
 				if ($data === null) {
 					$oRec->data = 'json error(' . json_last_error_msg() . '):' . $oRec->data;
 				} else {
@@ -740,6 +741,21 @@ class record_model extends record_base {
 								}
 							}
 						}
+					}
+				}
+				// 记录的分组
+				if (!empty($oRec->group_id)) {
+					if (!isset($aGroupsById[$oRec->group_id])) {
+						if (!isset($modelGrpRnd)) {
+							$modelGrpRnd = $this->model('matter\group\round');
+						}
+						$oGroup = $modelGrpRnd->byId($oRec->group_id, ['fields' => 'title']);
+						$aGroupsById[$oRec->group_id] = $oGroup;
+					} else {
+						$oGroup = $aGroupsById[$oRec->group_id];
+					}
+					if ($oGroup) {
+						$oRec->group = $oGroup;
 					}
 				}
 				// 记录的登记轮次

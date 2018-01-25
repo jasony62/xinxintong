@@ -135,6 +135,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 windowClass: 'auto-height',
                 backdrop: 'static',
                 resolve: {
+                    app: function() {
+                        return that._oApp;
+                    },
                     dataSchemas: function() {
                         return that._oApp.dataSchemas;
                     },
@@ -1963,9 +1966,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     /**
      * filter
      */
-    ngModule.controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', 'srvEnlRnd', function($scope, $mi, dataSchemas, lastCriteria, srvEnlRnd) {
+    ngModule.controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', 'srvEnlRnd', 'app', function($scope, $mi, dataSchemas, lastCriteria, srvEnlRnd, oApp) {
         var canFilteredSchemas = [];
 
+        if (oApp.entry_rule && oApp.entry_rule.scope === 'group' && oApp.entry_rule.group && oApp.entry_rule.group.id) {
+            $scope.bRequireGroup = true;
+            $scope.groups = oApp.groups;
+        }
         dataSchemas.forEach(function(schema) {
             if (false === /image|file|score|html/.test(schema.type) && schema.id.indexOf('member') !== 0) {
                 canFilteredSchemas.push(schema);

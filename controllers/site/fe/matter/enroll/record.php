@@ -703,7 +703,7 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,data_tag,score,like_num,like_log,remark_num';
+		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,data_tag,score,like_num,like_log,remark_num';
 
 		$oUser = $this->who;
 
@@ -757,9 +757,13 @@ class record extends base {
 			$modelUsr = $this->model('matter\enroll\user');
 			$options = ['fields' => 'group_id'];
 			$oEnrollee = $modelUsr->byId($oApp, $oUser->uid, $options);
-			$oCriteria->record->group_id = isset($oEnrollee->group_id) ? $oEnrollee->group_id : '';
+			if ($oEnrollee) {
+				!isset($oCriteria->record) && $oCriteria->record = new \stdClass;
+				$oCriteria->record->group_id = isset($oEnrollee->group_id) ? $oEnrollee->group_id : '';
+			}
 			break;
 		default:
+			!isset($oCriteria->record) && $oCriteria->record = new \stdClass;
 			$oCriteria->record->userid = $oUser->uid;
 			break;
 		}

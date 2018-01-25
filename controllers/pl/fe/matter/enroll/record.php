@@ -11,7 +11,6 @@ class record extends \pl\fe\matter\base {
 	 */
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'white';
-		$rule_action['actions'][] = 'index';
 		$rule_action['actions'][] = 'get';
 
 		return $rule_action;
@@ -39,6 +38,25 @@ class record extends \pl\fe\matter\base {
 
 		$mdoelRec = $this->model('matter\enroll\record');
 		$record = $mdoelRec->byId($ek, ['verbose' => 'Y']);
+		if ($record) {
+			$modelApp = $this->model('matter\enroll');
+			$oApp = $modelApp->byId($record->aid);
+			$dataSchemas = new \stdClass;
+			foreach ($oApp->dataSchemas as $schema) {
+				$dataSchemas->{$schema->id} = $schema;
+			}
+			foreach ($record->data as $k => $data) {
+				if (isset($dataSchemas->{$k}) && $dataSchemas->{$k}->type === 'multitext') {
+					$verboseVals = json_decode($record->verbose->{$k}->value);
+					$items = [];
+					foreach ($verboseVals as $verboseVal) {
+						$res = $this->model('matter\enroll\data')->byId($verboseVal->id);
+						$items[] = $res;
+					}
+					$record->verbose->{$k}->items = $items;
+				}
+			}
+		}
 
 		return new \ResponseData($record);
 	}
@@ -1083,6 +1101,16 @@ class record extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				case 'shorttext':
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				case 'multitext':
+					if (is_array($v)) {
+						$values = [];
+						foreach ($v as $val) {
+							$values[] = $val->value;
+						}
+						$v = implode(',', $values);
+					}
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				default:

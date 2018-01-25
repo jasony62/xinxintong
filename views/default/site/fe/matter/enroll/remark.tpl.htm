@@ -18,16 +18,16 @@
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
-                <a href="" class="navbar-brand">
-                    <i class="glyphicon glyphicon-comment visible-lg-inline"></i><span>评论页</span>
+                <a href class="navbar-brand">
+                    <i class="glyphicon glyphicon-comment visible-lg-inline"></i> <span>评论页</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
                 <li class="pull-left">
-                    <a href="" ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline">收藏</span></a>
+                    <a href ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline">收藏</span></a>
                 </li>
                 <li class="pull-left">
-                    <a href="" ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
+                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
                 </li>
             </ul>
         </div>
@@ -35,55 +35,72 @@
     <div ng-cloak class='ng-cloak app' ng-controller="ctrlRemark">
         <div class='container'>
             <div class='row'>
-                <div id='recordData'>
-                    <div class='title'>
-                        <div class="btn-group pull-right" uib-dropdown ng-if="bRequireOption">
-                            <button class="option" uib-dropdown-toggle>
+                <div id='record'>
+                    <div class='title text-right' ng-if="bRequireOption">
+                        <div class="btn-group" uib-dropdown>
+                            <button class="option btn btn-default" uib-dropdown-toggle>
                                 <span class="glyphicon glyphicon-option-vertical"></span>
                             </button>
                             <ul class="dropdown-menu" uib-dropdown-menu>
                                 <li>
-                                    <a href='' ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</a>
-                                </li>
-                                <li>
-                                    <a href='' ng-click="openOptions()" ng-if="remarkableSchemas.length">查看其他题目</a>
+                                    <a href ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</a>
                                 </li>
                             </ul>
                         </div>
-                        <span>{{filter.schema.title}}</span>
                     </div>
-                    <blockquote ng-switch on="filter.schema.type">
-                        <p ng-switch-when="single"><span>{{value2Label(filter.schema.id)}}</span></p>
-                        <p ng-switch-when="multiple"><span>{{value2Label(filter.schema.id)}}</span></p>
-                        <ul ng-switch-when="image">
-                            <li ng-repeat="img in data.value.split(',')"><img ng-src="{{img}}" /></li>
-                        </ul>
-                        <div ng-switch-when="file">
-                            <div ng-repeat="file in data.value">
-                                <p><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></p>
-                                <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
-                                    <source src="{{file.url}}" type="{{file.type}}" />
-                                </video>
-                                <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
-                                    <source src="{{file.url}}" type="{{file.type}}" />
-                                </audio>
-                                <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
-                            </div>
-                        </div>
-                        <p ng-switch-default>{{data.value}}</p>
-                        <p ng-if="filter.schema.cantag==='Y'">
-                            <span class="tag" ng-repeat="t in data.tag" ng-bind="t.label"></span>
-                        </p>
-                        <p ng-if="filter.schema.supplement==='Y'" class='supplement'>{{data.supplement}}</p>
-                        <footer>{{record.nickname||'匿名用户'}}</footer>
-                    </blockquote>
-                    <div class='bottom-bar'>
+                    <div class='user text-muted'>
+                        <div class='nickname'>{{record.nickname||'匿名用户'}}</div>
                         <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                        <button class='btn btn-default btn-sm' ng-click="likeRecordData(record)"><span class='glyphicon' ng-class="{'glyphicon-heart':data.like_log[user.uid],'glyphicon-heart-empty':!data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>&nbsp;&nbsp;
-                        <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>&nbsp;&nbsp;
-                        <div ng-if="params.groupUser.is_leader==='Y'&&groupOthers[record.userid]">
-                            <button ng-if="data.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(data,'Y')">推荐</button>
-                            <button ng-if="data.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(data,'')">取消推荐</button>
+                    </div>
+                    <hr>
+                    <div class='data'>
+                        <blockquote>
+                            <div ng-repeat="schema in visibleSchemas" ng-switch on="schema.type">
+                                <div class='text-muted data-title'>{{schema.title}}</div>
+                                <ul ng-switch-when="image">
+                                    <li ng-repeat="img in record.verbose[schema.id].value"><img ng-src="{{img}}" /></li>
+                                </ul>
+                                <div ng-switch-when="file">
+                                    <div ng-repeat="file in record.verbose[schema.id].value">
+                                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                                            <source src="{{file.url}}" type="{{file.type}}" />
+                                        </video>
+                                        <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                            <source src="{{file.url}}" type="{{file.type}}" />
+                                        </audio>
+                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
+                                    </div>
+                                </div>
+                                <div ng-switch-when="multitext">
+                                    <ul ng-if="record.verbose[schema.id].multitext_seq == 0">
+                                        <li ng-repeat="item in record.verbose[schema.id].value"><span ng-bind="item.value"></span></li>
+                                    </ul>
+                                    <span ng-if="record.verbose[schema.id].multitext_seq > 0" ng-bind="record.verbose[schema.id].value"></span>
+                                </div>
+                                <div ng-switch-default>
+                                    <span>{{record.verbose[schema.id].value}}</span>
+                                </div>
+                                <div ng-if="schema.cantag==='Y'">
+                                    <span class="tag" ng-repeat="t in record.verbose[schema.id].tag" ng-bind="t.label"></span>
+                                </div>
+                                <div ng-if="schema.supplement==='Y'" class='supplement'>{{record.verbose[schema.id].supplement}}</div>
+                            </div>
+                        </blockquote>
+                    </div>
+                    <div class='bottom-bar' ng-if="bRemarkRecord">
+                        <button class='btn btn-default btn-sm' ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':record.like_log[user.uid]}"></span>&nbsp;<span ng-bind="record.like_num"></span></button>
+                        <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>
+                        <div ng-if="params.groupUser.is_leader==='Y'&&(record.userid===params.groupUser.userid||groupOthers[record.userid])">
+                            <button ng-if="record.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend('Y')">推荐</button>
+                            <button ng-if="record.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend('')">取消推荐</button>
+                        </div>
+                    </div>
+                    <div class='bottom-bar' ng-if="!bRemarkRecord">
+                        <button class='btn btn-default btn-sm' ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>
+                        <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>
+                        <div ng-if="params.groupUser.is_leader==='Y'&&(record.userid===params.groupUser.userid||groupOthers[record.userid])">
+                            <button ng-if="data.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend('Y')">推荐</button>
+                            <button ng-if="data.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend('')">取消推荐</button>
                         </div>
                     </div>
                 </div>
@@ -100,7 +117,7 @@
                             </blockquote>
                             <div class='bottom-bar'>
                                 <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
-                                <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>&nbsp;&nbsp;&nbsp;
+                                <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
                                 <button ng-if="params.actionRule.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark(remark)"><span class='glyphicon glyphicon-share-alt'></span></button>
                             </div>
                         </div>
@@ -109,11 +126,8 @@
                         <div class='alert alert-info' ng-switch-when="sns">需要<a href='' class='alert-link' ng-click="askFollowSns()">关注公众号</a>后才能发表评论</div>
                         <div class='alert alert-info' ng-switch-when="member">需要<a href='' class='alert-link' ng-click="askBecomeMember()">填写联系人信息</a>后才能发表评论</div>
                     </div>
-                    <div class='input-group' ng-if="params.actionRule.passed==='Y'" ng-click="writeRemark()">
-                        <p class='form-control'>添加评论</p>
-                        <div class='input-group-btn'>
-                            <button class='btn btn-default'><span class="glyphicon glyphicon-share-alt"></span></button>
-                        </div>
+                    <div class='text-center' ng-if="params.actionRule.passed==='Y'">
+                        <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-plus'></span> 添加评论</button>
                     </div>
                 </div>
             </div>
@@ -124,18 +138,6 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <script type="text/ng-template" id="options.html">
-        <div class="modal-body">
-            <div class='form-group' ng-if="remarkableSchemas.length">
-                <label>选择当前记录的其他题目</label>
-                <select class='form-control' ng-options="rs.title for rs in remarkableSchemas" ng-model="data.schema"></select>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" ng-click="cancel()">关闭</button>
-            <button class="btn btn-default" ng-click="ok()">完成</button>
-        </div>
-    </script>
     <script type="text/ng-template" id="writeRemark.html">
         <div class="modal-body">
             <textarea class='form-control' rows=8 placeholder='请输入评论内容' autofocus ng-model="data.content"></textarea>
@@ -147,12 +149,14 @@
     </script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/remark.js');?>"></script>
     <div class="tms-switch tms-switch-back" ng-click="back()" ng-if="historyLen()"></div>
     <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
     <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
+    <div class="tms-switch tms-switch-app" ng-click="gotoApp($event)"></div>
 </body>
 
 </html>

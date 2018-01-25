@@ -33,7 +33,6 @@
                         <th ng-if="app.scenario==='voting'" style='width:80px'>平均分数</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
-                        <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
                         <th style='width:4em'>操作</th>
                     </tr>
                 </thead>
@@ -46,31 +45,40 @@
                         <td>{{r._state}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td ng-repeat="c in recordSchemas">
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='multitext'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
                             <span ng-if="c.type==='file'">
                                 <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <div ng-if="c.type==='multitext'">
+                                <p ng-repeat='item in r._data[c.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                         </td>
                         <td class='matched enroll' ng-repeat="c in enrollDataSchemas">
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='multitext'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
                             <span ng-if="c.type==='file'">
                                 <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <div ng-if="c.type==='multitext'">
+                                <p ng-repeat='item in r._data[c.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                         </td>
                         <td class='matched group' ng-repeat="c in groupDataSchemas">
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'&&c.type!=='multitext'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
                             <span ng-if="c.type==='file'">
                                 <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
+                            <div ng-if="c.type==='multitext'">
+                                <p ng-repeat='item in r._data[c.id]'><span ng-bind="item.value"></span></p>
+                            </div>
                         </td>
                         <td>{{r.nickname}}</td>
                         <td>{{r.verified}}</td>
@@ -78,7 +86,6 @@
                         <td ng-if="app.scenario==='voting'">{{r._average|number:2}}</td>
                         <td ng-if="app.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
-                        <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
                         <td>
                             <button class='btn btn-xs btn-default' ng-click='restore(r)'>恢复</button>
                         </td>

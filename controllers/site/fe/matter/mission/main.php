@@ -32,7 +32,7 @@ class main extends \site\fe\matter\base {
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
-
+		$oMission->user = $oUser;
 		/**
 		 * 如果项目指定了分组活动作为项目的用户名单，获得当前用户所属的分组，是否为组长，及同组成员
 		 */

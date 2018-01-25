@@ -46,13 +46,25 @@ class user_model extends \TMS_MODEL {
 	 * 删除1条记录
 	 */
 	public function removeRecord($oApp, $oRecord) {
-		if (empty($oApp->id) || empty($oRecord->userid) || !isset($oRecord->rid)) {
+		if (empty($oApp->id) || empty($oRecord->enroll_key) || empty($oRecord->userid) || !isset($oRecord->rid)) {
 			return [false, '参数不完整'];
+		}
+		$oRecord2 = $this->model('matter\enroll\record')->byId($oRecord->enroll_key, ['score']);
+		if (false === $oRecord2) {
+			return [false, '记录不存在'];
+		}
+		/* 记录得分 */
+		$score = 0;
+		if (isset($oRecord2->score->sum)) {
+			$score = $oRecord2->score->sum;
 		}
 
 		$rst = $this->update(
 			'xxt_enroll_user',
-			['enroll_num' => (object) ['op' => '-=', 'pat' => 1]],
+			[
+				'enroll_num' => (object) ['op' => '-=', 'pat' => 1],
+				'score' => (object) ['op' => '-=', 'pat' => $score],
+			],
 			['aid' => $oApp->id, 'userid' => $oRecord->userid, 'rid' => [$oRecord->rid, 'ALL'], 'enroll_num' => (object) ['op' => '>', 'pat' => 0]]
 		);
 
@@ -62,14 +74,24 @@ class user_model extends \TMS_MODEL {
 	 * 恢复1条记录
 	 */
 	public function restoreRecord($oApp, $oRecord) {
-		if (empty($oApp->id) || empty($oRecord->userid) || !isset($oRecord->rid)) {
+		if (empty($oApp->id) || empty($oRecord->enroll_key) || empty($oRecord->userid) || !isset($oRecord->rid)) {
 			return [false, '参数不完整'];
+		}
+		$oRecord2 = $this->model('matter\enroll\record')->byId($oRecord->enroll_key, ['score']);
+		if (false === $oRecord2) {
+			return [false, '记录不存在'];
+		}
+		/* 记录得分 */
+		$score = 0;
+		if (isset($oRecord2->score->sum)) {
+			$score = $oRecord2->score->sum;
 		}
 
 		$rst = $this->update(
 			'xxt_enroll_user',
 			[
 				'enroll_num' => (object) ['op' => '+=', 'pat' => 1],
+				'score' => (object) ['op' => '+=', 'pat' => $score],
 				'state' => 1,
 			],
 			['aid' => $oApp->id, 'userid' => $oRecord->userid, 'rid' => [$oRecord->rid, 'ALL']]

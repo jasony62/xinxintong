@@ -101,6 +101,10 @@
             </div>
             <div class='checkbox'>
                 <label>
+                    <input type='checkbox' ng-true-value="'R'" ng-false-value="'D'" ng-model="app.repos_unit" ng-change="update('repos_unit')">共享页中记录整体显示（默认按题目显示）</label>
+            </div>
+            <div class='checkbox'>
+                <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_rank" ng-change="update('can_rank')">开放排行页</label>
             </div>
             <div class='checkbox'>
@@ -112,7 +116,7 @@
     <div id='main-access' class='panel panel-default' ng-controller='ctrlAccess'>
         <div class='panel-body'>
             <div class='form-group'>
-                <label>设置进入条件</label>
+                <label>设置进入规则</label>
                 <div class='radio'>
                     <label>
                         <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
@@ -297,26 +301,6 @@
             </div>
         </script>
     </div>
-    <div id='main-5' class='panel panel-default'>
-        <div class='panel-body'>
-            <div class='form-group'>
-                <label>要求每用户至少填写记录条数（0或空代表无限制）</label>
-                <input type='text' class='form-control' ng-model='app.userTask.minEnrollNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
-            </div>
-            <div class='form-group'>
-                <label>要求每用户至少发表评论条数（0或空代表无限制）</label>
-                <input type='text' class='form-control' ng-model='app.userTask.minRemarkNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
-            </div>
-            <div class='form-group'>
-                <label>要求每用户至少赞同的条数（0或空代表无限制）</label>
-                <input type='text' class='form-control' ng-model='app.userTask.minLikeNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
-            </div>
-            <div class='form-group'>
-                <label>要求每用户最多赞同的条数（0或空代表无限制）</label>
-                <input type='text' class='form-control' ng-model='app.userTask.maxLikeNum' tms-auto-update tms-wait=1000 tms-update="update('userTask')">
-            </div>
-        </div>
-    </div>
     <div class='form-group'>
         <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">生成模版</button>
         <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出模版</button>
@@ -331,6 +315,5 @@
         <li><a href="#main-time">时间设置</a></li>
         <li><a href="#main-3">特性设置</a></li>
         <li><a href="#main-access">进入规则</a></li>
-        <li><a href="#main-5">任务设置</a></li>
     </ul>
 </div>

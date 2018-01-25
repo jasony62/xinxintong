@@ -19,7 +19,7 @@
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
-                    <i class="glyphicon glyphicon-signal visible-lg-inline"></i><span>数据排行</span>
+                    <i class="glyphicon glyphicon-signal visible-lg-inline"></i> <span>数据排行</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -48,7 +48,7 @@
                 <div class='col-md-2' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']">
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
-                        <option value='group' ng-if="app.group_app_id">用户分组</option>
+                        <option value='group' ng-if="app.group_app_id||app.entry_rule.scope==='group'">用户分组</option>
                         <option value='data' ng-if="isRemark">提交内容</option>
                         <option value='data-rec' ng-if="isRemark">提交内容-推荐</option>
                         <option value='remark' ng-if="isRemark">内容评论</option>
@@ -129,7 +129,7 @@
                             <div class='col-md-3'>用户</div>
                             <div class='col-md-2'>数量</div>
                         </li>
-                        <li ng-repeat="rec in records" class='record' ng-click="gotoRemark(rec.enroll_key,rec.schema_id)">
+                        <li ng-repeat="rec in records" class='record' ng-click="gotoRemark(rec.enroll_key,rec.schema_id, rec.id)">
                             <div class="visible-xs">
                                 <div class='col-xs-1'>
                                     <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
@@ -178,6 +178,9 @@
                                     </p>
                                     <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='text-left content'>{{rec.supplement}}</span>
                                 </div>
+                                <div ng-switch-when="multitext">
+                                    <p ng-repeat="item in rec.value"><span ng-bind="item.value"></span></p>
+                                </div>
                                 <div ng-switch-when="date"><span class='content'>{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</span></div>
                                 <div ng-switch-default><span class='content'>{{rec.value}}</span></div>
                                 <div class='col-xs-12 col-xs-12 text-right text-color visible-xs hidden' ng-click='showStr($event)'>展开&nbsp;&or;</div>
@@ -196,7 +199,7 @@
                             <div class='col-md-3'>用户</div>
                             <div class='col-md-2'>数量</div>
                         </li>
-                        <li ng-repeat="rec in recordsRec" class='record' ng-click="gotoRemark(rec.enroll_key,rec.schema_id)">
+                        <li ng-repeat="rec in recordsRec" class='record' ng-click="gotoRemark(rec.enroll_key,rec.schema_id, rec.id)">
                             <div class="visible-xs">
                                 <div class='col-xs-1' style="z-index:100">
                                     <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
@@ -246,6 +249,14 @@
                                     </p>
                                     <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='content text-left'>{{rec.supplement}}</span>
                                 </div>
+                                <div ng-switch-when="multitext">
+                                    <div ng-if="rec.multitext_seq=='0'">
+                                        <p ng-repeat="item in rec.value"><span ng-bind="item.value"></span></p>
+                                    </div>
+                                    <div ng-if="rec.multitext_seq!='0'">
+                                        <span ng-bind="rec.value"></span>
+                                    </div>
+                                </div>
                                 <div ng-switch-when="date"><span class='content'></span>{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</div>
                                 <div ng-switch-default><span class='content'>{{rec.value}}</span></div>
                                 <div class='col-xs-12 text-right text-color visible-xs hidden' ng-click='showStr($event)'>展开&nbsp;&or;</div>
@@ -265,7 +276,7 @@
                             <div class='col-md-3'>用户</div>
                             <div class='col-md-2'>赞同数</div>
                         </li>
-                        <li ng-repeat="rem in remarks" class='record' ng-click="gotoRemark(rem.enroll_key,rem.schema_id,rem.id)">
+                        <li ng-repeat="rem in remarks" class='record' ng-click="gotoRemark(rem.enroll_key,rem.schema_id,rem.data_id,rem.id)">
                             <div class="visible-xs">
                                 <div class='col-xs-1'>
                                     <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
@@ -300,7 +311,7 @@
                             <div class='col-md-3'>用户</div>
                             <div class='col-md-2'>赞同数</div>
                         </li>
-                        <li ng-repeat="rem in remarksRec" class='record' ng-click="gotoRemark(rem.enroll_key,rem.schema_id,rem.id)">
+                        <li ng-repeat="rem in remarksRec" class='record' ng-click="gotoRemark(rem.enroll_key,rem.schema_id,rem.data_id,rem.id)">
                             <div class="visible-xs">
                                 <div class='col-xs-1' style="z-index:100">
                                     <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
@@ -368,10 +379,12 @@
     </script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/rank.js');?>"></script>
     <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
+    <div class="tms-switch tms-switch-app" ng-click="gotoApp($event)"></div>
 </body>
 
 </html>

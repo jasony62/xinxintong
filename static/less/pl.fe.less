@@ -1,23 +1,14 @@
 @import "pl.fe.base.less";
 
 body {
-    font-family: Microsoft Yahei, Arial;
     background: @body-bg;
 }
 
-.ng-cloak {
-    display: none;
+body, pre, code {
+    font-family: Arial, 'Microsoft YaHei'
 }
 
-.pl-workspace {
-    background: @workspace-bg;
-}
-
-.navbar .container-fluid .navbar-form:first-child {
-    padding-left: 0;
-}
-
-/*table*/
+/* table */
 td[ng-click] {
     cursor: pointer;
 }
@@ -33,6 +24,36 @@ table.table {
 
 .th-action.active .glyphicon {
     color: #09f;
+}
+
+.ng-cloak {
+    display: none;
+}
+
+.pl-workspace {
+    background: @workspace-bg;
+}
+
+/* navbar */
+.navbar {
+    border-radius:0
+    .container-fluid {
+        padding-left: 0;
+
+        .navbar-form:first-child {
+            padding-left: 0;
+        }
+
+    }
+
+}
+
+.navbar-nav.navbar-right:last-child {
+    margin-right: 0
+}
+
+.navbar.tms-large {
+    font-size: 18px;
 }
 
 /*global-navbar*/
@@ -278,4 +299,284 @@ table.table {
         vertical-align: middle;
     }
 
+}
+
+/*notice box*/
+@keyframes noticeprogress {
+    0% {
+        left: 0;
+    }
+
+    100% {
+        left: 100%;
+    }
+
+}
+
+@-webkit-keyframes noticeprogress {
+    0% {
+        left: 0;
+    }
+
+    100% {
+        left: 100%;
+    }
+
+}
+
+.notice-box {
+    position: fixed;
+    width: 50%;
+    top: 0px;
+    left: 50%;
+    margin-left: -25%;
+    overflow: hidden;
+    z-index: 3999;
+    text-align: center;
+    word-break: break-all
+}
+
+.notice-box.alert-progress {
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+
+.notice-box.alert-progress:after {
+    animation: noticeprogress 2s infinite;
+    animation-timing-function: linear;
+    -webkit-animation: noticeprogress 3s infinite;
+    -webkit-animation-timing-function: linear;
+    content: '';
+    display: inline-block;
+    position: absolute;
+    width: 36px;
+    height: 6px;
+    background: #337ab7;
+    bottom: -3px;
+    left: 0;
+    border-radius: 3px;
+}
+
+.notice-box pre {
+    background: rgba(0, 0, 0, 0);
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+@media screen and (min-device-height:768px) {
+    .notice-box pre {
+        max-height: 600px;
+    }
+
+}
+
+/*modal*/
+.modal.auto-height .modal-dialog, .modal.auto-height .modal-dialog.modal-lg {
+    width: 900px;
+    left: 50%;
+    margin-left: -450px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+
+.modal.auto-height.middle-width .modal-dialog.modal-lg {
+    width: 600px;
+    margin-left: -300px;
+}
+
+.modal.auto-height.full-width .modal-dialog {
+    width: 98%;
+    left: 50%;
+    margin-left: -49%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+
+.modal.auto-height .modal-dialog .modal-content {
+    height: 100%
+}
+
+.modal.auto-height .modal-dialog .modal-content .modal-body {
+    position: absolute;
+    top: 65px;
+    bottom: 65px;
+    left: 0;
+    right: 0;
+    overflow: auto
+}
+
+.modal.auto-height .modal-dialog .modal-content .modal-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-top: 0
+}
+
+@media screen and (max-width:768px) {
+    .modal.auto-height .modal-dialog, .modal.auto-height .modal-dialog.modal-lg {
+        width: 100%;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        margin-left: 0;
+    }
+
+}
+
+/* media gallery*/
+.modal.media-gallery {
+    display: none;
+}
+
+.modal.media-gallery .modal-dialog {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    margin-left: -450px
+}
+
+.modal.media-gallery .modal-dialog .modal-content {
+    height: 100%
+}
+
+.modal.media-gallery .modal-dialog .modal-content .modal-body {
+    position: absolute;
+    top: 52px;
+    bottom: 0;
+    left: 0;
+    right: 0
+}
+
+/* tree */
+.tree {
+    border: 0 none transparent;
+    margin: 0;
+    padding: 0
+}
+
+.tree li.treenode {
+    list-style-type: none;
+    margin: 0;
+    padding: 10px 5px 0 25px;
+    position: relative
+}
+
+.tree li.treenode::before, .tree li.treenode::after {
+    content: '';
+    left: 0px;
+    position: absolute;
+    right: auto
+}
+
+.tree li.treenode::before {
+    border-left: 1px solid #999;
+    bottom: -25px;
+    top: 0px;
+    width: 1px
+}
+
+.tree li.treenode::after {
+    border-top: 1px solid #999;
+    height: 20px;
+    top: 25px;
+    width: 25px
+}
+
+.tree>li.treenode:first-child::before {
+    top: 0
+}
+
+.tree li.treenode:last-child::before {
+    height: 25px
+}
+
+.tree ol.pregnant {
+    padding-left: 16px
+}
+
+/*combox*/
+.combox>.form-control {
+    padding: 3px 12px
+}
+
+.combox .selected {
+    display: inline-block;
+    font-size: 100%;
+    font-weight: 400;
+    margin-right: 4px;
+    padding: 4px 4px;
+    vertical-align: middle
+}
+
+.combox .selected button.close {
+    float: none;
+    color: #FFFFFF;
+    font-weight: 400;
+    opacity: 1;
+    margin-left: 4px;
+    font-size: 130%
+}
+
+.combox .dropdown-menu .options {
+    max-height: 150px;
+    overflow-y: auto
+}
+
+.combox .dropdown-menu .actions {
+    margin: 4px 4px 0 0
+}
+
+.combox .dropdown-menu .actions button {
+    padding: 4px 12px
+}
+
+.combox .dropdown-menu .checkbox {
+    position: relative;
+    display: block;
+    clear: both;
+    padding: 3px 20px;
+    margin: 0 10px;
+    white-space: nowrap
+}
+
+.combox .dropdown-menu .checkbox label {
+    display: inline-block;
+    width: 100%;
+    min-height: 20px;
+    padding-left: 0px;
+    margin-bottom: 0px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.combox .dropdown-menu .checkbox:hover {
+    background-color: #F5F5F5
+}
+
+.combox .dropdown-menu .checkbox input[type="checkbox"] {
+    position: absolute;
+    margin-left: -20px;
+}
+
+/*tms-datepicker*/
+.tms-datepicker>div {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: 0;
+}
+
+.tms-datepicker>.input-group-btn>.btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0
 }

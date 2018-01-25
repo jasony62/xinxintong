@@ -41,7 +41,7 @@
                             <span class="site_fe_home site_fe_home_icon xxt_person"></span>
                             <span ng-bind="user.nickname"></span>
                         </a>
-                        <ul class="dropdown-menu" role="menu">
+                        <ul class="dropdown-menu hidden-xs" role="menu">
                             <li>
                                 <a href='/rest/pl/fe' target='_self'>
                                     <span class="site_fe_home site_fe_home_icon xxt_person_index"></span>我的工作台
@@ -59,6 +59,17 @@
                             </li>
                         </ul>
                     </div>
+                    <ul class="dropdown-menu visible-xs-block">
+                        <li>
+                            <a href='/rest/pl/fe' target='_self'>我的工作台</a>
+                        </li>
+                        <li>
+                            <a href='/rest/site/fe/user?site=platform' target='_self'>账号信息设置</a>
+                        </li>
+                        <li>
+                            <a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>退出登录</a>
+                        </li>
+                    </ul>
                 </form>
             </div>
         </div>

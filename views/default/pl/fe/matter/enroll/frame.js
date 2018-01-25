@@ -106,6 +106,11 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
         })();
     }]);
     ngApp.controller('ctrlFrame', ['$scope', 'CstNaming', 'cstApp', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function($scope, CstNaming, cstApp, srvSite, srvEnrollApp, templateShop, $location) {
+        $scope.isSmallLayout = false;
+        if (window.screen && window.screen.width < 768) {
+            $scope.isSmallLayout = true;
+        }
+        $scope.isNavCollapsed = $scope.isSmallLayout;
         $scope.cstApp = cstApp;
         $scope.scenarioes = {
             names: CstNaming.scenario.enroll,
@@ -146,7 +151,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             $location.path(url).hash(hash || '');
         };
         $scope.update = function(name) {
-            srvEnrollApp.update(name);
+            return srvEnrollApp.update(name);
         };
         $scope.shareAsTemplate = function() {
             templateShop.share($scope.app.siteid, $scope.app).then(function(template) {

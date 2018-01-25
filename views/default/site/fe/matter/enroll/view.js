@@ -2,7 +2,7 @@
 require('./view.css');
 
 var ngApp = require('./main.js');
-ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
+ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
     var Record, _ins, _deferredRecord;
     Record = function(oApp) {
         var data = {}; // 初始化空数据，优化加载体验
@@ -15,14 +15,10 @@ ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
         };
     };
     Record.prototype.remove = function(record) {
-        var deferred = $q.defer(),
-            url;
+        var url;
         url = LS.j('record/remove', 'site', 'app');
         url += '&ek=' + record.enroll_key;
-        http2.get(url).then(function(rsp) {
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
+        return http2.get(url);
     };
     return {
         ins: function(oApp) {
@@ -34,7 +30,7 @@ ngApp.factory('Record', ['http2', '$q', 'ls', function(http2, $q, LS) {
         }
     };
 }]);
-ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
+ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noticebox', function($scope, Record, LS, $sce, noticebox) {
     var facRecord;
 
     $scope.value2Label = function(schemaId) {
@@ -73,7 +69,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
     $scope.editRecord = function(event, page) {
         if ($scope.app.can_cowork && $scope.app.can_cowork !== 'Y') {
             if ($scope.user.uid !== facRecord.current.userid) {
-                alert('不允许修改他人提交的数据');
+                noticebox.warn('不允许修改他人提交的数据');
                 return;
             }
         }
@@ -94,7 +90,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
     $scope.removeRecord = function(event, page) {
         if ($scope.app.can_cowork && $scope.app.can_cowork !== 'Y') {
             if ($scope.user.uid !== facRecord.current.userid) {
-                alert('不允许删除他人提交的数据');
+                noticebox.warn('不允许删除他人提交的数据');
                 return;
             }
         }
@@ -107,7 +103,11 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scop
         $scope.Record = facRecord = Record.ins(app);
     });
 }]);
-ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($scope, $timeout, LS, Record) {
+ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Record', function($scope, LS, http2, noticebox, Record) {
+    function fnGetRecord() {
+        return http2.get(LS.j('record/get', 'site', 'app', 'ek'));
+    }
+
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
@@ -122,58 +122,53 @@ ngApp.controller('ctrlView', ['$scope', '$timeout', 'ls', 'Record', function($sc
         }
     }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var oApp = params.app,
-            dataSchemas = params.app.dataSchemas,
-            aRemarkableSchemas = [],
-            oRecord, facRecord;
+        var oApp, dataSchemas, facRecord;
 
+        oApp = params.app;
+        dataSchemas = params.app.dataSchemas;
         facRecord = Record.ins(oApp);
-        if (!params.record) {
-            fnDisableActions();
-            alert('访问的数据不存在，请检查链接是否有效');
-            return;
-        }
-        facRecord.current = oRecord = params.record;
-        dataSchemas.forEach(function(oSchema) {
-            if (oSchema.remarkable && oSchema.remarkable === 'Y') {
-                aRemarkableSchemas.push(oSchema);
-                var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
-                if (domWrap) {
-                    domWrap.classList.add('remarkable');
-                    domWrap.addEventListener('click', function() {
-                        var url = LS.j('', 'site', 'app');
-                        url += '&ek=' + oRecord.enroll_key;
-                        url += '&schema=' + oSchema.id;
-                        url += '&page=remark';
-                        location.href = url;
-                    }, true);
+
+        fnGetRecord().then(function(rsp) {
+            var schemaId, domWrap, aRemarkableSchemas, oRecord;
+            facRecord.current = oRecord = rsp.data;
+            facRecord.current.tag = facRecord.current.data_tag ? facRecord.current.data_tag : {};
+            aRemarkableSchemas = [];
+            if (oApp.repos_unit === 'D') {
+                dataSchemas.forEach(function(oSchema) {
+                    if (oSchema.remarkable && oSchema.remarkable === 'Y') {
+                        aRemarkableSchemas.push(oSchema);
+                        var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
+                        if (domWrap) {
+                            domWrap.classList.add('remarkable');
+                            domWrap.addEventListener('click', function() {
+                                var url = LS.j('', 'site', 'app');
+                                url += '&page=remark';
+                                url += '&ek=' + oRecord.enroll_key;
+                                url += '&schema=' + oSchema.id;
+                                url += '&data=' + oRecord.verbose[oSchema.id].id;
+                                location.href = url;
+                            }, true);
+                        }
+                    }
+                });
+                if (oRecord.verbose) {
+                    aRemarkableSchemas.forEach(function(oSchema) {
+                        var num;
+                        if (domWrap = document.querySelector('[schema=' + oSchema.id + ']')) {
+                            num = oRecord.verbose[oSchema.id] ? oRecord.verbose[oSchema.id].remark_num : 0;
+                            domWrap.setAttribute('data-remark', num);
+                        }
+                    });
+                }
+            }
+            /* disable actions */
+            if (oApp.end_submit_at > 0 && parseInt(oApp.end_submit_at) < (new Date * 1) / 1000) {
+                fnDisableActions();
+            } else if ((oApp.can_cowork && oApp.can_cowork !== 'Y')) {
+                if (params.user.uid !== oRecord.userid) {
+                    fnDisableActions();
                 }
             }
         });
-        facRecord.current.tag = params.record.data_tag ? params.record.data_tag : {};
-        /* disable actions */
-        if (oApp.end_submit_at > 0 && parseInt(oApp.end_submit_at) < (new Date * 1) / 1000) {
-            fnDisableActions();
-        } else if ((oApp.can_cowork && oApp.can_cowork !== 'Y')) {
-            if (params.user.uid !== oRecord.userid) {
-                fnDisableActions();
-            }
-        }
-        var schemaId, domWrap;
-        if (oRecord.verbose) {
-            aRemarkableSchemas.forEach(function(oSchema) {
-                var num;
-                if (domWrap = document.querySelector('[schema=' + oSchema.id + ']')) {
-                    num = oRecord.verbose[oSchema.id] ? oRecord.verbose[oSchema.id].remark_num : 0;
-                    domWrap.setAttribute('data-remark', num);
-                }
-            });
-        }
-        if (!params.user.unionid) {
-            // var domTip = document.querySelector('#appLoginTip');
-            // var evt = document.createEvent("HTMLEvents");
-            // evt.initEvent("show", false, false);
-            // domTip.dispatchEvent(evt);
-        }
     });
 }]);

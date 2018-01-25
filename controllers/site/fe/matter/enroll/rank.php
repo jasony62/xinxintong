@@ -103,14 +103,25 @@ class rank extends base {
 	 */
 	public function groupByApp_action($app) {
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false) {
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'id,state,entry_rule,data_schemas,group_app_id']);
+		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
-		foreach ($oApp->dataSchemas as $oSchema) {
-			if ($oSchema->id === '_round_id') {
-				$userGroups = $oSchema->ops;
+		if (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id)) {
+			$modelGrpRnd = $this->model('matter\group\round');
+			$rounds = $modelGrpRnd->byApp($oApp->entry_rule->group->id);
+			$userGroups = [];
+			foreach ($rounds as $oRound) {
+				$oNewGroup = new \stdClass;
+				$oNewGroup->v = $oRound->round_id;
+				$oNewGroup->l = $oRound->title;
+				$userGroups[] = $oNewGroup;
+			}
+		} else if (!empty($oApp->group_app_id)) {
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if ($oSchema->id === '_round_id') {
+					$userGroups = $oSchema->ops;
+				}
 			}
 		}
 		if (empty($userGroups)) {
@@ -201,7 +212,7 @@ class rank extends base {
 		$modelData = $this->model('matter\enroll\data');
 
 		$q = [
-			'd.value,d.enroll_key,d.schema_id,d.agreed,a.headimgurl',
+			'd.id,d.value,d.enroll_key,d.schema_id,d.agreed,a.headimgurl,d.multitext_seq',
 			"xxt_enroll_record_data d left join xxt_site_account a on d.userid = a.uid and a.siteid = '{$oApp->siteid}'",
 			"d.aid='{$oApp->id}' and d.state=1",
 		];
@@ -210,6 +221,8 @@ class rank extends base {
 		}
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and d.agreed='Y'";
+		} else {
+			$q[2] .= " and d.multitext_seq = 0";
 		}
 		if (!empty($oCriteria->round) && $oCriteria->round !== 'ALL') {
 			$round = $modelData->escape($oCriteria->round);
@@ -232,6 +245,14 @@ class rank extends base {
 		$result = new \stdClass;
 		$records = $modelData->query_objs_ss($q, $q2);
 		if (count($records)) {
+			// 题目类型
+			$dataSchemas = new \stdClass;
+			if (isset($oApp->dataSchemas)) {
+				foreach ($oApp->dataSchemas as $dataSchema) {
+					$dataSchemas->{$dataSchema->id} = $dataSchema;
+				}
+			}
+
 			$modelRec = $this->model('matter\enroll\record');
 			foreach ($records as &$record) {
 				$oRec = $modelRec->byId($record->enroll_key, ['fields' => 'nickname,supplement']);
@@ -243,6 +264,10 @@ class rank extends base {
 				}
 				if (!empty($aAssocGroups) && !empty($record->group_id)) {
 					$record->group_title = isset($aAssocGroups[$record->group_id]) ? $aAssocGroups[$record->group_id] : '';
+				}
+				// 处理多项填写题
+				if (isset($record->schema_id) && isset($dataSchemas->{$record->schema_id}) && $dataSchemas->{$record->schema_id}->type === 'multitext' && $record->multitext_seq == 0) {
+					$record->value = empty($record->value) ? [] : json_decode($record->value);
 				}
 			}
 		}
@@ -266,9 +291,9 @@ class rank extends base {
 		$modelRem = $this->model('matter\enroll\remark');
 
 		$q = [
-			'r.id,r.userid,r.nickname,r.content,r.enroll_key,r.schema_id,r.like_num,r.agreed,a.headimgurl',
+			'r.id,r.userid,r.nickname,r.content,r.enroll_key,r.schema_id,r.data_id,r.like_num,r.agreed,a.headimgurl',
 			"xxt_enroll_record_remark r left join xxt_site_account a on r.userid = a.uid and a.siteid = '{$oApp->siteid}'",
-			"r.aid='{$oApp->id}' and and r.state=1 and r.like_num>0",
+			"r.aid='{$oApp->id}' and r.state=1 and r.like_num>0",
 		];
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and r.agreed='Y'";

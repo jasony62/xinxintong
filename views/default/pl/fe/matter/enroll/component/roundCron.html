@@ -101,8 +101,10 @@ th {
                     </div>
                 </td>
                 <td>
-                    <div class="round" id="round{{$index}}">
-                        <p>开始时间：{{rule.case.start}}</p>结束时间：{{rule.case.end}}</div>
+                    <div class="round">
+                        <p>开始时间：{{rule.case.start_at*1000|date:'yy-MM-dd HH:mm'}}</p>
+                        <p>结束时间：{{rule.case.end_at*1000|date:'yy-MM-dd HH:mm'}}</p>
+                    </div>
                 </td>
                 <td>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.enabled">

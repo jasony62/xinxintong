@@ -13,6 +13,7 @@
 #schema-view .schemas .schema:before{content:counter(index);background:#999;color:#fff;position:absolute;top:0px;left:0px;width:18px;height:18px;line-height:18px;text-align:center;border-top-left-radius:2px;}
 #schema-view .schema{background:#fff;margin-bottom:15px;padding:8px;border:1px solid #ddd;}
 #schema-view .schema.shorttext:after{content:'单行填空题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.multitext:after{content:'多项填空题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.longtext:after{content:'多行填空题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.date:after{content:'日期';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.member:after{content:'通讯录联系人';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}

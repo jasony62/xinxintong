@@ -123,21 +123,18 @@ define(['require'], function() {
         });
         srvSite.tagList().then(function(oTag) {
             $scope.oTag = oTag;
-        });
-        srvGroupApp.get().then(function(oApp) {
-            if (oApp.matter_mg_tag !== '') {
-                oApp.matter_mg_tag.forEach(function(cTag, index) {
-                    $scope.oTag.forEach(function(oTag) {
-                        if (oTag.id === cTag) {
-                            oApp.matter_mg_tag[index] = oTag;
-                        }
+            srvGroupApp.get().then(function(oApp) {
+                if (oApp.matter_mg_tag !== '') {
+                    oApp.matter_mg_tag.forEach(function(cTag, index) {
+                        $scope.oTag.forEach(function(oTag) {
+                            if (oTag.id === cTag) {
+                                oApp.matter_mg_tag[index] = oTag;
+                            }
+                        });
                     });
-                });
-            }
-            $scope.app = oApp;
-            if (!oApp.rounds || oApp.rounds.length === 0) {
-
-            }
+                }
+                $scope.app = oApp;
+            });
         });
         $scope.assocWithApp = function() {
             srvGroupApp.assocWithApp(cstApp.importSource).then(function() {});

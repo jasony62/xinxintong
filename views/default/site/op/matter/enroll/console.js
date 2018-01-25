@@ -268,6 +268,13 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 oBeforeQuizScore = angular.copy(oQuizScore);
             }
         }
+        function _items(schema) {
+            var _item = {};
+            angular.forEach(oBeforeRecord.verbose[schema.id].items, function(item) {
+                _item[item.id] = item;
+                oBeforeRecord.verbose[schema.id]._items = _item;
+            });
+        }
         var oApp, oRecord, oBeforeRecord, oQuizScore, oBeforeQuizScore;
 
         $scope.scoreRangeArray = function(schema) {
@@ -286,6 +293,17 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 updated.tags = oRecord.aTags.join(',');
                 oRecord.tags = updated.tags;
             }
+            /*多项填空题，如果值为空则删掉*/
+            for(var k in oRecord.data) {
+                if(oApp._schemasById[k].type=='multitext') {
+                    angular.forEach(oRecord.data[k], function(data, index) {
+                        if(data.value=='') {
+                            oRecord.data[k].splice(index,1);
+                        }
+                    });
+                }
+            };
+
             updated.comment = oRecord.comment; //oRecord 信息
             updated.verified = oRecord.verified;
             updated.rid = oRecord.rid;
@@ -324,10 +342,12 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         $scope.newRemark = {};
         $scope.schemaRemarks = schemaRemarks = {};
         $scope.openedRemarksSchema = false;
-        $scope.switchSchemaRemarks = function(schema) {
+        $scope.openedItemRemarksSchema = false;
+        $scope.switchSchemaRemarks = function(schema, itemId) {
             $scope.openedRemarksSchema = schema;
-            srvEnrollRecord.listRemark(oRecord.enroll_key, schema.id).then(function(result) {
-                schemaRemarks[schema.id] = result.remarks;
+            $scope.openedItemRemarksSchema = itemId;
+            srvEnrollRecord.listRemark(oRecord.enroll_key, schema.id, itemId).then(function(result) {
+                schemaRemarks[itemId] = result.remarks;
             });
         };
         $scope.addRemark = function(oSchema) {
@@ -345,11 +365,22 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 $scope.newRemark.content = '';
             });
         };
-        $scope.agree = function(oSchema) {
-            srvEnrollRecord.agree(oRecord.enroll_key, oSchema.id, oRecord.verbose[oSchema.id].agreed).then(function() {});
+        $scope.agree = function(oRecord, oSchema, oAgreed, oItemId) {
+            srvEnrollRecord.agree(oRecord.enroll_key, oSchema.id, oAgreed, oItemId).then(function() {});
         };
         $scope.agreeRemark = function(oRemark) {
             srvEnrollRecord.agreeRemark(oRemark.id, oRemark.agreed).then(function() {});
+        };
+        $scope.addItem = function(schemaId) {
+            var data = oRecord.data;
+            var item = {
+                id: 0,
+                value: ''
+            }
+            data[schemaId].push(item);
+        };
+        $scope.removeItem = function(items, index) {
+            items.splice(index, 1);
         };
         $scope.$watch('app', function(app) {
             if (!app) return;
@@ -360,6 +391,9 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     oApp.dataSchemas.forEach(function(schema) {
                         if (oBeforeRecord.data[schema.id]) {
                             srvRecordConverter.forEdit(schema, oBeforeRecord.data);
+                            if(schema.type=='multitext') {
+                                _items(schema);
+                            }
                         }
                     });
                     oApp._schemasFromEnrollApp.forEach(function(schema) {

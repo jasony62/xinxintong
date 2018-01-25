@@ -9,35 +9,53 @@ class remark extends base {
 	/**
 	 * 返回一条登记记录的所有评论
 	 */
-	public function list_action($ek, $schema, $page = 1, $size = 99) {
+	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99) {
 		$oUser = $this->who;
 
-		$oRecordData = $this->model('matter\enroll\data')->byRecord($ek, ['schema' => $schema, 'fields' => 'id,agreed,value,like_num,like_log,remark_num,supplement,tag']);
+		$options = [];
+		if (!empty($data)) {
+			$options['data_id'] = $data;
+		}
 
-		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size);
+		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $options);
 
-		$result->data = $oRecordData;
+		return new \ResponseData($result);
+	}
+	/*
+		* 返回多项填写题的所有评论
+		* $id xxt_enroll_record_data id
+	*/
+	public function listMultitext_action($ek, $schema, $page = 1, $size = 99) {
+		if (empty($schema)) {
+			return new \ResponseError('没有指定题目id');
+		}
+
+		$oUser = $this->who;
+		$oRecordDatas = $this->model('matter\enroll\data')->getMultitext($ek, $schema, ['fields' => 'id,multitext_seq,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
+
+		$options = [];
+		if (count($oRecordDatas)) {
+			$data_ids = [];
+			foreach ($oRecordDatas as $oRecordData) {
+				$data_ids[] = $oRecordData->id;
+			}
+			$options['data_id'] = $data_ids;
+		}
+
+		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $options);
+
+		$result->data = $oRecordDatas;
 
 		return new \ResponseData($result);
 	}
 	/**
-	 *
-	 */
-	public function summary_action($ek) {
-		$q = [
-			'schema_id,remark_num,last_remark_at',
-			'xxt_enroll_record_data',
-			['enroll_key' => $ek],
-		];
-		$values = $this->model()->query_objs_ss($q);
-
-		return new \ResponseData($values);
-	}
-	/**
 	 * 给指定的登记记录的添加评论
 	 * 进行评论操作的用户需满足进入活动规则的条件
+	 * $data  xxt_enroll_record_data 的id
 	 */
-	public function add_action($ek, $schema = '', $remark = 0) {
+	public function add_action($ek, $schema = '', $data = 0, $remark = 0) {
+		$recDataId = $this->escape($data);
+
 		$modelRec = $this->model('matter\enroll\record');
 		$oRecord = $modelRec->byId($ek);
 		if (false === $oRecord) {
@@ -54,8 +72,8 @@ class remark extends base {
 			return new \ComplianceError('用户身份不符合进入规则，无法发表评论');
 		}
 
-		$data = $this->getPostJson();
-		if (empty($data->content)) {
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->content)) {
 			return new \ResponseError('评论内容不允许为空');
 		}
 
@@ -73,9 +91,23 @@ class remark extends base {
 		}
 		$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
 		$oUser->nickname = $userNickname;
-		/**
-		 * 发表评论的用户
-		 */
+
+		//如果是多项填写题需要指定id，否则，则不需要
+		if (!empty($schema)) {
+			foreach ($oApp->dataSchemas as $dataSchema) {
+				if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
+					if (empty($recDataId)) {
+						return new \ComplianceError('参数错误，此题型需要指定唯一标识');
+					}
+					$schemaType = 'multitext';
+					$oRecordData = $this->model('matter\enroll\data')->byId($recDataId, ['fields' => 'aid,id,like_log,userid,multitext_seq']);
+					if (false === $oRecordData) {
+						return new \ObjectNotFoundError();
+					}
+				}
+			}
+		}
+
 		$current = time();
 		$oRemark = new \stdClass;
 		$oRemark->siteid = $oRecord->siteid;
@@ -89,28 +121,32 @@ class remark extends base {
 		$oRemark->enroll_group_id = $oRecord->group_id;
 		$oRemark->enroll_userid = $oRecord->userid;
 		$oRemark->schema_id = $modelRec->escape($schema);
+		$oRemark->data_id = $modelRec->escape($recDataId);
 		$oRemark->remark_id = $modelRec->escape($remark);
 		$oRemark->create_at = $current;
-		$oRemark->content = $modelRec->escape($data->content);
+		$oRemark->content = $modelRec->escape($oPosted->content);
 
 		$oRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oRemark, true);
 
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
 		if (isset($schema)) {
-			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema'");
+			if (isset($schemaType) && $schemaType === 'multitext' && !empty($recDataId)) {
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
+				// 如果每一条的数据呗评论了那么这道题的总数据+1
+				if ($oRecordData->multitext_seq != 0) {
+					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
+				}
+			} else {
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
+			}
 		}
 
-		$modelUsr = $this->model('matter\enroll\user');
-		$modelUsr->setOnlyWriteDbConn(true);
-
 		/* 更新进行点评的活动用户的积分奖励 */
-		$modelMat = $this->model('matter\enroll\coin');
-		$modelMat->setOnlyWriteDbConn(true);
+		$modelMat = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
 		$rulesOther = $modelMat->rulesByMatter('site.matter.enroll.data.other.comment', $oApp);
 		$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.comment', $oApp);
 
-		$modelCoin = $this->model('site\coin\log');
-		$modelCoin->setOnlyWriteDbConn(true);
+		$modelCoin = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
 		$modelCoin->award($oApp, $oUser, 'site.matter.enroll.data.other.comment', $rulesOther);
 
 		/* 获得所属轮次 */
@@ -122,6 +158,7 @@ class remark extends base {
 		}
 
 		/* 更新发起评论的活动用户轮次数据 */
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_remark_other_at,remark_other_num,user_total_coin', 'rid' => $rid]);
 		if (false === $oEnrollUsr) {
 			$inData = ['last_remark_other_at' => time(), 'remark_other_num' => 1];

@@ -141,12 +141,12 @@ class record_model extends record_base {
 			/*题目中对应的标签*/
 			$tagOlds = [];
 			$q = [
-				'tag',
+				'id,tag',
 				'xxt_enroll_record_data',
-				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1],
+				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1, 'multitext_seq' => 0],
 			];
-			if ($tagOld = $this->query_obj_ss($q)) {
-				!empty($tagOld->tag) && $tagOlds = json_decode($tagOld->tag);
+			if ($recordData = $this->query_obj_ss($q)) {
+				!empty($recordData->tag) && $tagOlds = json_decode($recordData->tag);
 			}
 
 			/* 保证以字符串的格式存储标签id，便于以后检索 */
@@ -176,7 +176,7 @@ class record_model extends record_base {
 			$rst = $this->update(
 				'xxt_enroll_record_data',
 				['tag' => $this->escape($jsonTags)],
-				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
+				['id' => $recordData->id]
 			);
 		}
 
@@ -219,10 +219,10 @@ class record_model extends record_base {
 	 *
 	 */
 	private function _processRecord(&$oRecord, $fields, $verbose = 'Y') {
-		if ($fields === '*' || false !== strpos($fields, 'data')) {
+		if (property_exists($oRecord, 'data')) {
 			$oRecord->data = empty($oRecord->data) ? new \stdClass : json_decode($oRecord->data);
 		}
-		if ($fields === '*' || false !== strpos($fields, 'data_tag')) {
+		if (property_exists($oRecord, 'data_tag')) {
 			$oRecord->data_tag = empty($oRecord->data_tag) ? new \stdClass : json_decode($oRecord->data_tag);
 		}
 		if ($fields === '*' || false !== strpos($fields, 'supplement')) {
@@ -230,6 +230,12 @@ class record_model extends record_base {
 		}
 		if ($fields === '*' || false !== strpos($fields, 'score')) {
 			$oRecord->score = empty($oRecord->score) ? new \stdClass : json_decode($oRecord->score);
+		}
+		if ($fields === '*' || false !== strpos($fields, 'agreed_log')) {
+			$oRecord->agreed_log = empty($oRecord->agreed_log) ? new \stdClass : json_decode($oRecord->agreed_log);
+		}
+		if ($fields === '*' || false !== strpos($fields, 'like_log')) {
+			$oRecord->like_log = empty($oRecord->like_log) ? new \stdClass : json_decode($oRecord->like_log);
 		}
 		if ($verbose === 'Y' && isset($oRecord->enroll_key)) {
 			$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
@@ -292,7 +298,6 @@ class record_model extends record_base {
 		} else {
 			$q[2]['rid'] = $assignRid;
 		}
-
 		/* 登记的时间 */
 		$q2 = [
 			'o' => 'enroll_at desc',
@@ -530,9 +535,7 @@ class record_model extends record_base {
 
 		if ($oOptions) {
 			is_array($oOptions) && $oOptions = (object) $oOptions;
-			$creater = isset($oOptions->creater) ? $oOptions->creater : null;
-			$inviter = isset($oOptions->inviter) ? $oOptions->inviter : null;
-			$orderby = isset($oOptions->orderby) ? $oOptions->orderby : '';
+			$creator = isset($oOptions->creator) ? $oOptions->creator : null;
 			$page = isset($oOptions->page) ? $oOptions->page : null;
 			$size = isset($oOptions->size) ? $oOptions->size : null;
 		}
@@ -543,7 +546,11 @@ class record_model extends record_base {
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
 		// 指定轮次，或者当前激活轮次
-		if (isset($oCriteria->record->assignRid)) {
+		if (!empty($oOptions->rid)) {
+			if (strcasecmp('all', $oOptions->rid) !== 0) {
+				$rid = $oOptions->rid;
+			}
+		} else if (isset($oCriteria->record->assignRid)) {
 			$rid = $oCriteria->record->assignRid;
 		} else if (!empty($oCriteria->record->rid)) {
 			if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
@@ -559,13 +566,8 @@ class record_model extends record_base {
 			$w .= " and r.group_id='{$oOptions->userGroup}'";
 		}
 		// 根据填写人筛选（填写端列表页需要）
-		if (!empty($creater)) {
-			$w .= " and r.userid='$creater'";
-		} else if (!empty($inviter)) {
-			$oUser = new \stdClass;
-			$oUser->openid = $inviter;
-			$inviterek = $this->lastKeyByUser($oApp, $oUser);
-			$w .= " and r.referrer='ek:$inviterek'";
+		if (!empty($creator)) {
+			$w .= " and r.userid='$creator'";
 		}
 
 		// 指定了登记记录属性过滤条件
@@ -635,15 +637,16 @@ class record_model extends record_base {
 		}
 
 		// 指定了按关键字过滤
-		if (!empty($oCriteria->keyword)) {
+		if (!empty($oOptions->keyword) || !empty($oCriteria->keyword)) {
+			$keyword = !empty($oOptions->keyword) ? $oOptions->keyword : $oCriteria->keyword;
 			$whereByData = '';
-			$whereByData .= ' and (data like \'%' . $oCriteria->keyword . '%\')';
+			$whereByData .= ' and (data like \'%' . $keyword . '%\')';
 			$w .= $whereByData;
 		}
 
 		// 查询参数
 		$q = [
-			'r.enroll_key,r.rid,r.enroll_at,r.tags,r.userid,r.group_id,r.nickname,r.wx_openid,r.yx_openid,r.qy_openid,r.headimgurl,r.verified,r.comment,r.data,r.supplement,r.data_tag',
+			'r.enroll_key,r.rid,r.enroll_at,r.tags,r.userid,r.group_id,r.nickname,r.wx_openid,r.yx_openid,r.qy_openid,r.headimgurl,r.verified,r.comment,r.data,r.supplement,r.data_tag,r.agreed,r.like_num,r.like_log,remark_num',
 			"xxt_enroll_record r",
 			$w,
 		];
@@ -663,17 +666,20 @@ class record_model extends record_base {
 			$schemaId = $oCriteria->order->schemaId;
 			$orderby = $oCriteria->order->orderby;
 			$q[1] .= ",xxt_enroll_record_data d";
-			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId'";
+			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId' and d.multitext_seq = 0";
 			$q2['o'] = 'd.' . $orderby . ' desc';
 		} elseif (!empty($oCriteria->order->orderby) && $oCriteria->order->orderby === 'sum') {
 			$q2['o'] = 'r.score desc';
+		} elseif (!empty($oCriteria->order->orderby) && $oCriteria->order->orderby === 'agreed') {
+			$q2['o'] = 'r.agreed desc';
 		} else {
 			$q2['o'] = 'r.enroll_at desc';
 		}
 		/* 处理获得的数据 */
 		$aRoundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
-			foreach ($records as &$oRec) {
+			foreach ($records as $oRec) {
+				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
 				$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
 				$data = str_replace("\n", ' ', $oRec->data);
 				$data = json_decode($data);
@@ -972,7 +978,7 @@ class record_model extends record_base {
 		$q = [
 			'enroll_key,value,like_log,like_num',
 			"xxt_enroll_record_data",
-			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>''",
+			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>'' and multitext_seq = 0",
 		];
 		if ($oDataSchema->type === 'date') {
 
@@ -1477,7 +1483,7 @@ class record_model extends record_base {
 
 		$dataSchemas = $oApp->dataSchemas;
 		foreach ($dataSchemas as $oSchema) {
-			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score'])) {
+			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score', 'multitext'])) {
 				continue;
 			}
 			$result[$oSchema->id] = $oDataBySchema = (object) [

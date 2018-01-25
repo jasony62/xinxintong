@@ -56,7 +56,7 @@
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] >= page.size">加载更多</button>
+                        <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] > cTotal[c.channel_id].data.length">加载更多</button>
                     </div>
                 </uib-tab>
                 <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="c_channels.length > 3">

@@ -15,7 +15,7 @@
                     <li class="divider"></li>
                     <li><a href ng-click="batchTag()">选中记录打标签<span>（{{rows.count}}）</span></a></li>
                     <li class="divider"></li>
-                    <li><a href ng-click="export()">导出填写记录</a></li>
+                    <li><a href ng-click="export()">导出填写记录<span>（{{page.total}}）</span></a></li>
                     <li><a href ng-click="exportImage()">导出填写记录中的图片</a></li>
                     <li class="divider"></li>
                     <li><a href ng-click="editRecord()">添加记录</a></li>
@@ -40,7 +40,7 @@
     </div>
     <!-- end actions -->
     <!-- records -->
-    <div tms-flex-height top='72' bottom='135' class='form-group' style='width:100%;'>
+    <div tms-flex-height top='117' bottom='51' class='form-group' style='width:100%;'>
         <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
             <table class='table table-bordered'>
                 <thead>

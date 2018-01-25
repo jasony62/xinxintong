@@ -64,7 +64,7 @@ class record extends \pl\fe\matter\base {
 	 * 活动登记名单
 	 *
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $orderby = null, $contain = null, $includeSignin = null) {
+	public function list_action($site, $app, $page = 1, $size = 30, $contain = null, $includeSignin = null) {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -75,7 +75,6 @@ class record extends \pl\fe\matter\base {
 		$aOptions = [
 			'page' => $page,
 			'size' => $size,
-			'orderby' => $orderby,
 			'contain' => $contain,
 		];
 
@@ -98,7 +97,7 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			if (count($remarkables)) {
-				foreach ($oResult->records as &$oRec) {
+				foreach ($oResult->records as $oRec) {
 					$modelRem = $this->model('matter\enroll\data');
 					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
 					$oRec->verbose = new \stdClass;
@@ -106,7 +105,7 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			if ($bRequireScore) {
-				foreach ($oResult->records as &$oRec) {
+				foreach ($oResult->records as $oRec) {
 					$one = $mdoelRec->query_obj_ss([
 						'id,score',
 						'xxt_enroll_record',

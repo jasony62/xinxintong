@@ -553,13 +553,31 @@ class record_model extends record_base {
 		} else if (isset($oCriteria->record->assignRid)) {
 			$rid = $oCriteria->record->assignRid;
 		} else if (!empty($oCriteria->record->rid)) {
-			if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
-				$rid = $oCriteria->record->rid;
+			if (is_string($oCriteria->record->rid)) {
+				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
+					$rid = $oCriteria->record->rid;
+				}
+			} else if (is_array($oCriteria->record->rid)) {
+				if (!in_array('all', $oCriteria->record->rid)) {
+					$rid = $oCriteria->record->rid;
+				}
 			}
 		} else if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
 			$rid = $oActiveRnd->rid;
 		}
-		isset($rid) && $w .= " and r.rid='$rid'";
+		if (isset($rid)) {
+			if (is_string($rid)) {
+				$w .= " and r.rid='$rid'";
+			} else if (is_array($rid)) {
+				if (empty($rid)) {
+					$w .= " and r.rid=''";
+				} else {
+					$w .= " and r.rid in('";
+					$w .= implode("','", $rid);
+					$w .= "')";
+				}
+			}
+		}
 
 		/* 根据用户分组过滤 */
 		if (!empty($oOptions->userGroup)) {

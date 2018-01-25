@@ -852,7 +852,7 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 登记数据导出
 	 */
-	public function export_action($site, $app, $rid = '') {
+	public function export_action($site, $app, $rid = '', $filter = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -893,10 +893,14 @@ class record extends \pl\fe\matter\base {
 		// 获得所有有效的登记记录
 		$modelRec = $this->model('matter\enroll\record');
 		//选择对应轮次
-		$oCriteria = new \stdClass;
-		$oCriteria->record = new \stdClass;
-		$oCriteria->record->rid = new \stdClass;
-		$oCriteria->record->rid = $rid;
+		if (!empty($filter)) {
+			$oCriteria = json_decode($filter);
+		} else {
+			$oCriteria = new \stdClass;
+			$oCriteria->record = new \stdClass;
+			$oCriteria->record->rid = new \stdClass;
+			$oCriteria->record->rid = $rid;
+		}
 		$result = $modelRec->byApp($oApp, null, $oCriteria);
 		if ($result->total === 0) {
 			die('record empty');
@@ -1016,9 +1020,9 @@ class record extends \pl\fe\matter\base {
 					$mbSchemaId = $mbSchemaIds[1];
 					if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
 						$mbSchemaId = $mbSchemaIds[2];
-						$v = $data->member->extattr->{$mbSchemaId};
+						$v = isset($data->member->extattr->{$mbSchemaId}) ? $data->member->extattr->{$mbSchemaId} : '';
 					} else {
-						$v = $data->member->{$mbSchemaId};
+						$v = isset($data->member->{$mbSchemaId}) ? $data->member->{$mbSchemaId} : '';
 					}
 				} else {
 					$v = '';

@@ -130,7 +130,7 @@ class record extends \pl\fe\matter\base {
 	 * 若不指定登记项，则返回活动中所有数值型登记项的合集
 	 * 若指定的登记项不是数值型，返回0
 	 */
-	public function sum4Schema_action($site, $app, $rid = 'ALL') {
+	public function sum4Schema_action($site, $app, $rid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -141,6 +141,8 @@ class record extends \pl\fe\matter\base {
 		if (false === $enrollApp) {
 			return new \ObjectNotFoundError();
 		}
+
+		$rid = explode(',', $rid);
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
@@ -151,7 +153,7 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 计算指定登记项的得分
 	 */
-	public function score4Schema_action($site, $app, $rid = 'ALL') {
+	public function score4Schema_action($site, $app, $rid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -162,6 +164,8 @@ class record extends \pl\fe\matter\base {
 		if (false === $enrollApp) {
 			return new \ObjectNotFoundError();
 		}
+
+		$rid = explode(',', $rid);
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');

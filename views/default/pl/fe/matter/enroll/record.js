@@ -28,6 +28,11 @@ define(['frame'], function(ngApp) {
             var score4SchemaAtPage;
             $scope.score4SchemaAtPage = score4SchemaAtPage = { sum: 0 };
             if ($scope.bRequireScore) {
+                $scope.records.forEach(function(oRecord) {
+                    if (oRecord.score) {
+                        score4SchemaAtPage.sum += parseFloat(oRecord.score.sum || 0);
+                    }
+                });
                 srvEnrollRecord.score4Schema().then(function(result) {
                     $scope.score4Schema = result;
                     for (var schemaId in result) {
@@ -39,7 +44,6 @@ define(['frame'], function(ngApp) {
                                     } else {
                                         score4SchemaAtPage[schemaId] = parseFloat(oRecord.score[schemaId] || 0);
                                     }
-                                    score4SchemaAtPage.sum += parseFloat(oRecord.score.sum || 0);
                                 }
                             });
                         } else {

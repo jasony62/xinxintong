@@ -891,9 +891,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         },
         link: function(scope, elem, attrs) {
             var bodyHeight = document.documentElement.clientHeight;
-            console.log('bh', bodyHeight)
             elem[0].style.height = (bodyHeight - scope.top - scope.bottom) + 'px';
-            console.log('eh', elem[0].style.height);
             if (attrs.overflowY) {
                 elem[0].style.overflowY = attrs.overflowY;
             } else {

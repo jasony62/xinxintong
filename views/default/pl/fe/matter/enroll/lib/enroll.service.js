@@ -1000,10 +1000,39 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }, options);
             };
             _ins.export = function() {
-                var url;
+                var url, oCriteria;
+                oCriteria = {};
+                if (_ins._oCriteria.keyword) {
+                    oCriteria.keyword = _ins._oCriteria.keyword;
+                }
+                if (_ins._oCriteria.data && Object.keys(_ins._oCriteria.data).length) {
+                    var oFilterDat = {};
+                    angular.forEach(_ins._oCriteria.data, function(v, k) {
+                        v && (oFilterDat[k] = v);
+                    });
+                    if (Object.keys(oFilterDat).length) {
+                        oCriteria.data = oFilterDat;
+                    }
+                }
+                if (_ins._oCriteria.tags && _ins._oCriteria.tags.length) {
+                    oCriteria.tags = _ins._oCriteria.tags;
+                }
+                if (_ins._oCriteria.order) {}
+                if (_ins._oCriteria.record) {
+                    var oFilterRec = {};
+                    if (_ins._oCriteria.record.rid) {
+                        oFilterRec.rid = _ins._oCriteria.record.rid;
+                    }
+                    if (_ins._oCriteria.record.verified) {
+                        oFilterRec.verified = _ins._oCriteria.record.verified;
+                    }
+                    if (Object.keys(oFilterRec).length) {
+                        oCriteria.record = oFilterRec;
+                    }
+                }
                 url = '/rest/pl/fe/matter/enroll/record/export';
                 url += '?site=' + _siteId + '&app=' + _appId;
-                url += '&filter=' + JSON.stringify(_ins._oCriteria);
+                url += '&filter=' + JSON.stringify(oCriteria);
                 window.open(url);
             };
             _ins.exportImage = function() {

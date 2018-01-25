@@ -64,10 +64,14 @@ class record extends \pl\fe\matter\base {
 	 * 活动登记名单
 	 *
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $contain = null, $includeSignin = null) {
+	public function list_action($site, $app, $page = 1, $size = 30) {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$oEnrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
+
 		// 登记数据过滤条件
 		$oCriteria = $this->getPostJson();
 
@@ -75,16 +79,15 @@ class record extends \pl\fe\matter\base {
 		$aOptions = [
 			'page' => $page,
 			'size' => $size,
-			'contain' => $contain,
 		];
-
-		// 登记活动
-		$modelApp = $this->model('matter\enroll');
-		$oEnrollApp = $modelApp->byId($app);
+		if (!empty($oCriteria->keyword)) {
+			$aOptions->keyword = $oCriteria->keyword;
+			unset($oCriteria->keyword);
+		}
 
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$oResult = $mdoelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
+		$modelRec = $this->model('matter\enroll\record');
+		$oResult = $modelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
 		if (!empty($oResult->records)) {
 			$remarkables = [];
 			$bRequireScore = false;
@@ -106,7 +109,7 @@ class record extends \pl\fe\matter\base {
 			}
 			if ($bRequireScore) {
 				foreach ($oResult->records as $oRec) {
-					$one = $mdoelRec->query_obj_ss([
+					$one = $modelRec->query_obj_ss([
 						'id,score',
 						'xxt_enroll_record',
 						['siteid' => $site, 'enroll_key' => $oRec->enroll_key],
@@ -140,8 +143,8 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->sum4Schema($enrollApp, $rid);
+		$modelRec = $this->model('matter\enroll\record');
+		$result = $modelRec->sum4Schema($enrollApp, $rid);
 
 		return new \ResponseData($result);
 	}
@@ -161,8 +164,8 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->score4Schema($enrollApp, $rid);
+		$modelRec = $this->model('matter\enroll\record');
+		$result = $modelRec->score4Schema($enrollApp, $rid);
 
 		return new \ResponseData($result);
 	}
@@ -187,8 +190,8 @@ class record extends \pl\fe\matter\base {
 		$enrollApp = $modelApp->byId($app);
 
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->recycle($site, $enrollApp, $aOptions);
+		$modelRec = $this->model('matter\enroll\record');
+		$result = $modelRec->recycle($site, $enrollApp, $aOptions);
 
 		return new \ResponseData($result);
 	}
@@ -215,8 +218,8 @@ class record extends \pl\fe\matter\base {
 		$enrollApp = $modelApp->byId($app);
 
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->list4Schema($enrollApp, $schema, $aOptions);
+		$modelRec = $this->model('matter\enroll\record');
+		$result = $modelRec->list4Schema($enrollApp, $schema, $aOptions);
 
 		return new \ResponseData($result);
 	}

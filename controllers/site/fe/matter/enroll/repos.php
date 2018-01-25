@@ -116,26 +116,26 @@ class repos extends base {
 			return new \ObjectNotFoundError();
 		}
 		// 登记数据过滤条件
-		$oCriteria = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
 		// 登记记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
-
-		!empty($oCriteria->keyword) && $oOptions->keyword = $oCriteria->keyword;
-		!empty($oCriteria->rid) && $oOptions->rid = $oCriteria->rid;
-		!empty($oCriteria->userGroup) && $oOptions->userGroup = $oCriteria->userGroup;
-		if (!empty($oCriteria->creator) && $oCriteria->creator !== 'all') {
-			$oOptions->creator = $oCriteria->creator;
-		}
+		$oOptions->orderby = 'agreed';
+		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$oOptions2 = new \stdClass;
-		$oOptions2->order = new \stdClass;
-		$oOptions2->order->orderby = 'agreed';
-		$oResult = $mdoelRec->byApp($oApp, $oOptions, $oOptions2);
+		$oCriteria = new \stdClass;
+		$oCriteria->record = new \stdClass;
+		!empty($oPosted->rid) && $oCriteria->record->rid = $oPosted->rid;
+		!empty($oPosted->userGroup) && $oCriteria->record->group_id = $oPosted->userGroup;
+		if (!empty($oPosted->creator) && $oPosted->creator !== 'all') {
+			$oCriteria->record->user_id = $oPosted->creator;
+		}
+
+		$oResult = $mdoelRec->byApp($oApp, $oOptions, $oCriteria);
 
 		if (!empty($oResult->records)) {
 			$aSchareableSchemas = [];

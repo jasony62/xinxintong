@@ -40,7 +40,7 @@ class data extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 

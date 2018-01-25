@@ -522,6 +522,9 @@ class record_model extends record_base {
 		if (empty($oApp)) {
 			return false;
 		}
+		if ($oOptions && is_array($oOptions)) {
+			$oOptions = (object) $oOptions;
+		}
 		// 数值型的填空题需要计算分值
 		$bRequireScore = false;
 		$oSchemasById = new \stdClass;
@@ -533,12 +536,6 @@ class record_model extends record_base {
 			}
 		}
 
-		if ($oOptions) {
-			is_array($oOptions) && $oOptions = (object) $oOptions;
-			$creator = isset($oOptions->creator) ? $oOptions->creator : null;
-			$page = isset($oOptions->page) ? $oOptions->page : null;
-			$size = isset($oOptions->size) ? $oOptions->size : null;
-		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 
@@ -546,19 +543,13 @@ class record_model extends record_base {
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
 		// 指定轮次，或者当前激活轮次
-		if (!empty($oOptions->rid)) {
-			if (strcasecmp('all', $oOptions->rid) !== 0) {
-				$rid = $oOptions->rid;
-			}
-		} else if (isset($oCriteria->record->assignRid)) {
-			$rid = $oCriteria->record->assignRid;
-		} else if (!empty($oCriteria->record->rid)) {
+		if (!empty($oCriteria->record->rid)) {
 			if (is_string($oCriteria->record->rid)) {
 				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 					$rid = $oCriteria->record->rid;
 				}
 			} else if (is_array($oCriteria->record->rid)) {
-				if (!in_array('all', $oCriteria->record->rid)) {
+				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
 					$rid = $oCriteria->record->rid;
 				}
 			}
@@ -579,22 +570,19 @@ class record_model extends record_base {
 			}
 		}
 
-		/* 根据用户分组过滤 */
-		if (!empty($oOptions->userGroup)) {
-			$w .= " and r.group_id='{$oOptions->userGroup}'";
-		}
-		// 根据填写人筛选（填写端列表页需要）
-		if (!empty($creator)) {
-			$w .= " and r.userid='$creator'";
+		// 根据用户分组过滤
+		if (!empty($oCriteria->record->group_id)) {
+			$w .= " and r.userid='{$oCriteria->record->group_id}'";
 		}
 
-		// 指定了登记记录属性过滤条件
-		if (!empty($oCriteria->record)) {
-			$whereByRecord = '';
-			if (!empty($oCriteria->record->verified)) {
-				$whereByRecord .= " and verified='{$oCriteria->record->verified}'";
-			}
-			$w .= $whereByRecord;
+		// 根据填写人筛选（填写端列表页需要）
+		if (!empty($oCriteria->record->userid)) {
+			$w .= " and r.userid='{$oCriteria->record->userid}'";
+		}
+
+		// 记录是否通过审核
+		if (!empty($oCriteria->record->verified)) {
+			$w .= " and verified='{$oCriteria->record->verified}'";
 		}
 
 		// 指定了记录标签
@@ -655,11 +643,8 @@ class record_model extends record_base {
 		}
 
 		// 指定了按关键字过滤
-		if (!empty($oOptions->keyword) || !empty($oCriteria->keyword)) {
-			$keyword = !empty($oOptions->keyword) ? $oOptions->keyword : $oCriteria->keyword;
-			$whereByData = '';
-			$whereByData .= ' and (data like \'%' . $keyword . '%\')';
-			$w .= $whereByData;
+		if (!empty($oOptions->keyword)) {
+			$w .= ' and (data like \'%' . $oOptions->keyword . '%\')';
 		}
 
 		// 查询参数
@@ -675,25 +660,30 @@ class record_model extends record_base {
 		}
 
 		$q2 = [];
+
 		// 查询结果分页
-		if (!empty($page) && !empty($size)) {
-			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		if (!empty($oOptions->page) && !empty($oOptions->size)) {
+			$q2['r'] = ['o' => ($oOptions->page - 1) * $oOptions->size, 'l' => $oOptions->size];
 		}
+
 		// 查询结果排序
-		if (!empty($oCriteria->order->orderby) && !empty($oCriteria->order->schemaId)) {
-			$schemaId = $oCriteria->order->schemaId;
-			$orderby = $oCriteria->order->orderby;
+		if (!empty($oOptions->orderby) && !empty($oOptions->schemaId)) {
+			$schemaId = $oOptions->schemaId;
+			$orderby = $oOptions->orderby;
 			$q[1] .= ",xxt_enroll_record_data d";
 			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId' and d.multitext_seq = 0";
 			$q2['o'] = 'd.' . $orderby . ' desc';
-		} elseif (!empty($oCriteria->order->orderby) && $oCriteria->order->orderby === 'sum') {
+		} elseif (!empty($oOptions->orderby) && $oOptions->orderby === 'sum') {
 			$q2['o'] = 'r.score desc';
-		} elseif (!empty($oCriteria->order->orderby) && $oCriteria->order->orderby === 'agreed') {
+		} elseif (!empty($oOptions->orderby) && $oOptions->orderby === 'agreed') {
 			$q2['o'] = 'r.agreed desc';
 		} else {
 			$q2['o'] = 'r.enroll_at desc';
 		}
-		/* 处理获得的数据 */
+
+		/**
+		 * 处理获得的数据
+		 */
 		$aRoundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as $oRec) {

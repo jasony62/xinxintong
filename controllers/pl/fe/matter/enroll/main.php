@@ -351,8 +351,9 @@ class main extends main_base {
 				//插入数据
 				$oldCriteria = new \stdClass;
 				$oldCriteria->record = new \stdClass;
-				$oldCriteria->record->assignRid = $oldRound->rid;
-				$oldUsers = $modelRec->byApp($oCopied, '', $oldCriteria);
+				$oldCriteria->record->rid = $oldRound->rid;
+				$oldUsers = $modelRec->byApp($oCopied, null, $oldCriteria);
+
 				if (isset($oldUsers->records) && count($oldUsers->records)) {
 					foreach ($oldUsers->records as $record) {
 						$cpUser = new \stdClass;

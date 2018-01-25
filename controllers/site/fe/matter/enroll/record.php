@@ -742,7 +742,7 @@ class record extends base {
 	 */
 	public function list_action($site, $app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -752,31 +752,28 @@ class record extends base {
 
 		switch ($owner) {
 		case 'A':
-			$options = array();
 			break;
 		case 'G':
 			$modelUsr = $this->model('matter\enroll\user');
 			$options = ['fields' => 'group_id'];
 			$oEnrollee = $modelUsr->byId($oApp, $oUser->uid, $options);
-			$options = array(
-				'userGroup' => isset($oEnrollee->group_id) ? $oEnrollee->group_id : '',
-			);
+			$oCriteria->record->group_id = isset($oEnrollee->group_id) ? $oEnrollee->group_id : '';
 			break;
 		default:
-			$options = array(
-				'creater' => $oUser->uid,
-			);
+			$oCriteria->record->userid = $oUser->uid;
 			break;
 		}
+
+		$options = [];
 		$options['page'] = $page;
 		$options['size'] = $size;
 		$options['orderby'] = $orderby;
 
 		$modelRec = $this->model('matter\enroll\record');
 
-		$rst = $modelRec->byApp($oApp, $options, $oCriteria);
+		$oResult = $modelRec->byApp($oApp, $options, $oCriteria);
 
-		return new \ResponseData($rst);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 点赞登记记录中的某一个题

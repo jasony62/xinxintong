@@ -1099,7 +1099,11 @@ class record extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				case 'shorttext':
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					if (isset($schema->format) && $schema->format === 'number') {
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+					} else {
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
 					break;
 				case 'multitext':
 					if (is_array($v)) {
@@ -1117,8 +1121,8 @@ class record extends \pl\fe\matter\base {
 				}
 				$one = $i + $columnNum3;
 				// 分数
-				if (isset($oRecScore->{$schema->id})) {
-					$cellScore = empty($oRecScore->{$schema->id}) ? '0' : $oRecScore->{$schema->id};
+				if ((isset($schema->requireScore) && $schema->requireScore === 'Y') || (isset($schema->format) && $schema->format === 'number')) {
+					$cellScore = empty($oRecScore->{$schema->id}) ? 0 : $oRecScore->{$schema->id};
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 				}
 				// 评论数
@@ -1130,7 +1134,7 @@ class record extends \pl\fe\matter\base {
 					}
 					$two = $i + $columnNum3;
 					$col = ($two - $one >= 2) ? ($two - 1) : $two;
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($col, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($col, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 					$i++;
 					$columnNum3++;
 				}
@@ -1178,9 +1182,11 @@ class record extends \pl\fe\matter\base {
 
 		$filename = $oApp->title . '.xlsx';
 		$ua = $_SERVER["HTTP_USER_AGENT"];
-		if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
+		//if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
+		if (preg_match("/MSIE/", $ua)) {
 			$encoded_filename = urlencode($filename);
 			$encoded_filename = str_replace("+", "%20", $encoded_filename);
+			$encoded_filename = iconv('UTF-8', 'GBK//IGNORE', $encoded_filename);
 			header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
 		} else if (preg_match("/Firefox/", $ua)) {
 			header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '"');

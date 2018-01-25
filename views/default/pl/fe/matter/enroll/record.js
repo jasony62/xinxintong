@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', function($scope, $timeout, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', function($scope, $timeout, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
@@ -11,11 +11,14 @@ define(['frame'], function(ngApp) {
                         if ($scope.records.length) {
                             $scope.records.forEach(function(oRecord) {
                                 if (sum4SchemaAtPage[schemaId]) {
-                                    sum4SchemaAtPage[schemaId] += oRecord.data[schemaId] ? parseInt(oRecord.data[schemaId]) : 0;
+                                    sum4SchemaAtPage[schemaId] += oRecord.data[schemaId] ? parseFloat(oRecord.data[schemaId]) : 0;
                                 } else {
-                                    sum4SchemaAtPage[schemaId] = oRecord.data[schemaId] ? parseInt(oRecord.data[schemaId]) : 0;
+                                    sum4SchemaAtPage[schemaId] = oRecord.data[schemaId] ? parseFloat(oRecord.data[schemaId]) : 0;
                                 }
                             });
+                            if (sum4SchemaAtPage[schemaId]) {
+                                sum4SchemaAtPage[schemaId] = $filter('number')(sum4SchemaAtPage[schemaId], 2).replace('.00', '');
+                            }
                         } else {
                             sum4SchemaAtPage[schemaId] = 0;
                         }
@@ -28,11 +31,6 @@ define(['frame'], function(ngApp) {
             var score4SchemaAtPage;
             $scope.score4SchemaAtPage = score4SchemaAtPage = { sum: 0 };
             if ($scope.bRequireScore) {
-                $scope.records.forEach(function(oRecord) {
-                    if (oRecord.score) {
-                        score4SchemaAtPage.sum += parseFloat(oRecord.score.sum || 0);
-                    }
-                });
                 srvEnrollRecord.score4Schema().then(function(result) {
                     $scope.score4Schema = result;
                     for (var schemaId in result) {
@@ -46,6 +44,9 @@ define(['frame'], function(ngApp) {
                                     }
                                 }
                             });
+                            if (score4SchemaAtPage[schemaId]) {
+                                score4SchemaAtPage[schemaId] = $filter('number')(score4SchemaAtPage[schemaId], 2).replace('.00', '');
+                            }
                         } else {
                             score4SchemaAtPage[schemaId] = 0;
                         }

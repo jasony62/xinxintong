@@ -1068,7 +1068,6 @@ class record_model extends record_base {
 		if (empty($oApp->dataSchemas)) {
 			return false;
 		}
-
 		$result = new \stdClass;
 		$dataSchemas = $oApp->dataSchemas;
 		if (empty($rid)) {
@@ -1109,7 +1108,6 @@ class record_model extends record_base {
 		if (empty($oApp->data_schemas)) {
 			return false;
 		}
-
 		$result = new \stdClass;
 		$dataSchemas = isset($oApp->dataSchemas) ? $oApp->dataSchemas : json_decode($oApp->data_schemas);
 		if (empty($rid)) {

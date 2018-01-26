@@ -38,15 +38,13 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($scope, http2, srvRound, $sce) {
-    var oApp, facRound, _oPage, _oCriteria, _oShareableSchemas, userGroups, _items;
-    _items = {};
-    $scope.schemaCount = 0;
+ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', function($scope, $sce, http2, LS, srvRound) {
+    var oApp, facRound, _oPage, _oCriteria, _oShareableSchemas;
     $scope.page = _oPage = { at: 1, size: 12 };
-    $scope.criteria = _oCriteria = { owner: 'all' };
-    $scope.schemas = _oShareableSchemas = {};
-    $scope.repos = [];
-    $scope.list4Record = function(pageAt) {
+    $scope.criteria = _oCriteria = { creator: 'all' };
+    $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
+    $scope.repos = []; // 分享的记录
+    $scope.recordList = function(pageAt) {
         var url;
         if (pageAt) {
             _oPage.at = pageAt;
@@ -56,7 +54,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         if (_oPage.at == 1) {
             $scope.repos = [];
         }
-        url = '/rest/site/fe/matter/enroll/repos/list4Record?site=' + oApp.siteid + '&app=' + oApp.id;
+        url = LS.j('repos/recordList', 'site', 'app');
         url += '&page=' + _oPage.at + '&size=' + _oPage.size;
         http2.post(url, _oCriteria).then(function(result) {
             _oPage.total = result.data.total;
@@ -69,19 +67,24 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
     }
     $scope.likeRecord = function(oRecord) {
         var url;
-        url = '/rest/site/fe/matter/enroll/record/like';
-        url += '?site=' + oApp.siteid;
+        url = LS.j('record/like', 'site');
         url += '&ek=' + oRecord.enroll_key;
         http2.get(url).then(function(rsp) {
             oRecord.like_log = rsp.data.like_log;
             oRecord.like_num = rsp.data.like_num;
         });
     };
+    $scope.remarkRecord = function(oRecord) {
+        var url;
+        url = LS.j('', 'site', 'app');
+        url += '&ek=' + oRecord.enroll_key;
+        url += '&page=remark';
+        location.href = url;
+    };
     $scope.recommend = function(oRecord, value) {
         var url;
         if (oRecord.agreed !== value) {
-            url = '/rest/site/fe/matter/enroll/record/recommend';
-            url += '?site=' + oApp.siteid;
+            url = LS.j('record/recommend', 'site');
             url += '&ek=' + oRecord.enroll_key;
             url += '&value=' + value;
             http2.get(url).then(function(rsp) {
@@ -89,37 +92,38 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             });
         }
     };
-    $scope.value2Label = function(value, schemaId) {
-        var val, schema, aVal, aLab = [];
-
-        if ((schema = $scope.app._schemasById[schemaId]) && value) {
-            if (val = value) {
-                if (schema.ops && schema.ops.length) {
-                    aVal = val.split(',');
-                    schema.ops.forEach(function(op) {
-                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                    });
-                    val = aLab.join(',');
-                }
-            } else {
-                val = '';
+    $scope.value2Label = function(oSchema, value) {
+        var val, aVal, aLab = [];
+        if (val = value) {
+            if (oSchema.ops && oSchema.ops.length) {
+                aVal = val.split(',');
+                oSchema.ops.forEach(function(op) {
+                    aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                });
+                val = aLab.join(',');
             }
+        } else {
+            val = '';
         }
         return $sce.trustAsHtml(val);
+    };
+    $scope.shiftRound = function() {
+        $scope.recordList(1);
+    };
+    $scope.shiftUserGroup = function() {
+        $scope.recordList(1);
+    };
+    $scope.shiftOwner = function() {
+        $scope.recordList(1);
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
-                $scope.schemaCount++;
-            }
-            if (schema.id === '_round_id' && schema.ops && schema.ops.length) {
-                schema.ops.forEach(function(op) {
-                    userGroups.push(op);
-                });
             }
         });
+        $scope.userGroups = params.groups;
         $scope.groupUser = params.groupUser;
         var groupOthersById = {};
         if (params.groupOthers && params.groupOthers.length) {
@@ -128,15 +132,14 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             });
         }
         $scope.groupOthers = groupOthersById;
-        $scope.dataTags = oApp.dataTags;
-        $scope.list4Record(1);
+        $scope.recordList(1);
         $scope.facRound = facRound = srvRound.ins(oApp);
         if (oApp.multi_rounds === 'Y') {
             facRound.list().then(function(result) {
                 if (result.active) {
                     for (var i = 0, ii = result.rounds.length; i < ii; i++) {
                         if (result.rounds[i].rid === result.active.rid) {
-                            criteria.rid = result.active.rid;
+                            _oCriteria.rid = result.active.rid;
                             break;
                         }
                     }

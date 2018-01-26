@@ -43,19 +43,12 @@ img {
 }
 
 /*record*/
-#repos {
-	background: #fff;
-}
-
-#repos p {
-	word-break: break-all;
-}
-
-#repos .record .glyphicon-heart {
+.glyphicon-thumbs-up.like {
 	color: red;
 }
 
 #repos .record {
+	background: #fff;
 	border-bottom: 1px solid #ddd;
 	padding: 8px;
 }
@@ -68,8 +61,22 @@ img {
 	margin: 1rem 0;
 }
 
-#repos .record .label {
+#repos .record .header {
+	display: flex;
+}
+
+#repos .record .header .seq {
+	margin-right: 8px;
+}
+
+#repos .record .header .label {
 	padding-top: .3em
+}
+
+#repos .record .header .nickname {
+	flex-grow: 1;
+	text-align: right;
+	font-size: .9em;
 }
 
 #repos .record .bottom-bar {

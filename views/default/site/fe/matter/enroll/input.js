@@ -417,12 +417,16 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         }
         /* 用户已经登记过，恢复之前的数据 */
-        if (params.record) {
-            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
-            $scope.record = params.record;
-            if (params.record.data_tag) {
-                $scope.tag = params.record.data_tag;
-            }
+        if (LS.s().newRecord !== 'Y') {
+            http2.get(LS.j('record/get', 'site', 'app', 'ek'), { autoBreak: false, autoNotice: false }).then(function(rsp) {
+                var oRecord;
+                oRecord = rsp.data;
+                ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, oRecord.data);
+                $scope.record = oRecord;
+                if (oRecord.data_tag) {
+                    $scope.tag = oRecord.data_tag;
+                }
+            });
         }
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {

@@ -18,16 +18,16 @@
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
-                <a href="" class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i><span>数据共享</span>
+                <a href class="navbar-brand">
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span>数据共享</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
                 <li class="pull-left">
-                    <a href="" ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline">收藏</span></a>
+                    <a href ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline">收藏</span></a>
                 </li>
                 <li class="pull-left">
-                    <a href="" ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
+                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
                 </li>
             </ul>
         </div>
@@ -35,28 +35,81 @@
     <div ng-cloak class='ng-cloak app' ng-controller="ctrlRepos">
         <div class='container'>
             <div class='row'>
+                <div class='form-group'>
+                    <div id='filterCriteria' class='input-group'>
+                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
+                        <div class='input-group-btn'>
+                            <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
+                            <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
+                            <button id='advCriteriaSwitch' class="btn btn-default" ng-click="status.opened=!status.opened">
+                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':status.opened}"></span>
+                            </button>
+                            <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
+                                <div class='form-group' ng-if='rounds.length'>
+                                    <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
+                                        <option value='all'>全部轮次</option>
+                                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                                    </select>
+                                </div>
+                                <div class='form-group' ng-if="userGroups.length">
+                                    <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.round_id as grp.title for grp in userGroups">
+                                        <option value>全部分组</option>
+                                    </select>
+                                </div>
+                                <div class='form-group'>
+                                    <select class='form-control' ng-model="criteria.creator" ng-change="shiftOwner()" size=2>
+                                        <option value='all'>全部用户</option>
+                                        <option value='{{params.user.uid}}'>我的</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <div id='repos'>
                     <div class='records'>
                         <div class='record' ng-repeat="rec in repos">
-                            <div>
+                            <div class='header'>
+                                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
                                 <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
-                            </div>
-                            <div class='user'>
-                                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
-                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                                <div class='nickname'>{{rec.nickname}}</div>
+                                <div class='nickname text-muted'>{{rec.nickname}}</div>
                             </div>
                             <div class='data'>
-                                <div class='schema' ng-repeat="schema in schemas" ng-switch on="schema.type">
-                                    <blockquote ng-switch-default>
-                                        <span class='text-muted'>{{schema.title}}：</span>
-                                        <span>{{rec.data[schema.id]}}</span>
-                                    </blockquote>
-                                </div>
+                                <blockquote>
+                                    <div class='schema' ng-repeat="schema in schemas" ng-switch on="schema.type">
+                                        <div class='text-muted data-title'>{{schema.title}}</div>
+                                        <div ng-switch-when="file">
+                                            <div ng-repeat="file in rec.data[schema.id]">
+                                                <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
+                                                    <source src="{{file.url}}" type="{{file.type}}" />
+                                                </video>
+                                                <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                                    <source src="{{file.url}}" type="{{file.type}}" />
+                                                </audio>
+                                                <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
+                                            </div>
+                                        </div>
+                                        <ul ng-switch-when="image">
+                                            <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
+                                        </ul>
+                                        <div ng-switch-when="multitext">
+                                            <ul ng-if="rec.data[schema.id]">
+                                                <li ng-repeat="item in rec.data[schema.id].value"><span ng-bind="item.value"></span></li>
+                                            </ul>
+                                        </div>
+                                        <div ng-switch-when="single"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
+                                        <div ng-switch-when="multiple"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
+                                        <div ng-switch-default>
+                                            <span>{{rec.data[schema.id]}}</span>
+                                        </div>
+                                    </div>
+                                </blockquote>
+                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                             </div>
                             <div class='bottom-bar text-right'>
-                                <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
+                                <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
+                                <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)">评论&nbsp;<span ng-bind="rec.remark_num"></span></button>
                                 <span ng-if="groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])">
                                     <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
                                     <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
@@ -65,7 +118,7 @@
                         </div>
                     </div>
                     <div class='text-center' ng-if="page.total>repos.length">
-                        <button class='btn btn-default' ng-click="list4Schema()">更多 【{{repos.length}}/{{page.total}}】</button>
+                        <button class='btn btn-default' ng-click="recordList()">更多 【{{repos.length}}/{{page.total}}】</button>
                     </div>
                 </div>
             </div>

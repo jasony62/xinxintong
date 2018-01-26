@@ -104,9 +104,9 @@ class repos extends base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 返回指定登记项的活动登记名单
+	 * 返回指定活动的登记记录的共享内容
 	 */
-	public function list4Record_action($app, $page = 1, $size = 12) {
+	public function recordList_action($app, $page = 1, $size = 12) {
 		$oUser = $this->who;
 
 		// 登记活动
@@ -116,17 +116,28 @@ class repos extends base {
 			return new \ObjectNotFoundError();
 		}
 		// 登记数据过滤条件
-		$oCriteria = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
 		// 登记记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
+		$oOptions->orderby = 'agreed';
+		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$oResult = $mdoelRec->byApp($oApp, $oOptions);
-		if (count($oResult->records)) {
+		$oCriteria = new \stdClass;
+		$oCriteria->record = new \stdClass;
+		!empty($oPosted->rid) && $oCriteria->record->rid = $oPosted->rid;
+		!empty($oPosted->userGroup) && $oCriteria->record->group_id = $oPosted->userGroup;
+		if (!empty($oPosted->creator) && $oPosted->creator !== 'all') {
+			$oCriteria->record->user_id = $oPosted->creator;
+		}
+
+		$oResult = $mdoelRec->byApp($oApp, $oOptions, $oCriteria);
+
+		if (!empty($oResult->records)) {
 			$aSchareableSchemas = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
@@ -153,5 +164,45 @@ class repos extends base {
 		}
 
 		return new \ResponseData($oResult);
+	}
+	/**
+	 * 获得一条记录可共享的内容
+	 */
+	public function recordGet_action($app, $ek) {
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,data_schemas']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,agreed';
+		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		/* 清除非共享数据 */
+		$oSchareableSchemas = new \stdClass;
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
+				$oSchareableSchemas->{$oSchema->id} = $oSchema;
+			}
+		}
+		if (isset($oRecord->verbose)) {
+			foreach ($oRecord->verbose as $schemaId => $value) {
+				if (!isset($oSchareableSchemas->{$schemaId})) {
+					unset($oRecord->verbose->{$schemaId});
+					continue;
+				}
+				if ($oSchareableSchemas->{$schemaId}->type === 'multitext') {
+					if (!empty($oRecord->verbose->{$schemaId}->value)) {
+						$oRecord->verbose->{$schemaId}->value = json_decode($oRecord->verbose->{$schemaId}->value);
+					}
+				}
+			}
+		}
+
+		return new \ResponseData($oRecord);
 	}
 }

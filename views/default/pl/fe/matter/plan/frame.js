@@ -23,7 +23,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             'schema.duplicated': '不允许重复添加登记项',
         },
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvInviteProvider', 'srvSiteProvider', 'srvPlanAppProvider', 'srvPlanRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvInviteProvider, srvSiteProvider, srvPlanAppProvider, srvPlanRecordProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvInviteProvider', 'srvSiteProvider', 'srvPlanAppProvider', 'srvPlanRecordProvider', 'srvPlanLogProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvInviteProvider, srvSiteProvider, srvPlanAppProvider, srvPlanRecordProvider, srvPlanLogProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/matter/plan/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
@@ -68,6 +68,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             srvSiteProvider.config(siteId);
             srvPlanAppProvider.config(siteId, appId);
             srvPlanRecordProvider.config(siteId, appId);
+            srvPlanLogProvider.config(siteId, appId);
             srvInviteProvider.config('plan', appId);
         })();
     }]);

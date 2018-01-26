@@ -55,6 +55,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             .when('/rest/pl/fe/matter/plan/entry', new RouteParam('entry'))
             .when('/rest/pl/fe/matter/plan/invite', new RouteParam('invite', '/views/default/pl/fe/_module/'))
             .when('/rest/pl/fe/matter/plan/coin', new RouteParam('coin'))
+            .when('/rest/pl/fe/matter/plan/log', new RouteParam('log'))
             .otherwise(new RouteParam('main'));
 
         $locationProvider.html5Mode(true);
@@ -86,6 +87,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
                     break;
                 case 'task':
                 case 'user':
+                case 'log':
                     $scope.opened = 'data';
                     break;
                 case 'coin':

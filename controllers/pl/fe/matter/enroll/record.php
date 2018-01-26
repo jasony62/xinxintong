@@ -236,7 +236,6 @@ class record extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
 		$posted = $this->getPostJson();
 		$modelEnl = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
@@ -257,7 +256,8 @@ class record extends \pl\fe\matter\base {
 		$modelRec->update('xxt_enroll_record', $record, "enroll_key='$ek'");
 
 		/* 记录登记数据 */
-		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, '', true, isset($posted->quizScore) ? $posted->quizScore : null);
+		$addUser = $this->model('site\fe\way')->who($oApp->siteid);
+		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, $addUser->uid, true, isset($posted->quizScore) ? $posted->quizScore : null);
 
 		/* 记录操作日志 */
 		$oRecord = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);

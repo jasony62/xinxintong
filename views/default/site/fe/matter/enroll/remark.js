@@ -227,6 +227,9 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                         if (oAssignedSchema.type == 'file') {
                             oRecData.value = angular.fromJson(oRecData.value);
                         }
+                        if (oAssignedSchema.type == 'multitext') {
+                            oRecData.value = angular.fromJson(oRecData.value);
+                        }
                         if (oRecData.tag) {
                             oRecData.tag.forEach(function(index, tagId) {
                                 if (oApp._tagsById[index]) {

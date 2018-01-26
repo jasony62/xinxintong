@@ -148,9 +148,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         return srvEnlRnd;
                     }
                 }
-            }).result.then(function(criteria) {
+            }).result.then(function(oCriteria) {
                 defer.resolve();
-                angular.extend(that._oCriteria, criteria);
+                angular.extend(that._oCriteria, oCriteria);
                 that.search(1).then(function() {
                     defer.resolve();
                 });
@@ -1991,51 +1991,86 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             $scope.schemas = canFilteredSchemas;
             $scope.criteria = lastCriteria;
         });
+        $scope.checkedRounds = {};
+        $scope.toggleCheckedRound = function(rid) {
+            if (rid === 'ALL' && $scope.checkedRounds.ALL) {
+                $scope.checkedRounds = { ALL: true };
+            } else if ($scope.checkedRounds[rid]) {
+                $scope.checkedRounds.ALL = false;
+            }
+        };
         $scope.clean = function() {
-            var criteria = $scope.criteria;
-            if (criteria.record) {
-                if (criteria.record.verified) {
-                    criteria.record.verified = '';
+            var oCriteria = $scope.criteria;
+            if (oCriteria.record) {
+                if (oCriteria.record.verified) {
+                    oCriteria.record.verified = '';
+                }
+                if (oCriteria.record.rnd) {
+                    oCriteria.record.rnd = [];
                 }
             }
-            if (criteria.data) {
-                angular.forEach(criteria.data, function(val, key) {
-                    criteria.data[key] = '';
+            if (oCriteria.data) {
+                angular.forEach(oCriteria.data, function(val, key) {
+                    oCriteria.data[key] = '';
                 });
             }
         };
         $scope.ok = function() {
-            var criteria = $scope.criteria,
+            var oCriteria = $scope.criteria,
                 optionCriteria;
-            // 将单选题/多选题的结果拼成字符串
+            /* 将单选题/多选题的结果拼成字符串 */
             canFilteredSchemas.forEach(function(schema) {
                 var result;
                 if (/multiple/.test(schema.type)) {
-                    if ((optionCriteria = criteria.data[schema.id])) {
+                    if ((optionCriteria = oCriteria.data[schema.id])) {
                         result = [];
                         Object.keys(optionCriteria).forEach(function(key) {
                             optionCriteria[key] && result.push(key);
                         });
-                        criteria.data[schema.id] = result.join(',');
+                        oCriteria.data[schema.id] = result.join(',');
                     }
                 }
             });
-            $mi.close(criteria);
+            /* 将选中的轮次拼成数组 */
+            if (!oCriteria.record) {
+                $oCriteria.record = {};
+            }
+            oCriteria.record.rid = [];
+            if (Object.keys($scope.checkedRounds).length) {
+                angular.forEach($scope.checkedRounds, function(v, k) {
+                    if (v) {
+                        oCriteria.record.rid.push(k);
+                    }
+                });
+            }
+            $mi.close(oCriteria);
         };
         $scope.cancel = function() {
             $mi.dismiss('cancel');
         };
         $scope.doSearchRound = function() {
             srvEnlRnd.list().then(function(result) {
-                var criteria = $scope.criteria;
+                var oCriteria = $scope.criteria;
                 $scope.activeRound = result.active;
-                $scope.rounds = result.rounds;
-                $scope.pageOfRound = result.page;
-                if (!criteria.record) {
-                    criteria.record = { rid: '' };
+                if ($scope.activeRound) {
+                    var otherRounds = [];
+                    result.rounds.forEach(function(oRound) {
+                        if (oRound.rid !== $scope.activeRound.rid) {
+                            otherRounds.push(oRound);
+                        }
+                    });
+                    $scope.rounds = otherRounds;
+                } else {
+                    $scope.rounds = result.rounds;
                 }
-                if (!criteria.record.rid && $scope.activeRound) {
-                    criteria.record.rid = $scope.activeRound.rid;
+                $scope.pageOfRound = result.page;
+                if (!oCriteria.record) {
+                    oCriteria.record = { rid: [] };
+                }
+                if (oCriteria.record.rid.length) {
+                    oCriteria.record.rid.forEach(function(rid) {
+                        $scope.checkedRounds[rid] = true;;
+                    });
                 }
             });
         };

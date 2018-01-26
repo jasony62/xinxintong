@@ -15,12 +15,21 @@
         </div>
     </div>
     <div class="form-group" ng-if="rounds.length">
-        <label>轮次（按Ctrl键或Command键选择多个轮次）</label>
-        <select class='form-control' ng-model="criteria.record.rid" size=5 multiple>
-            <option value='ALL'>全部</option>
-            <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
-            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
-        </select>
+        <label>轮次</label>
+        <ul class='list-group' style='max-height:170px;overflow-y:auto'>
+            <li>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-model="checkedRounds.ALL" ng-change="toggleCheckedRound('ALL')">全部</label>
+            </li>
+            <li ng-if="activeRound">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-model="checkedRounds[activeRound.rid]" ng-change="toggleCheckedRound(activeRound.rid)">{{activeRound.title}}<span>（启用）</span></label>
+            </li>
+            <li ng-repeat="rnd in rounds">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-model="checkedRounds[rnd.rid]" ng-change="toggleCheckedRound(rnd.id)">{{rnd.title}}</label>
+            </li>
+        </ul>
         <div class='pl-pagination' ng-show="pageOfRound.total>pageOfRound.size">
             <span>总数：{{pageOfRound.total}}</span>
             <ul uib-pagination boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>

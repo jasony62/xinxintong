@@ -43,6 +43,7 @@ class record extends base {
 		}
 
 		$modelEnl = $this->model('matter\enroll');
+		$modelRnd = $this->model('matter\enroll\round');
 		$modelEnlRec = $this->model('matter\enroll\record');
 
 		if (false === ($oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
@@ -53,13 +54,16 @@ class record extends base {
 		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
 
 		// 判断活动是否添加了轮次
-		$modelRnd = $this->model('matter\enroll\round');
 		if (empty($rid)) {
 			if ($oEnrollApp->multi_rounds === 'Y') {
 				$oActiveRnd = $modelRnd->getActive($oEnrollApp);
-				$now = time();
-				if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now)) {
-					return new \ResponseError('当前活动轮次已结束，不能提交、修改、保存或删除！');
+				if (empty($oActiveRnd)) {
+					return new \ResponseError('没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用');
+				} else {
+					$now = time();
+					if ($oActiveRnd->end_at != 0 && $oActiveRnd->end_at < $now) {
+						return new \ResponseError('活动轮次【' . $oActiveRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！');
+					}
 				}
 				$rid = $oActiveRnd->rid;
 			}
@@ -70,31 +74,23 @@ class record extends base {
 			}
 		}
 
-		$oUser = clone $this->who;
-
-		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
-		$rawPosted = file_get_contents("php://input");
-		$modelLog = $this->model('log');
-		$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
-
 		// 提交的数据
 		$posted = $this->getPostJson();
 		if (empty($posted) || count(get_object_vars($posted)) === 0) {
 			return new \ResponseError('没有提交有效数据');
 		}
-
 		if (isset($posted->data)) {
 			$oEnrolledData = $posted->data;
 		} else {
 			$oEnrolledData = $posted;
 		}
-		if ((isset($oEnrollApp->assignedNickname->valid) && $oEnrollApp->assignedNickname->valid === 'Y') && isset($oEnrollApp->assignedNickname->schema->id)) {
-			$oUser->nickname = $modelEnlRec->getValueBySchema($oEnrollApp->assignedNickname->schema, $oEnrolledData);
-		} else {
-			/* 当前访问用户的基本信息 */
-			$userNickname = $modelEnl->getUserNickname($oEnrollApp, $oUser);
-			$oUser->nickname = $userNickname;
-		}
+		// 提交数据的用户
+		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
+
+		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
+		$rawPosted = file_get_contents("php://input");
+		$modelLog = $this->model('log');
+		$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
 
 		if ($subType === 'save') {
 			if (empty($submitkey)) {
@@ -666,91 +662,68 @@ class record extends base {
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 给当前用户产生一条空的登记记录，记录传递的数据，并返回这条记录
-	 * 适用于抽奖后记录兑奖信息
-	 *
-	 * @param string $site
-	 * @param string $app
-	 * @param string $once 如果已经有登记记录，不生成新的登记记录
+	 * 用保存的数据填写指定的记录数据
 	 */
-	public function emptyGet_action($site, $app, $once = 'N') {
-		$posted = $this->getPostJson();
+	private function _fillWithSaved($oApp, $oUser, &$oRecord) {
+		$oSaveLog = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
+		if (count($oSaveLog) == 1) {
+			$oSaveLog = $oSaveLog[0];
+			$oSaveLog->opData = json_decode($oSaveLog->operate_data);
+			$bMatched = true;
+			if (!empty($oRecord->rid) && (isset($oSaveLog->opData->rid) && $oSaveLog->opData->rid !== $oRecord->rid)) {
+				$bMatched = false;
+			}
+			if ($bMatched) {
+				$oLogData = $oSaveLog->opData;
+				if (isset($oLogData)) {
+					$oRecord->data = $oLogData->data;
+					$oRecord->supplement = $oLogData->supplement;
+					$oRecord->data_tag = $oLogData->data_tag;
 
-		$model = $this->model('matter\enroll');
-		if (false === ($oApp = $model->byId($app))) {
-			return new \ParameterError("指定的活动（$app）不存在");
-		}
-		/**
-		 * 当前访问用户的基本信息
-		 */
-		$user = $this->who;
-		/* 如果已经有登记记录则不登记 */
-		$modelRec = $this->model('matter\enroll\record');
-		if ($once === 'Y') {
-			$ek = $modelRec->lastKeyByUser($oApp, $user);
-		}
-		/* 创建登记记录*/
-		if (empty($ek)) {
-			$options = [
-				'enrollAt' => time(),
-				'referrer' => (empty($posted->referrer) ? '' : $posted->referrer),
-			];
-			$ek = $modelRec->enroll($oApp, $user, $options);
-			/**
-			 * 处理提交数据
-			 */
-			$data = $_GET;
-			unset($data['site']);
-			unset($data['app']);
-			if (!empty($data)) {
-				$data = (object) $data;
-				$rst = $modelRec->setData($user, $oApp, $ek, $data);
-				if (false === $rst[0]) {
-					return new ResponseError($rst[1]);
+					return true;
 				}
 			}
 		}
-		/*登记记录的URL*/
-		$url = '/rest/site/fe/matter/enroll';
-		$url .= '?site=' . $site;
-		$url .= '&app=' . $oApp->id;
-		$url .= '&ek=' . $ek;
 
-		$rsp = new \stdClass;
-		$rsp->url = $url;
-		$rsp->ek = $ek;
-
-		return new \ResponseData($rsp);
+		return false;
 	}
 	/**
 	 * 返回指定记录或最后一条记录
 	 *
-	 * @param string $site
 	 * @param string $app
 	 * @param string $ek
+	 *
 	 */
-	public function get_action($site, $app, $ek = '') {
+	public function get_action($app, $ek = '') {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
-		$openedek = $ek;
-		$record = null;
 
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		/*当前访问用户的基本信息*/
-		$oUser = $this->who;
-		/**登记数据*/
-		if (empty($openedek)) {
-			// 获得最后一条登记数据。登记记录有可能未进行过登记
-			$record = $modelRec->lastByUser($oApp, $oUser, ['fields' => '*', 'verbose' => 'Y']);
-			if ($record) {
-				$openedek = $record->enroll_key;
-			}
-		} else {
-			// 打开指定的登记记录
-			$record = $modelRec->byId($openedek, ['verbose' => 'Y']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
 		}
 
-		return new \ResponseData($record);
+		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,data_tag,score,like_num,like_log,remark_num';
+
+		$oUser = $this->who;
+
+		if (empty($ek)) {
+			$oRecord = $modelRec->lastByUser($oApp, $oUser, ['verbose' => 'Y', 'fields' => $fields]);
+		} else {
+			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
+		}
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$this->_fillWithSaved($oApp, $oUser, $oRecord->rid, $oRecord);
+
+		if (!empty($oRecord->rid)) {
+			$oRecRound = $this->model('matter\enroll\round')->byId($oRecord->rid);
+			$oRecord->round = $oRecRound;
+		}
+
+		return new \ResponseData($oRecord);
 	}
 	/**
 	 * 列出所有的登记记录
@@ -769,7 +742,7 @@ class record extends base {
 	 */
 	public function list_action($site, $app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -778,37 +751,33 @@ class record extends base {
 		$oCriteria = $this->getPostJson();
 
 		switch ($owner) {
-		case 'I':
-			$options = array(
-				'inviter' => $oUser->uid,
-			);
-			break;
 		case 'A':
-			$options = array();
 			break;
 		case 'G':
 			$modelUsr = $this->model('matter\enroll\user');
 			$options = ['fields' => 'group_id'];
 			$oEnrollee = $modelUsr->byId($oApp, $oUser->uid, $options);
-			$options = array(
-				'userGroup' => isset($oEnrollee->group_id) ? $oEnrollee->group_id : '',
-			);
+			if ($oEnrollee) {
+				!isset($oCriteria->record) && $oCriteria->record = new \stdClass;
+				$oCriteria->record->group_id = isset($oEnrollee->group_id) ? $oEnrollee->group_id : '';
+			}
 			break;
 		default:
-			$options = array(
-				'creater' => $oUser->uid,
-			);
+			!isset($oCriteria->record) && $oCriteria->record = new \stdClass;
+			$oCriteria->record->userid = $oUser->uid;
 			break;
 		}
+
+		$options = [];
 		$options['page'] = $page;
 		$options['size'] = $size;
 		$options['orderby'] = $orderby;
 
 		$modelRec = $this->model('matter\enroll\record');
 
-		$rst = $modelRec->byApp($oApp, $options, $oCriteria);
+		$oResult = $modelRec->byApp($oApp, $options, $oCriteria);
 
-		return new \ResponseData($rst);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 点赞登记记录中的某一个题
@@ -818,35 +787,21 @@ class record extends base {
 	 * @param int $id xxt_enroll_record_data 的id
 	 *
 	 */
-	public function like_action($ek, $schema, $id = '') {
-		$modelData = $this->model('matter\enroll\data');
-		if (empty($id)) {
-			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
-		} else {
-			$oRecordData = $modelData->byId($id, ['fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
-		}
-		if (false === $oRecordData) {
-			return new \ObjectNotFoundError();
-		}
-		
-		$oApp = $this->model('matter\enroll')->byId($oRecordData->aid, ['cascaded' => 'N']);
-		if (false === $oApp) {
+	public function like_action($ek) {
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek, ['fields' => 'enroll_key,state,aid,userid,like_log,like_num']);
+		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		/* 检查是否是多项填写题题的点赞，如果是，需要$id */
-		foreach ($oApp->dataSchemas as $dataSchema) {
-			if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
-				$schmeaType = 'multitext';
-				if (empty($id)) {
-					return new \ComplianceError('参数错误，此题型需要指定唯一标识');
-				}
-			}
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
 		}
 
 		$oUser = $this->who;
 
-		$oLikeLog = $oRecordData->like_log;
+		$oLikeLog = $oRecord->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {
 			unset($oLikeLog->{$oUser->uid});
 			$incLikeNum = -1;
@@ -854,30 +809,19 @@ class record extends base {
 			$oLikeLog->{$oUser->uid} = time();
 			$incLikeNum = 1;
 		}
-		$likeNum = $oRecordData->like_num + $incLikeNum;
-		$modelData->update(
-			'xxt_enroll_record_data',
+		$likeNum = $oRecord->like_num + $incLikeNum;
+		$modelRec->update(
+			'xxt_enroll_record',
 			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],
-			['id' => $oRecordData->id]
+			['enroll_key' => $oRecord->enroll_key]
 		);
-		if (isset($schmeaType) && $schmeaType === 'multitext' && $oRecordData->multitext_seq != 0) {
-			// 总数据点赞数 +1
-			if ($incLikeNum > 0) {
-				$modelData->update("update xxt_enroll_record_data set like_num=like_num +1 where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
-			} else {
-				$modelData->update("update xxt_enroll_record_data set like_num=like_num -1 where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
-			}
-		}
 
-		$modelUsr = $this->model('matter\enroll\user');
-		$modelUsr->setOnlyWriteDbConn(true);
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		if ($incLikeNum > 0) {
 			/* 更新进行点赞的活动用户的积分奖励 */
-			$modelMat = $this->model('matter\enroll\coin');
-			$modelMat->setOnlyWriteDbConn(true);
+			$modelMat = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
 			$rulesOther = $modelMat->rulesByMatter('site.matter.enroll.data.other.like', $oApp);
-			$modelCoin = $this->model('site\coin\log');
-			$modelCoin->setOnlyWriteDbConn(true);
+			$modelCoin = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
 			$modelCoin->award($oApp, $oUser, 'site.matter.enroll.data.other.like', $rulesOther);
 		}
 
@@ -945,7 +889,7 @@ class record extends base {
 		}
 
 		/* 更新被点赞的活动用户的轮次数据 */
-		$oEnrollUsr = $modelUsr->byId($oApp, $oRecordData->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => $rid]);
+		$oEnrollUsr = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => $rid]);
 		if ($oEnrollUsr) {
 			if ($incLikeNum > 0) {
 				$user = new \stdClass;
@@ -969,7 +913,7 @@ class record extends base {
 			);
 		}
 		/* 更新被点赞的活动用户的总数据 */
-		$oEnrollUsrALL = $modelUsr->byId($oApp, $oRecordData->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => 'ALL']);
+		$oEnrollUsrALL = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => 'ALL']);
 		if ($oEnrollUsrALL) {
 			if ($incLikeNum > 0 && !isset($rulesOwner)) {
 				/* 更新被点赞的活动用户的积分奖励 */
@@ -992,8 +936,7 @@ class record extends base {
 		 * 更新项目用户数据
 		 */
 		if (!empty($oApp->mission_id)) {
-			$modelMisUsr = $this->model('matter\mission\user');
-			$modelMisUsr->setOnlyWriteDbConn(true);
+			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
 			$oMission = new \stdClass;
 			$oMission->siteid = $oApp->siteid;
 			$oMission->id = $oApp->mission_id;
@@ -1023,7 +966,7 @@ class record extends base {
 				);
 			}
 			/* 更新被点赞的活动用户的总数据 */
-			$oMisUser = $modelMisUsr->byId($oMission, $oRecordData->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin']);
+			$oMisUser = $modelMisUsr->byId($oMission, $oRecord->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin']);
 			if ($oMisUser) {
 				if ($incLikeNum > 0 && !isset($rulesOwner)) {
 					$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.like', $oApp);
@@ -1043,75 +986,52 @@ class record extends base {
 			}
 		}
 
-		$result = [];
-		if (isset($schmeaType) && $schmeaType === 'multitext' && $oRecordData->multitext_seq != 0) {
-			$leader = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'like_log,like_num']);
-			$result['itemLike_log'] = $oLikeLog;
-			$result['itemLike_num'] = $likeNum;
-			$result['like_log'] = $leader->like_log;
-			$result['like_num'] = $leader->like_num;
-		} else {
-			$result['like_log'] = $oLikeLog;
-			$result['like_num'] = $likeNum;
-		}
-		
-		return new \ResponseData($result);
+		$oResult = new \stdClass;
+		$oResult->like_log = $oLikeLog;
+		$oResult->like_num = $likeNum;
+
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 推荐登记记录中的某一个题
 	 * 只有组长才有权限做
 	 *
 	 * @param string $ek
-	 * @param string $schema
 	 * @param string $value
 	 *
 	 */
-	public function recommend_action($ek, $schema, $value = '') {
-		$modelData = $this->model('matter\enroll\data');
-		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,userid,agreed,agreed_log']);
-		if (false === $oRecData) {
+	public function recommend_action($ek, $value = '') {
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek, ['fields' => 'state,aid,enroll_key,userid,agreed,agreed_log']);
+		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N', 'fields' => 'entry_rule']);
-		if (false === $oApp) {
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,mission_id,state,entry_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		if (empty($oApp->entry_rule->group->id) || empty($oApp->entry_rule->group->round->id)) {
+		if (empty($oApp->entry_rule->group->id)) {
 			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
 		}
+
 		$modelGrpUsr = $this->model('matter\group\player');
+		/* 当前用户所属分组及角色 */
 		$oGrpLeader = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || $oGrpLeader->is_leader !== 'Y') {
 			return new \ParameterError('只有允许组长进行推荐');
 		}
-		if ($oGrpLeader->round_id !== $oApp->entry_rule->group->round->id) {
-			return new \ParameterError('只允许推荐本组数据');
-		}
-		$oGrpMemb = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'round_id', 'onlyOne' => true]);
-		if (false === $oGrpMemb || $oGrpMemb->round_id !== $oApp->entry_rule->group->round->id) {
-			return new \ParameterError('被推荐的数据必须在指定分组内');
+		/* 填写记录用户所属分组 */
+		$oGrpMemb = $modelGrpUsr->byUser($oApp->entry_rule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+		if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
+			return new \ParameterError('只允许组长推荐本组数据');
 		}
 
 		if (!in_array($value, ['Y', 'N', 'A'])) {
 			$value = '';
 		}
-		// 确定模板名称
-		// if ($value == 'Y') {
-		// 	$name = 'site.enroll.submit.recommend';
-		// } else if ($value == 'N') {
-		// 	$name = 'site.enroll.submit.mask';
-		// }
 
-		// if (!empty($name)) {
-		// 	$modelRec = $this->model('matter\enroll\record');
-		// 	$oRecord = $modelRec->byId($ek);
-		// 	$modelEnl = $this->model('matter\enroll');
-		// 	$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
-		// 	$this->_notifyAgree($oApp, $oRecord, $name, $schema);
-		// }
-
-		$oAgreedLog = $oRecData->agreed_log;
+		$oAgreedLog = $oRecord->agreed_log;
 		if (isset($oAgreedLog->{$this->who->uid})) {
 			$oLog = $oAgreedLog->{$this->who->uid};
 			$oLog->time = time();
@@ -1120,11 +1040,17 @@ class record extends base {
 			$oAgreedLog->{$this->who->uid} = (object) ['time' => time(), 'value' => $value];
 		}
 
-		$rst = $modelData->update(
-			'xxt_enroll_record_data',
+		$rst = $modelRec->update(
+			'xxt_enroll_record',
 			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
-			['enroll_key' => $ek, 'schema_id' => $schema, 'state' => 1]
+			['enroll_key' => $ek, 'state' => 1]
 		);
+
+		/* 如果活动属于项目，更新项目内的推荐内容 */
+		if (!empty($oApp->mission_id)) {
+			$modelMisMat = $this->model('matter\mission\matter');
+			$modelMisMat->agreed($oApp, 'R', $oRecord, $value);
+		}
 
 		return new \ResponseData($rst);
 	}

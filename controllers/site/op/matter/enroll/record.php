@@ -24,27 +24,25 @@ class record extends \site\op\base {
 	/**
 	 *
 	 */
-	public function list_action($site, $app, $rid = null, $page = 1, $size = 30, $tags = null, $orderby = null) {
+	public function list_action($site, $app, $page = 1, $size = 30, $tags = null) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
 
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFountError();
 		}
 		// 登记数据过滤条件
-		$criteria = $this->getPostJson();
+		$oCriteria = $this->getPostJson();
 		//
-		$options = array(
+		$options = [
 			'page' => $page,
 			'size' => $size,
-			'orderby' => $orderby,
-			'rid' => $rid,
-		);
+		];
 
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->byApp($oApp, $options, $criteria);
+		$result = $mdoelRec->byApp($oApp, $options, $oCriteria);
 		if (!empty($result->records)) {
 			$remarkables = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
@@ -172,7 +170,7 @@ class record extends \site\op\base {
 		}
 
 		// 登记数据过滤条件
-		$criteria = $this->getPostJson();
+		$oCriteria = $this->getPostJson();
 
 		// 登记记录过滤条件
 		$options = [

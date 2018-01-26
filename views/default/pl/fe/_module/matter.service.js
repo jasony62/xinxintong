@@ -560,26 +560,27 @@ provider('srvQuickEntry', function() {
             }
         }
 
-        function _value2Html(val, schema) {
-            var i, j, aVal, aLab = [];
-            if (val === undefined || schema === undefined) return '';
-            if (schema.ops && schema.ops.length) {
-                if (schema.type === 'score') {
+        function _value2Html(val, oSchema) {
+            if (!val || !oSchema) return '';
+            if (oSchema.ops && oSchema.ops.length) {
+                if (oSchema.type === 'score') {
                     var label = '';
-                    schema.ops.forEach(function(op, index) {
+                    oSchema.ops.forEach(function(op, index) {
                         if (val[op.v] !== undefined) {
                             label += '<div>' + op.l + ':' + val[op.v] + '</div>';
                         }
                     });
                     label = label.replace(/\s\/\s$/, '');
                     return label;
-                } else {
+                } else if (angular.isString(val)) {
                     var aVal, aLab = [];
                     aVal = val.split(',');
-                    schema.ops.forEach(function(op, i) {
+                    oSchema.ops.forEach(function(op, i) {
                         aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
                     });
                     if (aLab.length) return aLab.join(',');
+                } else if (angular.isObject(val) || angular.isArray(val)) {
+                    val = JSON.stringify(val);
                 }
             }
             return val;

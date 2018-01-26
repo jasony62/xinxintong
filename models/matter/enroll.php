@@ -131,7 +131,7 @@ class enroll_model extends enroll_base {
 			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
 				if (!empty($oApp->round_cron)) {
 					$oApp->roundCron = json_decode($oApp->round_cron);
-					$modelRnd = \TMS_APP::M('matter\enroll\round');
+					$modelRnd = $this->model('matter\enroll\round');
 					foreach ($oApp->roundCron as &$rec) {
 						$rules[0] = $rec;
 						$rec->case = $modelRnd->byCron($rules);
@@ -396,7 +396,7 @@ class enroll_model extends enroll_base {
 	 * @param object $oApp
 	 * @param object $oUser [uid,nickname]
 	 */
-	public function getUserNickname(&$oApp, $oUser) {
+	public function getUserNickname($oApp, $oUser) {
 		if (empty($oUser->uid)) {
 			return '';
 		}

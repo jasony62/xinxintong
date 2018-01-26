@@ -18,16 +18,16 @@
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
-                <a href="" class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i><span>数据共享</span>
+                <a href class="navbar-brand">
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span>数据共享</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
                 <li class="pull-left">
-                    <a href="" ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline">收藏</span></a>
+                    <a href ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline">收藏</span></a>
                 </li>
                 <li class="pull-left">
-                    <a href="" ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
+                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
                 </li>
             </ul>
         </div>
@@ -51,14 +51,8 @@
                                         <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
                                     </select>
                                 </div>
-                                <div class='form-group'>
-                                    <select class='form-control' ng-model="criteria.agreed" ng-change="shiftAgreed()" size=2>
-                                        <option value=''>全部状态</option>
-                                        <option value='Y'>推荐</option>
-                                    </select>
-                                </div>
                                 <div class='form-group' ng-if="userGroups.length">
-                                    <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.v as grp.l for grp in userGroups">
+                                    <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.round_id as grp.title for grp in userGroups">
                                         <option value>全部分组</option>
                                     </select>
                                 </div>
@@ -73,37 +67,35 @@
                                         <option value>全部题目</option>
                                     </select>
                                 </div>
-                                <div class='form-group' ng-if="dataTags">
+                                <div class='form-group' ng-if="dataTags&&dataTags.length">
                                     <select class='form-control' ng-model="criteria.tag" ng-options="tag.id as tag.label for tag in dataTags" ng-change="shiftTag()" size='6'>
                                         <option value>全部标签</option>
                                     </select>
                                 </div>
                             </form>
-                            <button class='btn btn-default' ng-click="addRecord($event)"><span class='glyphicon glyphicon-pencil'></span></button>
                         </div>
                     </div>
                 </div>
                 <div id='repos'>
                     <div class='records'>
                         <div class='record' ng-repeat="rec in repos">
-                            <div>
-                                <span ng-if="schemaCount>1" class="label label-default">{{schemas[rec.schema_id].title}}</span>
+                            <div class='header'>
+                                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
                                 <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
+                                <span class='text-muted nickname'>{{rec.nickname||'匿名用户'}}</span>
                             </div>
                             <blockquote ng-switch on="schemas[rec.schema_id].type">
-                                <p ng-switch-when="single"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
-                                <p ng-switch-when="multiple"><span>{{value2Label(rec.value,rec.schema_id)}}</span></p>
+                                <div class='text-muted data-title'>{{schemas[rec.schema_id].title}}</div>
                                 <div ng-switch-when="file">
                                     <div ng-repeat="file in rec.value">
-                                        <p><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></p>
-                                        <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
+                                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
                                             <source src="{{file.url}}" type="{{file.type}}" />
                                         </video>
                                         <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
                                             <source src="{{file.url}}" type="{{file.type}}" />
                                         </audio>
-                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
+                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                                     </div>
                                 </div>
                                 <ul ng-switch-when="image">
@@ -113,22 +105,27 @@
                                     <li ng-repeat="item in rec.items">
                                         <span ng-bind="item.value"></span>
                                         <div>
-                                            <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, item.id, $index)"><span class='glyphicon' ng-class="{'glyphicon-heart':item.like_log[user.uid],'glyphicon-heart-empty':!item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>&nbsp;&nbsp;
+                                            <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, item.id, $index)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>
                                             <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec, item.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="item.remark_num"></span></button>
                                         </div>
                                     </li>
                                 </ul>
-                                <p ng-switch-default>{{rec.value}}</p>
-                                <p ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
+                                <div ng-switch-when="multiple"><span>{{value2Label(schemas[rec.schema_id],rec.value)}}</span></div>
+                                <div ng-switch-when="single"><span>{{value2Label(schemas[rec.schema_id],rec.value)}}</span></div>
+                                <div ng-switch-default>{{rec.value}}</div>
+                                <div ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
                                     <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>
-                                </p>
-                                <p ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</p>
-                                <footer>{{rec.nickname||'匿名用户'}}</footer>
+                                </div>
+                                <div ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</div>
                             </blockquote>
                             <div class='bottom-bar'>
                                 <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
-                                <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, rec.id)"><span class='glyphicon' ng-class="{'glyphicon-heart':rec.like_log[user.uid],'glyphicon-heart-empty':!rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>&nbsp;&nbsp;
+                                <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, rec.id)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
                                 <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec, rec.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
+                                <div ng-if="groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])">
+                                    <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
+                                    <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
+                                </div>
                             </div>
                             <div class='remarks' ng-if="schemas[rec.schema_id].remarkable==='Y'&&rec.agreedRemarks.remarks.length">
                                 <div class='remark' ng-repeat="remark in rec.agreedRemarks.remarks">
@@ -157,10 +154,12 @@
     </div>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/repos.js');?>"></script>
     <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
+    <div class="tms-switch tms-switch-app" ng-click="gotoApp($event)"></div>
 </body>
 
 </html>

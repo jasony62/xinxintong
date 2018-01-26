@@ -39,12 +39,12 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     };
 }]);
 ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($scope, http2, srvRound, $sce) {
-    var oApp, facRound, page, criteria, schemas, userGroups, _items;
+    var oApp, facRound, page, criteria, shareableSchemas, userGroups, _items;
     _items = {};
     $scope.schemaCount = 0;
     $scope.page = page = { at: 1, size: 12 };
     $scope.criteria = criteria = { owner: 'all' };
-    $scope.schemas = schemas = {};
+    $scope.schemas = shareableSchemas = {};
     $scope.userGroups = userGroups = [];
     $scope.repos = [];
     $scope.clickAdvCriteria = function(event) {
@@ -67,10 +67,10 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             page.total = result.data.total;
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
-                    if (schemas[oRecord.schema_id].type == 'file') {
+                    if (shareableSchemas[oRecord.schema_id].type == 'file') {
                         oRecord.value = angular.fromJson(oRecord.value);
                     }
-                    if(schemas[oRecord.schema_id].type == 'multitext') {
+                    if (shareableSchemas[oRecord.schema_id].type == 'multitext') {
                         angular.forEach(oRecord.items, function(item) {
                             _items[item.id] = item;
                         });
@@ -108,9 +108,6 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             $scope.list4Schema(1);
         }
     };
-    $scope.shiftAgreed = function() {
-        $scope.list4Schema(1);
-    };
     $scope.shiftUserGroup = function() {
         $scope.list4Schema(1);
     };
@@ -125,14 +122,14 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
     };
     $scope.likeRecordData = function(oRecord, id, index) {
         var url;
-        url = '/rest/site/fe/matter/enroll/record/like';
+        url = '/rest/site/fe/matter/enroll/data/like';
         url += '?site=' + oApp.siteid;
         url += '&ek=' + oRecord.enroll_key;
         url += '&schema=' + oRecord.schema_id;
         url += '&id=' + id;
 
         http2.get(url).then(function(rsp) {
-            if(schemas[oRecord.schema_id].type=='multitext'&&oRecord._items[id]) {
+            if (shareableSchemas[oRecord.schema_id].type == 'multitext' && oRecord._items[id]) {
                 oRecord.items[index].like_log = rsp.data.itemLike_log;
                 oRecord.items[index].like_num = rsp.data.itemLike_num;
             }
@@ -150,21 +147,32 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             oRemark.like_num = rsp.data.like_num;
         });
     };
-    $scope.value2Label = function(value, schemaId) {
-        var val, schema, aVal, aLab = [];
+    $scope.recommend = function(oRecData, value) {
+        var url;
+        if (oRecData.agreed !== value) {
+            url = '/rest/site/fe/matter/enroll/data/recommend';
+            url += '?site=' + oApp.siteid;
+            url += '&ek=' + oRecData.enroll_key;
+            url += '&schema=' + oRecData.schema_id;
+            url += '&value=' + value;
+            http2.get(url).then(function(rsp) {
+                oRecData.agreed = value;
+            });
+        }
+    };
+    $scope.value2Label = function(oSchema, value) {
+        var val, aVal, aLab = [];
 
-        if ((schema = $scope.app._schemasById[schemaId]) && value) {
-            if (val = value) {
-                if (schema.ops && schema.ops.length) {
-                    aVal = val.split(',');
-                    schema.ops.forEach(function(op) {
-                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                    });
-                    val = aLab.join(',');
-                }
-            } else {
-                val = '';
+        if (val = value) {
+            if (oSchema.ops && oSchema.ops.length) {
+                aVal = val.split(',');
+                oSchema.ops.forEach(function(op) {
+                    aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                });
+                val = aLab.join(',');
             }
+        } else {
+            val = '';
         }
         return $sce.trustAsHtml(val);
     };
@@ -172,15 +180,19 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
-                schemas[schema.id] = schema;
+                shareableSchemas[schema.id] = schema;
                 $scope.schemaCount++;
             }
-            if (schema.id === '_round_id' && schema.ops && schema.ops.length) {
-                schema.ops.forEach(function(op) {
-                    userGroups.push(op);
-                });
-            }
         });
+        $scope.userGroups = params.groups;
+        $scope.groupUser = params.groupUser;
+        var groupOthersById = {};
+        if (params.groupOthers && params.groupOthers.length) {
+            params.groupOthers.forEach(function(oOther) {
+                groupOthersById[oOther.userid] = oOther;
+            });
+        }
+        $scope.groupOthers = groupOthersById;
         $scope.dataTags = oApp.dataTags;
         $scope.list4Schema(1);
         $scope.facRound = facRound = srvRound.ins(oApp);

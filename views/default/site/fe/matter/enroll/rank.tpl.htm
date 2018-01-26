@@ -19,7 +19,7 @@
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
-                    <i class="glyphicon glyphicon-signal visible-lg-inline"></i><span>数据排行</span>
+                    <i class="glyphicon glyphicon-signal visible-lg-inline"></i> <span>数据排行</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -48,7 +48,7 @@
                 <div class='col-md-2' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']">
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
-                        <option value='group' ng-if="app.group_app_id">用户分组</option>
+                        <option value='group' ng-if="app.group_app_id||app.entry_rule.scope==='group'">用户分组</option>
                         <option value='data' ng-if="isRemark">提交内容</option>
                         <option value='data-rec' ng-if="isRemark">提交内容-推荐</option>
                         <option value='remark' ng-if="isRemark">内容评论</option>
@@ -379,10 +379,12 @@
     </script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/rank.js');?>"></script>
     <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
+    <div class="tms-switch tms-switch-app" ng-click="gotoApp($event)"></div>
 </body>
 
 </html>

@@ -111,7 +111,7 @@
         <label>限制数量</label>
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema)">
     </div>
-    <div ng-if="activeSchema.requireScore==='Y'">
+    <div class='form-group' ng-if="activeSchema.requireScore==='Y'">
         <!--设置分数-->
         <div class="form-group">
             <label>设置分数</label>
@@ -144,5 +144,8 @@
                     <input type="checkbox" ng-model="data[op.v]" ng-change="updSchemaMultiple(activeSchema)" /><span>{{op.l}}</span></label>
             </li>
         </ul>
+    </div>
+    <div class='form-group' ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1">
+        <button class='btn btn-default' ng-click="setOptGroup(activeSchema)">设置选项分组</button>
     </div>
 </div>

@@ -11,7 +11,6 @@ class record extends \pl\fe\matter\base {
 	 */
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'white';
-		$rule_action['actions'][] = 'index';
 		$rule_action['actions'][] = 'get';
 
 		return $rule_action;
@@ -65,10 +64,14 @@ class record extends \pl\fe\matter\base {
 	 * 活动登记名单
 	 *
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $orderby = null, $contain = null, $includeSignin = null) {
+	public function list_action($site, $app, $page = 1, $size = 30) {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$oEnrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
+
 		// 登记数据过滤条件
 		$oCriteria = $this->getPostJson();
 
@@ -76,17 +79,15 @@ class record extends \pl\fe\matter\base {
 		$aOptions = [
 			'page' => $page,
 			'size' => $size,
-			'orderby' => $orderby,
-			'contain' => $contain,
 		];
-
-		// 登记活动
-		$modelApp = $this->model('matter\enroll');
-		$oEnrollApp = $modelApp->byId($app);
+		if (!empty($oCriteria->keyword)) {
+			$aOptions->keyword = $oCriteria->keyword;
+			unset($oCriteria->keyword);
+		}
 
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$oResult = $mdoelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
+		$modelRec = $this->model('matter\enroll\record');
+		$oResult = $modelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
 		if (!empty($oResult->records)) {
 			$remarkables = [];
 			$bRequireScore = false;
@@ -99,7 +100,7 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			if (count($remarkables)) {
-				foreach ($oResult->records as &$oRec) {
+				foreach ($oResult->records as $oRec) {
 					$modelRem = $this->model('matter\enroll\data');
 					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
 					$oRec->verbose = new \stdClass;
@@ -107,8 +108,8 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			if ($bRequireScore) {
-				foreach ($oResult->records as &$oRec) {
-					$one = $mdoelRec->query_obj_ss([
+				foreach ($oResult->records as $oRec) {
+					$one = $modelRec->query_obj_ss([
 						'id,score',
 						'xxt_enroll_record',
 						['siteid' => $site, 'enroll_key' => $oRec->enroll_key],
@@ -129,7 +130,7 @@ class record extends \pl\fe\matter\base {
 	 * 若不指定登记项，则返回活动中所有数值型登记项的合集
 	 * 若指定的登记项不是数值型，返回0
 	 */
-	public function sum4Schema_action($site, $app, $rid = 'ALL') {
+	public function sum4Schema_action($site, $app, $rid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -141,16 +142,18 @@ class record extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
+		$rid = empty($rid) ? [] : explode(',', $rid);
+
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->sum4Schema($enrollApp, $rid);
+		$modelRec = $this->model('matter\enroll\record');
+		$result = $modelRec->sum4Schema($enrollApp, $rid);
 
 		return new \ResponseData($result);
 	}
 	/**
 	 * 计算指定登记项的得分
 	 */
-	public function score4Schema_action($site, $app, $rid = 'ALL') {
+	public function score4Schema_action($site, $app, $rid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -162,9 +165,11 @@ class record extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
+		$rid = empty($rid) ? [] : explode(',', $rid);
+
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->score4Schema($enrollApp, $rid);
+		$modelRec = $this->model('matter\enroll\record');
+		$result = $modelRec->score4Schema($enrollApp, $rid);
 
 		return new \ResponseData($result);
 	}
@@ -189,8 +194,8 @@ class record extends \pl\fe\matter\base {
 		$enrollApp = $modelApp->byId($app);
 
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->recycle($site, $enrollApp, $aOptions);
+		$modelRec = $this->model('matter\enroll\record');
+		$result = $modelRec->recycle($site, $enrollApp, $aOptions);
 
 		return new \ResponseData($result);
 	}
@@ -217,8 +222,8 @@ class record extends \pl\fe\matter\base {
 		$enrollApp = $modelApp->byId($app);
 
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->list4Schema($enrollApp, $schema, $aOptions);
+		$modelRec = $this->model('matter\enroll\record');
+		$result = $modelRec->list4Schema($enrollApp, $schema, $aOptions);
 
 		return new \ResponseData($result);
 	}
@@ -854,13 +859,16 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 登记数据导出
 	 */
-	public function export_action($site, $app, $rid = '') {
+	public function export_action($site, $app, $filter = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		// 登记活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,data_schemas,assigned_nickname,scenario,enroll_app_id,group_app_id,multi_rounds', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,enroll_app_id,group_app_id,multi_rounds', 'cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			die('指定的对象不存在或者已经不可用');
+		}
 		$schemas = $oApp->dataSchemas;
 
 		// 关联的登记活动
@@ -894,17 +902,17 @@ class record extends \pl\fe\matter\base {
 
 		// 获得所有有效的登记记录
 		$modelRec = $this->model('matter\enroll\record');
-		//选择对应轮次
-		$oCriteria = new \stdClass;
-		$oCriteria->record = new \stdClass;
-		$oCriteria->record->rid = new \stdClass;
-		$oCriteria->record->rid = $rid;
-		$result = $modelRec->byApp($oApp, null, $oCriteria);
-		if ($result->total === 0) {
-			die('record empty');
+
+		// 筛选条件
+		$oCriteria = empty($filter) ? new \stdClass : json_decode($filter);
+		$rid = empty($oCriteria->record->rid) ? '' : $oCriteria->record->rid;
+
+		$oResult = $modelRec->byApp($oApp, null, $oCriteria);
+		if ($oResult->total === 0) {
+			die('导出数据为空');
 		}
 
-		if (!empty($result->records)) {
+		if (!empty($oResult->records)) {
 			$remarkables = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
@@ -912,7 +920,7 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			if (count($remarkables)) {
-				foreach ($result->records as &$oRec) {
+				foreach ($oResult->records as &$oRec) {
 					$modelRem = $this->model('matter\enroll\data');
 					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
 					$oRec->verbose = new \stdClass;
@@ -921,14 +929,17 @@ class record extends \pl\fe\matter\base {
 			}
 		}
 
-		$records = $result->records;
+		// 是否需要分组信息
+		$bRequireGroup = empty($oApp->group_app_id) && $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id);
+
+		$records = $oResult->records;
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
 		// Set properties
-		$objPHPExcel->getProperties()->setCreator("信信通")
-			->setLastModifiedBy("信信通")
+		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
+			->setLastModifiedBy(APP_TITLE)
 			->setTitle($oApp->title)
 			->setSubject($oApp->title)
 			->setDescription($oApp->title);
@@ -976,6 +987,9 @@ class record extends \pl\fe\matter\base {
 		if ($bRequireNickname) {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '昵称');
 		}
+		if ($bRequireGroup) {
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '分组');
+		}
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '标签');
 		// 记录分数
@@ -1018,9 +1032,9 @@ class record extends \pl\fe\matter\base {
 					$mbSchemaId = $mbSchemaIds[1];
 					if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
 						$mbSchemaId = $mbSchemaIds[2];
-						$v = $data->member->extattr->{$mbSchemaId};
+						$v = isset($data->member->extattr->{$mbSchemaId}) ? $data->member->extattr->{$mbSchemaId} : '';
 					} else {
-						$v = $data->member->{$mbSchemaId};
+						$v = isset($data->member->{$mbSchemaId}) ? $data->member->{$mbSchemaId} : '';
 					}
 				} else {
 					$v = '';
@@ -1098,7 +1112,11 @@ class record extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				case 'shorttext':
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					if (isset($schema->format) && $schema->format === 'number') {
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+					} else {
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
 					break;
 				case 'multitext':
 					if (is_array($v)) {
@@ -1116,8 +1134,9 @@ class record extends \pl\fe\matter\base {
 				}
 				$one = $i + $columnNum3;
 				// 分数
-				if (isset($oRecScore->{$schema->id})) {
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $oRecScore->{$schema->id}, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+				if ((isset($schema->requireScore) && $schema->requireScore === 'Y') || (isset($schema->format) && $schema->format === 'number')) {
+					$cellScore = empty($oRecScore->{$schema->id}) ? 0 : $oRecScore->{$schema->id};
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 				}
 				// 评论数
 				if (isset($remarkables) && in_array($schema->id, $remarkables)) {
@@ -1128,7 +1147,7 @@ class record extends \pl\fe\matter\base {
 					}
 					$two = $i + $columnNum3;
 					$col = ($two - $one >= 2) ? ($two - 1) : $two;
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($col, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($col, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 					$i++;
 					$columnNum3++;
 				}
@@ -1137,6 +1156,10 @@ class record extends \pl\fe\matter\base {
 			// 昵称
 			if ($bRequireNickname) {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->nickname);
+			}
+			// 分组
+			if ($bRequireGroup) {
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecord->group->title) ? $oRecord->group->title : '');
 			}
 			// 备注
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);
@@ -1176,9 +1199,11 @@ class record extends \pl\fe\matter\base {
 
 		$filename = $oApp->title . '.xlsx';
 		$ua = $_SERVER["HTTP_USER_AGENT"];
-		if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
+		//if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
+		if (preg_match("/MSIE/", $ua)) {
 			$encoded_filename = urlencode($filename);
 			$encoded_filename = str_replace("+", "%20", $encoded_filename);
+			$encoded_filename = iconv('UTF-8', 'GBK//IGNORE', $encoded_filename);
 			header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
 		} else if (preg_match("/Firefox/", $ua)) {
 			header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '"');

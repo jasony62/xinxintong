@@ -69,7 +69,7 @@ class remark_model extends \TMS_MODEL {
 			$rdId = '("' . $rdId . '")';
 			$q[2] .= " and data_id in $rdId";
 		}
-		
+
 		$q2 = [
 			'o' => 'agreed desc,create_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],

@@ -15,7 +15,7 @@
                     <li class="divider"></li>
                     <li><a href ng-click="batchTag()">选中记录打标签<span>（{{rows.count}}）</span></a></li>
                     <li class="divider"></li>
-                    <li><a href ng-click="export()">导出填写记录</a></li>
+                    <li><a href ng-click="export()">导出填写记录<span>（{{page.total}}）</span></a></li>
                     <li><a href ng-click="exportImage()">导出填写记录中的图片</a></li>
                     <li class="divider"></li>
                     <li><a href ng-click="editRecord()">添加记录</a></li>
@@ -40,7 +40,7 @@
     </div>
     <!-- end actions -->
     <!-- records -->
-    <div tms-flex-height top='72' bottom='135' class='form-group' style='width:100%;'>
+    <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
         <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
             <table class='table table-bordered'>
                 <thead>
@@ -50,7 +50,8 @@
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
                         <th style='width:40px'></th>
-                        <th style='width:140px' ng-if="bRequireNickname">用户昵称</th>
+                        <th style='width:140px' ng-if="bRequireNickname">用户</th>
+                        <th style='width:140px' ng-if="bRequireGroup">分组</th>
                         <th style='width:100px'>登记时间</th>
                         <th style='width:100px' ng-if="app.multi_rounds==='Y'">登记轮次</th>
                         <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
@@ -60,7 +61,6 @@
                         <th style='width:80px'>审核通过</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
-                        <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
                         <th style='width:48px'>操作</th>
                     </tr>
                 </thead>
@@ -76,6 +76,7 @@
                         </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
                         <td ng-if="bRequireNickname">{{r.nickname}}</td>
+                        <td ng-if="bRequireGroup">{{r.group.title}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td ng-if="app.multi_rounds==='Y'">{{r.round.title}}</td>
                         <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
@@ -149,7 +150,7 @@
                         </td>
                         <td>
                             <div ng-if="bRequireScore">
-                                {{score4Schema.sum}}
+                                {{score4SchemaAtPage.sum}}/{{score4Schema.sum}}
                             </div>
                         </td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas"></td>

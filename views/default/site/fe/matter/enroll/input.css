@@ -25,3 +25,10 @@ div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 
 div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 .tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
+
+/* 关联选项可见性控制 */
+div[schema-type=single] li[wrap].radio,div[schema-type=multiple] li[wrap].checkbox{margin-top:5px;}
+div[schema-type=single] li[wrap].radio:last-child,div[schema-type=multiple] li[wrap].checkbox:last-child{margin-bottom:25px;}
+div[schema-type=single] li[wrap].radio.option-hide,div[schema-type=multiple] li[wrap].checkbox.option-hide{height:0;margin:0;visibility:hidden;}
+div[schema-type=single] li[wrap].radio.option-hide>label,div[schema-type=multiple] li[wrap].checkbox.option-hide>label{height:0;min-height:0;}
+div[schema-type=single] li[wrap].radio.option-hide>label>*,div[schema-type=multiple] li[wrap].checkbox.option-hide>label>*{height:0;display:inline-block;overflow:hidden;}

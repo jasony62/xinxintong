@@ -33,7 +33,6 @@
                         <th ng-if="app.scenario==='voting'" style='width:80px'>平均分数</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
-                        <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
                         <th style='width:4em'>操作</th>
                     </tr>
                 </thead>
@@ -87,7 +86,6 @@
                         <td ng-if="app.scenario==='voting'">{{r._average|number:2}}</td>
                         <td ng-if="app.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
-                        <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
                         <td>
                             <button class='btn btn-xs btn-default' ng-click='restore(r)'>恢复</button>
                         </td>

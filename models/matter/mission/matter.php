@@ -25,7 +25,7 @@ class matter_model extends \TMS_MODEL {
 	 * @param array $options
 	 *
 	 */
-	public function &byMission($missionId, $matterType = null, $aOptions = [], $verbose = 'Y') {
+	public function byMission($missionId, $matterType = null, $aOptions = [], $verbose = 'Y') {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'id,matter_id,matter_title,matter_type,is_public,seq,create_at,start_at,end_at,scenario,phase_id';
 
 		$q = [
@@ -133,5 +133,60 @@ class matter_model extends \TMS_MODEL {
 		}
 
 		return $mms;
+	}
+	/**
+	 * 项目中的推荐内容
+	 */
+	public function agreed($oApp, $objUnit, $oAgreedObj, $agreedResult) {
+		if (empty($oApp->id) || empty($oApp->siteid) || empty($oApp->mission_id) || empty($oApp->type)) {
+			return [false, '参数不完整'];
+		}
+		if (!in_array($objUnit, ['D', 'R'])) {
+			return [false, '参数不完整'];
+		}
+		if (!in_array($agreedResult, ['Y', 'N', 'A'])) {
+			$agreedResult = '';
+		}
+		$dbPk = [
+			'matter_id' => $oApp->id,
+			'matter_type' => $oApp->type,
+			'obj_unit' => $objUnit,
+			'obj_key' => $oAgreedObj->enroll_key,
+		];
+		if ($objUnit === 'D') {
+			if (empty($oAgreedObj->id)) {
+				return [false, '参数不完整'];
+			}
+			$dbPk['obj_data_id'] = $oAgreedObj->id;
+		}
+
+		$current = time();
+
+		$oExisted = $this->query_obj_ss(['*', 'xxt_mission_agreed', $dbPk]);
+		if ($oExisted) {
+			if ($agreedResult !== 'Y') {
+				$this->delete('xxt_mission_agreed', $dbPk);
+			}
+		} else {
+			if ($agreedResult === 'Y') {
+				/* 只有推荐时才需要记录 */
+				$oNewLog = new \stdClass;
+				$oNewLog->siteid = $oApp->siteid;
+				$oNewLog->mission_id = $oApp->mission_id;
+				$oNewLog->matter_id = $oApp->id;
+				$oNewLog->matter_type = $oApp->type;
+				$oNewLog->obj_unit = $objUnit;
+				$oNewLog->obj_key = $oAgreedObj->enroll_key;
+				$oNewLog->op_at = $current;
+				if ($objUnit === 'D') {
+					$oNewLog->obj_data_id = $oAgreedObj->id;
+				}
+				$oNewLog->id = $this->insert('xxt_mission_agreed', $oNewLog, true);
+
+				return [true, $oNewLog];
+			}
+		}
+
+		return [true];
 	}
 }

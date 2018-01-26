@@ -1,25 +1,131 @@
-img{max-width:100%}
+img {
+	max-width: 100%
+}
+
+@media screen and (max-width:768px) {
+	.site-navbar-default {
+		margin-bottom: 0;
+	}
+
+	#filterCriteria .form-control, #filterCriteria .input-group-btn .btn {
+		border-radius: 0;
+	}
+
+}
 
 /*criteria*/
-#advCriteriaSwitch span.opened{}
-#advCriteria{position:absolute;top:100%;right:0;margin-top:1px;width:300px;background:#fff;padding:1rem;border:1px solid #ccc;border-top:0;z-index:1000;}
-#advCriteria .form-control{float:none;}
-#advCriteria .form-group{display:block;}
-#advCriteria .form-group:last-child{margin-bottom:0;}
+#advCriteriaSwitch span.opened {
+}
+
+#advCriteria {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	margin-top: 1px;
+	width: 300px;
+	background: #fff;
+	padding: 1rem;
+	border: 1px solid #ccc;
+	border-top: 0;
+	z-index: 1000;
+}
+
+#advCriteria .form-control {
+	float: none;
+}
+
+#advCriteria .form-group {
+	display: block;
+}
+
+#advCriteria .form-group:last-child {
+	margin-bottom: 0;
+}
 
 /*record*/
-#repos{background:#fff;}
-#repos p{word-break:break-all;}
-#repos .record .glyphicon-heart{color:red;}
-#repos .record{border-bottom:1px solid #ddd;padding:8px;}
-#repos .record:last-child{margin-bottom:1rem;}
-#repos .record>*{margin:1rem 0;}
-#repos .record .label{padding-top:.3em}
-#repos .record .bottom-bar{display:flex;}
-#repos .record .bottom-bar .datetime{flex:1;line-height:30px;font-size:.8rem;}
-#repos .record .remarks{font-size:.9em;border-top:1px dashed #ddd;padding:1rem 0 1rem 2rem;position:relative;}
-#repos .record .remarks:before{content:'推荐评论';position:absolute;left:50%;margin-left:-1em;top:-0.7em;color:#999;}
-#repos .record .remarks .remark{margin-bottom:1em;}
-#repos .record .remarks .remark .bottom-bar>:first-child{flex:1;}
-#repos .record .remarks .remark .bottom-bar>:first-child:before{content:'\2014 \00A0';}
-.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
+.glyphicon-thumbs-up.like {
+	color: red;
+}
+
+#repos .record {
+	background: #fff;
+	border-bottom: 1px solid #ddd;
+	padding: 8px;
+}
+
+#repos .record:last-child {
+	margin-bottom: 1rem;
+}
+
+#repos .record>* {
+	margin: 1rem 0;
+}
+
+#repos .record .header {
+	display: flex;
+}
+
+#repos .record .header .seq {
+	margin-right: 8px;
+}
+
+#repos .record .header .label {
+	padding-top: .3em
+}
+
+#repos .record .header .nickname {
+	flex-grow: 1;
+	text-align: right;
+	font-size: .9em;
+}
+
+#repos .record .bottom-bar {
+	display: flex;
+}
+
+#repos .record .bottom-bar>*+* {
+	margin-left: 8px;
+}
+
+#repos .record .bottom-bar .datetime {
+	flex: 1;
+	line-height: 30px;
+	font-size: .8rem;
+}
+
+#repos .record .remarks {
+	font-size: .9em;
+	border-top: 1px dashed #ddd;
+	padding: 1rem 0 1rem 2rem;
+	position: relative;
+}
+
+#repos .record .remarks:before {
+	content: '推荐评论';
+	position: absolute;
+	left: 50%;
+	margin-left: -1em;
+	top: -0.7em;
+	color: #999;
+}
+
+#repos .record .remarks .remark {
+	margin-bottom: 1em;
+}
+
+#repos .record .remarks .remark .bottom-bar>:first-child {
+	flex: 1;
+}
+
+#repos .record .remarks .remark .bottom-bar>:first-child:before {
+	content: '\2014 \00A0';
+}
+
+.tag {
+	background: #3af;
+	padding: 4px 6px;
+	margin: 4px;
+	border-radius: 2px;
+	font-size: .8em;
+	color: #fff;
+}

@@ -12,12 +12,13 @@ class remark extends base {
 	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99) {
 		$oUser = $this->who;
 
+		$modelRem = $this->model('matter\enroll\remark');
 		$options = [];
 		if (!empty($data)) {
-			$options['data_id'] = $data;
+			$options['data_id'] = $modelRem->escape($data);
 		}
 
-		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $options);
+		$result = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $options);
 
 		return new \ResponseData($result);
 	}
@@ -53,7 +54,7 @@ class remark extends base {
 	 * 进行评论操作的用户需满足进入活动规则的条件
 	 * $data  xxt_enroll_record_data 的id
 	 */
-	public function add_action($ek, $schema = '', $data = 0, $remark = 0) {
+	public function add_action($ek, $schema = '', $data, $remark = 0) {
 		if (empty($data)) {
 			return new \ResponseError('参数错误：未指定被评论内容ID');
 		}

@@ -560,4 +560,23 @@ class main extends base {
 
 		return new \ResponseData($result);
 	}
+	/**
+	 * 获得活动中作为内容分类目录使用的题目
+	 */
+	public function dirSchemasGet_action($app) {
+		$app = $this->escape($app);
+		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N', 'id,state,data_schemas']);
+		if ($oApp === false || $oApp->state !== '1') {
+			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
+		}
+
+		$dirSchemas = [];
+		foreach ($dataSchemas as $oSchema) {
+			if (isset($oSchema->asdir) && $oSchema->asdir === 'Y') {
+				$dirSchemas[] = $oSchema;
+			}
+		}
+
+		return new \ResponseData($dirSchemas);
+	}
 }

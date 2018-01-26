@@ -219,10 +219,10 @@ class record_model extends record_base {
 	 *
 	 */
 	private function _processRecord(&$oRecord, $fields, $verbose = 'Y') {
-		if ($fields === '*' || false !== strpos($fields, 'data')) {
+		if (property_exists($oRecord, 'data')) {
 			$oRecord->data = empty($oRecord->data) ? new \stdClass : json_decode($oRecord->data);
 		}
-		if ($fields === '*' || false !== strpos($fields, 'data_tag')) {
+		if (property_exists($oRecord, 'data_tag')) {
 			$oRecord->data_tag = empty($oRecord->data_tag) ? new \stdClass : json_decode($oRecord->data_tag);
 		}
 		if ($fields === '*' || false !== strpos($fields, 'supplement')) {
@@ -298,7 +298,6 @@ class record_model extends record_base {
 		} else {
 			$q[2]['rid'] = $assignRid;
 		}
-
 		/* 登记的时间 */
 		$q2 = [
 			'o' => 'enroll_at desc',
@@ -523,6 +522,9 @@ class record_model extends record_base {
 		if (empty($oApp)) {
 			return false;
 		}
+		if ($oOptions && is_array($oOptions)) {
+			$oOptions = (object) $oOptions;
+		}
 		// 数值型的填空题需要计算分值
 		$bRequireScore = false;
 		$oSchemasById = new \stdClass;
@@ -534,14 +536,6 @@ class record_model extends record_base {
 			}
 		}
 
-		if ($oOptions) {
-			is_array($oOptions) && $oOptions = (object) $oOptions;
-			$creater = isset($oOptions->creater) ? $oOptions->creater : null;
-			$inviter = isset($oOptions->inviter) ? $oOptions->inviter : null;
-			$orderby = isset($oOptions->orderby) ? $oOptions->orderby : '';
-			$page = isset($oOptions->page) ? $oOptions->page : null;
-			$size = isset($oOptions->size) ? $oOptions->size : null;
-		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 
@@ -549,38 +543,46 @@ class record_model extends record_base {
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
 		// 指定轮次，或者当前激活轮次
-		if (isset($oCriteria->record->assignRid)) {
-			$rid = $oCriteria->record->assignRid;
-		} else if (!empty($oCriteria->record->rid)) {
-			if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
-				$rid = $oCriteria->record->rid;
+		if (!empty($oCriteria->record->rid)) {
+			if (is_string($oCriteria->record->rid)) {
+				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
+					$rid = $oCriteria->record->rid;
+				}
+			} else if (is_array($oCriteria->record->rid)) {
+				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
+					$rid = $oCriteria->record->rid;
+				}
 			}
 		} else if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
 			$rid = $oActiveRnd->rid;
 		}
-		isset($rid) && $w .= " and r.rid='$rid'";
-
-		/* 根据用户分组过滤 */
-		if (!empty($oOptions->userGroup)) {
-			$w .= " and r.group_id='{$oOptions->userGroup}'";
-		}
-		// 根据填写人筛选（填写端列表页需要）
-		if (!empty($creater)) {
-			$w .= " and r.userid='$creater'";
-		} else if (!empty($inviter)) {
-			$oUser = new \stdClass;
-			$oUser->openid = $inviter;
-			$inviterek = $this->lastKeyByUser($oApp, $oUser);
-			$w .= " and r.referrer='ek:$inviterek'";
-		}
-
-		// 指定了登记记录属性过滤条件
-		if (!empty($oCriteria->record)) {
-			$whereByRecord = '';
-			if (!empty($oCriteria->record->verified)) {
-				$whereByRecord .= " and verified='{$oCriteria->record->verified}'";
+		if (isset($rid)) {
+			if (is_string($rid)) {
+				$w .= " and r.rid='$rid'";
+			} else if (is_array($rid)) {
+				if (empty($rid)) {
+					$w .= " and r.rid=''";
+				} else {
+					$w .= " and r.rid in('";
+					$w .= implode("','", $rid);
+					$w .= "')";
+				}
 			}
-			$w .= $whereByRecord;
+		}
+
+		// 根据用户分组过滤
+		if (!empty($oCriteria->record->group_id)) {
+			$w .= " and r.group_id='{$oCriteria->record->group_id}'";
+		}
+
+		// 根据填写人筛选（填写端列表页需要）
+		if (!empty($oCriteria->record->userid)) {
+			$w .= " and r.userid='{$oCriteria->record->userid}'";
+		}
+
+		// 记录是否通过审核
+		if (!empty($oCriteria->record->verified)) {
+			$w .= " and verified='{$oCriteria->record->verified}'";
 		}
 
 		// 指定了记录标签
@@ -641,15 +643,13 @@ class record_model extends record_base {
 		}
 
 		// 指定了按关键字过滤
-		if (!empty($oCriteria->keyword)) {
-			$whereByData = '';
-			$whereByData .= ' and (data like \'%' . $oCriteria->keyword . '%\')';
-			$w .= $whereByData;
+		if (!empty($oOptions->keyword)) {
+			$w .= ' and (data like \'%' . $oOptions->keyword . '%\')';
 		}
 
 		// 查询参数
 		$q = [
-			'r.enroll_key,r.rid,r.enroll_at,r.tags,r.userid,r.group_id,r.nickname,r.wx_openid,r.yx_openid,r.qy_openid,r.headimgurl,r.verified,r.comment,r.data,r.supplement,r.data_tag,r.agreed,r.like_num,r.like_log',
+			'r.enroll_key,r.rid,r.enroll_at,r.tags,r.userid,r.group_id,r.nickname,r.wx_openid,r.yx_openid,r.qy_openid,r.headimgurl,r.verified,r.comment,r.data,r.supplement,r.data_tag,r.agreed,r.like_num,r.like_log,remark_num',
 			"xxt_enroll_record r",
 			$w,
 		];
@@ -660,30 +660,36 @@ class record_model extends record_base {
 		}
 
 		$q2 = [];
+
 		// 查询结果分页
-		if (!empty($page) && !empty($size)) {
-			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		if (!empty($oOptions->page) && !empty($oOptions->size)) {
+			$q2['r'] = ['o' => ($oOptions->page - 1) * $oOptions->size, 'l' => $oOptions->size];
 		}
+
 		// 查询结果排序
-		if (!empty($oCriteria->order->orderby) && !empty($oCriteria->order->schemaId)) {
-			$schemaId = $oCriteria->order->schemaId;
-			$orderby = $oCriteria->order->orderby;
+		if (!empty($oOptions->orderby) && !empty($oOptions->schemaId)) {
+			$schemaId = $oOptions->schemaId;
+			$orderby = $oOptions->orderby;
 			$q[1] .= ",xxt_enroll_record_data d";
 			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId' and d.multitext_seq = 0";
 			$q2['o'] = 'd.' . $orderby . ' desc';
-		} elseif (!empty($oCriteria->order->orderby) && $oCriteria->order->orderby === 'sum') {
+		} elseif (!empty($oOptions->orderby) && $oOptions->orderby === 'sum') {
 			$q2['o'] = 'r.score desc';
+		} elseif (!empty($oOptions->orderby) && $oOptions->orderby === 'agreed') {
+			$q2['o'] = 'r.agreed desc';
 		} else {
 			$q2['o'] = 'r.enroll_at desc';
 		}
-		/* 处理获得的数据 */
+
+		/**
+		 * 处理获得的数据
+		 */
+		$aGroupsById = []; // 缓存分组数据
 		$aRoundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as $oRec) {
 				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
 				$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
-				$data = str_replace("\n", ' ', $oRec->data);
-				$data = json_decode($data);
 				//测验场景或数值填空题共用score字段
 				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($oRec->score)) {
 					$score = str_replace("\n", ' ', $oRec->score);
@@ -707,6 +713,8 @@ class record_model extends record_base {
 					}
 				}
 
+				$data = str_replace("\n", ' ', $oRec->data);
+				$data = json_decode($data);
 				if ($data === null) {
 					$oRec->data = 'json error(' . json_last_error_msg() . '):' . $oRec->data;
 				} else {
@@ -733,6 +741,21 @@ class record_model extends record_base {
 								}
 							}
 						}
+					}
+				}
+				// 记录的分组
+				if (!empty($oRec->group_id)) {
+					if (!isset($aGroupsById[$oRec->group_id])) {
+						if (!isset($modelGrpRnd)) {
+							$modelGrpRnd = $this->model('matter\group\round');
+						}
+						$oGroup = $modelGrpRnd->byId($oRec->group_id, ['fields' => 'title']);
+						$aGroupsById[$oRec->group_id] = $oGroup;
+					} else {
+						$oGroup = $aGroupsById[$oRec->group_id];
+					}
+					if ($oGroup) {
+						$oRec->group = $oGroup;
 					}
 				}
 				// 记录的登记轮次
@@ -1058,12 +1081,11 @@ class record_model extends record_base {
 	 * 计算指定登记项所有记录的合计
 	 */
 	public function sum4Schema($oApp, $rid = 'ALL') {
-		if (empty($oApp->data_schemas)) {
+		if (empty($oApp->dataSchemas)) {
 			return false;
 		}
-
 		$result = new \stdClass;
-		$dataSchemas = json_decode($oApp->data_schemas);
+		$dataSchemas = $oApp->dataSchemas;
 		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
@@ -1077,7 +1099,15 @@ class record_model extends record_base {
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'schema_id' => $schema->id, 'state' => 1],
 				];
-				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
+				if (!empty($rid)) {
+					if (is_string($rid)) {
+						$rid !== 'ALL' && $q[2]['rid'] = $rid;
+					} else if (is_array($rid)) {
+						if (empty(array_intersect(['all', 'ALL'], $rid))) {
+							$q[2]['rid'] = $rid;
+						}
+					}
+				}
 
 				$sum = (float) $this->query_val_ss($q);
 				$sum = number_format($sum, 2, '.', '');
@@ -1094,7 +1124,6 @@ class record_model extends record_base {
 		if (empty($oApp->data_schemas)) {
 			return false;
 		}
-
 		$result = new \stdClass;
 		$dataSchemas = isset($oApp->dataSchemas) ? $oApp->dataSchemas : json_decode($oApp->data_schemas);
 		if (empty($rid)) {
@@ -1110,7 +1139,15 @@ class record_model extends record_base {
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'schema_id' => $oSchema->id, 'state' => 1],
 				];
-				$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
+				if (!empty($rid)) {
+					if (is_string($rid)) {
+						$rid !== 'ALL' && $q[2]['rid'] = $rid;
+					} else if (is_array($rid)) {
+						if (empty(array_intersect(['all', 'ALL'], $rid))) {
+							$q[2]['rid'] = $rid;
+						}
+					}
+				}
 
 				$sum = (float) $this->query_val_ss($q);
 				$sum = number_format($sum, 2, '.', '');
@@ -1124,7 +1161,15 @@ class record_model extends record_base {
 			'xxt_enroll_record_data',
 			['aid' => $oApp->id, 'state' => 1],
 		];
-		$rid !== 'ALL' && !empty($rid) && $q[2]['rid'] = $rid;
+		if (!empty($rid)) {
+			if (is_string($rid)) {
+				$rid !== 'ALL' && $q[2]['rid'] = $rid;
+			} else if (is_array($rid)) {
+				if (empty(array_intersect(['all', 'ALL'], $rid))) {
+					$q[2]['rid'] = $rid;
+				}
+			}
+		}
 
 		$sum = (float) $this->query_val_ss($q);
 		$sum = number_format($sum, 2, '.', '');

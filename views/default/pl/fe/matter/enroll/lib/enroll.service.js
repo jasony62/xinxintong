@@ -135,6 +135,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 windowClass: 'auto-height',
                 backdrop: 'static',
                 resolve: {
+                    app: function() {
+                        return that._oApp;
+                    },
                     dataSchemas: function() {
                         return that._oApp.dataSchemas;
                     },
@@ -1000,20 +1003,43 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }, options);
             };
             _ins.export = function() {
-                var url, params = {
-                    criteria: _ins._oCriteria
-                };
-
+                var url, oCriteria;
+                oCriteria = {};
+                if (_ins._oCriteria.keyword) {
+                    oCriteria.keyword = _ins._oCriteria.keyword;
+                }
+                if (_ins._oCriteria.data && Object.keys(_ins._oCriteria.data).length) {
+                    var oFilterDat = {};
+                    angular.forEach(_ins._oCriteria.data, function(v, k) {
+                        v && (oFilterDat[k] = v);
+                    });
+                    if (Object.keys(oFilterDat).length) {
+                        oCriteria.data = oFilterDat;
+                    }
+                }
+                if (_ins._oCriteria.tags && _ins._oCriteria.tags.length) {
+                    oCriteria.tags = _ins._oCriteria.tags;
+                }
+                if (_ins._oCriteria.order) {}
+                if (_ins._oCriteria.record) {
+                    var oFilterRec = {};
+                    if (_ins._oCriteria.record.rid) {
+                        oFilterRec.rid = _ins._oCriteria.record.rid;
+                    }
+                    if (_ins._oCriteria.record.verified) {
+                        oFilterRec.verified = _ins._oCriteria.record.verified;
+                    }
+                    if (Object.keys(oFilterRec).length) {
+                        oCriteria.record = oFilterRec;
+                    }
+                }
                 url = '/rest/pl/fe/matter/enroll/record/export';
-                url += '?site=' + _siteId + '&app=' + _appId + '&rid=' + params.criteria.record.rid;
-
+                url += '?site=' + _siteId + '&app=' + _appId;
+                url += '&filter=' + JSON.stringify(oCriteria);
                 window.open(url);
             };
             _ins.exportImage = function() {
-                var url, params = {
-                    criteria: _ins._oCriteria
-                };
-
+                var url;
                 url = '/rest/pl/fe/matter/enroll/record/exportImage';
                 url += '?site=' + _siteId + '&app=' + _appId;
                 window.open(url);
@@ -1940,9 +1966,15 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     /**
      * filter
      */
-    ngModule.controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', 'srvEnlRnd', function($scope, $mi, dataSchemas, lastCriteria, srvEnlRnd) {
+    ngModule.controller('ctrlEnrollFilter', ['$scope', '$uibModalInstance', 'dataSchemas', 'criteria', 'srvEnlRnd', 'app', function($scope, $mi, dataSchemas, lastCriteria, srvEnlRnd, oApp) {
         var canFilteredSchemas = [];
 
+        if (!oApp.group_app_id) {
+            if (oApp.entry_rule && oApp.entry_rule.scope === 'group' && oApp.entry_rule.group && oApp.entry_rule.group.id) {
+                $scope.bRequireGroup = true;
+                $scope.groups = oApp.groups;
+            }
+        }
         dataSchemas.forEach(function(schema) {
             if (false === /image|file|score|html/.test(schema.type) && schema.id.indexOf('member') !== 0) {
                 canFilteredSchemas.push(schema);

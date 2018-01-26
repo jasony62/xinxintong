@@ -4,6 +4,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
      *
      */
     ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, $uibModal, srvEnrollApp, srvAppPage) {
+        var _oApp;
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep && $scope.ep.$$modified) {
@@ -45,8 +46,8 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
         $scope.delPage = function() {
             var oPage, oActSchema, bUserd;
             $('body').click();
-            for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
-                oPage = $scope.app.pages[i];
+            for (var i = _oApp.pages.length - 1; i >= 0; i--) {
+                oPage = _oApp.pages[i];
                 for (var j = oPage.act_schemas.length - 1; j >= 0; j--) {
                     oActSchema = oPage.act_schemas[j];
                     if (oActSchema.next === $scope.ep.name) {
@@ -67,7 +68,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
         $scope.choosePage = function(page) {
             var pages;
             if (angular.isString(page)) {
-                pages = $scope.app.pages;
+                pages = _oApp.pages;
                 for (var i = pages.length - 1; i >= 0; i--) {
                     if (pages[i].name === page) {
                         page = pages[i];
@@ -82,7 +83,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
             var originator = state.originator,
                 modifiedSchema = state.schema;
 
-            $scope.app.pages.forEach(function(page) {
+            _oApp.pages.forEach(function(page) {
                 if (originator === $scope.ep && page !== $scope.ep) {
                     page.updateSchema(modifiedSchema);
                 }
@@ -95,7 +96,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
         $scope.save = function() {
             var pages, oPage, aCheckResult, updatedAppProps, bCanAddRecord;
 
-            pages = $scope.app.pages;
+            pages = _oApp.pages;
             updatedAppProps = ['data_schemas'];
             bCanAddRecord = false;
 
@@ -122,30 +123,31 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
                 }
             }
             if (bCanAddRecord) {
-                if ($scope.app.count_limit == 1) {
-                    $scope.app.count_limit = 0;
+                if (_oApp.count_limit == 1) {
+                    _oApp.count_limit = 0;
                     updatedAppProps.push('count_limit');
                 }
             } else {
-                if ($scope.app.count_limit != 1) {
-                    $scope.app.count_limit = 1;
+                if (_oApp.count_limit != 1) {
+                    _oApp.count_limit = 1;
                     updatedAppProps.push('count_limit');
                 }
             }
             srvEnrollApp.update(updatedAppProps).then(function() {
-                $scope.app.pages.forEach(function(page) {
+                _oApp.pages.forEach(function(page) {
                     $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);
                 });
             });
         };
         $scope.gotoCode = function() {
-            window.open('/rest/pl/fe/code?site=' + $scope.app.siteid + '&name=' + $scope.ep.code_name, '_self');
+            window.open('/rest/pl/fe/code?site=' + _oApp.siteid + '&name=' + $scope.ep.code_name, '_self');
         };
         srvEnrollApp.get().then(function(app) {
-            var pageName;
-            if (pageName = $location.search().page) {
-                $scope.choosePage(pageName);
+            _oApp = app;
+            if (_oApp.group_app_id || (_oApp.entry_rule && _oApp.entry_rule.scope === 'group' && _oApp.entry_rule.group && _oApp.entry_rule.group.id)) {
+                $scope.bSupportGroup = true;
             }
+            $location.search().page && $scope.choosePage($location.search().page);
             if (!$scope.ep) $scope.ep = app.pages[0];
         });
     }]);

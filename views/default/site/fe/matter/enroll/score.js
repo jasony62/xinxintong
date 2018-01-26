@@ -2,7 +2,7 @@
 require('./score.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlScore', ['$scope', '$sce', function($scope, $sce) {
+ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', function($scope, $sce, LS, http2) {
     var oApp, quizSchemas, quizSchemasById;
     $scope.value2Label = function(schemaId) {
         var val, schema, aVal, aLab = [];
@@ -30,16 +30,20 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', function($scope, $sce) {
         oApp = params.app;
         quizSchemas = [];
         quizSchemasById = {};
-        oApp.dataSchemas.forEach(function(oSchema) {
-            if (oSchema.requireScore && oSchema.requireScore === 'Y') {
-                quizSchemas.push(oSchema);
-                quizSchemasById[oSchema.id] = oSchema;
-                if (oSchema.type === 'multiple' && params.record.data[oSchema.id]) {
-                    params.record.data[oSchema.id] = params.record.data[oSchema.id].split(',');
+        http2.get(LS.j('record/get', 'site', 'app', 'ek')).then(function(rsp) {
+            var oRecord;
+            oRecord = rsp.data;
+            oApp.dataSchemas.forEach(function(oSchema) {
+                if (oSchema.requireScore && oSchema.requireScore === 'Y') {
+                    quizSchemas.push(oSchema);
+                    quizSchemasById[oSchema.id] = oSchema;
+                    if (oSchema.type === 'multiple' && oRecord.data[oSchema.id]) {
+                        oRecord.data[oSchema.id] = oRecord.data[oSchema.id].split(',');
+                    }
                 }
-            }
+            });
+            $scope.quizSchemas = quizSchemas;
+            $scope.record = oRecord;
         });
-        $scope.quizSchemas = quizSchemas;
-        $scope.record = params.record;
     });
 }]);

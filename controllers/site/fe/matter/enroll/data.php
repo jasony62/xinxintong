@@ -7,6 +7,29 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class data extends base {
 	/**
+	 * 获得登记记录中的数据
+	 */
+	public function get_action($ek, $schema = '', $data = '') {
+		$ek = $this->escape($ek);
+		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'aid,rid,enroll_key,userid,group_id,nickname,enroll_at']);
+		if (false === $oRecord) {
+			return new \ObjectNotFoundError();
+		}
+
+		$fields = 'id,state,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
+		$modelRecDat = $this->model('matter\enroll\data');
+		if (empty($data)) {
+			$oRecData = $modelRecDat->byRecord($ek, ['schema' => $schema, 'fields' => $fields]);
+		} else {
+			$oRecData = $modelRecDat->byId($data, ['fields' => $fields]);
+		}
+
+		$oRecord->verbose = new \stdClass;
+		$oRecord->verbose->{$oRecData->schema_id} = $oRecData;
+
+		return new \ResponseData($oRecord);
+	}
+	/**
 	 * 推荐登记记录中的某一个题
 	 * 只有组长才有权限做
 	 *
@@ -17,12 +40,12 @@ class data extends base {
 	 */
 	public function recommend_action($ek, $schema, $value = '') {
 		$modelData = $this->model('matter\enroll\data');
-		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,userid,group_id,agreed,agreed_log']);
-		if (false === $oRecData) {
+		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,enroll_key,state,userid,agreed,agreed_log']);
+		if (false === $oRecData || $oRecData->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N', 'fields' => 'state,entry_rule']);
+		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,mission_id,state,entry_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -31,12 +54,13 @@ class data extends base {
 		}
 
 		$modelGrpUsr = $this->model('matter\group\player');
+		/* 当前操作用户所属分组及角色 */
 		$oGrpLeader = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || $oGrpLeader->is_leader !== 'Y') {
 			return new \ParameterError('只有允许组长进行推荐');
 		}
-
-		$oGrpMemb = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'round_id', 'onlyOne' => true]);
+		/* 记录提交人所属分组 */
+		$oGrpMemb = $modelGrpUsr->byUser($oApp->entry_rule->group, $oRecData->userid, ['fields' => 'round_id', 'onlyOne' => true]);
 		if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
 			return new \ParameterError('只允许组长推荐本组数据');
 		}
@@ -44,20 +68,6 @@ class data extends base {
 		if (!in_array($value, ['Y', 'N', 'A'])) {
 			$value = '';
 		}
-		// 确定模板名称
-		// if ($value == 'Y') {
-		// 	$name = 'site.enroll.submit.recommend';
-		// } else if ($value == 'N') {
-		// 	$name = 'site.enroll.submit.mask';
-		// }
-
-		// if (!empty($name)) {
-		// 	$modelRec = $this->model('matter\enroll\record');
-		// 	$oRecord = $modelRec->byId($ek);
-		// 	$modelEnl = $this->model('matter\enroll');
-		// 	$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
-		// 	$this->_notifyAgree($oApp, $oRecord, $name, $schema);
-		// }
 
 		$oAgreedLog = $oRecData->agreed_log;
 		if (isset($oAgreedLog->{$this->who->uid})) {
@@ -71,8 +81,14 @@ class data extends base {
 		$rst = $modelData->update(
 			'xxt_enroll_record_data',
 			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
-			['enroll_key' => $ek, 'schema_id' => $schema, 'state' => 1]
+			['id' => $oRecData->id]
 		);
+
+		/* 如果活动属于项目，更新项目内的推荐内容 */
+		if (!empty($oApp->mission_id)) {
+			$modelMisMat = $this->model('matter\mission\matter');
+			$modelMisMat->agreed($oApp, 'D', $oRecData, $value);
+		}
 
 		return new \ResponseData($rst);
 	}
@@ -81,15 +97,15 @@ class data extends base {
 	 *
 	 * @param string $ek
 	 * @param string $schema
-	 * @param int $id xxt_enroll_record_data 的id
+	 * @param int $data xxt_enroll_record_data 的id
 	 *
 	 */
-	public function like_action($ek, $schema, $id = '') {
+	public function like_action($ek, $schema, $data = '') {
 		$modelData = $this->model('matter\enroll\data');
-		if (empty($id)) {
-			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
+		if (empty($data)) {
+			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,like_log,userid,multitext_seq,like_num']);
 		} else {
-			$oRecordData = $modelData->byId($id, ['fields' => 'aid,id,like_log,userid,multitext_seq,like_num']);
+			$oRecordData = $modelData->byId($data, ['fields' => 'id,aid,like_log,userid,multitext_seq,like_num']);
 		}
 		if (false === $oRecordData) {
 			return new \ObjectNotFoundError();
@@ -104,7 +120,7 @@ class data extends base {
 		foreach ($oApp->dataSchemas as $dataSchema) {
 			if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
 				$schmeaType = 'multitext';
-				if (empty($id)) {
+				if (empty($data)) {
 					return new \ComplianceError('参数错误，此题型需要指定唯一标识');
 				}
 			}

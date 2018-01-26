@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', function($scope, $timeout, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', function($scope, $timeout, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
@@ -11,11 +11,14 @@ define(['frame'], function(ngApp) {
                         if ($scope.records.length) {
                             $scope.records.forEach(function(oRecord) {
                                 if (sum4SchemaAtPage[schemaId]) {
-                                    sum4SchemaAtPage[schemaId] += oRecord.data[schemaId] ? parseInt(oRecord.data[schemaId]) : 0;
+                                    sum4SchemaAtPage[schemaId] += oRecord.data[schemaId] ? parseFloat(oRecord.data[schemaId]) : 0;
                                 } else {
-                                    sum4SchemaAtPage[schemaId] = oRecord.data[schemaId] ? parseInt(oRecord.data[schemaId]) : 0;
+                                    sum4SchemaAtPage[schemaId] = oRecord.data[schemaId] ? parseFloat(oRecord.data[schemaId]) : 0;
                                 }
                             });
+                            if (sum4SchemaAtPage[schemaId]) {
+                                sum4SchemaAtPage[schemaId] = $filter('number')(sum4SchemaAtPage[schemaId], 2).replace('.00', '');
+                            }
                         } else {
                             sum4SchemaAtPage[schemaId] = 0;
                         }
@@ -26,7 +29,7 @@ define(['frame'], function(ngApp) {
 
         function fnScore4Schema() {
             var score4SchemaAtPage;
-            $scope.score4SchemaAtPage = score4SchemaAtPage = {};
+            $scope.score4SchemaAtPage = score4SchemaAtPage = { sum: 0 };
             if ($scope.bRequireScore) {
                 srvEnrollRecord.score4Schema().then(function(result) {
                     $scope.score4Schema = result;
@@ -39,9 +42,11 @@ define(['frame'], function(ngApp) {
                                     } else {
                                         score4SchemaAtPage[schemaId] = parseFloat(oRecord.score[schemaId] || 0);
                                     }
-                                    score4SchemaAtPage.sum = parseFloat(oRecord.score.sum || 0);
                                 }
                             });
+                            if (score4SchemaAtPage[schemaId]) {
+                                score4SchemaAtPage[schemaId] = $filter('number')(score4SchemaAtPage[schemaId], 2).replace('.00', '');
+                            }
                         } else {
                             score4SchemaAtPage[schemaId] = 0;
                         }
@@ -154,8 +159,8 @@ define(['frame'], function(ngApp) {
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
-        srvEnrollApp.get().then(function(app) {
-            srvEnrollRecord.init(app, $scope.page, $scope.criteria, $scope.records);
+        srvEnrollApp.get().then(function(oApp) {
+            srvEnrollRecord.init(oApp, $scope.page, $scope.criteria, $scope.records);
             // schemas
             var recordSchemas = [],
                 recordSchemasExt = [],
@@ -163,7 +168,7 @@ define(['frame'], function(ngApp) {
                 bRequireSum = false,
                 bRequireScore = false,
                 groupDataSchemas = [];
-            app.dataSchemas.forEach(function(oSchema) {
+            oApp.dataSchemas.forEach(function(oSchema) {
                 if (oSchema.type !== 'html') {
                     recordSchemas.push(oSchema);
                     recordSchemasExt.push(oSchema);
@@ -182,21 +187,24 @@ define(['frame'], function(ngApp) {
                 }
             });
 
-            $scope.bRequireNickname = app.assignedNickname.valid !== 'Y' || !app.assignedNickname.schema;
+            $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
+            if (!oApp.group_app_id) {
+                $scope.bRequireGroup = oApp.entry_rule.scope === 'group' && oApp.entry_rule.group && oApp.entry_rule.group.id;
+            }
             $scope.bRequireSum = bRequireSum;
             $scope.bRequireScore = bRequireScore;
             $scope.recordSchemas = recordSchemas;
             $scope.recordSchemasExt = recordSchemasExt;
-            if (app._schemasFromEnrollApp) {
-                app._schemasFromEnrollApp.forEach(function(schema) {
+            if (oApp._schemasFromEnrollApp) {
+                oApp._schemasFromEnrollApp.forEach(function(schema) {
                     if (schema.type !== 'html') {
                         enrollDataSchemas.push(schema);
                     }
                 });
             }
             $scope.enrollDataSchemas = enrollDataSchemas;
-            if (app._schemasFromGroupApp) {
-                app._schemasFromGroupApp.forEach(function(schema) {
+            if (oApp._schemasFromGroupApp) {
+                oApp._schemasFromGroupApp.forEach(function(schema) {
                     if (schema.type !== 'html') {
                         groupDataSchemas.push(schema);
                     }

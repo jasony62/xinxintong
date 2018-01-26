@@ -9,6 +9,10 @@ class main extends base {
 	/**
 	 *
 	 */
+	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,mission_id,mission_phase_id,multi_rounds,read_num,repos_unit,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer';
+	/**
+	 *
+	 */
 	private $modelApp;
 	/**
 	 *
@@ -227,11 +231,14 @@ class main extends base {
 	 * @param string $page page's name
 	 * @param string $ek record's enroll key
 	 * @param string $newRecord
+	 *
 	 */
 	public function get_action($app, $rid = '', $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
 		/* 登记活动定义 */
-		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded]);
-		if ($oApp === false) {
+		$app = $this->escape($app);
+
+		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields]);
+		if ($oApp === false || $oApp->state !== '1') {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
 		unset($oApp->data_schemas);
@@ -404,11 +411,16 @@ class main extends base {
 		}
 
 		/**
-		 * 获得当前用户所属的分组，是否为组长，及同组成员
+		 * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
 		 */
 		if (!empty($oApp->entry_rule->group->id) || !empty($oApp->group_app_id)) {
-			$modelGrpUsr = $this->model('matter\group\player');
 			$assocGroupAppId = empty($oApp->entry_rule->group->id) ? $oApp->group_app_id : $oApp->entry_rule->group->id;
+			/* 获得的分组信息 */
+			$modelGrpRnd = $this->model('matter\group\round');
+			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
+			$params['groups'] = $groups;
+			/* 用户所属分组 */
+			$modelGrpUsr = $this->model('matter\group\player');
 			$oGrpApp = (object) ['id' => $assocGroupAppId];
 			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,round_id,round_title,userid,nickname', 'onlyOne' => true]);
 			if ($oGrpUsr) {

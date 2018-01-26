@@ -2,81 +2,74 @@
 require('./remark.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$uibModal', '$location', function($scope, $q, $timeout, http2, $sce, $uibModal, $location) {
+ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $sce, $uibModal, LS, http2, noticebox) {
     function listRemarks() {
-        var url, defer = $q.defer();
-        url = '/rest/site/fe/matter/enroll/remark/list?site=' + oApp.siteid + '&ek=' + ek;
-        url += '&schema=' + $scope.filter.schema.id;
-        url += '&id=' + itemId;
-        http2.get(url).then(function(rsp) {
-            var oRecordData;
-            if (oRecordData = rsp.data.data) {
-                if (oFilter.schema.type == 'file' || (oFilter.schema.type == 'multitext' && oRecordData.multitext_seq == '0')) {
-                    oRecordData.value = angular.fromJson(oRecordData.value);
+        http2.get(LS.j('remark/list', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
+            var remarks, oRemark, oUpperRemark, oRemarks;
+            remarks = rsp.data.remarks;
+            if (remarks && remarks.length) {
+                oRemarks = {};
+                remarks.forEach(function(oRemark) {
+                    oRemarks[oRemark.id] = oRemark;
+                });
+                for (var i = remarks.length - 1; i >= 0; i--) {
+                    oRemark = remarks[i];
+                    if (oRemark.content) {
+                        oRemark.content = oRemark.content.replace(/\n/g, '<br/>');
+                    }
+                    if (oRemark.remark_id !== '0') {
+                        oUpperRemark = oRemarks[oRemark.remark_id];
+                        oRemark.content = '<a href="" ng-click="gotoUpper(' + oRemark.remark_id + ')">回复 ' + oUpperRemark.nickname + ' 的评论：</a><br/>' + oRemark.content;
+                    }
                 }
             }
-            defer.resolve(rsp.data)
+            $scope.remarks = remarks;
         });
-        return defer.promise;
-    }
-
-    function summary() {
-        var url;
-        url = '/rest/site/fe/matter/enroll/remark/summary?site=' + oApp.siteid + '&ek=' + ek;
-        return http2.get(url);
     }
 
     function addRemark(content, oRemark) {
         var url;
-        url = '/rest/site/fe/matter/enroll/remark/add?site=' + oApp.siteid + '&ek=' + ek;
-        url += '&schema=' + $scope.filter.schema.id;
-        url += '&id=' + itemId;
+        url = LS.j('remark/add', 'site', 'ek', 'schema', 'data');
         if (oRemark) {
             url += '&remark=' + oRemark.id;
         }
         return http2.post(url, { content: content });
     }
 
-    var oApp, aRemarkable, oFilter, ek, schemaId, itemId;
-    ek = $location.search().ek;
-    schemaId = $location.search().schema || null;
-    $scope.itemId = itemId = $location.search().id || 'null';
+    if (!LS.s().ek) {
+        noticebox.error('参数不完整');
+        return;
+    }
+    var oApp, aShareable, ek, _schemaId, _recDataId;
+    ek = LS.s().ek;
+    _schemaId = LS.s().schema;
+    _recDataId = LS.s().data;
     $scope.newRemark = {};
-    $scope.filter = oFilter = {};
-    $scope.openOptions = function() {
-        $uibModal.open({
-            templateUrl: 'options.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.remarkableSchemas = aRemarkable;
-                $scope2.data = {};
-                $scope2.data.schema = oFilter.schema;
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() {
-                    $mi.close($scope2.data);
-                };
-            }],
-            backdrop: 'static',
-        }).result.then(function(data) {
-            oFilter.schema = data.schema;
-        });
-    };
-    $scope.recommend = function(oRecData, value) {
-        var url;
-        if (oRecData.agreed !== value) {
-            url = '/rest/site/fe/matter/enroll/data/recommend';
-            url += '?site=' + oApp.siteid;
-            url += '&ek=' + $scope.record.enroll_key;
-            url += '&schema=' + schemaId;
-            url += '&value=' + value;
-            http2.get(url).then(function(rsp) {
-                oRecData.agreed = value;
-            });
+    $scope.recommend = function(value) {
+        var url, oRecord, oRecData;
+        if ($scope.bRemarkRecord) {
+            oRecord = $scope.record;
+            if (oRecord.agreed !== value) {
+                url = LS.j('record/recommend', 'site', 'ek');
+                url += '&value=' + value;
+                http2.get(url).then(function(rsp) {
+                    oRecord.agreed = value;
+                });
+            }
+        } else {
+            oRecData = $scope.data;
+            if (oRecData.agreed !== value) {
+                url = LS.j('data/recommend', 'site', 'ek', 'schema');
+                url += '&value=' + value;
+                http2.get(url).then(function(rsp) {
+                    oRecData.agreed = value;
+                });
+            }
         }
     };
     $scope.likeRemark = function(oRemark) {
         var url;
-        url = '/rest/site/fe/matter/enroll/remark/like';
-        url += '?site=' + oApp.siteid;
+        url = LS.j('remark/like', 'site');
         url += '&remark=' + oRemark.id;
         http2.get(url).then(function(rsp) {
             oRemark.like_log = rsp.data.like_log;
@@ -120,17 +113,21 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
             });
         });
     };
-    $scope.likeRecordData = function() {
-        var url;
-        url = '/rest/site/fe/matter/enroll/data/like';
-        url += '?site=' + oApp.siteid;
-        url += '&ek=' + $scope.record.enroll_key;
-        url += '&schema=' + $scope.filter.schema.id;
-        url += '&id=' + itemId;
-        http2.get(url).then(function(rsp) {
-            $scope.data.like_log = rsp.data.like_log;
-            $scope.data.like_num = rsp.data.like_num;
-        });
+    $scope.likeRecord = function() {
+        var oRecord, oRecData;
+        if ($scope.bRemarkRecord) {
+            oRecord = $scope.record;
+            http2.get(LS.j('record/like', 'site', 'ek')).then(function(rsp) {
+                oRecord.like_log = rsp.data.like_log;
+                oRecord.like_num = rsp.data.like_num;
+            });
+        } else {
+            oRecData = $scope.record.verbose[_schemaId];
+            http2.get(LS.j('data/like', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
+                oRecData.like_log = rsp.data.like_log;
+                oRecData.like_num = rsp.data.like_num;
+            });
+        }
     };
     $scope.gotoUpper = function(upperId) {
         var elRemark, offsetTop, parentNode;
@@ -159,47 +156,40 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
             }
         }
     };
-    $scope.value2Label = function(schemaId) {
-        var val, schema, aVal, aLab = [];
-
-        if ((schema = $scope.app._schemasById[schemaId]) && $scope.record.data) {
-            if (val = $scope.record.data[schemaId]) {
-                if (schema.ops && schema.ops.length) {
-                    aVal = val.split(',');
-                    schema.ops.forEach(function(op) {
-                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                    });
-                    val = aLab.join(',');
+    $scope.value2Label = function(oSchema) {
+        var val, aVal, aLab = [];
+        if ($scope.record) {
+            if ($scope.record.verbose[oSchema.id]) {
+                if (val = $scope.record.verbose[oSchema.id].value) {
+                    if (oSchema.ops && oSchema.ops.length) {
+                        aVal = val.split(',');
+                        oSchema.ops.forEach(function(op) {
+                            aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                        });
+                        val = aLab.join(',');
+                    }
                 }
-            } else {
-                val = '';
             }
         }
-        return $sce.trustAsHtml(val);
+        return val ? $sce.trustAsHtml(val) : '';
     };
+    $scope.bRemarkRecord = !_schemaId; // 评论记录还是数据
     $scope.bRequireOption = true;
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var oSchema;
+        var oAssignedSchema;
         oApp = params.app;
-        aRemarkable = [];
-        $scope.record = params.record;
+        aShareable = [];
         for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
-            if (oApp.dataSchemas[i].remarkable && oApp.dataSchemas[i].remarkable === 'Y') {
-                aRemarkable.push(oApp.dataSchemas[i]);
+            if (oApp.dataSchemas[i].shareable && oApp.dataSchemas[i].shareable === 'Y') {
+                aShareable.push(oApp.dataSchemas[i]);
             }
-            if (schemaId && oApp.dataSchemas[i].id === schemaId) {
-                oSchema = oApp.dataSchemas[i];
+            if (oApp.dataSchemas[i].id === LS.s().schema) {
+                oAssignedSchema = oApp.dataSchemas[i];
             }
         }
-        if (oSchema) {
-            oFilter.schema = oSchema;
-        } else if (aRemarkable.length) {
-            oFilter.schema = aRemarkable[0];
-        }
-        $scope.remarkableSchemas = aRemarkable;
-        if (aRemarkable.length <= 1 && $scope.record.userid !== $scope.user.uid) {
-            $scope.bRequireOption = false;
-        }
+        /**
+         * 分组信息
+         */
         var groupOthersById;
         if (params.groupOthers && params.groupOthers.length) {
             groupOthersById = {};
@@ -208,38 +198,52 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$timeout', 'http2', '$sce', '$u
             });
             $scope.groupOthers = groupOthersById;
         }
-    });
-    $scope.$watch('filter', function(nv) {
-        if (nv && nv.schema) {
-            listRemarks().then(function(data) {
-                var oRemark, oUpperRemark, oRemarks = {};
-                if (data.remarks && data.remarks.length) {
-                    angular.forEach(data.remarks, function(remark) {
-                        oRemarks[remark.id] = remark;
-                    });
-                    for (var i = data.remarks.length - 1; i >= 0; i--) {
-                        oRemark = data.remarks[i];
-                        if (oRemark.content) {
-                            oRemark.content = oRemark.content.replace(/\n/g, '<br/>');
-                        }
-                        if (oRemark.remark_id !== '0') {
-                            oUpperRemark = oRemarks[oRemark.remark_id];
-                            oRemark.content = '<a href="" ng-click="gotoUpper(' + oRemark.remark_id + ')">回复 ' + oUpperRemark.nickname + ' 的评论：</a><br/>' + oRemark.content;
-                        }
+        if ($scope.bRemarkRecord) {
+            /**
+             * 整条记录的评论
+             */
+            http2.get(LS.j('repos/recordGet', 'site', 'app', 'ek')).then(function(rsp) {
+                $scope.record = rsp.data;
+                aShareable.forEach(function(oSchema) {
+                    if (oSchema.type === 'file') {
+                        $scope.record.verbose[oSchema.id].value = angular.fromJson($scope.record.verbose[oSchema.id].value);
+                    } else if (oSchema.type === 'image') {
+                        $scope.record.verbose[oSchema.id].value = $scope.record.verbose[oSchema.id].value.split(',');
+                    } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
+                        $scope.record.verbose[oSchema.id].value = $scope.value2Label(oSchema);
                     }
-                }
-                if (data.data) {
-                    if (data.data.tag) {
-                        data.data.tag.forEach(function(index, tagId) {
-                            if (oApp._tagsById[index]) {
-                                data.data.tag[tagId] = oApp._tagsById[index];
-                            }
-                        });
-                    }
-                }
-                $scope.data = data.data;
-                $scope.remarks = data.remarks;
+                });
+                listRemarks();
             });
+            $scope.visibleSchemas = aShareable;
+        } else {
+            /**
+             * 单道题目的评论
+             */
+            http2.get(LS.j('data/get', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
+                var oRecord, oRecData;
+                if (oRecord = rsp.data) {
+                    if (oRecData = oRecord.verbose[LS.s().schema]) {
+                        if (oAssignedSchema.type == 'file') {
+                            oRecData.value = angular.fromJson(oRecData.value);
+                        }
+                        if (oRecData.tag) {
+                            oRecData.tag.forEach(function(index, tagId) {
+                                if (oApp._tagsById[index]) {
+                                    oRecData.tag[tagId] = oApp._tagsById[index];
+                                }
+                            });
+                        }
+                    }
+                    if (oRecord.userid !== $scope.user.uid) {
+                        $scope.bRequireOption = false;
+                    }
+                    $scope.record = oRecord;
+                    $scope.data = oRecData;
+                    listRemarks();
+                }
+            });
+            $scope.visibleSchemas = [oAssignedSchema];
         }
-    }, true);
+    });
 }]);

@@ -129,7 +129,7 @@ class user extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function list_action($app) {
+	public function list_action($app, $page = 1, $size = 30) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -150,7 +150,9 @@ class user extends \pl\fe\matter\base {
 			['aid' => $oApp->id],
 		];
 		$q2 = ['o' => 'last_enroll_at desc'];
-
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = ['o' => ($page - 1)  * $size, 'l' => $size];
+		}
 		$users = $modelUsr->query_objs_ss($q, $q2);
 		$oEntryRule = $oApp->entryRule;
 		if (!empty($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y' && !empty($oEntryRule->group->id)) {
@@ -163,6 +165,9 @@ class user extends \pl\fe\matter\base {
 			}
 		}
 		$oResult->users = $users;
+		$q[0] = 'count(id)';
+		$total = (int) $modelUsr->query_val_ss($q);
+		$oResult->total = $total;
 
 		return new \ResponseData($oResult);
 	}

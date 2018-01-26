@@ -313,8 +313,8 @@ class task_model extends \TMS_MODEL {
 		$q2 = ['o' => 'first_enroll_at desc'];
 		if (isset($aOptions['paging'])) {
 			$q2['r'] = [];
-			$q2['r']['o'] = ($aOptions['paging']->page - 1) * $aOptions['paging']->size;
-			$q2['r']['l'] = $aOptions['paging']->size;
+			$q2['r']['o'] = ($aOptions['paging']['page'] - 1) * $aOptions['paging']['size'];
+			$q2['r']['l'] = $aOptions['paging']['size'];
 		}
 		$tasks = $this->query_objs_ss($q, $q2);
 		if (count($tasks)) {

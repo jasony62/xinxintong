@@ -37,7 +37,7 @@ class task extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function list_action($app) {
+	public function list_action($app, $page = 1, $size = 20) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -55,6 +55,9 @@ class task extends \pl\fe\matter\base {
 
 		$modelTsk = $this->model('matter\plan\task');
 		$aOptions = ['fields' => 'id,born_at,patch_at,userid,group_id,nickname,verified,comment,first_enroll_at,last_enroll_at,task_schema_id,task_seq,data,score'];
+		if (!empty($page) && !empty($size)) {
+			$aOptions['paging'] = ['page' => $page, 'size' => $size];
+		}
 		$oResult = $modelTsk->byApp($oApp, $aOptions, $oCriteria);
 
 		return new \ResponseData($oResult);

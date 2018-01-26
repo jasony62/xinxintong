@@ -155,7 +155,7 @@ class task extends \pl\fe\matter\base {
 		return $data;
 	}
 	/**
-	 *
+	 * 选中记录通过审核
 	 */
 	public function batchVerify_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -185,6 +185,33 @@ class task extends \pl\fe\matter\base {
 		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.batch', $taskIds);
 
 		return new \ResponseData($updatedCount);
+	}
+	/**
+	 * 所有记录通过审核
+	 */
+	public function verifyAll_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\plan');
+		$app = $modelApp->escape($app);
+
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,title,summary,pic']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$rst = $modelApp->update(
+			'xxt_plan_task',
+			['verified' => 'Y'],
+			['aid' => $oApp->id]
+		);
+
+		// 记录操作日志
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.all');
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 * 登记数据导出

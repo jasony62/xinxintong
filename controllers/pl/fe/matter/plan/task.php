@@ -493,9 +493,9 @@ class task extends \pl\fe\matter\base {
 	/**
 	 * 导出登记数据中的图片
 	 */
-	public function exportImage_action($site, $app) {
+	public function exportImage_action($app, $taskId = '') {
 		if (false === ($oUser = $this->accountUser())) {
-			die('请先登录系统');
+			die('请登录');
 		}
 		if (defined('SAE_TMP_PATH')) {
 			die('部署环境不支持该功能');
@@ -504,44 +504,18 @@ class task extends \pl\fe\matter\base {
 		$nameSchema = null;
 		$imageSchemas = [];
 
-		// 登记活动
-		$enrollApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
-		$schemas = json_decode($enrollApp->data_schemas);
+		$modelApp = $this->model('matter\plan');
+		$app = $modelApp->escape($app);
 
-		// 关联的登记活动
-		if (!empty($enrollApp->enroll_app_id)) {
-			$matchApp = $this->model('matter\enroll')->byId($enrollApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$enrollSchemas = json_decode($matchApp->data_schemas);
-			$mapOfAppSchemas = [];
-			foreach ($schemas as $schema) {
-				$mapOfAppSchemas[] = $schema->id;
-			}
-			foreach ($enrollSchemas as $schema) {
-				if (!in_array($schema->id, $mapOfAppSchemas)) {
-					$schemas[] = $schema;
-				}
-			}
+		$oApp = $modelApp->byId($app, ['fields' => 'siteid,id,title,state,check_schemas,entry_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
+			die('指定的活动不存在');
 		}
-		// 关联的分组活动
-		if (!empty($enrollApp->group_app_id)) {
-			$matchApp = $this->model('matter\group')->byId($enrollApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$groupSchemas = json_decode($matchApp->data_schemas);
-			$mapOfAppSchemas = [];
-			foreach ($schemas as $schema) {
-				$mapOfAppSchemas[] = $schema->id;
-			}
-			foreach ($groupSchemas as $schema) {
-				if (!in_array($schema->id, $mapOfAppSchemas)) {
-					$schemas[] = $schema;
-				}
-			}
-		}
+		$schemas = $oApp->checkSchemas;
 
 		foreach ($schemas as $schema) {
 			if ($schema->type === 'image') {
 				$imageSchemas[] = $schema;
-			} else if ($schema->id === 'name' || (in_array($schema->title, array('姓名', '名称')))) {
-				$nameSchema = $schema;
 			}
 		}
 
@@ -549,19 +523,26 @@ class task extends \pl\fe\matter\base {
 			die('活动不包含图片数据');
 		}
 
-		// 获得所有有效的登记记录
-		$tasks = $this->model('matter\enroll\record')->byApp($enrollApp);
-		if ($tasks->total === 0) {
+		// 获得有效的填写记录
+		$modelTsk = $this->model('matter\plan\task');
+		$oCriteria = new \stdClass;
+		!empty($taskId) && $oCriteria->byTaskSchema = $taskId;
+		$aOptions = ['fields' => 'id,born_at,patch_at,userid,group_id,nickname,verified,comment,first_enroll_at,last_enroll_at,task_schema_id,task_seq,data,score,supplement'];
+		$result = $modelTsk->byApp($oApp, $aOptions, $oCriteria);
+
+		if ($result->total === 0) {
 			die('record empty');
 		}
-		$tasks = $tasks->tasks;
+
+		$tasks = $result->tasks;
 
 		// 转换数据
 		$aImages = [];
 		for ($j = 0, $jj = count($tasks); $j < $jj; $j++) {
 			$record = $tasks[$j];
 			// 处理登记项
-			$data = $record->data;
+			$data = (array) $record->data;
+			$data = reset($data);
 			for ($i = 0, $ii = count($imageSchemas); $i < $ii; $i++) {
 				$schema = $imageSchemas[$i];
 				if (!empty($data->{$schema->id})) {
@@ -573,7 +554,7 @@ class task extends \pl\fe\matter\base {
 		// 输出
 		$usedRecordName = [];
 		// 输出打包文件
-		$zipFilename = tempnam('/tmp', $enrollApp->id);
+		$zipFilename = tempnam('/tmp', $oApp->id);
 		$zip = new \ZipArchive;
 		if ($zip->open($zipFilename, \ZIPARCHIVE::CREATE) === false) {
 			die('无法打开压缩文件，或者文件创建失败');
@@ -608,7 +589,7 @@ class task extends \pl\fe\matter\base {
 		}
 		header("Cache-Control: public");
 		header("Content-Description: File Transfer");
-		header('Content-disposition: attachment; filename=' . $enrollApp->title . '.zip');
+		header('Content-disposition: attachment; filename=' . $oApp->title . '.zip');
 		header("Content-Type: application/zip");
 		header("Content-Transfer-Encoding: binary");
 		header('Content-Length: ' . filesize($zipFilename));

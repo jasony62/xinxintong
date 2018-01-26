@@ -66,6 +66,16 @@ class main extends main_base {
 				}
 			}
 		}
+		/**
+		 * 获得当前活动的分组
+		 */
+		if (!empty($oApp->entry_rule->group->id) || !empty($oApp->group_app_id)) {
+			$assocGroupAppId = empty($oApp->entry_rule->group->id) ? $oApp->group_app_id : $oApp->entry_rule->group->id;
+			/* 获得的分组信息 */
+			$modelGrpRnd = $this->model('matter\group\round');
+			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
+			$oApp->groups = $groups;
+		}
 
 		return new \ResponseData($oApp);
 	}
@@ -351,8 +361,9 @@ class main extends main_base {
 				//插入数据
 				$oldCriteria = new \stdClass;
 				$oldCriteria->record = new \stdClass;
-				$oldCriteria->record->assignRid = $oldRound->rid;
-				$oldUsers = $modelRec->byApp($oCopied, '', $oldCriteria);
+				$oldCriteria->record->rid = $oldRound->rid;
+				$oldUsers = $modelRec->byApp($oCopied, null, $oldCriteria);
+
 				if (isset($oldUsers->records) && count($oldUsers->records)) {
 					foreach ($oldUsers->records as $record) {
 						$cpUser = new \stdClass;

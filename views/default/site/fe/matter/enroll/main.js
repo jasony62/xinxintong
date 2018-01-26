@@ -164,6 +164,8 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         var url = LS.j('', 'site', 'app');
         if (ek) {
             url += '&ek=' + ek;
+        } else if (page === 'remark') {
+            url += '&ek=' + LS.s().ek;
         }
         rid && (url += '&rid=' + rid);
         page && (url += '&page=' + page);

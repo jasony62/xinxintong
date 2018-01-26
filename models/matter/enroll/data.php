@@ -113,7 +113,7 @@ class data_model extends \TMS_MODEL {
 								'userid' => isset($oUser->uid) ? $oUser->uid : '',
 								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 								'schema_id' => $schemaId,
-								'multitext_seq' => (int)$k + 1,
+								'multitext_seq' => (int) $k + 1,
 								'value' => $this->escape($v->value),
 							];
 							$dataId = $this->insert('xxt_enroll_record_data', $aSchemaValue, true);
@@ -151,7 +151,7 @@ class data_model extends \TMS_MODEL {
 								'userid' => isset($oUser->uid) ? $oUser->uid : '',
 								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 								'schema_id' => $schemaId,
-								'multitext_seq' => (int)$k + 1,
+								'multitext_seq' => (int) $k + 1,
 								'value' => $this->escape($v->value),
 							];
 							$dataId = $this->insert('xxt_enroll_record_data', $aSchemaValue2, true);
@@ -193,7 +193,8 @@ class data_model extends \TMS_MODEL {
 					);
 				}
 
-			} else { // 处理可多项填写题型
+			} else {
+				// 处理可多项填写题型
 				$aSchemaValue = '';
 				if (isset($schemasById[$schemaId])) {
 					$schema = $schemasById[$schemaId];
@@ -218,14 +219,14 @@ class data_model extends \TMS_MODEL {
 									'userid' => isset($oUser->uid) ? $oUser->uid : '',
 									'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 									'schema_id' => $schemaId,
-									'multitext_seq' => (int)$k + 1,
+									'multitext_seq' => (int) $k + 1,
 									'value' => $this->escape($newSchemaValue->value),
 								];
 								$dataId = $this->insert('xxt_enroll_record_data', $aSchemaValue, true);
 								$newSchemaValues[$k]->id = $dataId;
 							} else {
 								if (isset($oldSchemaValues[$newSchemaValue->id])) {
-									if ($oldSchemaValues[$newSchemaValue->id]->value !== $newSchemaValue->value || $oldSchemaValues[$newSchemaValue->id]->multitext_seq != ($k+1)) {
+									if ($oldSchemaValues[$newSchemaValue->id]->value !== $newSchemaValue->value || $oldSchemaValues[$newSchemaValue->id]->multitext_seq != ($k + 1)) {
 										if (strlen($oldSchemaValues[$newSchemaValue->id]->modify_log)) {
 											$valueModifyLogs = json_decode($oldSchemaValues[$newSchemaValue->id]->modify_log);
 										} else {
@@ -241,7 +242,7 @@ class data_model extends \TMS_MODEL {
 											'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 											'value' => $this->escape($newSchemaValue->value),
 											'modify_log' => $this->toJson($valueModifyLogs),
-											'multitext_seq' => (int)$k + 1,
+											'multitext_seq' => (int) $k + 1,
 										];
 
 										$this->update(
@@ -645,22 +646,28 @@ class data_model extends \TMS_MODEL {
 	public function byId($id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS;
 
-		// 查询参数
 		$q = [
 			$fields,
 			"xxt_enroll_record_data",
 			['id' => $id, 'state' => 1],
 		];
-		$result = $this->query_obj_ss($q);
-		if ($result) {
-			$result->tag = empty($result->tag) ? [] : json_decode($result->tag);
-			$result->like_log = empty($result->like_log) ? new \stdClass : json_decode($result->like_log);
-			$result->agreed_log = empty($result->agreed_log) ? new \stdClass : json_decode($result->agreed_log);
+		$oRecData = $this->query_obj_ss($q);
+		if ($oRecData) {
+			if (property_exists($oRecData, 'tag')) {
+				$oRecData->tag = empty($oRecData->tag) ? [] : json_decode($oRecData->tag);
+			}
+			if (property_exists($oRecData, 'like_log')) {
+				$oRecData->like_log = empty($oRecData->like_log) ? new \stdClass : json_decode($oRecData->like_log);
+			}
+			if (property_exists($oRecData, 'agreed_log')) {
+				$oRecData->agreed_log = empty($oRecData->agreed_log) ? new \stdClass : json_decode($oRecData->agreed_log);
+			}
 		}
-		return $result;
+
+		return $oRecData;
 	}
 	/*
-	*
+		*
 	*/
 	public function getMultitext($ek, $schema, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS . ',multitext_seq';

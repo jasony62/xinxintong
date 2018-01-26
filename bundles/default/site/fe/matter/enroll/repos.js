@@ -1,7 +1,2570 @@
-!function(e){function t(n){if(r[n])return r[n].exports;var o=r[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var r={};t.m=e,t.c=r,t.i=function(e){return e},t.d=function(e,r,n){t.o(e,r)||Object.defineProperty(e,r,{configurable:!1,enumerable:!0,get:n})},t.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(r,"a",r),r},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=89)}([function(e,t,r){(function(t){function r(e,t){var r=e[1]||"",o=e[3];if(!o)return r;if(t){var i=n(o);return[r].concat(o.sources.map(function(e){return"/*# sourceURL="+o.sourceRoot+e+" */"})).concat([i]).join("\n")}return[r].join("\n")}function n(e){return"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+new t(JSON.stringify(e)).toString("base64")+" */"}e.exports=function(e){var t=[];return t.toString=function(){return this.map(function(t){var n=r(t,e);return t[2]?"@media "+t[2]+"{"+n+"}":n}).join("")},t.i=function(e,r){"string"==typeof e&&(e=[[null,e,""]]);for(var n={},o=0;o<this.length;o++){var i=this[o][0];"number"==typeof i&&(n[i]=!0)}for(o=0;o<e.length;o++){var a=e[o];"number"==typeof a[0]&&n[a[0]]||(r&&!a[2]?a[2]=r:r&&(a[2]="("+a[2]+") and ("+r+")"),t.push(a))}},t}}).call(t,r(4).Buffer)},function(e,t,r){function n(e,t){for(var r=0;r<e.length;r++){var n=e[r],o=h[n.id];if(o){o.refs++;for(var i=0;i<o.parts.length;i++)o.parts[i](n.parts[i]);for(;i<n.parts.length;i++)o.parts.push(l(n.parts[i],t))}else{for(var a=[],i=0;i<n.parts.length;i++)a.push(l(n.parts[i],t));h[n.id]={id:n.id,refs:1,parts:a}}}}function o(e){for(var t=[],r={},n=0;n<e.length;n++){var o=e[n],i=o[0],a=o[1],s=o[2],c=o[3],u={css:a,media:s,sourceMap:c};r[i]?r[i].parts.push(u):t.push(r[i]={id:i,parts:[u]})}return t}function i(e,t){var r=m(e.insertInto);if(!r)throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");var n=b[b.length-1];if("top"===e.insertAt)n?n.nextSibling?r.insertBefore(t,n.nextSibling):r.appendChild(t):r.insertBefore(t,r.firstChild),b.push(t);else{if("bottom"!==e.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");r.appendChild(t)}}function a(e){e.parentNode.removeChild(e);var t=b.indexOf(e);t>=0&&b.splice(t,1)}function s(e){var t=document.createElement("style");return e.attrs.type="text/css",u(t,e.attrs),i(e,t),t}function c(e){var t=document.createElement("link");return e.attrs.type="text/css",e.attrs.rel="stylesheet",u(t,e.attrs),i(e,t),t}function u(e,t){Object.keys(t).forEach(function(r){e.setAttribute(r,t[r])})}function l(e,t){var r,n,o;if(t.singleton){var i=y++;r=v||(v=s(t)),n=d.bind(null,r,i,!1),o=d.bind(null,r,i,!0)}else e.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(r=c(t),n=p.bind(null,r,t),o=function(){a(r),r.href&&URL.revokeObjectURL(r.href)}):(r=s(t),n=f.bind(null,r),o=function(){a(r)});return n(e),function(t){if(t){if(t.css===e.css&&t.media===e.media&&t.sourceMap===e.sourceMap)return;n(e=t)}else o()}}function d(e,t,r,n){var o=r?"":n.css;if(e.styleSheet)e.styleSheet.cssText=x(t,o);else{var i=document.createTextNode(o),a=e.childNodes;a[t]&&e.removeChild(a[t]),a.length?e.insertBefore(i,a[t]):e.appendChild(i)}}function f(e,t){var r=t.css,n=t.media;if(n&&e.setAttribute("media",n),e.styleSheet)e.styleSheet.cssText=r;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(r))}}function p(e,t,r){var n=r.css,o=r.sourceMap,i=void 0===t.convertToAbsoluteUrls&&o;(t.convertToAbsoluteUrls||i)&&(n=w(n)),o&&(n+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))+" */");var a=new Blob([n],{type:"text/css"}),s=e.href;e.href=URL.createObjectURL(a),s&&URL.revokeObjectURL(s)}var h={},g=function(e){var t;return function(){return void 0===t&&(t=e.apply(this,arguments)),t}}(function(){return window&&document&&document.all&&!window.atob}),m=function(e){var t={};return function(r){return void 0===t[r]&&(t[r]=e.call(this,r)),t[r]}}(function(e){return document.querySelector(e)}),v=null,y=0,b=[],w=r(7);e.exports=function(e,t){if("undefined"!=typeof DEBUG&&DEBUG&&"object"!=typeof document)throw new Error("The style-loader cannot be used in a non-browser environment");t=t||{},t.attrs="object"==typeof t.attrs?t.attrs:{},void 0===t.singleton&&(t.singleton=g()),void 0===t.insertInto&&(t.insertInto="head"),void 0===t.insertAt&&(t.insertAt="bottom");var r=o(e);return n(r,t),function(e){for(var i=[],a=0;a<r.length;a++){var s=r[a],c=h[s.id];c.refs--,i.push(c)}if(e){n(o(e),t)}for(var a=0;a<i.length;a++){var c=i[a];if(0===c.refs){for(var u=0;u<c.parts.length;u++)c.parts[u]();delete h[c.id]}}}};var x=function(){var e=[];return function(t,r){return e[t]=r,e.filter(Boolean).join("\n")}}()},function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("page.ui.xxt",[]);ngMod.directive("dynamicHtml",["$compile",function(e){return{restrict:"EA",replace:!0,link:function(t,r,n){t.$watch(n.dynamicHtml,function(n){n&&n.length&&(r.html(n),e(r.contents())(t))})}}}]),ngMod.service("tmsDynaPage",["$q",function($q){this.loadCss=function(e){var t,r;t=document.createElement("style"),t.innerHTML=e,r=document.querySelector("head"),r.appendChild(t)},this.loadExtCss=function(e){var t,r;t=document.createElement("link"),t.href=e,t.rel="stylesheet",r=document.querySelector("head"),r.appendChild(t)},this.loadJs=function(ngApp,js){!function(ngApp){eval(js)}(ngApp)},this.loadScript=function(e){var t,r,n=$q.defer();return r=function(){var o;o=document.createElement("script"),o.src=e[t],o.onload=function(){t++,t<e.length?r():n.resolve()},document.body.appendChild(o)},e&&(angular.isString(e)&&(e=[e]),e.length&&(t=0,r())),n.promise},this.loadExtJs=function(e,t){var r,n=this,o=$q.defer(),i=t.ext_js.length;return r=function(r){var a;a=document.createElement("script"),a.src=r.url,a.onload=function(){0===--i&&(t.js&&t.js.length&&n.loadJs(e,t.js),o.resolve())},document.body.appendChild(a)},t.ext_js&&t.ext_js.length&&t.ext_js.forEach(r),o.promise},this.loadCode=function(e,t){var r=this,n=$q.defer();return t.ext_css&&t.ext_css.length&&t.ext_css.forEach(function(e){r.loadExtCss(e.url)}),t.css&&t.css.length&&this.loadCss(t.css),t.ext_js&&t.ext_js.length?r.loadExtJs(e,t).then(function(){n.resolve()}):(t.js&&t.js.length&&r.loadJs(e,t.js),n.resolve()),n.promise},this.openPlugin=function(e){var t,r,n,o,i=$q.defer();return document.documentElement.scrollTop=0,o=document.getElementsByTagName("body")[0],o.style.cssText="overflow-y:hidden",t=document.createDocumentFragment(),r=document.createElement("div"),r.setAttribute("id","frmPlugin"),n=document.createElement("iframe"),r.appendChild(n),r.onclick=function(){r.parentNode.removeChild(r),o.style.cssText="overflow-y:auto"},t.appendChild(r),document.body.appendChild(t),0===e.indexOf("http")?(window.onClosePlugin=function(e){r.parentNode.removeChild(r),o.style.cssText="overflow-y:auto",i.resolve(e)},n.setAttribute("src",e)):n.contentDocument&&n.contentDocument.body&&(n.contentDocument.body.innerHTML=e),i.promise}}])},function(e,t,r){"use strict";function n(e){var t=e.length;if(t%4>0)throw new Error("Invalid string. Length must be a multiple of 4");return"="===e[t-2]?2:"="===e[t-1]?1:0}function o(e){return 3*e.length/4-n(e)}function i(e){var t,r,o,i,a,s,c=e.length;a=n(e),s=new d(3*c/4-a),o=a>0?c-4:c;var u=0;for(t=0,r=0;t<o;t+=4,r+=3)i=l[e.charCodeAt(t)]<<18|l[e.charCodeAt(t+1)]<<12|l[e.charCodeAt(t+2)]<<6|l[e.charCodeAt(t+3)],s[u++]=i>>16&255,s[u++]=i>>8&255,s[u++]=255&i;return 2===a?(i=l[e.charCodeAt(t)]<<2|l[e.charCodeAt(t+1)]>>4,s[u++]=255&i):1===a&&(i=l[e.charCodeAt(t)]<<10|l[e.charCodeAt(t+1)]<<4|l[e.charCodeAt(t+2)]>>2,s[u++]=i>>8&255,s[u++]=255&i),s}function a(e){return u[e>>18&63]+u[e>>12&63]+u[e>>6&63]+u[63&e]}function s(e,t,r){for(var n,o=[],i=t;i<r;i+=3)n=(e[i]<<16)+(e[i+1]<<8)+e[i+2],o.push(a(n));return o.join("")}function c(e){for(var t,r=e.length,n=r%3,o="",i=[],a=0,c=r-n;a<c;a+=16383)i.push(s(e,a,a+16383>c?c:a+16383));return 1===n?(t=e[r-1],o+=u[t>>2],o+=u[t<<4&63],o+="=="):2===n&&(t=(e[r-2]<<8)+e[r-1],o+=u[t>>10],o+=u[t>>4&63],o+=u[t<<2&63],o+="="),i.push(o),i.join("")}t.byteLength=o,t.toByteArray=i,t.fromByteArray=c;for(var u=[],l=[],d="undefined"!=typeof Uint8Array?Uint8Array:Array,f="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",p=0,h=f.length;p<h;++p)u[p]=f[p],l[f.charCodeAt(p)]=p;l["-".charCodeAt(0)]=62,l["_".charCodeAt(0)]=63},function(e,t,r){"use strict";(function(e){function n(){return i.TYPED_ARRAY_SUPPORT?2147483647:1073741823}function o(e,t){if(n()<t)throw new RangeError("Invalid typed array length");return i.TYPED_ARRAY_SUPPORT?(e=new Uint8Array(t),e.__proto__=i.prototype):(null===e&&(e=new i(t)),e.length=t),e}function i(e,t,r){if(!(i.TYPED_ARRAY_SUPPORT||this instanceof i))return new i(e,t,r);if("number"==typeof e){if("string"==typeof t)throw new Error("If encoding is specified then the first argument must be a string");return u(this,e)}return a(this,e,t,r)}function a(e,t,r,n){if("number"==typeof t)throw new TypeError('"value" argument must not be a number');return"undefined"!=typeof ArrayBuffer&&t instanceof ArrayBuffer?f(e,t,r,n):"string"==typeof t?l(e,t,r):p(e,t)}function s(e){if("number"!=typeof e)throw new TypeError('"size" argument must be a number');if(e<0)throw new RangeError('"size" argument must not be negative')}function c(e,t,r,n){return s(t),t<=0?o(e,t):void 0!==r?"string"==typeof n?o(e,t).fill(r,n):o(e,t).fill(r):o(e,t)}function u(e,t){if(s(t),e=o(e,t<0?0:0|h(t)),!i.TYPED_ARRAY_SUPPORT)for(var r=0;r<t;++r)e[r]=0;return e}function l(e,t,r){if("string"==typeof r&&""!==r||(r="utf8"),!i.isEncoding(r))throw new TypeError('"encoding" must be a valid string encoding');var n=0|m(t,r);e=o(e,n);var a=e.write(t,r);return a!==n&&(e=e.slice(0,a)),e}function d(e,t){var r=t.length<0?0:0|h(t.length);e=o(e,r);for(var n=0;n<r;n+=1)e[n]=255&t[n];return e}function f(e,t,r,n){if(t.byteLength,r<0||t.byteLength<r)throw new RangeError("'offset' is out of bounds");if(t.byteLength<r+(n||0))throw new RangeError("'length' is out of bounds");return t=void 0===r&&void 0===n?new Uint8Array(t):void 0===n?new Uint8Array(t,r):new Uint8Array(t,r,n),i.TYPED_ARRAY_SUPPORT?(e=t,e.__proto__=i.prototype):e=d(e,t),e}function p(e,t){if(i.isBuffer(t)){var r=0|h(t.length);return e=o(e,r),0===e.length?e:(t.copy(e,0,0,r),e)}if(t){if("undefined"!=typeof ArrayBuffer&&t.buffer instanceof ArrayBuffer||"length"in t)return"number"!=typeof t.length||X(t.length)?o(e,0):d(e,t);if("Buffer"===t.type&&K(t.data))return d(e,t.data)}throw new TypeError("First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.")}function h(e){if(e>=n())throw new RangeError("Attempt to allocate Buffer larger than maximum size: 0x"+n().toString(16)+" bytes");return 0|e}function g(e){return+e!=e&&(e=0),i.alloc(+e)}function m(e,t){if(i.isBuffer(e))return e.length;if("undefined"!=typeof ArrayBuffer&&"function"==typeof ArrayBuffer.isView&&(ArrayBuffer.isView(e)||e instanceof ArrayBuffer))return e.byteLength;"string"!=typeof e&&(e=""+e);var r=e.length;if(0===r)return 0;for(var n=!1;;)switch(t){case"ascii":case"latin1":case"binary":return r;case"utf8":case"utf-8":case void 0:return F(e).length;case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return 2*r;case"hex":return r>>>1;case"base64":return G(e).length;default:if(n)return F(e).length;t=(""+t).toLowerCase(),n=!0}}function v(e,t,r){var n=!1;if((void 0===t||t<0)&&(t=0),t>this.length)return"";if((void 0===r||r>this.length)&&(r=this.length),r<=0)return"";if(r>>>=0,t>>>=0,r<=t)return"";for(e||(e="utf8");;)switch(e){case"hex":return U(this,t,r);case"utf8":case"utf-8":return P(this,t,r);case"ascii":return T(this,t,r);case"latin1":case"binary":return B(this,t,r);case"base64":return C(this,t,r);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return M(this,t,r);default:if(n)throw new TypeError("Unknown encoding: "+e);e=(e+"").toLowerCase(),n=!0}}function y(e,t,r){var n=e[t];e[t]=e[r],e[r]=n}function b(e,t,r,n,o){if(0===e.length)return-1;if("string"==typeof r?(n=r,r=0):r>2147483647?r=2147483647:r<-2147483648&&(r=-2147483648),r=+r,isNaN(r)&&(r=o?0:e.length-1),r<0&&(r=e.length+r),r>=e.length){if(o)return-1;r=e.length-1}else if(r<0){if(!o)return-1;r=0}if("string"==typeof t&&(t=i.from(t,n)),i.isBuffer(t))return 0===t.length?-1:w(e,t,r,n,o);if("number"==typeof t)return t&=255,i.TYPED_ARRAY_SUPPORT&&"function"==typeof Uint8Array.prototype.indexOf?o?Uint8Array.prototype.indexOf.call(e,t,r):Uint8Array.prototype.lastIndexOf.call(e,t,r):w(e,[t],r,n,o);throw new TypeError("val must be string, number or Buffer")}function w(e,t,r,n,o){function i(e,t){return 1===a?e[t]:e.readUInt16BE(t*a)}var a=1,s=e.length,c=t.length;if(void 0!==n&&("ucs2"===(n=String(n).toLowerCase())||"ucs-2"===n||"utf16le"===n||"utf-16le"===n)){if(e.length<2||t.length<2)return-1;a=2,s/=2,c/=2,r/=2}var u;if(o){var l=-1;for(u=r;u<s;u++)if(i(e,u)===i(t,-1===l?0:u-l)){if(-1===l&&(l=u),u-l+1===c)return l*a}else-1!==l&&(u-=u-l),l=-1}else for(r+c>s&&(r=s-c),u=r;u>=0;u--){for(var d=!0,f=0;f<c;f++)if(i(e,u+f)!==i(t,f)){d=!1;break}if(d)return u}return-1}function x(e,t,r,n){r=Number(r)||0;var o=e.length-r;n?(n=Number(n))>o&&(n=o):n=o;var i=t.length;if(i%2!=0)throw new TypeError("Invalid hex string");n>i/2&&(n=i/2);for(var a=0;a<n;++a){var s=parseInt(t.substr(2*a,2),16);if(isNaN(s))return a;e[r+a]=s}return a}function _(e,t,r,n){return W(F(t,e.length-r),e,r,n)}function k(e,t,r,n){return W(J(t),e,r,n)}function E(e,t,r,n){return k(e,t,r,n)}function A(e,t,r,n){return W(G(t),e,r,n)}function S(e,t,r,n){return W(H(t,e.length-r),e,r,n)}function C(e,t,r){return 0===t&&r===e.length?V.fromByteArray(e):V.fromByteArray(e.slice(t,r))}function P(e,t,r){r=Math.min(e.length,r);for(var n=[],o=t;o<r;){var i=e[o],a=null,s=i>239?4:i>223?3:i>191?2:1;if(o+s<=r){var c,u,l,d;switch(s){case 1:i<128&&(a=i);break;case 2:c=e[o+1],128==(192&c)&&(d=(31&i)<<6|63&c)>127&&(a=d);break;case 3:c=e[o+1],u=e[o+2],128==(192&c)&&128==(192&u)&&(d=(15&i)<<12|(63&c)<<6|63&u)>2047&&(d<55296||d>57343)&&(a=d);break;case 4:c=e[o+1],u=e[o+2],l=e[o+3],128==(192&c)&&128==(192&u)&&128==(192&l)&&(d=(15&i)<<18|(63&c)<<12|(63&u)<<6|63&l)>65535&&d<1114112&&(a=d)}}null===a?(a=65533,s=1):a>65535&&(a-=65536,n.push(a>>>10&1023|55296),a=56320|1023&a),n.push(a),o+=s}return R(n)}function R(e){var t=e.length;if(t<=Q)return String.fromCharCode.apply(String,e);for(var r="",n=0;n<t;)r+=String.fromCharCode.apply(String,e.slice(n,n+=Q));return r}function T(e,t,r){var n="";r=Math.min(e.length,r);for(var o=t;o<r;++o)n+=String.fromCharCode(127&e[o]);return n}function B(e,t,r){var n="";r=Math.min(e.length,r);for(var o=t;o<r;++o)n+=String.fromCharCode(e[o]);return n}function U(e,t,r){var n=e.length;(!t||t<0)&&(t=0),(!r||r<0||r>n)&&(r=n);for(var o="",i=t;i<r;++i)o+=q(e[i]);return o}function M(e,t,r){for(var n=e.slice(t,r),o="",i=0;i<n.length;i+=2)o+=String.fromCharCode(n[i]+256*n[i+1]);return o}function L(e,t,r){if(e%1!=0||e<0)throw new RangeError("offset is not uint");if(e+t>r)throw new RangeError("Trying to access beyond buffer length")}function Y(e,t,r,n,o,a){if(!i.isBuffer(e))throw new TypeError('"buffer" argument must be a Buffer instance');if(t>o||t<a)throw new RangeError('"value" argument is out of bounds');if(r+n>e.length)throw new RangeError("Index out of range")}function D(e,t,r,n){t<0&&(t=65535+t+1);for(var o=0,i=Math.min(e.length-r,2);o<i;++o)e[r+o]=(t&255<<8*(n?o:1-o))>>>8*(n?o:1-o)}function O(e,t,r,n){t<0&&(t=4294967295+t+1);for(var o=0,i=Math.min(e.length-r,4);o<i;++o)e[r+o]=t>>>8*(n?o:3-o)&255}function j(e,t,r,n,o,i){if(r+n>e.length)throw new RangeError("Index out of range");if(r<0)throw new RangeError("Index out of range")}function I(e,t,r,n,o){return o||j(e,t,r,4,3.4028234663852886e38,-3.4028234663852886e38),Z.write(e,t,r,n,23,4),r+4}function N(e,t,r,n,o){return o||j(e,t,r,8,1.7976931348623157e308,-1.7976931348623157e308),Z.write(e,t,r,n,52,8),r+8}function $(e){if(e=z(e).replace(ee,""),e.length<2)return"";for(;e.length%4!=0;)e+="=";return e}function z(e){return e.trim?e.trim():e.replace(/^\s+|\s+$/g,"")}function q(e){return e<16?"0"+e.toString(16):e.toString(16)}function F(e,t){t=t||1/0;for(var r,n=e.length,o=null,i=[],a=0;a<n;++a){if((r=e.charCodeAt(a))>55295&&r<57344){if(!o){if(r>56319){(t-=3)>-1&&i.push(239,191,189);continue}if(a+1===n){(t-=3)>-1&&i.push(239,191,189);continue}o=r;continue}if(r<56320){(t-=3)>-1&&i.push(239,191,189),o=r;continue}r=65536+(o-55296<<10|r-56320)}else o&&(t-=3)>-1&&i.push(239,191,189);if(o=null,r<128){if((t-=1)<0)break;i.push(r)}else if(r<2048){if((t-=2)<0)break;i.push(r>>6|192,63&r|128)}else if(r<65536){if((t-=3)<0)break;i.push(r>>12|224,r>>6&63|128,63&r|128)}else{if(!(r<1114112))throw new Error("Invalid code point");if((t-=4)<0)break;i.push(r>>18|240,r>>12&63|128,r>>6&63|128,63&r|128)}}return i}function J(e){for(var t=[],r=0;r<e.length;++r)t.push(255&e.charCodeAt(r));return t}function H(e,t){for(var r,n,o,i=[],a=0;a<e.length&&!((t-=2)<0);++a)r=e.charCodeAt(a),n=r>>8,o=r%256,i.push(o),i.push(n);return i}function G(e){return V.toByteArray($(e))}function W(e,t,r,n){for(var o=0;o<n&&!(o+r>=t.length||o>=e.length);++o)t[o+r]=e[o];return o}function X(e){return e!==e}/*!
- * The buffer module from node.js, for the browser.
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 84);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 0:
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+
+/***/ 1:
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(selector) {
+		if (typeof memo[selector] === "undefined") {
+			memo[selector] = fn.call(this, selector);
+		}
+
+		return memo[selector]
+	};
+})(function (target) {
+	return document.querySelector(target)
+});
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(3);
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton) options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+	if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	options.attrs.type = "text/css";
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	options.attrs.type = "text/css";
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = options.transform(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+
+/***/ 10:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(9);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./directive.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./directive.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 11:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+window.__util = {};
+window.__util.makeDialog = function(id, html) {
+    var dlg, mask;
+
+    mask = document.createElement('div');
+    mask.setAttribute('id', id);
+    mask.classList.add('dialog', 'mask');
+
+    dlg = "<div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div>";
+
+    mask.innerHTML = dlg;
+
+    document.body.appendChild(mask);
+
+    return mask.children;
+};
+
+var ngMod = angular.module('directive.enroll', []);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsDateValue'
+        },
+        controller: ['$scope', function($scope) {
+            $scope.close = function() {
+                var mask;
+                mask = document.querySelector('#' + $scope.dialogID);
+                document.body.removeChild(mask);
+                $scope.opened = false;
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = parseInt(dtObject.getTime() / 1000);
+                $scope.close();
+            };
+        }],
+        link: function(scope, elem, attrs) {
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
+            dtObject = new Date();
+            dtObject.setTime(scope.value * 1000);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017, 2018, 2019, 2020],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date() * 1);
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
+        }
+    }
+}]);
+ngMod.directive('tmsCheckboxGroup', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var groupName, model, options, upper;
+            if (attrs.tmsCheckboxGroup && attrs.tmsCheckboxGroup.length) {
+                groupName = attrs.tmsCheckboxGroup;
+                if (attrs.tmsCheckboxGroupModel && attrs.tmsCheckboxGroupModel.length) {
+                    model = attrs.tmsCheckboxGroupModel;
+                    if (attrs.tmsCheckboxGroupUpper && attrs.tmsCheckboxGroupUpper.length) {
+                        upper = attrs.tmsCheckboxGroupUpper;
+                        options = document.querySelectorAll('[name=' + groupName + ']');
+                        scope.$watch(model + '.' + groupName, function(data) {
+                            var cnt;
+                            cnt = 0;
+                            angular.forEach(data, function(v, p) {
+                                v && cnt++;
+                            });
+                            if (cnt >= upper) {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        !el.classList.contains('checked') && el.setAttribute('disabled', true);
+                                    } else {
+                                        !el.checked && (el.disabled = true);
+                                    }
+                                });
+                            } else {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        el.removeAttribute('disabled');
+                                    } else {
+                                        el.disabled = false;
+                                    }
+                                });
+                            }
+                        }, true);
+                    }
+                }
+            }
+        }
+    };
+});
+ngMod.directive('flexImg', function() {
+    return {
+        restrict: 'A',
+        replace: true,
+        template: "<img ng-src='{{img.imgSrc}}'>",
+        link: function(scope, elem, attrs) {
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
+                    sw, sh;
+                if (w > h) {
+                    sw = w / h * 80;
+                    angular.element(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
+                } else {
+                    sh = h / w * 80;
+                    angular.element(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
+                }
+            })
+        }
+    }
+});
+
+/***/ }),
+
+/***/ 12:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('coinpay.ui.xxt', []);
+ngMod.service('tmsCoinPay', function() {
+    this.showSwitch = function(siteId, matter) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-coinpay');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = 'http://' + location.host;
+            url += '/rest/site/fe/coin/pay';
+            url += "?site=" + siteId;
+            url += "&matter=" + matter;
+            openPlugin(url);
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+
+/***/ }),
+
+/***/ 13:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('http.ui.xxt', []);
+ngMod.provider('tmsLocation', function() {
+    var _baseUrl;
+
+    this.config = function(baseUrl) {
+        _baseUrl = baseUrl || location.pathname;
+    };
+
+    this.$get = ['$location', function($location) {
+        if (!_baseUrl) {
+            _baseUrl = location.pathname;
+        }
+        return {
+            s: function() {
+                return $location.search();
+            },
+            j: function(method) {
+                var url = _baseUrl,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (var i = 1, l = arguments.length; i < l; i++) {
+                    search.push(arguments[i] + '=' + ($location.search()[arguments[i]] || ''));
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            }
+        };
+    }];
+});
+ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
+    function createAlert(msg, type, keep) {
+        var alertDomEl;
+        /* backdrop */
+        alertDomEl = angular.element('<div></div>');
+        alertDomEl.attr({
+            'class': 'tms-notice alert alert-' + (type ? type : 'info'),
+            'ng-style': '{\'z-index\':1040}'
+        }).html($sce.trustAsHtml(msg));
+        if (!keep) {
+            alertDomEl[0].addEventListener('click', function() {
+                document.body.removeChild(alertDomEl[0]);
+            }, true);
+        }
+        $compile(alertDomEl)($rootScope);
+        document.body.appendChild(alertDomEl[0]);
+
+        return alertDomEl[0];
+    }
+
+    function removeAlert(alertDomEl) {
+        if (alertDomEl) {
+            document.body.removeChild(alertDomEl);
+        }
+    }
+
+    this.get = function(url, options) {
+        var _alert, _timer, _defer = $q.defer();
+        options = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(options.showProgressText, 'info');
+            }, options.showProgressDelay);
+        }
+        $http.get(url, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (angular.isString(rsp)) {
+                if (options.autoNotice) {
+                    createAlert(rsp, 'warning');
+                }
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else if (rsp.err_code != 0) {
+                if (options.autoNotice) {
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else if (angular.isArray(rsp.err_msg)) {
+                        errmsg = rsp.err_msg.join('<br>');
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
+                }
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else {
+                _defer.resolve(rsp);
+            }
+        }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+    this.post = function(url, posted, options) {
+        var _alert, _timer, _defer = $q.defer();
+        options = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(options.showProgressText, 'info');
+            }, options.showProgressDelay);
+        }
+        $http.post(url, posted, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (angular.isString(rsp)) {
+                if (options.autoNotice) {
+                    createAlert(rsp, 'warning');
+                    _alert = null;
+                }
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else if (rsp.err_code != 0) {
+                if (options.autoNotice) {
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else if (angular.isArray(rsp.err_msg)) {
+                        errmsg = rsp.err_msg.join('<br>');
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
+                }
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else {
+                _defer.resolve(rsp);
+            }
+        }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+}]);
+
+/***/ }),
+
+/***/ 14:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('siteuser.ui.xxt', []);
+ngMod.service('tmsSiteUser', function() {
+    this.showSwitch = function(siteId, redirect) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-siteuser');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = 'http://' + location.host;
+            url += '/rest/site/fe/user';
+            url += "?site=" + siteId;
+            if (redirect) {
+                location.href = url;
+            } else {
+                openPlugin(url);
+            }
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+/***/ }),
+
+/***/ 15:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('notice.ui.xxt', ['ngSanitize']);
+ngMod.service('noticebox', ['$timeout', function($timeout) {
+    var _boxId = 'tmsbox' + (new Date * 1),
+        _last = {
+            type: '',
+            timer: null
+        },
+        _getBox = function(type, msg) {
+            var box;
+            box = document.querySelector('#' + _boxId);
+            if (box === null) {
+                box = document.createElement('div');
+                box.setAttribute('id', _boxId);
+                box.classList.add('notice-box');
+                box.classList.add('alert');
+                box.classList.add('alert-' + type);
+                box.innerHTML = '<div>' + msg + '</div>';
+                document.body.appendChild(box);
+                _last.type = type;
+            } else {
+                if (_last.type !== type) {
+                    box.classList.remove('alert-' + type);
+                    _last.type = type;
+                }
+                box.childNodes[0].innerHTML = msg;
+            }
+
+            return box;
+        };
+
+    this.close = function() {
+        var box;
+        box = document.querySelector('#' + _boxId);
+        if (box) {
+            document.body.removeChild(box);
+        }
+    };
+    this.error = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('danger', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.warn = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.success = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('success', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.info = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('info', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.progress = function(msg) {
+        /*显示消息框*/
+        _getBox('progress', msg);
+    };
+}]);
+
+/***/ }),
+
+/***/ 16:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "html,body{font-family:Microsoft Yahei,Arial;width:100%;height:auto;}\r\nbody{position:relative;font-size:16px;padding:0;}\r\n.ng-cloak{display:none;}\r\n.container{position:relative;}\r\n.navbar-default .navbar-nav > li > a,.navbar-default .navbar-brand{color:#fff;}\r\n.navbar-brand{height:55px;padding:17.5px 15px;}\r\n.main-navbar .navbar-brand:hover{color:#fff;}\r\n@media screen and (min-width:768px){\r\n\t.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1;}\r\n}\r\n@media screen and (max-width:768px){\r\n\t.navbar-brand{width:100%;text-align:center;}\r\n\t.navbar-brand > .icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}\r\n\t.navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}\r\n\t.nav > li > a{padding:10px 10px;}\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 17:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(16);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./main.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./main.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 18:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(7);
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
+    window.wx.ready(function() {
+        window.wx.showOptionMenu();
+    });
+} else if (/YiXin/i.test(navigator.userAgent)) {
+    document.addEventListener('YixinJSBridgeReady', function() {
+        YixinJSBridge.call('showOptionMenu');
+    }, false);
+}
+
+__webpack_require__(10);
+__webpack_require__(17);
+__webpack_require__(15);
+__webpack_require__(13);
+__webpack_require__(2);
+__webpack_require__(14);
+__webpack_require__(6);
+__webpack_require__(12);
+
+__webpack_require__(11);
+
+var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'directive.enroll']);
+ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider', function($cp, $uibTooltipProvider, $locationProvider) {
+    ngApp.provider = {
+        controller: $cp.register
+    };
+    $uibTooltipProvider.setTriggers({ 'show': 'hide' });
+    $locationProvider.html5Mode(true);
+}]);
+ngApp.controller('ctrlAppTip', ['$scope', '$interval', function($scope, $interval) {
+    var timer;
+    $scope.autoCloseTime = 6;
+    $scope.domId = '';
+    $scope.closeTip = function() {
+        var domTip = document.querySelector($scope.domId);
+        var evt = document.createEvent("HTMLEvents");
+        evt.initEvent("hide", false, false);
+        domTip.dispatchEvent(evt);
+    };
+    timer = $interval(function() {
+        $scope.autoCloseTime--;
+        if ($scope.autoCloseTime === 0) {
+            $interval.cancel(timer);
+            $scope.closeTip();
+        }
+    }, 1000);
+}]);
+ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
+    function refreshActionRule() {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('actionRule', 'site', 'app');
+        $http.get(url).success(function(rsp) {
+            $scope.params.actionRule = rsp.data;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function openPlugin(url, fnCallback) {
+        var body, elWrap, elIframe;
+        body = document.body;
+        elWrap = document.createElement('div');
+        elWrap.setAttribute('id', 'frmPlugin');
+        elWrap.height = body.clientHeight;
+        elIframe = document.createElement('iframe');
+        elWrap.appendChild(elIframe);
+        body.scrollTop = 0;
+        body.appendChild(elWrap);
+        window.onClosePlugin = function() {
+            if (fnCallback) {
+                fnCallback().then(function(data) {
+                    elWrap.parentNode.removeChild(elWrap);
+                });
+            } else {
+                elWrap.parentNode.removeChild(elWrap);
+            }
+        };
+        elWrap.onclick = function() {
+            onClosePlugin();
+        };
+        if (url) {
+            elIframe.setAttribute('src', url);
+        }
+        elWrap.style.display = 'block';
+    }
+
+    function execTask(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    }
+    var tasksOfOnReady = [];
+    $scope.back = function() {
+        history.back();
+    };
+    $scope.historyLen = function() {
+        return history.length;
+    };
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            window.YixinJSBridge.call('closeWebView');
+        }
+    };
+    $scope.askFollowSns = function() {
+        var url;
+        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'sns') {
+            url = LS.j('askFollow', 'site');
+            url += '&sns=' + Object.keys($scope.app.entry_rule.sns).join(',');
+            openPlugin(url, refreshActionRule);
+        }
+    };
+    $scope.askBecomeMember = function() {
+        var url, mschemaIds;
+        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'member') {
+            mschemaIds = Object.keys($scope.app.entry_rule.member);
+            if (mschemaIds.length === 1) {
+                url = '/rest/site/fe/user/member?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds[0];
+            } else if (mschemaIds.length > 1) {
+                url = '/rest/site/fe/user/memberschema?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds.join(',');
+            }
+            openPlugin(url, refreshActionRule);
+        }
+    };
+    $scope.addRecord = function(event, page) {
+        if (page) {
+            $scope.gotoPage(event, page, null, null, 'Y');
+        } else {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    $scope.gotoPage(event, oPage.name, null, null, 'Y');
+                    break;
+                }
+            }
+        }
+    };
+    $scope.gotoApp = function(event) {
+        location.replace($scope.app.entryUrl);
+    };
+    $scope.gotoPage = function(event, page, ek, rid, newRecord) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        var url = LS.j('', 'site', 'app');
+        if (ek) {
+            url += '&ek=' + ek;
+        } else if (page === 'remark') {
+            url += '&ek=' + LS.s().ek;
+        }
+        rid && (url += '&rid=' + rid);
+        page && (url += '&page=' + page);
+        newRecord && newRecord === 'Y' && (url += '&newRecord=Y');
+        if (/remark|repos/.test(page)) {
+            location = url;
+        } else {
+            location.replace(url);
+        }
+    };
+    $scope.openMatter = function(id, type, replace, newWindow) {
+        var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;
+        if (replace) {
+            location.replace(url);
+        } else {
+            if (newWindow === false) {
+                location.href = url;
+            } else {
+                window.open(url);
+            }
+        }
+    };
+    $scope.onReady = function(task) {
+        if ($scope.params) {
+            execTask(task);
+        } else {
+            tasksOfOnReady.push(task);
+        }
+    };
+    $scope.save = function() {
+        $scope.$broadcast('xxt.app.enroll.save');
+    };
+    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function success(rsp) {
+        var params = rsp.data,
+            oSite = params.site,
+            oApp = params.app,
+            oMission = params.mission,
+            oPage = params.page,
+            oUser = params.user,
+            schemasById = {},
+            tagsById = {},
+            assignedNickname = '',
+            activeRid = '',
+            shareid, sharelink, shareby, summary;
+
+        oApp.dataSchemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        oApp._schemasById = schemasById;
+        oApp.dataTags.forEach(function(oTag) {
+            tagsById[oTag.id] = oTag;
+        });
+        oApp._tagsById = tagsById;
+        $scope.params = params;
+        $scope.site = oSite;
+        $scope.mission = oMission;
+        $scope.app = oApp;
+        $scope.user = oUser;
+        if (oApp.multi_rounds === 'Y' && params.activeRound) {
+            $scope.activeRound = params.activeRound;
+            activeRid = params.activeRound.rid;
+        }
+        if (params.record) {
+            if (params.record.data_tag) {
+                for (var schemaId in params.record.data_tag) {
+                    var dataTags = params.record.data_tag[schemaId],
+                        converted = [];
+                    dataTags.forEach(function(tagId) {
+                        tagsById[tagId] && converted.push(tagsById[tagId]);
+                    });
+                    params.record.data_tag[schemaId] = converted;
+                }
+            }
+            if (oApp.assignedNickname.schema) {
+                if ((oApp.assignedNickname.schema.id == 'member.name' || oApp.assignedNickname.schema.id == 'name') && params.record.data) {
+                    assignedNickname = params.record.data[oApp.assignedNickname.schema.id];
+                }
+            }
+        }
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
+        }
+
+        /* 设置活动的当前链接 */
+        shareid = oUser.uid + '_' + (new Date * 1);
+        sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid', 'newRecord');
+        sharelink += "&shareby=" + shareid;
+        if (oPage && oPage.share_page && oPage.share_page === 'Y') {
+            sharelink += '&page=' + oPage.name;
+            params.record && params.record.enroll_key && (sharelink += '&ek=' + params.record.enroll_key);
+            if (!(/iphone|ipad/i.test(navigator.userAgent))) {
+                /*ios下操作无效，且导致微信jssdk失败*/
+                // if (window.history && window.history.replaceState) {
+                //     window.history.replaceState({}, oApp.title, sharelink);
+                // }
+            }
+        }
+        /* 设置分享 */
+        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+            summary = oApp.summary;
+            if (oPage && oPage.share_summary && oPage.share_summary.length && params.record) {
+                summary = params.record.data[oPage.share_summary];
+            }
+            /* 分享次数计数器 */
+            window.shareCounter = 0;
+            tmsSnsShare.config({
+                siteId: oApp.siteid,
+                logger: function(shareto) {
+                    var url;
+                    url = "/rest/site/fe/matter/logShare";
+                    url += "?shareid=" + shareid;
+                    url += "&site=" + oApp.siteid;
+                    url += "&id=" + oApp.id;
+                    url += "&type=enroll";
+                    url += "&title=" + oApp.title;
+                    url += "&shareby=" + shareid;
+                    url += "&shareto=" + shareto;
+                    http2.get(url);
+                    window.shareCounter++;
+                    window.onshare && window.onshare(window.shareCounter);
+                },
+                jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']
+            });
+            tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
+        }
+
+        if (!document.querySelector('.tms-switch-favor')) {
+            tmsFavor.showSwitch($scope.user, oApp);
+        } else {
+            $scope.favor = function(user, article) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!user.loginExpire) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                        user.loginExpire = data.loginExpire;
+                        tmsFavor.open(article);
+                    });
+                } else {
+                    tmsFavor.open(article);
+                }
+            }
+        }
+        if (oApp.can_siteuser === 'Y') {
+            if (!document.querySelector('.tms-switch-siteuser')) {
+                tmsSiteUser.showSwitch(oApp.siteid, true);
+            } else {
+                $scope.siteUser = function(id) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    var url = 'http://' + location.host;
+                    url += '/rest/site/fe/user';
+                    url += "?site=" + id;
+                    location.href = url;
+                }
+            }
+        }
+        $scope.isSmallLayout = false;
+        if (window.screen && window.screen.width < 992) {
+            $scope.isSmallLayout = true;
+        }
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, PG.exec);
+        }
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.enroll.ready', params);
+        });
+        http2.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid + '&id=' + oApp.id + '&type=enroll&title=' + oApp.title, {
+            search: location.search.replace('?', ''),
+            referer: document.referrer,
+            rid: activeRid,
+            assignedNickname: assignedNickname
+        });
+    }, function error(content, httpCode) {
+        // if (httpCode === 401) {
+        //     var el = document.createElement('iframe');
+        //     el.setAttribute('id', 'frmPopup');
+        //     el.onload = function() {
+        //         this.height = document.querySelector('body').clientHeight;
+        //     };
+        //     document.body.appendChild(el);
+        //     if (content.indexOf('http') === 0) {
+        //         window.onAuthSuccess = function() {
+        //             el.style.display = 'none';
+        //         };
+        //         el.setAttribute('src', content);
+        //         el.style.display = 'block';
+        //     } else {
+        //         if (el.contentDocument && el.contentDocument.body) {
+        //             el.contentDocument.body.innerHTML = content;
+        //             el.style.display = 'block';
+        //         }
+        //     }
+        // } else {
+        //     $scope.errmsg = content;
+        // }
+    });
+}]);
+module.exports = ngApp;
+
+/***/ }),
+
+/***/ 2:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('page.ui.xxt', []);
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}]);
+ngMod.service('tmsDynaPage', ['$q', function($q) {
+    this.loadCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
+    this.loadExtCss = function(url) {
+        var link, head;
+        link = document.createElement('link');
+        link.href = url;
+        link.rel = 'stylesheet';
+        head = document.querySelector('head');
+        head.appendChild(link);
+    };
+    this.loadJs = function(ngApp, js) {
+        (function(ngApp) {
+            eval(js);
+        })(ngApp);
+    };
+    this.loadScript = function(urls) {
+        var index, fnLoad, deferred = $q.defer();
+        fnLoad = function() {
+            var script;
+            script = document.createElement('script');
+            script.src = urls[index];
+            script.onload = function() {
+                index++;
+                if (index < urls.length) {
+                    fnLoad();
+                } else {
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (urls) {
+            angular.isString(urls) && (urls = [urls]);
+            if (urls.length) {
+                index = 0;
+                fnLoad();
+            }
+        }
+
+        return deferred.promise;
+    };
+    this.loadExtJs = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer(),
+            jslength = code.ext_js.length,
+            loadScript2;
+        loadScript2 = function(js) {
+            var script;
+            script = document.createElement('script');
+            script.src = js.url;
+            script.onload = function() {
+                jslength--;
+                if (jslength === 0) {
+                    if (code.js && code.js.length) {
+                        _self.loadJs(ngApp, code.js);
+                    }
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (code.ext_js && code.ext_js.length) {
+            code.ext_js.forEach(loadScript2);
+        }
+        return deferred.promise;
+    };
+    this.loadCode = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer();
+        if (code.ext_css && code.ext_css.length) {
+            code.ext_css.forEach(function(css) {
+                _self.loadExtCss(css.url);
+            });
+        }
+        if (code.css && code.css.length) {
+            this.loadCss(code.css);
+        }
+        if (code.ext_js && code.ext_js.length) {
+            _self.loadExtJs(ngApp, code).then(function() {
+                deferred.resolve();
+            });
+        } else {
+            if (code.js && code.js.length) {
+                _self.loadJs(ngApp, code.js);
+            }
+            deferred.resolve();
+        }
+        return deferred.promise;
+    };
+    this.openPlugin = function(content) {
+        var frag, wrap, frm, body, deferred = $q.defer();
+        document.documentElement.scrollTop = 0;
+        body = document.getElementsByTagName('body')[0];
+        body.style.cssText="overflow-y:hidden";
+        frag = document.createDocumentFragment();
+        wrap = document.createElement('div');
+        wrap.setAttribute('id', 'frmPlugin');
+        frm = document.createElement('iframe');
+        wrap.appendChild(frm);
+        wrap.onclick = function() {
+            wrap.parentNode.removeChild(wrap);
+            body.style.cssText="overflow-y:auto";
+        };
+        frag.appendChild(wrap);
+        document.body.appendChild(frag);
+        if (content.indexOf('http') === 0) {
+            window.onClosePlugin = function(result) {
+                wrap.parentNode.removeChild(wrap);
+                body.style.cssText="overflow-y:auto";
+                deferred.resolve(result);
+            };
+            frm.setAttribute('src', content);
+        } else {
+            if (frm.contentDocument && frm.contentDocument.body) {
+                frm.contentDocument.body.innerHTML = content;
+            }
+        }
+        return deferred.promise;
+    };
+}]);
+
+
+/***/ }),
+
+/***/ 3:
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * @license  MIT
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
  */
-var V=r(3),Z=r(5),K=r(6);t.Buffer=i,t.SlowBuffer=g,t.INSPECT_MAX_BYTES=50,i.TYPED_ARRAY_SUPPORT=void 0!==e.TYPED_ARRAY_SUPPORT?e.TYPED_ARRAY_SUPPORT:function(){try{var e=new Uint8Array(1);return e.__proto__={__proto__:Uint8Array.prototype,foo:function(){return 42}},42===e.foo()&&"function"==typeof e.subarray&&0===e.subarray(1,1).byteLength}catch(e){return!1}}(),t.kMaxLength=n(),i.poolSize=8192,i._augment=function(e){return e.__proto__=i.prototype,e},i.from=function(e,t,r){return a(null,e,t,r)},i.TYPED_ARRAY_SUPPORT&&(i.prototype.__proto__=Uint8Array.prototype,i.__proto__=Uint8Array,"undefined"!=typeof Symbol&&Symbol.species&&i[Symbol.species]===i&&Object.defineProperty(i,Symbol.species,{value:null,configurable:!0})),i.alloc=function(e,t,r){return c(null,e,t,r)},i.allocUnsafe=function(e){return u(null,e)},i.allocUnsafeSlow=function(e){return u(null,e)},i.isBuffer=function(e){return!(null==e||!e._isBuffer)},i.compare=function(e,t){if(!i.isBuffer(e)||!i.isBuffer(t))throw new TypeError("Arguments must be Buffers");if(e===t)return 0;for(var r=e.length,n=t.length,o=0,a=Math.min(r,n);o<a;++o)if(e[o]!==t[o]){r=e[o],n=t[o];break}return r<n?-1:n<r?1:0},i.isEncoding=function(e){switch(String(e).toLowerCase()){case"hex":case"utf8":case"utf-8":case"ascii":case"latin1":case"binary":case"base64":case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return!0;default:return!1}},i.concat=function(e,t){if(!K(e))throw new TypeError('"list" argument must be an Array of Buffers');if(0===e.length)return i.alloc(0);var r;if(void 0===t)for(t=0,r=0;r<e.length;++r)t+=e[r].length;var n=i.allocUnsafe(t),o=0;for(r=0;r<e.length;++r){var a=e[r];if(!i.isBuffer(a))throw new TypeError('"list" argument must be an Array of Buffers');a.copy(n,o),o+=a.length}return n},i.byteLength=m,i.prototype._isBuffer=!0,i.prototype.swap16=function(){var e=this.length;if(e%2!=0)throw new RangeError("Buffer size must be a multiple of 16-bits");for(var t=0;t<e;t+=2)y(this,t,t+1);return this},i.prototype.swap32=function(){var e=this.length;if(e%4!=0)throw new RangeError("Buffer size must be a multiple of 32-bits");for(var t=0;t<e;t+=4)y(this,t,t+3),y(this,t+1,t+2);return this},i.prototype.swap64=function(){var e=this.length;if(e%8!=0)throw new RangeError("Buffer size must be a multiple of 64-bits");for(var t=0;t<e;t+=8)y(this,t,t+7),y(this,t+1,t+6),y(this,t+2,t+5),y(this,t+3,t+4);return this},i.prototype.toString=function(){var e=0|this.length;return 0===e?"":0===arguments.length?P(this,0,e):v.apply(this,arguments)},i.prototype.equals=function(e){if(!i.isBuffer(e))throw new TypeError("Argument must be a Buffer");return this===e||0===i.compare(this,e)},i.prototype.inspect=function(){var e="",r=t.INSPECT_MAX_BYTES;return this.length>0&&(e=this.toString("hex",0,r).match(/.{2}/g).join(" "),this.length>r&&(e+=" ... ")),"<Buffer "+e+">"},i.prototype.compare=function(e,t,r,n,o){if(!i.isBuffer(e))throw new TypeError("Argument must be a Buffer");if(void 0===t&&(t=0),void 0===r&&(r=e?e.length:0),void 0===n&&(n=0),void 0===o&&(o=this.length),t<0||r>e.length||n<0||o>this.length)throw new RangeError("out of range index");if(n>=o&&t>=r)return 0;if(n>=o)return-1;if(t>=r)return 1;if(t>>>=0,r>>>=0,n>>>=0,o>>>=0,this===e)return 0;for(var a=o-n,s=r-t,c=Math.min(a,s),u=this.slice(n,o),l=e.slice(t,r),d=0;d<c;++d)if(u[d]!==l[d]){a=u[d],s=l[d];break}return a<s?-1:s<a?1:0},i.prototype.includes=function(e,t,r){return-1!==this.indexOf(e,t,r)},i.prototype.indexOf=function(e,t,r){return b(this,e,t,r,!0)},i.prototype.lastIndexOf=function(e,t,r){return b(this,e,t,r,!1)},i.prototype.write=function(e,t,r,n){if(void 0===t)n="utf8",r=this.length,t=0;else if(void 0===r&&"string"==typeof t)n=t,r=this.length,t=0;else{if(!isFinite(t))throw new Error("Buffer.write(string, encoding, offset[, length]) is no longer supported");t|=0,isFinite(r)?(r|=0,void 0===n&&(n="utf8")):(n=r,r=void 0)}var o=this.length-t;if((void 0===r||r>o)&&(r=o),e.length>0&&(r<0||t<0)||t>this.length)throw new RangeError("Attempt to write outside buffer bounds");n||(n="utf8");for(var i=!1;;)switch(n){case"hex":return x(this,e,t,r);case"utf8":case"utf-8":return _(this,e,t,r);case"ascii":return k(this,e,t,r);case"latin1":case"binary":return E(this,e,t,r);case"base64":return A(this,e,t,r);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return S(this,e,t,r);default:if(i)throw new TypeError("Unknown encoding: "+n);n=(""+n).toLowerCase(),i=!0}},i.prototype.toJSON=function(){return{type:"Buffer",data:Array.prototype.slice.call(this._arr||this,0)}};var Q=4096;i.prototype.slice=function(e,t){var r=this.length;e=~~e,t=void 0===t?r:~~t,e<0?(e+=r)<0&&(e=0):e>r&&(e=r),t<0?(t+=r)<0&&(t=0):t>r&&(t=r),t<e&&(t=e);var n;if(i.TYPED_ARRAY_SUPPORT)n=this.subarray(e,t),n.__proto__=i.prototype;else{var o=t-e;n=new i(o,void 0);for(var a=0;a<o;++a)n[a]=this[a+e]}return n},i.prototype.readUIntLE=function(e,t,r){e|=0,t|=0,r||L(e,t,this.length);for(var n=this[e],o=1,i=0;++i<t&&(o*=256);)n+=this[e+i]*o;return n},i.prototype.readUIntBE=function(e,t,r){e|=0,t|=0,r||L(e,t,this.length);for(var n=this[e+--t],o=1;t>0&&(o*=256);)n+=this[e+--t]*o;return n},i.prototype.readUInt8=function(e,t){return t||L(e,1,this.length),this[e]},i.prototype.readUInt16LE=function(e,t){return t||L(e,2,this.length),this[e]|this[e+1]<<8},i.prototype.readUInt16BE=function(e,t){return t||L(e,2,this.length),this[e]<<8|this[e+1]},i.prototype.readUInt32LE=function(e,t){return t||L(e,4,this.length),(this[e]|this[e+1]<<8|this[e+2]<<16)+16777216*this[e+3]},i.prototype.readUInt32BE=function(e,t){return t||L(e,4,this.length),16777216*this[e]+(this[e+1]<<16|this[e+2]<<8|this[e+3])},i.prototype.readIntLE=function(e,t,r){e|=0,t|=0,r||L(e,t,this.length);for(var n=this[e],o=1,i=0;++i<t&&(o*=256);)n+=this[e+i]*o;return o*=128,n>=o&&(n-=Math.pow(2,8*t)),n},i.prototype.readIntBE=function(e,t,r){e|=0,t|=0,r||L(e,t,this.length);for(var n=t,o=1,i=this[e+--n];n>0&&(o*=256);)i+=this[e+--n]*o;return o*=128,i>=o&&(i-=Math.pow(2,8*t)),i},i.prototype.readInt8=function(e,t){return t||L(e,1,this.length),128&this[e]?-1*(255-this[e]+1):this[e]},i.prototype.readInt16LE=function(e,t){t||L(e,2,this.length);var r=this[e]|this[e+1]<<8;return 32768&r?4294901760|r:r},i.prototype.readInt16BE=function(e,t){t||L(e,2,this.length);var r=this[e+1]|this[e]<<8;return 32768&r?4294901760|r:r},i.prototype.readInt32LE=function(e,t){return t||L(e,4,this.length),this[e]|this[e+1]<<8|this[e+2]<<16|this[e+3]<<24},i.prototype.readInt32BE=function(e,t){return t||L(e,4,this.length),this[e]<<24|this[e+1]<<16|this[e+2]<<8|this[e+3]},i.prototype.readFloatLE=function(e,t){return t||L(e,4,this.length),Z.read(this,e,!0,23,4)},i.prototype.readFloatBE=function(e,t){return t||L(e,4,this.length),Z.read(this,e,!1,23,4)},i.prototype.readDoubleLE=function(e,t){return t||L(e,8,this.length),Z.read(this,e,!0,52,8)},i.prototype.readDoubleBE=function(e,t){return t||L(e,8,this.length),Z.read(this,e,!1,52,8)},i.prototype.writeUIntLE=function(e,t,r,n){if(e=+e,t|=0,r|=0,!n){Y(this,e,t,r,Math.pow(2,8*r)-1,0)}var o=1,i=0;for(this[t]=255&e;++i<r&&(o*=256);)this[t+i]=e/o&255;return t+r},i.prototype.writeUIntBE=function(e,t,r,n){if(e=+e,t|=0,r|=0,!n){Y(this,e,t,r,Math.pow(2,8*r)-1,0)}var o=r-1,i=1;for(this[t+o]=255&e;--o>=0&&(i*=256);)this[t+o]=e/i&255;return t+r},i.prototype.writeUInt8=function(e,t,r){return e=+e,t|=0,r||Y(this,e,t,1,255,0),i.TYPED_ARRAY_SUPPORT||(e=Math.floor(e)),this[t]=255&e,t+1},i.prototype.writeUInt16LE=function(e,t,r){return e=+e,t|=0,r||Y(this,e,t,2,65535,0),i.TYPED_ARRAY_SUPPORT?(this[t]=255&e,this[t+1]=e>>>8):D(this,e,t,!0),t+2},i.prototype.writeUInt16BE=function(e,t,r){return e=+e,t|=0,r||Y(this,e,t,2,65535,0),i.TYPED_ARRAY_SUPPORT?(this[t]=e>>>8,this[t+1]=255&e):D(this,e,t,!1),t+2},i.prototype.writeUInt32LE=function(e,t,r){return e=+e,t|=0,r||Y(this,e,t,4,4294967295,0),i.TYPED_ARRAY_SUPPORT?(this[t+3]=e>>>24,this[t+2]=e>>>16,this[t+1]=e>>>8,this[t]=255&e):O(this,e,t,!0),t+4},i.prototype.writeUInt32BE=function(e,t,r){return e=+e,t|=0,r||Y(this,e,t,4,4294967295,0),i.TYPED_ARRAY_SUPPORT?(this[t]=e>>>24,this[t+1]=e>>>16,this[t+2]=e>>>8,this[t+3]=255&e):O(this,e,t,!1),t+4},i.prototype.writeIntLE=function(e,t,r,n){if(e=+e,t|=0,!n){var o=Math.pow(2,8*r-1);Y(this,e,t,r,o-1,-o)}var i=0,a=1,s=0;for(this[t]=255&e;++i<r&&(a*=256);)e<0&&0===s&&0!==this[t+i-1]&&(s=1),this[t+i]=(e/a>>0)-s&255;return t+r},i.prototype.writeIntBE=function(e,t,r,n){if(e=+e,t|=0,!n){var o=Math.pow(2,8*r-1);Y(this,e,t,r,o-1,-o)}var i=r-1,a=1,s=0;for(this[t+i]=255&e;--i>=0&&(a*=256);)e<0&&0===s&&0!==this[t+i+1]&&(s=1),this[t+i]=(e/a>>0)-s&255;return t+r},i.prototype.writeInt8=function(e,t,r){return e=+e,t|=0,r||Y(this,e,t,1,127,-128),i.TYPED_ARRAY_SUPPORT||(e=Math.floor(e)),e<0&&(e=255+e+1),this[t]=255&e,t+1},i.prototype.writeInt16LE=function(e,t,r){return e=+e,t|=0,r||Y(this,e,t,2,32767,-32768),i.TYPED_ARRAY_SUPPORT?(this[t]=255&e,this[t+1]=e>>>8):D(this,e,t,!0),t+2},i.prototype.writeInt16BE=function(e,t,r){return e=+e,t|=0,r||Y(this,e,t,2,32767,-32768),i.TYPED_ARRAY_SUPPORT?(this[t]=e>>>8,this[t+1]=255&e):D(this,e,t,!1),t+2},i.prototype.writeInt32LE=function(e,t,r){return e=+e,t|=0,r||Y(this,e,t,4,2147483647,-2147483648),i.TYPED_ARRAY_SUPPORT?(this[t]=255&e,this[t+1]=e>>>8,this[t+2]=e>>>16,this[t+3]=e>>>24):O(this,e,t,!0),t+4},i.prototype.writeInt32BE=function(e,t,r){return e=+e,t|=0,r||Y(this,e,t,4,2147483647,-2147483648),e<0&&(e=4294967295+e+1),i.TYPED_ARRAY_SUPPORT?(this[t]=e>>>24,this[t+1]=e>>>16,this[t+2]=e>>>8,this[t+3]=255&e):O(this,e,t,!1),t+4},i.prototype.writeFloatLE=function(e,t,r){return I(this,e,t,!0,r)},i.prototype.writeFloatBE=function(e,t,r){return I(this,e,t,!1,r)},i.prototype.writeDoubleLE=function(e,t,r){return N(this,e,t,!0,r)},i.prototype.writeDoubleBE=function(e,t,r){return N(this,e,t,!1,r)},i.prototype.copy=function(e,t,r,n){if(r||(r=0),n||0===n||(n=this.length),t>=e.length&&(t=e.length),t||(t=0),n>0&&n<r&&(n=r),n===r)return 0;if(0===e.length||0===this.length)return 0;if(t<0)throw new RangeError("targetStart out of bounds");if(r<0||r>=this.length)throw new RangeError("sourceStart out of bounds");if(n<0)throw new RangeError("sourceEnd out of bounds");n>this.length&&(n=this.length),e.length-t<n-r&&(n=e.length-t+r);var o,a=n-r;if(this===e&&r<t&&t<n)for(o=a-1;o>=0;--o)e[o+t]=this[o+r];else if(a<1e3||!i.TYPED_ARRAY_SUPPORT)for(o=0;o<a;++o)e[o+t]=this[o+r];else Uint8Array.prototype.set.call(e,this.subarray(r,r+a),t);return a},i.prototype.fill=function(e,t,r,n){if("string"==typeof e){if("string"==typeof t?(n=t,t=0,r=this.length):"string"==typeof r&&(n=r,r=this.length),1===e.length){var o=e.charCodeAt(0);o<256&&(e=o)}if(void 0!==n&&"string"!=typeof n)throw new TypeError("encoding must be a string");if("string"==typeof n&&!i.isEncoding(n))throw new TypeError("Unknown encoding: "+n)}else"number"==typeof e&&(e&=255);if(t<0||this.length<t||this.length<r)throw new RangeError("Out of range index");if(r<=t)return this;t>>>=0,r=void 0===r?this.length:r>>>0,e||(e=0);var a;if("number"==typeof e)for(a=t;a<r;++a)this[a]=e;else{var s=i.isBuffer(e)?e:F(new i(e,n).toString()),c=s.length;for(a=0;a<r-t;++a)this[a+t]=s[a%c]}return this};var ee=/[^+\/0-9A-Za-z-_]/g}).call(t,r(8))},function(e,t){t.read=function(e,t,r,n,o){var i,a,s=8*o-n-1,c=(1<<s)-1,u=c>>1,l=-7,d=r?o-1:0,f=r?-1:1,p=e[t+d];for(d+=f,i=p&(1<<-l)-1,p>>=-l,l+=s;l>0;i=256*i+e[t+d],d+=f,l-=8);for(a=i&(1<<-l)-1,i>>=-l,l+=n;l>0;a=256*a+e[t+d],d+=f,l-=8);if(0===i)i=1-u;else{if(i===c)return a?NaN:1/0*(p?-1:1);a+=Math.pow(2,n),i-=u}return(p?-1:1)*a*Math.pow(2,i-n)},t.write=function(e,t,r,n,o,i){var a,s,c,u=8*i-o-1,l=(1<<u)-1,d=l>>1,f=23===o?Math.pow(2,-24)-Math.pow(2,-77):0,p=n?0:i-1,h=n?1:-1,g=t<0||0===t&&1/t<0?1:0;for(t=Math.abs(t),isNaN(t)||t===1/0?(s=isNaN(t)?1:0,a=l):(a=Math.floor(Math.log(t)/Math.LN2),t*(c=Math.pow(2,-a))<1&&(a--,c*=2),t+=a+d>=1?f/c:f*Math.pow(2,1-d),t*c>=2&&(a++,c/=2),a+d>=l?(s=0,a=l):a+d>=1?(s=(t*c-1)*Math.pow(2,o),a+=d):(s=t*Math.pow(2,d-1)*Math.pow(2,o),a=0));o>=8;e[r+p]=255&s,p+=h,s/=256,o-=8);for(a=a<<o|s,u+=o;u>0;e[r+p]=255&a,p+=h,a/=256,u-=8);e[r+p-h]|=128*g}},function(e,t){var r={}.toString;e.exports=Array.isArray||function(e){return"[object Array]"==r.call(e)}},function(e,t){e.exports=function(e){var t="undefined"!=typeof window&&window.location;if(!t)throw new Error("fixUrls requires window.location");if(!e||"string"!=typeof e)return e;var r=t.protocol+"//"+t.host,n=r+t.pathname.replace(/\/[^\/]*$/,"/");return e.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi,function(e,t){var o=t.trim().replace(/^"(.*)"$/,function(e,t){return t}).replace(/^'(.*)'$/,function(e,t){return t});if(/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(o))return e;var i;return i=0===o.indexOf("//")?o:0===o.indexOf("/")?r+o:n+o.replace(/^\.\//,""),"url("+JSON.stringify(i)+")"})}},function(e,t){var r;r=function(){return this}();try{r=r||Function("return this")()||(0,eval)("this")}catch(e){"object"==typeof window&&(r=window)}e.exports=r},function(e,t,r){"use strict";angular.module("modal.ui.xxt",[]).service("tmsModal",["$rootScope","$compile","$q","$controller",function(e,t,r,n){this.open=function(o){var i,a=r.defer(),s=r.defer(),c={result:a.promise,closed:s.promise,close:function(e){document.body.removeChild(f[0]),a.resolve(e)},dismiss:function(e){document.body.removeChild(f[0]),s.resolve(e)}};i=e.$new(!0),o.controller&&n(o.controller,{$scope:i,$tmsModalInstance:c});var u,l,d,f;return u=angular.element("<div></div>"),u.attr({class:"modal-content","ng-style":"{'z-index':1060}"}).append(o.template),l=angular.element("<div></div>"),l.attr({class:"modal-dialog"}).append(u),d=angular.element("<div></div>"),d.attr({class:"modal-backdrop","ng-style":"{'z-index':1040}"}),f=angular.element("<div></div>"),f.attr({class:"modal","ng-style":"{'z-index':1050}",tabindex:-1}).append(l).append(d),t(f)(i),document.body.appendChild(f[0]),c}}])},function(e,t,r){var n=r(13);"string"==typeof n&&(n=[[e.i,n,""]]);r(1)(n,{});n.locals&&(e.exports=n.locals)},function(e,t,r){"use strict";r(10),r(2),r(9),angular.module("favor.ui.xxt",["page.ui.xxt","modal.ui.xxt"]).service("tmsFavor",["$rootScope","$http","$q","tmsDynaPage","tmsModal",function(e,t,r,n,o){function i(e){var n,o;return o=r.defer(),n="/rest/site/fe/user/favor/byUser",n+="?site="+e.siteid,n+="&id="+e.id,n+="&type="+e.type,t.get(n).success(function(e){o.resolve(e.data)}),o.promise}function a(e){var n,o;return o=r.defer(),n="/rest/site/fe/user/favor/add",n+="?site="+e.siteid,n+="&id="+e.id,n+="&type="+e.type,t.get(n).success(function(e){o.resolve(e.data)}),o.promise}function s(e){var n,o;return o=r.defer(),n="/rest/site/fe/user/favor/remove",n+="?site="+e.siteid,n+="&id="+e.id,n+="&type="+e.type,t.get(n).success(function(e){o.resolve(e.data)}),o.promise}function c(e){var n,o;return o=r.defer(),n="/rest/pl/fe/site/favor/sitesByUser?site="+e.siteid+"&id="+e.id+"&type="+e.type+"&_="+1*new Date,t.get(n).success(function(e){0==e.err_code&&o.resolve(e.data)}),o.promise}function u(e,n){var o,i;return i=r.defer(),o="/rest/pl/fe/site/favor/add?id="+e.id+"&type="+e.type,t.post(o,n).success(function(e){i.resolve(e.data)}),i.promise}function l(e,n){var o,i;return i=r.defer(),o="/rest/pl/fe/site/favor/remove?id="+e.id+"&type="+e.type,t.post(o,n).success(function(e){i.resolve(e.data)}),i.promise}this.open=function(e){var r;r='<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>',r+='<div class="modal-body">',r+='<div class="checkbox">',r+="<label>",r+="<input type='checkbox' ng-true-value=\"'Y'\" ng-false-value=\"'N'\" ng-model='person._selected'>",r+="<span>个人账户</span>",r+="<span ng-if=\"person._favored==='Y'\">（已收藏）</span>",r+="</label>",r+="</div>",r+='<div class="checkbox" ng-repeat="site in mySites">',r+="<label>",r+="<input type='checkbox' ng-true-value=\"'Y'\" ng-false-value=\"'N'\" ng-model='site._selected'>",r+="<span>{{site.name}}</span>",r+="<span ng-if=\"site._favored==='Y'\">（已收藏）</span>",r+="</label>",r+="</div>",r+='<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>',r+="</div>",r+='<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>',o.open({template:r,controller:["$scope","$tmsModalInstance",function(r,n){i(e).then(function(e){r.person={_favored:e?"Y":"N"},r.person._selected=r.person._favored}),c(e).then(function(e){var t=e;t.forEach(function(e){e._selected=e._favored}),r.mySites=t}),r.createSite=function(){t.get("/rest/pl/fe/site/create").success(function(e){var t=e.data;t._favored=t._selected="N",r.mySites=[t]})},r.ok=function(){var e;e={person:r.person,mySites:r.mySites},n.close(e)},r.cancel=function(){n.dismiss()}}]}).result.then(function(t){var r,n;if(r=t.person,r&&r._selected!==r._favored&&("Y"===r._selected?a(e):s(e)),n=t.mySites){var o=[],i=[];n.forEach(function(e){e._selected!==e._favored&&("Y"===e._selected?o.push(e.id):i.push(e.id))}),o.length&&u(e,o),i.length&&l(e,i)}})},this.showSwitch=function(t,r){var o,i=this;o=document.createElement("div"),o.classList.add("tms-switch","tms-switch-favor"),o.addEventListener("click",function(o){o.preventDefault(),o.stopPropagation(),e.$apply(function(){t.loginExpire?i.open(r):n.openPlugin("http://"+location.host+"/rest/site/fe/user/access?site=platform#login").then(function(e){t.loginExpire=e.loginExpire,i.open(r)})})},!0),document.body.appendChild(o)}}])},function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("snsshare.ui.xxt",[]);ngMod.service("tmsSnsShare",["$http",function($http){function setWxShare(e,t,r,n,o){window.wx.onMenuShareTimeline({title:o.descAsTitle?r:e,link:t,imgUrl:n,success:function(){try{o.logger&&o.logger("T")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareT: fail")}}),window.wx.onMenuShareAppMessage({title:e,desc:r,link:t,imgUrl:n,success:function(){try{o.logger&&o.logger("F")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareF: fail")}})}function setYxShare(e,t,r,n,o){var i={img_url:n,link:t,title:e,desc:r};window.YixinJSBridge.on("menu:share:appmessage",function(e){try{o.logger&&o.logger("F")}catch(e){alert("share failed:"+e.message)}window.YixinJSBridge.invoke("sendAppMessage",i,function(e){})}),window.YixinJSBridge.on("menu:share:timeline",function(e){try{o.logger&&o.logger("T")}catch(e){alert("share failed:"+e.message)}window.YixinJSBridge.invoke("shareTimeline",i,function(e){})})}this.config=function(e){this.options=e},this.set=function(title,link,desc,img,fnOther){var _this=this;if(img&&-1===img.indexOf("http")&&(img="http://"+location.host+img),/MicroMessenger/i.test(navigator.userAgent)){var script;script=document.createElement("script"),script.src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js",script.onload=function(){var xhr,url;xhr=new XMLHttpRequest,url="/rest/site/fe/wxjssdksignpackage?site="+_this.options.siteId+"&url="+encodeURIComponent(location.href.split("#")[0]),xhr.open("GET",url,!0),xhr.onreadystatechange=function(){if(4==xhr.readyState)if(xhr.status>=200&&xhr.status<400){var signPackage;try{eval("("+xhr.responseText+")"),signPackage&&(signPackage.debug=!1,signPackage.jsApiList=_this.options.jsApiList,wx.config(signPackage),wx.ready(function(){setWxShare(title,link,desc,img,_this.options)}),wx.error(function(e){alert(e)}))}catch(e){alert("local error:"+e.toString())}}else alert("http error:"+xhr.statusText)},xhr.send()},document.body.appendChild(script)}else/Yixin/i.test(navigator.userAgent)?void 0===window.YixinJSBridge?document.addEventListener("YixinJSBridgeReady",function(){setYxShare(title,link,desc,img,_this.options)},!1):setYxShare(title,link,desc,img,_this.options):fnOther&&"function"==typeof fnOther&&fnOther(title,link,desc,img)}}])},function(e,t,r){t=e.exports=r(0)(void 0),t.push([e.i,".modal{display:block;overflow:hidden;outline:0;overflow-x:hidden;overflow-y:auto;opacity:1}.modal,.modal-backdrop{position:fixed;top:0;right:0;bottom:0;left:0}.modal-backdrop{background-color:#000;opacity:.5}.modal-dialog{z-index:1055;margin:0;position:relative;width:auto;margin:10px}.modal-content{position:relative;background-color:#fff;-webkit-background-clip:padding-box;background-clip:padding-box;border:1px solid #999;border:1px solid rgba(0,0,0,.2);border-radius:6px;outline:0;-webkit-box-shadow:0 3px 9px rgba(0,0,0,.5);box-shadow:0 3px 9px rgba(0,0,0,.5)}.modal-header{padding:15px;border-bottom:1px solid #e5e5e5}.modal-header .close{margin-top:-2px}.modal-title{margin:0;line-height:1.42857143}.modal-body{position:relative;padding:15px}.modal-footer{padding:15px;text-align:right;border-top:1px solid #e5e5e5}button.close{-webkit-appearance:none;padding:0;cursor:pointer;background:0 0;border:0}.close{float:right;font-size:21px;font-weight:700;line-height:1;color:#000;text-shadow:0 1px 0 #fff;filter:alpha(opacity=20);opacity:.2}@media (min-width:768px){.modal-dialog{width:600px;margin:30px auto}.modal-content{-webkit-box-shadow:0 5px 15px rgba(0,0,0,.5);box-shadow:0 5px 15px rgba(0,0,0,.5)}}",""])},function(e,t,r){t=e.exports=r(0)(void 0),t.push([e.i,'.dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-body,.dialog .dlg-header{padding:15px 15px 0}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-switch{position:fixed;right:15px;width:70px;box-shadow:0 2px 6px rgba(18,27,32,.425);height:35px;color:#2994d0;background:#f8fcfe;border-radius:21px;font-size:24px;line-height:27px;text-align:center;cursor:pointer;z-index:1050}.tms-switch:before{font-size:.7em}.tms-switch:last-of-type{bottom:8px}.tms-switch:nth-last-of-type(2){bottom:64px}.tms-switch:nth-last-of-type(3){bottom:120px}.tms-switch:nth-last-of-type(4){bottom:176px}.tms-switch:nth-last-of-type(5){bottom:232px}.tms-switch:nth-last-of-type(6){bottom:288px}.tms-switch-back:before{content:"\\8FD4\\56DE"}.tms-switch-app:before{content:"\\6D3B\\52A8"}.tms-switch-task:before{content:"\\4EFB\\52A1"}.tms-switch-save:before{content:"\\4FDD\\5B58"}.tms-switch-rank:before{content:"\\6392\\884C"}.tms-switch-repos:before{content:"\\5171\\4EAB"}.tms-switch-coinpay:before{content:"\\6253\\8D4F"}.tms-switch-remark:before{content:"\\8BC4\\8BBA"}@media screen and (max-width:768px){body{margin-bottom:60px}.tms-switch:last-of-type{right:5px;bottom:10px}.tms-switch:nth-last-of-type(2){right:85px;bottom:10px}.tms-switch:nth-last-of-type(3){right:165px;bottom:10px}.tms-switch:nth-last-of-type(4){right:245px;bottom:10px}.tms-switch:nth-last-of-type(5){right:325px;bottom:10px}.tms-switch:nth-last-of-type(6){right:405px;bottom:10px}}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:"\\5173\\95ED";position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}',""])},function(e,t,r){var n=r(14);"string"==typeof n&&(n=[[e.i,n,""]]);r(1)(n,{});n.locals&&(e.exports=n.locals)},function(e,t,r){"use strict";window.__util={},window.__util.makeDialog=function(e,t){var r,n;return n=document.createElement("div"),n.setAttribute("id",e),n.classList.add("dialog","mask"),r="<div class='dialog dlg'>",t.header&&t.header.length&&(r+="<div class='dlg-header'>"+t.header+"</div>"),r+="<div class='dlg-body'>"+t.body+"</div>",t.footer&&t.footer.length&&(r+="<div class='dlg-footer'>"+t.footer+"</div>"),r+="</div>",n.innerHTML=r,document.body.appendChild(n),n.children};var n=angular.module("directive.enroll",[]);n.directive("tmsDate",["$compile",function(e){return{restrict:"A",scope:{value:"=tmsDateValue"},controller:["$scope",function(e){e.close=function(){var t;t=document.querySelector("#"+e.dialogID),document.body.removeChild(t),e.opened=!1},e.ok=function(){var t;t=new Date,t.setTime(0),t.setFullYear(e.data.year),t.setMonth(e.data.month-1),t.setDate(e.data.date),t.setHours(e.data.hour),t.setMinutes(e.data.minute),e.value=parseInt(t.getTime()/1e3),e.close()}}],link:function(t,r,n){var o,i,a,s;void 0===t.value&&(t.value=1*new Date/1e3),i=new Date,i.setTime(1e3*t.value),t.options={years:[2014,2015,2016,2017,2018,2019,2020],months:[1,2,3,4,5,6,7,8,9,10,11,12],dates:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],hours:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],minutes:[0,5,10,15,20,25,30,35,40,45,50,55]},a=5*Math.round(i.getMinutes()/5),t.data={year:i.getFullYear(),month:i.getMonth()+1,date:i.getDate(),hour:i.getHours(),minute:a},-1===t.options.minutes.indexOf(a)&&t.options.minutes.push(a),s='<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>',o=function(r){if(r.preventDefault(),r.stopPropagation(),!t.opened){var n,o;o="_dlg-"+1*new Date,n={header:"",body:s,footer:'<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'},n=__util.makeDialog(o,n),t.opened=!0,t.dialogID=o,e(n)(t)}},r[0].querySelector("[ng-bind]").addEventListener("click",o)}}}]),n.directive("tmsCheckboxGroup",function(){return{restrict:"A",link:function(e,t,r){var n,o,i,a;r.tmsCheckboxGroup&&r.tmsCheckboxGroup.length&&(n=r.tmsCheckboxGroup,r.tmsCheckboxGroupModel&&r.tmsCheckboxGroupModel.length&&(o=r.tmsCheckboxGroupModel,r.tmsCheckboxGroupUpper&&r.tmsCheckboxGroupUpper.length&&(a=r.tmsCheckboxGroupUpper,i=document.querySelectorAll("[name="+n+"]"),e.$watch(o+"."+n,function(e){var t;t=0,angular.forEach(e,function(e,r){e&&t++}),t>=a?[].forEach.call(i,function(e){void 0===e.checked?!e.classList.contains("checked")&&e.setAttribute("disabled",!0):!e.checked&&(e.disabled=!0)}):[].forEach.call(i,function(e){void 0===e.checked?e.removeAttribute("disabled"):e.disabled=!1})},!0))))}}}),n.directive("flexImg",function(){return{restrict:"A",replace:!0,template:"<img ng-src='{{img.imgSrc}}'>",link:function(e,t,r){angular.element(t).on("load",function(){var e,t,r=this.clientWidth,n=this.clientHeight;r>n?(e=r/n*80,angular.element(this).css({height:"100%",width:e+"px",top:"0",left:"50%","margin-left":-1*e/2+"px"})):(t=n/r*80,angular.element(this).css({width:"100%",height:t+"px",left:"0",top:"50%","margin-top":-1*t/2+"px"}))})}}})},function(e,t,r){"use strict";function n(e,t){var r,n,o;r=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),n.appendChild(o),n.onclick=function(){n.parentNode.removeChild(n)},r.appendChild(n),document.body.appendChild(r),0===e.indexOf("http")?(window.onClosePlugin=function(){n.parentNode.removeChild(n),t&&t()},o.setAttribute("src",e)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=e)}angular.module("coinpay.ui.xxt",[]).service("tmsCoinPay",function(){this.showSwitch=function(e,t){var r;r=document.createElement("div"),r.classList.add("tms-switch","tms-switch-coinpay"),r.addEventListener("click",function(r){r.preventDefault(),r.stopPropagation();var o="http://"+location.host;o+="/rest/site/fe/coin/pay",o+="?site="+e,o+="&matter="+t,n(o)},!0),document.body.appendChild(r)}})},function(e,t,r){"use strict";var n=angular.module("http.ui.xxt",[]);n.provider("tmsLocation",function(){var e;this.config=function(t){e=t||location.pathname},this.$get=["$location",function(t){return e||(e=location.pathname),{s:function(){return t.search()},j:function(r){var n=e,o=[];r&&r.length&&(n+="/"+r);for(var i=1,a=arguments.length;i<a;i++)o.push(arguments[i]+"="+(t.search()[arguments[i]]||""));return o.length&&(n+="?"+o.join("&")),n}}}]}),n.service("http2",["$rootScope","$http","$timeout","$q","$sce","$compile",function(e,t,r,n,o,i){function a(t,r,n){var a;return a=angular.element("<div></div>"),a.attr({class:"tms-notice alert alert-"+(r||"info"),"ng-style":"{'z-index':1040}"}).html(o.trustAsHtml(t)),n||a[0].addEventListener("click",function(){document.body.removeChild(a[0])},!0),i(a)(e),document.body.appendChild(a[0]),a[0]}function s(e){e&&document.body.removeChild(e)}this.get=function(e,o){var i,c,u=n.defer();return o=angular.extend({headers:{accept:"application/json"},autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},o),!0===o.showProgress&&(c=r(function(){c=null,i=a(o.showProgressText,"info")},o.showProgressDelay)),t.get(e,o).success(function(e){if(!0===o.showProgress&&(c&&r.cancel(c),i&&(s(i),i=null)),angular.isString(e)){if(o.autoNotice&&a(e,"warning"),o.autoBreak)return;u.reject(e)}else if(0!=e.err_code){if(o.autoNotice){var t;t=angular.isString(e.err_msg)?e.err_msg:angular.isArray(e.err_msg)?e.err_msg.join("<br>"):JSON.stringify(e.err_msg),a(t,"warning")}if(o.autoBreak)return;u.reject(e)}else u.resolve(e)}).error(function(e,t){!0===o.showProgress&&(c&&r.cancel(c),i&&(s(i),i=null)),a(null===e?"网络不可用":e,"danger")}),u.promise},this.post=function(e,o,i){var c,u,l=n.defer();return i=angular.extend({headers:{accept:"application/json"},autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},i),!0===i.showProgress&&(u=r(function(){u=null,c=a(i.showProgressText,"info")},i.showProgressDelay)),t.post(e,o,i).success(function(e){if(!0===i.showProgress&&(u&&r.cancel(u),c&&(s(c),c=null)),angular.isString(e)){if(i.autoNotice&&(a(e,"warning"),c=null),i.autoBreak)return;l.reject(e)}else if(0!=e.err_code){if(i.autoNotice){var t;t=angular.isString(e.err_msg)?e.err_msg:angular.isArray(e.err_msg)?e.err_msg.join("<br>"):JSON.stringify(e.err_msg),a(t,"warning")}if(i.autoBreak)return;l.reject(e)}else l.resolve(e)}).error(function(e,t){!0===i.showProgress&&(u&&r.cancel(u),c&&(s(c),c=null)),a(null===e?"网络不可用":e,"danger")}),l.promise}}])},function(e,t,r){"use strict";function n(e,t){var r,n,o;r=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),n.appendChild(o),n.onclick=function(){n.parentNode.removeChild(n)},r.appendChild(n),document.body.appendChild(r),0===e.indexOf("http")?(window.onClosePlugin=function(){n.parentNode.removeChild(n),t&&t()},o.setAttribute("src",e)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=e)}angular.module("siteuser.ui.xxt",[]).service("tmsSiteUser",function(){this.showSwitch=function(e,t){var r;r=document.createElement("div"),r.classList.add("tms-switch","tms-switch-siteuser"),r.addEventListener("click",function(r){r.preventDefault(),r.stopPropagation();var o="http://"+location.host;o+="/rest/site/fe/user",o+="?site="+e,t?location.href=o:n(o)},!0),document.body.appendChild(r)}})},function(e,t,r){"use strict";angular.module("notice.ui.xxt",["ngSanitize"]).service("noticebox",["$timeout",function(e){var t="tmsbox"+1*new Date,r={type:"",timer:null},n=function(e,n){var o;return o=document.querySelector("#"+t),null===o?(o=document.createElement("div"),o.setAttribute("id",t),o.classList.add("notice-box"),o.classList.add("alert"),o.classList.add("alert-"+e),o.innerHTML="<div>"+n+"</div>",document.body.appendChild(o),r.type=e):(r.type!==e&&(o.classList.remove("alert-"+e),r.type=e),o.childNodes[0].innerHTML=n),o};this.close=function(){var e;(e=document.querySelector("#"+t))&&document.body.removeChild(e)},this.error=function(t){var o,i;r.timer&&(e.cancel(r.timer),r.timer=null),o=n("danger",t),i=document.createElement("button"),i.classList.add("close"),i.innerHTML="<span>&times;</span>",o.insertBefore(i,o.childNodes[0]),i.addEventListener("click",function(){document.body.removeChild(o)})},this.warn=function(t){var o,i;r.timer&&(e.cancel(r.timer),r.timer=null),o=n("warning",t),i=document.createElement("button"),i.classList.add("close"),i.innerHTML="<span>&times;</span>",o.insertBefore(i,o.childNodes[0]),i.addEventListener("click",function(){document.body.removeChild(o)})},this.success=function(t){var o;r.timer&&e.cancel(r.timer),o=n("success",t),r.timer=e(function(){o.parentNode&&o.parentNode===document.body&&document.body.removeChild(o),r.timer=null},2e3)},this.info=function(t){var o;r.timer&&e.cancel(r.timer),o=n("info",t),r.timer=e(function(){o.parentNode&&o.parentNode===document.body&&document.body.removeChild(o),r.timer=null},2e3)},this.progress=function(e){n("progress",e)}}])},function(e,t,r){t=e.exports=r(0)(void 0),t.push([e.i,"body,html{font-family:Microsoft Yahei,Arial;width:100%;height:auto}body{position:relative;font-size:16px;padding:0}.ng-cloak{display:none}.container{position:relative}.navbar-default .navbar-brand,.navbar-default .navbar-nav>li>a{color:#fff}.navbar-brand{height:55px;padding:17.5px 15px}.main-navbar .navbar-brand:hover{color:#fff}@media screen and (min-width:768px){.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1}}@media screen and (max-width:768px){.navbar-brand{width:100%;text-align:center}.navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.navbar-nav{margin:8px 0;position:absolute;top:0;right:0}.nav>li>a{padding:10px}}",""])},function(e,t,r){var n=r(21);"string"==typeof n&&(n=[[e.i,n,""]]);r(1)(n,{});n.locals&&(e.exports=n.locals)},function(e,t,r){"use strict";r(12),/MicroMessenger/i.test(navigator.userAgent)&&window.signPackage&&window.wx?window.wx.ready(function(){window.wx.showOptionMenu()}):/YiXin/i.test(navigator.userAgent)&&document.addEventListener("YixinJSBridgeReady",function(){YixinJSBridge.call("showOptionMenu")},!1),r(15),r(22),r(20),r(18),r(2),r(19),r(11),r(17),r(16);var n=angular.module("app",["ngSanitize","ui.bootstrap","notice.ui.xxt","http.ui.xxt","page.ui.xxt","snsshare.ui.xxt","siteuser.ui.xxt","favor.ui.xxt","directive.enroll"]);n.config(["$controllerProvider","$uibTooltipProvider","$locationProvider",function(e,t,r){n.provider={controller:e.register},t.setTriggers({show:"hide"}),r.html5Mode(!0)}]),n.controller("ctrlAppTip",["$scope","$interval",function(e,t){var r;e.autoCloseTime=6,e.domId="",e.closeTip=function(){var t=document.querySelector(e.domId),r=document.createEvent("HTMLEvents");r.initEvent("hide",!1,!1),t.dispatchEvent(r)},r=t(function(){0===--e.autoCloseTime&&(t.cancel(r),e.closeTip())},1e3)}]),n.controller("ctrlMain",["$scope","$q","http2","$timeout","tmsLocation","tmsDynaPage","tmsSnsShare","tmsSiteUser","tmsFavor",function(e,t,r,o,i,a,s,c,u){function l(){var r,n;return n=t.defer(),r=i.j("actionRule","site","app"),$http.get(r).success(function(t){e.params.actionRule=t.data,n.resolve(t.data)}),n.promise}function d(e,t){var r,n,o;r=document.body,n=document.createElement("div"),n.setAttribute("id","frmPlugin"),n.height=r.clientHeight,o=document.createElement("iframe"),n.appendChild(o),r.scrollTop=0,r.appendChild(n),window.onClosePlugin=function(){t?t().then(function(e){n.parentNode.removeChild(n)}):n.parentNode.removeChild(n)},n.onclick=function(){onClosePlugin()},e&&o.setAttribute("src",e),n.style.display="block"}function f(t){var r,n,o,i;i=!0,r=e,o=t.match(/\((.*?)\)/)[1].replace(/'|"/g,"").split(","),angular.forEach(t.replace(/\(.*?\)/,"").split("."),function(e){if(n&&(r=n),!r[e])return void(i=!1);n=r[e]}),i&&n.apply(r,o)}var p=[];e.back=function(){history.back()},e.historyLen=function(){return history.length},e.closeWindow=function(){/MicroMessenger/i.test(navigator.userAgent)?window.wx.closeWindow():/YiXin/i.test(navigator.userAgent)&&window.YixinJSBridge.call("closeWebView")},e.askFollowSns=function(){var t;e.app.entry_rule&&"sns"===e.app.entry_rule.scope&&(t=i.j("askFollow","site"),t+="&sns="+Object.keys(e.app.entry_rule.sns).join(","),d(t,l))},e.askBecomeMember=function(){var t,r;e.app.entry_rule&&"member"===e.app.entry_rule.scope&&(r=Object.keys(e.app.entry_rule.member),1===r.length?(t="/rest/site/fe/user/member?site="+e.app.siteid,t+="&schema="+r[0]):r.length>1&&(t="/rest/site/fe/user/memberschema?site="+e.app.siteid,t+="&schema="+r.join(",")),d(t,l))},e.addRecord=function(t,r){if(r)e.gotoPage(t,r,null,null,"Y");else for(var n in e.app.pages){var o=e.app.pages[n];if("I"===o.type){e.gotoPage(t,o.name,null,null,"Y");break}}},e.gotoApp=function(t){location.replace(e.app.entryUrl)},e.gotoPage=function(e,t,r,n,o){e&&(e.preventDefault(),e.stopPropagation());var a=i.j("","site","app");r?a+="&ek="+r:"remark"===t&&(a+="&ek="+i.s().ek),n&&(a+="&rid="+n),t&&(a+="&page="+t),o&&"Y"===o&&(a+="&newRecord=Y"),/remark|repos/.test(t)?location=a:location.replace(a)},e.openMatter=function(e,t,r,n){var o="/rest/site/fe/matter?site="+i.s().site+"&id="+e+"&type="+t;r?location.replace(o):!1===n?location.href=o:window.open(o)},e.onReady=function(t){e.params?f(t):p.push(t)},e.save=function(){e.$broadcast("xxt.app.enroll.save")},r.get(i.j("get","site","app","rid","page","ek","newRecord")).then(function(t){var l,d,f,h=t.data,g=h.site,m=h.app,v=h.mission,y=h.page,b=h.user,w={},x={},_="",k="";if(m.dataSchemas.forEach(function(e){w[e.id]=e}),m._schemasById=w,m.dataTags.forEach(function(e){x[e.id]=e}),m._tagsById=x,e.params=h,e.site=g,e.mission=v,e.app=m,e.user=b,"Y"===m.multi_rounds&&h.activeRound&&(e.activeRound=h.activeRound,k=h.activeRound.rid),h.record){if(h.record.data_tag)for(var E in h.record.data_tag){var A=h.record.data_tag[E],S=[];A.forEach(function(e){x[e]&&S.push(x[e])}),h.record.data_tag[E]=S}m.assignedNickname.schema&&("member.name"!=m.assignedNickname.schema.id&&"name"!=m.assignedNickname.schema.id||!h.record.data||(_=h.record.data[m.assignedNickname.schema.id]))}"Y"===m.use_site_header&&g&&g.header_page&&a.loadCode(n,g.header_page),"Y"===m.use_mission_header&&v&&v.header_page&&a.loadCode(n,v.header_page),"Y"===m.use_mission_footer&&v&&v.footer_page&&a.loadCode(n,v.footer_page),"Y"===m.use_site_footer&&g&&g.footer_page&&a.loadCode(n,g.footer_page),h.page&&a.loadCode(n,h.page).then(function(){e.page=h.page}),l=b.uid+"_"+1*new Date,d="http://"+location.host+i.j("","site","app","rid","newRecord"),d+="&shareby="+l,y&&y.share_page&&"Y"===y.share_page&&(d+="&page="+y.name,h.record&&h.record.enroll_key&&(d+="&ek="+h.record.enroll_key),/iphone|ipad/i.test(navigator.userAgent)),/MicroMessenger|Yixin/i.test(navigator.userAgent)&&(f=m.summary,y&&y.share_summary&&y.share_summary.length&&h.record&&(f=h.record.data[y.share_summary]),window.shareCounter=0,s.config({siteId:m.siteid,logger:function(e){var t;t="/rest/site/fe/matter/logShare",t+="?shareid="+l,t+="&site="+m.siteid,t+="&id="+m.id,t+="&type=enroll",t+="&title="+m.title,t+="&shareby="+l,t+="&shareto="+e,r.get(t),window.shareCounter++,window.onshare&&window.onshare(window.shareCounter)},jsApiList:["hideOptionMenu","onMenuShareTimeline","onMenuShareAppMessage","chooseImage","uploadImage","getLocation"]}),s.set(m.title,d,f,m.pic)),document.querySelector(".tms-switch-favor")?e.favor=function(e,t){event.preventDefault(),event.stopPropagation(),e.loginExpire?u.open(t):a.openPlugin("http://"+location.host+"/rest/site/fe/user/access?site=platform#login").then(function(r){e.loginExpire=r.loginExpire,u.open(t)})}:u.showSwitch(e.user,m),"Y"===m.can_siteuser&&(document.querySelector(".tms-switch-siteuser")?e.siteUser=function(e){event.preventDefault(),event.stopPropagation();var t="http://"+location.host;t+="/rest/site/fe/user",t+="?site="+e,location.href=t}:c.showSwitch(m.siteid,!0)),e.isSmallLayout=!1,window.screen&&window.screen.width<992&&(e.isSmallLayout=!0),p.length&&angular.forEach(p,PG.exec);var C;(C=document.querySelector(".loading"))&&C.parentNode.removeChild(C),o(function(){e.$broadcast("xxt.app.enroll.ready",h)}),r.post("/rest/site/fe/matter/logAccess?site="+m.siteid+"&id="+m.id+"&type=enroll&title="+m.title,{search:location.search.replace("?",""),referer:document.referrer,rid:k,assignedNickname:_})},function(e,t){})}]),e.exports=n},,,,,,,,,,,,,,,,,,function(e,t,r){"use strict";r(73);var n=r(23);n.factory("Round",["http2","$q",function(e,t){var r,n;return r=function(e){this.oApp=e,this.oPage={at:1,size:10,j:function(){return"&page="+this.at+"&size="+this.size}}},r.prototype.list=function(){var r,n=this,o=t.defer();return r="/rest/site/fe/matter/enroll/round/list?site="+this.oApp.siteid+"&app="+this.oApp.id,r+=this.oPage.j(),e.get(r).then(function(e){if(0!=e.err_code)return void alert(e.data);n.oPage.total=e.data.total,o.resolve(e.data)}),o.promise},{ins:function(e){return n=n||new r(e)}}}]),n.controller("ctrlRepos",["$scope","http2","Round","$sce",function(e,t,r,n){var o,i,a,s,c,u;u={},e.schemaCount=0,e.page=a={at:1,size:12},e.criteria=s={owner:"all"},e.schemas=c={},e.userGroups=[],e.repos=[],e.clickAdvCriteria=function(e){e.preventDefault(),e.stopPropagation()},e.list4Schema=function(r){var n;r?a.at=r:a.at++,1==a.at&&(e.repos=[]),n="/rest/site/fe/matter/enroll/repos/list4Schema?site="+o.siteid+"&app="+o.id,n+="&page="+a.at+"&size="+a.size,t.post(n,s).then(function(t){a.total=t.data.total,t.data.records&&t.data.records.forEach(function(t){"file"==c[t.schema_id].type&&(t.value=angular.fromJson(t.value)),"multitext"==c[t.schema_id].type&&(angular.forEach(t.items,function(e){u[e.id]=e}),t._items=u),t.tag&&t.tag.forEach(function(e,r){o._tagsById[e]&&(t.tag[r]=o._tagsById[e])}),e.repos.push(t)})})},e.gotoRemark=function(e,t){var r;r="/rest/site/fe/matter/enroll?site="+o.siteid+"&app="+o.id+"&page=remark",r+="&ek="+e.enroll_key,r+="&schema="+e.schema_id,r+="&id="+t,location.href=r},e.shiftRound=function(){"more"===s.rid?(i.oPage.at++,i.list().then(function(t){t.rounds.forEach(function(t){e.rounds.push(t)})})):e.list4Schema(1)},e.shiftUserGroup=function(){e.list4Schema(1)},e.shiftOwner=function(){e.list4Schema(1)},e.shiftSchema=function(){e.list4Schema(1)},e.shiftTag=function(){e.list4Schema(1)},e.likeRecordData=function(e,r,n){var i;i="/rest/site/fe/matter/enroll/data/like",i+="?site="+o.siteid,i+="&ek="+e.enroll_key,i+="&schema="+e.schema_id,i+="&id="+r,t.get(i).then(function(t){"multitext"==c[e.schema_id].type&&e._items[r]&&(e.items[n].like_log=t.data.itemLike_log,e.items[n].like_num=t.data.itemLike_num),e.like_log=t.data.like_log,e.like_num=t.data.like_num})},e.likeRemark=function(e){var r;r="/rest/site/fe/matter/enroll/remark/like",r+="?site="+o.siteid,r+="&remark="+e.id,t.get(r).then(function(t){e.like_log=t.data.like_log,e.like_num=t.data.like_num})},e.recommend=function(e,r){var n;e.agreed!==r&&(n="/rest/site/fe/matter/enroll/data/recommend",n+="?site="+o.siteid,n+="&ek="+e.enroll_key,n+="&schema="+e.schema_id,n+="&value="+r,t.get(n).then(function(t){e.agreed=r}))},e.value2Label=function(e,t){var r,o,i=[];return(r=t)?e.ops&&e.ops.length&&(o=r.split(","),e.ops.forEach(function(e){-1!==o.indexOf(e.v)&&i.push(e.l)}),r=i.join(",")):r="",n.trustAsHtml(r)},e.$on("xxt.app.enroll.ready",function(t,n){o=n.app,o.dataSchemas.forEach(function(t){t.shareable&&"Y"===t.shareable&&(c[t.id]=t,e.schemaCount++)}),e.userGroups=n.groups,e.groupUser=n.groupUser;var a={};n.groupOthers&&n.groupOthers.length&&n.groupOthers.forEach(function(e){a[e.userid]=e}),e.groupOthers=a,e.dataTags=o.dataTags,e.list4Schema(1),e.facRound=i=r.ins(o),"Y"===o.multi_rounds&&i.list().then(function(t){if(t.active)for(var r=0,n=t.rounds.length;r<n;r++)if(t.rounds[r].rid===t.active.rid){s.rid=t.active.rid;break}e.rounds=t.rounds})})}])},,,,,,,,,,,,,,,,,,function(e,t,r){t=e.exports=r(0)(void 0),t.push([e.i,'img{max-width:100%}@media screen and (max-width:768px){.site-navbar-default{margin-bottom:0}#filterCriteria .form-control,#filterCriteria .input-group-btn .btn{border-radius:0}}#advCriteria{position:absolute;top:100%;right:0;margin-top:1px;width:300px;background:#fff;padding:1rem;border:1px solid #ccc;border-top:0;z-index:1000}#advCriteria .form-control{float:none}#advCriteria .form-group{display:block}#advCriteria .form-group:last-child{margin-bottom:0}.glyphicon-thumbs-up.like{color:red}#repos .record{background:#fff;border-bottom:1px solid #ddd;padding:8px}#repos .record:last-child{margin-bottom:1rem}#repos .record>*{margin:1rem 0}#repos .record .header{display:flex}#repos .record .header .seq{margin-right:8px}#repos .record .header .label{padding-top:.3em}#repos .record .header .nickname{flex-grow:1;text-align:right;font-size:.9em}#repos .record .bottom-bar{display:flex}#repos .record .bottom-bar>*+*{margin-left:8px}#repos .record .bottom-bar .datetime{flex:1;line-height:30px;font-size:.8rem}#repos .record .remarks{font-size:.9em;border-top:1px dashed #ddd;padding:1rem 0 1rem 2rem;position:relative}#repos .record .remarks:before{content:"\\63A8\\8350\\8BC4\\8BBA";position:absolute;left:50%;margin-left:-1em;top:-.7em;color:#999}#repos .record .remarks .remark{margin-bottom:1em}#repos .record .remarks .remark .bottom-bar>:first-child{flex:1}#repos .record .remarks .remark .bottom-bar>:first-child:before{content:"\\2014   \\A0"}.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff}',""])},,,,,,,,,,,,,,function(e,t,r){var n=r(59);"string"==typeof n&&(n=[[e.i,n,""]]);r(1)(n,{});n.locals&&(e.exports=n.locals)},,,,,,,,,,,,,,,,function(e,t,r){e.exports=r(41)}]);
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+
+/***/ 36:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(68);
+
+var ngApp = __webpack_require__(18);
+ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
+    var Round, _ins;
+    Round = function(oApp) {
+        this.oApp = oApp;
+        this.oPage = {
+            at: 1,
+            size: 10,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        };
+    };
+    Round.prototype.list = function() {
+        var _this = this,
+            deferred = $q.defer(),
+            url;
+
+        url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
+        url += this.oPage.j();
+        http2.get(url).then(function(rsp) {
+            if (rsp.err_code != 0) {
+                alert(rsp.data);
+                return;
+            }
+            _this.oPage.total = rsp.data.total;
+            deferred.resolve(rsp.data);
+        });
+        return deferred.promise;
+    };
+    return {
+        ins: function(oApp) {
+            _ins = _ins ? _ins : new Round(oApp);
+            return _ins;
+        }
+    };
+}]);
+ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($scope, http2, srvRound, $sce) {
+    var oApp, facRound, page, criteria, shareableSchemas, userGroups, _items;
+    _items = {};
+    $scope.schemaCount = 0;
+    $scope.page = page = { at: 1, size: 12 };
+    $scope.criteria = criteria = { owner: 'all' };
+    $scope.schemas = shareableSchemas = {};
+    $scope.userGroups = userGroups = [];
+    $scope.repos = [];
+    $scope.clickAdvCriteria = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+    };
+    $scope.list4Schema = function(pageAt) {
+        var url;
+        if (pageAt) {
+            page.at = pageAt;
+        } else {
+            page.at++;
+        }
+        if (page.at == 1) {
+            $scope.repos = [];
+        }
+        url = '/rest/site/fe/matter/enroll/repos/list4Schema?site=' + oApp.siteid + '&app=' + oApp.id;
+        url += '&page=' + page.at + '&size=' + page.size;
+        http2.post(url, criteria).then(function(result) {
+            page.total = result.data.total;
+            if (result.data.records) {
+                result.data.records.forEach(function(oRecord) {
+                    if (shareableSchemas[oRecord.schema_id].type == 'file') {
+                        oRecord.value = angular.fromJson(oRecord.value);
+                    }
+                    if (shareableSchemas[oRecord.schema_id].type == 'multitext') {
+                        angular.forEach(oRecord.items, function(item) {
+                            _items[item.id] = item;
+                        });
+                        oRecord._items = _items;
+                    }
+                    if (oRecord.tag) {
+                        oRecord.tag.forEach(function(index, tagId) {
+                            if (oApp._tagsById[index]) {
+                                oRecord.tag[tagId] = oApp._tagsById[index];
+                            }
+                        });
+                    }
+                    $scope.repos.push(oRecord);
+                });
+            }
+        });
+    }
+    $scope.gotoRemark = function(oRecordData, id) {
+        var url;
+        url = '/rest/site/fe/matter/enroll?site=' + oApp.siteid + '&app=' + oApp.id + '&page=remark';
+        url += '&ek=' + oRecordData.enroll_key;
+        url += '&schema=' + oRecordData.schema_id;
+        url += '&id=' + id;
+        location.href = url;
+    };
+    $scope.shiftRound = function() {
+        if (criteria.rid === 'more') {
+            facRound.oPage.at++;
+            facRound.list().then(function(result) {
+                result.rounds.forEach(function(round) {
+                    $scope.rounds.push(round);
+                })
+            });
+        } else {
+            $scope.list4Schema(1);
+        }
+    };
+    $scope.shiftUserGroup = function() {
+        $scope.list4Schema(1);
+    };
+    $scope.shiftOwner = function() {
+        $scope.list4Schema(1);
+    };
+    $scope.shiftSchema = function() {
+        $scope.list4Schema(1);
+    };
+    $scope.shiftTag = function() {
+        $scope.list4Schema(1);
+    };
+    $scope.likeRecordData = function(oRecord, id, index) {
+        var url;
+        url = '/rest/site/fe/matter/enroll/data/like';
+        url += '?site=' + oApp.siteid;
+        url += '&ek=' + oRecord.enroll_key;
+        url += '&schema=' + oRecord.schema_id;
+        url += '&id=' + id;
+
+        http2.get(url).then(function(rsp) {
+            if (shareableSchemas[oRecord.schema_id].type == 'multitext' && oRecord._items[id]) {
+                oRecord.items[index].like_log = rsp.data.itemLike_log;
+                oRecord.items[index].like_num = rsp.data.itemLike_num;
+            }
+            oRecord.like_log = rsp.data.like_log;
+            oRecord.like_num = rsp.data.like_num;
+        });
+    };
+    $scope.likeRemark = function(oRemark) {
+        var url;
+        url = '/rest/site/fe/matter/enroll/remark/like';
+        url += '?site=' + oApp.siteid;
+        url += '&remark=' + oRemark.id;
+        http2.get(url).then(function(rsp) {
+            oRemark.like_log = rsp.data.like_log;
+            oRemark.like_num = rsp.data.like_num;
+        });
+    };
+    $scope.recommend = function(oRecData, value) {
+        var url;
+        if (oRecData.agreed !== value) {
+            url = '/rest/site/fe/matter/enroll/data/recommend';
+            url += '?site=' + oApp.siteid;
+            url += '&ek=' + oRecData.enroll_key;
+            url += '&schema=' + oRecData.schema_id;
+            url += '&value=' + value;
+            http2.get(url).then(function(rsp) {
+                oRecData.agreed = value;
+            });
+        }
+    };
+    $scope.value2Label = function(oSchema, value) {
+        var val, aVal, aLab = [];
+
+        if (val = value) {
+            if (oSchema.ops && oSchema.ops.length) {
+                aVal = val.split(',');
+                oSchema.ops.forEach(function(op) {
+                    aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                });
+                val = aLab.join(',');
+            }
+        } else {
+            val = '';
+        }
+        return $sce.trustAsHtml(val);
+    };
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        oApp = params.app;
+        oApp.dataSchemas.forEach(function(schema) {
+            if (schema.shareable && schema.shareable === 'Y') {
+                shareableSchemas[schema.id] = schema;
+                $scope.schemaCount++;
+            }
+        });
+        $scope.userGroups = params.groups;
+        $scope.groupUser = params.groupUser;
+        var groupOthersById = {};
+        if (params.groupOthers && params.groupOthers.length) {
+            params.groupOthers.forEach(function(oOther) {
+                groupOthersById[oOther.userid] = oOther;
+            });
+        }
+        $scope.groupOthers = groupOthersById;
+        $scope.dataTags = oApp.dataTags;
+        $scope.list4Schema(1);
+        $scope.facRound = facRound = srvRound.ins(oApp);
+        if (oApp.multi_rounds === 'Y') {
+            facRound.list().then(function(result) {
+                if (result.active) {
+                    for (var i = 0, ii = result.rounds.length; i < ii; i++) {
+                        if (result.rounds[i].rid === result.active.rid) {
+                            criteria.rid = result.active.rid;
+                            break;
+                        }
+                    }
+                }
+                $scope.rounds = result.rounds;
+            });
+        }
+    });
+}]);
+
+/***/ }),
+
+/***/ 4:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('modal.ui.xxt', []);
+ngMod.service('tmsModal', ['$rootScope', '$compile', '$q', '$controller', function($rootScope, $compile, $q, $controller) {
+    this.open = function(modalOptions) {
+        var modalResultDeferred = $q.defer(),
+            modalClosedDeferred = $q.defer();
+
+        var modalInstance = {
+            result: modalResultDeferred.promise,
+            closed: modalClosedDeferred.promise,
+            close: function(result) {
+                document.body.removeChild(modalDomEl[0]);
+                modalResultDeferred.resolve(result);
+            },
+            dismiss: function(reason) {
+                document.body.removeChild(modalDomEl[0]);
+                modalClosedDeferred.resolve(reason);
+            }
+        };
+
+        var modalScope;
+        modalScope = $rootScope.$new(true);
+        if (modalOptions.controller) {
+            $controller(modalOptions.controller, { $scope: modalScope, $tmsModalInstance: modalInstance });
+        }
+
+        var contentDomEl, dialogDomEl, backdropDomEl, modalDomEl;
+        /* content */
+        contentDomEl = angular.element('<div></div>');
+        contentDomEl.attr({
+            'class': 'modal-content',
+            'ng-style': '{\'z-index\':1060}'
+        }).append(modalOptions.template);
+
+        /* dialog */
+        dialogDomEl = angular.element('<div></div>');
+        dialogDomEl.attr({
+            'class': 'modal-dialog'
+        }).append(contentDomEl);
+
+        /* backdrop */
+        backdropDomEl = angular.element('<div></div>');
+        backdropDomEl.attr({
+            'class': 'modal-backdrop',
+            'ng-style': '{\'z-index\':1040}'
+        });
+
+        /* modal */
+        modalDomEl = angular.element('<div></div>');
+        modalDomEl.attr({
+            'class': 'modal',
+            'ng-style': '{\'z-index\':1050}',
+            'tabindex': -1
+        }).append(dialogDomEl).append(backdropDomEl);
+
+        $compile(modalDomEl)(modalScope);
+        document.body.appendChild(modalDomEl[0]);
+
+        return modalInstance;
+    };
+}]);
+
+
+/***/ }),
+
+/***/ 5:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(8);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../node_modules/css-loader/index.js!./xxt.ui.modal.css", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js!./xxt.ui.modal.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 54:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "img {\r\n\tmax-width: 100%\r\n}\r\n\r\n@media screen and (max-width:768px) {\r\n\t.site-navbar-default {\r\n\t\tmargin-bottom: 0;\r\n\t}\r\n\r\n\t#filterCriteria .form-control, #filterCriteria .input-group-btn .btn {\r\n\t\tborder-radius: 0;\r\n\t}\r\n\r\n}\r\n\r\n/*criteria*/\r\n#advCriteriaSwitch span.opened {\r\n}\r\n\r\n#advCriteria {\r\n\tposition: absolute;\r\n\ttop: 100%;\r\n\tright: 0;\r\n\tmargin-top: 1px;\r\n\twidth: 300px;\r\n\tbackground: #fff;\r\n\tpadding: 1rem;\r\n\tborder: 1px solid #ccc;\r\n\tborder-top: 0;\r\n\tz-index: 1000;\r\n}\r\n\r\n#advCriteria .form-control {\r\n\tfloat: none;\r\n}\r\n\r\n#advCriteria .form-group {\r\n\tdisplay: block;\r\n}\r\n\r\n#advCriteria .form-group:last-child {\r\n\tmargin-bottom: 0;\r\n}\r\n\r\n/*record*/\r\n.glyphicon-thumbs-up.like {\r\n\tcolor: red;\r\n}\r\n\r\n#repos .record {\r\n\tbackground: #fff;\r\n\tborder-bottom: 1px solid #ddd;\r\n\tpadding: 8px;\r\n}\r\n\r\n#repos .record:last-child {\r\n\tmargin-bottom: 1rem;\r\n}\r\n\r\n#repos .record>* {\r\n\tmargin: 1rem 0;\r\n}\r\n\r\n#repos .record .header {\r\n\tdisplay: flex;\r\n}\r\n\r\n#repos .record .header .seq {\r\n\tmargin-right: 8px;\r\n}\r\n\r\n#repos .record .header .label {\r\n\tpadding-top: .3em\r\n}\r\n\r\n#repos .record .header .nickname {\r\n\tflex-grow: 1;\r\n\ttext-align: right;\r\n\tfont-size: .9em;\r\n}\r\n\r\n#repos .record .bottom-bar {\r\n\tdisplay: flex;\r\n}\r\n\r\n#repos .record .bottom-bar>*+* {\r\n\tmargin-left: 8px;\r\n}\r\n\r\n#repos .record .bottom-bar .datetime {\r\n\tflex: 1;\r\n\tline-height: 30px;\r\n\tfont-size: .8rem;\r\n}\r\n\r\n#repos .record .remarks {\r\n\tfont-size: .9em;\r\n\tborder-top: 1px dashed #ddd;\r\n\tpadding: 1rem 0 1rem 2rem;\r\n\tposition: relative;\r\n}\r\n\r\n#repos .record .remarks:before {\r\n\tcontent: '\\63A8\\8350\\8BC4\\8BBA';\r\n\tposition: absolute;\r\n\tleft: 50%;\r\n\tmargin-left: -1em;\r\n\ttop: -0.7em;\r\n\tcolor: #999;\r\n}\r\n\r\n#repos .record .remarks .remark {\r\n\tmargin-bottom: 1em;\r\n}\r\n\r\n#repos .record .remarks .remark .bottom-bar>:first-child {\r\n\tflex: 1;\r\n}\r\n\r\n#repos .record .remarks .remark .bottom-bar>:first-child:before {\r\n\tcontent: '\\2014   \\A0';\r\n}\r\n\r\n.tag {\r\n\tbackground: #3af;\r\n\tpadding: 4px 6px;\r\n\tmargin: 4px;\r\n\tborder-radius: 2px;\r\n\tfont-size: .8em;\r\n\tcolor: #fff;\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(5);
+
+__webpack_require__(2);
+__webpack_require__(4);
+
+var ngMod = angular.module('favor.ui.xxt', ['page.ui.xxt', 'modal.ui.xxt']);
+ngMod.service('tmsFavor', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsModal', function($rootScope, $http, $q, tmsDynaPage, tmsModal) {
+    function byPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/byUser';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function favorByPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/add';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function unfavorByPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/remove';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function bySite(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/sitesByUser?site=' + oMatter.siteid + '&id=' + oMatter.id + '&type=' + oMatter.type + '&_=' + (new Date() * 1);
+        $http.get(url).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                return;
+            }
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function favorBySite(oMatter, $aTargetSiteIds) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/add?id=' + oMatter.id + '&type=' + oMatter.type;
+        $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function unfavorBySite(oMatter, $aTargetSiteIds) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/remove?id=' + oMatter.id + '&type=' + oMatter.type;
+        $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    this.open = function(oMatter) {
+        var template;
+        template = '<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>';
+        template += '<div class="modal-body">';
+        template += '<div class="checkbox">';
+        template += '<label>';
+        template += '<input type=\'checkbox\' ng-true-value="\'Y\'" ng-false-value="\'N\'" ng-model=\'person._selected\'>';
+        template += '<span>个人账户</span>';
+        template += '<span ng-if="person._favored===\'Y\'">（已收藏）</span>';
+        template += '</label>';
+        template += '</div>';
+        template += '<div class="checkbox" ng-repeat="site in mySites">';
+        template += '<label>';
+        template += '<input type=\'checkbox\' ng-true-value="\'Y\'" ng-false-value="\'N\'" ng-model=\'site._selected\'>';
+        template += '<span>{{site.name}}</span>';
+        template += '<span ng-if="site._favored===\'Y\'">（已收藏）</span>';
+        template += '</label>';
+        template += '</div>'
+        template += '<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>';
+        template += '</div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>';
+        tmsModal.open({
+            template: template,
+            controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {
+                byPerson(oMatter).then(function(log) {
+                    $scope2.person = {
+                        _favored: log ? 'Y' : 'N'
+                    };
+                    $scope2.person._selected = $scope2.person._favored;
+                });
+                bySite(oMatter).then(function(sites) {
+                    var mySites = sites;
+                    mySites.forEach(function(site) {
+                        site._selected = site._favored;
+                    });
+                    $scope2.mySites = mySites;
+                });
+                $scope2.createSite = function() {
+                    $http.get('/rest/pl/fe/site/create').success(function(rsp) {
+                        var site = rsp.data;
+                        site._favored = site._selected = 'N';
+                        $scope2.mySites = [site];
+                    })
+                };
+                $scope2.ok = function() {
+                    var result;
+                    result = {
+                        person: $scope2.person,
+                        mySites: $scope2.mySites
+                    }
+                    $mi.close(result);
+                };
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+            }]
+        }).result.then(function(result) {
+            var url, oPerson, mySites;
+            oPerson = result.person;
+            if (oPerson && oPerson._selected !== oPerson._favored) {
+                if (oPerson._selected === 'Y') {
+                    favorByPerson(oMatter);
+                } else {
+                    unfavorByPerson(oMatter);
+                }
+            }
+            mySites = result.mySites;
+            if (mySites) {
+                var favored = [],
+                    unfavored = [];
+                mySites.forEach(function(site) {
+                    if (site._selected !== site._favored) {
+                        if (site._selected === 'Y') {
+                            favored.push(site.id);
+                        } else {
+                            unfavored.push(site.id);
+                        }
+                    }
+                });
+                if (favored.length) {
+                    favorBySite(oMatter, favored);
+                }
+                if (unfavored.length) {
+                    unfavorBySite(oMatter, unfavored);
+                }
+            }
+        });
+    };
+    this.showSwitch = function(oUser, oMatter) {
+        var _this = this,
+            eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-favor');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $rootScope.$apply(function() {
+                if (!oUser.loginExpire) {
+                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                        oUser.loginExpire = data.loginExpire;
+                        _this.open(oMatter);
+                    });
+                } else {
+                    _this.open(oMatter);
+                }
+            })
+        }, true);
+        document.body.appendChild(eSwitch);
+    };
+}]);
+
+
+/***/ }),
+
+/***/ 68:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(54);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./repos.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./repos.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 7:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ 
+ var ngMod = angular.module('snsshare.ui.xxt', []);
+ ngMod.service('tmsSnsShare', ['$http', function($http) {
+     function setWxShare(title, link, desc, img, options) {
+         var _this = this;
+         window.wx.onMenuShareTimeline({
+             title: options.descAsTitle ? desc : title,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('T');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareT: fail');
+             }
+         });
+         window.wx.onMenuShareAppMessage({
+             title: title,
+             desc: desc,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('F');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareF: fail');
+             }
+         });
+     }
+
+     function setYxShare(title, link, desc, img, options) {
+         var _this = this,
+             shareData = {
+                 'img_url': img,
+                 'link': link,
+                 'title': title,
+                 'desc': desc
+             };
+
+         window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
+             try {
+                 options.logger && options.logger('F');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
+         });
+         window.YixinJSBridge.on('menu:share:timeline', function(argv) {
+             try {
+                 options.logger && options.logger('T');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
+         });
+     }
+
+     this.config = function(options) {
+         this.options = options;
+     };
+     this.set = function(title, link, desc, img, fnOther) {
+         var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf('http') === -1 && (img = 'http://' + location.host + img);
+         if (/MicroMessenger/i.test(navigator.userAgent)) {
+             var script;
+             script = document.createElement('script');
+             script.src = 'http://res.wx.qq.com/open/js/jweixin-1.0.0.js';
+             script.onload = function() {
+                 var xhr, url;
+                 xhr = new XMLHttpRequest();
+                 url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                 xhr.open('GET', url, true);
+                 xhr.onreadystatechange = function() {
+                     if (xhr.readyState == 4) {
+                         if (xhr.status >= 200 && xhr.status < 400) {
+                             var signPackage;
+                             try {
+                                 eval("(" + xhr.responseText + ')');
+                                 if (signPackage) {
+                                     signPackage.debug = false;
+                                     signPackage.jsApiList = _this.options.jsApiList;
+                                     wx.config(signPackage);
+                                     wx.ready(function() {
+                                         setWxShare(title, link, desc, img, _this.options);
+                                     });
+                                     wx.error(function(res) {
+                                         alert(res);
+                                     });
+                                 }
+                             } catch (e) {
+                                 alert('local error:' + e.toString());
+                             }
+                         } else {
+                             alert('http error:' + xhr.statusText);
+                         }
+                     };
+                 }
+                 xhr.send();
+             };
+             document.body.appendChild(script);
+         } else if (/Yixin/i.test(navigator.userAgent)) {
+             if (window.YixinJSBridge === undefined) {
+                 document.addEventListener('YixinJSBridgeReady', function() {
+                     setYxShare(title, link, desc, img, _this.options);
+                 }, false);
+             } else {
+                 setYxShare(title, link, desc, img, _this.options);
+             }
+         } else if (fnOther && typeof fnOther === 'function') {
+             fnOther(title, link, desc, img);
+         }
+     };
+ }]);
+
+/***/ }),
+
+/***/ 8:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".modal {\r\n    display: block;\r\n    overflow: hidden;\r\n    position: fixed;\r\n    top: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    left: 0;\r\n    outline: 0;\r\n    opacity: 1;\r\n    overflow-x: hidden;\r\n    overflow-y: auto;\r\n    opacity: 1;\r\n}\r\n\r\n.modal-backdrop {\r\n    position: fixed;\r\n    top: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    left: 0;\r\n    background-color: #000;\r\n    opacity: .5;\r\n}\r\n\r\n.modal-dialog {\r\n    position: relative;\r\n    z-index: 1055;\r\n    margin: 0;\r\n    position: relative;\r\n    width: auto;\r\n    margin: 10px;\r\n}\r\n\r\n.modal-content {\r\n    position: relative;\r\n    background-color: #fff;\r\n    -webkit-background-clip: padding-box;\r\n    background-clip: padding-box;\r\n    border: 1px solid #999;\r\n    border: 1px solid rgba(0, 0, 0, .2);\r\n    border-radius: 6px;\r\n    outline: 0;\r\n    -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);\r\n    box-shadow: 0 3px 9px rgba(0, 0, 0, .5);\r\n}\r\n\r\n.modal-header {\r\n    padding: 15px;\r\n    border-bottom: 1px solid #e5e5e5;\r\n}\r\n\r\n.modal-header .close {\r\n    margin-top: -2px;\r\n}\r\n\r\n.modal-title {\r\n    margin: 0;\r\n    line-height: 1.42857143;\r\n}\r\n\r\n.modal-body {\r\n    position: relative;\r\n    padding: 15px;\r\n}\r\n\r\n.modal-footer {\r\n    padding: 15px;\r\n    text-align: right;\r\n    border-top: 1px solid #e5e5e5;\r\n}\r\n\r\nbutton.close {\r\n    -webkit-appearance: none;\r\n    padding: 0;\r\n    cursor: pointer;\r\n    background: 0 0;\r\n    border: 0;\r\n}\r\n\r\n.close {\r\n    float: right;\r\n    font-size: 21px;\r\n    font-weight: 700;\r\n    line-height: 1;\r\n    color: #000;\r\n    text-shadow: 0 1px 0 #fff;\r\n    filter: alpha(opacity=20);\r\n    opacity: .2;\r\n}\r\n\r\n@media (min-width:768px) {\r\n    .modal-dialog {\r\n        width: 600px;\r\n        margin: 30px auto;\r\n    }\r\n    .modal-content {\r\n        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);\r\n        box-shadow: 0 5px 15px rgba(0, 0, 0, .5);\r\n    }\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 84:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(36);
+
+
+/***/ }),
+
+/***/ 9:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "/*dialog*/\r\n.dialog.mask {\r\n\tposition: fixed;\r\n\tbackground: rgba(0, 0, 0, 0.3);\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tbottom: 0;\r\n\tright: 0;\r\n\toverflow: auto;\r\n\tz-index: 1060\r\n}\r\n\r\n.dialog.dlg {\r\n\tposition: absolute;\r\n\tbackground: #fff;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tmargin: 15px\r\n}\r\n\r\n.dialog .dlg-header {\r\n\tpadding: 15px 15px 0 15px\r\n}\r\n\r\n.dialog .dlg-body {\r\n\tpadding: 15px 15px 0 15px\r\n}\r\n\r\n.dialog .dlg-footer {\r\n\ttext-align: right;\r\n\tpadding: 15px\r\n}\r\n\r\n.dialog .dlg-footer button {\r\n\tborder-radius: 0\r\n}\r\n\r\n/*filter*/\r\ndiv[wrap=filter] .detail {\r\n\tbackground: #ccc\r\n}\r\n\r\ndiv[wrap=filter] .detail .options .label {\r\n\tdisplay: inline-block;\r\n\tmargin: .5em;\r\n\tpadding-top: .3em;\r\n\tfont-size: 100%\r\n}\r\n\r\ndiv[wrap=filter] .detail .actions .btn {\r\n\tborder-radius: 0\r\n}\r\n\r\n/*switch*/\r\n.tms-switch {\r\n\tposition: fixed;\r\n\tright: 15px;\r\n\twidth: 70px;\r\n\tbox-shadow: 0px 2px 6px rgba(18, 27, 32, 0.425);\r\n\theight: 35px;\r\n\tcolor: #2994d0;\r\n\tbackground: #f8fcfe;\r\n\tborder-radius: 21px;\r\n\tfont-size: 24px;\r\n\tline-height: 27px;\r\n\ttext-align: center;\r\n\tcursor: pointer;\r\n\tz-index: 1050;\r\n}\r\n\r\n.tms-switch:before {\r\n\tfont-size: 0.7em;\r\n}\r\n\r\n.tms-switch:nth-last-of-type(1) {\r\n\tbottom: 8px;\r\n}\r\n\r\n.tms-switch:nth-last-of-type(2) {\r\n\tbottom: 64px;\r\n}\r\n\r\n.tms-switch:nth-last-of-type(3) {\r\n\tbottom: 120px;\r\n}\r\n\r\n.tms-switch:nth-last-of-type(4) {\r\n\tbottom: 176px;\r\n}\r\n\r\n.tms-switch:nth-last-of-type(5) {\r\n\tbottom: 232px;\r\n}\r\n\r\n.tms-switch:nth-last-of-type(6) {\r\n\tbottom: 288px;\r\n}\r\n\r\n.tms-switch-back:before {\r\n\tcontent: '\\8FD4\\56DE';\r\n}\r\n\r\n.tms-switch-app:before {\r\n\tcontent: '\\6D3B\\52A8';\r\n}\r\n\r\n.tms-switch-task:before {\r\n\tcontent: '\\4EFB\\52A1';\r\n}\r\n\r\n.tms-switch-save:before {\r\n\tcontent: '\\4FDD\\5B58';\r\n}\r\n\r\n.tms-switch-rank:before {\r\n\tcontent: '\\6392\\884C';\r\n}\r\n\r\n.tms-switch-repos:before {\r\n\tcontent: '\\5171\\4EAB';\r\n}\r\n\r\n.tms-switch-coinpay:before {\r\n\tcontent: '\\6253\\8D4F';\r\n}\r\n\r\n.tms-switch-remark:before {\r\n\tcontent: '\\8BC4\\8BBA';\r\n}\r\n\r\n@media screen and (max-width:768px) {\r\n\tbody {\r\n\t\tmargin-bottom: 60px;\r\n\t}\r\n\r\n\t.tms-switch:nth-last-of-type(1) {\r\n\t\tright: 5px;\r\n\t\tbottom: 10px;\r\n\t}\r\n\r\n\t.tms-switch:nth-last-of-type(2) {\r\n\t\tright: 85px;\r\n\t\tbottom: 10px;\r\n\t}\r\n\r\n\t.tms-switch:nth-last-of-type(3) {\r\n\t\tright: 165px;\r\n\t\tbottom: 10px;\r\n\t}\r\n\r\n\t.tms-switch:nth-last-of-type(4) {\r\n\t\tright: 245px;\r\n\t\tbottom: 10px;\r\n\t}\r\n\r\n\t.tms-switch:nth-last-of-type(5) {\r\n\t\tright: 325px;\r\n\t\tbottom: 10px;\r\n\t}\r\n\r\n\t.tms-switch:nth-last-of-type(6) {\r\n\t\tright: 405px;\r\n\t\tbottom: 10px;\r\n\t}\r\n\r\n}\r\n\r\n#frmPlugin {\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tbottom: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tborder: none;\r\n\tz-index: 1060;\r\n\tbox-sizing: border-box;\r\n\tpadding-bottom: 48px;\r\n\tbackground: #fff;\r\n}\r\n\r\n#frmPlugin iframe {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tborder: 0;\r\n}\r\n\r\n#frmPlugin:after {\r\n\tcontent: '\\5173\\95ED';\r\n\tposition: absolute;\r\n\twidth: 100px;\r\n\ttext-align: center;\r\n\tleft: 50%;\r\n\tmargin-left: -50px;\r\n\tbottom: 4px;\r\n\tpadding: 5px 6px 3px;\r\n\tborder: 1px solid #ccc;\r\n\tborder-radius: 4px;\r\n}\r\n\r\n/*input list view*/\r\ndiv[wrap]>.description {\r\n\tword-wrap: break-word;\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ })
+
+/******/ });

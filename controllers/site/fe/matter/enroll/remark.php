@@ -54,6 +54,9 @@ class remark extends base {
 	 * $data  xxt_enroll_record_data 的id
 	 */
 	public function add_action($ek, $schema = '', $data = 0, $remark = 0) {
+		if (empty($data)) {
+			return new \ResponseError('参数错误：未指定被评论内容ID');
+		}
 		$recDataId = $this->escape($data);
 
 		$modelRec = $this->model('matter\enroll\record');
@@ -92,13 +95,10 @@ class remark extends base {
 		$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
 		$oUser->nickname = $userNickname;
 
-		//如果是多项填写题需要指定id，否则，则不需要
+		//多行题
 		if (!empty($schema)) {
 			foreach ($oApp->dataSchemas as $dataSchema) {
 				if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
-					if (empty($recDataId)) {
-						return new \ComplianceError('参数错误，此题型需要指定唯一标识');
-					}
 					$schemaType = 'multitext';
 					$oRecordData = $this->model('matter\enroll\data')->byId($recDataId, ['fields' => 'aid,id,like_log,userid,multitext_seq']);
 					if (false === $oRecordData) {
@@ -121,7 +121,7 @@ class remark extends base {
 		$oRemark->enroll_group_id = $oRecord->group_id;
 		$oRemark->enroll_userid = $oRecord->userid;
 		$oRemark->schema_id = $modelRec->escape($schema);
-		$oRemark->data_id = $modelRec->escape($recDataId);
+		$oRemark->data_id = $recDataId;
 		$oRemark->remark_id = $modelRec->escape($remark);
 		$oRemark->create_at = $current;
 		$oRemark->content = $modelRec->escape($oPosted->content);
@@ -129,15 +129,13 @@ class remark extends base {
 		$oRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oRemark, true);
 
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
-		if (isset($schema)) {
-			if (isset($schemaType) && $schemaType === 'multitext' && !empty($recDataId)) {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
+		if (!empty($schema)) {
+			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
+			if (isset($schemaType) && $schemaType === 'multitext') {
 				// 如果每一条的数据呗评论了那么这道题的总数据+1
 				if ($oRecordData->multitext_seq != 0) {
 					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
 				}
-			} else {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
 			}
 		}
 

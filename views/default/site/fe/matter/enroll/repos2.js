@@ -1,5 +1,5 @@
 'use strict';
-require('./repos2.css');
+require('./repos.css');
 
 var ngApp = require('./main.js');
 ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
@@ -38,7 +38,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', function($scope, $sce, http2, LS, srvRound) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', function($scope, $sce, http2, LS, srvRound, $timeout) {
     var oApp, facRound, _oPage, _oCriteria, _oShareableSchemas;
     $scope.page = _oPage = { at: 1, size: 12 };
     $scope.criteria = _oCriteria = { creator: 'all' };
@@ -157,9 +157,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         }
         http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
             $scope.dirSchemas = rsp.data;
+            if ($scope.dirSchemas && $scope.dirSchemas.length) {
+                $scope.advCriteriaStatus.dirOpen = true;
+            }
         });
     });
     $scope.advCriteriaStatus = {
-        opened: !$scope.isSmallLayout
-    }
+        opened: !$scope.isSmallLayout,
+        dirOpen: false,
+        filterOpen: true
+    };
 }]);

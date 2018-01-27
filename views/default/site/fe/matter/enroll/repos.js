@@ -210,4 +210,9 @@ ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce'
             });
         }
     });
+    $scope.advCriteriaStatus = {
+        opened: !$scope.isSmallLayout,
+        dirOpen: false,
+        filterOpen: true
+    };
 }]);

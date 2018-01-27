@@ -275,43 +275,57 @@ class record extends \pl\fe\matter\base {
 	 * @param $ek record's key
 	 */
 	public function update_action($site, $app, $ek) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$record = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$modelEnl = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oBeforeRecord = $modelRec->byId($ek, ['verbose' => 'N']);
+		if (false === $oBeforeRecord || $oBeforeRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
 		/* 更新记录数据 */
-		$updated = new \stdClass;
-		$updated->enroll_at = time();
-		if (isset($record->comment)) {
-			$updated->comment = $modelEnl->escape($record->comment);
+		$oUpdated = new \stdClass;
+		$oUpdated->enroll_at = time();
+		if (isset($oPosted->comment)) {
+			$oUpdated->comment = $modelEnl->escape($oPosted->comment);
 		}
-		if (isset($record->tags)) {
-			$updated->tags = $modelEnl->escape($record->tags);
-			$modelEnl->updateTags($oApp->id, $updated->tags);
-		}
-		if (isset($record->verified)) {
-			$updated->verified = $modelEnl->escape($record->verified);
-		}
-		if (isset($record->rid)) {
-			$userRecord = $modelRec->byId($ek, ['fields' => 'id,rid,userid']);
-			if ($userRecord === false) {
-				return new \ResponseError('用户指定错误');
+		if (isset($oPosted->agreed) && $oPosted->agreed !== $oBeforeRecord->agreed) {
+			$oUpdated->agreed = in_array($oPosted->agreed, ['Y', 'N', 'A']) ? $oPosted->agreed : '';
+			$oAgreedLog = $oBeforeRecord->agreed_log;
+			if (isset($oAgreedLog->{$oUser->id})) {
+				$oLog = $oAgreedLog->{$oUser->id};
+				$oLog->time = time();
+				$oLog->value = $oUpdated->agreed;
+			} else {
+				$oAgreedLog->{$oUser->id} = (object) ['time' => time(), 'value' => $oUpdated->agreed];
 			}
-
-			$userOldRid = $userRecord->rid;
-			$userNewRid = $record->rid;
+			$oUpdated->agreed_log = json_encode($oAgreedLog);
+		}
+		if (isset($oPosted->tags)) {
+			$oUpdated->tags = $modelEnl->escape($oPosted->tags);
+			$modelEnl->updateTags($oApp->id, $oUpdated->tags);
+		}
+		if (isset($oPosted->verified)) {
+			$oUpdated->verified = $modelEnl->escape($oPosted->verified);
+		}
+		if (isset($oPosted->rid)) {
+			$userOldRid = $oBeforeRecord->rid;
+			$userNewRid = $oPosted->rid;
 			/* 同步enroll_user中的轮次 */
 			if ($userOldRid !== $userNewRid) {
 				$modelUser = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 				/* 获取enroll_user中用户现在的轮次,如果有积分则不能移动 */
-				$resOld = $modelUser->byId($oApp, $userRecord->userid, ['rid' => $userOldRid]);
+				$resOld = $modelUser->byId($oApp, $oBeforeRecord->userid, ['rid' => $userOldRid]);
 				if ($resOld->user_total_coin > 0) {
 					return new \ResponseError('用户在当前轮次上以获得积分，不能更换轮次！！');
 				}
@@ -327,7 +341,7 @@ class record extends \pl\fe\matter\base {
 				}
 
 				/* 在新的轮次中用户是否以有记录 */
-				$resNew = $modelUser->byId($oApp, $userRecord->userid, ['rid' => $userNewRid]);
+				$resNew = $modelUser->byId($oApp, $oBeforeRecord->userid, ['rid' => $userNewRid]);
 				if ($resNew === false) {
 					if ($resOld->enroll_num > 1) {
 						$modelRec->update("update xxt_enroll_user set enroll_num = enroll_num - 1 where id = $resOld->id");
@@ -355,19 +369,20 @@ class record extends \pl\fe\matter\base {
 					$modelRec->update("update xxt_enroll_user set enroll_num = enroll_num + 1 where id = $resNew->id");
 				}
 
-				$updated->rid = $modelEnl->escape($record->rid);
+				$oUpdated->rid = $modelEnl->escape($oPosted->rid);
 			}
 		}
-		if (isset($record->supplement)) {
-			$updated->supplement = $modelEnl->toJson($record->supplement);
+		if (isset($oPosted->supplement)) {
+			$oUpdated->supplement = $modelEnl->toJson($oPosted->supplement);
 		}
-		$modelEnl->update('xxt_enroll_record', $updated, ['enroll_key' => $ek]);
+		$modelEnl->update('xxt_enroll_record', $oUpdated, ['enroll_key' => $ek]);
+
 		/* 记录登记数据 */
-		if (isset($record->data)) {
-			$score = isset($record->quizScore) ? $record->quizScore : null;
+		if (isset($oPosted->data)) {
+			$score = isset($oPosted->quizScore) ? $oPosted->quizScore : null;
 			$userSite = $this->model('site\fe\way')->who($site);
-			$modelRec->setData($userSite, $oApp, $ek, $record->data, '', false, $score);
-		} else if (isset($record->quizScore)) {
+			$modelRec->setData($userSite, $oApp, $ek, $oPosted->data, '', false, $score);
+		} else if (isset($oPosted->quizScore)) {
 			/* 只修改登记项的分值 */
 			$oAfterScore = new \stdClass;
 			$oAfterScore->sum = 0;
@@ -381,9 +396,9 @@ class record extends \pl\fe\matter\base {
 				if (in_array($schema->type, ['single', 'multiple'])) {
 					$oAfterScore->{$schema->id} = isset($oBeforeScore->{$schema->id}) ? $oBeforeScore->{$schema->id} : 0;
 				} else {
-					if (isset($record->quizScore->{$schema->id})) {
-						$modelEnl->update('xxt_enroll_record_data', ['score' => $record->quizScore->{$schema->id}], ['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]);
-						$oAfterScore->{$schema->id} = $record->quizScore->{$schema->id};
+					if (isset($oPosted->quizScore->{$schema->id})) {
+						$modelEnl->update('xxt_enroll_record_data', ['score' => $oPosted->quizScore->{$schema->id}], ['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]);
+						$oAfterScore->{$schema->id} = $oPosted->quizScore->{$schema->id};
 					} else {
 						$oAfterScore->{$schema->id} = 0;
 					}
@@ -395,15 +410,15 @@ class record extends \pl\fe\matter\base {
 			$modelRec->update('xxt_enroll_record', ['score' => $newScore], ['aid' => $app, 'enroll_key' => $ek, 'state' => 1]);
 		}
 		//数值型填空题
-		if (isset($record->score)) {
+		if (isset($oPosted->score)) {
 			$dataSchemas = $oApp->dataSchemas;
 			$modelUsr = $this->model('matter\enroll\user');
 			$modelUsr->setOnlyWriteDbConn(true);
 			$d['sum'] = 0;
 			foreach ($dataSchemas as &$schema) {
-				if (isset($record->score->{$schema->id})) {
-					$d[$schema->id] = $record->score->{$schema->id};
-					$modelUsr->update('xxt_enroll_record_data', ['score' => $record->score->{$schema->id}], ['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]);
+				if (isset($oPosted->score->{$schema->id})) {
+					$d[$schema->id] = $oPosted->score->{$schema->id};
+					$modelUsr->update('xxt_enroll_record_data', ['score' => $oPosted->score->{$schema->id}], ['enroll_key' => $ek, 'schema_id' => $schema->id, 'state' => 1]);
 					$d['sum'] += $d[$schema->id];
 				}
 			}
@@ -441,10 +456,10 @@ class record extends \pl\fe\matter\base {
 		}
 
 		/* 更新登记项数据的轮次 */
-		if (isset($record->rid)) {
-			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($record->rid)], ['enroll_key' => $ek, 'state' => 1]);
+		if (isset($oPosted->rid)) {
+			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($oPosted->rid)], ['enroll_key' => $ek, 'state' => 1]);
 		}
-		if ($updated->verified === 'Y') {
+		if ($oUpdated->verified === 'Y') {
 			$this->_whenVerifyRecord($oApp, $ek);
 		}
 
@@ -452,16 +467,16 @@ class record extends \pl\fe\matter\base {
 		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
 
 		/* 记录操作日志 */
-		$operation = new \stdClass;
-		$operation->enroll_key = $ek;
-		isset($record->data) && $operation->data = $record->data;
-		isset($record->quizScore) && $operation->quizScore = $record->quizScore;
-		isset($record->score) && $operation->score = $record->score;
-		isset($record->tags) && $operation->tags = $record->tags;
-		isset($record->comment) && $operation->comment = $record->comment;
-		$operation->rid = $oNewRecord->rid;
-		isset($oNewRecord->round) && $operation->round = $oNewRecord->round;
-		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'updateData', $operation);
+		$oOperation = new \stdClass;
+		$oOperation->enroll_key = $ek;
+		isset($oPosted->data) && $oOperation->data = $oPosted->data;
+		isset($oPosted->quizScore) && $oOperation->quizScore = $oPosted->quizScore;
+		isset($oPosted->score) && $oOperation->score = $oPosted->score;
+		isset($oPosted->tags) && $oOperation->tags = $oPosted->tags;
+		isset($oPosted->comment) && $oOperation->comment = $oPosted->comment;
+		$oOperation->rid = $oNewRecord->rid;
+		isset($oNewRecord->round) && $oOperation->round = $oNewRecord->round;
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'updateData', $oOperation);
 
 		return new \ResponseData($oNewRecord);
 	}

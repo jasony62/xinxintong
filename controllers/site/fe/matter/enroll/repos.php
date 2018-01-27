@@ -7,6 +7,52 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class repos extends base {
 	/**
+	 * 获得活动中作为内容分类目录使用的题目
+	 */
+	public function dirSchemasGet_action($app) {
+		$app = $this->escape($app);
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'id,state,data_schemas']);
+		if ($oApp === false || $oApp->state !== '1') {
+			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
+		}
+
+		$dirSchemas = [];
+		$oSchemasById = new \stdClass;
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (isset($oSchema->asdir) && $oSchema->asdir === 'Y') {
+				$oSchemasById->{$oSchema->id} = $oSchema;
+				if (empty($oSchema->optGroups)) {
+					/* 根分类 */
+					foreach ($oSchema->ops as $oOp) {
+						$oRootDir = new \stdClass;
+						$oRootDir->schema_id = $oSchema->id;
+						$oRootDir->op = $oOp;
+						$dirSchemas[] = $oRootDir;
+					}
+				} else {
+					foreach ($oSchema->optGroups as $oOptGroup) {
+						if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && $oSchemasById->{$oOptGroup->assocOp->schemaId}) {
+							$oParentSchema = $oSchemasById->{$oOptGroup->assocOp->schemaId};
+							foreach ($oParentSchema->ops as $oAssocOp) {
+								if ($oAssocOp->v === $oOptGroup->assocOp->v) {
+									$oAssocOp->childrenDir = [];
+									foreach ($oSchema->ops as $oOp) {
+										if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
+											$oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return new \ResponseData($dirSchemas);
+	}
+	/**
 	 * 返回指定登记项的活动登记名单
 	 */
 	public function list4Schema_action($app, $page = 1, $size = 12) {
@@ -134,6 +180,7 @@ class repos extends base {
 		if (!empty($oPosted->creator) && $oPosted->creator !== 'all') {
 			$oCriteria->record->user_id = $oPosted->creator;
 		}
+		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
 		$oResult = $mdoelRec->byApp($oApp, $oOptions, $oCriteria);
 

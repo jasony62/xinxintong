@@ -12,24 +12,36 @@ img {
 		margin-bottom: 0;
 	}
 
+	.container {
+		padding: 0;
+	}
+
 	#filterCriteria .form-control, #filterCriteria .input-group-btn .btn {
 		border-radius: 0;
+	}
+
+	#advCriteria {
+		position: absolute;
+		top: 34px;
+		right: 0;
+		margin-top: 1px;
+		width: 300px;
+		background: #fff;
+		padding: 8px;
+		border: 1px solid #ccc;
+		border-top: 0;
+		z-index: 1000;
 	}
 
 }
 
 /* filter */
-#advCriteria {
-	position: absolute;
-	top: 100%;
-	right: 0;
-	margin-top: 1px;
-	width: 300px;
-	background: #fff;
-	padding: 1rem;
-	border: 1px solid #ccc;
-	border-top: 0;
-	z-index: 1000;
+.container {
+	position: relative;
+}
+
+#advCriteria .panel-group {
+	margin-bottom: 0;
 }
 
 #advCriteria .form-control {
@@ -42,6 +54,18 @@ img {
 
 #advCriteria .form-group:last-child {
 	margin-bottom: 0;
+}
+
+#advCriteria .dir-level-2 {
+	margin-left: 1em;
+}
+
+#advCriteria .dir-level-3 {
+	margin-left: 1em;
+}
+
+#advCriteria .dir.active {
+	background-color: #ddd;
 }
 
 /* record */

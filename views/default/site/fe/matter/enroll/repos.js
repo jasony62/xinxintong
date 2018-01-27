@@ -38,7 +38,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($scope, http2, srvRound, $sce) {
+ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce', function($scope, LS, http2, srvRound, $sce) {
     var oApp, facRound, page, criteria, shareableSchemas, userGroups, _items;
     _items = {};
     $scope.schemaCount = 0;

@@ -8,6 +8,7 @@ include_once dirname(__FILE__) . '/base.php';
 class data extends base {
 	/**
 	 * 获得登记记录中的数据
+	 * $data xxt_enroll_record_data id
 	 */
 	public function get_action($ek, $schema = '', $data = '') {
 		$ek = $this->escape($ek);
@@ -16,12 +17,27 @@ class data extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,state,data_schemas']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oSchemas = new \stdClass;
+		foreach ($oApp->dataSchemas as $dataSchema) {
+			$oSchemas->{$dataSchema->id} = $dataSchema;
+		}
+
 		$fields = 'id,state,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
 		$modelRecDat = $this->model('matter\enroll\data');
 		if (empty($data)) {
 			$oRecData = $modelRecDat->byRecord($ek, ['schema' => $schema, 'fields' => $fields]);
 		} else {
 			$oRecData = $modelRecDat->byId($data, ['fields' => $fields]);
+		}
+		if (isset($oSchemas->{$oRecData->schema_id}) && $oSchemas->{$oRecData->schema_id}->type === 'multitext') {
+			if ($oRecData->multitext_seq == 0) {
+				$oRecData->value = empty($oRecData->value) ? [] : json_decode($oRecData->value);
+			}
 		}
 
 		$oRecord->verbose = new \stdClass;
@@ -100,13 +116,12 @@ class data extends base {
 	 * @param int $data xxt_enroll_record_data 的id
 	 *
 	 */
-	public function like_action($ek, $schema, $data = '') {
-		$modelData = $this->model('matter\enroll\data');
+	public function like_action($ek, $schema, $data) {
 		if (empty($data)) {
-			$oRecordData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,like_log,userid,multitext_seq,like_num']);
-		} else {
-			$oRecordData = $modelData->byId($data, ['fields' => 'id,aid,like_log,userid,multitext_seq,like_num']);
+			return new \ResponseError('参数错误：未指定被评论内容ID');
 		}
+		$modelData = $this->model('matter\enroll\data');
+		$oRecordData = $modelData->byId($data, ['fields' => 'id,aid,like_log,userid,multitext_seq,like_num']);
 		if (false === $oRecordData) {
 			return new \ObjectNotFoundError();
 		}

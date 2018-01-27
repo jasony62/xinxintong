@@ -116,6 +116,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     $scope.shiftOwner = function() {
         $scope.recordList(1);
     };
+    $scope.shiftDir = function(oDir) {
+        _oCriteria.data = {};
+        if (oDir) {
+            _oCriteria.data[oDir.schema_id] = oDir.op.v;
+        }
+        $scope.activeDir = oDir;
+        $scope.recordList(1);
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
@@ -147,5 +155,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                 $scope.rounds = result.rounds;
             });
         }
+        http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
+            $scope.dirSchemas = rsp.data;
+        });
     });
+    $scope.advCriteriaStatus = {
+        opened: !$scope.isSmallLayout
+    }
 }]);

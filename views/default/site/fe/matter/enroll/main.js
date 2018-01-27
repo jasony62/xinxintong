@@ -198,6 +198,10 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
     $scope.save = function() {
         $scope.$broadcast('xxt.app.enroll.save');
     };
+    $scope.isSmallLayout = false;
+    if (window.screen && window.screen.width < 992) {
+        $scope.isSmallLayout = true;
+    }
     http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function success(rsp) {
         var params = rsp.data,
             oSite = params.site,
@@ -337,10 +341,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                     location.href = url;
                 }
             }
-        }
-        $scope.isSmallLayout = false;
-        if (window.screen && window.screen.width < 992) {
-            $scope.isSmallLayout = true;
         }
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, PG.exec);

@@ -106,65 +106,7 @@ class member extends \site\fe\base {
 		exit;
 	}
 	/**
-	 * 获得自定义用户的定义
-	 */
-	public function schemaGet_action($site, $schema, $matter = null) {
-		$params = array();
-
-		$oMschema = $this->model('site\user\memberschema')->byId($schema);
-		if ($oMschema === false) {
-			return new \ResponseError('指定的自定义用户定义不存在');
-		}
-		$params['schema'] = $oMschema;
-		/* 属性定义 */
-		$attrs = [
-			'mobile' => $oMschema->attr_mobile,
-			'email' => $oMschema->attr_email,
-			'name' => $oMschema->attr_name,
-			'extattrs' => $oMschema->extattr,
-		];
-		$params['attrs'] = $attrs;
-
-		/* 已填写的用户信息 */
-		$modelMem = $this->model('site\user\member');
-		$oUser = clone $this->who;
-		if (!empty($oUser->unionid)) {
-			$oRegAccount = $this->model('account')->byId($oUser->unionid, ['fields' => 'nickname,email']);
-			$oUser->login = $oRegAccount;
-			$oUser->login->uname = $oUser->login->email;
-			unset($oUser->login->email);
-		}
-		if (isset($oUser->members) && isset($oUser->members->{$schema})) {
-			unset($oUser->members->{$schema});
-		}
-		$oMember = $modelMem->byUser($oUser->uid, ['schemas' => $schema]);
-		if (count($oMember) > 1) {
-			return new \ResponseError('数据错误，当前用户已经绑定多个联系人信息，请检查');
-		}
-		if (count($oMember) === 1) {
-			$oMember = $oMember[0];
-			if (!isset($oUser->members)) {
-				$oUser->members = new \stdClass;
-			}
-			$oUser->members->{$schema} = $oMember;
-		}
-		$params['user'] = $oUser;
-		/* 要访问的素材 */
-		if (!empty($matter)) {
-			$matter = $modelMem->escape($matter);
-			$matter = explode(',', $matter);
-			if (count($matter) === 2) {
-				list($type, $id) = $matter;
-				$modelMat = $this->model('matter\\' . $type);
-				$oMatter = $modelMat->byId($id, ['fields' => 'id,state,title,summary,pic']);
-				$params['matter'] = $oMatter;
-			}
-		}
-
-		return new \ResponseData($params);
-	}
-	/**
-	 * 获得自定义用户的定义
+	 * 获得用户在指定通讯录中的内容
 	 */
 	public function get_action($schema) {
 		$schema = $this->escape($schema);
@@ -175,6 +117,7 @@ class member extends \site\fe\base {
 		/* 已填写的用户信息 */
 		$modelMem = $this->model('site\user\member');
 		$oUser = clone $this->who;
+		$oUser->members = new \stdClass;
 		if (!empty($oUser->unionid)) {
 			$oRegAccount = $this->model('account')->byId($oUser->unionid, ['fields' => 'nickname,email']);
 			$oUser->login = $oRegAccount;
@@ -187,9 +130,6 @@ class member extends \site\fe\base {
 		}
 		if (count($oMember) === 1) {
 			$oMember = $oMember[0];
-			if (!isset($oUser->members)) {
-				$oUser->members = new \stdClass;
-			}
 			$oUser->members->{$schema} = $oMember;
 		}
 
@@ -214,7 +154,7 @@ class member extends \site\fe\base {
 			return new \ResponseError('已经有对应通讯录联系人，不能重复创建');
 		}
 
-		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified,require_invite']);
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,id,title,attr_mobile,attr_email,attr_name,ext_attrs,auto_verified,require_invite']);
 		if ($oMschema === false) {
 			return new \ObjectNotFoundError();
 		}

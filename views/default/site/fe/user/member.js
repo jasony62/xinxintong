@@ -107,30 +107,25 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
     }
 
     function setMember(user) {
-        var member;
-        user.members && (member = user.members[LS.p.schema]);
+        var oMember, oAttrs;
+        user.members && (oMember = user.members[LS.p.schema]);
         $scope.member = {
             schema_id: LS.p.schema
         };
-        if (member) {
-            $scope.member.id = member.id;
-            $scope.member.verified = member.verified;
-            $scope.attrs.name && ($scope.member.name = member.name);
-            $scope.attrs.email && ($scope.member.email = member.email);
-            $scope.attrs.mobile && ($scope.member.mobile = member.mobile);
-            if ($scope.attrs.extattrs && $scope.attrs.extattrs.length) {
-                $scope.member.extattr = {};
-                member.extattr = member.extattr ? JSON.parse(member.extattr) : [];
-                angular.forEach($scope.attrs.extattrs, function(ea) {
-                    $scope.member.extattr[ea.id] = member.extattr[ea.id];
-                });
-            }
+        oAttrs = $scope.schema.attrs;
+        if (oMember) {
+            $scope.member.id = oMember.id;
+            $scope.member.verified = oMember.verified;
+            !oAttrs.name.hide && ($scope.member.name = oMember.name);
+            !oAttrs.email.hide && ($scope.member.email = oMember.email);
+            !oAttrs.mobile.hide && ($scope.member.mobile = oMember.mobile);
+            oMember.extattr && ($scope.member.extattr = oMember.extattr);
         } else if (user.login) {
-            //$scope.attrs.name && ($scope.member.name = user.login.nickname);
-            if ($scope.attrs.mobile && /^1[3|4|5|7|8][0-9]\d{4,8}$/.test(user.login.uname)) {
+            //!oAttrs.name.hide && ($scope.member.name = user.login.nickname);
+            if (!oAttrs.mobile.hide && /^1[3|4|5|7|8][0-9]\d{4,8}$/.test(user.login.uname)) {
                 $scope.member.mobile = user.login.uname
             }
-            if ($scope.attrs.mobile && user.login.uname.indexOf("@") !== -1) {
+            if (!oAttrs.email.hide && user.login.uname.indexOf("@") !== -1) {
                 $scope.member.email = user.login.uname
             }
         }
@@ -252,51 +247,38 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
     $http.get('/rest/site/fe/get?site=' + LS.p.site).success(function(rsp) {
         $scope.site = rsp.data;
     });
-    $http.get(LS.j('schemaGet', 'site', 'schema', 'matter')).success(function(rsp) {
+    $http.get('/rest/site/fe/user/memberschema/get?site=' + LS.p.site + '&schema=' + LS.p.schema + '&matter=' + LS.p.matter).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;
         }
-        $scope.user = rsp.data.user;
-        $scope.schema = rsp.data.schema;
+        var oMschema;
+        $scope.schema = oMschema = rsp.data.schema;
         $scope.matter = rsp.data.matter;
-        $scope.attrs = {};
-        angular.forEach(rsp.data.attrs, function(attr, name) {
-            if (name === 'extattrs') {
-                $scope.attrs['extattrs'] = attr;
-            } else if (attr && attr[0] === '0') {
-                $scope.attrs[name] = true;
-                var schemaId = $scope.schema.id;
-                if (attr[5] === '1' && typeof($scope.user.members) != 'undefined' && typeof($scope.user.members[schemaId]) != 'undefined' && $scope.user.members[schemaId].verified === 'Y') {
-                    $scope.attrs[name + '_identity'] = true;
-                } else {
-                    $scope.attrs[name + '_identity'] = false;
+        $http.get(LS.j('get', 'site', 'schema')).success(function(rsp2) {
+            $scope.user = rsp2.data;
+            /*内置用户认证信息*/
+            setMember($scope.user);
+            /*社交账号信息*/
+            if ($scope.user.sns) {
+                if ($scope.user.sns.wx) {
+                    $scope.loginUser.nickname = $scope.user.sns.wx.nickname;
+                } else if ($scope.user.sns.yx) {
+                    $scope.loginUser.nickname = $scope.user.sns.yx.nickname;
                 }
-            } else {
-                $scope.attrs[name] = false;
             }
-        });
-        /*内置用户认证信息*/
-        setMember($scope.user);
-        /*社交账号信息*/
-        if ($scope.user.sns) {
-            if ($scope.user.sns.wx) {
-                $scope.loginUser.nickname = $scope.user.sns.wx.nickname;
-            } else if ($scope.user.sns.yx) {
-                $scope.loginUser.nickname = $scope.user.sns.yx.nickname;
-            }
-        }
-        tmsDynaPage.loadCode(ngApp, rsp.data.schema.page).then(function() {
-            $scope.page = rsp.data.schema.page;
-            $timeout(function() {
-                $scope.$broadcast('xxt.member.auth.ready', rsp.data);
+            tmsDynaPage.loadCode(ngApp, oMschema.page).then(function() {
+                $scope.page = oMschema.page;
                 $timeout(function() {
-                    var preEle = document.getElementById('pinInput');
-                    if (preEle) {
-                        $scope.refreshPin(preEle);
-                    }
-                });
+                    $scope.$broadcast('xxt.member.auth.ready', rsp.data);
+                    $timeout(function() {
+                        var preEle = document.getElementById('pinInput');
+                        if (preEle) {
+                            $scope.refreshPin(preEle);
+                        }
+                    });
 
+                });
             });
         });
     }).error(function(content, httpCode) {

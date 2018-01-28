@@ -297,16 +297,16 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                     schemaId = opNode.getAttribute('state');
                     opIndex = parseInt(opNode.dataset.index);
                     $scope.$apply(function() {
-                        $scope.addOption($scope.app._schemasById[schemaId], opIndex);
+                        $scope.addOption($scope.mschema._schemasById[schemaId], opIndex);
                     });
                 }
             }
         });
         $scope.$on('options.orderChanged', function(e, moved, schemaId) {
-            $scope.updSchema($scope.app._schemasById[schemaId]);
+            $scope.updSchema($scope.mschema._schemasById[schemaId]);
         });
         $scope.$on('option.xxt.editable.changed', function(e, op, schemaId) {
-            $scope.updSchema($scope.app._schemasById[schemaId]);
+            $scope.updSchema($scope.mschema._schemasById[schemaId]);
         });
         $scope.trustAsHtml = function(schema, prop) {
             return $sce.trustAsHtml(schema[prop]);

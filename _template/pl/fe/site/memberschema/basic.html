@@ -61,7 +61,7 @@
         <div class='alert alert-warning' ng-if="member.verified==='N'">
             <span class='glyphicon glyphicon-info-sign'></span> 您提交的信息未通过审核，请联系活动组织者。
         </div>
-        <div class='form-group' ng-if="attrs.name">
+        <div class='form-group' ng-if="!schema.attrs.name.hide">
             <div class='input-group'>
                 <div class='input-group-addon'>
                     <div style='width:4em'>姓名</div>
@@ -69,28 +69,52 @@
                 <input type='text' required="" ng-model="member.name" class='form-control'>
             </div>
         </div>
-        <div class='form-group' ng-if="attrs.mobile">
+        <div class='form-group' ng-if="!schema.attrs.mobile.hide">
             <div class='input-group'>
                 <div class='input-group-addon'>
                     <div style='width:4em'>手机</div>
                 </div>
-                <input type='text' required="" ng-model="member.mobile" class='form-control' ng-readonly="attrs.mobile_identity">
+                <input type='text' required="" ng-model="member.mobile" class='form-control' ng-readonly="schema.attrs.mobile.identity">
             </div>
         </div>
-        <div class='form-group' ng-if="attrs.email">
+        <div class='form-group' ng-if="!schema.attrs.email.hide">
             <div class='input-group'>
                 <div class='input-group-addon'>
                     <div style='width:4em'>邮箱</div>
                 </div>
-                <input type='text' required="" ng-model="member.email" class='form-control' ng-readonly="attrs.email_identity">
+                <input type='text' required="" ng-model="member.email" class='form-control' ng-readonly="attrs.attrs.email.identity">
             </div>
         </div>
-        <div class='form-group' ng-repeat="ea in attrs.extattrs">
-            <div class='input-group'>
-                <div class='input-group-addon'>
-                    <div style='width:4em'>{{ea.label}}</div>
-                </div>
-                <input type='text' ng-model="member.extattr[ea.id]" class='form-control'>
+        <div class='form-group' ng-repeat="schema in schema.extAttrs" ng-switch on="schema.type">
+            <label ng-bind="schema.title" ng-if="schema.type!=='html'"></label>
+            <input type='text' class='form-control' ng-model="member.extattr[schema.id]" ng-switch-when="shorttext">
+            <textarea class="form-control" ng-model="member.extattr[schema.id]" rows="3" ng-switch-when="longtext"></textarea>
+            <ul ng-switch-when="single">
+                <li class="radio" ng-repeat="op in schema.ops">
+                    <label>
+                        <input type="radio" name="{{action.id+'_'+schema.id}}" value="{{op.v}}" ng-model="member.extattr[schema.id]"><span>{{op.l}}</span></label>
+                </li>
+            </ul>
+            <ul ng-switch-when="multiple">
+                <li class="checkbox" ng-repeat="op in schema.ops">
+                    <label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-model="member.extattr[schema.id][op.v]"><span>{{op.l}}</span></label>
+                </li>
+            </ul>
+            <div tms-image-input="Y" ng-switch-when="image">
+                <ul class="img-tiles clearfix" name="{{action.id+'.'+schema.id}}">
+                    <li wrap="img" ng-repeat="img in member.extattr[schema.id]" class="img-thumbnail">
+                        <img flex-img>
+                        <button class="btn btn-default btn-xs" ng-click="removeImage(action,schema,$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                    </li>
+                    <li class="img-picker">
+                        <button class="btn btn-default" ng-click="chooseImage(action,schema)"><span class="glyphicon glyphicon-picture"></span>
+                            <br>选择图片</button>
+                    </li>
+                </ul>
+            </div>
+            <div ng-switch-when="html">
+                <div ng-bind-html="schema.content"></div>
             </div>
         </div>
         <div class='form-group' ng-if="!member.id&&schema.require_invite==='Y'">

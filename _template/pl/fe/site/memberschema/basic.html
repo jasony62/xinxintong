@@ -74,7 +74,7 @@
                 <div class='input-group-addon'>
                     <div style='width:4em'>手机</div>
                 </div>
-                <input type='text' required="" ng-model="member.mobile" class='form-control' ng-readonly="schema.attrs.mobile.identity">
+                <input type='text' required="" ng-model="member.mobile" class='form-control'>
             </div>
         </div>
         <div class='form-group' ng-if="!schema.attrs.email.hide">
@@ -82,7 +82,7 @@
                 <div class='input-group-addon'>
                     <div style='width:4em'>邮箱</div>
                 </div>
-                <input type='text' required="" ng-model="member.email" class='form-control' ng-readonly="attrs.attrs.email.identity">
+                <input type='text' required="" ng-model="member.email" class='form-control'>
             </div>
         </div>
         <div class='form-group' ng-repeat="schema in schema.extAttrs" ng-switch on="schema.type">

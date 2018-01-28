@@ -40,6 +40,7 @@ define(['frame'], function(ngApp) {
         $scope.updSchema = function(field) {
             var pv = {},
                 schema = $scope.choosedSchema;
+            pv[field] = schema[field];
             srvMschema.update($scope.choosedSchema, pv).then(function(data) {
                 if ($scope.choosedSchema.id === undefined) {
                     shiftAttr(data);

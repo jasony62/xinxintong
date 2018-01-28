@@ -1,6 +1,50 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMschema', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', function($scope, $location, $uibModal, http2, srvSite) {
+    ngApp.provider.controller('ctrlMschema', ['$scope', '$location', '$sce', '$uibModal', 'http2', 'srvSite', function($scope, $location, $sce, $uibModal, http2, srvSite) {
+        function value2Label(oSchema, value) {
+            var label, aVal, aLab = [];
+
+            if (label = value) {
+                if (oSchema.ops && oSchema.ops.length) {
+                    if (oSchema.type === 'single') {
+                        for (var i = 0, ii = oSchema.ops.length; i < ii; i++) {
+                            if (oSchema.ops[i].v === label) {
+                                label = oSchema.ops[i].l;
+                                break;
+                            }
+                        }
+                    } else if (oSchema.type === 'multiple') {
+                        aVal = [];
+                        for (var k in label) {
+                            if (label[k] === 'Y') {
+                                aVal.push(k);
+                            }
+                        }
+                        oSchema.ops.forEach(function(op) {
+                            aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                        });
+                        label = aLab.join(',');
+                    }
+                }
+            } else {
+                label = '';
+            }
+            return $sce.trustAsHtml(label);
+        }
+
+        function processExtattr(oMember) {
+            oMember._extattr = {};
+            selected.mschema.extAttrs.forEach(function(oExtAttr) {
+                if (/single|multiple/.test(oExtAttr.type)) {
+                    if (oMember.extattr[oExtAttr.id]) {
+                        oMember._extattr[oExtAttr.id] = value2Label(oExtAttr, oMember.extattr[oExtAttr.id]);
+                    }
+                } else {
+                    oMember._extattr[oExtAttr.id] = oMember.extattr[oExtAttr.id];
+                }
+            });
+        }
+
         function listInvite(oSchema) {
             http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id, function(rsp) {
                 $scope.invites = rsp.data.invites;
@@ -80,22 +124,20 @@ define(['frame'], function(ngApp) {
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
             url += '&contain=total';
             http2.get(url, function(rsp) {
-                var i, member, members = rsp.data.members;
-                for (i in members) {
-                    member = members[i];
-                    if (member.extattr) {
-                        try {
-                            member.extattr = JSON.parse(member.extattr);
-                        } catch (e) {
-                            member.extattr = {};
-                        }
+                var members;
+                members = rsp.data.members;
+                if (members.length) {
+                    if (selected.mschema.extAttrs.length) {
+                        members.forEach(function(oMember) {
+                            processExtattr(oMember);
+                        });
                     }
                 }
                 $scope.members = members;
                 $scope.page.total = rsp.data.total;
             });
         };
-        $scope.editMember = function(member) {
+        $scope.editMember = function(oMember) {
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/_module/memberEditor.html?_=1',
                 backdrop: 'static',
@@ -106,7 +148,7 @@ define(['frame'], function(ngApp) {
                 },
                 controller: ['$uibModalInstance', '$scope', 'schema', function($mi, $scope, schema) {
                     $scope.schema = schema;
-                    $scope.member = angular.copy(member);
+                    $scope.member = angular.copy(oMember);
                     $scope.canShow = function(name) {
                         return schema && schema['attr_' + name].charAt(0) === '0';
                     };
@@ -135,18 +177,14 @@ define(['frame'], function(ngApp) {
                             email: data.email,
                             email_verified: data.email_verified,
                             extattr: data.extattr
-                        },
-                        i, ea;
-                    for (i in selected.mschema.extattr) {
-                        ea = selected.mschema.extattr[i];
-                        newData[ea.id] = rst.data[ea.id];
-                    }
-                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.mission.siteid + '&id=' + member.id, newData, function(rsp) {
-                        angular.extend(member, newData);
+                        };
+                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.mission.siteid + '&id=' + oMember.id, newData, function(rsp) {
+                        angular.extend(oMember, newData);
+                        processExtattr(oMember);
                     });
                 } else if (rst.action === 'remove') {
-                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.mission.siteid + '&id=' + member.id, function() {
-                        $scope.members.splice($scope.members.indexOf(member), 1);
+                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.mission.siteid + '&id=' + oMember.id, function() {
+                        $scope.members.splice($scope.members.indexOf(oMember), 1);
                     });
                 }
             });

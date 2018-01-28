@@ -35,6 +35,10 @@ class memberschema_model extends \TMS_MODEL {
 						$oSchema->fullUrl = 'http://' . APP_HTTP_HOST . $oSchema->url . '?site=' . $oSchema->siteid . '&schema=' . $oSchema->id;
 					}
 				}
+				if (property_exists($oSchema, 'ext_attrs')) {
+					$oSchema->extAttrs = empty($oSchema->ext_attrs) ? [] : json_decode($oSchema->ext_attrs);
+					unset($oSchema->ext_attrs);
+				}
 				if (isset($oSchema->extattr) && !empty($oSchema->extattr)) {
 					$oSchema->extattr = json_decode($oSchema->extattr);
 				}
@@ -117,9 +121,6 @@ class memberschema_model extends \TMS_MODEL {
 		$oNewMschema->valid = (isset($oConfig->valid) && $oConfig->valid === 'Y') ? 'Y' : 'N';
 		$oNewMschema->creater = $oUser->id;
 		$oNewMschema->create_at = time();
-		$oNewMschema->entry_statement = '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。';
-		$oNewMschema->acl_statement = '您的身份识别信息没有放入白名单中，请与系统管理员联系。';
-		$oNewMschema->notpass_statement = '您的邮箱还没有验证通过，若未收到验证邮件请联系系统管理员。若需要重发验证邮件，请先完成【<a href="{{authapi}}">用户身份确认</a>】。';
 		$oNewMschema->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
 		$oNewMschema->code_id = $oCode->id;
 		$oNewMschema->page_code_name = $oCode->name;
@@ -233,68 +234,6 @@ class memberschema_model extends \TMS_MODEL {
 		}
 
 		return $schemas;
-	}
-	/**
-	 * 进入用户身份认证页的说明
-	 */
-	public function getEntryStatement($authid, $mpid, $openid) {
-		$authapi = $this->byId($authid, 'url,entry_statement');
-		$r = $authapi->entry_statement;
-		if (false !== strpos($r, '{{authapi}}')) {
-			// auth page's url
-			$url = "http://" . APP_HTTP_HOST;
-			$url .= $authapi->url;
-			$url .= "?mpid=$mpid&authid=$authid&openid=$openid";
-			// require auth reply
-			$r = str_replace('{{authapi}}', $url, $authapi->entry_statement);
-		}
-
-		return $r;
-	}
-	/**
-	 * 用户身份认证信息没有通过验证
-	 *
-	 * $authid
-	 * $runningMpid
-	 */
-	public function getNotpassStatement($authid, $runningMpid, $openid = null) {
-		$authapi = $this->byId($authid, 'url,notpass_statement');
-		$r = $authapi->notpass_statement;
-		if (false !== strpos($r, '{{authapi}}')) {
-			// auth page's url
-			$url = "http://" . APP_HTTP_HOST;
-			$url .= $authapi->url;
-			$url .= "?mpid=$runningMpid&authid=$authid";
-			if (!empty($openid)) {
-				$url .= "&openid=$openid";
-			}
-
-			// require auth reply
-			$r = str_replace('{{authapi}}', $url, $authapi->notpass_statement);
-		}
-
-		return $r;
-	}
-	/**
-	 * 用户身份认证信息没有在白名单中
-	 */
-	public function getAclStatement($authid, $runningMpid, $openid = null) {
-		$authapi = $this->byId($authid, 'url,acl_statement');
-		$r = $authapi->acl_statement;
-		if (false !== strpos($r, '{{authapi}}')) {
-			// auth page's url
-			$url = "http://" . APP_HTTP_HOST;
-			$url .= $authapi->url;
-			$url .= "?mpid=$runningMpid&authid=$authid";
-			if (!empty($openid)) {
-				$url .= "&openid=$openid";
-			}
-
-			// require auth reply
-			$r = str_replace('{{authapi}}', $url, $authapi->acl_statement);
-		}
-
-		return $r;
 	}
 	/**
 	 * 获得企业号通讯录同步数据用的自定义用户定义

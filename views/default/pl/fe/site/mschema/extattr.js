@@ -7,7 +7,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         var _oMschema;
         $scope.submitChange = function() {
             var deferred = $q.defer();
-            http2.post('/rest/pl/fe/matter/plan/update?app=' + _oMschema.id, { 'extAttrs': _oMschema.extAttrs }, function(rsp) {
+            http2.post('/rest/pl/fe/site/member/schema/update?site=' + _oMschema.siteid + '&id=' + _oMschema.id, { 'extAttrs': _oMschema.extAttrs }, function(rsp) {
                 deferred.resolve();
             });
             return deferred.promise;
@@ -60,7 +60,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                     schemasById[oSchema.id] = oSchema;
                 });
                 oMschema._schemasById = schemasById;
-                _oMschema = oMschema;
+                $scope.mschema = _oMschema = oMschema;
             });
         }
     }]);
@@ -71,7 +71,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         $scope.newSchema = function(type) {
             var oMockApp, newSchema, oProto;
             oMockApp = {
-                extAttrs: $scope.app.extAttrs
+                dataSchemas: $scope.mschema.extAttrs
             };
             newSchema = schemaLib.newSchema(type, oMockApp, oProto);
             $scope._appendSchema(newSchema);
@@ -101,11 +101,10 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
          * oAfterSchema: false - first, undefined - after active schema
          */
         $scope._appendSchema = function(newSchema, oAfterSchema) {
-            var oMschema, extAttrs, afterIndex;
+            var extAttrs, afterIndex;
 
-            oMschema = $scope.app;
-            extAttrs = oMschema.extAttrs;
-            if (oMschema._schemasById[newSchema.id]) {
+            extAttrs = $scope.mschema.extAttrs;
+            if ($scope.mschema._schemasById[newSchema.id]) {
                 alert(CstApp.alertMsg['schema.duplicated']);
                 return;
             }
@@ -120,7 +119,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             } else {
                 extAttrs.push(newSchema);
             }
-            oMschema._schemasById[newSchema.id] = newSchema;
+            $scope.mschema._schemasById[newSchema.id] = newSchema;
 
             return $scope.submitChange();
         };
@@ -133,12 +132,11 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             $scope.submitChange();
         };
         $scope._removeSchema = function(oRemovedSchema) {
-            var oMschema = $scope.app,
-                schemas;
+            var schemas;
 
-            schemas = oMschema.extAttrs;
+            schemas = $scope.mschema.extAttrs;
             schemas.splice(schemas.indexOf(oRemovedSchema), 1);
-            delete oMschema._schemasById[oRemovedSchema.id];
+            delete $scope.mschema._schemasById[oRemovedSchema.id];
             $scope.submitChange().then(function() {});
         };
         var timerOfUpdate = null;
@@ -161,7 +159,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         $scope.chooseSchema = function(event, schema) {
             var activeSchema;
             $scope.activeSchema = activeSchema = schema;
-            if ($scope.app.scenario && activeSchema.type === 'multiple') {
+            if (activeSchema.type === 'multiple') {
                 angular.isString(activeSchema.answer) && (activeSchema.answer = activeSchema.answer.split(','));
                 !$scope.data && ($scope.data = {});
                 angular.forEach(activeSchema.answer, function(answer) {

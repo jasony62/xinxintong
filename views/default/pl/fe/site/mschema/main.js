@@ -1,53 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', 'srvMschema', 'MemberSchema', function($scope, $location, $uibModal, http2, srvSite, srvMschema, MemberSchema) {
-        function shiftAttr(oSchema) {
-            oSchema.attrs = {
-                mobile: oSchema.attr_mobile.split(''),
-                email: oSchema.attr_email.split(''),
-                name: oSchema.attr_name.split('')
-            };
-        }
-
-        var oService = {};
-
-        srvSite.get().then(function(site) {
-            var entryMschemaId;
-            $scope.site = site;
-            oService.memberSchema = new MemberSchema(site.id);
-            if (location.hash) {
-                entryMschemaId = location.hash.substr(1);
-                oService.memberSchema.get(entryMschemaId).then(function(oMschema) {
-                    shiftAttr(oMschema);
-                    $scope.schemas = [oMschema];
-                    $scope.chooseSchema(oMschema);
-                });
-                $scope.bOnlyone = true;
-            } else {
-                oService.memberSchema.list('N').then(function(schemas) {
-                    schemas.forEach(function(schema) {
-                        shiftAttr(schema);
-                        $scope.schemas.push(schema);
-                    });
-                    if ($scope.schemas.length === 0) {
-                        $scope.schemas.push({
-                            type: 'inner',
-                            valid: 'N',
-                            attrs: {
-                                mobile: ['0', '0', '0', '0', '0', '0', '0'],
-                                email: ['0', '0', '0', '0', '0', '0', '0'],
-                                name: ['0', '0', '0', '0', '0', '0', '0']
-                            }
-                        });
-                    }
-                    $scope.chooseSchema(schemas[0]);
-                });
-                $scope.bOnlyone = false;
-            }
-        });
-        srvSite.snsList().then(function(data) {
-            $scope.sns = data;
-        });
+    ngApp.provider.controller('ctrlMain', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', 'srvMschema', function($scope, $location, $uibModal, http2, srvSite, srvMschema) {
         $scope.days = [{
             n: '会话',
             v: '0'
@@ -64,32 +17,11 @@ define(['frame'], function(ngApp) {
             n: '1年',
             v: '365'
         }];
-        $scope.schemas = [];
         $scope.attrOps = [
             ['手机', 'mobile', [0, 1, 2, 3, 4, 5]],
             ['邮箱', 'email', [0, 1, 2, 3, 4, 5]],
             ['姓名', 'name', [-99, 1, -2, 3, -4, -5]],
         ];
-        $scope.chooseSchema = function(oSchema) {
-            $scope.choosedSchema = oSchema;
-        };
-        $scope.addSchema = function() {
-            var url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.site.id;
-            http2.post(url, {}, function(rsp) {
-                shiftAttr(rsp.data);
-                $scope.schemas.push(rsp.data);
-            });
-        };
-        $scope.delSchema = function() {
-            var url, schema;
-            schema = $scope.choosedSchema;
-            url = '/rest/pl/fe/site/member/schema/delete?site=' + $scope.site.id + '&id=' + schema.id;
-            http2.get(url, function(rsp) {
-                var i = $scope.schemas.indexOf(schema);
-                $scope.schemas.splice(i, 1);
-                $scope.choosedSchema = null;
-            });
-        };
         $scope.updQy = function() {
             var schema = $scope.choosedSchema;
             if (schema.qy_ab === 'Y') {
@@ -108,8 +40,7 @@ define(['frame'], function(ngApp) {
         $scope.updSchema = function(field) {
             var pv = {},
                 schema = $scope.choosedSchema;
-            pv[field] = (/entry_statement|acl_statement|notpass_statement/.test(field)) ? encodeURIComponent(schema[field]) : schema[field];
-            oService.memberSchema.update($scope.choosedSchema, pv).then(function(data) {
+            srvMschema.update($scope.choosedSchema, pv).then(function(data) {
                 if ($scope.choosedSchema.id === undefined) {
                     shiftAttr(data);
                     angular.extend(schema, data);
@@ -130,7 +61,7 @@ define(['frame'], function(ngApp) {
                 attrs[3] = '1';
             }
             p['attr_' + item] = attrs.join('');
-            oService.memberSchema.update($scope.choosedSchema, p);
+            srvMschema.update($scope.choosedSchema, p);
         };
         $scope.gotoExtattr = function(oSchema) {
             $location.path('/rest/pl/fe/site/mschema/extattr');
@@ -144,7 +75,7 @@ define(['frame'], function(ngApp) {
                         'code_id': rsp.data.id,
                         'page_code_name': rsp.data.name
                     };
-                    oService.memberSchema.update($scope.choosedSchema, nv).then(function(rsp) {
+                    srvMschema.update($scope.choosedSchema, nv).then(function(rsp) {
                         $scope.choosedSchema.code_id = nv.code_id;
                         $scope.choosedSchema.page_code_name = nv.page_code_name;
                         location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + nv.page_code_name;
@@ -165,7 +96,7 @@ define(['frame'], function(ngApp) {
                         'code_id': rsp.data.id,
                         'page_code_name': rsp.data.name
                     };
-                    oService.memberSchema.update($scope.choosedSchema, nv).then(function(rsp) {
+                    srvMschema.update($scope.choosedSchema, nv).then(function(rsp) {
                         $scope.choosedSchema.code_id = nv.code_id;
                         $scope.choosedSchema.page_code_name = nv.page_code_name;
                         location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + nv.page_code_name;

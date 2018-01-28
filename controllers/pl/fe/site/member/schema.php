@@ -28,9 +28,14 @@ class schema extends \pl\fe\base {
 		}
 		$modelSchema = $this->model('site\user\memberschema');
 
-		$schema = $modelSchema->byId($mschema);
+		$oMschema = $modelSchema->byId($mschema);
+		if ($oMschema) {
+			if ($oMschema->matter_type === 'mission' && !empty($oMschema->matter_id)) {
+				$oMschema->mission = $this->model('matter\mission')->byId($oMschema->matter_id);
+			}
+		}
 
-		return new \ResponseData($schema);
+		return new \ResponseData($oMschema);
 	}
 	/**
 	 * 返回指定通讯录的概况信息
@@ -230,28 +235,48 @@ class schema extends \pl\fe\base {
 		}
 
 		$oPosted = $this->getPostJson();
-		$modelMs = $this->model('site\user\memberschema')->setOnlyWriteDbConn(true);
-
-		if (isset($oPosted->entry_statement)) {
-			$oPosted->entry_statement = $modelMs->escape(urldecode($oPosted->entry_statement));
-		} else if (isset($oPosted->acl_statement)) {
-			$oPosted->acl_statement = $modelMs->escape(urldecode($oPosted->acl_statement));
-		} else if (isset($oPosted->notpass_statement)) {
-			$oPosted->notpass_statement = $modelMs->escape(urldecode($oPosted->notpass_statement));
-		} else if (isset($oPosted->extattr)) {
-			foreach ($oPosted->extattr as &$attr) {
-				$attr->id = urlencode($attr->id);
-				$attr->label = urlencode($attr->label);
-			}
-			$oPosted->extattr = urldecode(json_encode($oPosted->extattr));
-		} else if (isset($oPosted->type) && $oPosted->type === 'inner') {
-			$oPosted->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
-		} else if (isset($oPosted->qy_ab)) {
-			$modelMs->update('xxt_site_member_schema', ['qy_ab' => 'N'], "siteid='$this->siteId' and id!='$id'");
+		if (count(get_object_vars($oPosted)) === 0) {
+			return new \ParameterError();
 		}
+
+		$modelMs = $this->model('site\user\memberschema')->setOnlyWriteDbConn(true);
+		$oUpdated = new \stdClass;
+		foreach ($oPosted as $prop => $val) {
+			switch ($prop) {
+			case 'extAttrs':
+				$oUpdated->ext_attrs = $modelMs->escape($modelMs->toJson($val));
+				break;
+			case 'entry_statement':
+			case 'acl_statement':
+			case 'notpass_statement':
+				$oUpdated->{$prop} = $modelMs->escape(urldecode($val));
+				break;
+			case 'extattr':
+				foreach ($val as $attr) {
+					$attr->id = urlencode($attr->id);
+					$attr->label = urlencode($attr->label);
+				}
+				$oUpdated->extattr = urldecode(json_encode($oPosted->extattr));
+				break;
+			case 'type':
+				$oUpdated->type = $val;
+				if ($val === 'inner') {
+					$oUpdated->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
+				}
+				break;
+			case 'qy_ab':
+				$oUpdated->qy_ab = $val;
+				/* 将同一个站点下的其他通讯录设置为非企业号通讯录 */
+				$modelMs->update('xxt_site_member_schema', ['qy_ab' => 'N'], "siteid='$this->siteId' and id!='$id'");
+				break;
+			default:
+				$oUpdated->{$prop} = $this->escape($val);
+			}
+		}
+
 		$rst = $modelMs->update(
 			'xxt_site_member_schema',
-			$oPosted,
+			$oUpdated,
 			['siteid' => $this->siteId, 'id' => $id]
 		);
 		$oMschema = $modelMs->byId($id);

@@ -8,7 +8,9 @@ define(['require'], function(require) {
             _siteId = site;
         };
         this.$get = ['$q', 'http2', function($q, http2) {
-            var oInstance = {
+            var _baseUrl, _oInstance;
+            _baseUrl = '/rest/pl/fe/site/member/schema/';
+            _oInstance = {
                 get: function(mschemaId) {
                     var url;
                     if ((!mschemaId || mschemaId === _mschemaId) && _getAppDeferred) {
@@ -20,7 +22,7 @@ define(['require'], function(require) {
                     }
                     _mschemaId = mschemaId;
                     _getAppDeferred = $q.defer();
-                    url = '/rest/pl/fe/site/member/schema/get?site=' + _siteId + '&mschema=' + mschemaId;
+                    url = _baseUrl + 'get?site=' + _siteId + '&mschema=' + mschemaId;
                     http2.get(url, function(rsp) {
                         _oMschema = rsp.data;
                         if (!_oMschema.extAttrs) {
@@ -31,23 +33,32 @@ define(['require'], function(require) {
 
                     return _getAppDeferred.promise;
                 },
-                update: function(names) {
-                    var defer = $q.defer(),
-                        modifiedData = {},
-                        url;
-
-                    angular.isString(names) && (names = [names]);
-                    names.forEach(function(name) {
-                        modifiedData[name] = _oMschema[name];
+                list: function(own) {
+                    var deferred, url;
+                    deferred = $q.defer();
+                    own === undefined && (own === 'N');
+                    url = _baseUrl;
+                    url += 'list?site=' + _siteId;
+                    url += '&own=' + own;
+                    http2.get(url, function(rsp) {
+                        deferred.resolve(rsp.data);
                     });
-                    url = '/rest/pl/fe/matter/plan/update?site=' + _siteId + '&app=' + _mschemaId;
-                    http2.post(url, modifiedData, function(rsp) {
-                        defer.resolve(rsp.data);
+                    return deferred.promise;
+                },
+                update: function(oSchema, updated) {
+                    var deferred, url;
+                    deferred = $q.defer();
+                    url = _baseUrl;
+                    url += 'update?site=' + _siteId;
+                    url += '&type=' + oSchema.type;
+                    if (oSchema.id) url += '&id=' + oSchema.id;
+                    http2.post(url, updated, function(rsp) {
+                        deferred.resolve(rsp.data);
                     });
-                    return defer.promise;
+                    return deferred.promise;
                 },
             };
-            return oInstance;
+            return _oInstance;
         }];
     });
     ngMod.provider('srvEnrollPage', function() {

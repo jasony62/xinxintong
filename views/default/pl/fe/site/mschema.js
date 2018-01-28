@@ -36,62 +36,71 @@ define(['require', 'mschemaService'], function(require) {
         srvSiteProvider.config(siteId);
         srvMschemaProvider.config(siteId);
     }]);
-    ngApp.factory('MemberSchema', function($q, http2) {
-        var MemberSchema = function(siteId) {
-            this.siteId = siteId;
-            this.baseUrl = '/rest/pl/fe/site/member/schema/';
+    ngApp.controller('ctrlMschema', ['$scope', 'srvSite', 'srvMschema', function($scope, srvSite, srvMschema) {
+        function shiftAttr(oSchema) {
+            oSchema.attrs = {
+                mobile: oSchema.attr_mobile.split(''),
+                email: oSchema.attr_email.split(''),
+                name: oSchema.attr_name.split('')
+            };
+        }
+        $scope.schemas = [];
+        $scope.chooseSchema = function(oSchema) {
+            $scope.choosedSchema = oSchema;
         };
-        MemberSchema.prototype.get = function(mschemaId) {
-            var deferred, url;
-            deferred = $q.defer();
-            url = this.baseUrl;
-            url += 'get?site=' + this.siteId;
-            url += '&mschema=' + mschemaId;
+        $scope.addSchema = function() {
+            var url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.site.id;
+            http2.post(url, {}, function(rsp) {
+                shiftAttr(rsp.data);
+                $scope.schemas.push(rsp.data);
+            });
+        };
+        $scope.delSchema = function() {
+            var url, schema;
+            schema = $scope.choosedSchema;
+            url = '/rest/pl/fe/site/member/schema/delete?site=' + $scope.site.id + '&id=' + schema.id;
             http2.get(url, function(rsp) {
-                var oMschema, bWhole;
-                bWhole = true;
-                oMschema = rsp.data;
-                if (oMschema.matter_type) {
-                    if (oMschema.matter_type === 'mission' && oMschema.matter_id) {
-                        bWhole = false;
-                        http2.get('/rest/pl/fe/matter/mission/get?id=' + oMschema.matter_id + '&cascaded=N', function(rsp) {
-                            oMschema.mission = rsp.data;
-                            deferred.resolve(oMschema);
+                var i = $scope.schemas.indexOf(schema);
+                $scope.schemas.splice(i, 1);
+                $scope.choosedSchema = null;
+            });
+        };
+        srvSite.get().then(function(oSite) {
+            var entryMschemaId;
+            $scope.site = oSite;
+            srvSite.snsList().then(function(data) {
+                $scope.sns = data;
+            });
+            if (location.hash) {
+                entryMschemaId = location.hash.substr(1);
+                srvMschema.get(entryMschemaId).then(function(oMschema) {
+                    shiftAttr(oMschema);
+                    $scope.schemas = [oMschema];
+                    $scope.chooseSchema(oMschema);
+                });
+                $scope.bOnlyone = true;
+            } else {
+                srvMschema.list('N').then(function(schemas) {
+                    schemas.forEach(function(schema) {
+                        shiftAttr(schema);
+                        $scope.schemas.push(schema);
+                    });
+                    if ($scope.schemas.length === 0) {
+                        $scope.schemas.push({
+                            type: 'inner',
+                            valid: 'N',
+                            attrs: {
+                                mobile: ['0', '0', '0', '0', '0', '0', '0'],
+                                email: ['0', '0', '0', '0', '0', '0', '0'],
+                                name: ['0', '0', '0', '0', '0', '0', '0']
+                            }
                         });
                     }
-                }
-                bWhole && deferred.resolve(oMschema);
-            });
-            return deferred.promise;
-        };
-        MemberSchema.prototype.list = function(own) {
-            var deferred, url;
-            deferred = $q.defer();
-            own === undefined && (own === 'N');
-            url = this.baseUrl;
-            url += 'list?site=' + this.siteId;
-            url += '&own=' + own;
-            http2.get(url, function(rsp) {
-                deferred.resolve(rsp.data);
-            });
-            return deferred.promise;
-        };
-        MemberSchema.prototype.update = function(oSchema, updated) {
-            var deferred, url;
-            deferred = $q.defer();
-            url = this.baseUrl;
-            url += 'update?site=' + this.siteId;
-            url += '&type=' + oSchema.type;
-            if (oSchema.id) url += '&id=' + oSchema.id;
-            http2.post(url, updated, function(rsp) {
-                deferred.resolve(rsp.data);
-            });
-            return deferred.promise;
-        };
-        return MemberSchema;
-    });
-    ngApp.controller('ctrlMschema', ['$scope', function($scope) {
-
+                    $scope.chooseSchema(schemas[0]);
+                });
+                $scope.bOnlyone = false;
+            }
+        });
     }]);
     /***/
     require(['domReady!'], function(document) {

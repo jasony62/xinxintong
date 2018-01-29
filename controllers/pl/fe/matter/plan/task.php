@@ -210,7 +210,7 @@ class task extends \pl\fe\matter\base {
 	/**
 	 * 登记数据导出
 	 */
-	public function export_action($app, $oCriteria = '') {
+	public function export_action($app, $filter = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -227,8 +227,8 @@ class task extends \pl\fe\matter\base {
 
 		// 获得有效的填写记录
 		$modelTsk = $this->model('matter\plan\task');
-		if (!empty($oCriteria)) {
-			$oCriteria = json_decode($oCriteria);
+		if (!empty($filter)) {
+			$oCriteria = json_decode($filter);
 		} else {
 			$oCriteria = new \stdClass;
 		}

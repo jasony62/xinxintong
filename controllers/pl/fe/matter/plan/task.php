@@ -43,8 +43,6 @@ class task extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\plan');
-		$app = $modelApp->escape($app);
-
 		$oApp = $modelApp->byId($app, ['fields' => 'id,state,check_schemas']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();

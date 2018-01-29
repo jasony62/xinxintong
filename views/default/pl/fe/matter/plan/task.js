@@ -1,8 +1,9 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'srvPlanApp', '$uibModal', 'srvRecordConverter', function($scope, http2, srvPlanApp, $uibModal, srvRecordConverter) {
+    ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'noticebox', 'srvPlanApp', '$uibModal', 'srvRecordConverter', function($scope, http2, noticebox, srvPlanApp, $uibModal, srvRecordConverter) {
         var _oApp, _oCriteria, _oGroup;
         _oGroup = {};
+        $scope.page = {};
         $scope.rows = {
             allSelected: 'N',
             selected: {},
@@ -39,8 +40,9 @@ define(['frame'], function(ngApp) {
         $scope.doSearch = function() {
             var url = '/rest/pl/fe/matter/plan/task/list?app=' + _oApp.id;
             http2.post(url, _oCriteria, function(rsp) {
-                var tasks, oSchemasById;
+                var tasks, total, oSchemasById;
                 tasks = rsp.data.tasks;
+                total = rsp.data.total;
                 oSchemasById = {};
                 _oApp.checkSchemas.forEach(function(oSchema) {
                     oSchemasById[oSchema.id] = oSchema;
@@ -57,6 +59,7 @@ define(['frame'], function(ngApp) {
                     }
                 });
                 $scope.tasks = tasks;
+                $scope.page.total = total;
             });
         };
         $scope.filter = function() {
@@ -103,6 +106,26 @@ define(['frame'], function(ngApp) {
                     });
                 });
             }
+        };
+        $scope.verifyAll = function() {
+            if (window.confirm('确定审核通过所有记录（共' + $scope.page.total + '条）？')) {
+                http2.get('/rest/pl/fe/matter/plan/task/verifyAll?app=' + _oApp.id, function(rsp) {
+                    $scope.tasks.forEach(function(task) {
+                        task.verified = 'Y';
+                    });
+                    noticebox.success('完成操作');
+                });
+            }
+        };
+        $scope.export = function() {
+            var url;
+            url = '/rest/pl/fe/matter/plan/task/export?app='+ _oApp.id;
+            window.open(url);
+        };
+        $scope.exportImage = function() {
+            var url;
+            url = '/rest/pl/fe/matter/plan/task/exportImage?app=' + _oApp.id ;
+            window.open(url);
         };
         srvPlanApp.get().then(function(oApp) {
             if(oApp.entryRule.scope.group && oApp.entryRule.scope.group=='Y' && oApp.groupApp.rounds.length) {

@@ -692,6 +692,7 @@ class record extends base {
 	 *
 	 * @param string $app
 	 * @param string $ek
+	 * @param string $rid
 	 *
 	 */
 	public function get_action($app, $ek = '') {
@@ -713,10 +714,13 @@ class record extends base {
 			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
 		}
 		if (false === $oRecord || $oRecord->state !== '1') {
-			return new \ObjectNotFoundError();
+			$oRecord = new \stdClass;
+			if (false === $this->_fillWithSaved($oApp, $oUser, $oRecord)) {
+				return new \ObjectNotFoundError();
+			}
+		} else {
+			$this->_fillWithSaved($oApp, $oUser, $oRecord);
 		}
-
-		$this->_fillWithSaved($oApp, $oUser, $oRecord->rid, $oRecord);
 
 		if (!empty($oRecord->rid)) {
 			$oRecRound = $this->model('matter\enroll\round')->byId($oRecord->rid);

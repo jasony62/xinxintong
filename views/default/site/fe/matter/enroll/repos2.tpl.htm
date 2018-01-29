@@ -32,37 +32,57 @@
             </ul>
         </div>
     </nav>
-    <div ng-cloak class='ng-cloak app' ng-controller="ctrlRepos">
-        <div class='container'>
-            <div class='row'>
+    <div class='app container' ng-cloak class='ng-cloak' ng-controller="ctrlRepos">
+        <div class='row'>
+            <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened">
+                <uib-accordion>
+                    <div uib-accordion-group class="panel-default" heading="目录" ng-if="dirSchemas.length" is-open='advCriteriaStatus.dirOpen'>
+                        <div class='dir-level-1' ng-repeat="dir1 in dirSchemas">
+                            <div class='dir' ng-click="shiftDir(dir1)" ng-class="{active:dir1===activeDir}">{{dir1.op.l}}</div>
+                            <div ng-if="dir1.op.childrenDir.length">
+                                <div class='dir-level-2' ng-repeat="dir2 in dir1.op.childrenDir">
+                                    <div class='dir' ng-click="shiftDir(dir2)" ng-class="{active:dir2===activeDir}">{{dir2.op.l}}</div>
+                                    <div ng-if="dir2.op.childrenDir.length">
+                                        <div class='dir-level-3' ng-repeat="dir3 in dir2.op.childrenDir">
+                                            <div class='dir' ng-click="shiftDir(dir3)" ng-class="{active:dir3===activeDir}">{{dir3.op.l}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class='btn btn-default btn-block' ng-click="shiftDir()">清除选择</button>
+                    </div>
+                    <div uib-accordion-group class="panel-default" heading="筛选" is-open='advCriteriaStatus.filterOpen'>
+                        <div class='form-group' ng-if='rounds.length'>
+                            <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
+                                <option value='all'>全部轮次</option>
+                                <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                            </select>
+                        </div>
+                        <div class='form-group' ng-if="userGroups.length">
+                            <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.round_id as grp.title for grp in userGroups">
+                                <option value>全部分组</option>
+                            </select>
+                        </div>
+                        <div class='form-group'>
+                            <select class='form-control' ng-model="criteria.creator" ng-change="shiftOwner()" size=2>
+                                <option value='all'>全部用户</option>
+                                <option value='{{params.user.uid}}'>我的</option>
+                            </select>
+                        </div>
+                    </div>
+                </uib-accordion>
+            </div>
+            <div class='col-md-9 col-xs-12'>
                 <div class='form-group'>
                     <div id='filterCriteria' class='input-group'>
                         <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
                         <div class='input-group-btn'>
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button id='advCriteriaSwitch' class="btn btn-default" ng-click="status.opened=!status.opened">
-                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':status.opened}"></span>
+                            <button id='advCriteriaSwitch' class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
+                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
                             </button>
-                            <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
-                                <div class='form-group' ng-if='rounds.length'>
-                                    <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
-                                        <option value='all'>全部轮次</option>
-                                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                                    </select>
-                                </div>
-                                <div class='form-group' ng-if="userGroups.length">
-                                    <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.round_id as grp.title for grp in userGroups">
-                                        <option value>全部分组</option>
-                                    </select>
-                                </div>
-                                <div class='form-group'>
-                                    <select class='form-control' ng-model="criteria.creator" ng-change="shiftOwner()" size=2>
-                                        <option value='all'>全部用户</option>
-                                        <option value='{{params.user.uid}}'>我的</option>
-                                    </select>
-                                </div>
-                            </form>
                         </div>
                     </div>
                 </div>

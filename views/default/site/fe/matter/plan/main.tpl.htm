@@ -122,6 +122,7 @@
                         <hr>
                         <div class='form-group' ng-repeat="schema in action.checkSchemas" ng-switch on="schema.type">
                             <label ng-bind="schema.title" ng-if="schema.type!=='html'"></label>
+                            <div class="description" ng-if="'html'!==schema.type&&schema.description"><span ng-bind-html="schema.description"></span></div>
                             <input type='text' class='form-control' ng-model="data[action.id][schema.id]" ng-switch-when="shorttext">
                             <textarea class="form-control" ng-model="data[action.id][schema.id]" rows="3" ng-switch-when="longtext"></textarea>
                             <ul ng-switch-when="single">
@@ -161,6 +162,9 @@
                                     </li>
                                 </ul>
                             </div>
+                            <div tms-date="'Y'" tms-date-value="data[action.id][schema.id]" ng-switch-when="date">
+                                <div wrap="date" class="form-control input-lg" ng-bind="data[action.id][schema.id]*1000|date:'yy-MM-dd HH:mm'"></div>
+                            </div>
                             <div ng-switch-when="html">
                                 <div ng-bind-html="schema.content"></div>
                             </div>
@@ -174,7 +178,21 @@
             </div>
         </script>
         <script type="text/ng-template" id="rank.html">
-            <div class='col-md-12' ng-switch on="rankView.obj">
+            <div class="col-md-12 filter">
+                <div class='col-md-2 col-xs-6'>
+                    <select class='form-control' ng-model="appState.criteria.obj">
+                        <option value='user'>用户</option>
+                    </select>
+                </div>
+                <div class='col-md-3 col-xs-6' ng-if="appState.criteria.obj==='user'">
+                    <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
+                        <option value='task_num'>提交记录数量</option>
+                        <option value='coin'>积分</option>
+                        <option value='score'>得分</option>
+                    </select>
+                </div>
+            </div>
+            <div class='col-md-12 result' ng-switch on="rankView.obj">
                 <ul ng-switch-when="user">
                     <li class='hidden-xs'>
                         <div class='col-md-1'>序号</div>
@@ -190,7 +208,7 @@
                             <span>{{u.nickname}}</span>
                             <span ng-if="app.group_app_id">-{{u.group.round_title}}</span>
                         </div>
-                        <div class='col-md-2 col-xs-1'><span>{{u[appState.criteria.orderby+'_num']||u.user_total_coin||u.score}}</span></div>
+                        <div class='col-md-2 col-xs-1'><span>{{u.task_num||u.coin||u.score}}</span></div>
                     </li>
                 </ul>
                 <ul ng-switch-when="group">

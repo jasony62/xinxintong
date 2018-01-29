@@ -47,12 +47,15 @@
                 </li>
                 <li ng-class="{'opened':opened==='data'}">
                     <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('task')">数据 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'82px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'123px':'0'}">
                         <li ng-class="{'active':subView==='task'}">
                             <a href='' ng-click="opened='';switchTo('task')">任务</a>
                         </li>
                         <li ng-class="{'active':subView==='user'}">
                             <a href='' ng-click="opened='';switchTo('user')">用户</a>
+                        </li>
+                        <li ng-class="{'active':subView==='log'}">
+                            <a href='' ng-click="opened='';switchTo('log')">行为日志</a>
                         </li>
                     </ul>
                 </li>
@@ -104,6 +107,7 @@
     <script src="/static/js/ZeroClipboard.min.js"></script>
     <script src="/static/js/ui-tms.js?_=4"></script>
     <script src="/static/js/xxt.ui.js?_=4"></script>
+    <script src="/static/js/resumable.js"></script>
     <script src="<?php echo auto_version('/views/default/pl/fe/_module/matter.service.js');?>"></script>
     <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
     <script src="/static/js/require.js" data-main="<?php echo auto_version('/views/default/pl/fe/matter/plan/frame-loader.js');?>"></script>

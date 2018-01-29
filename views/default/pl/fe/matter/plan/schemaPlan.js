@@ -7,7 +7,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         var _oApp;
         $scope.submitChange = function() {
             var deferred = $q.defer();
-            http2.post('/rest/pl/fe/matter/plan/update?app=' + _oApp.id, { 'checkSchemas': _oApp.checkSchemas }, function(rsp) {
+            http2.post('/rest/pl/fe/matter/plan/update?site=' + _oApp.siteid + '&app=' + _oApp.id, { 'checkSchemas': _oApp.checkSchemas }, function(rsp) {
                 deferred.resolve();
             });
             return deferred.promise;
@@ -125,7 +125,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         $scope._changeSchemaOrder = function(moved) {
             var checkSchemas, i, prevSchema, changedPages;
 
-            checkSchemas = $scope.action.checkSchemas;
+            checkSchemas = $scope.app.checkSchemas;
             i = checkSchemas.indexOf(moved);
             if (i > 0) prevSchema = checkSchemas[i - 1];
             $scope.submitChange();
@@ -196,7 +196,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             }
         };
         $scope.upSchema = function(schema) {
-            var schemas = $scope.action.checkSchemas,
+            var schemas = $scope.app.checkSchemas,
                 index = schemas.indexOf(schema);
 
             if (index > 0) {
@@ -206,7 +206,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             }
         };
         $scope.downSchema = function(schema) {
-            var schemas = $scope.action.checkSchemas,
+            var schemas = $scope.app.checkSchemas,
                 index = schemas.indexOf(schema);
 
             if (index < schemas.length - 1) {
@@ -253,7 +253,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         };
         $scope.editOption = function(schema, op, prop) {
             prop = prop || 'content';
-            srvEnrollSchema.makePagelet(op[prop] || '').then(function(result) {
+            $scope.editPagelet(op[prop] || '').then(function(result) {
                 if (prop === 'content') {
                     schema.title = $(result.html).text();
                 }

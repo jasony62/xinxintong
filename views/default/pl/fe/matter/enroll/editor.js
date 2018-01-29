@@ -7,7 +7,7 @@ define(['frame'], function(ngApp) {
                 app.dataSchemas.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
                         srvRecordConverter.forEdit(schema, oRecord.data);
-                        if(schema.type=='multitext') {
+                        if (schema.type == 'multitext') {
                             _items(schema);
                         }
                     }
@@ -30,8 +30,8 @@ define(['frame'], function(ngApp) {
             $scope.enrollDataSchemas = app._schemasByEnrollApp;
             $scope.groupDataSchemas = app._schemasByGroupApp;
             $scope.aTags = app.tags;
-            if(oRecord.data_tag) {
-                for(var schemaId in oRecord.data_tag) {
+            if (oRecord.data_tag) {
+                for (var schemaId in oRecord.data_tag) {
                     var dataTags = oRecord.data_tag[schemaId],
                         converted = [];
                     dataTags.forEach(function(tagId) {
@@ -82,54 +82,55 @@ define(['frame'], function(ngApp) {
             });
         }
 
-        function doSave (){
+        function doSave() {
             //oRecord 原始数据
             //updated 上传数据包
-            var updated = {
+            var oUpdated = {
                 //数组 转 字符串
                 tags: oRecord.aTags.join(','),
             };
             /*多项填空题，如果值为空则删掉*/
-            for(var k in oRecord.data) {
-                if(k!=='member' && oApp._schemasById[k] && oApp._schemasById[k].type=='multitext') {
+            for (var k in oRecord.data) {
+                if (k !== 'member' && oApp._schemasById[k] && oApp._schemasById[k].type == 'multitext') {
                     angular.forEach(oRecord.data[k], function(data, index) {
-                        if(data.value=='') {
-                            oRecord.data[k].splice(index,1);
+                        if (data.value == '') {
+                            oRecord.data[k].splice(index, 1);
                         }
                     });
                 }
             };
 
-            oRecord.tags = updated.tags;
-            updated.comment = oRecord.comment; //oRecord 信息
-            updated.verified = oRecord.verified;
-            updated.rid = oRecord.rid;
-            updated.userid = oRecord.userid;
+            oRecord.tags = oUpdated.tags;
+            oUpdated.comment = oRecord.comment; //oRecord 信息
+            oUpdated.agreed = oRecord.agreed; //oRecord 信息
+            oUpdated.verified = oRecord.verified;
+            oUpdated.rid = oRecord.rid;
+            oUpdated.userid = oRecord.userid;
 
             if (oRecord.enroll_key) {
                 if (!angular.equals(oRecord.data, oBeforeRecord.data)) {
-                    updated.data = oRecord.data;
+                    oUpdated.data = oRecord.data;
                 }
                 if (!angular.equals(oRecord.supplement, oBeforeRecord.supplement)) {
-                    updated.supplement = oRecord.supplement;
+                    oUpdated.supplement = oRecord.supplement;
                 }
                 if (!angular.equals(oRecord.score, oBeforeRecord.score)) {
-                    updated.score = oRecord.score;
+                    oUpdated.score = oRecord.score;
                 }
                 if (!angular.equals(oQuizScore, oBeforeQuizScore)) {
-                    updated.quizScore = oQuizScore;
+                    oUpdated.quizScore = oQuizScore;
                 }
-                srvEnrollRecord.update(oRecord, updated).then(function(newRecord) {
+                srvEnrollRecord.update(oRecord, oUpdated).then(function(newRecord) {
                     if (oApp.scenario === 'quiz') {
                         _quizScore(newRecord);
                     }
                     noticebox.success('完成保存');
                 });
             } else {
-                updated.data = oRecord.data;
-                updated.supplement = oRecord.supplement;
-                updated.quizScore = oQuizScore;
-                srvEnrollRecord.add(updated).then(function(newRecord) {
+                oUpdated.data = oRecord.data;
+                oUpdated.supplement = oRecord.supplement;
+                oUpdated.quizScore = oQuizScore;
+                srvEnrollRecord.add(oUpdated).then(function(newRecord) {
                     oRecord.enroll_key = newRecord.enroll_key;
                     oRecord.enroll_at = newRecord.enroll_at;
                     $location.search({ site: oApp.siteid, id: oApp.id, ek: newRecord.enroll_key });
@@ -319,9 +320,9 @@ define(['frame'], function(ngApp) {
                     if (oRecord.verbose[schema.id] === undefined) {
                         oRecord.verbose[schema.id] = {};
                     }
-                    if(schema.type=='multitext'&&oRecord.verbose[schema.id].id!==itemId) {
+                    if (schema.type == 'multitext' && oRecord.verbose[schema.id].id !== itemId) {
                         oRecord.verbose[schema.id]._items[itemId].remark_num = schemaRemarks[itemId].length;
-                    }else{
+                    } else {
                         oRecord.verbose[schema.id].remark_num = schemaRemarks[itemId].length;
                     }
                 } else {

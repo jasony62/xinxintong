@@ -6,6 +6,7 @@ define(['frame'], function(ngApp) {
         $scope.operations = {
             'read': '阅读',
             'submit': '提交',
+            'updateData': '修改',
             'U': '修改活动',
             'C': '创建活动',
             'addSchemaTask': '添加任务',

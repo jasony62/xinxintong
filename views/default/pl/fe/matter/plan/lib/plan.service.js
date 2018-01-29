@@ -165,7 +165,7 @@ define(['require'], function(require) {
                 title: '提交'
             }, {
                 value: 'updateData',
-                title: '修改记录'
+                title: '修改'
             }];
         };
         this.$get = ['$q', 'http2', '$uibModal', function($q, http2, $uibModal) {

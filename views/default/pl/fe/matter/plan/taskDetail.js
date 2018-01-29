@@ -34,7 +34,7 @@ define(['frame'], function(ngApp) {
         $scope.chooseFile = function(action, schema) {
             var r, onSubmit;
             r = new Resumable({
-                target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + _oTask.siteid + '&app=' + _oTask.id,
+                target: '/rest/site/fe/matter/plan/task/uploadFile?site=' + _oApp.siteid + '&app=' + _oApp.id,
                 testChunks: false,
                 chunkSize: 512 * 1024
             });
@@ -106,7 +106,7 @@ define(['frame'], function(ngApp) {
                 _oTasksOfBeforeSubmit.push(fn);
             }
         };
-        var _oTask, _oUpdated, _oTasksOfBeforeSubmit;
+        var _oApp, _oTask, _oUpdated, _oTasksOfBeforeSubmit;
         _oTasksOfBeforeSubmit = [];
 
         // 更新的任务数据
@@ -125,6 +125,7 @@ define(['frame'], function(ngApp) {
             _oTasksOfBeforeSubmit.length ? doTask(0) : doSave();
         };
         srvPlanApp.get().then(function(oApp) {
+            _oApp = oApp;
             http2.get('/rest/pl/fe/matter/plan/task/get' + location.search, function(rsp) {
                 $scope.task = _oTask = rsp.data;
                 $scope.data = _oTask.data;

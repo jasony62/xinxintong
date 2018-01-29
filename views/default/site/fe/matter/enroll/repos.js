@@ -38,7 +38,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($scope, http2, srvRound, $sce) {
+ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce', function($scope, LS, http2, srvRound, $sce) {
     var oApp, facRound, page, criteria, shareableSchemas, userGroups, _items;
     _items = {};
     $scope.schemaCount = 0;
@@ -93,7 +93,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         url = '/rest/site/fe/matter/enroll?site=' + oApp.siteid + '&app=' + oApp.id + '&page=remark';
         url += '&ek=' + oRecordData.enroll_key;
         url += '&schema=' + oRecordData.schema_id;
-        url += '&id=' + id;
+        url += '&data=' + id;
         location.href = url;
     };
     $scope.shiftRound = function() {
@@ -126,7 +126,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
         url += '?site=' + oApp.siteid;
         url += '&ek=' + oRecord.enroll_key;
         url += '&schema=' + oRecord.schema_id;
-        url += '&id=' + id;
+        url += '&data=' + id;
 
         http2.get(url).then(function(rsp) {
             if (shareableSchemas[oRecord.schema_id].type == 'multitext' && oRecord._items[id]) {
@@ -210,4 +210,9 @@ ngApp.controller('ctrlRepos', ['$scope', 'http2', 'Round', '$sce', function($sco
             });
         }
     });
+    $scope.advCriteriaStatus = {
+        opened: !$scope.isSmallLayout,
+        dirOpen: false,
+        filterOpen: true
+    };
 }]);

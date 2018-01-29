@@ -32,47 +32,49 @@
             </ul>
         </div>
     </nav>
-    <div ng-cloak class='ng-cloak app' ng-controller="ctrlRepos">
-        <div class='container'>
-            <div class='row'>
+    <div class='app container' ng-cloak ng-controller="ctrlRepos">
+        <div class='row'>
+            <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened">
+                <form ng-click="clickAdvCriteria($event)">
+                    <div class='form-group' ng-if='rounds.length'>
+                        <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
+                            <option value='all'>全部轮次</option>
+                            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                        </select>
+                    </div>
+                    <div class='form-group' ng-if="userGroups.length">
+                        <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.round_id as grp.title for grp in userGroups">
+                            <option value>全部分组</option>
+                        </select>
+                    </div>
+                    <div class='form-group'>
+                        <select class='form-control' ng-model="criteria.owner" ng-change="shiftOwner()" size=2>
+                            <option value='all'>全部用户</option>
+                            <option value='{{params.user.uid}}'>我的</option>
+                        </select>
+                    </div>
+                    <div class='form-group' ng-if="schemaCount>1">
+                        <select class='form-control' ng-model="criteria.schema" ng-options="schema.id as schema.title for schema in schemas" ng-change="shiftSchema()" size='6'>
+                            <option value>全部题目</option>
+                        </select>
+                    </div>
+                    <div class='form-group' ng-if="dataTags&&dataTags.length">
+                        <select class='form-control' ng-model="criteria.tag" ng-options="tag.id as tag.label for tag in dataTags" ng-change="shiftTag()" size='6'>
+                            <option value>全部标签</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class='col-md-9 col-xs-12'>
                 <div class='form-group'>
                     <div id='filterCriteria' class='input-group'>
                         <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
                         <div class='input-group-btn'>
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';list4Schema(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="list4Schema(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button id='advCriteriaSwitch' class="btn btn-default" ng-click="status.opened=!status.opened">
-                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':status.opened}"></span>
+                            <button id='advCriteriaSwitch' class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
+                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
                             </button>
-                            <form id='advCriteria' ng-if='status.opened' ng-click="clickAdvCriteria($event)">
-                                <div class='form-group' ng-if='rounds.length'>
-                                    <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
-                                        <option value='all'>全部轮次</option>
-                                        <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                                    </select>
-                                </div>
-                                <div class='form-group' ng-if="userGroups.length">
-                                    <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.round_id as grp.title for grp in userGroups">
-                                        <option value>全部分组</option>
-                                    </select>
-                                </div>
-                                <div class='form-group'>
-                                    <select class='form-control' ng-model="criteria.owner" ng-change="shiftOwner()" size=2>
-                                        <option value='all'>全部用户</option>
-                                        <option value='{{params.user.uid}}'>我的</option>
-                                    </select>
-                                </div>
-                                <div class='form-group' ng-if="schemaCount>1">
-                                    <select class='form-control' ng-model="criteria.schema" ng-options="schema.id as schema.title for schema in schemas" ng-change="shiftSchema()" size='6'>
-                                        <option value>全部题目</option>
-                                    </select>
-                                </div>
-                                <div class='form-group' ng-if="dataTags&&dataTags.length">
-                                    <select class='form-control' ng-model="criteria.tag" ng-options="tag.id as tag.label for tag in dataTags" ng-change="shiftTag()" size='6'>
-                                        <option value>全部标签</option>
-                                    </select>
-                                </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -83,49 +85,51 @@
                                 <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
                                 <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
-                                <span class='text-muted nickname'>{{rec.nickname||'匿名用户'}}</span>
+                                <span class='text-muted nickname'>{{rec.nickname}}</span>
                             </div>
-                            <blockquote ng-switch on="schemas[rec.schema_id].type">
-                                <div class='text-muted data-title'>{{schemas[rec.schema_id].title}}</div>
-                                <div ng-switch-when="file">
-                                    <div ng-repeat="file in rec.value">
-                                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                                            <source src="{{file.url}}" type="{{file.type}}" />
-                                        </video>
-                                        <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
-                                            <source src="{{file.url}}" type="{{file.type}}" />
-                                        </audio>
-                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
-                                    </div>
-                                </div>
-                                <ul ng-switch-when="image">
-                                    <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" /></li>
-                                </ul>
-                                <ul ng-switch-when="multitext">
-                                    <li ng-repeat="item in rec.items">
-                                        <span ng-bind="item.value"></span>
-                                        <div>
-                                            <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, item.id, $index)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>
-                                            <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec, item.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="item.remark_num"></span></button>
+                            <div class='data'>
+                                <blockquote ng-switch on="schemas[rec.schema_id].type">
+                                    <div class='text-muted data-title'>{{schemas[rec.schema_id].title}}</div>
+                                    <div ng-switch-when="file">
+                                        <div ng-repeat="file in rec.value">
+                                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                                                <source src="{{file.url}}" type="{{file.type}}" />
+                                            </video>
+                                            <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                                <source src="{{file.url}}" type="{{file.type}}" />
+                                            </audio>
+                                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                                         </div>
-                                    </li>
-                                </ul>
-                                <div ng-switch-when="multiple"><span>{{value2Label(schemas[rec.schema_id],rec.value)}}</span></div>
-                                <div ng-switch-when="single"><span>{{value2Label(schemas[rec.schema_id],rec.value)}}</span></div>
-                                <div ng-switch-default>{{rec.value}}</div>
-                                <div ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
-                                    <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>
-                                </div>
-                                <div ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</div>
-                            </blockquote>
-                            <div class='bottom-bar'>
+                                    </div>
+                                    <ul ng-switch-when="image">
+                                        <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" /></li>
+                                    </ul>
+                                    <ul ng-switch-when="multitext">
+                                        <li ng-repeat="item in rec.items">
+                                            <span ng-bind="item.value"></span>
+                                            <div>
+                                                <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, item.id, $index)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>
+                                                <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec, item.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="item.remark_num"></span></button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    <div ng-switch-when="multiple"><span>{{value2Label(schemas[rec.schema_id],rec.value)}}</span></div>
+                                    <div ng-switch-when="single"><span>{{value2Label(schemas[rec.schema_id],rec.value)}}</span></div>
+                                    <div ng-switch-default>{{rec.value}}</div>
+                                    <div ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
+                                        <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>
+                                    </div>
+                                    <div ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</div>
+                                </blockquote>
                                 <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
+                            </div>
+                            <div class='bottom-bar text-right'>
                                 <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, rec.id)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
                                 <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoRemark(rec, rec.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
-                                <div ng-if="groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])">
+                                <span ng-if="groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])">
                                     <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
                                     <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
-                                </div>
+                                </span>
                             </div>
                             <div class='remarks' ng-if="schemas[rec.schema_id].remarkable==='Y'&&rec.agreedRemarks.remarks.length">
                                 <div class='remark' ng-repeat="remark in rec.agreedRemarks.remarks">

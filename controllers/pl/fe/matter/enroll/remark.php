@@ -83,9 +83,13 @@ class remark extends \pl\fe\matter\base {
 	 * 给指定的登记记录的添加评论
 	 * 需要处理用户没有提交评论的登记项数据的情况（用户提交数据后又增加了登记项）
 	 */
-	public function add_action($ek, $schema = null, $id = 0) {
+	public function add_action($ek, $schema = null, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
+		}
+
+		if (empty($id)) {
+			return new \ResponseError('参数错误：未指定被评论内容ID');
 		}
 		$data = $this->getPostJson();
 		if (empty($data->content)) {
@@ -108,9 +112,6 @@ class remark extends \pl\fe\matter\base {
 		if (!empty($schema)) {
 			foreach ($oApp->dataSchemas as $dataSchema) {
 				if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
-					if (empty($id)) {
-						return new \ComplianceError('参数错误，此题型需要指定唯一标识');
-					}
 					$schemaType = 'multitext';
 				}
 			}
@@ -137,21 +138,15 @@ class remark extends \pl\fe\matter\base {
 
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
 
-		if (isset($schema)) {
-			if (empty($id)) {
-				$oSchemaData = $modelRec->query_obj_ss(['id,multitext_seq', 'xxt_enroll_record_data', ['enroll_key' => $ek, 'schema_id' => $schema, 'state' => 1, 'multitext_seq' => 0]]);
-			} else {
-				$oSchemaData = $modelRec->query_obj_ss(['id,multitext_seq', 'xxt_enroll_record_data', ['id' => $id]]);
-			}
+		if (!empty($schema)) {
+			$oSchemaData = $modelRec->query_obj_ss(['id,multitext_seq', 'xxt_enroll_record_data', ['id' => $id]]);
 			if ($oSchemaData) {
-				if (isset($schemaType) && $schemaType === 'multitext' && !empty($id)) {
-					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = $oSchemaData->id");
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = $oSchemaData->id");
+				if (isset($schemaType) && $schemaType === 'multitext') {
 					// 如果某项的数据被评论了那么这道题的总数据+1
 					if ($oSchemaData->multitext_seq != 0) {
 						$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
 					}
-				} else {
-					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = $oSchemaData->id");
 				}
 			} else {
 				/* 用户没有提交过数据，创建一条记录 */

@@ -81,22 +81,12 @@ utilSchema.checkValue = function(oSchema, value) {
     }
     return true;
 };
-utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord, oUser) {
-    /* 自动填写通讯录联系人 */
-
+utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
     if (!dataOfRecord) return false;
     var p, value;
     for (p in dataOfRecord) {
         if (p === 'member') {
-            /* 提交的数据覆盖自动填写的联系人数据 */
-            //if (angular.isString(dataOfRecord.member)) {
-            //    dataOfRecord.member = JSON.parse(dataOfRecord.member);
-            //}
-            if (oUser.members && oUser.members.length) {
-
-            }
             dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
-
         } else if (schemasById[p] !== undefined) {
             var schema = schemasById[p];
             if (schema.type === 'score') {
@@ -129,7 +119,7 @@ utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {
     if (oUser.members) {
         angular.forEach(schemasById, function(oSchema) {
             if (oSchema.schema_id && oUser.members[oSchema.schema_id]) {
-                var oMember, attr;
+                var oMember, attr, val;
                 oMember = oUser.members[oSchema.schema_id];
                 attr = oSchema.id.split('.');
                 if (attr.length === 2) {
@@ -140,6 +130,15 @@ utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {
                     }
                     switch (oSchema.type) {
                         case 'multiple':
+                            val = oMember.extattr[attr[2]];
+                            if (angular.isObject(val)) {
+                                oPageDataMember.extattr[attr[2]] = {};
+                                for (var p in val) {
+                                    if (val[p]) {
+                                        oPageDataMember.extattr[attr[2]][p] = true;
+                                    }
+                                }
+                            }
                             break;
                         default:
                             oPageDataMember.extattr[attr[2]] = oMember.extattr[attr[2]];

@@ -1,12 +1,11 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEditor', ['$scope', '$q', 'noticebox', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', 'srvEnrollRound', function($scope, $q, noticebox, $location, srvEnrollApp, srvEnrollRecord, srvRecordConverter, srvEnlRnd) {
+    ngApp.provider.controller('ctrlEditor', ['$scope', '$q', 'noticebox', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvEnrollRound', 'tmsSchema', function($scope, $q, noticebox, $location, srvEnrollApp, srvEnrollRecord, srvEnlRnd, tmsSchema) {
         function _afterGetApp(app) {
             if (oRecord.data) {
-                srvRecordConverter.forTable(oRecord, app._schemasById);
                 app.dataSchemas.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
-                        srvRecordConverter.forEdit(schema, oRecord.data);
+                        tmsSchema.forEdit(schema, oRecord.data);
                         if (schema.type == 'multitext') {
                             _items(schema);
                         }
@@ -14,12 +13,12 @@ define(['frame'], function(ngApp) {
                 });
                 app._schemasFromEnrollApp.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
-                        srvRecordConverter.forEdit(schema, oRecord.data);
+                        tmsSchema.forEdit(schema, oRecord.data);
                     }
                 });
                 app._schemasFromGroupApp.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
-                        srvRecordConverter.forEdit(schema, oRecord.data);
+                        tmsSchema.forEdit(schema, oRecord.data);
                     }
                 });
                 oBeforeRecord = angular.copy(oRecord);

@@ -98,7 +98,7 @@
             <ul ng-switch-when="multiple">
                 <li class="checkbox" ng-repeat="op in schema.ops">
                     <label>
-                        <input type="checkbox" ng-true-value="'Y'" ng-model="member.extattr[schema.id][op.v]"><span>{{op.l}}</span></label>
+                        <input type="checkbox" ng-model="member.extattr[schema.id][op.v]"><span>{{op.l}}</span></label>
                 </li>
             </ul>
             <div tms-image-input="Y" ng-switch-when="image">

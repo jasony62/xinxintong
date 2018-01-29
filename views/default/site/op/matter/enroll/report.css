@@ -1,6 +1,7 @@
 body{font-family:"HSimHei","Microsoft YaHei";margin-bottom:70px;}
 .bottom-bar{display:flex;align-items:center;}
 .bottom-bar>*{margin-right:.5em;}
+img{max-width:100%;}
 
 /*loading*/
 @keyframes loadingRunning{

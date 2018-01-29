@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlReport', ['$scope', '$uibModal', '$q', '$timeout', 'http2', 'srvSite', 'srvMission', 'srvRecordConverter', function($scope, $uibModal, $q, $timeout, http2, srvSite, srvMission, srvRecordConverter) {
+    ngApp.provider.controller('ctrlReport', ['$scope', '$uibModal', '$q', '$timeout', 'http2', 'srvSite', 'srvMission', 'tmsSchema', function($scope, $uibModal, $q, $timeout, http2, srvSite, srvMission, tmsSchema) {
         function configUserApps() {
             var includeApps = [];
             $scope.report.orderedApps.forEach(function(matter) {
@@ -137,7 +137,7 @@ define(['frame'], function(ngApp) {
                         if (user.show_schema_data) {
                             user.show_schema_data.data = angular.copy(user.show_schema_data);
                         }
-                        srvRecordConverter.forTable(user.show_schema_data, mapOfUnionSchemaById);
+                        tmsSchema.forTable(user.show_schema_data, mapOfUnionSchemaById);
                     });
                     $scope.report = rsp.data;
                     rsp.data.orderedApps.forEach(function(oMatter) {
@@ -179,7 +179,7 @@ define(['frame'], function(ngApp) {
                         if (records.enroll && records.enroll.length) {
                             recordsByApp.enroll = {};
                             records.enroll.forEach(function(record) {
-                                srvRecordConverter.forTable(record, $scope.enrollAppSchemas[record.aid]);
+                                tmsSchema.forTable(record, $scope.enrollAppSchemas[record.aid]);
                                 recordsByApp.enroll[record.aid] === undefined && (recordsByApp.enroll[record.aid] = []);
                                 recordsByApp.enroll[record.aid].push(record);
                             });

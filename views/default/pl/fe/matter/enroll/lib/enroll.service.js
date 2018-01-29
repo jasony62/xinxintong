@@ -1,6 +1,6 @@
 define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     'use strict';
-    var BaseSrvEnrollRecord = function($q, $http, srvRecordConverter, noticebox, $uibModal) {
+    var BaseSrvEnrollRecord = function($q, $http, noticebox, $uibModal, tmsSchema) {
         this._oApp = null;
         this._oPage = null;
         this._oCriteria = null;
@@ -70,7 +70,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     records = [];
                 }
                 records.forEach(function(oRecord) {
-                    srvRecordConverter.forTable(oRecord, that._oApp._unionSchemasById);
+                    //srvRecordConverter.forTable(oRecord, that._oApp._unionSchemasById);
+                    // if (oRecord.state !== undefined) {
+                    //     oRecord._state = _mapOfRecordState[oRecord.state];
+                    // }
+                    tmsSchema.forTable(oRecord, that._oApp._unionSchemasById);
                     that._aRecords.push(oRecord);
                 });
                 defer.resolve(records);
@@ -774,8 +778,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvRecordConverter', 'srvEnrollRound', function($q, $sce, http2, noticebox, $uibModal, pushnotify, cstApp, srvRecordConverter, srvEnlRnd) {
-            var _ins = new BaseSrvEnrollRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvEnrollRound', 'tmsSchema', function($q, http2, noticebox, $uibModal, pushnotify, cstApp, srvEnlRnd, tmsSchema) {
+            var _ins = new BaseSrvEnrollRecord($q, http2, noticebox, $uibModal, tmsSchema);
             _ins.search = function(pageNumber) {
                 var url;
 
@@ -807,7 +811,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         records = [];
                     }
                     records.forEach(function(record) {
-                        srvRecordConverter.forTable(record, _ins._oApp._unionSchemasById);
+                        tmsSchema.forTable(record, _ins._oApp._unionSchemasById);
                         _ins._aRecords.push(record);
                     });
                     defer.resolve(records);
@@ -1328,8 +1332,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
             _accessId = accessId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', 'srvOpEnrollRound', function($q, http2, noticebox, $uibModal, srvRecordConverter, srvEnlRnd) {
-            var _ins = new BaseSrvEnrollRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvOpEnrollRound', 'tmsSchema', function($q, http2, noticebox, $uibModal, srvEnlRnd, tmsSchema) {
+            var _ins = new BaseSrvEnrollRecord($q, http2, noticebox, $uibModal, tmsSchema);
             _ins.search = function(pageNumber) {
                 var url;
 

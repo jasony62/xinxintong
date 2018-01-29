@@ -406,51 +406,7 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlMember', ['$scope', '$location', '$sce', '$uibModal', 'http2', 'facListFilter', function($scope, $location, $sce, $uibModal, http2, facListFilter) {
-        function value2Label(oSchema, value) {
-            var label, aVal, aLab = [];
-
-            if (label = value) {
-                if (oSchema.ops && oSchema.ops.length) {
-                    if (oSchema.type === 'single') {
-                        for (var i = 0, ii = oSchema.ops.length; i < ii; i++) {
-                            if (oSchema.ops[i].v === label) {
-                                label = oSchema.ops[i].l;
-                                break;
-                            }
-                        }
-                    } else if (oSchema.type === 'multiple') {
-                        aVal = [];
-                        for (var k in label) {
-                            if (label[k] === 'Y') {
-                                aVal.push(k);
-                            }
-                        }
-                        oSchema.ops.forEach(function(op) {
-                            aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                        });
-                        label = aLab.join(',');
-                    }
-                }
-            } else {
-                label = '';
-            }
-            return $sce.trustAsHtml(label);
-        }
-
-        function processExtattr(oMember) {
-            oMember._extattr = {};
-            _oMschema.extAttrs.forEach(function(oExtAttr) {
-                if (/single|multiple/.test(oExtAttr.type)) {
-                    if (oMember.extattr[oExtAttr.id]) {
-                        oMember._extattr[oExtAttr.id] = value2Label(oExtAttr, oMember.extattr[oExtAttr.id]);
-                    }
-                } else {
-                    oMember._extattr[oExtAttr.id] = oMember.extattr[oExtAttr.id];
-                }
-            });
-        }
-
+    ngApp.provider.controller('ctrlMember', ['$scope', '$location', '$sce', '$uibModal', 'http2', 'facListFilter', 'tmsSchema', function($scope, $location, $sce, $uibModal, http2, facListFilter, tmsSchema) {
         function listInvite(oSchema) {
             http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id, function(rsp) {
                 $scope.invites = rsp.data.invites;
@@ -489,7 +445,7 @@ define(['frame'], function(ngApp) {
                 if (members.length) {
                     if (_oMschema.extAttrs.length) {
                         members.forEach(function(oMember) {
-                            processExtattr(oMember);
+                            oMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oMember);
                         });
                     }
                 }
@@ -540,7 +496,7 @@ define(['frame'], function(ngApp) {
                         };
                     http2.post('/rest/pl/fe/site/member/update?site=' + $scope.frameState.sid + '&id=' + oMember.id, newData, function(rsp) {
                         angular.extend(oMember, newData);
-                        processExtattr(oMember);
+                        oMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oMember);
                     });
                 } else if (rst.action === 'remove') {
                     http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.frameState.sid + '&id=' + oMember.id, function() {

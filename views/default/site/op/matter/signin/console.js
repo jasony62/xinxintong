@@ -1,6 +1,6 @@
 define(["require", "angular", "signinService"], function(require, angular) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter', 'service.signin']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.signin']);
     ngApp.constant('cstApp', {});
     ngApp.config(['$locationProvider', '$routeProvider', 'srvSigninAppProvider', 'srvOpSigninRecordProvider', function($locationProvider, $routeProvider, srvSigninAppProvider, srvOpSigninRecordProvider) {
         var RouteParam = function(name, baseURL) {
@@ -180,7 +180,7 @@ define(["require", "angular", "signinService"], function(require, angular) {
             }
         });
     }]);
-    ngApp.controller('ctrlRecord', ['$scope', '$location', 'http2', 'srvSigninRecord', 'srvRecordConverter', function($scope, $location, http2, srvSigninRecord, srvRecordConverter) {
+    ngApp.controller('ctrlRecord', ['$scope', '$location', 'http2', 'srvSigninRecord', 'tmsSchema', function($scope, $location, http2, srvSigninRecord, tmsSchema) {
         var oApp, oRecord, oBeforeRecord;
 
         function submit(ek, posted) {
@@ -250,17 +250,17 @@ define(["require", "angular", "signinService"], function(require, angular) {
                 if (oBeforeRecord.data) {
                     oApp.dataSchemas.forEach(function(schema) {
                         if (oBeforeRecord.data[schema.id]) {
-                            srvRecordConverter.forEdit(schema, oBeforeRecord.data);
+                            tmsSchema.forEdit(schema, oBeforeRecord.data);
                         }
                     });
                     oApp._schemasFromEnrollApp.forEach(function(schema) {
                         if (oBeforeRecord.data[schema.id]) {
-                            srvRecordConverter.forEdit(schema, oBeforeRecord.data);
+                            tmsSchema.forEdit(schema, oBeforeRecord.data);
                         }
                     });
                     oApp._schemasFromGroupApp.forEach(function(schema) {
                         if (oBeforeRecord.data[schema.id]) {
-                            srvRecordConverter.forEdit(schema, oBeforeRecord.data);
+                            tmsSchema.forEdit(schema, oBeforeRecord.data);
                         }
                     });
                 }

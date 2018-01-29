@@ -34,19 +34,18 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
     var facRecord;
 
     $scope.value2Label = function(schemaId) {
-        var val, schema, aVal, aLab = [];
-
-        if ((schema = $scope.app._schemasById[schemaId]) && facRecord.current && facRecord.current.data) {
-            if (val = facRecord.current.data[schemaId]) {
-                if (schema.ops && schema.ops.length) {
-                    aVal = val.split(',');
-                    schema.ops.forEach(function(op) {
-                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                    });
-                    val = aLab.join(',');
+        var oData, attr, val;
+        if (schemaId && facRecord.current && facRecord.current.data) {
+            oData = facRecord.current.data;
+            attr = schemaId.split('.');
+            if (attr.length === 1) {
+                val = oData[schemaId];
+            } else if (oData.member) {
+                if (attr.length === 2) {
+                    val = oData.member[attr[1]];
+                } else if (attr.length === 3 && oData.member.extattr) {
+                    val = oData.member.extattr[attr[2]];
                 }
-            } else {
-                val = '';
             }
         }
         return $sce.trustAsHtml(val);
@@ -108,6 +107,61 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
         return http2.get(LS.j('record/get', 'site', 'app', 'ek'));
     }
 
+    function fnProcessData(oData) {
+        var originalValue, afterValue, aProcessing;
+        $scope.app.dataSchemas.forEach(function(oSchema) {
+            if (oSchema.schema_id && oData.member) {
+                var attr;
+                attr = oSchema.id.split('.');
+                if (attr.length === 2) {
+                    originalValue = oData.member[attr[1]];
+                    aProcessing = [oData.member, attr[1]];
+                } else if (attr.length === 3) {
+                    originalValue = oData.member.extattr[attr[2]];
+                    if (originalValue && oSchema.type === 'multiple') {
+                        var originalValue2 = [];
+                        angular.forEach(originalValue, function(v, k) {
+                            if (v) originalValue2.push(k);
+                        });
+                        originalValue = originalValue2;
+                    }
+                    aProcessing = [oData.member.extattr, attr[2]];
+                }
+            } else {
+                originalValue = oData[oSchema.id];
+                if (originalValue && oSchema.type === 'multiple') {
+                    originalValue = originalValue.split(',');
+                }
+                aProcessing = [oData, oSchema.id];
+            }
+            if (originalValue) {
+                switch (oSchema.type) {
+                    case 'single':
+                        if (oSchema.ops && oSchema.ops.length) {
+                            for (var i = oSchema.ops.length - 1; i >= 0; i--) {
+                                if (originalValue === oSchema.ops[i].v) {
+                                    afterValue = oSchema.ops[i].l;
+                                }
+                            }
+                        }
+                        break;
+                    case 'multiple':
+                        if (oSchema.ops && oSchema.ops.length) {
+                            afterValue = [];
+                            oSchema.ops.forEach(function(op) {
+                                originalValue.indexOf(op.v) !== -1 && afterValue.push(op.l);
+                            });
+                            afterValue = afterValue.join(',');
+                        }
+                        break;
+                    default:
+                        afterValue = originalValue;
+                }
+            }
+            aProcessing[0][aProcessing[1]] = afterValue || originalValue;
+        });
+    }
+
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
@@ -130,6 +184,7 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
 
         fnGetRecord().then(function(rsp) {
             var schemaId, domWrap, aRemarkableSchemas, oRecord;
+            fnProcessData(rsp.data.data);
             facRecord.current = oRecord = rsp.data;
             facRecord.current.tag = facRecord.current.data_tag ? facRecord.current.data_tag : {};
             aRemarkableSchemas = [];

@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlNotice', ['$scope', 'srvTmplmsgNotice', 'srvGroupNotice', 'srvRecordConverter', function($scope, srvTmplmsgNotice, srvGroupNotice, srvRecordConverter) {
+    ngApp.provider.controller('ctrlNotice', ['$scope', 'srvTmplmsgNotice', 'srvGroupNotice', 'tmsSchema', function($scope, srvTmplmsgNotice, srvGroupNotice, tmsSchema) {
         var oBatchPage, aBatches;
         $scope.tmsTableWrapReady = 'N';
         $scope.oBatchPage = oBatchPage = {};
@@ -13,7 +13,7 @@ define(['frame'], function(ngApp) {
                 if (result.records && result.records.length) {
                     records = result.records;
                     records.forEach(function(record) {
-                        srvRecordConverter.forTable(record, $scope.app._schemasById);
+                        tmsSchema.forTable(record, $scope.app._schemasById);
                         if (noticeStatus = record.noticeStatus) {
                             record._noticeStatus = noticeStatus.split(':');
                             record._noticeStatus[0] = record._noticeStatus[0] === 'success' ? '成功' : '失败';

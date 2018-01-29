@@ -52,7 +52,7 @@
                 <div ng-switch-when="multiple">
                     <div class='checkbox' ng-repeat="op in ea.ops">
                         <label>
-                            <input type="checkbox" ng-true-value="'Y'" ng-model="member.extattr[ea.id][op.v]" /><span>{{op.l}}</span></label>
+                            <input type="checkbox" ng-model="member.extattr[ea.id][op.v]" /><span>{{op.l}}</span></label>
                     </div>
                 </div>
                 <div ng-switch-default>

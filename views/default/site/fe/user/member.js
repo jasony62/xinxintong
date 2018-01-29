@@ -81,6 +81,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
     };
 
     function sendRequest(url, deferred) {
+        var oPosted;
         $scope.posting = true;
         $http.post(url, $scope.member).success(function(rsp) {
             $scope.posting = false;
@@ -103,7 +104,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
                 $http.post('/rest/log/add', { src: 'site.fe.user.login', msg: JSON.stringify(arguments) });
             }
             alert('操作失败：' + (data === null ? '网络不可用' : data));
-        });;
+        });
     }
 
     function setMember(user) {

@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlNotice', ['$scope', 'http2', 'srvTmplmsgNotice', 'srvRecordConverter', function($scope, http2, srvTmplmsgNotice, srvRecordConverter) {
+    ngApp.provider.controller('ctrlNotice', ['$scope', 'http2', 'srvTmplmsgNotice', function($scope, http2, srvTmplmsgNotice) {
         var oBatchPage, aBatches;
         $scope.tmsTableWrapReady = 'N';
         $scope.oBatchPage = oBatchPage = {};

@@ -163,8 +163,6 @@ class task extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\plan');
-		$app = $modelApp->escape($app);
-
 		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,title,summary,pic']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
@@ -195,8 +193,6 @@ class task extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\plan');
-		$app = $modelApp->escape($app);
-
 		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,title,summary,pic']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();

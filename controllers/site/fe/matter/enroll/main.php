@@ -198,31 +198,6 @@ class main extends base {
 		return $oOpenPage;
 	}
 	/**
-	 * 用保存的数据填写指定的记录数据
-	 */
-	private function _fillWithSaved($oApp, $oUser, $rid, &$oRecord) {
-		$oSaveLog = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
-		if (count($oSaveLog) == 1) {
-			$oSaveLog = $oSaveLog[0];
-			$oSaveLog->opData = json_decode($oSaveLog->operate_data);
-			$bMatched = true;
-			if (!empty($rid) && (isset($oSaveLog->opData->rid) && $oSaveLog->opData->rid !== $rid)) {
-				$bMatched = false;
-			}
-			if ($bMatched) {
-				$oLogData = $oSaveLog->opData;
-				if (isset($oLogData)) {
-					$oRecord->data = $oLogData->data;
-					$oRecord->supplement = $oLogData->supplement;
-					$oRecord->data_tag = $oLogData->data_tag;
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-	/**
 	 * 返回登记记录
 	 *
 	 * @param string $siteid
@@ -300,10 +275,10 @@ class main extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		if (!empty($ek)) {
 			$oOpenedRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
-			if (false === $oOpenedRecord || $oOpenedRecord->state !== '1') {
-				return new \ObjectNotFoundError();
-			}
-			$params['record'] = $oOpenedRecord;
+			//if (false === $oOpenedRecord || $oOpenedRecord->state !== '1') {
+			//return new \ObjectNotFoundError();
+			//}
+			//$params['record'] = $oOpenedRecord;
 		}
 
 		/* 要打开的轮次 */
@@ -337,75 +312,7 @@ class main extends base {
 			if (empty($oOpenPage)) {
 				return new \ResponseError('页面不存在');
 			}
-
 			$params['page'] = $oOpenPage;
-
-			if ($oOpenPage->type === 'I' && ($newRecord === 'Y' || empty($ek))) {
-				/* 新登记数据 */
-				/* 查询是否有保存的数据 */
-				$oNewRecord = new \stdClass;
-				$this->_fillWithSaved($oApp, $oUser, $rid, $oNewRecord);
-				$params['record'] = $oNewRecord;
-
-				/* 返回当前用户在关联活动中填写的数据 */
-				if (!empty($oApp->enroll_app_id)) {
-					$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
-					if ($oAssocApp) {
-						$oAssocRec = $modelRec->byUser($oAssocApp, $oUser);
-						if (count($oAssocRec) === 1) {
-							if (!empty($oAssocRec[0]->data)) {
-								$oAssocRecord = $oAssocRec[0]->data;
-								if (!isset($params['record']->data)) {
-									$params['record']->data = new \stdClass;
-								}
-								foreach ($oAssocRecord as $key => $value) {
-									$params['record']->data->{$key} = $value;
-								}
-							}
-						}
-					}
-				}
-				if (!empty($oApp->group_app_id)) {
-					$oGrpApp = $this->model('matter\group')->byId($oApp->group_app_id, ['cascaded' => 'N']);
-					$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
-					if (count($oGrpPlayer) === 1) {
-						if (!empty($oGrpPlayer[0]->data)) {
-							if (!isset($params['record']->data)) {
-								$params['record']->data = new \stdClass;
-							}
-							if (is_string($oGrpPlayer[0]->data)) {
-								$oAssocRecord = json_decode($oGrpPlayer[0]->data);
-							} else {
-								$oAssocRecord = $oGrpPlayer[0]->data;
-							}
-
-							$oAssocRecord->_round_id = $oGrpPlayer[0]->round_id;
-							foreach ($oAssocRecord as $k => $v) {
-								$params['record']->data->{$k} = $v;
-							}
-						}
-					}
-				}
-			} else {
-				if (($oOpenPage->type === 'I' && $newRecord !== 'Y') || $oOpenPage->type === 'V' || $oOpenPage->name === 'score') {
-					if (empty($ek)) {
-						if ($oApp->open_lastroll === 'Y' || $oOpenPage->type === 'V') {
-							/* 获得最后一条登记数据。记录有可能未进行过数据填写 */
-							$options = [
-								'fields' => '*',
-								'verbose' => 'Y',
-								'assignRid' => $rid,
-							];
-							$oLastRecord = $modelRec->lastByUser($oApp, $oUser, $options);
-							$params['record'] = $oLastRecord;
-						}
-					}
-					if ($oOpenPage->type === 'I') {
-						/* 查询是否有匹配的保存数据 */
-						$this->_fillWithSaved($oApp, $oUser, $rid, $params['record']);
-					}
-				}
-			}
 		}
 
 		/**

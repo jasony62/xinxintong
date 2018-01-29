@@ -128,7 +128,7 @@ utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord, oUser) {
 utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {
     if (oUser.members) {
         angular.forEach(schemasById, function(oSchema) {
-            if (oSchema.type === 'member' && oSchema.schema_id && oUser.members[oSchema.schema_id]) {
+            if (oSchema.schema_id && oUser.members[oSchema.schema_id]) {
                 var oMember, attr;
                 oMember = oUser.members[oSchema.schema_id];
                 attr = oSchema.id.split('.');

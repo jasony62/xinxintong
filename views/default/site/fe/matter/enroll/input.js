@@ -348,7 +348,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     };
 
-    var facInput, tasksOfBeforeSubmit, submitState, StateCacheKey;
+    var facInput, tasksOfBeforeSubmit, submitState, StateCacheKey, _oApp;
     tasksOfBeforeSubmit = [];
     facInput = Input.ins();
     $scope.data = {
@@ -375,7 +375,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         var schemasById, dataOfRecord, p, value;
         StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = params.app._schemasById;
-
+        _oApp = params.app;
         if (params.page.data_schemas) {
             params.page.dataSchemas = JSON.parse(params.page.data_schemas);
         }
@@ -392,13 +392,13 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 }
             }
         }
-        if (params.app.end_submit_at > 0 && parseInt(params.app.end_submit_at) < (new Date * 1) / 1000) {
+        if (_oApp.end_submit_at > 0 && parseInt(_oApp.end_submit_at) < (new Date * 1) / 1000) {
             fnDisableActions();
             noticebox.warn('活动提交数据时间已经结束，不能提交数据');
         }
         /* 判断多项类型 */
-        if (params.app.dataSchemas.length) {
-            angular.forEach(params.app.dataSchemas, function(dataSchema) {
+        if (_oApp.dataSchemas.length) {
+            angular.forEach(_oApp.dataSchemas, function(dataSchema) {
                 if (dataSchema.type == 'multitext') {
                     $scope.data[dataSchema.id] === undefined && ($scope.data[dataSchema.id] = []);
                 }
@@ -416,19 +416,18 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 submitState.modified = true;
             }
         }
+        /* 自动填充用户通信录数据 */
+        ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
         /* 用户已经登记过或保存过，恢复之前的数据 */
-        //if (LS.s().newRecord !== 'Y') {
-        ngApp.oUtilSchema.autoFillMember(params.app._schemasById, $scope.user, $scope.data.member);
-        http2.get(LS.j('record/get', 'site', 'app', 'ek'), { autoBreak: false, autoNotice: false }).then(function(rsp) {
+        http2.get(LS.j('record/get', 'site', 'app', 'ek') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {
             var oRecord;
             oRecord = rsp.data;
-            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, oRecord.data);
+            ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
             $scope.record = oRecord;
             if (oRecord.data_tag) {
                 $scope.tag = oRecord.data_tag;
             }
         });
-        //}
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {

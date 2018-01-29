@@ -77,7 +77,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         var url = LS.j('', 'site', 'app');
         url += '&ek=' + ek;
         url += '&schema=' + schemaId;
-        url += '&id=' + id;
+        url += '&data=' + id;
         remarkId && (url += '&remark=' + remarkId);
         url += '&page=remark';
         location.href = url;

@@ -75,7 +75,7 @@
                                         <div class='schema' ng-repeat="schema in recommend.matter.dataSchemas" ng-switch on="schema.type">
                                             <div ng-switch-when="image">
                                                 <div class='text-muted'>{{schema.title}}</div>
-                                                <div ng-repeat="img in recommend.obj.data[schema.id].split(',')"><img ng-src="{{img}}" /></div>
+                                                <div ng-repeat="img in recommend.obj.data[schema.id]"><img ng-src="{{img}}" /></div>
                                             </div>
                                             <div ng-switch-when="file">
                                                 <div class='text-muted'>{{schema.title}}</div>

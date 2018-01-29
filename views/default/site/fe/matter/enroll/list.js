@@ -193,7 +193,7 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation',
                 };
                 facRound = Round.ins();
                 facRound.list().then(function(result) {
-                    $scope2.rounds = result.rounds;
+                    $scope2.rounds = result.data.rounds;
                 });
             }],
             windowClass: 'auto-height',

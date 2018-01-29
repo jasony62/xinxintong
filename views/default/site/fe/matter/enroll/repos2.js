@@ -1,5 +1,5 @@
 'use strict';
-require('./repos2.css');
+require('./repos.css');
 
 var ngApp = require('./main.js');
 ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
@@ -38,7 +38,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', function($scope, $sce, http2, LS, srvRound) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', function($scope, $sce, http2, LS, srvRound, $timeout) {
     var oApp, facRound, _oPage, _oCriteria, _oShareableSchemas;
     $scope.page = _oPage = { at: 1, size: 12 };
     $scope.criteria = _oCriteria = { creator: 'all' };
@@ -116,6 +116,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     $scope.shiftOwner = function() {
         $scope.recordList(1);
     };
+    $scope.shiftDir = function(oDir) {
+        _oCriteria.data = {};
+        if (oDir) {
+            _oCriteria.data[oDir.schema_id] = oDir.op.v;
+        }
+        $scope.activeDir = oDir;
+        $scope.recordList(1);
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
         oApp.dataSchemas.forEach(function(schema) {
@@ -147,5 +155,16 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                 $scope.rounds = result.rounds;
             });
         }
+        http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
+            $scope.dirSchemas = rsp.data;
+            if ($scope.dirSchemas && $scope.dirSchemas.length) {
+                $scope.advCriteriaStatus.dirOpen = true;
+            }
+        });
     });
+    $scope.advCriteriaStatus = {
+        opened: !$scope.isSmallLayout,
+        dirOpen: false,
+        filterOpen: true
+    };
 }]);

@@ -309,6 +309,11 @@ class record extends \pl\fe\matter\base {
 				$oAgreedLog->{$oUser->id} = (object) ['time' => time(), 'value' => $oUpdated->agreed];
 			}
 			$oUpdated->agreed_log = json_encode($oAgreedLog);
+			/* 如果活动属于项目，更新项目内的推荐内容 */
+			if (!empty($oApp->mission_id)) {
+				$modelMisMat = $this->model('matter\mission\matter');
+				$modelMisMat->agreed($oApp, 'R', $oBeforeRecord, $oUpdated->agreed);
+			}
 		}
 		if (isset($oPosted->tags)) {
 			$oUpdated->tags = $modelEnl->escape($oPosted->tags);

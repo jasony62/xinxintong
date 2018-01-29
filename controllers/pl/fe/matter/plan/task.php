@@ -212,14 +212,12 @@ class task extends \pl\fe\matter\base {
 	/**
 	 * 登记数据导出
 	 */
-	public function export_action($site, $app, $taskId = '') {
+	public function export_action($app, $taskId = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\plan');
-		$app = $modelApp->escape($app);
-
 		$oApp = $modelApp->byId($app, ['fields' => 'siteid,id,title,state,check_schemas,entry_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
@@ -528,8 +526,6 @@ class task extends \pl\fe\matter\base {
 		$imageSchemas = [];
 
 		$modelApp = $this->model('matter\plan');
-		$app = $modelApp->escape($app);
-
 		$oApp = $modelApp->byId($app, ['fields' => 'siteid,id,title,state,check_schemas,entry_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			die('指定的活动不存在');

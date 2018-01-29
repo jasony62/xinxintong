@@ -118,8 +118,34 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.export = function() {
-            var url;
-            url = '/rest/pl/fe/matter/plan/task/export?app='+ _oApp.id;
+            var url, oCriteria;
+            oCriteria = {};
+            if (_oCriteria.keyword) {
+                oCriteria.keyword = _oCriteria.keyword;
+            }
+            if (_oCriteria.data && Object.keys(_oCriteria.data).length) {
+                var oFilterDat = {};
+                angular.forEach(_oCriteria.data, function(v, k) {
+                    v && (oFilterDat[k] = v);
+                });
+                if (Object.keys(oFilterDat).length) {
+                    oCriteria.data = oFilterDat;
+                }
+            }
+            if(_oCriteria.byTaskSchema) {
+                oCriteria.byTaskSchema = _oCriteria.byTaskSchema;
+            }
+            if (_oCriteria.record) {
+                var oFilterRec = {};
+                if (_oCriteria.record.verified) {
+                    oFilterRec.verified = _oCriteria.record.verified;
+                }
+                if (Object.keys(oFilterRec).length) {
+                    oCriteria.record = oFilterRec;
+                }
+            }
+            url = '/rest/pl/fe/matter/plan/task/export?app=' + _oApp.id;
+            url += '&filter=' + JSON.stringify(oCriteria);
             window.open(url);
         };
         $scope.exportImage = function() {

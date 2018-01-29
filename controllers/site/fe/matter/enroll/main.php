@@ -249,27 +249,25 @@ class main extends base {
 		$params['app'] = $oApp;
 
 		/* 当前访问用户的基本信息 */
-		$oUser = $this->who;
-
-		/* 补充联系人信息，是在什么情况下都需要补充吗？ 应该在限制了联系人访问的情况下，而且应该只返回相关的 */
-		$modelMem = $this->model('site\user\member');
-		if (empty($oUser->unionid)) {
-			$aMembers = $modelMem->byUser($oUser->uid);
-			if (count($aMembers)) {
-				!isset($oUser->members) && $oUser->members = new \stdClass;
-				foreach ($aMembers as $oMember) {
-					$oUser->members->{$oMember->schema_id} = $oMember;
-				}
-			}
-		} else {
-			$modelAcnt = $this->model('site\user\account');
-			$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-			foreach ($aUnionUsers as $oUnionUser) {
-				$aMembers = $modelMem->byUser($oUnionUser->uid);
-				if (count($aMembers)) {
-					!isset($oUser->members) && $oUser->members = new \stdClass;
+		$oUser = clone $this->who;
+		if (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'member' && isset($oApp->entry_rule->member)) {
+			$mschemaIds = array_keys(get_object_vars($oApp->entry_rule->member));
+			if (count($mschemaIds)) {
+				$modelMem = $this->model('site\user\member');
+				$oUser->members = new \stdClass;
+				if (empty($oUser->unionid)) {
+					$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => implode(',', $mschemaIds)]);
 					foreach ($aMembers as $oMember) {
 						$oUser->members->{$oMember->schema_id} = $oMember;
+					}
+				} else {
+					$modelAcnt = $this->model('site\user\account');
+					$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+					foreach ($aUnionUsers as $oUnionUser) {
+						$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => implode(',', $mschemaIds)]);
+						foreach ($aMembers as $oMember) {
+							$oUser->members->{$oMember->schema_id} = $oMember;
+						}
 					}
 				}
 			}

@@ -250,7 +250,7 @@ provider('srvSite', function() {
                             var oSchema, schemas = [],
                                 schemasById = {},
                                 mschemas = [];
-                            if (ms.attr_name[0] === '0') {
+                            if (!ms.attrs.name.hide) {
                                 oSchema = {
                                     id: 'member.name',
                                     title: '姓名',
@@ -262,7 +262,7 @@ provider('srvSite', function() {
                                     title: '姓名'
                                 });
                             }
-                            if (ms.attr_mobile[0] === '0') {
+                            if (!ms.attrs.mobile.hide) {
                                 oSchema = {
                                     id: 'member.mobile',
                                     title: '手机',
@@ -274,7 +274,7 @@ provider('srvSite', function() {
                                     title: '手机'
                                 });
                             }
-                            if (ms.attr_email[0] === '0') {
+                            if (!ms.attrs.email.hide) {
                                 oSchema = {
                                     id: 'member.email',
                                     title: '手机',
@@ -286,24 +286,17 @@ provider('srvSite', function() {
                                     title: '邮箱'
                                 });
                             }
-                            (function() {
-                                var i, ea;
-                                if (ms.extattr) {
-                                    for (i = ms.extattr.length - 1; i >= 0; i--) {
-                                        ea = ms.extattr[i];
-                                        oSchema = {
-                                            id: 'member.extattr.' + ea.id,
-                                            title: ea.label,
-                                        };
-                                        schemas.push(oSchema);
-                                        schemasById[oSchema.id] = oSchema;
-                                        mschemas.push({
-                                            id: ea.id,
-                                            title: ea.label
-                                        });
-                                    };
-                                }
-                            })();
+                            ms.extAttrs.forEach(function(ea) {
+                                var oSchema;
+                                oSchema = angular.copy(ea);
+                                oSchema.id = 'member.extattr.' + oSchema.id;
+                                schemas.push(oSchema);
+                                schemasById[oSchema.id] = oSchema;
+                                mschemas.push({
+                                    id: oSchema.id,
+                                    title: oSchema.title
+                                });
+                            });
                             ms._schemas = schemas;
                             ms._schemasById = schemasById;
                             ms._mschemas = mschemas;

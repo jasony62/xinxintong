@@ -416,18 +416,19 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 submitState.modified = true;
             }
         }
-        /* 用户已经登记过，恢复之前的数据 */
-        if (LS.s().newRecord !== 'Y') {
-            http2.get(LS.j('record/get', 'site', 'app', 'ek'), { autoBreak: false, autoNotice: false }).then(function(rsp) {
-                var oRecord;
-                oRecord = rsp.data;
-                ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, oRecord.data);
-                $scope.record = oRecord;
-                if (oRecord.data_tag) {
-                    $scope.tag = oRecord.data_tag;
-                }
-            });
-        }
+        /* 用户已经登记过或保存过，恢复之前的数据 */
+        //if (LS.s().newRecord !== 'Y') {
+        ngApp.oUtilSchema.autoFillMember(params.app._schemasById, $scope.user, $scope.data.member);
+        http2.get(LS.j('record/get', 'site', 'app', 'ek'), { autoBreak: false, autoNotice: false }).then(function(rsp) {
+            var oRecord;
+            oRecord = rsp.data;
+            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, oRecord.data);
+            $scope.record = oRecord;
+            if (oRecord.data_tag) {
+                $scope.tag = oRecord.data_tag;
+            }
+        });
+        //}
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
@@ -442,13 +443,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             //var evt = document.createEvent("HTMLEvents");
             //evt.initEvent("show", false, false);
             //domTip.dispatchEvent(evt);
-        }
-    });
-    var hasAutoFillMember = false;
-    $scope.$watch('data.member.schema_id', function(schemaId) {
-        if (false === hasAutoFillMember && schemaId && $scope.user) {
-            ngApp.oUtilSchema.autoFillMember($scope.user, $scope.data.member);
-            hasAutoFillMember = true;
         }
     });
     $scope.removeItem = function(items, index) {

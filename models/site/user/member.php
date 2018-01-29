@@ -28,7 +28,7 @@ class member_model extends \TMS_MODEL {
 	 * @param string $userid
 	 *
 	 */
-	public function &byUser($userid, $options = []) {
+	public function byUser($userid, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = [
 			$fields,

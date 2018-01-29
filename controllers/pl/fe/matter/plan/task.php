@@ -210,7 +210,7 @@ class task extends \pl\fe\matter\base {
 	/**
 	 * 登记数据导出
 	 */
-	public function export_action($app, $taskId = '') {
+	public function export_action($app, $oCriteria = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -227,8 +227,11 @@ class task extends \pl\fe\matter\base {
 
 		// 获得有效的填写记录
 		$modelTsk = $this->model('matter\plan\task');
-		$oCriteria = new \stdClass;
-		!empty($taskId) && $oCriteria->byTaskSchema = $taskId;
+		if (!empty($oCriteria)) {
+			$oCriteria = json_decode($oCriteria);
+		} else {
+			$oCriteria = new \stdClass;
+		}
 		$aOptions = ['fields' => 'id,born_at,patch_at,userid,group_id,nickname,verified,comment,first_enroll_at,last_enroll_at,task_schema_id,task_seq,data,score,supplement'];
 		$result = $modelTsk->byApp($oApp, $aOptions, $oCriteria);
 

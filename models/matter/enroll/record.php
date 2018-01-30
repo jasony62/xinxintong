@@ -1176,6 +1176,9 @@ class record_model extends record_base {
 				}
 			}
 		}
+		if (!empty($gid)) {
+			$q[2]['group_id'] = $gid;
+		}
 
 		$sum = (float) $this->query_val_ss($q);
 		$sum = number_format($sum, 2, '.', '');

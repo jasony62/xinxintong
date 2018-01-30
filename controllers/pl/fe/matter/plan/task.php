@@ -60,6 +60,50 @@ class task extends \pl\fe\matter\base {
 
 		return new \ResponseData($oResult);
 	}
+	/*
+	*
+	*/
+	public function listSchema_action($app, $checkSchmId, $taskSchmId = '', $actSchmId = '', $page = '', $size = '') {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\plan');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,check_schemas']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		if (!empty($taskSchmId) && !empty($actSchmId)) {
+			$taskSchema = $this->model('matter\plan\schema\task')->byId($taskSchmId);
+			if ($taskSchema === false || $taskSchema->aid !== $oApp->id) {
+				return new \ResponseError('指定的任务不匹配或不存在！');
+			}
+
+			$actions = [];
+			foreach ($taskSchema->actions as $action) {
+				$actions[$action->id] = $action;
+			}
+
+			if (!empty($actions)) {
+				if (!isset($actions[$actSchmId]) {
+					return new \ResponseError('指定的行动项不匹配或不存在！');
+				}
+				foreach ($actions[$actSchmId]->checkSchemas as $acSchm) {
+					$oApp->checkSchemas[] = $acSchm;
+				}
+			}
+		}
+
+		$modelTsk = $this->model('matter\plan\task');
+		$aOptions = ['fields' => 'id,born_at,patch_at,userid,group_id,nickname,verified,comment,first_enroll_at,last_enroll_at,task_schema_id,task_seq,data,score'];
+
+		if (!empty($page) && !empty($size)) {
+			$aOptions['paging'] = ['page' => $page, 'size' => $size];
+		}
+		$oResult = $modelTsk->listSchema($oApp, $checkSchmId, $taskSchmId, $actSchmId, $aOptions);
+
+	}
 	/**
 	 * 更新任务
 	 */
@@ -515,7 +559,7 @@ class task extends \pl\fe\matter\base {
 	/**
 	 * 导出登记数据中的图片
 	 */
-	public function exportImage_action($app, $taskId = '') {
+	public function exportImage_action($app, $taskSchmId = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			die('请登录');
 		}
@@ -546,7 +590,7 @@ class task extends \pl\fe\matter\base {
 		// 获得有效的填写记录
 		$modelTsk = $this->model('matter\plan\task');
 		$oCriteria = new \stdClass;
-		!empty($taskId) && $oCriteria->byTaskSchema = $taskId;
+		!empty($taskSchmId) && $oCriteria->byTaskSchema = $taskSchmId;
 		$aOptions = ['fields' => 'id,born_at,patch_at,userid,group_id,nickname,verified,comment,first_enroll_at,last_enroll_at,task_schema_id,task_seq,data,score,supplement'];
 		$result = $modelTsk->byApp($oApp, $aOptions, $oCriteria);
 

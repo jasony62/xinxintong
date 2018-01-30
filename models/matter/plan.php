@@ -54,6 +54,11 @@ class plan_model extends app_base {
 				$oMatter->checkSchemas = empty($oMatter->check_schemas) ? [] : json_decode($oMatter->check_schemas);
 				unset($oMatter->check_schemas);
 			}
+			/* entry rule */
+			if (property_exists($oMatter, 'rp_config')) {
+				$oMatter->rpConfig = $oMatter->rpConfig;
+				unset($oMatter->rp_config);
+			}
 		}
 
 		return $oMatter;

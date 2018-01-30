@@ -56,7 +56,7 @@ class plan_model extends app_base {
 			}
 			/* entry rule */
 			if (property_exists($oMatter, 'rp_config')) {
-				$oMatter->rpConfig = $oMatter->rpConfig;
+				$oMatter->rpConfig = $oMatter->rp_config;
 				unset($oMatter->rp_config);
 			}
 		}

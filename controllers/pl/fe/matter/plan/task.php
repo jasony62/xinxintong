@@ -86,7 +86,7 @@ class task extends \pl\fe\matter\base {
 			}
 
 			if (!empty($actions)) {
-				if (!isset($actions[$actSchmId]) {
+				if (!isset($actions[$actSchmId])) {
 					return new \ResponseError('指定的行动项不匹配或不存在！');
 				}
 				foreach ($actions[$actSchmId]->checkSchemas as $acSchm) {
@@ -103,6 +103,7 @@ class task extends \pl\fe\matter\base {
 		}
 		$oResult = $modelTsk->listSchema($oApp, $checkSchmId, $taskSchmId, $actSchmId, $aOptions);
 
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 更新任务

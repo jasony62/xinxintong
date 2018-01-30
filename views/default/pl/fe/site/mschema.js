@@ -36,7 +36,7 @@ define(['require', 'mschemaService'], function(require) {
         srvSiteProvider.config(siteId);
         srvMschemaProvider.config(siteId);
     }]);
-    ngApp.controller('ctrlMschema', ['$scope', 'srvSite', 'srvMschema', function($scope, srvSite, srvMschema) {
+    ngApp.controller('ctrlMschema', ['$scope', 'http2', 'srvSite', 'srvMschema', function($scope, http2, srvSite, srvMschema) {
         function shiftAttr(oSchema) {
             oSchema.attrs = {
                 mobile: oSchema.attr_mobile.split(''),
@@ -57,13 +57,15 @@ define(['require', 'mschemaService'], function(require) {
         };
         $scope.delSchema = function() {
             var url, schema;
-            schema = $scope.choosedSchema;
-            url = '/rest/pl/fe/site/member/schema/delete?site=' + $scope.site.id + '&id=' + schema.id;
-            http2.get(url, function(rsp) {
-                var i = $scope.schemas.indexOf(schema);
-                $scope.schemas.splice(i, 1);
-                $scope.choosedSchema = null;
-            });
+            if (window.confirm('确认删除通讯录？')) {
+                schema = $scope.choosedSchema;
+                url = '/rest/pl/fe/site/member/schema/delete?site=' + $scope.site.id + '&id=' + schema.id;
+                http2.get(url, function(rsp) {
+                    var i = $scope.schemas.indexOf(schema);
+                    $scope.schemas.splice(i, 1);
+                    $scope.choosedSchema = null;
+                });
+            }
         };
         srvSite.get().then(function(oSite) {
             var entryMschemaId;

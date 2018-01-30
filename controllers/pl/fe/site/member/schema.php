@@ -246,11 +246,6 @@ class schema extends \pl\fe\base {
 			case 'extAttrs':
 				$oUpdated->ext_attrs = $modelMs->escape($modelMs->toJson($val));
 				break;
-			case 'entry_statement':
-			case 'acl_statement':
-			case 'notpass_statement':
-				$oUpdated->{$prop} = $modelMs->escape(urldecode($val));
-				break;
 			case 'extattr':
 				foreach ($val as $attr) {
 					$attr->id = urlencode($attr->id);
@@ -296,7 +291,53 @@ class schema extends \pl\fe\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$rst = $this->model()->delete('xxt_site_member_schema', "siteid='$this->siteId' and id='$id' and used=0");
+		$id = $this->escape($id);
+		$modelMs = $this->model('site\user\memberschema');
+		$oMschema = $modelMs->byId($id);
+		if (false === $oMschema) {
+			return new \ObjectNotFoundError();
+		}
+		$oMschema->type = 'memberschema';
+
+		/* 更新项目关联信息 */
+		if ($oMschema->matter_type === 'mission' && !empty($oMschema->matter_id)) {
+			$this->model('matter\mission')->removeMatter($oMschema->matter_id, $oMschema);
+		}
+
+		$q = ['count(*)', 'xxt_site_member', ['schema_id' => $oMschema->id]];
+		if ((int) $modelMs->query_val_ss($q)) {
+			$rst = $modelMs->update(
+				'xxt_site_member_schema',
+				['valid' => 'N'],
+				['id' => $oMschema->id]
+			);
+			$this->model('matter\log')->matterOp($oMschema->siteid, $oUser, $oMschema, 'Recycle');
+		} else {
+			$rst = $modelMs->delete(
+				'xxt_site_member_invite',
+				['schema_id' => $oMschema->id]
+			);
+			$rst = $modelMs->delete(
+				'xxt_site_member_schema',
+				['id' => $oMschema->id]
+			);
+			$this->model('matter\log')->matterOp($oMschema->siteid, $oUser, $oMschema, 'D');
+		}
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复停用的通讯录
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$modelMs = $this->model('site\user\memberschema');
+		if (false === ($oMschema = $modelMs->byId($id))) {
+			return new \ObjectNotFoundError('数据已经被彻底删除，无法恢复');
+		}
+		$rst = $modelMs->restore($oUser, $oMschema);
 
 		return new \ResponseData($rst);
 	}

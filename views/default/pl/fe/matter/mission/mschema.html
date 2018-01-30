@@ -8,9 +8,6 @@
                 <select class='form-control' ng-options="mschema.title for mschema in mschemas" ng-model="selected.mschema" ng-change="chooseMschema()"></select>
                 <div class='input-group-btn'>
                     <a class='btn btn-default' href="/rest/pl/fe/site/mschema?site={{selected.mschema.siteid}}#{{selected.mschema.id}}" target='_self'><span class='glyphicon glyphicon-edit'></span></a>
-                    <button class="btn btn-default" ng-click='removeMschema()'>
-                        <span class="glyphicon glyphicon-remove"></span>
-                    </button>
                 </div>
             </div>
             <div class='form-group'>

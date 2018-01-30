@@ -385,7 +385,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('frameState.sid', function(siteId) {
             if (siteId) {
-                http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId, function(rsp) {
+                http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId + '&valid=Y', function(rsp) {
                     $scope.mschemas = rsp.data;
                     if ($scope.mschemas.length) {
                         if ($location.search().mschema) {
@@ -597,11 +597,19 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/site?site=' + site.id;
             })
         };
-        $scope.restoreMatter = function(matter) {
-            var url = '/rest/pl/fe/matter/' + matter.matter_type + '/restore' + '?site=' + matter.siteid + '&id=' + matter.matter_id;
-            http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?site=' + matter.siteid + '&id=' + matter.matter_id;
-            });
+        $scope.restoreMatter = function(oMatter) {
+            var url;
+            if (oMatter.matter_type === 'memberschema') {
+                url = '/rest/pl/fe/site/member/schema/restore' + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
+                http2.get(url, function(rsp) {
+                    location.href = '/rest/pl/fe/site/mschema?site=' + oMatter.siteid + '#' + oMatter.matter_id;
+                });
+            } else {
+                url = '/rest/pl/fe/matter/' + oMatter.matter_type + '/restore' + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
+                http2.get(url, function(rsp) {
+                    location.href = '/rest/pl/fe/matter/' + oMatter.matter_type + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
+                });
+            }
         };
         $scope.list();
     }]);

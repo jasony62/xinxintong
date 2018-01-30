@@ -159,6 +159,30 @@ class memberschema_model extends \TMS_MODEL {
 		return $oNewMschema;
 	}
 	/**
+	 * 恢复被删除的素材
+	 */
+	public function restore($oUser, $oMschema) {
+		/* 恢复数据 */
+		$rst = $this->update(
+			'xxt_site_member_schema',
+			['valid' => 'Y'],
+			["id" => $oMschema->id]
+		);
+
+		$oMschema->type = 'memberschema';
+
+		/* 记录和项目的关系 */
+		if (isset($oMschema->matter_type) && $oMschema->matter_type === 'mission' && !empty($oMschema->matter_id)) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($oUser, $oMschema->siteid, $oMschema->matter_id, $oMschema);
+		}
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($oMschema->siteid, $oUser, $oMschema, 'Restore');
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 通讯录概况
 	 */
 	public function overview($schemaId) {

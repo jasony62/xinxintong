@@ -49,26 +49,6 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.removeMschema = function() {
-            var url;
-            if (window.confirm('确认删除通讯录？')) {
-                url = '/rest/pl/fe/site/member/schema/update?site=' + $scope.mission.siteid + '&id=' + selected.mschema.id;
-                http2.post(url, { valid: 'N' }, function(rsp) {
-                    var index;
-                    index = $scope.mschemas.indexOf(selected.mschema);
-                    $scope.mschemas.splice(index, 1);
-                    if ($scope.mschemas.length) {
-                        selected.mschema = index === 0 ? $scope.mschemas[0] : $scope.mschemas[index - 1];
-                        $scope.chooseMschema();
-                    } else {
-                        $scope.members = [];
-                        $scope.page.at = 1;
-                        $scope.page.total = 0;
-                        $scope.invites = [];
-                    }
-                });
-            }
-        };
         $scope.doSearch = function(page) {
             page && ($scope.page.at = page);
             var url, filter = '';

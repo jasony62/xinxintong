@@ -283,10 +283,10 @@ class mission_model extends app_base {
 	/**
 	 * 从项目中删除素材
 	 */
-	public function removeMatter($matterId, $matterType) {
+	public function removeMatter($missionId, $oMatter) {
 		$rst = $this->delete(
 			'xxt_mission_matter',
-			['matter_id' => $matterId, 'matter_type' => $matterType]
+			['mission_id' => $missionId, 'matter_id' => $oMatter->id, 'matter_type' => $oMatter->type]
 		);
 
 		return $rst;

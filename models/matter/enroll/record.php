@@ -1080,7 +1080,7 @@ class record_model extends record_base {
 	/**
 	 * 计算指定登记项所有记录的合计
 	 */
-	public function sum4Schema($oApp, $rid = 'ALL') {
+	public function sum4Schema($oApp, $rid = 'ALL', $gid = '') {
 		if (empty($oApp->dataSchemas)) {
 			return false;
 		}
@@ -1108,6 +1108,9 @@ class record_model extends record_base {
 						}
 					}
 				}
+				if (!empty($gid)) {
+					$q[2]['gid'] = $gid;
+				}
 
 				$sum = (float) $this->query_val_ss($q);
 				$sum = number_format($sum, 2, '.', '');
@@ -1120,7 +1123,7 @@ class record_model extends record_base {
 	/**
 	 * 计算指定登记项所有记录的合计
 	 */
-	public function score4Schema($oApp, $rid = 'ALL') {
+	public function score4Schema($oApp, $rid = 'ALL', $gid = '') {
 		if (empty($oApp->data_schemas)) {
 			return false;
 		}
@@ -1147,6 +1150,9 @@ class record_model extends record_base {
 							$q[2]['rid'] = $rid;
 						}
 					}
+				}
+				if (!empty($gid)) {
+					$q[2]['gid'] = $gid;
 				}
 
 				$sum = (float) $this->query_val_ss($q);

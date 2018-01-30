@@ -1,6 +1,6 @@
 define(['require', 'schema', 'planService'], function(require, schemaLib) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll', 'sys.chart']);
     ngApp.constant('CstApp', {
         bornMode: {
             'A': { l: '组织者指定统一时间' },
@@ -56,6 +56,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             .when('/rest/pl/fe/matter/plan/invite', new RouteParam('invite', '/views/default/pl/fe/_module/'))
             .when('/rest/pl/fe/matter/plan/coin', new RouteParam('coin'))
             .when('/rest/pl/fe/matter/plan/log', new RouteParam('log'))
+            .when('/rest/pl/fe/matter/plan/stat', new RouteParam('stat'))
             .otherwise(new RouteParam('main'));
 
         $locationProvider.html5Mode(true);
@@ -89,6 +90,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
                 case 'task':
                 case 'user':
                 case 'log':
+                case 'stat':
                     $scope.opened = 'data';
                     break;
                 case 'coin':

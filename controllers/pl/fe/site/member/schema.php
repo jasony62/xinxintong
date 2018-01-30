@@ -253,12 +253,6 @@ class schema extends \pl\fe\base {
 				}
 				$oUpdated->extattr = urldecode(json_encode($oPosted->extattr));
 				break;
-			case 'type':
-				$oUpdated->type = $val;
-				if ($val === 'inner') {
-					$oUpdated->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
-				}
-				break;
 			case 'qy_ab':
 				$oUpdated->qy_ab = $val;
 				/* 将同一个站点下的其他通讯录设置为非企业号通讯录 */
@@ -278,7 +272,6 @@ class schema extends \pl\fe\base {
 
 		/* 更新项目关联信息 */
 		if ($oMschema->matter_type === 'mission') {
-			$oMschema->type = 'memberschema';
 			$this->model('matter\mission')->updateMatter($oMschema->matter_id, $oMschema);
 		}
 
@@ -297,7 +290,6 @@ class schema extends \pl\fe\base {
 		if (false === $oMschema) {
 			return new \ObjectNotFoundError();
 		}
-		$oMschema->type = 'memberschema';
 
 		/* 更新项目关联信息 */
 		if ($oMschema->matter_type === 'mission' && !empty($oMschema->matter_id)) {

@@ -18,12 +18,6 @@
                         </div>
                     </div>
                     <div class='form-group hide'>
-                        <select class='form-control' title='类型' ng-model='choosedSchema.type' ng-change="updSchema('type')">
-                            <option value='inner'>内置</option>
-                            <option value='cus'>自定义</option>
-                        </select>
-                    </div>
-                    <div class='form-group hide'>
                         <select class='form-control' title='数据有效期' ng-model='choosedSchema.validity' ng-options='d.v as d.n for d in days' ng-change="updSchema('validity')"></select>
                     </div>
                     <div class='form-group'>

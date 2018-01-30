@@ -18,6 +18,7 @@ class memberschema_model extends \TMS_MODEL {
 		if (count($schemas)) {
 			//$modelCp = $this->model('code\page');
 			foreach ($schemas as $oSchema) {
+				$oSchema->type = 'memberschema';
 				$oAttrs = new \stdClass;
 				foreach (['name', 'mobile', 'email'] as $prop) {
 					if (isset($oSchema->{'attr_' . $prop})) {
@@ -30,10 +31,8 @@ class memberschema_model extends \TMS_MODEL {
 					}
 				}
 				$oSchema->attrs = $oAttrs;
-				if (isset($oSchema->type) && $oSchema->type === 'inner') {
-					if (isset($oSchema->siteid) && isset($oSchema->id)) {
-						$oSchema->fullUrl = 'http://' . APP_HTTP_HOST . $oSchema->url . '?site=' . $oSchema->siteid . '&schema=' . $oSchema->id;
-					}
+				if (property_exists($oSchema, 'url') && isset($oSchema->siteid) && isset($oSchema->id)) {
+					$oSchema->fullUrl = 'http://' . APP_HTTP_HOST . $oSchema->url . '?site=' . $oSchema->siteid . '&schema=' . $oSchema->id;
 				}
 				if (property_exists($oSchema, 'ext_attrs')) {
 					$oSchema->extAttrs = empty($oSchema->ext_attrs) ? [] : json_decode($oSchema->ext_attrs);
@@ -94,7 +93,7 @@ class memberschema_model extends \TMS_MODEL {
 	/**
 	 * 自定义用户信息
 	 */
-	public function &byId($id, $aOptions = []) {
+	public function byId($id, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 
@@ -117,7 +116,6 @@ class memberschema_model extends \TMS_MODEL {
 		$oNewMschema->matter_id = isset($oConfig->matter_id) ? $oConfig->matter_id : '';
 		$oNewMschema->matter_type = isset($oConfig->matter_type) ? $oConfig->matter_type : '';
 		$oNewMschema->title = isset($oConfig->title) ? $this->escape($oConfig->title) : '新通讯录';
-		$oNewMschema->type = 'inner';
 		$oNewMschema->valid = (isset($oConfig->valid) && $oConfig->valid === 'Y') ? 'Y' : 'N';
 		$oNewMschema->creater = $oUser->id;
 		$oNewMschema->create_at = time();
@@ -168,8 +166,6 @@ class memberschema_model extends \TMS_MODEL {
 			['valid' => 'Y'],
 			["id" => $oMschema->id]
 		);
-
-		$oMschema->type = 'memberschema';
 
 		/* 记录和项目的关系 */
 		if (isset($oMschema->matter_type) && $oMschema->matter_type === 'mission' && !empty($oMschema->matter_id)) {

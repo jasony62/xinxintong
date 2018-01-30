@@ -141,7 +141,7 @@ class task extends \pl\fe\matter\base {
 						$aUpdated['comment'] = $modelApp->escape($val);
 						break;
 					case 'data':
-						$data = $this->updateUserTask($oTask->task_schema_id, $oApp, $oTask, $val);
+						$data = $this->updateUserTask($oApp, $oTask, $val);
 						$aUpdated['data'] = $modelApp->escape($modelApp->toJson($data->oCheckData));
 						$aUpdated['score'] = $modelApp->escape($modelApp->toJson($data->oScoreData));
 						break;
@@ -163,8 +163,9 @@ class task extends \pl\fe\matter\base {
 	/*
 	* 修改用户任务
 	*/
-	private function updateUserTask($taskSchmId, $oApp, $oTask, $data) {
+	private function updateUserTask($oApp, $oTask, $data) {
 		$modelSchTsk = $this->model('matter\plan\schema\task');
+		$taskSchmId = $oTask->task_schema_id;
 		$oTaskSchema = $modelSchTsk->byId($taskSchmId, ['fields' => 'id,siteid,aid,title,task_seq,born_mode,born_offset,auto_verify,can_patch']);
 		if (false === $oTaskSchema) {
 			return new \ObjectNotFoundError();

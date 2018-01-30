@@ -31,7 +31,7 @@ class action_model extends \TMS_MODEL {
 				[
 					'id,enroll_at,value,modify_log',
 					'xxt_plan_task_action',
-					['userid' => $oUser->uid, 'task_id' => $oUsrTask->id, 'action_schema_id' => $oAction->id, 'check_schema_id' => $schemaId, 'state' => 1],
+					['userid' => $oUsrTask->userid, 'task_id' => $oUsrTask->id, 'action_schema_id' => $oAction->id, 'check_schema_id' => $schemaId, 'state' => 1],
 				]
 			);
 			if (isset($schemasById[$schemaId])) {
@@ -114,7 +114,6 @@ class action_model extends \TMS_MODEL {
 						$aValueModifyLogs[] = $oNewModifyLog;
 						$aSchemaValue = [
 							'enroll_at' => $oUsrTask->last_enroll_at,
-							'userid' => isset($oUser->uid) ? $oUser->uid : '',
 							'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 							'value' => $this->escape($treatedValue),
 							'modify_log' => $this->toJson($aValueModifyLogs),
@@ -125,7 +124,7 @@ class action_model extends \TMS_MODEL {
 						$this->update(
 							'xxt_plan_task_action',
 							$aSchemaValue,
-							['userid' => $oUser->uid, 'task_id' => $oUsrTask->id, 'action_schema_id' => $oAction->id, 'check_schema_id' => $schemaId, 'state' => 1]
+							['userid' => $oUsrTask->userid, 'task_id' => $oUsrTask->id, 'action_schema_id' => $oAction->id, 'check_schema_id' => $schemaId, 'state' => 1]
 						);
 					}
 				}

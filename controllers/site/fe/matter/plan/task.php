@@ -96,10 +96,10 @@ class task extends base {
 	 * 提交任务数据
 	 */
 	public function submit_action($task) {
-		$task = $this->escape($task);
+		$taskSchmId = $this->escape($task);
 		$modelSchTsk = $this->model('matter\plan\schema\task');
 
-		$oTaskSchema = $modelSchTsk->byId($task, ['fields' => 'id,siteid,aid,title,task_seq,born_mode,born_offset,auto_verify,can_patch']);
+		$oTaskSchema = $modelSchTsk->byId($taskSchmId, ['fields' => 'id,siteid,aid,title,task_seq,born_mode,born_offset,auto_verify,can_patch']);
 		if (false === $oTaskSchema) {
 			return new \ObjectNotFoundError();
 		}
@@ -205,7 +205,7 @@ class task extends base {
 		/* 记录操作日志 */
 		$operation = new \stdClass;
 		$operation->name = $bNewTask ? 'submit' : 'updateData';
-		$oCheckData->task_schema_id = $task;
+		$oCheckData->task_schema_id = $taskSchmId;
 		$operation->data = $oCheckData;
 		$this->_logUserOp($oApp, $operation, $oUser);
 

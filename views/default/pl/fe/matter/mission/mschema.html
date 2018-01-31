@@ -51,6 +51,9 @@
                         <td ng-if="!selected.mschema.attrs.mobile.hide">{{m.mobile}}</td>
                         <td ng-if="!selected.mschema.attrs.email.hide">{{m.email}}</td>
                         <td ng-repeat='ea in selected.mschema.extAttrs' ng-switch on="ea.type">
+                            <div ng-switch-when="date">
+                                <span ng-if="m._extattr[ea.id]">{{m._extattr[ea.id]*1000|date:'yy-MM-dd HH:mm'}}</span>
+                            </div>
                             <div ng-switch-when="image">
                                 <div ng-repeat="img in m._extattr[ea.id]"><img ng-src="{{img.imgSrc}}"></div>
                             </div>

@@ -1,4 +1,5 @@
 'use strict';
+require('../matter/enroll/directive.css');
 require('./member.css');
 require('../../../../../asset/js/xxt.ui.notice.js');
 require('../../../../../asset/js/xxt.ui.http.js');

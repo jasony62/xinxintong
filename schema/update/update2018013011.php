@@ -5,7 +5,7 @@ $sqls = array();
 /**
  * 项目中的推荐内容
  */
-$sql = "create table if not exists xxt_pal_task_stat(";
+$sql = "create table if not exists xxt_plan_task_stat(";
 $sql .= "siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",task_schema_id int not null default 0";

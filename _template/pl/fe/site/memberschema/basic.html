@@ -85,25 +85,25 @@
                 <input type='text' required="" ng-model="member.email" class='form-control'>
             </div>
         </div>
-        <div class='form-group' ng-repeat="schema in schema.extAttrs" ng-switch on="schema.type">
-            <label ng-bind="schema.title" ng-if="schema.type!=='html'"></label>
-            <input type='text' class='form-control' ng-model="member.extattr[schema.id]" ng-switch-when="shorttext">
-            <textarea class="form-control" ng-model="member.extattr[schema.id]" rows="3" ng-switch-when="longtext"></textarea>
+        <div class='form-group' ng-repeat="ea in schema.extAttrs" ng-switch on="ea.type">
+            <label ng-bind="ea.title" ng-if="ea.type!=='html'"></label>
+            <input type='text' class='form-control' ng-model="member.extattr[ea.id]" ng-switch-when="shorttext">
+            <textarea class="form-control" ng-model="member.extattr[ea.id]" rows="3" ng-switch-when="longtext"></textarea>
             <ul ng-switch-when="single">
-                <li class="radio" ng-repeat="op in schema.ops">
+                <li class="radio" ng-repeat="op in ea.ops">
                     <label>
-                        <input type="radio" name="{{action.id+'_'+schema.id}}" value="{{op.v}}" ng-model="member.extattr[schema.id]"><span>{{op.l}}</span></label>
+                        <input type="radio" name="{{action.id+'_'+ea.id}}" value="{{op.v}}" ng-model="member.extattr[ea.id]"><span>{{op.l}}</span></label>
                 </li>
             </ul>
             <ul ng-switch-when="multiple">
-                <li class="checkbox" ng-repeat="op in schema.ops">
+                <li class="checkbox" ng-repeat="op in ea.ops">
                     <label>
-                        <input type="checkbox" ng-model="member.extattr[schema.id][op.v]"><span>{{op.l}}</span></label>
+                        <input type="checkbox" ng-model="member.extattr[ea.id][op.v]"><span>{{op.l}}</span></label>
                 </li>
             </ul>
             <div tms-image-input="Y" ng-switch-when="image">
-                <ul class="img-tiles clearfix" name="{{action.id+'.'+schema.id}}">
-                    <li wrap="img" ng-repeat="img in member.extattr[schema.id]" class="img-thumbnail">
+                <ul class="img-tiles clearfix" name="{{action.id+'.'+ea.id}}">
+                    <li wrap="img" ng-repeat="img in member.extattr[ea.id]" class="img-thumbnail">
                         <img flex-img>
                         <button class="btn btn-default btn-xs" ng-click="removeImage(action,schema,$index)"><span class="glyphicon glyphicon-remove"></span></button>
                     </li>
@@ -114,7 +114,7 @@
                 </ul>
             </div>
             <div ng-switch-when="html">
-                <div ng-bind-html="schema.content"></div>
+                <div ng-bind-html="ea.content"></div>
             </div>
         </div>
         <div class='form-group' ng-if="!member.id&&schema.require_invite==='Y'">

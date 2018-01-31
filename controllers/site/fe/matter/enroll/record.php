@@ -707,18 +707,26 @@ class record extends base {
 
 		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,data_tag,score,like_num,like_log,remark_num';
 
-		$oUser = $this->who;
-
 		if (empty($ek) && $loadLast === 'Y') {
+			$oUser = $this->who;
 			$oRecord = $modelRec->lastByUser($oApp, $oUser, ['verbose' => 'Y', 'fields' => $fields]);
+			if (false === $oRecord || $oRecord->state !== '1') {
+				$oRecord = new \stdClass;
+			}
 		} else {
 			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
+			$oUser = new \stdClass;
+			if (false === $oRecord || $oRecord->state !== '1') {
+				$oRecord = new \stdClass;
+			} else {
+				if (!empty($oRecord->userid)) {
+					$oUser->uid = $oRecord->userid;
+				}
+			}
 		}
-		if (false === $oRecord || $oRecord->state !== '1') {
-			$oRecord = new \stdClass;
-		}
+
 		/* 返回当前用户在关联活动中填写的数据 */
-		if (!empty($oApp->enroll_app_id)) {
+		if (!empty($oApp->enroll_app_id) && !empty($oUser->uid)) {
 			$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
 			if ($oAssocApp) {
 				$oAssocRec = $modelRec->byUser($oAssocApp, $oUser);
@@ -735,7 +743,7 @@ class record extends base {
 				}
 			}
 		}
-		if (!empty($oApp->group_app_id)) {
+		if (!empty($oApp->group_app_id) && !empty($oUser->uid)) {
 			$oGrpApp = $this->model('matter\group')->byId($oApp->group_app_id, ['cascaded' => 'N']);
 			$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
 			if (count($oGrpPlayer) === 1) {

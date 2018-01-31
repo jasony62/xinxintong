@@ -615,8 +615,7 @@ class task_model extends \TMS_MODEL {
 			$result = $this->_calcStat($oApp,$taskSchmId, $actSchmId);
 		}
 
-		$data = [true, $result];
-		return $data;
+		return $result;
 	}
 	/**
 	 * 统计选择题、记分题汇总信息

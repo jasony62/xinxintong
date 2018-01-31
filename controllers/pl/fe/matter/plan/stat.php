@@ -46,11 +46,8 @@ class stat extends \pl\fe\matter\base {
 		}
 
 		$result = $this->model('matter\plan\task')->getStat($oApp, $taskSchmId, $actSchmId, $renewCache);
-		if ($result[0] === false) {
-			return new \ResponseError($result[1]);
-		}
 
-		return new \ResponseData($result[1]);
+		return new \ResponseData($result);
 	}
 	/*
 	* 获取活动所有的题目

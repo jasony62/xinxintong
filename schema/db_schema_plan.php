@@ -129,7 +129,7 @@ $sqls[] = $sql;
 /**
  * 自定义登记数据统计
  */
-$sql = "create table if not exists xxt_enroll_plan_stat(";
+$sql = "create table if not exists xxt_pal_task_stat(";
 $sql .= "siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",task_schema_id int not null default 0";

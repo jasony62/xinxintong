@@ -118,8 +118,8 @@ define(['frame'], function(ngApp) {
                 if (requireGet) {
                     url = '/rest/pl/fe/matter/plan/task/listSchema';
                     url += '?app=' + $scope.app.id + '&checkSchmId=' + schema.id;
-                    url += '&taskSchmId=' + (oApp.rpConfig.taskSchemaId ? oApp.rpConfig.taskSchemaId : '');
-                    url += '&actSchmId=' + (oApp.rpConfig.actSchemaId ? oApp.rpConfig.actSchemaId : '');
+                    url += '&taskSchmId=' + ($scope.app.rpConfig.taskSchemaId ? $scope.app.rpConfig.taskSchemaId : '');
+                    url += '&actSchmId=' + ($scope.app.rpConfig.actSchemaId ? $scope.app.rpConfig.actSchemaId : '');
                     url += '&page=' + page.at + '&size=' + page.size;
                     cached._running = true;
                     http2.get(url, function(rsp) {
@@ -148,9 +148,12 @@ define(['frame'], function(ngApp) {
             $uibModal.open({
                 templateUrl: 'config.html',
                 controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
-                    var oApp, oData, marks, markSchemas, oPlConfig, oOpConfig, oTaskSchemaId, oActSchemaId;
+                    var oApp, oData, marks, markSchemas, oPlConfig, oOpConfig, oFilter,
+                        _oTasks = {},
+                        _oActions = {};
                     oApp = $scope.app;
-                    oData = $scope.data;
+                    $scope2.data = oData = $scope.data;
+                    $scope2.filter = oFilter = {};
                     marks = oApp.rpConfig.marks ? oApp.rpConfig.marks : [];
                     oPlConfig = oApp.rpConfig.pl ? oApp.rpConfig.pl : {
                         number: 'Y',
@@ -164,8 +167,6 @@ define(['frame'], function(ngApp) {
                         label: 'number',
                         exclude: []
                     };
-                    oTaskSchemaId = oApp.rpConfig.taskSchemaId ? oApp.rpConfig.taskSchemaId : '';
-                    oActSchemaId = oApp.rpConfig.actSchemaId ? oApp.rpConfig.actSchemaId : '';
                     $scope2.dataSchemas = oApp._schemasForInput;
                     // 标识项
                     markSchemas = [];
@@ -208,25 +209,29 @@ define(['frame'], function(ngApp) {
                     marks.forEach(function(item, index) {
                         $scope2.markRows.selected[item.id] = true;
                     });
-                    $scope2.taskSchemaId = oTaskSchemaId;
-                    $scope2.tasks = oData.taskSchemas;
-                    $scope2.actSchemaId = oActSchemaId;
-                    $scope2.doTasks = function(taskId) {
-                        oData.taskSchemas.forEach(function(task) {
-                            if(task.id == taskId) {
-                                $scope2.actions = task.actions;
-                                if (task.checkSchemas && task.checkSchemas.length) {
-                                    $scope2.appMarkSchemas = [].concat($scope2.appMarkSchemas, task.checkSchemas);
-                                }
+                    if(oData.taskSchemas) {
+                        oFilter.taskSchemaId = oApp.rpConfig.taskSchemaId ? oApp.rpConfig.taskSchemaId : oData.taskSchemas[0].id;
+                        oFilter.actSchemaId = oApp.rpConfig.actSchemaId ? oApp.rpConfig.actSchemaId : oData.taskSchemas[0].actions[0].id;
+                        oData.taskSchemas.forEach(function(item, index){
+                            _oTasks[item.id] = item;
+                            item.actions.forEach(function(action, index) {
+                                _oActions[action.id] = action;
+                            });
+                        });
+                        $scope2.tasks = _oTasks;
+                    }
+                    $scope2.$watch('filter.actSchemaId', function(nv) {
+                        if(!nv) return;
+                        $scope2.appMarkSchemas = angular.copy(markSchemas);
+                        _oActions[nv].checkSchemas.forEach(function(action) {
+                            if (/shorttext/.test(action.type)) {
+                                $scope2.appMarkSchemas.push(action);
                             }
                         });
-                    };
-                    $scope2.doActions = function(actionId) {
-
-                    };
+                    });
                     $scope2.ok = function() {
                         var oResult, schemaId;
-                        oResult = { marks: [], pl: oPlConfig, op: oOpConfig };
+                        oResult = { marks: [], pl: oPlConfig, op: oOpConfig, taskSchemaId: oFilter.taskSchemaId, actSchemaId: oFilter.actSchemaId};
                         oPlConfig.exclude = [];
                         for (schemaId in $scope2.plExcludeRows.selected) {
                             if ($scope2.plExcludeRows.selected[schemaId]) {
@@ -240,7 +245,7 @@ define(['frame'], function(ngApp) {
                             }
                         }
                         if (Object.keys($scope2.markRows.selected).length) {
-                            markSchemas.forEach(function(oSchema) {
+                            $scope2.appMarkSchemas.forEach(function(oSchema) {
                                 if ($scope2.markRows.selected[oSchema.id]) {
                                     oResult.marks.push({ id: oSchema.id, title: oSchema.title });
                                 }

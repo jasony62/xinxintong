@@ -56,7 +56,11 @@ class plan_model extends app_base {
 			}
 			/* entry rule */
 			if (property_exists($oMatter, 'rp_config')) {
-				$oMatter->rpConfig = $oMatter->rp_config;
+				if (!empty($oMatter->rp_config)) {
+					$oMatter->rpConfig = json_decode($oMatter->rp_config);
+				} else {
+					$oMatter->rpConfig = new \stdClass;
+				}
 				unset($oMatter->rp_config);
 			}
 		}

@@ -660,7 +660,7 @@ class task_model extends \TMS_MODEL {
 					$q = [
 						'count(*)',
 						'xxt_plan_task_action',
-						"aid='$oApp->id' and state=1 and schema_id='{$oSchema->id}' and FIND_IN_SET('{$op->v}', value)",
+						"aid='$oApp->id' and state=1 and check_schema_id='{$oSchema->id}' and FIND_IN_SET('{$op->v}', value)",
 					];
 					if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
 						$q[2]['task_schema_id'] = $taskSchmId;
@@ -681,7 +681,7 @@ class task_model extends \TMS_MODEL {
 				$q = [
 					'value',
 					'xxt_plan_task_action',
-					['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oSchema->id],
+					['aid' => $oApp->id, 'state' => 1, 'check_schema_id' => $oSchema->id],
 				];
 				if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
 					$q[2]['task_schema_id'] = $taskSchmId;

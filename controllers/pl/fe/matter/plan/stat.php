@@ -65,6 +65,15 @@ class stat extends \pl\fe\matter\base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		
+		$oApp = $this->disposeApp($oApp, $taskSchmId, $actSchmId);
+
+		return new \ResponseData($oApp);
+	}
+	/*
+	* 处理指定任务行动项以后的全局题目
+	*/
+	private function disposeApp(&$oApp, $taskSchmId, $actSchmId) {
 		/*包含的所有任务*/
 		$modelTkSchm = $this->model('matter\plan\schema\task');
 		$modelActSchm = $this->model('matter\plan\schema\action');
@@ -87,7 +96,7 @@ class stat extends \pl\fe\matter\base {
 		}
 		$oApp->taskSchemas = $oTaskSchms;
 
-		return new \ResponseData($oApp);
+		return $oApp;
 	}
 	/**
 	 * 单选题的饼图图表
@@ -212,7 +221,7 @@ class stat extends \pl\fe\matter\base {
 	/*
 	 * 导出报告
 	 */
-	public function export_action($site, $app, $taskSchmId = '', $actSchmId = '') {
+	public function export_action($site, $app) {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -221,14 +230,14 @@ class stat extends \pl\fe\matter\base {
 		if (false === $oSite) {
 			return new \ObjectNotFoundError();
 		}
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$oApp = $this->model('matter\plan')->byId($app);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
 
-		if (defined('SAE_TMP_PATH')) {
-			$this->_saeExport($oApp, $rid);
-		}
+		// if (defined('SAE_TMP_PATH')) {
+		// 	$this->_saeExport($oApp, $rid);
+		// }
 
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph.php';
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_bar.php';
@@ -242,16 +251,27 @@ class stat extends \pl\fe\matter\base {
 		} else {
 			$aExcludeSchemaIds = [];
 		}
+
+		if (!empty($oApp->rpConfig->taskSchemaId) && !empty($oApp->rpConfig->actSchemaId)) {
+			$taskSchmId = $oApp->rpConfig->taskSchemaId;
+			$actSchmId = $oApp->rpConfig->actSchemaId;
+		} else {
+			$taskSchmId = '';
+			$actSchmId = '';
+		}
+		// 处理活动数据
+		$oApp = $this->disposeApp($oApp, $taskSchmId, $actSchmId);
+
 		$schemas = [];
 		$schemasById = [];
-		foreach ($oApp->dataSchemas as $oSchema) {
+		foreach ($oApp->checkSchemas as $oSchema) {
 			if (!in_array($oSchema->id, $aExcludeSchemaIds) && $oSchema->type !== 'html') {
 				$schemas[] = $oSchema;
 				$schemasById[$oSchema->id] = $oSchema;
 			}
 		}
 
-		$aStatResult = $this->model('matter\enroll\record')->getStat($oApp, $rid);
+		$aStatResult = $this->model('matter\plan\task')->getStat($oApp, $taskSchmId, $actSchmId);
 
 		$phpWord = new \PhpOffice\PhpWord\PhpWord();
 		$phpWord->setDefaultFontName('Times New Roman');
@@ -263,7 +283,7 @@ class stat extends \pl\fe\matter\base {
 		$footer->addPreserveText('Page {PAGE} of {NUMPAGES}.', null, ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
 
 		$mappingOfImages = [];
-		$modelRec = $this->model('matter\enroll\record');
+		$modelRec = $this->model('matter\plan\task');
 
 		$scoreSummary = []; //所有打分题汇总数据
 		$totalScoreSummary = 0; //所有打分题的平局分合计
@@ -304,7 +324,7 @@ class stat extends \pl\fe\matter\base {
 			$section->addTextBreak(1, null, null);
 
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext', 'multitext', 'member'])) {
-				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
+				$textResult = $modelRec->listSchema($oApp, $schema->id, $taskSchmId, $actSchmId);
 				if (!empty($textResult->records)) {
 					//拼装表格
 					$records = $textResult->records;
@@ -362,15 +382,15 @@ class stat extends \pl\fe\matter\base {
 							foreach ($rpConfig->marks as $mark) {
 								if ($schema->id !== $mark->id) {
 									if ($mark->id === 'nickname') {
-										if (strpos($record->nickname, '&') === false) {
-											$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($record->nickname, $cellTextStyle);
+										if (strpos($record->task->nickname, '&') === false) {
+											$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($record->task->nickname, $cellTextStyle);
 										} else {
-											$recordNickname = str_replace(['&'], ['&amp;'], $record->nickname);
+											$recordNickname = str_replace(['&'], ['&amp;'], $record->task->nickname);
 											$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($recordNickname, $cellTextStyle);
 										}
 									} else {
 										$markId = $mark->id;
-										if (isset($record->data->$markId)) {
+										if (isset($record->task->data->$markId)) {
 											if (!isset($schemasById[$mark->id])) {
 												die('标识项是否被隐藏');
 											}
@@ -378,13 +398,13 @@ class stat extends \pl\fe\matter\base {
 											if (in_array($markSchema->type, ['single', 'phase'])) {
 												$label = '';
 												foreach ($markSchema->ops as $op) {
-													if ($op->v === $record->data->$markId) {
+													if ($op->v === $record->task->data->$markId) {
 														$label = $op->l;
 														break;
 													}
 												}
 											} else {
-												$label = $record->data->$markId;
+												$label = $record->task->data->$markId;
 											}
 											if (strpos($label, '&') === false) {
 												$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($label, $cellTextStyle);
@@ -402,38 +422,20 @@ class stat extends \pl\fe\matter\base {
 							//$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($record->nickname);
 						}
 						$schemaId = $schema->id;
-						if (isset($record->data->$schemaId)) {
-							if ($schema->type === 'multitext' && is_array($record->data->$schemaId)) {
-								$mulVals = [];
-								foreach ($record->data->$schemaId as $mv) {
-									$mulVals[] = $mv->value;
-								}
-								$record->data->$schemaId = implode(',', $mulVals);
+						if ($schema->type === 'multitext' && is_array($record->value)) {
+							$mulVals = [];
+							foreach ($record->value as $mv) {
+								$mulVals[] = $mv->value;
 							}
-							if (strpos($record->data->$schemaId, '&') === false) {
-								$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($record->data->$schemaId, $cellTextStyle);
-							} else {
-								$recDataSch = str_replace(['&'], ['&amp;'], $record->data->$schemaId);
-								$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($recDataSch, $cellTextStyle);
-							}
-						}  else if ((strpos($schemaId, 'member.') === 0) && isset($record->data->member)) {
-							$mbSchemaId = $schemaId;
-							$mbSchemaIds = explode('.', $mbSchemaId);
-							$mbSchemaId = $mbSchemaIds[1];
-							if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
-								$mbSchemaId = $mbSchemaIds[2];
-								$v = $record->data->member->extattr->{$mbSchemaId};
-							} else {
-								$v = $record->data->member->{$mbSchemaId};
-							}
-							if (strpos($v, '&') !== false) {
-								$v = str_replace(['&'], ['&amp;'], $v);
-							}
-
-							$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($v, $cellTextStyle);
-						} else {
-							$table1->addCell($cell_w2, $fancyTableCellStyle)->addText('');
+							$record->value = implode(',', $mulVals);
 						}
+						if (strpos($record->value, '&') === false) {
+							$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($record->value, $cellTextStyle);
+						} else {
+							$recDataSch = str_replace(['&'], ['&amp;'], $record->value);
+							$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($recDataSch, $cellTextStyle);
+						}
+						
 					}
 					//数值型显示合计
 					if (isset($textResult->sum)) {
@@ -647,7 +649,7 @@ class stat extends \pl\fe\matter\base {
 		foreach ($schemas as $index => $schema) {
 			$html .= "<h3><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext', 'multitext', 'member'])) {
-				$textResult = $modelRec->list4Schema($oApp, $schema->id, ['rid' => $rid]);
+				$textResult = $modelRec->listSchema($oApp, $schema->id, ['rid' => $rid]);
 				if (!empty($textResult->records)) {
 					//拼装表格
 					$records = $textResult->records;

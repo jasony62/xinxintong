@@ -254,6 +254,9 @@ class main extends \pl\fe\matter\main_base {
 			case 'checkSchemas':
 				$oUpdated->check_schemas = $modelApp->escape($modelApp->toJson($v));
 				break;
+			case 'rpConfig':
+				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($v));
+				break;
 			default:
 				$oUpdated->{$n} = $v;
 			}

@@ -403,7 +403,7 @@ class task_model extends \TMS_MODEL {
 	/*
 	*
 	*/
-	public function listSchema($oApp, $checkSchmId, $taskSchmId = '', $actSchmId = '', $options) {
+	public function listSchema($oApp, $checkSchmId, $taskSchmId = '', $actSchmId = '', $options = []) {
 		$checkSchmId = $this->escape($checkSchmId);
 		foreach ($oApp->checkSchemas as $oSchema) {
 			if ($oSchema->id === $checkSchmId) {
@@ -483,7 +483,11 @@ class task_model extends \TMS_MODEL {
 			}
 			foreach ($records as &$record) {
 				$rec = $this->byId($record->task_id, ['fields' => 'id,aid,task_schema_id,task_seq,nickname,data,last_enroll_at']);
-				$rec->data = reset($rec->data);
+				if (empty($actSchmId)) {
+					$rec->data = reset($rec->data);
+				} else {
+					$rec->data = reset($rec->data->$actSchmId);
+				}
 				$record->task = $rec;
 			}
 			$result->records = $records;

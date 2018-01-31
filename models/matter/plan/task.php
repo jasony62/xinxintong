@@ -486,7 +486,7 @@ class task_model extends \TMS_MODEL {
 				if (empty($actSchmId)) {
 					$rec->data = reset($rec->data);
 				} else {
-					$rec->data = reset($rec->data->$actSchmId);
+					$rec->data = $rec->data->$actSchmId;
 				}
 				$record->task = $rec;
 			}

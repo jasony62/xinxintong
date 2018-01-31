@@ -26,7 +26,7 @@ class member extends \site\fe\base {
 		$schema = $this->escape($schema);
 		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'id,siteid,title,valid,is_wx_fan,is_yx_fan,is_qy_fan']);
 		if ($oMschema === false || $oMschema->valid === 'N') {
-			return new \ObjectNotFoundError();
+			die('访问的对象不存在或已不可用');
 		}
 
 		if (!$this->afterSnsOAuth()) {

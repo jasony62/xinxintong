@@ -23,8 +23,8 @@ class memberschema extends \site\fe\base {
 	 *
 	 */
 	public function get_action($schema, $matter = null) {
+		$schema = $this->escape($schema);
 		$modelMs = $this->model('site\user\memberschema');
-		$schema = $modelMs->escape($schema);
 		$oMschema = $modelMs->byId($schema, ['fields' => 'id,title,attr_name,attr_mobile,attr_email,ext_attrs,matter_id,matter_type,require_invite']);
 		if ($oMschema === false) {
 			return new \ResponseError('指定的自定义用户定义不存在');

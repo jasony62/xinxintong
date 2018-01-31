@@ -10,13 +10,9 @@
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
-    <link href="<?php echo auto_version('/views/default/site/fe/user/member.css');?>" rel="stylesheet">
-    <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
 <body ng-cloak class='ng-cloak'>
-    <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind="errmsg" ng-show="errmsg"></div>
-    <div id='infomsg' class='alert alert-success' ng-class="{'active':infomsg}" ng-click="infomsg=''" ng-bind="infomsg" ng-show="infomsg"></div>
     <div class="app">
         <nav class='navbar site-navbar-default navbar-fixed-top'>
             <div class='container-fluid'>
@@ -48,7 +44,140 @@
                         </div>
                     </div>
                 </div>
-                <div dynamic-html="page.html">
+                <div class='col-md-6 col-md-offset-3' ng-if="user">
+                    <div ng-if="!user.loginExpire">
+                        <div class='alert alert-info'>
+                            <span class='glyphicon glyphicon-info-sign'></span> 请注册登录账号或用已有账号登录后，填写【{{schema.title}}】联系人信息。
+                        </div>
+                        <div ng-if="subView==='register'">
+                            <div class='form-group'>
+                                <input type="text" class='form-control' name='uname' placeholder='登录帐号' ng-model="loginUser.uname">
+                                <p class='help-block'>请输入用于注册的手机号或邮箱</p>
+                            </div>
+                            <div class='form-group'>
+                                <input type="text" class='form-control' name='nickname' placeholder='帐号昵称' ng-model="loginUser.nickname">
+                                <p class='help-block'>请输入或确认注册账号的用户昵称</p>
+                            </div>
+                            <div class='form-group'>
+                                <input type='password' class='form-control' name='password' ng-model="loginUser.password" ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'>
+                            </div>
+                            <div class='form-group'>
+                                <input type='password' class='form-control' ng-pattern="repeatPwd" name='password2' ng-model="password2" placeholder='再次输入登录密码'>
+                            </div>
+                            <div class='form-group'>
+                                <button class="btn btn-block btn-success" ng-click='register()'>提交注册信息</button>
+                            </div>
+                            <div class='form-group'>
+                                <button class="btn btn-block btn-default" ng-click="switchSubView('login')">已有登录帐号，去登录</button>
+                            </div>
+                        </div>
+                        <div ng-if="subView==='login'">
+                            <div class='form-group'>
+                                <input type="text" class='form-control' name='uname' placeholder='输入用于登录的帐号名' ng-model="loginUser.uname">
+                            </div>
+                            <div class='form-group'>
+                                <input type='password' class='form-control' name='password' ng-model="loginUser.password" ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'>
+                            </div>
+                            <div class="form-group">
+                                <div class='input-group'>
+                                    <input id="pinInput" type="text" class="form-control" name="pin" ng-model="loginUser.pin" placeholder='输入验证码(不区分大小写)' required />
+                                    <div class='input-group-addon' style='padding:0;margin-left:-1px;'>
+                                        <img ng-src="{{pinImg}}" style='width:120px;height:32px' />
+                                    </div>
+                                    <div class='input-group-btn'>
+                                        <button class='btn btn-default' ng-click="refreshPin()"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <button class="btn btn-block btn-success" ng-click="login()">登录</button>
+                            </div>
+                            <div class='form-group'>
+                                <button class="btn btn-block btn-default" ng-click="switchSubView('register')">没有帐号，去注册</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="user.loginExpire">
+                        <div class='alert alert-info' ng-if="!matter">
+                            <span class='glyphicon glyphicon-info-sign'></span> 请填写【{{schema.title}}】联系人信息。
+                        </div>
+                        <div class='alert alert-warning' ng-if="member.verified==='P'">
+                            <span class='glyphicon glyphicon-info-sign'></span> 您提交的信息正在进行审核，请耐心等候，或联系活动组织者。
+                        </div>
+                        <div class='alert alert-warning' ng-if="member.verified==='N'">
+                            <span class='glyphicon glyphicon-info-sign'></span> 您提交的信息未通过审核，请联系活动组织者。
+                        </div>
+                        <div class='form-group' ng-if="!schema.attrs.name.hide">
+                            <div class='input-group'>
+                                <div class='input-group-addon'>
+                                    <div style='width:4em'>姓名</div>
+                                </div>
+                                <input type='text' required="" ng-model="member.name" class='form-control'>
+                            </div>
+                        </div>
+                        <div class='form-group' ng-if="!schema.attrs.mobile.hide">
+                            <div class='input-group'>
+                                <div class='input-group-addon'>
+                                    <div style='width:4em'>手机</div>
+                                </div>
+                                <input type='text' required="" ng-model="member.mobile" class='form-control'>
+                            </div>
+                        </div>
+                        <div class='form-group' ng-if="!schema.attrs.email.hide">
+                            <div class='input-group'>
+                                <div class='input-group-addon'>
+                                    <div style='width:4em'>邮箱</div>
+                                </div>
+                                <input type='text' required="" ng-model="member.email" class='form-control'>
+                            </div>
+                        </div>
+                        <div class='form-group' ng-repeat="ea in schema.extAttrs" ng-switch on="ea.type">
+                            <label ng-bind="ea.title" ng-if="ea.type!=='html'"></label>
+                            <input type='text' class='form-control' ng-model="member.extattr[ea.id]" ng-switch-when="shorttext">
+                            <textarea class="form-control" ng-model="member.extattr[ea.id]" rows="3" ng-switch-when="longtext"></textarea>
+                            <ul ng-switch-when="single">
+                                <li class="radio" ng-repeat="op in ea.ops">
+                                    <label>
+                                        <input type="radio" name="{{action.id+'_'+ea.id}}" value="{{op.v}}" ng-model="member.extattr[ea.id]"><span>{{op.l}}</span></label>
+                                </li>
+                            </ul>
+                            <ul ng-switch-when="multiple">
+                                <li class="checkbox" ng-repeat="op in ea.ops">
+                                    <label>
+                                        <input type="checkbox" ng-model="member.extattr[ea.id][op.v]"><span>{{op.l}}</span></label>
+                                </li>
+                            </ul>
+                            <div tms-image-input="Y" ng-switch-when="image">
+                                <ul class="img-tiles clearfix" name="{{action.id+'.'+ea.id}}">
+                                    <li wrap="img" ng-repeat="img in member.extattr[ea.id]" class="img-thumbnail">
+                                        <img flex-img>
+                                        <button class="btn btn-default btn-xs" ng-click="removeImage(action,schema,$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                                    </li>
+                                    <li class="img-picker">
+                                        <button class="btn btn-default" ng-click="chooseImage(action,schema)"><span class="glyphicon glyphicon-picture"></span>
+                                            <br>选择图片</button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div ng-switch-when="html">
+                                <div ng-bind-html="ea.content"></div>
+                            </div>
+                        </div>
+                        <div class='form-group' ng-if="!member.id&&schema.require_invite==='Y'">
+                            <div class='input-group'>
+                                <div class='input-group-addon'>
+                                    <div style='width:4em'>邀请码</div>
+                                </div>
+                                <input type='text' required="" ng-model="member.invite_code" class='form-control'>
+                            </div>
+                        </div>
+                        <div class='form-group' ng-if="!member.id">
+                            <button class='btn btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click="doAuth()">提交信息</button>
+                        </div>
+                        <div class='form-group' ng-if="member.id">
+                            <button class='btn btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click="doReauth()">确认信息</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -59,9 +188,10 @@
         </nav>
     </div>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/asset/js/xxt.ui.page.js"></script>
-    <script src="<?php echo auto_version('/views/default/site/fe/user/member.js');?>"></script>
+    <script src="<?php echo auto_version('/bundles/default/site/fe/user/member.js');?>"></script>
     <script type="text/ng-template" id="userState.html">
         <form class='navbar-form navbar-right'>
             <div class="btn-group" uib-dropdown>

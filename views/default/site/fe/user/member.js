@@ -1,53 +1,24 @@
-var LS = (function(fields) {
-    function locationSearch() {
-        var ls, search;
-        ls = location.search;
-        search = {};
-        angular.forEach(fields, function(q) {
-            var match, pattern;
-            pattern = new RegExp(q + '=([^&]*)');
-            match = ls.match(pattern);
-            search[q] = match ? match[1] : '';
-        });
-        return search;
-    };
-    /*join search*/
-    function j(method) {
-        var j, l, url = '/rest/site/fe/user/member',
-            _this = this,
-            search = [];
-        method && method.length && (url += '/' + method);
-        if (arguments.length > 1) {
-            for (i = 1, l = arguments.length; i < l; i++) {
-                search.push(arguments[i] + '=' + _this.p[arguments[i]]);
-            };
-            url += '?' + search.join('&');
-        }
-        return url;
-    };
-    return {
-        p: locationSearch(),
-        j: j
-    };
-})(['site', 'schema', 'matter', 'debug']);
-var ngApp = angular.module('app', ['ui.bootstrap', 'page.ui.xxt']);
-ngApp.config(['$controllerProvider', function($cp) {
-    ngApp.provider = {
-        controller: $cp.register
-    };
+'use strict';
+require('./member.css');
+require('../../../../../asset/js/xxt.ui.notice.js');
+require('../../../../../asset/js/xxt.ui.http.js');
+
+var ngApp = angular.module('app', ['ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt']);
+ngApp.config(['$locationProvider', function($locationProvider) {
+    $locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', function($scope, $http, $timeout, $q, tmsDynaPage) {
+ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation', 'http2', function($scope, $timeout, noticebox, LS, http2) {
     var validate = function() {
         var required = function(value, len, alerttext) {
             if (value == null || value == "" || value.length < len) {
-                $scope.errmsg = alerttext;
+                noticebox.warn(alerttext);
                 return false;
             } else
                 return true;
         };
         var isMobile = function(value, alerttext) {
             if (false === /^1[3|4|5|7|8][0-9]\d{4,8}$/.test(value)) {
-                $scope.errmsg = alerttext;
+                noticebox.warn(alerttext);
                 return false;
             } else {
                 return true;
@@ -55,13 +26,13 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
         };
         var isEmail = function(value, alerttext) {
             if (value === undefined) {
-                $scope.errmsg = alerttext;
+                noticebox.warn(alerttext);
                 return false;
             }
             var apos = value.indexOf("@"),
                 dotpos = value.lastIndexOf(".");
             if (apos < 1 || dotpos - apos < 2) {
-                $scope.errmsg = alerttext;
+                noticebox.warn(alerttext);
                 return false;
             } else {
                 return true;
@@ -80,38 +51,24 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
         return true;
     };
 
-    function sendRequest(url, deferred) {
+    function sendRequest(url) {
         var oPosted;
         $scope.posting = true;
-        $http.post(url, $scope.member).success(function(rsp) {
+        http2.post(url, $scope.member, { autoBreak: false }).then(function(rsp) {
             $scope.posting = false;
-            if (angular.isString(rsp)) {
-                $scope.errmsg = rsp;
-                deferred.reject(rsp);
-            } else if (rsp.err_code != 0) {
-                $scope.errmsg = rsp.err_msg;
-                deferred.reject(rsp.err_msg);
-            } else if (window.parent && window.parent.onClosePlugin) {
-                window.parent.onClosePlugin();
-                deferred.resolve();
-            } else {
-                $http.get(LS.j('passed', 'site', 'schema') + '&redirect=N').success(function(rsp) {
-                    location.href = rsp.data;
-                });
-            }
-        }).error(function(data, header, config, status) {
-            if (data) {
-                $http.post('/rest/log/add', { src: 'site.fe.user.login', msg: JSON.stringify(arguments) });
-            }
-            alert('操作失败：' + (data === null ? '网络不可用' : data));
+            http2.get(LS.j('passed', 'site', 'schema') + '&redirect=N').then(function(rsp) {
+                location.href = rsp.data;
+            });
+        }, function() {
+            $scope.posting = false;
         });
     }
 
     function setMember(user) {
         var oMember, oAttrs;
-        user.members && (oMember = user.members[LS.p.schema]);
+        user.members && (oMember = user.members[LS.s().schema]);
         $scope.member = {
-            schema_id: LS.p.schema
+            schema_id: LS.s().schema
         };
         oAttrs = $scope.schema.attrs;
         if (oMember) {
@@ -132,55 +89,38 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
         }
     }
 
-    var siteId = LS.p.site;
-    if (/MicroMessenger/i.test(navigator.userAgent)) {
-        $scope.snsClient = 'wx';
-    } else if (/YiXin/i.test(navigator.userAgent)) {
-        $scope.snsClient = 'yx';
-    }
     $scope.posting = false;
-    $scope.errmsg = '';
-    $scope.infomsg = '';
     $scope.loginUser = {};
     $scope.subView = 'login';
-    $scope.debug = LS.p.debug;
     $scope.switchSubView = function(name) {
         $scope.subView = name;
     };
     $scope.login = function() {
-        var deferred = $q.defer();
-        $http.post('/rest/site/fe/user/login/do?site=' + siteId, $scope.loginUser).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                $scope.errmsg = rsp.err_msg;
-                return;
-            }
-            $http.get(LS.j('get', 'site', 'schema')).success(function(rsp) {
+        http2.post('/rest/site/fe/user/login/do?site=' + LS.s().site, $scope.loginUser).then(function(rsp) {
+            http2.get(LS.j('get', 'site', 'schema')).then(function(rsp) {
                 var user = rsp.data;
                 $scope.user = user;
                 setMember(user);
-                deferred.resolve(user);
             });
-        }).error(function(text) {
-            $scope.errmsg = text;
-            deferred.reject(text);
         });
-        return deferred.promise;
     };
     $scope.logout = function() {
-        var deferred = $q.defer();
-        $http.post('/rest/site/fe/user/logout/do?site=' + siteId, $scope.loginUser).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                $scope.errmsg = rsp.err_msg;
-                return;
-            }
+        http2.post('/rest/site/fe/user/logout/do?site=' + LS.s().site, $scope.loginUser).then(function(rsp) {
             location.reload(true);
-        }).error(function(text) {
-            $scope.errmsg = text;
         });
-        return deferred.promise;
+    };
+    $scope.register = function() {
+        http2.post('/rest/site/fe/user/register/do?site=' + LS.s().site, {
+            uname: $scope.loginUser.uname,
+            nickname: $scope.loginUser.nickname,
+            password: $scope.loginUser.password
+        }).then(function(rsp) {
+            $scope.user = rsp.data;
+            setMember($scope.user);
+        });
     };
     $scope.gotoHome = function() {
-        location.href = '/rest/site/fe/user?site=' + siteId;
+        location.href = '/rest/site/fe/user?site=' + LS.s().site;
     };
     $scope.repeatPwd = (function() {
         return {
@@ -189,53 +129,28 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
             }
         };
     })();
-    $scope.register = function() {
-        var deferred = $q.defer();
-        $http.post('/rest/site/fe/user/register/do?site=' + siteId, {
-            uname: $scope.loginUser.uname,
-            nickname: $scope.loginUser.nickname,
-            password: $scope.loginUser.password
-        }).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                $scope.errmsg = rsp.err_msg;
-                return;
-            }
-            $scope.user = rsp.data;
-            // 解决版本迁移造成的问题，正常逻辑不需要
-            setMember($scope.user);
-            deferred.resolve($scope.user);
-        }).error(function(text) {
-            $scope.errmsg = text;
-            deferred.reject(text);
-        });
-        return deferred.promise;
-    };
     $scope.doAuth = function(ignoreCheck) {
-        var deferred = $q.defer();
         if (!ignoreCheck) {
             if (!validate()) {
                 return;
             }
             if (document.querySelectorAll('.ng-invalid-required').length) {
-                $scope.errmsg = '请填写必填项';
+                noticebox.warn('请填写必填项');
                 return;
             }
         }
-        sendRequest(LS.j('doAuth', 'site', 'schema'), deferred);
-        return deferred.promise;
+        sendRequest(LS.j('doAuth', 'site', 'schema'));
     };
     $scope.doReauth = function() {
-        var deferred = $q.defer();
         if (!validate()) return;
         if (document.querySelectorAll('.ng-invalid-required').length) {
-            $scope.errmsg = '请填写必填项';
+            noticebox.warn('请填写必填项');
             return;
         }
-        sendRequest(LS.j('doReauth', 'site', 'schema'), deferred);
-        return deferred.promise;
+        sendRequest(LS.j('doReauth', 'site', 'schema'));
     };
     $scope.refreshPin = function(preEle) {
-        var time, url;
+        var time, url, pinWidth;
         preEle ? preEle : preEle = document.getElementById('pinInput');
         if (preEle) {
             time = new Date * 1;
@@ -245,45 +160,32 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPag
             $scope.pinImg = url + '&' + time;
         }
     };
-    $http.get('/rest/site/fe/get?site=' + LS.p.site).success(function(rsp) {
+    http2.get('/rest/site/fe/get?site=' + LS.s().site).then(function(rsp) {
         $scope.site = rsp.data;
-    });
-    $http.get('/rest/site/fe/user/memberschema/get?site=' + LS.p.site + '&schema=' + LS.p.schema + '&matter=' + LS.p.matter).success(function(rsp) {
-        if (rsp.err_code !== 0) {
-            $scope.errmsg = rsp.err_msg;
-            return;
-        }
-        var oMschema;
-        $scope.schema = oMschema = rsp.data.schema;
-        $scope.matter = rsp.data.matter;
-        $http.get(LS.j('get', 'site', 'schema')).success(function(rsp2) {
-            $scope.user = rsp2.data;
-            /*内置用户认证信息*/
-            setMember($scope.user);
-            /*社交账号信息*/
-            if ($scope.user.sns) {
-                if ($scope.user.sns.wx) {
-                    $scope.loginUser.nickname = $scope.user.sns.wx.nickname;
-                } else if ($scope.user.sns.yx) {
-                    $scope.loginUser.nickname = $scope.user.sns.yx.nickname;
+        http2.get('/rest/site/fe/user/memberschema/get?site=' + LS.s().site + '&schema=' + LS.s().schema + '&matter=' + LS.s().matter).then(function(rsp) {
+            var oMschema;
+            $scope.schema = oMschema = rsp.data.schema;
+            $scope.matter = rsp.data.matter;
+            http2.get(LS.j('get', 'site', 'schema')).then(function(rsp2) {
+                $scope.user = rsp2.data;
+                /*内置用户认证信息*/
+                setMember($scope.user);
+                /*社交账号信息*/
+                if ($scope.user.sns) {
+                    if ($scope.user.sns.wx) {
+                        $scope.loginUser.nickname = $scope.user.sns.wx.nickname;
+                    } else if ($scope.user.sns.yx) {
+                        $scope.loginUser.nickname = $scope.user.sns.yx.nickname;
+                    }
                 }
-            }
-            tmsDynaPage.loadCode(ngApp, oMschema.page).then(function() {
-                $scope.page = oMschema.page;
                 $timeout(function() {
-                    $scope.$broadcast('xxt.member.auth.ready', rsp.data);
-                    $timeout(function() {
-                        var preEle = document.getElementById('pinInput');
-                        if (preEle) {
-                            $scope.refreshPin(preEle);
-                        }
-                    });
-
+                    var preEle = document.getElementById('pinInput');
+                    if (preEle) {
+                        $scope.refreshPin(preEle);
+                    }
                 });
             });
         });
-    }).error(function(content, httpCode) {
-        $scope.errmsg = content;
     });
     $scope.isSmallLayout = false;
     if (window.screen && window.screen.width <= 768) {

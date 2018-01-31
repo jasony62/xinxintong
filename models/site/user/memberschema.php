@@ -16,7 +16,6 @@ class memberschema_model extends \TMS_MODEL {
 
 		$schemas = $this->query_objs_ss($q);
 		if (count($schemas)) {
-			//$modelCp = $this->model('code\page');
 			foreach ($schemas as $oSchema) {
 				$oSchema->type = 'memberschema';
 				$oAttrs = new \stdClass;
@@ -41,54 +40,10 @@ class memberschema_model extends \TMS_MODEL {
 				if (isset($oSchema->extattr) && !empty($oSchema->extattr)) {
 					$oSchema->extattr = json_decode($oSchema->extattr);
 				}
-				// if (!empty($oSchema->page_code_name)) {
-				// 	$page = $modelCp->lastPublishedByName(
-				// 		$oSchema->siteid,
-				// 		$oSchema->page_code_name,
-				// 		['fields' => 'id,html,css,js']
-				// 	);
-				// 	$oSchema->page = $page;
-				// }
-				if ($cascaded === 'Y') {
-					$oPage = new \stdClass;
-					$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-					if (file_exists($templateDir . '/basic.html')) {
-						$oPage->html = file_get_contents($templateDir . '/basic.html');
-					} else {
-						$oPage->html = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.html');
-					}
-					if (file_exists($templateDir . '/basic.css')) {
-						$oPage->css = file_get_contents($templateDir . '/basic.css');
-					} else {
-						$oPage->css = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.css');
-					}
-					if (file_exists($templateDir . '/basic.js')) {
-						$oPage->js = file_get_contents($templateDir . '/basic.js');
-					} else {
-						$oPage->js = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.js');
-					}
-					$oSchema->page = $oPage;
-				}
 			}
 		}
 
 		return $schemas;
-	}
-	/**
-	 * 根据模板创建缺省页面
-	 */
-	private function _pageCreate($oSite, $oUser, $template = 'basic') {
-		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-
-		$data = [
-			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
-			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
-			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
-		];
-
-		$oCode = $this->model('code\page')->create($oSite->id, $oUser->id, $data);
-
-		return $oCode;
 	}
 	/**
 	 * 自定义用户信息
@@ -108,9 +63,6 @@ class memberschema_model extends \TMS_MODEL {
 	 * 自定义联系人接口只有在本地部署版本中才有效
 	 */
 	public function create($oSite, $oUser, $oConfig = null) {
-
-		$oCode = $this->_pageCreate($oSite, $oUser);
-
 		$oNewMschema = new \stdClass;
 		$oNewMschema->siteid = $oSite->id;
 		$oNewMschema->matter_id = isset($oConfig->matter_id) ? $oConfig->matter_id : '';
@@ -120,8 +72,6 @@ class memberschema_model extends \TMS_MODEL {
 		$oNewMschema->creater = $oUser->id;
 		$oNewMschema->create_at = time();
 		$oNewMschema->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
-		$oNewMschema->code_id = $oCode->id;
-		$oNewMschema->page_code_name = $oCode->name;
 		$oNewMschema->attr_mobile = '011101'; // 必填，唯一，不可更改，身份标识
 		$oNewMschema->attr_email = '001000';
 		$oNewMschema->attr_name = '000000';

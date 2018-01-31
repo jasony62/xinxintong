@@ -68,33 +68,24 @@ class stat extends \pl\fe\matter\base {
 		/*包含的所有任务*/
 		$modelTkSchm = $this->model('matter\plan\schema\task');
 		$modelActSchm = $this->model('matter\plan\schema\action');
-		$oldTaskSchms = $modelTkSchm->byApp($oApp->id, ['fields' => 'id,title']);
-		$newTaskSchms = [];
-		foreach ($oldTaskSchms as $taskSchema) {
-			$oldActions = $modelActSchm->byTask($taskSchema->id, ['fields' => 'id,action_desc,action_seq,check_schemas']);
-			$newActions = [];
-			foreach ($oldActions as $action) {
-				$newActions[$action->id] = $action;
-			}
-			$taskSchema->actions = $newActions;
-			$newTaskSchms[$taskSchema->id] = $taskSchema;
-		}
-		$oApp->taskSchemas = $newTaskSchms;
 
-		// 返回指定任务行动项的checkSchema
-		if (!empty($taskSchmId) && !empty($actSchmId)) {
-			if (!isset($oApp->taskSchemas[$taskSchmId])) {
-				return new \ResponseError('指定的任务不匹配或不存在！');
-			}
-			$assignTask = $oApp->taskSchemas[$taskSchmId];
-			if (!isset($assignTask->actions[$actSchmId])) {
-				return new \ResponseError('指定的行动项不匹配或不存在！');
-			}
-			$assignAction = $assignTask->actions[$actSchmId];
-			foreach ($assignAction->checkSchemas as $acSchm) {
-				$oApp->checkSchemas[] = $acSchm;
+		$oTaskSchms = $modelTkSchm->byApp($oApp->id, ['fields' => 'id,title']);
+		foreach ($oTaskSchms as $taskSchema) {
+			//任务下所有的行动项
+			$actions = $modelActSchm->byTask($taskSchema->id, ['fields' => 'id,action_desc,action_seq,check_schemas']);
+			$taskSchema->actions = $actions;
+			// 获取指定任务行动项下的所有题目
+			if (!empty($taskSchmId) && !empty($actSchmId) && $taskSchmId === $taskSchema->id) {
+				foreach ($actions as $action) {
+					if ($action->id === $actSchmId) {
+						foreach ($action->checkSchemas as $acSchm) {
+							$oApp->checkSchemas[] = $acSchm;
+						}
+					}
+				}
 			}
 		}
+		$oApp->taskSchemas = $oTaskSchms;
 
 		return new \ResponseData($oApp);
 	}

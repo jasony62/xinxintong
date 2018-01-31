@@ -55,6 +55,11 @@
                             <input type="checkbox" ng-model="member.extattr[ea.id][op.v]" /><span>{{op.l}}</span></label>
                     </div>
                 </div>
+                <div ng-switch-when="image">
+                    <div ng-repeat="img in member.extattr[ea.id]">
+                        <img ng-src="{{img.imgSrc}}" style='max-width:100%;'>
+                    </div>
+                </div>
                 <div ng-switch-default>
                     <input type='text' class='form-control' ng-model="member.extattr[ea.id]">
                 </div>

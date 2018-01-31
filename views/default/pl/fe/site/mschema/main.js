@@ -67,44 +67,6 @@ define(['frame'], function(ngApp) {
         $scope.gotoExtattr = function(oSchema) {
             $location.path('/rest/pl/fe/site/mschema/extattr');
         };
-        $scope.gotoCode = function() {
-            if ($scope.choosedSchema.page_code_name && $scope.choosedSchema.page_code_name.length) {
-                location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + $scope.choosedSchema.page_code_name;
-            } else {
-                http2.get('/rest/pl/fe/code/create?site=' + $scope.site.id, function(rsp) {
-                    var nv = {
-                        'code_id': rsp.data.id,
-                        'page_code_name': rsp.data.name
-                    };
-                    srvMschema.update($scope.choosedSchema, nv).then(function(rsp) {
-                        $scope.choosedSchema.code_id = nv.code_id;
-                        $scope.choosedSchema.page_code_name = nv.page_code_name;
-                        location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + nv.page_code_name;
-                    });
-                });
-            }
-        };
-        $scope.resetCode = function(schema) {
-            if ($scope.choosedSchema.page_code_name && $scope.choosedSchema.page_code_name.length) {
-                if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
-                    http2.get('/rest/pl/fe/site/member/schema/pageReset?site=' + $scope.site.id + '&name=' + $scope.choosedSchema.page_code_name, function(rsp) {
-                        location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + $scope.choosedSchema.page_code_name;
-                    });
-                }
-            } else {
-                http2.get('/rest/pl/fe/code/create?site=' + $scope.site.id, function(rsp) {
-                    var nv = {
-                        'code_id': rsp.data.id,
-                        'page_code_name': rsp.data.name
-                    };
-                    srvMschema.update($scope.choosedSchema, nv).then(function(rsp) {
-                        $scope.choosedSchema.code_id = nv.code_id;
-                        $scope.choosedSchema.page_code_name = nv.page_code_name;
-                        location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + nv.page_code_name;
-                    });
-                });
-            }
-        };
         $scope.importSchema = function() {
             $uibModal.open({
                 templateUrl: 'importSchema.html',

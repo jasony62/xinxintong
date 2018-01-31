@@ -2,10 +2,61 @@
 require('./member.css');
 require('../../../../../asset/js/xxt.ui.notice.js');
 require('../../../../../asset/js/xxt.ui.http.js');
+require('../../../../../asset/js/xxt.ui.image.js');
+require('../matter/enroll/directive.js');
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'directive.enroll']);
 ngApp.config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
+}]);
+ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
+    var aModifiedImgFields;
+    aModifiedImgFields = [];
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
+            $scope.chooseImage = function(oSchema) {
+                var oExtattr;
+                if ($scope.member.extattr) {
+                    oExtattr = $scope.member.extattr;
+                } else {
+                    oExtattr = $scope.member.extattr = {};
+                }
+                if (oSchema !== null) {
+                    aModifiedImgFields.indexOf(oSchema.id) === -1 && aModifiedImgFields.push(oSchema.id);
+                    oExtattr[oSchema.id] === undefined && (oExtattr[oSchema.id] = []);
+                    if (oExtattr[oSchema.id].length >= 1) {
+                        noticebox.warn('最多允许上传（1）张图片');
+                        return;
+                    }
+                }
+                window.xxt.image.choose($q.defer()).then(function(imgs) {
+                    var phase;
+                    phase = $scope.$root.$$phase;
+                    if (phase === '$digest' || phase === '$apply') {
+                        oExtattr[oSchema.id] = oExtattr[oSchema.id].concat(imgs);
+                    } else {
+                        $scope.$apply(function() {
+                            oExtattr[oSchema.id] = oExtattr[oSchema.id].concat(imgs);
+                        });
+                    }
+                    $timeout(function() {
+                        var i, j, img, eleImg;
+                        for (i = 0, j = imgs.length; i < j; i++) {
+                            img = imgs[i];
+                            eleImg = document.querySelector('ul[name="' + oSchema.id + '"] li:nth-last-child(2) img');
+                            if (eleImg) {
+                                eleImg.setAttribute('src', img.imgSrc);
+                            }
+                        }
+                    });
+                });
+            };
+            $scope.removeImage = function(oSchema, index) {
+                $scope.member.extattr[oSchema.id].splice(index, 1);
+            };
+        }]
+    }
 }]);
 ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation', 'http2', function($scope, $timeout, noticebox, LS, http2) {
     var validate = function() {

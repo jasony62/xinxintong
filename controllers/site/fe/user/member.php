@@ -235,7 +235,7 @@ class member extends \site\fe\base {
 			return new \ResponseError('请登录后再指定用户信息');
 		}
 
-		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,id,title,attr_mobile,attr_email,attr_name,extattr,auto_verified']);
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,id,title,attr_mobile,attr_email,attr_name,ext_attrs,auto_verified']);
 		if ($oMschema === false) {
 			return new \ObjectNotFoundError();
 		}

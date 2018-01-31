@@ -148,13 +148,13 @@
                                 </li>
                             </ul>
                             <div tms-image-input="Y" ng-switch-when="image">
-                                <ul class="img-tiles clearfix" name="{{action.id+'.'+ea.id}}">
+                                <ul class="img-tiles clearfix" name="{{ea.id}}">
                                     <li wrap="img" ng-repeat="img in member.extattr[ea.id]" class="img-thumbnail">
                                         <img flex-img>
-                                        <button class="btn btn-default btn-xs" ng-click="removeImage(action,schema,$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                                        <button class="btn btn-default btn-xs" ng-click="removeImage(ea,$index)"><span class="glyphicon glyphicon-remove"></span></button>
                                     </li>
                                     <li class="img-picker">
-                                        <button class="btn btn-default" ng-click="chooseImage(action,schema)"><span class="glyphicon glyphicon-picture"></span>
+                                        <button class="btn btn-default" ng-click="chooseImage(ea)"><span class="glyphicon glyphicon-picture"></span>
                                             <br>选择图片</button>
                                     </li>
                                 </ul>

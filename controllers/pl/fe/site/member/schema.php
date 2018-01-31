@@ -334,30 +334,6 @@ class schema extends \pl\fe\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 根据模版重置用户认证页面
-	 *
-	 * @param int $codeId
-	 */
-	public function pageReset_action($site, $name, $template = 'basic') {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelCode = $this->model('code\page');
-		$code = $modelCode->lastByName($site, $name);
-
-		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-		$data = array(
-			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
-			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
-			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
-		);
-
-		$rst = $modelCode->modify($code->id, $data);
-
-		return new \ResponseData($rst);
-	}
-	/**
 	 * 获得用户选择器的页面
 	 */
 	public function picker_action() {

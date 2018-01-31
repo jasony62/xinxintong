@@ -1,4 +1,4 @@
-<div class="col-md-12">
+<div id='mschema-view' class="col-md-12">
     <div ng-if='mschemas.length===0'>
         <div class='alert alert-info'>请<a href class="alert-link" ng-click="createMschema()">创建</a>项目联系人通讯录</div>
     </div>
@@ -50,7 +50,12 @@
                         <td ng-if='!selected.mschema.attrs.name.hide'>{{m.name}}</td>
                         <td ng-if="!selected.mschema.attrs.mobile.hide">{{m.mobile}}</td>
                         <td ng-if="!selected.mschema.attrs.email.hide">{{m.email}}</td>
-                        <td ng-repeat='ea in selected.mschema.extAttrs'>{{m._extattr[ea.id]}}</td>
+                        <td ng-repeat='ea in selected.mschema.extAttrs' ng-switch on="ea.type">
+                            <div ng-switch-when="image">
+                                <div ng-repeat="img in m._extattr[ea.id]"><img ng-src="{{img.imgSrc}}"></div>
+                            </div>
+                            <div ng-switch-default>{{m._extattr[ea.id]}}</div>
+                        </td>
                         <td>
                             <a href='' ng-click='editMember(m)'>修改</a>
                         </td>

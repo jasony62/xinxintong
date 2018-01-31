@@ -21,8 +21,6 @@
                         <select class='form-control' title='数据有效期' ng-model='choosedSchema.validity' ng-options='d.v as d.n for d in days' ng-change="updSchema('validity')"></select>
                     </div>
                     <div class='form-group'>
-                        <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='gotoCode()'>定制填写页面</button>
-                        <button class='btn btn-default hide' ng-if="choosedSchema.type==='inner'" ng-click='resetCode()'>重置填写页面</button>
                         <button class='btn btn-default' ng-click='importSchema()'>导入通讯录</button>
                     </div>
                 </div>
@@ -48,7 +46,7 @@
                     </tr>
                 </tbody>
             </table>
-            <a class='btn btn-default' ng-click="gotoExtattr(s)">扩展信息项</a>
+            <a class='btn btn-default' ng-click="gotoExtattr(s)">扩展信息项<span>（{{choosedSchema.extAttrs.length}}）</span></a>
         </div>
     </div>
     <!-- options -->

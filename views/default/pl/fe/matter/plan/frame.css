@@ -54,3 +54,6 @@
 #task-detail-view ul.img-tiles li.img-thumbnail button,#task-detail-view ul.list-group button{position:absolute;top:0;right:0}
 #task-detail-view ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
 #task-detail-view ul.img-tiles li.img-picker button span{font-size:36px}
+
+/* task-stat */
+.modal-body select{width:25%;margin-right: 20px;margin-top: 10px;display:inline-block;}

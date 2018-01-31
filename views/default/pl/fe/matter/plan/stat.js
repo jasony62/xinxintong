@@ -3,7 +3,7 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlStat', ['$scope', '$location', 'http2', '$timeout', '$q', '$uibModal', 'srvPlanApp', 'srvRecordConverter', 'srvChart', function($scope, $location, http2, $timeout, $q, $uibModal, srvPlanApp, srvRecordConverter, srvChart) {
         var _oChartConfig, _cacheOfRecordsBySchema;
 
-        function _schemasForReport(oApp) {
+        function _schemasForReport(oApp, checkSchemas) {
             var aSchemas, aExclude;
             if (oApp.rpConfig && oApp.rpConfig.pl && oApp.rpConfig.pl.exclude && oApp.rpConfig.pl.exclude.length) {
                 aExclude = oApp.rpConfig.pl.exclude;
@@ -19,12 +19,11 @@ define(['frame'], function(ngApp) {
             }
         }
 
-        function _getStatData(oApp) {
+        function _getStatData(oApp, checkSchemas) {
             var url;
-            url = '/rest/pl/fe/matter/plan/task/stat/get';
+            url = '/rest/pl/fe/matter/plan/stat/get';
             url += '?site=' + oApp.siteid;
             url += '&app=' + oApp.id;
-            url += '&rid=' + (_rid || '');
             http2.get(url, function(rsp) {
                 var oStatData = {};
                 $scope.schemasForReport.forEach(function(oSchema) {
@@ -117,9 +116,11 @@ define(['frame'], function(ngApp) {
                 }
 
                 if (requireGet) {
-                    url = '/rest/pl/fe/matter/enroll/record/list4Schema';
-                    url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-                    url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size + '&rid=' + (_rid || '');
+                    url = '/rest/pl/fe/matter/plan/task/listSchema';
+                    url += '?app=' + $scope.app.id + '&checkSchmId=' + schema.id;
+                    url += '&taskSchmId=' + (oApp.rpConfig.taskSchemaId ? oApp.rpConfig.taskSchemaId : '');
+                    url += '&actSchmId=' + (oApp.rpConfig.actSchemaId ? oApp.rpConfig.actSchemaId : '');
+                    url += '&page=' + page.at + '&size=' + page.size;
                     cached._running = true;
                     http2.get(url, function(rsp) {
                         cached._running = false;
@@ -143,15 +144,13 @@ define(['frame'], function(ngApp) {
                 return deferred.promise;
             }
         };
-        $scope.criteria = {
-            rid: ''
-        };
         $scope.config = function() {
             $uibModal.open({
                 templateUrl: 'config.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var oApp, marks, markSchemas, oPlConfig, oOpConfig;
+                controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                    var oApp, oData, marks, markSchemas, oPlConfig, oOpConfig, oTaskSchemaId, oActSchemaId;
                     oApp = $scope.app;
+                    oData = $scope.data;
                     marks = oApp.rpConfig.marks ? oApp.rpConfig.marks : [];
                     oPlConfig = oApp.rpConfig.pl ? oApp.rpConfig.pl : {
                         number: 'Y',
@@ -165,6 +164,8 @@ define(['frame'], function(ngApp) {
                         label: 'number',
                         exclude: []
                     };
+                    oTaskSchemaId = oApp.rpConfig.taskSchemaId ? oApp.rpConfig.taskSchemaId : '';
+                    oActSchemaId = oApp.rpConfig.actSchemaId ? oApp.rpConfig.actSchemaId : '';
                     $scope2.dataSchemas = oApp._schemasForInput;
                     // 标识项
                     markSchemas = [];
@@ -172,7 +173,7 @@ define(['frame'], function(ngApp) {
                         markSchemas.push({ title: "昵称", id: "nickname" });
                     }
                     oApp._schemasForInput.forEach(function(oSchema) {
-                        if (/shorttext/.test(oSchema.type) || oSchema.id === '_round_id') {
+                        if (/shorttext/.test(oSchema.type)) {
                             markSchemas.push(oSchema);
                         }
                     });
@@ -207,6 +208,22 @@ define(['frame'], function(ngApp) {
                     marks.forEach(function(item, index) {
                         $scope2.markRows.selected[item.id] = true;
                     });
+                    $scope2.taskSchemaId = oTaskSchemaId;
+                    $scope2.tasks = oData.taskSchemas;
+                    $scope2.actSchemaId = oActSchemaId;
+                    $scope2.doTasks = function(taskId) {
+                        oData.taskSchemas.forEach(function(task) {
+                            if(task.id == taskId) {
+                                $scope2.actions = task.actions;
+                                if (task.checkSchemas && task.checkSchemas.length) {
+                                    $scope2.appMarkSchemas = [].concat($scope2.appMarkSchemas, task.checkSchemas);
+                                }
+                            }
+                        });
+                    };
+                    $scope2.doActions = function(actionId) {
+
+                    };
                     $scope2.ok = function() {
                         var oResult, schemaId;
                         oResult = { marks: [], pl: oPlConfig, op: oOpConfig };
@@ -244,8 +261,8 @@ define(['frame'], function(ngApp) {
         $scope.export = function() {
             var url, params = {};
 
-            url = '/rest/pl/fe/matter/enroll/stat/export';
-            url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&rid=' + (_rid || '');
+            url = '/rest/pl/fe/matter/plan/stat/export';
+            url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
 
             window.open(url);
         };
@@ -264,19 +281,34 @@ define(['frame'], function(ngApp) {
             if (!oApp) {
                 return;
             }
-            srvRecordConverter.config(oApp.dataSchemas);
 
-            $scope.chartConfig = _oChartConfig = (oApp.rpConfig && oApp.rpConfig.pl) || {
-                number: 'Y',
-                percentage: 'Y',
-                label: 'number'
-            };
-            srvChart.config(_oChartConfig);
+            var url;
+            url = '/rest/pl/fe/matter/plan/stat/getAppSchema?site=' + oApp.siteid + '&app=' + oApp.id;
+            url += '&taskSchemaId=' + (oApp.rpConfig.taskSchemaId || '');
+            url += '&actSchemaId=' + (oApp.rpConfig.actSchemaId || '');
+            http2.get(url, function(rsp) {
+                $scope.data = rsp.data;
+                var inputSchemas = [], _taskSchemas;
+                rsp.data.checkSchemas.forEach(function(schema) {
+                    if (schema.type !== 'html') {
+                        inputSchemas.push(schema);
+                    }
+                });
+                oApp._schemasForInput = inputSchemas;
 
-            $scope.schemasForReport = _schemasForReport(oApp);
+                srvRecordConverter.config(rsp.data.checkSchemas);
 
-            _getStatData(oApp);
+                $scope.chartConfig = _oChartConfig = (oApp.rpConfig && oApp.rpConfig.pl) || {
+                    number: 'Y',
+                    percentage: 'Y',
+                    label: 'number'
+                };
+                srvChart.config(_oChartConfig);
 
+                $scope.schemasForReport = _schemasForReport(oApp, rsp.data.checkSchemas);
+
+                _getStatData(oApp, rsp.data.checkSchemas);
+            });
         });
     }]);
 });

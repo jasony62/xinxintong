@@ -10,15 +10,6 @@
                 <button class='btn btn-default' ng-click="export()">导出报告</button>
             </div>
             <div class='form-group'>
-                <select ng-if='rounds.length' class='form-control' title='登记轮次' ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
-                    <option value='ALL'>全部</option>
-                    <option ng-if="checkedRound" value='{{checkedRound.rid}}'>选中轮次（{{checkedRound.title}}）</option>
-                    <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
-                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                    <option value="more">更多</option>
-                </select>
-            </div>
-            <div class='form-group'>
                 <button class='btn btn-default' ng-click="config()">设置</button>
             </div>
         </div>
@@ -140,6 +131,16 @@
         <div class="modal-body">
             <uib-tabset active="active">
                 <uib-tab index="0" heading="标识项">
+                    <div class='form-group'>
+                        <select class='form-control' title='所有任务项' ng-model='taskSchemaId' ng-change="doTasks(taskSchemaId)">
+                            <option value=''>请选择任务项</option>
+                            <option value="{{task.id}}" ng-repeat="task in tasks">{{task.taskSchemaTitle}}</option>
+                        </select>
+                        <select  class='form-control' title='所有行动项' ng-model='actSchemaId' ng-change="doActions(actSchemaId)">
+                            <option value=''>请选择行动项</option>
+                            <option value="{{action.id}}" ng-repeat="action in actions">{{action.action_desc}}</option>
+                        </select>
+                    </div>
                     <div style='max-height:370px;overflow-y:auto'>
                         <table class='table table-bordered'>
                             <thead>

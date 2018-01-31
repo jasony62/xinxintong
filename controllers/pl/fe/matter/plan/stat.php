@@ -232,9 +232,19 @@ class stat extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		// if (defined('SAE_TMP_PATH')) {
-		// 	$this->_saeExport($oApp, $rid);
-		// }
+		if (!empty($oApp->rpConfig->taskSchemaId) && !empty($oApp->rpConfig->actSchemaId)) {
+			$taskSchmId = $oApp->rpConfig->taskSchemaId;
+			$actSchmId = $oApp->rpConfig->actSchemaId;
+		} else {
+			$taskSchmId = '';
+			$actSchmId = '';
+		}
+		// 处理活动数据
+		$oApp = $this->disposeApp($oApp, $taskSchmId, $actSchmId);
+
+		if (defined('SAE_TMP_PATH')) {
+			$this->_saeExport($oApp);
+		}
 
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph.php';
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_bar.php';
@@ -248,16 +258,6 @@ class stat extends \pl\fe\matter\base {
 		} else {
 			$aExcludeSchemaIds = [];
 		}
-
-		if (!empty($oApp->rpConfig->taskSchemaId) && !empty($oApp->rpConfig->actSchemaId)) {
-			$taskSchmId = $oApp->rpConfig->taskSchemaId;
-			$actSchmId = $oApp->rpConfig->actSchemaId;
-		} else {
-			$taskSchmId = '';
-			$actSchmId = '';
-		}
-		// 处理活动数据
-		$oApp = $this->disposeApp($oApp, $taskSchmId, $actSchmId);
 
 		$schemas = [];
 		$schemasById = [];
@@ -608,7 +608,7 @@ class stat extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	private function _saeExport($oApp, $rid = '') {
+	private function _saeExport($oApp) {
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph.php';
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_bar.php';
 		require_once TMS_APP_DIR . '/lib/jpgraph/jpgraph_pie.php';
@@ -620,16 +620,25 @@ class stat extends \pl\fe\matter\base {
 		} else {
 			$aExcludeSchemaIds = [];
 		}
+
+		if (!empty($oApp->rpConfig->taskSchemaId) && !empty($oApp->rpConfig->actSchemaId)) {
+			$taskSchmId = $oApp->rpConfig->taskSchemaId;
+			$actSchmId = $oApp->rpConfig->actSchemaId;
+		} else {
+			$taskSchmId = '';
+			$actSchmId = '';
+		}
+
 		$schemas = [];
 		$schemasById = [];
-		foreach ($oApp->dataSchemas as $oSchema) {
+		foreach ($oApp->checkSchemas as $oSchema) {
 			if (!in_array($oSchema->id, $aExcludeSchemaIds) && $oSchema->type !== 'html') {
 				$schemas[] = $oSchema;
 				$schemasById[$oSchema->id] = $oSchema;
 			}
 		}
 
-		$aStatResult = $this->model('matter\enroll\record')->getStat($oApp, $rid);
+		$aStatResult = $this->model('matter\plan\task')->getStat($oApp, $taskSchmId, $actSchmId);
 
 		$html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
 		$html .= '<head>';
@@ -639,14 +648,14 @@ class stat extends \pl\fe\matter\base {
 		$html .= '<body>';
 
 		$mappingOfImages = [];
-		$modelRec = $this->model('matter\enroll\record');
+		$modelRec = $this->model('matter\plan\task');
 
 		$scoreSummary = []; //所有打分题汇总数据
 		$totalScoreSummary = 0; //所有打分题的平局分合计
 		foreach ($schemas as $index => $schema) {
 			$html .= "<h3><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext', 'multitext', 'member'])) {
-				$textResult = $modelRec->listSchema($oApp, $schema->id, ['rid' => $rid]);
+				$textResult = $modelRec->listSchema($oApp, $schema->id, $taskSchmId, $actSchmId);
 				if (!empty($textResult->records)) {
 					//拼装表格
 					$records = $textResult->records;
@@ -683,10 +692,10 @@ class stat extends \pl\fe\matter\base {
 							foreach ($rpConfig->marks as $mark) {
 								if ($schema->id !== $mark->id) {
 									if ($mark->id === 'nickname') {
-										$html .= "<td>" . $record->nickname . "</td>";
+										$html .= "<td>" . $record->task->nickname . "</td>";
 									} else {
 										$markId = $mark->id;
-										if (isset($record->data->$markId)) {
+										if (isset($record->task->data->$markId)) {
 											if (!isset($schemasById[$mark->id])) {
 												die('标识项是否被隐藏');
 											}
@@ -694,13 +703,13 @@ class stat extends \pl\fe\matter\base {
 											if (in_array($markSchema->type, ['single', 'phase'])) {
 												$label = '';
 												foreach ($markSchema->ops as $op) {
-													if ($op->v === $record->data->$markId) {
+													if ($op->v === $record->task->data->$markId) {
 														$label = $op->l;
 														break;
 													}
 												}
 											} else {
-												$label = $record->data->$markId;
+												$label = $record->task->data->$markId;
 											}
 											$html .= "<td>" . $label . "</td>";
 
@@ -711,37 +720,21 @@ class stat extends \pl\fe\matter\base {
 								}
 							}
 						} else {
-							$html .= "<td>" . $record->nickname . "</td>";
+							$html .= "<td>" . $record->task->nickname . "</td>";
 						}
 						$schemaId = $schema->id;
-						if (isset($record->data->$schemaId)) {
-							if ($schema->type === 'multitext') {
-								$mulVal = $record->data->$schemaId;
-								if (is_array($mulVal)) {
-									$mulVals = [];
-									foreach ($mulVal as $mv) {
-										$mulVals[] = $mv->value;
-									}
-									$mulVal = implode(',', $mulVals);
+						if ($schema->type === 'multitext') {
+							$mulVal = $record->value;
+							if (is_array($mulVal)) {
+								$mulVals = [];
+								foreach ($mulVal as $mv) {
+									$mulVals[] = $mv->value;
 								}
-								$html .= "<td>" . $mulVal . "</td>";
-							} else {
-								$html .= "<td>" . $record->data->$schemaId . "</td>";
+								$mulVal = implode(',', $mulVals);
 							}
-							$html .= "<td>" . $record->data->$schemaId . "</td>";
-						} else if ((strpos($schemaId, 'member.') === 0) && isset($record->data->member)) {
-							$mbSchemaId = $schema->id;
-							$mbSchemaIds = explode('.', $mbSchemaId);
-							$mbSchemaId = $mbSchemaIds[1];
-							if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
-								$mbSchemaId = $mbSchemaIds[2];
-								$v = $record->data->member->extattr->{$mbSchemaId};
-							} else {
-								$v = $record->data->member->{$mbSchemaId};
-							}
-							$html .= "<td>" . $v . "</td>";
+							$html .= "<td>" . $mulVal . "</td>";
 						} else {
-							$html .= "<td></td>";
+							$html .= "<td>" . $record->value . "</td>";
 						}
 					}
 					//数值型显示合计
@@ -776,10 +769,10 @@ class stat extends \pl\fe\matter\base {
 					$html .= '<img src="' . $oSchemaStat->id . '.base64" />';
 				}
 				$html .= "<table><thead><tr><th>选项编号</th><th>选项内容</th>";
-				if (isset($oPlConfig->number) && $oPlConfig->number === 'Y') {
+				if (!isset($oPlConfig->number) || $oPlConfig->number === 'Y') {
 					$html .= "<th>数量</th>";
 				}
-				if (isset($oPlConfig->percentage) && $oPlConfig->percentage === 'Y') {
+				if (!isset($oPlConfig->percentage) || $oPlConfig->percentage === 'Y') {
 					$html .= "<th>占比</th>";
 				}
 				$html .= "</tr></thead><tbody>";
@@ -787,10 +780,10 @@ class stat extends \pl\fe\matter\base {
 					$op = $oSchemaStat->ops[$i];
 					$html .= "<tr><td>选项" . ($i + 1) . "</td>";
 					$html .= "<td>{$op->l}</td>";
-					if (isset($oPlConfig->number) && $oPlConfig->number === 'Y') {
+					if (!isset($oPlConfig->number) || $oPlConfig->number === 'Y') {
 						$html .= "<td>{$op->c}</td>";
 					}
-					if (isset($oPlConfig->percentage) && $oPlConfig->percentage === 'Y') {
+					if (!isset($oPlConfig->percentage) || $oPlConfig->percentage === 'Y') {
 						if ($oSchemaStat->sum > 0) {
 							$value = $op->c / $oSchemaStat->sum * 100;
 						} else {

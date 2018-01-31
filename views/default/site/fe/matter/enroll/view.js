@@ -104,7 +104,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
 }]);
 ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Record', function($scope, LS, http2, noticebox, Record) {
     function fnGetRecord() {
-        return http2.get(LS.j('record/get', 'site', 'app', 'ek'));
+        return http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid'));
     }
 
     function fnProcessData(oData) {

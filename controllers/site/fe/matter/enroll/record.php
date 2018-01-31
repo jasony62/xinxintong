@@ -696,7 +696,7 @@ class record extends base {
 	 * @param string $withSaved 是否获取保存数据
 	 *
 	 */
-	public function get_action($app, $ek = '', $loadLast = 'Y', $loadAssoc = 'Y', $withSaved = 'N') {
+	public function get_action($app, $ek = '', $rid = '', $loadLast = 'Y', $loadAssoc = 'Y', $withSaved = 'N') {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
@@ -709,7 +709,7 @@ class record extends base {
 
 		if (empty($ek) && $loadLast === 'Y') {
 			$oUser = $this->who;
-			$oRecord = $modelRec->lastByUser($oApp, $oUser, ['verbose' => 'Y', 'fields' => $fields]);
+			$oRecord = $modelRec->lastByUser($oApp, $oUser, ['assignRid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
 			if (false === $oRecord || $oRecord->state !== '1') {
 				$oRecord = new \stdClass;
 			}

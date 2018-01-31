@@ -83,14 +83,14 @@ class stat extends \pl\fe\matter\base {
 
 		// 返回指定任务行动项的checkSchema
 		if (!empty($taskSchmId) && !empty($actSchmId)) {
-			if (isset($oApp->taskSchemas[$taskSchmId])) {
+			if (!isset($oApp->taskSchemas[$taskSchmId])) {
 				return new \ResponseError('指定的任务不匹配或不存在！');
 			}
-
-			if (!isset($oApp->taskSchemas[$taskSchmId][$actSchmId])) {
+			$assignTask = $oApp->taskSchemas[$taskSchmId];
+			if (!isset($assignTask->actions[$actSchmId])) {
 				return new \ResponseError('指定的行动项不匹配或不存在！');
 			}
-			$assignAction = $oApp->taskSchemas[$taskSchmId][$actSchmId];
+			$assignAction = $assignTask->actions[$actSchmId];
 			foreach ($assignAction->checkSchemas as $acSchm) {
 				$oApp->checkSchemas[] = $acSchm;
 			}

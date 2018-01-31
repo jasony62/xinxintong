@@ -232,9 +232,9 @@ class stat extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		if (!empty($oApp->rpConfig->taskSchemaId) && !empty($oApp->rpConfig->actSchemaId)) {
-			$taskSchmId = $oApp->rpConfig->taskSchemaId;
-			$actSchmId = $oApp->rpConfig->actSchemaId;
+		if (!empty($oApp->rpConfig->taskSchmId) && !empty($oApp->rpConfig->actSchmId)) {
+			$taskSchmId = $oApp->rpConfig->taskSchmId;
+			$actSchmId = $oApp->rpConfig->actSchmId;
 		} else {
 			$taskSchmId = '';
 			$actSchmId = '';
@@ -621,9 +621,9 @@ class stat extends \pl\fe\matter\base {
 			$aExcludeSchemaIds = [];
 		}
 
-		if (!empty($oApp->rpConfig->taskSchemaId) && !empty($oApp->rpConfig->actSchemaId)) {
-			$taskSchmId = $oApp->rpConfig->taskSchemaId;
-			$actSchmId = $oApp->rpConfig->actSchemaId;
+		if (!empty($oApp->rpConfig->taskSchmId) && !empty($oApp->rpConfig->actSchmId)) {
+			$taskSchmId = $oApp->rpConfig->taskSchmId;
+			$actSchmId = $oApp->rpConfig->actSchmId;
 		} else {
 			$taskSchmId = '';
 			$actSchmId = '';

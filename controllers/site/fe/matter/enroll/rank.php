@@ -26,6 +26,10 @@ class rank extends base {
 			'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
 			"u.aid='{$oApp->id}' and u.state=1",
 		];
+
+		if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
+			$oCriteria->round = explode(',', $oCriteria->round);
+		}
 		if (empty($oCriteria->round) || in_array('ALL', $oCriteria->round)) {
 			$q[2] .= " and u.rid = 'ALL'";
 		} else {
@@ -164,14 +168,16 @@ class rank extends base {
 			break;
 		}
 		$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "' and state=1";
-
+		if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
+			$oCriteria->round = explode(',', $oCriteria->round);
+		}
 		if (empty($oCriteria->round) || in_array('ALL', $oCriteria->round)) {
-			$q[2] .= " and u.rid = 'ALL'";
+			$sql .= " and u.rid = 'ALL'";
 		} else {
 			$whereByRound = ' and rid in("';
 			$whereByRound .= implode('","', $oCriteria->round);
 			$whereByRound .= '")';
-			$q[2] .= $whereByRound;
+			$sql .= $whereByRound;
 		}
 
 		/* 获取分组的数据 */

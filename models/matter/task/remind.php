@@ -105,7 +105,8 @@ class remind_model extends \TMS_MODEL {
 
 			/* 处理要发送的填写人 */
 			$modelUsr = $this->model('matter\plan\user');
-			$receivers = $modelUsr->byApp($oMatter);
+			$planUsers = $modelUsr->byApp($oMatter);
+			$receivers = $planUsers->users;
 			if (count($receivers) === 0) {
 				return [false, '没有填写人'];
 			}

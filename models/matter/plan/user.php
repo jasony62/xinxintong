@@ -40,9 +40,20 @@ class user_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_plan_user',
-			['aid' => $oApp->id],
+			"aid = '{$oApp->id}'",
 		];
-		$oAppUsrs = $this->query_objs_ss($q);
+		if (!empty($aOptions['onlyEnrolled']) && $aOptions['onlyEnrolled'] === 'Y') {
+			$q[2] .= " and task_num > 0";
+		}
+
+		$q2 = [];
+		if (isset($aOptions['paging'])) {
+			$q2['r'] = [];
+			$q2['r']['o'] = ($aOptions['paging']['page'] - 1) * $aOptions['paging']['size'];
+			$q2['r']['l'] = $aOptions['paging']['size'];
+		}
+		$oAppUsrs = $this->query_objs_ss($q, $q2);
+		
 		foreach ($oAppUsrs as $oUser) {
 			$p = [
 				'wx_openid,yx_openid,qy_openid',
@@ -76,7 +87,12 @@ class user_model extends \TMS_MODEL {
 			}
 		}
 
-		return $oAppUsrs;
+		$data = new \stdClass;
+		$data->users = $oAppUsrs;
+		$q[0] = "count(id)";
+		$data->total = (int) $this->query_val_ss($q);
+
+		return $data;
 	}
 	/**
 	 * 添加或更新

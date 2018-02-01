@@ -323,7 +323,7 @@ class action_model extends \TMS_MODEL {
 	/**
 	 * 计算指定登记项所有记录的合计
 	 */
-	public function sum4Schema($oApp, $taskSchmId = '') {
+	public function sum4Schema($oApp, $taskSchmId = '', $actSchmId = '') {
 		$result = new \stdClass;
 		$checkSchemas = $oApp->checkSchemas;
 		/* 每道题目的合计 */
@@ -335,6 +335,7 @@ class action_model extends \TMS_MODEL {
 					['aid' => $oApp->id, 'check_schema_id' => $schema->id, 'state' => 1],
 				];
 				!empty($taskSchmId) && $q[2]['task_schema_id'] = $this->escape($taskSchmId);
+				!empty($actSchmId) && $q[2]['action_schema_id'] = $this->escape($actSchmId);
 
 				$sum = (float) $this->query_val_ss($q);
 				$sum = number_format($sum, 2, '.', '');

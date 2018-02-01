@@ -114,6 +114,7 @@ class stat extends \pl\fe\matter\base {
 						foreach ($action->checkSchemas as $acSchm) {
 							$oApp->checkSchemas[] = $acSchm;
 						}
+						break;
 					}
 				}
 			}

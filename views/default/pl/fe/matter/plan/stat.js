@@ -118,8 +118,8 @@ define(['frame'], function(ngApp) {
                 if (requireGet) {
                     url = '/rest/pl/fe/matter/plan/task/listSchema';
                     url += '?app=' + $scope.app.id + '&checkSchmId=' + schema.id;
-                    url += '&taskSchmId=' + ($scope.app.rpConfig.taskSchemaId ? $scope.app.rpConfig.taskSchemaId : '');
-                    url += '&actSchmId=' + ($scope.app.rpConfig.actSchemaId ? $scope.app.rpConfig.actSchemaId : '');
+                    url += '&taskSchmId=' + ($scope.app.rpConfig.taskSchmId ? $scope.app.rpConfig.taskSchmId : '');
+                    url += '&actSchmId=' + ($scope.app.rpConfig.actSchmId ? $scope.app.rpConfig.actSchmId : '');
                     url += '&page=' + page.at + '&size=' + page.size;
                     cached._running = true;
                     http2.get(url, function(rsp) {
@@ -129,7 +129,7 @@ define(['frame'], function(ngApp) {
                             size: page.size
                         };
                         rsp.data.records.forEach(function(record) {
-                            srvRecordConverter.forTable(record);
+                            srvRecordConverter.forTable(record.task);
                         });
                         if (schema.number && schema.number == 'Y') {
                             cached.sum = rsp.data.sum;
@@ -173,7 +173,7 @@ define(['frame'], function(ngApp) {
                     if (!oApp.assignedNickname || oApp.assignedNickname.valid === 'N') {
                         markSchemas.push({ title: "昵称", id: "nickname" });
                     }
-                    oApp._schemasForInput.forEach(function(oSchema) {
+                    oApp.checkSchemas.forEach(function(oSchema) {
                         if (/shorttext/.test(oSchema.type)) {
                             markSchemas.push(oSchema);
                         }
@@ -210,8 +210,8 @@ define(['frame'], function(ngApp) {
                         $scope2.markRows.selected[item.id] = true;
                     });
                     if(oData.taskSchemas) {
-                        oFilter.taskSchemaId = oApp.rpConfig.taskSchemaId ? oApp.rpConfig.taskSchemaId : oData.taskSchemas[0].id;
-                        oFilter.actSchemaId = oApp.rpConfig.actSchemaId ? oApp.rpConfig.actSchemaId : oData.taskSchemas[0].actions[0].id;
+                        oFilter.taskSchmId = oApp.rpConfig.taskSchmId ? oApp.rpConfig.taskSchmId : '';
+                        oFilter.actSchmId = oApp.rpConfig.actSchmId ? oApp.rpConfig.actSchmId : '';
                         oData.taskSchemas.forEach(function(item, index){
                             _oTasks[item.id] = item;
                             item.actions.forEach(function(action, index) {
@@ -220,7 +220,7 @@ define(['frame'], function(ngApp) {
                         });
                         $scope2.tasks = _oTasks;
                     }
-                    $scope2.$watch('filter.actSchemaId', function(nv) {
+                    $scope2.$watch('filter.actSchmId', function(nv) {
                         if(!nv) return;
                         $scope2.appMarkSchemas = angular.copy(markSchemas);
                         _oActions[nv].checkSchemas.forEach(function(action) {
@@ -231,7 +231,7 @@ define(['frame'], function(ngApp) {
                     });
                     $scope2.ok = function() {
                         var oResult, schemaId;
-                        oResult = { marks: [], pl: oPlConfig, op: oOpConfig, taskSchemaId: oFilter.taskSchemaId, actSchemaId: oFilter.actSchemaId};
+                        oResult = { marks: [], pl: oPlConfig, op: oOpConfig, taskSchmId: oFilter.taskSchmId, actSchmId: oFilter.actSchmId};
                         oPlConfig.exclude = [];
                         for (schemaId in $scope2.plExcludeRows.selected) {
                             if ($scope2.plExcludeRows.selected[schemaId]) {
@@ -289,8 +289,8 @@ define(['frame'], function(ngApp) {
 
             var url;
             url = '/rest/pl/fe/matter/plan/stat/getAppSchema?site=' + oApp.siteid + '&app=' + oApp.id;
-            url += '&taskSchemaId=' + (oApp.rpConfig.taskSchemaId || '');
-            url += '&actSchemaId=' + (oApp.rpConfig.actSchemaId || '');
+            url += '&taskSchmId=' + (oApp.rpConfig.taskSchmId || '');
+            url += '&actSchmId=' + (oApp.rpConfig.actSchmId || '');
             http2.get(url, function(rsp) {
                 $scope.data = rsp.data;
                 var inputSchemas = [], _taskSchemas;

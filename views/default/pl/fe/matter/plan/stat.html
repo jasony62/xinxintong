@@ -10,6 +10,15 @@
                 <button class='btn btn-default' ng-click="export()">导出报告</button>
             </div>
             <div class='form-group'>
+                <select ng-if='rounds.length' class='form-control' title='登记轮次' ng-model='criteria.rid' ng-change="doRound(criteria.rid)">
+                    <option value='ALL'>全部</option>
+                    <option ng-if="checkedRound" value='{{checkedRound.rid}}'>选中轮次（{{checkedRound.title}}）</option>
+                    <option ng-if="activeRound" value='{{activeRound.rid}}'>启用轮次（{{activeRound.title}}）</option>
+                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
+                    <option value="more">更多</option>
+                </select>
+            </div>
+            <div class='form-group'>
                 <button class='btn btn-default' ng-click="config()">设置</button>
             </div>
         </div>
@@ -70,21 +79,22 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="record in getRecords(schema,page).records">
+
                                 <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)!==-1&&mark.id!==schema.id">
                                     <span ng-bind-html="record.nickname"></span>
                                 </td>
                                 <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)===-1&&mark.id!==schema.id">
-                                    <span ng-bind-html="record.task.data[mark.id]"></span>
+                                    <span ng-bind-html="record.task._data[mark.id]"></span>
                                 </td>
                                 <td ng-switch on="schema.type">
                                     <span ng-switch-when="image">
-                                        <img ng-repeat="img in record.value" ng-src='{{img}}' />
+                                        <img ng-repeat="img in record.task._data[schema.id]" ng-src='{{img}}' />
                                     </span>
                                     <span ng-switch-when="file">
-                                        <span ng-repeat='file in record.value'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                        <span ng-repeat='file in record.task._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                                     </span>
-                                    <span ng-switch-when="date">{{(record.value*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                                    <span ng-switch-default ng-bind-html="record.value"></span>
+                                    <span ng-switch-when="date">{{(record.task._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                    <span ng-switch-default ng-bind-html="record.task._data[schema.id]"></span>
                                 </td>
                             </tr>
                             <tr class='text-center' ng-if="schema.number&&schema.number=='Y'">
@@ -129,9 +139,11 @@
             <uib-tabset active="active">
                 <uib-tab index="0" heading="标识项">
                     <div class='form-group' ng-if="tasks">
-                        <select class='form-control' title='所有任务项' ng-model='filter.taskSchemaId' ng-options="task.id as task.title for task in data.taskSchemas">
+                        <select class='form-control' title='所有任务项' ng-model='filter.taskSchmId' ng-options="task.id as task.title for task in data.taskSchemas">
+                            <option value=''>请选择任务项</option>
                         </select>
-                        <select class='form-control' title='所有行动项' ng-model='filter.actSchemaId' ng-options="action.id as action.action_desc for action in tasks[filter.taskSchemaId].actions" >
+                        <select class='form-control' title='所有行动项' ng-model='filter.actSchmId' ng-options="action.id as action.action_desc for action in tasks[filter.taskSchmId].actions" >
+                            <option value=''>请选择行动项</option>
                         </select>
                     </div>
                     <div style='max-height:370px;overflow-y:auto'>

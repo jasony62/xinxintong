@@ -1,7 +1,9 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'srvPlanApp', '$uibModal', 'srvRecordConverter', function($scope, http2, srvPlanApp, $uibModal, srvRecordConverter) {
-        var _oApp;
+    ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'noticebox', 'srvPlanApp', '$uibModal', 'srvRecordConverter', function($scope, http2, noticebox, srvPlanApp, $uibModal, srvRecordConverter) {
+        var _oApp, _oCriteria, _oGroup;
+        _oGroup = {};
+        $scope.page = {};
         $scope.rows = {
             allSelected: 'N',
             selected: {},
@@ -15,6 +17,15 @@ define(['frame'], function(ngApp) {
                 this.count = 0;
             }
         };
+        $scope.criteria = _oCriteria = {
+            record: {
+                verified: '',
+            },
+            byTaskSchema: '',
+            tags: [],
+            data: {},
+            keyword: '',
+        };
         $scope.$watch('rows.allSelected', function(checked) {
             var index = 0;
             if (checked === 'Y') {
@@ -27,9 +38,11 @@ define(['frame'], function(ngApp) {
             }
         });
         $scope.doSearch = function() {
-            http2.get('/rest/pl/fe/matter/plan/task/list?app=' + _oApp.id, function(rsp) {
-                var tasks, oSchemasById;
+            var url = '/rest/pl/fe/matter/plan/task/list?app=' + _oApp.id;
+            http2.post(url, _oCriteria, function(rsp) {
+                var tasks, total, oSchemasById;
                 tasks = rsp.data.tasks;
+                total = rsp.data.total;
                 oSchemasById = {};
                 _oApp.checkSchemas.forEach(function(oSchema) {
                     oSchemasById[oSchema.id] = oSchema;
@@ -46,6 +59,30 @@ define(['frame'], function(ngApp) {
                     }
                 });
                 $scope.tasks = tasks;
+                $scope.page.total = total;
+            });
+        };
+        $scope.filter = function() {
+            var that = this;
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/plan/component/planFilter.html?_=1',
+                controller: 'ctrlPlanFilter',
+                windowClass: 'auto-height',
+                backdrop: 'static',
+                resolve: {
+                    tasks: function() {
+                        return angular.copy(_oApp.taskSchemas);
+                    },
+                    dataSchemas: function() {
+                        return angular.copy(_oApp.checkSchemas);
+                    },
+                    criteria: function() {
+                        return angular.copy(that.criteria);
+                    }
+                }
+            }).result.then(function(criteria) {
+                angular.extend(that.criteria, criteria);
+                that.doSearch(1);
             });
         };
         $scope.gotoTask = function(oTask) {
@@ -70,9 +107,115 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
+        $scope.verifyAll = function() {
+            if (window.confirm('确定审核通过所有记录（共' + $scope.page.total + '条）？')) {
+                http2.get('/rest/pl/fe/matter/plan/task/verifyAll?app=' + _oApp.id, function(rsp) {
+                    $scope.tasks.forEach(function(task) {
+                        task.verified = 'Y';
+                    });
+                    noticebox.success('完成操作');
+                });
+            }
+        };
+        $scope.export = function() {
+            var url, oCriteria;
+            oCriteria = {};
+            if (_oCriteria.keyword) {
+                oCriteria.keyword = _oCriteria.keyword;
+            }
+            if (_oCriteria.data && Object.keys(_oCriteria.data).length) {
+                var oFilterDat = {};
+                angular.forEach(_oCriteria.data, function(v, k) {
+                    v && (oFilterDat[k] = v);
+                });
+                if (Object.keys(oFilterDat).length) {
+                    oCriteria.data = oFilterDat;
+                }
+            }
+            if(_oCriteria.byTaskSchema) {
+                oCriteria.byTaskSchema = _oCriteria.byTaskSchema;
+            }
+            if (_oCriteria.record) {
+                var oFilterRec = {};
+                if (_oCriteria.record.verified) {
+                    oFilterRec.verified = _oCriteria.record.verified;
+                }
+                if (Object.keys(oFilterRec).length) {
+                    oCriteria.record = oFilterRec;
+                }
+            }
+            url = '/rest/pl/fe/matter/plan/task/export?app=' + _oApp.id;
+            url += '&filter=' + JSON.stringify(oCriteria);
+            window.open(url);
+        };
+        $scope.exportImage = function() {
+            var url;
+            url = '/rest/pl/fe/matter/plan/task/exportImage?app=' + _oApp.id ;
+            window.open(url);
+        };
         srvPlanApp.get().then(function(oApp) {
+            if(oApp.entryRule.scope.group && oApp.entryRule.scope.group=='Y' && oApp.groupApp.rounds.length) {
+                oApp.groupApp.rounds.forEach(function(round) {
+                    _oGroup[round.round_id] = round;
+                });
+            }
+            oApp._rounds = _oGroup;
             _oApp = oApp;
             $scope.doSearch();
         });
+    }]);
+    ngApp.provider.controller('ctrlPlanFilter', ['$scope', '$uibModalInstance', 'tasks', 'dataSchemas', 'criteria', function($scope, $mi, tasks, dataSchemas, lastCriteria) {
+        var canFilteredSchemas = [];
+        $scope.tasks = tasks;
+        dataSchemas.forEach(function(schema) {
+            if (false === /image|file|score|html/.test(schema.type) && schema.id.indexOf('member') !== 0) {
+                canFilteredSchemas.push(schema);
+            }
+            if (/multiple/.test(schema.type)) {
+                var options = {};
+                if (lastCriteria.data[schema.id]) {
+                    lastCriteria.data[schema.id].split(',').forEach(function(key) {
+                        options[key] = true;
+                    })
+                }
+                lastCriteria.data[schema.id] = options;
+            }
+            $scope.schemas = canFilteredSchemas;
+            $scope.criteria = lastCriteria;
+        });
+        $scope.clean = function() {
+            var criteria = $scope.criteria;
+            if (criteria.record) {
+                if (criteria.record.verified) {
+                    criteria.record.verified = '';
+                }
+            }
+            if (criteria.data) {
+                angular.forEach(criteria.data, function(val, key) {
+                    criteria.data[key] = '';
+                });
+            }
+        };
+        $scope.ok = function() {
+            var criteria = $scope.criteria,
+                optionCriteria;
+            // 将单选题/多选题的结果拼成字符串
+            canFilteredSchemas.forEach(function(schema) {
+                var result;
+                if (/multiple/.test(schema.type)) {
+                    if ((optionCriteria = criteria.data[schema.id])) {
+                        result = [];
+                        Object.keys(optionCriteria).forEach(function(key) {
+                            optionCriteria[key] && result.push(key);
+                        });
+                        criteria.data[schema.id] = result.join(',');
+                    }
+                }
+            });
+            $mi.close(criteria);
+        };
+        $scope.cancel = function() {
+            $mi.dismiss('cancel');
+        };
     }]);
 });

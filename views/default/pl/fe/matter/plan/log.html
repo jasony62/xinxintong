@@ -1,0 +1,63 @@
+<div class="col-md-6 col-md-offset-3">
+    <div class="form-group">
+        <div class="form-inline">
+            <button class='btn btn-default' ng-if="active=='0'" ng-click="filter('site')"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+            <button class='btn btn-default' ng-if="active=='1'" ng-click="filter('pl')"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+            <button class="btn btn-default" ng-click="clean()"><i class="glyphicon glyphicon-erase"></i> <span>清除条件</span></button>
+        </div>
+    </div>
+    <uib-tabset active="active">
+        <uib-tab index="0">
+            <uib-tab-heading>用户端</uib-tab-heading>
+            <table class='table table-bordered table-striped pl-workspace'>
+                <thead>
+                    <tr>
+                        <th style='width:120px;'>打开时间</th>
+                        <th>用户</th>
+                        <th style='width:80px;'>操作</th>
+                        <th style='width:120px;'>累计操作次数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='log in read.logs'>
+                        <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>{{log.nickname||'未知'}}</td>
+                        <td>{{operations[log.operation]}}</td>
+                        <td>{{log.user_op_num}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='form-group form-inline'>
+                <div class='pl-pagination'>
+                    <span>总数：{{read.page.total}}</span>
+                    <ul uib-pagination ng-show="read.page.total>read.page.size" boundary-links="true" total-items="read.page.total" max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="read.list()"></ul>
+                </div>
+            </div>
+        </uib-tab>
+        <uib-tab index="1">
+            <uib-tab-heading>管理端</uib-tab-heading>
+            <table class='table table-bordered table-striped pl-workspace'>
+                <thead>
+                    <tr>
+                        <th style='width:120px;'>打开时间</th>
+                        <th>用户</th>
+                        <th style='width:130px;'>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='log in record.logs'>
+                        <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>{{log.nickname||'未知'}}</td>
+                        <td>{{operations[log.operation]}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='form-group form-inline'>
+                <div class='pl-pagination'>
+                    <span>总数：{{record.page.total}}</span>
+                    <ul uib-pagination ng-show="record.page.total>record.page.size" boundary-links="true" total-items="record.page.total" max-size="7" items-per-page="record.page.size" rotate="false" ng-model="record.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="record.list()"></ul>
+                </div>
+            </div>
+        </uib-tab>
+    </uib-tabset>
+</div>

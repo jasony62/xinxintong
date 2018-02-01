@@ -1,6 +1,6 @@
 define(['require', 'schema', 'planService'], function(require, schemaLib) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll', 'sys.chart']);
     ngApp.constant('CstApp', {
         bornMode: {
             'A': { l: '组织者指定统一时间' },
@@ -23,7 +23,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             'schema.duplicated': '不允许重复添加登记项',
         },
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvInviteProvider', 'srvSiteProvider', 'srvPlanAppProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvInviteProvider, srvSiteProvider, srvPlanAppProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvInviteProvider', 'srvSiteProvider', 'srvPlanAppProvider', 'srvPlanRecordProvider', 'srvPlanLogProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvInviteProvider, srvSiteProvider, srvPlanAppProvider, srvPlanRecordProvider, srvPlanLogProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/matter/plan/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
@@ -55,6 +55,8 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             .when('/rest/pl/fe/matter/plan/entry', new RouteParam('entry'))
             .when('/rest/pl/fe/matter/plan/invite', new RouteParam('invite', '/views/default/pl/fe/_module/'))
             .when('/rest/pl/fe/matter/plan/coin', new RouteParam('coin'))
+            .when('/rest/pl/fe/matter/plan/log', new RouteParam('log'))
+            .when('/rest/pl/fe/matter/plan/stat', new RouteParam('stat'))
             .otherwise(new RouteParam('main'));
 
         $locationProvider.html5Mode(true);
@@ -66,6 +68,8 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             appId = ls.match(/[\?&]id=([^&]*)/)[1];
             srvSiteProvider.config(siteId);
             srvPlanAppProvider.config(siteId, appId);
+            srvPlanRecordProvider.config(siteId, appId);
+            srvPlanLogProvider.config(siteId, appId);
             srvInviteProvider.config('plan', appId);
         })();
     }]);
@@ -85,6 +89,8 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
                     break;
                 case 'task':
                 case 'user':
+                case 'log':
+                case 'stat':
                     $scope.opened = 'data';
                     break;
                 case 'coin':

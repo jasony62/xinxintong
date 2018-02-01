@@ -172,7 +172,7 @@ class rank extends base {
 			$oCriteria->round = explode(',', $oCriteria->round);
 		}
 		if (empty($oCriteria->round) || in_array('ALL', $oCriteria->round)) {
-			$sql .= " and u.rid = 'ALL'";
+			$sql .= " and rid = 'ALL'";
 		} else {
 			$whereByRound = ' and rid in("';
 			$whereByRound .= implode('","', $oCriteria->round);

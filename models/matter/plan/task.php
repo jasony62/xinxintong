@@ -185,7 +185,7 @@ class task_model extends \TMS_MODEL {
 		$oNewTask->born_at = $bornAt;
 		$oNewTask->patch_at = $bDelayed ? $current : 0;
 		$oNewTask->userid = $oUser->uid;
-		$oNewTask->group_id = '';
+		$oNewTask->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
 		$oNewTask->nickname = $oUser->nickname;
 		$oNewTask->first_enroll_at = 0;
 		$oNewTask->last_enroll_at = 0;
@@ -241,15 +241,81 @@ class task_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byApp($oApp, $aOptions = []) {
+	public function byApp($oApp, $aOptions = [], $oCriteria = null) {
 		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
 		$q = [
 			$fields,
 			'xxt_plan_task',
-			['aid' => $oApp->id, 'state' => 1],
+			"aid = '{$oApp->id}' and state = 1",
 		];
-		$q2 = ['o' => 'first_enroll_at desc'];
 
+		if (!empty($oCriteria->byComment)) {
+			$q[2] .= " and comment like '%" . $this->escape($oCriteria->byComment) . "%'";
+		}
+		if (!empty($oCriteria->byTaskSchema)) {
+			$q[2] .= " and task_schema_id = " . $this->escape($oCriteria->byTaskSchema);
+		}
+		if (!empty($oCriteria->record->verified)) {
+			$q[2] .= " and verified = '" . $this->escape($oCriteria->record->verified) . "'";
+		}
+		if (isset($oCriteria->data)) {
+			$oAppSchemasById = new \stdClass;
+			foreach ($oApp->checkSchemas as $oSchema) {
+				$oAppSchemasById->{$oSchema->id} = $oSchema;
+			}
+
+			$where = '';
+			foreach ($oCriteria->data as $k => $v) {
+				if (!empty($v) && isset($oAppSchemasById->{$k})) {
+					$oAppSchema = $oAppSchemasById->{$k};
+					$where .= ' and (';
+					if ($oAppSchema->type === 'multiple') {
+						// 选项ID是否互斥，不存在，例如：v1和v11
+						$bOpExclusive = true;
+						$strOpVals = '';
+						foreach ($oAppSchema->ops as $op) {
+							$strOpVals .= ',' . $op->v;
+						}
+						foreach ($oAppSchema->ops as $op) {
+							if (false !== strpos($strOpVals, $op->v)) {
+								$bOpExclusive = false;
+								break;
+							}
+						}
+						// 拼写sql
+						$v2 = explode(',', $v);
+						foreach ($v2 as $index => $v2v) {
+							if ($index > 0) {
+								$where .= ' and ';
+							}
+							// 获得和题目匹配的子字符串
+							$dataBySchema = 'substr(substr(data,locate(\'"' . $k . '":"\',data)),1,locate(\'"\',substr(data,locate(\'"' . $k . '":"\',data)),' . (strlen($k) + 5) . '))';
+							$where .= '(';
+							if ($bOpExclusive) {
+								$where .= $dataBySchema . ' like \'%' . $v2v . '%\'';
+							} else {
+								$where .= $dataBySchema . ' like \'%"' . $v2v . '"%\'';
+								$where .= ' or ' . $dataBySchema . ' like \'%"' . $v2v . ',%\'';
+								$where .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . ',%\'';
+								$where .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . '"%\'';
+							}
+							$where .= ')';
+						}
+					} else {
+						$where .= 'data like \'%"' . $k . '":"' . $v . '%\'';
+					}
+					$where .= ')';
+				}
+			}
+			$q[2] .= $where;
+		}
+
+		$q2 = ['o' => 'first_enroll_at desc'];
+		if (isset($aOptions['paging'])) {
+			$q2['r'] = [];
+			$q2['r']['o'] = ($aOptions['paging']['page'] - 1) * $aOptions['paging']['size'];
+			$q2['r']['l'] = $aOptions['paging']['size'];
+		}
 		$tasks = $this->query_objs_ss($q, $q2);
 		if (count($tasks)) {
 			$modelSchAct = $this->model('matter\plan\schema\action');
@@ -258,6 +324,15 @@ class task_model extends \TMS_MODEL {
 				/* 行动项 */
 				if (isset($oTask->task_schema_id)) {
 					$oTask->actions = $modelSchAct->byTask($oTask->task_schema_id, $aActOptions);
+					/* 获取对应的任务名称 */
+					if (!isset($tskSchmTitle)) {
+						$taskSchemas = $this->model('matter\plan\schema\task')->byApp($oApp->id, ['fields' => 'id,title']);
+						$tskSchmTitle = new \stdClass;
+						foreach ($taskSchemas as $taskSchema) {
+							$tskSchmTitle->{$taskSchema->id} = $taskSchema->title;
+						}
+					}
+					$oTask->taskSchemaTitle = $tskSchmTitle->{$oTask->task_schema_id};
 				}
 				/* 处理数据 */
 				if (!empty($oTask->data)) {
@@ -274,7 +349,9 @@ class task_model extends \TMS_MODEL {
 
 		$result = new \stdClass;
 		$result->tasks = $tasks;
-		$result->total = count($tasks);
+		$q[0] = 'count(id)';
+		$total = (int) $this->query_val_ss($q);
+		$result->total = $total;
 
 		return $result;
 	}

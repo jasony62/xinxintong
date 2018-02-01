@@ -31,6 +31,10 @@ class action extends \pl\fe\matter\base {
 		if (false === $oTask) {
 			return new \ObjectNotFoundError();
 		}
+		$oPlan = $this->model('matter\plan')->byId($oTask->aid, ['fields' => 'id,siteid,state,title,summary']);
+		if (false === $oPlan || $oPlan->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
 		$oProto = new \stdClass;
 		$oProto->aid = $oTask->aid;
@@ -38,6 +42,8 @@ class action extends \pl\fe\matter\base {
 		$oProto->task_schema_id = $oTask->id;
 
 		$oNewAction = $this->model('matter\plan\schema\action')->add($oProto);
+
+		$this->model('matter\log')->matterOp($oPlan->siteid, $oUser, $oPlan, 'addSchemaAction');
 
 		return new \ResponseData($oNewAction);
 	}
@@ -106,8 +112,12 @@ class action extends \pl\fe\matter\base {
 		}
 
 		$modelAct = $this->model('matter\plan\schema\action');
-		$oAction = $modelAct->byId($action, ['fields' => 'id,state']);
+		$oAction = $modelAct->byId($action, ['fields' => 'id,aid,state']);
 		if (false === $oAction || $oAction->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oPlan = $this->model('matter\plan')->byId($oAction->aid, ['fields' => 'id,siteid,state,title,summary']);
+		if (false === $oPlan || $oPlan->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -130,6 +140,8 @@ class action extends \pl\fe\matter\base {
 			$rst = 0;
 		}
 
+		$this->model('matter\log')->matterOp($oPlan->siteid, $oUser, $oPlan, 'updateSchemaAction', $oPosted);
+
 		return new \ResponseData($rst);
 	}
 
@@ -142,8 +154,12 @@ class action extends \pl\fe\matter\base {
 		}
 
 		$modelAct = $this->model('matter\plan\schema\action');
-		$oAction = $modelAct->byId($action, ['fields' => 'id,action_seq,state']);
+		$oAction = $modelAct->byId($action, ['fields' => 'id,aid,action_seq,state']);
 		if (false === $oAction || $oAction->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oPlan = $this->model('matter\plan')->byId($oAction->aid, ['fields' => 'id,siteid,state,title,summary']);
+		if (false === $oPlan || $oPlan->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -152,6 +168,8 @@ class action extends \pl\fe\matter\base {
 
 		// 调整其他任务的序号
 		$modelAct->update('update xxt_plan_action_schema set action_seq=action_seq-1 where state=1 and action_seq>' . $oAction->action_seq);
+
+		$this->model('matter\log')->matterOp($oPlan->siteid, $oUser, $oPlan, 'removeSchemaAction');
 
 		return new \ResponseData($oAction);
 	}

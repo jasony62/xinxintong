@@ -40,6 +40,7 @@ class plan_model extends app_base {
 	 */
 	public function &byId($id, $aOptions = []) {
 		if ($oMatter = parent::byId($id, $aOptions)) {
+			$oMatter->type = 'plan';
 			if (!empty($oMatter->siteid) && !empty($oMatter->id)) {
 				$oMatter->entryUrl = $this->getEntryUrl($oMatter->siteid, $oMatter->id);
 			}

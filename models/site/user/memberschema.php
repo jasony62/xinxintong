@@ -16,8 +16,8 @@ class memberschema_model extends \TMS_MODEL {
 
 		$schemas = $this->query_objs_ss($q);
 		if (count($schemas)) {
-			//$modelCp = $this->model('code\page');
 			foreach ($schemas as $oSchema) {
+				$oSchema->type = 'memberschema';
 				$oAttrs = new \stdClass;
 				foreach (['name', 'mobile', 'email'] as $prop) {
 					if (isset($oSchema->{'attr_' . $prop})) {
@@ -30,41 +30,15 @@ class memberschema_model extends \TMS_MODEL {
 					}
 				}
 				$oSchema->attrs = $oAttrs;
-				if (isset($oSchema->type) && $oSchema->type === 'inner') {
-					if (isset($oSchema->siteid) && isset($oSchema->id)) {
-						$oSchema->fullUrl = 'http://' . APP_HTTP_HOST . $oSchema->url . '?site=' . $oSchema->siteid . '&schema=' . $oSchema->id;
-					}
+				if (property_exists($oSchema, 'url') && isset($oSchema->siteid) && isset($oSchema->id)) {
+					$oSchema->fullUrl = 'http://' . APP_HTTP_HOST . $oSchema->url . '?site=' . $oSchema->siteid . '&schema=' . $oSchema->id;
+				}
+				if (property_exists($oSchema, 'ext_attrs')) {
+					$oSchema->extAttrs = empty($oSchema->ext_attrs) ? [] : json_decode($oSchema->ext_attrs);
+					unset($oSchema->ext_attrs);
 				}
 				if (isset($oSchema->extattr) && !empty($oSchema->extattr)) {
 					$oSchema->extattr = json_decode($oSchema->extattr);
-				}
-				// if (!empty($oSchema->page_code_name)) {
-				// 	$page = $modelCp->lastPublishedByName(
-				// 		$oSchema->siteid,
-				// 		$oSchema->page_code_name,
-				// 		['fields' => 'id,html,css,js']
-				// 	);
-				// 	$oSchema->page = $page;
-				// }
-				if ($cascaded === 'Y') {
-					$oPage = new \stdClass;
-					$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-					if (file_exists($templateDir . '/basic.html')) {
-						$oPage->html = file_get_contents($templateDir . '/basic.html');
-					} else {
-						$oPage->html = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.html');
-					}
-					if (file_exists($templateDir . '/basic.css')) {
-						$oPage->css = file_get_contents($templateDir . '/basic.css');
-					} else {
-						$oPage->css = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.css');
-					}
-					if (file_exists($templateDir . '/basic.js')) {
-						$oPage->js = file_get_contents($templateDir . '/basic.js');
-					} else {
-						$oPage->js = file_get_contents(TMS_APP_TEMPLATE_DEFAULT . '/pl/fe/site/memberschema/basic.js');
-					}
-					$oSchema->page = $oPage;
 				}
 			}
 		}
@@ -72,25 +46,9 @@ class memberschema_model extends \TMS_MODEL {
 		return $schemas;
 	}
 	/**
-	 * 根据模板创建缺省页面
-	 */
-	private function _pageCreate($oSite, $oUser, $template = 'basic') {
-		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-
-		$data = [
-			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
-			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
-			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
-		];
-
-		$oCode = $this->model('code\page')->create($oSite->id, $oUser->id, $data);
-
-		return $oCode;
-	}
-	/**
 	 * 自定义用户信息
 	 */
-	public function &byId($id, $aOptions = []) {
+	public function byId($id, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 
@@ -105,24 +63,15 @@ class memberschema_model extends \TMS_MODEL {
 	 * 自定义联系人接口只有在本地部署版本中才有效
 	 */
 	public function create($oSite, $oUser, $oConfig = null) {
-
-		$oCode = $this->_pageCreate($oSite, $oUser);
-
 		$oNewMschema = new \stdClass;
 		$oNewMschema->siteid = $oSite->id;
 		$oNewMschema->matter_id = isset($oConfig->matter_id) ? $oConfig->matter_id : '';
 		$oNewMschema->matter_type = isset($oConfig->matter_type) ? $oConfig->matter_type : '';
 		$oNewMschema->title = isset($oConfig->title) ? $this->escape($oConfig->title) : '新通讯录';
-		$oNewMschema->type = 'inner';
 		$oNewMschema->valid = (isset($oConfig->valid) && $oConfig->valid === 'Y') ? 'Y' : 'N';
 		$oNewMschema->creater = $oUser->id;
 		$oNewMschema->create_at = time();
-		$oNewMschema->entry_statement = '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。';
-		$oNewMschema->acl_statement = '您的身份识别信息没有放入白名单中，请与系统管理员联系。';
-		$oNewMschema->notpass_statement = '您的邮箱还没有验证通过，若未收到验证邮件请联系系统管理员。若需要重发验证邮件，请先完成【<a href="{{authapi}}">用户身份确认</a>】。';
 		$oNewMschema->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
-		$oNewMschema->code_id = $oCode->id;
-		$oNewMschema->page_code_name = $oCode->name;
 		$oNewMschema->attr_mobile = '011101'; // 必填，唯一，不可更改，身份标识
 		$oNewMschema->attr_email = '001000';
 		$oNewMschema->attr_name = '000000';
@@ -156,6 +105,28 @@ class memberschema_model extends \TMS_MODEL {
 		}
 
 		return $oNewMschema;
+	}
+	/**
+	 * 恢复被删除的素材
+	 */
+	public function restore($oUser, $oMschema) {
+		/* 恢复数据 */
+		$rst = $this->update(
+			'xxt_site_member_schema',
+			['valid' => 'Y'],
+			["id" => $oMschema->id]
+		);
+
+		/* 记录和项目的关系 */
+		if (isset($oMschema->matter_type) && $oMschema->matter_type === 'mission' && !empty($oMschema->matter_id)) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($oUser, $oMschema->siteid, $oMschema->matter_id, $oMschema);
+		}
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($oMschema->siteid, $oUser, $oMschema, 'Restore');
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 * 通讯录概况
@@ -233,68 +204,6 @@ class memberschema_model extends \TMS_MODEL {
 		}
 
 		return $schemas;
-	}
-	/**
-	 * 进入用户身份认证页的说明
-	 */
-	public function getEntryStatement($authid, $mpid, $openid) {
-		$authapi = $this->byId($authid, 'url,entry_statement');
-		$r = $authapi->entry_statement;
-		if (false !== strpos($r, '{{authapi}}')) {
-			// auth page's url
-			$url = "http://" . APP_HTTP_HOST;
-			$url .= $authapi->url;
-			$url .= "?mpid=$mpid&authid=$authid&openid=$openid";
-			// require auth reply
-			$r = str_replace('{{authapi}}', $url, $authapi->entry_statement);
-		}
-
-		return $r;
-	}
-	/**
-	 * 用户身份认证信息没有通过验证
-	 *
-	 * $authid
-	 * $runningMpid
-	 */
-	public function getNotpassStatement($authid, $runningMpid, $openid = null) {
-		$authapi = $this->byId($authid, 'url,notpass_statement');
-		$r = $authapi->notpass_statement;
-		if (false !== strpos($r, '{{authapi}}')) {
-			// auth page's url
-			$url = "http://" . APP_HTTP_HOST;
-			$url .= $authapi->url;
-			$url .= "?mpid=$runningMpid&authid=$authid";
-			if (!empty($openid)) {
-				$url .= "&openid=$openid";
-			}
-
-			// require auth reply
-			$r = str_replace('{{authapi}}', $url, $authapi->notpass_statement);
-		}
-
-		return $r;
-	}
-	/**
-	 * 用户身份认证信息没有在白名单中
-	 */
-	public function getAclStatement($authid, $runningMpid, $openid = null) {
-		$authapi = $this->byId($authid, 'url,acl_statement');
-		$r = $authapi->acl_statement;
-		if (false !== strpos($r, '{{authapi}}')) {
-			// auth page's url
-			$url = "http://" . APP_HTTP_HOST;
-			$url .= $authapi->url;
-			$url .= "?mpid=$runningMpid&authid=$authid";
-			if (!empty($openid)) {
-				$url .= "&openid=$openid";
-			}
-
-			// require auth reply
-			$r = str_replace('{{authapi}}', $url, $authapi->acl_statement);
-		}
-
-		return $r;
 	}
 	/**
 	 * 获得企业号通讯录同步数据用的自定义用户定义

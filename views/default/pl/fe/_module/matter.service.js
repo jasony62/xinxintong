@@ -250,10 +250,12 @@ provider('srvSite', function() {
                             var oSchema, schemas = [],
                                 schemasById = {},
                                 mschemas = [];
-                            if (ms.attr_name[0] === '0') {
+                            if (!ms.attrs.name.hide) {
                                 oSchema = {
                                     id: 'member.name',
                                     title: '姓名',
+                                    type: 'shorttext',
+                                    format: 'name'
                                 };
                                 schemas.push(oSchema);
                                 schemasById[oSchema.id] = oSchema;
@@ -262,10 +264,12 @@ provider('srvSite', function() {
                                     title: '姓名'
                                 });
                             }
-                            if (ms.attr_mobile[0] === '0') {
+                            if (!ms.attrs.mobile.hide) {
                                 oSchema = {
                                     id: 'member.mobile',
                                     title: '手机',
+                                    type: 'shorttext',
+                                    format: 'mobile'
                                 };
                                 schemas.push(oSchema);
                                 schemasById[oSchema.id] = oSchema;
@@ -274,10 +278,12 @@ provider('srvSite', function() {
                                     title: '手机'
                                 });
                             }
-                            if (ms.attr_email[0] === '0') {
+                            if (!ms.attrs.email.hide) {
                                 oSchema = {
                                     id: 'member.email',
-                                    title: '手机',
+                                    title: '邮箱',
+                                    type: 'shorttext',
+                                    format: 'email'
                                 };
                                 schemas.push(oSchema);
                                 schemasById[oSchema.id] = oSchema;
@@ -286,24 +292,17 @@ provider('srvSite', function() {
                                     title: '邮箱'
                                 });
                             }
-                            (function() {
-                                var i, ea;
-                                if (ms.extattr) {
-                                    for (i = ms.extattr.length - 1; i >= 0; i--) {
-                                        ea = ms.extattr[i];
-                                        oSchema = {
-                                            id: 'member.extattr.' + ea.id,
-                                            title: ea.label,
-                                        };
-                                        schemas.push(oSchema);
-                                        schemasById[oSchema.id] = oSchema;
-                                        mschemas.push({
-                                            id: ea.id,
-                                            title: ea.label
-                                        });
-                                    };
-                                }
-                            })();
+                            ms.extAttrs.forEach(function(ea) {
+                                var oSchema;
+                                oSchema = angular.copy(ea);
+                                oSchema.id = 'member.extattr.' + oSchema.id;
+                                schemas.push(oSchema);
+                                schemasById[oSchema.id] = oSchema;
+                                mschemas.push({
+                                    id: oSchema.id,
+                                    title: oSchema.title
+                                });
+                            });
                             ms._schemas = schemas;
                             ms._schemasById = schemasById;
                             ms._mschemas = mschemas;
@@ -544,14 +543,38 @@ provider('srvQuickEntry', function() {
     }];
 }).provider('srvRecordConverter', function() {
     this.$get = ['$sce', function($sce) {
-        function _memberAttr(member, schema) {
-            var keys;
-            if (member) {
-                keys = schema.id.split('.');
+        function _memberAttr(oMember, oSchema) {
+            var keys, originalValue, afterValue;
+            if (oMember) {
+                keys = oSchema.id.split('.');
                 if (keys.length === 2) {
-                    return member[keys[1]];
-                } else if (member.extattr) {
-                    return member.extattr[keys[2]];
+                    return oMember[keys[1]];
+                } else if (keys.length === 3 && oMember.extattr) {
+                    if (originalValue = oMember.extattr[keys[2]]) {
+                        switch (oSchema.type) {
+                            case 'single':
+                                if (oSchema.ops && oSchema.ops.length) {
+                                    for (var i = oSchema.ops.length - 1; i >= 0; i--) {
+                                        if (originalValue === oSchema.ops[i].v) {
+                                            afterValue = oSchema.ops[i].l;
+                                        }
+                                    }
+                                }
+                                break;
+                            case 'multiple':
+                                if (oSchema.ops && oSchema.ops.length) {
+                                    afterValue = [];
+                                    oSchema.ops.forEach(function(op) {
+                                        originalValue[op.v] && afterValue.push(op.l);
+                                    });
+                                    afterValue = afterValue.join(',');
+                                }
+                                break;
+                            default:
+                                afterValue = originalValue;
+                        }
+                    }
+                    return afterValue;
                 } else {
                     return '';
                 }
@@ -597,7 +620,7 @@ provider('srvQuickEntry', function() {
                     oSchema = mapOfSchemas[schemaId];
                     type = oSchema.type;
                     /* 分组活动导入数据时会将member题型改为shorttext题型 */
-                    if (type === 'shorttext' && /member\..+/.test(oSchema.id) && oRecord.data.member) {
+                    if (oSchema.schema_id && oRecord.data.member) {
                         type = 'member';
                     }
                     switch (type) {

@@ -42,18 +42,30 @@
                 <input class="form-control" ng-model='member.email'>
             </div>
         </div>
-        <div class="form-group" ng-if='schema.attr_email[4]==1'>
-            <label class="col-md-2 control-label">邮箱验证通过</label>
-            <div class="col-md-10">
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.email_verified'>是
-                </label>
-            </div>
-        </div>
-        <div class="form-group" ng-repeat='ea in schema.extattr'>
-            <label class="col-md-2 control-label">{{ea.label}}</label>
-            <div class="col-md-10">
-                <input class="form-control" ng-model='member.extattr[ea.id]'>
+        <div class="form-group" ng-repeat='ea in schema.extAttrs'>
+            <label class="col-md-2 control-label">{{ea.title}}</label>
+            <div class="col-md-10" ng-switch on="ea.type">
+                <textarea class='form-control' ng-switch-when="longtext" ng-model="member.extattr[ea.id]"></textarea>
+                <select class='form-control' ng-switch-when="single" ng-model="member.extattr[ea.id]" ng-options="op.v as op.l for op in ea.ops">
+                    <option></option>
+                </select>
+                <div ng-switch-when="multiple">
+                    <div class='checkbox' ng-repeat="op in ea.ops">
+                        <label>
+                            <input type="checkbox" ng-model="member.extattr[ea.id][op.v]" /><span>{{op.l}}</span></label>
+                    </div>
+                </div>
+                <div ng-switch-when="date">
+                    <span class='form-control' ng-if="member.extattr[ea.id]">{{member.extattr[ea.id]*1000|date:'yy-MM-dd HH:mm'}}</span>
+                </div>
+                <div ng-switch-when="image">
+                    <div ng-repeat="img in member.extattr[ea.id]">
+                        <img ng-src="{{img.imgSrc}}" style='max-width:100%;'>
+                    </div>
+                </div>
+                <div ng-switch-default>
+                    <input type='text' class='form-control' ng-model="member.extattr[ea.id]">
+                </div>
             </div>
         </div>
     </form>

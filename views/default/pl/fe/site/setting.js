@@ -249,7 +249,6 @@ define(['require'], function(require) {
         }
         $scope.updSchema = function(schema, field) {
             var pv = {};
-            pv[field] = (/entry_statement|acl_statement|notpass_statement/.test(field)) ? encodeURIComponent(schema[field]) : schema[field];
             service.memberSchema.update(schema, pv).then(function(data) {
                 if (schema.id === undefined) {
                     shiftAttr(data);

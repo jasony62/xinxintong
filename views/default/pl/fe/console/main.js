@@ -385,7 +385,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('frameState.sid', function(siteId) {
             if (siteId) {
-                http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId, function(rsp) {
+                http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId + '&valid=Y', function(rsp) {
                     $scope.mschemas = rsp.data;
                     if ($scope.mschemas.length) {
                         if ($location.search().mschema) {
@@ -406,7 +406,7 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlMember', ['$scope', '$location', '$uibModal', 'http2', 'facListFilter', function($scope, $location, $uibModal, http2, facListFilter) {
+    ngApp.provider.controller('ctrlMember', ['$scope', '$location', '$sce', '$uibModal', 'http2', 'facListFilter', 'tmsSchema', function($scope, $location, $sce, $uibModal, http2, facListFilter, tmsSchema) {
         function listInvite(oSchema) {
             http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id, function(rsp) {
                 $scope.invites = rsp.data.invites;
@@ -441,22 +441,19 @@ define(['frame'], function(ngApp) {
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
             url += '&contain=total';
             http2.get(url, function(rsp) {
-                var i, member, members = rsp.data.members;
-                for (i in members) {
-                    member = members[i];
-                    if (member.extattr) {
-                        try {
-                            member.extattr = JSON.parse(member.extattr);
-                        } catch (e) {
-                            member.extattr = {};
-                        }
+                var members = rsp.data.members;
+                if (members.length) {
+                    if (_oMschema.extAttrs.length) {
+                        members.forEach(function(oMember) {
+                            oMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oMember);
+                        });
                     }
                 }
                 $scope.members = members;
                 $scope.page.total = rsp.data.total;
             });
         };
-        $scope.editMember = function(member) {
+        $scope.editMember = function(oMember) {
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/_module/memberEditor.html?_=1',
                 backdrop: 'static',
@@ -467,7 +464,7 @@ define(['frame'], function(ngApp) {
                 },
                 controller: ['$uibModalInstance', '$scope', 'schema', function($mi, $scope, schema) {
                     $scope.schema = schema;
-                    $scope.member = angular.copy(member);
+                    $scope.member = angular.copy(oMember);
                     $scope.canShow = function(name) {
                         return schema && schema['attr_' + name].charAt(0) === '0';
                     };
@@ -496,18 +493,14 @@ define(['frame'], function(ngApp) {
                             email: data.email,
                             email_verified: data.email_verified,
                             extattr: data.extattr
-                        },
-                        i, ea;
-                    for (i in $scope.mschema.extattr) {
-                        ea = $scope.mschema.extattr[i];
-                        newData[ea.id] = rst.data[ea.id];
-                    }
-                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.frameState.sid + '&id=' + member.id, newData, function(rsp) {
-                        angular.extend(member, newData);
+                        };
+                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.frameState.sid + '&id=' + oMember.id, newData, function(rsp) {
+                        angular.extend(oMember, newData);
+                        oMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oMember);
                     });
                 } else if (rst.action === 'remove') {
-                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.frameState.sid + '&id=' + member.id, function() {
-                        $scope.members.splice($scope.members.indexOf(member), 1);
+                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.frameState.sid + '&id=' + oMember.id, function() {
+                        $scope.members.splice($scope.members.indexOf(oMember), 1);
                     });
                 }
             });
@@ -604,11 +597,19 @@ define(['frame'], function(ngApp) {
                 location.href = '/rest/pl/fe/site?site=' + site.id;
             })
         };
-        $scope.restoreMatter = function(matter) {
-            var url = '/rest/pl/fe/matter/' + matter.matter_type + '/restore' + '?site=' + matter.siteid + '&id=' + matter.matter_id;
-            http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?site=' + matter.siteid + '&id=' + matter.matter_id;
-            });
+        $scope.restoreMatter = function(oMatter) {
+            var url;
+            if (oMatter.matter_type === 'memberschema') {
+                url = '/rest/pl/fe/site/member/schema/restore' + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
+                http2.get(url, function(rsp) {
+                    location.href = '/rest/pl/fe/site/mschema?site=' + oMatter.siteid + '#' + oMatter.matter_id;
+                });
+            } else {
+                url = '/rest/pl/fe/matter/' + oMatter.matter_type + '/restore' + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
+                http2.get(url, function(rsp) {
+                    location.href = '/rest/pl/fe/matter/' + oMatter.matter_type + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
+                });
+            }
         };
         $scope.list();
     }]);

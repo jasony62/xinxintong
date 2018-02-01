@@ -70,7 +70,7 @@ utilSchema.checkValue = function(oSchema, value) {
                 }
             }
             if (opCount < oSchema.range[0] || opCount > oSchema.range[1]) {
-                return '【' + oSchema.title + '】中最多只能选择(' + oSchema.range[1] +')项，最少需要选择(' + oSchema.range[0] +')项';
+                return '【' + oSchema.title + '】中最多只能选择(' + oSchema.range[1] + ')项，最少需要选择(' + oSchema.range[0] + ')项';
             }
         }
         if (/image|file/.test(oSchema.type) && oSchema.count) {
@@ -83,14 +83,9 @@ utilSchema.checkValue = function(oSchema, value) {
 };
 utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
     if (!dataOfRecord) return false;
-
     var p, value;
     for (p in dataOfRecord) {
         if (p === 'member') {
-            /* 提交的数据覆盖自动填写的联系人数据 */
-            if (angular.isString(dataOfRecord.member)) {
-                dataOfRecord.member = JSON.parse(dataOfRecord.member);
-            }
             dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
         } else if (schemasById[p] !== undefined) {
             var schema = schemasById[p];
@@ -117,31 +112,40 @@ utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
     }
     return true;
 };
-utilSchema.autoFillMember = function(user, member) {
-    var member2, eles;
-    if (user && member && member.schema_id && user.members) {
-        if (member2 = user.members[member.schema_id]) {
-            if (angular.isString(member2.extattr)) {
-                if (member2.extattr.length) {
-                    member2.extattr = JSON.parse(member2.extattr);
-                } else {
-                    member2.extattr = {};
+/**
+ * 给页面中的提交数据填充用户通讯录数据
+ */
+utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {
+    if (oUser.members) {
+        angular.forEach(schemasById, function(oSchema) {
+            if (oSchema.schema_id && oUser.members[oSchema.schema_id]) {
+                var oMember, attr, val;
+                oMember = oUser.members[oSchema.schema_id];
+                attr = oSchema.id.split('.');
+                if (attr.length === 2) {
+                    oPageDataMember[attr[1]] = oMember[attr[1]];
+                } else if (attr.length === 3 && oMember.extattr) {
+                    if (!oPageDataMember.extattr) {
+                        oPageDataMember.extattr = {};
+                    }
+                    switch (oSchema.type) {
+                        case 'multiple':
+                            val = oMember.extattr[attr[2]];
+                            if (angular.isObject(val)) {
+                                oPageDataMember.extattr[attr[2]] = {};
+                                for (var p in val) {
+                                    if (val[p]) {
+                                        oPageDataMember.extattr[attr[2]][p] = true;
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            oPageDataMember.extattr[attr[2]] = oMember.extattr[attr[2]];
+                    }
                 }
             }
-            eles = document.querySelectorAll("[ng-model^='data.member']");
-            angular.forEach(eles, function(ele) {
-                var attr;
-                attr = ele.getAttribute('ng-model');
-                attr = attr.replace('data.member.', '');
-                attr = attr.split('.');
-                if (attr.length == 2) {
-                    !member.extattr && (member.extattr = {});
-                    member.extattr[attr[1]] = member2.extattr[attr[1]];
-                } else {
-                    member[attr[0]] = member2[attr[0]];
-                }
-            });
-        }
+        });
     }
 };
 module.exports = utilSchema;

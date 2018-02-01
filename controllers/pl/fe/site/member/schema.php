@@ -28,9 +28,14 @@ class schema extends \pl\fe\base {
 		}
 		$modelSchema = $this->model('site\user\memberschema');
 
-		$schema = $modelSchema->byId($mschema);
+		$oMschema = $modelSchema->byId($mschema);
+		if ($oMschema) {
+			if ($oMschema->matter_type === 'mission' && !empty($oMschema->matter_id)) {
+				$oMschema->mission = $this->model('matter\mission')->byId($oMschema->matter_id);
+			}
+		}
 
-		return new \ResponseData($schema);
+		return new \ResponseData($oMschema);
 	}
 	/**
 	 * 返回指定通讯录的概况信息
@@ -230,35 +235,43 @@ class schema extends \pl\fe\base {
 		}
 
 		$oPosted = $this->getPostJson();
-		$modelMs = $this->model('site\user\memberschema')->setOnlyWriteDbConn(true);
-
-		if (isset($oPosted->entry_statement)) {
-			$oPosted->entry_statement = $modelMs->escape(urldecode($oPosted->entry_statement));
-		} else if (isset($oPosted->acl_statement)) {
-			$oPosted->acl_statement = $modelMs->escape(urldecode($oPosted->acl_statement));
-		} else if (isset($oPosted->notpass_statement)) {
-			$oPosted->notpass_statement = $modelMs->escape(urldecode($oPosted->notpass_statement));
-		} else if (isset($oPosted->extattr)) {
-			foreach ($oPosted->extattr as &$attr) {
-				$attr->id = urlencode($attr->id);
-				$attr->label = urlencode($attr->label);
-			}
-			$oPosted->extattr = urldecode(json_encode($oPosted->extattr));
-		} else if (isset($oPosted->type) && $oPosted->type === 'inner') {
-			$oPosted->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
-		} else if (isset($oPosted->qy_ab)) {
-			$modelMs->update('xxt_site_member_schema', ['qy_ab' => 'N'], "siteid='$this->siteId' and id!='$id'");
+		if (count(get_object_vars($oPosted)) === 0) {
+			return new \ParameterError();
 		}
+
+		$modelMs = $this->model('site\user\memberschema')->setOnlyWriteDbConn(true);
+		$oUpdated = new \stdClass;
+		foreach ($oPosted as $prop => $val) {
+			switch ($prop) {
+			case 'extAttrs':
+				$oUpdated->ext_attrs = $modelMs->escape($modelMs->toJson($val));
+				break;
+			case 'extattr':
+				foreach ($val as $attr) {
+					$attr->id = urlencode($attr->id);
+					$attr->label = urlencode($attr->label);
+				}
+				$oUpdated->extattr = urldecode(json_encode($oPosted->extattr));
+				break;
+			case 'qy_ab':
+				$oUpdated->qy_ab = $val;
+				/* 将同一个站点下的其他通讯录设置为非企业号通讯录 */
+				$modelMs->update('xxt_site_member_schema', ['qy_ab' => 'N'], "siteid='$this->siteId' and id!='$id'");
+				break;
+			default:
+				$oUpdated->{$prop} = $this->escape($val);
+			}
+		}
+
 		$rst = $modelMs->update(
 			'xxt_site_member_schema',
-			$oPosted,
+			$oUpdated,
 			['siteid' => $this->siteId, 'id' => $id]
 		);
 		$oMschema = $modelMs->byId($id);
 
 		/* 更新项目关联信息 */
 		if ($oMschema->matter_type === 'mission') {
-			$oMschema->type = 'memberschema';
 			$this->model('matter\mission')->updateMatter($oMschema->matter_id, $oMschema);
 		}
 
@@ -271,31 +284,52 @@ class schema extends \pl\fe\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$rst = $this->model()->delete('xxt_site_member_schema', "siteid='$this->siteId' and id='$id' and used=0");
+		$id = $this->escape($id);
+		$modelMs = $this->model('site\user\memberschema');
+		$oMschema = $modelMs->byId($id);
+		if (false === $oMschema) {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 更新项目关联信息 */
+		if ($oMschema->matter_type === 'mission' && !empty($oMschema->matter_id)) {
+			$this->model('matter\mission')->removeMatter($oMschema->matter_id, $oMschema);
+		}
+
+		$q = ['count(*)', 'xxt_site_member', ['schema_id' => $oMschema->id]];
+		if ((int) $modelMs->query_val_ss($q)) {
+			$rst = $modelMs->update(
+				'xxt_site_member_schema',
+				['valid' => 'N'],
+				['id' => $oMschema->id]
+			);
+			$this->model('matter\log')->matterOp($oMschema->siteid, $oUser, $oMschema, 'Recycle');
+		} else {
+			$rst = $modelMs->delete(
+				'xxt_site_member_invite',
+				['schema_id' => $oMschema->id]
+			);
+			$rst = $modelMs->delete(
+				'xxt_site_member_schema',
+				['id' => $oMschema->id]
+			);
+			$this->model('matter\log')->matterOp($oMschema->siteid, $oUser, $oMschema, 'D');
+		}
 
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 根据模版重置用户认证页面
-	 *
-	 * @param int $codeId
+	 * 恢复停用的通讯录
 	 */
-	public function pageReset_action($site, $name, $template = 'basic') {
+	public function restore_action($site, $id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
-		$modelCode = $this->model('code\page');
-		$code = $modelCode->lastByName($site, $name);
-
-		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-		$data = array(
-			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
-			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
-			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
-		);
-
-		$rst = $modelCode->modify($code->id, $data);
+		$modelMs = $this->model('site\user\memberschema');
+		if (false === ($oMschema = $modelMs->byId($id))) {
+			return new \ObjectNotFoundError('数据已经被彻底删除，无法恢复');
+		}
+		$rst = $modelMs->restore($oUser, $oMschema);
 
 		return new \ResponseData($rst);
 	}

@@ -34,7 +34,7 @@ class stat extends \pl\fe\matter\base {
 	 * @return array name => array(l=>label,c=>count)
 	 *
 	 */
-	public function get_action($site, $app, $taskSchmId = '', $actSchmId = '', $renewCache = 'Y') {
+	public function get_action($site, $app, $renewCache = 'Y') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -44,6 +44,10 @@ class stat extends \pl\fe\matter\base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		
+		// 获取指定得任务和行动项
+		$taskSchmId = isset($oApp->rpConfig->taskSchmId) ? $oApp->rpConfig->taskSchmId : '';
+		$actSchmId = isset($oApp->rpConfig->actSchmId)? $oApp->rpConfig->actSchmId : '';
 
 		// 如果指定了行动项需要获取行动项中得题目
 		if (!empty($taskSchmId) && !empty($actSchmId)) {
@@ -71,16 +75,20 @@ class stat extends \pl\fe\matter\base {
 	/*
 	* 获取活动所有的题目
 	*/
-	public function getAppSchema_action($site, $app, $taskSchmId = '', $actSchmId = '') {
+	public function getAppSchema_action($site, $app) {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\plan');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state,check_schemas']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,check_schemas,rp_config']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
+		// 获取指定得任务和行动项
+		$taskSchmId = isset($oApp->rpConfig->taskSchmId) ? $oApp->rpConfig->taskSchmId : '';
+		$actSchmId = isset($oApp->rpConfig->actSchmId)? $oApp->rpConfig->actSchmId : '';
 		
 		$oApp = $this->disposeApp($oApp, $taskSchmId, $actSchmId);
 
@@ -251,6 +259,7 @@ class stat extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
+		// 获取指定得任务和行动项
 		if (!empty($oApp->rpConfig->taskSchmId) && !empty($oApp->rpConfig->actSchmId)) {
 			$taskSchmId = $oApp->rpConfig->taskSchmId;
 			$actSchmId = $oApp->rpConfig->actSchmId;

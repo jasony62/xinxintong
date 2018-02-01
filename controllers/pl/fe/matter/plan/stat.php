@@ -377,23 +377,21 @@ class stat extends \pl\fe\matter\base {
 					$table1->addCell($cell_w1, $fancyTableCellStyle)->addText('序号', $firstStyle, $paragraphStyle);
 
 					//标识
-					if (!empty($oApp->rp_config)) {
-						$rpConfig = json_decode($oApp->rp_config);
-						if (!empty($rpConfig->marks)) {
-							foreach ($rpConfig->marks as $key => $mark) {
-								if ($schema->title !== $mark->title) {
-									if (strpos($mark->title, '&') === false) {
-										$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($mark->title, $firstStyle, $paragraphStyle);
-									} else {
-										$markTile = str_replace(['&'], ['&amp;'], $mark->title);
-										$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($markTile, $firstStyle, $paragraphStyle);
-									}
-									//$sumNumber++;
+					$rpConfig = $oApp->rpConfig;
+					if (!empty($rpConfig->marks)) {
+						foreach ($rpConfig->marks as $key => $mark) {
+							if ($schema->title !== $mark->title) {
+								if (strpos($mark->title, '&') === false) {
+									$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($mark->title, $firstStyle, $paragraphStyle);
+								} else {
+									$markTile = str_replace(['&'], ['&amp;'], $mark->title);
+									$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($markTile, $firstStyle, $paragraphStyle);
 								}
+								//$sumNumber++;
 							}
 						}
 					} else {
-						//$table1->addCell($cell_w2, $fancyTableCellStyle)->addText('昵称', $firstStyle, $paragraphStyle);
+						// $table1->addCell($cell_w2, $fancyTableCellStyle)->addText('昵称', $firstStyle, $paragraphStyle);
 						//$sumNumber++;
 					}
 					$table1->addCell($cell_w2, $fancyTableCellStyle)->addText('登记内容', $firstStyle, $paragraphStyle);
@@ -444,7 +442,7 @@ class stat extends \pl\fe\matter\base {
 								}
 							}
 						} else {
-							//$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($record->nickname);
+							// $table1->addCell($cell_w2, $fancyTableCellStyle)->addText($record->task->nickname);
 						}
 						$schemaId = $schema->id;
 						if ($schema->type === 'multitext' && is_array($record->value)) {
@@ -692,18 +690,13 @@ class stat extends \pl\fe\matter\base {
 					//$html .= "<th>轮次</th>";
 					$sumNumber = 0; //数值型最后合计的列号
 					//标识
-					if (!empty($oApp->rp_config)) {
-						$rpConfig = json_decode($oApp->rp_config);
-						if (!empty($rpConfig->marks)) {
-							foreach ($rpConfig->marks as $key => $mark) {
-								if ($schema->title !== $mark->title) {
-									$html .= "<th>" . $mark->title . "</th>";
-									$sumNumber++;
-								}
+					$rpConfig = $oApp->rpConfig;
+					if (!empty($rpConfig->marks)) {
+						foreach ($rpConfig->marks as $key => $mark) {
+							if ($schema->title !== $mark->title) {
+								$html .= "<th>" . $mark->title . "</th>";
+								$sumNumber++;
 							}
-						} else {
-							$html .= "<th>昵称</th>";
-							$sumNumber++;
 						}
 					} else {
 						$html .= "<th>昵称</th>";

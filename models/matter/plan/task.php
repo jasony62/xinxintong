@@ -568,11 +568,11 @@ class task_model extends \TMS_MODEL {
 							'c' => $op->c
 						];
 						if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
-							$q[2]['task_schema_id'] = $taskSchmId;
-							$q[2]['action_schema_id'] = $actSchmId;
+							$r['task_schema_id'] = $taskSchmId;
+							$r['action_schema_id'] = $actSchmId;
 						} else {
-							$q[2]['task_schema_id'] = 0;
-							$q[2]['action_schema_id'] = 0;
+							$r['task_schema_id'] = 0;
+							$r['action_schema_id'] = 0;
 						}
 						$this->insert('xxt_plan_task_stat', $r);
 					}
@@ -663,8 +663,8 @@ class task_model extends \TMS_MODEL {
 						"aid='$oApp->id' and state=1 and check_schema_id='{$oSchema->id}' and FIND_IN_SET('{$op->v}', value)",
 					];
 					if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
-						$q[2]['task_schema_id'] = $taskSchmId;
-						$q[2]['action_schema_id'] = $actSchmId;
+						$q[2] .= " and task_schema_id = $taskSchmId";
+						$q[2] .= " and action_schema_id = $actSchmId";
 					}
 					$op->c = (int) $this->query_val_ss($q);
 					$oDataBySchema->ops[] = $op;

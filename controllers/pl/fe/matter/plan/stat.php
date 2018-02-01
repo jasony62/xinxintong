@@ -45,6 +45,25 @@ class stat extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
+		// 如果指定了行动项需要获取行动项中得题目
+		if (!empty($taskSchmId) && !empty($actSchmId)) {
+			$modelTkSchm = $this->model('matter\plan\schema\task');
+			$modelActSchm = $this->model('matter\plan\schema\action');
+
+			$task = $modelTkSchm->byId($taskSchmId);
+			if ($task === false) {
+				return new \ResponseError('指定得任务不存在');
+			}
+			foreach ($task->actions as $action) {
+				if ($action->id === $actSchmId) {
+					foreach ($action->checkSchemas as $actSchm) {
+						$oApp->checkSchemas[] = $actSchm;
+					}
+					break;
+				}
+			}
+		}
+
 		$result = $this->model('matter\plan\task')->getStat($oApp, $taskSchmId, $actSchmId, $renewCache);
 
 		return new \ResponseData($result);
@@ -68,7 +87,7 @@ class stat extends \pl\fe\matter\base {
 		return new \ResponseData($oApp);
 	}
 	/*
-	* 处理指定任务行动项以后的全局题目
+	* 处理指定任务行动项以后的所有题目
 	*/
 	private function disposeApp(&$oApp, $taskSchmId, $actSchmId) {
 		/*包含的所有任务*/

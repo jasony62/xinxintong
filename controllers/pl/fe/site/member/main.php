@@ -27,15 +27,20 @@ class main extends \pl\fe\base {
 			$w .= " and concat(',',m.tags,',') like '%,$tag,%'";
 		}
 		$result = array();
-		$q = array(
+		$q = [
 			'm.*',
 			'xxt_site_member m',
 			$w,
-		);
+		];
 		$q2['o'] = 'm.create_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 		if ($members = $model->query_objs_ss($q, $q2)) {
+			foreach ($members as $oMember) {
+				if (property_exists($oMember, 'extattr')) {
+					$oMember->extattr = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
+				}
+			}
 			$result['members'] = $members;
 			$q[0] = 'count(*)';
 			$total = (int) $model->query_val_ss($q);
@@ -58,38 +63,28 @@ class main extends \pl\fe\base {
 		$oldMember = $modelMem->byId($id, 'schema_id');
 		$attrs = $this->model('site\user\memberschema')->byId($oldMember->schema_id, ['fields' => 'attr_mobile,attr_email,attr_name,extattr']);
 
-		$data = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		/**
 		 * 基本属性
 		 */
-		$emailVerified = (isset($data->email_verified) && $data->email_verified === 'Y') ? 'Y' : 'N';
+		$emailVerified = (isset($oPosted->email_verified) && $oPosted->email_verified === 'Y') ? 'Y' : 'N';
 		$newMember = array(
-			'mobile' => empty($data->mobile) ? '' : $data->mobile,
-			'email' => empty($data->email) ? '' : $data->email,
-			'name' => empty($data->name) ? '' : $data->name,
+			'mobile' => empty($oPosted->mobile) ? '' : $oPosted->mobile,
+			'email' => empty($oPosted->email) ? '' : $oPosted->email,
+			'name' => empty($oPosted->name) ? '' : $oPosted->name,
 			'email_verified' => $emailVerified,
-			'verified' => in_array($data->verified, ['Y', 'N', 'P']) ? $data->verified : 'P',
+			'verified' => in_array($oPosted->verified, ['Y', 'N', 'P']) ? $oPosted->verified : 'P',
 		);
 		if ($attrs->attr_mobile[5] === '1') {
-			$newMember['identity'] = $data->mobile;
+			$newMember['identity'] = $oPosted->mobile;
 		} else if ($attrs->attr_email[5] === '1') {
-			$newMember['identity'] = $data->email;
+			$newMember['identity'] = $oPosted->email;
 		}
 		/**
 		 * 扩展属性
 		 */
-		if (!empty($attrs->extattr)) {
-			$extdata = array();
-			foreach ($attrs->extattr as $ea) {
-				if (!empty($data->extattr->{$ea->id})) {
-					$extdata[urlencode($ea->id)] = urlencode($data->extattr->{$ea->id});
-				} else {
-					$extdata[urlencode($ea->id)] = '';
-				}
+		$newMember['extattr'] = empty($oPosted->extattr) ? '{}' : $modelMem->escape($modelMem->toJson($oPosted->extattr));
 
-			}
-			$newMember['extattr'] = urldecode(json_encode($extdata));
-		}
 		/*检查数据的唯一性*/
 		$newMember2 = $newMember;
 		$newMember2['schema_id'] = $oldMember->schema_id;

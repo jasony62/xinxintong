@@ -92,20 +92,10 @@ class user extends base {
 
 				if ($addressbook) {
 					if (isset($schema_id)) {
-						$schema = $modelEnl->query_obj_ss(['id,title,extattr', 'xxt_site_member_schema', ['id' => $schema_id]]);
+						$schema = $modelEnl->query_obj_ss(['id,title', 'xxt_site_member_schema', ['id' => $schema_id]]);
 					}
 					$extattr = json_decode($addressbook->extattr);
 					$addressbook->schema_title = $schema->title;
-					if (!empty((array) $extattr)) {
-						$schema->extattr = json_decode($schema->extattr);
-						$attr = array();
-						foreach ($schema->extattr as $v2) {
-							if (isset($extattr->{$v2->id})) {
-								$addressbook->{$v2->id} = $extattr->{$v2->id};
-							}
-						}
-						$addressbook->extattr = $extattr;
-					}
 					$addressbook->enroll_num = $user->enroll_num;
 					$addressbook->remark_other_num = $user->remark_other_num;
 					$addressbook->like_other_num = $user->like_other_num;

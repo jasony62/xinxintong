@@ -336,8 +336,12 @@ class TMS_MODEL {
 				$newObj[urlencode($k)] = self::_urlencodeObj4Json($v);
 			}
 		} else {
-			$obj = self::_escape4Json($obj);
-			$newObj = urlencode($obj);
+			if (is_bool($obj) || is_numeric($obj)) {
+				$newObj = $obj;
+			} else {
+				$obj = self::_escape4Json($obj);
+				$newObj = urlencode($obj);
+			}
 		}
 
 		return $newObj;

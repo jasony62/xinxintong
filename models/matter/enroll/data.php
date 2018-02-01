@@ -304,9 +304,9 @@ class data_model extends \TMS_MODEL {
 
 		return (object) ['dbData' => $dbData, 'score' => $oRecordScore];
 	}
-	/*
-		 * 处理提交的数据
-	*/
+	/**
+	 * 处理提交的数据
+	 */
 	public function disposRecrdData($oApp, $schemasById, $submitData, $submitkey) {
 		$oDbData = new \stdClass; // 处理后的保存到数据库中的登记记录
 		/* 处理提交的数据，进行格式转换等操作 */

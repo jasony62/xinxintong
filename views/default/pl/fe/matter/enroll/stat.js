@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlStat', ['$scope', '$location', 'http2', '$timeout', '$q', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvRecordConverter', 'srvChart', function($scope, $location, http2, $timeout, $q, $uibModal, srvEnrollApp, srvEnrollRound, srvRecordConverter, srvChart) {
+    ngApp.provider.controller('ctrlStat', ['$scope', '$location', 'http2', '$timeout', '$q', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'tmsSchema', 'srvChart', function($scope, $location, http2, $timeout, $q, $uibModal, srvEnrollApp, srvEnrollRound, tmsSchema, srvChart) {
         var _rid, _oChartConfig, _cacheOfRecordsBySchema;
 
         function _schemasForReport(oApp) {
@@ -128,7 +128,7 @@ define(['frame'], function(ngApp) {
                             size: page.size
                         };
                         rsp.data.records.forEach(function(record) {
-                            srvRecordConverter.forTable(record);
+                            tmsSchema.forTable(record);
                         });
                         if (schema.number && schema.number == 'Y') {
                             cached.sum = rsp.data.sum;
@@ -299,7 +299,7 @@ define(['frame'], function(ngApp) {
             if (!oApp) {
                 return;
             }
-            srvRecordConverter.config(oApp.dataSchemas);
+            tmsSchema.config(oApp.dataSchemas);
 
             $scope.chartConfig = _oChartConfig = (oApp.rpConfig && oApp.rpConfig.pl) || {
                 number: 'Y',

@@ -130,7 +130,7 @@ class record extends \pl\fe\matter\base {
 	 * 若不指定登记项，则返回活动中所有数值型登记项的合集
 	 * 若指定的登记项不是数值型，返回0
 	 */
-	public function sum4Schema_action($site, $app, $rid = '') {
+	public function sum4Schema_action($site, $app, $rid = '', $gid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -146,14 +146,14 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
-		$result = $modelRec->sum4Schema($enrollApp, $rid);
+		$result = $modelRec->sum4Schema($enrollApp, $rid, $gid);
 
 		return new \ResponseData($result);
 	}
 	/**
 	 * 计算指定登记项的得分
 	 */
-	public function score4Schema_action($site, $app, $rid = '') {
+	public function score4Schema_action($site, $app, $rid = '', $gid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -169,7 +169,7 @@ class record extends \pl\fe\matter\base {
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
-		$result = $modelRec->score4Schema($enrollApp, $rid);
+		$result = $modelRec->score4Schema($enrollApp, $rid, $gid);
 
 		return new \ResponseData($result);
 	}
@@ -926,6 +926,13 @@ class record extends \pl\fe\matter\base {
 		// 筛选条件
 		$oCriteria = empty($filter) ? new \stdClass : json_decode($filter);
 		$rid = empty($oCriteria->record->rid) ? '' : $oCriteria->record->rid;
+		if (!empty($oCriteria->record->group_id)) {
+			$gid = $oCriteria->record->group_id;
+		} else if (!empty($oCriteria->data->_round_id)) {
+			$gid = $oCriteria->data->_round_id;
+		} else {
+			$gid = '';
+		}
 
 		$oResult = $modelRec->byApp($oApp, null, $oCriteria);
 		if ($oResult->total === 0) {
@@ -1198,7 +1205,7 @@ class record extends \pl\fe\matter\base {
 		if (!empty($aNumberSum)) {
 			// 数值型合计
 			$rowIndex = count($records) + 2;
-			$oSum4Schema = $modelRec->sum4Schema($oApp, $rid);
+			$oSum4Schema = $modelRec->sum4Schema($oApp, $rid, $gid);
 			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
 			foreach ($aNumberSum as $key => $val) {
 				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $oSum4Schema->$val);
@@ -1207,7 +1214,7 @@ class record extends \pl\fe\matter\base {
 		if (!empty($aScoreSum)) {
 			// 分数合计
 			$rowIndex = count($records) + 2;
-			$oScore4Schema = $modelRec->score4Schema($oApp, $rid);
+			$oScore4Schema = $modelRec->score4Schema($oApp, $rid, $gid);
 			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
 			foreach ($aScoreSum as $key => $val) {
 				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $oScore4Schema->$val);

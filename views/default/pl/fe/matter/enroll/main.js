@@ -177,17 +177,6 @@ define(['frame'], function(ngApp) {
             delete _oAppRule.group;
             $scope.update('entry_rule');
         };
-        $scope.editMschema = function(oMschema) {
-            if (oMschema.matter_id) {
-                if (oMschema.matter_type === 'mission') {
-                    location.href = '/rest/pl/fe/matter/mission/mschema?id=' + oMschema.matter_id + '&site=' + _oApp.siteid + '#' + oMschema.id;
-                } else {
-                    location.href = '/rest/pl/fe/site/mschema?site=' + _oApp.siteid + '#' + oMschema.id;
-                }
-            } else {
-                location.href = '/rest/pl/fe?view=main&scope=user&sid=' + _oApp.siteid + '&mschema=' + oMschema.id;
-            }
-        };
         $scope.removeMschema = function(mschemaId) {
             var bSchemaChanged = false;
             if (_oAppRule.member[mschemaId]) {

@@ -35,6 +35,27 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     };
 }]);
 ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'Round', '$uibModal', function($scope, $q, $sce, http2, LS, srvRound, $uibModal) {
+    function fnRoundTitle(aRids) {
+        var defer;
+        defer = $q.defer();
+        if (aRids.indexOf('ALL') !== -1) {
+            defer.resolve('全部轮次');
+        } else {
+            var titles;
+            http2.get('/rest/site/fe/matter/enroll/round/get?site=' + oApp.siteid + '&app=' + oApp.id + '&rid=' + aRids).then(function(rsp) {
+                if (rsp.data.length === 1) {
+                    titles = rsp.data[0].title;
+                } else if (rsp.data.length === 2) {
+                    titles = rsp.data[0].title + ',' + rsp.data[1].title;
+                } else if (rsp.data.length > 2) {
+                    titles = rsp.data[0].title + '-' + rsp.data[rsp.data.length - 1].title;
+                }
+                defer.resolve(titles);
+            });
+        }
+        return defer.promise;
+    }
+
     function list() {
         var defer = $q.defer();
         switch (oAppState.criteria.obj) {
@@ -173,39 +194,83 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
     };
     $scope.doRound = function(rid) {
         if (rid == 'more') {
-            $scope.moreRounds();
+            $scope.setRound();
         } else {
             $scope.changeCriteria();
         }
     };
-    $scope.moreRounds = function() {
+    /**
+     * 设置轮次条件
+     */
+    $scope.setRound = function() {
         $uibModal.open({
-            templateUrl: 'moreRound.html',
+            templateUrl: 'setRound.html',
             backdrop: 'static',
             controller: ['$scope', '$uibModalInstance', 'Round', function($scope2, $mi, srvRound) {
+                var oCheckedRounds;
                 $scope2.facRound = srvRound.ins(oApp);
                 $scope2.pageOfRound = $scope2.facRound.oPage;
-                $scope2.moreCriteria = {
-                    rid: 'ALL'
-                }
-                $scope2.doSearchRound = function() {
-                    if (oApp.multi_rounds === 'Y') {
-                        $scope2.facRound.list().then(function(result) {
-                            $scope2.activeRound = result.active;
-                            $scope2.rounds = result.rounds;
-                        });
+                $scope2.checkedRounds = oCheckedRounds = {};
+                $scope2.countOfChecked = 0;
+                $scope2.toggleCheckedRound = function(rid) {
+                    if (rid === 'ALL' && oCheckedRounds.ALL) {
+                        $scope2.checkedRounds = oCheckedRounds = { ALL: true };
+                    } else if (oCheckedRounds[rid]) {
+                        oCheckedRounds.ALL = false;
                     }
+                    $scope2.countOfChecked = Object.keys(oCheckedRounds).length;
                 };
-                $scope2.cancel = function() {
-                    $mi.dismiss();
+                $scope2.clean = function() {
+                    $scope2.checkedRounds = oCheckedRounds = {};
                 };
                 $scope2.ok = function() {
-                    $mi.close($scope2.moreCriteria.rid);
+                    var checkedRoundIds = [];
+                    if (Object.keys(oCheckedRounds).length) {
+                        angular.forEach(oCheckedRounds, function(v, k) {
+                            if (v) {
+                                checkedRoundIds.push(k);
+                            }
+                        });
+                    }
+                    $mi.close(checkedRoundIds);
+                };
+                $scope2.cancel = function() {
+                    $mi.dismiss('cancel');
+                };
+                $scope2.doSearchRound = function() {
+                    $scope2.facRound.list().then(function(result) {
+                        $scope2.activeRound = result.active;
+                        if ($scope2.activeRound) {
+                            var otherRounds = [];
+                            result.rounds.forEach(function(oRound) {
+                                if (oRound.rid !== $scope2.activeRound.rid) {
+                                    otherRounds.push(oRound);
+                                }
+                            });
+                            $scope2.rounds = otherRounds;
+                        } else {
+                            $scope2.rounds = result.rounds;
+                        }
+
+                    });
+                };
+                var oCriteria;
+                oCriteria = $scope.appState.criteria;
+                if (angular.isArray(oCriteria.round)) {
+                    if (oCriteria.round.length) {
+                        oCriteria.round.forEach(function(rid) {
+                            oCheckedRounds[rid] = true;;
+                        });
+                    }
                 }
+                $scope2.countOfChecked = Object.keys(oCheckedRounds).length;
                 $scope2.doSearchRound();
             }]
         }).result.then(function(result) {
-            $scope.appState.criteria.round = result;
+            oAppState.criteria.round = result;
+            fnRoundTitle(result).then(function(titles) {
+                $scope.checkedRoundTitles = titles;
+            });
             $scope.changeCriteria();
         });
     }
@@ -280,7 +345,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
                     obj: 'user',
                     orderby: 'enroll',
                     agreed: 'all',
-                    round: 'ALL'
+                    round: ['ALL']
                 },
                 page: {
                     at: 1,
@@ -288,6 +353,9 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
                 }
             };
         }
+        fnRoundTitle(oAppState.criteria.round).then(function(titles) {
+            $scope.checkedRoundTitles = titles;
+        });
         $scope.appState = oAppState;
         $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
             if (oNew && oOld && oNew !== oOld) {
@@ -315,13 +383,6 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
             }
         });
         $scope.facRound = facRound = srvRound.ins(oApp);
-        if (oApp.multi_rounds === 'Y') {
-            facRound.list().then(function(result) {
-                $scope.activeRound = result.active;
-                $scope.checkedRound = result.checked;
-                $scope.rounds = result.rounds;
-            });
-        }
         $scope.changeCriteria();
     });
 }]);

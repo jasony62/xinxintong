@@ -158,7 +158,8 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                         afterValue = originalValue;
                 }
             }
-            aProcessing[0][aProcessing[1]] = afterValue || originalValue;
+            aProcessing[0][aProcessing[1]] = afterValue || originalValue || '';
+            afterValue = undefined;
         });
     }
 

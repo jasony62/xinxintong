@@ -219,7 +219,10 @@ define(['frame'], function(ngApp) {
                             });
                         });
                         $scope2.tasks = _oTasks;
-                    }
+                    };
+                    $scope2.$watch('filter.taskSchmId', function(nv) {
+                        if(!nv) {$scope2.appMarkSchemas = angular.copy(markSchemas);}
+                    });
                     $scope2.$watch('filter.actSchmId', function(nv) {
                         if(!nv) return;
                         $scope2.appMarkSchemas = angular.copy(markSchemas);

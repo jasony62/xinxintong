@@ -81,7 +81,7 @@
                             <tr ng-repeat="record in getRecords(schema,page).records">
 
                                 <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)!==-1&&mark.id!==schema.id">
-                                    <span ng-bind-html="record.nickname"></span>
+                                    <span ng-bind-html="record.task.nickname"></span>
                                 </td>
                                 <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)===-1&&mark.id!==schema.id">
                                     <span ng-bind-html="record.task._data[mark.id]"></span>

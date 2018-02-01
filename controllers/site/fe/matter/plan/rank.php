@@ -9,7 +9,7 @@ class rank extends base {
 	/**
 	 *
 	 */
-	public function byUser_action($app, $page = 1, $size = 10) {
+	public function byUser_action($app, $page = '', $size = '') {
 		$modelApp = $this->model('matter\plan');
 		$app = $modelApp->escape($app);
 
@@ -63,6 +63,11 @@ class rank extends base {
 		}
 		$oUsers = $modelUsr->query_objs_ss($q, $q2);
 
-		return new \ResponseData($oUsers);
+		$data = new \stdClass;
+		$data->users = $oUsers;
+		$q[0] = "count(id)";
+		$data->total = (int) $modelUsr->query_val_ss($q);
+
+		return new \ResponseData($data);
 	}
 }

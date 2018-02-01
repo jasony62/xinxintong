@@ -521,6 +521,9 @@ class task_model extends \TMS_MODEL {
 			if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
 				$q[2]['task_schema_id'] = $taskSchmId;
 				$q[2]['action_schema_id'] = $actSchmId;
+			} else {
+				$q[2]['task_schema_id'] = 0;
+				$q[2]['action_schema_id'] = 0;
 			}
 
 			$q2 = ['r' => ['o' => 0, 'l' => 1]];
@@ -554,6 +557,9 @@ class task_model extends \TMS_MODEL {
 				if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
 					$q[2]['task_schema_id'] = $taskSchmId;
 					$q[2]['action_schema_id'] = $actSchmId;
+				} else {
+					$q[2]['task_schema_id'] = 0;
+					$q[2]['action_schema_id'] = 0;
 				}
 				foreach ($result as $id => $oDataBySchema) {
 					foreach ($oDataBySchema->ops as $op) {
@@ -588,6 +594,9 @@ class task_model extends \TMS_MODEL {
 				if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
 					$q[2]['task_schema_id'] = $taskSchmId;
 					$q[2]['action_schema_id'] = $actSchmId;
+				} else {
+					$q[2]['task_schema_id'] = 0;
+					$q[2]['action_schema_id'] = 0;
 				}
 				$aCached = $this->query_objs_ss($q);
 				foreach ($aCached as $oDataByOp) {

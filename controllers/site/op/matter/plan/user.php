@@ -1,7 +1,7 @@
 <?php
 namespace site\op\matter\plan;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once TMS_APP_DIR . '/controllers/site/op/base.php';
 /**
  *
  */

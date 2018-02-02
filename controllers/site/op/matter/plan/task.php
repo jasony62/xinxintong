@@ -5,7 +5,7 @@ require_once TMS_APP_DIR . '/controllers/site/op/base.php';
 /**
  *
  */
-class record extends \site\op\base {
+class task extends \site\op\base {
 	/**
 	 * 返回视图
 	 */

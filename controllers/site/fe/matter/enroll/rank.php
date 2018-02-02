@@ -26,8 +26,18 @@ class rank extends base {
 			'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
 			"u.aid='{$oApp->id}' and u.state=1",
 		];
-		$round = empty($oCriteria->round) ? 'ALL' : $modelUsr->escape($oCriteria->round);
-		$q[2] .= " and u.rid = '$round'";
+
+		if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
+			$oCriteria->round = explode(',', $oCriteria->round);
+		}
+		if (empty($oCriteria->round) || in_array('ALL', $oCriteria->round)) {
+			$q[2] .= " and u.rid = 'ALL'";
+		} else {
+			$whereByRound = ' and rid in("';
+			$whereByRound .= implode('","', $oCriteria->round);
+			$whereByRound .= '")';
+			$q[2] .= $whereByRound;
+		}
 
 		switch ($oCriteria->orderby) {
 		case 'enroll':
@@ -158,8 +168,17 @@ class rank extends base {
 			break;
 		}
 		$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "' and state=1";
-		$round = empty($oCriteria->round) ? 'ALL' : $modelApp->escape($oCriteria->round);
-		$sql .= " and rid='" . $round . "'";
+		if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
+			$oCriteria->round = explode(',', $oCriteria->round);
+		}
+		if (empty($oCriteria->round) || in_array('ALL', $oCriteria->round)) {
+			$sql .= " and rid = 'ALL'";
+		} else {
+			$whereByRound = ' and rid in("';
+			$whereByRound .= implode('","', $oCriteria->round);
+			$whereByRound .= '")';
+			$sql .= $whereByRound;
+		}
 
 		/* 获取分组的数据 */
 		$modelUsr = $this->model('matter\enroll\user');

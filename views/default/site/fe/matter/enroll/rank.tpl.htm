@@ -35,15 +35,8 @@
     <div ng-cloak class='ng-cloak container'>
         <div id='rank' class='app' ng-controller="ctrlRank">
             <div class='row filter'>
-                <div class="col-md-2 col-xs-4" ng-if="rounds.length">
-                    <div class='btn-group'>
-                        <select class='form-control' title='登记轮次' ng-model='appState.criteria.round' ng-change="doRound(appState.criteria.round)">
-                            <option value='ALL'>全部轮次</option>
-                            <option ng-if="activeRound" value='{{activeRound.rid}}'>启用（{{activeRound.title}}）</option>
-                            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                            <option value="more" ng-if="rounds.length > 10">更多</option>
-                        </select>
-                    </div>
+                <div class="col-md-2 col-xs-4" ng-if="app.multi_rounds==='Y'">
+                    <div class='form-control' ng-click="setRound()" title='{{checkedRoundTitles}}' style='overflow:hidden;white-space:nowrap;'>{{checkedRoundTitles}}</div>
                 </div>
                 <div class='col-md-2' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']">
                     <select class='form-control' ng-model="appState.criteria.obj">
@@ -350,28 +343,33 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <script type="text/ng-template" id="moreRound.html">
+    <script type="text/ng-template" id="setRound.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
             <h5 class="modal-title">轮次列表</h5>
         </div>
         <div class="modal-body">
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <label class="col-md-3 control-label">全部轮次</label>
-                    <div class="col-md-9">
-                        <select class='form-control' ng-model="moreCriteria.rid" size=5>
-                            <option value='ALL'>全部</option>
-                            <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
-                            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
-                        </select>
-                        <div ng-show="pageOfRound.total>pageOfRound.size">
-                            <span style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
-                        </div>
-                    </div>
+            <div class='form-group'>
+                <button class='btn btn-default btn-sm' ng-click="clean()">清除<span>已选的{{countOfChecked}}项</span></button>
+            </div>
+            <div class='form-group' style='height:230px;overflow-y:auto'>
+                <div>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="checkedRounds.ALL" ng-change="toggleCheckedRound('ALL')">全部轮次</label>
                 </div>
-            </form>
+                <div ng-if="activeRound">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="checkedRounds[activeRound.rid]" ng-change="toggleCheckedRound(activeRound.rid)">{{activeRound.title}}<span>（启用）</span></label>
+                </div>
+                <div ng-repeat="rnd in rounds">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="checkedRounds[rnd.rid]" ng-change="toggleCheckedRound(rnd.id)">{{rnd.title}}</label>
+                </div>
+            </div>
+            <div ng-show="pageOfRound.total>pageOfRound.size">
+                <span class='hidden-xs' style='line-height:34px'>总数：{{pageOfRound.total}}</span>
+                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+            </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-primary" ng-click="ok()">确定</button>

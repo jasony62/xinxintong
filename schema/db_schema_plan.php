@@ -27,6 +27,8 @@ $sql .= ",auto_verify char(1) not null default 'Y'";
 $sql .= ",can_patch char(1) not null default 'Y'"; // 是否允许补填数据
 $sql .= ",notweekend char(1) not null default 'N'"; // 周六周日是否生成任务
 $sql .= ",rp_config text"; // 统计报告页面用户选择的标识信息
+$sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
+$sql .= ",rp_short_url_code char(4) not null default ''"; // 统计报告页面的短链接编码
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 /**

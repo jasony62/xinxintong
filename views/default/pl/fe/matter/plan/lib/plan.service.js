@@ -3,29 +3,42 @@ define(['require'], function(require) {
     var ngMod;
     ngMod = angular.module('service.plan', ['ui.xxt']);
     ngMod.provider('srvPlanApp', function() {
-        var _siteId, _appId, _getAppDeferred, _oApp;
-        this.config = function(site, app) {
+        var _siteId, _appId, _accessId, _getAppDeferred, _oApp;
+        this.config = function(site, app, accessId) {
             _siteId = site;
             _appId = app;
+            _accessId = accessId;
         };
         this.$get = ['$q', 'http2', function($q, http2) {
+            function _fnMakeApiUrl(action) {
+                var url;
+                url = '/rest/pl/fe/matter/plan/' + action + '?site=' + _siteId + '&id=' + _appId;
+                return url;
+            }
+
+            function _fnGetApp(url) {
+                if (_getAppDeferred) {
+                    return _getAppDeferred.promise;
+                }
+                _getAppDeferred = $q.defer();
+                http2.get(url, function(rsp) {
+                    _oApp = rsp.data;
+                    if (!_oApp.entryRule) {
+                        _oApp.entryRule = {};
+                    }
+                    _getAppDeferred.resolve(_oApp);
+                });
+
+                return _getAppDeferred.promise;
+            }
             var oInstance = {
                 get: function() {
+                    return _fnGetApp(_fnMakeApiUrl('get'));
+                },
+                opGet: function() {
                     var url;
-                    if (_getAppDeferred) {
-                        return _getAppDeferred.promise;
-                    }
-                    _getAppDeferred = $q.defer();
-                    url = '/rest/pl/fe/matter/plan/get?site=' + _siteId + '&id=' + _appId;
-                    http2.get(url, function(rsp) {
-                        _oApp = rsp.data;
-                        if (!_oApp.entryRule) {
-                            _oApp.entryRule = {};
-                        }
-                        _getAppDeferred.resolve(_oApp);
-                    });
-
-                    return _getAppDeferred.promise;
+                    url = '/rest/site/op/matter/plan/get?site=' + _siteId + '&id=' + _appId + '&accessToken=' + _accessId;
+                    return _fnGetApp(url);
                 },
                 update: function(names) {
                     var defer = $q.defer(),

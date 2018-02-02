@@ -34,7 +34,7 @@ define(['frame'], function(ngApp) {
         $scope.chooseFile = function(action, schema) {
             var r, onSubmit;
             r = new Resumable({
-                target: '/rest/site/fe/matter/plan/task/uploadFile?site=' + _oApp.siteid + '&app=' + _oApp.id,
+                target: '/rest/pl/fe/matter/plan/task/uploadFile?site=' + _oApp.siteid + '&app=' + _oApp.id,
                 testChunks: false,
                 chunkSize: 512 * 1024
             });

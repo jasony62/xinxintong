@@ -1,0 +1,85 @@
+<div class='container-fluid'>
+    <div id='list' class='row'>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <form class="navbar-form navbar-left tms-keep-inline">
+                <div class="btn-group dropdown" uib-dropdown>
+                    <button uib-dropdown-toggle ng-disabled="!countSelected()" class="btn btn-default">
+                        选中记录 <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" uib-dropdown-menu>
+                        <li><a href="" ng-click="batchVerify()">通过审核</a></li>
+                    </ul>
+                </div>
+                <button class='btn btn-default' ng-click="filter()">筛选</button>
+            </form>
+        </nav>
+        <div>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:48px'>操作</th>
+                        <th style='width:40px'></th>
+                        <th style='width:40px'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                        </th>
+                        <th style='width:120px'>用户</th>
+                        <th style='width:120px'>首次登记时间</th>
+                        <th style='width:120px'>最后登记时间</th>
+                        <th style='width:100px'>审核结果</th>
+                        <th style='width:120px'>任务名称</th>
+                        <th style='width:100px' ng-if="app.entryRule.scope.group&&app.entryRule.scope.group=='Y'">分组名称</th>
+                        <th ng-repeat="schema in app.checkSchemas">{{schema.title}}</th>
+                        <th>备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='task in tasks'>
+                        <td>
+                            <button class='btn btn-xs btn-default' ng-click='switchToRecord($event, task)'>
+                                <span class='glyphicon glyphicon-edit'></span>
+                            </button>
+                        </td>
+                        <td>{{$index+1}}</td>
+                        <td>
+                            <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                        </td>
+                        <td>{{task.nickname}}</td>
+                        <td>{{(task.first_enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{(task.last_enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{task.verified==='Y'?'是':(task.verified==='N'?'否':'待定')}}</td>
+                        <td>{{task.taskSchemaTitle}}</td>
+                        <td ng-if="app.entryRule.scope.group&&app.entryRule.scope.group=='Y'">
+                            <span ng-if="task.group_id!==''">{{app._rounds[task.group_id].title}}</span>
+                            <span ng-if="task.group_id===''">未分组</span>
+                        </td>
+                        <td ng-repeat="schema in app.checkSchemas" ng-switch on="schema.type">
+                            <div ng-switch-when="image">
+                                <img ng-repeat="img in task._data[schema.id]" ng-src='{{img}}' />
+                            </div>
+                            <div ng-switch-when="file">
+                                <span ng-repeat='file in task._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </div>
+                            <span ng-switch-when="date">{{(task._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="task._data[schema.id]"></span>
+                            <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&task.supplement[schema.id].length">(补充说明：{{task.supplement[schema.id]}})</p>
+                        </td>
+                        <td>{{task.comment}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav class="navbar navbar-default navbar-fixed-bottom">
+            <form class="navbar-form navbar-right">
+                <p class="tms-keep-inline"><a href="" ng-click="switchTo('report')" class="navbar-link">看报告</a></p>
+                <span> 共{{page.total}}条，</span>
+                <span>第 <select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select><span>页</span></span>
+                <button class='btn btn-default' ng-click="getRecords()">刷新</button>
+            </form>
+        </nav>
+    </div>
+    <script type="text/ng-template" id="leadToLogin.html">
+        <div>
+            <span>请登录后进行此操作，<a href='' ng-click="switchToLogin($event) ">继续</a></span>
+        </div>
+    </script>
+</div>

@@ -269,7 +269,7 @@ ngApp.controller('ctrlMain', ['$scope', '$location', 'http2', 'tmsLocation', 'tm
             });
             tmsSnsShare.set(_oApp.title, _oApp.entryUrl, _oApp.summary, _oApp.pic);
         }
-        http2.post('/rest/site/fe/matter/logAccess?site=' + _oApp.siteid + '&id=' + _oApp.id + '&type=plan&title=' + _oApp.title, function(rsp) {});
+        http2.post('/rest/site/fe/matter/logAccess?site=' + _oApp.siteid + '&id=' + _oApp.id + '&type=plan&title=' + _oApp.title, {});
         var eleLoading;
         if (eleLoading = document.querySelector('.loading')) {
             eleLoading.parentNode.removeChild(eleLoading);

@@ -37,7 +37,7 @@ define(['require'], function(require) {
                 },
                 opGet: function() {
                     var url;
-                    url = '/rest/site/op/matter/plan/get?site=' + _siteId + '&id=' + _appId + '&accessToken=' + _accessId;
+                    url = '/rest/site/op/matter/plan/get?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId;
                     return _fnGetApp(url);
                 },
                 update: function(names) {

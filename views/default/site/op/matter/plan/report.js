@@ -34,7 +34,7 @@ define(["require", "angular", "planService"], function(require, angular) {
         };
         http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {
             $scope.user = rsp.data;
-            srvEnrollApp.opGet().then(function(oApp) {
+            srvPlanApp.opGet().then(function(oApp) {
                 oApp.scenario = 'quiz';
                 $scope.app = oApp;
                 /*上一次访问状态*/
@@ -142,7 +142,7 @@ define(["require", "angular", "planService"], function(require, angular) {
             url += '&accessToken=' + $scope.accessToken;
             url += '&taskSchmId=' + (app.rpConfig.taskSchmId || '');
             url += '&actSchmId=' + (app.rpConfig.actSchmId || '');
-            url ++ '&renewCache=Y';
+            url += '&renewCache=Y';
 
             http2.get(url, function(rsp) {
                 var oApp = rsp.data,

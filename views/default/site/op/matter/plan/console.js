@@ -15,10 +15,10 @@ define(["require", "angular", "planService"], function(require, angular) {
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
         };
         $routeProvider
-            .when('/rest/site/op/matter/plan/list', new RouteParam('list'))
+            .when('/rest/site/op/matter/plan/task', new RouteParam('task'))
             .when('/rest/site/op/matter/plan/report', new RouteParam('report'))
-            .when('/rest/site/op/matter/plan/record', new RouteParam('record'))
-            .otherwise(new RouteParam('list'));
+            .when('/rest/site/op/matter/plan/taskDetail', new RouteParam('taskDetail'))
+            .otherwise(new RouteParam('task'));
         //
         $locationProvider.html5Mode(true);
         //
@@ -39,7 +39,7 @@ define(["require", "angular", "planService"], function(require, angular) {
         };
         http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {
             $scope.user = rsp.data;
-            srvEnrollApp.opGet().then(function(oApp) {
+            srvPlanApp.opGet().then(function(oApp) {
                 oApp.scenario = 'quiz';
                 $scope.app = oApp;
                 /*上一次访问状态*/
@@ -62,7 +62,7 @@ define(["require", "angular", "planService"], function(require, angular) {
             });
         });
     }]);
-    ngApp.controller('ctrlTask', ['$scope', '$location', function($scope, $location) {
+    ngApp.controller('ctrlTask', ['$scope', '$location', 'http2', function($scope, $location, http2) {
         var execStatus = {};
         $scope.switchToRecord = function(event, task) {
             if ($scope.user.unionid) {
@@ -227,6 +227,7 @@ define(["require", "angular", "planService"], function(require, angular) {
                 }
             }
             $scope.$watch('app', function(app) {
+                if(!app) return;
                 if(app.entryRule.scope.group && app.entryRule.scope.group=='Y' && app.groupApp.rounds.length) {
                     app.groupApp.rounds.forEach(function(round) {
                         _oGroup[round.round_id] = round;
@@ -657,7 +658,7 @@ define(["require", "angular", "planService"], function(require, angular) {
             url += '&accessToken=' + $scope.accessToken;
             url += '&taskSchmId=' + (oApp.rpConfig.taskSchmId || '');
             url += '&actSchmId=' + (oApp.rpConfig.actSchmId || '');
-            url ++ '&renewCache=Y';
+            url += '&renewCache=Y';
 
             http2.get(url, function(rsp) {
                 var stat = {};

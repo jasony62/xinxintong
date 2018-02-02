@@ -1,9 +1,15 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'noticebox', 'srvPlanApp', '$uibModal', 'srvRecordConverter', function($scope, http2, noticebox, srvPlanApp, $uibModal, srvRecordConverter) {
-        var _oApp, _oCriteria, _oGroup;
+        var _oApp, _oCriteria, _oGroup, _oPage;
         _oGroup = {};
-        $scope.page = {};
+        $scope.page = _oPage = {
+            at: 1,
+            size: 30,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        };
         $scope.rows = {
             allSelected: 'N',
             selected: {},
@@ -26,6 +32,7 @@ define(['frame'], function(ngApp) {
             data: {},
             keyword: '',
         };
+        $scope.tmsTableWrapReady = 'N';
         $scope.$watch('rows.allSelected', function(checked) {
             var index = 0;
             if (checked === 'Y') {
@@ -37,12 +44,15 @@ define(['frame'], function(ngApp) {
                 $scope.rows.reset();
             }
         });
-        $scope.doSearch = function() {
-            var url = '/rest/pl/fe/matter/plan/task/list?app=' + _oApp.id;
+        $scope.gotoTask = function(oTask) {
+            location.href = '/rest/pl/fe/matter/plan/taskDetail?id=' + _oApp.id + '&site=' + _oApp.siteid + '&task=' + oTask.id;
+        };
+        $scope.doSearch = function(pageNumber) {
+            pageNumber && (_oPage.at = pageNumber);
+            var url = '/rest/pl/fe/matter/plan/task/list?app=' + _oApp.id + _oPage.j();
             http2.post(url, _oCriteria, function(rsp) {
                 var tasks, total, oSchemasById;
                 tasks = rsp.data.tasks;
-                total = rsp.data.total;
                 oSchemasById = {};
                 _oApp.checkSchemas.forEach(function(oSchema) {
                     oSchemasById[oSchema.id] = oSchema;
@@ -59,7 +69,7 @@ define(['frame'], function(ngApp) {
                     }
                 });
                 $scope.tasks = tasks;
-                $scope.page.total = total;
+                $scope.page.total = rsp.data.total;
             });
         };
         $scope.filter = function() {
@@ -84,9 +94,6 @@ define(['frame'], function(ngApp) {
                 angular.extend(that.criteria, criteria);
                 that.doSearch(1);
             });
-        };
-        $scope.gotoTask = function(oTask) {
-            location.href = '/rest/pl/fe/matter/plan/taskDetail?id=' + _oApp.id + '&site=' + _oApp.siteid + '&task=' + oTask.id;
         };
         $scope.batchVerify = function(rows) {
             var ids = [],
@@ -161,6 +168,7 @@ define(['frame'], function(ngApp) {
             }
             oApp._rounds = _oGroup;
             _oApp = oApp;
+            $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();
         });
     }]);

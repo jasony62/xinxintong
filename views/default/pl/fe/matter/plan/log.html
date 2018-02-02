@@ -30,7 +30,7 @@
             <div class='form-group form-inline'>
                 <div class='pl-pagination'>
                     <span>总数：{{read.page.total}}</span>
-                    <ul uib-pagination ng-show="read.page.total>read.page.size" boundary-links="true" total-items="read.page.total" max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="read.list()"></ul>
+                    <ul uib-pagination ng-show="read.page.total>read.page.size" class="pull-right"  boundary-links="true" total-items="read.page.total" max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="read.list()"></ul>
                 </div>
             </div>
         </uib-tab>
@@ -55,7 +55,7 @@
             <div class='form-group form-inline'>
                 <div class='pl-pagination'>
                     <span>总数：{{record.page.total}}</span>
-                    <ul uib-pagination ng-show="record.page.total>record.page.size" boundary-links="true" total-items="record.page.total" max-size="7" items-per-page="record.page.size" rotate="false" ng-model="record.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="record.list()"></ul>
+                    <ul uib-pagination ng-show="record.page.total>record.page.size" class="pull-right"  boundary-links="true" total-items="record.page.total" max-size="7" items-per-page="record.page.size" rotate="false" ng-model="record.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="record.list()"></ul>
                 </div>
             </div>
         </uib-tab>

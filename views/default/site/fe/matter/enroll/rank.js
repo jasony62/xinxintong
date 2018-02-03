@@ -384,5 +384,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         });
         $scope.facRound = facRound = srvRound.ins(oApp);
         $scope.changeCriteria();
+        /*设置页面分享信息*/
+        $scope.setSnsShare();
     });
 }]);

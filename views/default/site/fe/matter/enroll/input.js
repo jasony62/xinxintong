@@ -427,6 +427,8 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             if (oRecord.data_tag) {
                 $scope.tag = oRecord.data_tag;
             }
+            /*设置页面分享信息*/
+            $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
         });
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {

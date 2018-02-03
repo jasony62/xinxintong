@@ -227,7 +227,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         }
         shareid = oUser.uid + '_' + (new Date * 1);
         sharelink += "&shareby=" + shareid;
-        console.log('sss', sharelink);
         /* 设置分享 */
         if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
             summary = oApp.summary;

@@ -332,7 +332,9 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
             }, true);
             if (oAppState = window.localStorage.getItem("site.fe.matter.enroll.rank.appState")) {
                 oAppState = JSON.parse(oAppState);
-                if (oAppState.criteria.obj === 'group') {
+                if (!oAppState.aid || oAppState.aid !== oApp.id) {
+                    oAppState = null;
+                } else if (oAppState.criteria.obj === 'group') {
                     if (!oApp.group_app_id) {
                         oAppState = null;
                     }
@@ -341,6 +343,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         }
         if (!oAppState) {
             oAppState = {
+                aid: oApp.id,
                 criteria: {
                     obj: 'user',
                     orderby: 'enroll',

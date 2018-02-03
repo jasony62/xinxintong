@@ -39,9 +39,11 @@ abstract class enroll_base extends app_base {
 		$oEntryRule->scope = $oProtoEntryRule->scope;
 		switch ($oEntryRule->scope) {
 		case 'group':
-			if (!empty($oProtoEntryRule->group->id) && !empty($oProtoEntryRule->group->round->id)) {
+			if (!empty($oProtoEntryRule->group->id)) {
 				$oEntryRule->group = (object) ['id' => $oProtoEntryRule->group->id];
-				$oEntryRule->group->round = (object) ['id' => $oProtoEntryRule->group->round->id];
+				if (!empty($oProtoEntryRule->group->round->id)) {
+					$oEntryRule->group->round = (object) ['id' => $oProtoEntryRule->group->round->id];
+				}
 			}
 			break;
 		case 'member':
@@ -300,9 +302,20 @@ abstract class enroll_base extends app_base {
 			if (!empty($oAppPage->data_schemas)) {
 				foreach ($oAppPage->data_schemas as $oSchemaConfig) {
 					switch ($oAppPage->type) {
-						case 'I':
-						case 'V':
-							$oSchema = $oSchemaConfig->schema;
+					case 'I':
+					case 'V':
+						$oSchema = $oSchemaConfig->schema;
+						if ($oSchema->type === 'shorttext' && in_array($oSchema->id, ['name', 'email', 'mobile'])) {
+							if (false === $oMschema1st->attrs->{$oSchema->id}->hide) {
+								$oSchema->type = 'member';
+								$oSchema->schema_id = $oMschema1st->id;
+								$oSchema->id = 'member.' . $oSchema->id;
+							}
+						}
+						break;
+					case 'L':
+						$oSchemas = $oSchemaConfig->schemas;
+						foreach ($oSchemas as $oSchema) {
 							if ($oSchema->type === 'shorttext' && in_array($oSchema->id, ['name', 'email', 'mobile'])) {
 								if (false === $oMschema1st->attrs->{$oSchema->id}->hide) {
 									$oSchema->type = 'member';
@@ -310,18 +323,7 @@ abstract class enroll_base extends app_base {
 									$oSchema->id = 'member.' . $oSchema->id;
 								}
 							}
-						break;
-						case 'L':
-							$oSchemas = $oSchemaConfig->schemas;
-							foreach ($oSchemas as $oSchema) {
-								if ($oSchema->type === 'shorttext' && in_array($oSchema->id, ['name', 'email', 'mobile'])) {
-									if (false === $oMschema1st->attrs->{$oSchema->id}->hide) {
-										$oSchema->type = 'member';
-										$oSchema->schema_id = $oMschema1st->id;
-										$oSchema->id = 'member.' . $oSchema->id;
-									}
-								}
-							}
+						}
 						break;
 					}
 				}

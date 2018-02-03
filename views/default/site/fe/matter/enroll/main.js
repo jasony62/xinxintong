@@ -269,7 +269,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             oUser = params.user,
             schemasById = {},
             tagsById = {},
-            assignedNickname = '',
             activeRid = '';
 
         oApp.dataSchemas.forEach(function(schema) {
@@ -289,23 +288,18 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             $scope.activeRound = params.activeRound;
             activeRid = params.activeRound.rid;
         }
-        if (params.record) {
-            if (params.record.data_tag) {
-                for (var schemaId in params.record.data_tag) {
-                    var dataTags = params.record.data_tag[schemaId],
-                        converted = [];
-                    dataTags.forEach(function(tagId) {
-                        tagsById[tagId] && converted.push(tagsById[tagId]);
-                    });
-                    params.record.data_tag[schemaId] = converted;
-                }
-            }
-            if (oApp.assignedNickname.schema) {
-                if ((oApp.assignedNickname.schema.id == 'member.name' || oApp.assignedNickname.schema.id == 'name') && params.record.data) {
-                    assignedNickname = params.record.data[oApp.assignedNickname.schema.id];
-                }
-            }
-        }
+        // if (params.record) {
+        //     if (params.record.data_tag) {
+        //         for (var schemaId in params.record.data_tag) {
+        //             var dataTags = params.record.data_tag[schemaId],
+        //                 converted = [];
+        //             dataTags.forEach(function(tagId) {
+        //                 tagsById[tagId] && converted.push(tagsById[tagId]);
+        //             });
+        //             params.record.data_tag[schemaId] = converted;
+        //         }
+        //     }
+        // }
         if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
             tmsDynaPage.loadCode(ngApp, oSite.header_page);
         }
@@ -357,7 +351,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             }
         }
         if (tasksOfOnReady.length) {
-            angular.forEach(tasksOfOnReady, PG.exec);
+            angular.forEach(tasksOfOnReady, execTask);
         }
         var eleLoading;
         if (eleLoading = document.querySelector('.loading')) {
@@ -370,7 +364,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             search: location.search.replace('?', ''),
             referer: document.referrer,
             rid: activeRid,
-            assignedNickname: assignedNickname
+            assignedNickname: oUser.nickname
         });
     });
 }]);

@@ -161,6 +161,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                 $scope.advCriteriaStatus.dirOpen = true;
             }
         });
+        /*设置页面分享信息*/
+        $scope.setSnsShare();
     });
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,

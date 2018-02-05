@@ -71,10 +71,6 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', '$timeout', 'tmsLocation', 'tms
             });
         }
     };
-    $scope.errmsg = '';
-    $scope.closePreviewTip = function() {
-        $scope.preview = 'N';
-    };
     $scope.closeWindow = function() {};
     $scope.addRecord = function(event, page) {
         page ? $scope.gotoPage(event, page, null, null, 'Y') : alert('没有指定登记编辑页');

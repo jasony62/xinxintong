@@ -6,7 +6,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
     appId = ls.match(/[\?&]app=([^&]*)/)[1];
     accessId = ls.match(/[\?&]accessToken=([^&]*)/)[1];
 
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter', 'service.enroll']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.enroll']);
     ngApp.constant('cstApp', {});
     ngApp.config(['$locationProvider', '$routeProvider', '$uibTooltipProvider', 'srvEnrollAppProvider', 'srvOpEnrollRecordProvider', 'srvEnrollRecordProvider', 'srvOpEnrollRoundProvider', function($locationProvider, $routeProvider, $uibTooltipProvider, srvEnrollAppProvider, srvOpEnrollRecordProvider, srvEnrollRecordProvider, srvOpEnrollRoundProvider) {
         var RouteParam = function(name, baseURL) {
@@ -259,7 +259,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             });
         });
     }]);
-    ngApp.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $timeout, $location, srvEnrollApp, srvEnrollRecord, srvRecordConverter) {
+    ngApp.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'tmsSchema', function($scope, $timeout, $location, srvEnrollApp, srvEnrollRecord, tmsSchema) {
         function _quizScore(oRecord) {
             if (oRecord.verbose) {
                 for (var schemaId in oRecord.verbose) {
@@ -268,6 +268,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 oBeforeQuizScore = angular.copy(oQuizScore);
             }
         }
+
         function _items(schema) {
             var _item = {};
             angular.forEach(oBeforeRecord.verbose[schema.id].items, function(item) {
@@ -294,11 +295,11 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 oRecord.tags = updated.tags;
             }
             /*多项填空题，如果值为空则删掉*/
-            for(var k in oRecord.data) {
-                if(oApp._schemasById[k].type=='multitext') {
+            for (var k in oRecord.data) {
+                if (oApp._schemasById[k].type == 'multitext') {
                     angular.forEach(oRecord.data[k], function(data, index) {
-                        if(data.value=='') {
-                            oRecord.data[k].splice(index,1);
+                        if (data.value == '') {
+                            oRecord.data[k].splice(index, 1);
                         }
                     });
                 }
@@ -390,20 +391,20 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 if (oBeforeRecord.data) {
                     oApp.dataSchemas.forEach(function(schema) {
                         if (oBeforeRecord.data[schema.id]) {
-                            srvRecordConverter.forEdit(schema, oBeforeRecord.data);
-                            if(schema.type=='multitext') {
+                            tmsSchema.forEdit(schema, oBeforeRecord.data);
+                            if (schema.type == 'multitext') {
                                 _items(schema);
                             }
                         }
                     });
                     oApp._schemasFromEnrollApp.forEach(function(schema) {
                         if (oBeforeRecord.data[schema.id]) {
-                            srvRecordConverter.forEdit(schema, oBeforeRecord.data);
+                            tmsSchema.forEdit(schema, oBeforeRecord.data);
                         }
                     });
                     oApp._schemasFromGroupApp.forEach(function(schema) {
                         if (oBeforeRecord.data[schema.id]) {
-                            srvRecordConverter.forEdit(schema, oBeforeRecord.data);
+                            tmsSchema.forEdit(schema, oBeforeRecord.data);
                         }
                     });
                 }
@@ -422,7 +423,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             });
         });
     }]);
-    ngApp.controller('ctrlReport', ['$scope', '$location', '$uibModal', '$timeout', '$q', 'http2', 'srvOpEnrollRound', 'srvRecordConverter', function($scope, $location, $uibModal, $timeout, $q, http2, srvOpEnrollRound, srvRecordConverter) {
+    ngApp.controller('ctrlReport', ['$scope', '$location', '$uibModal', '$timeout', '$q', 'http2', 'srvOpEnrollRound', 'tmsSchema', function($scope, $location, $uibModal, $timeout, $q, http2, srvOpEnrollRound, tmsSchema) {
         var rid, ls = $location.search();
 
         $scope.appId = ls.app;
@@ -657,7 +658,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                             size: page.size
                         };
                         rsp.data.records.forEach(function(record) {
-                            srvRecordConverter.forTable(record);
+                            tmsSchema.forTable(record);
                         });
 
                         if (schema.number && schema.number == 'Y') {
@@ -697,7 +698,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             var app, stat = {};
 
             app = rsp.data.app;
-            srvRecordConverter.config(app.data_schemas);
+            tmsSchema.config(app.data_schemas);
             app.dataSchemas.forEach(function(schema) {
                 if (rsp.data.stat[schema.id]) {
                     rsp.data.stat[schema.id]._schema = schema;
@@ -827,7 +828,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             }
         });
     }]);
-    ngApp.controller('ctrlRemarks', ['$scope', '$location', '$q', '$uibModal', 'http2', 'srvOpEnrollRecord', 'srvRecordConverter', function($scope, $location, $q, $uibModal, http2, srvEnrollRecord, srvRecordConverter) {
+    ngApp.controller('ctrlRemarks', ['$scope', '$location', '$q', '$uibModal', 'http2', 'srvOpEnrollRecord', 'tmsSchema', function($scope, $location, $q, $uibModal, http2, srvEnrollRecord, tmsSchema) {
         function list(oPage) {
             var defer,
                 url;
@@ -882,7 +883,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     oRemark._agreed = oAgreedLabel[oRemark.agreed] || '未表态';
                 });
                 for (var ek in result.records) {
-                    srvRecordConverter.forTable(result.records[ek], $scope.app._schemasById);
+                    tmsSchema.forTable(result.records[ek], $scope.app._schemasById);
                 }
                 $scope.records = result.records;
                 oPage.total = result.total;

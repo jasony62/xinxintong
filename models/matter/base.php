@@ -210,7 +210,7 @@ class base_model extends \TMS_MODEL {
 		$modelSite->removeMatter($oMatter);
 		/* 从项目中去除 */
 		if (!empty($oMatter->mission_id)) {
-			$this->model('matter\mission')->removeMatter($oMatter->id, $this->getTypeName());
+			$this->model('matter\mission')->removeMatter($oMatter->mission_id, $oMatter);
 		}
 
 		if ($mode === 'D') {

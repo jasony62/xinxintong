@@ -372,7 +372,7 @@ class main extends \pl\fe\matter\base {
 				/*给项目下的活动素材打标记*/
 				foreach ($cnts as $cnt) {
 					if ($cnt->matter_type === 'memberschema') {
-						$modelMis->update('xxt_site_member_schema', ['state' => 0], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
+						$modelMis->update('xxt_site_member_schema', ['valid' => 'N'], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
 					} else {
 						$modelMis->update('xxt_' . $cnt->matter_type, ['state' => 0], ['siteid' => $cnt->siteid, 'id' => $cnt->matter_id]);
 					}

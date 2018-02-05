@@ -334,7 +334,7 @@ provider('srvGroupApp', function() {
     }];
 }).provider('srvGroupPlayer', function() {
     var _oApp, _siteId, _appId, _aPlayers, _activeRound;
-    this.$get = ['$q', '$uibModal', 'noticebox', 'http2', 'cstApp', 'pushnotify', 'srvRecordConverter', 'srvGroupApp', function($q, $uibModal, noticebox, http2, cstApp, pushnotify, srvRecordConverter, srvGroupApp) {
+    this.$get = ['$q', '$uibModal', 'noticebox', 'http2', 'cstApp', 'pushnotify', 'tmsSchema', 'srvGroupApp', function($q, $uibModal, noticebox, http2, cstApp, pushnotify, tmsSchema, srvGroupApp) {
         return {
             init: function(aPlayers) {
                 var defer = $q.defer();
@@ -376,7 +376,7 @@ provider('srvGroupApp', function() {
                 http2.get(url, function(rsp) {
                     if (rsp.data.total) {
                         rsp.data.players.forEach(function(player) {
-                            srvRecordConverter.forTable(player, _oApp._schemasById);
+                            tmsSchema.forTable(player, _oApp._schemasById);
                             _aPlayers.push(player);
                         });
                     }
@@ -392,7 +392,7 @@ provider('srvGroupApp', function() {
                 _aPlayers.splice(0, _aPlayers.length);
                 http2.get(url, function(rsp) {
                     rsp.data.forEach(function(player) {
-                        srvRecordConverter.forTable(player, _oApp._schemasById);
+                        tmsSchema.forTable(player, _oApp._schemasById);
                         _aPlayers.push(player);
                     });
                     defer.resolve(rsp.data);
@@ -407,7 +407,7 @@ provider('srvGroupApp', function() {
                 _aPlayers.splice(0, _aPlayers.length);
                 http2.get(url, function(rsp) {
                     rsp.data.forEach(function(player) {
-                        srvRecordConverter.forTable(player, _oApp._schemasById);
+                        tmsSchema.forTable(player, _oApp._schemasById);
                         _aPlayers.push(player);
                     });
                     defer.resolve(rsp.data);
@@ -456,7 +456,7 @@ provider('srvGroupApp', function() {
                             } else if (_activeRound === null) {
                                 player.round_id = round.round_id;
                                 player.round_title = round.title;
-                                srvRecordConverter.forTable(player, _oApp._schemasById);
+                                tmsSchema.forTable(player, _oApp._schemasById);
                             }
                         }
                     });
@@ -470,7 +470,7 @@ provider('srvGroupApp', function() {
 
                 url = '/rest/pl/fe/matter/group/player/add?site=' + _siteId + '&app=' + _appId;
                 http2.post(url, player, function(rsp) {
-                    srvRecordConverter.forTable(rsp.data, _oApp._schemasById);
+                    tmsSchema.forTable(rsp.data, _oApp._schemasById);
                     _aPlayers.splice(0, 0, rsp.data);
                     defer.resolve();
                 });
@@ -484,7 +484,7 @@ provider('srvGroupApp', function() {
                 url += '&ek=' + player.enroll_key;
                 http2.post(url, newPlayer, function(rsp) {
                     angular.extend(player, rsp.data);
-                    srvRecordConverter.forTable(player, _oApp._schemasById);
+                    tmsSchema.forTable(player, _oApp._schemasById);
                     defer.resolve();
                 });
                 return defer.promise;
@@ -576,7 +576,7 @@ provider('srvGroupApp', function() {
             }
         }
     }]
-}).controller('ctrlGroupEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'srvRecordConverter', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', function($scope, $mi, $sce, player, srvRecordConverter, srvGroupApp, srvGroupRound, srvGroupPlayer) {
+}).controller('ctrlGroupEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'tmsSchema', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', function($scope, $mi, $sce, player, tmsSchema, srvGroupApp, srvGroupRound, srvGroupPlayer) {
     srvGroupApp.get().then(function(oApp) {
         $scope.app = oApp;
         srvGroupRound.list().then(function(rounds) {
@@ -585,7 +585,7 @@ provider('srvGroupApp', function() {
         if (player.data) {
             oApp.dataSchemas.forEach(function(schema) {
                 if (player.data[schema.id]) {
-                    srvRecordConverter.forEdit(schema, player.data);
+                    tmsSchema.forEdit(schema, player.data);
                 }
             });
         }

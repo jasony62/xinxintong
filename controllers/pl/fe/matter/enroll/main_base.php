@@ -27,8 +27,10 @@ abstract class main_base extends \pl\fe\matter\main_base {
 		$oUpdatedApp = $oUpdatedApp[1];
 
 		/* 从项目中移除 */
-		$modelMis = $this->model('matter\mission');
-		$modelMis->removeMatter($oApp->id, $oApp->type);
+		if (!empty($oApp->mission_id)) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->removeMatter($oApp->mission_id, $oApp);
+		}
 
 		/* 保存页面更新 */
 		if (isset($oUpdatedApp->pages)) {

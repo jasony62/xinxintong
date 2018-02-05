@@ -26,24 +26,58 @@ class base extends \site\fe\matter\base {
 	 */
 	protected function getUser($oApp, $oEnrolledData = null) {
 		$oUser = clone $this->who;
+		$oUser->members = new \stdClass;
 
-		/* 指定的用户昵称 */
 		if (isset($oEnrolledData) && (isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
-			$modelEnlRec = $this->model('matter\enroll\record');
-			$oUser->nickname = $modelEnlRec->getValueBySchema($oApp->assignedNickname->schema, $oEnrolledData);
+			/* 指定的用户昵称 */
+			if (isset($oEnrolledData)) {
+				$modelEnlRec = $this->model('matter\enroll\record');
+				$oUser->nickname = $modelEnlRec->getValueBySchema($oApp->assignedNickname->schema, $oEnrolledData);
+			}
 		} else {
-			$modelEnl = $this->model('matter\enroll');
-			$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
-			$oUser->nickname = $userNickname;
+			/* 曾经用过的昵称 */
+			$modelEnlUsr = $this->model('matter\enroll\user');
+			$oEnlUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['fields' => 'nickname']);
+			if ($oEnlUser) {
+				$oUser->nickname = $oEnlUser->nickname;
+			} else {
+				$modelEnl = $this->model('matter\enroll');
+				$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
+				$oUser->nickname = $userNickname;
+			}
 		}
-
-		/* 用户所属的分组 */
 		$oEntryRule = $oApp->entry_rule;
-		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'group' && isset($oEntryRule->group->id)) {
-			$modelGrpUsr = $this->model('matter\group\player');
-			$oGrpMemb = $modelGrpUsr->byUser($oEntryRule->group, $oUser->uid, ['fields' => 'round_id', 'onlyOne' => true]);
-			if ($oGrpMemb) {
-				$oUser->group_id = $oGrpMemb->round_id;
+		if (isset($oEntryRule->scope)) {
+			/* 用户所属的分组 */
+			if ($oEntryRule->scope === 'group' && isset($oEntryRule->group->id)) {
+				$modelGrpUsr = $this->model('matter\group\player');
+				$oGrpMemb = $modelGrpUsr->byUser($oEntryRule->group, $oUser->uid, ['fields' => 'round_id', 'onlyOne' => true]);
+				if ($oGrpMemb) {
+					$oUser->group_id = $oGrpMemb->round_id;
+				}
+			}
+			/* 用户通讯录数据 */
+			if ($oEntryRule->scope === 'member' && isset($oEntryRule->member)) {
+				$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
+				if (count($mschemaIds)) {
+					$modelMem = $this->model('site\user\member');
+					$oUser->members = new \stdClass;
+					if (empty($oUser->unionid)) {
+						$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => implode(',', $mschemaIds)]);
+						foreach ($aMembers as $oMember) {
+							$oUser->members->{$oMember->schema_id} = $oMember;
+						}
+					} else {
+						$modelAcnt = $this->model('site\user\account');
+						$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+						foreach ($aUnionUsers as $oUnionUser) {
+							$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => implode(',', $mschemaIds)]);
+							foreach ($aMembers as $oMember) {
+								$oUser->members->{$oMember->schema_id} = $oMember;
+							}
+						}
+					}
+				}
 			}
 		}
 

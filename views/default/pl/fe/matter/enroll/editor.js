@@ -1,12 +1,11 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEditor', ['$scope', '$q', 'noticebox', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvRecordConverter', 'srvEnrollRound', function($scope, $q, noticebox, $location, srvEnrollApp, srvEnrollRecord, srvRecordConverter, srvEnlRnd) {
+    ngApp.provider.controller('ctrlEditor', ['$scope', '$q', 'noticebox', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvEnrollRound', 'tmsSchema', function($scope, $q, noticebox, $location, srvEnrollApp, srvEnrollRecord, srvEnlRnd, tmsSchema) {
         function _afterGetApp(app) {
             if (oRecord.data) {
-                srvRecordConverter.forTable(oRecord, app._schemasById);
                 app.dataSchemas.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
-                        srvRecordConverter.forEdit(schema, oRecord.data);
+                        tmsSchema.forEdit(schema, oRecord.data);
                         if (schema.type == 'multitext') {
                             _items(schema);
                         }
@@ -14,12 +13,12 @@ define(['frame'], function(ngApp) {
                 });
                 app._schemasFromEnrollApp.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
-                        srvRecordConverter.forEdit(schema, oRecord.data);
+                        tmsSchema.forEdit(schema, oRecord.data);
                     }
                 });
                 app._schemasFromGroupApp.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
-                        srvRecordConverter.forEdit(schema, oRecord.data);
+                        tmsSchema.forEdit(schema, oRecord.data);
                     }
                 });
                 oBeforeRecord = angular.copy(oRecord);
@@ -174,8 +173,8 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.chooseFile = function(fileFieldName) {
-            var r, onSubmit;
-            r = new Resumable({
+            var oResumable, onSubmit;
+            oResumable = new Resumable({
                 target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + site + '&app=' + id,
                 testChunks: false,
                 chunkSize: 512 * 1024
@@ -183,33 +182,33 @@ define(['frame'], function(ngApp) {
             onSubmit = function($scope) {
                 var defer;
                 defer = $q.defer();
-                if (!r.files || r.files.length === 0)
+                if (!oResumable.files || oResumable.files.length === 0)
                     defer.resolve('empty');
-                r.on('progress', function() {
+                oResumable.on('progress', function() {
                     var phase, p;
-                    p = r.progress();
+                    p = oResumable.progress();
                     var phase = $scope.$root.$$phase;
                     if (phase === '$digest' || phase === '$apply') {
-                        $scope.progressOfUploadFile = Math.ceil(p * 100);
+                        noticebox.progress('上传文件：' + Math.ceil(p * 100));
                     } else {
                         $scope.$apply(function() {
-                            $scope.progressOfUploadFile = Math.ceil(p * 100);
+                            noticebox.progress('上传文件：' + Math.ceil(p * 100));
                         });
                     }
                 });
-                r.on('complete', function() {
+                oResumable.on('complete', function() {
                     var phase = $scope.$root.$$phase;
                     if (phase === '$digest' || phase === '$apply') {
-                        $scope.progressOfUploadFile = '完成';
+                        noticebox.close();
                     } else {
                         $scope.$apply(function() {
-                            $scope.progressOfUploadFile = '完成';
+                            noticebox.close();
                         });
                     }
-                    r.cancel();
+                    oResumable.cancel();
                     defer.resolve('ok');
                 });
-                r.upload();
+                oResumable.upload();
                 return defer.promise;
             };
             $scope.beforeSubmit(function() {
@@ -223,11 +222,11 @@ define(['frame'], function(ngApp) {
                 cnt = evt.target.files.length;
                 for (i = 0; i < cnt; i++) {
                     f = evt.target.files[i];
-                    r.addFile(f);
+                    oResumable.addFile(f);
                     $scope.$apply(function() {
                         data[fileFieldName] === undefined && (data[fileFieldName] = []);
                         data[fileFieldName].push({
-                            uniqueIdentifier: r.files[r.files.length - 1].uniqueIdentifier,
+                            uniqueIdentifier: oResumable.files[oResumable.files.length - 1].uniqueIdentifier,
                             name: f.name,
                             size: f.size,
                             type: f.type,

@@ -22,6 +22,7 @@ window.loading = {
                 "ui-bootstrap": '/static/js/ui-bootstrap-tpls.min',
                 "ui-tms": '/static/js/ui-tms',
                 "ui-xxt": '/static/js/xxt.ui',
+                "schema.ui.xxt": '/asset/js/xxt.ui.schema',
                 "service.matter": '/views/default/pl/fe/_module/matter.service',
                 "signinService": '/views/default/pl/fe/matter/signin/lib/signin.service',
                 "page": '/views/default/pl/fe/matter/enroll/lib/page',
@@ -53,7 +54,9 @@ window.loading = {
                     require(['ui-bootstrap'], function() {
                         require(['ui-tms'], function() {
                             require(['ui-xxt'], function() {
-                                requirejs(['/views/default/site/op/matter/signin/console.js']);
+                                require(['schema.ui.xxt'], function() {
+                                    requirejs(['/views/default/site/op/matter/signin/console.js']);
+                                });
                             });
                         });
                     });

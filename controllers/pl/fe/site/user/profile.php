@@ -41,8 +41,6 @@ class profile extends \pl\fe\base {
 		$posted = $this->getPostJson();
 		$model = $this->model('site\user\memberschema');
 		$schema = $model->byId($schema);
-		$arr['used'] = $schema->used + 1;
-		$model->update('xxt_site_member_schema', $arr, "id='$schema->id' and siteid='$site'");
 		$rst = $this->model('site\user\member')->create($site, $userid, $schema, $posted);
 
 		if ($rst[0] === false) {
@@ -77,63 +75,12 @@ class profile extends \pl\fe\base {
 		} else if ($attrs->attr_email[5] === '1') {
 			$newMember['identity'] = $data->email;
 		}
-		/**
-		 * 扩展属性
-		 */
-		if (!empty($attrs->extattr)) {
-			$extdata = array();
-			foreach ($attrs->extattr as $ea) {
-				if (!empty($data->extattr->{$ea->id})) {
-					$extdata[urlencode($ea->id)] = urlencode($data->extattr->{$ea->id});
-				} else {
-					$extdata[urlencode($ea->id)] = '';
-				}
-
-			}
-			$newMember['extattr'] = urldecode(json_encode($extdata));
-		}
 
 		$rst = $this->model()->update(
 			'xxt_site_member',
 			$newMember,
 			"siteid='$site' and id='$id'"
 		);
-		/**
-		 * 同步到企业号
-		 */
-		/*$mpapis = $this->model('mp\mpaccount')->getApis($this->mpid);
-			if ($mpapis->qy_joined === 'Y') {
-				$fan = $this->model('user/fans')->byMid($mid);
-				$posted = array(
-					'mobile' => empty($data->mobile) ? '' : $data->mobile,
-					'email' => empty($data->email) ? '' : $data->email,
-					'name' => empty($data->name) ? '' : $data->name,
-				);
-				if (!empty($data->extattr->position)) {
-					$posted['position'] = $data->extattr->position;
-				}
-
-				if (!empty($attrs->extattr)) {
-					$extdata = array();
-					foreach ($attrs->extattr as $ea) {
-						if ($ea->id === 'position') {
-							continue;
-						}
-
-						$extdata[] = array(
-							'name' => urlencode($ea->id),
-							'value' => urlencode($data->extattr->{$ea->id}),
-						);
-					}
-					$posted['extattr'] = array('attrs' => $extdata);
-				}
-
-				$rst = $this->model('mpproxy/qy', $this->mpid)->userUpdate($fan->openid, $posted);
-				if ($rst[0] === false) {
-					return new \ResponseError($rst[1]);
-				}
-
-		*/
 
 		return new \ResponseData($rst);
 	}

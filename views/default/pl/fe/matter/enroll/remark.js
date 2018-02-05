@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRemark', ['$scope', '$location', '$q', '$uibModal', 'http2', 'srvEnrollRecord', 'srvRecordConverter', function($scope, $location, $q, $uibModal, http2, srvEnrollRecord, srvRecordConverter) {
+    ngApp.provider.controller('ctrlRemark', ['$scope', '$location', '$q', '$uibModal', 'http2', 'srvEnrollRecord', 'tmsSchema', function($scope, $location, $q, $uibModal, http2, srvEnrollRecord, tmsSchema) {
         function list(oPage) {
             var defer,
                 url;
@@ -56,7 +56,7 @@ define(['frame'], function(ngApp) {
                     oRemark._agreed = oAgreedLabel[oRemark.agreed] || '未表态';
                 });
                 for (var ek in result.records) {
-                    srvRecordConverter.forTable(result.records[ek], $scope.app._schemasById);
+                    tmsSchema.forTable(result.records[ek], $scope.app._schemasById);
                 }
                 $scope.records = result.records;
 

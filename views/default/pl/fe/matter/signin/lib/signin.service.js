@@ -5,7 +5,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
      * srvSigninRound
      * srvSigninRecord
      */
-    var BasesrvSigninRecord = function($q, http2, srvRecordConverter, noticebox, $uibModal) {
+    var BasesrvSigninRecord = function($q, http2, tmsSchema, noticebox, $uibModal) {
         this._oApp = null;
         this._oPage = null;
         this._oCriteria = null;
@@ -164,7 +164,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 signinLate = {},
                 that = this;
 
-            srvRecordConverter.forTable(record, that._oApp._assocSchemasById);
+            tmsSchema.forTable(record, that._oApp._assocSchemasById);
             // signin log
             for (var roundId in that._mapOfRoundsById) {
                 round = that._mapOfRoundsById[roundId];
@@ -717,8 +717,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             siteId = site;
             appId = app;
         }
-        this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', 'pushnotify', 'cstApp', 'srvRecordConverter', function($q, $uibModal, $sce, http2, noticebox, pushnotify, cstApp, srvRecordConverter) {
-            var _ins = new BasesrvSigninRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
+        this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', 'pushnotify', 'cstApp', 'tmsSchema', function($q, $uibModal, $sce, http2, noticebox, pushnotify, cstApp, tmsSchema) {
+            var _ins = new BasesrvSigninRecord($q, http2, tmsSchema, noticebox, $uibModal);
 
             _ins.search = function(pageNumber) {
                 var url;
@@ -1006,7 +1006,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
             };
             _ins.convertRecord4Edit = function(col, data) {
-                srvRecordConverter.forEdit(col, data);
+                tmsSchema.forEdit(col, data);
                 return data;
             };
             _ins.importByEnrollApp = function() {
@@ -1062,8 +1062,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _appId = appId;
             _accessId = accessId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'srvRecordConverter', function($q, http2, noticebox, $uibModal, srvRecordConverter) {
-            var _ins = new BasesrvSigninRecord($q, http2, srvRecordConverter, noticebox, $uibModal);
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'tmsSchema', function($q, http2, noticebox, $uibModal, tmsSchema) {
+            var _ins = new BasesrvSigninRecord($q, http2, tmsSchema, noticebox, $uibModal);
             _ins.search = function(pageNumber) {
                 var url;
 

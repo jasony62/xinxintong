@@ -225,6 +225,8 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                     fnDisableActions();
                 }
             }
+            /*设置页面分享信息*/
+            $scope.setSnsShare(oRecord);
         });
     });
 }]);

@@ -224,29 +224,7 @@ class main extends base {
 		$params['app'] = $oApp;
 
 		/* 当前访问用户的基本信息 */
-		$oUser = clone $this->who;
-		if (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'member' && isset($oApp->entry_rule->member)) {
-			$mschemaIds = array_keys(get_object_vars($oApp->entry_rule->member));
-			if (count($mschemaIds)) {
-				$modelMem = $this->model('site\user\member');
-				$oUser->members = new \stdClass;
-				if (empty($oUser->unionid)) {
-					$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => implode(',', $mschemaIds)]);
-					foreach ($aMembers as $oMember) {
-						$oUser->members->{$oMember->schema_id} = $oMember;
-					}
-				} else {
-					$modelAcnt = $this->model('site\user\account');
-					$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-					foreach ($aUnionUsers as $oUnionUser) {
-						$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => implode(',', $mschemaIds)]);
-						foreach ($aMembers as $oMember) {
-							$oUser->members->{$oMember->schema_id} = $oMember;
-						}
-					}
-				}
-			}
-		}
+		$oUser = $this->getUser($oApp);
 		$params['user'] = $oUser;
 
 		/* 操作规则 */

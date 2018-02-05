@@ -707,11 +707,15 @@ class record extends base {
 
 		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,data_tag,score,like_num,like_log,remark_num';
 
-		if (empty($ek) && $loadLast === 'Y') {
+		if (empty($ek)) {
 			$oUser = $this->who;
-			$oRecord = $modelRec->lastByUser($oApp, $oUser, ['assignRid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
-			if (false === $oRecord || $oRecord->state !== '1') {
-				$oRecord = new \stdClass;
+			if ($loadLast === 'Y') {
+				$oRecord = $modelRec->lastByUser($oApp, $oUser, ['assignRid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
+				if (false === $oRecord || $oRecord->state !== '1') {
+					$oRecord = new \stdClass;
+				}
+			} else {
+				$oRecord = false;
 			}
 		} else {
 			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);

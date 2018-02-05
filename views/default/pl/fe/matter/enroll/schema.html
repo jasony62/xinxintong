@@ -103,7 +103,7 @@
                     <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="removeSchema(schema)"><span class='glyphicon glyphicon-trash'></span></button>
-                    <button ng-if="schema.id==='_round_id'" class='btn btn-sm btn-default' ng-click="refreshSchema(schema)"><span class='glyphicon glyphicon-refresh'></span></button>
+                    <button ng-if="schema.id==='_round_id'" class='btn btn-sm btn-default' ng-click="refreshSchema(schema)">刷新 <span class='glyphicon glyphicon-refresh'></span></button>
                 </div>
                 <div ng-if="'Y'===schema.requireCheck">
                     <p class='help-block'>需要【<span>{{assocApp(schema.fromApp).title}}</span>】中有题目【<span>{{assocAppSchema(schema).title}}</span>】的值与填写内容匹配的记录

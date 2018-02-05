@@ -12,22 +12,19 @@
 </head>
 
 <body ng-cloak class='ng-cloak'>
-    <nav class='navbar navbar-default main-navbar row'>
+    <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
-                <a href="" class="navbar-brand">
-                    <i class="glyphicon glyphicon-th visible-lg-inline"></i><span ng-bind='page.title'></span>
+                <a href class="navbar-brand">
+                    <i class="glyphicon glyphicon-list-alt visible-lg-inline"></i> <span class='icon-note' ng-bind='page.title'></span>
                 </a>
             </div>
         </div>
     </nav>
     <div class="app">
-        <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
         <div class='container'>
-            <div class='row'>
-                <form name='enroll' novalidate dynamic-html="page.html">
-                </form>
-            </div>
+            <form name='enroll' novalidate dynamic-html="page.html">
+            </form>
         </div>
     </div>
     <script src="/static/js/angular.min.js"></script>

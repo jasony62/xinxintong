@@ -332,7 +332,9 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
             }, true);
             if (oAppState = window.localStorage.getItem("site.fe.matter.enroll.rank.appState")) {
                 oAppState = JSON.parse(oAppState);
-                if (oAppState.criteria.obj === 'group') {
+                if (!oAppState.aid || oAppState.aid !== oApp.id) {
+                    oAppState = null;
+                } else if (oAppState.criteria.obj === 'group') {
                     if (!oApp.group_app_id) {
                         oAppState = null;
                     }
@@ -341,6 +343,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         }
         if (!oAppState) {
             oAppState = {
+                aid: oApp.id,
                 criteria: {
                     obj: 'user',
                     orderby: 'enroll',
@@ -384,5 +387,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         });
         $scope.facRound = facRound = srvRound.ins(oApp);
         $scope.changeCriteria();
+        /*设置页面分享信息*/
+        $scope.setSnsShare();
     });
 }]);

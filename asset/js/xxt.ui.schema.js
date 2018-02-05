@@ -1,6 +1,6 @@
 'use strict';
 var ngMod = angular.module('schema.ui.xxt', []);
-ngMod.service('tmsSchema', ['$sce', function($sce) {
+ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
     var _that = this,
         _mapOfSchemas;
     this.config = function(schemas) {
@@ -286,8 +286,15 @@ ngMod.service('tmsSchema', ['$sce', function($sce) {
                         case 'member':
                             data[oSchema.id] = _memberAttr(oRecord.data.member, oSchema);
                             break;
+                        case 'date':
+                            data[oSchema.id] = oRecord.data[oSchema.id];
+                            break;
                         default:
-                            data[oSchema.id] = $sce.trustAsHtml(_that.value2Html(oSchema, oRecord.data[oSchema.id]));
+                            try {
+                                data[oSchema.id] = $sce.trustAsHtml(_that.value2Html(oSchema, oRecord.data[oSchema.id]));
+                            } catch (e) {
+                                console.log(oSchema, oRecord.data[oSchema.id]);
+                            }
                     }
                 };
                 oRecord._data = data;

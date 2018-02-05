@@ -209,7 +209,7 @@ class rank extends base {
 	 */
 	public function dataByApp_action($app, $page = 1, $size = 10) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false) {
+		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		if (!empty($oApp->group_app_id)) {
@@ -243,9 +243,16 @@ class rank extends base {
 		} else {
 			$q[2] .= " and d.multitext_seq = 0";
 		}
-		if (!empty($oCriteria->round) && $oCriteria->round !== 'ALL') {
-			$round = $modelData->escape($oCriteria->round);
-			$q[2] .= " and d.rid='$round'";
+		if (!empty($oCriteria->round)) {
+			if (is_string($oCriteria->round)) {
+				$oCriteria->round = explode(',', $oCriteria->round);
+			}
+			if (!in_array('ALL', $oCriteria->round)) {
+				$whereByRound = ' and rid in("';
+				$whereByRound .= implode('","', $oCriteria->round);
+				$whereByRound .= '")';
+				$q[2] .= $whereByRound;
+			}
 		}
 		switch ($oCriteria->orderby) {
 		case 'remark':
@@ -259,7 +266,6 @@ class rank extends base {
 			$q2 = ['o' => 'd.like_num desc,d.submit_at'];
 			break;
 		}
-
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		$result = new \stdClass;
 		$records = $modelData->query_objs_ss($q, $q2);
@@ -317,9 +323,16 @@ class rank extends base {
 		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
 			$q[2] .= " and r.agreed='Y'";
 		}
-		if (!empty($oCriteria->round) && $oCriteria->round !== 'ALL') {
-			$round = $modelRem->escape($oCriteria->round);
-			$q[2] .= " and r.rid='$round'";
+		if (!empty($oCriteria->round)) {
+			if (is_string($oCriteria->round)) {
+				$oCriteria->round = explode(',', $oCriteria->round);
+			}
+			if (!in_array('ALL', $oCriteria->round)) {
+				$whereByRound = ' and rid in("';
+				$whereByRound .= implode('","', $oCriteria->round);
+				$whereByRound .= '")';
+				$q[2] .= $whereByRound;
+			}
 		}
 		$q2 = [
 			'o' => 'r.like_num desc,r.create_at',

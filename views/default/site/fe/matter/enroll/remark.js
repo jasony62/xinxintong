@@ -203,17 +203,20 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
              * 整条记录的评论
              */
             http2.get(LS.j('repos/recordGet', 'site', 'app', 'ek')).then(function(rsp) {
-                $scope.record = rsp.data;
+                var oRecord;
+                $scope.record = oRecord = rsp.data;
                 aShareable.forEach(function(oSchema) {
                     if (oSchema.type === 'file') {
-                        $scope.record.verbose[oSchema.id].value = angular.fromJson($scope.record.verbose[oSchema.id].value);
+                        oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
                     } else if (oSchema.type === 'image') {
-                        $scope.record.verbose[oSchema.id].value = $scope.record.verbose[oSchema.id].value.split(',');
+                        oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
                     } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
-                        $scope.record.verbose[oSchema.id].value = $scope.value2Label(oSchema);
+                        oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
                     }
                 });
                 listRemarks();
+                /*设置页面分享信息*/
+                $scope.setSnsShare(oRecord);
             });
             $scope.visibleSchemas = aShareable;
         } else {
@@ -241,6 +244,8 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                     $scope.record = oRecord;
                     $scope.data = oRecData;
                     listRemarks();
+                    /*设置页面分享信息*/
+                    $scope.setSnsShare(oRecord, { 'schema': LS.s().schema, 'data': LS.s().data });
                 }
             });
             $scope.visibleSchemas = [oAssignedSchema];

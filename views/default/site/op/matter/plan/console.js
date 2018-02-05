@@ -245,7 +245,7 @@ define(["require", "angular", "planService"], function(require, angular) {
             });
         });
     }]);
-    ngApp.controller('ctrlTaskDetail', ['$scope', '$timeout', 'http2', 'noticebox', 'srvPlanRecord', 'tmsSchema', function($scope, $timeout, http2, noticebox, srvPlanRecord, tmsSchema) {
+    ngApp.controller('ctrlTaskDetail', ['$scope', '$timeout', 'http2', '$q', 'noticebox', 'srvPlanRecord', 'tmsSchema', function($scope, $timeout, http2, $q, noticebox, srvPlanRecord, tmsSchema) {
         function doTask(seq) {
             var task = _oTasksOfBeforeSubmit[seq];
             task().then(function(rsp) {

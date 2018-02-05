@@ -62,12 +62,12 @@ define(["require", "angular", "planService"], function(require, angular) {
             });
         });
     }]);
-    ngApp.controller('ctrlTask', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+    ngApp.controller('ctrlTask', ['$scope', '$location', '$uibModal', 'http2', 'tmsSchema', function($scope, $location, $uibModal, http2, tmsSchema) {
         var execStatus = {};
         $scope.switchToRecord = function(event, task) {
             if ($scope.user.unionid) {
                 var oSearch = $location.search();
-                oSearch.ek = task.enroll_key;
+                oSearch.task = task.id;
                 $location.path('/rest/site/op/matter/plan/taskDetail').search(oSearch);
             } else if (event) {
                 var popoverEvt, target, fnClosePopover;
@@ -102,7 +102,7 @@ define(["require", "angular", "planService"], function(require, angular) {
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
             pageNumber && ($scope.page.at = pageNumber);
-            var url = '/rest/site/op/matter/plan/task/list?app=' + _oApp.id + $scope.page.j();
+            var url = '/rest/site/op/matter/plan/task/list?site=' +  _oApp.siteid +'&app=' + _oApp.id + '&accessToken=' + accessId + $scope.page.j();
             http2.post(url, _oCriteria, function(rsp) {
                 var tasks, total, oSchemasById;
                 tasks = rsp.data.tasks;
@@ -118,25 +118,29 @@ define(["require", "angular", "planService"], function(require, angular) {
                     }
                     if (oFirstAction && oTask.data && oTask.data[oFirstAction.id]) {
                         oFirstData = oTask.data[oFirstAction.id];
-                        oFirstData = srvRecordConverter.forTable({ data: oFirstData }, oSchemasById);
+                        oFirstData = tmsSchema.forTable({ data: oFirstData }, oSchemasById);
                         oTask._data = oFirstData._data;
                     }
                 });
                 $scope.tasks = tasks;
                 $scope.page.total = total;
+                $scope.page.numbers = [];
+                for (var i = 1, ii = Math.ceil($scope.page.total / $scope.page.size); i <= ii; i++) {
+                    $scope.page.numbers.push(i);
+                }
             });
         };
         $scope.batchVerify = function() {
             var ids = [],
                 selectedTasks = [];
-            for (var p in rows.selected) {
-                if (rows.selected[p] === true) {
+            for (var p in $scope.rows.selected) {
+                if ($scope.rows.selected[p] === true) {
                     ids.push($scope.tasks[p].id);
                     selectedTasks.push($scope.tasks[p]);
                 }
             }
             if (ids.length) {
-                http2.post('/rest/site/op/matter/plan/task/batchVerify?app=' + _oApp.id, {
+                http2.post('/rest/site/op/matter/plan/task/batchVerify?site='+ _oApp.siteid + '&app=' + _oApp.id + '&accessToken=' + accessId, {
                     ids: ids
                 }, function(rsp) {
                     selectedTasks.forEach(function(oTask) {
@@ -214,6 +218,7 @@ define(["require", "angular", "planService"], function(require, angular) {
             data: {},
             keyword: ''
         };
+        $scope.tmsTableWrapReady = 'N';
         $scope.$watch('user', function(oUser) {
             if (!oUser) return;
             if (window.sessionStorage) {
@@ -237,11 +242,12 @@ define(["require", "angular", "planService"], function(require, angular) {
                 _oApp = app;
                 // schemas
                 $scope.getRecords();
+                $scope.tmsTableWrapReady = 'Y';
                 window.loading.finish();
             });
         });
     }]);
-    ngApp.controller('ctrlTaskDetail', ['$scope', '$timeout', '$location', 'srvPlanRecord', function($scope, $timeout, $location, srvPlanRecord) {
+    ngApp.controller('ctrlTaskDetail', ['$scope', '$timeout', 'http2', 'noticebox', 'srvPlanRecord', 'tmsSchema', function($scope, $timeout, http2, noticebox, srvPlanRecord, tmsSchema) {
         function doTask(seq) {
             var task = _oTasksOfBeforeSubmit[seq];
             task().then(function(rsp) {
@@ -254,7 +260,7 @@ define(["require", "angular", "planService"], function(require, angular) {
             //oRecord 原始数据
             //updated 上传数据包
             var updated = {},
-                url = '/rest/site/op/matter/plan/task/update' + location.search;
+                url = '/rest/pl/fe/matter/plan/task/update' + location.search;
             updated.data = _oTask.data;
             updated.supplement = _oTask.supplement;
             http2.post(url, updated, function(rsp) {
@@ -275,7 +281,7 @@ define(["require", "angular", "planService"], function(require, angular) {
         $scope.chooseFile = function(action, schema) {
             var r, onSubmit;
             r = new Resumable({
-                target: '/rest/site/op/matter/plan/task/uploadFile?site=' + _oApp.siteid + '&app=' + _oApp.id,
+                target: '/rest/pl/fe/matter/plan/task/uploadFile?site=' + _oApp.siteid + '&app=' + _oApp.id,
                 testChunks: false,
                 chunkSize: 512 * 1024
             });
@@ -358,26 +364,26 @@ define(["require", "angular", "planService"], function(require, angular) {
             _oUpdated[prop] = _oTask[prop];
         };
         $scope.saveTask = function() {
-            http2.post('/rest/site/op/matter/plan/task/update' + location.search, _oUpdated, function(rsp) {
+            http2.post('/rest/pl/fe/matter/plan/task/update' + location.search, _oUpdated, function(rsp) {
                 $scope.modified = false;
             });
         };
-        $scope.saveData = function() {
+        $scope.save = function() {
             _oTasksOfBeforeSubmit.length ? doTask(0) : doSave();
         };
         $scope.$watch('app', function(app) {
             if (!app) return;
-            _oApp = oApp;
-            http2.get('/rest/site/op/matter/plan/task/get' + location.search, function(rsp) {
+            _oApp = app;
+            http2.get('/rest/pl/fe/matter/plan/task/get' + location.search, function(rsp) {
                 $scope.task = _oTask = rsp.data;
                 $scope.data = _oTask.data;
                 $scope.supplement = _oTask.supplement;
                 _oTask.taskSchema.actions.forEach(function(oAction) {
-                    if (oApp.checkSchemas && oApp.checkSchemas.length) {
-                        oAction.checkSchemas = [].concat(oApp.checkSchemas, oAction.checkSchemas);
+                    if (_oApp.checkSchemas && _oApp.checkSchemas.length) {
+                        oAction.checkSchemas = [].concat(_oApp.checkSchemas, oAction.checkSchemas);
                     }
                     oAction.checkSchemas.forEach(function(oSchema) {
-                        srvRecordConverter.forEdit(oSchema, _oTask.data[oAction.id]);
+                        tmsSchema.forEdit(oSchema, _oTask.data[oAction.id]);
                     });
                 });
                 window.loading.finish();
@@ -606,7 +612,7 @@ define(["require", "angular", "planService"], function(require, angular) {
                 if (requireGet) {
                     /member/.test(schema.id) && (schema.id = 'member');
                     url = '/rest/site/op/matter/plan/task/listSchema';
-                    url += '?app=' + $scope.app.id + '&checkSchmId=' + schema.id;
+                    url += '?site=' + $scope.app.siteid +'&app=' + $scope.app.id + '&checkSchmId=' + schema.id;
                     url += '&accessToken=' + $scope.accessToken;
                     url += '&taskSchmId=' + ($scope.app.rpConfig.taskSchmId ? $scope.app.rpConfig.taskSchmId : '');
                     url += '&actSchmId=' + ($scope.app.rpConfig.actSchmId ? $scope.app.rpConfig.actSchmId : '');
@@ -649,45 +655,37 @@ define(["require", "angular", "planService"], function(require, angular) {
             return false;
         };
 
-        $scope.$watch('app', function(oApp) {
-            if(!oApp) { return;}
+        var url = '/rest/site/op/matter/plan/report/get';
+        url += '?site=' + $scope.siteId;
+        url += '&app=' + $scope.appId;
+        url += '&accessToken=' + $scope.accessToken;
 
-            var url = '/rest/site/op/matter/plan/task/get';
-            url += '?site=' + $scope.siteId;
-            url += '&app=' + $scope.appId;
-            url += '&accessToken=' + $scope.accessToken;
-            url += '&taskSchmId=' + (oApp.rpConfig.taskSchmId || '');
-            url += '&actSchmId=' + (oApp.rpConfig.actSchmId || '');
-            url += '&renewCache=Y';
-
-            http2.get(url, function(rsp) {
-                var stat = {};
-
-                $scope.data = rsp.data;
-                tmsSchema.config(rsp.data.checkSchemas);
-                rsp.data.checkSchemas.forEach(function(schema) {
-                    if (rsp.data.stat[schema.id]) {
-                        rsp.data.stat[schema.id]._schema = schema;
-                        stat[schema.id] = rsp.data.stat[schema.id];
-                    }
-                });
-                $scope.stat = stat;
-
-                $timeout(function() {
-                    var p, item, scoreSummary = [],
-                        totalScoreSummary = 0,
-                        avgScoreSummary = 0;
-                    for (p in stat) {
-                        item = stat[p];
-                        if (/single|phase/.test(item._schema.type)) {
-                            drawPieChart(item);
-                        } else if (/multiple/.test(item._schema.type)) {
-                            drawBarChart(item);
-                        }
-                    }
-                });
-                window.loading.finish();
+        http2.get(url, function(rsp) {
+            var stat = {};
+            $scope.data = rsp.data;
+            tmsSchema.config(rsp.data.checkSchemas);
+            rsp.data.checkSchemas.forEach(function(schema) {
+                if (rsp.data.stat[schema.id]) {
+                    rsp.data.stat[schema.id]._schema = schema;
+                    stat[schema.id] = rsp.data.stat[schema.id];
+                }
             });
+            $scope.stat = stat;
+
+            $timeout(function() {
+                var p, item, scoreSummary = [],
+                    totalScoreSummary = 0,
+                    avgScoreSummary = 0;
+                for (p in stat) {
+                    item = stat[p];
+                    if (/single|phase/.test(item._schema.type)) {
+                        drawPieChart(item);
+                    } else if (/multiple/.test(item._schema.type)) {
+                        drawBarChart(item);
+                    }
+                }
+            });
+            window.loading.finish();
         });
     }]);
     ngApp.controller('ctrlPlanFilter', ['$scope', '$uibModalInstance', 'tasks', 'dataSchemas', 'criteria', function($scope, $mi, tasks, dataSchemas, lastCriteria) {

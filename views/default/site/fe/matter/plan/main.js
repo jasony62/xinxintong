@@ -448,12 +448,13 @@ ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($
             switch (oAppState.criteria.obj) {
                 case 'user':
                     if (data) {
-                        data.forEach(function(user) {
+                        data.users.forEach(function(user) {
                             $scope.users.push(user);
                         });
                     }
                     break;
             }
+            oAppState.page.total = data.total;
         });
     };
     $scope.changeCriteria = function() {
@@ -470,6 +471,10 @@ ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($
             criteria: {
                 obj: 'user',
                 orderby: 'task_num',
+            },
+            page: {
+                at: 1,
+                size: 12
             }
         };
     }

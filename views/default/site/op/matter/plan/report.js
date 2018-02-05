@@ -57,7 +57,7 @@ define(["require", "angular", "planService"], function(require, angular) {
             });
         });
     }]);
-    ngApp.controller('ctrlReport', ['$scope', '$location', '$uibModal', '$timeout', '$q', 'http2', 'srvChart', function($scope, $location, $uibModal, $timeout, $q, http2, srvChart) {
+    ngApp.controller('ctrlReport', ['$scope', '$location', '$uibModal', '$timeout', '$q', 'http2', 'srvChart', 'tmsSchema', function($scope, $location, $uibModal, $timeout, $q, http2, srvChart, tmsSchema) {
         var _oChartConfig, ls = $location.search();
 
         $scope.appId = ls.app;
@@ -90,11 +90,12 @@ define(["require", "angular", "planService"], function(require, angular) {
 
                 if (requireGet) {
                     /member/.test(schema.id) && (schema.id = 'member');
-                    url = '/rest/site/op/matter/enroll/record/list4Schema';
-                    url += '?site=' + $scope.siteId + '&app=' + $scope.app.id;
+                    url = '/rest/site/op/matter/plan/task/listSchema';
+                    url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&checkSchmId=' + schema.id;
                     url += '&accessToken=' + $scope.accessToken;
-                    url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size;
-                    url += '&rid=' + (rid ? rid : '');
+                    url += '&taskSchmId=' + ($scope.app.rpConfig.taskSchmId ? $scope.app.rpConfig.taskSchmId : '');
+                    url += '&actSchmId=' + ($scope.app.rpConfig.actSchmId ? $scope.app.rpConfig.actSchmId : '');
+                    url += '&page=' + page.at + '&size=' + page.size;
                     cached._running = true;
                     http2.get(url, function(rsp) {
                         cached._running = false;
@@ -103,7 +104,7 @@ define(["require", "angular", "planService"], function(require, angular) {
                             size: page.size
                         };
                         rsp.data.records.forEach(function(record) {
-                            tmsSchema.forTable(record);
+                            tmsSchema.forTable(record.task);
                         });
 
                         if (schema.number && schema.number == 'Y') {
@@ -133,69 +134,62 @@ define(["require", "angular", "planService"], function(require, angular) {
             return false;
         };
 
-        $scope.$watch('app', function(app) {
-            if(!app) return;
+        var url = '/rest/site/op/matter/plan/report/get';
+        url += '?site=' + $scope.siteId;
+        url += '&app=' + $scope.appId;
+        url += '&accessToken=' + $scope.accessToken;
 
-            var url = '/rest/site/op/matter/plan/task/get';
-            url += '?site=' + $scope.siteId;
-            url += '&app=' + $scope.appId;
-            url += '&accessToken=' + $scope.accessToken;
-            url += '&taskSchmId=' + (app.rpConfig.taskSchmId || '');
-            url += '&actSchmId=' + (app.rpConfig.actSchmId || '');
-            url += '&renewCache=Y';
+        http2.get(url, function(rsp) {
+            var oApp = rsp.data.app,
+                rpSchemas = [],
+                oStat = {},
+                rpConfig = (oApp.rpConfig && oApp.rpConfig.op) ? oApp.rpConfig.op : undefined,
+                aExcludeSchemas = (rpConfig && rpConfig.exclude) ? rpConfig.exclude : [];
 
-            http2.get(url, function(rsp) {
-                var oApp = rsp.data,
-                    rpSchemas = [],
-                    oStat = {},
-                    rpConfig = (app.rpConfig && app.rpConfig.op) ? app.rpConfig.op : undefined,
-                    aExcludeSchemas = (rpConfig && rpConfig.exclude) ? rpConfig.exclude : [];
-
-                tmsSchema.config(oApp.checkSchemas);
-                oApp.checkSchemas.forEach(function(oSchema) {
-                    var oStatBySchema;
-                    if (aExcludeSchemas.indexOf(oSchema.id) === -1) {
-                        if (oSchema.type !== 'html') {
-                            // 报表中包含的题目
-                            rpSchemas.push(oSchema);
-                            // 报表中包含统计数据的题目
-                            if (oStatBySchema = rsp.data.stat[oSchema.id]) {
-                                oStatBySchema._schema = oSchema;
-                                oStat[oSchema.id] = oStatBySchema;
-                                if (oStatBySchema.ops && oStatBySchema.sum > 0) {
-                                    oStatBySchema.ops.forEach(function(oDataByOp) {
-                                        oDataByOp.p = (new Number(oDataByOp.c / oStatBySchema.sum * 100)).toFixed(2) + '%';
-                                    });
-                                }
+            tmsSchema.config(oApp.checkSchemas);
+            oApp.checkSchemas.forEach(function(oSchema) {
+                var oStatBySchema;
+                if (aExcludeSchemas.indexOf(oSchema.id) === -1) {
+                    if (oSchema.type !== 'html') {
+                        // 报表中包含的题目
+                        rpSchemas.push(oSchema);
+                        // 报表中包含统计数据的题目
+                        if (oStatBySchema = rsp.data.stat[oSchema.id]) {
+                            oStatBySchema._schema = oSchema;
+                            oStat[oSchema.id] = oStatBySchema;
+                            if (oStatBySchema.ops && oStatBySchema.sum > 0) {
+                                oStatBySchema.ops.forEach(function(oDataByOp) {
+                                    oDataByOp.p = (new Number(oDataByOp.c / oStatBySchema.sum * 100)).toFixed(2) + '%';
+                                });
                             }
                         }
                     }
-                });
-                $scope.app = oApp;
-                $scope.rpSchemas = rpSchemas;
-                $scope.stat = oStat;
-                $scope.chartConfig = _oChartConfig = rpConfig || {
-                    number: 'Y',
-                    percentage: 'Y',
-                    label: 'number'
-                };
-                srvChart.config(_oChartConfig);
-                $timeout(function() {
-                    var item, scoreSummary = [],
-                        totalScoreSummary = 0,
-                        avgScoreSummary = 0;
-                    for (var p in oStat) {
-                        item = oStat[p];
-                        if (/single|phase/.test(item._schema.type)) {
-                            srvChart.drawPieChart(item);
-                        } else if (/multiple/.test(item._schema.type)) {
-                            srvChart.drawBarChart(item);
-                        }
-                    }
-                });
-                window.loading.finish();
+                }
             });
-    });
+            $scope.app = oApp;
+            $scope.rpSchemas = rpSchemas;
+            $scope.stat = oStat;
+            $scope.chartConfig = _oChartConfig = rpConfig || {
+                number: 'Y',
+                percentage: 'Y',
+                label: 'number'
+            };
+            srvChart.config(_oChartConfig);
+            $timeout(function() {
+                var item, scoreSummary = [],
+                    totalScoreSummary = 0,
+                    avgScoreSummary = 0;
+                for (var p in oStat) {
+                    item = oStat[p];
+                    if (/single|phase/.test(item._schema.type)) {
+                        srvChart.drawPieChart(item);
+                    } else if (/multiple/.test(item._schema.type)) {
+                        srvChart.drawBarChart(item);
+                    }
+                }
+            });
+            window.loading.finish();
+        });
     }]);
     require(['domReady!'], function(document) {
         angular.bootstrap(document, ["app"]);

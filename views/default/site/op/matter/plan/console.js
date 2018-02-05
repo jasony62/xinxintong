@@ -218,7 +218,6 @@ define(["require", "angular", "planService"], function(require, angular) {
             data: {},
             keyword: ''
         };
-        $scope.tmsTableWrapReady = 'N';
         $scope.$watch('user', function(oUser) {
             if (!oUser) return;
             if (window.sessionStorage) {
@@ -241,8 +240,7 @@ define(["require", "angular", "planService"], function(require, angular) {
                 app._rounds = _oGroup;
                 _oApp = app;
                 // schemas
-                $scope.getRecords();
-                $scope.tmsTableWrapReady = 'Y';
+                $scope.getRecords(1);
                 window.loading.finish();
             });
         });
@@ -281,7 +279,7 @@ define(["require", "angular", "planService"], function(require, angular) {
         $scope.chooseFile = function(action, schema) {
             var r, onSubmit;
             r = new Resumable({
-                target: '/rest/pl/fe/matter/plan/task/uploadFile?site=' + _oApp.siteid + '&app=' + _oApp.id,
+                target: '/rest/site/fe/matter/plan/task/uploadFile?site=' + _oApp.siteid + '&app=' + _oApp.id,
                 testChunks: false,
                 chunkSize: 512 * 1024
             });

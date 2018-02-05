@@ -114,7 +114,7 @@
                         <select class='form-control' title='所有任务项' ng-model='filter.taskSchmId' ng-options="task.id as task.title for task in data.taskSchemas">
                             <option value=''>请选择任务项</option>
                         </select>
-                        <select class='form-control' title='所有行动项' ng-model='filter.actSchmId' ng-options="action.id as action.action_desc for action in tasks[filter.taskSchmId].actions" >
+                        <select class='form-control' style="width:25%;margin-right: 20px;margin-top: 10px;display:inline-block;" title='所有行动项' ng-model='filter.actSchmId' ng-options="action.id as action.action_desc for action in tasks[filter.taskSchmId].actions" >
                             <option value=''>请选择行动项</option>
                         </select>
                     </div>

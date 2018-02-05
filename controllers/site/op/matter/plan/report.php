@@ -34,7 +34,7 @@ class report extends \site\op\base {
 	 * name => array(l=>label,c=>count)
 	 *
 	 */
-	public function get_action($site, $app, $taskSchmId = '', $actSchmId = '', $renewCache = 'Y') {
+	public function get_action($site, $app, $renewCache = 'Y') {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
@@ -44,6 +44,9 @@ class report extends \site\op\base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
+		$taskSchmId = isset($oApp->rpConfig->taskSchmId) ? $oApp->rpConfig->taskSchmId : '';
+		$actSchmId = isset($oApp->rpConfig->actSchmId)? $oApp->rpConfig->actSchmId : '';
 		
 		// 如果指定了行动项需要获取行动项中得题目
 		if (!empty($taskSchmId) && !empty($actSchmId)) {

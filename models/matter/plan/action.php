@@ -102,6 +102,7 @@ class action_model extends \TMS_MODEL {
 					isset($oActionScore->{$schemaId}) && $aSchemaValue['score'] = $oActionScore->{$schemaId};
 					$this->insert('xxt_plan_task_action', $aSchemaValue, false);
 				} else {
+					$aSchemaValue = '';
 					if ($treatedValue !== $oLastSchemaValue->value) {
 						if (strlen($oLastSchemaValue->modify_log)) {
 							$aValueModifyLogs = json_decode($oLastSchemaValue->modify_log);
@@ -124,7 +125,7 @@ class action_model extends \TMS_MODEL {
 						$this->update(
 							'xxt_plan_task_action',
 							$aSchemaValue,
-							['userid' => $oUsrTask->userid, 'task_id' => $oUsrTask->id, 'action_schema_id' => $oAction->id, 'check_schema_id' => $schemaId, 'state' => 1]
+							['id' => $oLastSchemaValue->id]
 						);
 					}
 				}

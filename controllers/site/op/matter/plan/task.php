@@ -28,7 +28,7 @@ class task extends \site\op\base {
 	/**
 	 *
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $tags = null) {
+	public function list_action($site, $app, $page = 1, $size = 30) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}

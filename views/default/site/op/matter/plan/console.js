@@ -368,7 +368,7 @@ define(["require", "angular", "planService"], function(require, angular) {
                 $scope.modified = false;
             });
         };
-        $scope.save = function() {
+        $scope.saveData = function() {
             _oTasksOfBeforeSubmit.length ? doTask(0) : doSave();
         };
         $scope.$watch('app', function(app) {

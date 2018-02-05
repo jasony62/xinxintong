@@ -56,7 +56,7 @@
                 <div class='form-group'>
                     <button class='btn btn-default' ng-if="!rpEntry.url" ng-click="makeOpUrl()">生成</button>
                     <button class='btn btn-default' ng-if="rpEntry.url" ng-click="closeOpUrl()">关闭</button>
-                    <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
+                    <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="rpEntry.url">密码 <span class="caret"></span></button>
                 </div>
                 <div class='form-group' ng-if="rpEntry.url">
                     <label class='checkbox-inline'>
@@ -234,3 +234,27 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="opUrlPasswd.html">
+        <div id="opUrlPasswd">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' ng-model="opEntry.password">
+                    <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
+                </span>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="rpUrlPasswd.html">
+        <div id="rpUrlPasswd">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' ng-model="rpEntry.password">
+                    <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
+                </span>
+                </div>
+            </div>
+        </div>
+    </script>

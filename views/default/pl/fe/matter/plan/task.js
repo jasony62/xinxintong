@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'noticebox', 'srvPlanApp', '$uibModal', 'srvRecordConverter', function($scope, http2, noticebox, srvPlanApp, $uibModal, srvRecordConverter) {
+    ngApp.provider.controller('ctrlTask', ['$scope', 'http2', 'noticebox', 'srvPlanApp', '$uibModal', 'tmsSchema', function($scope, http2, noticebox, srvPlanApp, $uibModal, tmsSchema) {
         var _oApp, _oCriteria, _oGroup, _oPage;
         _oGroup = {};
         $scope.page = _oPage = {
@@ -64,7 +64,7 @@ define(['frame'], function(ngApp) {
                     }
                     if (oFirstAction && oTask.data && oTask.data[oFirstAction.id]) {
                         oFirstData = oTask.data[oFirstAction.id];
-                        oFirstData = srvRecordConverter.forTable({ data: oFirstData }, oSchemasById);
+                        oFirstData = tmsSchema.forTable({ data: oFirstData }, oSchemasById);
                         oTask._data = oFirstData._data;
                     }
                 });

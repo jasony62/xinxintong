@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlTaskDetail', ['$scope', 'http2', '$q', 'noticebox', 'srvRecordConverter', 'srvPlanApp', 'srvPlanRecord', '$uibModal', function($scope, http2, $q, noticebox, srvRecordConverter, srvPlanApp, srvPlanRecord, $uibModal) {
+    ngApp.provider.controller('ctrlTaskDetail', ['$scope', 'http2', '$q', 'noticebox', 'tmsSchema', 'srvPlanApp', 'srvPlanRecord', '$uibModal', function($scope, http2, $q, noticebox, tmsSchema, srvPlanApp, srvPlanRecord, $uibModal) {
         function doTask(seq) {
             var task = _oTasksOfBeforeSubmit[seq];
             task().then(function(rsp) {
@@ -135,7 +135,7 @@ define(['frame'], function(ngApp) {
                         oAction.checkSchemas = [].concat(oApp.checkSchemas, oAction.checkSchemas);
                     }
                     oAction.checkSchemas.forEach(function(oSchema) {
-                        srvRecordConverter.forEdit(oSchema, _oTask.data[oAction.id]);
+                        tmsSchema.forEdit(oSchema, _oTask.data[oAction.id]);
                     });
                 });
             });

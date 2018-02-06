@@ -116,6 +116,9 @@ class task extends base {
 		if ($oGroup = $this->getUserGroup($oApp)) {
 			$oUser->group_id = $oGroup->round_id;
 			$oUser->group_title = $oGroup->round_title;
+		} else {
+			$oUser->group_id = '';
+			$oUser->group_title = '';
 		}
 
 		$bNewTask = false;
@@ -198,9 +201,12 @@ class task extends base {
 		$aUsrData = ['last_enroll_at' => $oUsrTask->last_enroll_at, 'score' => $fScoreSum];
 		if ($bNewTask) {
 			$aUsrData['task_num'] = 1;
+			// 用户首次填写增加积分
+			$aUsrData['coinAct'] = 'site.matter.plan.submit';
 		}
 
-		$this->model('matter\plan\user')->createOrUpdate($oApp, $oUser, $aUsrData);
+		$modelPUser = $this->model('matter\plan\user')->setOnlyWriteDbConn(true);
+		$modelPUser->createOrUpdate($oApp, $oUser, $aUsrData);
 
 		/* 记录操作日志 */
 		$operation = new \stdClass;

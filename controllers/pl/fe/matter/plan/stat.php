@@ -18,10 +18,6 @@ class stat extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action($id) {
-		$access = $this->accessControlUser('plan', $id);
-		if ($access[0] === false) {
-			die($access[1]);
-		}
 
 		\TPL::output('/pl/fe/matter/plan/frame');
 		exit;

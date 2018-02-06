@@ -98,13 +98,23 @@ class user_model extends \TMS_MODEL {
 	 * 添加或更新
 	 */
 	public function createOrUpdate($oApp, $oUser, $aData = []) {
+		// 增加用户积分
+		if (!empty($aData['coinAct'])) {
+			$modelCoin = $this->model('matter\plan\coin')->setOnlyWriteDbConn(true);
+			$rules = $modelCoin->rulesByMatter($aData['coinAct'], $oApp);
+			$modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
+			$modelCoinLog->award($oApp, $oUser, $aData['coinAct'], $rules);
+		}
+
 		$oAppUsr = $this->byUser($oApp, $oUser);
 
 		$oNewAppUsr = new \stdClass;
 		if ($oAppUsr) {
 			$oNewAppUsr->nickname = $this->escape($oUser->nickname);
 			$oAppUsr->nickname = $oUser->nickname;
-			$oAppUsr->group_id = $oNewAppUsr->group_id = empty($oUser->group_id) ? '' : $oUser->group_id;
+			if (isset($oUser->group_id)) {
+				$oAppUsr->group_id = $oNewAppUsr->group_id = empty($oUser->group_id) ? '' : $oUser->group_id;
+			}
 			if (isset($aData['task_num'])) {
 				$oAppUsr->task_num = $oNewAppUsr->task_num = (int) $aData['task_num'] + (int) $oAppUsr->task_num;
 			}
@@ -114,12 +124,20 @@ class user_model extends \TMS_MODEL {
 			if (isset($aData['score'])) {
 				$oAppUsr->score = $oNewAppUsr->score = $aData['score'];
 			}
+
+			if (!empty($aData['coinAct']) && !empty($rules)) {
+				$oldUserCoin = (int) $oAppUsr->coin;
+				foreach ($rules as $rule) {
+					$oldUserCoin = $oldUserCoin + (int) $rule->actor_delta;
+				}
+				$oAppUsr->coin = $oNewAppUsr->coin = $oldUserCoin;
+			}
+
 			$this->update('xxt_plan_user', $oNewAppUsr, ['id' => $oAppUsr->id]);
 			$oNewAppUsr = $oAppUsr;
 		} else {
 			$oNewAppUsr->siteid = $oApp->siteid;
 			$oNewAppUsr->aid = $oApp->id;
-			$oNewAppUsr->group_id = '';
 			$oNewAppUsr->userid = $oUser->uid;
 			$oNewAppUsr->group_id = empty($oUser->group_id) ? '' : $oUser->group_id;
 			$oNewAppUsr->nickname = $this->escape($oUser->nickname);
@@ -127,6 +145,14 @@ class user_model extends \TMS_MODEL {
 			$oNewAppUsr->task_num = isset($aData['task_num']) ? (int) $aData['task_num'] : 0;
 			$oNewAppUsr->last_enroll_at = isset($aData['last_enroll_at']) ? $aData['last_enroll_at'] : 0;
 			$oNewAppUsr->score = isset($aData['score']) ? $aData['score'] : 0;
+
+			if (!empty($aData['coinAct']) && !empty($rules)) {
+				$userCoin = 0;
+				foreach ($rules as $rule) {
+					$userCoin = $userCoin + (int) $rule->actor_delta;
+				}
+				$oNewAppUsr->coin = $userCoin;
+			}
 
 			$oNewAppUsr->id = $this->insert('xxt_plan_user', $oNewAppUsr, true);
 		}

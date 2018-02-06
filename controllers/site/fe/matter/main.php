@@ -265,6 +265,14 @@ class main extends \site\fe\matter\base {
 					$modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
 				}
 			}
+		} else if ($type === 'plan') {
+			$oApp = $this->model('matter\plan')->byId($id, ['fields' => 'id,siteid,title,summary,entry_rule,jump_delayed,auto_verify,can_patch,check_schemas']);
+
+			$data = [];
+			$data['coinAct'] = 'site.matter.plan.read';
+
+			$modelPUser = $this->model('matter\plan\user')->setOnlyWriteDbConn(true);
+			$modelPUser->createOrUpdate($oApp, $user, $data);
 		}
 
 		return $logid;

@@ -36,12 +36,35 @@ class plan_model extends app_base {
 		return $url;
 	}
 	/**
+	 * 任务活动的汇总展示链接
+	 */
+	public function getOpUrl($siteId, $id) {
+		$url = 'http://' . APP_HTTP_HOST;
+		$url .= '/rest/site/op/matter/plan';
+		$url .= "?site={$siteId}&app=" . $id;
+
+		return $url;
+	}
+	/**
+	 * 任务活动的统计报告链接
+	 */
+	public function getRpUrl($siteId, $id) {
+		$url = 'http://' . APP_HTTP_HOST;
+		$url .= '/rest/site/op/matter/plan/report';
+		$url .= "?site={$siteId}&app=" . $id;
+
+		return $url;
+	}
+	/**
 	 * 获得指定素材
 	 */
 	public function &byId($id, $aOptions = []) {
 		if ($oMatter = parent::byId($id, $aOptions)) {
+			$oMatter->type = 'plan';
 			if (!empty($oMatter->siteid) && !empty($oMatter->id)) {
 				$oMatter->entryUrl = $this->getEntryUrl($oMatter->siteid, $oMatter->id);
+				$oMatter->opUrl = $this->getOpUrl($oMatter->siteid, $oMatter->id);
+				$oMatter->rpUrl = $this->getRpUrl($oMatter->siteid, $oMatter->id);
 			}
 			/* entry rule */
 			if (property_exists($oMatter, 'entry_rule')) {
@@ -52,6 +75,15 @@ class plan_model extends app_base {
 			if (property_exists($oMatter, 'check_schemas')) {
 				$oMatter->checkSchemas = empty($oMatter->check_schemas) ? [] : json_decode($oMatter->check_schemas);
 				unset($oMatter->check_schemas);
+			}
+			/* entry rule */
+			if (property_exists($oMatter, 'rp_config')) {
+				if (!empty($oMatter->rp_config)) {
+					$oMatter->rpConfig = json_decode($oMatter->rp_config);
+				} else {
+					$oMatter->rpConfig = new \stdClass;
+				}
+				unset($oMatter->rp_config);
 			}
 		}
 

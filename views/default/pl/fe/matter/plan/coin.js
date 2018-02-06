@@ -28,7 +28,7 @@ define(['frame'], function(ngApp) {
         var _oApp, _aDefaultRules;
         _aDefaultRules = [{
             data: { act: 'site.matter.plan.read' },
-            desc: '用户A打开活动页面'
+            desc: '用户A打开计划活动页面'
         }, {
             data: { act: 'site.matter.plan.submit' },
             desc: '用户A完成某项任务',

@@ -62,6 +62,14 @@
                         </li>
                     </ul>
                 </li>
+                <li ng-class="{'opened':opened==='other'}">
+                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('coin')">其他 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'41px':'0'}">
+                        <li ng-class="{'active':subView==='coin'}">
+                            <a href='' ng-click="switchTo('coin')">用户积分</a>
+                        </li>
+                    </ul>
+                </li>
                 <div class='pl-layout-leftnav-footer'>
                     <ul class="nav nav-tabs nav-stacked">
                         <li ng-class="{'active':subView==='entry'}"><a href='' ng-click="switchTo('entry')"><i class='glyphicon glyphicon-phone'></i> 入口</a></li>

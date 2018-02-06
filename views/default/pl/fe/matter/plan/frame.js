@@ -95,7 +95,6 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
                     $scope.opened = 'data';
                     break;
                 case 'coin':
-                case 'notice':
                     $scope.opened = 'other';
                     break;
                 default:

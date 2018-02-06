@@ -27,29 +27,11 @@ define(['frame'], function(ngApp) {
 
         var _oApp, _aDefaultRules;
         _aDefaultRules = [{
-            data: { act: 'site.matter.enroll.read' },
-            desc: '用户A打开登记活动页面'
+            data: { act: 'site.matter.plan.read' },
+            desc: '用户A打开活动页面'
         }, {
-            data: { act: 'site.matter.enroll.submit' },
-            desc: '用户A提交新登记记录',
-        }, {
-            data: { act: 'site.matter.enroll.share.friend' },
-            desc: '用户A分享活动给公众号好友',
-        }, {
-            data: { act: 'site.matter.enroll.share.timeline' },
-            desc: '用户A分享活动至朋友圈',
-        }, {
-            data: { act: 'site.matter.enroll.data.like' },
-            desc: '用户A填写数据被赞同',
-        }, {
-            data: { act: 'site.matter.enroll.data.other.like' },
-            desc: '用户A赞同别人的填写数据',
-        }, {
-            data: { act: 'site.matter.enroll.data.comment' },
-            desc: '用户A填写数据被点评',
-        }, {
-            data: { act: 'site.matter.enroll.data.other.comment' },
-            desc: '用户A点评别人的填写数据',
+            data: { act: 'site.matter.plan.submit' },
+            desc: '用户A完成某项任务',
         }];
         $scope.rules = {};
         _aDefaultRules.forEach(function(oRule) {

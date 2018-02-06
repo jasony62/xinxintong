@@ -56,7 +56,7 @@
                         <ul class="img-tiles clearfix" name="{{action.id+'.'+schema.id}}">
                             <li wrap="img" ng-repeat="img in data[action.id][schema.id]" class="img-thumbnail">
                                 <img flex-img>
-                                <button class="btn btn-default btn-xs" ng-click="removeImage(action,schema,$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                                <button class="btn btn-default btn-xs" ng-click="removeImage(data[action.id][schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
                             </li>
                             <li class="img-picker">
                                 <button class="btn btn-default" ng-click="chooseImage(action,schema)"><span class="glyphicon glyphicon-picture"></span>
@@ -84,9 +84,12 @@
                             <li class="list-group-item" ng-if="file.type.indexOf('video')===-1&&file.type.indexOf('audio')===-1&&file.type.indexOf('image')===-1">
                                 <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
                             </li>
-                            <button class="btn btn-default btn-xs" ng-click="removeFile(action,schema,$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                            <button class="btn btn-default btn-xs" ng-click="removeFile(data[action.id][schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
                         </ul>
                         <button class="btn btn-default" ng-click="chooseFile(action,schema)">上传文件</button>
+                    </div>
+                    <div ng-switch-when='date'>
+                        <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="data[action.id][schema.id]" tms-state="signinAt"></tms-datepicker>
                     </div>
                     <div ng-if="schema.supplement==='Y'">
                         <textarea placeholder="补充说明" rows="3" class="form-control supplement" ng-model="supplement[action.id][schema.id]"></textarea>
@@ -95,7 +98,7 @@
             </div>
             <div class='panel-body'>
                 <div class='text-right'>
-                    <button class='btn btn-default' ng-click="saveData()" disabled="">保存</button>
+                    <button class='btn btn-default' ng-click="saveData()">保存</button>
                 </div>
             </div>
         </div>

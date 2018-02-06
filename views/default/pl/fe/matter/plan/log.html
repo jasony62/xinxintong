@@ -41,7 +41,7 @@
                     <tr>
                         <th style='width:120px;'>打开时间</th>
                         <th>用户</th>
-                        <th style='width:80px;'>操作</th>
+                        <th style='width:130px;'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,7 +55,7 @@
             <div class='form-group form-inline'>
                 <div class='pl-pagination'>
                     <span>总数：{{record.page.total}}</span>
-                    <ul uib-pagination ng-show="record.page.total>record.page.size" class="pull-right" boundary-links="true" total-items="record.page.total" max-size="7" items-per-page="record.page.size" rotate="false" ng-model="record.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="record.list()"></ul>
+                    <ul uib-pagination ng-show="record.page.total>record.page.size" class="pull-right"  boundary-links="true" total-items="record.page.total" max-size="7" items-per-page="record.page.size" rotate="false" ng-model="record.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="record.list()"></ul>
                 </div>
             </div>
         </uib-tab>

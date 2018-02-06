@@ -104,9 +104,8 @@ define(["require", "angular", "planService"], function(require, angular) {
             pageNumber && ($scope.page.at = pageNumber);
             var url = '/rest/site/op/matter/plan/task/list?site=' +  _oApp.siteid +'&app=' + _oApp.id + '&accessToken=' + accessId + $scope.page.j();
             http2.post(url, _oCriteria, function(rsp) {
-                var tasks, total, oSchemasById;
+                var tasks, oSchemasById;
                 tasks = rsp.data.tasks;
-                total = rsp.data.total;
                 oSchemasById = {};
                 _oApp.checkSchemas.forEach(function(oSchema) {
                     oSchemasById[oSchema.id] = oSchema;
@@ -123,11 +122,8 @@ define(["require", "angular", "planService"], function(require, angular) {
                     }
                 });
                 $scope.tasks = tasks;
-                $scope.page.total = total;
-                $scope.page.numbers = [];
-                for (var i = 1, ii = Math.ceil($scope.page.total / $scope.page.size); i <= ii; i++) {
-                    $scope.page.numbers.push(i);
-                }
+                rsp.data.total && (_oPage.total = rsp.data.total);
+                _oPage.setTotal(rsp.data.total);
             });
         };
         $scope.batchVerify = function() {
@@ -201,12 +197,21 @@ define(["require", "angular", "planService"], function(require, angular) {
             }
         });
         $scope.bShowImage = false;
-        var _oApp, _oCriteria, _oGroup = {};
-        $scope.page = {
+        var _oApp, _oPage, _oCriteria, _oGroup = {};
+        $scope.page = _oPage = {
             at: 1,
             size: 10,
             j: function() {
                 return '&page=' + this.at + '&size=' + this.size;
+            },
+            setTotal: function(total) {
+                var lastNumber;
+                this.total = total;
+                this.numbers = [];
+                lastNumber = this.total > 0 ? Math.ceil(this.total / this.size) : 1;
+                for (var i = 1; i <= lastNumber; i++) {
+                    this.numbers.push(i);
+                }
             }
         }; // 分页条件
         $scope.criteria = _oCriteria = {

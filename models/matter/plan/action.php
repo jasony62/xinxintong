@@ -31,7 +31,7 @@ class action_model extends \TMS_MODEL {
 				[
 					'id,enroll_at,value,modify_log',
 					'xxt_plan_task_action',
-					['userid' => $oUser->uid, 'task_id' => $oUsrTask->id, 'action_schema_id' => $oAction->id, 'check_schema_id' => $schemaId, 'state' => 1],
+					['userid' => $oUsrTask->userid, 'task_id' => $oUsrTask->id, 'action_schema_id' => $oAction->id, 'check_schema_id' => $schemaId, 'state' => 1],
 				]
 			);
 			if (isset($schemasById[$schemaId])) {
@@ -114,7 +114,6 @@ class action_model extends \TMS_MODEL {
 						$aValueModifyLogs[] = $oNewModifyLog;
 						$aSchemaValue = [
 							'enroll_at' => $oUsrTask->last_enroll_at,
-							'userid' => isset($oUser->uid) ? $oUser->uid : '',
 							'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 							'value' => $this->escape($treatedValue),
 							'modify_log' => $this->toJson($aValueModifyLogs),
@@ -125,7 +124,7 @@ class action_model extends \TMS_MODEL {
 						$this->update(
 							'xxt_plan_task_action',
 							$aSchemaValue,
-							['userid' => $oUser->uid, 'task_id' => $oUsrTask->id, 'action_schema_id' => $oAction->id, 'check_schema_id' => $schemaId, 'state' => 1]
+							['userid' => $oUsrTask->userid, 'task_id' => $oUsrTask->id, 'action_schema_id' => $oAction->id, 'check_schema_id' => $schemaId, 'state' => 1]
 						);
 					}
 				}
@@ -262,5 +261,124 @@ class action_model extends \TMS_MODEL {
 		}
 
 		return $count;
+	}
+	/**
+	 * 获得指定记录数据的详细信息
+	 */
+	public function byRecord($taskId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_plan_task_action',
+			['task_id' => $taskId, 'state' => 1],
+		];
+
+		$fnHandler = function (&$oData) {
+			$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
+		};
+
+		if (isset($options['schema'])) {
+			if (is_array($options['schema'])) {
+				$result = new \stdClass;
+				$q[2]['check_schema_id'] = $options['schema'];
+				$data = $this->query_objs_ss($q);
+				if (count($data)) {
+					foreach ($data as $schemaData) {
+						if (isset($fnHandler)) {
+							$fnHandler($schemaData);
+						}
+						$schemaId = $schemaData->check_schema_id;
+						unset($schemaData->check_schema_id);
+						$result->{$schemaId} = $schemaData;
+					}
+				}
+				return $result;
+			} else {
+				$q[2]['check_schema_id'] = $options['schema'];
+				if ($data = $this->query_obj_ss($q)) {
+					if (isset($fnHandler)) {
+						$fnHandler($data);
+					}
+				}
+				return $data;
+			}
+		} else {
+			$result = new \stdClass;
+			$data = $this->query_objs_ss($q);
+			if (count($data)) {
+				foreach ($data as $schemaData) {
+					if (isset($fnHandler)) {
+						$fnHandler($schemaData);
+					}
+					$schemaId = $schemaData->check_schema_id;
+					unset($schemaData->check_schema_id);
+					$result->{$schemaId} = $schemaData;
+				}
+			}
+
+			return $result;
+		}
+	}
+	/**
+	 * 计算指定登记项所有记录的合计
+	 */
+	public function sum4Schema($oApp, $taskSchmId = '') {
+		$result = new \stdClass;
+		$checkSchemas = $oApp->checkSchemas;
+		/* 每道题目的合计 */
+		foreach ($checkSchemas as $schema) {
+			if (isset($schema->format) && $schema->format === 'number') {
+				$q = [
+					'sum(value)',
+					'xxt_plan_task_action',
+					['aid' => $oApp->id, 'check_schema_id' => $schema->id, 'state' => 1],
+				];
+				!empty($taskSchmId) && $q[2]['task_schema_id'] = $this->escape($taskSchmId);
+
+				$sum = (float) $this->query_val_ss($q);
+				$sum = number_format($sum, 2, '.', '');
+				$result->{$schema->id} = (float) $sum;
+			}
+		}
+
+		return $result;
+	}
+	/**
+	 * 计算指定登记项所有记录的合计
+	 */
+	public function score4Schema($oApp, $taskSchmId = '') {
+		$result = new \stdClass;
+		$checkSchemas = $oApp->checkSchemas;
+
+		/* 每道题目的得分 */
+		foreach ($checkSchemas as $oSchema) {
+			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') || (isset($oSchema->format) && $oSchema->format === 'number')) {
+				$q = [
+					'sum(score)',
+					'xxt_plan_task_action',
+					['aid' => $oApp->id, 'check_schema_id' => $oSchema->id, 'state' => 1],
+				];
+				!empty($taskSchmId) && $q[2]['task_schema_id'] = $this->escape($taskSchmId);
+
+				$sum = (float) $this->query_val_ss($q);
+				$sum = number_format($sum, 2, '.', '');
+				$result->{$oSchema->id} = (float) $sum;
+			}
+		}
+
+		/*所有题的得分合计*/
+		$q = [
+			'sum(score)',
+			'xxt_plan_task_action',
+			['aid' => $oApp->id, 'state' => 1],
+		];
+		!empty($taskSchmId) && $q[2]['task_schema_id'] = $this->escape($taskSchmId);
+
+		$sum = (float) $this->query_val_ss($q);
+		$sum = number_format($sum, 2, '.', '');
+		$result->sum = (float) $sum;
+
+		return $result;
 	}
 }

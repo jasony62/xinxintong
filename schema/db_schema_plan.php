@@ -26,6 +26,7 @@ $sql .= ",jump_delayed char(1) not null default 'Y'"; // Y:跳过；N:不跳过
 $sql .= ",auto_verify char(1) not null default 'Y'";
 $sql .= ",can_patch char(1) not null default 'Y'"; // 是否允许补填数据
 $sql .= ",notweekend char(1) not null default 'N'"; // 周六周日是否生成任务
+$sql .= ",rp_config text"; // 统计报告页面用户选择的标识信息
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 /**
@@ -124,6 +125,22 @@ $sql .= ",score float not null default 0";
 $sql .= ",coin int not null default 0";
 $sql .= ",comment text null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sqls[] = $sql;
+/**
+ * 自定义登记数据统计
+ */
+$sql = "create table if not exists xxt_plan_task_stat(";
+$sql .= "siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",task_schema_id int not null default 0";
+$sql .= ",action_schema_id int not null default 0";
+$sql .= ",create_at int not null";
+$sql .= ",id varchar(40) not null";
+$sql .= ",title varchar(255) not null";
+$sql .= ",v varchar(40) not null";
+$sql .= ",l varchar(255) not null";
+$sql .= ",c double not null";
+$sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 //
 foreach ($sqls as $sql) {

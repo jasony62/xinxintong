@@ -64,7 +64,7 @@ define(['frame'], function(ngApp) {
         var logs, page;
         $scope.page = page = {
             at: 1,
-            size: 12,
+            size: 20,
             j: function() {
                 return '&page=' + this.at + '&size=' + this.size;
             }

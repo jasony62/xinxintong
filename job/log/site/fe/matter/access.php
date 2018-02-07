@@ -133,7 +133,7 @@ class access extends \TMS_MODEL {
 				}
 			}
 		} else if ($type === 'plan') {
-			$oApp = $this->model('matter\plan')->byId($id, ['fields' => 'id,siteid,title,summary,entry_rule,jump_delayed,auto_verify,can_patch,check_schemas']);
+			$oApp = $this->model('matter\plan')->byId($id);
 
 			$data = [];
 			$data['coinAct'] = 'site.matter.plan.read';

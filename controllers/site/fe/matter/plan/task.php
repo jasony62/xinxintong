@@ -104,7 +104,7 @@ class task extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\plan')->byId($oTaskSchema->aid, ['fields' => 'id,siteid,title,summary,entry_rule,jump_delayed,auto_verify,can_patch,check_schemas']);
+		$oApp = $this->model('matter\plan')->byId($oTaskSchema->aid, ['fields' => 'id,siteid,title,summary,entry_rule,jump_delayed,auto_verify,can_patch,check_schemas,mission_id']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}

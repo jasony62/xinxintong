@@ -293,7 +293,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                             try {
                                 data[oSchema.id] = $sce.trustAsHtml(_that.value2Html(oSchema, oRecord.data[oSchema.id]));
                             } catch (e) {
-                                console.log(oSchema, oRecord.data[oSchema.id]);
+                                console.log(e, oSchema, oRecord.data[oSchema.id]);
                             }
                     }
                 };

@@ -419,7 +419,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         /* 自动填充用户通信录数据 */
         ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
         /* 用户已经登记过或保存过，恢复之前的数据 */
-        if (LS.s().newRecord && LS.s().newRecord !== 'Y') {
+        if (LS.s().newRecord !== 'Y') {
             http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {
                 var oRecord;
                 oRecord = rsp.data;

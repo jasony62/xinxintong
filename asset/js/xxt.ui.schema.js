@@ -291,7 +291,8 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                             break;
                         default:
                             try {
-                                data[oSchema.id] = $sce.trustAsHtml(_that.value2Html(oSchema, oRecord.data[oSchema.id]));
+                                var htmlVal = _that.value2Html(oSchema, oRecord.data[oSchema.id])
+                                data[oSchema.id] = $sce.trustAsHtml(htmlVal);
                             } catch (e) {
                                 console.log(e, oSchema, oRecord.data[oSchema.id]);
                             }

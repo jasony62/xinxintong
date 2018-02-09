@@ -38,7 +38,7 @@ define(['frame'], function(ngApp) {
         $scope.editCause = function(user) {
             $uibModal.open({
                 templateUrl: 'editCause.html',
-                controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2){
+                controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
                     $scope2.cause = '';
                     $scope2.app = $scope.app;
                     $scope2.cancel = function() {
@@ -51,13 +51,13 @@ define(['frame'], function(ngApp) {
                             cause: $scope2.cause
                         }
                         url = '/rest/pl/fe/matter/enroll/update?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-                        http2.post(url, {'absent_cause': params}, function(rsp) {
+                        http2.post(url, { 'absent_cause': params }, function(rsp) {
                             $mi.close($scope2.cause);
                         });
                     };
                 }],
                 backdrop: 'static'
-            }).result.then(function(result){
+            }).result.then(function(result) {
                 user.absent_cause.cause = result;
             });
         };
@@ -95,9 +95,9 @@ define(['frame'], function(ngApp) {
                     }
                     $scope2.ok = function() {
                         $scope2.rounds.forEach(function(round) {
-                            if($scope2.criteria.rid == round.rid) {
+                            if ($scope2.criteria.rid == round.rid) {
                                 $scope2.criteria.turn_title = round.title;
-                            }else if($scope2.criteria.rid == ''){
+                            } else if ($scope2.criteria.rid == '') {
                                 $scope2.criteria.turn_title = '全部轮次';
                             }
                         });
@@ -130,6 +130,13 @@ define(['frame'], function(ngApp) {
                 });
                 $scope.enrollees = rsp.data.users;
                 $scope.page.total = rsp.data.total;
+            });
+        };
+        $scope.repairEnrollee = function() {
+            var url = '/rest/pl/fe/matter/enroll/user/repair?site=' + $scope.app.siteid;
+            url += '&app=' + $scope.app.id;
+            http2.get(url, function(rsp) {
+                $scope.searchEnrollee(1);
             });
         };
         $scope.toggleAbsent = function() {

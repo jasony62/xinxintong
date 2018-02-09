@@ -111,7 +111,7 @@
             <uib-tabset active="active">
                 <uib-tab index="0" heading="标识项">
                     <div class='form-group' ng-if="tasks">
-                        <select class='form-control' title='所有任务项' ng-model='filter.taskSchmId' ng-options="task.id as task.title for task in data.taskSchemas">
+                        <select class='form-control' style="width:25%;margin-right: 20px;margin-top: 10px;display:inline-block;" title='所有任务项' ng-model='filter.taskSchmId' ng-options="task.id as task.title for task in data.taskSchemas">
                             <option value=''>请选择任务项</option>
                         </select>
                         <select class='form-control' style="width:25%;margin-right: 20px;margin-top: 10px;display:inline-block;" title='所有行动项' ng-model='filter.actSchmId' ng-options="action.id as action.action_desc for action in tasks[filter.taskSchmId].actions" >

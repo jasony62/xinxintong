@@ -17,3 +17,6 @@
 #viewReport .record>div:last-child{border-bottom:0;}
 #viewReport .record label{width:6em;overflow:hidden;vertical-align:bottom;white-space:nowrap;text-overflow:ellipsis;margin-right:1em;margin-bottom:0;}
 #viewReport .record img{max-width:100%}
+
+/* mschema */
+#mschema-view img{max-width:128px;}

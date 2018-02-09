@@ -6,7 +6,7 @@ define(['require'], function(require) {
             _siteId = siteId;
             _missionId = missionId;
         };
-        this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvRecordConverter', function($q, $uibModal, http2, noticebox, srvRecordConverter) {
+        this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'tmsSchema', function($q, $uibModal, http2, noticebox, tmsSchema) {
             var _self = {
                 get: function() {
                     var url;
@@ -33,17 +33,18 @@ define(['require'], function(require) {
                     return $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/mission/component/chooseContents.html?_=1',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            var oCriteria, oIncludeApps = {}, oIncludeMarks = {};
+                            var oCriteria, oIncludeApps = {},
+                                oIncludeMarks = {};
                             $scope2.mission = oMission;
                             $scope2.criteria = oCriteria = {
                                 mission_phase_id: ''
                             };
-                            if(oReport.apps) {
+                            if (oReport.apps) {
                                 oReport.apps.forEach(function(oApp) {
                                     oIncludeApps[oApp.type + oApp.id] = true;
                                 });
                             }
-                            if(oReport.show_schema) {
+                            if (oReport.show_schema) {
                                 oReport.show_schema.forEach(function(oSchema) {
                                     oIncludeMarks[oSchema.title + oSchema.id] = true;
                                 });
@@ -78,9 +79,9 @@ define(['require'], function(require) {
                                 $scope2.markRows.reset();
 
                                 $scope2.appMarkSchemas = angular.copy(oMission.userApp.dataSchemas);
-                                if($scope2.appMarkSchemas && $scope2.appMarkSchemas.length) {
+                                if ($scope2.appMarkSchemas && $scope2.appMarkSchemas.length) {
                                     $scope2.appMarkSchemas.forEach(function(schema, index) {
-                                        if(oIncludeMarks[schema.title + schema.id]) {
+                                        if (oIncludeMarks[schema.title + schema.id]) {
                                             $scope2.markRows.selected[schema.id] = true;
                                         }
                                     });
@@ -88,9 +89,9 @@ define(['require'], function(require) {
                                 _self.matterList(oCriteria).then(function(matters) {
                                     $scope2.matters = matters;
                                     if (matters && matters.length) {
-                                        for(var i=0; i<matters.length; i++) {
-                                            if(matters[i].type=='memberschema') {
-                                                matters.splice(matters[i],1);
+                                        for (var i = 0; i < matters.length; i++) {
+                                            if (matters[i].type == 'memberschema') {
+                                                matters.splice(matters[i], 1);
                                                 break;
                                             }
                                         };
@@ -120,7 +121,7 @@ define(['require'], function(require) {
                                         }
                                     });
                                 }
-                                $mi.close({app: apps, mark: marks});
+                                $mi.close({ app: apps, mark: marks });
                             };
                             $scope2.doSearch();
                         }],
@@ -166,7 +167,7 @@ define(['require'], function(require) {
                     }
 
                     _self.get().then(function(mission) {
-                        srvRecordConverter.config(mission.userApp.data_schemas);
+                        //tmsSchema.config(mission.userApp.data_schemas);
                     });
 
                     url = '/rest/pl/fe/matter/mission/user/list?mission=' + _missionId;
@@ -176,7 +177,7 @@ define(['require'], function(require) {
                         oResultSet.users.splice(0, oResultSet.users.length);
                         if (records && records.length) {
                             records.forEach(function(record) {
-                                srvRecordConverter.forTable(record);
+                                tmsSchema.forTable(record);
                                 oResultSet.users.push(record);
                             });
                         }
@@ -215,7 +216,7 @@ define(['require'], function(require) {
             _missionId = missionId;
             _accessId = accessId;
         };
-        this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvRecordConverter', function($q, $uibModal, http2, noticebox, srvRecordConverter) {
+        this.$get = ['$q', '$uibModal', 'http2', 'noticebox', function($q, $uibModal, http2, noticebox) {
             var _self = {
                 get: function() {
                     var url;

@@ -159,7 +159,7 @@ class matter extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 删除项目下的素材
+	 * 删除项目下的素材（这个方法有问题，对应的素材不更新吗？）
 	 *
 	 * @param int $id
 	 */
@@ -168,10 +168,10 @@ class matter extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$matter = $this->getPostJson();
+		$oMatter = $this->getPostJson();
 
 		$modelMis = $this->model('matter\mission');
-		$rst = $modelMis->removeMatter($matter->id, $matter->type);
+		$rst = $modelMis->removeMatter($id, $oMatter);
 
 		return new \ResponseData($rst);
 	}

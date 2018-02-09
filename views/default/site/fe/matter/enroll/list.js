@@ -220,6 +220,8 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation',
                 $scope.fetch(1);
             }
         });
+        /*设置页面分享信息*/
+        $scope.setSnsShare();
     });
 }]);
 ngApp.controller('ctrlList', ['$scope', function($scope) {}]);

@@ -6,7 +6,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
     appId = ls.match(/[\?&]app=([^&]*)/)[1];
     accessId = ls.match(/[\?&]accessToken=([^&]*)/)[1];
 
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter', 'service.enroll', 'sys.chart']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.enroll', 'sys.chart']);
     ngApp.constant('cstApp', {});
     ngApp.config(['$locationProvider', '$routeProvider', '$uibTooltipProvider', 'srvEnrollAppProvider', 'srvOpEnrollRecordProvider', 'srvEnrollRecordProvider', 'srvOpEnrollRoundProvider', function($locationProvider, $routeProvider, $uibTooltipProvider, srvEnrollAppProvider, srvOpEnrollRecordProvider, srvEnrollRecordProvider, srvOpEnrollRoundProvider) {
         var RouteParam = function(name, baseURL) {
@@ -96,7 +96,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             });
         });
     }]);
-    ngApp.controller('ctrlReport', ['$scope', '$location', '$uibModal', '$timeout', '$q', 'http2', 'srvOpEnrollRound', 'srvRecordConverter', 'srvChart', function($scope, $location, $uibModal, $timeout, $q, http2, srvOpEnrollRound, srvRecordConverter, srvChart) {
+    ngApp.controller('ctrlReport', ['$scope', '$location', '$uibModal', '$timeout', '$q', 'http2', 'srvOpEnrollRound', 'tmsSchema', 'srvChart', function($scope, $location, $uibModal, $timeout, $q, http2, srvOpEnrollRound, tmsSchema, srvChart) {
         var rid, _oChartConfig, ls = $location.search();
 
         $scope.appId = ls.app;
@@ -143,7 +143,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                             size: page.size
                         };
                         rsp.data.records.forEach(function(record) {
-                            srvRecordConverter.forTable(record);
+                            tmsSchema.forTable(record);
                         });
 
                         if (schema.number && schema.number == 'Y') {
@@ -186,7 +186,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 rpConfig = (oApp.rpConfig && oApp.rpConfig.op) ? oApp.rpConfig.op : undefined,
                 aExcludeSchemas = (rpConfig && rpConfig.exclude) ? rpConfig.exclude : [];
 
-            srvRecordConverter.config(oApp.dataSchemas);
+            tmsSchema.config(oApp.dataSchemas);
             oApp.dataSchemas.forEach(function(oSchema) {
                 var oStatBySchema;
                 if (aExcludeSchemas.indexOf(oSchema.id) === -1) {

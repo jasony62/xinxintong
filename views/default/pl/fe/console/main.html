@@ -261,10 +261,10 @@
                                 <th style='width:48px'>序号</th>
                                 <th style='width:120px'>填写日期</th>
                                 <th style='width:80px'>通过审核</th>
-                                <th ng-if='mschema.attr_name[0]==0' data-filter-by='name' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
-                                <th ng-if='mschema.attr_mobile[0]==0' data-filter-by='mobile' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">手机 <i class='glyphicon glyphicon-filter'></i></th>
-                                <th ng-if='mschema.attr_email[0]==0' data-filter-by='email' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">邮箱 <i class='glyphicon glyphicon-filter'></i></th>
-                                <th ng-repeat='ea in mschema.extattr'>{{ea.label}}</th>
+                                <th ng-if='!mschema.attrs.name.hide' data-filter-by='name' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
+                                <th ng-if='!mschema.attrs.mobile.hide' data-filter-by='mobile' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">手机 <i class='glyphicon glyphicon-filter'></i></th>
+                                <th ng-if='!mschema.attrs.email.hide' data-filter-by='email' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">邮箱 <i class='glyphicon glyphicon-filter'></i></th>
+                                <th ng-repeat='ea in mschema.extAttrs'>{{ea.title}}</th>
                                 <th style='width:48px'>操作</th>
                             </tr>
                         </thead>
@@ -273,10 +273,18 @@
                                 <td>{{$index+1}}</td>
                                 <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                                 <td>{{m.verified==='Y'?'是':(m.verified==='N'?'否':'待定')}}</td>
-                                <td ng-if='mschema.attr_name[0]==0'>{{m.name}}</td>
-                                <td ng-if="mschema.attr_mobile[0]==0">{{m.mobile}}</td>
-                                <td ng-if="mschema.attr_email[0]==0">{{m.email}}</td>
-                                <td ng-repeat='ea in mschema.extattr'>{{m.extattr[ea.id]}}</td>
+                                <td ng-if='!mschema.attrs.name.hide'>{{m.name}}</td>
+                                <td ng-if="!mschema.attrs.mobile.hide">{{m.mobile}}</td>
+                                <td ng-if="!mschema.attrs.email.hide">{{m.email}}</td>
+                                <td ng-repeat='ea in mschema.extAttrs' ng-switch on="ea.type">
+                                    <div ng-switch-when="date">
+                                        <span ng-if="m._extattr[ea.id]">{{m._extattr[ea.id]*1000|date:'yy-MM-dd HH:mm'}}</span>
+                                    </div>
+                                    <div ng-switch-when="image">
+                                        <div ng-repeat="img in m._extattr[ea.id]"><img style="max-width:128px;" ng-src="{{img.imgSrc}}"></div>
+                                    </div>
+                                    <div ng-switch-default>{{m._extattr[ea.id]}}</div>
+                                </td>
                                 <td>
                                     <a href='' ng-click='editMember(m)'>修改</a>
                                 </td>

@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlRound', ['$scope', '$anchorScroll', '$timeout', '$location', '$uibModal', 'srvGroupRound', 'srvRecordConverter', function($scope, $anchorScroll, $timeout, $location, $uibModal, srvGroupRound, srvRecordConverter) {
+    ngApp.provider.controller('ctrlRound', ['$scope', '$anchorScroll', '$timeout', '$location', '$uibModal', 'srvGroupRound', 'tmsSchema', function($scope, $anchorScroll, $timeout, $location, $uibModal, srvGroupRound, tmsSchema) {
         srvGroupRound.list().then(function(rounds) {
             $scope.rounds = rounds;
         });
@@ -80,7 +80,7 @@ define(['frame'], function(ngApp) {
             angular.forEach(target, function(v, k) {
                 if (k !== '$$hashKey' && v && v.length) {
                     if (schema = $scope.app._schemasById[k]) {
-                        labels.push(schema.title + ':' + srvRecordConverter.value2Html(v, schema));
+                        labels.push(schema.title + ':' + tmsSchema.value2Html(schema, v));
                     }
                 }
             });

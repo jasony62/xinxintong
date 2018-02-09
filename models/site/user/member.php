@@ -7,7 +7,7 @@ class member_model extends \TMS_MODEL {
 	/**
 	 * 获取自定义用户信息
 	 */
-	public function &byId($id, $options = array()) {
+	public function byId($id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = [
 			$fields,
@@ -15,7 +15,8 @@ class member_model extends \TMS_MODEL {
 			['id' => $id, 'forbidden' => 'N'],
 		];
 		if ($member = $this->query_obj_ss($q)) {
-			if (!empty($member->extattr)) {
+			if (property_exists($member, 'extattr')) {
+				$member->extattr = empty($member->extattr) ? new \stdClass : json_decode($member->extattr);
 			}
 		}
 
@@ -27,7 +28,7 @@ class member_model extends \TMS_MODEL {
 	 * @param string $userid
 	 *
 	 */
-	public function &byUser($userid, $options = []) {
+	public function byUser($userid, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = [
 			$fields,
@@ -37,6 +38,11 @@ class member_model extends \TMS_MODEL {
 		isset($options['schemas']) && $q[2] .= " and schema_id in (" . $options['schemas'] . ")";
 
 		$members = $this->query_objs_ss($q);
+		foreach ($members as $oMember) {
+			if (property_exists($oMember, 'extattr')) {
+				$oMember->extattr = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
+			}
+		}
 
 		return $members;
 	}
@@ -79,14 +85,14 @@ class member_model extends \TMS_MODEL {
 	/**
 	 * 创建通讯录联系人
 	 */
-	public function create($userid, &$oMschema, &$data) {
+	public function create($userid, $oMschema, $oProto) {
 		// 结束数据库读写分离带来的问题
 		$this->setOnlyWriteDbConn(true);
 
 		if (empty($userid)) {
 			return [false, '仅支持对站点用户进行认证'];
 		}
-		if (isset($data->id)) {
+		if (isset($oProto->id)) {
 			return [false, '参数中包含了无法处理的信息'];
 		}
 
@@ -95,45 +101,32 @@ class member_model extends \TMS_MODEL {
 			return [false, '当前用户已经绑定了联系人信息'];
 		}
 
-		is_array($data) && $data = (object) $data;
+		is_array($oProto) && $oProto = (object) $oProto;
 
 		$create_at = time();
-		$data->siteid = $oMschema->siteid;
-		$data->userid = $userid;
-		$data->schema_id = $oMschema->id;
-		$data->create_at = $create_at;
-		$data->modify_at = $create_at;
+		$oProto->siteid = $oMschema->siteid;
+		$oProto->userid = $userid;
+		$oProto->schema_id = $oMschema->id;
+		$oProto->create_at = $create_at;
+		$oProto->modify_at = $create_at;
 		/**
 		 * todo 应该支持使用扩展属性作为唯一标识
 		 */
-		if ($oMschema->attr_mobile[5] === '1' && isset($data->mobile)) {
-			if ($oMschema->attr_mobile[4] === '1') {
+		if ($oMschema->attrs->mobile->hide === false && isset($oProto->mobile)) {
+			if ($oMschema->attrs->mobile->identity === true) {
 				/*检查手机号*/
 			}
-			$data->identity = $data->mobile;
-		} else if ($oMschema->attr_email[5] === '1' && isset($data->email)) {
-			$data->identity = $data->email;
+			$oProto->identity = $oProto->mobile;
+		} else if ($oMschema->attrs->email->hide === false && isset($oProto->email)) {
+			$oProto->identity = $oProto->email;
 		}
-		/**
-		 * 扩展属性
-		 */
-		if (!empty($oMschema->extattr)) {
-			$extdata = array();
-			foreach ($oMschema->extattr as $ea) {
-				if (isset($data->extattr->{$ea->id})) {
-					$extdata[$ea->id] = urlencode($data->extattr->{$ea->id});
-					unset($data->{$ea->id});
-				}
-			}
-			$data->extattr = urldecode(json_encode($extdata));
-		} else {
-			$data->extattr = '{}';
-		}
+		/* 扩展属性 */
+		$this->_disposeSubmitExtAttr($oMschema, $oProto);
 
-		$id = $this->insert('xxt_site_member', $data, true);
-		$member = $this->byId($id);
+		$id = $this->insert('xxt_site_member', $oProto, true);
+		$oNewMember = $this->byId($id);
 
-		return array(true, $member);
+		return [true, $oNewMember];
 	}
 	/**
 	 * 在应用中创建通讯录联系人
@@ -193,7 +186,7 @@ class member_model extends \TMS_MODEL {
 	/**
 	 * 更新通讯录联系人
 	 */
-	public function modify(&$oMschema, $memberId, &$oNewMember) {
+	public function modify($oMschema, $memberId, $oNewMember) {
 		if (empty($memberId)) {
 			return array(false, '没有指定认证用户MID');
 		}
@@ -208,8 +201,8 @@ class member_model extends \TMS_MODEL {
 		/**
 		 * todo 应该支持使用扩展属性作为唯一标识
 		 */
-		if ($oMschema->attr_mobile[5] === '1' && isset($oNewMember->mobile)) {
-			if ($oMschema->attr_mobile[4] === '1') {
+		if ($oMschema->attrs->mobile->hide === false && isset($oNewMember->mobile)) {
+			if ($oMschema->attrs->mobile->identity === true) {
 				/*检查手机号*/
 			}
 			$identity = $oNewMember->mobile;
@@ -219,7 +212,7 @@ class member_model extends \TMS_MODEL {
 				}
 			}
 			$oNewMember->identity = $identity;
-		} else if ($oMschema->attr_email[5] === '1' && isset($oNewMember->email)) {
+		} else if ($oMschema->attrs->email->hide === false && isset($oNewMember->email)) {
 			$identity = $oNewMember->email;
 			if (isset($oNewMember->verified) && $oNewMember->verified === 'Y') {
 				if (isset($oNewMember->identity) && $oNewMember->identity !== $identity) {
@@ -228,14 +221,9 @@ class member_model extends \TMS_MODEL {
 			}
 			$oNewMember->identity = $identity;
 		}
-		/**
-		 * 扩展属性
-		 */
-		if (!empty($oNewMember->extattr)) {
-			$oNewMember->extattr = $this->toJson($oNewMember->extattr);
-		} else {
-			$oNewMember->extattr = '{}';
-		}
+		/* 扩展属性 */
+		$this->_disposeSubmitExtAttr($oMschema, $oNewMember);
+
 		/* 验证状态 */
 		$oNewMember->verified = isset($oNewMember->verified) ? $oNewMember->verified : $oMschema->auto_verified;
 		$oNewMember->modify_at = time();
@@ -243,6 +231,42 @@ class member_model extends \TMS_MODEL {
 		$this->update('xxt_site_member', $oNewMember, ['id' => $memberId]);
 
 		return array(true);
+	}
+	/**
+	 * 扩展属性
+	 */
+	private function _disposeSubmitExtAttr($oMschema, $oMember) {
+		if (!empty($oMschema->extAttrs)) {
+			foreach ($oMschema->extAttrs as $oExtAttr) {
+				switch ($oExtAttr->type) {
+				case 'image':
+					$submitVal = $oMember->extattr->{$oExtAttr->id};
+					if (is_array($submitVal)) {
+						/* 上传图片 */
+						$treatedValue = [];
+						$fsuser = $this->model('fs/user', $oMschema->siteid);
+						foreach ($submitVal as $oImg) {
+							if (isset($oImg->local) && $oImg->local === 'Y') {
+								$treatedValue[] = $oImg;
+							} else if (isset($oImg->serverId) || isset($oImg->imgSrc)) {
+								$rst = $fsuser->storeImg($oImg);
+								if (false === $rst[0]) {
+									return [false, $rst[1]];
+								}
+								$treatedValue[] = (object) ['imgSrc' => $rst[1], 'local' => 'Y'];
+							}
+						}
+						$oMember->extattr->{$oExtAttr->id} = $treatedValue;
+					} else {
+						$oMember->extattr->{$oExtAttr->id} = [];
+					}
+					break;
+				}
+			}
+		}
+		$oMember->extattr = empty($oMember->extattr) ? '{}' : $this->escape($this->toJson($oMember->extattr));
+
+		return [true, $oMember];
 	}
 	/**
 	 * 判断当前用户信息是否有效

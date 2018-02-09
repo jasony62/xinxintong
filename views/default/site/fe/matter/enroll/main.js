@@ -198,94 +198,40 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
     $scope.save = function() {
         $scope.$broadcast('xxt.app.enroll.save');
     };
-    $scope.isSmallLayout = false;
-    if (window.screen && window.screen.width < 992) {
-        $scope.isSmallLayout = true;
-    }
-    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function success(rsp) {
-        var params = rsp.data,
-            oSite = params.site,
-            oApp = params.app,
-            oMission = params.mission,
-            oPage = params.page,
-            oUser = params.user,
-            schemasById = {},
-            tagsById = {},
-            assignedNickname = '',
-            activeRid = '',
-            shareid, sharelink, shareby, summary;
-
-        oApp.dataSchemas.forEach(function(schema) {
-            schemasById[schema.id] = schema;
-        });
-        oApp._schemasById = schemasById;
-        oApp.dataTags.forEach(function(oTag) {
-            tagsById[oTag.id] = oTag;
-        });
-        oApp._tagsById = tagsById;
-        $scope.params = params;
-        $scope.site = oSite;
-        $scope.mission = oMission;
-        $scope.app = oApp;
-        $scope.user = oUser;
-        if (oApp.multi_rounds === 'Y' && params.activeRound) {
-            $scope.activeRound = params.activeRound;
-            activeRid = params.activeRound.rid;
-        }
-        if (params.record) {
-            if (params.record.data_tag) {
-                for (var schemaId in params.record.data_tag) {
-                    var dataTags = params.record.data_tag[schemaId],
-                        converted = [];
-                    dataTags.forEach(function(tagId) {
-                        tagsById[tagId] && converted.push(tagsById[tagId]);
-                    });
-                    params.record.data_tag[schemaId] = converted;
-                }
-            }
-            if (oApp.assignedNickname.schema) {
-                if ((oApp.assignedNickname.schema.id == 'member.name' || oApp.assignedNickname.schema.id == 'name') && params.record.data) {
-                    assignedNickname = params.record.data[oApp.assignedNickname.schema.id];
-                }
-            }
-        }
-        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
-            tmsDynaPage.loadCode(ngApp, oSite.header_page);
-        }
-        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
-            tmsDynaPage.loadCode(ngApp, oMission.header_page);
-        }
-        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
-            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
-        }
-        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
-            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
-        }
-        if (params.page) {
-            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
-                $scope.page = params.page;
-            });
-        }
-
+    /* 设置公众号分享信息 */
+    $scope.setSnsShare = function(oRecord, oParams) {
+        var oApp, oPage, oUser, sharelink, shareid, shareby, summary;
+        oApp = $scope.app;
+        oPage = $scope.page;
+        oUser = $scope.user;
         /* 设置活动的当前链接 */
-        shareid = oUser.uid + '_' + (new Date * 1);
-        sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid', 'newRecord');
-        sharelink += "&shareby=" + shareid;
+        sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid');
         if (oPage && oPage.share_page && oPage.share_page === 'Y') {
             sharelink += '&page=' + oPage.name;
-            params.record && params.record.enroll_key && (sharelink += '&ek=' + params.record.enroll_key);
-            if (!(/iphone|ipad/i.test(navigator.userAgent))) {
-                /*ios下操作无效，且导致微信jssdk失败*/
-                // if (window.history && window.history.replaceState) {
-                //     window.history.replaceState({}, oApp.title, sharelink);
-                // }
-            }
+            //if (!(/iphone|ipad/i.test(navigator.userAgent))) {
+            /*ios下操作无效，且导致微信jssdk失败*/
+            // if (window.history && window.history.replaceState) {
+            //     window.history.replaceState({}, oApp.title, sharelink);
+            // }
+            //}
+        } else if (LS.s().page) {
+            sharelink += '&page=' + LS.s().page;
         }
+        oRecord && oRecord.enroll_key && (sharelink += '&ek=' + oRecord.enroll_key);
+        if (oParams) {
+            angular.forEach(oParams, function(v, k) {
+                if (v !== undefined) {
+                    sharelink += '&' + k + '=' + v;
+                }
+            });
+        }
+        shareid = oUser.uid + '_' + (new Date * 1);
+        sharelink += "&shareby=" + shareid;
         /* 设置分享 */
         if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
             summary = oApp.summary;
-            if (oPage && oPage.share_summary && oPage.share_summary.length && params.record) {
-                summary = params.record.data[oPage.share_summary];
+            if (oPage && oPage.share_summary && oPage.share_summary.length && oRecord) {
+                summary = oRecord.data[oPage.share_summary];
             }
             /* 分享次数计数器 */
             window.shareCounter = 0;
@@ -308,6 +254,68 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                 jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']
             });
             tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
+        }
+    };
+    $scope.isSmallLayout = false;
+    if (window.screen && window.screen.width < 992) {
+        $scope.isSmallLayout = true;
+    }
+    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function success(rsp) {
+        var params = rsp.data,
+            oSite = params.site,
+            oApp = params.app,
+            oMission = params.mission,
+            oPage = params.page,
+            oUser = params.user,
+            schemasById = {},
+            tagsById = {},
+            activeRid = '';
+
+        oApp.dataSchemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        oApp._schemasById = schemasById;
+        oApp.dataTags.forEach(function(oTag) {
+            tagsById[oTag.id] = oTag;
+        });
+        oApp._tagsById = tagsById;
+        $scope.params = params;
+        $scope.site = oSite;
+        $scope.mission = oMission;
+        $scope.app = oApp;
+        $scope.user = oUser;
+        if (oApp.multi_rounds === 'Y' && params.activeRound) {
+            $scope.activeRound = params.activeRound;
+            activeRid = params.activeRound.rid;
+        }
+        // if (params.record) {
+        //     if (params.record.data_tag) {
+        //         for (var schemaId in params.record.data_tag) {
+        //             var dataTags = params.record.data_tag[schemaId],
+        //                 converted = [];
+        //             dataTags.forEach(function(tagId) {
+        //                 tagsById[tagId] && converted.push(tagsById[tagId]);
+        //             });
+        //             params.record.data_tag[schemaId] = converted;
+        //         }
+        //     }
+        // }
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
         }
 
         if (!document.querySelector('.tms-switch-favor')) {
@@ -343,7 +351,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             }
         }
         if (tasksOfOnReady.length) {
-            angular.forEach(tasksOfOnReady, PG.exec);
+            angular.forEach(tasksOfOnReady, execTask);
         }
         var eleLoading;
         if (eleLoading = document.querySelector('.loading')) {
@@ -356,31 +364,8 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             search: location.search.replace('?', ''),
             referer: document.referrer,
             rid: activeRid,
-            assignedNickname: assignedNickname
+            assignedNickname: oUser.nickname
         });
-    }, function error(content, httpCode) {
-        // if (httpCode === 401) {
-        //     var el = document.createElement('iframe');
-        //     el.setAttribute('id', 'frmPopup');
-        //     el.onload = function() {
-        //         this.height = document.querySelector('body').clientHeight;
-        //     };
-        //     document.body.appendChild(el);
-        //     if (content.indexOf('http') === 0) {
-        //         window.onAuthSuccess = function() {
-        //             el.style.display = 'none';
-        //         };
-        //         el.setAttribute('src', content);
-        //         el.style.display = 'block';
-        //     } else {
-        //         if (el.contentDocument && el.contentDocument.body) {
-        //             el.contentDocument.body.innerHTML = content;
-        //             el.style.display = 'block';
-        //         }
-        //     }
-        // } else {
-        //     $scope.errmsg = content;
-        // }
     });
 }]);
 module.exports = ngApp;

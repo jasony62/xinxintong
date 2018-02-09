@@ -692,10 +692,11 @@ class record extends base {
 	 *
 	 * @param string $app
 	 * @param string $ek
-	 * @param string $rid
+	 * @param string $loadLast 如果没有指定ek，是否获取最近一条数据
+	 * @param string $withSaved 是否获取保存数据
 	 *
 	 */
-	public function get_action($app, $ek = '') {
+	public function get_action($app, $ek = '', $rid = '', $loadLast = 'Y', $loadAssoc = 'Y', $withSaved = 'N') {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
@@ -706,19 +707,70 @@ class record extends base {
 
 		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,data_tag,score,like_num,like_log,remark_num';
 
-		$oUser = $this->who;
-
 		if (empty($ek)) {
-			$oRecord = $modelRec->lastByUser($oApp, $oUser, ['verbose' => 'Y', 'fields' => $fields]);
-		} else {
-			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
-		}
-		if (false === $oRecord || $oRecord->state !== '1') {
-			$oRecord = new \stdClass;
-			if (false === $this->_fillWithSaved($oApp, $oUser, $oRecord)) {
-				return new \ObjectNotFoundError();
+			$oUser = $this->who;
+			if ($loadLast === 'Y') {
+				$oRecord = $modelRec->lastByUser($oApp, $oUser, ['assignRid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
+				if (false === $oRecord || $oRecord->state !== '1') {
+					$oRecord = new \stdClass;
+				}
+			} else {
+				$oRecord = false;
 			}
 		} else {
+			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
+			$oUser = new \stdClass;
+			if (false === $oRecord || $oRecord->state !== '1') {
+				$oRecord = new \stdClass;
+			} else {
+				if (!empty($oRecord->userid)) {
+					$oUser->uid = $oRecord->userid;
+				}
+			}
+		}
+
+		/* 返回当前用户在关联活动中填写的数据 */
+		if (!empty($oApp->enroll_app_id) && !empty($oUser->uid)) {
+			$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
+			if ($oAssocApp) {
+				$oAssocRec = $modelRec->byUser($oAssocApp, $oUser);
+				if (count($oAssocRec) === 1) {
+					if (!empty($oAssocRec[0]->data)) {
+						$oAssocRecord = $oAssocRec[0]->data;
+						if (!isset($oRecord->data)) {
+							$oRecord->data = new \stdClass;
+						}
+						foreach ($oAssocRecord as $key => $value) {
+							$oRecord->data->{$key} = $value;
+						}
+					}
+				}
+			}
+		}
+		if (!empty($oApp->group_app_id) && !empty($oUser->uid)) {
+			$oGrpApp = $this->model('matter\group')->byId($oApp->group_app_id, ['cascaded' => 'N']);
+			$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
+			if (count($oGrpPlayer) === 1) {
+				if (!empty($oGrpPlayer[0]->data)) {
+					if (!isset($oRecord->data)) {
+						$oRecord->data = new \stdClass;
+					}
+					if (is_string($oGrpPlayer[0]->data)) {
+						$oAssocRecord = json_decode($oGrpPlayer[0]->data);
+					} else {
+						$oAssocRecord = $oGrpPlayer[0]->data;
+					}
+
+					$oAssocRecord->_round_id = $oGrpPlayer[0]->round_id;
+					foreach ($oAssocRecord as $k => $v) {
+						$oRecord->data->{$k} = $v;
+					}
+				}
+			}
+		}
+
+		/* 恢复用户保存的数据 */
+		if ($withSaved === 'Y') {
 			$this->_fillWithSaved($oApp, $oUser, $oRecord);
 		}
 

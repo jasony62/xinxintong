@@ -319,12 +319,16 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 return newSchema;
             };
             $scope.newMember = function(ms, oMsSchema) {
-                var newSchema = schemaLib.newSchema('member', $scope.app);
+                var oNewSchema = schemaLib.newSchema(oMsSchema.type, $scope.app);
 
-                newSchema.schema_id = ms.id;
-                newSchema.id = oMsSchema.id;
-                newSchema.title = oMsSchema.title;
-                $scope._appendSchema(newSchema);
+                oNewSchema.schema_id = ms.id;
+                oNewSchema.id = oMsSchema.id;
+                oNewSchema.title = oMsSchema.title;
+                oNewSchema.format = oMsSchema.format;
+                if (oMsSchema.ops) {
+                    oNewSchema.ops = oMsSchema.ops;
+                }
+                $scope._appendSchema(oNewSchema);
                 oMsSchema.assocState = 'yes';
 
                 return newSchema;
@@ -416,7 +420,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         oMsSchema.assocState = 'no';
                     }
                     if (!bOnlyAssocState) {
-                        oSchema.type = 'shorttext';
                         delete oSchema.schema_id;
                         $scope.updSchema(oSchema, oBefore);
                     }
@@ -427,10 +430,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 var oAppSchema, oBefore;
                 oAppSchema = $scope.app._schemasById[oMsSchema.id];
                 if (oAppSchema) {
-                    if (!/shorttext/.test(oAppSchema.type)) {
-                        alert('题目【' + oAppSchema.title + '】的类型不是【单行填写题】，无法关联');
-                        return;
-                    }
                     if (oAppSchema.title !== oMsSchema.title) {
                         alert('题目【' + oMsSchema.title + '】和【' + oAppSchema.title + '】的名称不一致，无法关联');
                         return;
@@ -440,7 +439,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         return;
                     }
                     oBefore = angular.copy(oAppSchema);
-                    oAppSchema.type = 'member';
                     oAppSchema.schema_id = oMschema.id;
                     oMsSchema.assocState = 'yes';
                     $scope.updSchema(oAppSchema, oBefore);

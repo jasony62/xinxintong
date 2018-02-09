@@ -51,6 +51,14 @@ define(['frame'], function(ngApp) {
         $scope.addPlan = function() {
             location.href = '/rest/pl/fe/matter/plan/plan?site=' + _oMission.siteid + '&mission=' + _oMission.id;
         };
+        $scope.addMemberschema = function() {
+            var url, proto;
+            url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.mission.siteid;
+            proto = { valid: 'Y', matter_id: _oMission.id, matter_type: _oMission.type, title: _oMission.title + '-通讯录' };
+            http2.post(url, proto, function(rsp) {
+                location.href = '/rest/pl/fe/site/mschema?site=' + _oMission.siteid + '#' + rsp.data.id;
+            });
+        };
         $scope.addMatter = function(matterType) {
             if (!matterType) {
                 matterType = $scope.matterType;

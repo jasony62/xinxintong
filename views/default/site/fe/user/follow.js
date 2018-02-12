@@ -42,7 +42,7 @@ define(["angular"], function(angular) {
             });
         });
         $scope.gotoLogin = function() {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 if (params.referer) {
                     location.href = params.referer;
                 } else {

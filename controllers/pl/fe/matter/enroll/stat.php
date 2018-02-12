@@ -688,7 +688,6 @@ class stat extends \pl\fe\matter\base {
 							} else {
 								$html .= "<td>" . $record->data->$schemaId . "</td>";
 							}
-							$html .= "<td>" . $record->data->$schemaId . "</td>";
 						} else if ((strpos($schemaId, 'member.') === 0) && isset($record->data->member)) {
 							$mbSchemaId = $schema->id;
 							$mbSchemaIds = explode('.', $mbSchemaId);

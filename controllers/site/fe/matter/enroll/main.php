@@ -296,8 +296,8 @@ class main extends base {
 		/**
 		 * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
 		 */
-		if (!empty($oApp->entry_rule->group->id) || !empty($oApp->group_app_id)) {
-			$assocGroupAppId = empty($oApp->entry_rule->group->id) ? $oApp->group_app_id : $oApp->entry_rule->group->id;
+		if ((isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id)) || !empty($oApp->group_app_id)) {
+			$assocGroupAppId = (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id)) ? $oApp->entry_rule->group->id : $oApp->group_app_id;
 			/* 获得的分组信息 */
 			$modelGrpRnd = $this->model('matter\group\round');
 			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);

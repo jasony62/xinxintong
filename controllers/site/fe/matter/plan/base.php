@@ -91,36 +91,6 @@ class base extends \site\fe\matter\base {
 
 	}
 	/**
-	 *
-	 */
-	private function _checkSnsEntryRule($oApp, $bRedirect) {
-		$aResult = $this->enterAsSns($oApp);
-		if (false === $aResult[0]) {
-			$msg = '您没有关注公众号，不满足【' . $oApp->title . '】的进入规则，无法访问，请联系活动的组织者解决。';
-			if (true === $bRedirect) {
-				$oEntryRule = $oApp->entryRule;
-				if (!empty($oEntryRule->sns->wx->entry) && $oEntryRule->sns->wx->entry === 'Y') {
-					/* 通过邀请链接访问 */
-					if (!empty($_GET['inviteToken'])) {
-						$oApp->params = new \stdClass;
-						$oApp->params->inviteToken = $_GET['inviteToken'];
-					}
-					$this->snsWxQrcodeFollow($oApp);
-				} else if (!empty($oEntryRule->sns->qy->entry) && $oEntryRule->sns->qy->entry === 'Y') {
-					$this->snsFollow($oApp->siteid, 'qy', $oApp);
-				} else if (!empty($oEntryRule->sns->yx->entry) && $oEntryRule->sns->yx->entry === 'Y') {
-					$this->snsFollow($oApp->siteid, 'yx', $oApp);
-				} else {
-					$this->outputInfo($msg);
-				}
-			} else {
-				return [false, $msg];
-			}
-		}
-
-		return [true];
-	}
-	/**
 	 * 检查登记活动进入规则
 	 *
 	 * @param object $oApp
@@ -152,7 +122,7 @@ class base extends \site\fe\matter\base {
 							$oApp2 = clone $oApp;
 							$oApp2->entryRule = new \stdClass;
 							$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
-							$aResult = $this->_checkSnsEntryRule($oApp2, $bRedirect);
+							$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
 							if (false === $aResult[0]) {
 								return $aResult;
 							}
@@ -167,7 +137,7 @@ class base extends \site\fe\matter\base {
 			}
 		}
 		if (isset($oScope->sns) && $oScope->sns === 'Y') {
-			$aResult = $this->_checkSnsEntryRule($oApp, $bRedirect);
+			$aResult = $this->checkSnsEntryRule($oApp, $bRedirect);
 			if (false === $aResult[0]) {
 				return $aResult;
 			}
@@ -181,8 +151,8 @@ class base extends \site\fe\matter\base {
 					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
 					if (count($oGroupUsr)) {
 						$oGroupUsr = $oGroupUsr[0];
-						if (isset($oGroupApp->round->id)) {
-							if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+						if (isset($oEntryRule->group->round->id)) {
+							if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
 								$bMatched = true;
 							}
 						} else {

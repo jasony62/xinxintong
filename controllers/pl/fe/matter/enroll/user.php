@@ -266,15 +266,15 @@ class user extends \pl\fe\matter\base {
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
 		// Set properties
-		$objPHPExcel->getProperties()->setCreator("信信通")
-			->setLastModifiedBy("信信通")
+		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
+			->setLastModifiedBy(APP_TITLE)
 			->setTitle($oApp->title)
 			->setSubject($oApp->title)
 			->setDescription($oApp->title);
 
 		$objPHPExcel->setActiveSheetIndex(0);
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
-		$objActiveSheet->setTitle('签到人员完成情况');
+		$objActiveSheet->setTitle('已参与活动人员');
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
 		// 转换标题
@@ -395,7 +395,7 @@ class user extends \pl\fe\matter\base {
 			}
 		} else {
 			// 转换标题
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '昵称');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '用户');
 			if (!empty($oApp->group_app_id)) {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 			}
@@ -470,7 +470,7 @@ class user extends \pl\fe\matter\base {
 			$objPHPExcel->createSheet();
 			$objPHPExcel->setActiveSheetIndex(1);
 			$objActiveSheet2 = $objPHPExcel->getActiveSheet();
-			$objActiveSheet2->setTitle('未签到人员数据');
+			$objActiveSheet2->setTitle('缺席人员');
 
 			$colNumber = 0;
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '序号');

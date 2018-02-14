@@ -99,7 +99,7 @@ define(['frame'], function(ngApp) {
             }
             if (!_oAppRule.member[mschemaId]) {
                 _oAppRule.member[mschemaId] = {
-                    entry: $scope.jumpPages.defaultInput ? $scope.jumpPages.defaultInput.name : ''
+                    entry: 'Y'
                 };
                 return true;
             }
@@ -117,8 +117,7 @@ define(['frame'], function(ngApp) {
             return false;
         }
 
-        var _oApp, _oAppRule, _oBeforeRule;
-        $scope.rule = {};
+        var _oApp, _oAppRule;
         $scope.isInputPage = function(pageName) {
             if (!$scope.app) {
                 return false;
@@ -130,52 +129,38 @@ define(['frame'], function(ngApp) {
             }
             return false;
         };
-        $scope.reset = function() {
-            srvEnrollApp.resetEntryRule();
-        };
-        $scope.changeUserScope = function() {
-            if ($scope.rule.scope === 'member' && (!_oAppRule.member || Object.keys(_oAppRule.member).length === 0)) {
-                srvSite.chooseMschema(_oApp).then(function(result) {
-                    setMschemaEntry(result.chosen.id);
-                    srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.jumpPages.defaultInput).then(function(rsp) {
-                        _oBeforeRule = angular.copy($scope.rule);
-                    });
-                }, function(reason) {
-                    $scope.rule.scope = _oBeforeRule.scope;
-                });
-            } else if ($scope.rule.scope === 'group' && (!_oAppRule.group || !_oAppRule.group.id)) {
-                chooseGroupApp().then(function(result) {
-                    if (setGroupEntry(result)) {
-                        srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.jumpPages.defaultInput).then(function(rsp) {
-                            _oBeforeRule = angular.copy($scope.rule);
-                        });
+        $scope.changeUserScope = function(scopeProp) {
+            switch (scopeProp) {
+                case 'sns':
+                    if ($scope.rule.scope[scopeProp] === 'Y') {
+                        if (!$scope.rule.sns) {
+                            $scope.rule.sns = {};
+                        }
+                        if ($scope.snsCount === 1) {
+                            $scope.rule.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
+                        }
                     }
-                }, function(reason) {
-                    $scope.rule.scope = _oBeforeRule.scope;
-                });
-            } else {
-                srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns, $scope.jumpPages.defaultInput).then(function(rsp) {
-                    _oBeforeRule = angular.copy($scope.rule);
-                });
+                    break;
             }
+            srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns);
         };
         $scope.chooseMschema = function() {
             srvSite.chooseMschema(_oApp).then(function(result) {
                 if (setMschemaEntry(result.chosen.id)) {
-                    $scope.update('entry_rule');
+                    $scope.update('entryRule');
                 }
             });
         };
         $scope.chooseGroupApp = function() {
             chooseGroupApp().then(function(result) {
                 if (setGroupEntry(result)) {
-                    $scope.update('entry_rule');
+                    $scope.update('entryRule');
                 }
             });
         };
         $scope.removeGroupApp = function() {
             delete _oAppRule.group;
-            $scope.update('entry_rule');
+            $scope.update('entryRule');
         };
         $scope.removeMschema = function(mschemaId) {
             var bSchemaChanged = false;
@@ -195,33 +180,26 @@ define(['frame'], function(ngApp) {
                     srvEnrollSchema.submitChange(_oApp.pages);
                 }
                 delete _oAppRule.member[mschemaId];
-                $scope.update('entry_rule');
+                $scope.update('entryRule');
             }
         };
         $scope.addExclude = function() {
-            var rule = $scope.rule;
-            if (!rule.exclude) {
-                rule.exclude = [];
+            if (!_oAppRule.exclude) {
+                _oAppRule.exclude = [];
             }
-            rule.exclude.push('');
+            _oAppRule.exclude.push('');
         };
         $scope.removeExclude = function(index) {
-            $scope.rule.exclude.splice(index, 1);
+            _oAppRule.exclude.splice(index, 1);
             $scope.configExclude();
         };
         $scope.configExclude = function() {
-            _oApp.entry_rule.exclude = $scope.rule.exclude;
-            $scope.update('entry_rule').then(function(rsp) {
-                _oBeforeRule = angular.copy($scope.rule);
-            });
+            $scope.update('entryRule');
         };
         srvEnrollApp.get().then(function(app) {
             $scope.jumpPages = srvEnrollApp.jumpPages();
             _oApp = app;
-            _oAppRule = app.entry_rule;
-            $scope.rule.scope = _oAppRule.scope || 'none';
-            $scope.rule.exclude = _oAppRule.exclude;
-            _oBeforeRule = angular.copy($scope.rule);
+            $scope.rule = _oAppRule = app.entryRule;
         }, true);
     }]);
 });

@@ -196,6 +196,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
     };
     this.value2Html = function(oSchema, val) {
         if (!val || !oSchema) return '';
+
         if (oSchema.ops && oSchema.ops.length) {
             if (oSchema.type === 'score') {
                 var label = '';
@@ -291,7 +292,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                             break;
                         default:
                             try {
-                                var htmlVal = _that.value2Html(oSchema, oRecord.data[oSchema.id])
+                                var htmlVal = _that.value2Html(oSchema, oRecord.data[oSchema.id]);
                                 data[oSchema.id] = $sce.trustAsHtml(htmlVal);
                             } catch (e) {
                                 console.log(e, oSchema, oRecord.data[oSchema.id]);

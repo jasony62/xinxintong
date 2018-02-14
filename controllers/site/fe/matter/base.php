@@ -70,6 +70,36 @@ class base extends \site\fe\base {
 		return false;
 	}
 	/**
+	 *
+	 */
+	protected function checkSnsEntryRule($oApp, $bRedirect) {
+		$aResult = $this->enterAsSns($oApp);
+		if (false === $aResult[0]) {
+			$msg = '您没有关注公众号，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+			if (true === $bRedirect) {
+				$oEntryRule = $oApp->entryRule;
+				if (!empty($oEntryRule->sns->wx->entry)) {
+					/* 通过邀请链接访问 */
+					if (!empty($_GET['inviteToken'])) {
+						$oApp->params = new \stdClass;
+						$oApp->params->inviteToken = $_GET['inviteToken'];
+					}
+					$this->snsWxQrcodeFollow($oApp);
+				} else if (!empty($oEntryRule->sns->qy->entry)) {
+					$this->snsFollow($oApp->siteid, 'qy', $oApp);
+				} else if (!empty($oEntryRule->sns->yx->entry)) {
+					$this->snsFollow($oApp->siteid, 'yx', $oApp);
+				} else {
+					$this->outputInfo($msg);
+				}
+			} else {
+				return [false, $msg];
+			}
+		}
+
+		return [true];
+	}
+	/**
 	 * 限社交网站用户参与
 	 */
 	protected function enterAsSns($oApp) {
@@ -77,7 +107,6 @@ class base extends \site\fe\base {
 		$oUser = $this->who;
 		$bFollowed = false;
 		$oFollowedRule = null;
-
 		foreach ($oEntryRule->sns as $snsName => $rule) {
 			if (isset($oUser->sns->{$snsName})) {
 				// 检查用户对应的公众号

@@ -142,7 +142,7 @@ define(['frame'], function(ngApp) {
         $scope.toggleAbsent = function() {
             $scope.category = $scope.category === 'absent' ? 'enrollee' : 'absent';
         };
-        $scope.$watch('app.entry_rule', function(oRule) {
+        $scope.$watch('app.entryRule', function(oRule) {
             if (!oRule) return;
             $scope.rule = oRule;
             $scope.searchEnrollee(1);

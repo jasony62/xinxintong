@@ -25,14 +25,12 @@ class user extends base {
 		return new \ResponseData($oEnrollee);
 	}
 	/**
-	 *
 	 * 列出填写人名单列表
-	 *
 	 */
 	public function list_action($site, $app, $owner = 'U', $schema_id, $page = 1, $size = 30) {
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$oUser = $this->who;
@@ -52,7 +50,6 @@ class user extends base {
 			break;
 		}
 		//设定范围
-		$entry = $oApp->entry_rule->scope;
 		$q1 = [
 			'*',
 			'xxt_enroll_user',
@@ -62,7 +59,7 @@ class user extends base {
 		$q2['o'] = "id asc";
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		$users = $modelEnl->query_objs_ss($q1, $q2);
-		foreach ($users as &$user) {
+		foreach ($users as $oUser) {
 			//添加分组信息
 			$dataSchemas = $oApp->dataSchemas;
 			foreach ($dataSchemas as $value) {
@@ -70,24 +67,22 @@ class user extends base {
 					$ops = $value->ops;
 				}
 			}
-			if (isset($ops) && $user->group_id) {
+			if (isset($ops) && $oUser->group_id) {
 				foreach ($ops as $p) {
-					if ($user->group_id == $p->v) {
-						$user->group = $p;
+					if ($oUser->group_id == $p->v) {
+						$oUser->group = $p;
 					}
 				}
 			}
-			switch ($entry) {
-			case 'member':
-				//通信录的信息
+			//通信录的信息
+			if (isset($oApp->entryRule->scope->member) && $oApp->entryRule->scope->member === 'Y') {
 				if (empty($schema_id)) {
 					return new \ResponseError('传入的通信录ID参数不能为空！');
 				}
-
 				$addressbook = $modelEnl->query_obj_ss([
 					'*',
 					'xxt_site_member',
-					['siteid' => $site, 'userid' => $user->userid, 'schema_id' => $schema_id],
+					['siteid' => $site, 'userid' => $oUser->userid, 'schema_id' => $schema_id],
 				]);
 
 				if ($addressbook) {
@@ -96,24 +91,20 @@ class user extends base {
 					}
 					$extattr = json_decode($addressbook->extattr);
 					$addressbook->schema_title = $schema->title;
-					$addressbook->enroll_num = $user->enroll_num;
-					$addressbook->remark_other_num = $user->remark_other_num;
-					$addressbook->like_other_num = $user->like_other_num;
+					$addressbook->enroll_num = $oUser->enroll_num;
+					$addressbook->remark_other_num = $oUser->remark_other_num;
+					$addressbook->like_other_num = $oUser->like_other_num;
 				}
-				$user->mschema = $addressbook;
-				break;
-			case 'sns':
+				$oUser->mschema = $addressbook;
+			}
+			if (isset($oApp->entryRule->scope->sns) && $oApp->entryRule->scope->sns === 'Y') {
 				//公众号的信息
 				$sns = $modelEnl->query_obj_ss([
 					'assoc_id,wx_openid,yx_openid,qy_openid,uname,headimgurl,ufrom,uid,unionid,nickname',
 					'xxt_site_account',
-					['siteid' => $site, 'uid' => $user->userid],
+					['siteid' => $site, 'uid' => $oUser->userid],
 				]);
-				$user->sns = $sns;
-				break;
-			default:
-				# code...
-				break;
+				$oUser->sns = $sns;
 			}
 		}
 

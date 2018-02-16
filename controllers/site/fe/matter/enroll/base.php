@@ -99,12 +99,12 @@ class base extends \site\fe\matter\base {
 		$oScope = $oEntryRule->scope;
 
 		if (isset($oScope->member) && $oScope->member === 'Y') {
-			$oResult = $this->enterAsMember($oApp);
+			$aResult = $this->enterAsMember($oApp);
 			/**
 			 * 限通讯录用户访问
 			 * 如果指定的任何一个通讯录要求用户关注公众号，但是用户还没有关注，那么就要求用户先关注公众号，再填写通讯录
 			 */
-			if (false === $oResult[0]) {
+			if (false === $aResult[0]) {
 				if (true === $bRedirect) {
 					$aMemberSchemaIds = [];
 					$modelMs = $this->model('site\user\memberschema');
@@ -114,7 +114,7 @@ class base extends \site\fe\matter\base {
 							$oApp2 = clone $oApp;
 							$oApp2->entryRule = new \stdClass;
 							$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
-							$aResult = $this->_checkSnsEntryRule($oApp2, $bRedirect);
+							$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
 							if (false === $aResult[0]) {
 								return $aResult;
 							}

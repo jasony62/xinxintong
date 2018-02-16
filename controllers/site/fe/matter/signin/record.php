@@ -164,8 +164,8 @@ class record extends base {
 						);
 						$oSignState->verified = 'Y';
 						// 返回指定的验证成功页
-						if (isset($oSigninApp->entry_rule->success->entry)) {
-							$oSignState->forword = $oSigninApp->entry_rule->success->entry;
+						if (isset($oSigninApp->entryRule->success->entry)) {
+							$oSignState->forword = $oSigninApp->entryRule->success->entry;
 						}
 						/* 如果登记数据中未包含用户信息，更新用户信息 */
 						if (empty($oEnrollRecord->userid)) {
@@ -189,8 +189,8 @@ class record extends base {
 						"enroll_key='{$oSignState->ek}'"
 					);
 					$oSignState->verified = 'N';
-					if (isset($oSigninApp->entry_rule->fail->entry)) {
-						$oSignState->forword = $oSigninApp->entry_rule->fail->entry;
+					if (isset($oSigninApp->entryRule->fail->entry)) {
+						$oSignState->forword = $oSigninApp->entryRule->fail->entry;
 					}
 				}
 			}

@@ -68,10 +68,9 @@ class signin_model extends enroll_base {
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
 				if (empty($oApp->entry_rule)) {
-					$oApp->entry_rule = new \stdClass;
-					$oApp->entry_rule->scope = 'none';
+					$oApp->entryRule = new \stdClass;
 				} else {
-					$oApp->entry_rule = json_decode($oApp->entry_rule);
+					$oApp->entryRule = json_decode($oApp->entry_rule);
 				}
 			}
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {

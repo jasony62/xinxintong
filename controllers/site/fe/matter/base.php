@@ -32,11 +32,16 @@ class base extends \site\fe\base {
 	 * 2、平台是否绑定了第三方社交帐号认证
 	 * 3、用户客户端是否可以发起认证
 	 *
-	 * @param string $site
-	 * @param object $app
+	 * @param object $oApp
 	 */
 	protected function requireSnsOAuth($oApp) {
-		$oEntryRule = isset($oApp->entryRule) ? $oApp->entryRule : $oApp->entry_rule;
+		if (empty($oApp->entryRule)) {
+			return false;
+		}
+		$oEntryRule = $oApp->entryRule;
+		if (empty($oEntryRule->scope->sns) || $oEntryRule->scope->sns !== 'Y') {
+			return false;
+		}
 		if ($this->userAgent() === 'wx') {
 			if (!empty($oEntryRule->sns->wx->entry)) {
 				if (!isset($this->who->sns->wx)) {

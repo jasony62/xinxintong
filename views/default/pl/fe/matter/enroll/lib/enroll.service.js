@@ -70,10 +70,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     records = [];
                 }
                 records.forEach(function(oRecord) {
-                    //srvRecordConverter.forTable(oRecord, that._oApp._unionSchemasById);
-                    // if (oRecord.state !== undefined) {
-                    //     oRecord._state = _mapOfRecordState[oRecord.state];
-                    // }
                     tmsSchema.forTable(oRecord, that._oApp._unionSchemasById);
                     that._aRecords.push(oRecord);
                 });

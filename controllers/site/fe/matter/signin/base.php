@@ -49,7 +49,7 @@ class base extends \site\fe\matter\base {
 			}
 			return [true, null];
 		}
-		if ($oScope->member === 'Y') {
+		if (isset($oScope->member) && $oScope->member === 'Y') {
 			$aResult = $this->enterAsMember($oApp);
 			/**
 			 * 限通讯录用户访问
@@ -79,7 +79,7 @@ class base extends \site\fe\matter\base {
 				}
 			}
 		}
-		if ($oScope->sns === 'Y') {
+		if (isset($oScope->sns) && $oScope->sns === 'Y') {
 			$aResult = $this->checkSnsEntryRule($oApp, $bRedirect);
 			if (false === $aResult[0]) {
 				return $aResult;

@@ -8,7 +8,7 @@ $model = TMS_MODEL::model();
 /**
  * 从数据库中获得数据
  */
-$oApps = $model->query_objs_ss(['id,entry_rule', 'xxt_signin', ['id' => '59ec9fe7a4ae5']]);
+$oApps = $model->query_objs_ss(['id,entry_rule', 'xxt_signin', ['1' => 1]]);
 /**
  * 处理获得的数据
  */

@@ -32,7 +32,7 @@ define(['require'], function(require) {
         $scope.result = _oResult = {
             proto: {
                 entryRule: {
-                    scope: '',
+                    scope: {},
                     mschemas: [],
                 }
             }
@@ -218,6 +218,7 @@ define(['require'], function(require) {
                     _oProto.mission = { id: oMission.id, title: oMission.title };
                     _oEntryRule.scope = {};
                     if ('member' === oMission.entry_rule.scope) {
+                        _oEntryRule.scope.member = 'Y';
                         srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
                             var oMschemasById = {};
                             aMemberSchemas.forEach(function(mschema) {
@@ -227,10 +228,9 @@ define(['require'], function(require) {
                                 _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
                             });
                         });
-                        _oEntryRule.scope.member = 'Y';
                     } else if ('sns' === oMission.entry_rule.scope) {
-                        _oResult.proto.sns = oMission.entry_rule.sns;
                         _oEntryRule.scope.sns = 'Y';
+                        _oResult.proto.sns = oMission.entry_rule.sns;
                     }
                     _oProto.title = oMission.title + '-' + CstNaming.scenario.enroll[assignedScenario] || '登记活动';
                 }
@@ -238,7 +238,6 @@ define(['require'], function(require) {
         } else if (_siteId) {
             $scope.$watch('site', function(oSite) {
                 if (oSite) {
-                    _oEntryRule.scope = {};
                     _oProto.title = oSite.name + '-' + CstNaming.scenario.enroll[assignedScenario] || '登记活动';
                 }
             });

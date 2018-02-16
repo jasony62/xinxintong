@@ -2,7 +2,7 @@
 require('./view.css');
 
 var ngApp = require('./main.js');
-ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
+ngApp.factory('Record', ['http2', '$q', 'tmsLocation', function(http2, $q, LS) {
     var Record, _ins, _running;
     Record = function() {
         this.current = {
@@ -18,13 +18,11 @@ ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
         deferred = $q.defer();
         url = LS.j('record/get', 'site', 'app');
         ek && (url += '&ek=' + ek);
-        $http.get(url).success(function(rsp) {
-            var record;
-            record = rsp.data;
-            if (rsp.err_code == 0) {
-                _this.current = record;
-                deferred.resolve(record);
-            }
+        http2.get(url).then(function(rsp) {
+            var oRecord;
+            oRecord = rsp.data;
+            _this.current = oRecord;
+            deferred.resolve(oRecord);
             _running = false;
         });
         return deferred.promise;
@@ -39,7 +37,7 @@ ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
         }
     };
 }]);
-ngApp.controller('ctrlRecord', ['$scope', 'Record', '$sce', 'ls', function($scope, Record, $sce, LS) {
+ngApp.controller('ctrlRecord', ['$scope', 'Record', '$sce', 'tmsLocation', 'noticebox', function($scope, Record, $sce, LS, noticebox) {
     var facRecord = Record.ins();
 
     $scope.value2Label = function(schemaId) {
@@ -61,20 +59,20 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', '$sce', 'ls', function($scop
         return $sce.trustAsHtml(val);
     };
     $scope.editRecord = function(event, page) {
-        page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
+        page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : noticebox.error('没有指定登记编辑页');
     };
     $scope.gotoEnroll = function(event, page) {
         if ($scope.app.enroll_app_id) {
             var url = '/rest/site/fe/matter/enroll';
-            url += '?site=' + LS.p.site;
+            url += '?site=' + LS.s().site;
             url += '&app=' + $scope.app.enroll_app_id;
             url += '&ignoretime=Y';
             location.href = url;
         } else {
-            $scope.$root.$errmsg = '没有指定关联报名表，无法填写报名信息';
+            noticebox.warn('没有指定关联报名表，无法填写报名信息');
         }
     };
-    facRecord.get(LS.p.ek);
+    facRecord.get(LS.s().ek);
     $scope.Record = facRecord;
 }]);
 ngApp.controller('ctrlView', ['$scope', function($scope) {}]);

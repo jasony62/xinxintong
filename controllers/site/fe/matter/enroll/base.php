@@ -171,17 +171,13 @@ class base extends \site\fe\matter\base {
 	 *
 	 */
 	protected function checkActionRule($oApp) {
-		$result = new \stdClass;
-		$result->passed = 'Y';
+		$oResult = new \stdClass;
+		$oResult->passed = 'Y';
 
-		$oUser = $this->who;
-		$oEntryRule = $oApp->entryRule;
-		//if (!isset($oEntryRule->scope) || $oEntryRule->scope === 'none' || $oEntryRule->scope === 'group') {
-		/* 没有限制 */
-		//	$result->passed = 'Y';
-		//}
-		if (isset($oEntryRule->scope)) {
-			if ($oEntryRule->scope->member === 'Y') {
+		if (isset($oApp->entryRule->scope)) {
+			$oUser = $this->who;
+			$oEntryRule = $oApp->entryRule;
+			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
 				$bMemberPassed = false;
 				/* 限自定义用户访问 */
 				foreach ($oEntryRule->member as $schemaId => $rule) {
@@ -217,12 +213,12 @@ class base extends \site\fe\matter\base {
 					}
 				}
 				if (!$bMemberPassed) {
-					$result->passed = 'N';
-					$result->scope = 'member';
-					$result->member = $oEntryRule->member;
+					$oResult->passed = 'N';
+					$oResult->scope = 'member';
+					$oResult->member = $oEntryRule->member;
 				}
 			}
-			if ($result->passed === 'Y' && $oEntryRule->scope->sns === 'Y') {
+			if ($oResult->passed === 'Y' && isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {
 				$bSnsPassed = false;
 				foreach ($oEntryRule->sns as $snsName => $rule) {
 					if (isset($oUser->sns->{$snsName})) {
@@ -248,14 +244,14 @@ class base extends \site\fe\matter\base {
 					}
 				}
 				if (!$bSnsPassed) {
-					$result->passed = 'N';
-					$result->scope = 'sns';
-					$result->sns = $oEntryRule->sns;
+					$oResult->passed = 'N';
+					$oResult->scope = 'sns';
+					$oResult->sns = $oEntryRule->sns;
 				}
 			}
 		}
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 返回全局的邀请关注页面（覆盖基类的方法）

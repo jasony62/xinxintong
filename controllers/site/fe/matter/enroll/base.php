@@ -14,12 +14,6 @@ class base extends \site\fe\matter\base {
 		return $rule_action;
 	}
 	/**
-	 * @param string $memberSchemas
-	 */
-	protected function canAccessObj($site, $appId, &$member, $memberSchemas, &$app) {
-		return $this->model('matter\acl')->canAccessMatter($site, 'enroll', $app, $member, $memberSchemas);
-	}
-	/**
 	 * 获得当前用户的完整信息
 	 * 1、活动中指定的用户昵称
 	 * 2、用户在活动中所属的分组

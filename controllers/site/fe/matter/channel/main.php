@@ -9,12 +9,6 @@ class main extends \site\fe\matter\base {
 	/**
 	 *
 	 */
-	protected function canAccessObj($site, $matterId, $member, $authapis, &$matter) {
-		return $this->model('matter\acl')->canAccessMatter($site, 'channel', $matterId, $member, $authapis);
-	}
-	/**
-	 *
-	 */
 	public function get_action($site, $id) {
 		$data = array();
 
@@ -22,9 +16,6 @@ class main extends \site\fe\matter\base {
 		$data['user'] = $user;
 
 		$channel = $this->model('matter\channel')->byId($id);
-		if (isset($channel->access_control) && $channel->access_control === 'Y') {
-			$this->accessControl($site, $id, $channel->authapis, $user->uid, $channel, false);
-		}
 
 		$channel->acl = $this->model('matter\acl')->byMatter($site, 'channel', $id);
 		$data['channel'] = $channel;

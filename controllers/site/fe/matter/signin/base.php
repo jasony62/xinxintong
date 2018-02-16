@@ -14,12 +14,6 @@ class base extends \site\fe\matter\base {
 		return $rule_action;
 	}
 	/**
-	 * @param string $memberSchemas
-	 */
-	protected function canAccessObj($site, $appId, &$member, $memberSchemas, &$app) {
-		return $this->model('matter\acl')->canAccessMatter($site, 'signin', $app, $member, $memberSchemas);
-	}
-	/**
 	 * 检查签到活动进入规则
 	 *
 	 * 1、用户是否已经签到

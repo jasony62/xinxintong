@@ -43,7 +43,7 @@ class base extends \site\fe\matter\base {
 		$oEntryRule = $oApp->entryRule;
 		if (isset($oEntryRule->scope)) {
 			/* 用户所属的分组 */
-			if ($oEntryRule->scope === 'group' && isset($oEntryRule->group->id)) {
+			if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y' && isset($oEntryRule->group->id)) {
 				$modelGrpUsr = $this->model('matter\group\player');
 				$oGrpMemb = $modelGrpUsr->byUser($oEntryRule->group, $oUser->uid, ['fields' => 'round_id', 'onlyOne' => true]);
 				if ($oGrpMemb) {
@@ -51,7 +51,7 @@ class base extends \site\fe\matter\base {
 				}
 			}
 			/* 用户通讯录数据 */
-			if ($oEntryRule->scope === 'member' && isset($oEntryRule->member)) {
+			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
 				$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
 				if (count($mschemaIds)) {
 					$modelMem = $this->model('site\user\member');

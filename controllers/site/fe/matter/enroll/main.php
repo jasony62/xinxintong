@@ -9,7 +9,7 @@ class main extends base {
 	/**
 	 *
 	 */
-	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,mission_id,mission_phase_id,multi_rounds,read_num,repos_unit,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id';
+	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,mission_id,mission_phase_id,multi_rounds,read_num,repos_unit,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id';
 	/**
 	 *
 	 */
@@ -45,8 +45,8 @@ class main extends base {
 		}
 
 		$skipEntryCheck = false;
-		if (!empty($page) && !empty($oApp->entry_rule->exclude)) {
-			if (in_array($page, $oApp->entry_rule->exclude)) {
+		if (!empty($page) && !empty($oApp->entryRule->exclude)) {
+			if (in_array($page, $oApp->entryRule->exclude)) {
 				$skipEntryCheck = true;
 			}
 		}
@@ -139,7 +139,7 @@ class main extends base {
 	 * 2、如果已经登记过，且指定了登记过访问页面，进入指定的页面
 	 * 3、如果已经登记过，且没有指定登记过访问页面，进入第一个查看页
 	 */
-	private function _defaultPage(&$oApp, $rid = '', $redirect = false, $ignoretime = 'N') {
+	private function _defaultPage($oApp, $rid = '', $redirect = false, $ignoretime = 'N') {
 		$oUser = $this->who;
 		$oOpenPage = null;
 		$modelPage = $this->model('matter\enroll\page');
@@ -185,8 +185,10 @@ class main extends base {
 
 		if ($oOpenPage === null) {
 			// 根据进入规则确定进入页面
-			$page = $this->checkEntryRule($oApp, $redirect);
-			$oOpenPage = $modelPage->byName($oApp->id, $page);
+			$aResult = $this->checkEntryRule($oApp, $redirect);
+			if (true === $aResult[0]) {
+				$oOpenPage = $modelPage->byName($oApp->id, $aResult[1]);
+			}
 		}
 
 		if ($oOpenPage === null) {
@@ -296,8 +298,8 @@ class main extends base {
 		/**
 		 * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
 		 */
-		if (!empty($oApp->entry_rule->group->id) || !empty($oApp->group_app_id)) {
-			$assocGroupAppId = empty($oApp->entry_rule->group->id) ? $oApp->group_app_id : $oApp->entry_rule->group->id;
+		if ((isset($oApp->entryRule->scope) && $oApp->entryRule->scope === 'group' && !empty($oApp->entryRule->group->id)) || !empty($oApp->group_app_id)) {
+			$assocGroupAppId = (isset($oApp->entryRule->scope) && $oApp->entryRule->scope === 'group' && !empty($oApp->entryRule->group->id)) ? $oApp->entryRule->group->id : $oApp->group_app_id;
 			/* 获得的分组信息 */
 			$modelGrpRnd = $this->model('matter\group\round');
 			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);

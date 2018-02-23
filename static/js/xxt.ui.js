@@ -40,10 +40,6 @@ constant('matterTypes', [{
     title: '进入信息墙',
     url: '/rest/pl/fe/matter'
 }, {
-    value: 'contribute',
-    title: '投稿活动',
-    url: '/rest/pl/fe/matter'
-}, {
     value: 'inner',
     title: '内置回复',
     url: '/rest/pl/fe/matter'
@@ -572,7 +568,7 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                             if (/article/.test(matterType.value)) {
                                 $scope.matters = rsp.data.articles;
                                 $scope.page.total = rsp.data.total;
-                            } else if (/contribute|enroll/.test(matterType.value)) {
+                            } else if (/enroll/.test(matterType.value)) {
                                 $scope.matters = rsp.data.apps;
                                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
                             } else {
@@ -620,7 +616,7 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                             if (/article/.test(matterType.value)) {
                                 $scope.matters2 = rsp.data.articles;
                                 $scope.page2.total = rsp.data.total;
-                            } else if (/contribute|enroll/.test(matterType.value)) {
+                            } else if (/enroll/.test(matterType.value)) {
                                 $scope.matters2 = rsp.data.apps;
                                 rsp.data[1] && ($scope.page2.total = rsp.data[1]);
                             } else {

@@ -18,7 +18,7 @@ define(['frame'], function(ngApp) {
                     var _oApp, _oQrcode;
                     _oApp = $scope.app;
                     $scope2.qrcode = _oQrcode = {};
-                    if (_oApp.entry_rule.scope && _oApp.entry_rule.scope === 'sns' && _oApp.entry_rule.sns.wx) {
+                    if (_oApp.entryRule.scope && _oApp.entryRule.scope.sns === 'Y' && _oApp.entryRule.sns.wx) {
                         http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + _oApp.siteid + '&app=' + _oApp.id, function(rsp) {
                             var qrcodes = rsp.data;
                             _oQrcode.pic = qrcodes.length ? qrcodes[0].pic : false;
@@ -133,9 +133,9 @@ define(['frame'], function(ngApp) {
                 }
             });
         }, true);
-        $scope.$watch('app.entry_rule', function(oRule) {
+        $scope.$watch('app.entryRule', function(oRule) {
             if (!oRule) return;
-            if (oRule.scope === 'member') {
+            if (oRule.scope.member === 'Y') {
                 var mschemaIds = Object.keys(oRule.member);
                 if (mschemaIds.length) {
                     http2.get('/rest/pl/fe/site/member/schema/overview?site=' + $scope.app.siteid + '&mschema=' + mschemaIds.join(','), function(rsp) {
@@ -146,7 +146,8 @@ define(['frame'], function(ngApp) {
                         }
                     });
                 }
-            } else if (oRule.scope === 'sns') {
+            }
+            if (oRule.scope.sns === 'Y') {
                 if (oRule.sns && $scope.sns) {
                     if (oRule.sns.wx && oRule.sns.wx.entry && $scope.sns.wx) {
                         status.user.sns.push({ title: $scope.sns.wx.title });

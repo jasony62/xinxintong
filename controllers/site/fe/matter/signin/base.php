@@ -14,24 +14,19 @@ class base extends \site\fe\matter\base {
 		return $rule_action;
 	}
 	/**
-	 * @param string $memberSchemas
-	 */
-	protected function canAccessObj($site, $appId, &$member, $memberSchemas, &$app) {
-		return $this->model('matter\acl')->canAccessMatter($site, 'signin', $app, $member, $memberSchemas);
-	}
-	/**
 	 * 检查签到活动进入规则
 	 *
 	 * 1、用户是否已经签到
 	 * 2、用户未签到已登记
 	 * 3、需确认用户身份
 	 *
-	 * @param object $app
-	 * @param boolean $redirect
+	 * @param object $oApp
+	 * @param boolean $bRedirect
 	 */
-	protected function checkEntryRule($oApp, $redirect = false, &$oRound = null) {
+	protected function checkEntryRule($oApp, $bRedirect = false, &$oRound = null) {
 		$oUser = $this->who;
-		$oEntryRule = $oApp->entry_rule;
+		$oEntryRule = $oApp->entryRule;
+		$oScope = $oEntryRule->scope;
 		$modelRec = $this->model('matter\signin\record');
 		if ($signinLog = $modelRec->userSigned($oUser, $oApp, $oRound)) {
 			/* 用户是否已经签到 */
@@ -40,65 +35,60 @@ class base extends \site\fe\matter\base {
 				/* 需要验证登记信息 */
 				if ($signinRec->verified === 'Y') {
 					if (isset($oEntryRule->success->entry)) {
-						$page = $oEntryRule->success->entry;
+						return [true, $oEntryRule->success->entry];
 					}
 				} else {
 					if (isset($oEntryRule->fail->entry)) {
-						$page = $oEntryRule->fail->entry;
+						return [true, $oEntryRule->fail->entry];
 					}
 				}
 			} else {
 				if (isset($oEntryRule->success->entry)) {
-					$page = $oEntryRule->success->entry;
+					return [true, $oEntryRule->success->entry];
 				}
 			}
-		} else if (!empty($oEntryRule->scope) && $oEntryRule->scope !== 'none') {
-			if ($oEntryRule->scope === 'member') {
-				$aResult = $this->enterAsMember($oApp);
-			} elseif ($oEntryRule->scope === 'sns') {
-				$aResult = $this->enterAsSns($oApp);
-			}
-			if (true === $aResult[0]) {
-				$page = isset($aResult[1]->entry) ? $aResult[1]->entry : '';
-			} else {
-				if (isset($oEntryRule->other->entry)) {
-					$page = $oEntryRule->other->entry;
+			return [true, null];
+		}
+		if (isset($oScope->member) && $oScope->member === 'Y') {
+			$aResult = $this->enterAsMember($oApp);
+			/**
+			 * 限通讯录用户访问
+			 * 如果指定的任何一个通讯录要求用户关注公众号，但是用户还没有关注，那么就要求用户先关注公众号，再填写通讯录
+			 */
+			if (false === $aResult[0]) {
+				if (true === $bRedirect) {
+					$aMemberSchemaIds = [];
+					$modelMs = $this->model('site\user\memberschema');
+					foreach ($oEntryRule->member as $mschemaId => $oRule) {
+						$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+						if ($oMschema->is_wx_fan === 'Y') {
+							$oApp2 = clone $oApp;
+							$oApp2->entryRule = new \stdClass;
+							$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
+							$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
+							if (false === $aResult[0]) {
+								return $aResult;
+							}
+						}
+						$aMemberSchemaIds[] = $mschemaId;
+					}
+					$this->gotoMember($oApp, $aMemberSchemaIds);
 				} else {
-					$page = $oEntryRule->scope === 'member' ? '$memberschema' : '$mpfollow';
+					$msg = '您没有填写通讯录信息，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+					return [false, $msg];
 				}
 			}
 		}
-
-		if (empty($page) && isset($oEntryRule->otherwise->entry)) {
-			/* 应用的默认页 */
-			$page = $oEntryRule->otherwise->entry;
-		}
-		if (empty($page)) {
-			return false;
-		}
-
-		/* 内置页面 */
-		switch ($page) {
-		case '$memberschema':
-			$aMemberSchemas = array_keys(get_object_vars($oEntryRule->member));
-			$this->gotoMember($oApp, $aMemberSchemas, $redirect ? null : false);
-			break;
-		case '$mpfollow':
-			if (isset($oEntryRule->sns->wx)) {
-				/* 指定了签到轮次 */
-				if (!empty($_GET['round'])) {
-					$oApp->params = new \stdClass;
-					$oApp->params->round = $_GET['round'];
-				}
-				$this->snsWxQrcodeFollow($oApp);
-			} elseif (isset($oEntryRule->sns->qy)) {
-				$this->snsFollow($oApp->siteid, 'qy', $oApp);
-			} elseif (isset($oEntryRule->sns->yx)) {
-				$this->snsFollow($oApp->siteid, 'yx', $oApp);
+		if (isset($oScope->sns) && $oScope->sns === 'Y') {
+			$aResult = $this->checkSnsEntryRule($oApp, $bRedirect);
+			if (false === $aResult[0]) {
+				return $aResult;
 			}
-			break;
 		}
 
-		return $page;
+		// 默认进入页面的名称
+		$page = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : null;
+
+		return [true, $page];
 	}
 }

@@ -12,152 +12,49 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.
 
 require('./directive.css');
 
+require('../../../../../../asset/js/xxt.ui.notice.js');
+require('../../../../../../asset/js/xxt.ui.http.js');
+require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
 
 require('./directive.js');
 
-var setPage = function($scope, page) {
-    if (page.ext_css && page.ext_css.length) {
-        angular.forEach(page.ext_css, function(css) {
-            var link, head;
-            link = document.createElement('link');
-            link.href = css.url;
-            link.rel = 'stylesheet';
-            head = document.querySelector('head');
-            head.appendChild(link);
-        });
-    }
-    if (page.ext_js && page.ext_js.length) {
-        var i, l, loadJs;
-        i = 0;
-        l = page.ext_js.length;
-        loadJs = function() {
-            var js;
-            js = page.ext_js[i];
-            $.getScript(js.url, function() {
-                i++;
-                if (i === l) {
-                    if (page.js && page.js.length) {
-                        $scope.$apply(
-                            function dynamicjs() {
-                                eval(page.js);
-                                $scope.page = page;
-                            }
-                        );
-                    }
-                } else {
-                    loadJs();
-                }
-            });
-        };
-        loadJs();
-    } else if (page.js && page.js.length) {
-        (function dynamicjs() {
-            eval(page.js);
-            $scope.page = page;
-        })();
-    } else {
-        $scope.page = page;
-    }
-};
-var setShareData = function(scope, params, $http) {
+var setShareData = function(scope, params) {
     if (!window.xxt || !window.xxt.share) {
         return false;
     }
-    try {
-        var sharelink, summary;
-        sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
-        if (params.page.share_page && params.page.share_page === 'Y') {
-            sharelink += '&page=' + params.page.name;
-            sharelink += '&ek=' + params.enrollKey;
-        }
-        //window.shareid = params.user.vid + (new Date()).getTime();
-        //sharelink += "&shareby=" + window.shareid;
-        summary = params.app.summary;
-        if (params.page.share_summary && params.page.share_summary.length && params.record)
-            summary = params.record.data[params.page.share_summary];
-        scope.shareData = {
-            title: params.app.title,
-            link: sharelink,
-            desc: summary,
-            pic: params.app.pic
-        };
-        window.xxt.share.set(params.app.title, sharelink, summary, params.app.pic);
-        window.shareCounter = 0;
-        window.xxt.share.options.logger = function(shareto) {
-            /*var app, url;
-            app = scope.App;
-            url = "/rest/mi/matter/logShare";
-            url += "?shareid=" + window.shareid;
-            url += "&mpid=" + LS.p.mpid;
-            url += "&id=" + app.id;
-            url += "&type=enroll";
-            url += "&title=" + app.title;
-            url += "&shareby=" + scope.params.shareby;
-            url += "&shareto=" + shareto;
-            $http.get(url);
-            window.shareCounter++;*/
-            /* 是否需要自动登记 */
-            /*if (app.can_autoenroll === 'Y' && scope.Page.autoenroll_onshare === 'Y') {
-                $http.get(LS.j('emptyGet', 'mpid', 'aid') + '&once=Y');
-            }
-            window.onshare && window.onshare(window.shareCounter);*/
-        };
-    } catch (e) {
-        alert(e.message);
+    var sharelink, summary;
+    sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
+    if (params.page.share_page && params.page.share_page === 'Y') {
+        sharelink += '&page=' + params.page.name;
+        sharelink += '&ek=' + params.enrollKey;
     }
+    //window.shareid = params.user.vid + (new Date()).getTime();
+    //sharelink += "&shareby=" + window.shareid;
+    summary = params.app.summary;
+    if (params.page.share_summary && params.page.share_summary.length && params.record)
+        summary = params.record.data[params.page.share_summary];
+    scope.shareData = {
+        title: params.app.title,
+        link: sharelink,
+        desc: summary,
+        pic: params.app.pic
+    };
+    window.xxt.share.set(params.app.title, sharelink, summary, params.app.pic);
+    window.shareCounter = 0;
+    window.xxt.share.options.logger = function(shareto) {};
 };
-var ngApp = angular.module('app', ['ngSanitize', 'directive.signin', 'snsshare.ui.xxt']);
-ngApp.provider('ls', function() {
-    var _baseUrl = '/rest/site/fe/matter/signin',
-        _params = {};
-
-    this.params = function(params) {
-        var ls;
-        ls = location.search;
-        angular.forEach(params, function(q) {
-            var match, pattern;
-            pattern = new RegExp(q + '=([^&]*)');
-            match = ls.match(pattern);
-            _params[q] = match ? match[1] : '';
-        });
-        return _params;
-    };
-
-    this.$get = function() {
-        return {
-            p: _params,
-            j: function(method) {
-                var i = 1,
-                    l = arguments.length,
-                    url = _baseUrl,
-                    _this = this,
-                    search = [];
-                method && method.length && (url += '/' + method);
-                for (; i < l; i++) {
-                    search.push(arguments[i] + '=' + _params[arguments[i]]);
-                };
-                search.length && (url += '?' + search.join('&'));
-                return url;
-            }
-        };
-    };
-});
-ngApp.config(['$controllerProvider', 'lsProvider', function($cp, lsProvider) {
+var ngApp = angular.module('app', ['ngSanitize', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'directive.signin', 'snsshare.ui.xxt']);
+ngApp.config(['$controllerProvider', '$locationProvider', function($cp, $locationProvider) {
     ngApp.provider = {
         controller: $cp.register
     };
-    lsProvider.params(['site', 'app', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
+    $locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', function($scope, $http, $timeout, LS) {
-    var tasksOfOnReady = [];
-    $scope.errmsg = '';
-    $scope.closePreviewTip = function() {
-        $scope.preview = 'N';
-    };
-    var openAskFollow = function() {
-        $http.get('/rest/site/fe/matter/signin/askFollow?site=' + LS.p.site).error(function(content) {
+ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tmsDynaPage', function($scope, $timeout, http2, LS, tmsDynaPage) {
+    function openAskFollow() {
+        http2.get(LS.j('askFollow', 'site')).then(function() {}, function(content) {
             var body, el;;
             body = document.body;
             el = document.createElement('iframe');
@@ -168,26 +65,30 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', function($sco
             window.closeAskFollow = function() {
                 el.style.display = 'none';
             };
-            el.setAttribute('src', '/rest/site/fe/matter/signin/askFollow?site=' + LS.p.site);
+            el.setAttribute('src', LS.j('askFollow', 'site'));
             el.style.display = 'block';
         });
-    };
-    var loadCss = function(css) {
-        var link, head;
-        link = document.createElement('link');
-        link.href = css.url;
-        link.rel = 'stylesheet';
-        head = document.querySelector('head');
-        head.appendChild(link);
-    };
-    var loadDynaCss = function(css) {
-        var style, head;
-        style = document.createElement('style');
-        style.rel = 'stylesheet';
-        style.innerHTML = css;
-        head = document.querySelector('head');
-        head.appendChild(style);
-    };
+    }
+
+    function execTask(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    }
+
+    var tasksOfOnReady = [];
     $scope.closeWindow = function() {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             window.wx.closeWindow();
@@ -215,7 +116,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', function($sco
         location.replace(url);
     };
     $scope.openMatter = function(id, type, replace, newWindow) {
-        var url = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + id + '&type=' + type;
+        var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;
         if (replace) {
             location.replace(url);
         } else {
@@ -229,7 +130,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', function($sco
     $scope.gotoLottery = function(event, lottery, ek) {
         event.preventDefault();
         event.stopPropagation();
-        location.replace('/rest/app/lottery?mpid=' + LS.p.mpid + '&lottery=' + lottery + '&enrollKey=' + ek);
+        location.replace('/rest/app/lottery?mpid=' + LS.s().mpid + '&lottery=' + lottery + '&enrollKey=' + ek);
     };
     $scope.followMp = function(event, page) {
         if (/YiXin/i.test(navigator.userAgent)) {
@@ -242,125 +143,58 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', 'ls', function($sco
     };
     $scope.onReady = function(task) {
         if ($scope.params) {
-            PG.exec(task);
+            execTask(task);
         } else {
             tasksOfOnReady.push(task);
         }
     };
-    $http.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
-        if (rsp.err_code !== 0) {
-            $scope.errmsg = rsp.err_msg;
-            return;
-        }
-        try {
-            var params = rsp.data,
-                site = params.site,
-                app = params.app,
-                mission = params.mission,
-                schemasById = {};
+    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function(rsp) {
+        var params = rsp.data,
+            oSite = params.site,
+            oApp = params.app,
+            oMission = params.mission,
+            schemasById = {};
 
-            app.data_schemas = JSON.parse(app.data_schemas);
-            app.data_schemas.forEach(function(schema) {
-                schemasById[schema.id] = schema;
-            });
-            app._schemasById = schemasById;
-            $scope.params = params;
-            $scope.site = site;
-            $scope.mission = mission;
-            $scope.app = app;
-            $scope.user = params.user;
-            if (params.app.multi_rounds === 'Y') {
-                $scope.activeRound = params.activeRound;
-            }
-            setShareData($scope, params, $http);
-            if (app.use_site_header === 'Y' && site && site.header_page) {
-                if (site.header_page.ext_css && site.header_page.ext_css.length) {
-                    angular.forEach(site.header_page.ext_css, function(css) {
-                        loadCss(css);
-                    });
-                }
-                if (site.header_page.css.length) {
-                    loadDynaCss(site.header_page.css);
-                }
-                (function() {
-                    eval(site.header_page.js);
-                })();
-            }
-            if (app.use_mission_header === 'Y' && mission && mission.header_page) {
-                if (mission.header_page.ext_css && mission.header_page.ext_css.length) {
-                    angular.forEach(mission.header_page.ext_css, function(css) {
-                        loadCss(css);
-                    });
-                }
-                if (mission.header_page.css.length) {
-                    loadDynaCss(mission.header_page.css);
-                }
-                (function() {
-                    eval(mission.header_page.js);
-                })();
-            }
-            if (app.use_mission_footer === 'Y' && mission && mission.footer_page) {
-                if (mission.footer_page.ext_css && mission.footer_page.ext_css.length) {
-                    angular.forEach(mission.footer_page.ext_css, function(css) {
-                        loadCss(css);
-                    });
-                }
-                if (mission.footer_page.css.length) {
-                    loadDynaCss(mission.footer_page.css);
-                }
-                (function() {
-                    eval(mission.footer_page.js);
-                })();
-            }
-            if (app.use_site_footer === 'Y' && site && site.footer_page) {
-                if (site.footer_page.ext_css && site.footer_page.ext_css.length) {
-                    angular.forEach(site.footer_page.ext_css, function(css) {
-                        loadCss(css);
-                    });
-                }
-                if (site.footer_page.css.length) {
-                    loadDynaCss(site.footer_page.css);
-                }
-                (function() {
-                    eval(site.footer_page.js);
-                })();
-            }
-            setPage($scope, params.page);
-            if (tasksOfOnReady.length) {
-                angular.forEach(tasksOfOnReady, PG.exec);
-            }
-            $timeout(function() {
-                $scope.$broadcast('xxt.app.signin.ready', params);
-            });
-            var eleLoading;
-            if (eleLoading = document.querySelector('.loading')) {
-                eleLoading.parentNode.removeChild(eleLoading);
-            }
-        } catch (e) {
-            alert(e.message);
+        oApp.data_schemas = JSON.parse(oApp.data_schemas);
+        oApp.data_schemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        oApp._schemasById = schemasById;
+        $scope.params = params;
+        $scope.site = oSite;
+        $scope.mission = oMission;
+        $scope.app = oApp;
+        $scope.user = params.user;
+        if (oApp.multi_rounds === 'Y') {
+            $scope.activeRound = params.activeRound;
         }
-    }).error(function(content, httpCode) {
-        if (httpCode === 401) {
-            var el = document.createElement('iframe');
-            el.setAttribute('id', 'frmPopup');
-            el.onload = function() {
-                this.height = document.querySelector('body').clientHeight;
-            };
-            document.body.appendChild(el);
-            if (content.indexOf('http') === 0) {
-                window.onAuthSuccess = function() {
-                    el.style.display = 'none';
-                };
-                el.setAttribute('src', content);
-                el.style.display = 'block';
-            } else {
-                if (el.contentDocument && el.contentDocument.body) {
-                    el.contentDocument.body.innerHTML = content;
-                    el.style.display = 'block';
-                }
-            }
-        } else {
-            $scope.errmsg = content;
+        setShareData($scope, params);
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
+        }
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, PG.exec);
+        }
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.signin.ready', params);
+        });
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
         }
     });
 }]);

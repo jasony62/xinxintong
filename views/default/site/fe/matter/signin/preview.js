@@ -19,7 +19,7 @@ ngApp.factory('Record', ['$http', '$q', function($http, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
+ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', function($scope, Record, LS) {
     var facRecord = Record.ins(),
         schemas = $scope.app.data_schemas;
     $scope.value2Label = function(key) {
@@ -48,7 +48,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Recor
     };
     $scope.editRecord = function(event, page) {};
     $scope.gotoEnroll = function(event, page) {};
-    facRecord.get(LS.p.ek);
+    facRecord.get(LS.s().ek);
     $scope.Record = facRecord;
 }]);
 ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {

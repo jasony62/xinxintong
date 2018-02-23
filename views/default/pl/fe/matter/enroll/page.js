@@ -144,7 +144,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
         };
         srvEnrollApp.get().then(function(app) {
             _oApp = app;
-            if (_oApp.group_app_id || (_oApp.entry_rule && _oApp.entry_rule.scope === 'group' && _oApp.entry_rule.group && _oApp.entry_rule.group.id)) {
+            if (_oApp.group_app_id || (_oApp.entryRule && _oApp.entryRule.scope.group === 'Y' && _oApp.entryRule.group && _oApp.entryRule.group.id)) {
                 $scope.bSupportGroup = true;
             }
             $location.search().page && $scope.choosePage($location.search().page);

@@ -26,7 +26,6 @@ class base_model extends \TMS_MODEL {
 			'news' => 'doc',
 			'channel' => 'doc',
 			'link' => 'doc',
-			'contribute' => 'doc',
 			'custom' => 'doc',
 			'enroll' => 'app',
 			'signin' => 'app',

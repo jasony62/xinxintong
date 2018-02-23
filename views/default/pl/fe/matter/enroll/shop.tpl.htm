@@ -94,30 +94,26 @@
                                             <hr>
                                             <div class='form-group'>
                                                 <label>参与用户</label>
-                                                <div class='radio'>
+                                                <div class='checkbox'>
                                                     <label>
-                                                        <input type='radio' value='member' ng-model="entryRule.scope" ng-change="changeUserScope()">限通讯录联系人参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，并且可以在不同活动中重复使用'></span> <span class='badge' ng-repeat="mschema in entryRule.mschemas">{{mschema.title}} <i class='glyphicon glyphicon-remove' ng-click="removeMschema(mschema)"></i></span> <a ng-if="entryRule.scope==='member'" href='' ng-click="chooseMschema()">添加</a></label>
+                                                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.member" ng-change="changeUserScope()">限通讯录联系人参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，并且可以在不同活动中重复使用'></span> <span class='badge' ng-repeat="mschema in entryRule.mschemas">{{mschema.title}} <i class='glyphicon glyphicon-remove' ng-click="removeMschema(mschema)"></i></span> <a ng-if="entryRule.scope.member==='Y'" href ng-click="chooseMschema()">添加</a></label>
                                                 </div>
-                                                <div class='radio' ng-if="proto.mission">
+                                                <div class='checkbox' ng-if="proto.mission">
                                                     <label>
-                                                        <input type='radio' value='group' ng-model="entryRule.scope" ng-change="changeUserScope()">限分组活动<span ng-if="entryRule.group">【{{entryRule.group.title}} - {{entryRule.group.round.title}}】</span>用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同项目中的分组活动中的某个分组的用户参与。'></span> <a ng-if="entryRule.scope==='group'" href='' ng-click="chooseGroupApp()">指定</a></label>
+                                                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope()">限分组活动<span ng-if="entryRule.group">【{{entryRule.group.title}} - {{entryRule.group.round.title}}】</span>用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同项目中的分组活动中的某个分组的用户参与。'></span> <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a></label>
                                                 </div>
-                                                <div class='radio' ng-if="snsNames.length===1">
+                                                <div class='checkbox' ng-if="snsNames.length===1">
                                                     <label>
-                                                        <input type='radio' value='sns' ng-model="entryRule.scope" ng-change="changeUserScope()">限公众号【{{sns[snsNames[0]].title}}】关注用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='可以获得用户昵称和头像（需要用户授权）。系统持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况。'></span></label>
+                                                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope()">限公众号【{{sns[snsNames[0]].title}}】关注用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='可以获得用户昵称和头像（需要用户授权）。系统持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况。'></span></label>
                                                 </div>
-                                                <div class='radio' ng-if="snsNames.length>1">
+                                                <div class='checkbox' ng-if="snsNames.length>1">
                                                     <label>
-                                                        <input type='radio' value='sns' ng-model="entryRule.scope" ng-change="changeUserScope()">限公众号关注用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='可以获得用户昵称和头像（需要用户授权）。系统持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况。'></span>
-                                                        <span ng-if="entryRule.scope==='sns'">
+                                                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope()">限公众号关注用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='可以获得用户昵称和头像（需要用户授权）。系统持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况。'></span>
+                                                        <span ng-if="entryRule.scope.sns==='Y'">
                                                         <label ng-repeat="snsName in snsNames">
                                                             <input type='checkbox' ng-model="entryRule.sns[snsName]"> {{sns[snsName].title}} </label>
                                                         </span>
                                                     </label>
-                                                </div>
-                                                <div class='radio'>
-                                                    <label>
-                                                        <input type='radio' value='none' ng-model="entryRule.scope">不限制 <span class='glyphicon glyphicon-question-sign' uib-tooltip='用户可以使用手机、PC机上的微信或浏览器等终端参与活动，系统不持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况'></span></label>
                                                 </div>
                                             </div>
                                             <div class='form-group' ng-if="scenarioConfig.required">

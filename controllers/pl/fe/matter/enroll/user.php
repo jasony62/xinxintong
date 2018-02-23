@@ -99,7 +99,7 @@ class user extends \pl\fe\matter\base {
 
 		$modelUsr = $this->model('matter\enroll\user');
 		/* 获得当前活动的参与人 */
-		$oUsers = $modelUsr->enrolleeByApp($oApp,'', '', ['fields' => 'id,userid', 'onlyEnrolled' => 'Y', 'cascaded' => 'N', 'rid' => $rid]);
+		$oUsers = $modelUsr->enrolleeByApp($oApp, '', '', ['fields' => 'id,userid', 'onlyEnrolled' => 'Y', 'cascaded' => 'N', 'rid' => $rid]);
 		$result = $modelUsr->absentByApp($oApp, $oUsers->users, $rid);
 
 		return new \ResponseData($result);
@@ -266,15 +266,15 @@ class user extends \pl\fe\matter\base {
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
 		// Set properties
-		$objPHPExcel->getProperties()->setCreator("信信通")
-			->setLastModifiedBy("信信通")
+		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
+			->setLastModifiedBy(APP_TITLE)
 			->setTitle($oApp->title)
 			->setSubject($oApp->title)
 			->setDescription($oApp->title);
 
 		$objPHPExcel->setActiveSheetIndex(0);
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
-		$objActiveSheet->setTitle('签到人员完成情况');
+		$objActiveSheet->setTitle('已参与活动人员');
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
 		// 转换标题
@@ -395,7 +395,7 @@ class user extends \pl\fe\matter\base {
 			}
 		} else {
 			// 转换标题
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '昵称');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '用户');
 			if (!empty($oApp->group_app_id)) {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 			}
@@ -470,7 +470,7 @@ class user extends \pl\fe\matter\base {
 			$objPHPExcel->createSheet();
 			$objPHPExcel->setActiveSheetIndex(1);
 			$objActiveSheet2 = $objPHPExcel->getActiveSheet();
-			$objActiveSheet2->setTitle('未签到人员数据');
+			$objActiveSheet2->setTitle('缺席人员');
 
 			$colNumber = 0;
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '序号');
@@ -521,5 +521,92 @@ class user extends \pl\fe\matter\base {
 		$count = 0;
 
 		return $count;
+	}
+	/**
+	 * 更具用户的填写更新用户数据
+	 */
+	public function repair_action($app, $rid = '', $onlyCheck = 'Y') {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$aUpdatedResult = [];
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelUsr = $this->model('matter\enroll\user');
+		/**
+		 * 按轮次更新用户数据
+		 */
+		$q = [
+			'id,userid,rid,enroll_num,score',
+			'xxt_enroll_user',
+			['aid' => $oApp->id, 'rid' => (object) ['op' => '<>', 'pat' => 'ALL']],
+		];
+		$enrollees = $modelUsr->query_objs_ss($q);
+		if (count($enrollees)) {
+			foreach ($enrollees as $oEnrollee) {
+				$q = [
+					'score',
+					['xxt_enroll_record'],
+					['aid' => $oApp->id, 'userid' => $oEnrollee->userid, 'rid' => $oEnrollee->rid, 'state' => 1],
+				];
+				$oEnrolleeRecs = $modelUsr->query_objs_ss($q);
+				$enrollNum = 0;
+				$score = 0;
+				foreach ($oEnrolleeRecs as $oEnrolleeRec) {
+					$enrollNum++;
+					if (!empty($oEnrolleeRec->score)) {
+						$oEnrolleeRec->score = json_decode($oEnrolleeRec->score);
+						if (!empty($oEnrolleeRec->score->sum)) {
+							$score += $oEnrolleeRec->score->sum;
+						}
+					}
+				}
+				/* 更新数据 */
+				$rst = $modelUsr->update(
+					'xxt_enroll_user',
+					['enroll_num' => $enrollNum, 'score' => $score],
+					['id' => $oEnrollee->id]
+				);
+				if ($rst) {
+					$aUpdatedResult[] = $oEnrollee;
+				}
+			}
+		}
+		/**
+		 * 更新用户在活动中的累积数据
+		 */
+		$q = [
+			'id,userid,enroll_num,score',
+			'xxt_enroll_user',
+			['aid' => $oApp->id, 'rid' => 'ALL'],
+		];
+		$enrollees = $modelUsr->query_objs_ss($q);
+		if (count($enrollees)) {
+			foreach ($enrollees as $oEnrollee) {
+				$q = [
+					'sum(enroll_num) enroll_num,sum(score) score',
+					'xxt_enroll_user',
+					['aid' => $oApp->id, 'userid' => $oEnrollee->userid, 'rid' => (object) ['op' => '<>', 'pat' => 'ALL']],
+				];
+				$oAll = $modelUsr->query_obj_ss($q);
+				/* 更新数据 */
+				$rst = $modelUsr->update(
+					'xxt_enroll_user',
+					['enroll_num' => $oAll->enroll_num, 'score' => $oAll->score],
+					['id' => $oEnrollee->id]
+				);
+				if ($rst) {
+					$aUpdatedResult[] = $oEnrollee;
+				}
+			}
+		}
+
+		return new \ResponseData($aUpdatedResult);
 	}
 }

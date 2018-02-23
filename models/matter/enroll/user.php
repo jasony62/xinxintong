@@ -228,34 +228,32 @@ class user_model extends \TMS_MODEL {
 		foreach ($oUsers as $oUser) {
 			$oUsers2[$oUser->id] = $oUser->userid;
 		}
-
-		/* 获取未签到人员 */
+		/* 获取未登记人员 */
 		$aAbsentUsrs = [];
-		if (isset($oApp->entry_rule->scope) && in_array($oApp->entry_rule->scope, ['group', 'member'])) {
-			if ($oApp->entry_rule->scope === 'group' && isset($oApp->entry_rule->group)) {
-				$oGrpApp = $oApp->entry_rule->group;
-				$modelGrpUsr = $this->model('matter\group\player');
-				$aGrpUsrs = $modelGrpUsr->byRound(
-					$oGrpApp->id,
-					isset($oGrpApp->round->id) ? $oGrpApp->round->id : null,
-					['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']
-				);
-				foreach ($aGrpUsrs as $oGrpUsr) {
-					if (false === in_array($oGrpUsr->userid, $oUsers2)) {
-						$aAbsentUsrs[] = $oGrpUsr;
-					}
+		$oEntryRule = $oApp->entry_rule;
+		if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
+			$oGrpApp = $oEntryRule->group;
+			$modelGrpUsr = $this->model('matter\group\player');
+			$aGrpUsrs = $modelGrpUsr->byRound(
+				$oGrpApp->id,
+				isset($oGrpApp->round->id) ? $oGrpApp->round->id : null,
+				['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']
+			);
+			foreach ($aGrpUsrs as $oGrpUsr) {
+				if (false === in_array($oGrpUsr->userid, $oUsers2)) {
+					$aAbsentUsrs[] = $oGrpUsr;
 				}
-			} else if ($oApp->entry_rule->scope === 'member' && isset($oApp->entry_rule->member)) {
-				$modelMem = $this->model('site\user\member');
-				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
-					$members = $modelMem->byMschema($mschemaId);
-					foreach ($members as $oMember) {
-						if (false === in_array($oMember->userid, $oUsers2)) {
-							$oUser = new \stdClass;
-							$oUser->userid = $oMember->userid;
-							$oUser->nickname = $oMember->name;
-							$aAbsentUsrs[] = $oUser;
-						}
+			}
+		} else if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
+			$modelMem = $this->model('site\user\member');
+			foreach ($oEntryRule->member as $mschemaId => $rule) {
+				$members = $modelMem->byMschema($mschemaId);
+				foreach ($members as $oMember) {
+					if (false === in_array($oMember->userid, $oUsers2)) {
+						$oUser = new \stdClass;
+						$oUser->userid = $oMember->userid;
+						$oUser->nickname = $oMember->name;
+						$aAbsentUsrs[] = $oUser;
 					}
 				}
 			}

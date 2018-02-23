@@ -16,12 +16,6 @@ class main extends \site\fe\matter\base {
 		return $rule_action;
 	}
 	/**
-	 *
-	 */
-	protected function canAccessObj($site, $app, $member, $authapis, $lot) {
-		return $this->model('matter\acl')->canAccessMatter($site, 'lottery', $app, $member, $authapis);
-	}
-	/**
 	 * 获得抽奖活动的页面
 	 *
 	 * $site

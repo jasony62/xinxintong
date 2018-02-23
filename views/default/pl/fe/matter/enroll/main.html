@@ -116,141 +116,57 @@
     <div id='main-access' class='panel panel-default' ng-controller='ctrlAccess'>
         <div class='panel-body'>
             <div class='form-group'>
-                <label>设置进入规则</label>
-                <div class='radio'>
+                <label>设置参与规则</label>
+                <div class='checkbox'>
                     <label>
-                        <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label><span ng-if="rule.scope.member==='Y'"><span class='badge' ng-repeat="(msid,entry) in app.entryRule.member"><a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a> <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid)"></a></span> <a href ng-click="chooseMschema()">添加</a></span>
                 </div>
-                <div class='radio'>
+                <div class='checkbox' ng-if="snsCount===1">
                     <label>
-                        <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号【{{sns[snsNames[0]].title}}】，以便获取用户的昵称和头像，向用户发送活动通知</label>
                 </div>
-                <div class='radio'>
+                <div class='checkbox' ng-if="snsCount>1">
                     <label>
-                        <input type='radio' value='group' ng-model="rule.scope" ng-change="changeUserScope()">限同项目内分组活动用户访问</label>
-                </div>
-                <div class='radio' ng-if="sns">
-                    <label>
-                        <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
-                </div>
-            </div>
-            <div class='form-group' ng-if="rule.scope==='none'||rule.scope==='group'">
-                <table class='table table-bordered'>
-                    <tbody>
-                        <tr>
-                            <td>默认进入页面</td>
-                            <td style='padding:0'>
-                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in jumpPages.otherwise"></select>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class='form-group' ng-if="rule.scope==='member'">
-                <table class='table table-bordered'>
-                    <tbody>
-                        <tr ng-repeat="(msid,erm) in app.entry_rule.member">
-                            <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
-                            <td style='padding:0'>
-                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model="erm.entry" ng-options="p.name as p.title for p in jumpPages.all">
-                                </select>
-                            </td>
-                            <td>
-                                <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
-                                <button class='btn btn-default btn-xs' ng-click="editMschema(mschemasById[msid])"><span class='glyphicon glyphicon-edit'></span></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>不满足条件用户</td>
-                            <td style='padding:0'>
-                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonMember"></select>
-                            </td>
-                            <td style='width:72px'></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
-            </div>
-            <div class='form-group' ng-if="rule.scope==='group'">
-                <div class="input-group">
-                    <input class='form-control' title="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" value="{{app.entry_rule.group.title}} - {{app.entry_rule.group.round.title}}" readonly>
-                    <div class="input-group-btn">
-                        <button class="btn btn-default" ng-click="removeGroupApp()">
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号，以便获取用户的昵称和头像，向用户发送活动通知</label>
+                    <div ng-if="rule.scope.sns==='Y'" style='margin-left:20px'>
+                        <label class='checkbox-inline' ng-repeat="snsName in snsNames">
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="app.entryRule.sns[snsName].entry" ng-change="update('entryRule')"> {{sns[snsName].title}}</label>
                     </div>
                 </div>
-                <button class='btn btn-default' ng-click="chooseGroupApp()">选择分组活动</button>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="rule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.entryRule.group.id}}' target='_self'>{{app.entryRule.group.title}} - {{app.entryRule.group.round.title}}</a></span>中分组 <a ng-if="rule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a>
+                </div>
             </div>
-            <div class='form-group' ng-if="rule.scope==='sns'">
+            <div class='form-group'>
                 <table class='table table-bordered'>
                     <tbody>
-                        <tr ng-if="sns.wx">
-                            <td>公众号【<span>{{sns.wx.title}}</span>】关注用户</td>
+                        <tr>
+                            <td>满足参与规则时进入</td>
                             <td style='padding:0'>
-                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in jumpPages.all'>
-                                    <option value=''>忽略</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr ng-if="sns.qy">
-                            <td>公众号【<span>{{sns.qy.title}}</span>】关注用户</td>
-                            <td style='padding:0'>
-                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in jumpPages.all'>
-                                    <option value=''>忽略</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr ng-if="sns.yx">
-                            <td>公众号【<span>{{sns.yx.title}}</span>】关注用户</td>
-                            <td style='padding:0'>
-                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in jumpPages.all'>
-                                    <option value=''>忽略</option>
-                                </select>
+                                <select style='border:0' class='form-control' ng-change="update('entryRule')" ng-model='app.entryRule.otherwise.entry' ng-options="p.name as p.title for p in jumpPages.otherwise"></select>
                             </td>
                         </tr>
                         <tr>
-                            <td>不满足条件用户</td>
+                            <td>已填写过时进入</td>
                             <td style='padding:0'>
-                                <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonfan"></select>
+                                <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in jumpPages.all' ng-change="update('enrolled_entry_page')">
+                                </select>
+                            </td>
+                        </tr>
+                        <tr ng-if='isInputPage(app.enrolled_entry_page)'>
+                            <td>显示最后一条填写记录</td>
+                            <td style='padding-left:12px'>
+                                <label class='checkbox-inline'>
+                                    <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.open_lastroll' ng-change="update('open_lastroll')">是</label>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <hr>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-model="bCountLimited" ng-change="app.count_limit=bCountLimited?1:0;update('count_limit')">限制每用户填写的记录条数</label>
-            </div>
             <div class='form-group'>
-                <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')" ng-if="bCountLimited">
-            </div>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.entry_rule.anonymous" ng-change="update('entry_rule')">隐藏用户昵称（匿名）</label>
-            </div>
-            <hr>
-            <table class='table table-bordered'>
-                <tbody>
-                    <tr>
-                        <td rowspan="2">已填写时进入</td>
-                        <td style='padding:0'>
-                            <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in jumpPages.all' ng-change="update('enrolled_entry_page')">
-                            </select>
-                        </td>
-                    </tr>
-                    <tr ng-show='isInputPage(app.enrolled_entry_page)'>
-                        <td>
-                            <label class='checkbox-inline'>
-                                <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.open_lastroll' ng-change="update('open_lastroll')">显示最后一条填写记录</label>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <hr>
-            <div class='form-group' ng-if="rule.scope!=='none'">
-                <label>忽略进入条件页面</label>
+                <label>忽略参与规则页面</label>
                 <table class='table table-bordered'>
                     <tbody>
                         <tr ng-repeat="page in rule.exclude">
@@ -265,8 +181,20 @@
                     </tbody>
                 </table>
                 <div>
-                    <button class='btn btn-default' ng-click="addExclude()">添加忽略进入条件页面</button>
+                    <button class='btn btn-default' ng-click="addExclude()">添加忽略参与规则页面</button>
                 </div>
+            </div>
+            <hr>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-model="bCountLimited" ng-change="app.count_limit=bCountLimited?1:0;update('count_limit')">限制每用户填写的记录条数</label>
+            </div>
+            <div class='form-group'>
+                <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')" ng-if="bCountLimited">
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.entryRule.anonymous" ng-change="update('entryRule')">隐藏用户昵称（匿名）</label>
             </div>
         </div>
         <script type="text/ng-template" id="chooseGroupApp.html">

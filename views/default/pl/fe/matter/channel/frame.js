@@ -37,9 +37,6 @@ define(['require'], function() {
         }, {
             name: 'article',
             title: '单图文'
-        }, {
-            name: 'contribute',
-            title: '投稿活动'
         }]
     });
     ngApp.config(['$routeProvider', '$locationProvider', '$controllerProvider', 'srvSiteProvider', 'srvTagProvider', function($routeProvider, $locationProvider, $controllerProvider, srvSiteProvider, srvTagProvider) {

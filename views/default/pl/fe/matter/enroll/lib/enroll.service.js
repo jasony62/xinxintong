@@ -1104,6 +1104,20 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                 });
             };
+            _ins.renewScore = function(record) {
+                var url, defer;
+
+                url = '/rest/pl/fe/matter/enroll/record/renewScore';
+                url += '?site=' + _siteId;
+                url += '&app=' + _appId;
+                defer = $q.defer();
+
+                http2.get(url, function(rsp) {
+                    defer.resolve();
+                });
+
+                return defer.promise;
+            };
             _ins.importByOther = function() {
                 var defer = $q.defer();
                 $uibModal.open({

@@ -119,6 +119,11 @@ define(['frame'], function(ngApp) {
         $scope.exportImage = function() {
             srvEnrollRecord.exportImage();
         };
+        $scope.renewScore = function() {
+            srvEnrollRecord.renewScore().then(function() {
+                $scope.doSearch(1);
+            });
+        };
         $scope.importByOther = function() {
             srvEnrollRecord.importByOther().then(function() {
                 $scope.rows.reset();

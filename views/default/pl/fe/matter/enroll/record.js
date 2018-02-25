@@ -120,7 +120,7 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.exportImage();
         };
         $scope.renewScore = function() {
-            srvEnrollRecord.renewScore().then(function() {
+            srvEnrollApp.renewScore().then(function() {
                 $scope.doSearch(1);
             });
         };

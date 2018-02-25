@@ -524,6 +524,20 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     return defer.promise;
                 },
+                renewScore: function(record) {
+                    var url, defer;
+
+                    url = '/rest/pl/fe/matter/enroll/record/renewScore';
+                    url += '?site=' + _siteId;
+                    url += '&app=' + _appId;
+                    defer = $q.defer();
+
+                    http2.get(url, function(rsp) {
+                        defer.resolve();
+                    });
+
+                    return defer.promise;
+                }
             };
             return _self;
         }];
@@ -1103,20 +1117,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         alert('没有找到匹配的记录，请检查数据是否一致');
                     }
                 });
-            };
-            _ins.renewScore = function(record) {
-                var url, defer;
-
-                url = '/rest/pl/fe/matter/enroll/record/renewScore';
-                url += '?site=' + _siteId;
-                url += '&app=' + _appId;
-                defer = $q.defer();
-
-                http2.get(url, function(rsp) {
-                    defer.resolve();
-                });
-
-                return defer.promise;
             };
             _ins.importByOther = function() {
                 var defer = $q.defer();

@@ -11,8 +11,11 @@ app.controller('ctrlNgApp', ['$scope', '$http', '$location', function($scope, $h
             return '&page=' + this.at + '&size=' + this.size;
         }
     }
-    $scope.order = function(item, append, at = 1) {
+    $scope.order = function(item, append, at) {
         $scope.filter = item;
+        if(!at) {
+            at = 1;
+        }
         $scope.page.at = at;
         var url = '/rest/site/fe/user/share/getMyShareLog';
             url += '?userid=' + uid + '&matterType=' + matterType + '&matterId=' + matterId;

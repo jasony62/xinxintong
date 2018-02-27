@@ -174,13 +174,14 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', function($q, LS) {
                 accept !== undefined && ele.setAttribute('accept', accept);
                 ele.addEventListener('change', function(evt) {
                     var i, cnt, f;
+                    $scope.data[oAction.id] === undefined && ($scope.data[oAction.id] = {});
                     $scope.data[oAction.id][oSchema.id] === undefined && ($scope.data[oAction.id][oSchema.id] = []);
                     cnt = evt.target.files.length;
                     for (i = 0; i < cnt; i++) {
                         f = evt.target.files[i];
                         oResumable.addFile(f);
                         $scope.data[oAction.id][oSchema.id].push({
-                            uniqueIdentifier: oResumable.files[0].uniqueIdentifier,
+                            uniqueIdentifier: oResumable.files[oResumable.files.length - 1].uniqueIdentifier,
                             name: f.name,
                             size: f.size,
                             type: f.type,
@@ -268,6 +269,7 @@ ngApp.controller('ctrlMain', ['$scope', '$location', 'http2', 'tmsLocation', 'tm
             });
             tmsSnsShare.set(_oApp.title, _oApp.entryUrl, _oApp.summary, _oApp.pic);
         }
+        http2.post('/rest/site/fe/matter/logAccess?site=' + _oApp.siteid + '&id=' + _oApp.id + '&type=plan&title=' + _oApp.title, {});
         var eleLoading;
         if (eleLoading = document.querySelector('.loading')) {
             eleLoading.parentNode.removeChild(eleLoading);
@@ -428,23 +430,68 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
 /**
  * 排行
  */
-ngApp.controller('ctrlRank', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
-    function byUser() {
-        http2.get(LS.j('rank/byUser', 'site', 'app')).then(function(rsp) {
-            $scope.users = rsp.data;
+ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($scope, http2, $q, LS) {
+    function list() {
+        var defer = $q.defer();
+        switch (oAppState.criteria.obj) {
+            case 'user':
+                http2.post(LS.j('rank/byUser', 'site', 'app'), oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                break;
+        }
+        return defer.promise;
+    }
+    $scope.doSearch = function() {
+        list().then(function(data) {
+            var oSchema;
+            switch (oAppState.criteria.obj) {
+                case 'user':
+                    if (data) {
+                        data.users.forEach(function(user) {
+                            $scope.users.push(user);
+                        });
+                    }
+                    break;
+            }
+            oAppState.page.total = data.total;
         });
-    }
-
-    function byGroup() {
-        http2.get(LS.j('rank/byGroup', 'site', 'app')).then(function(rsp) {});
-    }
-    var _oApp;
+    };
+    $scope.changeCriteria = function() {
+        $scope.users = [];
+        $scope.groups = [];
+        $scope.doSearch(1);
+    };
+    var _oApp, oAppState;
     $scope.rankView = {
         obj: 'user'
     };
+    if (!oAppState) {
+        oAppState = {
+            criteria: {
+                obj: 'user',
+                orderby: 'task_num',
+            },
+            page: {
+                at: 1,
+                size: 12
+            }
+        };
+    }
+    $scope.appState = oAppState;
+    $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
+        if (oNew && oOld && oNew !== oOld) {
+            switch (oNew) {
+                case 'user':
+                    oAppState.criteria.orderby = 'task_num';
+                    break;
+            }
+            $scope.changeCriteria();
+        }
+    });
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
         _oApp = oApp;
-        byUser();
+        $scope.changeCriteria();
     });
 }]);

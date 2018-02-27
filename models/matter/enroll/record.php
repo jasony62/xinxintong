@@ -88,14 +88,12 @@ class record_model extends record_base {
 		if (empty($submitData)) {
 			return [true];
 		}
-		// 登记记录
+		// 数据对应的登记记录
 		$oRecord = $this->byId($ek);
 		if (false === $oRecord) {
 			return [false, '指定的对象不存在'];
 		}
-		/*new*/
 		$oResult = $this->model('matter\enroll\data')->setData($oUser, $oApp, $oRecord, $submitData, $submitkey);
-		/*new*/
 		/* 更新在登记记录上记录数据 */
 		$oRecordUpdated = new \stdClass;
 		$oRecordUpdated->data = $this->escape($this->toJson($oResult->dbData));

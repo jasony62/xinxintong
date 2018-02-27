@@ -132,6 +132,14 @@ class access extends \TMS_MODEL {
 					}
 				}
 			}
+		} else if ($type === 'plan') {
+			$oApp = $this->model('matter\plan')->byId($id);
+
+			$data = [];
+			$data['coinAct'] = 'site.matter.plan.read';
+
+			$modelPUser = $this->model('matter\plan\user')->setOnlyWriteDbConn(true);
+			$modelPUser->createOrUpdate($oApp, $user, $data);
 		}
 	}
 }

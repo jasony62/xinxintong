@@ -84,7 +84,7 @@
                 <div class='form-group'>
                     <button class='btn btn-default' ng-if="!rpEntry.url" ng-click="makeOpUrl()">生成</button>
                     <button class='btn btn-default' ng-if="rpEntry.url" ng-click="closeOpUrl()">关闭</button>
-                    <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
+                    <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="rpEntry.url">密码 <span class="caret"></span></button>
                 </div>
                 <div class='form-group' ng-if="rpEntry.url">
                     <label class='checkbox-inline'>

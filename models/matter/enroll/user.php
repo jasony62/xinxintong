@@ -401,4 +401,79 @@ class user_model extends \TMS_MODEL {
 
 		return $result;
 	}
+	/**
+	 * 根据用户的填写记录更新用户数据
+	 */
+	public function renew($oApp, $rid = '') {
+		$aUpdatedResult = [];
+		/**
+		 * 按轮次更新用户数据
+		 */
+		$q = [
+			'id,userid,rid,enroll_num,score',
+			'xxt_enroll_user',
+			['aid' => $oApp->id, 'rid' => (object) ['op' => '<>', 'pat' => 'ALL']],
+		];
+		$enrollees = $this->query_objs_ss($q);
+		if (count($enrollees)) {
+			foreach ($enrollees as $oEnrollee) {
+				$q = [
+					'score',
+					['xxt_enroll_record'],
+					['aid' => $oApp->id, 'userid' => $oEnrollee->userid, 'rid' => $oEnrollee->rid, 'state' => 1],
+				];
+				$oEnrolleeRecs = $this->query_objs_ss($q);
+				$enrollNum = 0;
+				$score = 0;
+				foreach ($oEnrolleeRecs as $oEnrolleeRec) {
+					$enrollNum++;
+					if (!empty($oEnrolleeRec->score)) {
+						$oEnrolleeRec->score = json_decode($oEnrolleeRec->score);
+						if (!empty($oEnrolleeRec->score->sum)) {
+							$score += $oEnrolleeRec->score->sum;
+						}
+					}
+				}
+				/* 更新数据 */
+				$rst = $this->update(
+					'xxt_enroll_user',
+					['enroll_num' => $enrollNum, 'score' => $score],
+					['id' => $oEnrollee->id]
+				);
+				if ($rst) {
+					$aUpdatedResult[] = $oEnrollee;
+				}
+			}
+		}
+		/**
+		 * 更新用户在活动中的累积数据
+		 */
+		$q = [
+			'id,userid,enroll_num,score',
+			'xxt_enroll_user',
+			['aid' => $oApp->id, 'rid' => 'ALL'],
+		];
+		$enrollees = $this->query_objs_ss($q);
+		if (count($enrollees)) {
+			foreach ($enrollees as $oEnrollee) {
+				$q = [
+					'sum(enroll_num) enroll_num,sum(score) score',
+					'xxt_enroll_user',
+					['aid' => $oApp->id, 'userid' => $oEnrollee->userid, 'rid' => (object) ['op' => '<>', 'pat' => 'ALL']],
+				];
+				$oAll = $this->query_obj_ss($q);
+				/* 更新数据 */
+				$rst = $this->update(
+					'xxt_enroll_user',
+					['enroll_num' => $oAll->enroll_num, 'score' => $oAll->score],
+					['id' => $oEnrollee->id]
+				);
+				if ($rst) {
+					$aUpdatedResult[] = $oEnrollee;
+				}
+			}
+		}
+
+		return $aUpdatedResult;
+	}
 }

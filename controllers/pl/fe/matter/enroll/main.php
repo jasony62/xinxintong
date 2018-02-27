@@ -417,17 +417,16 @@ class main extends main_base {
 	/**
 	 * 更新活动的属性信息
 	 *
-	 * @param string $site site'id
 	 * @param string $app app'id
 	 *
 	 */
-	public function update_action($site, $app) {
+	public function update_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id,absent_cause');
+		$oApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id,absent_cause');
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -478,7 +477,7 @@ class main extends main_base {
 
 		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
 			// 记录操作日志并更新信息
-			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U', $oUpdated);
+			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'U', $oUpdated);
 		}
 
 		return new \ResponseData($oApp);

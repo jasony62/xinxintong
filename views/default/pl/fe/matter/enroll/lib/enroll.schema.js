@@ -703,7 +703,28 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     $timeout.cancel(timerOfUpdate);
                 }
                 timerOfUpdate = $timeout(function() {
-                    srvEnrollSchema.submitChange($scope.app.pages);
+                    srvEnrollSchema.submitChange($scope.app.pages).then(function() {
+                        if (prop && prop === 'weight') {
+                            srvApp.opData().then(function(oData) {
+                                if (oData.total > 0 || (oData.length && oData[0].total > 0)) {
+                                    $uibModal.open({
+                                        templateUrl: '/views/default/pl/fe/matter/enroll/component/renewScore.html',
+                                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                                            $scope2.ok = function() {
+                                                srvApp.renewScore().then(function() {
+                                                    $mi.close();
+                                                });
+                                            };
+                                            $scope2.cancel = function() {
+                                                $mi.dismiss();
+                                            };
+                                        }],
+                                        backdrop: 'static'
+                                    });
+                                }
+                            });
+                        }
+                    });
                 }, 1000);
                 timerOfUpdate.then(function() {
                     timerOfUpdate = null;

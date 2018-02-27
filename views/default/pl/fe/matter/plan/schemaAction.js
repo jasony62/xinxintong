@@ -65,7 +65,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', 'cstApp', function($scope, $timeout, $sce, cstApp) {
+    ngApp.provider.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', 'CstApp', function($scope, $timeout, $sce, CstApp) {
         $scope.activeSchema = null;
         $scope.CstApp = CstApp;
 

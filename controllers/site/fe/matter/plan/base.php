@@ -151,9 +151,11 @@ class base extends \site\fe\matter\base {
 					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
 					if (count($oGroupUsr)) {
 						$oGroupUsr = $oGroupUsr[0];
-						if (isset($oEntryRule->group->round->id)) {
-							if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
-								$bMatched = true;
+						if (!empty($oEntryRule->group->round->id)) {
+							if (isset($oGroupUsr->round_id)) {
+								if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
+									$bMatched = true;
+								}
 							}
 						} else {
 							$bMatched = true;

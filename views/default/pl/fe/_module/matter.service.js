@@ -295,7 +295,6 @@ provider('srvSite', function() {
                                     type: 'address'
                                 });
                             }
-<<<<<<< HEAD
                             if(ms.extattrs) {
                                 ms.extAttrs.forEach(function(ea) {
                                     var oSchema;
@@ -305,20 +304,9 @@ provider('srvSite', function() {
                                     schemasById[oSchema.id] = oSchema;
                                     mschemas.push({
                                         id: oSchema.id,
-                                        title: oSchema.title
+                                        title: oSchema.title,
+                                        type: 'address'
                                     });
-=======
-                            ms.extAttrs.forEach(function(ea) {
-                                var oSchema;
-                                oSchema = angular.copy(ea);
-                                oSchema.id = 'member.extattr.' + oSchema.id;
-                                schemas.push(oSchema);
-                                schemasById[oSchema.id] = oSchema;
-                                mschemas.push({
-                                    id: oSchema.id,
-                                    title: oSchema.title,
-                                    type: 'address'
->>>>>>> master
                                 });
                             }
                             ms._schemas = schemas;

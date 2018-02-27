@@ -29,7 +29,7 @@ class main extends \pl\fe\matter\main_base {
 		$oWall->user_url = $modelWall->getEntryUrl($site, $id);
 		/*所属项目*/
 		if ($oWall->mission_id) {
-			$oWall->mission = $this->model('matter\mission')->byId($oWall->mission_id, ['cascaded' => 'phase']);
+			$oWall->mission = $this->model('matter\mission')->byId($oWall->mission_id);
 		}
 		/**
 		 * acl

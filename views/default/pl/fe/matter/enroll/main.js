@@ -14,9 +14,6 @@ define(['frame'], function(ngApp) {
             oTags = $scope.oTag;
             srvTag._tagMatter($scope.app, oTags, subType);
         };
-        $scope.choosePhase = function() {
-            srvEnrollApp.choosePhase();
-        };
         $scope.remove = function() {
             if (window.confirm('确定删除[' + $scope.app.title + ']？')) {
                 srvEnrollApp.remove().then(function() {

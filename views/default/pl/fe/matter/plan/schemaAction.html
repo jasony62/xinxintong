@@ -32,7 +32,7 @@
                 <div ng-include="schemaHtml(schema)"></div>
                 <div class='actions'>
                     <button class='btn btn-sm btn-default' ng-if="'html'===schema.type" ng-click="makePagelet(schema)"><span class='glyphicon glyphicon-pencil'> 编辑</span></button>
-                    <button class="btn btn-default btn-sm" ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1" ng-click="addOption(schema)">添加选项</button>
+                    <button class="btn btn-default btn-sm" ng-if="['single','multiple'].indexOf(schema.type)!==-1" ng-click="addOption(schema)">添加选项</button>
                     <button class="btn btn-sm btn-default" ng-click="copySchema(schema)">复制登记项</button>
                     <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>

@@ -326,33 +326,8 @@ define(['frame'], function(ngApp) {
                     delete $scope.editing.mission;
                     $scope.editing.mission_id = 0;
                     modifiedData['mission_id'] = 0;
-                    $scope.editing.mission_phase_id = '';
-                    modifiedData['mission_phase_id'] = '';
-
                     that.submit();
                 });
-        };
-        $scope.choosePhase = function() {
-            var phaseId = $scope.editing.mission_phase_id,
-                newPhase, updatedFields = ['mission_phase_id'],
-                that = this;
-
-            // 去掉活动标题中现有的阶段后缀
-            $scope.editing.mission.phases.forEach(function(phase) {
-                $scope.editing.title = $scope.editing.title.replace('-' + phase.title, '');
-                if (phase.phase_id === phaseId) {
-                    newPhase = phase;
-                }
-            });
-            if (newPhase) {
-                // 给活动标题加上阶段后缀
-                $scope.editing.title += '-' + newPhase.title;
-                updatedFields.push('title');
-            } else {
-                updatedFields.push('title');
-            }
-
-            that.update(updatedFields);
         };
         $scope.$watch('editing.urlsrc', function(nv) {
             switch (nv) {

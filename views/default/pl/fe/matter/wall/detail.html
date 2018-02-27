@@ -4,7 +4,7 @@
             <button class='btn btn-success' ng-click='start()' ng-if="wall.active==='N' && wall.scenario=='discuss'">启用</button>
             <button class='btn btn-default' ng-click='end()' ng-if="wall.active==='Y' && wall.scenario=='discuss'">停用</button>
             &emsp;
-            <button class='btn btn-danger' ng-click='del()' >删除</button>
+            <button class='btn btn-danger' ng-click='del()'>删除</button>
         </div>
     </div>
     <div class='panel panel-default'>
@@ -17,7 +17,7 @@
                 <div class="form-group">
                     <label>活动类型</label>
                     <input type="text" class="form-control" ng-if="wall.scenario=='interact'" style="text-align:center" value="互动" readonly>
-                    <input type="text" class="form-control" ng-if="wall.scenario=='discuss'" style="text-align:center" value="讨论"  readonly>
+                    <input type="text" class="form-control" ng-if="wall.scenario=='discuss'" style="text-align:center" value="讨论" readonly>
                 </div>
                 <div class="form-group compact">
                     <label>头图（可选）（建议尺寸：900像素 * 500像素）</label>
@@ -58,30 +58,24 @@
                         </span>
                     </div>
                 </div>
-                <div class='form-group compact' ng-if="wall.mission.multi_phase==='Y'">
-                    <label>项目阶段</label>
-                    <select class='form-control' ng-model="wall.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in wall.mission.phases">
-                        <option value=''>全部</option>
-                    </select>
-                </div>
                 <div class='form-group'>
                     <label>时间设置</label>
-                        <div class=''>
-                            <table class='table table-bordered'>
-                                <tr>
-                                    <td>活动开始</td>
-                                    <td style='padding:0;width:380px;'>
-                                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='wall.start_at' tms-state='start_at'></tms-datepicker>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>活动结束</td>
-                                    <td style='padding:0;width:380px;'>
-                                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='wall.end_at' tms-state='end_at'></tms-datepicker>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                    <div class=''>
+                        <table class='table table-bordered'>
+                            <tr>
+                                <td>活动开始</td>
+                                <td style='padding:0;width:380px;'>
+                                    <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='wall.start_at' tms-state='start_at'></tms-datepicker>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>活动结束</td>
+                                <td style='padding:0;width:380px;'>
+                                    <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='wall.end_at' tms-state='end_at'></tms-datepicker>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -152,7 +146,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class='form-group' ng-if="wall.scenario=='interact'" >
+                <div class='form-group' ng-if="wall.scenario=='interact'">
                     <label>分享素材的二维码（建议尺寸：250像素*268像素；数量上限：3个）</label>
                     <ul class="img-tiles clearfix">
                         <li wrap="img" ng-repeat="img in wall.matters_img" class="img-thumbnail" title="图片">
@@ -160,7 +154,8 @@
                             <button class="btn btn-default btn-xs" ng-click="removeQrcode(wall.matters_img,$index)"><span class="glyphicon glyphicon-remove"></span></button>
                         </li>
                         <li class="img-picker">
-                            <button class="btn btn-default" ng-click="setQrcode()"><span class="glyphicon glyphicon-picture"></span><br />上传图片</button>
+                            <button class="btn btn-default" ng-click="setQrcode()"><span class="glyphicon glyphicon-picture"></span>
+                                <br />上传图片</button>
                         </li>
                     </ul>
                 </div>
@@ -168,11 +163,12 @@
                     <label>宝箱底图（建议尺寸：260像素*380像素；数量：4张）</label>
                     <ul class="img-tiles boxImg clearfix">
                         <li wrap="img" ng-repeat="img in wall.result_img" class="img-thumbnail" title="图片">
-                            <img ng-src='{{img.imgsrc}}' style="width:100%;height:210px;left:0px;top: 50%margin-top: -105px;"  />
+                            <img ng-src='{{img.imgsrc}}' style="width:100%;height:210px;left:0px;top: 50%margin-top: -105px;" />
                             <button class="btn btn-default btn-xs" ng-click="removeImage(wall.result_img,$index)"><span class="glyphicon glyphicon-remove"></span></button>
                         </li>
                         <li class="img-picker">
-                            <button class="btn btn-default" ng-click="setImage()"><span class="glyphicon glyphicon-picture"></span><br />上传图片</button>
+                            <button class="btn btn-default" ng-click="setImage()"><span class="glyphicon glyphicon-picture"></span>
+                                <br />上传图片</button>
                         </li>
                     </ul>
                 </div>

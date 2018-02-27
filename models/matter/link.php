@@ -35,7 +35,7 @@ class link_model extends base_model {
 			$oLink->channels = $this->model('matter\channel')->byMatter($id, 'link');
 			/* 所属项目 */
 			if ($oLink->mission_id) {
-				$oLink->mission = $this->model('matter\mission')->byId($oLink->mission_id, ['cascaded' => 'phase']);
+				$oLink->mission = $this->model('matter\mission')->byId($oLink->mission_id);
 			}
 		}
 

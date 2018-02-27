@@ -380,29 +380,6 @@ class main extends \pl\fe\base {
 					}
 					$page->data_schemas[] = $newPageSchema;
 				}
-			} else {
-				/* 自动添加项目阶段定义 */
-				if (isset($schemaPhase)) {
-					if ($page->type === 'I') {
-						$newPageSchema = new \stdClass;
-						$schemaPhaseConfig = new \stdClass;
-						$schemaPhaseConfig->component = 'R';
-						$schemaPhaseConfig->align = 'V';
-						$newPageSchema->schema = $schemaPhase;
-						$newPageSchema->config = $schemaPhaseConfig;
-						$page->data_schemas[] = $newPageSchema;
-					} else if ($page->type === 'V') {
-						$newPageSchema = new \stdClass;
-						$schemaPhaseConfig = new \stdClass;
-						$schemaPhaseConfig->id = 'V' . time();
-						$schemaPhaseConfig->pattern = 'record';
-						$schemaPhaseConfig->inline = 'Y';
-						$schemaPhaseConfig->splitLine = 'Y';
-						$newPageSchema->schema = $schemaPhase;
-						$newPageSchema->config = $schemaPhaseConfig;
-						$page->data_schemas[] = $newPageSchema;
-					}
-				}
 			}
 			$pageSchemas = [];
 			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? \TMS_MODEL::toJson($page->data_schemas) : '[]';

@@ -13,7 +13,7 @@ class main extends base {
 		$app = $this->escape($app);
 		$modelApp = $this->model('matter\plan');
 
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,mission_id,mission_phase_id,title,summary,pic,check_schemas,jump_delayed']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,mission_id,title,summary,pic,check_schemas,jump_delayed']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -83,7 +83,7 @@ class main extends base {
 		$app = $this->escape($app);
 		$modelApp = $this->model('matter\plan');
 
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,mission_id,mission_phase_id,title,summary,pic,check_schemas,jump_delayed']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,mission_id,title,summary,pic,check_schemas,jump_delayed']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -100,7 +100,7 @@ class main extends base {
 		$app = $this->escape($app);
 		$modelApp = $this->model('matter\plan');
 
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,mission_id,mission_phase_id,title,summary,pic,check_schemas,jump_delayed']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,mission_id,title,summary,pic,check_schemas,jump_delayed']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

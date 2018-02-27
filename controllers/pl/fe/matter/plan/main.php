@@ -38,7 +38,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 		/*所属项目*/
 		if ($oApp->mission_id) {
-			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, ['cascaded' => 'phase']);
+			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id);
 		}
 		/* 指定分组活动访问 */
 		$oEntryRule = $oApp->entryRule;
@@ -89,10 +89,6 @@ class main extends \pl\fe\matter\main_base {
 			$oOptions['user'] = $oUser;
 			$result = $modelPlan->bySite($site, $page, $size, $oOptions);
 		} else {
-			/* 按项目阶段筛选 */
-			if (isset($oPosted->mission_phase_id) && !empty($oPosted->mission_phase_id) && $oPosted->mission_phase_id !== "ALL") {
-				$oOptions['byPhase'] = $oPosted->mission_phase_id;
-			}
 			$result = $modelPlan->byMission($mission, $oOptions, $page, $size);
 		}
 
@@ -221,7 +217,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$modelApp = $this->model('matter\plan');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,mission_id,mission_phase_id', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,mission_id', 'cascaded' => 'N']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}

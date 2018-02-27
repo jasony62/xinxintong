@@ -6,14 +6,13 @@ $schema = $def->schema;
     <label>
         <?php echo $schema->title;?>
     </label>
-    <?php if (in_array($schema->type,['name','email','mobile','shorttext','longtext','member'])) { ?>
+    <?php if (in_array($schema->type,['shorttext','longtext','member'])) { ?>
     <div>{{Record.current.data.
         <?php echo $schema->id?>}}</div>
     <?php } else if (in_array($schema->type,['_enrollAt'])) { ?>
     <div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-    <?php } else if (in_array($schema->type,['single','phase'])) { ?>
-    <div>{{value2Label("
-        <?php echo $schema->id;?>")}}</div>
+    <?php } else if (in_array($schema->type,['single','multiple'])) { ?>
+    <div>{{value2Label("<?php echo $schema->id;?>")}}</div>
     <?php } ?>
 </div>
 <?php } ?>

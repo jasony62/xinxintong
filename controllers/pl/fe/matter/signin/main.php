@@ -35,7 +35,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 		/*所属项目*/
 		if ($oApp->mission_id) {
-			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, ['cascaded' => 'phase']);
+			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id);
 		}
 
 		return new \ResponseData($oApp);
@@ -67,10 +67,6 @@ class main extends \pl\fe\matter\main_base {
 			$oOptions['user'] = $oUser;
 			$result = $modelSig->bySite($site, $page, $size, $onlySns, $oOptions);
 		} else {
-			/* 按项目阶段筛选 */
-			if (isset($oPosted->mission_phase_id) && !empty($oPosted->mission_phase_id) && $oPosted->mission_phase_id !== "ALL") {
-				$oOptions['byPhase'] = $oPosted->mission_phase_id;
-			}
 			$result = $modelSig->byMission($mission, $oOptions, $page, $size);
 		}
 
@@ -219,7 +215,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$modelApp = $this->model('matter\signin');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,start_at,end_at,mission_id,mission_phase_id,absent_cause', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,start_at,end_at,mission_id,absent_cause', 'cascaded' => 'N']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}

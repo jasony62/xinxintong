@@ -50,7 +50,7 @@ define(['frame'], function(ngApp) {
                     avgScoreSummary = 0;
                 for (p in oStatData) {
                     item = oStatData[p];
-                    if (/single|phase/.test(item._schema.type)) {
+                    if (/single/.test(item._schema.type)) {
                         srvChart.drawPieChart(item);
                     } else if (/multiple/.test(item._schema.type)) {
                         srvChart.drawBarChart(item);

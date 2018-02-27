@@ -334,7 +334,7 @@ class stat extends \pl\fe\matter\base {
 												die('标识项是否被隐藏');
 											}
 											$markSchema = $schemasById[$mark->id];
-											if (in_array($markSchema->type, ['single', 'phase'])) {
+											if ($markSchema->type === 'single') {
 												$label = '';
 												foreach ($markSchema->ops as $op) {
 													if ($op->v === $record->data->$markId) {
@@ -375,7 +375,7 @@ class stat extends \pl\fe\matter\base {
 								$recDataSch = str_replace(['&'], ['&amp;'], $record->data->$schemaId);
 								$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($recDataSch, $cellTextStyle);
 							}
-						}  else if ((strpos($schemaId, 'member.') === 0) && isset($record->data->member)) {
+						} else if ((strpos($schemaId, 'member.') === 0) && isset($record->data->member)) {
 							$mbSchemaId = $schemaId;
 							$mbSchemaIds = explode('.', $mbSchemaId);
 							$mbSchemaId = $mbSchemaIds[1];
@@ -407,9 +407,9 @@ class stat extends \pl\fe\matter\base {
 					}
 					$section->addTextBreak(2, null, null);
 				}
-			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
+			} else if (in_array($schema->type, ['single', 'multiple'])) {
 				$oSchemaStat = $aStatResult[$schema->id];
-				if (in_array($schema->type, ['single', 'phase'])) {
+				if ($schema->type === 'single') {
 					// Create a pie pot
 					$graph = $this->_setSingleSchemaGraph($oSchemaStat->ops, isset($oPlConfig) ? $oPlConfig : null);
 				} else if ($schema->type === 'multiple') {
@@ -651,7 +651,7 @@ class stat extends \pl\fe\matter\base {
 												die('标识项是否被隐藏');
 											}
 											$markSchema = $schemasById[$mark->id];
-											if (in_array($markSchema->type, ['single', 'phase'])) {
+											if ($markSchema->type === 'single') {
 												$label = '';
 												foreach ($markSchema->ops as $op) {
 													if ($op->v === $record->data->$markId) {
@@ -715,9 +715,9 @@ class stat extends \pl\fe\matter\base {
 					}
 					$html .= "</tbody></table>";
 				}
-			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
+			} else if (in_array($schema->type, ['single', 'multiple'])) {
 				$oSchemaStat = $aStatResult[$schema->id];
-				if (in_array($schema->type, ['single', 'phase'])) {
+				if ($schema->type === 'single') {
 					$graph = $this->_setSingleSchemaGraph($oSchemaStat->ops, isset($oPlConfig) ? $oPlConfig : null);
 				} else if ($schema->type === 'multiple') {
 					$graph = $this->_setMultipleSchemaGraph($oSchemaStat, isset($oPlConfig) ? $oPlConfig : null);

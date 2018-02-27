@@ -23,7 +23,6 @@ $sql .= ",end_at int not null default 0"; // 结束时间
 $sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
 $sql .= ",footer_page_name varchar(13) not null default ''"; // 通用页尾
 $sql .= ",extattrs text null"; //扩展属性
-$sql .= ",multi_phase char(1) not null default 'N'";
 $sql .= ",user_app_id varchar(40) not null default ''"; // 项目的用户名单。项目中的登记活动，例如：报名活动。
 $sql .= ",user_app_type varchar(10) not null default ''"; // 项目的用户名单应用的类型，例如：enroll，signin
 $sql .= ",entry_rule text null"; // 参与规则
@@ -120,7 +119,6 @@ $sql = "create table if not exists xxt_mission_matter(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",mission_id int not null";
-$sql .= ",phase_id varchar(13) not null default ''";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",creater_src char(1)";
@@ -137,25 +135,6 @@ $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_mission_matter): ' . $mysqli->error;
-}
-/**
- * 任务的阶段
- */
-$sql = "create table if not exists xxt_mission_phase(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",mission_id int not null";
-$sql .= ",phase_id varchar(13) not null";
-$sql .= ",title varchar(70) not null";
-$sql .= ",state tinyint not null default 1"; //0:stop,1:normal
-$sql .= ",start_at int not null default 0"; // 开始时间
-$sql .= ",end_at int not null default 0"; // 结束时间
-$sql .= ",summary varchar(240) not null";
-$sql .= ",seq int not null default 0";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mission_phase): ' . $mysqli->error;
 }
 /**
  * 项目报告配置信息

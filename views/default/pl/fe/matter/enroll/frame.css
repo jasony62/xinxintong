@@ -20,7 +20,6 @@
 #schema-view .schema.date:after{content:'日期';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.member:after{content:'通讯录联系人';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.single:after{content:'单选题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
-#schema-view .schema.phase:after{content:'项目阶段';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.score:after{content:'打分题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.multiple:after{content:'多选题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
 #schema-view .schema.image:after{content:'上传图片';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}

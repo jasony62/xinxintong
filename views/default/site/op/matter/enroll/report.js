@@ -221,7 +221,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     avgScoreSummary = 0;
                 for (var p in oStat) {
                     item = oStat[p];
-                    if (/single|phase/.test(item._schema.type)) {
+                    if (/single/.test(item._schema.type)) {
                         srvChart.drawPieChart(item);
                     } else if (/multiple/.test(item._schema.type)) {
                         srvChart.drawBarChart(item);

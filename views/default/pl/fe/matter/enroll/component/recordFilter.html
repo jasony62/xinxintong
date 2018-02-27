@@ -51,7 +51,7 @@
         <div>
             <input type='text' class='form-control' ng-if="['shorttext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">
             <textarea class='form-control' ng-if="'longtext'===schema.type" ng-model="criteria.data[schema.id]"></textarea>
-            <select class='form-control' ng-if="['single','phase'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+            <select class='form-control' ng-if="'single'===schema.type" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                 <option></option>
             </select>
             <ul ng-if="schema.type==='multiple'">

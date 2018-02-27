@@ -28,11 +28,7 @@ define([], function() {
             unique: 'N',
             _ver: 1
         },
-        prefab = {
-            'phase': {
-                title: '项目阶段'
-            }
-        };
+        prefab = {};
     return {
         buttons: {
             submit: {
@@ -96,17 +92,6 @@ define([], function() {
                     }
                 });
                 schema.title = (proto && proto.title) ? proto.title : (prefab[type].title + (++countOfType));
-                if (type === 'phase') {
-                    schema.ops = [];
-                    if (app.mission && app.mission.phases) {
-                        app.mission.phases.forEach(function(phase) {
-                            schema.ops.push({
-                                l: phase.title,
-                                v: phase.phase_id
-                            });
-                        });
-                    }
-                }
             } else {
                 schema.title = (proto && proto.title) ? proto.title : ('填写项' + (app.dataSchemas.length + 1));
                 if (type === 'single' || type === 'multiple') {
@@ -136,9 +121,6 @@ define([], function() {
             return schema;
         },
         changeType: function(schema, newType) {
-            if (/phase/.test(newType) || schema.type === newType) {
-                return false;
-            }
             if ('member' === newType && !/^member\./.test(schema.id)) {
                 return false;
             }

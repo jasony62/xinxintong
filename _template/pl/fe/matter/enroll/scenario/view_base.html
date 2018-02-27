@@ -14,7 +14,7 @@ if ($oSchema->type === 'html') { ?>
     <div>{{Record.current.data.<?php echo $oSchema->id?>}}</div>
     <?php } else if (in_array($oSchema->type,['_enrollAt'])) { ?>
     <div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-    <?php } else if (in_array($oSchema->type,['single','phase'])) { ?>
+    <?php } else if (in_array($oSchema->type,['single','multiple'])) { ?>
     <div>{{value2Label("<?php echo $oSchema->id;?>")}}</div>
     <?php } else if ($oSchema->type === 'score') { ?>
     <div ng-bind-html="score2Html('<?php echo $oSchema->id;?>')"></div>

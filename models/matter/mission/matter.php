@@ -26,7 +26,7 @@ class matter_model extends \TMS_MODEL {
 	 *
 	 */
 	public function byMission($missionId, $matterType = null, $aOptions = [], $verbose = 'Y') {
-		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'id,matter_id,matter_title,matter_type,is_public,seq,create_at,start_at,end_at,scenario,phase_id';
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'id,matter_id,matter_title,matter_type,is_public,seq,create_at,start_at,end_at,scenario';
 
 		$q = [
 			$fields,
@@ -62,10 +62,6 @@ class matter_model extends \TMS_MODEL {
 		/* 按场景过滤 */
 		if (!empty($aOptions['byScenario'])) {
 			$q[2]['scenario'] = $aOptions['byScenario'];
-		}
-		/* 按项目阶段过滤 */
-		if (!empty($aOptions['byPhase'])) {
-			$q[2]['phase_id'] = $aOptions['byPhase'];
 		}
 		/* 按是用户是否可见过滤 */
 		if (!empty($aOptions['is_public'])) {

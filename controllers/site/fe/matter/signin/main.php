@@ -70,14 +70,17 @@ class main extends base {
 	/**
 	 * 当前用户进入的缺省页面
 	 */
-	private function &_defaultPage($oApp, $redirect = false, $round = null) {
-		$page = $this->checkEntryRule($oApp, $redirect, $round);
-		if ($page) {
-			$oPage = $this->model('matter\signin\page')->byName($oApp->id, $page);
+	private function &_defaultPage($oApp, $bRedirect = false, $round = null) {
+		$aResult = $this->checkEntryRule($oApp, $bRedirect, $round);
+		if (false === $aResult[0]) {
+			$this->outputError($aResult[1]);
+			exit;
 		}
+
+		$oPage = $this->model('matter\signin\page')->byName($oApp->id, $aResult[1]);
 		if (empty($oPage)) {
-			if ($redirect === true) {
-				$this->outputError('指定的页面[' . $page . ']不存在');
+			if ($bRedirect === true) {
+				$this->outputError('指定的页面[' . $aResult[1] . ']不存在');
 				exit;
 			}
 		}
@@ -103,14 +106,14 @@ class main extends base {
 		$oUser = $this->who;
 
 		/* 补充联系人信息 */
-		if (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'member') {
+		if (isset($oApp->entryRule->scope->member) && $oApp->entryRule->scope->member === 'Y') {
 			$modelMem = $this->model('site\user\member');
 			if (empty($oUser->unionid)) {
 				$aMembers = $modelMem->byUser($oUser->uid);
 				if (count($aMembers)) {
 					!isset($oUser->members) && $oUser->members = new \stdClass;
 					foreach ($aMembers as $oMember) {
-						if (isset($oApp->entry_rule->member->{$oMember->schema_id})) {
+						if (isset($oApp->entryRule->member->{$oMember->schema_id})) {
 							$oUser->members->{$oMember->schema_id} = $oMember;
 						}
 					}
@@ -123,7 +126,7 @@ class main extends base {
 					if (count($aMembers)) {
 						!isset($oUser->members) && $oUser->members = new \stdClass;
 						foreach ($aMembers as $oMember) {
-							if (isset($oApp->entry_rule->member->{$oMember->schema_id})) {
+							if (isset($oApp->entryRule->member->{$oMember->schema_id})) {
 								$oUser->members->{$oMember->schema_id} = $oMember;
 							}
 						}

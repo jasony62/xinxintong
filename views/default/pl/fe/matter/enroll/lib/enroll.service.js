@@ -70,10 +70,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     records = [];
                 }
                 records.forEach(function(oRecord) {
-                    //srvRecordConverter.forTable(oRecord, that._oApp._unionSchemasById);
-                    // if (oRecord.state !== undefined) {
-                    //     oRecord._state = _mapOfRecordState[oRecord.state];
-                    // }
                     tmsSchema.forTable(oRecord, that._oApp._unionSchemasById);
                     that._aRecords.push(oRecord);
                 });
@@ -292,11 +288,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     return defer.promise;
                 },
-                resetEntryRule: function() {
-                    http2.get(_fnMakeApiUrl('entryRuleReset'), function(rsp) {
-                        _oApp.entry_rule = rsp.data;
-                    });
-                },
                 remove: function() {
                     var defer = $q.defer();
                     http2.get(_fnMakeApiUrl('remove'), function(rsp) {
@@ -351,27 +342,27 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                 },
                 changeUserScope: function(ruleScope, oSiteSns, oDefaultInputPage) {
-                    var oEntryRule = _oApp.entry_rule;
+                    var oEntryRule = _oApp.entryRule;
                     oEntryRule.scope = ruleScope;
-                    switch (ruleScope) {
-                        case 'member':
-                            oEntryRule.member === undefined && (oEntryRule.member = {});
-                            oEntryRule.other === undefined && (oEntryRule.other = {});
-                            oEntryRule.other.entry = '$memberschema';
-                            break;
-                        case 'sns':
-                            oEntryRule.sns === undefined && (oEntryRule.sns = {});
-                            oEntryRule.other === undefined && (oEntryRule.other = {});
-                            oEntryRule.other.entry = '$mpfollow';
-                            Object.keys(oSiteSns).forEach(function(snsName) {
-                                oEntryRule.sns[snsName] = {
-                                    entry: oDefaultInputPage ? oDefaultInputPage.name : ''
-                                };
-                            });
-                            break;
-                        default:
-                    }
-                    return this.update('entry_rule');
+                    // switch (ruleScope) {
+                    //     case 'member':
+                    //         oEntryRule.member === undefined && (oEntryRule.member = {});
+                    //         oEntryRule.other === undefined && (oEntryRule.other = {});
+                    //         oEntryRule.other.entry = '$memberschema';
+                    //         break;
+                    //     case 'sns':
+                    //         oEntryRule.sns === undefined && (oEntryRule.sns = {});
+                    //         oEntryRule.other === undefined && (oEntryRule.other = {});
+                    //         oEntryRule.other.entry = '$mpfollow';
+                    //         Object.keys(oSiteSns).forEach(function(snsName) {
+                    //             oEntryRule.sns[snsName] = {
+                    //                 entry: oDefaultInputPage ? oDefaultInputPage.name : ''
+                    //             };
+                    //         });
+                    //         break;
+                    //     default:
+                    // }
+                    return this.update('entryRule');
                 },
                 assignMission: function() {
                     var defer = $q.defer();
@@ -533,6 +524,20 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     return defer.promise;
                 },
+                renewScore: function(record) {
+                    var url, defer;
+
+                    url = '/rest/pl/fe/matter/enroll/record/renewScore';
+                    url += '?site=' + _siteId;
+                    url += '&app=' + _appId;
+                    defer = $q.defer();
+
+                    http2.get(url, function(rsp) {
+                        defer.resolve();
+                    });
+
+                    return defer.promise;
+                }
             };
             return _self;
         }];
@@ -1990,7 +1995,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         var canFilteredSchemas = [];
 
         if (!oApp.group_app_id) {
-            if (oApp.entry_rule && oApp.entry_rule.scope === 'group' && oApp.entry_rule.group && oApp.entry_rule.group.id) {
+            if (oApp.entryRule && oApp.entryRule.scope && oApp.entryRule.scope.group === 'Y' && oApp.entryRule.group && oApp.entryRule.group.id) {
                 $scope.bRequireGroup = true;
                 $scope.groups = oApp.groups;
             }

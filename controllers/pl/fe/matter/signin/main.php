@@ -166,7 +166,7 @@ class main extends \pl\fe\matter\main_base {
 		$oNewApp->pic = $oCopied->pic;
 		$oNewApp->summary = $modelApp->escape($oCopied->summary);
 		$oNewApp->data_schemas = $modelApp->escape($oCopied->data_schemas);
-		$oNewApp->entry_rule = json_encode($oCopied->entry_rule);
+		$oNewApp->entry_rule = json_encode($oCopied->entryRule);
 		if (!empty($mission)) {
 			$oNewApp->mission_id = $mission;
 		}
@@ -229,8 +229,10 @@ class main extends \pl\fe\matter\main_base {
 		$posted = $this->getPostJson();
 		$oUpdated = new \stdClass;
 		foreach ($posted as $n => $v) {
-			if (in_array($n, ['entry_rule', 'data_schemas', 'recycle_schemas'])) {
+			if (in_array($n, ['data_schemas', 'recycle_schemas'])) {
 				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'entryRule') {
+				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'assignedNickname') {
 				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if (in_array($n, ['title', 'summary'])) {
@@ -357,69 +359,6 @@ class main extends \pl\fe\matter\main_base {
 		$qrcode = $modelQrcode->byMatter('signin', $app);
 
 		return new \ResponseData($qrcode);
-	}
-	/**
-	 * 重置活动进入规则
-	 *
-	 * @param string $app
-	 *
-	 */
-	public function entryRuleReset_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelApp = $this->model('matter\signin');
-		$oApp = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id');
-		if (false === $oApp) {
-			return new \ObjectNotFoundError();
-		}
-
-		$oUpdated = new \stdClass;
-		$oEntryRule = $this->_defaultEntryRule($site, $oApp->id);
-		$oUpdated->entry_rule = $modelApp->toJson($oEntryRule);
-
-		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
-			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U', $oUpdated);
-		}
-
-		return new \ResponseData($oEntryRule);
-	}
-	/**
-	 * 缺省进入规则
-	 */
-	private function &_defaultEntryRule($site, $appid) {
-		// 设置规则
-		$entryRule = new \stdClass;
-		$entryRule->scope = 'none';
-		$entryRule->otherwise = new \stdClass;
-		$entryRule->otherwise->entry = '';
-		$entryRule->success = new \stdClass;
-		$entryRule->success->entry = '';
-		$entryRule->fail = new \stdClass;
-		$entryRule->fail->entry = '';
-
-		// 设置页面
-		$cnt = 0;
-		$modelPage = $this->model('matter\signin\page');
-		$pages = $modelPage->byApp($appid, ['cascaded' => 'N']);
-		foreach ($pages as $page) {
-			if (empty($entryRule->otherwise->entry) && $page->type === 'I') {
-				$entryRule->otherwise->entry = $page->name;
-				$cnt++;
-			} else if (empty($entryRule->success->entry) && $page->name === 'success') {
-				$entryRule->success->entry = $page->name;
-				$cnt++;
-			} else if (empty($entryRule->fail->entry) && $page->name === 'failure') {
-				$entryRule->fail->entry = $page->name;
-				$cnt++;
-			}
-			if ($cnt === 3) {
-				break;
-			}
-		}
-
-		return $entryRule;
 	}
 	/**
 	 * 删除一个活动

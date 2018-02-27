@@ -6,7 +6,7 @@
             <option value='A'>整个活动</option>
         </select>
     </div>
-    <div class="form-group" ng-if="app.entry_rule.scope==='member'">
+    <div class="form-group" ng-if="app.entryRule.scope.member==='Y'">
         <label>通讯录范围</label>
         <select class='form-control' ng-model="activeWrap.config.mschemaId" ng-change="doFilter(activeWrap.config.mschemaId)">
             <option value=''>请选择</option>

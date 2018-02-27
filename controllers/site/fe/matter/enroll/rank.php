@@ -117,9 +117,9 @@ class rank extends base {
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		if (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id)) {
+		if (isset($oApp->entryRule->scope) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) {
 			$modelGrpRnd = $this->model('matter\group\round');
-			$rounds = $modelGrpRnd->byApp($oApp->entry_rule->group->id);
+			$rounds = $modelGrpRnd->byApp($oApp->entryRule->group->id);
 			$userGroups = [];
 			foreach ($rounds as $oRound) {
 				$oNewGroup = new \stdClass;

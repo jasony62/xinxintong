@@ -120,16 +120,16 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
     };
     $scope.askFollowSns = function() {
         var url;
-        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'sns') {
+        if ($scope.app.entryRule && $scope.app.entryRule.scope.sns === 'Y') {
             url = LS.j('askFollow', 'site');
-            url += '&sns=' + Object.keys($scope.app.entry_rule.sns).join(',');
+            url += '&sns=' + Object.keys($scope.app.entryRule.sns).join(',');
             openPlugin(url, refreshActionRule);
         }
     };
     $scope.askBecomeMember = function() {
         var url, mschemaIds;
-        if ($scope.app.entry_rule && $scope.app.entry_rule.scope === 'member') {
-            mschemaIds = Object.keys($scope.app.entry_rule.member);
+        if ($scope.app.entry_rule && $scope.app.entryRule.scope.member === 'Y') {
+            mschemaIds = Object.keys($scope.app.entryRule.member);
             if (mschemaIds.length === 1) {
                 url = '/rest/site/fe/user/member?site=' + $scope.app.siteid;
                 url += '&schema=' + mschemaIds[0];

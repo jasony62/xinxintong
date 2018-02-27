@@ -171,7 +171,7 @@ $sql .= ",is_show_template char(1) not null default 'Y'"; // 是否显示模板�
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site): ' . $mysqli->error;
+	echo 'database error(xxt_platform): ' . $mysqli->error;
 }
 /**
  * 申请发布到主页的站点
@@ -190,7 +190,7 @@ $sql .= ",approved char(1) not null default 'N'"; // 是否批准推送到主页
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_contribute): ' . $mysqli->error;
+	echo 'database error(xxt_home_site): ' . $mysqli->error;
 }
 /**
  * 申请发布到主页的素材
@@ -215,6 +215,6 @@ $sql .= ",home_group char(1) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_contribute): ' . $mysqli->error;
+	echo 'database error(xxt_home_matter): ' . $mysqli->error;
 }
 echo 'finish shop.' . PHP_EOL;

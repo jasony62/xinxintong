@@ -8,11 +8,10 @@ define(['require'], function(require) {
                 'news': '多图文',
                 'channel': '频道',
                 'link': '链接',
-                'contribute': '投稿',
                 'text': '文本',
                 'custom': '定制页',
             },
-            docOrder: ['article', 'news', 'channel', 'link', 'text', 'contribute', 'custom'],
+            docOrder: ['article', 'news', 'channel', 'link', 'text', 'custom'],
             app: {
                 'enroll': '登记',
                 'signin': '签到',
@@ -184,11 +183,6 @@ define(['require'], function(require) {
             addLottery: function(site) {
                 http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id, function(rsp) {
                     location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
-            addContribute: function(site) {
-                http2.get('/rest/pl/fe/matter/contribute/create?site=' + site.id, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/contribute?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addCustom: function(site) {

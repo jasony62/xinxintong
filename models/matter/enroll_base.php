@@ -36,62 +36,60 @@ abstract class enroll_base extends app_base {
 	 * 根据用户指定的规则设置
 	 */
 	protected function setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule) {
-		$oEntryRule->scope = $oProtoEntryRule->scope;
-		switch ($oEntryRule->scope) {
-		case 'group':
-			if (!empty($oProtoEntryRule->group->id)) {
-				$oEntryRule->group = (object) ['id' => $oProtoEntryRule->group->id];
-				if (!empty($oProtoEntryRule->group->round->id)) {
-					$oEntryRule->group->round = (object) ['id' => $oProtoEntryRule->group->round->id];
-				}
-			}
-			break;
-		case 'member':
-			if (isset($oProtoEntryRule->mschemas)) {
-				$oEntryRule->member = new \stdClass;
-				foreach ($oProtoEntryRule->mschemas as $oMschema) {
-					$oRule = new \stdClass;
-					$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-					$oEntryRule->member->{$oMschema->id} = $oRule;
-				}
-				$oEntryRule->other = new \stdClass;
-				$oEntryRule->other->entry = '$memberschema';
-			}
-			break;
-		case 'sns':
-			$oRule = new \stdClass;
-			$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-			$oSns = new \stdClass;
-			if (isset($oProtoEntryRule->sns)) {
-				foreach ($oProtoEntryRule->sns as $snsName => $bValid) {
-					if ($bValid) {
-						$oSns->{$snsName} = $oRule;
-					}
-				}
-			} else {
-				$modelWx = $this->model('sns\wx');
-				$wxOptions = ['fields' => 'joined'];
-				if (($wx = $modelWx->bySite($oSite->id, $wxOptions)) && $wx->joined === 'Y') {
-					$oSns->wx = $oRule;
-				} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
-					$oSns->wx = $oRule;
-				}
-				$yxOptions = ['fields' => 'joined'];
-				if ($yx = $this->model('sns\yx')->bySite($oSite->id, $yxOptions)) {
-					if ($yx->joined === 'Y') {
-						$oSns->yx = $oRule;
-					}
-				}
-				if ($qy = $this->model('sns\qy')->bySite($oSite->id, ['fields' => 'joined'])) {
-					if ($qy->joined === 'Y') {
-						$oSns->qy = $oRule;
+		if (isset($oProtoEntryRule->scope)) {
+			$oEntryRule->scope = $oProtoEntryRule->scope;
+			if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
+				if (!empty($oProtoEntryRule->group->id)) {
+					$oEntryRule->group = (object) ['id' => $oProtoEntryRule->group->id];
+					if (!empty($oProtoEntryRule->group->round->id)) {
+						$oEntryRule->group->round = (object) ['id' => $oProtoEntryRule->group->round->id];
 					}
 				}
 			}
-			$oEntryRule->sns = $oSns;
-			$oEntryRule->other = new \stdClass;
-			$oEntryRule->other->entry = '$mpfollow';
-			break;
+			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
+				if (isset($oProtoEntryRule->mschemas)) {
+					$oEntryRule->member = new \stdClass;
+					foreach ($oProtoEntryRule->mschemas as $oMschema) {
+						$oRule = new \stdClass;
+						$oRule->entry = 'Y';
+						$oEntryRule->member->{$oMschema->id} = $oRule;
+					}
+				}
+			}
+			if (isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {
+				$oRule = new \stdClass;
+				$oRule->entry = 'Y';
+				$oSns = new \stdClass;
+				if (isset($oProtoEntryRule->sns)) {
+					foreach ($oProtoEntryRule->sns as $snsName => $bValid) {
+						if ($bValid) {
+							$oSns->{$snsName} = $oRule;
+						}
+					}
+				} else {
+					$modelWx = $this->model('sns\wx');
+					$wxOptions = ['fields' => 'joined'];
+					if (($wx = $modelWx->bySite($oSite->id, $wxOptions)) && $wx->joined === 'Y') {
+						$oSns->wx = $oRule;
+					} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
+						$oSns->wx = $oRule;
+					}
+					$yxOptions = ['fields' => 'joined'];
+					if ($yx = $this->model('sns\yx')->bySite($oSite->id, $yxOptions)) {
+						if ($yx->joined === 'Y') {
+							$oSns->yx = $oRule;
+						}
+					}
+					if ($qy = $this->model('sns\qy')->bySite($oSite->id, ['fields' => 'joined'])) {
+						if ($qy->joined === 'Y') {
+							$oSns->qy = $oRule;
+						}
+					}
+				}
+				$oEntryRule->sns = $oSns;
+			}
+		} else {
+			$oEntryRule->scope = new \stdClass;
 		}
 
 		return $oEntryRule;
@@ -101,7 +99,9 @@ abstract class enroll_base extends app_base {
 	 */
 	protected function setEntryRuleByMission(&$oEntryRule, $oMisEntryRule) {
 		if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
-			$oEntryRule->scope = $oMisEntryRule->scope;
+			if (!is_object($oEntryRule->scope)) {
+				$oEntryRule->scope = new \stdClass;
+			}
 			switch ($oEntryRule->scope) {
 			case 'member':
 				if (isset($oMisEntryRule->member)) {
@@ -109,8 +109,7 @@ abstract class enroll_base extends app_base {
 					foreach ($oEntryRule->member as &$oRule) {
 						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 					}
-					$oEntryRule->other = new \stdClass;
-					$oEntryRule->other->entry = '$memberschema';
+					$oEntryRule->scope->member = 'Y';
 				}
 				break;
 			case 'sns':
@@ -122,9 +121,8 @@ abstract class enroll_base extends app_base {
 							$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 						}
 					}
-					$oEntryRule->other = new \stdClass;
-					$oEntryRule->other->entry = '$mpfollow';
 				}
+				$oEntryRule->scope->sns = 'Y';
 				break;
 			}
 		}

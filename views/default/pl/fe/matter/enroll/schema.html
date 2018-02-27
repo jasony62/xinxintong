@@ -60,16 +60,18 @@
                 </li>
             </ul>
         </div>
-        <div class='form-group list-group-item' ng-repeat="(msid,erm) in app.entry_rule.member">
-            <div class='help-block'>通讯录【<a href ng-click='editMschema(mschemasById[msid])'>{{mschemasById[msid].title}}</a>】用户信息</div>
-            <ul class='list-group'>
-                <li class='list-group-item' ng-repeat="s in mschemasById[msid]._schemas" ng-switch on="s.assocState">
-                    <span>{{s.title}}</span>
-                    <span ng-switch-when="yes" class='pull-right'>已关联</span>
-                    <button ng-switch-when="no" class='btn btn-default btn-xs pull-right' ng-click="assocWithMschema(s,mschemasById[msid])">关联</button>
-                    <button ng-switch-default class='btn btn-default btn-xs pull-right' ng-click="newMember(mschemasById[msid],s)">添加</button>
-                </li>
-            </ul>
+        <div class='form-group' ng-if="app.entryRule.scope.member==='Y'">
+            <div class='list-group-item' ng-repeat="(msid,erm) in app.entryRule.member">
+                <div class='help-block'>通讯录【<a href ng-click='editMschema(mschemasById[msid])'>{{mschemasById[msid].title}}</a>】用户信息</div>
+                <ul class='list-group'>
+                    <li class='list-group-item' ng-repeat="s in mschemasById[msid]._schemas" ng-switch on="s.assocState">
+                        <span>{{s.title}}</span>
+                        <span ng-switch-when="yes" class='pull-right'>已关联</span>
+                        <button ng-switch-when="no" class='btn btn-default btn-xs pull-right' ng-click="assocWithMschema(s,mschemasById[msid])">关联</button>
+                        <button ng-switch-default class='btn btn-default btn-xs pull-right' ng-click="newMember(mschemasById[msid],s)">添加</button>
+                    </li>
+                </ul>
+            </div>
         </div>
         <!-- end create schema -->
         <!-- actions -->

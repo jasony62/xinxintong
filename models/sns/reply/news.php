@@ -40,18 +40,6 @@ class news_model extends MultiArticleReply {
 		}
 		$matters2 = array();
 		foreach ($matters as $m) {
-			if ($m->access_control === 'Y' && $news->filter_by_matter_acl === 'Y') {
-				$inacl = false;
-				foreach ($members as $member) {
-					if ($modelAcl->canAccessMatter($m->siteid, $m->type, $m->id, $member, $m->authapis)) {
-						$inacl = true;
-						break;
-					}
-				}
-				if (!$inacl) {
-					continue;
-				}
-			}
 			$m->entryURL = \TMS_APP::model('matter\\' . $m->type)->getEntryUrl($siteId, $m->id, $openid);
 			$matters2[] = $m;
 		}

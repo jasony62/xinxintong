@@ -228,34 +228,32 @@ class user_model extends \TMS_MODEL {
 		foreach ($oUsers as $oUser) {
 			$oUsers2[$oUser->id] = $oUser->userid;
 		}
-
-		/* 获取未签到人员 */
+		/* 获取未登记人员 */
 		$aAbsentUsrs = [];
-		if (isset($oApp->entry_rule->scope) && in_array($oApp->entry_rule->scope, ['group', 'member'])) {
-			if ($oApp->entry_rule->scope === 'group' && isset($oApp->entry_rule->group)) {
-				$oGrpApp = $oApp->entry_rule->group;
-				$modelGrpUsr = $this->model('matter\group\player');
-				$aGrpUsrs = $modelGrpUsr->byRound(
-					$oGrpApp->id,
-					isset($oGrpApp->round->id) ? $oGrpApp->round->id : null,
-					['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']
-				);
-				foreach ($aGrpUsrs as $oGrpUsr) {
-					if (false === in_array($oGrpUsr->userid, $oUsers2)) {
-						$aAbsentUsrs[] = $oGrpUsr;
-					}
+		$oEntryRule = $oApp->entry_rule;
+		if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
+			$oGrpApp = $oEntryRule->group;
+			$modelGrpUsr = $this->model('matter\group\player');
+			$aGrpUsrs = $modelGrpUsr->byRound(
+				$oGrpApp->id,
+				isset($oGrpApp->round->id) ? $oGrpApp->round->id : null,
+				['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']
+			);
+			foreach ($aGrpUsrs as $oGrpUsr) {
+				if (false === in_array($oGrpUsr->userid, $oUsers2)) {
+					$aAbsentUsrs[] = $oGrpUsr;
 				}
-			} else if ($oApp->entry_rule->scope === 'member' && isset($oApp->entry_rule->member)) {
-				$modelMem = $this->model('site\user\member');
-				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
-					$members = $modelMem->byMschema($mschemaId);
-					foreach ($members as $oMember) {
-						if (false === in_array($oMember->userid, $oUsers2)) {
-							$oUser = new \stdClass;
-							$oUser->userid = $oMember->userid;
-							$oUser->nickname = $oMember->name;
-							$aAbsentUsrs[] = $oUser;
-						}
+			}
+		} else if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
+			$modelMem = $this->model('site\user\member');
+			foreach ($oEntryRule->member as $mschemaId => $rule) {
+				$members = $modelMem->byMschema($mschemaId);
+				foreach ($members as $oMember) {
+					if (false === in_array($oMember->userid, $oUsers2)) {
+						$oUser = new \stdClass;
+						$oUser->userid = $oMember->userid;
+						$oUser->nickname = $oMember->name;
+						$aAbsentUsrs[] = $oUser;
 					}
 				}
 			}
@@ -402,5 +400,80 @@ class user_model extends \TMS_MODEL {
 		$result->remark_other_num = count($remarks);
 
 		return $result;
+	}
+	/**
+	 * 根据用户的填写记录更新用户数据
+	 */
+	public function renew($oApp, $rid = '') {
+		$aUpdatedResult = [];
+		/**
+		 * 按轮次更新用户数据
+		 */
+		$q = [
+			'id,userid,rid,enroll_num,score',
+			'xxt_enroll_user',
+			['aid' => $oApp->id, 'rid' => (object) ['op' => '<>', 'pat' => 'ALL']],
+		];
+		$enrollees = $this->query_objs_ss($q);
+		if (count($enrollees)) {
+			foreach ($enrollees as $oEnrollee) {
+				$q = [
+					'score',
+					['xxt_enroll_record'],
+					['aid' => $oApp->id, 'userid' => $oEnrollee->userid, 'rid' => $oEnrollee->rid, 'state' => 1],
+				];
+				$oEnrolleeRecs = $this->query_objs_ss($q);
+				$enrollNum = 0;
+				$score = 0;
+				foreach ($oEnrolleeRecs as $oEnrolleeRec) {
+					$enrollNum++;
+					if (!empty($oEnrolleeRec->score)) {
+						$oEnrolleeRec->score = json_decode($oEnrolleeRec->score);
+						if (!empty($oEnrolleeRec->score->sum)) {
+							$score += $oEnrolleeRec->score->sum;
+						}
+					}
+				}
+				/* 更新数据 */
+				$rst = $this->update(
+					'xxt_enroll_user',
+					['enroll_num' => $enrollNum, 'score' => $score],
+					['id' => $oEnrollee->id]
+				);
+				if ($rst) {
+					$aUpdatedResult[] = $oEnrollee;
+				}
+			}
+		}
+		/**
+		 * 更新用户在活动中的累积数据
+		 */
+		$q = [
+			'id,userid,enroll_num,score',
+			'xxt_enroll_user',
+			['aid' => $oApp->id, 'rid' => 'ALL'],
+		];
+		$enrollees = $this->query_objs_ss($q);
+		if (count($enrollees)) {
+			foreach ($enrollees as $oEnrollee) {
+				$q = [
+					'sum(enroll_num) enroll_num,sum(score) score',
+					'xxt_enroll_user',
+					['aid' => $oApp->id, 'userid' => $oEnrollee->userid, 'rid' => (object) ['op' => '<>', 'pat' => 'ALL']],
+				];
+				$oAll = $this->query_obj_ss($q);
+				/* 更新数据 */
+				$rst = $this->update(
+					'xxt_enroll_user',
+					['enroll_num' => $oAll->enroll_num, 'score' => $oAll->score],
+					['id' => $oEnrollee->id]
+				);
+				if ($rst) {
+					$aUpdatedResult[] = $oEnrollee;
+				}
+			}
+		}
+
+		return $aUpdatedResult;
 	}
 }

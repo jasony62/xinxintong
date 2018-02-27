@@ -32,11 +32,16 @@ class base extends \site\fe\base {
 	 * 2、平台是否绑定了第三方社交帐号认证
 	 * 3、用户客户端是否可以发起认证
 	 *
-	 * @param string $site
-	 * @param object $app
+	 * @param object $oApp
 	 */
 	protected function requireSnsOAuth($oApp) {
-		$oEntryRule = isset($oApp->entryRule) ? $oApp->entryRule : $oApp->entry_rule;
+		if (empty($oApp->entryRule)) {
+			return false;
+		}
+		$oEntryRule = $oApp->entryRule;
+		if (empty($oEntryRule->scope->sns) || $oEntryRule->scope->sns !== 'Y') {
+			return false;
+		}
 		if ($this->userAgent() === 'wx') {
 			if (!empty($oEntryRule->sns->wx->entry)) {
 				if (!isset($this->who->sns->wx)) {
@@ -70,6 +75,36 @@ class base extends \site\fe\base {
 		return false;
 	}
 	/**
+	 *
+	 */
+	protected function checkSnsEntryRule($oApp, $bRedirect) {
+		$aResult = $this->enterAsSns($oApp);
+		if (false === $aResult[0]) {
+			$msg = '您没有关注公众号，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+			if (true === $bRedirect) {
+				$oEntryRule = $oApp->entryRule;
+				if (!empty($oEntryRule->sns->wx->entry)) {
+					/* 通过邀请链接访问 */
+					if (!empty($_GET['inviteToken'])) {
+						$oApp->params = new \stdClass;
+						$oApp->params->inviteToken = $_GET['inviteToken'];
+					}
+					$this->snsWxQrcodeFollow($oApp);
+				} else if (!empty($oEntryRule->sns->qy->entry)) {
+					$this->snsFollow($oApp->siteid, 'qy', $oApp);
+				} else if (!empty($oEntryRule->sns->yx->entry)) {
+					$this->snsFollow($oApp->siteid, 'yx', $oApp);
+				} else {
+					$this->outputInfo($msg);
+				}
+			} else {
+				return [false, $msg];
+			}
+		}
+
+		return [true];
+	}
+	/**
 	 * 限社交网站用户参与
 	 */
 	protected function enterAsSns($oApp) {
@@ -77,7 +112,6 @@ class base extends \site\fe\base {
 		$oUser = $this->who;
 		$bFollowed = false;
 		$oFollowedRule = null;
-
 		foreach ($oEntryRule->sns as $snsName => $rule) {
 			if (isset($oUser->sns->{$snsName})) {
 				// 检查用户对应的公众号
@@ -211,108 +245,5 @@ class base extends \site\fe\base {
 			$this->mySetCookie("_{$siteId}_mauth_t", $targetUrl, time() + 300);
 			$this->redirect($authUrl);
 		}
-	}
-	/**
-	 * 访问控制设置
-	 *
-	 * 检查当前用户是否为认证用户
-	 * 检查当前用户是否在白名单中
-	 *
-	 * 如果用户没有认证，跳转到认证页
-	 *
-	 */
-	protected function accessControl($siteId, $objId, $memberSchemas, $userid, &$obj, $targetUrl = null) {
-		$model = $this->model();
-		$siteId = $model->escape($siteId);
-		$objId = $model->escape($objId);
-		$aMemberSchemas = explode(',', $memberSchemas);
-		$members = array();
-		foreach ($aMemberSchemas as $memberSchema) {
-			if (isset($this->who->members->{$memberSchema})) {
-				$members[] = $this->who->members->{$memberSchema};
-			}
-		}
-		if (empty($members)) {
-			$members = $this->model('site\user\member')->byUser($userid, ['schemas' => $memberSchemas]);
-		}
-		//如果是企业号的用户访问
-		if (isset($this->who->sns->qy) && empty($members)) {
-			//根据openid查询粉丝表
-			$openid = $this->who->sns->qy->openid;
-			$p = array(
-				'siteid,openid,nickname,mobile,email,sync_at',
-				'xxt_site_qyfan',
-				"siteid='$siteId' and openid='$openid' and subscribe_at > 0 and unsubscribe_at = 0 ",
-			);
-			$qySnsUser = $model->query_obj_ss($p);
-			if ($qySnsUser) {
-				$members['qy'] = $qySnsUser;
-			}
-
-		}
-		if (empty($members)) {
-			if ($this->userAgent() === 'wx') {
-				if (isset($this->who->sns->wx)) {
-					$openid = $this->who->sns->wx->openid;
-				} else if (isset($this->who->sns->qy)) {
-					$openid = $this->who->sns->qy->openid;
-				}
-			} else if ($this->userAgent() === 'yx') {
-				if (isset($this->who->sns->yx)) {
-					$openid = $this->who->sns->yx->openid;
-				}
-			}
-		}
-		if (empty($members)) {
-			/**
-			 * 如果不是认证用户，先进行认证
-			 */
-			$this->gotoMember($obj, $aMemberSchemas, $targetUrl);
-		} else {
-			$passed = false;
-			//如果时从企业号进入的用户不需要认证
-			if (isset($members['qy'])) {
-				$passed = true;
-			} else {
-				foreach ($members as $member) {
-					if ($this->canAccessObj($siteId, $objId, $member, $memberSchemas, $obj)) {
-						/**
-						 * 检查用户是否通过了验证
-						 */
-						$q = array(
-							'verified',
-							'xxt_site_member',
-							"siteid='$siteId' and id='$member->id'",
-						);
-						if ('Y' !== $model->query_val_ss($q)) {
-							$r = $this->model('site\user\memberschema')->getNotpassStatement($member->schema_id, $siteId);
-							$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-							header($protocol . ' 401 Unauthorized');
-							\TPL::assign('title', '访问控制未通过');
-							\TPL::assign('body', $r);
-							\TPL::output('error');
-							exit;
-						}
-						$passed = true;
-						break;
-					}
-				}
-				!$passed && $this->gotoOutAcl($siteId, $member->schema_id);
-
-				return $member;
-			}
-		}
-	}
-	/**
-	 *
-	 */
-	private function gotoOutAcl($mpid, $authid) {
-		$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-		header($protocol . ' 401 Unauthorized');
-		$r = $this->model('user/authapi')->getAclStatement($authid, $mpid);
-		TPL::assign('title', '访问控制未通过');
-		TPL::assign('body', $r);
-		TPL::output('error');
-		exit;
 	}
 }

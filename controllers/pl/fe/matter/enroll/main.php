@@ -49,9 +49,9 @@ class main extends main_base {
 			$oApp->groupApp = $this->model('matter\group')->byId($oApp->group_app_id);
 		}
 		/* 指定分组活动访问 */
-		if (isset($oApp->entry_rule->scope) && $oApp->entry_rule->scope === 'group') {
-			if (isset($oApp->entry_rule->group)) {
-				$oRuleApp = $oApp->entry_rule->group;
+		if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y') {
+			if (isset($oApp->entryRule->group)) {
+				$oRuleApp = $oApp->entryRule->group;
 				if (!empty($oRuleApp->id)) {
 					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'N']);
 					if ($oGroupApp) {
@@ -69,8 +69,8 @@ class main extends main_base {
 		/**
 		 * 获得当前活动的分组
 		 */
-		if (!empty($oApp->entry_rule->group->id) || !empty($oApp->group_app_id)) {
-			$assocGroupAppId = empty($oApp->entry_rule->group->id) ? $oApp->group_app_id : $oApp->entry_rule->group->id;
+		if ((isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) || !empty($oApp->group_app_id)) {
+			$assocGroupAppId = (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) ? $oApp->entryRule->group->id : $oApp->group_app_id;
 			/* 获得的分组信息 */
 			$modelGrpRnd = $this->model('matter\group\round');
 			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
@@ -105,7 +105,7 @@ class main extends main_base {
 			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";
 		}
 		if ($onlySns === 'Y') {
-			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
+			$q[2] .= " and entry_rule like '%\"scope.sns\":\"Y\"%'";
 		}
 		if (!empty($oFilter->byTitle)) {
 			$q[2] .= " and title like '%" . $modelApp->escape($oFilter->byTitle) . "%'";
@@ -216,18 +216,17 @@ class main extends main_base {
 		if (false === $oCopied) {
 			return new \ObjectNotFoundError();
 		}
-		$oEntryRule = $oCopied->entry_rule;
+		$oEntryRule = clone $oCopied->entryRule;
 		$aDataSchemas = $oCopied->dataSchemas;
 		$aPages = $oCopied->pages;
 		$newaid = uniqid();
 		$oNewApp = new \stdClass;
 		$oNewApp->siteid = $site;
 		$oNewApp->id = $newaid;
-
 		/**
 		 * 如果通讯录的所属范围和新活动的范围不一致，需要解除关联的通信录
 		 */
-		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'member') {
+		if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
 			$aMatterMschemas = $modelApp->getEntryMemberSchema($oEntryRule);
 			foreach ($aMatterMschemas as $oMschema) {
 				if (!empty($oMschema->matter_type) && ($oMschema->matter_type !== 'mission' || $oMschema->matter_id !== $mission)) {
@@ -241,14 +240,24 @@ class main extends main_base {
 				}
 			}
 			if (count((array) $oEntryRule->member) === 0) {
-				$oEntryRule->scope = 'none';
+				unset($oEntryRule->scope->member);
 				unset($oEntryRule->member);
 			}
 		}
 		/**
-		 * 如果关联了分组或登记活动，需要去掉题目的关联信息
+		 * 跨项目进行复制
 		 */
 		if ($oCopied->mission_id !== $mission) {
+			/**
+			 * 只有同项目内的分组活动可以作为参与规则
+			 */
+			if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
+				unset($oEntryRule->scope->group);
+				unset($oEntryRule->group);
+			}
+			/**
+			 * 如果关联了分组或登记活动，需要去掉题目的关联信息
+			 */
 			$aAssocApps = [];
 			if (!empty($oCopied->group_app_id)) {
 				$aAssocApps[] = $oCopied->group_app_id;
@@ -372,7 +381,7 @@ class main extends main_base {
 						/* 插入登记数据 */
 						$ek = $modelRec->enroll($oNewApp, $cpUser, ['nickname' => $cpUser->nickname, 'assignRid' => $newRound]);
 						/* 处理自定义信息 */
-						if (isset($record->data->member) && $oNewApp->entry_rule->scope !== 'member') {
+						if (isset($record->data->member) && $oNewApp->entryRule->scope->member !== 'Y') {
 							unset($record->data->member->schema_id);
 							foreach ($record->data->member as $schemaId => $val) {
 								$record->data->{$schemaId} = $val;
@@ -408,17 +417,16 @@ class main extends main_base {
 	/**
 	 * 更新活动的属性信息
 	 *
-	 * @param string $site site'id
 	 * @param string $app app'id
 	 *
 	 */
-	public function update_action($site, $app) {
+	public function update_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id,absent_cause');
+		$oApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id,absent_cause');
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -431,7 +439,7 @@ class main extends main_base {
 				$oUpdated->{$n} = $modelApp->escape($v);
 			} else if (in_array($n, ['data_schemas', 'recycle_schemas'])) {
 				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'entry_rule') {
+			} else if ($n === 'entryRule') {
 				if ($v->scope === 'group') {
 					if (isset($v->group->title)) {
 						unset($v->group->title);
@@ -469,7 +477,7 @@ class main extends main_base {
 
 		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
 			// 记录操作日志并更新信息
-			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U', $oUpdated);
+			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'U', $oUpdated);
 		}
 
 		return new \ResponseData($oApp);
@@ -541,7 +549,7 @@ class main extends main_base {
 		$oNewApp->can_siteuser = 'Y';
 		/* 进入规则 */
 		$oEntryRule = new \stdClass;
-		$oEntryRule->scope = 'none';
+		$oEntryRule->scope = new \stdClass;
 		$oNewApp->entry_rule = json_encode($oEntryRule);
 
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
@@ -628,7 +636,7 @@ class main extends main_base {
 			$entryRule = $config->entryRule;
 			if (!empty($entryRule)) {
 				if (!isset($entryRule->scope)) {
-					$entryRule->scope = 'none';
+					$entryRule->scope = new \stdClass;
 				}
 			}
 			if (isset($config->enrolled_entry_page)) {
@@ -643,7 +651,7 @@ class main extends main_base {
 			$entryRule = $this->_addBlankPage($user, $oSite->id, $appId);
 			if (!empty($entryRule)) {
 				if (!isset($entryRule['scope'])) {
-					$entryRule['scope'] = 'none';
+					$entryRule['scope'] = new \stdClass;
 				}
 			}
 		}
@@ -765,7 +773,7 @@ class main extends main_base {
 			return new \ResponseError('没有获得页面进入规则');
 		}
 		if (!isset($entryRule->scope)) {
-			$entryRule->scope = 'none';
+			$entryRule->scope = new \stdClass;
 		}
 
 		$current = time();
@@ -976,7 +984,7 @@ class main extends main_base {
 			return new \ResponseError('没有获得页面进入规则');
 		}
 		if (!isset($entryRule->scope)) {
-			$entryRule->scope = 'none';
+			$entryRule->scope = new \stdClass;
 		}
 
 		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
@@ -1158,54 +1166,6 @@ class main extends main_base {
 		}
 
 		return [true];
-	}
-	/**
-	 * 重置活动进入规则
-	 *
-	 * @param string $app
-	 *
-	 */
-	public function entryRuleReset_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id');
-		if (false === $oApp) {
-			return new \ObjectNotFoundError();
-		}
-
-		$oUpdated = new \stdClass;
-		$oEntryRule = $this->_defaultEntryRule($site, $oApp->id);
-		$oUpdated->entry_rule = $modelApp->toJson($oEntryRule);
-
-		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
-			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U', $oUpdated);
-		}
-
-		return new \ResponseData($oEntryRule);
-	}
-	/**
-	 * 缺省进入规则
-	 */
-	private function &_defaultEntryRule($site, $appid) {
-		/*第一个登记页*/
-		$modelPage = $this->model('matter\enroll\page');
-		$pages = $modelPage->byApp($appid, ['cascaded' => 'N', 'fields' => 'name,type']);
-		foreach ($pages as $page) {
-			if ($page->type === 'I') {
-				$firstInputPage = $page;
-				break;
-			}
-		}
-		/*设置规则*/
-		$oEntryRule = new \stdClass;
-		$oEntryRule->scope = 'none';
-		$oEntryRule->otherwise = new \stdClass;
-		$oEntryRule->otherwise->entry = isset($firstInputPage) ? $firstInputPage->name : '';
-
-		return $oEntryRule;
 	}
 	/**
 	 * 添加空页面
@@ -1497,7 +1457,7 @@ class main extends main_base {
 		$template->pages = $pages;
 
 		/* entry_rule */
-		$template->entryRule = $oApp->entry_rule;
+		$template->entryRule = $oApp->entryRule;
 
 		/* records */
 		$records = $modelEnroll->query_objs_ss([

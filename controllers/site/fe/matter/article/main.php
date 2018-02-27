@@ -9,12 +9,6 @@ class main extends \site\fe\matter\base {
 	/**
 	 *
 	 */
-	protected function canAccessObj($siteId, $matterId, $member, $authapis, &$matter) {
-		return $this->model('matter\acl')->canAccessMatter($siteId, 'article', $matterId, $member, $authapis);
-	}
-	/**
-	 *
-	 */
 	public function index_action($siteId) {
 		\TPL::output('/site/fe/matter/article/list');
 		exit;
@@ -35,9 +29,6 @@ class main extends \site\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		if (isset($article->access_control) && $article->access_control === 'Y' && !empty($article->authapis)) {
-			$this->accessControl($site, $id, $article->authapis, $user->uid, $article, false);
-		}
 		/*如果此单图文属于引用那么需要返回被引用的单图文*/
 		if ($article->from_mode === 'C') {
 			$id2 = $article->from_id;
@@ -141,10 +132,6 @@ class main extends \site\fe\matter\base {
 		 */
 		$modelArticle = $this->model('matter\article');
 		$article = $modelArticle->byId($articleid);
-		if (isset($article->access_control) && $article->access_control === 'Y') {
-			$this->accessControl($site, $articleid, $article->authapis, $user->uid, $article);
-		}
-
 		/**
 		 * 获取附件
 		 */
@@ -156,7 +143,6 @@ class main extends \site\fe\matter\base {
 		if (false === ($att = $modelArticle->query_obj_ss($q))) {
 			die('指定的附件不存在');
 		}
-
 		/**
 		 * 记录日志
 		 */

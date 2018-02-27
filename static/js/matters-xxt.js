@@ -36,10 +36,6 @@ xxtMatters.constant('matterTypes', [{
     title: '进入信息墙',
     url: '/rest/mp/matter'
 }, {
-    value: 'contribute',
-    title: '投稿活动',
-    url: '/rest/mp/app'
-}, {
     value: 'inner',
     title: '内置回复',
     url: '/rest/mp/matter'
@@ -430,7 +426,7 @@ xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$uibMo
         url += '/list?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
         $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
         $http.post(url, params).success(function(rsp) {
-            if (/article|contribute/.test($scope.p.matterType.value)) {
+            if (/article/.test($scope.p.matterType.value)) {
                 $scope.matters = rsp.data.articles;
                 $scope.page.total = rsp.data.total;
             } else {
@@ -1000,7 +996,7 @@ xxtMatters.controller('PushNotifyController', ['http2', '$scope', '$uibModalInst
         url += '/get?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
         $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
         http2.post(url, params, function(rsp) {
-            if (/article|contribute|enroll/.test($scope.p.matterType.value)) {
+            if (/article|enroll/.test($scope.p.matterType.value)) {
                 $scope.matters = rsp.data[0];
                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
             } else {

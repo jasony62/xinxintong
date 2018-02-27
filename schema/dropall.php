@@ -10,8 +10,8 @@ $sql[] = "drop table if exists account_in_group";
 /**
  * app
  */
-$sql[] = "drop table if exists xxt_contribute";
-$sql[] = "drop table if exists xxt_contribute_user";
+//$sql[] = "drop table if exists xxt_contribute";
+//$sql[] = "drop table if exists xxt_contribute_user";
 /**
  * code
  */
@@ -81,7 +81,7 @@ $sql[] = "drop table if exists xxt_lottery_log";
 $sql[] = "drop table if exists xxt_article";
 $sql[] = "drop table if exists xxt_article_attachment";
 $sql[] = "drop table if exists xxt_article_download_log";
-$sql[] = "drop table if exists xxt_article_review_log";
+//$sql[] = "drop table if exists xxt_article_review_log";
 //
 $sql[] = "drop table if exists xxt_link";
 $sql[] = "drop table if exists xxt_link_param";

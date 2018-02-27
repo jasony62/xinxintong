@@ -17,27 +17,6 @@ class news_model extends article_base {
 		return 'xxt_news';
 	}
 	/**
-	 * $mid member's 仅限认证用户
-	 * $phase
-	 */
-	public function &byReviewer($mid, $phase, $fields = '*', $cascade = false) {
-		$q = [
-			'n.*',
-			'xxt_news n',
-			"exists(select 1 from xxt_news_review_log l where n.id=l.news_id and l.mid='$mid' and l.phase='R')",
-		];
-		$q2 = ['o' => 'n.create_at desc'];
-
-		$news = $this->query_objs_ss($q, $q2);
-		if (!empty($news) && $cascade) {
-			foreach ($news as &$n) {
-				$n->disposer = $this->disposer($n->id);
-			}
-		}
-
-		return $news;
-	}
-	/**
 	 * 返回多图文包含的素材
 	 *
 	 * $param int $news_id
@@ -192,61 +171,5 @@ class news_model extends article_base {
 		$rst && $this->update("update xxt_news_matter set seq=seq-1 where news_id='$id' and seq>$seq");
 
 		return $rst;
-	}
-	/**
-	 * 多图文审核记录
-	 *
-	 * $mpid
-	 * $id news'id
-	 * $mid member's id
-	 * $phase
-	 */
-	public function forward($mpid, $id, $mid, $phase) {
-		$q = [
-			'*',
-			'xxt_news_review_log',
-			"mpid='$mpid' and news_id='$id'",
-		];
-		$q2 = [
-			'o' => 'seq desc',
-			'r' => ['o' => 0, 'l' => 1],
-		];
-		$last = $this->query_objs_ss($q, $q2);
-		if (!empty($last)) {
-			$last = $last[0];
-			$this->update(
-				'xxt_news_review_log',
-				['state' => 'F'],
-				"id=$last->id"
-			);
-		}
-
-		$seq = empty($last) ? 1 : $last->seq + 1;
-
-		$newlog = [
-			'mpid' => $mpid,
-			'news_id' => $id,
-			'seq' => $seq,
-			'mid' => $mid,
-			'send_at' => time(),
-			'state' => 'P',
-			'phase' => $phase,
-		];
-		$newlog['id'] = $this->insert('xxt_news_review_log', $newlog, true);
-
-		return (object) $newlog;
-	}
-	/**
-	 * 获得当前处理人
-	 */
-	public function &disposer($id) {
-		$q = [
-			'id,seq,mid,phase,state,send_at,receive_at,read_at',
-			'xxt_news_review_log',
-			"news_id='$id' and state in ('P','D')",
-		];
-		$lastlog = $this->query_obj_ss($q);
-
-		return $lastlog;
 	}
 }

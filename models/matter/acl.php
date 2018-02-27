@@ -7,12 +7,6 @@ require_once dirname(__FILE__) . '/app_base.php';
  */
 class acl_model extends app_base {
 	/**
-	 * 通用活动登记通知消息的接收人
-	 */
-	public function enrollReceiver($siteId, $aid) {
-		return $this->enrollReceiver_acls($siteId, $aid);
-	}
-	/**
 	 * 获得信息墙的所有用户
 	 * 将ACL翻译为具体的用户
 	 */
@@ -36,15 +30,6 @@ class acl_model extends app_base {
 		return $users;
 	}
 	/**
-	 *
-	 * todo 需要指定src？需要指定authid？
-	 */
-	public function enrollReceivers($siteId, $aid) {
-		$users = array();
-
-		return $users;
-	}
-	/**
 	 * 获得素材的ACL
 	 *
 	 * 需要根据指定的授权对象的不同获取不同的数据
@@ -58,100 +43,6 @@ class acl_model extends app_base {
 		$acls = $this->query_objs_ss($q);
 
 		return $acls;
-	}
-	/**
-	 * 获得活动登记通知接收人的ACL
-	 */
-	private function enrollReceiver_acls($siteId, $aid) {
-		$all = array();
-		/**
-		 * 直接指定
-		 */
-		$q = array(
-			'a.id,a.identity,a.idsrc',
-			'xxt_enroll_receiver a',
-			"a.mpid='$siteId' and a.aid='$aid' and idsrc=''",
-		);
-		if ($acls = $this->query_objs_ss($q)) {
-			$all = array_merge($all, $acls);
-		}
-
-		return $all;
-	}
-	/**
-	 * 素材访问控制检查
-	 * 1、检查是否已经设置了白名单，若没有设置则所有注册用户可访问
-	 * 2、若设置了白名单，则检查当前用户是否在白名单中
-	 */
-	public function canAccessMatter($siteId, $matter_type, $matter_id, $member, $authapis) {
-		$whichAcl = "matter_type='$matter_type' and matter_id='$matter_id'";
-
-		return $this->canAccess2($siteId, 'xxt_matter_acl', $whichAcl, $member->schema_id, $authapis);
-	}
-	/**
-	 * 通用的白名单检查机制
-	 *
-	 * $siteId
-	 * $table 访问控制列表
-	 * $whichAcl 需要检查的列表项
-	 * $identity 用户身份标识
-	 * $authapis
-	 */
-	public function canAccess($siteId, $table, $whichAcl, $identity, $authapis, $mustInclude = false) {
-		/**
-		 * 是否设置了白名单
-		 */
-		if (!$mustInclude) {
-			$q = array(
-				'count(*)',
-				$table,
-				$whichAcl,
-			);
-			if (0 === (int) $this->query_val_ss($q)) {
-				return true;
-			}
-
-		}
-		/**
-		 * 检查当前用户是否在白名单中
-		 * 如果有多个认证身份信息，有一个在白名单中就行
-		 * todo 用户身份必须和指定认证接口匹配才可以
-		 */
-		$q = array(
-			'count(*)',
-			$table,
-			"$whichAcl and idsrc='' and identity='$identity'",
-		);
-		if (0 < (int) $this->query_val_ss($q)) {
-			return true;
-		}
-
-		/**
-		 * 后缀匹配，例如：域名匹配
-		 */
-		$q = array(
-			'count(*)',
-			$table,
-			"$whichAcl and idsrc='' and '$identity' like concat('%',identity)",
-		);
-		if (1 === ((int) $this->query_val_ss($q))) {
-			return true;
-		}
-
-		/**
-		 * 由认证接口进行检查
-		 */
-		$q = array(
-			'identity,idsrc',
-			$table,
-			"$whichAcl",
-		);
-		$acls = $this->query_objs_ss($q);
-		if (true === $this->checkAclByAuthapi($siteId, $authapis, $acls, $identity)) {
-			return true;
-		}
-
-		return false;
 	}
 	/**
 	 * 通用的白名单检查机制

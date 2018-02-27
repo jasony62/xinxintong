@@ -85,7 +85,7 @@ $sql .= ",home_group char(1) not null default 'C'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_contribute): ' . $mysqli->error;
+	echo 'database error(xxt_site_home_channel): ' . $mysqli->error;
 }
 /**
  * 关注了团队的站点用户
@@ -101,7 +101,7 @@ $sql .= ',unsubscribe_at int not null default 0'; // 关注时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_contribute): ' . $mysqli->error;
+	echo 'database error(xxt_site_subscriber): ' . $mysqli->error;
 }
 /**
  * 站点用户通过关注团队获得的素材
@@ -121,7 +121,7 @@ $sql .= ",matter_summary varchar(240) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_contribute): ' . $mysqli->error;
+	echo 'database error(xxt_site_subscription): ' . $mysqli->error;
 }
 /**
  * 关注了团队的团队
@@ -139,7 +139,7 @@ $sql .= ',unsubscribe_at int not null default 0'; // 关注时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_contribute): ' . $mysqli->error;
+	echo 'database error(xxt_site_friend): ' . $mysqli->error;
 }
 /**
  * 关注了团队的团队获得的订阅内容
@@ -159,7 +159,7 @@ $sql .= ",matter_summary varchar(240) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_contribute): ' . $mysqli->error;
+	echo 'database error(xxt_site_friend_subscription): ' . $mysqli->error;
 }
 /**
  * 团队访客用户

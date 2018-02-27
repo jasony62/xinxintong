@@ -1,4 +1,6 @@
 #main-view,#preview-view,#entry-view{overflow-y:auto;}
+/*main-view*/
+#main-access .badge a{color:#fff;text-decoration:none;}
 
 /*preview*/
 #simulator{position:relative;width:360px;height:640px;border:1px solid #ccc;box-shadow:0px 2px 5px 5px rgba(192,192,192,1);}

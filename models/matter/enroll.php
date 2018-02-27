@@ -86,10 +86,10 @@ class enroll_model extends enroll_base {
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
 				if (empty($oApp->entry_rule)) {
-					$oApp->entry_rule = new \stdClass;
-					$oApp->entry_rule->scope = 'none';
+					$oApp->entryRule = $oApp->entry_rule = new \stdClass;
+					//$oApp->entry_rule->scope = 'none';
 				} else {
-					$oApp->entry_rule = json_decode($oApp->entry_rule);
+					$oApp->entryRule = $oApp->entry_rule = json_decode($oApp->entry_rule);
 				}
 			}
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
@@ -401,13 +401,13 @@ class enroll_model extends enroll_base {
 			return '';
 		}
 		$nickname = '';
-		$entryRule = $oApp->entry_rule;
-		if (isset($entryRule->anonymous) && $entryRule->anonymous === 'Y') {
+		$oEntryRule = $oApp->entry_rule;
+		if (isset($oEntryRule->anonymous) && $oEntryRule->anonymous === 'Y') {
 			/* 匿名访问 */
 			$nickname = '';
 		} else {
-			if (isset($entryRule->scope) && $entryRule->scope === 'member') {
-				foreach ($entryRule->member as $schemaId => $rule) {
+			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
+				foreach ($oEntryRule->member as $schemaId => $rule) {
 					$modelMem = $this->model('site\user\member');
 					if (empty($oUser->unionid)) {
 						$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
@@ -436,10 +436,10 @@ class enroll_model extends enroll_base {
 						}
 					}
 				}
-			} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
+			} else if (isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {
 				$modelAcnt = $this->model('site\user\account');
 				if ($siteUser = $modelAcnt->byId($oUser->uid)) {
-					foreach ($entryRule->sns as $snsName => $rule) {
+					foreach ($oEntryRule->sns as $snsName => $rule) {
 						if ($snsName === 'wx') {
 							$modelWx = $this->model('sns\wx');
 							if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
@@ -457,7 +457,7 @@ class enroll_model extends enroll_base {
 						}
 					}
 				}
-			} else if (empty($entryRule->scope) || $entryRule->scope === 'none' || $entryRule->scope === 'group') {
+			} else {
 				if (!empty($oApp->mission_id)) {
 					/* 从项目中获得用户昵称 */
 					$oMission = (object) ['id' => $oApp->mission_id];
@@ -508,7 +508,6 @@ class enroll_model extends enroll_base {
 			$oMisEntryRule = $oMission->entry_rule;
 		}
 		$appId = uniqid();
-		/* 使用指定模板，插入选择分组题 */
 
 		/* 进入规则 */
 		$oEntryRule = $oTemplateConfig->entryRule;
@@ -518,9 +517,6 @@ class enroll_model extends enroll_base {
 		} else if (isset($oMisEntryRule)) {
 			/* 项目的进入规则 */
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);
-		}
-		if (!isset($oEntryRule->scope)) {
-			$oEntryRule->scope = 'none';
 		}
 		$oNewApp->entry_rule = json_encode($oEntryRule);
 

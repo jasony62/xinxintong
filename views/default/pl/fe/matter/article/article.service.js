@@ -125,38 +125,6 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                 });
                 return defer.promise;
             },
-            choosePhase: function() {
-                var phaseId = edit.mission_phase_id,
-                    newPhase, updatedFields = ['mission_phase_id'],
-                    that = this;
-
-                // 去掉活动标题中现有的阶段后缀
-                edit.mission.phases.forEach(function(phase) {
-                    edit.title = edit.title.replace('-' + phase.title, '');
-                    if (phase.phase_id === phaseId) {
-                        newPhase = phase;
-                    }
-                });
-                if (newPhase) {
-                    // 给活动标题加上阶段后缀
-                    edit.title += '-' + newPhase.title;
-                    updatedFields.push('title');
-                    // 设置活动开始时间
-                    if (edit.start_at == 0) {
-                        edit.start_at = newPhase.start_at;
-                        updatedFields.push('start_at');
-                    }
-                    // 设置活动结束时间
-                    if (edit.end_at == 0) {
-                        edit.end_at = newPhase.end_at;
-                        updatedFields.push('end_at');
-                    }
-                } else {
-                    updatedFields.push('title');
-                }
-
-                that.update(updatedFields);
-            },
         };
     }];
 }).provider('srvCoin', function() {

@@ -1132,17 +1132,6 @@ class record extends \pl\fe\matter\base {
 					}
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
-				case 'phase':
-					$disposed = null;
-					foreach ($schema->ops as $op) {
-						if ($op->v === $v) {
-							$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $op->l);
-							$disposed = true;
-							break;
-						}
-					}
-					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $v);
-					break;
 				case 'multiple':
 					$labels = [];
 					$v = explode(',', $v);

@@ -20,12 +20,6 @@
                     </span>
                 </div>
             </div>
-            <div class='form-group' ng-if="editing.mission.multi_phase==='Y'">
-                <label>项目阶段</label>
-                <select class='form-control' ng-model="editing.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in editing.mission.phases">
-                    <option value=''>全部</option>
-                </select>
-            </div>
             <div class='form-group' ng-if="!editing.mission">
                 <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
             </div>

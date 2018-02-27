@@ -646,25 +646,6 @@ class enroll_model extends enroll_base {
 
 		$modelPage = $this->model('matter\enroll\page');
 		$modelCode = $this->model('code\page');
-
-		/* 包含项目阶段 */
-		if (isset($oTemplateConfig->schema_include_mission_phases) && $oTemplateConfig->schema_include_mission_phases === 'Y') {
-			if (!empty($oMissio->multi_phase) && $oMission->multi_phase === 'Y') {
-				$schemaPhase = new \stdClass;
-				$schemaPhase->id = 'phase';
-				$schemaPhase->title = '项目阶段';
-				$schemaPhase->type = 'phase';
-				$schemaPhase->ops = [];
-				$phases = $this->model('matter\mission\phase')->byMission($oMission->id);
-				foreach ($phases as $phase) {
-					$newOp = new \stdClass;
-					$newOp->l = $phase->title;
-					$newOp->v = $phase->phase_id;
-					$schemaPhase->ops[] = $newOp;
-				}
-				$oTemplateConfig->schema[] = $schemaPhase;
-			}
-		}
 		/**
 		 * 处理页面
 		 */
@@ -684,29 +665,6 @@ class enroll_model extends enroll_base {
 						$newPageSchema->config->id = 'V_' . $schema->id;
 					}
 					$page->data_schemas[] = $newPageSchema;
-				}
-			} else {
-				/* 自动添加项目阶段定义 */
-				if (isset($schemaPhase)) {
-					if ($page->type === 'I') {
-						$newPageSchema = new \stdClass;
-						$schemaPhaseConfig = new \stdClass;
-						$schemaPhaseConfig->component = 'R';
-						$schemaPhaseConfig->align = 'V';
-						$newPageSchema->schema = $schemaPhase;
-						$newPageSchema->config = $schemaPhaseConfig;
-						$page->data_schemas[] = $newPageSchema;
-					} else if ($page->type === 'V') {
-						$newPageSchema = new \stdClass;
-						$schemaPhaseConfig = new \stdClass;
-						$schemaPhaseConfig->id = 'V' . time();
-						$schemaPhaseConfig->pattern = 'record';
-						$schemaPhaseConfig->inline = 'Y';
-						$schemaPhaseConfig->splitLine = 'Y';
-						$newPageSchema->schema = $schemaPhase;
-						$newPageSchema->config = $schemaPhaseConfig;
-						$page->data_schemas[] = $newPageSchema;
-					}
 				}
 			}
 			$pageSchemas = [];

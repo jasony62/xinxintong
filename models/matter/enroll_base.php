@@ -208,19 +208,19 @@ abstract class enroll_base extends app_base {
 							/* 自动添加项目阶段定义 */
 							if ($oAppPage->type === 'I') {
 								$newPageSchema = new \stdClass;
-								$schemaPhaseConfig = new \stdClass;
-								$schemaPhaseConfig->showname = 'label';
+								$$oSchemaNameConfig = new \stdClass;
+								$$oSchemaNameConfig->showname = 'label';
 								$newPageSchema->schema = $oNameSchema;
-								$newPageSchema->config = $schemaPhaseConfig;
+								$newPageSchema->config = $$oSchemaNameConfig;
 								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 							} else if ($oAppPage->type === 'V') {
 								$newPageSchema = new \stdClass;
-								$schemaPhaseConfig = new \stdClass;
-								$schemaPhaseConfig->id = 'V' . time();
-								$schemaPhaseConfig->pattern = 'record';
-								$schemaPhaseConfig->splitLine = 'Y';
+								$$oSchemaNameConfig = new \stdClass;
+								$$oSchemaNameConfig->id = 'V' . time();
+								$$oSchemaNameConfig->pattern = 'record';
+								$$oSchemaNameConfig->splitLine = 'Y';
 								$newPageSchema->schema = $oNameSchema;
-								$newPageSchema->config = $schemaPhaseConfig;
+								$newPageSchema->config = $$oSchemaNameConfig;
 								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 							}
 						}
@@ -255,23 +255,22 @@ abstract class enroll_base extends app_base {
 		 */
 		foreach ($oTemplateConfig->pages as $oAppPage) {
 			if (!empty($oAppPage->data_schemas)) {
-				/* 自动添加项目阶段定义 */
 				if ($oAppPage->type === 'I') {
 					$newPageSchema = new \stdClass;
-					$schemaPhaseConfig = new \stdClass;
-					$schemaPhaseConfig->component = 'R';
-					$schemaPhaseConfig->align = 'V';
+					$oSchemaRoundConfig = new \stdClass;
+					$oSchemaRoundConfig->component = 'R';
+					$oSchemaRoundConfig->align = 'V';
 					$newPageSchema->schema = $oRoundSchema;
-					$newPageSchema->config = $schemaPhaseConfig;
+					$newPageSchema->config = $oSchemaRoundConfig;
 					array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 				} else if ($oAppPage->type === 'V') {
 					$newPageSchema = new \stdClass;
-					$schemaPhaseConfig = new \stdClass;
-					$schemaPhaseConfig->id = 'V' . time();
-					$schemaPhaseConfig->pattern = 'record';
-					$schemaPhaseConfig->splitLine = 'Y';
+					$oSchemaRoundConfig = new \stdClass;
+					$oSchemaRoundConfig->id = 'V' . time();
+					$oSchemaRoundConfig->pattern = 'record';
+					$oSchemaRoundConfig->splitLine = 'Y';
 					$newPageSchema->schema = $oRoundSchema;
-					$newPageSchema->config = $schemaPhaseConfig;
+					$newPageSchema->config = $oSchemaRoundConfig;
 					array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 				}
 			}
@@ -475,7 +474,6 @@ abstract class enroll_base extends app_base {
 
 		/* 设置更新的属性 */
 		$oUpdatedApp->mission_id = $oApp->mission_id = 0;
-		$oUpdatedApp->mission_phase_id = $oApp->mission_phase_id = '';
 		if ($bDataSchemasModified) {
 			$oUpdatedApp->data_schemas = $this->escape($this->toJson($aDataSchemas));
 		}if ($bEntryRuleModified) {

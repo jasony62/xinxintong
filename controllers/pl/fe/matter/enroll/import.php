@@ -174,7 +174,7 @@ class import extends \pl\fe\matter\base {
 						$schemaId = $schemaId[1];
 						$oRecData->member->{$schemaId} = $fileValue;
 					}
-				} else if (in_array($oSchema->type, ['single', 'phase'])) {
+				} else if (in_array($oSchema->type, ['single'])) {
 					foreach ($oSchema->ops as $op) {
 						if ($op->l === $fileValue) {
 							$oRecData->{$oSchema->id} = $op->v;

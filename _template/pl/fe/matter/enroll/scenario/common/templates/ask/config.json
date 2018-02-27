@@ -59,6 +59,5 @@
     },
     "count_limit": "0",
     "multi_rounds": "Y",
-    "enrolled_entry_page": "enroll",
-    "schema_include_mission_phases": "N"
+    "enrolled_entry_page": "enroll"
 }

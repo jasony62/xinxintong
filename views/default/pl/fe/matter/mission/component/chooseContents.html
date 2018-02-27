@@ -6,30 +6,25 @@
     <uib-tabset>
         <uib-tab index="0" heading="标识项">
             <div style='max-height:370px;overflow-y:auto'>
-                    <table class='table table-bordered'>
-                        <thead>
-                            <tr>
-                                <th style='width:46px'>操作</th>
-                                <th>题目</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat='schema in appMarkSchemas' class='record'>
-                                <td>
-                                    <input type='checkbox' ng-model="markRows.selected[schema.id]">
-                                </td>
-                                <td>{{schema.title}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th style='width:46px'>操作</th>
+                            <th>题目</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat='schema in appMarkSchemas' class='record'>
+                            <td>
+                                <input type='checkbox' ng-model="markRows.selected[schema.id]">
+                            </td>
+                            <td>{{schema.title}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </uib-tab>
         <uib-tab index="1" heading="选择活动">
-            <form class="form-inline">
-                <select class='form-control' ng-model="criteria.mission_phase_id" ng-options="phase.phase_id as phase.title for phase in phases" ng-change="doSearch()">
-                    <option value=''>所有阶段</option>
-                </select>
-            </form>
             <div style='max-height:420px;overflow-y:auto'>
                 <table class='table table-bordered'>
                     <thead>

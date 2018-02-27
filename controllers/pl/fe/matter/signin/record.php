@@ -86,13 +86,6 @@ class record extends \pl\fe\matter\base {
 
 		// 和签到在同一个项目阶段的报名
 		$criteria = new \stdClass;
-		if (!empty($signinApp->mission_phase_id)) {
-			if (!isset($criteria->data)) {
-				$criteria->data = new \stdClass;
-			}
-			$criteria->data->phase = $signinApp->mission_phase_id;
-		}
-
 		// 登记记录
 		$options = [];
 		$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id);
@@ -596,7 +589,6 @@ class record extends \pl\fe\matter\base {
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 				switch ($schema->type) {
 				case 'single':
-				case 'phase':
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
 							$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $op->l);

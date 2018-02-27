@@ -7,19 +7,19 @@
             <option></option>
         </select>
     </div>
-    <div class="radio" ng-if="['single','multiple','phase','image','file'].indexOf(activeWrap.schema.type)===-1">
+    <div class="radio" ng-if="['single','multiple','image','file'].indexOf(activeWrap.schema.type)===-1">
         <label>
             <input type='radio' value='placeholder' ng-model='activeWrap.config.showname' ng-change="updWrap(config,'showname')">输入框内</label>
         <label>
             <input type='radio' value='label' ng-model='activeWrap.config.showname' ng-change="updWrap(config,'showname')">输入框前</label>
     </div>
-    <div class="form-group" ng-if="['single','phase'].indexOf(activeWrap.schema.type)!==-1">
+    <div class="form-group" ng-if="['single'].indexOf(activeWrap.schema.type)!==-1">
         <label class="radio-inline">
             <input type='radio' name='component' value='R' ng-model='activeWrap.config.component' ng-change="updWrap(config,'component')">单选钮</label>
         <label class="radio-inline">
             <input type='radio' name='component' value='S' ng-model='activeWrap.config.component' ng-change="updWrap(config,'component')">下拉框</label>
     </div>
-    <div class="form-group" ng-if="(['single','phase'].indexOf(activeWrap.schema.type)!==-1&&activeWrap.config.component==='R')||activeWrap.schema.type==='multiple'">
+    <div class="form-group" ng-if="(['single'].indexOf(activeWrap.schema.type)!==-1&&activeWrap.config.component==='R')||activeWrap.schema.type==='multiple'">
         <label class="radio-inline">
             <input type='radio' name='align' value='V' ng-model='activeWrap.config.align' ng-change="updWrap(config,'align')">垂直</label>
         <label class="radio-inline">
@@ -32,11 +32,6 @@
         <button class="btn btn-default btn-sm" ng-click='addOption()'>添加</button>
         <ul class='list-group' style='margin-bottom:0;' ng-keyup="onKeyup($event)">
             <li class='list-group-item' ng-repeat='op in activeWrap.schema.ops' editable prop='l' obj='op'></li>
-        </ul>
-    </div>
-    <div class="form-group" ng-if="'phase'===activeWrap.schema.type">
-        <ul class='list-group' style='margin-bottom:0'>
-            <li class='list-group-item' ng-repeat='phase in app.mission.phases'>{{phase.title}}</li>
         </ul>
     </div>
 </div>

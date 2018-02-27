@@ -180,9 +180,6 @@ class signin_model extends enroll_base {
 			'xxt_signin',
 			"state<>0 and mission_id='$mission'",
 		];
-		if (!empty($aOptions['byPhase'])) {
-			$q[2] .= " and mission_phase_id = '" . $this->escape($aOptions['byPhase']) . "'";
-		}
 		if (!empty($aOptions['byTitle'])) {
 			$q[2] .= " and title like '%" . $this->escape($aOptions['byTitle']) . "%'";
 		}

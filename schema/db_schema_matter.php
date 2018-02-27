@@ -24,7 +24,6 @@ $sql .= ",author varchar(16) not null"; // 作者
 $sql .= ",pic text"; // head image.
 $sql .= ",thumbnail longtext null"; // 缩略图
 $sql .= ",mission_id int not null default 0"; // 所属项目
-$sql .= ",mission_phase_id varchar(13) not null default ''"; // 所属项目阶段
 $sql .= ",hide_pic char(1) not null default 'N'"; // hide head image in body of article.
 $sql .= ",can_picviewer char(1) not null default 'N'";
 $sql .= ",can_share char(1) not null default 'N'";
@@ -108,29 +107,6 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 文章发布过程日志
- */
-$sql = "create table if not exists xxt_article_review_log(";
-$sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null default ''";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",article_id int not null";
-$sql .= ",seq int not null";
-$sql .= ",mid varchar(32) not null";
-$sql .= ",disposer_name varchar(255) not null";
-$sql .= ",send_at int not null";
-$sql .= ",receive_at int not null default 0";
-$sql .= ",read_at int not null default 0";
-$sql .= ",close_at int not null default 0";
-$sql .= ",phase char(1) not null"; // Review|Typeset
-$sql .= ",state char(1) not null"; // Pending|Disposing|Forward|Close
-$sql .= ",remark text";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
  * 外部链接
  */
 $sql = "create table if not exists xxt_link(";
@@ -151,7 +127,6 @@ $sql .= ",title varchar(70) not null";
 $sql .= ",pic text";
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",mission_id int not null default 0"; // 所属项目
-$sql .= ",mission_phase_id varchar(13) not null default ''"; // 所属项目阶段
 $sql .= ",urlsrc int not null default '0' COMMENT 'url的来源，0：外部，1：多图文'";
 $sql .= ",url text";
 $sql .= ",method varchar(6) not null default 'GET'";
@@ -299,7 +274,6 @@ $sql .= ",title varchar(70) not null";
 $sql .= ",pic text null"; // head image.
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",mission_id int not null default 0"; // 所属项目
-$sql .= ",mission_phase_id varchar(13) not null default ''"; // 所属项目阶段
 $sql .= ",fixed_title varchar(70) not null default ''"; //代替第一个图文的标题作为频道的固定标题
 $sql .= ",matter_type varchar(20)"; // article,link
 $sql .= ",volume int not null default 5";

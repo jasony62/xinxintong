@@ -366,43 +366,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _this.update(['mission_id']);
                     });
                 },
-                choosePhase: function() {
-                    var _this = this,
-                        phaseId = _oApp.mission_phase_id,
-                        i, phase, newPhase;
-
-                    _oApp.mission.phases.forEach(function(phase) {
-                        _oApp.title = _oApp.title.replace('-' + phase.title, '');
-                        if (phase.phase_id === phaseId) {
-                            newPhase = phase;
-                        }
-                    });
-                    if (newPhase) {
-                        _oApp.title += '-' + newPhase.title;
-                    }
-                    _this.update(['mission_phase_id', 'title']).then(function() {
-                        /* 如果活动只有一个轮次，且没有指定过时间，用阶段的时间更新 */
-                        if (newPhase && _oApp.rounds.length === 1) {
-                            (function() {
-                                var round = _oApp.rounds[0],
-                                    url;
-                                if (round.start_at === '0' && round.end_at === '0') {
-                                    url = '/rest/pl/fe/matter/signin/round/update';
-                                    url += '?site=' + $scope.siteId;
-                                    url += '&app=' + $scope.id;
-                                    url += '&rid=' + round.rid;
-                                    http2.post(url, {
-                                        start_at: newPhase.start_at,
-                                        end_at: newPhase.end_at
-                                    }, function(rsp) {
-                                        round.start_at = newPhase.start_at;
-                                        round.end_at = newPhase.end_at;
-                                    });
-                                }
-                            })();
-                        }
-                    });
-                },
                 remove: function() {
                     var defer = $q.defer(),
                         url;
@@ -554,27 +517,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 timesOfDay: 2,
                                 overwrite: 'Y'
                             };
-                            if (app.mission && app.mission_phase_id) {
-                                (function() {
-                                    var i, phase;
-                                    for (i = app.mission.phases.length - 1; i >= 0; i--) {
-                                        phase = app.mission.phases[i];
-                                        if (app.mission_phase_id === phase.phase_id) {
-                                            params.start_at = phase.start_at;
-                                            params.end_at = phase.end_at;
-                                            break;
-                                        }
-                                    }
-                                })();
-                            } else {
-                                /*设置阶段的缺省起止时间*/
-                                (function() {
-                                    var nextDay = new Date();
-                                    nextDay.setTime(nextDay.getTime() + 86400000);
-                                    params.start_at = nextDay.setHours(0, 0, 0, 0) / 1000;
-                                    params.end_at = nextDay.setHours(23, 59, 59, 0) / 1000;
-                                })();
-                            }
+                            /*设置阶段的缺省起止时间*/
+                            (function() {
+                                var nextDay = new Date();
+                                nextDay.setTime(nextDay.getTime() + 86400000);
+                                params.start_at = nextDay.setHours(0, 0, 0, 0) / 1000;
+                                params.end_at = nextDay.setHours(23, 59, 59, 0) / 1000;
+                            })();
                             $scope2.params = params;
                             $scope2.cancel = function() {
                                 $mi.dismiss();

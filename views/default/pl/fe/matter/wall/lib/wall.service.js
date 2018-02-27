@@ -94,22 +94,6 @@ define(['require'], function(require) {
                         _this.update(['mission_id']);
                     });
                 },
-                choosePhase: function() {
-                    var _this = this,
-                        phaseId = _oWall.mission_phase_id,
-                        i, phase, newPhase;
-
-                    _oWall.mission.phases.forEach(function(phase) {
-                        _oWall.title = _oWall.title.replace('-' + phase.title, '');
-                        if (phase.phase_id === phaseId) {
-                            newPhase = phase;
-                        }
-                    });
-                    if (newPhase) {
-                        _oWall.title += '-' + newPhase.title;
-                    }
-                    _this.update(['mission_phase_id', 'title']);
-                }
             };
         }];
     });

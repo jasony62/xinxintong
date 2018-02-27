@@ -305,14 +305,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.newSchema = function(type) {
                 var newSchema, mission, oProto;
 
-                if (type === 'phase') {
-                    mission = $scope.app.mission;
-                    if (!mission || !mission.phases || mission.phases.length === 0) {
-                        alert(cstApp.alertMsg['require.mission.phase']);
-                        return;
-                    }
-                    oProto = { title: cstApp.naming.mission_phase };
-                }
                 newSchema = schemaLib.newSchema(type, $scope.app, oProto);
                 $scope._appendSchema(newSchema);
 
@@ -892,8 +884,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         }
                     });
-                } else if (oSchema.type === 'phase') {
-
                 }
             };
             $scope.recycleSchema = function(oSchema) {

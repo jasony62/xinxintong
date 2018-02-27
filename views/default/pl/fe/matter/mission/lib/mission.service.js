@@ -36,9 +36,7 @@ define(['require'], function(require) {
                             var oCriteria, oIncludeApps = {},
                                 oIncludeMarks = {};
                             $scope2.mission = oMission;
-                            $scope2.criteria = oCriteria = {
-                                mission_phase_id: ''
-                            };
+                            $scope2.criteria = oCriteria = {};
                             if (oReport.apps) {
                                 oReport.apps.forEach(function(oApp) {
                                     oIncludeApps[oApp.type + oApp.id] = true;
@@ -244,9 +242,7 @@ define(['require'], function(require) {
                         templateUrl: '/views/default/pl/fe/matter/mission/component/chooseApps.html?_=1',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                             var oCriteria, oReportConfig, oIncludeApps = {};
-                            $scope2.criteria = oCriteria = {
-                                mission_phase_id: ''
-                            };
+                            $scope2.criteria = oCriteria = {};
                             if (includeApps) {
                                 includeApps.forEach(function(oApp) {
                                     oIncludeApps[oApp.type + oApp.id] = true;

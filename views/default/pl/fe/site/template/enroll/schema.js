@@ -54,13 +54,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         $scope.newSchema = function(type) {
             var newSchema, mission;
 
-            if (type === 'phase') {
-                mission = $scope.app.mission;
-                if (!mission || !mission.phases || mission.phases.length === 0) {
-                    alert(cstApp.alertMsg['require.mission.phase']);
-                    return;
-                }
-            }
             newSchema = schemaLib.newSchema(type, $scope.app);
             _appendSchema(newSchema);
         };

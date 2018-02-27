@@ -3,9 +3,6 @@
         <div class='alert alert-info'>项目时间</div>
         <ul class='status-group'>
             <li class='status'><span ng-if="mission.start_at>0">项目开始时间：<span ng-bind="mission.start_at*1000|date:'yy-MM-dd'"></span></span><span ng-if="mission.start_at==0">未指定项目开始时间</span>，<span ng-if="mission.end_at>0">项目结束时间：<span ng-bind="mission.end_at*1000|date:'yy-MM-dd'"></span></span><span ng-if="mission.end_at==0">未指定项目结束时间</span></li>
-            <li class='status' ng-repeat="phase in mission.phases">
-                <span ng-bind="phase.title"></span> - <span ng-if="phase.start_at>0">开始时间：<span ng-bind="phase.start_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="phase.start_at==0">未指定开始时间</span>，<span ng-if="phase.end_at>0">结束时间：<span ng-bind="phase.end_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="phase.end_at==0">未指定结束时间</span>
-            </li>
         </ul>
     </div>
     <div class='aspect'>

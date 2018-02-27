@@ -82,7 +82,6 @@ class player extends \pl\fe\matter\base {
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 				switch ($schema->type) {
 				case 'single':
-				case 'phase':
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
 							$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $op->l);
@@ -371,7 +370,7 @@ class player extends \pl\fe\matter\base {
 		$dataSchemas = json_decode($objGrp->data_schemas);
 		$data = new \stdClass;
 		foreach ($dataSchemas as $ds) {
-			$data->{$ds->id} = isset($ds->format) ? $record->{$ds->format} : (isset($record->{$ds->id})? $record->{$ds->id} : '');
+			$data->{$ds->id} = isset($ds->format) ? $record->{$ds->format} : (isset($record->{$ds->id}) ? $record->{$ds->id} : '');
 		}
 
 		$record->data = $data;

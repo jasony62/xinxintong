@@ -23,7 +23,7 @@ $oSchema = $oWrap->schema;
     </label>
     <textarea style="height:auto;" ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" placeholder="<?php echo $oSchema->title;?>" class="form-control input-lg" rows="3"></textarea>
 </div>
-<?php } else if (in_array($oSchema->type,['single','phase'])) { ?>
+<?php } else if ($oSchema->type==='single') { ?>
 <div wrap="input" class="form-group form-group-lg" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
     <label>
         <?php echo $oSchema->title; ?>
@@ -34,7 +34,7 @@ $oSchema = $oWrap->schema;
             <label>
                 <input type="radio" name="<?php echo $oSchema->id;?>" value="<?php echo $op->v;?>" ng-model="data.<?php echo $oSchema->id;?>"><span><?php echo $op->l;?></span></label>
         </li>
-        <?php } //end single's and phase's ops foreach ?>
+        <?php } //end single's ops foreach ?>
     </ul>
 </div>
 <?php } else if ($oSchema->type === 'multiple') { ?>
@@ -48,7 +48,7 @@ $oSchema = $oWrap->schema;
             <label>
                 <input type="checkbox" name="<?php echo $oSchema->id;?>" ng-model="data.<?php echo $oSchema->id;?>.<?php echo $op->v;?>"><span><?php echo $op->l;?></span></label>
         </li>
-        <?php } //end single's and phase's ops foreach ?>
+        <?php } //end single's ops foreach ?>
     </ul>
 </div>
 <?php } else if ($oSchema->type==='score') {?>

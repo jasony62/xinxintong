@@ -26,12 +26,9 @@
             <ul class="nav nav-tabs nav-stacked">
                 <li ng-class="{'opened':opened==='rule'}">
                     <a href='' ng-click="opened=opened==='rule'?false:'rule';switchTo('main')">定义 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='rule'?'123px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='rule'?'82px':'0'}">
                         <li ng-class="{'active':subView==='main'}">
                             <a href='' ng-click="switchTo('main')">项目描述</a>
-                        </li>
-                        <li ng-class="{'active':subView==='phase'}">
-                            <a href='' ng-click="switchTo('phase')">{{CstNaming.mission.phase}}</a>
                         </li>
                         <li ng-class="{'active':subView==='coworker'}">
                             <a href='' ng-click="switchTo('coworker')">合作人</a>

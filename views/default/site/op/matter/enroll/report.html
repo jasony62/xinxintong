@@ -15,7 +15,7 @@
             <!--schemas-->
             <div ng-repeat="schema in rpSchemas">
                 <h3><span ng-bind="schema.title"></span></h3>
-                <div ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1">
+                <div ng-if="['single','multiple'].indexOf(schema.type)!==-1">
                     <div id="{{schema.id}}" style='height:300px'></div>
                     <table class='table table-bordered'>
                         <thead>
@@ -55,7 +55,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={schema:schema.id,at:1,size:10}">
+                <div ng-if="['single','multiple','score'].indexOf(schema.type)===-1" ng-init="page={schema:schema.id,at:1,size:10}">
                     <div id="{{schema.id}}" style='height:300px' ng-if="schema.number&&schema.number=='Y'"></div>
                     <table class='table table-bordered' ng-switch on="schema.type">
                         <thead>

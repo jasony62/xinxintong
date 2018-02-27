@@ -722,10 +722,10 @@ class record_model extends \matter\enroll\record_base {
 			$oUsers2[$oUser->id] = $oUser->userid;
 		}
 		$aAbsentUsrs = [];
-		if (isset($oApp->entry_rule->scope) && in_array($oApp->entry_rule->scope, ['member'])) {
-			if ($oApp->entry_rule->scope === 'member' && isset($oApp->entry_rule->member)) {
+		if (isset($oApp->entryRule->scope->member) && $oApp->entryRule->scope->member === 'Y') {
+			if ($oApp->entryRule->scope === 'member' && isset($oApp->entryRule->member)) {
 				$modelMem = $this->model('site\user\member');
-				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
+				foreach ($oApp->entryRule->member as $mschemaId => $rule) {
 					$members = $modelMem->byMschema($mschemaId);
 					foreach ($members as $oMember) {
 						if (false === in_array($oMember->userid, $oUsers2)) {

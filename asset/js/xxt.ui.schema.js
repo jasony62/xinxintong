@@ -196,6 +196,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
     };
     this.value2Html = function(oSchema, val) {
         if (!val || !oSchema) return '';
+
         if (oSchema.ops && oSchema.ops.length) {
             if (oSchema.type === 'score') {
                 var label = '';
@@ -283,17 +284,19 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                             var multitexts = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : [];
                             data[oSchema.id] = multitexts;
                             break;
-                        case 'member':
-                            data[oSchema.id] = _memberAttr(oRecord.data.member, oSchema);
-                            break;
                         case 'date':
                             data[oSchema.id] = oRecord.data[oSchema.id];
                             break;
                         default:
                             try {
-                                data[oSchema.id] = $sce.trustAsHtml(_that.value2Html(oSchema, oRecord.data[oSchema.id]));
+                                if (/^member\./.test(oSchema.id)) {
+                                    data[oSchema.id] = _memberAttr(oRecord.data.member, oSchema);
+                                } else {
+                                    var htmlVal = _that.value2Html(oSchema, oRecord.data[oSchema.id]);
+                                    data[oSchema.id] = $sce.trustAsHtml(htmlVal);
+                                }
                             } catch (e) {
-                                console.log(oSchema, oRecord.data[oSchema.id]);
+                                console.log(e, oSchema, oRecord.data[oSchema.id]);
                             }
                     }
                 };

@@ -6,7 +6,7 @@ ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
-ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $timeout, LS) {
+ngApp.factory('Input', ['http2', '$q', '$timeout', 'tmsLocation', function(http2, $q, $timeout, LS) {
     var Input, _ins;
     Input = function() {};
     Input.prototype.check = function(data, app, page) {
@@ -42,57 +42,22 @@ ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $ti
         return true;
     };
     Input.prototype.submit = function(data, ek) {
-        var defer, url, d, d2, posted;
-        defer = $q.defer();
+        var url, d, posted;
         posted = angular.copy(data);
         if (Object.keys && Object.keys(posted.member).length === 0) {
             delete posted.member;
         }
-        url = '/rest/site/fe/matter/signin/record/submit?site=' + LS.p.site + '&app=' + LS.p.app;
+        url = LS.j('record/submit', 'site', 'app');
         ek && ek.length && (url += '&ek=' + ek);
         for (var i in posted) {
             d = posted[i];
             if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
-                for (var j in d) {
-                    d2 = d[j];
+                d.forEach(function(d2) {
                     delete d2.imgSrc;
-                }
+                });
             }
         }
-        $http.post(url, posted).success(function(rsp) {
-            if (typeof rsp === 'string') {
-                defer.reject(rsp);
-            } else if (rsp.err_code != 0) {
-                defer.reject(rsp);
-            } else {
-                defer.resolve(rsp);
-            }
-        }).error(function(content, httpCode) {
-            if (httpCode === 401) {
-                var el = document.createElement('iframe');
-                el.setAttribute('id', 'frmPopup');
-                el.onload = function() {
-                    this.height = document.querySelector('body').clientHeight;
-                };
-                document.body.appendChild(el);
-                if (content.indexOf('http') === 0) {
-                    window.onAuthSuccess = function() {
-                        el.style.display = 'none';
-                    };
-                    el.setAttribute('src', content);
-                    el.style.display = 'block';
-                } else {
-                    if (el.contentDocument && el.contentDocument.body) {
-                        el.contentDocument.body.innerHTML = content;
-                        el.style.display = 'block';
-                    }
-                }
-                defer.notify({ code: httpCode, content: content });
-            } else {
-                defer.reject({ code: httpCode, content: content });
-            }
-        });
-        return defer.promise;
+        return http2.post(url, posted, { autoBreak: false });
     };
     return {
         ins: function() {
@@ -120,35 +85,12 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
             i = 0,
             j = 0,
             nextWxImage;
-        // if (window.wx !== undefined && modifiedImgFields.length) {
-        //     nextWxImage = function() {
-        //         var imgField, img;
-        //         imgField = data[modifiedImgFields[i]];
-        //         img = imgField[j];
-        //         window.xxt.image.wxUpload($q.defer(), img).then(function(data) {
-        //             if (j < imgField.length - 1) {
-        //                 /* next img*/
-        //                 j++;
-        //                 nextWxImage();
-        //             } else if (i < modifiedImgFields.length - 1) {
-        //                 /* next field*/
-        //                 j = 0;
-        //                 i++;
-        //                 nextWxImage();
-        //             } else {
-        //                 defer.resolve('ok');
-        //             }
-        //         });
-        //     };
-        //     nextWxImage();
-        // } else {
         defer.resolve('ok');
-        //}
         return defer.promise;
     };
     return {
         restrict: 'A',
-        controller: ['$scope', '$timeout', function($scope, $timeout) {
+        controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
             $scope.beforeSubmit(function() {
                 return onSubmit($scope.data);
             });
@@ -157,7 +99,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                     modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
                     $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
                     if (count !== null && $scope.data[imgFieldName].length === count) {
-                        $scope.$parent.errmsg = '最多允许上传' + count + '张图片';
+                        noticebox.warn('最多允许上传' + count + '张图片');
                         return;
                     }
                 }
@@ -202,7 +144,7 @@ ngApp.directive('tmsFileInput', ['$q', function($q) {
     var r, onSubmit;
     //require(['resumable'], function(Resumable) {
     r = new Resumable({
-        target: '/rest/site/fe/matter/signin/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.app,
+        target: '/rest/site/fe/matter/signin/record/uploadFile?site=' + LS.s().site + '&aid=' + LS.s().app,
         testChunks: false,
         chunkSize: 512 * 1024
     });
@@ -273,7 +215,7 @@ ngApp.directive('tmsFileInput', ['$q', function($q) {
         }]
     }
 }]);
-ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'ls', function($scope, $http, Input, LS) {
+ngApp.controller('ctrlSignin', ['$scope', 'Input', 'tmsLocation', 'noticebox', function($scope, Input, LS, noticebox) {
     function doSubmit(nextAction) {
         var ek, btnSubmit;
         ek = $scope.record ? $scope.record.enroll_key : undefined;
@@ -284,22 +226,22 @@ ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'ls', function($scop
                 url += '&page=' + rsp.data.forword;
                 url += '&ek=' + rsp.data.ek;
                 location.replace(url);
-                $scope.$parent.errmsg = '完成提交';
+                noticebox.success('完成提交');
             } else if (nextAction === 'closeWindow') {
                 $scope.closeWindow();
             } else if (nextAction === '_autoForward') {
                 // 根据指定的进入规则自动跳转到对应页面
                 url = LS.j('', 'site', 'app');
                 location.replace(url);
-                $scope.$parent.errmsg = '完成提交';
+                noticebox.success('完成提交');
             } else if (nextAction && nextAction.length) {
                 url = LS.j('', 'site', 'app');
                 url += '&page=' + nextAction;
                 url += '&ek=' + rsp.data.ek;
                 location.replace(url);
-                $scope.$parent.errmsg = '完成提交';
+                noticebox.success('完成提交');
             } else {
-                $scope.$parent.errmsg = '完成提交';
+                noticebox.success('完成提交');
                 if (ek === undefined) {
                     $scope.record = {
                         enroll_key: rsp.data.ek
@@ -308,18 +250,8 @@ ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'ls', function($scop
                 $scope.$broadcast('xxt.app.signin.submit.done', rsp.data);
             }
         }, function(rsp) {
-            if (rsp && typeof rsp === 'string') {
-                $scope.$parent.errmsg = rsp;
-                return;
-            }
-            if (rsp && rsp.err_msg) {
-                $scope.$parent.errmsg = rsp.err_msg;
-                submitState.finish();
-                return;
-            }
-            $scope.$parent.errmsg = '网络异常，提交失败';
             submitState.finish();
-        }, function(rsp) {});
+        });
     }
 
     function doTask(seq, nextAction) {
@@ -358,7 +290,7 @@ ngApp.controller('ctrlSignin', ['$scope', '$http', 'Input', 'ls', function($scop
                 tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
             } else {
                 submitState.finish();
-                $scope.$parent.errmsg = sCheckResult;
+                noticebox.warn(sCheckResult);
             }
         }
     };

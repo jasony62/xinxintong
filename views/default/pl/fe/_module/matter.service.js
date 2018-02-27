@@ -261,7 +261,8 @@ provider('srvSite', function() {
                                 schemasById[oSchema.id] = oSchema;
                                 mschemas.push({
                                     id: 'name',
-                                    title: '姓名'
+                                    title: '姓名',
+                                    type: 'address'
                                 });
                             }
                             if (!ms.attrs.mobile.hide) {
@@ -275,7 +276,8 @@ provider('srvSite', function() {
                                 schemasById[oSchema.id] = oSchema;
                                 mschemas.push({
                                     id: 'mobile',
-                                    title: '手机'
+                                    title: '手机',
+                                    type: 'address'
                                 });
                             }
                             if (!ms.attrs.email.hide) {
@@ -289,9 +291,11 @@ provider('srvSite', function() {
                                 schemasById[oSchema.id] = oSchema;
                                 mschemas.push({
                                     id: 'email',
-                                    title: '邮箱'
+                                    title: '邮箱',
+                                    type: 'address'
                                 });
                             }
+<<<<<<< HEAD
                             if(ms.extattrs) {
                                 ms.extAttrs.forEach(function(ea) {
                                     var oSchema;
@@ -303,6 +307,18 @@ provider('srvSite', function() {
                                         id: oSchema.id,
                                         title: oSchema.title
                                     });
+=======
+                            ms.extAttrs.forEach(function(ea) {
+                                var oSchema;
+                                oSchema = angular.copy(ea);
+                                oSchema.id = 'member.extattr.' + oSchema.id;
+                                schemas.push(oSchema);
+                                schemasById[oSchema.id] = oSchema;
+                                mschemas.push({
+                                    id: oSchema.id,
+                                    title: oSchema.title,
+                                    type: 'address'
+>>>>>>> master
                                 });
                             }
                             ms._schemas = schemas;

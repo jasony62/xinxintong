@@ -153,7 +153,7 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 计算指定登记项的得分
 	 */
-	public function score4Schema_action($site, $app, $rid = '', $gid = '') {
+	public function score4Schema_action($app, $rid = '', $gid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -172,6 +172,55 @@ class record extends \pl\fe\matter\base {
 		$result = $modelRec->score4Schema($enrollApp, $rid, $gid);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 *
+	 */
+	public function renewScore_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$schemasById = []; // 方便获取登记项定义
+		foreach ($oApp->dataSchemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
+
+		$modelRecData = $this->model('matter\enroll\data');
+		$renewCount = 0;
+		$q = ['id,enroll_key,data,score', 'xxt_enroll_record', ['aid' => $oApp->id]];
+		$records = $modelApp->query_objs_ss($q);
+		foreach ($records as $oRecord) {
+			$dbData = json_decode($oRecord->data);
+			/* 题目的得分 */
+			$oRecordScore = $modelRecData->socreRecordData($oApp, $oRecord, $schemasById, $dbData);
+			if ($modelApp->update('xxt_enroll_record', ['score' => json_encode($oRecordScore)], ['id' => $oRecord->id])) {
+				unset($oRecordScore->sum);
+				foreach ($oRecordScore as $schemaId => $dataScore) {
+					$modelApp->update(
+						'xxt_enroll_record_data',
+						['score' => $dataScore],
+						['enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId]
+					);
+				}
+				$renewCount++;
+			}
+		}
+
+		$modelUsr = $this->model('matter\enroll\user');
+		$aUpdatedResult = $modelUsr->renew($oApp);
+
+		// 记录操作日志
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');
+
+		return new \ResponseData($renewCount);
 	}
 	/**
 	 * 已删除的活动登记名单
@@ -957,7 +1006,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 是否需要分组信息
-		$bRequireGroup = empty($oApp->group_app_id) && $oApp->entry_rule->scope === 'group' && !empty($oApp->entry_rule->group->id);
+		$bRequireGroup = empty($oApp->group_app_id) && isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id);
 
 		$records = $oResult->records;
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';

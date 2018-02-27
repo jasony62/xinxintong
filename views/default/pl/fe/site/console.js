@@ -70,7 +70,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             case 'signin':
             case 'group':
             case 'lottery':
-            case 'contribute':
             case 'link':
             case 'merchant':
             case 'wall':
@@ -135,7 +134,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 case 'group':
                 case 'wall':
                 case 'lottery':
-                case 'contribute':
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
                     break;
                 default:
@@ -303,11 +301,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     $scope.addLottery = function() {
         http2.get('/rest/pl/fe/matter/lottery/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/lottery?site=' + $scope.siteId + '&id=' + rsp.data;
-        });
-    };
-    $scope.addContribute = function() {
-        http2.get('/rest/pl/fe/matter/contribute/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/contribute?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addMission = function() {

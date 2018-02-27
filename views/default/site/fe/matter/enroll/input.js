@@ -419,17 +419,22 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         /* 自动填充用户通信录数据 */
         ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
         /* 用户已经登记过或保存过，恢复之前的数据 */
-        http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {
-            var oRecord;
-            oRecord = rsp.data;
-            ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
-            $scope.record = oRecord;
-            if (oRecord.data_tag) {
-                $scope.tag = oRecord.data_tag;
-            }
+        if (LS.s().newRecord !== 'Y') {
+            http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {
+                var oRecord;
+                oRecord = rsp.data;
+                ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
+                $scope.record = oRecord;
+                if (oRecord.data_tag) {
+                    $scope.tag = oRecord.data_tag;
+                }
+                /*设置页面分享信息*/
+                $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
+            });
+        } else {
             /*设置页面分享信息*/
-            $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
-        });
+            $scope.setSnsShare(false, { 'newRecord': LS.s().newRecord });
+        }
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {

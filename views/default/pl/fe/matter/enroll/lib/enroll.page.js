@@ -215,13 +215,9 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
         };
         $scope.enrolleeList = function() {
             var enrolleeWrap;
-            if ($scope.app.entry_rule.scope == 'member') {
-                enrolleeWrap = editorProxy.appendEnrollee($scope.app, $scope.memberSchemas);
-            } else {
-                enrolleeWrap = editorProxy.appendEnrollee($scope.app);
-            }
+            enrolleeWrap = editorProxy.appendEnrollee($scope.app);
             $scope.setActiveWrap(enrolleeWrap);
-        }
+        };
         $scope.removeActiveWrap = function() {
             var activeWrap = $scope.activeWrap,
                 wrapType = activeWrap.type,
@@ -666,7 +662,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             title: '所属分组',
             type: 'enrollee'
         }];
-        if ($scope.app.entry_rule.scope == 'sns') {
+        if ($scope.app.entryRule.scope.sns == 'Y') {
             $scope.mschemas = [{
                 id: 'nickname',
                 title: '昵称',

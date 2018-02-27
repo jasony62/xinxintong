@@ -88,14 +88,12 @@ class record_model extends record_base {
 		if (empty($submitData)) {
 			return [true];
 		}
-		// 登记记录
+		// 数据对应的登记记录
 		$oRecord = $this->byId($ek);
 		if (false === $oRecord) {
 			return [false, '指定的对象不存在'];
 		}
-		/*new*/
 		$oResult = $this->model('matter\enroll\data')->setData($oUser, $oApp, $oRecord, $submitData, $submitkey);
-		/*new*/
 		/* 更新在登记记录上记录数据 */
 		$oRecordUpdated = new \stdClass;
 		$oRecordUpdated->data = $this->escape($this->toJson($oResult->dbData));
@@ -712,36 +710,39 @@ class record_model extends record_base {
 						$oRec->supplement = $supplement;
 					}
 				}
-
-				$data = str_replace("\n", ' ', $oRec->data);
-				$data = json_decode($data);
-				if ($data === null) {
-					$oRec->data = 'json error(' . json_last_error_msg() . '):' . $oRec->data;
-				} else {
-					$oRec->data = $data;
-					/* 处理提交数据后分组的问题 */
-					if (!empty($oRec->group_id) && !isset($oRec->data->_round_id)) {
-						$oRec->data->_round_id = $oRec->group_id;
-					}
-					/* 处理提交数据后指定昵称题的问题 */
-					if ($oRec->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
-						if (isset($oApp->assignedNickname->schema->id)) {
-							$nicknameSchemaId = $oApp->assignedNickname->schema->id;
-							if (0 === strpos($nicknameSchemaId, 'member.')) {
-								$nicknameSchemaId = explode('.', $nicknameSchemaId);
-								if (!isset($oRec->data->member)) {
-									$oRec->data->member = new \stdClass;
-								}
-								if (!isset($oRec->data->member->{$nicknameSchemaId[1]})) {
-									$oRec->data->member->{$nicknameSchemaId[1]} = $oRec->nickname;
-								}
-							} else {
-								if (!isset($oRec->data->{$nicknameSchemaId})) {
-									$oRec->data->{$nicknameSchemaId} = $oRec->nickname;
+				if (!empty($oRec->data)) {
+					$data = str_replace("\n", ' ', $oRec->data);
+					$data = json_decode($data);
+					if ($data === null) {
+						$oRec->data = 'json error(' . json_last_error_msg() . '):' . $oRec->data;
+					} else {
+						$oRec->data = $data;
+						/* 处理提交数据后分组的问题 */
+						if (!empty($oRec->group_id) && !isset($oRec->data->_round_id)) {
+							$oRec->data->_round_id = $oRec->group_id;
+						}
+						/* 处理提交数据后指定昵称题的问题 */
+						if ($oRec->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
+							if (isset($oApp->assignedNickname->schema->id)) {
+								$nicknameSchemaId = $oApp->assignedNickname->schema->id;
+								if (0 === strpos($nicknameSchemaId, 'member.')) {
+									$nicknameSchemaId = explode('.', $nicknameSchemaId);
+									if (!isset($oRec->data->member)) {
+										$oRec->data->member = new \stdClass;
+									}
+									if (!isset($oRec->data->member->{$nicknameSchemaId[1]})) {
+										$oRec->data->member->{$nicknameSchemaId[1]} = $oRec->nickname;
+									}
+								} else {
+									if (!isset($oRec->data->{$nicknameSchemaId})) {
+										$oRec->data->{$nicknameSchemaId} = $oRec->nickname;
+									}
 								}
 							}
 						}
 					}
+				} else {
+					$oRec->data = new \stdClass;
 				}
 				// 记录的分组
 				if (!empty($oRec->group_id)) {

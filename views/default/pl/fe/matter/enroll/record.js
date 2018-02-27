@@ -119,6 +119,11 @@ define(['frame'], function(ngApp) {
         $scope.exportImage = function() {
             srvEnrollRecord.exportImage();
         };
+        $scope.renewScore = function() {
+            srvEnrollApp.renewScore().then(function() {
+                $scope.doSearch(1);
+            });
+        };
         $scope.importByOther = function() {
             srvEnrollRecord.importByOther().then(function() {
                 $scope.rows.reset();
@@ -189,7 +194,7 @@ define(['frame'], function(ngApp) {
 
             $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
             if (!oApp.group_app_id) {
-                $scope.bRequireGroup = oApp.entry_rule.scope === 'group' && oApp.entry_rule.group && oApp.entry_rule.group.id;
+                $scope.bRequireGroup = oApp.entryRule.scope.group === 'Y' && oApp.entryRule.group && oApp.entryRule.group.id;
             }
             $scope.bRequireSum = bRequireSum;
             $scope.bRequireScore = bRequireScore;

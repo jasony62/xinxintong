@@ -520,7 +520,7 @@ define(['wrap'], function(wrapLib) {
 
             return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
         },
-        appendEnrollee: function(oApp, oMschema) {
+        appendEnrollee: function(oApp) {
             var dataWrap, wrapParam;
             dataWrap = {
                 config: {
@@ -536,26 +536,24 @@ define(['wrap'], function(wrapLib) {
                     type: 'enrollee'
                 }]
             };
-            switch (oApp.entry_rule.scope) {
-                case 'member':
-                    dataWrap.schemas.push({
-                        id: 'schema_title',
-                        title: '所属通讯录',
-                        type: 'address'
-                    })
-                    dataWrap.config.mschemaId = '';
-                    break;
-                case 'sns':
-                    dataWrap.schemas.push({
-                        id: 'nickname',
-                        title: '昵称',
-                        type: 'sns'
-                    }, {
-                        id: 'headimgurl',
-                        title: '头像',
-                        type: 'sns'
-                    });
-                    break;
+            if (oApp.entryRule.scope.member === 'Y') {
+                dataWrap.schemas.push({
+                    id: 'schema_title',
+                    title: '所属通讯录',
+                    type: 'address'
+                })
+                dataWrap.config.mschemaId = '';
+            }
+            if (oApp.entryRule.scope.sns === 'Y') {
+                dataWrap.schemas.push({
+                    id: 'nickname',
+                    title: '昵称',
+                    type: 'sns'
+                }, {
+                    id: 'headimgurl',
+                    title: '头像',
+                    type: 'sns'
+                });
             }
             _page.data_schemas.push(dataWrap);
             wrapParam = wrapLib.records.embed(dataWrap);

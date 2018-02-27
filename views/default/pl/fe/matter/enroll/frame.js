@@ -177,6 +177,8 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
         });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
+            $scope.snsNames = Object.keys(oSns);
+            $scope.snsCount = Object.keys(oSns).length;
             srvEnrollApp.get().then(function(oApp) {
                 var tagById = {};
                 oApp.dataTags.forEach(function(tag) {

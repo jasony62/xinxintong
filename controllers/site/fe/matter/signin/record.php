@@ -87,11 +87,11 @@ class record extends base {
 			$modelMatchRec = $this->model('matter\group\player');
 			$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
 			if (empty($groupRecords)) {
-				return new \ParameterError('未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
+				return new \ParameterError('未在分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
 			}
 			/* 如果匹配的分组数据不唯一，怎么办？ */
 			if (count($groupRecords) > 1) {
-				return new \ParameterError('在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
+				return new \ParameterError('在分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
 			}
 			$oGroupRecord = $groupRecords[0];
 			/* 如果分组数据中未包含用户信息，更新用户信息 */
@@ -164,8 +164,8 @@ class record extends base {
 						);
 						$oSignState->verified = 'Y';
 						// 返回指定的验证成功页
-						if (isset($oSigninApp->entry_rule->success->entry)) {
-							$oSignState->forword = $oSigninApp->entry_rule->success->entry;
+						if (isset($oSigninApp->entryRule->success->entry)) {
+							$oSignState->forword = $oSigninApp->entryRule->success->entry;
 						}
 						/* 如果登记数据中未包含用户信息，更新用户信息 */
 						if (empty($oEnrollRecord->userid)) {
@@ -189,8 +189,8 @@ class record extends base {
 						"enroll_key='{$oSignState->ek}'"
 					);
 					$oSignState->verified = 'N';
-					if (isset($oSigninApp->entry_rule->fail->entry)) {
-						$oSignState->forword = $oSigninApp->entry_rule->fail->entry;
+					if (isset($oSigninApp->entryRule->fail->entry)) {
+						$oSignState->forword = $oSigninApp->entryRule->fail->entry;
 					}
 				}
 			}

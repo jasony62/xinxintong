@@ -315,33 +315,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     return defer.promise;
                 },
-                resetEntryRule: function() {
-                    http2.get('/rest/pl/fe/matter/signin/entryRuleReset?site=' + siteId + '&app=' + appId, function(rsp) {
-                        _oApp.entry_rule = rsp.data;
-                    });
-                },
-                changeUserScope: function(ruleScope, sns, memberSchemas, defaultInputPage) {
-                    var entryRule = _oApp.entry_rule;
-                    entryRule.scope = ruleScope;
-                    switch (ruleScope) {
-                        case 'member':
-                            entryRule.member === undefined && (entryRule.member = {});
-                            entryRule.other === undefined && (entryRule.other = {});
-                            entryRule.other.entry = '$memberschema';
-                            break;
-                        case 'sns':
-                            entryRule.sns === undefined && (entryRule.sns = {});
-                            entryRule.other === undefined && (entryRule.other = {});
-                            entryRule.other.entry = '$mpfollow';
-                            Object.keys(sns).forEach(function(snsName) {
-                                entryRule.sns[snsName] = {
-                                    entry: defaultInputPage ? defaultInputPage.name : ''
-                                };
-                            });
-                            break;
-                        default:
-                    }
-                    this.update('entry_rule');
+                changeUserScope: function(ruleScope, sns) {
+                    this.update('entryRule');
                 },
                 assignMission: function() {
                     var _this = this;

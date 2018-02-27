@@ -83,13 +83,6 @@
             </div>
         </div>
     </div>
-    <div class='panel panel-default'>
-        <div class='panel-body'>
-            <div class='form-group'>
-                <memberacl site-id='{{editing.siteid}}' obj='editing' prop-access='access_control' update-access-control="update('access_control')" prop-member-schemas='authapis' update-member-schemas="update('authapis')" prop-acl='acl' change-acl-url='/rest/pl/fe/matter/article/setAcl?site={{editing.siteid}}&id={{editing.id}}' remove-acl-url='/rest/pl/fe/matter/article/removeAcl?site={{editing.siteid}}'></memberacl>
-            </div>
-        </div>
-    </div>
     <div class='panel panel-default' ng-if="editing.entry">
         <div class='panel-body'>
             <div class='form-group'>

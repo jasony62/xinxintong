@@ -56,18 +56,19 @@ class remark extends base {
 	 */
 	public function add_action($ek, $schema = '', $data, $remark = 0) {
 		if (empty($data)) {
-			return new \ResponseError('参数错误：未指定被评论内容ID');
+			return new \ResponseError('未指定被评论内容ID');
 		}
 		$recDataId = $this->escape($data);
 
 		$modelRec = $this->model('matter\enroll\record');
 		$oRecord = $modelRec->byId($ek);
-		if (false === $oRecord) {
+		if (false === $oRecord && $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		/* 操作规则 */

@@ -6,7 +6,6 @@ die('danger');
 include_once dirname(__FILE__) . '/db_schema_account.php';
 include_once dirname(__FILE__) . '/db_schema_code.php';
 include_once dirname(__FILE__) . '/db_schema_coin.php';
-include_once dirname(__FILE__) . '/db_schema_contribute.php';
 include_once dirname(__FILE__) . '/db_schema_enroll.php';
 include_once dirname(__FILE__) . '/db_schema_invite.php';
 include_once dirname(__FILE__) . '/db_schema_log.php';

@@ -43,8 +43,7 @@ class record extends base {
 		}
 
 		$modelEnl = $this->model('matter\enroll');
-		$modelRnd = $this->model('matter\enroll\round');
-		$modelEnlRec = $this->model('matter\enroll\record');
+		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
 		if (false === ($oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
@@ -53,26 +52,20 @@ class record extends base {
 
 		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
 
-		// 判断活动是否添加了轮次
-		if (empty($rid)) {
-			if ($oEnrollApp->multi_rounds === 'Y') {
-				$oActiveRnd = $modelRnd->getActive($oEnrollApp);
-				if (empty($oActiveRnd)) {
-					return new \ResponseError('没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用');
-				} else {
-					$now = time();
-					if ($oActiveRnd->end_at != 0 && $oActiveRnd->end_at < $now) {
-						return new \ResponseError('活动轮次【' . $oActiveRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！');
-					}
-				}
-				$rid = $oActiveRnd->rid;
+		if (!$bSubmitNewRecord) {
+			$oBeforeRecord = $modelRec->byId($ek, ['state' => '1']);
+			if (false === $oBeforeRecord) {
+				return new \ObjectNotFoundError('指定的记录不存在');
 			}
-		} else {
-			$oActiveRnd = $modelRnd->byId($rid);
-			if (empty($oActiveRnd)) {
-				return new \ResponseError('指定的轮次不存在！');
-			}
+			$rid = $oBeforeRecord->rid;
 		}
+
+		// 提交轮次
+		$aResult = $this->_getSubmitRecordRid($oEnrollApp, $rid);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
+		$rid = $aResult[1];
 
 		// 提交的数据
 		$posted = $this->getPostJson();
@@ -148,7 +141,7 @@ class record extends base {
 			foreach ($dataSchemas as $oSchema) {
 				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
 					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->enroll_app_id) {
-						$requireCheckedData->{$oSchema->id} = $modelEnlRec->getValueBySchema($oSchema, $oEnrolledData);
+						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnrolledData);
 					}
 				}
 			}
@@ -198,7 +191,7 @@ class record extends base {
 			foreach ($dataSchemas as $oSchema) {
 				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
 					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->group_app_id) {
-						$requireCheckedData->{$oSchema->id} = $modelEnlRec->getValueBySchema($oSchema, $oEnrolledData);
+						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnrolledData);
 					}
 				}
 			}
@@ -239,7 +232,6 @@ class record extends base {
 		 * 提交登记数据
 		 */
 		$oUpdatedEnrollRec = [];
-		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 		if ($bSubmitNewRecord) {
 			/* 插入登记数据 */
 			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname, 'assignRid' => $rid]);
@@ -451,6 +443,35 @@ class record extends base {
 		}
 
 		return new \ResponseData($ek);
+	}
+	/**
+	 * 返回当前轮次或者检查指定轮次是否有效
+	 */
+	private function _getSubmitRecordRid($oApp, $rid = '') {
+		$modelRnd = $this->model('matter\enroll\round');
+		$bRequireRound = false;
+		if (empty($rid)) {
+			if ($oApp->multi_rounds === 'Y') {
+				$bRequireRound = true;
+				$oRecordRnd = $modelRnd->getActive($oApp);
+			}
+		} else {
+			$bRequireRound = true;
+			$oRecordRnd = $modelRnd->byId($rid);
+		}
+		if ($bRequireRound) {
+			if (empty($oRecordRnd)) {
+				return [false, '没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用'];
+			} else {
+				$now = time();
+				if ($oRecordRnd->end_at != 0 && $oRecordRnd->end_at < $now) {
+					return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
+				}
+			}
+			return [true, $oRecordRnd->rid];
+		}
+
+		return [true, ''];
 	}
 	/**
 	 * 记录用户提交日志
@@ -1067,18 +1088,18 @@ class record extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		if (empty($oApp->entry_rule->group->id)) {
+		if (empty($oApp->entryRule->group->id)) {
 			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
 		}
 
 		$modelGrpUsr = $this->model('matter\group\player');
 		/* 当前用户所属分组及角色 */
-		$oGrpLeader = $modelGrpUsr->byUser($oApp->entry_rule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || $oGrpLeader->is_leader !== 'Y') {
 			return new \ParameterError('只有允许组长进行推荐');
 		}
 		/* 填写记录用户所属分组 */
-		$oGrpMemb = $modelGrpUsr->byUser($oApp->entry_rule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+		$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
 		if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
 			return new \ParameterError('只允许组长推荐本组数据');
 		}

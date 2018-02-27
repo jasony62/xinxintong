@@ -16,6 +16,12 @@ define(['frame'], function(ngApp) {
 
         var _oMission, _aDefaultActions;
         _aDefaultActions = [{
+            data: { act: 'site.matter.plan.read', matter_type: 'plan' },
+            desc: '用户A打开计划活动页面',
+        },{
+            data: { act: 'site.matter.plan.submit', matter_type: 'plan' },
+            desc: '用户A完成某项任务',
+        },{
             data: { act: 'site.matter.enroll.read', matter_type: 'enroll' },
             desc: '用户A打开登记活动页面',
         }, {

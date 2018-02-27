@@ -185,7 +185,7 @@ class task_model extends \TMS_MODEL {
 		$oNewTask->born_at = $bornAt;
 		$oNewTask->patch_at = $bDelayed ? $current : 0;
 		$oNewTask->userid = $oUser->uid;
-		$oNewTask->group_id = '';
+		$oNewTask->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
 		$oNewTask->nickname = $oUser->nickname;
 		$oNewTask->first_enroll_at = 0;
 		$oNewTask->last_enroll_at = 0;
@@ -241,15 +241,81 @@ class task_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byApp($oApp, $aOptions = []) {
+	public function byApp($oApp, $aOptions = [], $oCriteria = null) {
 		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
 		$q = [
 			$fields,
 			'xxt_plan_task',
-			['aid' => $oApp->id, 'state' => 1],
+			"aid = '{$oApp->id}' and state = 1",
 		];
-		$q2 = ['o' => 'first_enroll_at desc'];
 
+		if (!empty($oCriteria->byComment)) {
+			$q[2] .= " and comment like '%" . $this->escape($oCriteria->byComment) . "%'";
+		}
+		if (!empty($oCriteria->byTaskSchema)) {
+			$q[2] .= " and task_schema_id = " . $this->escape($oCriteria->byTaskSchema);
+		}
+		if (!empty($oCriteria->record->verified)) {
+			$q[2] .= " and verified = '" . $this->escape($oCriteria->record->verified) . "'";
+		}
+		if (isset($oCriteria->data)) {
+			$oAppSchemasById = new \stdClass;
+			foreach ($oApp->checkSchemas as $oSchema) {
+				$oAppSchemasById->{$oSchema->id} = $oSchema;
+			}
+
+			$where = '';
+			foreach ($oCriteria->data as $k => $v) {
+				if (!empty($v) && isset($oAppSchemasById->{$k})) {
+					$oAppSchema = $oAppSchemasById->{$k};
+					$where .= ' and (';
+					if ($oAppSchema->type === 'multiple') {
+						// 选项ID是否互斥，不存在，例如：v1和v11
+						$bOpExclusive = true;
+						$strOpVals = '';
+						foreach ($oAppSchema->ops as $op) {
+							$strOpVals .= ',' . $op->v;
+						}
+						foreach ($oAppSchema->ops as $op) {
+							if (false !== strpos($strOpVals, $op->v)) {
+								$bOpExclusive = false;
+								break;
+							}
+						}
+						// 拼写sql
+						$v2 = explode(',', $v);
+						foreach ($v2 as $index => $v2v) {
+							if ($index > 0) {
+								$where .= ' and ';
+							}
+							// 获得和题目匹配的子字符串
+							$dataBySchema = 'substr(substr(data,locate(\'"' . $k . '":"\',data)),1,locate(\'"\',substr(data,locate(\'"' . $k . '":"\',data)),' . (strlen($k) + 5) . '))';
+							$where .= '(';
+							if ($bOpExclusive) {
+								$where .= $dataBySchema . ' like \'%' . $v2v . '%\'';
+							} else {
+								$where .= $dataBySchema . ' like \'%"' . $v2v . '"%\'';
+								$where .= ' or ' . $dataBySchema . ' like \'%"' . $v2v . ',%\'';
+								$where .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . ',%\'';
+								$where .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . '"%\'';
+							}
+							$where .= ')';
+						}
+					} else {
+						$where .= 'data like \'%"' . $k . '":"' . $v . '%\'';
+					}
+					$where .= ')';
+				}
+			}
+			$q[2] .= $where;
+		}
+
+		$q2 = ['o' => 'first_enroll_at desc'];
+		if (isset($aOptions['paging'])) {
+			$q2['r'] = [];
+			$q2['r']['o'] = ($aOptions['paging']['page'] - 1) * $aOptions['paging']['size'];
+			$q2['r']['l'] = $aOptions['paging']['size'];
+		}
 		$tasks = $this->query_objs_ss($q, $q2);
 		if (count($tasks)) {
 			$modelSchAct = $this->model('matter\plan\schema\action');
@@ -258,6 +324,15 @@ class task_model extends \TMS_MODEL {
 				/* 行动项 */
 				if (isset($oTask->task_schema_id)) {
 					$oTask->actions = $modelSchAct->byTask($oTask->task_schema_id, $aActOptions);
+					/* 获取对应的任务名称 */
+					if (!isset($tskSchmTitle)) {
+						$taskSchemas = $this->model('matter\plan\schema\task')->byApp($oApp->id, ['fields' => 'id,title']);
+						$tskSchmTitle = new \stdClass;
+						foreach ($taskSchemas as $taskSchema) {
+							$tskSchmTitle->{$taskSchema->id} = $taskSchema->title;
+						}
+					}
+					$oTask->taskSchemaTitle = $tskSchmTitle->{$oTask->task_schema_id};
 				}
 				/* 处理数据 */
 				if (!empty($oTask->data)) {
@@ -274,7 +349,9 @@ class task_model extends \TMS_MODEL {
 
 		$result = new \stdClass;
 		$result->tasks = $tasks;
-		$result->total = count($tasks);
+		$q[0] = 'count(id)';
+		$total = (int) $this->query_val_ss($q);
+		$result->total = $total;
 
 		return $result;
 	}
@@ -322,5 +399,329 @@ class task_model extends \TMS_MODEL {
 		}
 
 		return $startAt;
+	}
+	/*
+	*
+	*/
+	public function listSchema($oApp, $checkSchmId, $taskSchmId = '', $actSchmId = '', $options = []) {
+		$checkSchmId = $this->escape($checkSchmId);
+		foreach ($oApp->checkSchemas as $oSchema) {
+			if ($oSchema->id === $checkSchmId) {
+				$oDataSchema = $oSchema;
+				break;
+			}
+		}
+		if (!isset($oDataSchema)) {
+			return false;
+		}
+
+		if (strpos($checkSchmId, 'member.') === 0) {
+			$checkSchmId = 'member';
+		}
+
+		if ($options) {
+			is_array($options) && $options = (object) $options;
+			if (isset($options->paging)) {
+				$page = isset($options->paging['page']) ? $options->paging['page'] : null;
+				$size = isset($options->paging['size']) ? $options->paging['size'] : null;
+			}
+		}
+
+		$result = new \stdClass; // 返回的结果
+		$result->records = [];
+		$result->total = 0;
+
+		// 查询参数
+		$q = [
+			'task_id,value',
+			"xxt_plan_task_action",
+			"state=1 and aid='{$oApp->id}' and check_schema_id='{$checkSchmId}' and value<>''",
+		];
+		if ($oDataSchema->type === 'date') {
+
+		}
+		/* 指定用户 */
+		if (!empty($options->owner)) {
+			$q[2] .= " and userid='" . $options->owner . "'";
+		}
+		/* 指定任务和行动项 */
+		if (!empty($taskSchmId) && !empty($actSchmId)) {
+			$q[2] .= " and task_schema_id = '{$taskSchmId}' and action_schema_id = '{$actSchmId}'";
+		}
+
+		$q2 = [];
+		// 查询结果分页
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
+
+		$recordsBySchema = [];
+		// 处理获得的数据
+		if ($records = $this->query_objs_ss($q, $q2)) {
+			//如果是数值型计算合计值
+			if (isset($oDataSchema->number) && $oDataSchema->number === 'Y') {
+				$p = [
+					'sum(value)',
+					'xxt_enroll_record_data',
+					['aid' => $oApp->id, 'check_schema_id' => $checkSchmId, 'state' => 1],
+				];
+				if (!empty($taskSchmId) && !empty($actSchmId)) {
+					$q[2] .= " and task_schema_id = '{$taskSchmId}' and action_schema_id = '{$actSchmId}'";
+				}
+
+				$sum = (int) $this->query_val_ss($p);
+				$result->sum = $sum;
+			}
+			/* 补充记录标识 */
+			if (!isset($oApp->rpConfig) || empty($oApp->rpConfig->marks)) {
+				$defaultMark = new \stdClass;
+				$defaultMark->id = 'nickname';
+				$defaultMark->name = 'nickname';
+				$marks = [$defaultMark];
+			} else {
+				$marks = $oApp->rpConfig->marks;
+			}
+			foreach ($records as &$record) {
+				$rec = $this->byId($record->task_id, ['fields' => 'id,aid,task_schema_id,task_seq,nickname,data,last_enroll_at']);
+				if (empty($actSchmId)) {
+					$rec->data = reset($rec->data);
+				} else {
+					$rec->data = $rec->data->$actSchmId;
+				}
+				$record->task = $rec;
+			}
+			$result->records = $records;
+		}
+
+		// 符合条件的数据总数
+		$q[0] = 'count(*)';
+		$total = (int) $this->query_val_ss($q, $q2);
+		$result->total = $total;
+
+		return $result;
+	}
+	/**
+	 * 统计选择题、记分题汇总信息
+	 */
+	public function &getStat($appIdOrObj, $taskSchmId, $actSchmId, $renewCache = 'Y') {
+		if (is_string($appIdOrObj)) {
+			$oApp = $this->model('matter\plan')->byId($appIdOrObj);
+		} else {
+			$oApp = $appIdOrObj;
+		}
+
+		$current = time();
+		if ($renewCache === 'Y') {
+			/* 上一次保留统计结果的时间，每条记录的时间都一样 */
+			$q = [
+				'create_at',
+				'xxt_plan_task_stat',
+				['aid' => $oApp->id],
+			];
+			if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
+				$q[2]['task_schema_id'] = $taskSchmId;
+				$q[2]['action_schema_id'] = $actSchmId;
+			} else {
+				$q[2]['task_schema_id'] = 0;
+				$q[2]['action_schema_id'] = 0;
+			}
+
+			$q2 = ['r' => ['o' => 0, 'l' => 1]];
+			$last = $this->query_objs_ss($q, $q2);
+			/* 上次统计后的新登记记录数 */
+			if (count($last) === 1) {
+				$last = $last[0];
+				$q = [
+					'count(id)',
+					'xxt_plan_task_action',
+					"aid='$oApp->id' and state=1 and enroll_at>={$last->create_at}",
+				];
+				if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0  && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0) {
+					$q[2] .= " and task_schema_id = $taskSchmId";
+					$q[2] .= " and action_schema_id = $actSchmId";
+				}
+				$q2['g'] = 'userid';
+
+				$newCnt = (int) $this->query_val_ss($q, $q2);
+			} else {
+				$newCnt = 999;
+			}
+			// 如果更新的登记数据，重新计算统计结果
+			if ($newCnt > 0) {
+				$result = $this->_calcStat($oApp,$taskSchmId, $actSchmId);
+				// 保存统计结果
+				$this->delete(
+					'xxt_plan_task_stat',
+					['aid' => $oApp->id]
+				);
+				if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
+					$q[2]['task_schema_id'] = $taskSchmId;
+					$q[2]['action_schema_id'] = $actSchmId;
+				} else {
+					$q[2]['task_schema_id'] = 0;
+					$q[2]['action_schema_id'] = 0;
+				}
+				foreach ($result as $id => $oDataBySchema) {
+					foreach ($oDataBySchema->ops as $op) {
+						$r = [
+							'siteid' => $oApp->siteid,
+							'aid' => $oApp->id,
+							'create_at' => $current,
+							'id' => $id,
+							'title' => $oDataBySchema->title,
+							'v' => $op->v,
+							'l' => $op->l,
+							'c' => $op->c
+						];
+						if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
+							$r['task_schema_id'] = $taskSchmId;
+							$r['action_schema_id'] = $actSchmId;
+						} else {
+							$r['task_schema_id'] = 0;
+							$r['action_schema_id'] = 0;
+						}
+						$this->insert('xxt_plan_task_stat', $r);
+					}
+				}
+			} else {
+				/* 从缓存中获取统计数据 */
+				$result = [];
+				$q = [
+					'id,title,v,l,c',
+					'xxt_plan_task_stat',
+					['aid' => $oApp->id],
+				];
+				if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
+					$q[2]['task_schema_id'] = $taskSchmId;
+					$q[2]['action_schema_id'] = $actSchmId;
+				} else {
+					$q[2]['task_schema_id'] = 0;
+					$q[2]['action_schema_id'] = 0;
+				}
+				$aCached = $this->query_objs_ss($q);
+				foreach ($aCached as $oDataByOp) {
+					if (empty($result[$oDataByOp->id])) {
+						$oDataBySchema = (object) [
+							'id' => $oDataByOp->id,
+							'title' => $oDataByOp->title,
+							'ops' => [],
+							'sum' => 0,
+						];
+						$result[$oDataByOp->id] = $oDataBySchema;
+					} else {
+						$oDataBySchema = $result[$oDataByOp->id];
+					}
+					$op = (object) [
+						'v' => $oDataByOp->v,
+						'l' => $oDataByOp->l,
+						'c' => $oDataByOp->c,
+					];
+					$oDataBySchema->ops[] = $op;
+					$oDataBySchema->sum += $op->c;
+				}
+			}
+		} else {
+			$result = $this->_calcStat($oApp,$taskSchmId, $actSchmId);
+		}
+
+		return $result;
+	}
+	/**
+	 * 统计选择题、记分题汇总信息
+	 */
+	private function &_calcStat($oApp,$taskSchmId = '', $actSchmId = '') {
+		$result = [];
+
+		$checkSchemas = $oApp->checkSchemas;
+		foreach ($checkSchemas as $oSchema) {
+			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score', 'multitext'])) {
+				continue;
+			}
+			$result[$oSchema->id] = $oDataBySchema = (object) [
+				'title' => isset($oSchema->title) ? $oSchema->title : '',
+				'id' => $oSchema->id,
+				'ops' => [],
+			];
+			$oDataBySchema->sum = 0;
+			if (in_array($oSchema->type, ['single', 'phase'])) {
+				foreach ($oSchema->ops as $op) {
+					/**
+					 * 获取数据
+					 */
+					$q = [
+						'count(*)',
+						'xxt_plan_task_action',
+						['aid' => $oApp->id, 'state' => 1, 'check_schema_id' => $oSchema->id, 'value' => $op->v],
+					];
+					if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
+						$q[2]['task_schema_id'] = $taskSchmId;
+						$q[2]['action_schema_id'] = $actSchmId;
+					}
+					$op->c = (int) $this->query_val_ss($q);
+					$oDataBySchema->ops[] = $op;
+					$oDataBySchema->sum += $op->c;
+				}
+			} else if ($oSchema->type === 'multiple') {
+				foreach ($oSchema->ops as $op) {
+					/**
+					 * 获取数据
+					 */
+					$q = [
+						'count(*)',
+						'xxt_plan_task_action',
+						"aid='$oApp->id' and state=1 and check_schema_id='{$oSchema->id}' and FIND_IN_SET('{$op->v}', value)",
+					];
+					if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
+						$q[2] .= " and task_schema_id = $taskSchmId";
+						$q[2] .= " and action_schema_id = $actSchmId";
+					}
+					$op->c = (int) $this->query_val_ss($q);
+					$oDataBySchema->ops[] = $op;
+					$oDataBySchema->sum += $op->c;
+				}
+			} else if ($oSchema->type === 'score') {
+				$scoreByOp = [];
+				foreach ($oSchema->ops as &$op) {
+					$op->c = 0;
+					$oDataBySchema->ops[] = $op;
+					$scoreByOp[$op->v] = $op;
+				}
+				// 计算总分数
+				$q = [
+					'value',
+					'xxt_plan_task_action',
+					['aid' => $oApp->id, 'state' => 1, 'check_schema_id' => $oSchema->id],
+				];
+				if (!empty($taskSchmId) && strcasecmp($taskSchmId, 'all') != 0 && !empty($actSchmId) && strcasecmp($actSchmId, 'all') != 0 ) {
+					$q[2]['task_schema_id'] = $taskSchmId;
+					$q[2]['action_schema_id'] = $actSchmId;
+				}
+
+				$values = $this->query_objs_ss($q);
+				foreach ($values as $oValue) {
+					if (!empty($oValue->value)) {
+						$oValue = json_decode($oValue->value);
+						if (!empty($oValue) && is_object($oValue)) {
+							foreach ($oValue as $opKey => $opValue) {
+								if (isset($scoreByOp[$opKey]->c)) {
+									$scoreByOp[$opKey]->c += (int) $opValue;
+								}
+							}
+						}
+					}
+				}
+				// 计算平均分
+				if ($rowNumber = count($values)) {
+					foreach ($oSchema->ops as &$op) {
+						$op->c = $op->c / $rowNumber;
+					}
+				} else {
+					$op->c = 0;
+				}
+				$oDataBySchema->sum += $op->c;
+			}
+		}
+
+		return $result;
 	}
 }

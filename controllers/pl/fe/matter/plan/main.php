@@ -40,13 +40,15 @@ class main extends \pl\fe\matter\main_base {
 		if ($oApp->mission_id) {
 			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id);
 		}
+		/*包含的所有任务*/
+		$oApp->taskSchemas = $this->model('matter\plan\schema\task')->byApp($oApp->id, ['fields' => 'id,title']);
 		/* 指定分组活动访问 */
 		$oEntryRule = $oApp->entryRule;
 		if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
 			if (isset($oEntryRule->group)) {
 				$oRuleApp = $oEntryRule->group;
 				if (!empty($oRuleApp->id)) {
-					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'N']);
+					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'Y']);
 					if ($oGroupApp) {
 						$oRuleApp->title = $oGroupApp->title;
 						if (!empty($oRuleApp->round->id)) {
@@ -55,6 +57,8 @@ class main extends \pl\fe\matter\main_base {
 								$oRuleApp->round->title = $oGroupRnd->title;
 							}
 						}
+						$oApp->groupApp = $oGroupApp;
+						$oApp->oRuleApp = $oRuleApp;
 					}
 				}
 			}
@@ -246,13 +250,16 @@ class main extends \pl\fe\matter\main_base {
 			case 'checkSchemas':
 				$oUpdated->check_schemas = $modelApp->escape($modelApp->toJson($v));
 				break;
+			case 'rpConfig':
+				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($v));
+				break;
 			default:
 				$oUpdated->{$n} = $v;
 			}
 		}
 
 		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
-			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U');
+			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'U');
 		}
 
 		return new \ResponseData($oApp);

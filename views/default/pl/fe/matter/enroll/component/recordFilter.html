@@ -1,3 +1,8 @@
+<style>
+#recordFilter ul {
+    padding-left: 0;
+}
+</style>
 <div class="modal-header">
     <button class="close" type="button" ng-click="cancel()">×</button>
     <h5 class="modal-title">筛选条件</h5>
@@ -46,7 +51,7 @@
             <ul uib-pagination boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
         </div>
     </div>
-    <div class="form-group" ng-repeat="schema in schemas">
+    <div class="form-group" ng-repeat="schema in schemas" id="recordFilter">
         <label>{{schema.title}}</label>
         <div>
             <input type='text' class='form-control' ng-if="['shorttext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">

@@ -1,7 +1,14 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlUser', ['$scope', 'http2', 'srvPlanApp', '$uibModal', function($scope, http2, srvPlanApp, $uibModal) {
-        var _oApp, _assocMschemas;
+        var _oApp, _assocMschemas, _oPage;
+        $scope.page = _oPage = {
+            at: 1,
+            size: 30,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        }
         $scope.addUser = function() {
             $uibModal.open({
                 templateUrl: 'addUser.html',
@@ -134,8 +141,9 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.doSearch = function() {
-            http2.get('/rest/pl/fe/matter/plan/user/list?app=' + _oApp.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/plan/user/list?app=' + _oApp.id + _oPage.j(), function(rsp) {
                 $scope.users = rsp.data.users;
+                $scope.page.total = rsp.data.total;
             });
         };
         srvPlanApp.get().then(function(oApp) {

@@ -295,18 +295,19 @@ provider('srvSite', function() {
                                     type: 'address'
                                 });
                             }
-                            ms.extAttrs.forEach(function(ea) {
-                                var oSchema;
-                                oSchema = angular.copy(ea);
-                                oSchema.id = 'member.extattr.' + oSchema.id;
-                                schemas.push(oSchema);
-                                schemasById[oSchema.id] = oSchema;
-                                mschemas.push({
-                                    id: oSchema.id,
-                                    title: oSchema.title,
-                                    type: 'address'
+                            if (ms.extattrs) {
+                                ms.extAttrs.forEach(function(ea) {
+                                    var oSchema;
+                                    oSchema = angular.copy(ea);
+                                    oSchema.id = 'member.extattr.' + oSchema.id;
+                                    schemas.push(oSchema);
+                                    schemasById[oSchema.id] = oSchema;
+                                    mschemas.push({
+                                        id: oSchema.id,
+                                        title: oSchema.title
+                                    });
                                 });
-                            });
+                            }
                             ms._schemas = schemas;
                             ms._schemasById = schemasById;
                             ms._mschemas = mschemas;

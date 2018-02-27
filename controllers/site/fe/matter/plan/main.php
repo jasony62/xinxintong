@@ -10,7 +10,6 @@ class main extends base {
 	 *
 	 */
 	public function get_action($app) {
-		$app = $this->escape($app);
 		$modelApp = $this->model('matter\plan');
 
 		$oApp = $modelApp->byId($app, ['fields' => 'id,state,siteid,mission_id,title,summary,pic,check_schemas,jump_delayed']);

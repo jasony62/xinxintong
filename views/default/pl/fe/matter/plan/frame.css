@@ -45,6 +45,10 @@
 #schema-view .schema .description img{max-width:100%;}
 #schema-view .schema.active{border-left:4px solid red;margin-left:-3px;}
 
+/* task-list */
+#enrollRecords table img{max-width:96px;}
+#enrollRecords th{text-align:center;}
+
 /*task-detail-view*/
 #task-detail-view ul{padding-left:0}
 #task-detail-view ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}

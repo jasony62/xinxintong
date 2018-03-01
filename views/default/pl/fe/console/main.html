@@ -22,7 +22,7 @@
                 <thead>
                     <tr>
                         <th style='width:48px'>序号</th>
-                        <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
+                        <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
                         <th style='width:74px'>报名活动</th>
                         <th style='width:74px'>签到活动</th>
                         <th style='width:74px'>分组活动</th>
@@ -99,7 +99,7 @@
                     <tr>
                         <th style='width:48px'>序号</th>
                         <th ng-if="criteria.matter.type==='enroll'" style='width:90px'>场景</th>
-                        <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
+                        <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
                         <th ng-if="criteria.matter.type==='signin'" style='width:80px'>签到轮次</th>
                         <th ng-if="criteria.matter.type==='enroll'||criteria.matter.type==='signin'" style='width:64px'>记录数</th>
                         <th ng-if="criteria.matter.type==='enroll'" style='width:64px'>填写人</th>
@@ -194,7 +194,7 @@
                 <thead>
                     <tr>
                         <th style='width:48px'>序号</th>
-                        <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
+                        <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:48px'>星标</th>
@@ -261,9 +261,9 @@
                                 <th style='width:48px'>序号</th>
                                 <th style='width:120px'>填写日期</th>
                                 <th style='width:80px'>通过审核</th>
-                                <th ng-if='!mschema.attrs.name.hide' data-filter-by='name' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
-                                <th ng-if='!mschema.attrs.mobile.hide' data-filter-by='mobile' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">手机 <i class='glyphicon glyphicon-filter'></i></th>
-                                <th ng-if='!mschema.attrs.email.hide' data-filter-by='email' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">邮箱 <i class='glyphicon glyphicon-filter'></i></th>
+                                <th ng-if='!mschema.attrs.name.hide' data-filter-by='name' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
+                                <th ng-if='!mschema.attrs.mobile.hide' data-filter-by='mobile' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">手机 <i class='glyphicon glyphicon-filter'></i></th>
+                                <th ng-if='!mschema.attrs.email.hide' data-filter-by='email' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">邮箱 <i class='glyphicon glyphicon-filter'></i></th>
                                 <th ng-repeat='ea in mschema.extAttrs'>{{ea.title}}</th>
                                 <th style='width:48px'>操作</th>
                             </tr>
@@ -304,7 +304,7 @@
                     <thead>
                         <tr>
                             <th style='width:48px'>序号</th>
-                            <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
+                            <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-trigger="'show'" popover-append-to-body="true"  ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
                             <th style='width:120px'>创建时间</th>
                             <th style='width:120px'>最近访问时间</th>
                             <th style='width:60px'>已注册</th>
@@ -343,7 +343,7 @@
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
-                            <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
+                            <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
                             <th style='width:420px'>创建日期</th>
                         </tr>
                     </thead>
@@ -369,7 +369,7 @@
                 <thead>
                     <tr>
                         <th style='width:48px'>序号</th>
-                        <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
+                        <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
                         <th style='width:140px'>操作人</th>
                         <th style='width:120px'>操作时间</th>
                         <th style='width:48px'>操作</th>

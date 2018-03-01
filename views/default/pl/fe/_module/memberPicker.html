@@ -1,0 +1,53 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()">×</button>
+    <h5 class="modal-title">选择用户</h5>
+</div>
+<div class="modal-body">
+    <div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:28px'></th>
+                    <th style='width:120px'>填写日期</th>
+                    <th style='width:80px'>通过审核</th>
+                    <th ng-if='!mschema.attrs.name.hide'>姓名</th>
+                    <th ng-if='!mschema.attrs.mobile.hide'>手机</th>
+                    <th ng-if='!mschema.attrs.email.hide'>邮箱</th>
+                    <th ng-repeat='ea in mschema.extAttrs'>{{ea.title}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='m in members'>
+                    <td>
+                        <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                    </td>
+                    <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                    <td>{{m.verified==='Y'?'是':(m.verified==='N'?'否':'待定')}}</td>
+                    <td ng-if='!mschema.attrs.name.hide'>{{m.name}}</td>
+                    <td ng-if="!mschema.attrs.mobile.hide">{{m.mobile}}</td>
+                    <td ng-if="!mschema.attrs.email.hide">{{m.email}}</td>
+                    <td ng-repeat='ea in mschema.extAttrs' ng-switch on="ea.type">
+                        <div ng-switch-when="date">
+                            <span ng-if="m._extattr[ea.id]">{{m._extattr[ea.id]*1000|date:'yy-MM-dd HH:mm'}}</span>
+                        </div>
+                        <div ng-switch-when="image">
+                            <div ng-repeat="img in m._extattr[ea.id]"><img ng-src="{{img.imgSrc}}"></div>
+                        </div>
+                        <div ng-switch-default>{{m._extattr[ea.id]}}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='form-group'>
+            <div class='pl-pagination'>
+                <span>总数：{{page.total}}</span>
+                <ul uib-pagination class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    <button class="btn btn-success" ng-click="execute()">{{action.label}}({{rows.count}})</button>
+    <button class="btn btn-success" ng-click="execute(true)">{{action.label}}({{rows.count}})后关闭</button>
+</div>

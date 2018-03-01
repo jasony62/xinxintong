@@ -31,9 +31,6 @@ class matter extends \pl\fe\matter\base {
 
 		$oCriteria = $this->getPostJson();
 		$aOptions = [];
-		if (isset($oCriteria->mission_phase_id) && !empty($oCriteria->mission_phase_id) && strcasecmp($oCriteria->mission_phase_id, 'all') !== 0) {
-			$aOptions['byPhase'] = $oCriteria->mission_phase_id;
-		}
 		if (!empty($oCriteria->byTitle)) {
 			$aOptions['byTitle'] = $oCriteria->byTitle;
 		}
@@ -101,7 +98,7 @@ class matter extends \pl\fe\matter\base {
 
 		$modelMis->addMatter($oUser, $site, $id, $app);
 
-		$mission = $modelMis->byId($id, ['cascaded' => 'phase']);
+		$mission = $modelMis->byId($id);
 
 		return new \ResponseData($mission);
 	}

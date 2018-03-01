@@ -10,21 +10,6 @@ define(['frame'], function(ngApp) {
             $scope.app[data.state] = data.value;
             $scope.update(data.state);
         });
-        $scope.choosePhase = function() {
-            var phaseId = $scope.app.mission_phase_id,
-                i, phase, newPhase;
-            for (i = $scope.app.mission.phases.length - 1; i >= 0; i--) {
-                phase = $scope.app.mission.phases[i];
-                $scope.app.title = $scope.app.title.replace('-' + phase.title, '');
-                if (phase.phase_id === phaseId) {
-                    newPhase = phase;
-                }
-            }
-            if (newPhase) {
-                $scope.app.title += '-' + newPhase.title;
-            }
-            $scope.update(['mission_phase_id', 'title']);
-        };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
                 http2.get('/rest/pl/fe/matter/group/remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {

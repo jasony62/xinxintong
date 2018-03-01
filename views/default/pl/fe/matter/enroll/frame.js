@@ -37,10 +37,9 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             url: '/rest/pl/fe/matter'
         }],
         alertMsg: {
-            'schema.duplicated': '不允许重复添加登记项',
-            'require.mission.phase': '请先指定项目的阶段'
+            'schema.duplicated': '不允许重复添加登记项'
         },
-        naming: { 'mission_phase': '项目阶段' }
+        naming: {}
     });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', 'srvEnrollSchemaProvider', 'srvEnrollLogProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider, srvEnrollSchemaProvider, srvEnrollLogProvider) {
         var RouteParam = function(name) {

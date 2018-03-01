@@ -9,7 +9,7 @@ define(['frame'], function(ngApp) {
         })();
         $scope.$parent.subView = 'detail';
         $scope.matterTypes = cstApp.matterTypes;
-        $scope.tagMatter = function(subType){
+        $scope.tagMatter = function(subType) {
             var oTags;
             oTags = $scope.oTag;
             srvTag._tagMatter($scope.wall, oTags, subType);
@@ -27,7 +27,7 @@ define(['frame'], function(ngApp) {
             vcode = prompt('如果此信息墙中没有用户，删除后不可恢复！若要继续请输入信息墙名称');
             if (vcode === $scope.wall.title) {
                 http2.get('/rest/pl/fe/matter/wall/remove?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, function(rsp) {
-                   location.href = '/rest/pl/fe';
+                    location.href = '/rest/pl/fe';
                 });
             }
         };
@@ -45,7 +45,7 @@ define(['frame'], function(ngApp) {
             $scope.update('pic');
         };
         $scope.setQrcode = function() {
-            if($scope.wall.matters_img && $scope.wall.matters_img.length >= 3) {
+            if ($scope.wall.matters_img && $scope.wall.matters_img.length >= 3) {
                 alert("最多允许上传3张二维码");
                 return;
             }
@@ -61,7 +61,7 @@ define(['frame'], function(ngApp) {
             mediagallery.open($scope.siteId, options);
         }
         $scope.setImage = function() {
-            if($scope.wall.result_img && $scope.wall.result_img.length >= 4) {
+            if ($scope.wall.result_img && $scope.wall.result_img.length >= 4) {
                 alert("最多允许上传4张图片");
                 return;
             }
@@ -77,11 +77,11 @@ define(['frame'], function(ngApp) {
             mediagallery.open($scope.siteId, options);
         }
         $scope.removeQrcode = function(qrcodeimgs, index) {
-            qrcodeimgs.splice(index,1);
+            qrcodeimgs.splice(index, 1);
             $scope.update('matters_img');
         }
         $scope.removeImage = function(qrcodeimgs, index) {
-            qrcodeimgs.splice(index,1);
+            qrcodeimgs.splice(index, 1);
             $scope.update('result_img');
         }
         $scope.assignMission = function() {
@@ -89,9 +89,6 @@ define(['frame'], function(ngApp) {
         };
         $scope.quitMission = function() {
             srvWallApp.quitMission();
-        };
-        $scope.choosePhase = function() {
-            srvWallApp.choosePhase();
         };
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="' + $scope.wall.title + '.png"></a>')[0].click();

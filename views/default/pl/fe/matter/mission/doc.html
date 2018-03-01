@@ -6,19 +6,13 @@
                     <option value=''>全部类型</option>
                     <option ng-repeat="mt in unionMatterTypes" value="{{mt.name}}">{{mt.label}}</option>
                 </select>
-                <div class='form-group' ng-if="mission.phases.length">
-                    <select class="form-control" ng-model="criteria.pid" ng-change="list()">
-                        <option value="ALL">全部{{cstApp.naming.phase}}</option>
-                        <option value="{{phs.phase_id}}" ng-repeat="phs in mission.phases">{{phs.title}}</option>
-                    </select>
-                </div>
                 <button ng-if="unionType" class='btn btn-default' ng-click="addMatter(unionType)"><i class='glyphicon glyphicon-plus'></i> <span>新建{{cstApp.matterNames.doc[unionType]}}</span></button>
                 <div ng-if="!unionType" class="btn-group" uib-dropdown>
                     <button class="btn btn-default" uib-dropdown-toggle>
                         <i class='glyphicon glyphicon-plus'></i> 新建 <span class="caret"></span>
                     </button>
                     <ul class='dropdown-menu' uib-dropdown-menu>
-                       <li ng-repeat="mt in unionMatterTypes"><a href='' ng-click="addMatter(mt.name)">{{mt.label}}</a></li>
+                        <li ng-repeat="mt in unionMatterTypes"><a href='' ng-click="addMatter(mt.name)">{{mt.label}}</a></li>
                     </ul>
                 </div>
             </div>

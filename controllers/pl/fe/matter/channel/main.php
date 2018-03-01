@@ -31,7 +31,7 @@ class main extends \pl\fe\matter\main_base {
 			$oChannel->entryUrl = $modelChn->getEntryUrl($site, $id);
 			/* 所属项目 */
 			if ($oChannel->mission_id) {
-				$oChannel->mission = $this->model('matter\mission')->byId($oChannel->mission_id, ['cascaded' => 'phase']);
+				$oChannel->mission = $this->model('matter\mission')->byId($oChannel->mission_id);
 			}
 			!empty($oChannel->matter_mg_tag) && $oChannel->matter_mg_tag = json_decode($oChannel->matter_mg_tag);
 

@@ -22,7 +22,6 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         };
         $routeProvider
             .when('/rest/pl/fe/matter/mission/main', new RouteParam('main'))
-            .when('/rest/pl/fe/matter/mission/phase', new RouteParam('phase'))
             .when('/rest/pl/fe/matter/mission/entry', new RouteParam('entry'))
             .when('/rest/pl/fe/matter/mission/coworker', new RouteParam('coworker'))
             .when('/rest/pl/fe/matter/mission/app', new RouteParam('app'))
@@ -84,7 +83,6 @@ define(['missionService', 'enrollService', 'signinService'], function() {
             $scope.subView = subView[1] === 'mission' ? 'main' : subView[1];
             switch ($scope.subView) {
                 case 'main':
-                case 'phase':
                 case 'coworker':
                     $scope.opened = 'rule';
                     break;

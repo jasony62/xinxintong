@@ -407,41 +407,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     http2.get(_fnMakeApiUrl('quitMission'), function(rsp) {
                         delete _oApp.mission;
                         _oApp.mission_id = 0;
-                        _oApp.mission_phase_id = '';
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
-                },
-                choosePhase: function() {
-                    var phaseId = _oApp.mission_phase_id,
-                        newPhase, updatedFields = ['mission_phase_id'];
-
-                    // 去掉活动标题中现有的阶段后缀
-                    _oApp.mission.phases.forEach(function(phase) {
-                        _oApp.title = _oApp.title.replace('-' + phase.title, '');
-                        if (phase.phase_id === phaseId) {
-                            newPhase = phase;
-                        }
-                    });
-                    if (newPhase) {
-                        // 给活动标题加上阶段后缀
-                        _oApp.title += '-' + newPhase.title;
-                        updatedFields.push('title');
-                        // 设置活动开始时间
-                        if (_oApp.start_at == 0) {
-                            _oApp.start_at = newPhase.start_at;
-                            updatedFields.push('start_at');
-                        }
-                        // 设置活动结束时间
-                        if (_oApp.end_at == 0) {
-                            _oApp.end_at = newPhase.end_at;
-                            updatedFields.push('end_at');
-                        }
-                    } else {
-                        updatedFields.push('title');
-                    }
-
-                    _self.update(updatedFields);
                 },
                 opData: function() {
                     var deferred = $q.defer();

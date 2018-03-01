@@ -34,5 +34,5 @@ constant('CstNaming', {
         },
         groupIndex: ['split', 'extract']
     },
-    mission: { 'phase': '项目阶段' }
+    mission: {}
 });

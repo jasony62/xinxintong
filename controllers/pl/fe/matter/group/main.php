@@ -29,7 +29,7 @@ class main extends \pl\fe\matter\main_base {
 
 		/*所属项目*/
 		if ($oApp->mission_id) {
-			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, array('cascaded' => 'phase'));
+			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id);
 		}
 		/*关联应用*/
 		if (!empty($oApp->source_app)) {
@@ -76,11 +76,6 @@ class main extends \pl\fe\matter\main_base {
 		} else {
 			$mission = $modelGrp->escape($mission);
 			$q[2] .= " and mission_id='$mission'";
-			/* 按项目阶段筛选 */
-			if (isset($oPosted->mission_phase_id) && !empty($oPosted->mission_phase_id) && $oPosted->mission_phase_id !== "ALL") {
-				$mission_phase_id = $modelGrp->escape($oPosted->mission_phase_id);
-				$q[2] .= " and mission_phase_id='$mission_phase_id'";
-			}
 		}
 		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
 			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='group' and t.matter_id=g.id and userid='{$oUser->id}')";

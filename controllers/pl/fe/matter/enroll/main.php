@@ -38,7 +38,7 @@ class main extends main_base {
 		$oApp->channels = $this->model('matter\channel')->byMatter($oApp->id, 'enroll');
 		/* 所属项目 */
 		if ($oApp->mission_id) {
-			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id, ['cascaded' => 'phase']);
+			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id);
 		}
 		/* 关联登记活动 */
 		if ($oApp->enroll_app_id) {
@@ -109,9 +109,6 @@ class main extends main_base {
 		}
 		if (!empty($oFilter->byTitle)) {
 			$q[2] .= " and title like '%" . $modelApp->escape($oFilter->byTitle) . "%'";
-		}
-		if (isset($oFilter->mission_phase_id) && !empty($oFilter->mission_phase_id) && $oFilter->mission_phase_id !== "ALL") {
-			$q[2] .= " and mission_phase_id = '" . $modelApp->escape($oFilter->mission_phase_id) . "'";
 		}
 		if (!empty($oFilter->byTags)) {
 			foreach ($oFilter->byTags as $tag) {
@@ -426,7 +423,7 @@ class main extends main_base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,mission_phase_id,absent_cause');
+		$oApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,absent_cause');
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -731,7 +728,6 @@ class main extends main_base {
 		}
 		/* 使用缺省模板 */
 		$config = $this->_getSysTemplate('common', 'simple');
-		$config->schema_include_mission_phases = 'N';
 
 		/* 修改模板的配置 */
 		$config->schema = [];
@@ -941,7 +937,6 @@ class main extends main_base {
 		}
 		/* 使用缺省模板 */
 		$config = $this->_getSysTemplate('common', 'simple');
-		$config->schema_include_mission_phases = 'N';
 
 		/* 修改模板的配置 */
 		$config->schema = [];
@@ -1248,24 +1243,6 @@ class main extends main_base {
 		if (isset($oCustomConfig->simpleSchema)) {
 			$oTemplateConfig->schema = $modelPage->schemaByText($oCustomConfig->simpleSchema);
 		}
-		/* 包含项目阶段 */
-		if (isset($oTemplateConfig->schema_include_mission_phases) && $oTemplateConfig->schema_include_mission_phases === 'Y') {
-			if (!empty($oMission) && $oMission->multi_phase === 'Y') {
-				$schemaPhase = new \stdClass;
-				$schemaPhase->id = 'phase';
-				$schemaPhase->title = '项目阶段';
-				$schemaPhase->type = 'phase';
-				$schemaPhase->ops = [];
-				$phases = $this->model('matter\mission\phase')->byMission($oMission->id);
-				foreach ($phases as $phase) {
-					$newOp = new \stdClass;
-					$newOp->l = $phase->title;
-					$newOp->v = $phase->phase_id;
-					$schemaPhase->ops[] = $newOp;
-				}
-				$oTemplateConfig->schema[] = $schemaPhase;
-			}
-		}
 		/**
 		 * 处理页面
 		 */
@@ -1285,29 +1262,6 @@ class main extends main_base {
 						$newPageSchema->config->id = 'V_' . $schema->id;
 					}
 					$page->data_schemas[] = $newPageSchema;
-				}
-			} else {
-				/* 自动添加项目阶段定义 */
-				if (isset($schemaPhase)) {
-					if ($page->type === 'I') {
-						$newPageSchema = new \stdClass;
-						$schemaPhaseConfig = new \stdClass;
-						$schemaPhaseConfig->component = 'R';
-						$schemaPhaseConfig->align = 'V';
-						$newPageSchema->schema = $schemaPhase;
-						$newPageSchema->config = $schemaPhaseConfig;
-						$page->data_schemas[] = $newPageSchema;
-					} else if ($page->type === 'V') {
-						$newPageSchema = new \stdClass;
-						$schemaPhaseConfig = new \stdClass;
-						$schemaPhaseConfig->id = 'V' . time();
-						$schemaPhaseConfig->pattern = 'record';
-						$schemaPhaseConfig->inline = 'Y';
-						$schemaPhaseConfig->splitLine = 'Y';
-						$newPageSchema->schema = $schemaPhase;
-						$newPageSchema->config = $schemaPhaseConfig;
-						$page->data_schemas[] = $newPageSchema;
-					}
 				}
 			}
 			$pageSchemas = [];

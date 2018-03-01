@@ -9,9 +9,6 @@
                         <select class='form-control' ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                             <option></option>
                         </select>
-                        <select class='form-control' ng-switch-when="phase" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
-                            <option></option>
-                        </select>
                         <ul ng-switch-when="multiple">
                             <li class='checkbox' ng-repeat="op in schema.ops">
                                 <label>

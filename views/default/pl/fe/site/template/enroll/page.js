@@ -162,17 +162,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             });
         });
         $scope.refreshWrap = function(wrap) {
-            if ('phase' === wrap.schema.type) {
-                // 更新项目阶段
-                var ops = [];
-                $scope.app.mission.phases.forEach(function(phase) {
-                    ops.push({
-                        l: phase.title,
-                        v: phase.phase_id
-                    });
-                });
-                wrap.schema.ops = ops;
-            }
             editorProxy.modifySchema(wrap);
         };
         $scope.removeSchema = function(removedSchema) {

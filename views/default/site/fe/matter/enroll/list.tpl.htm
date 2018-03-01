@@ -63,7 +63,7 @@
                     <label class="col-md-3 control-label">{{schema.title}}</label>
                     <div class="col-md-9">
                         <input type='text' class='form-control' placeholder='输入筛选条件' ng-if="['shorttext','longtext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">
-                        <select class='form-control' ng-if="['single','phase'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+                        <select class='form-control' ng-if="'single'===schema.type" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                             <option value=''>选择筛选条件</option>
                         </select>
                         <ul ng-if="schema.type==='multiple'" style="padding:0">

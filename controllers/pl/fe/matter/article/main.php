@@ -64,11 +64,6 @@ class main extends \pl\fe\matter\main_base {
 		if (!empty($mission)) {
 			$mission = $modelArt->escape($mission);
 			$w .= " and a.mission_id=$mission";
-			//按项目阶段过滤
-			if (isset($oOptions->mission_phase_id) && !empty($oOptions->mission_phase_id) && $oOptions->mission_phase_id !== "ALL") {
-				$mission_phase_id = $modelArt->escape($oOptions->mission_phase_id);
-				$w .= " and a.mission_phase_id = '" . $mission_phase_id . "'";
-			}
 		} else {
 			$site = $modelArt->escape($site);
 			$w .= " and a.siteid='$site'";
@@ -172,7 +167,7 @@ class main extends \pl\fe\matter\main_base {
 			}
 			/* 所属项目 */
 			if ($article->mission_id) {
-				$article->mission = $this->model('matter\mission')->byId($article->mission_id, ['cascaded' => 'phase']);
+				$article->mission = $this->model('matter\mission')->byId($article->mission_id);
 			}
 		}
 		/*如果此单图文属于引用那么需要返回被引用的单图文*/

@@ -40,9 +40,6 @@ define(['frame'], function(ngApp) {
         $scope.quitMission = function() {
             srvApp.quitMission().then(function() {});
         };
-        $scope.choosePhase = function() {
-            srvApp.choosePhase();
-        };
         $scope.tagMatter = function(subType) {
             var oTags;
             if (subType === 'C') {

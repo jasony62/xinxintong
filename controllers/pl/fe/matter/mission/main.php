@@ -34,7 +34,7 @@ class main extends \pl\fe\matter\base {
 		if (false === ($acl = $modelAcl->byCoworker($id, $oUser->id))) {
 			return new \ResponseError('项目不存在');
 		}
-		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => ($cascaded === 'Y' ? 'header_page_name,footer_page_name,phase' : '')]);
+		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => ($cascaded === 'Y' ? 'header_page_name,footer_page_name' : '')]);
 		if ($cascaded === 'Y') {
 			/* 关联的用户名单活动 */
 			if ($oMission->user_app_id) {
@@ -385,7 +385,6 @@ class main extends \pl\fe\matter\base {
 				/* 清空任务的ACL */
 				$modelAcl->removeMission($mission);
 				/* 删除数据 */
-				$modelMis->delete('xxt_mission_phase', ["mission_id" => $id]);
 				$rst = $modelMis->delete('xxt_mission_acl', ["mission_id" => $id]);
 				$rst = $modelMis->delete('xxt_mission', ["id" => $id]);
 				$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'D');

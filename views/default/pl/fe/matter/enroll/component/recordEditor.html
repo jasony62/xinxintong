@@ -140,9 +140,6 @@
                             <select class='form-control' ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                                 <option></option>
                             </select>
-                            <select class='form-control' ng-switch-when="phase" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
-                                <option></option>
-                            </select>
                             <ul ng-switch-when="multiple">
                                 <li class='checkbox' ng-repeat="op in schema.ops">
                                     <label>
@@ -319,9 +316,6 @@
                         <select class='form-control' disabled ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                             <option></option>
                         </select>
-                        <select class='form-control' disabled ng-switch-when="phase" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
-                            <option></option>
-                        </select>
                         <ul ng-switch-when="multiple">
                             <li class='checkbox' ng-repeat="op in schema.ops">
                                 <label>
@@ -367,9 +361,6 @@
                     <div ng-switch on="schema.type" class='col-md-6'>
                         <textarea class='form-control' disabled ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
                         <select class='form-control' disabled ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
-                            <option></option>
-                        </select>
-                        <select class='form-control' disabled ng-switch-when="phase" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                             <option></option>
                         </select>
                         <ul ng-switch-when="multiple">

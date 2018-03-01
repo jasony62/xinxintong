@@ -23,7 +23,7 @@ $schema = $def->schema;
     </label>
     <textarea style="height:auto;" ng-model="data.<?php echo $schema->id;?>" title="<?php echo $schema->title;?>" placeholder="<?php echo $schema->title;?>" class="form-control input-lg" rows="3"></textarea>
 </div>
-<?php } else if (in_array($schema->type,['single','phase'])) { ?>
+<?php } else if ($schema->type==='single') { ?>
 <div wrap="input" class="form-group form-group-lg" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>">
     <label>
         <?php echo $schema->title; ?>

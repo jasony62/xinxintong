@@ -11,9 +11,6 @@ define(['frame'], function(ngApp) {
         $scope.quitMission = function() {
             srvSigninApp.quitMission();
         };
-        $scope.choosePhase = function() {
-            srvSigninApp.choosePhase();
-        };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
                 http2.get('/rest/pl/fe/matter/signin/remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {

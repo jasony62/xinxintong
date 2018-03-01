@@ -179,9 +179,6 @@ define(['frame'], function(ngApp) {
             if (_oCriteria.byTime) {
                 data.byTime = _oCriteria.byTime;
             }
-            if (_oCriteria.pid) {
-                data.mission_phase_id = _oCriteria.pid;
-            }
             if (_oCriteria.filter.by === 'title') {
                 data.byTitle = _oCriteria.filter.keyword;
             }

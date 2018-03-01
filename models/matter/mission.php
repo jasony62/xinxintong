@@ -76,8 +76,6 @@ class mission_model extends app_base {
 						$oMission->header_page = $modelCode->lastPublishedByName($oMission->siteid, $oMission->header_page_name, ['fields' => 'id,html,css,js']);
 					} else if ($field === 'footer_page_name' && isset($oMission->footer_page_name) && isset($oMission->siteid)) {
 						$oMission->footer_page = $modelCode->lastPublishedByName($oMission->siteid, $oMission->footer_page_name, ['fields' => 'id,html,css,js']);
-					} else if ($field === 'phase') {
-						$oMission->phases = $this->model('matter\mission\phase')->byMission($id);
 					}
 				}
 			}
@@ -242,7 +240,6 @@ class mission_model extends app_base {
 		$relation = [
 			'siteid' => $siteId,
 			'mission_id' => $missionId,
-			'phase_id' => isset($oMatter->mission_phase_id) ? $oMatter->mission_phase_id : '',
 			'matter_id' => $oMatter->id,
 			'matter_type' => $oMatter->type,
 			'matter_title' => $this->escape($oMatter->title),
@@ -264,10 +261,8 @@ class mission_model extends app_base {
 	 * 更新项目中的素材信息
 	 */
 	public function updateMatter($missionId, $oMatter) {
-
 		$relation = [
 			'matter_title' => $this->escape($oMatter->title),
-			'phase_id' => isset($oMatter->mission_phase_id) ? $oMatter->mission_phase_id : '',
 			'scenario' => isset($oMatter->scenario) ? $oMatter->scenario : '',
 			'start_at' => isset($oMatter->start_at) ? $oMatter->start_at : 0,
 			'end_at' => isset($oMatter->end_at) ? $oMatter->end_at : 0,

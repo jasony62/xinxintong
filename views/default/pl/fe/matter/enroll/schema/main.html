@@ -16,7 +16,6 @@
             <option value='html'>描述说明</option>
             <option value='date'>日期</option>
             <option value='location'>上传位置</option>
-            <option value='phase'>{{cstApp.naming.mission_phase}}</option>
         </select>
     </div>
     <div class="form-group" ng-if="'html'!==activeSchema.type">
@@ -62,13 +61,13 @@
         <input type='text' class='form-control' ng-model='activeSchema.range[0]' ng-change="updSchema(activeSchema)">
         <input type='text' class='form-control' ng-model='activeSchema.range[1]' ng-change="updSchema(activeSchema)">
     </div>
-    <div class="form-group" ng-if="['single','phase'].indexOf(activeSchema.type)!==-1">
+    <div class="form-group" ng-if="'single'===activeSchema.type">
         <label class="radio-inline">
             <input type='radio' name='component' value='R' ng-model='activeConfig.component' ng-change="updConfig(activeSchema)">单选钮</label>
         <label class="radio-inline">
             <input type='radio' name='component' value='S' ng-model='activeConfig.component' ng-change="updConfig(activeSchema)">下拉框</label>
     </div>
-    <div class="form-group" ng-if="(['single','phase'].indexOf(activeSchema.type)!==-1&&activeConfig.component==='R')||activeSchema.type==='multiple'">
+    <div class="form-group" ng-if="('single'===activeSchema.type&&activeConfig.component==='R')||activeSchema.type==='multiple'">
         <label class="radio-inline">
             <input type='radio' name='align' value='V' ng-model='activeConfig.align' ng-change="updConfig(activeSchema)">垂直排列</label>
         <label class="radio-inline">

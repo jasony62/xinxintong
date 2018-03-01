@@ -11,7 +11,6 @@
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
                 <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
-                <button class='btn btn-default' ng-click="newSchema('phase')" ng-if="app.mission_id">{{cstApp.naming.mission_phase}}</button>
             </div>
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
@@ -100,7 +99,7 @@
                 <div ng-include="schemaHtml(schema)"></div>
                 <div class='actions hidden-xs'>
                     <button class='btn btn-sm btn-default' ng-if="'html'===schema.type" ng-click="makePagelet(schema)"><span class='glyphicon glyphicon-pencil'> 编辑</span></button>
-                    <button class="btn btn-default btn-sm" ng-if="['single','phase','multiple','score'].indexOf(schema.type)!==-1" ng-click="addOption(schema)">添加选项</button>
+                    <button class="btn btn-default btn-sm" ng-if="['single','multiple','score'].indexOf(schema.type)!==-1" ng-click="addOption(schema)">添加选项</button>
                     <button class="btn btn-default btn-sm" ng-click="copySchema(schema)">复制题目</button>
                     <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
@@ -135,7 +134,7 @@
     <nav class='navbar navbar-default navbar-fixed-bottom visible-xs-block'>
         <div class='container-fluid'>
             <button class='btn navbar-btn btn-default' uib-popover-template=" 'schemaProto.html' " popover-placement="top-left " popover-trigger="show " popover-title=" " ng-click="showSchemaProto($event) ">添加</button>
-            <button class="btn navbar-btn btn-default " ng-if="[ 'single', 'phase', 'multiple', 'score'].indexOf(activeSchema.type)!==-1 " ng-click="addOption(activeSchema) ">添加选项</button>
+            <button class="btn navbar-btn btn-default " ng-if="['single','multiple','score'].indexOf(activeSchema.type)!==-1 " ng-click="addOption(activeSchema) ">添加选项</button>
             <button class="btn navbar-btn btn-default " ng-click="copySchema(activeSchema) ">复制</button>
             <button class='btn navbar-btn btn-default' ng-click="upSchema(activeSchema) "><span class='glyphicon glyphicon-arrow-up'></span></button>
             <button class='btn navbar-btn btn-default' ng-click="downSchema(activeSchema) "><span class='glyphicon glyphicon-arrow-down'></span></button>
@@ -152,7 +151,6 @@
     <div class='flexrow'>
         <button class='btn btn-default' ng-click="newSchema( 'single') ">单选题</button>
         <button class='btn btn-default' ng-click="newSchema( 'multiple') ">多选题</button>
-        <button class='btn btn-default' ng-click="newSchema( 'phase') ">{{cstApp.naming.mission_phase}}</button>
     </div>
     <div class='flexrow'>
         <button class='btn btn-default' ng-click="newSchema( 'image') ">上传图片</button>

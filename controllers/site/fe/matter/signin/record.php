@@ -137,11 +137,6 @@ class record extends base {
 						$requireCheckedData->{$oSchema->id} = $mdoelSigRec->getValueBySchema($oSchema, $oSigninData);
 					}
 				}
-				if ($oSigninApp->mission_phase_id) {
-					/* 需要匹配项目阶段 */
-					$requireCheckedData->phase = $oSigninApp->mission_phase_id;
-				}
-				/* 在指定的登记活动中检查数据 */
 				$modelEnrollRec = $this->model('matter\enroll\record');
 				$enrollRecords = $modelEnrollRec->byData($oEnrollApp, $requireCheckedData);
 				if (!empty($enrollRecords)) {

@@ -304,7 +304,8 @@ provider('srvSite', function() {
                                     schemasById[oSchema.id] = oSchema;
                                     mschemas.push({
                                         id: oSchema.id,
-                                        title: oSchema.title
+                                        title: oSchema.title,
+                                        type: 'address'
                                     });
                                 });
                             }

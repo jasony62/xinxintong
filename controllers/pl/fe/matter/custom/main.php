@@ -161,10 +161,6 @@ class main extends \pl\fe\matter\base {
 			!empty($article->matter_mg_tag) && $article->matter_mg_tag = json_decode($article->matter_mg_tag);
 			$article->tags = $article->matter_cont_tag;
 			$article->tags2 = $article->matter_mg_tag;
-			/**
-			 * acl
-			 */
-			$article->acl = $this->model('matter\acl')->byMatter($site, 'article', $id);
 			/*所属项目*/
 			if ($article->mission_id) {
 				$article->mission = $this->model('matter\mission')->byMatter($site, $app->id, 'custom');

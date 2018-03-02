@@ -89,7 +89,6 @@ class main extends \pl\fe\matter\main_base {
 		 */
 		if ($cascade === 'Y') {
 			$modelChn = $this->model('matter\channel');
-			$modelAcl = $this->model('matter\acl');
 			foreach ($links as $l) {
 				/**
 				 * params
@@ -105,7 +104,6 @@ class main extends \pl\fe\matter\main_base {
 				/**
 				 * acl
 				 */
-				$l->acl = $modelAcl->byMatter($site, 'link', $l->id);
 				$l->type = 'link';
 			}
 		}
@@ -132,10 +130,6 @@ class main extends \pl\fe\matter\main_base {
 		 * channels
 		 */
 		$l['channels'] = $this->model('matter\channel')->byMatter($id, 'link');
-		/**
-		 * acl
-		 */
-		$l['acl'] = $this->model('matter\acl')->byMatter($site, 'link', $id);
 
 		return new \ResponseData($l);
 	}

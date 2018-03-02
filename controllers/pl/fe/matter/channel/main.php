@@ -36,8 +36,6 @@ class main extends \pl\fe\matter\main_base {
 			!empty($oChannel->matter_mg_tag) && $oChannel->matter_mg_tag = json_decode($oChannel->matter_mg_tag);
 
 			$oChannel->matters = $modelChn->getMatters($id, $oChannel, $site);
-
-			$oChannel->acl = $this->model('matter\acl')->byMatter($site, 'channel', $id);
 		}
 
 		return new \ResponseData($oChannel);
@@ -90,11 +88,9 @@ class main extends \pl\fe\matter\main_base {
 				$c->type = 'channel';
 			}
 			if ($cascade == 'Y') {
-				$modelAcl = $this->model('matter\acl');
 				foreach ($channels as $c) {
 					$c->url = $modelChn->getEntryUrl($site, $c->id);
 					$c->matters = $modelChn->getMatters($c->id, $c, $site);
-					$c->acl = $modelAcl->byMatter($site, 'channel', $c->id);
 				}
 			}
 		}

@@ -165,7 +165,6 @@
                             </div>
                             <select class='form-control' ng-model='p.pvalue' ng-options="k as v for (k,v) in linkparams " ng-change='updateParam(p)' ng-if='!p.customValue'></select>
                             <input type='text' class='form-control' ng-model='p.pvalue' ng-if='p.customValue' tms-auto-update tms-wait=1000 tms-update='updateParam(p)'>
-                            <select class='form-control' ng-if="p.pvalue==='{{authed_identity}}'" ng-model='p.authapi_id' ng-options="aapi.authid as aapi.name for aapi in authapis" ng-change='updateParam(p)'></select>
                         </li>
                     </ul>
                 </div>

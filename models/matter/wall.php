@@ -285,9 +285,9 @@ class wall_model extends enroll_base {
 		return $this->query_objs_ss($q, $q2);
 	}
 	/*
-	* 获取素材分享者列表
-	* $startTime 分享开始时间
-	 and s.matter_id in ($matterId) and s.matter_type = '$matterType'
+		* 获取素材分享者列表
+		* $startTime 分享开始时间
+		 and s.matter_id in ($matterId) and s.matter_type = '$matterType'
 	*/
 	public function listPlayer($startTime, $startId = null, &$oApp, $page = null, $size = null) {
 		$this->setOnlyWriteDbConn(true);
@@ -298,7 +298,7 @@ class wall_model extends enroll_base {
 			$q = [
 				'max(s.id) id,s.share_to,s.share_at,s.matter_id,s.matter_type,s.matter_title,s.userid,a.nickname,a.headimgurl,a.wx_openid,a.yx_openid,a.qy_openid',
 				'xxt_log_matter_share s,xxt_site_account a',
-				"s.share_at > $startTime and s.userid = a.uid and s.siteid = a.siteid"
+				"s.share_at > $startTime and s.userid = a.uid and s.siteid = a.siteid",
 			];
 			if (!empty($startId)) {
 				$startId = $this->escape($startId);
@@ -618,7 +618,7 @@ class wall_model extends enroll_base {
 			/**
 			 * 企业号，或者开通了点对点消息接口易信公众号支持预先定义好组成员
 			 */
-			$groupUsers = \TMS_APP::M('acl')->wallUsers($site, $wid);
+			$groupUsers = $this->_wallUsers($site, $wid);
 			if (!empty($groupUsers)) {
 				/**
 				 * 不推送给发送人
@@ -677,6 +677,29 @@ class wall_model extends enroll_base {
 
 		}
 		return array(true);
+	}
+	/**
+	 * 获得信息墙的所有用户
+	 * 将ACL翻译为具体的用户
+	 */
+	private function _wallUsers($siteId, $wid) {
+		$users = array();
+		/**
+		 * 直接指定
+		 */
+		$q = array(
+			'a.identity',
+			'xxt_matter_acl a',
+			"a.mpid='$siteId' and a.matter_type= 'wall' and a.matter_id='$wid' and idsrc=''",
+		);
+		if ($acls = $this->query_objs_ss($q)) {
+			foreach ($acls as $acl) {
+				$users[] = $acl->identity;
+			}
+
+		}
+
+		return $users;
 	}
 	/**
 	 *

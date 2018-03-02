@@ -46,7 +46,6 @@ define(['frame'], function(ngApp) {
                     $scope2.ok = function() {
                         var ips = [];
                         var isTrue = $scope2.ips.split(',').every(function(ip){
-                            dealIP(ip) ?
                             if(!dealIP(ip)) $scope2.tip = '当前的输入含有不合法的IP地址：' + ip;
                             return dealIP(ip);
                         });

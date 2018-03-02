@@ -22,8 +22,8 @@ define(['frame'], function(ngApp) {
                 return true;
             });
         };
-        $scope.creatSecret = function() {
-            http2.get('/rest/pl/fe/site/invoke/creatSecret?site=' + $scope.siteId, function(rsp) {
+        $scope.createSecret = function() {
+            http2.get('/rest/pl/fe/site/invoke/createSecret?site=' + $scope.siteId, function(rsp) {
                 dealSecet(rsp.data.secret);
             });
         };
@@ -31,10 +31,10 @@ define(['frame'], function(ngApp) {
             $scope.invoke.secret = secret;
             $scope.flag = false;
         };
-        $scope.restSecret = function() {
-            http2.get('/rest/pl/fe/site/invoke/restSecret?site=' + $scope.siteId, function(rsp) {
+        $scope.resetSecret = function() {
+            http2.get('/rest/pl/fe/site/invoke/resetSecret?site=' + $scope.siteId, function(rsp) {
                 dealSecet(rsp.data.secret);
-                noticebox.success('完成修改');
+                noticebox.success('重置成功');
             });
         };
         $scope.doIP = function(ips) {
@@ -46,10 +46,11 @@ define(['frame'], function(ngApp) {
                     $scope2.ok = function() {
                         var ips = [];
                         var isTrue = $scope2.ips.split(',').every(function(ip){
+                            dealIP(ip) ?
                             if(!dealIP(ip)) $scope2.tip = '当前的输入含有不合法的IP地址：' + ip;
                             return dealIP(ip);
                         });
-                        isTrue && $mi.close($scope2.ips);
+                        isTrue && $mi.close($scope2.ips.split(','));
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss();

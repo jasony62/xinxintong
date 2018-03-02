@@ -11,8 +11,8 @@
                     <div class='col-md-9'>
                         <span ng-if="invoke.secret" ng-bind="invoke.secret"></span>
                         <a href='' ng-if="invoke.secret&&flag" ng-click="showSecret()">完整显示</a>
-                        <a href='' ng-if="invoke.secret" ng-click="restSecret()">重置</a>
-                        <a href='' ng-if="!invoke.secret" ng-click="creatSecret()">生成</a>
+                        <a href='' ng-if="invoke.secret" ng-click="resetSecret()">重置</a>
+                        <a href='' ng-if="!invoke.secret" ng-click="createSecret()">生成</a>
                         <p class='help-block'>调用密码是校验公众号开发者身份的密码，具有极高的安全性。</p>
                     </div>
                 </div>

@@ -48,6 +48,7 @@ define(['require'], function(require) {
                 case 'basic':
                 case 'coworker':
                 case 'home':
+                case 'invoke':
                     $scope.opened = 'define';
                     break;
                 case 'user':

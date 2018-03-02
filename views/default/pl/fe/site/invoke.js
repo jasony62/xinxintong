@@ -1,55 +1,69 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlCoworker', ['$scope', '$location', 'http2', 'noticebox', function($scope, $location, http2, noticebox) {
+    ngApp.provider.controller('ctrlInvoke', ['$scope', '$location', 'http2', 'noticebox', '$uibModal', function($scope, $location, http2, noticebox, $uibModal) {
         $scope.siteId = $location.search().site;
-        $scope.ulabel = '';
-        $scope.manager = '';
-        $scope.status = false;
-        $scope.transfer = function() {
-            var url = '/rest/pl/fe/site/setting/admin/transferSite?site=' + $scope.site.id
-            url += '&label=' + $scope.newOwner;
-            http2.get(url, function(rsp) {
-                noticebox.success('移交成功');
-                if (rsp.data == 1) {
-                    $scope.status = true;
+        $scope.flag = true;
+        var secret;
+        function dealSecet(password) {
+            secret = password;
+            $scope.invoke.secret = password.substr(0, 4) + '****' + password.substr(28);
+        };
+        function dealIP(value) {
+            var valid = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(value);
+            if (!valid) {
+                return false;
+            }
+            return value.split('.').every(function(num) {
+                if (num.length > 1 && num.charAt(0) === '0') {
+                    return false;
+                } else if (parseInt(num, 10) > 255) {
+                    return false;
                 }
-                $scope.newOwner = '';
-                http2.get('/rest/pl/fe/site/setting/admin/list?site=' + $scope.siteId, function(rsp) {
-                    $scope.admins = rsp.data;
-                });
-            });
-        }
-        $scope.add = function() {
-            var url = '/rest/pl/fe/site/setting/admin/add?site=' + $scope.siteId;
-            $scope.ulabel && $scope.ulabel.length > 0 && (url += '&ulabel=' + $scope.ulabel);
-            http2.get(url, function(rsp) {
-                $scope.admins.push(rsp.data);
-                $scope.ulabel = '';
+                return true;
             });
         };
-        $scope.remove = function(admin) {
-            http2.get('/rest/pl/fe/site/setting/admin/remove?site=' + $scope.siteId + '&uid=' + admin.uid, function(rsp) {
-                var index = $scope.admins.indexOf(admin);
-                $scope.admins.splice(index, 1);
+        $scope.creatSecret = function() {
+            http2.get('/rest/pl/fe/site/invoke?creatSecret=' + $scope.siteId, function(rsp) {
+                dealSecet(rsp.data.secret);
             });
         };
-        //获取邀请动态链接
-        $scope.makeInvite = function() {
-            http2.get('/rest/pl/fe/site/coworker/makeInvite?site=' + $scope.siteId, function(rsp) {
-                var url = 'http://' + location.host + rsp.data;
-                $scope.inviteURL = url;
-                $('#shareSite').trigger('show');
+        $scope.showSecret = function() {
+            $scope.invoke.secret = secret;
+            $scope.flag = false;
+        };
+        $scope.restSecret = function() {
+            http2.get('/rest/pl/fe/site/invoke?restSecret=' + $scope.siteId, function(rsp) {
+                dealSecet(rsp.data.secret);
+                noticebox.success('完成修改');
             });
         };
-        $scope.closeInvite = function() {
-            $scope.inviteURL = '';
-            $('#shareSite').trigger('hide');
+        $scope.doIP = function(ips) {
+            $uibModal.open({
+                templateUrl: 'ip.html',
+                dropback: 'static',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var ips = [];
+                    if(ips) {$scope2.ips = ips;}
+                    $scope2.ok = function() {
+                        var isTrue = $scope2.ips.split(',').every(function(ip){
+                            return dealIP(ip);
+                        });
+                        isTrue ? $mi.close($scope2.ips) : $scope2.tip = '当前的输入含有不合法的IP地址';
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }]
+            }).result.then(function(ips) {
+                console.log(ips);
+            });
         };
-        http2.get('/rest/pl/fe/site/setting/admin/list?site=' + $scope.siteId, function(rsp) {
-            $scope.admins = rsp.data;
-        });
-        http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
-            $scope.site = rsp.data;
+        $scope.$watch('site', function(nv) {
+            if(!nv) return;
+            http2.get('/rest/pl/fe/site/invoke?get=' + nv.id, function(rsp) {
+                $scope.invoke = rsp.data;
+                dealSecet(rsp.data.secret);
+            });
         });
     }]);
 });

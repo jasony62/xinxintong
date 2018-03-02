@@ -7,10 +7,8 @@ class log_model extends \TMS_MODEL {
 	/*
 	 * token使用日志
 	 */
-	public function add($site, $invokeId, $accessToken, $data, $user) {
+	public function add($accessToken, $data, $user) {
 		$log = new \stdClass;
-		$log->siteid = $site;
-		$log->invoke_id = $invokeId;
 		$log->create_at = time();
 		$log->access_token = $accessToken;
 		$log->access_status = $this->toJson($data);

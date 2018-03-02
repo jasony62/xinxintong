@@ -34,8 +34,6 @@ $sqls[] = $sql;
 //
 $sql = "create table if not exists xxt_site_invoke_log(";
 $sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",invoke_id int not null";
 $sql .= ",access_token varchar(32) not null default ''";
 $sql .= ",create_at int not null default 0";
 $sql .= ",user_agent text";

@@ -39,7 +39,7 @@ class base extends \TMS_CONTROLLER {
 		/* 记录日志 */
 		$user = new \stdClass;
 		$user->ip = $userIP;
-		$this->model('api\log')->add($invoke->siteid, $invoke->id, $accessToken, $rst, $user);
+		$this->model('api\log')->add($accessToken, $rst, $user);
 
 		return $rst;
 	}

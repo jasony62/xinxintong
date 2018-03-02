@@ -67,10 +67,10 @@ class token_model extends \TMS_MODEL {
 		];
 		$token = $this->query_obj_ss($q);
 		if ($token === false) {
-			return [false, '邀请验证令牌未找到'];
+			return [false, '访问令牌未找到'];
 		} else {
 			if ($token->expire_at < time()) {
-				return [false, '邀请验证令牌已经超过有效期'];
+				return [false, '访问令牌已经超过有效期'];
 			}
 		}
 

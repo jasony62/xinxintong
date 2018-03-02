@@ -40,7 +40,6 @@ class main extends \pl\fe\matter\main_base {
 
 			if ($cascade === 'Y') {
 				$n->matters = $modelNews->getMatters($n->id);
-				$n->acl = $this->model('matter\acl')->byMatter($site, 'news', $n->id);
 			}
 		}
 
@@ -80,7 +79,6 @@ class main extends \pl\fe\matter\main_base {
 		 */
 		if ($news) {
 			$modelBase = $this->model('matter\base');
-			$modelAcl = $this->model('matter\acl');
 			foreach ($news as &$n) {
 				$n->url = $modelNews->getEntryUrl($site, $n->id);
 				$n->type = 'news';
@@ -89,7 +87,6 @@ class main extends \pl\fe\matter\main_base {
 				}
 				if ($cascade === 'Y') {
 					$n->matters = $modelNews->getMatters($n->id);
-					$n->acl = $modelAcl->byMatter($site, 'news', $n->id);
 				}
 			}
 		}

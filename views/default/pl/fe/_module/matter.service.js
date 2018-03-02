@@ -295,7 +295,7 @@ provider('srvSite', function() {
                                     type: 'address'
                                 });
                             }
-                            if (ms.extattrs) {
+                            if(ms.extattrs) {
                                 ms.extAttrs.forEach(function(ea) {
                                     var oSchema;
                                     oSchema = angular.copy(ea);

@@ -25,7 +25,7 @@ class result extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($lid, $startAt = null, $endAt = null, $page = 1, $size = 30, $award = null) {
-		$r = $this->model('matter\lottery')->byId($lid, 'access_control');
+		$r = $this->model('matter\lottery')->byId($lid);
 		/**
 		 * 参与抽奖的用户不一定是关注用户，所以粉丝表里不一定有对应的记录
 		 */

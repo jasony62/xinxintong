@@ -313,7 +313,7 @@ class player extends \pl\fe\matter\base {
 			foreach ($records as $record) {
 				if ($record->state === '1' || $record->state === 'N') {
 					if ($type === 'mschema') {
-						$record = $this->getMschData($objGrp, $record->enroll_key);
+						$record = $this->_getMschData($objGrp, $record->enroll_key);
 					} else {
 						$record = $modelRec->byId($record->enroll_key, $options);
 					}
@@ -348,7 +348,7 @@ class player extends \pl\fe\matter\base {
 	 * 获取通讯录用户的data
 	 *
 	 */
-	private function getMschData($objGrp, $id) {
+	private function _getMschData($objGrp, $id) {
 		/* 获取变化的登记数据 */
 		$modelRec = $this->model('site\user\member');
 		$q = [
@@ -375,6 +375,46 @@ class player extends \pl\fe\matter\base {
 
 		$record->data = $data;
 		return $record;
+	}
+	/**
+	 * 从关联活动同步数据
+	 *
+	 * 同步在最后一次同步之后的数据或已经删除的数据
+	 */
+	public function addByApp_action($app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$modelGrp = $this->model('matter\group');
+		$oApp = $modelGrp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		// 添加记录的id数组
+		$ids = $this->getPostJson();
+		$count = 0;
+		if (!empty($oApp->source_app)) {
+			$sourceApp = json_decode($oApp->source_app);
+			if ($sourceApp->type === 'mschema') {
+				$count = $this->_addByMschema($oApp, $sourceApp->id, $ids);
+			}
+		}
+
+		return new \ResponseData($count);
+	}
+	/**
+	 * 从通讯录添加数据
+	 */
+	private function _addByMschema($oGrpApp, $bySchema, $ids) {
+		$modelRec = $this->model('site\user\member');
+		$q = [
+			'id enroll_key,forbidden state',
+			'xxt_site_member',
+			['schema_id' => $bySchema, 'id' => $ids],
+		];
+		$records = $modelRec->query_objs_ss($q);
+
+		return $this->_syncRecord($oGrpApp->siteid, $oGrpApp, $records, $modelRec, 'mschema');
 	}
 	/**
 	 * 手工添加分组用户信息

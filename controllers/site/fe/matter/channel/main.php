@@ -16,8 +16,6 @@ class main extends \site\fe\matter\base {
 		$data['user'] = $user;
 
 		$channel = $this->model('matter\channel')->byId($id);
-
-		$channel->acl = $this->model('matter\acl')->byMatter($site, 'channel', $id);
 		$data['channel'] = $channel;
 
 		return new \ResponseData($data);

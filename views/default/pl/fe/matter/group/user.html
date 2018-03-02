@@ -12,7 +12,14 @@
                         <button class='btn btn-default' ng-click='syncByApp()'>
                             <span class='glyphicon glyphicon-refresh'></span>
                         </button>
-                        <a class='btn btn-default' href='' ng-click="gotoSourceApp()"><span class='glyphicon glyphicon-new-window'></span></a>
+                        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href ng-click="chooseAppUser()" ng-if="app.sourceApp.type==='mschema'">选取用户</a></li>
+                            <li><a href ng-click="gotoSourceApp()">查看活动</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>

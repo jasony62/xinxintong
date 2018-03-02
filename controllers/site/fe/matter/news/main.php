@@ -22,7 +22,6 @@ class main extends \site\fe\matter\base {
 				$matterModel = \TMS_APP::M('matter\\' . $m->type);
 				$m->url = $matterModel->getEntryUrl($this->siteId, $m->id);
 			}
-			$news->acl = $this->model('matter\acl')->byMatter($this->siteId, 'news', $news->id);
 		}
 
 		$data['news'] = $news;

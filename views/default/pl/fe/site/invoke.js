@@ -36,6 +36,7 @@ define(['frame'], function(ngApp) {
             if (confirm(msg)==true){
                 http2.get('/rest/pl/fe/site/invoke/resetSecret?site=' + $scope.siteId, function(rsp) {
                     $scope.invoke.secret = rsp.data.secret;
+                    $scope.flag = false;
                     noticebox.success('重置成功');
                 });
             }else{

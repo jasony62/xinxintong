@@ -35,14 +35,15 @@ class base extends \TMS_CONTROLLER {
 		}
 
 		$rst = $this->model('api\token')->checkToken($this->siteId, $accessToken);
-		if ($rst[0] === false) {
-			return $rst;
+		if ($rst[0]) {
+			$userIP = $this->client_ip();
+			if (!in_array($userIp, $invoke->invokerIps)) {
+				$rst = [false, 'ip地址未在白名单中'];
+			}
 		}
 
-		$userIP = $this->client_ip();
-		if (!in_array($userIp, $invoke->invokerIps)) {
-			return [false, '未在指定ip地址访问'];
-		}
+		/* 记录日志 */
+		$this->model('api\log')->add($this->siteId, $invoke->id, $accessToken, $rst);
 
 		return $rst;
 	}

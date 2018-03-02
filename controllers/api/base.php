@@ -19,6 +19,9 @@ class base extends \TMS_CONTROLLER {
 		if (empty($accessToken)) {
 			return [false, '参数不完整'];
 		}
+		if (!is_string($accessToken) || strlen($accessToken) <> 32) {
+			return [false, 'accessToken格式错误'];
+		}
 
 		$userIP = $this->client_ip();
 		$modelToken = $this->model('api\token');

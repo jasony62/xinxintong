@@ -15,6 +15,9 @@ class main extends base {
 		if (empty($site) || empty($secret)) {
 			return new \ParameterError('参数不完整');
 		}
+		if (!is_string($secret) || strlen($secret) <> 32) {
+			return new \ParameterError('secret格式错误');
+		}
 
 		$modelInv = $this->model('site\invoke')->setOnlyWriteDbConn(true);
 		if (false === ($invoke = $modelInv->bySite($site))) {

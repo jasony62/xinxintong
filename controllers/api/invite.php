@@ -22,13 +22,14 @@ class invite extends base {
 			return new \ResponseError($checkRes[1]);
 		}
 
+		$model = $this->model();
 		$q = [
 			'a.token,l.matter_id,l.matter_type,l.userid,l.nickname,l.use_at',
 			'xxt_invite_access a,xxt_invite_log l',
-			"a.token = '" . $modelInv->escape($inviteToken) . "' and a.invite_log_id = l.id"
+			"a.token = '" . $model->escape($inviteToken) . "' and a.invite_log_id = l.id"
 		];
 
-		$user = $modelInv->query_obj_ss($q);
+		$user = $model->query_obj_ss($q);
 
 		return new \ResponseData($user);
 	}

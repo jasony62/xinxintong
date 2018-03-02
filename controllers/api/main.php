@@ -11,13 +11,13 @@ class main extends base {
 	 * @param string $site 团队id
 	 * @param string $secret 外部系统调用凭证
 	 */
-	public function token_action($secret) {
-		if (empty($secret)) {
+	public function token_action($site, $secret) {
+		if (empty($site) || empty($secret)) {
 			return new \ParameterError('参数不完整');
 		}
 
 		$modelInv = $this->model('site\invoke')->setOnlyWriteDbConn(true);
-		if (false === ($invoke = $modelInv->bySite($this->siteId))) {
+		if (false === ($invoke = $modelInv->bySite($site))) {
 			return new \ObjectNotFoundError();
 		}
 		if ($secret !== $invoke->secret) {

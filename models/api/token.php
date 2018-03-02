@@ -31,7 +31,7 @@ class token_model extends \TMS_MODEL {
 			}
 		}
 
-		$invToken->expires_in = $expires_in;
+		$invToken->expires_in = $this->expires_in;
 		return $invToken;
 	}
 	/*
@@ -63,7 +63,7 @@ class token_model extends \TMS_MODEL {
 		$q = [
 			'*',
 			'xxt_site_invoke_token',
-			['siteid' => $site, 'access_token' => $accessToken, 'state' => 1];
+			['siteid' => $site, 'access_token' => $accessToken, 'state' => 1],
 		];
 		$token = $this->query_obj_ss($q);
 		if ($token === false) {

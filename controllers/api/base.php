@@ -3,20 +3,6 @@ namespace api;
 
 class base extends \TMS_CONTROLLER {
 	/**
-	 * 当前访问的站点ID
-	 */
-	protected $siteId;
-	/**
-	 * 对请求进行通用的处理
-	 */
-	public function __construct() {
-		if (empty($_GET['site'])) {
-			return new \ParameterError('参数不完整');
-		}
-
-		$this->siteId = $_GET['site'];
-	}
-	/**
 	 *
 	 */
 	public function get_access_rule() {
@@ -30,20 +16,22 @@ class base extends \TMS_CONTROLLER {
 	 * object $invoke
 	 */
 	public function checkToken($invoke, $accessToken) {
-		if (empty($accessToken)) {
-			return new \ParameterError('参数不完整');
+		if (empty(get_object_vars($invoke)) || empty($accessToken)) {
+			return [false, '参数不完整'];
 		}
 
-		$rst = $this->model('api\token')->checkToken($this->siteId, $accessToken);
+		$userIP = $this->client_ip();
+		$rst = $this->model('api\token')->checkToken($invoke->siteid, $accessToken);
 		if ($rst[0]) {
-			$userIP = $this->client_ip();
-			if (!in_array($userIp, $invoke->invokerIps)) {
+			if (!in_array($userIP, $invoke->invokerIps)) {
 				$rst = [false, 'ip地址未在白名单中'];
 			}
 		}
 
 		/* 记录日志 */
-		$this->model('api\log')->add($this->siteId, $invoke->id, $accessToken, $rst);
+		$user = new \stdClass;
+		$user->ip = $userIP;
+		$this->model('api\log')->add($invoke->siteid, $invoke->id, $accessToken, $rst, $user);
 
 		return $rst;
 	}

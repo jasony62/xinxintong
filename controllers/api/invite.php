@@ -12,13 +12,13 @@ class invite extends base {
 	 * @param string $accessToken 外部系统访问令牌
 	 * @param string $inviteToken 用户标识
 	 */
-	public function user_action($accessToken, $inviteToken) {
-		if (empty($this->accessToken) || empty($inviteToken)) {
+	public function user_action($site, $accessToken, $inviteToken) {
+		if (empty($site) || empty($accessToken) || empty($inviteToken)) {
 			return new \ParameterError('参数不完整');
 		}
 
 		$modelInv = $this->model('site\invoke')->setOnlyWriteDbConn(true);
-		if (false === ($invoke = $modelInv->bySite($this->siteId))) {
+		if (false === ($invoke = $modelInv->bySite($site))) {
 			return new \ObjectNotFoundError();
 		}
 
@@ -29,9 +29,9 @@ class invite extends base {
 		}
 
 		$q = [
-			'a.token,l.matter_id,l.matter_type,l.userid,l.lickname,l.use_at,c.code',
-			'xxt_invite_access a,xxt_invite_log l,xxt_invite_code c',
-			"a.token = '" . $modelInv->escape($inviteToken) . "' and a.invite_log_id = l.id and l.invite_code_id = c.id"
+			'a.token,l.matter_id,l.matter_type,l.userid,l.nickname,l.use_at',
+			'xxt_invite_access a,xxt_invite_log l',
+			"a.token = '" . $modelInv->escape($inviteToken) . "' and a.invite_log_id = l.id"
 		];
 
 		$user = $modelInv->query_obj_ss($q);

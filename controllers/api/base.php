@@ -23,7 +23,7 @@ class base extends \TMS_CONTROLLER {
 		$userIP = $this->client_ip();
 		$modelToken = $this->model('api\token');
 
-		$rst = $modelToken->checkToken($invoke->siteid, $accessToken);
+		$rst = $modelToken->checkToken($accessToken);
 		if ($rst[0]) {
 			$appToken = $rst[1];
 			$modelInv = $this->model('site\invoke')->setOnlyWriteDbConn(true);

@@ -156,8 +156,8 @@ class invoke extends \pl\fe\base {
 		$data->secret = $secret;
 		$data->secret_modify_log = json_encode($modifyLog);
 
-		$ret = $modelInv->update('xxt_site_invoke', $data, ['id' => $invoke->id]);
+		$modelInv->update('xxt_site_invoke', $data, ['id' => $invoke->id]);
 
-		return new \ResponseData($rst);
+		return new \ResponseData($data);
 	}
 }

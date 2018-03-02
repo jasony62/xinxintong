@@ -104,7 +104,7 @@ class invoke extends \pl\fe\base {
 	/*
 	 * 生成sitesecret
 	 */
-	public function creatSecret_action($site) {
+	public function createSecret_action($site) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -128,9 +128,9 @@ class invoke extends \pl\fe\base {
 		$data->secret_creater_name = $modelInv->escape($oUser->name);
 		$data->secret_create_at = $current;
 
-		$ret = $modelInv->update('xxt_site_invoke', $data, ['id' => $invoke->id]);
+		$modelInv->update('xxt_site_invoke', $data, ['id' => $invoke->id]);
 
-		return new \ResponseData($rst);
+		return new \ResponseData($data);
 	}
 	/*
 	 * 重置sitesecret

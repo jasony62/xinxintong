@@ -58,12 +58,12 @@ class token_model extends \TMS_MODEL {
 	/*
 	 * 验证access_token
 	 */
-	public function checkToken($site, $accessToken) {
+	public function checkToken($accessToken) {
 		$this->setOnlyWriteDbConn(true);
 		$q = [
 			'*',
 			'xxt_site_invoke_token',
-			['siteid' => $site, 'access_token' => $accessToken, 'state' => 1],
+			['access_token' => $accessToken, 'state' => 1],
 		];
 		$token = $this->query_obj_ss($q);
 		if ($token === false) {

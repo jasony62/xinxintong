@@ -8,22 +8,16 @@ require_once dirname(__FILE__) . '/base.php';
 class invite extends base {
 	/*
 	 * 通过inviteToken获取访问用户信息
-	 * @param string $site 团队id
 	 * @param string $accessToken 外部系统访问令牌
 	 * @param string $inviteToken 用户标识
 	 */
-	public function user_action($site, $accessToken, $inviteToken) {
-		if (empty($site) || empty($accessToken) || empty($inviteToken)) {
+	public function user_action($accessToken, $inviteToken) {
+		if (empty($accessToken) || empty($inviteToken)) {
 			return new \ParameterError('参数不完整');
 		}
 
-		$modelInv = $this->model('site\invoke')->setOnlyWriteDbConn(true);
-		if (false === ($invoke = $modelInv->bySite($site))) {
-			return new \ObjectNotFoundError();
-		}
-
 		//校验accessToken
-		$checkRes = $this->checkToken($invoke, $accessToken);
+		$checkRes = $this->checkToken($accessToken);
 		if (!$checkRes[0]) {
 			return new \ResponseError($checkRes[1]);
 		}

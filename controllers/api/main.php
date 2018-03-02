@@ -21,7 +21,7 @@ class main extends base {
 			return new \ObjectNotFoundError();
 		}
 		if ($secret !== $invoke->secret) {
-			return new \ParameterError('siteSecret参数错误');
+			return new \ParameterError('无效的调用凭证');
 		}
 		$userIp = $this->client_ip();
 		if (!in_array($userIp, $invoke->invokerIps)) {

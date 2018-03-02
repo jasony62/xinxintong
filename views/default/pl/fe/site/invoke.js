@@ -61,7 +61,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('site', function(nv) {
             if(!nv) return;
-            http2.get('/rest/pl/fe/site/get?invoke=' + nv.id, function(rsp) {
+            http2.get('/rest/pl/fe/site/invoke/get?site=' + nv.id, function(rsp) {
                 $scope.invoke = rsp.data;
                 dealSecet(rsp.data.secret);
             });

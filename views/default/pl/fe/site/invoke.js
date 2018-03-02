@@ -23,7 +23,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.creatSecret = function() {
-            http2.get('/rest/pl/fe/site/invoke?creatSecret=' + $scope.siteId, function(rsp) {
+            http2.get('/rest/pl/fe/site/invoke/creatSecret?site=' + $scope.siteId, function(rsp) {
                 dealSecet(rsp.data.secret);
             });
         };
@@ -32,7 +32,7 @@ define(['frame'], function(ngApp) {
             $scope.flag = false;
         };
         $scope.restSecret = function() {
-            http2.get('/rest/pl/fe/site/invoke?restSecret=' + $scope.siteId, function(rsp) {
+            http2.get('/rest/pl/fe/site/invoke/restSecret?site=' + $scope.siteId, function(rsp) {
                 dealSecet(rsp.data.secret);
                 noticebox.success('完成修改');
             });
@@ -56,7 +56,9 @@ define(['frame'], function(ngApp) {
                     };
                 }]
             }).result.then(function(ips) {
-                console.log(ips);
+                http2.post('/rest/pl/fe/site/invoke/update?site=' + $scope.siteId, {invokerIp:ips}, function(rsp) {
+                    noticebox.success('保存成功');
+                });
             });
         };
         $scope.$watch('site', function(nv) {

@@ -32,7 +32,7 @@ define(['frame'], function(ngApp) {
             $scope.flag = false;
         };
         $scope.resetSecret = function() {
-            var msg = "你确定要重置调用凭证(SiteSecret)吗？";
+            var msg = "你确定要重置调用凭证(SiteSecret)吗？\r\r请注意：重置SiteSecret立即生效，所有使用旧SiteSecret的接口将立即失效。为确保调用的正常使用，请尽快更新SiteSecret信息";
             if (confirm(msg)==true){
                 http2.get('/rest/pl/fe/site/invoke/resetSecret?site=' + $scope.siteId, function(rsp) {
                     $scope.invoke.secret = rsp.data.secret;

@@ -13,7 +13,7 @@ class log_model extends \TMS_MODEL {
 		$log->invoke_id = $invokeId;
 		$log->create_at = time();
 		$log->access_token = $accessToken;
-		$log->access_status = json_encode($data);
+		$log->access_status = $this->toJson($data);
 		$log->user_agent = isset($_SERVER['HTTP_USER_AGENT'])? $_SERVER['HTTP_USER_AGENT'] : '';
 		$log->user_ip = $user->ip;
 

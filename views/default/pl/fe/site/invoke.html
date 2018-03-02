@@ -7,16 +7,18 @@
             <div class='panel-body'>
                 <div class='form-group row'>
                     <label class='col-md-3'>调用ID(SiteId)</label>
-                    <div class='col-md-9' ng-bind="site.id"></div>
+                    <div class='col-md-9' ng-bind="site.id">
+                        <p class='help-block'>调用ID是调用机制的识别码，配合调用凭证用于获取访问令牌。</p>
+                    </div>
                 </div>
                 <div class='form-group row'>
-                    <label class='col-md-3'>调用密码(SiteSecret)</label>
+                    <label class='col-md-3'>调用凭证(SiteSecret)</label>
                     <div class='col-md-9'>
                         <span ng-if="invoke.secret!==''" ng-bind="invoke.secret"></span>
                         <a href='' ng-if="flag&&invoke.secret!==''" ng-click="showSecret()">完整显示</a>
                         <a href='' ng-if="invoke.secret!==''" ng-click="resetSecret()">重置</a>
                         <a href='' ng-if="invoke.secret==''" ng-click="createSecret()">生成</a>
-                        <p class='help-block'>调用密码是校验公众号开发者身份的密码，具有极高的安全性。</p>
+                        <p class='help-block'>调用凭证是校验调用接口者身份的密码，具有极高的安全性。</p>
                     </div>
                 </div>
                 <div class='form-group row'>

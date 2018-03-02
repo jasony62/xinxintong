@@ -32,10 +32,15 @@ define(['frame'], function(ngApp) {
             $scope.flag = false;
         };
         $scope.resetSecret = function() {
-            http2.get('/rest/pl/fe/site/invoke/resetSecret?site=' + $scope.siteId, function(rsp) {
-                $scope.invoke.secret = rsp.data.secret;
-                noticebox.success('重置成功');
-            });
+            var msg = "你确定要重置调用凭证(SiteSecret)吗？";
+            if (confirm(msg)==true){
+                http2.get('/rest/pl/fe/site/invoke/resetSecret?site=' + $scope.siteId, function(rsp) {
+                    $scope.invoke.secret = rsp.data.secret;
+                    noticebox.success('重置成功');
+                });
+            }else{
+                return false;
+            }
         };
         $scope.doIP = function(ips) {
             $uibModal.open({

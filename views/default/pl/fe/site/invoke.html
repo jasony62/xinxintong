@@ -1,3 +1,6 @@
+<style>
+    a:focus, a:hover{color:#337ab7;text-decoration:none;outline:none;}
+</style>
 <div class='row'>
     <div class='col-md-8 col-md-offset-2'>
         <div class='panel panel-default'>
@@ -9,18 +12,18 @@
                 <div class='form-group row'>
                     <label class='col-md-3'>调用密码(SiteSecret)</label>
                     <div class='col-md-9'>
-                        <span ng-if="invoke.secret" ng-bind="invoke.secret"></span>
-                        <a href='' ng-if="invoke.secret&&flag" ng-click="showSecret()">完整显示</a>
-                        <a href='' ng-if="invoke.secret" ng-click="resetSecret()">重置</a>
-                        <a href='' ng-if="!invoke.secret" ng-click="createSecret()">生成</a>
+                        <span ng-if="invoke.secret!==''" ng-bind="invoke.secret"></span>
+                        <a href='' ng-if="flag&&invoke.secret!==''" ng-click="showSecret()">完整显示</a>
+                        <a href='' ng-if="invoke.secret!==''" ng-click="resetSecret()">重置</a>
+                        <a href='' ng-if="invoke.secret==''" ng-click="createSecret()">生成</a>
                         <p class='help-block'>调用密码是校验公众号开发者身份的密码，具有极高的安全性。</p>
                     </div>
                 </div>
                 <div class='form-group row'>
                     <label class='col-md-3'>IP地址</label>
                     <div class='col-md-9'>
-                        <a href='' ng-if="!invoke.ip" ng-click="doIP()">配置</a>
-                        <a href='' ng-if="invoke.ip" ng-click="doIP(invoke.ip)">查看</a>
+                        <a href='' ng-if="!invoke.invokerIps.length" ng-click="doIP()">配置</a>
+                        <a href='' ng-if="invoke.invokerIps.length" ng-click="doIP(invoke.invokerIps)">查看</a>
                         <p class="help-block">获取access_token和调用接口时，需要设置访问来源IP地址，例如：xxx.xxx.xxx.xxx。</p>
                     </div>
                 </div>
@@ -38,7 +41,7 @@
             <div class='form-group'>
                 <lable class='col-md-2 control-label'>IP地址</lable>
                 <div class='col-md-8'>
-                    <textarea autofocus style="width:100%; height:200px;resize:none"  placeholder="多个IP地址用英文逗号隔开" ng-model="ips"></textarea>
+                    <textarea style="width:100%; height:200px;resize:none"  placeholder="多个IP地址用英文逗号隔开" ng-model="ips"></textarea>
                     <p class='text-danger'>{{tip}}</p>
                 </div>
             </div>

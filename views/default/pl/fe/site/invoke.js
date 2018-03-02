@@ -2,10 +2,10 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlInvoke', ['$scope', '$location', 'http2', 'noticebox', '$uibModal', function($scope, $location, http2, noticebox, $uibModal) {
         $scope.siteId = $location.search().site;
-        $scope.flag = true;
         var secret;
         function dealSecet(password) {
             secret = password;
+            $scope.flag = true;
             $scope.invoke.secret = password.substr(0, 4) + '****' + password.substr(28);
         };
         function dealIP(value) {
@@ -24,7 +24,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.createSecret = function() {
             http2.get('/rest/pl/fe/site/invoke/createSecret?site=' + $scope.siteId, function(rsp) {
-                dealSecet(rsp.data.secret);
+                $scope.invoke.secret = rsp.data.secret;
             });
         };
         $scope.showSecret = function() {
@@ -33,7 +33,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.resetSecret = function() {
             http2.get('/rest/pl/fe/site/invoke/resetSecret?site=' + $scope.siteId, function(rsp) {
-                dealSecet(rsp.data.secret);
+                $scope.invoke.secret = rsp.data.secret;
                 noticebox.success('重置成功');
             });
         };
@@ -42,7 +42,7 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'ip.html',
                 dropback: 'static',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    if(ips) {$scope2.ips = ips;}
+                    if(ips) {$scope2.ips = ips.toString();}
                     $scope2.ok = function() {
                         var ips = [];
                         var isTrue = $scope2.ips.split(',').every(function(ip){
@@ -57,6 +57,7 @@ define(['frame'], function(ngApp) {
                 }]
             }).result.then(function(ips) {
                 http2.post('/rest/pl/fe/site/invoke/update?site=' + $scope.siteId, {invokerIp:ips}, function(rsp) {
+                    $scope.invoke.invokerIps = ips;
                     noticebox.success('保存成功');
                 });
             });
@@ -65,7 +66,7 @@ define(['frame'], function(ngApp) {
             if(!nv) return;
             http2.get('/rest/pl/fe/site/invoke/get?site=' + nv.id, function(rsp) {
                 $scope.invoke = rsp.data;
-                dealSecet(rsp.data.secret);
+                rsp.data.secret && dealSecet(rsp.data.secret);
             });
         });
     }]);

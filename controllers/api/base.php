@@ -30,8 +30,8 @@ class base extends \TMS_CONTROLLER {
 		if ($rst[0]) {
 			$appToken = $rst[1];
 			$modelInv = $this->model('site\invoke')->setOnlyWriteDbConn(true);
-			if (false === ($invoke = $modelInv->bySite($appToken->siteid))) {
-				$rst = [false, '数据错误'];
+			if (false === ($invoke = $modelInv->bySecret($appToken->secret))) {
+				$rst = [false, '数据错误或者访问令牌已失效'];
 			} else {
 				if (!in_array($userIP, $invoke->invokerIps)) {
 					$rst = [false, 'ip地址未在白名单中'];

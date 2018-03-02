@@ -157,6 +157,8 @@ class invoke extends \pl\fe\base {
 		$data->secret_modify_log = json_encode($modifyLog);
 
 		$modelInv->update('xxt_site_invoke', $data, ['id' => $invoke->id]);
+		// 删除团队下所有的token
+		$modelInv->update('xxt_site_invoke_token', ['state' => 0], ['siteid' => $site, 'invoke_id' => $invoke->id]);
 
 		return new \ResponseData($data);
 	}

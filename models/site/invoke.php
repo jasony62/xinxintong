@@ -24,6 +24,26 @@ class invoke_model extends \TMS_MODEL {
 
 		return $invoke;
 	}
+	/**
+	 *
+	 */
+	public function bySecret($secret, $options = []) {
+		$fields = !empty($options['fields']) ? $options['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_site_invoke',
+			['secret' => $secret],
+		];
+
+		$invoke = $this->query_obj_ss($q);
+		if ($invoke) {
+			if (property_exists($invoke, 'invoker_ip')) {
+				$invoke->invokerIps = empty($invoke->invoker_ip) ? [] : explode(',',$invoke->invoker_ip);
+			}
+		}
+
+		return $invoke;
+	}
 	/*
 	 *
 	 */

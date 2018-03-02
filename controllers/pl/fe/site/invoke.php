@@ -48,7 +48,7 @@ class invoke extends \pl\fe\base {
 		$invoke = $modelInv->bySite($site);
 		if ($invoke === false) {
 			//没有就创建
-			$invoke = $modelInv->creat($site, $oUser);
+			$invoke = $modelInv->create($site, $oUser);
 		}
 
 		return new \ResponseData($invoke);

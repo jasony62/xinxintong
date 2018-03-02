@@ -5,17 +5,18 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  *
  */
-class main extends \pl\fe\base {
+class invoke extends \pl\fe\base {
 	/*
 	 *
 	 */
-	public function __construct($site) {
-		if (empty($site)) {
+	public function __construct() {
+		$siteId = $_GET['site'];
+		if (empty($siteId)) {
 			return new \ParameterError('参数不完整');
 		}
 
 		$modelSite = $this->model('site');
-		if (false === ($oSite = $modelSite->byId($site))) {
+		if (false === ($oSite = $modelSite->byId($siteId))) {
 			return new \ObjectNotFoundError();
 		}
 	}
@@ -32,7 +33,7 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/invoke');
+		\TPL::output('/pl/fe/site/frame');
 		exit;
 	}
 	/*

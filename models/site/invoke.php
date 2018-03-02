@@ -3,7 +3,7 @@ namespace site;
 /**
  * 发布在平台主页上的团队
  */
-class home_model extends \TMS_MODEL {
+class invoke_model extends \TMS_MODEL {
 	/**
 	 *
 	 */

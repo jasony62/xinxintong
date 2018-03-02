@@ -42,13 +42,14 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'ip.html',
                 dropback: 'static',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var ips = [];
                     if(ips) {$scope2.ips = ips;}
                     $scope2.ok = function() {
+                        var ips = [];
                         var isTrue = $scope2.ips.split(',').every(function(ip){
+                            if(!dealIP(ip)) $scope2.tip = '当前的输入含有不合法的IP地址：' + ip;
                             return dealIP(ip);
                         });
-                        isTrue ? $mi.close($scope2.ips) : $scope2.tip = '当前的输入含有不合法的IP地址';
+                        isTrue && $mi.close($scope2.ips);
                     };
                     $scope2.cancel = function() {
                         $mi.dismiss();
@@ -60,7 +61,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('site', function(nv) {
             if(!nv) return;
-            http2.get('/rest/pl/fe/site/invoke?get=' + nv.id, function(rsp) {
+            http2.get('/rest/pl/fe/site/get?invoke=' + nv.id, function(rsp) {
                 $scope.invoke = rsp.data;
                 dealSecet(rsp.data.secret);
             });

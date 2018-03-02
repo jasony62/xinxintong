@@ -28,7 +28,6 @@ class news_model extends MultiArticleReply {
 
 		$news = \TMS_APP::model('matter\news')->byId($this->set_id);
 		$matters = \TMS_APP::model('matter\news')->getMatters($this->set_id);
-		$modelAcl = \TMS_APP::model('matter\acl');
 
 		// 获取用户的自定义信息
 		// added by yangyue: 一个openid可能对应多个userid

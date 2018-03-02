@@ -249,14 +249,7 @@ class main extends \site\fe\matter\base {
 		/**
 		 * 抽奖活动定义
 		 */
-		$r = $model->byId($app, 'access_control,authapis', array('award'));
-		/**
-		 * is member?
-		 */
-		$mid = null;
-		if ($r->access_control) {
-			die('unsupported');
-		}
+		$r = $model->byId($app, '*', array('award'));
 
 		//$fan = $this->getCookieOAuthUser($site);
 

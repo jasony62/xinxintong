@@ -2,6 +2,7 @@
 require('./remark.css');
 
 var ngApp = require('./main.js');
+ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $sce, $uibModal, LS, http2, noticebox) {
     function listRemarks() {
         http2.get(LS.j('remark/list', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
@@ -206,8 +207,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                 var oRecord;
                 $scope.record = oRecord = rsp.data;
                 aShareable.forEach(function(oSchema) {
-                    if (oSchema.type === 'file') {
+                    if (/file|url/.test(oSchema.type)) {
                         oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
+                        if ('url' === oSchema.type) {
+                            oRecord.verbose[oSchema.id].value._substitute = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
+                        }
                     } else if (oSchema.type === 'image') {
                         oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
                     } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
@@ -227,8 +231,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                 var oRecord, oRecData;
                 if (oRecord = rsp.data) {
                     if (oRecData = oRecord.verbose[LS.s().schema]) {
-                        if (oAssignedSchema.type == 'file') {
+                        if (/file|url/.test(oAssignedSchema.type)) {
                             oRecData.value = angular.fromJson(oRecData.value);
+                            if ('url' === oAssignedSchema.type) {
+                                oRecData.value._substitute = ngApp.oUtilSchema.urlSubstitute(oRecData.value);
+                            }
                         }
                         if (oRecData.tag) {
                             oRecData.tag.forEach(function(index, tagId) {

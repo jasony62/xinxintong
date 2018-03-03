@@ -115,6 +115,7 @@
                                     </ul>
                                     <div ng-switch-when="multiple"><span>{{value2Label(schemas[rec.schema_id],rec.value)}}</span></div>
                                     <div ng-switch-when="single"><span>{{value2Label(schemas[rec.schema_id],rec.value)}}</span></div>
+                                    <div ng-switch-when="url"><span ng-bind-html="rec.value._substitute"></span></div>
                                     <div ng-switch-default>{{rec.value}}</div>
                                     <div ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
                                         <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>

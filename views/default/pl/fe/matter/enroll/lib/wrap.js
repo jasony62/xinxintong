@@ -312,8 +312,7 @@
                  html += '</ul>';
                  break;
              case 'shorttext':
-             case 'member':
-                 if (schema.type === 'shorttext' && schema.history === 'Y') {
+                 if (schema.history === 'Y') {
                      html += '<div wrap="shorttext-history" class="input-group input-group-lg">';
                      html += '<input type="text" ng-model="data.' + schema.id + '"';
                      html += ' title="' + schema.title + '"';
@@ -342,6 +341,28 @@
                  html += ' placeholder="' + schema.title + '"';
                  schema.required === 'Y' && (html += 'required=""');
                  html += ' class="form-control input-lg"></div>';
+                 break;
+             case 'url':
+                 html += '<div wrap="url">';
+                 html += '<div ng-bind-html="data.' + schema.id + '._substitute"';
+                 html += ' title="' + schema.title + '"';
+                 html += ' class="form-control"></div>';
+                 html += '<div class="text-right">';
+                 html += '<button class="btn btn-default" ng-click="pasteUrl(\'' + schema.id + '\')">指定链接</button>';
+                 html += '</div>';
+                 html += '</div>';
+                 break;
+             case 'location':
+                 html += '<div wrap="location" class="input-group input-group-lg">';
+                 html += '<input type="text" ng-model="data.' + schema.id + '"';
+                 html += ' title="' + schema.title + '"';
+                 html += ' placeholder="' + schema.title + '"';
+                 schema.required === 'Y' && (html += 'required=""');
+                 html += ' class="form-control">';
+                 html += '<div class="input-group-btn">';
+                 html += '<button class="btn btn-default" ng-click="' + 'getMyLocation(\'' + schema.id + '\')' + '">定位</button>';
+                 html += '</div>';
+                 html += '</div>';
                  break;
              case 'longtext':
                  html += '<textarea style="height:auto" ng-model="data.' + schema.id + '" title="' + schema.title + '"';
@@ -388,18 +409,6 @@
                  html += '<button class="btn btn-success" ng-click="chooseFile(\'' + schema.id + '\',' + (schema.count || 1) + ')">' + schema.title + '</button>';
                  html += '</li>';
                  html += '</ul>';
-                 break;
-             case 'location':
-                 html += '<div wrap="location" class="input-group input-group-lg">';
-                 html += '<input type="text" ng-model="data.' + schema.id + '"';
-                 html += ' title="' + schema.title + '"';
-                 html += ' placeholder="' + schema.title + '"';
-                 schema.required === 'Y' && (html += 'required=""');
-                 html += ' class="form-control">';
-                 html += '<span class="input-group-btn">';
-                 html += '<button class="btn btn-default" ng-click="' + 'getMyLocation(\'' + schema.id + '\')' + '">定位</button>';
-                 html += '</span>';
-                 html += '</div>';
                  break;
              case 'score':
                  if (schema.ops && schema.ops.length > 0) {
@@ -449,7 +458,7 @@
                      $dom.find('[class="description"]').remove();
                  }
 
-                 if (/shorttext|longtext|multitext|member|date|location/.test(oSchema.type)) {
+                 if (/shorttext|longtext|multitext|member|date|location|url/.test(oSchema.type)) {
                      $input = $dom.find('input,select,textarea');
                      if (config.showname === 'label') {
                          $label.removeClass('sr-only');
@@ -708,6 +717,9 @@
              case 'location':
                  html = '<div>{{Record.current.data.' + schema.id + '}}</div>';
                  break;
+             case 'url':
+                 html = '<div ng-bind-html="Record.current.data.' + schema.id + '._substitute"></div>';
+                 break;
              case 'single':
              case 'multiple':
                  html = '<div ng-bind-html="' + "value2Label('" + schema.id + "')" + '"></div>';
@@ -881,12 +893,15 @@
              case 'sns':
                  html += '<div>{{r.data.' + oSchema.id + '}}</div>';
                  break;
+             case 'url':
+                 html += '<div ng-bind-html="r.data.' + oSchema.id + '.title"></div>';
+                 break;
              case 'date':
                  html += '<div><span ng-if="r.data.' + oSchema.id + '">{{r.data.' + oSchema.id + '*1000|date:"yy-MM-dd HH:mm"}}</span></div>';
                  break;
              case 'single':
              case 'multiple':
-                 html += '<div ng-bind-html="' + "value2Label(r,'" + oSchema.id + "')" + '"></div>'
+                 html += '<div ng-bind-html="' + "value2Label(r,'" + oSchema.id + "')" + '"></div>';
                  break;
              case 'score':
                  html += '<div ng-bind-html="' + "score2Html(r,'" + oSchema.id + "')" + '"></div>';

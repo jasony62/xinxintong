@@ -120,6 +120,9 @@
                                         </div>
                                         <div ng-switch-when="single"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
                                         <div ng-switch-when="multiple"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
+                                        <div ng-switch-when="url">
+                                            <span ng-bind-html="rec.data[schema.id]._substitute"></span>
+                                        </div>
                                         <div ng-switch-default>
                                             <span>{{rec.data[schema.id]}}</span>
                                         </div>

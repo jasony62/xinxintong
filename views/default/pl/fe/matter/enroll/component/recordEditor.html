@@ -242,6 +242,11 @@
                             <div ng-switch-when='date'>
                                 <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
                             </div>
+                            <div ng-switch-when='url'>
+                                <div class='form-control' style='height:auto;min-height:34px;' ng-bind-html="record.data[schema.id].title"></div>
+                                <div class='form-control' style='height:auto;min-height:34px;' ng-bind-html="record.data[schema.id].description"></div>
+                                <div class='form-control' style='height:auto;min-height:34px;' ng-bind-html="record.data[schema.id].url"></div>
+                            </div>
                             <div ng-switch-default>
                                 <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')===0" ng-model="record.data.member[schema.id.substr(7)]">
                                 <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')!==0" ng-model="record.data[schema.id]">

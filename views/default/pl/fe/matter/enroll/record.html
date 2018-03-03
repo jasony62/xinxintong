@@ -91,6 +91,7 @@
                                 <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
                             </div>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._substitute"></span>
                             <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
                             <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>

@@ -198,7 +198,7 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox) {
+ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsUrl', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsUrl) {
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
@@ -539,6 +539,14 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     $scope.getMyLocation = function(prop) {
         window.xxt.geo.getAddress(http2, $q.defer(), LS.p.site).then(function(data) {
             $scope.data[prop] = data.address;
+        });
+    };
+    $scope.pasteUrl = function(schemaId) {
+        tmsUrl.fetch($scope.data[schemaId]).then(function(result) {
+            var oData;
+            oData = angular.copy(result.summary);
+            oData._substitute = result.substitute;
+            $scope.data[schemaId] = oData;
         });
     };
     $scope.dataBySchema = function(schemaId) {

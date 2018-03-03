@@ -83,29 +83,31 @@ utilSchema.checkValue = function(oSchema, value) {
 };
 utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
     if (!dataOfRecord) return false;
-    var p, value;
-    for (p in dataOfRecord) {
-        if (p === 'member') {
+    var schemaId, oSchema, value;
+    for (schemaId in dataOfRecord) {
+        if (schemaId === 'member') {
             dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
-        } else if (schemasById[p] !== undefined) {
-            var schema = schemasById[p];
-            if (schema.type === 'score') {
-                dataOfPage[p] = dataOfRecord[p];
-            } else if (dataOfRecord[p].length) {
-                if (schemasById[p].type === 'image') {
-                    value = dataOfRecord[p].split(',');
-                    dataOfPage[p] = [];
+        } else if (oSchema = schemasById[schemaId]) {
+            if (/score|url/.test(oSchema.type)) {
+                dataOfPage[schemaId] = dataOfRecord[schemaId];
+                if ('url' === oSchema.type) {
+                    dataOfPage[schemaId]._substitute = utilSchema.urlSubstitute(dataOfPage[schemaId]);
+                }
+            } else if (dataOfRecord[schemaId].length) {
+                if (oSchema.type === 'image') {
+                    value = dataOfRecord[schemaId].split(',');
+                    dataOfPage[schemaId] = [];
                     for (var i in value) {
-                        dataOfPage[p].push({
+                        dataOfPage[schemaId].push({
                             imgSrc: value[i]
                         });
                     }
-                } else if (schemasById[p].type === 'multiple') {
-                    value = dataOfRecord[p].split(',');
-                    dataOfPage[p] = {};
-                    for (var i in value) dataOfPage[p][value[i]] = true;
+                } else if (oSchema.type === 'multiple') {
+                    value = dataOfRecord[schemaId].split(',');
+                    dataOfPage[schemaId] = {};
+                    for (var i in value) dataOfPage[schemaId][value[i]] = true;
                 } else {
-                    dataOfPage[p] = dataOfRecord[p];
+                    dataOfPage[schemaId] = dataOfRecord[schemaId];
                 }
             }
         }
@@ -147,5 +149,20 @@ utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {
             }
         });
     }
+};
+utilSchema.urlSubstitute = function(oUrlData) {
+    var substitute;
+    substitute = '';
+    if (oUrlData) {
+        if (oUrlData.title) {
+            substitute += '【' + oUrlData.title + '】';
+        }
+        if (oUrlData.description) {
+            substitute += oUrlData.description;
+        }
+    }
+    substitute += '<a href="' + oUrlData.url + '">网页链接</a>';
+
+    return substitute;
 };
 module.exports = utilSchema;

@@ -1193,6 +1193,13 @@ class record extends \pl\fe\matter\base {
 					}
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
+				case 'url':
+					$v0 = '';
+					!empty($v->title) && $v0 .= '【' . $v->title . '】';
+					!empty($v->description) && $v0 .= $v->description;
+					!empty($v->url) && $v0 .= $v->url;
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
 				default:
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;

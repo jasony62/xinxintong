@@ -136,7 +136,7 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                             originalValue = originalValue.split(',');
                             break;
                         case 'url':
-                            originalValue._substitute = ngApp.oUtilSchema.urlSubstitute(originalValue);
+                            originalValue._text = ngApp.oUtilSchema.urlSubstitute(originalValue);
                             break;
                     }
                 }

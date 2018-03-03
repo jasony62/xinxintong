@@ -339,7 +339,7 @@ class data_model extends \TMS_MODEL {
 					}
 					break;
 				case 'url':
-					unset($submitVal->_substitute);
+					unset($submitVal->_text);
 					$oDbData->{$schemaId} = $submitVal;
 					break;
 				default:

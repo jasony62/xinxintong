@@ -91,7 +91,7 @@ utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
             if (/score|url/.test(oSchema.type)) {
                 dataOfPage[schemaId] = dataOfRecord[schemaId];
                 if ('url' === oSchema.type) {
-                    dataOfPage[schemaId]._substitute = utilSchema.urlSubstitute(dataOfPage[schemaId]);
+                    dataOfPage[schemaId]._text = utilSchema.urlSubstitute(dataOfPage[schemaId]);
                 }
             } else if (dataOfRecord[schemaId].length) {
                 if (oSchema.type === 'image') {
@@ -151,18 +151,18 @@ utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {
     }
 };
 utilSchema.urlSubstitute = function(oUrlData) {
-    var substitute;
-    substitute = '';
+    var text;
+    text = '';
     if (oUrlData) {
         if (oUrlData.title) {
-            substitute += '【' + oUrlData.title + '】';
+            text += '【' + oUrlData.title + '】';
         }
         if (oUrlData.description) {
-            substitute += oUrlData.description;
+            text += oUrlData.description;
         }
     }
-    substitute += '<a href="' + oUrlData.url + '">网页链接</a>';
+    text += '<a href="' + oUrlData.url + '">网页链接</a>';
 
-    return substitute;
+    return text;
 };
 module.exports = utilSchema;

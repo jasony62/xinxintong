@@ -66,7 +66,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                         oSchema = _oShareableSchemas[schemaId];
                         if (schemaData = oRecord.data[oSchema.id]) {
                             if ('url' === oSchema.type) {
-                                schemaData._substitute = ngApp.oUtilSchema.urlSubstitute(schemaData);
+                                schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
                             }
                         }
                     }

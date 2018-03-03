@@ -78,7 +78,7 @@
                                     <span ng-if="record.verbose[schema.id].multitext_seq > 0" ng-bind="record.verbose[schema.id].value"></span>
                                 </div>
                                 <div ng-switch-when="url">
-                                    <span ng-bind-html="record.verbose[schema.id].value._substitute"></span>
+                                    <span ng-bind-html="record.verbose[schema.id].value._text"></span>
                                 </div>
                                 <div ng-switch-default>
                                     <span>{{record.verbose[schema.id].value}}</span>

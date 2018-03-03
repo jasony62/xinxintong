@@ -31,7 +31,7 @@ class url extends base {
 			}
 		}
 		/* 获得页面的描述 */
-		if (preg_match('/<meta.*?name="description".*?content="(.*)".*?>/i', $html, $aDescription)) {
+		if (preg_match('/<meta[^<]*?name="description".*?content="([^"]*?)">/i', $html, $aDescription)) {
 			if (count($aTitle) === 2) {
 				$oSummary->description = $aDescription[1];
 			}

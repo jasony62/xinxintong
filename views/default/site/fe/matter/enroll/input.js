@@ -545,7 +545,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         tmsUrl.fetch($scope.data[schemaId]).then(function(result) {
             var oData;
             oData = angular.copy(result.summary);
-            oData._substitute = result.substitute;
+            oData._text = result.text;
             $scope.data[schemaId] = oData;
         });
     };

@@ -71,7 +71,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce'
                     if (/file|url/.test(shareableSchemas[oRecord.schema_id].type)) {
                         oRecord.value = angular.fromJson(oRecord.value);
                         if ('url' === shareableSchemas[oRecord.schema_id].type) {
-                            oRecord.value._substitute = ngApp.oUtilSchema.urlSubstitute(oRecord.value);
+                            oRecord.value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.value);
                         }
                     } else if (shareableSchemas[oRecord.schema_id].type === 'multitext') {
                         angular.forEach(oRecord.items, function(item) {

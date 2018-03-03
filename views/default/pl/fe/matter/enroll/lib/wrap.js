@@ -344,7 +344,7 @@
                  break;
              case 'url':
                  html += '<div wrap="url">';
-                 html += '<div ng-bind-html="data.' + schema.id + '._substitute"';
+                 html += '<div ng-bind-html="data.' + schema.id + '._text"';
                  html += ' title="' + schema.title + '"';
                  html += ' class="form-control"></div>';
                  html += '<div class="text-right">';
@@ -718,7 +718,7 @@
                  html = '<div>{{Record.current.data.' + schema.id + '}}</div>';
                  break;
              case 'url':
-                 html = '<div ng-bind-html="Record.current.data.' + schema.id + '._substitute"></div>';
+                 html = '<div ng-bind-html="Record.current.data.' + schema.id + '._text"></div>';
                  break;
              case 'single':
              case 'multiple':

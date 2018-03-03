@@ -24,7 +24,7 @@ ngMod.service('tmsUrl', ['$q', '$uibModal', function($q, $uibModal) {
     HtmlTemplate += '<textarea class="form-control" placeholder="3、复制链接后这里将显示页面的摘要描述（如果提供），可进行修改" ng-model="data.summary.description" rows="4"></textarea>';
     HtmlTemplate += '</div>';
     HtmlTemplate += '<div class="form-group">';
-    HtmlTemplate += '<div class="form-control" ng-bind-html="data.substitute" style="height:auto;"></div>';
+    HtmlTemplate += '<div class="form-control" ng-bind-html="data.text" style="height:auto;min-height:34px;"></div>';
     HtmlTemplate += '</div>';
     HtmlTemplate += '</form>';
     HtmlTemplate += '</div>';
@@ -40,7 +40,7 @@ ngMod.service('tmsUrl', ['$q', '$uibModal', function($q, $uibModal) {
             controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, http2) {
                 var _oData;
                 $scope.data = _oData = {
-                    view: '结果预览'
+                    text: '结果预览'
                 };
                 if (oBeforeUrlData) {
                     _oData.summary = {
@@ -71,16 +71,17 @@ ngMod.service('tmsUrl', ['$q', '$uibModal', function($q, $uibModal) {
                 };
                 $scope.$watch('data.summary', function(nv) {
                     if (nv) {
-                        var substitute;
-                        substitute = '';
+                        var text;
+                        text = '';
                         if (nv.title) {
-                            substitute += '【' + nv.title + '】';
+                            text += '【' + nv.title + '】';
                         }
                         if (nv.description) {
-                            substitute += nv.description;
+                            text += nv.description;
                         }
-                        substitute += '<a href="' + _oData.url + '">网页链接</a>';
-                        _oData.substitute = substitute;
+                        text += '<a href="' + _oData.url + '">网页链接</a>';
+                        console.log('ttt', text);
+                        _oData.text = text;
                     }
                 }, true);
             }],

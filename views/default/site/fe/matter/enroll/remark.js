@@ -210,7 +210,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                     if (/file|url/.test(oSchema.type)) {
                         oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
                         if ('url' === oSchema.type) {
-                            oRecord.verbose[oSchema.id].value._substitute = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
+                            oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
                         }
                     } else if (oSchema.type === 'image') {
                         oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
@@ -234,7 +234,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                         if (/file|url/.test(oAssignedSchema.type)) {
                             oRecData.value = angular.fromJson(oRecData.value);
                             if ('url' === oAssignedSchema.type) {
-                                oRecData.value._substitute = ngApp.oUtilSchema.urlSubstitute(oRecData.value);
+                                oRecData.value._text = ngApp.oUtilSchema.urlSubstitute(oRecData.value);
                             }
                         }
                         if (oRecData.tag) {

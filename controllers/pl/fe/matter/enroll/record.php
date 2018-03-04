@@ -515,7 +515,7 @@ class record extends \pl\fe\matter\base {
 		if (isset($oPosted->rid)) {
 			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($oPosted->rid)], ['enroll_key' => $ek, 'state' => 1]);
 		}
-		if ($oUpdated->verified === 'Y') {
+		if (isset($oUpdated->verified) && $oUpdated->verified === 'Y') {
 			$this->_whenVerifyRecord($oApp, $ek);
 		}
 

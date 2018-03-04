@@ -226,7 +226,7 @@ class user_model extends \TMS_MODEL {
 		}
 		$members = $this->query_objs_ss($q, $q2);
 		if (count($members)) {
-			$sel = ['fields' => 'nickname,last_enroll_at,enroll_num,last_remark_at,remark_num,last_like_at,like_num,last_like_remark_at,like_remark_num,last_remark_other_at,remark_other_num,last_like_other_at,like_other_num,last_like_other_remark_at,like_other_remark_num,user_total_coin,score,group_id'];
+			$sel = ['fields' => 'nickname,last_enroll_at,enroll_num,last_remark_at,remark_num,last_like_at,like_num,last_like_remark_at,like_remark_num,last_remark_other_at,remark_other_num,last_like_other_at,like_other_num,last_like_other_remark_at,like_other_remark_num,last_recommend_at,recommend_num,user_total_coin,score,group_id'];
 			!empty($options['rid']) && $sel['rid'] = $this->escape($options['rid']);
 			foreach ($members as &$oMember) {
 				$oMember->extattr = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);

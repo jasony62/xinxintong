@@ -22,6 +22,11 @@ class user_model extends \TMS_MODEL {
 		}
 
 		$oUser = $this->query_obj_ss($q);
+		if ($oUser) {
+			if (property_exists($oUser, 'modify_log')) {
+				$oUser->modify_log = empty($oUser->modify_log) ? [] : json_decode($oUser->modify_log);
+			}
+		}
 
 		return $oUser;
 	}
@@ -41,6 +46,31 @@ class user_model extends \TMS_MODEL {
 		$oNewUsr->id = $this->insert('xxt_enroll_user', $oNewUsr, true);
 
 		return $oNewUsr;
+	}
+	/**
+	 * 修改用户数据
+	 */
+	public function modify($oBeforeData, $oUpdatedData) {
+		$aDbData = [];
+		foreach ($oUpdatedData as $field => $value) {
+			switch ($field) {
+			case 'last_recommend_at':
+				$aDbData[$field] = $value;
+				break;
+			case 'recommend_num':
+			case 'user_total_coin':
+				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;
+				break;
+			case 'modify_log':
+				$oBeforeData->modify_log[] = $value;
+				$aDbData['modify_log'] = json_encode($oBeforeData->modify_log);
+				break;
+			}
+		}
+
+		$rst = $this->update('xxt_enroll_user', $aDbData, ['id' => $oBeforeData->id]);
+
+		return $rst;
 	}
 	/**
 	 * 删除1条记录
@@ -475,5 +505,82 @@ class user_model extends \TMS_MODEL {
 		}
 
 		return $aUpdatedResult;
+	}
+	/**
+	 * 活动用户获得奖励积分
+	 */
+	public function awardCoin($oApp, $userid, $rid, $coinEvent, $coinRules = null) {
+		if (empty($coinRules)) {
+			$modelCoinRule = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
+			$coinRules = $modelCoinRule->rulesByMatter($coinEvent, $oApp);
+		}
+		if (empty($coinRules)) {
+			return [false];
+		}
+
+		$deltaCoin = 0; // 增加的积分
+		foreach ($coinRules as $rule) {
+			$deltaCoin += (int) $rule->actor_delta;
+		}
+		if ($deltaCoin === 0) {
+			return [false];
+		}
+
+		/* 参与活动的用户 */
+		$oEnrollUsr = $this->byId($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => $rid]);
+		if (false === $oEnrollUsr) {
+			return [false];
+		}
+
+		/* 奖励积分 */
+		$modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
+		$modelCoinLog->award($oApp, $oEnrollUsr, $coinEvent, $coinRules);
+		// $this->update(
+		// 	'xxt_enroll_user',
+		// 	['user_total_coin' => (int) $oEnrollUsr->user_total_coin + $deltaCoin],
+		// 	['id' => $oEnrollUsr->id]
+		// );
+
+		// $oEnrollUsrALL = $this->byId($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => 'ALL']);
+		// if ($oEnrollUsrALL) {
+		// 	$this->update(
+		// 		'xxt_enroll_user',
+		// 		['user_total_coin' => (int) $oEnrollUsrALL->user_total_coin + $deltaCoin],
+		// 		['id' => $oEnrollUsrALL->id]
+		// 	);
+		// }
+
+		return [true, $deltaCoin];
+	}
+	/**
+	 * 活动用户扣除奖励积分
+	 */
+	public function deductCoin($oApp, $userid, $rid, $coinEvent, $deductCoin) {
+		/* 参与活动的用户 */
+		$oEnrollUsr = $this->byId($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => $rid]);
+		if (false === $oEnrollUsr) {
+			return [false];
+		}
+
+		/* 奖励积分 */
+		$modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
+		$modelCoinLog->deduct($oApp, $oEnrollUsr, $coinEvent, $deductCoin);
+
+		$this->update(
+			'xxt_enroll_user',
+			['user_total_coin' => (int) $oEnrollUsr->user_total_coin - $deductCoin],
+			['id' => $oEnrollUsr->id]
+		);
+
+		$oEnrollUsrALL = $this->byId($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => 'ALL']);
+		if ($oEnrollUsrALL) {
+			$this->update(
+				'xxt_enroll_user',
+				['user_total_coin' => (int) $oEnrollUsrALL->user_total_coin - $deductCoin],
+				['id' => $oEnrollUsrALL->id]
+			);
+		}
+
+		return [true, $deductCoin];
 	}
 }

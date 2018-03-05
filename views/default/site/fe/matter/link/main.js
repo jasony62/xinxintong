@@ -57,7 +57,12 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['
                 $scope.user = rsp.data.user;
                 $scope.qrcode = '/rest/site/fe/matter/link/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
                 if(Object.keys($scope.link).indexOf('invite')!==-1) {
-                    $scope.link.fullUrl = $scope.link.fullUrl + '&inviteToken=' + invite_token;
+                    var len = $scope.link.fullUrl.length;
+                    if($scope.link.fullUrl.charAt(len-1)!=='?') {
+                        $scope.link.fullUrl = $scope.link.fullUrl + '&inviteToken=' + invite_token;
+                    }else {
+                        $scope.link.fullUrl = $scope.link.fullUrl + 'inviteToken=' + invite_token;
+                    }
                 }
                 document.querySelector('#link>iframe').setAttribute('src', $scope.link.fullUrl);
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + linkId + '&type=link&title=' + $scope.link.title, {

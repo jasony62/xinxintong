@@ -18,6 +18,8 @@ ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-wid
 ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
 ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
 ul.img-tiles li.img-picker button span{font-size:36px}
+/* url schema */
+div[wrap=url]>.form-control{height:auto;min-height:46px;}
 
 /* default form style*/
 div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}

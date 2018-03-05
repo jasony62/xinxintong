@@ -2,6 +2,7 @@
 require('./repos.css');
 
 var ngApp = require('./main.js');
+ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     var Round, _ins;
     Round = function(oApp) {
@@ -60,6 +61,15 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
             _oPage.total = result.data.total;
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
+                    var oSchema, schemaData;
+                    for (var schemaId in _oShareableSchemas) {
+                        oSchema = _oShareableSchemas[schemaId];
+                        if (schemaData = oRecord.data[oSchema.id]) {
+                            if ('url' === oSchema.type) {
+                                schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
+                            }
+                        }
+                    }
                     $scope.repos.push(oRecord);
                 });
             }

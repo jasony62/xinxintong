@@ -1079,7 +1079,7 @@ class record extends base {
 	 */
 	public function recommend_action($ek, $value = '') {
 		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek, ['fields' => 'state,aid,enroll_key,userid,agreed,agreed_log']);
+		$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,aid,rid,enroll_key,userid,agreed,agreed_log']);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -1107,7 +1107,13 @@ class record extends base {
 		if (!in_array($value, ['Y', 'N', 'A'])) {
 			$value = '';
 		}
-
+		$beforeValue = $oRecord->agreed;
+		if ($beforeValue === $value) {
+			return new \ParameterError('不能重复设置推荐状态');
+		}
+		/**
+		 * 更新记录数据
+		 */
 		$oAgreedLog = $oRecord->agreed_log;
 		if (isset($oAgreedLog->{$this->who->uid})) {
 			$oLog = $oAgreedLog->{$this->who->uid};
@@ -1116,20 +1122,21 @@ class record extends base {
 		} else {
 			$oAgreedLog->{$this->who->uid} = (object) ['time' => time(), 'value' => $value];
 		}
-
-		$rst = $modelRec->update(
+		$modelRec->update(
 			'xxt_enroll_record',
 			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
-			['enroll_key' => $ek, 'state' => 1]
+			['enroll_key' => $ek]
 		);
-
 		/* 如果活动属于项目，更新项目内的推荐内容 */
 		if (!empty($oApp->mission_id)) {
 			$modelMisMat = $this->model('matter\mission\matter');
 			$modelMisMat->agreed($oApp, 'R', $oRecord, $value);
 		}
 
-		return new \ResponseData($rst);
+		/* 处理了用户汇总数据，积分数据 */
+		$this->model('matter\enroll\event')->recommendRecord($oApp, $oRecord, $this->who, $value);
+
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 删除当前记录

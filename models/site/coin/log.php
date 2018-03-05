@@ -19,11 +19,11 @@ class log_model extends \TMS_MODEL {
 		}
 		foreach ($rules as $rule) {
 			if ($rule->actor_delta) {
-				$this->award2User($matter, $actor, $act, (int) $rule->actor_delta);
+				$this->_award2User($matter, $actor, $act, (int) $rule->actor_delta);
 			}
 			if ($rule->creator_delta) {
 				if ($creator = $modelMat->getCreator($matter)) {
-					$this->award2User($matter, $creator, $act, (int) $rule->creator_delta);
+					$this->_award2User($matter, $creator, $act, (int) $rule->creator_delta);
 				}
 			}
 		}
@@ -49,10 +49,11 @@ class log_model extends \TMS_MODEL {
 	 * @param object $user(uid,nickname) 获得积分的用户
 	 * @param string $act 执行的什么操作
 	 */
-	private function award2User($matter, $user, $act, $delta, $payer = 'system', $transNo = '') {
+	private function _award2User($matter, $user, $act, $delta, $payer = 'system', $transNo = '') {
 		$current = time();
+		$userid = isset($user->uid) ? $user->uid : $user->userid;
 		// 最后一条积分记录
-		if ($lastLog = $this->lastByUser($user->uid)) {
+		if ($lastLog = $this->lastByUser($userid)) {
 			$total = (int) $lastLog->total + $delta;
 			$this->update('xxt_coin_log', ["last_row" => 'N'], "id={$lastLog->id}");
 		} else {
@@ -67,7 +68,7 @@ class log_model extends \TMS_MODEL {
 		$log->occur_at = $current;
 		$log->act = $act;
 		$log->payer = $payer;
-		$log->userid = $user->uid;
+		$log->userid = $userid;
 		$log->nickname = $user->nickname;
 		$log->delta = $delta;
 		$log->total = $total;
@@ -77,7 +78,7 @@ class log_model extends \TMS_MODEL {
 		$this->insert('xxt_coin_log', $log, false);
 
 		/* 更新用户的积分汇总记录 */
-		$userCoins = $this->model('site\user\account')->byId($user->uid, ['fields' => 'coin,coin_last_at,coin_day,coin_week,coin_month,coin_year']);
+		$userCoins = $this->model('site\user\account')->byId($userid, ['fields' => 'coin,coin_last_at,coin_day,coin_week,coin_month,coin_year']);
 		if ($userCoins) {
 			// 增量累计值
 			$last = explode(',', date('Y,n,W,j', $userCoins->coin_last_at));
@@ -106,7 +107,7 @@ class log_model extends \TMS_MODEL {
 			$sql = "update xxt_site_account set";
 			$sql .= " coin={$total},coin_last_at={$current}";
 			$sql .= ",coin_day={$day},coin_week={$week},coin_month={$month},coin_year={$year}";
-			$sql .= " where uid='{$user->uid}'";
+			$sql .= " where uid='{$userid}'";
 			$this->update($sql);
 		}
 
@@ -124,7 +125,7 @@ class log_model extends \TMS_MODEL {
 	public function earn($act, $user, $coin) {
 		$matter = new \stdClass;
 		$matter->siteid = 'platform';
-		$this->award2User($matter, $user, $act, (int) $coin);
+		$this->_award2User($matter, $user, $act, (int) $coin);
 	}
 	/**
 	 *
@@ -138,7 +139,7 @@ class log_model extends \TMS_MODEL {
 	public function pay($act, $payer, $coin) {
 		$matter = new \stdClass;
 		$matter->siteid = 'platform';
-		$this->award2User($matter, $payer, $act, -1 * (int) $coin);
+		$this->_award2User($matter, $payer, $act, -1 * (int) $coin);
 	}
 	/**
 	 *
@@ -209,9 +210,22 @@ class log_model extends \TMS_MODEL {
 	public function transfer2PlUser($matter, $act, $payer, $payee, $coin) {
 		$transNo = md5($payer->uid . time() . $payee->id . $matter->id . $coin);
 
-		$this->model('pl\coin\log')->award2User($matter->siteid, $payee, $act, (int) $coin, $payer->uid, $matter, $transNo);
+		$this->model('pl\coin\log')->_award2User($matter->siteid, $payee, $act, (int) $coin, $payer->uid, $matter, $transNo);
 
-		$this->award2User($matter, $payer, $act, -1 * (int) $coin, $payee->id, $transNo);
+		$this->_award2User($matter, $payer, $act, -1 * (int) $coin, $payee->id, $transNo);
+
+		return true;
+	}
+	/**
+	 * 扣除积分
+	 *
+	 * @param object $matter 操作的素材
+	 * @param object $actor 执行操作的人
+	 * @param string $act 操作
+	 *
+	 */
+	public function deduct(&$matter, &$actor, $act, $deductCoin) {
+		$this->_award2User($matter, $actor, $act, -1 * (int) $deductCoin);
 
 		return true;
 	}

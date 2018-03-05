@@ -8,6 +8,7 @@
         <select class='form-control' ng-model='editing.type' ng-change="changeSchemaType()">
             <option value='shorttext'>单行填写题</option>
             <option value='longtext'>多行填写题</option>
+            <option value='multitext'>多项填写题</option>
             <option value='single'>单选题</option>
             <option value='multiple'>多选题</option>
             <option value='score'>打分题</option>
@@ -15,7 +16,6 @@
             <option value='file'>上传文件</option>
             <option value='html'>描述说明</option>
             <option value='date'>日期</option>
-            <option value='location'>上传位置</option>
         </select>
     </div>
     <div class="form-group" ng-if="'html'!==activeSchema.type">

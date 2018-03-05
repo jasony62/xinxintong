@@ -16,6 +16,11 @@ class user_model extends \TMS_MODEL {
 		];
 
 		$oUser = $this->query_obj_ss($q);
+		if ($oUser) {
+			if (property_exists($oUser, 'modify_log')) {
+				$oUser->modify_log = empty($oUser->modify_log) ? [] : json_decode($oUser->modify_log);
+			}
+		}
 
 		return $oUser;
 	}
@@ -35,6 +40,31 @@ class user_model extends \TMS_MODEL {
 		$oNewUsr->id = $this->insert('xxt_mission_user', $oNewUsr, true);
 
 		return $oNewUsr;
+	}
+	/**
+	 * 修改用户数据
+	 */
+	public function modify($oBeforeData, $oUpdatedData) {
+		$aDbData = [];
+		foreach ($oUpdatedData as $field => $value) {
+			switch ($field) {
+			case 'last_recommend_at':
+				$aDbData[$field] = $value;
+				break;
+			case 'recommend_num':
+			case 'user_total_coin':
+				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;
+				break;
+			case 'modify_log':
+				$oBeforeData->modify_log[] = $value;
+				$aDbData['modify_log'] = json_encode($oBeforeData->modify_log);
+				break;
+			}
+		}
+
+		$rst = $this->update('xxt_mission_user', $aDbData, ['id' => $oBeforeData->id]);
+
+		return $rst;
 	}
 	/**
 	 * 删除1条记录
@@ -211,5 +241,37 @@ class user_model extends \TMS_MODEL {
 		}
 
 		return [true, $result];
+	}
+	/**
+	 * 项目用户获得奖励积分
+	 */
+	public function awardCoin($oMission, $userid, $deltaCoin) {
+		$oMisUsr = $this->byId($oMission, $userid, ['fields' => 'id,userid,nickname,user_total_coin']);
+		if (false === $oMisUsr) {
+			return false;
+		}
+		$modelMisUsr->update(
+			'xxt_mission_user',
+			['user_total_coin' => (int) $oMisUsr->user_total_coin + $deltaCoin],
+			['id' => $oMisUsr->id]
+		);
+
+		return true;
+	}
+	/**
+	 * 项目用户扣除奖励积分
+	 */
+	public function deductCoin($oMission, $userid, $deductCoin) {
+		$oMisUsr = $this->byId($oMission, $userid, ['fields' => 'id,userid,nickname,user_total_coin']);
+		if (false === $oMisUsr) {
+			return false;
+		}
+		$modelMisUsr->update(
+			'xxt_mission_user',
+			['user_total_coin' => (int) $oMisUsr->user_total_coin - $deductCoin],
+			['id' => $oMisUsr->id]
+		);
+
+		return true;
 	}
 }

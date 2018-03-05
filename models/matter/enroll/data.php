@@ -338,13 +338,17 @@ class data_model extends \TMS_MODEL {
 						throw new \Exception('登记的数据类型和登记项【multiple】需要的类型不匹配');
 					}
 					break;
+				case 'url':
+					unset($submitVal->_text);
+					$oDbData->{$schemaId} = $submitVal;
+					break;
 				default:
 					// string & score
-					$oDbData->{$schemaId} = $treatedValue = $submitVal;
+					$oDbData->{$schemaId} = $submitVal;
 				}
 			} else {
 				/* 如果登记活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在登记项定义中 */
-				$oDbData->{$schemaId} = $treatedValue = $submitVal;
+				$oDbData->{$schemaId} = $submitVal;
 			}
 		}
 

@@ -56,7 +56,7 @@ class data extends base {
 	 */
 	public function recommend_action($ek, $schema, $value = '') {
 		$modelData = $this->model('matter\enroll\data');
-		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,enroll_key,state,userid,agreed,agreed_log']);
+		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,rid,enroll_key,state,userid,agreed,agreed_log']);
 		if (false === $oRecData || $oRecData->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -84,6 +84,10 @@ class data extends base {
 		if (!in_array($value, ['Y', 'N', 'A'])) {
 			$value = '';
 		}
+		$beforeValue = $oRecData->agreed;
+		if ($beforeValue === $value) {
+			return new \ParameterError('不能重复设置推荐状态');
+		}
 
 		$oAgreedLog = $oRecData->agreed_log;
 		if (isset($oAgreedLog->{$this->who->uid})) {
@@ -105,6 +109,9 @@ class data extends base {
 			$modelMisMat = $this->model('matter\mission\matter');
 			$modelMisMat->agreed($oApp, 'D', $oRecData, $value);
 		}
+
+		/* 处理了用户汇总数据，积分数据 */
+		$this->model('matter\enroll\event')->recommendRecordData($oApp, $oRecData, $this->who, $value);
 
 		return new \ResponseData($rst);
 	}

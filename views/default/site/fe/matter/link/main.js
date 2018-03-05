@@ -9,9 +9,10 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
 angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
 }]).controller('ctrl', ['$scope', '$location', '$http', 'tmsFavor', 'tmsDynaPage', function($scope, $location, $http, tmsFavor, tmsDynaPage) {
-    var siteId, linkId;
+    var siteId, linkId, invite_token;
     siteId = $location.search().site;
     linkId = $location.search().id;
+    invite_token = $location.search().inviteToken;
     $scope.elSiteCard = angular.element(document.querySelector('#site-card'));
     $scope.siteCardToggled = function(open) {
         var elDropdownMenu;
@@ -55,6 +56,14 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['
                 $scope.link = rsp.data.link;
                 $scope.user = rsp.data.user;
                 $scope.qrcode = '/rest/site/fe/matter/link/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
+                if(Object.keys($scope.link).indexOf('invite')!==-1) {
+                    var len = $scope.link.fullUrl.length;
+                    if($scope.link.fullUrl.charAt(len-1)!=='?') {
+                        $scope.link.fullUrl = $scope.link.fullUrl + '&inviteToken=' + invite_token;
+                    }else {
+                        $scope.link.fullUrl = $scope.link.fullUrl + 'inviteToken=' + invite_token;
+                    }
+                }
                 document.querySelector('#link>iframe').setAttribute('src', $scope.link.fullUrl);
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + linkId + '&type=link&title=' + $scope.link.title, {
                     search: location.search.replace('?', ''),

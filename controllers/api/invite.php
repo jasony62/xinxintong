@@ -19,18 +19,22 @@ class invite extends base {
 		//校验accessToken
 		$checkRes = $this->checkToken($accessToken);
 		if (!$checkRes[0]) {
-			return new \ResponseError($checkRes[1]);
+			return new \ParameterError($checkRes[1]);
 		}
 
 		$model = $this->model();
 		$q = [
-			'ia.userid,sa.nickname',
-			'xxt_invite_access ia,xxt_site_account sa',
-			"ia.token = '" . $model->escape($inviteToken) . "' and ia.userid = sa.uid"
+			'il.userid,il.nickname',
+			'xxt_invite_access ia,xxt_invite_log il',
+			"ia.token = '" . $model->escape($inviteToken) . "' and ia.invite_log_id = il.id"
 		];
 
 		$user = $model->query_obj_ss($q);
-
-		return new \ResponseData($user);
+		
+		if ($user === false) {
+			return new \ResultEmptyError('用户不存在');
+		} else {
+			return new \ResponseData($user);
+		}
 	}
 }

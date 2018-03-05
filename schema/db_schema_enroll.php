@@ -281,7 +281,7 @@ $sql .= ",recommend_num int not null default 0"; // 获得推荐的次数
 $sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
 $sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
-$sql .= ",modify_log text null"; // 数据修改日志
+$sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

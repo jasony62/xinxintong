@@ -66,7 +66,7 @@
                             <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
                             <div ng-switch-when="remark" ng-class="{unread:r.verbose.data[schema.id].last_remark_at>lastCachedStatus.lastAt}">{{r.verbose.data[schema.id].remark_num}}</div>
                             <div ng-switch-when="agreed">
-                                <select class='form-control input-sm' ng-model="r.verbose.data[schema.id].agreed" ng-change="setAgreed(r,schema.id)">
+                                <select class='form-control input-sm' ng-model="r.verbose.data[schema.id].agreed" disabled>
                                     <option value=''>不表态</option>
                                     <option value='A'>接受</option>
                                     <option value='Y'>推荐</option>

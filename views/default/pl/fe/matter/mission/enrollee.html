@@ -32,6 +32,12 @@
                 <th class='th-action' ng-class="{'active':criteria.orderBy==='last_remark_like_at'}" style='width:96px' ng-click="chooseOrderBy('last_remark_like_at')">
                     <div>最近点赞 <span class='glyphicon glyphicon-arrow-down'></span></div>
                 </th>
+                <th class='th-action' ng-class="{'active':criteria.orderBy==='recommend_num'}" style='width:64px' ng-click="chooseOrderBy('recommend_num')">
+                    <div>推荐 <span class='glyphicon glyphicon-arrow-down'></span></div>
+                </th>
+                <th class='th-action' ng-class="{'active':criteria.orderBy==='last_recommend_at'}" style='width:96px' ng-click="chooseOrderBy('last_recommend_at')">
+                    <div>最近推荐 <span class='glyphicon glyphicon-arrow-down'></span></div>
+                </th>
                 <th class='th-action' ng-class="{'active':criteria.orderBy==='signin_num'}" style='width:96px' ng-click="chooseOrderBy('signin_num')">
                     <div>签到 <span class='glyphicon glyphicon-arrow-down'></span></div>
                 </th>
@@ -65,6 +71,12 @@
                 </td>
                 <td>
                     <div>{{enrollee.last_like_other_at}}</div>
+                </td>
+                <td>
+                    <div>{{enrollee.recommend_num}}</div>
+                </td>
+                <td>
+                    <div>{{enrollee.last_recommend_at}}</div>
                 </td>
                 <td>
                     <div>{{enrollee.signin_num}}</div>

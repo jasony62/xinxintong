@@ -31,10 +31,6 @@ class main extends \pl\fe\matter\main_base {
 		if ($oWall->mission_id) {
 			$oWall->mission = $this->model('matter\mission')->byId($oWall->mission_id);
 		}
-		/**
-		 * acl
-		 */
-		$oWall->acl = $this->model('matter\acl')->byMatter($site, 'wall', $id);
 		if (!empty($oWall->source_app)) {
 			$sourceApp = json_decode($oWall->source_app);
 			$options = array('cascaded' => 'N', 'fields' => 'id,title');

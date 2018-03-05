@@ -12,6 +12,7 @@ define(['frame'], function(ngApp) {
                     oEnrollee.last_enroll_at = oEnrollee.last_enroll_at > 0 ? $filter('date')(oEnrollee.last_enroll_at * 1000, dateFormat) : '';
                     oEnrollee.last_remark_other_at = oEnrollee.last_remark_other_at > 0 ? $filter('date')(oEnrollee.last_remark_other_at * 1000, dateFormat) : '';
                     oEnrollee.last_like_other_at = oEnrollee.last_like_other_at > 0 ? $filter('date')(oEnrollee.last_like_other_at * 1000, dateFormat) : '';
+                    oEnrollee.last_recommend_at = oEnrollee.last_recommend_at > 0 ? $filter('date')(oEnrollee.last_recommend_at * 1000, dateFormat) : '';
                 });
             });
         }

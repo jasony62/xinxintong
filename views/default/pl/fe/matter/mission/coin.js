@@ -18,10 +18,10 @@ define(['frame'], function(ngApp) {
         _aDefaultActions = [{
             data: { act: 'site.matter.plan.read', matter_type: 'plan' },
             desc: '用户A打开计划活动页面',
-        },{
+        }, {
             data: { act: 'site.matter.plan.submit', matter_type: 'plan' },
             desc: '用户A完成某项任务',
-        },{
+        }, {
             data: { act: 'site.matter.enroll.read', matter_type: 'enroll' },
             desc: '用户A打开登记活动页面',
         }, {
@@ -45,6 +45,9 @@ define(['frame'], function(ngApp) {
         }, {
             data: { act: 'site.matter.enroll.data.other.comment', matter_type: 'enroll' },
             desc: '用户A点评别人的填写数据',
+        }, {
+            data: { act: 'site.matter.enroll.data.recommend', matter_type: 'enroll' },
+            desc: '用户A填写数据被推荐',
         }];
         $scope.rules = {};
         _aDefaultActions.forEach(function(oRule) {

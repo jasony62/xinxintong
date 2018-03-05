@@ -50,6 +50,9 @@ define(['frame'], function(ngApp) {
         }, {
             data: { act: 'site.matter.enroll.data.other.comment' },
             desc: '用户A点评别人的填写数据',
+        }, {
+            data: { act: 'site.matter.enroll.data.recommend' },
+            desc: '用户A填写数据被推荐',
         }];
         $scope.rules = {};
         _aDefaultRules.forEach(function(oRule) {

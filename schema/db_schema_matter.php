@@ -38,8 +38,6 @@ $sql .= ",custom_body char(1) not null default 'N'";
 $sql .= ",body longtext";
 $sql .= ",page_id int not null default 0"; // 定制页，should remove
 $sql .= ",body_page_name varchar(13) not null default ''"; // 定制页
-$sql .= ",access_control char(1) not null default 'N'";
-$sql .= ",authapis text";
 $sql .= ",finished char(1) not null default 'Y'"; // 完成编辑
 $sql .= ",approved char(1) not null default 'Y'"; // 审核通过
 $sql .= ",remark_notice char(1) not null default 'Y'"; // 接收评论提示
@@ -133,9 +131,6 @@ $sql .= ",method varchar(6) not null default 'GET'";
 $sql .= ",open_directly char(1) not null default 'N'";
 $sql .= ",return_data char(1) not null default 'N'"; // 是否直接执行链接并返回数据
 $sql .= ",embedded char(1) not null default 'N'"; // 将链接嵌入到页面中
-$sql .= ",access_control char(1) not null default 'N'";
-$sql .= ",authapis text";
-$sql .= ",fans_only char(1) not null default 'N'"; // 仅限关注用户打开
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",entry_rule text"; // 参与规则
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
@@ -205,8 +200,6 @@ $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
 $sql .= ",title varchar(70) not null";
 $sql .= ",pic text"; // head image.
 $sql .= ",summary varchar(240) not null default ''";
-$sql .= ",access_control char(1) not null default 'N'";
-$sql .= ",authapis text";
 $sql .= ",filter_by_matter_acl char(1) not null default 'Y'"; // 根据素材的访问控制进行过滤
 $sql .= ",empty_reply_type varchar(20) not null default ''";
 $sql .= ",empty_reply_id varchar(40) not null default ''";
@@ -214,27 +207,6 @@ $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 多图文发布过程日志
- */
-$sql = "create table if not exists xxt_news_review_log(";
-$sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null default ''";
-$sql .= ",news_id int not null";
-$sql .= ",seq int not null";
-$sql .= ",mid varchar(32) not null";
-$sql .= ",send_at int not null";
-$sql .= ",receive_at int not null default 0";
-$sql .= ",read_at int not null default 0";
-$sql .= ",close_at int not null default 0";
-$sql .= ",phase char(1) not null"; // Review|Typeset
-$sql .= ",state char(1) not null"; // Pending|Disposing|Forward|Close
-$sql .= ",remark text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -282,8 +254,6 @@ $sql .= ",top_id varchar(40)";
 $sql .= ",bottom_type varchar(20)"; // article,link
 $sql .= ",bottom_id varchar(40)";
 $sql .= ",orderby varchar(20) not null default 'time'";
-$sql .= ",access_control char(1) not null default 'N'";
-$sql .= ",authapis text";
 $sql .= ",filter_by_matter_acl char(1) not null default 'Y'"; // 根据素材的访问控制进行过滤
 $sql .= ",show_pic_in_page char(1) not null default 'Y'"; // 是否在页面中显示头图
 $sql .= ",read_num int not null default 0"; // 阅读数

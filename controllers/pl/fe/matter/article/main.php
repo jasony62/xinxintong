@@ -159,8 +159,6 @@ class main extends \pl\fe\matter\main_base {
 		if ($cascade === 'Y') {
 			/* channels */
 			$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
-			/* acl */
-			$article->acl = $this->model('matter\acl')->byMatter($article->siteid, 'article', $id);
 			/* attachments */
 			if ($article->has_attachment === 'Y') {
 				$article->attachments = $modelAct->query_objs_ss(array('*', 'xxt_article_attachment', "article_id='$id'"));

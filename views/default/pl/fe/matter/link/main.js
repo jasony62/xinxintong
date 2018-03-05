@@ -207,22 +207,6 @@ define(['frame'], function(ngApp) {
                 } else if (n === 'method' && $scope.editing.method === 'POST') {
                     $scope.editing.open_directly = 'N';
                     modifiedData.open_directly = 'N';
-                } else if (n === 'open_directly' && $scope.editing.open_directly == 'Y') {
-                    $scope.editing.access_control = 'N';
-                    modifiedData.access_control = 'N';
-                    modifiedData.authapis = '';
-                } else if (n === 'access_control' && $scope.editing.access_control == 'N') {
-                    var p;
-                    for (var i in $scope.editing.params) {
-                        p = $scope.editing.params[i];
-                        if (p.pvalue == '{{authed_identity}}') {
-                            window.alert('只有在进行访问控制的情况下，才可以指定和用户身份相关的信息！');
-                            $scope.editing.access_control = 'Y';
-                            modifiedData.access_control = 'Y';
-                            return false;
-                        }
-                    }
-                    modifiedData.authapis = '';
                 }
                 $scope.modified = true;
             });
@@ -252,17 +236,10 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.updateParam = function(updated, name) {
-            if (updated.pvalue === '{{authed_identity}}' && $scope.editing.access_control === 'N') {
-                window.alert('只有在进行访问控制的情况下，才可以指定和用户身份相关的信息！');
-                updated.pvalue = '';
-            }
-            if (updated.pvalue !== '{{authed_identity}}')
-                updated.authapi_id = 0;
             // 参数中有额外定义，需清除
             var p = {
                 pname: updated.pname,
                 pvalue: encodeURIComponent(updated.pvalue),
-                authapi_id: updated.authapi_id
             };
             http2.post('/rest/pl/fe/matter/link/paramUpd?site=' + $scope.siteId + '&id=' + updated.id, p);
         };

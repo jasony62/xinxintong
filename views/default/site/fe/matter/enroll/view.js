@@ -2,6 +2,7 @@
 require('./view.css');
 
 var ngApp = require('./main.js');
+ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
     var Record, _ins, _deferredRecord;
     Record = function(oApp) {
@@ -129,8 +130,15 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                 }
             } else {
                 originalValue = oData[oSchema.id];
-                if (originalValue && oSchema.type === 'multiple') {
-                    originalValue = originalValue.split(',');
+                if (originalValue) {
+                    switch (oSchema.type) {
+                        case 'multiple':
+                            originalValue = originalValue.split(',');
+                            break;
+                        case 'url':
+                            originalValue._text = ngApp.oUtilSchema.urlSubstitute(originalValue);
+                            break;
+                    }
                 }
                 aProcessing = [oData, oSchema.id];
             }
@@ -187,6 +195,7 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
             var schemaId, domWrap, aRemarkableSchemas, oRecord;
             fnProcessData(rsp.data.data);
             facRecord.current = oRecord = rsp.data;
+            console.log('oo', oRecord);
             facRecord.current.tag = facRecord.current.data_tag ? facRecord.current.data_tag : {};
             aRemarkableSchemas = [];
             if (oApp.repos_unit === 'D') {

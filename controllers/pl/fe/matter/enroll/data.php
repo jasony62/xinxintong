@@ -68,7 +68,7 @@ class data extends \pl\fe\matter\base {
 
 		$modelData = $this->model('matter\enroll\data');
 		if (empty($id)) {
-			$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,enroll_key,schema_id,userid,agreed,agreed_log']);
+			$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,rid,enroll_key,schema_id,userid,agreed,agreed_log']);
 		} else {
 			$oRecData = $modelData->byId($id, ['fields' => 'id,aid,enroll_key,schema_id,userid,agreed,agreed_log']);
 		}
@@ -93,8 +93,24 @@ class data extends \pl\fe\matter\base {
 		} else {
 			$oAgreedLog->{$oUser->id} = (object) ['time' => time(), 'value' => $value];
 		}
+		$rst = $modelData->update(
+			'xxt_enroll_record_data',
+			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
+			['id' => $oRecData->id]
+		);
 
-		//确定模板名称
+		/* 如果活动属于项目，更新项目内的推荐内容 */
+		if (!empty($oApp->mission_id)) {
+			$modelMisMat = $this->model('matter\mission\matter');
+			$modelMisMat->agreed($oApp, 'D', $oRecData, $value);
+		}
+
+		/* 处理了用户汇总数据，积分数据 */
+		$this->model('matter\enroll\event')->recommendRecordData($oApp, $oRecData, $oUser, $value);
+
+		/**
+		 * 发送模板消息
+		 */
 		if ($value == 'Y') {
 			$name = 'site.enroll.submit.recommend';
 		} else if ($value == 'N') {
@@ -107,18 +123,6 @@ class data extends \pl\fe\matter\base {
 			$modelEnl = $this->model('matter\enroll');
 			$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
 			$this->_notifyAgree($oApp, $oRecord, $name, $schema);
-		}
-
-		$rst = $modelData->update(
-			'xxt_enroll_record_data',
-			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
-			['id' => $oRecData->id]
-		);
-
-		/* 如果活动属于项目，更新项目内的推荐内容 */
-		if (!empty($oApp->mission_id)) {
-			$modelMisMat = $this->model('matter\mission\matter');
-			$modelMisMat->agreed($oApp, 'D', $oRecData, $value);
 		}
 
 		return new \ResponseData($rst);

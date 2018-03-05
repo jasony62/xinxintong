@@ -244,8 +244,7 @@ class remark extends base {
 		 * 更新项目用户数据
 		 */
 		if (!empty($oApp->mission_id)) {
-			$modelMisUsr = $this->model('matter\mission\user');
-			$modelMisUsr->setOnlyWriteDbConn(true);
+			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
 			$oMission = new \stdClass;
 			$oMission->siteid = $oApp->siteid;
 			$oMission->id = $oApp->mission_id;
@@ -271,7 +270,7 @@ class remark extends base {
 				);
 			}
 			/* 更新被评论的活动用户总数据 */
-			$oMisUsr = $modelMisUsr->byId($oMission, $oRecord->userid, ['fields' => 'id,userid,nickname,last_remark_at,remark_num,user_total_coin', 'rid' => 'ALL']);
+			$oMisUsr = $modelMisUsr->byId($oMission, $oRecord->userid, ['fields' => 'id,userid,nickname,last_remark_at,remark_num,user_total_coin']);
 			if ($oMisUsr) {
 				$oUpdMisUser = ['last_remark_at' => time(), 'remark_num' => $oMisUsr->remark_num + 1];
 				$oUpdMisUser['user_total_coin'] = (int) $oMisUsr->user_total_coin;

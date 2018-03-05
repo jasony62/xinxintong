@@ -363,6 +363,8 @@ class record extends \pl\fe\matter\base {
 				$modelMisMat = $this->model('matter\mission\matter');
 				$modelMisMat->agreed($oApp, 'R', $oBeforeRecord, $oUpdated->agreed);
 			}
+			/* 处理了用户汇总数据，积分数据 */
+			$this->model('matter\enroll\event')->recommendRecord($oApp, $oBeforeRecord, $oUser, $oUpdated->agreed);
 		}
 		if (isset($oPosted->tags)) {
 			$oUpdated->tags = $modelEnl->escape($oPosted->tags);
@@ -513,7 +515,7 @@ class record extends \pl\fe\matter\base {
 		if (isset($oPosted->rid)) {
 			$modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($oPosted->rid)], ['enroll_key' => $ek, 'state' => 1]);
 		}
-		if ($oUpdated->verified === 'Y') {
+		if (isset($oUpdated->verified) && $oUpdated->verified === 'Y') {
 			$this->_whenVerifyRecord($oApp, $ek);
 		}
 
@@ -1192,6 +1194,13 @@ class record extends \pl\fe\matter\base {
 						$v = implode(',', $values);
 					}
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				case 'url':
+					$v0 = '';
+					!empty($v->title) && $v0 .= '【' . $v->title . '】';
+					!empty($v->description) && $v0 .= $v->description;
+					!empty($v->url) && $v0 .= $v->url;
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				default:
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);

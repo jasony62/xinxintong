@@ -105,7 +105,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                 dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
             } else if (schemasById[p] !== undefined) {
                 var schema = schemasById[p];
-                if (schema.type === 'score') {
+                if (/score|url/.test(schema.type)) {
                     dataOfPage[p] = dataOfRecord[p];
                 } else if (dataOfRecord[p].length) {
                     if (schemasById[p].type === 'image') {
@@ -286,6 +286,10 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                             break;
                         case 'date':
                             data[oSchema.id] = oRecord.data[oSchema.id];
+                            break;
+                        case 'url':
+                            data[oSchema.id] = oRecord.data[oSchema.id];
+                            data[oSchema.id]._text = '【' + data[oSchema.id].title + '】' + data[oSchema.id].description;
                             break;
                         default:
                             try {

@@ -6,7 +6,6 @@
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('shorttext')">填写题</button>
                 <button class='btn btn-default' ng-click="newSchema('multitext')">多项填写题</button>
-                <button class='btn btn-default' ng-click="newSchema('date')">日期题</button>
             </div>
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
@@ -18,10 +17,19 @@
                 <button class='btn btn-default hide' ng-click="newSchema('location')">上传位置</button>
             </div>
             <div class='flexrow'>
-                <button class='btn btn-default' ng-click="newSchema('score')">打分题</button>
             </div>
             <div class='flexrow'>
-                <button class='btn btn-default' ng-click="newSchema('html')">描述说明</button>
+                <button class='btn btn-default' ng-click="newSchema('html')" style="padding:6px 0">描述说明</button>
+                <div class="btn-group">
+                    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style='width:100%;'>
+                        更多 <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href ng-click="newSchema('score')">打分题</a></li>
+                        <li><a href ng-click="newSchema('date')">日期题</a></li>
+                        <li><a href ng-click="newSchema('url')">上传链接</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class='form-group list-group-item'>

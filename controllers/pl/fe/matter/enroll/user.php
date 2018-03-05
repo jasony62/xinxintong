@@ -274,7 +274,7 @@ class user extends \pl\fe\matter\base {
 
 		$objPHPExcel->setActiveSheetIndex(0);
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
-		$objActiveSheet->setTitle('已参与活动人员');
+		$objActiveSheet->setTitle('已参与');
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
 		// 转换标题
@@ -297,17 +297,9 @@ class user extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
-			if (isset($oUserTask->minEnrollNum) && $oUserTask->minEnrollNum > 0) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求记录数');
-			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '评论');
-			if (isset($oUserTask->minRemarkNum) && $oUserTask->minRemarkNum > 0) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求评论数');
-			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
-			if (isset($oUserTask->minLikeNum) && $oUserTask->minLikeNum > 0) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求赞同数');
-			}
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '获得推荐');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '得分');
 			if (isset($sns->wx->joined) && $sns->wx->joined === 'Y') {
@@ -356,20 +348,20 @@ class user extends \pl\fe\matter\base {
 				} else {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
-				if (isset($oUserTask->minEnrollNum) && $oUserTask->minEnrollNum > 0) {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUserTask->minEnrollNum);
-				}
 				if (isset($record->user->remark_other_num)) {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->remark_other_num);
 				} else {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
-				if (isset($oUserTask->minRemarkNum) && $oUserTask->minRemarkNum > 0) {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUserTask->minRemarkNum);
+				if (isset($record->user->like_other_num)) {
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->like_other_num);
+				} else {
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->like_other_num);
-				if (isset($oUserTask->minLikeNum) && $oUserTask->minLikeNum > 0) {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUserTask->minLikeNum);
+				if (isset($record->user->recommend_num)) {
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->recommend_num);
+				} else {
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
 				if (isset($record->user->user_total_coin)) {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->user_total_coin);
@@ -400,17 +392,9 @@ class user extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
-			if (isset($oUserTask->minEnrollNum) && $oUserTask->minEnrollNum > 0) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求记录数');
-			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '评论');
-			if (isset($oUserTask->minRemarkNum) && $oUserTask->minRemarkNum > 0) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求评论数');
-			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
-			if (isset($oUserTask->minLikeNum) && $oUserTask->minLikeNum > 0) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '要求赞同数');
-			}
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '获得推荐');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '得分');
 			if (isset($sns->wx->joined) && $sns->wx->joined === 'Y') {
@@ -436,17 +420,9 @@ class user extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, empty($record->group) ? '' : $record->group->l);
 				}
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->enroll_num);
-				if (isset($oUserTask->minEnrollNum) && $oUserTask->minEnrollNum > 0) {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUserTask->minEnrollNum);
-				}
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->remark_other_num);
-				if (isset($oUserTask->minRemarkNum) && $oUserTask->minRemarkNum > 0) {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUserTask->minRemarkNum);
-				}
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->like_other_num);
-				if (isset($oUserTask->minLikeNum) && $oUserTask->minLikeNum > 0) {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUserTask->minLikeNum);
-				}
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->recommend_num);
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user_total_coin);
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->score);
 				if (isset($sns->wx->joined) && $sns->wx->joined === 'Y') {
@@ -470,7 +446,7 @@ class user extends \pl\fe\matter\base {
 			$objPHPExcel->createSheet();
 			$objPHPExcel->setActiveSheetIndex(1);
 			$objActiveSheet2 = $objPHPExcel->getActiveSheet();
-			$objActiveSheet2->setTitle('缺席人员');
+			$objActiveSheet2->setTitle('缺席');
 
 			$colNumber = 0;
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '序号');

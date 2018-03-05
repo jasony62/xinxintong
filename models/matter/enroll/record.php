@@ -1201,22 +1201,6 @@ class record_model extends record_base {
 		return $last ? $last->enroll_key : false;
 	}
 	/**
-	 *
-	 */
-	public function hasAcceptedInvite($aid, $openid, $ek) {
-		$q = array(
-			'enroll_key',
-			'xxt_enroll_record',
-			"aid='$aid' and openid='$openid' and referrer='ek:$ek'",
-		);
-		$records = $this->query_objs_ss($q);
-		if (empty($records)) {
-			return false;
-		} else {
-			return $records[0]->enroll_key;
-		}
-	}
-	/**
 	 * 生成活动登记的key
 	 */
 	public function genKey($siteId, $aid) {

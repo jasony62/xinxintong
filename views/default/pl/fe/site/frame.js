@@ -26,6 +26,7 @@ define(['require'], function(require) {
             .when('/rest/pl/fe/site/basic', new RouteParam('basic'))
             .when('/rest/pl/fe/site/coworker', new RouteParam('coworker'))
             .when('/rest/pl/fe/site/home', new RouteParam('home'))
+            .when('/rest/pl/fe/site/invoke', new RouteParam('invoke'))
             .when('/rest/pl/fe/site/user', new RouteParam('user', '/views/default/pl/fe/site/home/', '/views/default/pl/fe/site/home/'))
             .when('/rest/pl/fe/site/subscriber', new RouteParam('subscriber', '/views/default/pl/fe/site/home/', '/views/default/pl/fe/site/home/'))
             .when('/rest/pl/fe/site/analysis', new RouteParam('analysis', '/views/default/pl/fe/site/home/', '/views/default/pl/fe/site/home/'))
@@ -47,6 +48,7 @@ define(['require'], function(require) {
                 case 'basic':
                 case 'coworker':
                 case 'home':
+                case 'invoke':
                     $scope.opened = 'define';
                     break;
                 case 'user':

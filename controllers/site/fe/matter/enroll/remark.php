@@ -91,20 +91,7 @@ class remark extends base {
 		}
 
 		/* 发表评论的用户 */
-		$oUser = $this->who;
-		if (!empty($oApp->group_app_id)) {
-			$modelUsr = $this->model('matter\enroll\user');
-			$options = ['fields' => 'group_id'];
-			if (!empty($oRecord->rid)) {
-				$options['rid'] = $oRecord->rid;
-			}
-			$oEnrollee = $modelUsr->byId($oApp, $oUser->uid, $options);
-			if ($oEnrollee) {
-				$oUser->group_id = $oEnrollee->group_id;
-			}
-		}
-		$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
-		$oUser->nickname = $userNickname;
+		$oUser = $this->getUser($oApp);
 
 		$current = time();
 		$oRemark = new \stdClass;
@@ -254,7 +241,7 @@ class remark extends base {
 		}
 		$oLikeLog = $oRemark->like_log;
 
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 		if (isset($oLikeLog->{$oUser->uid})) {
 			unset($oLikeLog->{$oUser->uid});
 			$incLikeNum = -1;

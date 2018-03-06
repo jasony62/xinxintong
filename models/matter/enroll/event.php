@@ -160,13 +160,16 @@ class event_model extends \TMS_MODEL {
 				$oUpdatedEnlUsrData->{$k} = $v;
 			}
 		}
+		if (isset($oUser->group_id)) {
+			$oUpdatedEnlUsrData->group_id = $oUser->group_id;
+		}
 
 		/* 更新发起评论的活动用户轮次数据 */
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		$oEnlUsrRnd = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => $rid]);
 		if (false === $oEnlUsrRnd) {
 			if (!$bJumpCreate) {
-				$oUpdatedEnlUsrData->rid = $oRecordOrData->rid;
+				$oUpdatedEnlUsrData->rid = $rid;
 				$modelUsr->add($oApp, $oUser, $oUpdatedEnlUsrData);
 			}
 		} else {

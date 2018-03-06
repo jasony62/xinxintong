@@ -45,7 +45,7 @@ class user_model extends \TMS_MODEL {
 			switch ($k) {
 			case 'modify_log':
 				if (!is_string($v)) {
-					$oNewUsr->{$k} = json_encode($v);
+					$oNewUsr->{$k} = [json_encode($v)];
 				}
 				break;
 			default:
@@ -86,6 +86,9 @@ class user_model extends \TMS_MODEL {
 				break;
 			case 'socre':
 				$aDbData[$field] = $value;
+				break;
+			case 'group_id':
+				$aDbData['group_id'] = $value;
 				break;
 			case 'modify_log':
 				$oBeforeData->modify_log[] = $value;

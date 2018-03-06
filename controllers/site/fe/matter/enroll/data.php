@@ -148,7 +148,7 @@ class data extends base {
 			}
 		}
 
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 
 		$oLikeLog = $oRecordData->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {

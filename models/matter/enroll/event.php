@@ -188,8 +188,6 @@ class event_model extends \TMS_MODEL {
 		/* 更新项目用户数据 */
 		if (!empty($oApp->mission_id)) {
 			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
-			$oMission = new \stdClass;
-			$oMission->id = $oApp->mission_id;
 			/* 项目中需要额外更新的数据 */
 			$oUpdatedMisUsrData = clone $oUsrEventData;
 			if (isset($oUsrMisData)) {
@@ -197,7 +195,16 @@ class event_model extends \TMS_MODEL {
 					$oUpdatedMisUsrData->{$k} = $v;
 				}
 			}
+			$oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
 			$oMisUser = $modelMisUsr->byId($oMission, $userid, ['fields' => '*']);
+			/* 用户在项目中的所属分组 */
+			if ($oMission->user_app_type === 'group') {
+				$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
+				$oMisGrpUser = $this->model('matter\group\player')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
+				if (isset($oMisGrpUser->round_id) && $oMisUser->group_id !== $oMisGrpUser->round_id) {
+					$oUpdatedMisUsrData->group_id = $oMisGrpUser->round_id;
+				}
+			}
 			if (false === $oMisUser) {
 				if (!$bJumpCreate) {
 					$modelMisUsr->add($oMission, $oUser, $oUpdatedMisUsrData);

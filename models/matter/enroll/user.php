@@ -84,7 +84,7 @@ class user_model extends \TMS_MODEL {
 			case 'user_total_coin':
 				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;
 				break;
-			case 'socre':
+			case 'score':
 				$aDbData[$field] = $value;
 				break;
 			case 'group_id':

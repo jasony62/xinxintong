@@ -34,8 +34,17 @@ class user_model extends \TMS_MODEL {
 		$oNewUsr->userid = $oUser->uid;
 		$oNewUsr->group_id = empty($oUser->group_id) ? '' : $oUser->group_id;
 		$oNewUsr->nickname = $this->escape($oUser->nickname);
+
 		foreach ($data as $k => $v) {
-			$oNewUsr->{$k} = $v;
+			switch ($k) {
+			case 'modify_log':
+				if (!is_string($v)) {
+					$oNewUsr->{$k} = json_encode($v);
+				}
+				break;
+			default:
+				$oNewUsr->{$k} = $v;
+			}
 		}
 		$oNewUsr->id = $this->insert('xxt_mission_user', $oNewUsr, true);
 
@@ -48,9 +57,15 @@ class user_model extends \TMS_MODEL {
 		$aDbData = [];
 		foreach ($oUpdatedData as $field => $value) {
 			switch ($field) {
+			case 'last_enroll_at':
+			case 'last_like_at':
+			case 'last_like_other_at':
 			case 'last_recommend_at':
 				$aDbData[$field] = $value;
 				break;
+			case 'enroll_num':
+			case 'like_num':
+			case 'like_other_num':
 			case 'recommend_num':
 			case 'user_total_coin':
 				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;

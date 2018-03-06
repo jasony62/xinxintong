@@ -282,162 +282,18 @@ class record extends base {
 				"enroll_key='$ek'"
 			);
 		}
+
+		/* 处理用户汇总数据，积分数据 */
+		$oRecord = $modelRec->byId($ek);
+		$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
+
 		/* 记录操作日志 */
-		$operation = new \stdClass;
-		$operation->name = $bSubmitNewRecord ? 'submit' : 'updateData';
-		$operation->data = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
-		$this->_logUserOp($oEnrollApp, $operation, $oUser);
-		/* 登记用户行为及积分 */
-		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+		$oOperation = new \stdClass;
+		$oOperation->name = $bSubmitNewRecord ? 'submit' : 'updateData';
+		$oOperation->data = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
+		$this->_logUserOp($oEnrollApp, $oOperation, $oUser);
 
-		/* 更新活动用户轮次数据 */
-		$oEnrollUsr = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,state,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => $rid]);
-		if (false === $oEnrollUsr) {
-			$inData = ['last_enroll_at' => time(), 'enroll_num' => 1];
-			if (!empty($rules)) {
-				$inData['user_total_coin'] = 0;
-				foreach ($rules as $rule) {
-					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
-				}
-			}
-			$inData['rid'] = $rid;
-			if (isset($oSubmitedEnrollRec->score->sum)) {
-				$inData['score'] = $oSubmitedEnrollRec->score->sum;
-			}
-			$modelUsr->add($oEnrollApp, $oUser, $inData);
-		} else {
-			$upData = ['state' => 1];
-			if ($oEnrollUsr->nickname !== $oUser->nickname) {
-				$upData['nickname'] = $oUser->nickname;
-			}
-			$upData['last_enroll_at'] = time();
-			if (isset($oUser->group_id)) {
-				if ($oEnrollUsr->group_id !== $oUser->group_id) {
-					$upData['group_id'] = $oUser->group_id;
-				}
-			}
-			if ($bSubmitNewRecord) {
-				$upData['enroll_num'] = (int) $oEnrollUsr->enroll_num + 1;
-				if (!empty($rules)) {
-					$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
-					foreach ($rules as $rule) {
-						$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
-					}
-				}
-			}
-			if (isset($oSubmitedEnrollRec->score->sum)) {
-				$upData['score'] = $oSubmitedEnrollRec->score->sum;
-			}
-			$modelUsr->update(
-				'xxt_enroll_user',
-				$upData,
-				['id' => $oEnrollUsr->id]
-			);
-		}
-		/* 更新活动用户总数据 */
-		$oEnrollUsrALL = $modelUsr->byId($oEnrollApp, $oUser->uid, ['fields' => 'id,state,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => 'ALL']);
-		if (false === $oEnrollUsrALL) {
-			$inDataALL = ['last_enroll_at' => time(), 'enroll_num' => 1];
-			if (!empty($rules)) {
-				$inDataALL['user_total_coin'] = 0;
-				foreach ($rules as $rule) {
-					$inDataALL['user_total_coin'] = $inDataALL['user_total_coin'] + (int) $rule->actor_delta;
-				}
-			}
-			$inDataALL['rid'] = 'ALL';
-			$modelUsr->add($oEnrollApp, $oUser, $inDataALL);
-		} else {
-			$upDataALL = ['state' => 1];
-			if ($oEnrollUsrALL->nickname !== $oUser->nickname) {
-				$upDataALL['nickname'] = $oUser->nickname;
-			}
-			$upDataALL['last_enroll_at'] = time();
-			if (isset($oUser->group_id)) {
-				if ($oEnrollUsrALL->group_id !== $oUser->group_id) {
-					$upDataALL['group_id'] = $oUser->group_id;
-				}
-			}
-			if ($bSubmitNewRecord) {
-				$upDataALL['enroll_num'] = (int) $oEnrollUsrALL->enroll_num + 1;
-				if (!empty($rules)) {
-					$upDataALL['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
-					foreach ($rules as $rule) {
-						$upDataALL['user_total_coin'] = $upDataALL['user_total_coin'] + (int) $rule->actor_delta;
-					}
-				}
-			}
-
-			/* 更新用户获得的分数 */
-			$enrollees = $modelUsr->query_objs_ss([
-				'id,score',
-				'xxt_enroll_user',
-				"siteid='$oEnrollApp->siteid' and aid='$oEnrollApp->id' and userid='$oUser->uid' and state=1 and rid !='ALL'",
-			]);
-			$total = 0;
-			foreach ($enrollees as $oEnrollee) {
-				if (!empty($oEnrollee->score)) {
-					$total += (float) $oEnrollee->score;
-				}
-			}
-			$upDataALL['score'] = $total;
-			$modelUsr->update(
-				'xxt_enroll_user',
-				$upDataALL,
-				['id' => $oEnrollUsrALL->id]
-			);
-		}
-		/**
-		 * 更新项目用户数据
-		 */
-		if (!empty($oEnrollApp->mission_id)) {
-			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
-			$oMission = $this->model('matter\mission')->byId($oEnrollApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
-			if ($oMission->user_app_type === 'group') {
-				$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-				$oMisGrpUser = $this->model('matter\group\player')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
-			}
-			$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,group_id,last_enroll_at,enroll_num,user_total_coin']);
-			if (false === $oMisUsr) {
-				$aNewMisUser = ['last_enroll_at' => time(), 'enroll_num' => 1];
-				if (!empty($oMisGrpUser->round_id)) {
-					$aNewMisUser['group_id'] = $oMisGrpUser->round_id;
-				}
-				if (!empty($rules)) {
-					$aNewMisUser['user_total_coin'] = 0;
-					foreach ($rules as $rule) {
-						$aNewMisUser['user_total_coin'] = $aNewMisUser['user_total_coin'] + (int) $rule->actor_delta;
-					}
-				}
-				$modelMisUsr->add($oMission, $oUser, $aNewMisUser);
-			} else {
-				$aUpdMisUser = ['last_enroll_at' => time()];
-				if ($oMisUsr->nickname !== $oUser->nickname) {
-					$aUpdMisUser['nickname'] = $oUser->nickname;
-				}
-				if (isset($oMisGrpUser->round_id)) {
-					if ($oMisUsr->group_id !== $oMisGrpUser->round_id) {
-						$aUpdMisUser['group_id'] = $oMisGrpUser->round_id;
-					}
-				}
-				if ($bSubmitNewRecord) {
-					$aUpdMisUser['enroll_num'] = (int) $oMisUsr->enroll_num + 1;
-					if (!empty($rules)) {
-						$aUpdMisUser['user_total_coin'] = (int) $oMisUsr->user_total_coin;
-						foreach ($rules as $rule) {
-							$aUpdMisUser['user_total_coin'] = $aUpdMisUser['user_total_coin'] + (int) $rule->actor_delta;
-						}
-					}
-				}
-				$modelMisUsr->update(
-					'xxt_mission_user',
-					$aUpdMisUser,
-					['id' => $oMisUsr->id]
-				);
-			}
-		}
-		/**
-		 * 通知登记活动事件接收人
-		 */
+		/* 通知登记活动事件接收人 */
 		if ($oEnrollApp->notify_submit === 'Y') {
 			$this->_notifyReceivers($oEnrollApp, $ek);
 		}
@@ -860,13 +716,11 @@ class record extends base {
 	 * 点赞登记记录中的某一个题
 	 *
 	 * @param string $ek
-	 * @param string $schema
-	 * @param int $id xxt_enroll_record_data 的id
 	 *
 	 */
 	public function like_action($ek) {
 		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek, ['fields' => 'enroll_key,state,aid,userid,like_log,like_num']);
+		$oRecord = $modelRec->byId($ek, ['fields' => 'id,enroll_key,state,aid,rid,userid,like_log,like_num']);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -893,174 +747,17 @@ class record extends base {
 			['enroll_key' => $oRecord->enroll_key]
 		);
 
-		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+		$modelEnlEvt = $this->model('matter\enroll\event');
 		if ($incLikeNum > 0) {
-			/* 更新进行点赞的活动用户的积分奖励 */
-			$modelMat = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
-			$rulesOther = $modelMat->rulesByMatter('site.matter.enroll.data.other.like', $oApp);
-			$modelCoin = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
-			$modelCoin->award($oApp, $oUser, 'site.matter.enroll.data.other.like', $rulesOther);
-		}
-
-		/* 获得所属轮次 */
-		$modelRun = $this->model('matter\enroll\round');
-		if ($activeRound = $modelRun->getActive($oApp)) {
-			$rid = $activeRound->rid;
+			/* 发起点赞 */
+			$modelEnlEvt->likeRecord($oApp, $oRecord, $oUser);
+			/* 被点赞 */
+			$modelEnlEvt->belikedRecord($oApp, $oRecord, $oUser);
 		} else {
-			$rid = '';
-		}
-
-		/* 更新进行点赞的活动用户的轮次数据 */
-		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_like_other_at,like_other_num,user_total_coin', 'rid' => $rid]);
-		if (false === $oEnrollUsr) {
-			$inData = ['last_like_other_at' => time(), 'like_other_num' => $incLikeNum];
-			if (!empty($rulesOther)) {
-				$inData['user_total_coin'] = 0;
-				foreach ($rulesOther as $ruleOther) {
-					$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $ruleOther->actor_delta;
-				}
-			}
-
-			$inData['rid'] = $rid;
-			$modelUsr->add($oApp, $oUser, $inData);
-		} else {
-			$upData = ['last_like_other_at' => time(), 'like_other_num' => $oEnrollUsr->like_other_num + $incLikeNum];
-			if (!empty($rulesOther)) {
-				$upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
-				foreach ($rulesOther as $ruleOther) {
-					$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $ruleOther->actor_delta;
-				}
-			}
-			$modelUsr->update(
-				'xxt_enroll_user',
-				$upData,
-				['id' => $oEnrollUsr->id]
-			);
-		}
-		/* 更新进行点赞的活动用户的总数据 */
-		$oEnrollUsrALL = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_like_other_at,like_other_num,user_total_coin', 'rid' => 'ALL']);
-		if (false === $oEnrollUsrALL) {
-			$inDataALL = ['last_like_other_at' => time(), 'like_other_num' => $incLikeNum];
-			if (!empty($rulesOther)) {
-				$inDataALL['user_total_coin'] = 0;
-				foreach ($rulesOther as $ruleOther) {
-					$inDataALL['user_total_coin'] = $inDataALL['user_total_coin'] + (int) $ruleOther->actor_delta;
-				}
-			}
-
-			$inDataALL['rid'] = "ALL";
-			$modelUsr->add($oApp, $oUser, $inDataALL);
-		} else {
-			$upDataALL = ['last_like_other_at' => time(), 'like_other_num' => $oEnrollUsrALL->like_other_num + $incLikeNum];
-			if (!empty($rulesOther)) {
-				$upDataALL['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
-				foreach ($rulesOther as $ruleOther) {
-					$upDataALL['user_total_coin'] = $upDataALL['user_total_coin'] + (int) $ruleOther->actor_delta;
-				}
-			}
-			$modelUsr->update(
-				'xxt_enroll_user',
-				$upDataALL,
-				['id' => $oEnrollUsrALL->id]
-			);
-		}
-
-		/* 更新被点赞的活动用户的轮次数据 */
-		$oEnrollUsr = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => $rid]);
-		if ($oEnrollUsr) {
-			if ($incLikeNum > 0) {
-				$user = new \stdClass;
-				$user->uid = $oEnrollUsr->userid;
-				$user->nickname = $oEnrollUsr->nickname;
-				/* 更新被点赞的活动用户的积分奖励 */
-				$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.like', $oApp);
-				$modelCoin->award($oApp, $user, 'site.matter.enroll.data.like', $rulesOwner);
-			}
-			$upData2 = ['last_like_at' => time(), 'like_num' => $oEnrollUsr->like_num + $incLikeNum];
-			if (!empty($rulesOwner)) {
-				$upData2['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
-				foreach ($rulesOwner as $rule) {
-					$upData2['user_total_coin'] = $upData2['user_total_coin'] + (int) $rule->actor_delta;
-				}
-			}
-			$modelUsr->update(
-				'xxt_enroll_user',
-				$upData2,
-				['id' => $oEnrollUsr->id]
-			);
-		}
-		/* 更新被点赞的活动用户的总数据 */
-		$oEnrollUsrALL = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin', 'rid' => 'ALL']);
-		if ($oEnrollUsrALL) {
-			if ($incLikeNum > 0 && !isset($rulesOwner)) {
-				/* 更新被点赞的活动用户的积分奖励 */
-				$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.like', $oApp);
-			}
-			$upDataALL2 = ['last_like_at' => time(), 'like_num' => $oEnrollUsrALL->like_num + $incLikeNum];
-			if (!empty($rulesOwner)) {
-				$upDataALL2['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
-				foreach ($rulesOwner as $rule) {
-					$upDataALL2['user_total_coin'] = $upDataALL2['user_total_coin'] + (int) $rule->actor_delta;
-				}
-			}
-			$modelUsr->update(
-				'xxt_enroll_user',
-				$upDataALL2,
-				['id' => $oEnrollUsrALL->id]
-			);
-		}
-		/**
-		 * 更新项目用户数据
-		 */
-		if (!empty($oApp->mission_id)) {
-			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
-			$oMission = new \stdClass;
-			$oMission->siteid = $oApp->siteid;
-			$oMission->id = $oApp->mission_id;
-			/* 更新进行点赞的活动用户的总数据 */
-			$oMisUser = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,last_like_other_at,like_other_num,user_total_coin']);
-			if (false === $oMisUser) {
-				$aNewMisUsr = ['last_like_other_at' => time(), 'like_other_num' => $incLikeNum];
-				if (!empty($rulesOther)) {
-					$aNewMisUsr['user_total_coin'] = 0;
-					foreach ($rulesOther as $ruleOther) {
-						$aNewMisUsr['user_total_coin'] = $aNewMisUsr['user_total_coin'] + (int) $ruleOther->actor_delta;
-					}
-				}
-				$modelMisUsr->add($oMission, $oUser, $aNewMisUsr);
-			} else {
-				$aUpdMisUsr = ['last_like_other_at' => time(), 'like_other_num' => $oMisUser->like_other_num + $incLikeNum];
-				if (!empty($rulesOther)) {
-					$aUpdMisUsr['user_total_coin'] = (int) $oMisUser->user_total_coin;
-					foreach ($rulesOther as $ruleOther) {
-						$aUpdMisUsr['user_total_coin'] = $aUpdMisUsr['user_total_coin'] + (int) $ruleOther->actor_delta;
-					}
-				}
-				$modelMisUsr->update(
-					'xxt_mission_user',
-					$aUpdMisUsr,
-					['id' => $oMisUser->id]
-				);
-			}
-			/* 更新被点赞的活动用户的总数据 */
-			$oMisUser = $modelMisUsr->byId($oMission, $oRecord->userid, ['fields' => 'id,userid,nickname,last_like_at,like_num,user_total_coin']);
-			if ($oMisUser) {
-				if ($incLikeNum > 0 && !isset($rulesOwner)) {
-					$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.like', $oApp);
-				}
-				$aUpdMisUsr = ['last_like_at' => time(), 'like_num' => $oMisUser->like_num + $incLikeNum];
-				if (!empty($rulesOwner)) {
-					$aUpdMisUsr['user_total_coin'] = (int) $oMisUser->user_total_coin;
-					foreach ($rulesOwner as $rule) {
-						$aUpdMisUsr['user_total_coin'] = $aUpdMisUsr['user_total_coin'] + (int) $rule->actor_delta;
-					}
-				}
-				$modelMisUsr->update(
-					'xxt_mission_user',
-					$aUpdMisUsr,
-					['id' => $oMisUser->id]
-				);
-			}
+			/* 撤销发起点赞 */
+			$modelEnlEvt->undoLikeRecord($oApp, $oRecord, $oUser);
+			/* 撤销被点赞 */
+			$modelEnlEvt->undoBeLikedRecord($oApp, $oRecord, $oUser);
 		}
 
 		$oResult = new \stdClass;
@@ -1133,7 +830,7 @@ class record extends base {
 			$modelMisMat->agreed($oApp, 'R', $oRecord, $value);
 		}
 
-		/* 处理了用户汇总数据，积分数据 */
+		/* 处理用户汇总数据，积分数据 */
 		$this->model('matter\enroll\event')->recommendRecord($oApp, $oRecord, $this->who, $value);
 
 		return new \ResponseData('ok');

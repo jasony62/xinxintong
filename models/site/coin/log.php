@@ -13,21 +13,26 @@ class log_model extends \TMS_MODEL {
 	 *
 	 */
 	public function award(&$matter, &$actor, $act, $rules = []) {
+		$oResult = new \stdClass;
+		$oResult->actor = [];
+		$oResult->creator = [];
+
 		$modelMat = $this->model('matter\\' . $matter->type . '\coin');
 		if (empty($rules)) {
 			$rules = $modelMat->rulesByMatter($act, $matter);
 		}
 		foreach ($rules as $rule) {
 			if ($rule->actor_delta) {
-				$this->_award2User($matter, $actor, $act, (int) $rule->actor_delta);
+				$oResult->actor[] = $this->_award2User($matter, $actor, $act, (int) $rule->actor_delta);
 			}
 			if ($rule->creator_delta) {
 				if ($creator = $modelMat->getCreator($matter)) {
-					$this->_award2User($matter, $creator, $act, (int) $rule->creator_delta);
+					$oResult->creator[] = $this->_award2User($matter, $creator, $act, (int) $rule->creator_delta);
 				}
 			}
 		}
-		return true;
+
+		return $oResult;
 	}
 	/**
 	 * 获得指定用户的最后一条日志

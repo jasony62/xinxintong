@@ -2,9 +2,6 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', '$uibModal', '$timeout', 'srvCoin', function($scope, http2, $uibModal, $timeout, srvCoin) {
         var actions = [{
-            name: 'site.matter.article.read',
-            desc: '用户A打开图文页面'
-        }, {
             name: 'site.matter.article.share.friend',
             desc: '用户A分享图文给公众号好友',
         }, {

@@ -60,12 +60,20 @@ class user_model extends \TMS_MODEL {
 			case 'last_enroll_at':
 			case 'last_like_at':
 			case 'last_like_other_at':
+			case 'last_remark_at':
+			case 'last_remark_other_at':
+			case 'last_like_remark_at':
+			case 'last_like_othe_remarkr_at':
 			case 'last_recommend_at':
 				$aDbData[$field] = $value;
 				break;
 			case 'enroll_num':
 			case 'like_num':
 			case 'like_other_num':
+			case 'remark_num':
+			case 'remark_other_num':
+			case 'like_remark_num':
+			case 'like_other_remark_num':
 			case 'recommend_num':
 			case 'user_total_coin':
 				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;

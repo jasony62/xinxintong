@@ -17,37 +17,40 @@ define(['frame'], function(ngApp) {
         var _oMission, _aDefaultActions;
         _aDefaultActions = [{
             data: { act: 'site.matter.plan.read', matter_type: 'plan' },
-            desc: '用户A打开计划活动页面',
+            desc: '计划活动————用户A打开计划活动页面',
         }, {
             data: { act: 'site.matter.plan.submit', matter_type: 'plan' },
-            desc: '用户A完成某项任务',
-        }, {
-            data: { act: 'site.matter.enroll.read', matter_type: 'enroll' },
-            desc: '用户A打开登记活动页面',
+            desc: '计划活动————用户A完成某项任务',
         }, {
             data: { act: 'site.matter.enroll.submit', matter_type: 'enroll' },
-            desc: '用户A提交新登记记录',
+            desc: '登记活动————用户A提交新填写记录',
         }, {
             data: { act: 'site.matter.enroll.share.friend', matter_type: 'enroll' },
-            desc: '用户A分享活动给公众号好友',
+            desc: '登记活动————用户A分享活动给公众号好友',
         }, {
             data: { act: 'site.matter.enroll.share.timeline', matter_type: 'enroll' },
-            desc: '用户A分享活动至朋友圈',
+            desc: '登记活动————用户A分享活动至朋友圈',
         }, {
             data: { act: 'site.matter.enroll.data.like', matter_type: 'enroll' },
-            desc: '用户A填写数据被赞同',
+            desc: '登记活动————用户A填写数据被赞同',
         }, {
             data: { act: 'site.matter.enroll.data.other.like', matter_type: 'enroll' },
-            desc: '用户A赞同别人的填写数据',
+            desc: '登记活动————用户A赞同别人的填写数据',
         }, {
             data: { act: 'site.matter.enroll.data.comment', matter_type: 'enroll' },
-            desc: '用户A填写数据被点评',
+            desc: '登记活动————用户A填写数据被评论',
         }, {
             data: { act: 'site.matter.enroll.data.other.comment', matter_type: 'enroll' },
-            desc: '用户A点评别人的填写数据',
+            desc: '登记活动————用户A赞同别人的填写数据',
+        }, {
+            data: { act: 'site.matter.enroll.remark.like', matter_type: 'enroll' },
+            desc: '登记活动————用户A发表的评论被赞同',
+        }, {
+            data: { act: 'site.matter.enroll.remark.other.like', matter_type: 'enroll' },
+            desc: '登记活动————用户A赞同别人发表的评论',
         }, {
             data: { act: 'site.matter.enroll.data.recommend', matter_type: 'enroll' },
-            desc: '用户A填写数据被推荐',
+            desc: '登记活动————用户A填写的数据被推荐',
         }];
         $scope.rules = {};
         _aDefaultActions.forEach(function(oRule) {

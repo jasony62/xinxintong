@@ -52,18 +52,26 @@ class remark extends base {
 	/**
 	 * 给指定的登记记录的添加评论
 	 * 进行评论操作的用户需满足进入活动规则的条件
-	 * $data  xxt_enroll_record_data 的id
+	 *
+	 * @param $remark 被评论的评论
+	 *
 	 */
-	public function add_action($ek, $schema = '', $data, $remark = 0) {
-		if (empty($data)) {
-			return new \ResponseError('未指定被评论内容ID');
-		}
+	public function add_action($ek, $data, $remark = 0) {
+		$ek = $this->escape($ek);
 		$recDataId = $this->escape($data);
 
 		$modelRec = $this->model('matter\enroll\record');
+		$modelRecData = $this->model('matter\enroll\data');
+
 		$oRecord = $modelRec->byId($ek);
 		if (false === $oRecord && $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
+		}
+		if (!empty($recDataId)) {
+			$oRecordData = $modelRecData->byId($recDataId);
+			if (false === $oRecordData && $oRecordData->state !== '1') {
+				return new \ObjectNotFoundError();
+			}
 		}
 
 		$modelEnl = $this->model('matter\enroll');
@@ -82,6 +90,7 @@ class remark extends base {
 			return new \ResponseError('评论内容不允许为空');
 		}
 
+		/* 发表评论的用户 */
 		$oUser = $this->who;
 		if (!empty($oApp->group_app_id)) {
 			$modelUsr = $this->model('matter\enroll\user');
@@ -97,19 +106,6 @@ class remark extends base {
 		$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
 		$oUser->nickname = $userNickname;
 
-		//多行题
-		if (!empty($schema)) {
-			foreach ($oApp->dataSchemas as $dataSchema) {
-				if ($dataSchema->id === $schema && $dataSchema->type === 'multitext') {
-					$schemaType = 'multitext';
-					$oRecordData = $this->model('matter\enroll\data')->byId($recDataId, ['fields' => 'aid,id,like_log,userid,multitext_seq']);
-					if (false === $oRecordData) {
-						return new \ObjectNotFoundError();
-					}
-				}
-			}
-		}
-
 		$current = time();
 		$oRemark = new \stdClass;
 		$oRemark->siteid = $oRecord->siteid;
@@ -122,7 +118,7 @@ class remark extends base {
 		$oRemark->enroll_key = $ek;
 		$oRemark->enroll_group_id = $oRecord->group_id;
 		$oRemark->enroll_userid = $oRecord->userid;
-		$oRemark->schema_id = $modelRec->escape($schema);
+		$oRemark->schema_id = isset($oRecordData) ? $oRecordData->schema_id : '';
 		$oRemark->data_id = $recDataId;
 		$oRemark->remark_id = $modelRec->escape($remark);
 		$oRemark->create_at = $current;
@@ -131,158 +127,19 @@ class remark extends base {
 		$oRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oRemark, true);
 
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
-		if (!empty($schema)) {
+		if (!empty($recDataId)) {
 			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
-			if (isset($schemaType) && $schemaType === 'multitext') {
-				// 如果每一条的数据呗评论了那么这道题的总数据+1
-				if ($oRecordData->multitext_seq != 0) {
-					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
-				}
+			// 如果每一条的数据呗评论了那么这道题的总数据+1
+			if ($oRecordData->multitext_seq != 0) {
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecordData->schema_id}' and multitext_seq = 0");
 			}
 		}
 
-		/* 更新进行点评的活动用户的积分奖励 */
-		$modelMat = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
-		$rulesOther = $modelMat->rulesByMatter('site.matter.enroll.data.other.comment', $oApp);
-		$rulesOwner = $modelMat->rulesByMatter('site.matter.enroll.data.comment', $oApp);
-
-		$modelCoin = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
-		$modelCoin->award($oApp, $oUser, 'site.matter.enroll.data.other.comment', $rulesOther);
-
-		/* 获得所属轮次 */
-		$modelRun = $this->model('matter\enroll\round');
-		if ($activeRound = $modelRun->getActive($oApp)) {
-			$rid = $activeRound->rid;
+		/* 更新用户汇总数据 */
+		if (!empty($recDataId)) {
+			$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecordData, $oUser);
 		} else {
-			$rid = '';
-		}
-
-		/* 更新发起评论的活动用户轮次数据 */
-		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
-		$oEnrollUsr = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_remark_other_at,remark_other_num,user_total_coin', 'rid' => $rid]);
-		if (false === $oEnrollUsr) {
-			$inData = ['last_remark_other_at' => time(), 'remark_other_num' => 1];
-			$inData['user_total_coin'] = 0;
-			foreach ($rulesOther as $ruleOther) {
-				$inData['user_total_coin'] = $inData['user_total_coin'] + (int) $ruleOther->actor_delta;
-			}
-
-			$inData['rid'] = $rid;
-			$modelUsr->add($oApp, $oUser, $inData);
-		} else {
-			$upData = ['last_remark_other_at' => time(), 'remark_other_num' => $oEnrollUsr->remark_other_num + 1];
-			$upData['user_total_coin'] = $oEnrollUsr->user_total_coin;
-			foreach ($rulesOther as $ruleOther) {
-				$upData['user_total_coin'] = $upData['user_total_coin'] + (int) $ruleOther->actor_delta;
-			}
-			$modelUsr->update(
-				'xxt_enroll_user',
-				$upData,
-				['id' => $oEnrollUsr->id]
-			);
-		}
-		/* 更新发起评论的活动用户总数据 */
-		$oEnrollUsrALL = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,nickname,last_remark_other_at,remark_other_num,user_total_coin', 'rid' => 'ALL']);
-		if (false === $oEnrollUsrALL) {
-			$inDataALL = ['last_remark_other_at' => time(), 'remark_other_num' => 1];
-			$inDataALL['user_total_coin'] = 0;
-			foreach ($rulesOther as $ruleOther) {
-				$inDataALL['user_total_coin'] = $inDataALL['user_total_coin'] + (int) $ruleOther->actor_delta;
-			}
-
-			$inDataALL['rid'] = 'ALL';
-			$modelUsr->add($oApp, $oUser, $inDataALL);
-		} else {
-			$upDataALL = ['last_remark_other_at' => time(), 'remark_other_num' => $oEnrollUsrALL->remark_other_num + 1];
-			$upDataALL['user_total_coin'] = $oEnrollUsrALL->user_total_coin;
-			foreach ($rulesOther as $ruleOther) {
-				$upDataALL['user_total_coin'] = $upDataALL['user_total_coin'] + (int) $ruleOther->actor_delta;
-			}
-			$modelUsr->update(
-				'xxt_enroll_user',
-				$upDataALL,
-				['id' => $oEnrollUsrALL->id]
-			);
-		}
-
-		/* 更新被评论的活动用户轮次数据 */
-		$oEnrollUsr = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_remark_at,remark_num,user_total_coin', 'rid' => $rid]);
-		if ($oEnrollUsr) {
-			/* 更新被点评的活动用户的积分奖励 */
-			$user = new \stdClass;
-			$user->uid = $oEnrollUsr->userid;
-			$user->nickname = $oEnrollUsr->nickname;
-			$modelCoin->award($oApp, $user, 'site.matter.enroll.data.comment', $rulesOwner);
-
-			$upData2 = ['last_remark_at' => time(), 'remark_num' => $oEnrollUsr->remark_num + 1];
-			$upData2['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
-			foreach ($rulesOwner as $rule) {
-				$upData2['user_total_coin'] = $upData2['user_total_coin'] + (int) $rule->actor_delta;
-			}
-			$modelUsr->update(
-				'xxt_enroll_user',
-				$upData2,
-				['id' => $oEnrollUsr->id]
-			);
-		}
-		/* 更新被评论的活动用户总数据 */
-		$oEnrollUsrALL = $modelUsr->byId($oApp, $oRecord->userid, ['fields' => 'id,userid,nickname,last_remark_at,remark_num,user_total_coin', 'rid' => 'ALL']);
-		if ($oEnrollUsrALL) {
-			/* 更新被点评的活动用户的积分奖励 */
-			$upData2 = ['last_remark_at' => time(), 'remark_num' => $oEnrollUsrALL->remark_num + 1];
-			$upData2['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
-			foreach ($rulesOwner as $rule) {
-				$upData2['user_total_coin'] = $upData2['user_total_coin'] + (int) $rule->actor_delta;
-			}
-			$modelUsr->update(
-				'xxt_enroll_user',
-				$upData2,
-				['id' => $oEnrollUsrALL->id]
-			);
-		}
-		/**
-		 * 更新项目用户数据
-		 */
-		if (!empty($oApp->mission_id)) {
-			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
-			$oMission = new \stdClass;
-			$oMission->siteid = $oApp->siteid;
-			$oMission->id = $oApp->mission_id;
-			/* 更新发起评论的活动用户总数据 */
-			$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,last_remark_other_at,remark_other_num,user_total_coin']);
-			if (false === $oMisUsr) {
-				$aNewMisUser = ['last_remark_other_at' => time(), 'remark_other_num' => 1];
-				$aNewMisUser['user_total_coin'] = 0;
-				foreach ($rulesOther as $ruleOther) {
-					$aNewMisUser['user_total_coin'] = $aNewMisUser['user_total_coin'] + (int) $ruleOther->actor_delta;
-				}
-				$modelMisUsr->add($oMission, $oUser, $aNewMisUser);
-			} else {
-				$aUpdMisUsr = ['last_remark_other_at' => time(), 'remark_other_num' => $oMisUsr->remark_other_num + 1];
-				$aUpdMisUsr['user_total_coin'] = $oMisUsr->user_total_coin;
-				foreach ($rulesOther as $ruleOther) {
-					$aUpdMisUsr['user_total_coin'] = $aUpdMisUsr['user_total_coin'] + (int) $ruleOther->actor_delta;
-				}
-				$modelMisUsr->update(
-					'xxt_mission_user',
-					$aUpdMisUsr,
-					['id' => $oMisUsr->id]
-				);
-			}
-			/* 更新被评论的活动用户总数据 */
-			$oMisUsr = $modelMisUsr->byId($oMission, $oRecord->userid, ['fields' => 'id,userid,nickname,last_remark_at,remark_num,user_total_coin']);
-			if ($oMisUsr) {
-				$oUpdMisUser = ['last_remark_at' => time(), 'remark_num' => $oMisUsr->remark_num + 1];
-				$oUpdMisUser['user_total_coin'] = (int) $oMisUsr->user_total_coin;
-				foreach ($rulesOwner as $rule) {
-					$oUpdMisUser['user_total_coin'] = $oUpdMisUser['user_total_coin'] + (int) $rule->actor_delta;
-				}
-				$modelMisUsr->update(
-					'xxt_mission_user',
-					$oUpdMisUser,
-					['id' => $oMisUsr->id]
-				);
-			}
+			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oUser);
 		}
 
 		$this->_notifyHasRemark($oApp, $oRecord, $oRemark);
@@ -382,21 +239,22 @@ class remark extends base {
 	 *
 	 */
 	public function like_action($remark) {
+		$remark = $this->escape($remark);
+
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'aid,id,like_log']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,like_log']);
 		if (false === $oRemark) {
 			return new \ObjectNotFoundError();
 		}
 
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$oLikeLog = $oRemark->like_log;
 
 		$oUser = $this->who;
-
 		if (isset($oLikeLog->{$oUser->uid})) {
 			unset($oLikeLog->{$oUser->uid});
 			$incLikeNum = -1;
@@ -412,56 +270,17 @@ class remark extends base {
 			['id' => $oRemark->id]
 		);
 
-		$modelUsr = $this->model('matter\enroll\user');
-		$modelUsr->setOnlyWriteDbConn(true);
-		/* 更新进行点赞的活动用户的数据 */
-		$oEnrollUsr = $modelUsr->byId($oApp, $this->who->uid, ['fields' => 'id,nickname,last_like_other_remark_at,like_other_remark_num']);
-		if (false === $oEnrollUsr) {
-			$modelUsr->add($oApp, $this->who, ['last_like_other_remark_at' => time(), 'like_other_remark_num' => 1]);
+		$modelEnlEvt = $this->model('matter\enroll\event');
+		if ($incLikeNum > 0) {
+			/* 发起点赞 */
+			$modelEnlEvt->likeRemark($oApp, $oRemark, $oUser);
+			/* 被点赞 */
+			$modelEnlEvt->belikedRemark($oApp, $oRemark, $oUser);
 		} else {
-			$modelUsr->update(
-				'xxt_enroll_user',
-				['last_like_other_remark_at' => time(), 'like_other_remark_num' => $oEnrollUsr->like_other_remark_num + $incLikeNum],
-				['id' => $oEnrollUsr->id]
-			);
-		}
-		/* 更新被点赞的活动用户的数据 */
-		$oEnrollUsr = $modelUsr->byId($oApp, $this->who->uid, ['fields' => 'id,nickname,last_like_remark_at,like_remark_num']);
-		if ($oEnrollUsr) {
-			$modelUsr->update(
-				'xxt_enroll_user',
-				['last_like_remark_at' => time(), 'like_remark_num' => $oEnrollUsr->like_remark_num + $incLikeNum],
-				['id' => $oEnrollUsr->id]
-			);
-		}
-		/**
-		 * 更新项目用户数据
-		 */
-		if (!empty($oApp->mission_id)) {
-			$modelMisUsr = $this->model('matter\mission\user');
-			$modelMisUsr->setOnlyWriteDbConn(true);
-			$oMission = new \stdClass;
-			$oMission->siteid = $oApp->siteid;
-			$oMission->id = $oApp->mission_id;
-			$oMisUsr = $modelMisUsr->byId($oMission, $this->who->uid, ['fields' => 'id,nickname,last_like_other_remark_at,like_other_remark_num']);
-			if (false === $oMisUsr) {
-				$modelMisUsr->add($oMission, $this->who, ['last_like_other_remark_at' => time(), 'like_other_remark_num' => 1]);
-			} else {
-				$modelMisUsr->update(
-					'xxt_mission_user',
-					['last_like_other_remark_at' => time(), 'like_other_remark_num' => $oMisUsr->like_other_remark_num + $incLikeNum],
-					['id' => $oMisUsr->id]
-				);
-			}
-			/* 更新被点赞的活动用户的数据 */
-			$oMisUsr = $modelMisUsr->byId($oMission, $this->who->uid, ['fields' => 'id,nickname,last_like_remark_at,like_remark_num']);
-			if ($oMisUsr) {
-				$modelMisUsr->update(
-					'xxt_mission_user',
-					['last_like_remark_at' => time(), 'like_remark_num' => $oMisUsr->like_remark_num + $incLikeNum],
-					['id' => $oMisUsr->id]
-				);
-			}
+			/* 撤销发起点赞 */
+			$modelEnlEvt->undoLikeRemark($oApp, $oRemark, $oUser);
+			/* 撤销被点赞 */
+			$modelEnlEvt->undoBeLikedRemark($oApp, $oRemark, $oUser);
 		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);

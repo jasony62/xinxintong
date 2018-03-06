@@ -94,10 +94,10 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            if (rsp.data._loginReferer) {
+            if (window.parent && window.parent.onClosePlugin) {
+                window.parent.onClosePlugin(rsp.data);
+            } else if (rsp.data._loginReferer) {
                 location.replace(rsp.data._loginReferer);
-            } else {
-                location.href = '/rest/site/fe/user?site=' + _siteId;
             }
         });
     };

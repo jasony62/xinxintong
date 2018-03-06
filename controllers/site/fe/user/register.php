@@ -42,7 +42,10 @@ class register extends \site\fe\base {
 		$modelWay = $this->model('site\fe\way');
 		$cookieRegUser = $modelWay->getCookieRegUser();
 		if ($cookieRegUser) {
-			return new \ResponseError("请退出当前账号再注册");
+			if (isset($cookieRegUser->loginExpire)) {
+				return new \ResponseError("请退出当前账号再登录");
+			}
+			$modelWay->quitRegUser();
 		}
 
 		$modelReg = $this->model('site\user\registration');

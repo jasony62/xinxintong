@@ -98,10 +98,8 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                 window.parent.onClosePlugin(rsp.data);
             } else if (rsp.data._loginReferer) {
                 location.replace(rsp.data._loginReferer);
-            } else if ($scope.loginData.gotoConsole === 'Y') {
-                location.href = '/rest/pl/fe';
             } else {
-                location.replace('/rest/site/fe/user?site=' + _siteId);
+                location.href = '/rest/site/fe/user?site=' + _siteId;
             }
         });
     };

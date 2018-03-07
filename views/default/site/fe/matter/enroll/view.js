@@ -197,6 +197,7 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                 bVisible = true;
                 for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
                     oRule = oSchema.visibility.rules[i];
+                    console.log(oRecordData, oRule);
                     if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
                         bVisible = false;
                         break;
@@ -217,7 +218,11 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
         facRecord = Record.ins(oApp);
 
         fnGetRecord().then(function(rsp) {
-            var schemaId, domWrap, aRemarkableSchemas, oRecord;
+            var schemaId, domWrap, aRemarkableSchemas, oRecord, oOriginalData;
+            oOriginalData = angular.copy(rsp.data.data);
+            /* 设置题目的可见性 */
+            fnToggleAssocSchemas(dataSchemas, oOriginalData);
+            /* 将数据转换为可直接显示的形式 */
             fnProcessData(rsp.data.data);
             facRecord.current = oRecord = rsp.data;
             facRecord.current.tag = facRecord.current.data_tag ? facRecord.current.data_tag : {};
@@ -250,8 +255,6 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                     });
                 }
             }
-            /* 设置题目的可见性 */
-            fnToggleAssocSchemas(dataSchemas, oRecord.data);
             /* disable actions */
             if (oApp.end_submit_at > 0 && parseInt(oApp.end_submit_at) < (new Date * 1) / 1000) {
                 fnDisableActions();

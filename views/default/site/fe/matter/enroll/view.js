@@ -184,6 +184,31 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
             }
         }
     }
+
+    /**
+     * 控制关联题目的可见性
+     */
+    function fnToggleAssocSchemas(dataSchemas, oRecordData) {
+        dataSchemas.forEach(function(oSchema) {
+            var domSchema;
+            domSchema = document.querySelector('[wrap=value][schema="' + oSchema.id + '"]');
+            if (domSchema && oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
+                var bVisible, oRule;
+                bVisible = true;
+                for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                    oRule = oSchema.visibility.rules[i];
+                    if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
+                        bVisible = false;
+                        break;
+                    }
+                }
+                domSchema.style.visibility = bVisible ? 'visible' : 'hidden';
+                domSchema.classList.toggle('hide', !bVisible);
+                oSchema.visibility.visible = bVisible;
+            }
+        });
+    }
+
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oApp, dataSchemas, facRecord;
 
@@ -195,7 +220,6 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
             var schemaId, domWrap, aRemarkableSchemas, oRecord;
             fnProcessData(rsp.data.data);
             facRecord.current = oRecord = rsp.data;
-            console.log('oo', oRecord);
             facRecord.current.tag = facRecord.current.data_tag ? facRecord.current.data_tag : {};
             aRemarkableSchemas = [];
             if (oApp.repos_unit === 'D') {
@@ -226,6 +250,8 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                     });
                 }
             }
+            /* 设置题目的可见性 */
+            fnToggleAssocSchemas(dataSchemas, oRecord.data);
             /* disable actions */
             if (oApp.end_submit_at > 0 && parseInt(oApp.end_submit_at) < (new Date * 1) / 1000) {
                 fnDisableActions();

@@ -31,9 +31,11 @@ ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $
                 } else {
                     value = data[oSchema.id];
                 }
-                if (oSchema.type && oSchema.type !== 'html') {
-                    if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
-                        return sCheckResult;
+                if (!oSchema.visibility || oSchema.visibility.visible) {
+                    if (oSchema.type && oSchema.type !== 'html') {
+                        if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                            return sCheckResult;
+                        }
                     }
                 }
             }
@@ -209,6 +211,31 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 }
             });
         }
+    }
+    /**
+     * 控制关联题目的可见性
+     */
+    function fnToggleAssocSchemas(dataSchemas, oRecordData) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                if (domSchema && oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
+                    var bVisible, oRule;
+                    bVisible = true;
+                    for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                        oRule = oSchema.visibility.rules[i];
+                        if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
+                            bVisible = false;
+                            break;
+                        }
+                    }
+                    domSchema.style.visibility = bVisible ? 'visible' : 'hidden';
+                    domSchema.classList.toggle('hide', !bVisible);
+                    oSchema.visibility.visible = bVisible;
+                }
+            }
+        });
     }
     /**
      * 控制题目关联选项的显示
@@ -439,9 +466,15 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
                 submitState.modified = true;
+                // 控制关联题目的可见性
+                fnToggleAssocSchemas(params.page.dataSchemas, $scope.data);
+                // 控制题目关联选项的可见性
                 fnToggleAssocOptions(params.page.dataSchemas, $scope.data);
             }
         }, true);
+        // 控制关联题目的可见性
+        fnToggleAssocSchemas(params.page.dataSchemas, $scope.data);
+        // 控制题目关联选项的可见性
         fnToggleAssocOptions(params.page.dataSchemas, $scope.data);
         // 登录提示
         if (!params.user.unionid) {

@@ -609,6 +609,62 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     $scope.updSchema(oSchema);
                 });
             };
+            $scope.setVisibility = function(oSchema) {
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setVisibility.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var _optSchemas, _rules, _oBeforeRules;
+                        _optSchemas = []; //所有选择题
+                        _rules = []; // 当前题目的可见规则
+                        if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
+                            _oBeforeRules = {};
+                            oSchema.visibility.rules.forEach(function(oRule) {
+                                if (_oBeforeRules[oRule.schema]) {
+                                    _oBeforeRules[oRule.schema].push(oRule.op);
+                                } else {
+                                    _oBeforeRules[oRule.schema] = [oRule.op];
+                                }
+                            });
+                        }
+                        $scope.app.dataSchemas.forEach(function(oAppSchema) {
+                            if (/single|multiple/.test(oAppSchema.type) && oAppSchema.id !== oSchema.id) {
+                                _optSchemas.push(oAppSchema);
+                                if (_oBeforeRules && _oBeforeRules[oAppSchema.id]) {
+                                    var oBeforeRule;
+                                    for (var i = 0, ii = oAppSchema.ops.length; i < ii; i++) {
+                                        if (_oBeforeRules[oAppSchema.id].indexOf(oAppSchema.ops[i].v) !== -1) {
+                                            oBeforeRule = { schema: oAppSchema };
+                                            oBeforeRule.op = oAppSchema.ops[i];
+                                            _rules.push(oBeforeRule);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        $scope2.optSchemas = _optSchemas;
+                        $scope2.rules = _rules;
+                        $scope2.addRule = function() {
+                            _rules.push({});
+                        };
+                        $scope2.removeRule = function(oRule) {
+                            _rules.splice(_rules.indexOf(oRule), 1);
+                        };
+                        $scope2.ok = function() {
+                            var oConfig = { rules: [] };
+                            _rules.forEach(function(oRule) {
+                                oConfig.rules.push({ schema: oRule.schema.id, op: oRule.op.v });
+                            });
+                            oSchema.visibility = oConfig;
+                            $scope.updSchema(oSchema);
+                            $mi.close(oSchema);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                    }],
+                    backdrop: 'static',
+                });
+            };
             /**
              * oAfterSchema: false - first, undefined - after active schema
              */

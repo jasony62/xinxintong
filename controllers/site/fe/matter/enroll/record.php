@@ -730,7 +730,7 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 
 		$oLikeLog = $oRecord->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {

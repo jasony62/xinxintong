@@ -255,10 +255,6 @@ class main extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		if (!empty($ek)) {
 			$oOpenedRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
-			//if (false === $oOpenedRecord || $oOpenedRecord->state !== '1') {
-			//return new \ObjectNotFoundError();
-			//}
-			//$params['record'] = $oOpenedRecord;
 		}
 
 		/* 要打开的轮次 */

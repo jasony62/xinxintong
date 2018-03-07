@@ -256,12 +256,12 @@ class event_model extends \TMS_MODEL {
 		}
 
 		/* 用户当前轮次的汇总数据 */
-		$oEnlUsrByRnd = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,state,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => $oRecord->rid]);
-		if (false === $oEnlUsrByRnd) {
+		$oEnlUsrRnd = $modelUsr->byId($oApp, $oUser->uid, ['fields' => 'id,state,nickname,group_id,last_enroll_at,enroll_num,user_total_coin', 'rid' => $oRecord->rid]);
+		if (false === $oEnlUsrRnd) {
 			$oUpdatedEnlUsrData->rid = $oRecord->rid;
 			$modelUsr->add($oApp, $oUser, $oUpdatedEnlUsrData);
 		} else {
-			$modelUsr->modify($oEnlUsrByRnd, $oUpdatedEnlUsrData);
+			$modelUsr->modify($oEnlUsrRnd, $oUpdatedEnlUsrData);
 		}
 
 		/* 用户活动范围的汇总数据 */
@@ -406,9 +406,9 @@ class event_model extends \TMS_MODEL {
 		$operatorId = $this->_getOperatorId($oOperator);
 		$current = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
-		$oEnlUsrByRnd = $modelUsr->byId($oApp, $oRecordOrData->userid, ['fields' => 'id,nickname,last_recommend_at,recommend_num,user_total_coin,modify_log', 'rid' => $oRecordOrData->rid]);
+		$oEnlUsrRnd = $modelUsr->byId($oApp, $oRecordOrData->userid, ['fields' => 'id,nickname,last_recommend_at,recommend_num,user_total_coin,modify_log', 'rid' => $oRecordOrData->rid]);
 		$oEnlUsrByApp = $modelUsr->byId($oApp, $oRecordOrData->userid, ['fields' => 'id,nickname,last_recommend_at,recommend_num,user_total_coin,modify_log', 'rid' => 'ALL']);
-		if ($oEnlUsrByRnd && $oEnlUsrByApp) {
+		if ($oEnlUsrRnd && $oEnlUsrByApp) {
 			/* 奖励积分 */
 			$aCoinResult = $modelUsr->awardCoin($oApp, $oRecordOrData->userid, $oRecordOrData->rid, self::RecommendEventName);
 			/* 记录修改日志 */
@@ -428,8 +428,8 @@ class event_model extends \TMS_MODEL {
 				'modify_log' => $oNewModifyLog,
 			];
 			/* 更新用户当前轮次的汇总数据 */
-			$this->_invalidRecDataLastRecommendLog($oEnlUsrByRnd->modify_log, $oRecordOrData);
-			$modelUsr->modify($oEnlUsrByRnd, $oUpdatedData);
+			$this->_invalidRecDataLastRecommendLog($oEnlUsrRnd->modify_log, $oRecordOrData);
+			$modelUsr->modify($oEnlUsrRnd, $oUpdatedData);
 			/* 更新用户活动范围的汇总数据 */
 			$this->_invalidRecDataLastRecommendLog($oEnlUsrByApp->modify_log, $oRecordOrData);
 			$modelUsr->modify($oEnlUsrByApp, $oUpdatedData);
@@ -455,12 +455,12 @@ class event_model extends \TMS_MODEL {
 		$current = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		/* 取消推荐 */
-		$oEnlUsrByRnd = $modelUsr->byId($oApp, $oRecordOrData->userid, ['fields' => 'id,nickname,last_recommend_at,recommend_num,user_total_coin,modify_log', 'rid' => $oRecordOrData->rid]);
+		$oEnlUsrRnd = $modelUsr->byId($oApp, $oRecordOrData->userid, ['fields' => 'id,nickname,last_recommend_at,recommend_num,user_total_coin,modify_log', 'rid' => $oRecordOrData->rid]);
 		$oEnlUsrByApp = $modelUsr->byId($oApp, $oRecordOrData->userid, ['fields' => 'id,nickname,last_recommend_at,recommend_num,user_total_coin,modify_log', 'rid' => 'ALL']);
-		if ($oEnlUsrByRnd && $oEnlUsrByApp) {
+		if ($oEnlUsrRnd && $oEnlUsrByApp) {
 			/* 历史记录 */
 			$oBeforeModifyLog = null;
-			foreach ($oEnlUsrByRnd->modify_log as $oLog) {
+			foreach ($oEnlUsrRnd->modify_log as $oLog) {
 				if (isset($oLog->op) && $oLog->op === self::RecommendEventName . '_Y') {
 					if (isset($oLog->args->id) && isset($oLog->args->type)) {
 						if ($oLog->args->id === $oRecordOrData->id && $oLog->args->type === $logArgType) {
@@ -484,10 +484,10 @@ class event_model extends \TMS_MODEL {
 			];
 			/* 更新用户当前轮次的汇总数据 */
 			if (isset($oBeforeModifyLog)) {
-				$this->_invalidRecDataLastRecommendLog($oEnlUsrByRnd->modify_log, $oRecordOrData);
-				$oUpdatedData->last_recommend_at = $this->_getRecDataAgreedLastAt($oEnlUsrByRnd->modify_log, $oRecordOrData);
+				$this->_invalidRecDataLastRecommendLog($oEnlUsrRnd->modify_log, $oRecordOrData);
+				$oUpdatedData->last_recommend_at = $this->_getRecDataAgreedLastAt($oEnlUsrRnd->modify_log, $oRecordOrData);
 			}
-			$modelUsr->modify($oEnlUsrByRnd, $oUpdatedData);
+			$modelUsr->modify($oEnlUsrRnd, $oUpdatedData);
 			/* 更新用户活动范围的汇总数据 */
 			if (isset($oBeforeModifyLog)) {
 				$this->_invalidRecDataLastRecommendLog($oEnlUsrByApp->modify_log, $oRecordOrData);

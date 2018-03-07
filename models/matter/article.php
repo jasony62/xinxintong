@@ -48,6 +48,13 @@ class article_model extends article_base {
 			!empty($matter->matter_mg_tag) && $matter->matter_mg_tag = json_decode($matter->matter_mg_tag);
 			$matter->type = $this->getTypeName();
 			$matter->entryUrl = $this->getEntryUrl($matter->siteid, $id);
+			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
+				if (empty($matter->entry_rule)) {
+					$matter->entryRule = $matter->entry_rule = new \stdClass;
+				} else {
+					$matter->entryRule = $matter->entry_rule = json_decode($matter->entry_rule);
+				}
+			}
 		}
 
 		return $matter;

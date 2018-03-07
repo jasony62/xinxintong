@@ -354,6 +354,9 @@ class main extends \pl\fe\matter\main_base {
 		isset($oPosted->summary) && $oPosted->summary = $modelArt->escape($oPosted->summary);
 		isset($oPosted->author) && $oPosted->author = $modelArt->escape($oPosted->author);
 		isset($oPosted->body) && $oPosted->body = $modelArt->escape(urldecode($oPosted->body));
+	 	if (isset($oPosted->entryRule)) {
+			$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($oPosted->entryRule));
+		}
 		/* 如果是引用关系，不修改正文 */
 		if ($oArticle->from_mode === 'C') {
 			if (isset($oPosted->body)) {

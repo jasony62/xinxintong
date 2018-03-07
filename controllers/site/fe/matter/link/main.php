@@ -41,10 +41,7 @@ class main extends \site\fe\matter\base {
 			$this->_requireSnsOAuth($site);
 		}
 
-		$result = $this->checkEntryRule($oLink, true);
-		if ($result[0] === false) {
-			$this->outputInfo($result[1]);
-		}
+		$this->checkEntryRule($oLink, true);
 
 		switch ($oLink->urlsrc) {
 		case 0: // 外部链接
@@ -267,21 +264,60 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	private function checkEntryRule($oMatter, $bRedirect = false) {
+		if (!isset($oApp->entryRule->scope)) {
+			return [true];
+		}
 		$oUser = $this->who;
-		$oEntryRule = $oMatter->entry_rule;
-		$bMatched = false;
-		$result = '';
-		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'group') {
+		$oEntryRule = $oApp->entryRule;
+		$oScope = $oEntryRule->scope;
+
+		if (isset($oScope->member) && $oScope->member === 'Y') {
+			$aResult = $this->enterAsMember($oApp);
+			/**
+			 * 限通讯录用户访问
+			 * 如果指定的任何一个通讯录要求用户关注公众号，但是用户还没有关注，那么就要求用户先关注公众号，再填写通讯录
+			 */
+			if (false === $aResult[0]) {
+				if (true === $bRedirect) {
+					$aMemberSchemaIds = [];
+					$modelMs = $this->model('site\user\memberschema');
+					foreach ($oEntryRule->member as $mschemaId => $oRule) {
+						$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+						if ($oMschema->is_wx_fan === 'Y') {
+							$oApp2 = clone $oApp;
+							$oApp2->entryRule = new \stdClass;
+							$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
+							$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
+							if (false === $aResult[0]) {
+								return $aResult;
+							}
+						}
+						$aMemberSchemaIds[] = $mschemaId;
+					}
+					$this->gotoMember($oApp, $aMemberSchemaIds);
+				} else {
+					$msg = '您没有填写通讯录信息，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+					return [false, $msg];
+				}
+			}
+		}
+		if (isset($oScope->sns) && $oScope->sns === 'Y') {
+			$aResult = $this->checkSnsEntryRule($oApp, $bRedirect);
+			if (false === $aResult[0]) {
+				return $aResult;
+			}
+		}
+		if (isset($oScope->group) && $oScope->group === 'Y') {
+			$bMatched = false;
 			/* 限分组用户访问 */
-			if (isset($oEntryRule->group)) {
-				!is_object($oEntryRule->group) && $oEntryRule->group = (object) $oEntryRule->group;
-				$oGroupApp = $oEntryRule->group;
-				if (isset($oGroupApp->id)) {
+			if (isset($oEntryRule->group->id)) {
+				$oGroupApp = $this->model('matter\group')->byId($oEntryRule->group->id, ['fields' => 'id,state,title']);
+				if ($oGroupApp && $oGroupApp->state === '1') {
 					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
 					if (count($oGroupUsr)) {
 						$oGroupUsr = $oGroupUsr[0];
-						if (isset($oGroupApp->round) && isset($oGroupApp->round->id)) {
-							if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+						if (isset($oEntryRule->group->round->id)) {
+							if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
 								$bMatched = true;
 							}
 						} else {
@@ -290,106 +326,16 @@ class main extends \site\fe\matter\base {
 					}
 				}
 			}
-			if (!$bMatched) {
-				$result = '您目前不满足【' . $oMatter->title . '】的进入规则，无法访问，请联系活动的组织者解决';
-			}
-		} else if (isset($oEntryRule->scope) && $oEntryRule->scope === 'member') {
-			/* 限通讯录用户访问 */
-			foreach ($oEntryRule->member as $schemaId) {
-				/* 检查用户的信息是否完整，是否已经通过审核 */
-				$modelMem = $this->model('site\user\member');
-				if (empty($oUser->unionid)) {
-					$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
-					if (count($aMembers) === 1) {
-						$oMember = $aMembers[0];
-						if ($oMember->verified === 'Y') {
-							$bMatched = true;
-							break;
-						}
-					}
+			if (false === $bMatched) {
+				$msg = '您目前的分组，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+				if (true === $bRedirect) {
+					$this->outputInfo($msg);
 				} else {
-					$modelAcnt = $this->model('site\user\account');
-					$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oMatter->siteid, 'fields' => 'uid']);
-					foreach ($aUnionUsers as $oUnionUser) {
-						$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
-						if (count($aMembers) === 1) {
-							$oMember = $aMembers[0];
-							if ($oMember->verified === 'Y') {
-								$bMatched = true;
-								break;
-							}
-						}
-					}
-					if ($bMatched) {
-						break;
-					}
+					return [false, $msg];
 				}
-			}
-			if (!$bMatched) {
-				$result = '$memberschema';
-			}
-		} else if (isset($oEntryRule->scope) && $oEntryRule->scope === 'sns') {
-			foreach ($oEntryRule->sns as $snsName) {
-				if (isset($oUser->sns) && isset($oUser->sns->{$snsName})) {
-					// 检查用户对应的公众号
-					if ($snsName === 'wx') {
-						$modelWx = $this->model('sns\wx');
-						if (($wxConfig = $modelWx->bySite($oMatter->siteid)) && $wxConfig->joined === 'Y') {
-							$snsSiteId = $oMatter->siteid;
-						} else {
-							$snsSiteId = 'platform';
-						}
-					} else {
-						$snsSiteId = $oMatter->siteid;
-					}
-					// 检查用户是否已经关注
-					if ($snsUser = $oUser->sns->{$snsName}) {
-						$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-						if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
-							$bMatched = true;
-							break;
-						}
-					}
-				}
-			}
-			if (!$bMatched) {
-				$result = '$mpfollow';
-			}
-		} else {
-			$bMatched = true;
-		}
-		/* 内置页面 */
-		if (!empty($result)) {
-			switch ($result) {
-			case '$memberschema':
-				$aMemberSchemas = array();
-				foreach ($oEntryRule->member as $schemaId) {
-					$aMemberSchemas[] = $schemaId;
-				}
-				if ($bRedirect) {
-					/*页面跳转*/
-					$this->gotoMember($oMatter, $aMemberSchemas);
-				} else {
-					/*返回地址*/
-					$this->gotoMember($oMatter, $aMemberSchemas, false);
-				}
-				break;
-			case '$mpfollow':
-				$snss = array();
-				foreach ($oEntryRule->sns as $sns) {
-					$snss[] = $sns;
-				}
-				if (in_array('wx', $snss)) {
-					$this->snsFollow($oMatter->siteid, 'wx', $oMatter);
-				} else if (in_array('qy', $snss)) {
-					$this->snsFollow($oMatter->siteid, 'qy', $oMatter);
-				} else if (in_array('yx', $snss)) {
-					$this->snsFollow($oMatter->siteid, 'yx', $oMatter);
-				}
-				break;
 			}
 		}
 
-		return [$bMatched, $result];
+		return [true];
 	}
 }

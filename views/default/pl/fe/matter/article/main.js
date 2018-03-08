@@ -2,6 +2,7 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'srvSite', 'mediagallery', 'noticebox', 'srvApp', 'tmsThumbnail', '$timeout', 'srvTag', function($scope, $uibModal, http2, noticebox, srvSite, mediagallery, noticebox, srvApp, tmsThumbnail, $timeout, srvTag) {
         var modifiedData = {};
 
+        var _oApp, _oRule;
         $scope.modified = false;
         $scope.submit = function() {
             http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, modifiedData, function() {
@@ -34,6 +35,21 @@ define(['frame'], function(ngApp) {
             $scope.editing.pic = '';
             srvApp.update('pic');
         };
+        $scope.changeUserScope = function(scopeProp) {
+            switch (scopeProp) {
+                case 'sns':
+                    if ($scope.rule.scope[scopeProp] === 'Y') {
+                        if (!$scope.rule.sns) {
+                            $scope.rule.sns = {};
+                        }
+                        if ($scope.snsCount === 1) {
+                            $scope.rule.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
+                        }
+                    }
+                    break;
+            }
+            srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns);
+        };
         $scope.assignMission = function() {
             srvApp.assignMission().then(function(mission) {});
         };
@@ -57,6 +73,7 @@ define(['frame'], function(ngApp) {
                         tmsThumbnail.thumbnail($scope.editing);
                     }, 3000);
                 }
+                $scope.rule = _oRule = $scope.editing.entryRule;
             }
         });
     }]);

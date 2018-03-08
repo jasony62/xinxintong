@@ -197,13 +197,11 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                 bVisible = true;
                 for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
                     oRule = oSchema.visibility.rules[i];
-                    console.log(oRecordData, oRule);
                     if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
                         bVisible = false;
                         break;
                     }
                 }
-                domSchema.style.visibility = bVisible ? 'visible' : 'hidden';
                 domSchema.classList.toggle('hide', !bVisible);
                 oSchema.visibility.visible = bVisible;
             }

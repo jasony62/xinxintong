@@ -75,7 +75,7 @@ class base extends \site\fe\base {
 		return false;
 	}
 	/**
-	 *
+	 * 检查是否已经关注公众号
 	 */
 	protected function checkSnsEntryRule($oApp, $bRedirect) {
 		$aResult = $this->enterAsSns($oApp);
@@ -108,7 +108,7 @@ class base extends \site\fe\base {
 	 * 限社交网站用户参与
 	 */
 	protected function enterAsSns($oApp) {
-		$oEntryRule = isset($oApp->entryRule) ? $oApp->entryRule : $oApp->entry_rule;
+		$oEntryRule = $oApp->entryRule;
 		$oUser = $this->who;
 		$bFollowed = false;
 		$oFollowedRule = null;
@@ -140,12 +140,37 @@ class base extends \site\fe\base {
 	}
 	/**
 	 * 限通讯录用户参与
+	 * 1、找到匹配的通讯录用户
+	 * 2、找到的用户是通过审核的状态
+	 * 3、如果通讯录限制了关注公众号，还要检查找到的用户是否关注了公众号
 	 */
 	protected function enterAsMember($oApp) {
-		$oEntryRule = isset($oApp->entryRule) ? $oApp->entryRule : $oApp->entry_rule;
+		if (!isset($oApp->entryRule->member)) {
+			return [false];
+		}
+
+		$oEntryRule = $oApp->entryRule;
 		$oUser = $this->who;
 		$bMatched = false;
 		$bMatchedRule = null;
+
+		/* 检查用户是否已经关注公众号 */
+		$fnCheckSnsFollow = function ($mschemaId, $oOriginalMatter) {
+			$bPassed = true;
+			$modelMs = $this->model('site\user\memberschema');
+			$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+			if ($oMschema->is_wx_fan === 'Y') {
+				$oApp2 = clone $oOriginalMatter;
+				$oApp2->entryRule = new \stdClass;
+				$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
+				$aResult = $this->enterAsSns($oApp2);
+				if (false === $aResult[0]) {
+					$bPassed = false;
+				}
+			}
+
+			return $bPassed;
+		};
 
 		foreach ($oEntryRule->member as $schemaId => $rule) {
 			/* 检查用户的信息是否完整，是否已经通过审核 */
@@ -155,9 +180,11 @@ class base extends \site\fe\base {
 				if (count($aMembers) === 1) {
 					$oMember = $aMembers[0];
 					if ($oMember->verified === 'Y') {
-						$bMatched = true;
-						$bMatchedRule = $rule;
-						break;
+						if ($fnCheckSnsFollow($schemaId, $oApp)) {
+							$bMatched = true;
+							$bMatchedRule = $rule;
+							break;
+						}
 					}
 				}
 			} else {
@@ -168,9 +195,11 @@ class base extends \site\fe\base {
 					if (count($aMembers) === 1) {
 						$oMember = $aMembers[0];
 						if ($oMember->verified === 'Y') {
-							$bMatched = true;
-							$bMatchedRule = $rule;
-							break;
+							if ($fnCheckSnsFollow($schemaId, $oApp)) {
+								$bMatched = true;
+								$bMatchedRule = $rule;
+								break;
+							}
 						}
 					}
 				}
@@ -178,7 +207,6 @@ class base extends \site\fe\base {
 					break;
 				}
 			}
-
 		}
 
 		return [$bMatched, $bMatchedRule];

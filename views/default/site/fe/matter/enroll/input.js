@@ -230,7 +230,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                             break;
                         }
                     }
-                    domSchema.style.visibility = bVisible ? 'visible' : 'hidden';
                     domSchema.classList.toggle('hide', !bVisible);
                     oSchema.visibility.visible = bVisible;
                 }

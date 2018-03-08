@@ -97,15 +97,19 @@ class follow extends \site\fe\base {
 					if (count($qrcodes) === 1) {
 						$oQrcode = $qrcodes[0];
 						$aParams['matterQrcode'] = $oQrcode;
-						$fnSetMatterByQrcode($oQrcode, $aParams);
+						if ($oQrcode) {
+							$fnSetMatterByQrcode($oQrcode, $aParams);
+						}
 					}
 				}
 				if (!isset($oQrcode)) {
 					if ($type === 'mschema') {
 						$modelMs = $this->model('site\user\memberschema');
+						$aParams['matter'] = $modelMs->byId($id, ['fields' => 'id,title']);
 						$aParams['referer'] = $modelMs->getEntryUrl($matterSiteId, $id);
 					} else {
 						$modelMat = $this->model('matter\\' . $type);
+						$aParams['matter'] = $modelMat->byId($id, ['fields' => 'id,title,pic,summary', 'cascaded' => 'N']);
 						$aParams['referer'] = $modelMat->getEntryUrl($matterSiteId, $id);
 					}
 				}

@@ -112,26 +112,62 @@ class base extends \site\fe\base {
 		$oUser = $this->who;
 		$bFollowed = false;
 		$oFollowedRule = null;
+
+		/* 检查用户是否已经关注公众号 */
+		$fnCheckSnsFollow = function ($snsName, $matterSiteId, $openid) {
+			if ($snsName === 'wx') {
+				$modelWx = $this->model('sns\wx');
+				if (($wxConfig = $modelWx->bySite($matterSiteId)) && $wxConfig->joined === 'Y') {
+					$snsSiteId = $matterSiteId;
+				} else {
+					$snsSiteId = 'platform';
+				}
+			} else {
+				$snsSiteId = $matterSiteId;
+			}
+			// 检查用户是否已经关注
+			$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+			if ($modelSnsUser->isFollow($snsSiteId, $openid)) {
+				return true;
+			}
+
+			return false;
+		};
+
 		foreach ($oEntryRule->sns as $snsName => $rule) {
 			if (isset($oUser->sns->{$snsName})) {
-				// 检查用户对应的公众号
-				if ($snsName === 'wx') {
-					$modelWx = $this->model('sns\wx');
-					if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
-						$snsSiteId = $oApp->siteid;
-					} else {
-						$snsSiteId = 'platform';
-					}
-				} else {
-					$snsSiteId = $oApp->siteid;
-				}
-				// 检查用户是否已经关注
+				/* 缓存的信息 */
 				$snsUser = $oUser->sns->{$snsName};
-				$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-				if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
+				if ($fnCheckSnsFollow($snsName, $oApp->siteid, $snsUser->openid)) {
 					$bFollowed = true;
 					$oFollowedRule = $rule;
 					break;
+				}
+			} else {
+				$modelAcnt = $this->model('site\user\account');
+				$propSnsOpenid = $snsName . '_openid';
+				if (empty($oUser->unionid)) {
+					/* 当前站点用户绑定的信息 */
+					$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
+					if ($fnCheckSnsFollow($snsName, $oApp->siteid, $oSiteUser->{$propSnsOpenid})) {
+						$bFollowed = true;
+						$oFollowedRule = $rule;
+						break;
+					}
+				} else {
+					/* 当前注册用户绑定的信息 */
+					$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => $propSnsOpenid]);
+					foreach ($aSiteUsers as $oSiteUser) {
+						$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
+						if ($fnCheckSnsFollow($snsName, $oApp->siteid, $oSiteUser->{$propSnsOpenid})) {
+							$bFollowed = true;
+							$oFollowedRule = $rule;
+							break;
+						}
+					}
+					if ($bFollowed) {
+						break;
+					}
 				}
 			}
 		}

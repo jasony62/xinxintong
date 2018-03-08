@@ -114,7 +114,7 @@
                                             <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
                                         </ul>
                                         <div ng-switch-when="multitext">
-                                            <ul ng-if="rec.data[schema.id]">
+                                            <ul ng-if="rec.data[schema.id]" style='padding-left:20px'>
                                                 <li ng-repeat="item in rec.data[schema.id]"><span ng-bind="item.value"></span></li>
                                             </ul>
                                         </div>

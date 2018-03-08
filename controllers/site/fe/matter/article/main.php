@@ -22,7 +22,7 @@ class main extends \site\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 检查登记活动参与规则
+	 * 检查参与规则
 	 *
 	 * @param object $oApp
 	 * @param boolean $redirect

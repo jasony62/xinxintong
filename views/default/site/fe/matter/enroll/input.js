@@ -85,11 +85,11 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
     return {
         restrict: 'A',
         controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
-            $scope.chooseImage = function(imgFieldName, count, from) {
-                if (imgFieldName !== null) {
-                    aModifiedImgFields.indexOf(imgFieldName) === -1 && aModifiedImgFields.push(imgFieldName);
-                    $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
-                    if (count !== null && $scope.data[imgFieldName].length === count && count != 0) {
+            $scope.chooseImage = function(schemaId, count, from) {
+                if (schemaId !== null) {
+                    aModifiedImgFields.indexOf(schemaId) === -1 && aModifiedImgFields.push(schemaId);
+                    $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
+                    if (count !== null && $scope.data[schemaId].length === count && count != 0) {
                         noticebox.warn('最多允许上传（' + count + '）张图片');
                         return;
                     }
@@ -98,22 +98,22 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                     var phase;
                     phase = $scope.$root.$$phase;
                     if (phase === '$digest' || phase === '$apply') {
-                        $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                        $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
                     } else {
                         $scope.$apply(function() {
-                            $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                            $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
                         });
                     }
                     $timeout(function() {
                         var i, j, img, eleImg;
                         for (i = 0, j = imgs.length; i < j; i++) {
                             img = imgs[i];
-                            eleImg = document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img');
+                            eleImg = document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(2) img');
                             if (eleImg) {
                                 eleImg.setAttribute('src', img.imgSrc);
                             }
                         }
-                        $scope.$broadcast('xxt.enroll.image.choose.done', imgFieldName);
+                        $scope.$broadcast('xxt.enroll.image.choose.done', schemaId);
                     });
                 });
             };
@@ -127,8 +127,9 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
     function onSubmit($scope) {
         var defer;
         defer = $q.defer();
-        if (!oResumable.files || oResumable.files.length === 0)
+        if (!oResumable.files || oResumable.files.length === 0) {
             defer.resolve('empty');
+        }
         oResumable.on('progress', function() {
             var phase, p;
             p = oResumable.progress();
@@ -166,12 +167,19 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
     });
     return {
         restrict: 'A',
-        controller: ['$scope', function($scope) {
+        controller: ['$scope', 'noticebox', function($scope, noticebox) {
             $scope.progressOfUploadFile = 0;
             $scope.beforeSubmit(function() {
                 return onSubmit($scope);
             });
-            $scope.chooseFile = function(fileFieldName, count, accept) {
+            $scope.clickFile = function(schemaId, index) {
+                if ($scope.data[schemaId] && $scope.data[schemaId][index]) {
+                    noticebox.confirm('删除文件【' + $scope.data[schemaId][index].name + '】，确定？').then(function() {
+                        $scope.data[schemaId].splice(index, 1);
+                    });
+                }
+            };
+            $scope.chooseFile = function(schemaId, count, accept) {
                 var ele = document.createElement('input');
                 ele.setAttribute('type', 'file');
                 accept !== undefined && ele.setAttribute('accept', accept);
@@ -182,15 +190,15 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
                         f = evt.target.files[i];
                         oResumable.addFile(f);
                         $scope.$apply(function() {
-                            $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
-                            $scope.data[fileFieldName].push({
+                            $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
+                            $scope.data[schemaId].push({
                                 uniqueIdentifier: oResumable.files[oResumable.files.length - 1].uniqueIdentifier,
                                 name: f.name,
                                 size: f.size,
                                 type: f.type,
                                 url: ''
                             });
-                            $scope.$broadcast('xxt.enroll.file.choose.done', fileFieldName);
+                            $scope.$broadcast('xxt.enroll.file.choose.done', schemaId);
                         });
                     }
                     ele = null;
@@ -199,6 +207,15 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
             };
         }]
     }
+}]);
+ngApp.controller('ctrlWxUploadFileTip', ['$scope', '$interval', function($scope, $interval) {
+    $scope.domId = '';
+    $scope.closeTip = function() {
+        var domTip = document.querySelector($scope.domId);
+        var evt = document.createEvent("HTMLEvents");
+        evt.initEvent("hide", false, false);
+        domTip.dispatchEvent(evt);
+    };
 }]);
 ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsUrl', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsUrl) {
     function fnDisableActions() {
@@ -482,12 +499,19 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             /*根据加载的数据设置页面*/
             afterLoad(params.page.dataSchemas, $scope.data);
         }
-        // 登录提示
-        if (!params.user.unionid) {
-            //var domTip = document.querySelector('#appLoginTip');
-            //var evt = document.createEvent("HTMLEvents");
-            //evt.initEvent("show", false, false);
-            //domTip.dispatchEvent(evt);
+        /* 微信不支持上传文件，指导用户进行处理 */
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            if (_oApp.entryRule && _oApp.entryRule.scope && _oApp.entryRule.scope.member === 'Y') {
+                for (var i = 0, ii = params.page.dataSchemas.length; i < ii; i++) {
+                    if (params.page.dataSchemas[i].schema.type === 'file') {
+                        var domTip = document.querySelector('#wxUploadFileTip');
+                        var evt = document.createEvent("HTMLEvents");
+                        evt.initEvent("show", false, false);
+                        domTip.dispatchEvent(evt);
+                        break;
+                    }
+                }
+            }
         }
     });
     $scope.removeItem = function(items, index) {

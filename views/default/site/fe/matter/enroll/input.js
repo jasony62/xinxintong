@@ -31,9 +31,11 @@ ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $
                 } else {
                     value = data[oSchema.id];
                 }
-                if (oSchema.type && oSchema.type !== 'html') {
-                    if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
-                        return sCheckResult;
+                if (!oSchema.visibility || oSchema.visibility.visible) {
+                    if (oSchema.type && oSchema.type !== 'html') {
+                        if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                            return sCheckResult;
+                        }
                     }
                 }
             }
@@ -211,6 +213,31 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     }
     /**
+     * 控制关联题目的可见性
+     */
+    function fnToggleAssocSchemas(dataSchemas, oRecordData) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                if (domSchema && oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
+                    var bVisible, oRule;
+                    bVisible = true;
+                    for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                        oRule = oSchema.visibility.rules[i];
+                        if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
+                            bVisible = false;
+                            break;
+                        }
+                    }
+                    domSchema.style.visibility = bVisible ? 'visible' : 'hidden';
+                    domSchema.classList.toggle('hide', !bVisible);
+                    oSchema.visibility.visible = bVisible;
+                }
+            }
+        });
+    }
+    /**
      * 控制题目关联选项的显示
      */
     function fnToggleAssocOptions(dataSchemas, oRecordData) {
@@ -335,6 +362,23 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         submitState.cache($scope.data);
         submitState.finish(true);
     }
+    /* 页面和记录数据加载完成 */
+    function afterLoad(dataSchemas, oRecordData) {
+        // 控制关联题目的可见性
+        fnToggleAssocSchemas(dataSchemas, oRecordData);
+        // 控制题目关联选项的可见性
+        fnToggleAssocOptions(dataSchemas, oRecordData);
+        // 跟踪数据变化
+        $scope.$watch('data', function(nv, ov) {
+            if (nv !== ov) {
+                submitState.modified = true;
+                // 控制关联题目的可见性
+                fnToggleAssocSchemas(dataSchemas, oRecordData);
+                // 控制题目关联选项的可见性
+                fnToggleAssocOptions(dataSchemas, oRecordData);
+            }
+        }, true);
+    }
 
     window.onbeforeunload = function(e) {
         var message;
@@ -405,17 +449,17 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             });
         }
         /* 恢复用户未提交的数据 */
-        if (window.localStorage) {
-            submitState._cacheKey = StateCacheKey;
-            var cached = submitState.fromCache(StateCacheKey);
-            if (cached) {
-                if (cached.member) {
-                    delete cached.member;
-                }
-                angular.extend($scope.data, cached);
-                submitState.modified = true;
-            }
-        }
+        // if (window.localStorage) {
+        //     submitState._cacheKey = StateCacheKey;
+        //     var cached = submitState.fromCache(StateCacheKey);
+        //     if (cached) {
+        //         if (cached.member) {
+        //             delete cached.member;
+        //         }
+        //         angular.extend($scope.data, cached);
+        //         submitState.modified = true;
+        //     }
+        // }
         /* 自动填充用户通信录数据 */
         ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
         /* 用户已经登记过或保存过，恢复之前的数据 */
@@ -430,19 +474,15 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 }
                 /*设置页面分享信息*/
                 $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
+                /*根据加载的数据设置页面*/
+                afterLoad(params.page.dataSchemas, $scope.data);
             });
         } else {
             /*设置页面分享信息*/
             $scope.setSnsShare(false, { 'newRecord': LS.s().newRecord });
+            /*根据加载的数据设置页面*/
+            afterLoad(params.page.dataSchemas, $scope.data);
         }
-        // 跟踪数据变化
-        $scope.$watch('data', function(nv, ov) {
-            if (nv !== ov) {
-                submitState.modified = true;
-                fnToggleAssocOptions(params.page.dataSchemas, $scope.data);
-            }
-        }, true);
-        fnToggleAssocOptions(params.page.dataSchemas, $scope.data);
         // 登录提示
         if (!params.user.unionid) {
             //var domTip = document.querySelector('#appLoginTip');

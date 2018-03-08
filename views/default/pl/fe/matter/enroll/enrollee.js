@@ -139,6 +139,13 @@ define(['frame'], function(ngApp) {
                 $scope.searchEnrollee(1);
             });
         };
+        $scope.repairGroup = function() {
+            var url = '/rest/pl/fe/matter/enroll/user/repairGroup?site=' + $scope.app.siteid;
+            url += '&app=' + $scope.app.id;
+            http2.get(url, function(rsp) {
+                $scope.searchEnrollee(1);
+            });
+        };
         $scope.toggleAbsent = function() {
             $scope.category = $scope.category === 'absent' ? 'enrollee' : 'absent';
         };

@@ -39,7 +39,7 @@ class user_model extends \TMS_MODEL {
 			switch ($k) {
 			case 'modify_log':
 				if (!is_string($v)) {
-					$oNewUsr->{$k} = [json_encode($v)];
+					$oNewUsr->{$k} = json_encode([$v]);
 				}
 				break;
 			default:

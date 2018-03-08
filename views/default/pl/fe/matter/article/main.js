@@ -48,7 +48,7 @@ define(['frame'], function(ngApp) {
                     }
                     break;
             }
-            srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns);
+            srvApp.changeUserScope($scope.rule.scope, $scope.sns);
         };
         $scope.assignMission = function() {
             srvApp.assignMission().then(function(mission) {});

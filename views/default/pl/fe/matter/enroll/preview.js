@@ -135,7 +135,7 @@ define(['frame'], function(ngApp) {
         }, true);
         $scope.$watch('app.entryRule', function(oRule) {
             if (!oRule) return;
-            if (oRule.scope.member === 'Y') {
+            if (oRule.scope.member === 'Y' && oRule.member) {
                 var mschemaIds = Object.keys(oRule.member);
                 if (mschemaIds.length) {
                     http2.get('/rest/pl/fe/site/member/schema/overview?site=' + $scope.app.siteid + '&mschema=' + mschemaIds.join(','), function(rsp) {

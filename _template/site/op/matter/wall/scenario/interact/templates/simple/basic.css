@@ -10,7 +10,7 @@ body{width: 100%;height:auto;padding-top:26px;font-size:24px;font-family:'MicroS
 .top > .qrcode li:nth-child(3){margin-right:0;}
 /* 主体 */
 .row{height: 420px;}
-.boxBg{background: url('/static/img/xxq_interact/interactRect.png') no-repeat -84px -236px;}
+.boxBg{background: url('/static/img/xxq_interact/interactRect.png') no-repeat -18px -66px;}
 .box{position: relative;float: left;width: 290px;height: 100%;text-align: center;padding-top:35px;border-radius:5%;margin-right:15px;background-color: rgba(255,255,255,0.3);}
 .box:last-child{margin-right: 0px;}
 .box > .case{width: 130px;height: 135px;margin:25px auto 15px;position: relative;}

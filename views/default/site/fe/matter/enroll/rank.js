@@ -315,14 +315,29 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         event.target.classList.add('hidden');
     }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var oConfig, rankItems, dataSchemas, facRound;
         oApp = params.app;
-        var remarkable, activeRound, facRound, dataSchemas = oApp.dataSchemas;
+        dataSchemas = oApp.dataSchemas;
         for (var i = dataSchemas.length - 1; i >= 0; i--) {
             if (Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable == 'Y') {
                 $scope.isRemark = true;
                 break;
             }
         }
+        /* 排行显示内容设置 */
+        rankItems = ['enroll', 'remark', 'like', 'remark_other', 'like_other', 'total_coin', 'score'];
+        oConfig = {};
+        rankItems.forEach(function(item) {
+            oConfig[item] = true;
+        });
+        if (oApp.rankConfig) {
+            if (oApp.rankConfig.scope) {
+                rankItems.forEach(function(item) {
+                    oConfig[item] = !!oApp.rankConfig.scope[item];
+                });
+            }
+        }
+        $scope.config = oConfig;
         /* 恢复上一次访问的状态 */
         if (window.localStorage) {
             $scope.$watch('appState', function(nv) {
@@ -345,8 +360,8 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
             oAppState = {
                 aid: oApp.id,
                 criteria: {
-                    obj: 'user',
-                    orderby: 'enroll',
+                    obj: oApp.rankConfig.defaultObj ? oApp.rankConfig.defaultObj : 'user',
+                    orderby: oApp.rankConfig.defaultItem ? oApp.rankConfig.defaultItem : 'enroll',
                     agreed: 'all',
                     round: ['ALL']
                 },
@@ -364,10 +379,10 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
             if (oNew && oOld && oNew !== oOld) {
                 switch (oNew) {
                     case 'user':
-                        oAppState.criteria.orderby = 'enroll';
+                        oAppState.criteria.orderby = oApp.rankConfig.defaultItem ? oApp.rankConfig.defaultItem : 'enroll';
                         break;
                     case 'group':
-                        oAppState.criteria.orderby = 'enroll';
+                        oAppState.criteria.orderby = oApp.rankConfig.defaultItem ? oApp.rankConfig.defaultItem : 'enroll';
                         break;
                     case 'data':
                         oAppState.criteria.orderby = 'remark';

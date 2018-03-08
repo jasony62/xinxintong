@@ -4,7 +4,9 @@ body {
     background: @body-bg;
 }
 
-body, pre, code {
+body,
+pre,
+code {
     font-family: Arial, 'Microsoft YaHei'
 }
 
@@ -32,6 +34,33 @@ table.table {
 
 .pl-workspace {
     background: @workspace-bg;
+}
+
+.pl-line {
+    overflow: hidden;
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+.pl-input-group {
+    display: flex;
+
+    .form-control {
+        flex-grow: 1;
+        width: auto;
+    }
+
+    &>*:not(:first-child) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        margin-left: -1px;
+    }
+
+    &>*:not(:last-child) {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
 }
 
 /* navbar */
@@ -72,7 +101,8 @@ table.table {
         a {
             color: #fff;
 
-            &:focus, &:hover {
+            &:focus,
+            &:hover {
                 color: #fff;
                 background: transparent;
             }
@@ -118,7 +148,8 @@ table.table {
         color: #fff;
     }
 
-    .navbar-nav.tms-breadcrumb>li>a:hover, .navbar-nav.tms-breadcrumb>li>a:focus {
+    .navbar-nav.tms-breadcrumb>li>a:hover,
+    .navbar-nav.tms-breadcrumb>li>a:focus {
         background: @brand-primary;
         position: relative;
         color: darken(@brand-primary, 30%);
@@ -128,7 +159,8 @@ table.table {
         outline: 0;
     }
 
-    .navbar-nav.tms-breadcrumb>li>a:hover:after, .navbar-nav.tms-breadcrumb>li>a:focus:after {
+    .navbar-nav.tms-breadcrumb>li>a:hover:after,
+    .navbar-nav.tms-breadcrumb>li>a:focus:after {
         content: ' ';
         position: absolute;
         left: 0;
@@ -206,7 +238,8 @@ table.table {
             transform: rotate(180deg);
         }
 
-        .nav>li.active>a, .nav>li.active>a:focus {
+        .nav>li.active>a,
+        .nav>li.active>a:focus {
             color: #666;
             background: #f5f5f5;
             margin-right: 0;
@@ -377,7 +410,8 @@ table.table {
 }
 
 /*modal*/
-.modal.auto-height .modal-dialog, .modal.auto-height .modal-dialog.modal-lg {
+.modal.auto-height .modal-dialog,
+.modal.auto-height .modal-dialog.modal-lg {
     width: 900px;
     left: 50%;
     margin-left: -450px;
@@ -422,7 +456,8 @@ table.table {
 }
 
 @media screen and (max-width:768px) {
-    .modal.auto-height .modal-dialog, .modal.auto-height .modal-dialog.modal-lg {
+    .modal.auto-height .modal-dialog,
+    .modal.auto-height .modal-dialog.modal-lg {
         width: 100%;
         position: absolute;
         top: 0;
@@ -472,7 +507,8 @@ table.table {
     position: relative
 }
 
-.tree li.treenode::before, .tree li.treenode::after {
+.tree li.treenode::before,
+.tree li.treenode::after {
     content: '';
     left: 0px;
     position: absolute;

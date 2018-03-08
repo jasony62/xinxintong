@@ -448,8 +448,6 @@ class main extends main_base {
 				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'assignedNickname') {
 				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'userTask') {
-				$oUpdated->user_task = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'scenarioConfig') {
 				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'roundCron') {
@@ -460,6 +458,8 @@ class main extends main_base {
 				$oUpdated->round_cron = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'rpConfig') {
 				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'rankConfig') {
+				$oUpdated->rank_config = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'absent_cause') {
 				$absentCause = !empty($oApp->absent_cause) ? $oApp->absent_cause : new \stdClass;
 				foreach ($v as $uid => $val) {

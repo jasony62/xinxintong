@@ -1,6 +1,8 @@
 'use strict';
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms']);
-ngApp.controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
+require('../../../../../asset/js/xxt.ui.share.js');
+
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt']);
+ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsSnsShare', function($scope, http2, tmsSnsShare) {
     $scope.requireLogin = false;
     $scope.data = {};
     $scope.submit = function() {
@@ -21,6 +23,18 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         http2.get('/rest/site/fe/invite/get' + location.search, function(rsp) {
             var oInvite = rsp.data;
             $scope.invite = oInvite;
+            /* 设置分享 */
+            if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+                var shareid, sharelink, shareby;
+                shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+                shareid = $scope.loginUser.uid + '_' + (new Date() * 1);
+                sharelink = location.href + "&shareby=" + shareid;
+                tmsSnsShare.config({
+                    siteId: oInvite.matter_siteid,
+                    jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage']
+                });
+                tmsSnsShare.set(oInvite.matter_title, sharelink, oInvite.matter_summary, oInvite.matter_pic);
+            }
             if (oInvite.entryRule) {
                 $scope.entryRule = oInvite.entryRule;
                 if (oInvite.entryRule.scope === 'member') {

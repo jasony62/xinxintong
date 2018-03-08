@@ -149,7 +149,7 @@ class base extends \site\fe\base {
 				if (empty($oUser->unionid)) {
 					/* 当前站点用户绑定的信息 */
 					$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
-					if ($fnCheckSnsFollow($snsName, $oApp->siteid, $oSiteUser->{$propSnsOpenid})) {
+					if ($oSiteUser && $fnCheckSnsFollow($snsName, $oApp->siteid, $oSiteUser->{$propSnsOpenid})) {
 						$bFollowed = true;
 						$oFollowedRule = $rule;
 						break;
@@ -159,7 +159,7 @@ class base extends \site\fe\base {
 					$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => $propSnsOpenid]);
 					foreach ($aSiteUsers as $oSiteUser) {
 						$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
-						if ($fnCheckSnsFollow($snsName, $oApp->siteid, $oSiteUser->{$propSnsOpenid})) {
+						if ($oSiteUser && $fnCheckSnsFollow($snsName, $oApp->siteid, $oSiteUser->{$propSnsOpenid})) {
 							$bFollowed = true;
 							$oFollowedRule = $rule;
 							break;

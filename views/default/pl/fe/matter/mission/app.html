@@ -31,7 +31,7 @@
             <tr>
                 <th style='width:48px'>序号</th>
                 <th style='width:90px' ng-if="matterType==='enroll'">场景</th>
-                <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="outsideClick" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
+                <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
                 <th ng-if="matterType=='signin'" style='width:80px'>签到轮次</th>
                 <th ng-if="matterType=='enroll'||matterType=='signin'" style='width:64px'>记录数</th>
                 <th ng-if="matterType=='enroll'" style='width:64px'>填写人</th>

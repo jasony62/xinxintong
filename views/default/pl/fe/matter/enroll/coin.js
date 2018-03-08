@@ -27,9 +27,6 @@ define(['frame'], function(ngApp) {
 
         var _oApp, _aDefaultRules;
         _aDefaultRules = [{
-            data: { act: 'site.matter.enroll.read' },
-            desc: '用户A打开登记活动页面'
-        }, {
             data: { act: 'site.matter.enroll.submit' },
             desc: '用户A提交新登记记录',
         }, {
@@ -46,10 +43,16 @@ define(['frame'], function(ngApp) {
             desc: '用户A赞同别人的填写数据',
         }, {
             data: { act: 'site.matter.enroll.data.comment' },
-            desc: '用户A填写数据被点评',
+            desc: '用户A填写数据被评论',
         }, {
             data: { act: 'site.matter.enroll.data.other.comment' },
             desc: '用户A点评别人的填写数据',
+        }, {
+            data: { act: 'site.matter.enroll.remark.like' },
+            desc: '用户A发表的评论被赞同',
+        }, {
+            data: { act: 'site.matter.enroll.remark.other.like' },
+            desc: '用户A赞同别人发表的评论',
         }, {
             data: { act: 'site.matter.enroll.data.recommend' },
             desc: '用户A填写数据被推荐',

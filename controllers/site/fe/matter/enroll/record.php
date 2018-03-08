@@ -237,11 +237,6 @@ class record extends base {
 			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname, 'assignRid' => $rid]);
 			/* 处理自定义信息 */
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey, true);
-			/* 登记提交的积分奖励 */
-			$modelCoin = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
-			$rules = $modelCoin->rulesByMatter('site.matter.enroll.submit', $oEnrollApp);
-			$modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
-			$modelCoinLog->award($oEnrollApp, $oUser, 'site.matter.enroll.submit', $rules);
 		} else {
 			/* 重新插入新提交的数据 */
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey);
@@ -730,7 +725,7 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 
 		$oLikeLog = $oRecord->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {

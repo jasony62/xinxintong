@@ -517,4 +517,53 @@ class user extends \pl\fe\matter\base {
 
 		return new \ResponseData($aUpdatedResult);
 	}
+	/**
+	 * 根据用户对应的分组信息
+	 */
+	public function repairGroup_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		if (!empty($oApp->group_app_id)) {
+			$assocGroupId = $oApp->group_app_id;
+		} else if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && isset($oApp->entryRule->group->id)) {
+			$assocGroupId = $oApp->entryRule->group->id;
+		}
+
+		if (!isset($assocGroupId)) {
+			return new \ResponseError('没有指定关联的分组活动');
+		}
+
+		$updatedCount = 0;
+		$oAssocGrpApp = (object) ['id' => $assocGroupId];
+		$modelGrpUsr = $this->model('matter\group\player');
+		$q = [
+			'id,userid,group_id',
+			'xxt_enroll_user',
+			['aid' => $oApp->id, 'state' => 1],
+		];
+		$oEnrolleeGroups = new \stdClass; // 用户和分组的对应
+		$enrollees = $modelGrpUsr->query_objs_ss($q);
+		foreach ($enrollees as $oEnrollee) {
+			if (isset($oEnrolleeGroups->{$oEnrollee->userid})) {
+				$groupId = $oEnrolleeGroups->{$oEnrollee->userid};
+			} else {
+				$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oEnrollee->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+				$groupId = $oEnrolleeGroups->{$oEnrollee->userid} = $oGrpMemb ? $oGrpMemb->round_id : '';
+			}
+			if ($oEnrollee->group_id !== $groupId) {
+				$modelGrpUsr->update('xxt_enroll_user', ['group_id' => $groupId], ['id' => $oEnrollee->id]);
+				$updatedCount++;
+			}
+		}
+
+		return new \ResponseData($updatedCount);
+	}
 }

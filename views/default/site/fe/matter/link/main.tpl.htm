@@ -50,6 +50,12 @@
             </div>
             <div id="link" class='col-md-9 col-md-pull-3 col-xs-12'>
                 <iframe></iframe>
+                <div class="invite">
+                    <a href="" ng-click="invite(user,link)" ng-if="link.invite">
+                        <i class="icon_invite"></i>
+                        <span> 邀请体验</span>
+                    </a>
+                </div>
                 <div id="behavior" class="behavior">
                     <div id="action">
                         <a href="" ng-click="siteUser(siteInfo.id)">
@@ -59,10 +65,6 @@
                         <a href="" ng-click="favor(user,link)">
                             <i class="glyphicon glyphicon-star-empty"></i>
                             <span> 收藏</span>
-                        </a>
-                        <a href="" ng-click="invite(user,link)" ng-if="link.invite">
-                            <i class="glyphicon glyphicon-share"></i>
-                            <span> 邀请</span>
                         </a>
                     </div>
                 </div>

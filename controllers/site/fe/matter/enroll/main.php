@@ -44,14 +44,14 @@ class main extends base {
 			$this->requireSnsOAuth($oApp);
 		}
 
-		$skipEntryCheck = false;
+		$bSkipEntryCheck = false;
 		if (!empty($page) && !empty($oApp->entryRule->exclude)) {
 			if (in_array($page, $oApp->entryRule->exclude)) {
-				$skipEntryCheck = true;
+				$bSkipEntryCheck = true;
 			}
 		}
 		// 检查进入活动规则
-		if (!$skipEntryCheck) {
+		if (!$bSkipEntryCheck) {
 			$this->checkEntryRule($oApp, true);
 		}
 
@@ -255,10 +255,6 @@ class main extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		if (!empty($ek)) {
 			$oOpenedRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
-			//if (false === $oOpenedRecord || $oOpenedRecord->state !== '1') {
-			//return new \ObjectNotFoundError();
-			//}
-			//$params['record'] = $oOpenedRecord;
 		}
 
 		/* 要打开的轮次 */

@@ -84,7 +84,7 @@
                 if(count >= $scope.players.length) {
                     clearInterval(timer2);
                 } else {
-                    if(count==num||count==num*2||count==num*3) {
+                    if(count==0||count==num||count==num*2||count==num*3) {
                         Num = count / num;
                         $(boxs[Num]).addClass("boxBg");
                     }

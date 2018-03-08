@@ -97,7 +97,7 @@
                             </div>
                             <div class='data'>
                                 <blockquote>
-                                    <div class='schema' ng-repeat="schema in schemas" ng-switch on="schema.type">
+                                    <div class='schema' ng-if="rec.data[schema.id]" ng-repeat="schema in schemas" ng-switch on="schema.type">
                                         <div class='text-muted data-title'>{{schema.title}}</div>
                                         <div ng-switch-when="file">
                                             <div ng-repeat="file in rec.data[schema.id]">

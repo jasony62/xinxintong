@@ -178,10 +178,9 @@ class user extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,user_task,group_app_id,data_schemas,absent_cause', 'cascaded' => 'N']))) {
+		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,group_app_id,data_schemas,absent_cause', 'cascaded' => 'N']))) {
 			return new \ParameterError();
 		}
-		$oUserTask = $oApp->userTask;
 
 		$modelUsr = $this->model('matter\enroll\user');
 		//判断关联公众号

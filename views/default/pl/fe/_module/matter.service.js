@@ -295,7 +295,7 @@ provider('srvSite', function() {
                                     type: 'address'
                                 });
                             }
-                            if(ms.extattrs) {
+                            if (ms.extattrs) {
                                 ms.extAttrs.forEach(function(ea) {
                                     var oSchema;
                                     oSchema = angular.copy(ea);
@@ -318,13 +318,19 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
-            chooseMschema: function(oMatter) {
+            chooseMschema: function(oMatter, $oMission) {
                 var _this = this;
                 return $uibModal.open({
                     templateUrl: '/views/default/pl/fe/_module/chooseMschema.html?_=1',
                     resolve: {
                         mschemas: function() {
-                            return _this.memberSchemaList(oMatter);
+                            if (oMatter && oMatter.id && oMatter.id !== '_pending') {
+                                return _this.memberSchemaList(oMatter);
+                            } else if ($oMission) {
+                                return _this.memberSchemaList($oMission);
+                            } else {
+                                return _this.memberSchemaList();
+                            }
                         }
                     },
                     controller: ['$scope', '$uibModalInstance', 'mschemas', function($scope2, $mi, mschemas) {

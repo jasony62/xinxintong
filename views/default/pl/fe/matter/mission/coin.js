@@ -26,7 +26,7 @@ define(['frame'], function(ngApp) {
             desc: '登记活动————用户A提交新填写记录',
         }, {
             data: { act: 'site.matter.enroll.share.friend', matter_type: 'enroll' },
-            desc: '登记活动————用户A分享活动给公众号好友',
+            desc: '登记活动————用户A分享活动给微信好友',
         }, {
             data: { act: 'site.matter.enroll.share.timeline', matter_type: 'enroll' },
             desc: '登记活动————用户A分享活动至朋友圈',

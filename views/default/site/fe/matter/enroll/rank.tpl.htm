@@ -50,24 +50,24 @@
                 </div>
                 <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='user'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
-                        <option value='enroll'>提交记录数量</option>
-                        <option value='remark'>获得评论数量</option>
-                        <option value='like'>获得点赞数量</option>
-                        <option value='remark_other'>发表评论数量</option>
-                        <option value='like_other'>进行点赞数量</option>
-                        <option value='total_coin'>积分</option>
-                        <option value='score'>得分</option>
+                        <option value='enroll' ng-if="config.enroll">提交记录数量</option>
+                        <option value='remark' ng-if="config.remark">获得评论数量</option>
+                        <option value='like' ng-if="config.like">获得点赞数量</option>
+                        <option value='remark_other' ng-if="config.remark_other">发表评论数量</option>
+                        <option value='like_other' ng-if="config.like_other">进行点赞数量</option>
+                        <option value='total_coin' ng-if="config.total_coin">积分</option>
+                        <option value='score' ng-if="config.score">得分</option>
                     </select>
                 </div>
                 <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='group'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
-                        <option value='enroll'>提交记录数量</option>
-                        <option value='remark'>获得评论数量</option>
-                        <option value='like'>获得点赞数量</option>
-                        <option value='remark_other'>发表评论数量</option>
-                        <option value='like_other'>进行点赞数量</option>
-                        <option value='total_coin'>积分</option>
-                        <option value='score'>得分</option>
+                        <option value='enroll' ng-if="config.enroll">提交记录数量</option>
+                        <option value='remark' ng-if="config.remark">获得评论数量</option>
+                        <option value='like' ng-if="config.like">获得点赞数量</option>
+                        <option value='remark_other' ng-if="config.remark_other">发表评论数量</option>
+                        <option value='like_other' ng-if="config.like_other">进行点赞数量</option>
+                        <option value='total_coin' ng-if="config.total_coin">积分</option>
+                        <option value='score' ng-if="config.score">得分</option>
                     </select>
                 </div>
                 <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='data'||appState.criteria.obj==='data-rec'">

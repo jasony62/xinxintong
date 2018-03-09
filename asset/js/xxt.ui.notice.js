@@ -1,6 +1,6 @@
 'use strict';
 var ngMod = angular.module('notice.ui.xxt', ['ngSanitize']);
-ngMod.service('noticebox', ['$timeout', function($timeout) {
+ngMod.service('noticebox', ['$timeout', '$q', function($timeout, $q) {
     var _boxId = 'tmsbox' + (new Date * 1),
         _last = {
             type: '',
@@ -105,5 +105,35 @@ ngMod.service('noticebox', ['$timeout', function($timeout) {
     this.progress = function(msg) {
         /*显示消息框*/
         _getBox('progress', msg);
+    };
+    this.confirm = function(msg) {
+        var defer, box, btn;
+        defer = $q.defer();
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*添加操作*/
+        btn = document.createElement('button');
+        btn.classList.add('btn', 'btn-default', 'btn-sm');
+        btn.innerHTML = '是';
+        box.appendChild(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+            defer.resolve();
+        });
+        btn = document.createElement('button');
+        btn.classList.add('btn', 'btn-default', 'btn-sm');
+        btn.innerHTML = '否';
+        box.appendChild(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+            defer.reject();
+        });
+
+        return defer.promise;
     };
 }]);

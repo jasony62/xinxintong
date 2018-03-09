@@ -64,13 +64,27 @@ class follow extends \site\fe\base {
 			'site' => $oSite,
 			'user' => $this->who,
 		];
+
+		/* 根据场景二维码设置参数 */
+		$fnSetMatterByQrcode = function ($oQrcode, &$aParams) {
+			$oMatter = $this->_getMatterByQrcode($oQrcode);
+			$aParams['matter'] = $oMatter;
+			if ($oMatter->type === 'mschema') {
+				$modelMs = $this->model('site\user\memberschema');
+				$aParams['referer'] = $modelMs->getEntryUrl($oMatter->siteid, $oMatter->id);
+			} else {
+				$modelMat = $this->model('matter\\' . $oMatter->type);
+				$aParams['referer'] = $modelMat->getEntryUrl($oMatter->siteid, $oMatter->id);
+			}
+		};
+
 		/* 访问素材信息 */
 		if (!empty($sceneid)) {
 			$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');
 			$oQrcode = $modelQrcode->bySceneId($snsSiteId, $sceneid);
 			if ($oQrcode) {
 				$aParams['matterQrcode'] = $oQrcode;
-				$aParams['matter'] = $this->_getMatterByQrcode($oQrcode);
+				$fnSetMatterByQrcode($oQrcode, $aParams);
 			}
 		} else if (!empty($matter)) {
 			$matter = explode(',', $matter);
@@ -83,15 +97,19 @@ class follow extends \site\fe\base {
 					if (count($qrcodes) === 1) {
 						$oQrcode = $qrcodes[0];
 						$aParams['matterQrcode'] = $oQrcode;
-						$aParams['matter'] = $this->_getMatterByQrcode($oQrcode);
+						if ($oQrcode) {
+							$fnSetMatterByQrcode($oQrcode, $aParams);
+						}
 					}
 				}
 				if (!isset($oQrcode)) {
 					if ($type === 'mschema') {
 						$modelMs = $this->model('site\user\memberschema');
+						$aParams['matter'] = $modelMs->byId($id, ['fields' => 'id,title']);
 						$aParams['referer'] = $modelMs->getEntryUrl($matterSiteId, $id);
 					} else {
 						$modelMat = $this->model('matter\\' . $type);
+						$aParams['matter'] = $modelMat->byId($id, ['fields' => 'id,title,pic,summary', 'cascaded' => 'N']);
 						$aParams['referer'] = $modelMat->getEntryUrl($matterSiteId, $id);
 					}
 				}

@@ -16,7 +16,7 @@
 <body>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <div id="appLoginTip" uib-popover-template="'appLoginTip.html'" uib-popover="" popover-placement="bottom" popover-trigger="show" popover-append-to-body="true"></div>
+    <div id="wxUploadFileTip" uib-popover-template="'wxUploadFileTip.html'" uib-popover popover-placement="bottom" popover-trigger="'show'" popover-append-to-body="true"></div>
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
@@ -54,13 +54,14 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <script type="text/ng-template" id="appLoginTip.html">
-        <div ng-controller="ctrlAppTip" ng-init="domId='#appLoginTip'">
-            <div class='form-group'>
-                <a href="/rest/site/fe/user/login?site={{app.siteid}}">登录</a>，获得在其他终端填写的数据
-            </div>
+    <script type="text/ng-template" id="wxUploadFileTip.html">
+        <div ng-controller="ctrlWxUploadFileTip" ng-init="domId='#wxUploadFileTip'">
+            <p>因为微信不支持上传文件，请按如下步骤操作：</p>
+            <p>1、点击当前界面右上角的3个点；</p>
+            <p>2、选择【在浏览器中打开】；</p>
+            <p>3、在打开的浏览器中进行后续。</p>
             <div class='text-right'>
-                <button class='btn btn-default btn-sm' ng-click="closeTip()">关闭 <span ng-bind="autoCloseTime"></span></button>
+                <button class='btn btn-default btn-sm' ng-click="closeTip()">知道了，关闭</button>
             </div>
         </div>
     </script>

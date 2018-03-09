@@ -1,6 +1,7 @@
 @import "site.fe.base.less";
 
-html, body {
+html,
+body {
 	height: 100%;
 	width: 100%;
 }
@@ -19,7 +20,8 @@ body {
 	background-color: #eee;
 	border-color: #cfcfcf;
 
-	&:hover, &:focus {
+	&:hover,
+	&:focus {
 		color: #333;
 		background-color: #f6f6f6;
 		border-color: #cfcfcf;
@@ -58,7 +60,8 @@ body {
 		a {
 			color: #fff;
 
-			&:focus, &:hover {
+			&:focus,
+			&:hover {
 				color: #fff;
 				background: transparent;
 			}
@@ -154,7 +157,8 @@ body {
 	padding: 10px 20px 10px 40px;
 }
 
-.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
+.dropdown-menu>li>a:hover,
+.dropdown-menu>li>a:focus {
 	text-decoration: none;
 	color: #fff;
 	background-color: #388dbf;
@@ -252,12 +256,15 @@ body {
 	border: 0;
 }
 
-.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus {
+.nav-tabs>li.active>a,
+.nav-tabs>li.active>a:hover,
+.nav-tabs>li.active>a:focus {
 	border: 0;
 	border-bottom: 3px solid #388dbf;
 }
 
-.nav-tabs>li>a:hover, .nav-tabs>li>a:focus {
+.nav-tabs>li>a:hover,
+.nav-tabs>li>a:focus {
 	background-color: #fff;
 }
 
@@ -366,7 +373,8 @@ body {
 	padding: 0 0 0 30px;
 }
 
-#aside a.list-group-item:hover, a.list-group-item:focus {
+#aside a.list-group-item:hover,
+a.list-group-item:focus {
 	text-decoration: none;
 	color: #388dbf;
 	background-color: #fff;
@@ -624,9 +632,22 @@ body {
 	white-space: pre-wrap;
 }
 
+.notice-box .btn {
+	min-width: 6em;
+	margin: 1em 1em 0;
+}
+
 @media screen and (min-device-height:768px) {
 	.notice-box pre {
 		max-height: 600px;
+	}
+
+}
+
+@media screen and (max-width:768px) {
+	.notice-box {
+		width: 90%;
+		margin-left: -45%;
 	}
 
 }

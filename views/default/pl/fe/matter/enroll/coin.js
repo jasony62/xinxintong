@@ -31,7 +31,7 @@ define(['frame'], function(ngApp) {
             desc: '用户A提交新登记记录',
         }, {
             data: { act: 'site.matter.enroll.share.friend' },
-            desc: '用户A分享活动给公众号好友',
+            desc: '用户A分享活动给微信好友',
         }, {
             data: { act: 'site.matter.enroll.share.timeline' },
             desc: '用户A分享活动至朋友圈',

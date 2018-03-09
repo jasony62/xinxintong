@@ -97,7 +97,7 @@
                             </div>
                             <div class='data'>
                                 <blockquote>
-                                    <div class='schema' ng-repeat="schema in schemas" ng-switch on="schema.type">
+                                    <div class='schema' ng-if="rec.data[schema.id]" ng-repeat="schema in schemas" ng-switch on="schema.type">
                                         <div class='text-muted data-title'>{{schema.title}}</div>
                                         <div ng-switch-when="file">
                                             <div ng-repeat="file in rec.data[schema.id]">
@@ -114,8 +114,8 @@
                                             <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
                                         </ul>
                                         <div ng-switch-when="multitext">
-                                            <ul ng-if="rec.data[schema.id]">
-                                                <li ng-repeat="item in rec.data[schema.id].value"><span ng-bind="item.value"></span></li>
+                                            <ul ng-if="rec.data[schema.id]" style='padding-left:20px'>
+                                                <li ng-repeat="item in rec.data[schema.id]"><span ng-bind="item.value"></span></li>
                                             </ul>
                                         </div>
                                         <div ng-switch-when="single"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>

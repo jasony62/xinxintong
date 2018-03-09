@@ -517,25 +517,29 @@ class record_model extends record_base {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}
-		if (empty($oApp)) {
+		if (false === $oApp) {
 			return false;
 		}
 		if ($oOptions && is_array($oOptions)) {
 			$oOptions = (object) $oOptions;
 		}
-		// 数值型的填空题需要计算分值
-		$bRequireScore = false;
-		$oSchemasById = new \stdClass;
+
+		$bRequireScore = false; // 数值型的填空题需要计算分值
+		$oSchemasById = new \stdClass; // 方便查找题目
+		$visibilitySchemas = []; // 设置了可见性规则的题目
 		foreach ($oApp->dataSchemas as $oSchema) {
 			$oSchemasById->{$oSchema->id} = $oSchema;
 			if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
 				$bRequireScore = true;
 				break;
 			}
+			if (!empty($oSchema->visibility->rules)) {
+				$visibilitySchemas[] = $oSchema;
+			}
 		}
 
-		$result = new \stdClass; // 返回的结果
-		$result->total = 0;
+		$oResult = new \stdClass; // 返回的结果
+		$oResult->total = 0;
 
 		// 指定登记活动下的登记记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
@@ -685,6 +689,23 @@ class record_model extends record_base {
 		$aGroupsById = []; // 缓存分组数据
 		$aRoundsById = []; // 缓存轮次数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
+			/* 检查题目是否可见 */
+			$fnCheckSchemaVisibility = function ($oSchemas, &$oRecordData) {
+				foreach ($oSchemas as $oSchema) {
+					foreach ($oSchema->visibility->rules as $oRule) {
+						if (strpos($oSchema->id, 'member.extattr') === 0) {
+							$memberSchemaId = str_replace('member.extattr.', '', $oSchema->id);
+							if (!isset($oRecordData->member->extattr->{$memberSchemaId}) || ($oRecordData->member->extattr->{$memberSchemaId} !== $oRule->op && empty($oRecordData->member->extattr->{$memberSchemaId}))) {
+								unset($oRecordData->{$oSchema->id});
+								break;
+							}
+						} else if (!isset($oRecordData->{$oRule->schema}) || ($oRecordData->{$oRule->schema} !== $oRule->op && empty($oRecordData->{$oRule->schema}->{$oRule->op}))) {
+							unset($oRecordData->{$oSchema->id});
+							break;
+						}
+					}
+				}
+			};
 			foreach ($records as $oRec) {
 				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
 				$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
@@ -740,6 +761,10 @@ class record_model extends record_base {
 								}
 							}
 						}
+						/* 根据题目的可见性处理数据 */
+						if (count($visibilitySchemas)) {
+							$fnCheckSchemaVisibility($visibilitySchemas, $oRec->data);
+						}
 					}
 				} else {
 					$oRec->data = new \stdClass;
@@ -784,15 +809,15 @@ class record_model extends record_base {
 					$oRec->_average = $countScoreSchemas === 0 ? 0 : $oRec->_score / $countScoreSchemas;
 				}
 			}
-			$result->records = $records;
+			$oResult->records = $records;
 
 			// 符合条件的数据总数
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
-			$result->total = $total;
+			$oResult->total = $total;
 		}
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 活动登记人名单
@@ -907,8 +932,8 @@ class record_model extends record_base {
 				$rid = $activeRound->rid;
 			}
 		}
-		$result = new \stdClass; // 返回的结果
-		$result->total = 0;
+		$oResult = new \stdClass; // 返回的结果
+		$oResult->total = 0;
 
 		// 指定登记活动下的登记记录
 		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$app->id}'";
@@ -958,15 +983,15 @@ class record_model extends record_base {
 					$r->_average = $countScoreSchemas === 0 ? 0 : $r->_score / $countScoreSchemas;
 				}
 			}
-			$result->records = $records;
+			$oResult->records = $records;
 
 			// 符合条件的数据总数
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
-			$result->total = $total;
+			$oResult->total = $total;
 		}
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 返回指定登记项的登记记录
@@ -995,9 +1020,9 @@ class record_model extends record_base {
 			$rid = isset($options->rid) ? $this->escape($options->rid) : null;
 		}
 
-		$result = new \stdClass; // 返回的结果
-		$result->records = [];
-		$result->total = 0;
+		$oResult = new \stdClass; // 返回的结果
+		$oResult->records = [];
+		$oResult->total = 0;
 
 		// 查询参数
 		$q = [
@@ -1051,7 +1076,7 @@ class record_model extends record_base {
 				}
 
 				$sum = (int) $this->query_val_ss($p);
-				$result->sum = $sum;
+				$oResult->sum = $sum;
 			}
 			/* 补充记录标识 */
 			if (!isset($oApp->rpConfig) || empty($oApp->rpConfig->marks)) {
@@ -1067,16 +1092,16 @@ class record_model extends record_base {
 				$rec->enroll_key = $record->enroll_key;
 				$rec->like_log = empty($record->like_log) ? new \stdClass : json_decode($record->like_log);
 				$rec->like_num = $record->like_num;
-				$result->records[] = $rec;
+				$oResult->records[] = $rec;
 			}
 		}
 
 		// 符合条件的数据总数
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q, $q2);
-		$result->total = $total;
+		$oResult->total = $total;
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 计算指定登记项所有记录的合计
@@ -1085,7 +1110,7 @@ class record_model extends record_base {
 		if (empty($oApp->dataSchemas)) {
 			return false;
 		}
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$dataSchemas = $oApp->dataSchemas;
 		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
@@ -1115,11 +1140,11 @@ class record_model extends record_base {
 
 				$sum = (float) $this->query_val_ss($q);
 				$sum = number_format($sum, 2, '.', '');
-				$result->{$schema->id} = (float) $sum;
+				$oResult->{$schema->id} = (float) $sum;
 			}
 		}
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 计算指定登记项所有记录的合计
@@ -1128,7 +1153,7 @@ class record_model extends record_base {
 		if (empty($oApp->data_schemas)) {
 			return false;
 		}
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$dataSchemas = isset($oApp->dataSchemas) ? $oApp->dataSchemas : json_decode($oApp->data_schemas);
 		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
@@ -1158,7 +1183,7 @@ class record_model extends record_base {
 
 				$sum = (float) $this->query_val_ss($q);
 				$sum = number_format($sum, 2, '.', '');
-				$result->{$oSchema->id} = (float) $sum;
+				$oResult->{$oSchema->id} = (float) $sum;
 			}
 		}
 
@@ -1183,9 +1208,9 @@ class record_model extends record_base {
 
 		$sum = (float) $this->query_val_ss($q);
 		$sum = number_format($sum, 2, '.', '');
-		$result->sum = (float) $sum;
+		$oResult->sum = (float) $sum;
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 获得指定用户最后一次登记的key
@@ -1457,13 +1482,13 @@ class record_model extends record_base {
 			}
 			// 如果更新的登记数据，重新计算统计结果
 			if ($newCnt > 0) {
-				$result = $this->_calcStat($oApp, $rid);
+				$oResult = $this->_calcStat($oApp, $rid);
 				// 保存统计结果
 				$this->delete(
 					'xxt_enroll_record_stat',
 					['aid' => $oApp->id, 'rid' => $rid]
 				);
-				foreach ($result as $id => $oDataBySchema) {
+				foreach ($oResult as $id => $oDataBySchema) {
 					foreach ($oDataBySchema->ops as $op) {
 						$r = [
 							'siteid' => $oApp->siteid,
@@ -1481,7 +1506,7 @@ class record_model extends record_base {
 				}
 			} else {
 				/* 从缓存中获取统计数据 */
-				$result = [];
+				$oResult = [];
 				$q = [
 					'id,title,v,l,c',
 					'xxt_enroll_record_stat',
@@ -1489,16 +1514,16 @@ class record_model extends record_base {
 				];
 				$aCached = $this->query_objs_ss($q);
 				foreach ($aCached as $oDataByOp) {
-					if (empty($result[$oDataByOp->id])) {
+					if (empty($oResult[$oDataByOp->id])) {
 						$oDataBySchema = (object) [
 							'id' => $oDataByOp->id,
 							'title' => $oDataByOp->title,
 							'ops' => [],
 							'sum' => 0,
 						];
-						$result[$oDataByOp->id] = $oDataBySchema;
+						$oResult[$oDataByOp->id] = $oDataBySchema;
 					} else {
-						$oDataBySchema = $result[$oDataByOp->id];
+						$oDataBySchema = $oResult[$oDataByOp->id];
 					}
 					$op = (object) [
 						'v' => $oDataByOp->v,
@@ -1510,23 +1535,23 @@ class record_model extends record_base {
 				}
 			}
 		} else {
-			$result = $this->_calcStat($oApp, $rid);
+			$oResult = $this->_calcStat($oApp, $rid);
 		}
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 统计选择题、记分题汇总信息
 	 */
 	private function &_calcStat($oApp, $rid) {
-		$result = [];
+		$oResult = [];
 
 		$dataSchemas = $oApp->dataSchemas;
 		foreach ($dataSchemas as $oSchema) {
 			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score', 'multitext'])) {
 				continue;
 			}
-			$result[$oSchema->id] = $oDataBySchema = (object) [
+			$oResult[$oSchema->id] = $oDataBySchema = (object) [
 				'title' => isset($oSchema->title) ? $oSchema->title : '',
 				'id' => $oSchema->id,
 				'ops' => [],
@@ -1609,7 +1634,7 @@ class record_model extends record_base {
 			}
 		}
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 获得schemasB中和schemasA兼容的登记项定义及对应关系
@@ -1650,7 +1675,7 @@ class record_model extends record_base {
 			$mapAByType[$compatibleType][] = $schemaA;
 		}
 
-		$result = [];
+		$oResult = [];
 		foreach ($schemasB as $schemaB) {
 			if (!isset($mapOfCompatibleType[$schemaB->type])) {
 				continue;
@@ -1678,10 +1703,10 @@ class record_model extends record_base {
 						continue;
 					}
 				}
-				$result[] = [$schemaB, $schemaA];
+				$oResult[] = [$schemaB, $schemaA];
 			}
 		}
 
-		return $result;
+		return $oResult;
 	}
 }

@@ -36,25 +36,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         }
         return http2.post(url, { content: content });
     }
-    /**
-     * 判断关联题目的可见性
-     */
-    function fnCanShowSchema(oSchema, oSchemaData) {
-        if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
-            var bVisible, oRule;
-            bVisible = true;
-            for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
-                oRule = oSchema.visibility.rules[i];
-                if (!oSchemaData[oRule.schema] || (oSchemaData[oRule.schema] !== oRule.op && !oSchemaData[oRule.schema][oRule.op])) {
-                    bVisible = false;
-                    break;
-                }
-            }
-            return bVisible;
-        }
-
-        return true;
-    }
 
     if (!LS.s().ek) {
         noticebox.error('参数不完整');
@@ -230,7 +211,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                     var oSchemaData;
                     if (oSchemaData = oRecord.verbose[oSchema.id]) {
                         if (!angular.isArray(oSchemaData) || oSchemaData.length) {
-                            //if (fnCanShowSchema(oSchema, oRecord.verbose)) {
                             if (/file|url/.test(oSchema.type)) {
                                 oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
                                 if ('url' === oSchema.type) {
@@ -242,7 +222,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                                 oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
                             }
                             aVisibleSchemas.push(oSchema);
-                            //}
                         }
                     }
                 });

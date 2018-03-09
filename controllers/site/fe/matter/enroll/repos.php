@@ -184,7 +184,6 @@ class repos extends base {
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
 		$oResult = $mdoelRec->byApp($oApp, $oOptions, $oCriteria);
-
 		if (!empty($oResult->records)) {
 			$aSchareableSchemas = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
@@ -195,11 +194,32 @@ class repos extends base {
 			foreach ($oResult->records as $oRecord) {
 				/* 清除非共享数据 */
 				if (isset($oRecord->data)) {
-					foreach ($oRecord->data as $schemaId => $value) {
-						if (!in_array($schemaId, $aSchareableSchemas)) {
-							unset($oRecord->data->{$schemaId});
+					$oRecordData = new \stdClass;
+					foreach ($aSchareableSchemas as $schemaId) {
+						if (strpos($schemaId, 'member.extattr.') === 0) {
+							$memberSchemaId = str_replace('member.extattr.', '', $schemaId);
+							if (!empty($oRecord->data->member->extattr->{$memberSchemaId})) {
+								if (!isset($oRecordData->member)) {
+									$oRecordData->member = new \stdClass;
+								}
+								if (!isset($oRecordData->member->extattr)) {
+									$oRecordData->member->extattr = new \stdClass;
+								}
+								$oRecordData->member->extattr->{$memberSchemaId} = $oRecord->data->member->extattr->{$memberSchemaId};
+							}
+						} else if (strpos($schemaId, 'member.') === 0) {
+							$memberSchemaId = str_replace('member.', '', $schemaId);
+							if (!empty($oRecord->data->member->{$memberSchemaId})) {
+								if (!isset($oRecordData->member)) {
+									$oRecordData->member = new \stdClass;
+								}
+								$oRecordData->member->{$memberSchemaId} = $oRecord->data->member->{$memberSchemaId};
+							}
+						} else if (!empty($oRecord->data->{$schemaId})) {
+							$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
 						}
 					}
+					$oRecord->data = $oRecordData;
 				}
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
@@ -210,7 +230,6 @@ class repos extends base {
 				unset($oRecord->headimgurl);
 			}
 		}
-
 		return new \ResponseData($oResult);
 	}
 	/**
@@ -225,25 +244,47 @@ class repos extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,agreed';
+		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,agreed,data';
 		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		/* 清除非共享数据 */
-		$oSchareableSchemas = new \stdClass;
-		foreach ($oApp->dataSchemas as $oSchema) {
-			if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
-				$oSchareableSchemas->{$oSchema->id} = $oSchema;
-			}
-		}
 		if (isset($oRecord->verbose)) {
+			$fnCheckSchemaVisibility = function ($oSchema, $oRecordData) {
+				if (!empty($oSchema->visibility->rules)) {
+					foreach ($oSchema->visibility->rules as $oRule) {
+						if (strpos($oSchema->id, 'member.extattr') === 0) {
+							$memberSchemaId = str_replace('member.extattr.', '', $oSchema->id);
+							if (!isset($oRecordData->member->extattr->{$memberSchemaId}) || ($oRecordData->member->extattr->{$memberSchemaId} !== $oRule->op && empty($oRecordData->member->extattr->{$memberSchemaId}))) {
+								return false;
+							}
+						} else if (!isset($oRecordData->{$oRule->schema}) || ($oRecordData->{$oRule->schema} !== $oRule->op && empty($oRecordData->{$oRule->schema}->{$oRule->op}))) {
+							return false;
+						}
+					}
+				}
+				return true;
+			};
+			/* 清除非共享数据 */
+			$oShareableSchemas = new \stdClass;
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
+					$oShareableSchemas->{$oSchema->id} = $oSchema;
+				}
+			}
 			foreach ($oRecord->verbose as $schemaId => $value) {
-				if (!isset($oSchareableSchemas->{$schemaId})) {
+				/* 清除空值 */
+				if (!isset($oShareableSchemas->{$schemaId})) {
 					unset($oRecord->verbose->{$schemaId});
 					continue;
 				}
-				if ($oSchareableSchemas->{$schemaId}->type === 'multitext') {
+				/* 清除不可见的题 */
+				$oSchema = $oShareableSchemas->{$schemaId};
+				if (!$fnCheckSchemaVisibility($oSchema, $oRecord->data)) {
+					unset($oRecord->verbose->{$schemaId});
+					continue;
+				}
+				if ($oShareableSchemas->{$schemaId}->type === 'multitext') {
 					if (!empty($oRecord->verbose->{$schemaId}->value)) {
 						$oRecord->verbose->{$schemaId}->value = json_decode($oRecord->verbose->{$schemaId}->value);
 					}

@@ -230,7 +230,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                     var oSchemaData;
                     if (oSchemaData = oRecord.verbose[oSchema.id]) {
                         if (!angular.isArray(oSchemaData) || oSchemaData.length) {
-                            if (fnCanShowSchema(oSchema, oSchemaData)) {
+                            if (fnCanShowSchema(oSchema, oRecord.verbose)) {
                                 if (/file|url/.test(oSchema.type)) {
                                     oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
                                     if ('url' === oSchema.type) {

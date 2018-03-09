@@ -40,6 +40,26 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     };
 }]);
 ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', function($scope, $sce, http2, LS, srvRound, $timeout) {
+    /**
+     * 判断关联题目的可见性
+     */
+    function fnCanShowSchema(oSchema, oSchemaData) {
+        if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
+            var bVisible, oRule;
+            bVisible = true;
+            for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                oRule = oSchema.visibility.rules[i];
+                if (!oSchemaData[oRule.schema] || (oSchemaData[oRule.schema] !== oRule.op && !oSchemaData[oRule.schema][oRule.op])) {
+                    bVisible = false;
+                    break;
+                }
+            }
+            return bVisible;
+        }
+
+        return true;
+    }
+
     var oApp, facRound, _oPage, _oCriteria, _oShareableSchemas;
     $scope.page = _oPage = { at: 1, size: 12 };
     $scope.criteria = _oCriteria = { creator: 'all' };
@@ -64,13 +84,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                     var oSchema, schemaData;
                     for (var schemaId in _oShareableSchemas) {
                         oSchema = _oShareableSchemas[schemaId];
-                        if (schemaData = oRecord.data[oSchema.id]) {
-                            if (angular.isArray(schemaData) && schemaData.length === 0) {
+                        if (fnCanShowSchema(oSchema, oRecord.data)) {
+                            if (schemaData = oRecord.data[oSchema.id]) {
+                                if (angular.isArray(schemaData) && schemaData.length === 0) {
+                                    delete oRecord.data[oSchema.id];
+                                    continue;
+                                }
+                                if ('url' === oSchema.type) {
+                                    schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
+                                }
+                            } else {
                                 delete oRecord.data[oSchema.id];
-                                continue;
-                            }
-                            if ('url' === oSchema.type) {
-                                schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
                             }
                         } else {
                             delete oRecord.data[oSchema.id];

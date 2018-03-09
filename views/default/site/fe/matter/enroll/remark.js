@@ -230,19 +230,19 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                     var oSchemaData;
                     if (oSchemaData = oRecord.verbose[oSchema.id]) {
                         if (!angular.isArray(oSchemaData) || oSchemaData.length) {
-                            if (fnCanShowSchema(oSchema, oRecord.verbose)) {
-                                if (/file|url/.test(oSchema.type)) {
-                                    oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
-                                    if ('url' === oSchema.type) {
-                                        oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
-                                    }
-                                } else if (oSchema.type === 'image') {
-                                    oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
-                                } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
-                                    oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
+                            //if (fnCanShowSchema(oSchema, oRecord.verbose)) {
+                            if (/file|url/.test(oSchema.type)) {
+                                oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
+                                if ('url' === oSchema.type) {
+                                    oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
                                 }
-                                aVisibleSchemas.push(oSchema);
+                            } else if (oSchema.type === 'image') {
+                                oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
+                            } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
+                                oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
                             }
+                            aVisibleSchemas.push(oSchema);
+                            //}
                         }
                     }
                 });

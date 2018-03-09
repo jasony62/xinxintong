@@ -84,21 +84,21 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                     var oSchema, schemaData;
                     for (var schemaId in _oShareableSchemas) {
                         oSchema = _oShareableSchemas[schemaId];
-                        if (fnCanShowSchema(oSchema, oRecord.data)) {
-                            if (schemaData = oRecord.data[oSchema.id]) {
-                                if (angular.isArray(schemaData) && schemaData.length === 0) {
-                                    delete oRecord.data[oSchema.id];
-                                    continue;
-                                }
-                                if ('url' === oSchema.type) {
-                                    schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
-                                }
-                            } else {
+                        //if (fnCanShowSchema(oSchema, oRecord.data)) {
+                        if (schemaData = oRecord.data[oSchema.id]) {
+                            if (angular.isArray(schemaData) && schemaData.length === 0) {
                                 delete oRecord.data[oSchema.id];
+                                continue;
+                            }
+                            if ('url' === oSchema.type) {
+                                schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
                             }
                         } else {
                             delete oRecord.data[oSchema.id];
                         }
+                        //} else {
+                        delete oRecord.data[oSchema.id];
+                        //}
                     }
                     $scope.repos.push(oRecord);
                 });

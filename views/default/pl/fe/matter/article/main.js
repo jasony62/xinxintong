@@ -152,9 +152,10 @@ define(['frame'], function(ngApp) {
                 srvApp.update('entryRule');
             }
         };
-        srvApp.get().then(function(app) {
-            _oEditing = app;
-            $scope.rule = _oRule = app.entryRule;
-        }, true);
+        $scope.$watch('editing', function(nv) {
+            if(!nv) return;
+            _oEditing = nv;
+            $scope.rule = _oRule = nv.entryRule;
+        });
     }]);
 });

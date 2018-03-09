@@ -100,10 +100,12 @@ define(['frame'], function(ngApp) {
 
         function setMschemaEntry(mschemaId) {
             if (!_oAppRule.member) {
-                _oAppRule.member = [];
+                _oAppRule.member = {};
             }
             if (!_oAppRule.member[mschemaId]) {
-                _oAppRule.member.push(mschemaId);
+                _oAppRule.member[mschemaId] = {
+                    entry: 'Y'
+                };
                 return true;
             }
             return false;
@@ -158,11 +160,11 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.removeMschema = function(mschemaId) {
-            angular.forEach(_oAppRule.member, function(id, index) {
-                _oAppRule.member.splice(index, 1);
-            });
-            $scope.update('entry_rule');
-            $scope.submit();
+            if (_oAppRule.member[mschemaId]) {
+                delete _oAppRule.member[mschemaId];
+                $scope.update('entry_rule');
+                $scope.submit();
+            }
         };
         $scope.editMschema = function(oMschema) {
             if (oMschema.matter_id) {
@@ -182,11 +184,6 @@ define(['frame'], function(ngApp) {
                     $scope.submit();
                 }
             });
-        };
-        $scope.removeGroupEditing = function() {
-            delete _oAppRule.group;
-            $scope.update('entry_rule');
-            $scope.submit();
         };
         $scope.chooseGroupEditing = function() {
             chooseGroupApp().then(function(result) {

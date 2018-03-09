@@ -29,8 +29,10 @@ class main extends \site\fe\matter\base {
 		case 'article':
 		case 'custom':
 			$modelArticle = $this->model('matter\article');
-			$article = $modelArticle->byId($id, 'title');
+			$article = $modelArticle->byId($id);
 			if ($article) {
+				$this->checkEntryRule($article, true);
+
 				\TPL::assign('title', $article->title);
 				if ($type === 'article') {
 					\TPL::output('site/fe/matter/article/main');

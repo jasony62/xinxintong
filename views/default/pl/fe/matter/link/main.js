@@ -154,7 +154,6 @@ define(['frame'], function(ngApp) {
                     $scope.rule.scope = _oBeforeRule.scope;
                 });
             } else {
-                console.log($scope.sns);
                 _changeUserScope($scope.rule.scope, $scope.sns);
             }
         };

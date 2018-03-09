@@ -291,7 +291,7 @@ class event_model extends \TMS_MODEL {
 			}
 			$oMisUser = $modelMisUsr->byId($oMission, $oRecord->userid, ['fields' => 'id,nickname,last_enroll_at,enroll_num,user_total_coin,modify_log']);
 			if (false === $oMisUser) {
-				$modelMisUsr->add($oApp, $oUser, $oUpdatedUsrData);
+				$modelMisUsr->add($oMission, $oUser, $oUpdatedUsrData);
 			} else {
 				$modelMisUsr->modify($oMisUser, $oUpdatedUsrData);
 			}

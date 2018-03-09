@@ -97,7 +97,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                             delete oRecord.data[oSchema.id];
                         }
                         //} else {
-                        delete oRecord.data[oSchema.id];
+                        //delete oRecord.data[oSchema.id];
                         //}
                     }
                     $scope.repos.push(oRecord);

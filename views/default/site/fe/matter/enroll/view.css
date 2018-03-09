@@ -4,7 +4,8 @@ img{max-width:100%}
 div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px dotted #ccc;}
 div[wrap].wrap-inline>*{display:inline-block;vertical-align:top;margin:0 1em 0 0;}
 div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-div[wrap] ul{list-style:none;padding:0;margin:0;max-width:50%;}
+div[wrap][schema-type=image] ul{list-style:none;padding:0;margin:0;max-width:50%;}
+div[wrap][schema-type=multitext] ul,div[wrap][schema-type=file] ul{padding-left:20px;}
 div[schema-type=image]>ul>li>img{width:100%;}
 div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 div[wrap].wrap-splitline.remarkable{padding-bottom:2em;position:relative;}

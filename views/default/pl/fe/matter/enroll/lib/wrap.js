@@ -402,7 +402,7 @@
                  inpAttrs['tms-file-input'] = 'Y';
                  html += '<ul class="list-group file" name="' + schema.id + '">';
                  html += '<li class="list-group-item" ng-show="progressOfUploadFile"><div class="progressOfUploadFile" ng-bind="progressOfUploadFile"></li>';
-                 html += '<li wrap="file" ng-repeat="file in data.' + schema.id + '" class="list-group-item">';
+                 html += '<li wrap="file" ng-repeat="file in data.' + schema.id + '" class="list-group-item" ng-click="clickFile(\'' + schema.id + '\',$index)">';
                  html += '<span class="file-name" ng-bind="file.name"></span>';
                  html += '</li>';
                  html += '<li class="list-group-item file-picker">';

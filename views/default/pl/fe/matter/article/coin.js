@@ -3,7 +3,7 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', '$uibModal', '$timeout', 'srvCoin', function($scope, http2, $uibModal, $timeout, srvCoin) {
         var actions = [{
             name: 'site.matter.article.share.friend',
-            desc: '用户A分享图文给公众号好友',
+            desc: '用户A分享图文给微信好友',
         }, {
             name: 'site.matter.article.share.timeline',
             desc: '用户A分享图文至朋友圈',

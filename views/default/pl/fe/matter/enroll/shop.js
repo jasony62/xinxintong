@@ -43,7 +43,7 @@ define(['require'], function(require) {
             _oProto[data.state] = data.value;
         });
         $scope.chooseMschema = function() {
-            srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(function(result) {
+            srvSite.chooseMschema({ id: '_pending', title: _oProto.title }, $scope.mission).then(function(result) {
                 var oChosen = result.chosen;
                 _oEntryRule.mschemas.push({ id: oChosen.id, title: oChosen.title });
             });

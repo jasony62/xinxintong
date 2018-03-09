@@ -30,24 +30,6 @@ ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider',
     $uibTooltipProvider.setTriggers({ 'show': 'hide' });
     $locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlAppTip', ['$scope', '$interval', function($scope, $interval) {
-    var timer;
-    $scope.autoCloseTime = 6;
-    $scope.domId = '';
-    $scope.closeTip = function() {
-        var domTip = document.querySelector($scope.domId);
-        var evt = document.createEvent("HTMLEvents");
-        evt.initEvent("hide", false, false);
-        domTip.dispatchEvent(evt);
-    };
-    timer = $interval(function() {
-        $scope.autoCloseTime--;
-        if ($scope.autoCloseTime === 0) {
-            $interval.cancel(timer);
-            $scope.closeTip();
-        }
-    }, 1000);
-}]);
 ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
     function refreshActionRule() {
         var url, defer;

@@ -16,7 +16,6 @@
 <body>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <div id="appLoginTip" uib-popover-template="'appLoginTip.html'" uib-popover="" popover-placement="bottom" popover-trigger="show" popover-append-to-body="true"></div>
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
@@ -50,17 +49,6 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/view.js');?>"></script>
-    <script type="text/ng-template" id="appLoginTip.html">
-        <div ng-controller="ctrlAppTip" ng-init="domId='#appLoginTip'">
-            <div class='form-group'>
-                <a href="/rest/site/fe/user/login?site={{app.siteid}}">登录</a>，在其他终端共享填写数据
-            </div>
-            <div class='text-right'>
-                <button class='btn btn-default btn-sm' ng-click="closeTip()">关闭 <span ng-bind="autoCloseTime"></span></button>
-            </div>
-        </div>
-    </script>
-    <div class="tms-switch tms-switch-remark" ng-click="gotoPage($event,'remark')" ng-if="app.repos_unit==='R'"></div>
     <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
     <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
 </body>

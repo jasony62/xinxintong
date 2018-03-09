@@ -114,13 +114,6 @@ class enroll_model extends enroll_base {
 					$oApp->assignedNickname = new \stdClass;
 				}
 			}
-			if ($fields === '*' || false !== strpos($fields, 'user_task')) {
-				if (!empty($oApp->user_task)) {
-					$oApp->userTask = json_decode($oApp->user_task);
-				} else {
-					$oApp->userTask = new \stdClass;
-				}
-			}
 			if ($fields === '*' || false !== strpos($fields, 'scenario_config')) {
 				if (!empty($oApp->scenario_config)) {
 					$oApp->scenarioConfig = json_decode($oApp->scenario_config);
@@ -146,6 +139,14 @@ class enroll_model extends enroll_base {
 				} else {
 					$oApp->rpConfig = new \stdClass;
 				}
+			}
+			if ($fields === '*' || false !== strpos($fields, 'rank_config')) {
+				if (!empty($oApp->rank_config)) {
+					$oApp->rankConfig = json_decode($oApp->rank_config);
+				} else {
+					$oApp->rankConfig = new \stdClass;
+				}
+				unset($oApp->rank_config);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'absent_cause')) {
 				if (!empty($oApp->absent_cause)) {

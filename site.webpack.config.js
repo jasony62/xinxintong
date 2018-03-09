@@ -20,6 +20,7 @@ module.exports = {
         '/site/fe/matter/signin/view': ['./views/default/site/fe/matter/signin/view.js'],
         '/site/fe/matter/signin/preview': ['./views/default/site/fe/matter/signin/preview.js'],
         '/site/fe/matter/plan/main': ['./views/default/site/fe/matter/plan/main.js'],
+        '/site/fe/invite/access':['./views/default/site/fe/invite/access.js']
     },
     output: {
         path: path.resolve(__dirname, 'bundles/default'),

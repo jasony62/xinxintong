@@ -36,6 +36,25 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         }
         return http2.post(url, { content: content });
     }
+    /**
+     * 判断关联题目的可见性
+     */
+    function fnCanShowSchema(oSchema, oSchemaData) {
+        if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
+            var bVisible, oRule;
+            bVisible = true;
+            for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                oRule = oSchema.visibility.rules[i];
+                if (!oSchemaData[oRule.schema] || (oSchemaData[oRule.schema] !== oRule.op && !oSchemaData[oRule.schema][oRule.op])) {
+                    bVisible = false;
+                    break;
+                }
+            }
+            return bVisible;
+        }
+
+        return true;
+    }
 
     if (!LS.s().ek) {
         noticebox.error('参数不完整');
@@ -204,25 +223,34 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
              * 整条记录的评论
              */
             http2.get(LS.j('repos/recordGet', 'site', 'app', 'ek')).then(function(rsp) {
-                var oRecord;
+                var oRecord, aVisibleSchemas;
                 $scope.record = oRecord = rsp.data;
+                aVisibleSchemas = [];
                 aShareable.forEach(function(oSchema) {
-                    if (/file|url/.test(oSchema.type)) {
-                        oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
-                        if ('url' === oSchema.type) {
-                            oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
+                    var oSchemaData;
+                    if (oSchemaData = oRecord.verbose[oSchema.id]) {
+                        if (!angular.isArray(oSchemaData) || oSchemaData.length) {
+                            //if (fnCanShowSchema(oSchema, oRecord.verbose)) {
+                            if (/file|url/.test(oSchema.type)) {
+                                oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
+                                if ('url' === oSchema.type) {
+                                    oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
+                                }
+                            } else if (oSchema.type === 'image') {
+                                oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
+                            } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
+                                oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
+                            }
+                            aVisibleSchemas.push(oSchema);
+                            //}
                         }
-                    } else if (oSchema.type === 'image') {
-                        oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
-                    } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
-                        oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
                     }
                 });
                 listRemarks();
                 /*设置页面分享信息*/
                 $scope.setSnsShare(oRecord);
+                $scope.visibleSchemas = aVisibleSchemas;
             });
-            $scope.visibleSchemas = aShareable;
         } else {
             /**
              * 单道题目的评论

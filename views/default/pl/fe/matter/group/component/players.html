@@ -6,7 +6,7 @@
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" ng-change="selectAllRows(rows.allSelected)">
             </th>
             <th style='width:48px'>操作</th>
-            <th style='width:120px' class='th-action' data-filter-by='round_title' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">分组 <i class='glyphicon glyphicon-filter'></i></th>
+            <th style='width:120px' class='th-action' data-filter-by='round_title' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th style='width:72px' ng-if="bRequireNickname">用户</th>
             <th style='width:4em'>组长</th>
             <th ng-class="{nickname:schema.id===app.assignedNickname.schema.id}" ng-repeat="schema in app._schemasById">{{schema.title}}</th>

@@ -67,9 +67,9 @@ define(['frame'], function(ngApp) {
         $scope.gotoExtattr = function(oSchema) {
             $location.path('/rest/pl/fe/site/mschema/extattr');
         };
-        $scope.importSchema = function() {
+        $scope.importMember = function() {
             $uibModal.open({
-                templateUrl: 'importSchema.html',
+                templateUrl: 'importMember.html',
                 controller: ['$scope', '$uibModalInstance', '$q', 'noticebox', function($scope2, $mi, $q, noticebox) {
                     http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id, function(rsp) {
                         $scope2.importSchemas = rsp.data;
@@ -87,12 +87,10 @@ define(['frame'], function(ngApp) {
                                 schemas.push($scope2.importSchemas[index].id);
                             }
                         });
-
                         if (schemas.length > 0) {
                             $scope2.importSchemaPost(schemas, 0);
                             $mi.close();
                         }
-
                     };
                     $scope2.importSchemaPost = function(schemas, rounds) {
                         var defer = $q.defer();

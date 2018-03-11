@@ -1,64 +1,75 @@
 {
     "path": "/pl/fe/matter/signin/basic",
-    "pages": [{
+    "pages": [
+    {
         "name": "signin",
         "title": "签到页",
         "type": "I",
-        "data_schemas": [{
-            "schema": {
+        "data_schemas": [
+        {
+            "schema":
+            {
                 "id": "name",
                 "title": "姓名",
                 "type": "shorttext",
                 "required": "Y",
                 "format": "name"
             },
-            "config": {
-                "showname": "label"
-            }
-        }, {
-            "schema": {
+            "config":
+            {}
+        },
+        {
+            "schema":
+            {
                 "id": "mobile",
                 "title": "手机",
                 "type": "shorttext",
                 "required": "Y",
                 "format": "mobile"
             },
-            "config": {
-                "showname": "label"
-            }
+            "config":
+            {}
         }],
-        "act_schemas": [{
+        "act_schemas": [
+        {
             "id": "btnSubmit",
             "name": "submit",
             "label": "签到",
             "next": "_autoForward"
         }]
-    }, {
+    },
+    {
         "name": "success",
         "title": "签到成功页",
         "type": "V",
-        "data_schemas": [{
-            "config": {
+        "data_schemas": [
+        {
+            "config":
+            {
                 "id": "s1",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "name",
                 "title": "姓名",
                 "type": "shorttext",
                 "required": "Y",
                 "format": "name"
             }
-        }, {
-            "config": {
+        },
+        {
+            "config":
+            {
                 "id": "s2",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "mobile",
                 "title": "手机",
                 "type": "shorttext",
@@ -66,38 +77,46 @@
                 "format": "mobile"
             }
         }],
-        "act_schemas": [{
+        "act_schemas": [
+        {
             "id": "act2",
             "name": "editRecord",
             "label": "修改签到信息",
             "next": "signin"
         }]
-    }, {
+    },
+    {
         "name": "failure",
         "title": "签到失败页",
         "type": "V",
-        "data_schemas": [{
-            "config": {
+        "data_schemas": [
+        {
+            "config":
+            {
                 "id": "s1",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "name",
                 "title": "姓名",
                 "type": "shorttext",
                 "required": "Y",
                 "format": "name"
             }
-        }, {
-            "config": {
+        },
+        {
+            "config":
+            {
                 "id": "s2",
                 "pattern": "record",
                 "inline": "N",
                 "splitLine": "Y"
             },
-            "schema": {
+            "schema":
+            {
                 "id": "mobile",
                 "title": "手机",
                 "type": "shorttext",
@@ -105,38 +124,46 @@
                 "format": "mobile"
             }
         }],
-        "act_schemas": [{
+        "act_schemas": [
+        {
             "id": "act2",
             "name": "editRecord",
             "label": "修改签到信息",
             "next": "signin"
-        }, {
+        },
+        {
             "id": "act3",
             "name": "gotoEnroll",
             "label": "填写报名信息"
         }]
     }],
-    "schema": [{
+    "schema": [
+    {
         "id": "name",
         "title": "姓名",
         "type": "shorttext",
         "required": "Y",
         "format": "name"
-    }, {
+    },
+    {
         "id": "mobile",
         "title": "手机",
         "type": "shorttext",
         "required": "Y",
         "format": "mobile"
     }],
-    "entryRule": {
-        "success": {
+    "entryRule":
+    {
+        "success":
+        {
             "entry": "success"
         },
-        "fail": {
+        "fail":
+        {
             "entry": "failure"
         },
-        "otherwise": {
+        "otherwise":
+        {
             "entry": "signin"
         }
     }

@@ -22,30 +22,29 @@ class remark extends base {
 
 		return new \ResponseData($result);
 	}
-	/*
-		* 返回多项填写题的所有评论
-		* $id xxt_enroll_record_data id
-	*/
+	/**
+	 * 返回多项填写题的所有评论
+	 */
 	public function listMultitext_action($ek, $schema, $page = 1, $size = 99) {
 		if (empty($schema)) {
 			return new \ResponseError('没有指定题目id');
 		}
 
 		$oUser = $this->who;
-		$oRecordDatas = $this->model('matter\enroll\data')->getMultitext($ek, $schema, ['fields' => 'id,multitext_seq,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
+		$oRecDatas = $this->model('matter\enroll\data')->getMultitext($ek, $schema, ['fields' => 'id,multitext_seq,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
 
 		$options = [];
-		if (count($oRecordDatas)) {
+		if (count($oRecDatas)) {
 			$data_ids = [];
-			foreach ($oRecordDatas as $oRecordData) {
-				$data_ids[] = $oRecordData->id;
+			foreach ($oRecDatas as $oRecData) {
+				$data_ids[] = $oRecData->id;
 			}
 			$options['data_id'] = $data_ids;
 		}
 
 		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $options);
 
-		$result->data = $oRecordDatas;
+		$result->data = $oRecDatas;
 
 		return new \ResponseData($result);
 	}

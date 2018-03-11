@@ -748,7 +748,6 @@ class main extends main_base {
 					$newWrap = new \stdClass;
 					$newWrap->schema = $newSchema;
 					$wrapConfig = new \stdClass;
-					$wrapConfig->showname = 'label';
 					$newWrap->config = $wrapConfig;
 					$page->data_schemas[] = $newWrap;
 				} else if ($page->type === 'V') {
@@ -957,8 +956,6 @@ class main extends main_base {
 					$newWrap = new \stdClass;
 					$newWrap->schema = $newSchema;
 					$wrapConfig = new \stdClass;
-					$wrapConfig->showname = 'label';
-
 					$newWrap->config = $wrapConfig;
 					$page->data_schemas[] = $newWrap;
 				} else if ($page->type === 'V') {

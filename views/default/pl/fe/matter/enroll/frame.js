@@ -75,7 +75,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             .when('/rest/pl/fe/matter/enroll/recycle', new RouteParam('recycle'))
             .when('/rest/pl/fe/matter/enroll/stat', new RouteParam('stat'))
             .when('/rest/pl/fe/matter/enroll/log', new RouteParam('log'))
-            .when('/rest/pl/fe/matter/enroll/coin', new RouteParam('coin'))
+            .when('/rest/pl/fe/matter/enroll/rule', new RouteParam('rule'))
             .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/enrollee', new RouteParam('enrollee'))
             .when('/rest/pl/fe/matter/enroll/tag', new RouteParam('tag'))
@@ -137,7 +137,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
                     $scope.opened = 'data';
                     break;
                 case 'recycle':
-                case 'coin':
+                case 'rule':
                 case 'notice':
                     $scope.opened = 'other';
                     break;

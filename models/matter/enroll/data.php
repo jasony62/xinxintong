@@ -559,7 +559,7 @@ class data_model extends \TMS_MODEL {
 		$rid = isset($oOptions->rid) ? $this->escape($oOptions->rid) : null;
 		$tag = isset($oOptions->tag) ? $this->escape($oOptions->tag) : null;
 
-		$result = new \stdClass; // 返回的结果
+		$oResult = new \stdClass; // 返回的结果
 
 		// 查询参数
 		$q = [
@@ -624,47 +624,89 @@ class data_model extends \TMS_MODEL {
 
 		// 处理获得的数据
 		$mapOfNicknames = [];
-		$aRecords = $this->query_objs_ss($q, $q2);
-		if (count($aRecords)) {
+		$aRecDatas = $this->query_objs_ss($q, $q2);
+		if (count($aRecDatas)) {
+			$visibilitySchemasCount = 0;
 			// 题目类型
-			$dataSchemas = new \stdClass;
+			$oVisibilitySchemas = new \stdClass; // 设置了可见性的题目
+			$oSchemaByIds = new \stdClass;
 			if (isset($oApp->dataSchemas)) {
-				foreach ($oApp->dataSchemas as $dataSchema) {
-					$dataSchemas->{$dataSchema->id} = $dataSchema;
+				foreach ($oApp->dataSchemas as $oSchema) {
+					$oSchemaByIds->{$oSchema->id} = $oSchema;
+					if (!empty($oSchema->visibility->rules)) {
+						$oVisibilitySchemas->{$oSchema->id} = $oSchema;
+						$visibilitySchemasCount++;
+					}
 				}
 			}
-
+			if ($visibilitySchemasCount) {
+				$fnCheckSchemaVisibility = function ($oSchema, &$oRecordData) {
+					foreach ($oSchema->visibility->rules as $oRule) {
+						if (strpos($oSchema->id, 'member.extattr') === 0) {
+							$memberSchemaId = str_replace('member.extattr.', '', $oSchema->id);
+							if (!isset($oRecordData->member->extattr->{$memberSchemaId}) || ($oRecordData->member->extattr->{$memberSchemaId} !== $oRule->op && empty($oRecordData->member->extattr->{$memberSchemaId}))) {
+								return false;
+							}
+						} else if (!isset($oRecordData->{$oRule->schema}) || ($oRecordData->{$oRule->schema} !== $oRule->op && empty($oRecordData->{$oRule->schema}->{$oRule->op}))) {
+							return false;
+						}
+					}
+					return true;
+				};
+			}
+			$oRecDatas2 = [];
+			$oRecordByIds = new \stdClass;
 			$modelRec = $this->model('matter\enroll\record');
-			foreach ($aRecords as &$oRecord) {
+			foreach ($aRecDatas as $oRecData) {
+				/* 根据题目的可见性设置，过滤数据 */
+				if ($visibilitySchemasCount) {
+					if (isset($oVisibilitySchemas->{$oRecData->schema_id})) {
+						if (isset($oRecordByIds->{$oRecData->enroll_key})) {
+							$oRecord = $oRecordByIds->{$oRecData->enroll_key};
+						} else {
+							$oRecord = $oRecordByIds->{$oRecData->enroll_key} = $modelRec->byId($oRecData->enroll_key, ['fields' => 'nickname,data']);
+						}
+						if (false === $fnCheckSchemaVisibility($oVisibilitySchemas->{$oRecData->schema_id}, $oRecord->data)) {
+							continue;
+						}
+					}
+				}
 				/* 获得nickname */
-				if (!isset($mapOfNicknames[$oRecord->userid])) {
-					$rec = $modelRec->byId($oRecord->enroll_key, ['fields' => 'nickname']);
-					$mapOfNicknames[$oRecord->userid] = $rec->nickname;
+				if (!isset($mapOfNicknames[$oRecData->userid])) {
+					if (isset($oRecordByIds->{$oRecData->enroll_key})) {
+						$oRecord = $oRecordByIds->{$oRecData->enroll_key};
+					} else {
+						$oRecord = $oRecordByIds->{$oRecData->enroll_key} = $modelRec->byId($oRecData->enroll_key, ['fields' => 'nickname']);
+					}
+					$mapOfNicknames[$oRecData->userid] = $oRecord->nickname;
 				}
-				$oRecord->nickname = $mapOfNicknames[$oRecord->userid];
+				$oRecData->nickname = $mapOfNicknames[$oRecData->userid];
 				/* like log */
-				if ($oRecord->like_log) {
-					$oRecord->like_log = json_decode($oRecord->like_log);
+				if ($oRecData->like_log) {
+					$oRecData->like_log = json_decode($oRecData->like_log);
 				}
-				// 处理多项填写题
-				if (isset($oRecord->schema_id) && isset($dataSchemas->{$oRecord->schema_id}) && $dataSchemas->{$oRecord->schema_id}->type === 'multitext') {
-					$oRecord->value = empty($oRecord->value) ? [] : json_decode($oRecord->value);
+				/* 处理多项填写题 */
+				if (isset($oRecData->schema_id) && isset($oSchemaByIds->{$oRecData->schema_id}) && $oSchemaByIds->{$oRecData->schema_id}->type === 'multitext') {
+					$oRecData->value = empty($oRecData->value) ? [] : json_decode($oRecData->value);
 					$items = [];
-					foreach ($oRecord->value as $val) {
+					foreach ($oRecData->value as $val) {
 						$items[] = $this->byId($val->id, ['fields' => $fields]);
 					}
-					$oRecord->items = $items;
+					$oRecData->items = $items;
 				}
+				$oRecDatas2[] = $oRecData;
 			}
+			$aRecDatas = $oRecDatas2;
 		}
-		$result->records = $aRecords;
+
+		$oResult->records = $aRecDatas;
 
 		// 符合条件的数据总数
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q, $q2);
-		$result->total = $total;
+		$oResult->total = $total;
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 返回指定活动，指定数据项的填写数据

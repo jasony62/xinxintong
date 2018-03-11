@@ -292,7 +292,6 @@ class main extends main_base {
 		$oNewApp->count_limit = $oCopied->count_limit;
 		$oNewApp->multi_rounds = $oCopied->multi_rounds;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
-		$oNewApp->extattrs = $oCopied->extattrs;
 		$oNewApp->can_siteuser = 'Y';
 		$oNewApp->entry_rule = json_encode($oEntryRule);
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
@@ -446,6 +445,8 @@ class main extends main_base {
 					}
 				}
 				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'actionRule') {
+				$oUpdated->action_rule = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'assignedNickname') {
 				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'scenarioConfig') {

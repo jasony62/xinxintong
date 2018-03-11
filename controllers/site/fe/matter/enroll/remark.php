@@ -80,8 +80,8 @@ class remark extends base {
 			return new \ObjectNotFoundError();
 		}
 		/* 操作规则 */
-		$oActionRule = $this->checkActionRule($oApp);
-		if (isset($oActionRule->passed) && $oActionRule->passed === 'N') {
+		$oEntryRuleResult = $this->checkEntryRule2($oApp);
+		if (isset($oEntryRuleResult->passed) && $oEntryRuleResult->passed === 'N') {
 			return new \ComplianceError('用户身份不符合进入规则，无法发表评论');
 		}
 

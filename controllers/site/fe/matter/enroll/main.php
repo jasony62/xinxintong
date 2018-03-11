@@ -9,7 +9,7 @@ class main extends base {
 	/**
 	 *
 	 */
-	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,mission_id,multi_rounds,read_num,repos_unit,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,rank_config';
+	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,multi_rounds,read_num,repos_unit,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,rank_config';
 	/**
 	 *
 	 */
@@ -200,17 +200,15 @@ class main extends base {
 		return $oOpenPage;
 	}
 	/**
-	 * 返回登记记录
+	 * 返回登记活动定义
 	 *
-	 * @param string $siteid
 	 * @param string $appid
-	 * @param string $rid round's id
+	 * @param string $rid
 	 * @param string $page page's name
 	 * @param string $ek record's enroll key
-	 * @param string $newRecord
 	 *
 	 */
-	public function get_action($app, $rid = '', $page = null, $ek = null, $newRecord = null, $ignoretime = 'N', $cascaded = 'N') {
+	public function get_action($app, $rid = '', $page = null, $ek = null, $ignoretime = 'N', $cascaded = 'N') {
 		/* 登记活动定义 */
 		$app = $this->escape($app);
 
@@ -229,9 +227,9 @@ class main extends base {
 		$oUser = $this->getUser($oApp);
 		$params['user'] = $oUser;
 
-		/* 操作规则 */
-		$oActionRule = $this->checkActionRule($oApp);
-		$params['actionRule'] = $oActionRule;
+		/* 进入规则 */
+		$oEntryRuleResult = $this->checkEntryRule2($oApp);
+		$params['entryRuleResult'] = $oEntryRuleResult;
 
 		/* 站点页面设置 */
 		if ($oApp->use_site_header === 'Y' || $oApp->use_site_footer === 'Y') {
@@ -321,15 +319,15 @@ class main extends base {
 	/**
 	 * 获得用户执行操作规则的状态
 	 */
-	public function actionRule_action($app) {
+	public function entryRule_action($app) {
 		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false) {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
 
-		$oActionRule = $this->checkActionRule($oApp);
+		$oEntryRuleResult = $this->checkEntryRule2($oApp);
 
-		return new \ResponseData($oActionRule);
+		return new \ResponseData($oEntryRuleResult);
 	}
 	/**
 	 * 获得指定坐标对应的地址名称

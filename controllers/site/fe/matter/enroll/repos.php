@@ -94,22 +94,22 @@ class repos extends base {
 
 		// 查询结果
 		$mdoelData = $this->model('matter\enroll\data');
-		$result = $mdoelData->byApp($oApp, $oUser, $oOptions);
-		if (count($result->records)) {
+		$oResult = $mdoelData->byApp($oApp, $oUser, $oOptions);
+		if (count($oResult->records)) {
+			/* 处理获得的数据 */
 			$modelRem = $this->model('matter\enroll\remark');
-			foreach ($result->records as $oRec) {
-
-				if ($oRec->remark_num) {
-					$agreedRemarks = $modelRem->listByRecord($oUser, $oRec->enroll_key, $oRec->schema_id, $page = 1, $size = 10, ['agreed' => 'Y', 'fields' => 'id,content,create_at,nickname,like_num,like_log']);
+			foreach ($oResult->records as $oRecData) {
+				if ($oRecData->remark_num) {
+					$agreedRemarks = $modelRem->listByRecord($oUser, $oRecData->enroll_key, $oRecData->schema_id, $page = 1, $size = 10, ['agreed' => 'Y', 'fields' => 'id,content,create_at,nickname,like_num,like_log']);
 					if ($agreedRemarks->total) {
-						$oRec->agreedRemarks = $agreedRemarks;
+						$oRecData->agreedRemarks = $agreedRemarks;
 					}
 				}
-				$oRec->tag = empty($oRec->tag) ? [] : json_decode($oRec->tag);
+				$oRecData->tag = empty($oRecData->tag) ? [] : json_decode($oRecData->tag);
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 返回指定登记活动，指定登记项的填写内容
@@ -146,9 +146,9 @@ class repos extends base {
 		if ($onlyMine === 'Y') {
 			//$oOptions->userid = $this->who->uid;
 		}
-		$result = $modelData->bySchema($oApp, $oSchema, $oOptions);
+		$oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 返回指定活动的登记记录的共享内容

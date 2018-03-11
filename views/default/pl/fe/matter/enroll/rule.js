@@ -1,6 +1,58 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
+    ngApp.provider.controller('ctrlRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
+        var _oApp, logs, page;
+        $scope.page = page = {
+            at: 1,
+            size: 12,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        }
+        $scope.fetchLogs = function() {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + _oApp.siteid + '&app=' + _oApp.id + page.j();
+            http2.get(url, function(rsp) {
+                if (rsp.data.logs) {
+                    $scope.tabActive = 2;
+                    $scope.logs = logs = rsp.data.logs;
+                    $scope.page.total = rsp.data.total;
+                }
+
+                if (rsp.data.logs.length == 0) {
+                    $scope.tabActive = 0;
+                }
+            });
+        };
+        srvEnrollApp.get().then(function(oApp) {
+            _oApp = oApp;
+            $scope.fetchLogs();
+        });
+    }]);
+    ngApp.provider.controller('ctrlActionRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
+        var _oRule;
+        $scope.rulesModified = false;
+        $scope.save = function() {
+            $scope.app.actionRule = _oRule;
+            $scope.update('actionRule').then(function() {
+                $scope.rulesModified = false;
+            });
+        };
+        srvEnrollApp.get().then(function(oApp) {
+            $scope.rule = _oRule = oApp.actionRule;
+            $scope.$watch('rule', function(nv, ov) {
+                if (nv !== ov) {
+                    $scope.rulesModified = true;
+                    if (nv.remark) {
+                        if (nv.remark.requireLike && !nv.remark.requireLikeNum) {
+                            nv.remark.requireLikeNum = 3;
+                        }
+                    }
+                }
+            }, true);
+        });
+    }]);
+    ngApp.provider.controller('ctrlCoinRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
 
         function fetchAppRules() {
             var url;
@@ -20,7 +72,9 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/matter/mission/coin/rules?site=' + _oApp.siteid + '&mission=' + _oApp.mission.id;
             http2.get(url, function(rsp) {
                 rsp.data.forEach(function(oRule) {
-                    $scope.rules[oRule.act].mission = oRule;
+                    if ($scope.rules[oRule.act]) {
+                        $scope.rules[oRule.act].mission = oRule;
+                    }
                 });
             });
         }
@@ -85,36 +139,9 @@ define(['frame'], function(ngApp) {
                 $scope.rulesModified = false;
             });
         };
-        var logs, page;
-        $scope.page = page = {
-            at: 1,
-            size: 12,
-            j: function() {
-                return '&page=' + this.at + '&size=' + this.size;
-            }
-        }
-        $scope.fetchLogs = function() {
-            var url;
-            url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + _oApp.siteid + '&app=' + _oApp.id + page.j();
-            http2.get(url, function(rsp) {
-                if (rsp.data.logs) {
-                    $scope.tabActive = 1;
-                    $scope.logs = logs = rsp.data.logs;
-                    $scope.page.total = rsp.data.total;
-                }
-
-                if (rsp.data.logs.length == 0) {
-                    $scope.tabActive = 0;
-                }
-            });
-        };
-        $scope.$watch('logs', function(nv) {
-            if (!nv) { $scope.tabActive = 3; }
-        });
         srvEnrollApp.get().then(function(oApp) {
             _oApp = oApp;
             fetchAppRules();
-            $scope.fetchLogs();
             if (_oApp.mission) {
                 fetchMissionRules();
             }

@@ -469,60 +469,64 @@ class player extends \pl\fe\matter\base {
 		return new \ResponseData($oPlayer);
 	}
 	/**
-	 * 更新登记记录
+	 * 更新用户数据
 	 *
 	 * @param string $site
 	 * @param string $app
 	 * @param $ek record's key
 	 */
-	public function update_action($site, $app, $ek) {
+	public function update_action($app, $ek) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$player = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$modelGrp = $this->model('matter\group');
 		$modelPly = $this->model('matter\group\player');
 
-		$app = $modelGrp->byId($app);
+		$oApp = $modelGrp->byId($app);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
 		/* 更新记录数据 */
-		$record = new \stdClass;
-		if (isset($player->is_leader)) {
-			$record->is_leader = $player->is_leader === 'Y' ? 'Y' : 'N';
+		$oNewPlayer = new \stdClass;
+		if (isset($oPosted->is_leader)) {
+			$oNewPlayer->is_leader = in_array($oPosted->is_leader, ['Y', 'N', 'S']) ? $oPosted->is_leader : 'N';
 		}
-		if (isset($player->comment)) {
-			$record->comment = $player->comment;
+		if (isset($oPosted->comment)) {
+			$oNewPlayer->comment = $oPosted->comment;
 		}
-		if (isset($player->tags)) {
-			$record->tags = $player->tags;
+		if (isset($oPosted->tags)) {
+			$oNewPlayer->tags = $modelPly->escape($oPosted->tags);
 		}
-		if (empty($player->round_id)) {
-			$record->round_id = 0;
-			$record->round_title = '';
+		if (empty($oPosted->round_id)) {
+			$oNewPlayer->round_id = 0;
+			$oNewPlayer->round_title = '';
 		} else {
 			$modelRnd = $this->model('matter\group\round');
-			if ($round = $modelRnd->byId($player->round_id)) {
-				$record->round_id = $player->round_id;
-				$record->round_title = $round->title;
+			if ($round = $modelRnd->byId($oPosted->round_id)) {
+				$oNewPlayer->round_id = $oPosted->round_id;
+				$oNewPlayer->round_title = $round->title;
 			}
 		}
 		$modelPly->update(
 			'xxt_group_player',
-			$record,
-			["aid" => $app->id, "enroll_key" => $ek]
+			$oNewPlayer,
+			["aid" => $oApp->id, "enroll_key" => $ek]
 		);
-		/* 更新登记数据 */
-		$result = $modelPly->setData($app, $ek, $player->data);
+		/* 更新用户数据 */
+		$result = $modelPly->setData($oApp, $ek, $oPosted->data);
 		if (false === $result[0]) {
 			return new \ResponseError($result[1]);
 		}
-		$player = $modelPly->byId($app->id, $ek);
+
+		$oNewPlayer = $modelPly->byId($oApp->id, $ek);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'update', $player);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'update', $oNewPlayer);
 
-		return new \ResponseData($player);
+		return new \ResponseData($oPosted);
 	}
 	/**
 	 * 未分组的人

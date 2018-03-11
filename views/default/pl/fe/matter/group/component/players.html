@@ -8,7 +8,7 @@
             <th style='width:48px'>操作</th>
             <th style='width:120px' class='th-action' data-filter-by='round_title' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th style='width:72px' ng-if="bRequireNickname">用户</th>
-            <th style='width:4em'>组长</th>
+            <th style='width:8em'>角色</th>
             <th ng-class="{nickname:schema.id===app.assignedNickname.schema.id}" ng-repeat="schema in app._schemasById">{{schema.title}}</th>
             <th style='width:140px' ng-if="app.tags.length">标签</th>
             <th style='width:140px'>备注</th>
@@ -29,7 +29,7 @@
             </td>
             <td>{{p.round_title}}</td>
             <td ng-if="bRequireNickname">{{p.nickname}}</td>
-            <td>{{p.is_leader==='Y'?'是':'否'}}</td>
+            <td>{{p.is_leader==='Y'?'组长':(p.is_leader==='S'?'超级用户':'')}}</td>
             <td ng-repeat="schema in app._schemasById" ng-switch on="schema.type">
                 <span ng-switch-when="image">
                     <img ng-repeat="img in p._data[schema.id]" ng-src='{{img}}' />

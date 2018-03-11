@@ -133,7 +133,7 @@
                             <div class='bottom-bar text-right'>
                                 <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
                                 <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)">评论&nbsp;<span ng-bind="rec.remark_num"></span></button>
-                                <span ng-if="groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])">
+                                <span ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
                                     <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
                                     <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
                                 </span>

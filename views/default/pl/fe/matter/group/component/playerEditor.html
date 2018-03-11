@@ -91,11 +91,15 @@ ul.img-tiles li.img-picker button span {
             </div>
         </div>
         <div class="form-group">
-            <label class="col-md-3 control-label">组长</label>
+            <label class="col-md-3 control-label">角色</label>
             <div class="col-md-9">
-                <div class='checkbox'>
-                    <label class='inline-checkbox'>
-                        <input type='checkbox' ng-model="player.is_leader" ng-true-value="'Y'" ng-false-value="'N'"> 是</label>
+                <div class='radio'>
+                    <label class='inline-radio'>
+                        <input type='radio' name='is_leader' value='N' ng-model="player.is_leader">组员</label>
+                    <label class='inline-radio'>
+                        <input type='radio' name='is_leader' value='Y' ng-model="player.is_leader">组长</label>
+                    <label class='inline-radio'>
+                        <input type='radio' name='is_leader' value='S' ng-model="player.is_leader">超级用户</label>
                 </div>
             </div>
         </div>

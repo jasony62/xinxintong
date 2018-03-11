@@ -377,7 +377,7 @@ class event_model extends \TMS_MODEL {
 	public function recommendRecord($oApp, $oRecord, $oOperator, $value) {
 		$rst = null;
 		if ('Y' === $value) {
-			$rst = $this->_agreeRecordOrData($oApp, $oRecData, $oOperator, 'record');
+			$rst = $this->_agreeRecordOrData($oApp, $oRecord, $oOperator, 'record');
 		} else if ('Y' === $oRecord->agreed) {
 			$rst = $this->_undoAgreeRecordOrData($oApp, $oRecord, $oOperator, $value, 'record');
 		}

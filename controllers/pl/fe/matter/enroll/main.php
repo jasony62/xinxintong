@@ -1143,17 +1143,17 @@ class main extends main_base {
 			case 'M':
 				if (empty($rule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
 				if (empty($rule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
-				if ($rule->hour == "") {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
+				if ($rule->hour === '') {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
 				break;
 			// 0-6 周几
 			case 'W':
-				if ($rule->wday == "") {return [false, '请设置定时轮次每周几开始！'];}
-				if ($rule->end_wday == "") {return [false, '请设置定时轮次每周几结束！'];}
-				if ($rule->hour == "") {return [false, '请设置定时轮次每周几的几点开始！'];}
+				if ($rule->wday === '') {return [false, '请设置定时轮次每周几开始！'];}
+				if ($rule->end_wday === '') {return [false, '请设置定时轮次每周几结束！'];}
+				if ($rule->hour === '') {return [false, '请设置定时轮次每周几的几点开始！'];}
 				break;
 			// 0-23 几点
 			default:
-				if ($rule->hour == "") {return [false, '请设置定时轮次每天的几点开始！'];}
+				if ($rule->hour === '') {return [false, '请设置定时轮次每天的几点开始！'];}
 				break;
 			}
 		}

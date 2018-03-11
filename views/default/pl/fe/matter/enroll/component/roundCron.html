@@ -102,8 +102,8 @@ th {
                 </td>
                 <td>
                     <div class="round">
-                        <p>开始时间：{{rule.case.start_at*1000|date:'yy-MM-dd HH:mm'}}</p>
-                        <p>结束时间：{{rule.case.end_at*1000|date:'yy-MM-dd HH:mm'}}</p>
+                        <p>开始时间：<span ng-if="rule.case.start_at">{{rule.case.start_at*1000|date:'yy-MM-dd HH:mm'}}</span></p>
+                        <p>结束时间：<span ng-if="rule.case.end_at">{{rule.case.end_at*1000|date:'yy-MM-dd HH:mm'}}</span></p>
                     </div>
                 </td>
                 <td>

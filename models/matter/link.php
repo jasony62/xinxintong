@@ -24,6 +24,7 @@ class link_model extends base_model {
 				$oLink->entry_rule = new \stdClass;
 				$oLink->entry_rule->scope = new \stdClass;
 			}
+			$oLink->entryRule = $oLink->entry_rule;
 			/* params */
 			$q2 = [
 				'id,pname,pvalue,authapi_id',

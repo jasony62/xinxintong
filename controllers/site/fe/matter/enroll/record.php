@@ -503,31 +503,35 @@ class record extends base {
 	/**
 	 * 分段上传文件
 	 *
-	 * @param string $site
 	 * @param string $app
 	 * @param string $submitKey
 	 *
 	 */
-	public function uploadFile_action($site, $app, $submitkey = '') {
+	public function uploadFile_action($app, $submitkey = '') {
 		/* support CORS */
 		//header('Access-Control-Allow-Origin:*');
 		//header('Access-Control-Allow-Methods:POST');
 		//if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 		//	exit;
 		//}
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
 		if (empty($submitkey)) {
-			$user = $this->who;
-			$submitkey = $user->uid;
+			$oUser = $this->getUser($oApp);
+			$submitkey = $oUser->uid;
 		}
 		/** 分块上传文件 */
 		if (defined('SAE_TMP_PATH')) {
 			$dest = '/' . $app . '/' . $submitkey . '_' . $_POST['resumableFilename'];
-			$resumable = \TMS_APP::M('fs/resumableAliOss', $site, $dest, 'xinxintong');
+			$resumable = \TMS_APP::M('fs/resumableAliOss', $oApp->siteid, $dest, 'xinxintong');
 			$resumable->handleRequest($_POST);
 		} else {
-			$modelFs = \TMS_APP::M('fs/local', $site, '_resumable');
+			$modelFs = \TMS_APP::M('fs/local', $oApp->siteid, '_resumable');
 			$dest = $submitkey . '_' . $_POST['resumableIdentifier'];
-			$resumable = \TMS_APP::M('fs/resumable', $site, $dest, $modelFs);
+			$resumable = \TMS_APP::M('fs/resumable', $oApp->siteid, $dest, $modelFs);
 			$resumable->handleRequest($_POST);
 		}
 
@@ -580,7 +584,7 @@ class record extends base {
 		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,data_tag,score,like_num,like_log,remark_num';
 
 		if (empty($ek)) {
-			$oUser = $this->who;
+			$oUser = $this->getUser($oApp);
 			if ($loadLast === 'Y') {
 				$oRecord = $modelRec->lastByUser($oApp, $oUser, ['assignRid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
 				if (false === $oRecord || $oRecord->state !== '1') {
@@ -674,7 +678,7 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 		// 登记数据过滤条件
 		$oCriteria = $this->getPostJson();
 
@@ -783,10 +787,11 @@ class record extends base {
 		if (empty($oApp->entryRule->group->id)) {
 			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
 		}
+		$oUser = $this->getUser($oApp);
 
 		$modelGrpUsr = $this->model('matter\group\player');
 		/* 当前用户所属分组及角色 */
-		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
 			return new \ParameterError('只允许组长进行推荐');
 		}
@@ -809,12 +814,12 @@ class record extends base {
 		 * 更新记录数据
 		 */
 		$oAgreedLog = $oRecord->agreed_log;
-		if (isset($oAgreedLog->{$this->who->uid})) {
-			$oLog = $oAgreedLog->{$this->who->uid};
+		if (isset($oAgreedLog->{$oUser->uid})) {
+			$oLog = $oAgreedLog->{$oUser->uid};
 			$oLog->time = time();
 			$oLog->value = $value;
 		} else {
-			$oAgreedLog->{$this->who->uid} = (object) ['time' => time(), 'value' => $value];
+			$oAgreedLog->{$oUser->uid} = (object) ['time' => time(), 'value' => $value];
 		}
 		$modelRec->update(
 			'xxt_enroll_record',
@@ -828,7 +833,7 @@ class record extends base {
 		}
 
 		/* 处理用户汇总数据，积分数据 */
-		$this->model('matter\enroll\event')->recommendRecord($oApp, $oRecord, $this->who, $value);
+		$this->model('matter\enroll\event')->recommendRecord($oApp, $oRecord, $oUser, $value);
 
 		return new \ResponseData('ok');
 	}
@@ -852,7 +857,8 @@ class record extends base {
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ResponseError('记录已经被删除，不能再次删除');
 		}
-		$oUser = clone $this->who;
+		$oUser = $this->getUser($oApp);
+
 		// 判断删除人是否为提交人
 		if ($oRecord->userid !== $oUser->uid) {
 			return new \ResponseError('仅允许记录的提交者删除记录');

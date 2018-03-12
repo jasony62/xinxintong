@@ -10,7 +10,18 @@ class remark extends base {
 	 * 返回一条登记记录的所有评论
 	 */
 	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99) {
-		$oUser = $this->who;
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek, ['aid,state']);
+		if (false === $oRecord && $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp && $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
 
 		$modelRem = $this->model('matter\enroll\remark');
 		$options = [];
@@ -29,8 +40,19 @@ class remark extends base {
 		if (empty($schema)) {
 			return new \ResponseError('没有指定题目id');
 		}
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($ek, ['aid,state']);
+		if (false === $oRecord && $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp && $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
+
 		$oRecDatas = $this->model('matter\enroll\data')->getMultitext($ek, $schema, ['fields' => 'id,multitext_seq,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
 
 		$options = [];
@@ -56,8 +78,7 @@ class remark extends base {
 	 *
 	 */
 	public function add_action($ek, $data, $remark = 0) {
-		$ek = $this->escape($ek);
-		$recDataId = $this->escape($data);
+		$recDataId = $data;
 
 		$modelRec = $this->model('matter\enroll\record');
 		$modelRecData = $this->model('matter\enroll\data');

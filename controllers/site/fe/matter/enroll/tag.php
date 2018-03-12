@@ -12,14 +12,15 @@ class tag extends base {
 	public function create_action($site, $app) {
 		/* 登记活动定义 */
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false) {
-			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+		if ($oApp === false || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
 		}
 
 		$posted = $this->getPostJson();
-		$user = $this->who;
-		$user->creater_src = 'S';
-		$newTags = $this->model('matter\enroll\tag')->add($oApp, $user, $posted);
+
+		$oUser = $this->getUser($oApp);
+		$oUser->creater_src = 'S';
+		$newTags = $this->model('matter\enroll\tag')->add($oApp, $oUser, $posted);
 
 		return new \ResponseData($newTags);
 	}

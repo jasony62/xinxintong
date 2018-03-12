@@ -137,7 +137,7 @@ class main extends base {
 	 * 3、如果已经登记过，且没有指定登记过访问页面，进入第一个查看页
 	 */
 	private function _defaultPage($oApp, $rid = '', $redirect = false, $ignoretime = 'N') {
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 		$oOpenPage = null;
 		$modelPage = $this->model('matter\enroll\page');
 

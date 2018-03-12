@@ -62,10 +62,8 @@ class main extends \pl\fe\matter\main_base {
 		}
 		/* 按项目过滤 */
 		if (!empty($mission)) {
-			$mission = $modelArt->escape($mission);
 			$w .= " and a.mission_id=$mission";
 		} else {
-			$site = $modelArt->escape($site);
 			$w .= " and a.siteid='$site'";
 		}
 		/* 按频道过滤 */
@@ -296,7 +294,6 @@ class main extends \pl\fe\matter\main_base {
 		}
 		if (empty($toSites)) {
 			/* 同一个团队下复制 */
-			$site = $modelArt->escape($site);
 			$oArticle->siteid = $site;
 			$oArticle->from_mode = 'S';
 			$oArticle = $modelArt->create($oUser, $oArticle);

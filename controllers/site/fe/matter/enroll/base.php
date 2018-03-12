@@ -63,15 +63,23 @@ class base extends \site\fe\matter\base {
 			$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
 			if (count($mschemaIds)) {
 				$modelMem = $this->model('site\user\member');
+				$modelAcnt = $this->model('site\user\account');
 				$oUser->members = new \stdClass;
 				if (empty($oUser->unionid)) {
+					$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => 'unionid']);
+					if ($oSiteUser && !empty($oSiteUser->unionid)) {
+						$unionid = $oSiteUser->unionid;
+					}
+				} else {
+					$unionid = $oUser->unionid;
+				}
+				if (empty($unionid)) {
 					$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => implode(',', $mschemaIds)]);
 					foreach ($aMembers as $oMember) {
 						$oUser->members->{$oMember->schema_id} = $oMember;
 					}
 				} else {
-					$modelAcnt = $this->model('site\user\account');
-					$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+					$aUnionUsers = $modelAcnt->byUnionid($unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
 					foreach ($aUnionUsers as $oUnionUser) {
 						$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => implode(',', $mschemaIds)]);
 						foreach ($aMembers as $oMember) {

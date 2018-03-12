@@ -24,13 +24,11 @@ class main extends base {
 	/**
 	 * 返回活动页
 	 *
-	 * @param string $site
 	 * @param string $app
 	 * @param string $page 要进入活动的哪一页，页面的名称
 	 *
 	 */
-	public function index_action($site, $app, $rid = '', $page = '', $ignoretime = 'N') {
-		empty($site) && $this->outputError('没有指定当前站点的ID');
+	public function index_action($app, $rid = '', $page = '', $ignoretime = 'N') {
 		empty($app) && $this->outputError('登记活动ID为空');
 
 		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);

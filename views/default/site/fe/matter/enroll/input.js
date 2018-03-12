@@ -386,12 +386,12 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     }
     /* 页面和记录数据加载完成 */
     function afterLoad(dataSchemas, oRecordData) {
+        // 设置题目的默认值
+        ngApp.oUtilSchema.autoFillDefault(_oApp._schemasById, $scope.data);
         // 控制关联题目的可见性
         fnToggleAssocSchemas(dataSchemas, oRecordData);
         // 控制题目关联选项的可见性
         fnToggleAssocOptions(dataSchemas, oRecordData);
-        // 设置题目的默认值
-        ngApp.oUtilSchema.autoFillDefault(_oApp._schemasById, $scope.data);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {

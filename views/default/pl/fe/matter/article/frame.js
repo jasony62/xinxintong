@@ -103,6 +103,17 @@ define(['require'], function() {
         $scope.update = function(names) {
             return srvApp.update(names);
         };
+        $scope.editMschema = function(oMschema) {
+            if (oMschema.matter_id) {
+                if (oMschema.matter_type === 'mission') {
+                    location.href = '/rest/pl/fe/matter/mission/mschema?id=' + oMschema.matter_id + '&site=' + $scope.editing.siteid + '#' + oMschema.id;
+                } else {
+                    location.href = '/rest/pl/fe/site/mschema?site=' + $scope.editing.siteid + '#' + oMschema.id;
+                }
+            } else {
+                location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.editing.siteid + '&mschema=' + oMschema.id;
+            }
+        };
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
@@ -112,31 +123,43 @@ define(['require'], function() {
         srvSite.tagList('C').then(function(oTag) {
             $scope.oTagC = oTag;
         });
-        srvApp.get().then(function(editing) {
-            $scope.editing = editing;
-            !editing.attachments && (editing.attachments = []);
-            $scope.entry = {
-                url: editing.entryUrl,
-                qrcode: '/rest/site/fe/matter/article/qrcode?site=' + $scope.editing.siteid + '&url=' + encodeURIComponent(editing.entryUrl),
-            };
-            if ($scope.editing.matter_cont_tag !== '') {
-                $scope.editing.matter_cont_tag.forEach(function(cTag, index) {
-                    $scope.oTagC.forEach(function(oTag) {
-                        if (oTag.id === cTag) {
-                            $scope.editing.matter_cont_tag[index] = oTag;
-                        }
+        srvSite.snsList().then(function(oSns) {
+            $scope.sns = oSns;
+            $scope.snsNames = Object.keys(oSns);
+            $scope.snsCount = Object.keys(oSns).length;
+            srvApp.get().then(function(editing) {
+                $scope.editing = editing;
+                !editing.attachments && (editing.attachments = []);
+                $scope.entry = {
+                    url: editing.entryUrl,
+                    qrcode: '/rest/site/fe/matter/article/qrcode?site=' + $scope.editing.siteid + '&url=' + encodeURIComponent(editing.entryUrl),
+                };
+                if ($scope.editing.matter_cont_tag !== '') {
+                    $scope.editing.matter_cont_tag.forEach(function(cTag, index) {
+                        $scope.oTagC.forEach(function(oTag) {
+                            if (oTag.id === cTag) {
+                                $scope.editing.matter_cont_tag[index] = oTag;
+                            }
+                        });
+                    });
+                }
+                if ($scope.editing.matter_mg_tag !== '') {
+                    $scope.editing.matter_mg_tag.forEach(function(cTag, index) {
+                        $scope.oTag.forEach(function(oTag) {
+                            if (oTag.id === cTag) {
+                                $scope.editing.matter_mg_tag[index] = oTag;
+                            }
+                        });
+                    });
+                }
+                srvSite.memberSchemaList($scope.editing).then(function(aMemberSchemas) {
+                    $scope.memberSchemas = aMemberSchemas;
+                    $scope.mschemasById = {};
+                    $scope.memberSchemas.forEach(function(mschema) {
+                        $scope.mschemasById[mschema.id] = mschema;
                     });
                 });
-            }
-            if ($scope.editing.matter_mg_tag !== '') {
-                $scope.editing.matter_mg_tag.forEach(function(cTag, index) {
-                    $scope.oTag.forEach(function(oTag) {
-                        if (oTag.id === cTag) {
-                            $scope.editing.matter_mg_tag[index] = oTag;
-                        }
-                    });
-                });
-            }
+            });
         });
         window.onbeforeunload = function(e) {
             if (!$scope.editing.pic && !$scope.editing.thumbnail) {

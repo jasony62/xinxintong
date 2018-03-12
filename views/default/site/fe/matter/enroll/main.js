@@ -31,12 +31,12 @@ ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider',
     $locationProvider.html5Mode(true);
 }]);
 ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
-    function refreshActionRule() {
+    function refreshEntryRuleResult() {
         var url, defer;
         defer = $q.defer();
-        url = LS.j('actionRule', 'site', 'app');
-        $http.get(url).success(function(rsp) {
-            $scope.params.actionRule = rsp.data;
+        url = LS.j('entryRule', 'site', 'app');
+        return http2.get(url).then(function(rsp) {
+            $scope.params.entryRuleResult = rsp.data;
             defer.resolve(rsp.data);
         });
         return defer.promise;
@@ -106,7 +106,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         if ($scope.app.entryRule && $scope.app.entryRule.scope.sns === 'Y') {
             url = LS.j('askFollow', 'site');
             url += '&sns=' + Object.keys($scope.app.entryRule.sns).join(',');
-            openPlugin(url, refreshActionRule);
+            openPlugin(url, refreshEntryRuleResult);
         }
     };
     $scope.askBecomeMember = function() {
@@ -120,7 +120,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                 url = '/rest/site/fe/user/memberschema?site=' + $scope.app.siteid;
                 url += '&schema=' + mschemaIds.join(',');
             }
-            openPlugin(url, refreshActionRule);
+            openPlugin(url, refreshEntryRuleResult);
         }
     };
     $scope.addRecord = function(event, page) {

@@ -185,7 +185,7 @@ class base extends \site\fe\matter\base {
 	 * @return object
 	 *
 	 */
-	protected function checkActionRule($oApp) {
+	protected function checkEntryRule2($oApp) {
 		$oResult = new \stdClass;
 		$oResult->passed = 'Y';
 

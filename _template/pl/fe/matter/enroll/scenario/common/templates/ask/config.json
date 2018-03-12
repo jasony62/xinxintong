@@ -18,9 +18,7 @@
                 "unique": "Y"
             },
             "config":
-            {
-                "showname": "placeholder"
-            }
+            {}
         }],
         "act_schemas": [
         {

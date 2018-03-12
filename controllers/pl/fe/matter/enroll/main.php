@@ -292,7 +292,6 @@ class main extends main_base {
 		$oNewApp->count_limit = $oCopied->count_limit;
 		$oNewApp->multi_rounds = $oCopied->multi_rounds;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
-		$oNewApp->extattrs = $oCopied->extattrs;
 		$oNewApp->can_siteuser = 'Y';
 		$oNewApp->entry_rule = json_encode($oEntryRule);
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
@@ -446,6 +445,8 @@ class main extends main_base {
 					}
 				}
 				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'actionRule') {
+				$oUpdated->action_rule = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'assignedNickname') {
 				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'scenarioConfig') {
@@ -747,7 +748,6 @@ class main extends main_base {
 					$newWrap = new \stdClass;
 					$newWrap->schema = $newSchema;
 					$wrapConfig = new \stdClass;
-					$wrapConfig->showname = 'label';
 					$newWrap->config = $wrapConfig;
 					$page->data_schemas[] = $newWrap;
 				} else if ($page->type === 'V') {
@@ -956,8 +956,6 @@ class main extends main_base {
 					$newWrap = new \stdClass;
 					$newWrap->schema = $newSchema;
 					$wrapConfig = new \stdClass;
-					$wrapConfig->showname = 'label';
-
 					$newWrap->config = $wrapConfig;
 					$page->data_schemas[] = $newWrap;
 				} else if ($page->type === 'V') {
@@ -1145,17 +1143,17 @@ class main extends main_base {
 			case 'M':
 				if (empty($rule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
 				if (empty($rule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
-				if ($rule->hour == "") {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
+				if ($rule->hour === '') {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
 				break;
 			// 0-6 周几
 			case 'W':
-				if ($rule->wday == "") {return [false, '请设置定时轮次每周几开始！'];}
-				if ($rule->end_wday == "") {return [false, '请设置定时轮次每周几结束！'];}
-				if ($rule->hour == "") {return [false, '请设置定时轮次每周几的几点开始！'];}
+				if ($rule->wday === '') {return [false, '请设置定时轮次每周几开始！'];}
+				if ($rule->end_wday === '') {return [false, '请设置定时轮次每周几结束！'];}
+				if ($rule->hour === '') {return [false, '请设置定时轮次每周几的几点开始！'];}
 				break;
 			// 0-23 几点
 			default:
-				if ($rule->hour == "") {return [false, '请设置定时轮次每天的几点开始！'];}
+				if ($rule->hour === '') {return [false, '请设置定时轮次每天的几点开始！'];}
 				break;
 			}
 		}

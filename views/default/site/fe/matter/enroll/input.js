@@ -242,7 +242,13 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                     bVisible = true;
                     for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
                         oRule = oSchema.visibility.rules[i];
-                        if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
+                        if (oRule.schema.indexOf('member.extattr') === 0) {
+                            var memberSchemaId = oRule.schema.substr(15);
+                            if (!oRecordData.member.extattr[memberSchemaId] || (oRecordData.member.extattr[memberSchemaId] !== oRule.op && !oRecordData.member.extattr[memberSchemaId][oRule.op])) {
+                                bVisible = false;
+                                break;
+                            }
+                        } else if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
                             bVisible = false;
                             break;
                         }

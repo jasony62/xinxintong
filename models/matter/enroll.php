@@ -87,10 +87,13 @@ class enroll_model extends enroll_base {
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
 				if (empty($oApp->entry_rule)) {
 					$oApp->entryRule = $oApp->entry_rule = new \stdClass;
-					//$oApp->entry_rule->scope = 'none';
 				} else {
 					$oApp->entryRule = $oApp->entry_rule = json_decode($oApp->entry_rule);
 				}
+			}
+			if (property_exists($oApp, 'action_rule')) {
+				$oApp->actionRule = empty($oApp->action_rule) ? new \stdClass : json_decode($oApp->action_rule);
+				unset($oApp->action_rule);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
 				if (!empty($oApp->data_schemas)) {

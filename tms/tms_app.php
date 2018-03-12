@@ -184,10 +184,11 @@ class TMS_APP {
 		if (count($ps) == 0) {
 			$response = $obj_controller->$action_method();
 		} else {
+			$model = self::model();
 			foreach ($ps as $p) {
 				$pn = $p->getName();
 				if (isset($trans[$pn])) {
-					$args[] = $trans[$pn];
+					$args[] = $model->escape($trans[$pn]);
 				} else {
 					if ($p->isOptional()) {
 						$args[] = $p->getDefaultValue();

@@ -32,7 +32,6 @@ class main extends base {
 	public function index_action($site, $app, $rid = '', $page = '', $ignoretime = 'N') {
 		empty($site) && $this->outputError('没有指定当前站点的ID');
 		empty($app) && $this->outputError('登记活动ID为空');
-		$app = $this->escape($app);
 
 		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false || $oApp->state !== '1') {
@@ -209,9 +208,6 @@ class main extends base {
 	 *
 	 */
 	public function get_action($app, $rid = '', $page = null, $ek = null, $ignoretime = 'N', $cascaded = 'N') {
-		/* 登记活动定义 */
-		$app = $this->escape($app);
-
 		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields]);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');

@@ -43,21 +43,24 @@ class base extends \site\fe\base {
 			return false;
 		}
 		if ($this->userAgent() === 'wx') {
-			if (!empty($oEntryRule->sns->wx->entry)) {
-				if (!isset($this->who->sns->wx)) {
-					$modelWx = $this->model('sns\wx');
-					if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
-						$this->snsOAuth($wxConfig, 'wx');
-					} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
-						$this->snsOAuth($wxConfig, 'wx');
+			/* 进入规则设置了公众号用户进入 */
+			if (isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {
+				if (!empty($oEntryRule->sns->wx->entry)) {
+					if (!isset($this->who->sns->wx)) {
+						$modelWx = $this->model('sns\wx');
+						if (($wxConfig = $modelWx->bySite($oApp->siteid)) && $wxConfig->joined === 'Y') {
+							$this->snsOAuth($wxConfig, 'wx');
+						} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+							$this->snsOAuth($wxConfig, 'wx');
+						}
 					}
 				}
-			}
-			if (!empty($oEntryRule->sns->qy->entry)) {
-				if (!isset($this->who->sns->qy)) {
-					if ($qyConfig = $this->model('sns\qy')->bySite($oApp->siteid)) {
-						if ($qyConfig->joined === 'Y') {
-							$this->snsOAuth($qyConfig, 'qy');
+				if (!empty($oEntryRule->sns->qy->entry)) {
+					if (!isset($this->who->sns->qy)) {
+						if ($qyConfig = $this->model('sns\qy')->bySite($oApp->siteid)) {
+							if ($qyConfig->joined === 'Y') {
+								$this->snsOAuth($qyConfig, 'qy');
+							}
 						}
 					}
 				}

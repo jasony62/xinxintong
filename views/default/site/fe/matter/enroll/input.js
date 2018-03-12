@@ -390,6 +390,8 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         fnToggleAssocSchemas(dataSchemas, oRecordData);
         // 控制题目关联选项的可见性
         fnToggleAssocOptions(dataSchemas, oRecordData);
+        // 设置题目的默认值
+        ngApp.oUtilSchema.autoFillDefault(_oApp._schemasById, $scope.data);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {

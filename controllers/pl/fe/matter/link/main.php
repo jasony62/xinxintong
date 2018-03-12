@@ -32,7 +32,7 @@ class main extends \pl\fe\matter\main_base {
 
 		$link = $this->model('matter\link')->byIdWithParams($id);
 		/* 指定分组活动访问 */
-		if (isset($link->entry_rule->scope) && $link->entry_rule->scope === 'group') {
+		if (isset($link->entry_rule->scope->group) && $link->entry_rule->scope->group === 'Y') {
 			if (isset($link->entry_rule->group)) {
 				!is_object($link->entry_rule->group) && $link->entry_rule->group = (object) $link->entry_rule->group;
 				$oRuleApp = $link->entry_rule->group;
@@ -61,7 +61,6 @@ class main extends \pl\fe\matter\main_base {
 			return new \ResponseTimeout();
 		}
 		$model = $this->model();
-		$site = $model->escape($site);
 		$oOptions = $this->getPostJson();
 		/**
 		 * get links

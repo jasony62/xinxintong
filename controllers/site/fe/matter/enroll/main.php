@@ -229,7 +229,10 @@ class main extends base {
 		if ($oApp->use_site_header === 'Y' || $oApp->use_site_footer === 'Y') {
 			$params['site'] = $this->model('site')->byId(
 				$oApp->siteid,
-				['cascaded' => 'header_page_name,footer_page_name']
+				[
+					'fields' => 'id,name,summary,heading_pic,header_page_name,footer_page_name',
+					'cascaded' => 'header_page_name,footer_page_name',
+				]
 			);
 		}
 

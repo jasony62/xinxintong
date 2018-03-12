@@ -72,13 +72,15 @@ class data extends base {
 		$modelGrpUsr = $this->model('matter\group\player');
 		/* 当前操作用户所属分组及角色 */
 		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
-		if (false === $oGrpLeader || $oGrpLeader->is_leader !== 'Y') {
-			return new \ParameterError('只有允许组长进行推荐');
+		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
+			return new \ParameterError('只允许组长进行推荐');
 		}
-		/* 记录提交人所属分组 */
-		$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecData->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-		if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
-			return new \ParameterError('只允许组长推荐本组数据');
+		/* 检查是否在同一分组内 */
+		if ($oGrpLeader->is_leader === 'Y') {
+			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecData->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+			if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
+				return new \ParameterError('只允许组长推荐本组数据');
+			}
 		}
 
 		if (!in_array($value, ['Y', 'N', 'A'])) {

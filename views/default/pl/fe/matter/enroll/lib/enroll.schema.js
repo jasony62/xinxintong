@@ -323,7 +323,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 $scope._appendSchema(oNewSchema);
                 oMsSchema.assocState = 'yes';
 
-                return newSchema;
+                return oNewSchema;
             };
             $scope.newByOtherApp = function(oProtoSchema, oOtherApp, oAfterSchema) {
                 var oNewSchema, schemaType;

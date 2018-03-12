@@ -88,9 +88,7 @@
      InputWrap.prototype = Object.create(Wrap.prototype);
      InputWrap.prototype.newWrap = function(schema) {
          var oWrap = {
-             config: {
-                 showname: 'label'
-             },
+             config: {},
              schema: schema,
          };
          if (/single|multiple/.test(schema.type)) {
@@ -281,53 +279,53 @@
          return html;
      };
      InputWrap.prototype.embed = function(oWrap, forEdit) {
-         var schema = oWrap.schema,
-             config = oWrap.config,
+         var oSchema = oWrap.schema,
+             oConfig = oWrap.config,
              inpAttrs = {
                  wrap: 'input',
                  class: 'form-group form-group-lg',
-                 schema: schema.id,
-                 'schema-type': schema.type,
+                 schema: oSchema.id,
+                 'schema-type': oSchema.type,
              },
-             html = '<label' + (config.showname === 'label' ? '' : ' class="sr-only"') + (forEdit ? ' contenteditable="true">' : '>') + schema.title + '</label>';
+             html = '<label' + (oConfig.hidename ? ' class="hide"' : '') + (forEdit ? ' contenteditable="true">' : '>') + oSchema.title + '</label>';
 
          forEdit && (inpAttrs.contenteditable = 'false');
 
-         switch (schema.type) {
+         switch (oSchema.type) {
              case 'multitext':
                  html += '<ul class="list-group multitext">';
-                 html += '<li class="list-group-item" ng-repeat="item in data.' + schema.id + ' track by $index">';
+                 html += '<li class="list-group-item" ng-repeat="item in data.' + oSchema.id + ' track by $index">';
                  html += '<div wrap="multitext-history" class="input-group input-group-lg">';
-                 schema.history === 'Y' && (html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="' + 'dataBySchema(\'' + schema.id + '\')' + '">查找</button></span>');
-                 html += '<input type="text" ng-model="data.' + schema.id + '[$index].value" title="' + schema.title + '"';
-                 config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
-                 schema.required === 'Y' && (html += 'required=""');
+                 oSchema.history === 'Y' && (html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="' + 'dataBySchema(\'' + oSchema.id + '\')' + '">查找</button></span>');
+                 html += '<input type="text" ng-model="data.' + oSchema.id + '[$index].value" title="' + oSchema.title + '"';
+                 html += ' placeholder="' + oSchema.title + '"';
+                 oSchema.required === 'Y' && (html += 'required=""');
                  html += ' class="form-control input-lg"';
                  forEdit && (html += ' readonly');
                  html += '>';
-                 html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(data.' + schema.id + ', $index)"><i class="glyphicon glyphicon-trash"></i></button></span>';
+                 html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(data.' + oSchema.id + ', $index)"><i class="glyphicon glyphicon-trash"></i></button></span>';
                  html += '</div>';
                  html += '</li>';
-                 html += '<li class="list-group-item"><button class="btn btn-success"  ng-click="addItem(\'' + schema.id + '\')">添加内容</button></li>';
+                 html += '<li class="list-group-item"><button class="btn btn-success"  ng-click="addItem(\'' + oSchema.id + '\')">添加内容</button></li>';
                  html += '</ul>';
                  break;
              case 'shorttext':
-                 if (schema.history === 'Y') {
+                 if (oSchema.history === 'Y') {
                      html += '<div wrap="shorttext-history" class="input-group input-group-lg">';
-                     html += '<input type="text" ng-model="data.' + schema.id + '"';
-                     html += ' title="' + schema.title + '"';
-                     config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
-                     schema.required === 'Y' && (html += 'required=""');
+                     html += '<input type="text" ng-model="data.' + oSchema.id + '"';
+                     html += ' title="' + oSchema.title + '"';
+                     html += ' placeholder="' + oSchema.title + '"';
+                     oSchema.required === 'Y' && (html += 'required=""');
                      html += ' class="form-control">';
                      html += '<span class="input-group-btn">';
-                     html += '<button class="btn btn-default" ng-click="' + 'dataBySchema(\'' + schema.id + '\')' + '">查找</button>';
+                     html += '<button class="btn btn-default" ng-click="' + 'dataBySchema(\'' + oSchema.id + '\')' + '">查找</button>';
                      html += '</span>';
                      html += '</div>';
                  } else {
-                     html += '<input type="text" ng-model="data.' + schema.id + '" title="' + schema.title + '"';
-                     config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
-                     schema.required === 'Y' && (html += 'required=""');
-                     schema.type === 'member' && (html += 'ng-init="data.member.schema_id=' + schema.schema_id + '"');
+                     html += '<input type="text" ng-model="data.' + oSchema.id + '" title="' + oSchema.title + '"';
+                     html += ' placeholder="' + oSchema.title + '"';
+                     oSchema.required === 'Y' && (html += 'required=""');
+                     oSchema.type === 'member' && (html += 'ng-init="data.member.schema_id=' + oSchema.schema_id + '"');
                      html += ' class="form-control input-lg"';
                      forEdit && (html += ' readonly');
                      html += '>';
@@ -335,46 +333,46 @@
                  break;
              case 'date':
                  inpAttrs['tms-date'] = 'Y';
-                 inpAttrs['tms-date-value'] = 'data.' + schema.id;
-                 html += '<div wrap="date" ng-bind="data.' + schema.id + '*1000|date:\'yy-MM-dd HH:mm\'"';
-                 html += ' title="' + schema.title + '"';
-                 html += ' placeholder="' + schema.title + '"';
-                 schema.required === 'Y' && (html += 'required=""');
+                 inpAttrs['tms-date-value'] = 'data.' + oSchema.id;
+                 html += '<div wrap="date" ng-bind="data.' + oSchema.id + '*1000|date:\'yy-MM-dd HH:mm\'"';
+                 html += ' title="' + oSchema.title + '"';
+                 html += ' placeholder="' + oSchema.title + '"';
+                 oSchema.required === 'Y' && (html += 'required=""');
                  html += ' class="form-control input-lg"></div>';
                  break;
              case 'url':
                  html += '<div wrap="url">';
-                 html += '<div ng-bind-html="data.' + schema.id + '._text"';
-                 html += ' title="' + schema.title + '"';
+                 html += '<div ng-bind-html="data.' + oSchema.id + '._text"';
+                 html += ' title="' + oSchema.title + '"';
                  html += ' class="form-control"></div>';
                  html += '<div class="text-right">';
-                 html += '<button class="btn btn-default" ng-click="pasteUrl(\'' + schema.id + '\')">指定链接</button>';
+                 html += '<button class="btn btn-default" ng-click="pasteUrl(\'' + oSchema.id + '\')">指定链接</button>';
                  html += '</div>';
                  html += '</div>';
                  break;
              case 'location':
                  html += '<div wrap="location" class="input-group input-group-lg">';
-                 html += '<input type="text" ng-model="data.' + schema.id + '"';
-                 html += ' title="' + schema.title + '"';
-                 html += ' placeholder="' + schema.title + '"';
-                 schema.required === 'Y' && (html += 'required=""');
+                 html += '<input type="text" ng-model="data.' + oSchema.id + '"';
+                 html += ' title="' + oSchema.title + '"';
+                 html += ' placeholder="' + oSchema.title + '"';
+                 oSchema.required === 'Y' && (html += 'required=""');
                  html += ' class="form-control">';
                  html += '<div class="input-group-btn">';
-                 html += '<button class="btn btn-default" ng-click="' + 'getMyLocation(\'' + schema.id + '\')' + '">定位</button>';
+                 html += '<button class="btn btn-default" ng-click="' + 'getMyLocation(\'' + oSchema.id + '\')' + '">定位</button>';
                  html += '</div>';
                  html += '</div>';
                  break;
              case 'longtext':
-                 html += '<textarea style="height:auto" ng-model="data.' + schema.id + '" title="' + schema.title + '"';
-                 config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
-                 schema.required === 'Y' && (html += 'required=""');
+                 html += '<textarea style="height:auto" ng-model="data.' + oSchema.id + '" title="' + oSchema.title + '"';
+                 html += ' placeholder="' + oSchema.title + '"';
+                 oSchema.required === 'Y' && (html += 'required=""');
                  html += ' class="form-control" rows="3"';
                  forEdit && (html += ' readonly');
                  html += '></textarea>';
                  break;
              case 'single':
-                 if (schema.ops && schema.ops.length > 0) {
-                     if (schema.component === 'S') {
+                 if (oSchema.ops && oSchema.ops.length > 0) {
+                     if (oSchema.component === 'S') {
                          html += this._htmlSingleSelect(oWrap, forEdit);
                      } else {
                          html += this._htmlSingleRadio(oWrap, forEdit);
@@ -382,36 +380,36 @@
                  }
                  break;
              case 'multiple':
-                 if (schema.ops && schema.ops.length > 0) {
+                 if (oSchema.ops && oSchema.ops.length > 0) {
                      html += this._htmlMultiple(oWrap, forEdit);
                  }
                  break;
              case 'image':
                  inpAttrs['tms-image-input'] = 'Y';
-                 html += '<ul class="img-tiles clearfix" name="' + schema.id + '">';
-                 html += '<li wrap="img" ng-repeat="img in data.' + schema.id + '" class="img-thumbnail">';
+                 html += '<ul class="img-tiles clearfix" name="' + oSchema.id + '">';
+                 html += '<li wrap="img" ng-repeat="img in data.' + oSchema.id + '" class="img-thumbnail">';
                  html += '<img flex-img>';
-                 html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + schema.id + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
+                 html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + oSchema.id + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
                  html += '</li>';
                  html += '<li class="img-picker">';
-                 html += '<button class="btn btn-default" ng-click="chooseImage(\'' + schema.id + '\',' + (schema.count || 1) + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
+                 html += '<button class="btn btn-default" ng-click="chooseImage(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
                  html += '</li>';
                  html += '</ul>';
                  break;
              case 'file':
                  inpAttrs['tms-file-input'] = 'Y';
-                 html += '<ul class="list-group file" name="' + schema.id + '">';
+                 html += '<ul class="list-group file" name="' + oSchema.id + '">';
                  html += '<li class="list-group-item" ng-show="progressOfUploadFile"><div class="progressOfUploadFile" ng-bind="progressOfUploadFile"></li>';
-                 html += '<li wrap="file" ng-repeat="file in data.' + schema.id + '" class="list-group-item" ng-click="clickFile(\'' + schema.id + '\',$index)">';
+                 html += '<li wrap="file" ng-repeat="file in data.' + oSchema.id + '" class="list-group-item" ng-click="clickFile(\'' + oSchema.id + '\',$index)">';
                  html += '<span class="file-name" ng-bind="file.name"></span>';
                  html += '</li>';
                  html += '<li class="list-group-item file-picker">';
-                 html += '<button class="btn btn-success" ng-click="chooseFile(\'' + schema.id + '\',' + (schema.count || 1) + ')">' + schema.title + '</button>';
+                 html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')">' + oSchema.title + '</button>';
                  html += '</li>';
                  html += '</ul>';
                  break;
              case 'score':
-                 if (schema.ops && schema.ops.length > 0) {
+                 if (oSchema.ops && oSchema.ops.length > 0) {
                      html += this._htmlScoreItem(oWrap, forEdit);
                  }
                  break;
@@ -421,10 +419,10 @@
                      attrs: {
                          wrap: 'html',
                          class: 'form-group',
-                         schema: schema.id,
+                         schema: oSchema.id,
                          'schema-type': 'html',
                      },
-                     html: schema.content
+                     html: oSchema.content
                  };
          }
 
@@ -435,7 +433,7 @@
          };
      };
      InputWrap.prototype.modify = function(domWrap, dataWrap, oBeforeSchema) {
-         var $dom, $label, $input, config = dataWrap.config,
+         var $dom, $label, $input, oConfig = dataWrap.config,
              oSchema = dataWrap.schema;
 
          $dom = $(domWrap);
@@ -447,7 +445,7 @@
              } else {
                  $label = $dom.children('label');
                  $label.html(oSchema.title);
-
+                 $label.toggleClass('hide', oConfig.hidename);
                  if (oSchema.description && oSchema.description.length) {
                      if (!$dom.find('[class="description"]').length) {
                          $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])
@@ -457,16 +455,9 @@
                  } else {
                      $dom.find('[class="description"]').remove();
                  }
-
                  if (/shorttext|longtext|multitext|member|date|location|url/.test(oSchema.type)) {
-                     $input = $dom.find('input,select,textarea');
-                     if (config.showname === 'label') {
-                         $label.removeClass('sr-only');
-                         $input.removeAttr('placeholder');
-                     } else {
-                         $label.addClass('sr-only');
-                         $input.attr('placeholder', oSchema.title);
-                     }
+                     $input = $dom.find('input,textarea');
+                     $input.attr('placeholder', oSchema.title);
                      if (oSchema.required === 'Y') {
                          $input.attr('required', '');
                      } else {
@@ -477,7 +468,7 @@
                      (function(lib) {
                          var html;
                          if (oSchema.ops) {
-                             if (config.component === 'R') {
+                             if (oConfig.component === 'R') {
                                  if ($dom.children('ul').length) {
                                      html = lib._htmlSingleRadio(dataWrap, false, true);
                                      $dom.children('ul').html(html);
@@ -485,7 +476,7 @@
                                      html = lib._htmlSingleRadio(dataWrap, false, false);
                                      $dom.children('select').replaceWith(html);
                                  }
-                             } else if (config.component === 'S') {
+                             } else if (oConfig.component === 'S') {
                                  if ($dom.children('select').length) {
                                      html = lib._htmlSingleSelect(dataWrap, true);
                                      $dom.children('select').html(html);

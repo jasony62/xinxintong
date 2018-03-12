@@ -19,9 +19,7 @@
                 "score": 10
             },
             "config":
-            {
-                "showname": "placeholder"
-            }
+            {}
         },
         {
             "schema":
@@ -53,7 +51,6 @@
             },
             "config":
             {
-                "showname": "label",
                 "component": "R",
                 "align": "V"
             }
@@ -89,7 +86,6 @@
             },
             "config":
             {
-                "showname": "label",
                 "component": "R",
                 "align": "V"
             }
@@ -106,9 +102,7 @@
                 "score": 20
             },
             "config":
-            {
-                "showname": "placeholder"
-            }
+            {}
         }],
         "act_schemas": [
         {

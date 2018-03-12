@@ -71,7 +71,7 @@
                     </ul>
                 </li>
                 <li ng-class="{'opened':opened==='other'}">
-                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('coin')">其他 <span class="caret"></span></a>
+                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('rule')">其他 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'123px':'0'}">
                         <li ng-class="{'active':subView==='recycle'}">
                             <a href='' ng-click="switchTo('recycle')">回收站</a>
@@ -79,8 +79,8 @@
                         <li ng-class="{'active':subView==='notice'}">
                             <a href='' ng-click="switchTo('notice')">通知记录</a>
                         </li>
-                        <li ng-class="{'active':subView==='coin'}">
-                            <a href='' ng-click="switchTo('coin')">用户积分</a>
+                        <li ng-class="{'active':subView==='rule'}">
+                            <a href='' ng-click="switchTo('rule')">活动规则</a>
                         </li>
                     </ul>
                 </li>

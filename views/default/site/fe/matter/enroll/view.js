@@ -166,7 +166,7 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                         afterValue = originalValue;
                 }
             }
-            aProcessing[0][aProcessing[1]] = afterValue || originalValue || '[空]';
+            aProcessing[0][aProcessing[1]] = afterValue || originalValue || (oSchema.type !== 'image' ? '[空]' : '');
             afterValue = undefined;
         });
     }
@@ -197,7 +197,13 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                 bVisible = true;
                 for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
                     oRule = oSchema.visibility.rules[i];
-                    if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
+                    if (oRule.schema.indexOf('member.extattr') === 0) {
+                        var memberSchemaId = oRule.schema.substr(15);
+                        if (!oRecordData.member.extattr[memberSchemaId] || (oRecordData.member.extattr[memberSchemaId] !== oRule.op && !oRecordData.member.extattr[memberSchemaId][oRule.op])) {
+                            bVisible = false;
+                            break;
+                        }
+                    } else if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
                         bVisible = false;
                         break;
                     }

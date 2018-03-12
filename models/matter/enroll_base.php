@@ -209,7 +209,6 @@ abstract class enroll_base extends app_base {
 							if ($oAppPage->type === 'I') {
 								$newPageSchema = new \stdClass;
 								$$oSchemaNameConfig = new \stdClass;
-								$$oSchemaNameConfig->showname = 'label';
 								$newPageSchema->schema = $oNameSchema;
 								$newPageSchema->config = $$oSchemaNameConfig;
 								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);

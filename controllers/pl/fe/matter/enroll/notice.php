@@ -97,26 +97,27 @@ class notice extends \pl\fe\matter\base {
 		}
 
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
-		$batch = $modelTmplBat->escape($batch);
 		$q = [
-			'de.*,e.nickname',
-			'xxt_log_tmplmsg_detail de,xxt_enroll_user e',
-			"de.batch_id = $batch and e.userid = de.userid and e.rid = 'ALL'",
+			'*',
+			'xxt_log_tmplmsg_detail',
+			['batch_id' => $batch, 'msgid' => (object) ['op' => '<>', 'pat' => '']],
 		];
 
 		$logs = $modelTmplBat->query_objs_ss($q);
-		$result = new \stdClass;
-		$result->logs = $logs;
+		$oResult = new \stdClass;
+		$oResult->logs = $logs;
 
 		/* 和登记记录进行关联 */
 		if (count($logs)) {
+			$modelAcnt = $this->model('site\user\account');
 			$modelRec = $this->model('matter\enroll\record');
 			$records = [];
 			foreach ($logs as $log) {
+				$oSiteUser = $modelAcnt->byId($log->userid);
 				if (empty($log->assoc_with)) {
 					$record = new \stdClass;
 					$record->userid = $log->userid;
-					$record->nickname = $log->nickname;
+					$record->nickname = $oSiteUser->nickname;
 					$record->noticeStatus = $log->status;
 					$records[] = $record;
 					continue;
@@ -126,9 +127,9 @@ class notice extends \pl\fe\matter\base {
 					$records[] = $record;
 				}
 			}
-			$result->records = $records;
+			$oResult->records = $records;
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 }

@@ -43,8 +43,7 @@ define(['frame'], function(ngApp) {
                 });
             });
             $scope.editing = link;
-            _oAppRule = link.entry_rule;
-            $scope.rule.scope = _oAppRule.scope || 'none';
+            $scope.rule = _oAppRule = link.entry_rule;
             _oBeforeRule = angular.copy($scope.rule);
             $scope.persisted = angular.copy(link);
             $('[ng-model="editing.title"]').focus();
@@ -100,10 +99,12 @@ define(['frame'], function(ngApp) {
 
         function setMschemaEntry(mschemaId) {
             if (!_oAppRule.member) {
-                _oAppRule.member = [];
+                _oAppRule.member = {};
             }
             if (!_oAppRule.member[mschemaId]) {
-                _oAppRule.member.push(mschemaId);
+                _oAppRule.member[mschemaId] = {
+                    entry: 'Y'
+                };
                 return true;
             }
             return false;
@@ -121,49 +122,33 @@ define(['frame'], function(ngApp) {
         };
 
         function _changeUserScope(ruleScope, oSiteSns) {
-            _oAppRule.scope = ruleScope;
-            switch (ruleScope) {
-                case 'sns':
-                    _oAppRule.sns === undefined && (_oAppRule.sns = []);
-                    Object.keys(oSiteSns).forEach(function(snsName) {
-                        if (_oAppRule.sns.indexOf(snsName) === -1) {
-                            _oAppRule.sns.push(snsName);
-                        }
-                    });
-                    break;
-                default:
-            }
+            var oEntryRule = $scope.editing.entry_rule;
+                oEntryRule.scope = ruleScope;
             $scope.update('entry_rule');
             $scope.submit();
             _oBeforeRule = angular.copy($scope.rule);
         };
-        $scope.changeUserScope = function() {
-            if ($scope.rule.scope === 'member' && (!_oAppRule.member || Object.keys(_oAppRule.member).length === 0)) {
-                srvSite.chooseMschema($scope.editing).then(function(result) {
-                    setMschemaEntry(result.chosen.id);
-                    _changeUserScope($scope.rule.scope, $scope.sns);
-                }, function(reason) {
-                    $scope.rule.scope = _oBeforeRule.scope;
-                });
-            } else if ($scope.rule.scope === 'group' && (!_oAppRule.group || !_oAppRule.group.id)) {
-                chooseGroupApp().then(function(result) {
-                    if (setGroupEntry(result)) {
-                        _changeUserScope($scope.rule.scope, $scope.sns);
+        $scope.changeUserScope = function(scopeProp) {
+            switch (scopeProp) {
+                case 'sns':
+                    if ($scope.rule.scope[scopeProp] === 'Y') {
+                        if (!$scope.rule.sns) {
+                            $scope.rule.sns = {};
+                        }
+                        if ($scope.snsCount === 1) {
+                            $scope.rule.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
+                        }
                     }
-                }, function(reason) {
-                    $scope.rule.scope = _oBeforeRule.scope;
-                });
-            } else {
-                console.log($scope.sns);
-                _changeUserScope($scope.rule.scope, $scope.sns);
+                    break;
             }
+            _changeUserScope($scope.rule.scope, $scope.sns);
         };
         $scope.removeMschema = function(mschemaId) {
-            angular.forEach(_oAppRule.member, function(id, index) {
-                _oAppRule.member.splice(index, 1);
-            });
-            $scope.update('entry_rule');
-            $scope.submit();
+            if (_oAppRule.member[mschemaId]) {
+                delete _oAppRule.member[mschemaId];
+                $scope.update('entry_rule');
+                $scope.submit();
+            }
         };
         $scope.editMschema = function(oMschema) {
             if (oMschema.matter_id) {
@@ -183,11 +168,6 @@ define(['frame'], function(ngApp) {
                     $scope.submit();
                 }
             });
-        };
-        $scope.removeGroupEditing = function() {
-            delete _oAppRule.group;
-            $scope.update('entry_rule');
-            $scope.submit();
         };
         $scope.chooseGroupEditing = function() {
             chooseGroupApp().then(function(result) {

@@ -326,6 +326,14 @@ class base extends \site\fe\base {
 		$oScope = $oEntryRule->scope;
 
 		if (isset($oScope->member) && $oScope->member === 'Y') {
+			if (!isset($oEntryRule->member)) {
+				$msg = '需要填写通讯录信息，请联系活动的组织者解决。';
+				if (true === $bRedirect) {
+					$this->outputInfo($msg);
+				} else {
+					return [false, $msg];
+				}
+			}
 			$aResult = $this->enterAsMember($oApp);
 			/**
 			 * 限通讯录用户访问

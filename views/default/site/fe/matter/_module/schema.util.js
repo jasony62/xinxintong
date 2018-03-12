@@ -115,6 +115,16 @@ utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
     return true;
 };
 /**
+ * 给页面中的提交数据填充题目默认值
+ */
+utilSchema.autoFillDefault = function(schemasById, oPageData) {
+    angular.forEach(schemasById, function(oSchema) {
+        if (oSchema.defaultValue && oPageData[oSchema.id] === undefined) {
+            oPageData[oSchema.id] = oSchema.defaultValue;
+        }
+    });
+};
+/**
  * 给页面中的提交数据填充用户通讯录数据
  */
 utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {

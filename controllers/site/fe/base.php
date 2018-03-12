@@ -18,7 +18,6 @@ class base extends \site\base {
 	 * 对请求进行通用的处理
 	 */
 	public function __construct() {
-		//empty($_GET['site']) && die('参数错误！');
 		$siteId = empty($_GET['site']) ? 'platform' : $_GET['site'];
 		$this->siteId = $siteId;
 		/* 获得访问用户的信息 */
@@ -77,13 +76,13 @@ class base extends \site\base {
 	 * 检查是否当前的请求是OAuth后返回的请求
 	 */
 	public function afterSnsOAuth() {
-		$auth = []; // 当前用户的身份信息
+		$aAuth = []; // 当前用户的身份信息
 		if (isset($_GET['mocker'])) {
 			// 指定的模拟用户
 			list($snsName, $openid) = explode(',', $_GET['mocker']);
 			$snsUser = new \stdclass;
 			$snsUser->openid = $openid;
-			$auth['sns'][$snsName] = $snsUser;
+			$aAuth['sns'][$snsName] = $snsUser;
 		} else {
 			$snsSiteId = false;
 			if ($this->myGetcookie("_{$this->siteId}_oauthpending") === 'Y') {
@@ -105,17 +104,17 @@ class base extends \site\base {
 						$snsName = $snsName[1];
 						if ($snsUser = $this->snsOAuthUserByCode($snsSiteId, $code, $snsName)) {
 							/* 企业用户仅包含openid */
-							$auth['sns'][$snsName] = $snsUser;
+							$aAuth['sns'][$snsName] = $snsUser;
 						}
 					}
 				}
 			}
 		}
 
-		if (!empty($auth)) {
+		if (!empty($aAuth)) {
 			// 如果获得了用户的身份信息，更新保留的用户信息
 			$modelWay = $this->model('site\fe\way');
-			$this->who = $modelWay->who($this->siteId, $auth);
+			$this->who = $modelWay->who($this->siteId, $aAuth);
 		}
 
 		return true;

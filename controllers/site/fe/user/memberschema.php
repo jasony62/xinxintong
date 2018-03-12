@@ -42,7 +42,7 @@ class memberschema extends \site\fe\base {
 			if (count($matter) === 2) {
 				list($type, $id) = $matter;
 				$modelMat = $this->model('matter\\' . $type);
-				$oMatter = $modelMat->byId($id, ['fields' => 'id,siteid,state,title,summary,pic']);
+				$oMatter = $modelMat->byId($id, ['fields' => 'id,state,title,summary,pic']);
 				$params['matter'] = $oMatter;
 			}
 		}

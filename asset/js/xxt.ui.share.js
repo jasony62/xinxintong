@@ -95,7 +95,7 @@
                                          setWxShare(title, link, desc, img, _this.options);
                                      });
                                      wx.error(function(res) {
-                                         alert(res);
+                                         //alert(res);
                                      });
                                  }
                              } catch (e) {

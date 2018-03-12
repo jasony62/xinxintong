@@ -273,6 +273,7 @@ class task extends \pl\fe\matter\base {
 
 		// 获得有效的填写记录
 		$modelTsk = $this->model('matter\plan\task');
+		$filter = $modelTsk->unescape($filter);
 		if (!empty($filter)) {
 			$oCriteria = json_decode($filter);
 		} else {

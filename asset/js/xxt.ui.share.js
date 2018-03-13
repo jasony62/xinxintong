@@ -79,7 +79,6 @@
              script.onload = function() {
                  var xhr, url;
                  xhr = new XMLHttpRequest();
-                 console.log(location.href.split('#')[0]);
                  url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
                  xhr.open('GET', url, true);
                  xhr.onreadystatechange = function() {

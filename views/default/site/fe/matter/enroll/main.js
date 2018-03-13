@@ -236,7 +236,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                 },
                 jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']
             });
-            console.log(sharelink);
             tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
         }
     };

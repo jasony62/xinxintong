@@ -173,7 +173,6 @@ class proxy_model extends \sns\proxybase {
 			"timestamp" => $timestamp,
 			"url" => $url,
 			"signature" => $signature,
-			"jsapi" => $jsapiTicket,
 			"rawString" => $string,
 		);
 
@@ -181,8 +180,7 @@ class proxy_model extends \sns\proxybase {
 		$js .= ",nonceStr:'{$signPackage['nonceStr']}'";
 		$js .= ",timestamp:'{$signPackage['timestamp']}'";
 		$js .= ",url:'{$signPackage['url']}'";
-		$js .= ",signature:'{$signPackage['signature']}'";
-		$js .= ",jsapi:'{$signPackage['jsapi']}'}";
+		$js .= ",signature:'{$signPackage['signature']}'}";
 
 		return array(true, $js);
 	}

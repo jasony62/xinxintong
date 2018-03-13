@@ -68,14 +68,14 @@ class record extends base {
 		$rid = $aResult[1];
 
 		// 提交的数据
-		$posted = $this->getPostJson();
-		if (empty($posted) || count(get_object_vars($posted)) === 0) {
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted) || count(get_object_vars($oPosted)) === 0) {
 			return new \ResponseError('没有提交有效数据');
 		}
-		if (isset($posted->data)) {
-			$oEnrolledData = $posted->data;
+		if (isset($oPosted->data)) {
+			$oEnrolledData = $oPosted->data;
 		} else {
-			$oEnrolledData = $posted;
+			$oEnrolledData = $oPosted;
 		}
 		// 提交数据的用户
 		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
@@ -100,23 +100,23 @@ class record extends base {
 			}
 			$dbData = $dbData[1];
 
-			$posted->data = $dbData;
+			$oPosted->data = $dbData;
 			$data_tag = new \stdClass;
-			if (isset($posted->tag) && count(get_object_vars($posted->tag))) {
-				foreach ($posted->tag as $schId => $saveTags) {
+			if (isset($oPosted->tag) && count(get_object_vars($oPosted->tag))) {
+				foreach ($oPosted->tag as $schId => $saveTags) {
 					$data_tag->{$schId} = [];
 					foreach ($saveTags as $saveTag) {
 						$data_tag->{$schId}[] = $saveTag->id;
 					}
 				}
-				unset($posted->tag);
+				unset($oPosted->tag);
 			}
-			$posted->data_tag = $data_tag;
-			!empty($rid) && $posted->rid = $rid;
+			$oPosted->data_tag = $data_tag;
+			!empty($rid) && $oPosted->rid = $rid;
 			/* 插入到用户对素材的行为日志中 */
 			$operation = new \stdClass;
 			$operation->name = 'saveData';
-			$operation->data = $modelEnl->toJson($posted);
+			$operation->data = $modelEnl->toJson($oPosted);
 			$logid = $this->_logUserOp($oEnrollApp, $operation, $oUser);
 
 			return new \ResponseData($logid);
@@ -255,14 +255,14 @@ class record extends base {
 		/**
 		 * 提交填写项数据标签
 		 */
-		if (isset($posted->tag) && count(get_object_vars($posted->tag))) {
-			$rst = $modelRec->setTag($oUser, $oEnrollApp, $ek, $posted->tag);
+		if (isset($oPosted->tag) && count(get_object_vars($oPosted->tag))) {
+			$rst = $modelRec->setTag($oUser, $oEnrollApp, $ek, $oPosted->tag);
 		}
 		/**
 		 * 提交补充说明
 		 */
-		if (isset($posted->supplement) && count(get_object_vars($posted->supplement))) {
-			$rst = $modelRec->setSupplement($oUser, $oEnrollApp, $ek, $posted->supplement);
+		if (isset($oPosted->supplement) && count(get_object_vars($oPosted->supplement))) {
+			$rst = $modelRec->setSupplement($oUser, $oEnrollApp, $ek, $oPosted->supplement);
 		}
 		if (isset($matchedRecord)) {
 			$oUpdatedEnrollRec['matched_enroll_key'] = $matchedRecord->enroll_key;
@@ -562,6 +562,27 @@ class record extends base {
 		}
 
 		return false;
+	}
+	/**
+	 * 撤销保存
+	 */
+	public function undoSave_action($app) {
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		/* 插入到用户对素材的行为日志中 */
+		$oOperation = new \stdClass;
+		$oOperation->name = 'undoSave';
+		$logid = $this->_logUserOp($oApp, $oOperation, $oUser);
+
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 返回指定记录或最后一条记录

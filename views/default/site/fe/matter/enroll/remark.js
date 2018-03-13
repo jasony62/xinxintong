@@ -132,7 +132,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
             });
         } else {
             oRecData = $scope.record.verbose[_schemaId];
-            http2.get(LS.j('data/like', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
+            http2.get(LS.j('data/like', 'site', 'data')).then(function(rsp) {
                 oRecData.like_log = rsp.data.like_log;
                 oRecData.like_num = rsp.data.like_num;
                 /* 检查评论限制 */
@@ -141,6 +141,12 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                 }
             });
         }
+    };
+    $scope.likeItem = function(oItem) {
+        http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
+            oItem.like_log = rsp.data.like_log;
+            oItem.like_num = rsp.data.like_num;
+        });
     };
     $scope.gotoUpper = function(upperId) {
         var elRemark, offsetTop, parentNode;
@@ -190,17 +196,22 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
     $scope.bRequireOption = true;
     $scope.requireLikeNum = 0; // 对象可以被评论需要的赞同数据
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var oAssignedSchema;
+        var oAssignedSchema, aCoworkSchemas;
         oApp = params.app;
         aShareable = [];
-        for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
-            if (oApp.dataSchemas[i].shareable && oApp.dataSchemas[i].shareable === 'Y') {
-                aShareable.push(oApp.dataSchemas[i]);
+        aCoworkSchemas = [];
+        oApp.dataSchemas.forEach(function(oSchema) {
+            if (oSchema.shareable && oSchema.shareable === 'Y') {
+                aShareable.push(oSchema);
             }
-            if (oApp.dataSchemas[i].id === LS.s().schema) {
-                oAssignedSchema = oApp.dataSchemas[i];
+            if ($scope.bRemarkRecord && oSchema.cowork === 'Y') {
+                aCoworkSchemas.push(oSchema);
             }
-        }
+            if (oSchema.id === LS.s().schema) {
+                oAssignedSchema = oSchema;
+            }
+        });
+        $scope.coworkSchemas = aCoworkSchemas;
         /**
          * 分组信息
          */
@@ -221,20 +232,22 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                 $scope.record = oRecord = rsp.data;
                 aVisibleSchemas = [];
                 aShareable.forEach(function(oSchema) {
-                    var oSchemaData;
-                    if (oSchemaData = oRecord.verbose[oSchema.id]) {
-                        if (!angular.isArray(oSchemaData) || oSchemaData.length) {
-                            if (/file|url/.test(oSchema.type)) {
-                                oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
-                                if ('url' === oSchema.type) {
-                                    oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
+                    if (aCoworkSchemas.indexOf(oSchema) === -1) {
+                        var oSchemaData;
+                        if (oSchemaData = oRecord.verbose[oSchema.id]) {
+                            if (!angular.isArray(oSchemaData) || oSchemaData.length) {
+                                if (/file|url/.test(oSchema.type)) {
+                                    oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
+                                    if ('url' === oSchema.type) {
+                                        oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
+                                    }
+                                } else if (oSchema.type === 'image') {
+                                    oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
+                                } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
+                                    oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
                                 }
-                            } else if (oSchema.type === 'image') {
-                                oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
-                            } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
-                                oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
+                                aVisibleSchemas.push(oSchema);
                             }
-                            aVisibleSchemas.push(oSchema);
                         }
                     }
                 });
@@ -284,6 +297,91 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                 }
             });
             $scope.visibleSchemas = [oAssignedSchema];
+        }
+    });
+}]);
+/**
+ * 协作题
+ */
+ngApp.controller('ctrlCowork', ['$scope', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $uibModal, LS, http2, noticebox) {
+    $scope.addItem = function(oSchema) {
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {};
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+            }],
+            backdrop: 'static',
+        }).result.then(function(data) {
+            var oRecData, oNewItem;
+            oRecData = $scope.record.verbose[oSchema.id];
+            oNewItem = {
+                value: data.content
+            };
+            http2.post(LS.j('item/add', 'site') + '&data=' + oRecData.id, oNewItem).then(function(rsp) {
+                oRecData.value.push(rsp.data);
+            });
+        });
+    };
+    $scope.editItem = function(oSchema, index) {
+        var oRecData, oItem;
+        oRecData = $scope.record.verbose[oSchema.id];
+        oItem = oRecData.value[index];
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: oItem.value
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+            }],
+            backdrop: 'static',
+        }).result.then(function(data) {
+            var oNewItem;
+            oNewItem = {
+                value: data.content
+            };
+            http2.post(LS.j('item/update', 'site') + '&data=' + oRecData.id + '&item=' + oItem.id, oNewItem).then(function(rsp) {
+                oItem.value = data.content;
+            });
+        });
+    };
+    $scope.removeItem = function(oSchema, index) {
+        var oRecData, oItem;
+        oRecData = $scope.record.verbose[oSchema.id];
+        oItem = oRecData.value[index];
+        noticebox.confirm('删除填写项，确定？').then(function() {
+            http2.get(LS.j('item/remove', 'site') + '&data=' + oRecData.id + '&item=' + oItem.id).then(function(rsp) {
+                oRecData.value.splice(index, 1);
+            });
+        });
+    };
+    $scope.$watch('record', function(oRecord) {
+        if (oRecord) {
+            $scope.$watch('coworkSchemas', function(aSchemas) {
+                if (aSchemas) {
+                    aSchemas.forEach(function(oSchema) {
+                        http2.get(LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y').then(function(rsp) {
+                            var oRecData;
+                            if (rsp.data.verbose && rsp.data.verbose[oSchema.id]) {
+                                oRecData = oRecord.verbose[oSchema.id];
+                                oRecData.value = rsp.data.verbose[oSchema.id].items;
+                                oRecData.value.forEach(function(oItem) {
+                                    if (oItem.userid !== $scope.user.uid) {
+                                        oItem._others = true;
+                                    }
+                                });
+                            }
+                        });
+                    });
+                }
+            });
         }
     });
 }]);

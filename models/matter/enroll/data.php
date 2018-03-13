@@ -20,7 +20,7 @@ class data_model extends \TMS_MODEL {
 		foreach ($oApp->dataSchemas as $schema) {
 			$schemasById[$schema->id] = $schema;
 		}
-		$dbData = $this->disposRecrdData($oApp, $schemasById, $submitData, $submitkey);
+		$dbData = $this->disposRecrdData($oApp, $schemasById, $submitData, $submitkey, $oRecord);
 		if ($dbData[0] === false) {
 			return $dbData;
 		}
@@ -257,11 +257,11 @@ class data_model extends \TMS_MODEL {
 				$oDbData->{$schemaId} = $submitVal;
 			} else if (isset($schemasById[$schemaId])) {
 				/* 活动中定义的登记项 */
-				$schema = $schemasById[$schemaId];
-				if (empty($schema->type)) {
-					return [false, '登记项【' . $schema->id . '】定义不完整'];
+				$oSchema = $schemasById[$schemaId];
+				if (empty($oSchema->type)) {
+					return [false, '登记项【' . $oSchema->id . '】定义不完整'];
 				}
-				switch ($schema->type) {
+				switch ($oSchema->type) {
 				case 'image':
 					if (is_array($submitVal) && (isset($submitVal[0]->serverId) || isset($submitVal[0]->imgSrc))) {
 						/* 上传图片 */
@@ -455,7 +455,7 @@ class data_model extends \TMS_MODEL {
 
 		if (isset($options['schema'])) {
 			if (is_array($options['schema'])) {
-				$result = new \stdClass;
+				$oResult = new \stdClass;
 				$q[2]['schema_id'] = $options['schema'];
 				$data = $this->query_objs_ss($q);
 				if (count($data)) {
@@ -465,10 +465,10 @@ class data_model extends \TMS_MODEL {
 						}
 						$schemaId = $schemaData->schema_id;
 						unset($schemaData->schema_id);
-						$result->{$schemaId} = $schemaData;
+						$oResult->{$schemaId} = $schemaData;
 					}
 				}
-				return $result;
+				return $oResult;
 			} else {
 				$q[2]['schema_id'] = $options['schema'];
 				if ($data = $this->query_obj_ss($q)) {
@@ -479,7 +479,7 @@ class data_model extends \TMS_MODEL {
 				return $data;
 			}
 		} else {
-			$result = new \stdClass;
+			$oResult = new \stdClass;
 			$data = $this->query_objs_ss($q);
 			if (count($data)) {
 				foreach ($data as $schemaData) {
@@ -488,11 +488,11 @@ class data_model extends \TMS_MODEL {
 					}
 					$schemaId = $schemaData->schema_id;
 					unset($schemaData->schema_id);
-					$result->{$schemaId} = $schemaData;
+					$oResult->{$schemaId} = $schemaData;
 				}
 			}
 
-			return $result;
+			return $oResult;
 		}
 	}
 	/**

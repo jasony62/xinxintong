@@ -184,6 +184,7 @@ $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",submit_at int not null default 0"; // 数据的提交时间，和modify_log中的数据对应
 $sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",schema_id varchar(40) not null";
 $sql .= ",multitext_seq int not null default 0";
 $sql .= ",value text null";

@@ -107,6 +107,30 @@
                         </div>
                     </div>
                 </div>
+                <div id='cowork' ng-if="coworkSchemas.length">
+                    <div class='schemaList' ng-controller="ctrlCowork">
+                        <div ng-repeat="schema in coworkSchemas">
+                            <div class='text-muted data-title'>{{schema.title}}</div>
+                            <div ng-repeat="item in record.verbose[schema.id].value">
+                                <hr>
+                                <blockquote>
+                                    <p dynamic-html="item.value"></p>
+                                    <footer>{{item.nickname}}</footer>
+                                </blockquote>
+                                <div class='bottom-bar' ng-if="bRemarkRecord">
+                                    <div class='datetime'>{{item.submit_at*1000|date:'MM-dd HH:mm'}}</div>
+                                    <button ng-if="!item._others" class='btn btn-default btn-sm' ng-click="removeItem(schema,$index)"><span class='glyphicon glyphicon-trash'></span></button>
+                                    <button ng-if="!item._others" class='btn btn-default btn-sm' ng-click="editItem(schema,$index)"><span class='glyphicon glyphicon-edit'></span></button>
+                                    <button class='btn btn-default btn-sm' ng-click="likeItem(item)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>
+                                </div>
+                            </div>
+                            <div class='text-center'>
+                                <hr>
+                                <button class="btn btn-default" ng-click="addItem(schema)"><span class='glyphicon glyphicon-plus'></span> 添加</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div id='remarks'>
                     <div class='remarkList'>
                         <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
@@ -141,6 +165,15 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script type="text/ng-template" id="writeItem.html">
+        <div class="modal-body">
+            <textarea class='form-control' rows=8 placeholder='请输入内容' autofocus ng-model="data.content"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">取消</button>
+            <button class="btn btn-primary" ng-click="ok()">提交</button>
+        </div>
+    </script>
     <script type="text/ng-template" id="writeRemark.html">
         <div class="modal-body">
             <textarea class='form-control' rows=8 placeholder='请输入评论内容' autofocus ng-model="data.content"></textarea>

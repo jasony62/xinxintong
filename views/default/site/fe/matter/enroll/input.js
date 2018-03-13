@@ -237,24 +237,28 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             var oSchema, domSchema;
             if (oSchema = oSchemaWrap.schema) {
                 domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
-                if (domSchema && oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
-                    var bVisible, oRule;
-                    bVisible = true;
-                    for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
-                        oRule = oSchema.visibility.rules[i];
-                        if (oRule.schema.indexOf('member.extattr') === 0) {
-                            var memberSchemaId = oRule.schema.substr(15);
-                            if (!oRecordData.member.extattr[memberSchemaId] || (oRecordData.member.extattr[memberSchemaId] !== oRule.op && !oRecordData.member.extattr[memberSchemaId][oRule.op])) {
+                if (domSchema) {
+                    if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
+                        var bVisible, oRule;
+                        bVisible = true;
+                        for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                            oRule = oSchema.visibility.rules[i];
+                            if (oRule.schema.indexOf('member.extattr') === 0) {
+                                var memberSchemaId = oRule.schema.substr(15);
+                                if (!oRecordData.member.extattr[memberSchemaId] || (oRecordData.member.extattr[memberSchemaId] !== oRule.op && !oRecordData.member.extattr[memberSchemaId][oRule.op])) {
+                                    bVisible = false;
+                                    break;
+                                }
+                            } else if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
                                 bVisible = false;
                                 break;
                             }
-                        } else if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
-                            bVisible = false;
-                            break;
                         }
+                        domSchema.classList.toggle('hide', !bVisible);
+                        oSchema.visibility.visible = bVisible;
+                    } else if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
+                        domSchema.classList.toggle('hide', !bVisible);
                     }
-                    domSchema.classList.toggle('hide', !bVisible);
-                    oSchema.visibility.visible = bVisible;
                 }
             }
         });
@@ -531,7 +535,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             value: ''
         }
         $scope.data[schemaId].push(item);
-    }
+    };
     $scope.submit = function(event, nextAction, type) {
         var checkResult;
         /*多项填空题，如果值为空则删掉*/

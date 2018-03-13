@@ -277,7 +277,6 @@ class record extends base {
 				"enroll_key='$ek'"
 			);
 		}
-
 		/* 处理用户汇总数据，积分数据 */
 		$oRecord = $modelRec->byId($ek);
 		$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
@@ -514,6 +513,7 @@ class record extends base {
 		//if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 		//	exit;
 		//}
+		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();

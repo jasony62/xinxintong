@@ -79,6 +79,7 @@
              script.onload = function() {
                  var xhr, url;
                  xhr = new XMLHttpRequest();
+                 console.log(location.href.split('#')[0]);
                  url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
                  xhr.open('GET', url, true);
                  xhr.onreadystatechange = function() {
@@ -88,6 +89,7 @@
                              try {
                                  eval("(" + xhr.responseText + ')');
                                  if (signPackage) {
+                                    signPackage.beta = true;
                                      signPackage.debug = false;
                                      signPackage.jsApiList = _this.options.jsApiList;
                                      wx.config(signPackage);
@@ -95,7 +97,7 @@
                                          setWxShare(title, link, desc, img, _this.options);
                                      });
                                      wx.error(function(res) {
-                                         //alert(res);
+                                         alert(JSON.stringify(res));
                                      });
                                  }
                              } catch (e) {

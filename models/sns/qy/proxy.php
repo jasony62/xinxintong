@@ -130,7 +130,7 @@ class proxy_model extends \sns\proxybase {
 		}
 		curl_close($ch);
 		$token = json_decode($response);
-		if (isset($token->errcode)) {
+		if (isset($token->errcode) && $token->errcode != 0) {
 			return array(false, $token->errmsg);
 		}
 
@@ -173,6 +173,7 @@ class proxy_model extends \sns\proxybase {
 			"timestamp" => $timestamp,
 			"url" => $url,
 			"signature" => $signature,
+			"jsapi" => $jsapiTicket,
 			"rawString" => $string,
 		);
 
@@ -180,7 +181,8 @@ class proxy_model extends \sns\proxybase {
 		$js .= ",nonceStr:'{$signPackage['nonceStr']}'";
 		$js .= ",timestamp:'{$signPackage['timestamp']}'";
 		$js .= ",url:'{$signPackage['url']}'";
-		$js .= ",signature:'{$signPackage['signature']}'}";
+		$js .= ",signature:'{$signPackage['signature']}'";
+		$js .= ",jsapi:'{$signPackage['jsapi']}'}";
 
 		return array(true, $js);
 	}

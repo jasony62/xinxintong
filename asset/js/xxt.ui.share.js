@@ -88,7 +88,6 @@
                              try {
                                  eval("(" + xhr.responseText + ')');
                                  if (signPackage) {
-                                    signPackage.beta = true;
                                      signPackage.debug = false;
                                      signPackage.jsApiList = _this.options.jsApiList;
                                      wx.config(signPackage);

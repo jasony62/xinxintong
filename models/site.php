@@ -40,8 +40,6 @@ class site_model extends \TMS_MODEL {
 						$site->header_page = $modelCode->lastPublishedByName($siteId, $site->header_page_name, ['fields' => 'id,html,css,js']);
 					} else if ($field === 'footer_page_name' && $site->footer_page_name) {
 						$site->footer_page = $modelCode->lastPublishedByName($siteId, $site->footer_page_name, ['fields' => 'id,html,css,js']);
-					} else if ($field === 'shift2pc_page_name') {
-						$site->shift2pc_page = $modelCode->lastPublishedByName($siteId, $site->shift2pc_page_name, ['fields' => 'id,html,css,js']);
 					}
 				}
 			}

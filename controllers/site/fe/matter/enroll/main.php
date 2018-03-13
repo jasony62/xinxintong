@@ -137,7 +137,7 @@ class main extends base {
 	 * 3、如果已经登记过，且没有指定登记过访问页面，进入第一个查看页
 	 */
 	private function _defaultPage($oApp, $rid = '', $redirect = false, $ignoretime = 'N') {
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 		$oOpenPage = null;
 		$modelPage = $this->model('matter\enroll\page');
 
@@ -229,7 +229,10 @@ class main extends base {
 		if ($oApp->use_site_header === 'Y' || $oApp->use_site_footer === 'Y') {
 			$params['site'] = $this->model('site')->byId(
 				$oApp->siteid,
-				['cascaded' => 'header_page_name,footer_page_name']
+				[
+					'fields' => 'id,name,summary,heading_pic,header_page_name,footer_page_name',
+					'cascaded' => 'header_page_name,footer_page_name',
+				]
 			);
 		}
 

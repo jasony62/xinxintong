@@ -66,30 +66,40 @@ class remind_model extends \TMS_MODEL {
 		} else if ($oMatter->type === 'enroll') {
 			$modelEnl = $this->model('matter\enroll');
 			$oMatter = $modelEnl->byId($oMatter->id, ['cascaded' => 'N']);
-			if (false === $oMatter) {
-				return [false, '指定的活动不存在'];
+			if (false === $oMatter || $oMatter->state !== '1') {
+				return [false, '指定的活动不存在，或已不可用'];
 			}
-			if (isset($oMatter->state) && $oMatter->state === '0') {
-				return [false, '指定的项目已经不可用'];
-			}
+			$noticeURL = $oMatter->entryUrl; // 获得活动的进入链接
+			$noticeName = 'timer.enroll.remind'; // 事件的名称
 
-			/* 获得活动的进入链接 */
-			$noticeURL = $oMatter->entryUrl;
-
-			/*处理要发送的填写人*/
-			$modelUsr = $this->model('matter\enroll\user');
-			$options = [
-				'rid' => 'ALL',
-				'onlyEnrolled' => 'Y',
-				'fields' => 'userid',
-				'cascaded' => 'N',
-			];
-			$enrollUsers = $modelUsr->enrolleeByApp($oMatter, '', '', $options);
-			$receivers = $enrollUsers->users;
-			if (count($receivers) === 0) {
-				return [false, '没有填写人'];
+			/* 发送给通讯录中的用户 */
+			if (isset($oMatter->entryRule->scope->member) && $oMatter->entryRule->scope->member === 'Y' && isset($oMatter->entryRule->member)) {
+				$modelMs = $this->model('site\user\memberschema');
+				$modelMem = $this->model('site\user\member');
+				$receivers = [];
+				foreach ($oMatter->entryRule->member as $mschemaId => $oRule) {
+					$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+					if ($oMschema->is_wx_fan === 'Y') {
+						$aOnce = $modelMem->byMschema($mschemaId, ['fields' => 'userid']);
+						$receivers = array_merge($receivers, $aOnce);
+					}
+				}
 			}
-			$noticeName = 'timer.enroll.remind';
+			/* 发送给记录填写人 */
+			if (empty($receivers)) {
+				$modelUsr = $this->model('matter\enroll\user');
+				$options = [
+					'rid' => 'ALL',
+					'onlyEnrolled' => 'Y',
+					'fields' => 'userid',
+					'cascaded' => 'N',
+				];
+				$enrollUsers = $modelUsr->enrolleeByApp($oMatter, '', '', $options);
+				$receivers = $enrollUsers->users;
+				if (count($receivers) === 0) {
+					return [false, '没有填写人'];
+				}
+			}
 		} else if ($oMatter->type === 'plan') {
 			$modelPlan = $this->model('matter\plan');
 			$oMatter = $modelPlan->byId($oMatter->id, ['fields' => 'id,state,siteid,title,summary']);

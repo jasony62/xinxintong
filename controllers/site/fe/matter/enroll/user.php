@@ -15,7 +15,7 @@ class user extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 		$options = [];
 		if ($oActiveRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 			$options['rid'] = $oActiveRound->rid;
@@ -33,7 +33,7 @@ class user extends base {
 		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 		//参与者列表
 		$modelRnd = $this->model('matter\enroll\round');
 		$rnd = $modelRnd->getActive($oApp);

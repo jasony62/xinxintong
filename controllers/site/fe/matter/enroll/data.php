@@ -61,17 +61,18 @@ class data extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,mission_id,state,entry_rule']);
+		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		if (empty($oApp->entryRule->group->id)) {
 			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
 		}
+		$oUser = $this->getUser($oApp);
 
 		$modelGrpUsr = $this->model('matter\group\player');
 		/* 当前操作用户所属分组及角色 */
-		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
 			return new \ParameterError('只允许组长进行推荐');
 		}
@@ -92,12 +93,12 @@ class data extends base {
 		}
 
 		$oAgreedLog = $oRecData->agreed_log;
-		if (isset($oAgreedLog->{$this->who->uid})) {
-			$oLog = $oAgreedLog->{$this->who->uid};
+		if (isset($oAgreedLog->{$oUser->uid})) {
+			$oLog = $oAgreedLog->{$oUser->uid};
 			$oLog->time = time();
 			$oLog->value = $value;
 		} else {
-			$oAgreedLog->{$this->who->uid} = (object) ['time' => time(), 'value' => $value];
+			$oAgreedLog->{$oUser->uid} = (object) ['time' => time(), 'value' => $value];
 		}
 
 		$rst = $modelData->update(
@@ -113,7 +114,7 @@ class data extends base {
 		}
 
 		/* 处理了用户汇总数据，积分数据 */
-		$this->model('matter\enroll\event')->recommendRecordData($oApp, $oRecData, $this->who, $value);
+		$this->model('matter\enroll\event')->recommendRecordData($oApp, $oRecData, $oUser, $value);
 
 		return new \ResponseData($rst);
 	}

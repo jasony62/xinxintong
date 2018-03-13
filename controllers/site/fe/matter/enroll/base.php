@@ -23,6 +23,43 @@ class base extends \site\fe\matter\base {
 		$oUser->members = new \stdClass;
 		$oEntryRule = $oApp->entryRule;
 
+		/* 用户通讯录数据 */
+		if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
+			$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
+			if (count($mschemaIds)) {
+				$modelMem = $this->model('site\user\member');
+				$modelAcnt = $this->model('site\user\account');
+				$oUser->members = new \stdClass;
+				if (empty($oUser->unionid)) {
+					$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => 'unionid']);
+					if ($oSiteUser && !empty($oSiteUser->unionid)) {
+						$unionid = $oSiteUser->unionid;
+					}
+				} else {
+					$unionid = $oUser->unionid;
+				}
+				if (empty($unionid)) {
+					$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => implode(',', $mschemaIds)]);
+					foreach ($aMembers as $oMember) {
+						$oUser->members->{$oMember->schema_id} = $oMember;
+					}
+				} else {
+					$aUnionUsers = $modelAcnt->byUnionid($unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+					foreach ($aUnionUsers as $oUnionUser) {
+						$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => implode(',', $mschemaIds)]);
+						foreach ($aMembers as $oMember) {
+							$oUser->members->{$oMember->schema_id} = $oMember;
+						}
+					}
+					/* 站点用户替换成和注册账号绑定的站点用户 */
+					$oRegUser = $modelAcnt->byPrimaryUnionid($oApp->siteid, $unionid);
+					if ($oRegUser && $oRegUser->uid !== $oUser->uid) {
+						$oUser->uid = $oRegUser->uid;
+						$oUser->nickname = $oRegUser->nickname;
+					}
+				}
+			}
+		}
 		/*获得用户昵称*/
 		if (isset($oEnrolledData) && (isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
 			/* 指定的用户昵称 */
@@ -58,38 +95,6 @@ class base extends \site\fe\matter\base {
 			}
 		}
 
-		/* 用户通讯录数据 */
-		if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
-			$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
-			if (count($mschemaIds)) {
-				$modelMem = $this->model('site\user\member');
-				$modelAcnt = $this->model('site\user\account');
-				$oUser->members = new \stdClass;
-				if (empty($oUser->unionid)) {
-					$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => 'unionid']);
-					if ($oSiteUser && !empty($oSiteUser->unionid)) {
-						$unionid = $oSiteUser->unionid;
-					}
-				} else {
-					$unionid = $oUser->unionid;
-				}
-				if (empty($unionid)) {
-					$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => implode(',', $mschemaIds)]);
-					foreach ($aMembers as $oMember) {
-						$oUser->members->{$oMember->schema_id} = $oMember;
-					}
-				} else {
-					$aUnionUsers = $modelAcnt->byUnionid($unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-					foreach ($aUnionUsers as $oUnionUser) {
-						$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => implode(',', $mschemaIds)]);
-						foreach ($aMembers as $oMember) {
-							$oUser->members->{$oMember->schema_id} = $oMember;
-						}
-					}
-				}
-			}
-		}
-
 		return $oUser;
 	}
 	/**
@@ -103,7 +108,7 @@ class base extends \site\fe\matter\base {
 		if (!isset($oApp->entryRule->scope)) {
 			return [true];
 		}
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 		$oEntryRule = $oApp->entryRule;
 		$oScope = $oEntryRule->scope;
 
@@ -198,7 +203,7 @@ class base extends \site\fe\matter\base {
 		$oResult->passed = 'Y';
 
 		if (isset($oApp->entryRule->scope)) {
-			$oUser = $this->who;
+			$oUser = $this->getUser($oApp);
 			$oEntryRule = $oApp->entryRule;
 			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
 				$bMemberPassed = false;

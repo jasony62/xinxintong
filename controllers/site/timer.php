@@ -13,7 +13,6 @@ class timer extends base {
 		/* 查找匹配的定时任务 */
 		$modelTim = $this->model('matter\timer');
 		$tasks = $modelTim->tasksByTime();
-
 		foreach ($tasks as $oTask) {
 			/* 执行任务 */
 			$rsp = $oTask->model->exec($oTask->matter, isset($oTask->arguments) ? $oTask->arguments : null);

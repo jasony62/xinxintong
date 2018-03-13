@@ -130,7 +130,7 @@ class proxy_model extends \sns\proxybase {
 		}
 		curl_close($ch);
 		$token = json_decode($response);
-		if (isset($token->errcode)) {
+		if (isset($token->errcode) && $token->errcode != 0) {
 			return array(false, $token->errmsg);
 		}
 

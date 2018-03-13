@@ -16,11 +16,11 @@ class tag extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
 		$oUser = $this->getUser($oApp);
 		$oUser->creater_src = 'S';
-		$newTags = $this->model('matter\enroll\tag')->add($oApp, $oUser, $posted);
+		$newTags = $this->model('matter\enroll\tag')->add($oApp, $oUser, $oPosted);
 
 		return new \ResponseData($newTags);
 	}

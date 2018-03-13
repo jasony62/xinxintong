@@ -780,7 +780,7 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,mission_id,state,entry_rule']);
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

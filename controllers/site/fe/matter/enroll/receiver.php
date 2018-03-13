@@ -24,7 +24,7 @@ class receiver extends \site\fe\matter\base {
 		$modelApp = $this->model('matter\enroll');
 		$modelRev = $this->model('matter\enroll\receiver');
 
-		$oApp = $modelApp->byId($app, array('cascaded' => 'Y'));
+		$oApp = $modelApp->byId($app, ['cascaded' => 'Y']);
 		$oUser = $this->getUser($oApp);
 
 		if (!$this->afterSnsOAuth()) {

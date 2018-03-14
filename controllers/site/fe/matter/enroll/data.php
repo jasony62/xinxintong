@@ -34,6 +34,10 @@ class data extends base {
 		} else {
 			$oRecData = $modelRecDat->byId($data, ['fields' => $fields]);
 		}
+		if (false === $oRecData) {
+			return new \ObjectNotFoundError();
+		}
+
 		if (isset($oSchemas->{$oRecData->schema_id}) && $oSchemas->{$oRecData->schema_id}->type === 'multitext') {
 			if ($oRecData->multitext_seq == 0) {
 				$oRecData->value = empty($oRecData->value) ? [] : json_decode($oRecData->value);

@@ -316,13 +316,24 @@ ngApp.controller('ctrlCowork', ['$scope', '$uibModal', 'tmsLocation', 'http2', '
             }],
             backdrop: 'static',
         }).result.then(function(data) {
-            var oRecData, oNewItem;
+            var oRecData, oNewItem, url;
             oRecData = $scope.record.verbose[oSchema.id];
             oNewItem = {
                 value: data.content
             };
-            http2.post(LS.j('item/add', 'site') + '&data=' + oRecData.id, oNewItem).then(function(rsp) {
-                oRecData.value.push(rsp.data);
+            url = LS.j('item/add', 'site');
+            if (oRecData) {
+                url += '&data=' + oRecData.id;
+            } else {
+                url += '&ek=' + $scope.record.enroll_key + '&schema=' + oSchema.id;
+            }
+            http2.post(url, oNewItem).then(function(rsp) {
+                if (oRecData) {
+                    oRecData.value.push(rsp.data[0]);
+                } else {
+                    oRecData = $scope.record.verbose[oSchema.id] = rsp.data[1];
+                    oRecData.value = [rsp.data[0]];
+                }
             });
         });
     };
@@ -367,10 +378,10 @@ ngApp.controller('ctrlCowork', ['$scope', '$uibModal', 'tmsLocation', 'http2', '
             $scope.$watch('coworkSchemas', function(aSchemas) {
                 if (aSchemas) {
                     aSchemas.forEach(function(oSchema) {
-                        http2.get(LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y').then(function(rsp) {
+                        http2.get(LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {
                             var oRecData;
                             if (rsp.data.verbose && rsp.data.verbose[oSchema.id]) {
-                                oRecData = oRecord.verbose[oSchema.id];
+                                oRecData = $scope.record.verbose[oSchema.id];
                                 oRecData.value = rsp.data.verbose[oSchema.id].items;
                                 oRecData.value.forEach(function(oItem) {
                                     if (oItem.userid !== $scope.user.uid) {
@@ -378,7 +389,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$uibModal', 'tmsLocation', 'http2', '
                                     }
                                 });
                             }
-                        });
+                        }, function() {});
                     });
                 }
             });

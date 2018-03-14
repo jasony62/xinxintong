@@ -16,7 +16,7 @@ class item extends base {
 	public function add_action($data) {
 		$modelData = $this->model('matter\enroll\data')->setOnlyWriteDbConn(true);
 		/* 要更新的题目 */
-		$oRecData = $modelData->byId($data, ['fields' => 'id,state,aid,rid,enroll_key,schema_id,multitext_seq,value']);
+		$oRecData = $modelData->byId($data, ['fields' => 'id,userid,state,aid,rid,enroll_key,schema_id,multitext_seq,value']);
 		if (false === $oRecData || $oRecData->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -84,6 +84,11 @@ class item extends base {
 		);
 
 		$oNewItem = $modelData->byId($oNewItem->id);
+
+		/* 更新用户汇总信息及积分 */
+		$modelEvt = $this->model('matter\enroll\event');
+		$modelEvt->submitItem($oApp, $oNewItem, $oUser);
+		$modelEvt->otherSubmitItem($oApp, $oRecData, $oNewItem, $oUser);
 
 		return new \ResponseData($oNewItem);
 	}
@@ -161,7 +166,7 @@ class item extends base {
 			return new \ObjectNotFoundError();
 		}
 		/* 要更新的题目 */
-		$oRecData = $modelData->byId($data, ['fields' => 'id,state,aid,rid,enroll_key,schema_id,multitext_seq,value']);
+		$oRecData = $modelData->byId($data, ['fields' => 'id,userid,state,aid,rid,enroll_key,schema_id,multitext_seq,value']);
 		if (false === $oRecData || $oRecData->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -220,6 +225,11 @@ class item extends base {
 			['data' => $this->escape($modelData->toJson($oRecord->data))],
 			['id' => $oRecord->id]
 		);
+
+		/* 更新用户汇总信息及积分 */
+		$modelEvt = $this->model('matter\enroll\event');
+		$modelEvt->removeItem($oApp, $oItem, $oUser);
+		$modelEvt->otherRemoveItem($oApp, $oRecData, $oItem, $oUser);
 
 		return new \ResponseData($oRecData->value);
 	}

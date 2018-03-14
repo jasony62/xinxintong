@@ -257,7 +257,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                         domSchema.classList.toggle('hide', !bVisible);
                         oSchema.visibility.visible = bVisible;
                     } else if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
-                        domSchema.classList.toggle('hide', !bVisible);
+                        //domSchema.classList.toggle('hide', !bVisible);
                     }
                 }
             }

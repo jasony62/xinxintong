@@ -11,6 +11,10 @@
         <label>
             <input type='checkbox' ng-model="activeWrap.config.hidename" ng-change="updWrap(config,'hidename')">隐藏题目标题</label>
     </div>
+    <div class='checkbox' ng-if="['shorttext','longtext'].indexOf(activeWrap.schema.type)!==-1">
+        <label>
+            <input type='checkbox' ng-model="activeWrap.config.placeholder" ng-change="updWrap(config,'placeholder')">在输入框内显示题目标题</label>
+    </div>
     <div class="form-group" ng-if="['single'].indexOf(activeWrap.schema.type)!==-1">
         <label class="radio-inline">
             <input type='radio' name='component' value='R' ng-model='activeWrap.config.component' ng-change="updWrap(config,'component')">单选钮</label>

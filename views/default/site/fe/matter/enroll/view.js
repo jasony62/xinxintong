@@ -166,7 +166,7 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                         afterValue = originalValue;
                 }
             }
-            aProcessing[0][aProcessing[1]] = afterValue || originalValue || (oSchema.type !== 'image' ? '[空]' : '');
+            aProcessing[0][aProcessing[1]] = afterValue || originalValue || (/image|multitext/.test(oSchema.type) ? '' : '[空]');
             afterValue = undefined;
         });
     }

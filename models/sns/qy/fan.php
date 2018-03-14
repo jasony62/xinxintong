@@ -92,7 +92,7 @@ class fan_model extends \TMS_MODEL {
 		$fan->sync_at = isset($options['sync_at']) ? $options['sync_at'] : 0;
 
 		$fan->nickname = isset($options['nickname']) ? $this->escape($options['nickname']) : '';
-		isset($options['sex']) && $fan->sex = $options['sex'];
+		isset($options['sex']) && $fan->sex = empty($options['sex'])? 0 : $options['sex'];
 		isset($options['headimgurl']) && $fan->headimgurl = $options['headimgurl'];
 		isset($options['country']) && $fan->country = $this->escape($options['country']);
 		isset($options['province']) && $fan->province = $this->escape($options['province']);

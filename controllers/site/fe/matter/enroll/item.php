@@ -195,7 +195,7 @@ class item extends base {
 
 		$modelData->update(
 			'xxt_enroll_record_data',
-			['state' => 0],
+			['state' => 101],
 			['id' => $oItem->id]
 		);
 

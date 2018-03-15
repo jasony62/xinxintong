@@ -9,7 +9,6 @@ class data extends base {
 	/**
 	 * 获得登记记录中的数据
 	 *
-	 * @param int $data 填写记录数据id
 	 */
 	public function get_action($ek, $schema = '', $data = '', $cascaded = 'N') {
 		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'aid,rid,enroll_key,userid,group_id,nickname,enroll_at']);

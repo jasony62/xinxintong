@@ -30,17 +30,50 @@ class main extends \site\fe\matter\base {
 		case 'custom':
 			$modelArticle = $this->model('matter\article');
 			$article = $modelArticle->byId($id);
-			if ($article) {
-				$this->checkEntryRule($article, true);
-
-				\TPL::assign('title', $article->title);
-				if ($type === 'article') {
-					\TPL::output('site/fe/matter/article/main');
-				} else {
-					\TPL::output('site/fe/matter/custom/main');
-				}
-			} else {
+			if ($article === false || $article->state != 1) {
 				$this->outputInfo('指定的对象不存在');
+			}
+			$channels = $this->model('matter\channel')->byMatter($article->id, 'article');
+			// 检测是否用过邀请
+			$modelInvite = $this->model('invite');
+			$oInvitee = new \stdClass;
+			$oInvitee->id = $article->siteid;
+			$oInvitee->type = 'S';
+			$passCheckInv = false;
+			if (!empty($channels)) {
+				foreach ($channels as $channel) {
+					$oInvite = $modelInvite->byMatter($channel, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+					if ($oInvite && $oInvite->state === '1') {
+						$rst = $this->_checkInviteToken($this->who->uid, $channel);
+						if ($rst[0]) {
+							$passCheckInv = true;
+							break;
+						}
+					}
+				}
+			}
+			if (!$passCheckInv) {
+				$oInvite = $modelInvite->byMatter($article, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+				if ($oInvite && $oInvite->state === '1') {
+					$rst = $this->_checkInviteToken($this->who->uid, $article);
+					if ($rst[0]) {
+						$passCheckInv = true;
+					}
+				} else {
+					$passCheckInv = true;
+				}
+			}
+			if (!$passCheckInv) {
+				die('邀请验证令牌未通过验证或已过有效期');
+			}
+
+			$this->checkEntryRule($article, true);
+
+			\TPL::assign('title', $article->title);
+			if ($type === 'article') {
+				\TPL::output('site/fe/matter/article/main');
+			} else {
+				\TPL::output('site/fe/matter/custom/main');
 			}
 			break;
 		case 'news':
@@ -48,13 +81,23 @@ class main extends \site\fe\matter\base {
 			break;
 		case 'channel':
 			$modelChn = $this->model('matter\channel');
-			$channel = $modelChn->byId($id, 'title');
-			if ($channel) {
-				\TPL::assign('title', $channel->title);
-				\TPL::output('site/fe/matter/channel/main');
-			} else {
+			$channel = $modelChn->byId($id);
+			if ($channel === false || $channel->state != 1) {
 				$this->outputInfo('指定的对象不存在');
 			}
+			$oInvitee = new \stdClass;
+			$oInvitee->id = $channel->siteid;
+			$oInvitee->type = 'S';
+			$oInvite = $this->model('invite')->byMatter($channel, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+			if ($oInvite && $oInvite->state === '1') {
+				$rst = $this->_checkInviteToken($this->who->uid, $channel);
+				if (!$rst[0]) {
+					die($rst[1]);
+				}
+			}
+
+			\TPL::assign('title', $channel->title);
+			\TPL::output('site/fe/matter/channel/main');
 			break;
 		}
 		exit;
@@ -355,5 +398,18 @@ class main extends \site\fe\matter\base {
 		}
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 *
+	 */
+	private function _checkInviteToken($userid, $oMatter) {
+		if (empty($_GET['inviteToken'])) {
+			die('参数不完整，未通过邀请访问控制');
+		}
+		$inviteToken = $_GET['inviteToken'];
+
+		$rst = $this->model('invite\token')->checkToken($inviteToken, $userid, $oMatter);
+	
+		return $rst;
 	}
 }

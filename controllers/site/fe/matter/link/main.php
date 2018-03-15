@@ -16,11 +16,8 @@ class main extends \site\fe\matter\base {
 		$inviteToken = $_GET['inviteToken'];
 
 		$rst = $this->model('invite\token')->checkToken($inviteToken, $userid, $oMatter);
-		if (false === $rst[0]) {
-			die($rst[1]);
-		}
-
-		return true;
+			
+		return $rst;
 	}
 	/**
 	 *
@@ -28,12 +25,36 @@ class main extends \site\fe\matter\base {
 	public function index_action($site, $id) {
 		$oLink = $this->model('matter\link')->byIdWithParams($id);
 
+		$modelInvite = $this->model('invite');
 		$oInvitee = new \stdClass;
 		$oInvitee->id = $oLink->siteid;
 		$oInvitee->type = 'S';
-		$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
-		if ($oInvite && $oInvite->state === '1') {
-			$this->_checkInviteToken($this->who->uid, $oLink);
+		$passCheckInv = false;
+		if (!empty($oLink->channels)) {
+			foreach ($oLink->channels as $channel) {
+				$oInvite = $modelInvite->byMatter($channel, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+				if ($oInvite && $oInvite->state === '1') {
+					$rst = $this->_checkInviteToken($this->who->uid, $channel);
+					if ($rst[0]) {
+						$passCheckInv = true;
+						break;
+					}
+				}
+			}
+		}
+		if (!$passCheckInv) {
+			$oInvite = $modelInvite->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+			if ($oInvite && $oInvite->state === '1') {
+				$rst = $this->_checkInviteToken($this->who->uid, $oLink);
+				if ($rst[0]) {
+					$passCheckInv = true;
+				}
+			} else {
+				$passCheckInv = true;
+			}
+		}
+		if (!$passCheckInv) {
+			die('邀请验证令牌未通过验证或已过有效期');
 		}
 
 		if (!$this->afterSnsOAuth()) {

@@ -9,16 +9,19 @@ class data extends base {
 	/**
 	 * 获得登记记录中的数据
 	 *
+	 * @param string $ek
+	 * @param string $schema
+	 * @param string $data
 	 */
 	public function get_action($ek, $schema = '', $data = '', $cascaded = 'N') {
 		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'aid,rid,enroll_key,userid,group_id,nickname,enroll_at']);
 		if (false === $oRecord) {
-			return new \ObjectNotFoundError();
+			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
 		}
 
 		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,state,data_schemas']);
 		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
+			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
 		}
 
 		$oSchemas = new \stdClass;
@@ -33,8 +36,9 @@ class data extends base {
 		} else {
 			$oRecData = $modelRecDat->byId($data, ['fields' => $fields]);
 		}
-		if (false === $oRecData) {
-			return new \ObjectNotFoundError();
+
+		if (false === $oRecData || $oRecData->state !== '1') {
+			return new \ObjectNotFoundError('（3）指定的对象不存在或不可用');
 		}
 
 		if (isset($oSchemas->{$oRecData->schema_id}) && $oSchemas->{$oRecData->schema_id}->type === 'multitext') {

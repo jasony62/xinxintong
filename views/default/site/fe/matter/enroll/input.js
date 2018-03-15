@@ -31,7 +31,8 @@ ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $
                 } else {
                     value = data[oSchema.id];
                 }
-                if (!oSchema.visibility || oSchema.visibility.visible) {
+                /* 隐藏题和协作题不做检查 */
+                if ((!oSchema.visibility || oSchema.visibility.visible) && oSchema.cowork !== 'Y') {
                     if (oSchema.type && oSchema.type !== 'html') {
                         if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
                             return sCheckResult;

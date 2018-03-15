@@ -54,7 +54,7 @@ class data_model extends \TMS_MODEL {
 				if ($oSchema->type == 'multitext') {
 					if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
 						unset($dbData->{$schemaId});
-						$treatedValue = null;
+						$treatedValue = '[]';
 					} else {
 						$treatedValues = json_decode($treatedValue);
 						foreach ($treatedValues as $k => $v) {

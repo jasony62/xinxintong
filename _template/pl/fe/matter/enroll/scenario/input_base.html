@@ -7,21 +7,21 @@ $oSchema = $oWrap->schema;
     <label>
         <?php echo $oSchema->title;?>
     </label>
-    <input ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" placeholder="<?php echo $oSchema->title;?>" class="form-control input-lg" type="text" />
+    <input ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" class="form-control input-lg" type="text" />
 </div>
 <?php } else if ($oSchema->type === 'member') { ?>
 <div class="form-group form-group-lg" wrap="input" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
     <label>
         <?php echo $oSchema->title;?>
     </label>
-    <input ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" placeholder="<?php echo $oSchema->title;?>" ng-init="data.member.schema_id=<?php echo $oSchema->schema_id;?>" class="form-control input-lg" type="text" />
+    <input ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" ng-init="data.member.schema_id=<?php echo $oSchema->schema_id;?>" class="form-control input-lg" type="text" />
 </div>
 <?php } else if ($oSchema->type==='longtext') { ?>
 <div class="form-group form-group-lg" wrap="input" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">
     <label>
         <?php echo $oSchema->title;?>
     </label>
-    <textarea style="height:auto;" ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" placeholder="<?php echo $oSchema->title;?>" class="form-control input-lg" rows="3"></textarea>
+    <textarea style="height:auto;" ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" class="form-control input-lg" rows="3"></textarea>
 </div>
 <?php } else if ($oSchema->type==='single') { ?>
 <div wrap="input" class="form-group form-group-lg" schema="<?php echo $oSchema->id;?>" schema-type="<?php echo $oSchema->type;?>">

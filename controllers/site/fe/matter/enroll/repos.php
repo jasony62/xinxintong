@@ -10,7 +10,6 @@ class repos extends base {
 	 * 获得活动中作为内容分类目录使用的题目
 	 */
 	public function dirSchemasGet_action($app) {
-		$app = $this->escape($app);
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'id,state,data_schemas']);
 		if ($oApp === false || $oApp->state !== '1') {
@@ -56,14 +55,13 @@ class repos extends base {
 	 * 返回指定登记项的活动登记名单
 	 */
 	public function list4Schema_action($app, $page = 1, $size = 12) {
-		$oUser = $this->who;
-
-		// 登记活动
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state,data_schemas', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		$oUser = $this->getUser($oApp);
+
 		// 登记数据过滤条件
 		$oCriteria = $this->getPostJson();
 
@@ -143,9 +141,7 @@ class repos extends base {
 		$oOptions->rid = $rid;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
-		if ($onlyMine === 'Y') {
-			//$oOptions->userid = $this->who->uid;
-		}
+
 		$oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
 
 		return new \ResponseData($oResult);
@@ -154,14 +150,13 @@ class repos extends base {
 	 * 返回指定活动的登记记录的共享内容
 	 */
 	public function recordList_action($app, $page = 1, $size = 12) {
-		$oUser = $this->who;
-
-		// 登记活动
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,state,scenario,assigned_nickname,data_schemas', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		$oUser = $this->getUser($oApp);
+
 		// 登记数据过滤条件
 		$oPosted = $this->getPostJson();
 

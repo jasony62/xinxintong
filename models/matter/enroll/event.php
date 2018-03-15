@@ -13,6 +13,14 @@ class event_model extends \TMS_MODEL {
 	 */
 	const SubmitEventName = 'site.matter.enroll.submit';
 	/**
+	 * 用户A提交的填写记录获得新协作填写记录
+	 */
+	const SubmitItemEventName = 'site.matter.enroll.item.submit';
+	/**
+	 * 用户A提交新协作填写记录
+	 */
+	const SubmitOtherItemEventName = 'site.matter.enroll.item.other.submit';
+	/**
 	 * 用户A填写数据被点评
 	 */
 	const RemarkEventName = 'site.matter.enroll.data.comment';
@@ -295,6 +303,138 @@ class event_model extends \TMS_MODEL {
 			} else {
 				$modelMisUsr->modify($oMisUser, $oUpdatedUsrData);
 			}
+		}
+
+		return true;
+	}
+	/**
+	 * 提交协作填写项
+	 */
+	public function submitItem($oApp, $oItem, $oUser) {
+		$current = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oUser->uid;
+		$oNewModifyLog->at = $current;
+		$oNewModifyLog->op = self::SubmitItemEventName . '_New';
+		$oNewModifyLog->args = (object) ['id' => $oItem->id];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->nickname = $this->escape($oUser->nickname);
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		/* 提交记录的积分奖励 */
+		$aCoinResult = $modelUsr->awardCoin($oApp, $oUser->uid, $oItem->rid, self::SubmitItemEventName);
+		if ($aCoinResult[0] === true) {
+			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
+		}
+
+		return $this->_updateUsrData($oApp, $oItem->rid, false, $oUser, $oUpdatedUsrData);
+	}
+	/**
+	 * 提交协作填写项
+	 */
+	public function otherSubmitItem($oApp, $oRecData, $oItem, $oOperator) {
+		$current = time();
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oOperator->uid;
+		$oNewModifyLog->at = $current;
+		$oNewModifyLog->op = self::SubmitOtherItemEventName . '_New';
+		$oNewModifyLog->args = (object) ['id' => $oItem->id];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		/* 提交记录的积分奖励 */
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecData->userid, $oRecData->rid, self::SubmitOtherItemEventName);
+		if ($aCoinResult[0] === true) {
+			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
+		}
+
+		$oUser = (object) ['userid' => $oRecData->userid];
+
+		return $this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
+	}
+	/**
+	 * 删除协作填写项
+	 */
+	public function removeItem($oApp, $oItem, $oUser) {
+		$current = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+		/* 取消推荐 */
+		$oEnlUsrRnd = $modelUsr->byId($oApp, $oItem->userid, ['fields' => 'id,user_total_coin,modify_log', 'rid' => $oItem->rid]);
+		$oEnlUsrApp = $modelUsr->byId($oApp, $oItem->userid, ['fields' => 'id,user_total_coin,modify_log', 'rid' => 'ALL']);
+		if ($oEnlUsrRnd && $oEnlUsrApp) {
+			/* 历史记录 */
+			$oBeforeModifyLog = null;
+			foreach ($oEnlUsrRnd->modify_log as $oLog) {
+				if (isset($oLog->op) && $oLog->op === self::SubmitItemEventName . '_New') {
+					if (isset($oLog->args->id)) {
+						if ($oLog->args->id === $oItem->id) {
+							$oBeforeModifyLog = $oLog;
+							break;
+						}
+					}
+				}
+			}
+			/* 记录修改日志 */
+			$oNewModifyLog = new \stdClass;
+			$oNewModifyLog->userid = $oUser->uid;
+			$oNewModifyLog->at = $current;
+			$oNewModifyLog->op = self::SubmitItemEventName . '_Del';
+			$oNewModifyLog->args = (object) ['id' => $oItem->id];
+			/* 更新的数据 */
+			$oUpdatedData = (object) [
+				'user_total_coin' => empty($oBeforeModifyLog->coin) ? 0 : -1 * (int) $oBeforeModifyLog->coin,
+				'modify_log' => $oNewModifyLog,
+			];
+
+			$this->_updateUsrData($oApp, $oItem->rid, false, $oUser, $oUpdatedData);
+		}
+
+		return true;
+	}
+	/**
+	 *
+	 */
+	public function otherRemoveItem($oApp, $oRecData, $oItem, $oOperator) {
+		$current = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+		/* 取消推荐 */
+		$oEnlUsrRnd = $modelUsr->byId($oApp, $oRecData->userid, ['fields' => 'id,user_total_coin,modify_log', 'rid' => $oItem->rid]);
+		$oEnlUsrApp = $modelUsr->byId($oApp, $oRecData->userid, ['fields' => 'id,user_total_coin,modify_log', 'rid' => 'ALL']);
+		if ($oEnlUsrRnd && $oEnlUsrApp) {
+			/* 历史记录 */
+			$oBeforeModifyLog = null;
+			foreach ($oEnlUsrRnd->modify_log as $oLog) {
+				if (isset($oLog->op) && $oLog->op === self::SubmitOtherItemEventName . '_New') {
+					if (isset($oLog->args->id)) {
+						if ($oLog->args->id === $oItem->id) {
+							$oBeforeModifyLog = $oLog;
+							break;
+						}
+					}
+				}
+			}
+			/* 记录修改日志 */
+			$oNewModifyLog = new \stdClass;
+			$oNewModifyLog->userid = $oOperator->uid;
+			$oNewModifyLog->at = $current;
+			$oNewModifyLog->op = self::SubmitOtherItemEventName . '_Del';
+			$oNewModifyLog->args = (object) ['id' => $oItem->id];
+			/* 更新的数据 */
+			$oUpdatedData = (object) [
+				'user_total_coin' => empty($oBeforeModifyLog->coin) ? 0 : -1 * (int) $oBeforeModifyLog->coin,
+				'modify_log' => $oNewModifyLog,
+			];
+
+			$oUser = (object) ['userid' => $oRecData->userid];
+			$this->_updateUsrData($oApp, $oItem->rid, false, $oUser, $oUpdatedData);
 		}
 
 		return true;

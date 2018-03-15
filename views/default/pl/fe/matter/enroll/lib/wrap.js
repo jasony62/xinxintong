@@ -298,7 +298,7 @@
                  html += '<div wrap="multitext-history" class="input-group input-group-lg">';
                  oSchema.history === 'Y' && (html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="' + 'dataBySchema(\'' + oSchema.id + '\')' + '">查找</button></span>');
                  html += '<input type="text" ng-model="data.' + oSchema.id + '[$index].value" title="' + oSchema.title + '"';
-                 html += ' placeholder="' + oSchema.title + '"';
+                 oSchema.placeholder && (html += ' placeholder="' + oSchema.title + '"');
                  oSchema.required === 'Y' && (html += 'required=""');
                  html += ' class="form-control input-lg"';
                  forEdit && (html += ' readonly');
@@ -314,7 +314,7 @@
                      html += '<div wrap="shorttext-history" class="input-group input-group-lg">';
                      html += '<input type="text" ng-model="data.' + oSchema.id + '"';
                      html += ' title="' + oSchema.title + '"';
-                     html += ' placeholder="' + oSchema.title + '"';
+                     oSchema.placeholder && (html += ' placeholder="' + oSchema.title + '"');
                      oSchema.required === 'Y' && (html += 'required=""');
                      html += ' class="form-control">';
                      html += '<span class="input-group-btn">';
@@ -323,7 +323,7 @@
                      html += '</div>';
                  } else {
                      html += '<input type="text" ng-model="data.' + oSchema.id + '" title="' + oSchema.title + '"';
-                     html += ' placeholder="' + oSchema.title + '"';
+                     oSchema.placeholder && (html += ' placeholder="' + oSchema.title + '"');
                      oSchema.required === 'Y' && (html += 'required=""');
                      oSchema.type === 'member' && (html += 'ng-init="data.member.schema_id=' + oSchema.schema_id + '"');
                      html += ' class="form-control input-lg"';
@@ -336,7 +336,6 @@
                  inpAttrs['tms-date-value'] = 'data.' + oSchema.id;
                  html += '<div wrap="date" ng-bind="data.' + oSchema.id + '*1000|date:\'yy-MM-dd HH:mm\'"';
                  html += ' title="' + oSchema.title + '"';
-                 html += ' placeholder="' + oSchema.title + '"';
                  oSchema.required === 'Y' && (html += 'required=""');
                  html += ' class="form-control input-lg"></div>';
                  break;
@@ -364,7 +363,7 @@
                  break;
              case 'longtext':
                  html += '<textarea style="height:auto" ng-model="data.' + oSchema.id + '" title="' + oSchema.title + '"';
-                 html += ' placeholder="' + oSchema.title + '"';
+                 oSchema.placeholder && (html += ' placeholder="' + oSchema.title + '"');
                  oSchema.required === 'Y' && (html += 'required=""');
                  html += ' class="form-control" rows="3"';
                  forEdit && (html += ' readonly');
@@ -457,7 +456,11 @@
                  }
                  if (/shorttext|longtext|multitext|member|date|location|url/.test(oSchema.type)) {
                      $input = $dom.find('input,textarea');
-                     $input.attr('placeholder', oSchema.title);
+                     if (oConfig.placeholder) {
+                         $input.attr('placeholder', oSchema.title);
+                     } else {
+                         $input.removeAttr('placeholder');
+                     }
                      if (oSchema.required === 'Y') {
                          $input.attr('required', '');
                      } else {

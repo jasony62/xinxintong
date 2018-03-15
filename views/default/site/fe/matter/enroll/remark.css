@@ -41,7 +41,7 @@ button.option {
 	justify-content: flex-end;
 }
 
-#remarks .bottom-bar .datetime {
+#cowork .bottom-bar .datetime, #remarks .bottom-bar .datetime {
 	color: #777;
 	flex: 1;
 	line-height: 30px;
@@ -53,9 +53,13 @@ p {
 }
 
 /*record*/
-#record {
-	padding: 0 1rem 1rem;
+#record, #cowork {
+	padding: 1rem;
 	background: #fff;
+}
+
+#record {
+	padding-top: 0;
 }
 
 #record .title {
@@ -83,7 +87,7 @@ p {
 	margin-top: 8px;
 }
 
-#record .data .data-title:before {
+#record .data .data-title:before, #cowork .data-title:before {
 	content: ' ';
 	display: inline-block;
 	width: 12px;
@@ -95,9 +99,26 @@ p {
 }
 
 /*remark*/
-#remarks {
+#cowork, #remarks {
 	position: relative;
 	margin-top: 1rem;
+}
+
+#cowork:before {
+	content: '协作';
+	position: absolute;
+	left: 50%;
+	margin-left: -1em;
+	top: -1em;
+	font-size: .7em;
+	color: #eee;
+	padding: .2em 1em;
+	background: #666;
+	border-radius: 1em;
+}
+
+#cowork .bottom-bar {
+	justify-content: flex-end;
 }
 
 #remarks:before {

@@ -22,8 +22,9 @@ class link_model extends base_model {
 			!empty($oLink->matter_mg_tag) && $oLink->matter_mg_tag = json_decode($oLink->matter_mg_tag);
 			if (empty($oLink->entry_rule)) {
 				$oLink->entry_rule = new \stdClass;
-				$oLink->entry_rule->scope = 'none';
+				$oLink->entry_rule->scope = new \stdClass;
 			}
+			$oLink->entryRule = $oLink->entry_rule;
 			/* params */
 			$q2 = [
 				'id,pname,pvalue,authapi_id',

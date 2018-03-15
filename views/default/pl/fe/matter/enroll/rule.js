@@ -82,7 +82,13 @@ define(['frame'], function(ngApp) {
         var _oApp, _aDefaultRules;
         _aDefaultRules = [{
             data: { act: 'site.matter.enroll.submit' },
-            desc: '用户A提交新登记记录',
+            desc: '用户A提交新填写记录',
+        }, {
+            data: { act: 'site.matter.enroll.item.submit' },
+            desc: '用户A提交新协作填写记录',
+        }, {
+            data: { act: 'site.matter.enroll.item.other.submit' },
+            desc: '用户A提交的填写记录获得新协作填写记录',
         }, {
             data: { act: 'site.matter.enroll.share.friend' },
             desc: '用户A分享活动给微信好友',

@@ -187,6 +187,26 @@ class TMS_MODEL {
 			return $data;
 		}
 	}
+	/**
+	 *
+	 */
+	public static function unescape($data) {
+		if (is_string($data)) {
+			return TMS_DB::db()->unescape($data);
+		} else if (is_object($data)) {
+			foreach ($data as $k => $v) {
+				$data->{$k} = TMS_MODEL::unescape($v);
+			}
+			return $data;
+		} else if (is_array($data)) {
+			foreach ($data as $k => $v) {
+				$data[$k] = TMS_MODEL::unescape($v);
+			}
+			return $data;
+		} else {
+			return $data;
+		}
+	}
 
 	/**
 	 *

@@ -268,7 +268,7 @@ class log_model extends \TMS_MODEL {
 			$userOpNum = 1;
 		}
 		/* 如果是登记活动提交操作处理之前保存的数据 */
-		if ($operation->name === 'submit' || $operation->name === 'updateData') {
+		if ($operation->name === 'submit' || $operation->name === 'updateData' || $operation->name === 'undoSave') {
 			$this->update(
 				'xxt_log_user_matter',
 				['user_last_op' => 'N'],

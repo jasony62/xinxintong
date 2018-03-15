@@ -11,7 +11,6 @@ class round extends base {
 	 * @param string $app
 	 */
 	public function list_action($app, $page = 1, $size = 10) {
-
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelRun = $this->model('matter\enroll\round');
 		$options = [

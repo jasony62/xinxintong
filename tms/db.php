@@ -309,6 +309,14 @@ class TMS_DB {
 		return $str;
 	}
 	/**
+	 * 反处理SQL注入字符
+	 */
+	public function unescape($str) {
+		$str = empty($str) ? '' : stripslashes($str);
+
+		return $str;
+	}
+	/**
 	 * assemble a whole sql.
 	 */
 	private function _assemble_query($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = 0) {

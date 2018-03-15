@@ -665,6 +665,65 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     backdrop: 'static',
                 });
             };
+            $scope.setDefaultValue = function(oSchema) {
+                console.log(oSchema);
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setDefaultValue.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var _oData;
+                        $scope2.data = _oData = {};
+                        $scope2.schema = angular.copy(oSchema);
+                        if ($scope2.schema) {
+                            _oData.defaultValue = $scope2.schema.defaultValue;
+                        }
+                        $scope2.ok = function() {
+                            var bChanged = false;
+                            switch ($scope2.schema.type) {
+                                case 'single':
+                                    if (oSchema.defaultValue !== _oData.defaultValue) {
+                                        bChanged = true;
+                                        if (_oData.defaultValue) {
+                                            oSchema.defaultValue = _oData.defaultValue;
+                                        } else {
+                                            delete oSchema.defaultValue;
+                                        }
+                                    }
+                                    break;
+                                case 'multiple':
+                                    if (!angular.equals(_oData.defaultValue, oSchema.defaultValue)) {
+                                        bChanged = true;
+                                        var validKeys;
+                                        validKeys = [];
+                                        if (_oData.defaultValue) {
+                                            for (var key in _oData.defaultValue) {
+                                                if (_oData.defaultValue[key]) {
+                                                    validKeys.push(key);
+                                                }
+                                            }
+                                        }
+                                        if (validKeys.length) {
+                                            oSchema.defaultValue = {};
+                                            validKeys.forEach(function(key) {
+                                                oSchema.defaultValue[key] = true;
+                                            });
+                                        } else {
+                                            delete oSchema.defaultValue;
+                                        }
+                                    }
+                                    break;
+                            }
+                            if (bChanged) {
+                                $scope.updSchema(oSchema);
+                            }
+                            $mi.close(oSchema);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                    }],
+                    backdrop: 'static',
+                });
+            };
             /**
              * oAfterSchema: false - first, undefined - after active schema
              */

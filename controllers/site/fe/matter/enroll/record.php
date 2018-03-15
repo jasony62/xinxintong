@@ -68,14 +68,14 @@ class record extends base {
 		$rid = $aResult[1];
 
 		// 提交的数据
-		$posted = $this->getPostJson();
-		if (empty($posted) || count(get_object_vars($posted)) === 0) {
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted) || count(get_object_vars($oPosted)) === 0) {
 			return new \ResponseError('没有提交有效数据');
 		}
-		if (isset($posted->data)) {
-			$oEnrolledData = $posted->data;
+		if (isset($oPosted->data)) {
+			$oEnrolledData = $oPosted->data;
 		} else {
-			$oEnrolledData = $posted;
+			$oEnrolledData = $oPosted;
 		}
 		// 提交数据的用户
 		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
@@ -100,23 +100,23 @@ class record extends base {
 			}
 			$dbData = $dbData[1];
 
-			$posted->data = $dbData;
+			$oPosted->data = $dbData;
 			$data_tag = new \stdClass;
-			if (isset($posted->tag) && count(get_object_vars($posted->tag))) {
-				foreach ($posted->tag as $schId => $saveTags) {
+			if (isset($oPosted->tag) && count(get_object_vars($oPosted->tag))) {
+				foreach ($oPosted->tag as $schId => $saveTags) {
 					$data_tag->{$schId} = [];
 					foreach ($saveTags as $saveTag) {
 						$data_tag->{$schId}[] = $saveTag->id;
 					}
 				}
-				unset($posted->tag);
+				unset($oPosted->tag);
 			}
-			$posted->data_tag = $data_tag;
-			!empty($rid) && $posted->rid = $rid;
+			$oPosted->data_tag = $data_tag;
+			!empty($rid) && $oPosted->rid = $rid;
 			/* 插入到用户对素材的行为日志中 */
 			$operation = new \stdClass;
 			$operation->name = 'saveData';
-			$operation->data = $modelEnl->toJson($posted);
+			$operation->data = $modelEnl->toJson($oPosted);
 			$logid = $this->_logUserOp($oEnrollApp, $operation, $oUser);
 
 			return new \ResponseData($logid);
@@ -255,14 +255,14 @@ class record extends base {
 		/**
 		 * 提交填写项数据标签
 		 */
-		if (isset($posted->tag) && count(get_object_vars($posted->tag))) {
-			$rst = $modelRec->setTag($oUser, $oEnrollApp, $ek, $posted->tag);
+		if (isset($oPosted->tag) && count(get_object_vars($oPosted->tag))) {
+			$rst = $modelRec->setTag($oUser, $oEnrollApp, $ek, $oPosted->tag);
 		}
 		/**
 		 * 提交补充说明
 		 */
-		if (isset($posted->supplement) && count(get_object_vars($posted->supplement))) {
-			$rst = $modelRec->setSupplement($oUser, $oEnrollApp, $ek, $posted->supplement);
+		if (isset($oPosted->supplement) && count(get_object_vars($oPosted->supplement))) {
+			$rst = $modelRec->setSupplement($oUser, $oEnrollApp, $ek, $oPosted->supplement);
 		}
 		if (isset($matchedRecord)) {
 			$oUpdatedEnrollRec['matched_enroll_key'] = $matchedRecord->enroll_key;
@@ -277,7 +277,6 @@ class record extends base {
 				"enroll_key='$ek'"
 			);
 		}
-
 		/* 处理用户汇总数据，积分数据 */
 		$oRecord = $modelRec->byId($ek);
 		$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
@@ -503,31 +502,36 @@ class record extends base {
 	/**
 	 * 分段上传文件
 	 *
-	 * @param string $site
 	 * @param string $app
 	 * @param string $submitKey
 	 *
 	 */
-	public function uploadFile_action($site, $app, $submitkey = '') {
+	public function uploadFile_action($app, $submitkey = '') {
 		/* support CORS */
 		//header('Access-Control-Allow-Origin:*');
 		//header('Access-Control-Allow-Methods:POST');
 		//if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 		//	exit;
 		//}
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
 		if (empty($submitkey)) {
-			$user = $this->who;
-			$submitkey = $user->uid;
+			$oUser = $this->getUser($oApp);
+			$submitkey = $oUser->uid;
 		}
 		/** 分块上传文件 */
 		if (defined('SAE_TMP_PATH')) {
 			$dest = '/' . $app . '/' . $submitkey . '_' . $_POST['resumableFilename'];
-			$resumable = \TMS_APP::M('fs/resumableAliOss', $site, $dest, 'xinxintong');
+			$resumable = \TMS_APP::M('fs/resumableAliOss', $oApp->siteid, $dest, 'xinxintong');
 			$resumable->handleRequest($_POST);
 		} else {
-			$modelFs = \TMS_APP::M('fs/local', $site, '_resumable');
+			$modelFs = \TMS_APP::M('fs/local', $oApp->siteid, '_resumable');
 			$dest = $submitkey . '_' . $_POST['resumableIdentifier'];
-			$resumable = \TMS_APP::M('fs/resumable', $site, $dest, $modelFs);
+			$resumable = \TMS_APP::M('fs/resumable', $oApp->siteid, $dest, $modelFs);
 			$resumable->handleRequest($_POST);
 		}
 
@@ -560,6 +564,27 @@ class record extends base {
 		return false;
 	}
 	/**
+	 * 撤销保存
+	 */
+	public function undoSave_action($app) {
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		/* 插入到用户对素材的行为日志中 */
+		$oOperation = new \stdClass;
+		$oOperation->name = 'undoSave';
+		$logid = $this->_logUserOp($oApp, $oOperation, $oUser);
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 返回指定记录或最后一条记录
 	 *
 	 * @param string $app
@@ -580,7 +605,7 @@ class record extends base {
 		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,data_tag,score,like_num,like_log,remark_num';
 
 		if (empty($ek)) {
-			$oUser = $this->who;
+			$oUser = $this->getUser($oApp);
 			if ($loadLast === 'Y') {
 				$oRecord = $modelRec->lastByUser($oApp, $oUser, ['assignRid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
 				if (false === $oRecord || $oRecord->state !== '1') {
@@ -674,7 +699,7 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 		// 登记数据过滤条件
 		$oCriteria = $this->getPostJson();
 
@@ -776,17 +801,18 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,mission_id,state,entry_rule']);
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		if (empty($oApp->entryRule->group->id)) {
 			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
 		}
+		$oUser = $this->getUser($oApp);
 
 		$modelGrpUsr = $this->model('matter\group\player');
 		/* 当前用户所属分组及角色 */
-		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
 			return new \ParameterError('只允许组长进行推荐');
 		}
@@ -809,12 +835,12 @@ class record extends base {
 		 * 更新记录数据
 		 */
 		$oAgreedLog = $oRecord->agreed_log;
-		if (isset($oAgreedLog->{$this->who->uid})) {
-			$oLog = $oAgreedLog->{$this->who->uid};
+		if (isset($oAgreedLog->{$oUser->uid})) {
+			$oLog = $oAgreedLog->{$oUser->uid};
 			$oLog->time = time();
 			$oLog->value = $value;
 		} else {
-			$oAgreedLog->{$this->who->uid} = (object) ['time' => time(), 'value' => $value];
+			$oAgreedLog->{$oUser->uid} = (object) ['time' => time(), 'value' => $value];
 		}
 		$modelRec->update(
 			'xxt_enroll_record',
@@ -828,7 +854,7 @@ class record extends base {
 		}
 
 		/* 处理用户汇总数据，积分数据 */
-		$this->model('matter\enroll\event')->recommendRecord($oApp, $oRecord, $this->who, $value);
+		$this->model('matter\enroll\event')->recommendRecord($oApp, $oRecord, $oUser, $value);
 
 		return new \ResponseData('ok');
 	}
@@ -852,7 +878,8 @@ class record extends base {
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ResponseError('记录已经被删除，不能再次删除');
 		}
-		$oUser = clone $this->who;
+		$oUser = $this->getUser($oApp);
+
 		// 判断删除人是否为提交人
 		if ($oRecord->userid !== $oUser->uid) {
 			return new \ResponseError('仅允许记录的提交者删除记录');

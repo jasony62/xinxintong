@@ -166,7 +166,7 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
                         afterValue = originalValue;
                 }
             }
-            aProcessing[0][aProcessing[1]] = afterValue || originalValue || (oSchema.type !== 'image' ? '[空]' : '');
+            aProcessing[0][aProcessing[1]] = afterValue || originalValue || (/image|multitext/.test(oSchema.type) ? '' : '[空]');
             afterValue = undefined;
         });
     }
@@ -234,18 +234,20 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
             if (oApp.repos_unit === 'D') {
                 dataSchemas.forEach(function(oSchema) {
                     if (oSchema.remarkable && oSchema.remarkable === 'Y') {
-                        aRemarkableSchemas.push(oSchema);
-                        var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
-                        if (domWrap) {
-                            domWrap.classList.add('remarkable');
-                            domWrap.addEventListener('click', function() {
-                                var url = LS.j('', 'site', 'app');
-                                url += '&page=remark';
-                                url += '&ek=' + oRecord.enroll_key;
-                                url += '&schema=' + oSchema.id;
-                                url += '&data=' + oRecord.verbose[oSchema.id].id;
-                                location.href = url;
-                            }, true);
+                        if (oRecord.verbose[oSchema.id]) {
+                            aRemarkableSchemas.push(oSchema);
+                            var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
+                            if (domWrap) {
+                                domWrap.classList.add('remarkable');
+                                domWrap.addEventListener('click', function() {
+                                    var url = LS.j('', 'site', 'app');
+                                    url += '&page=remark';
+                                    url += '&ek=' + oRecord.enroll_key;
+                                    url += '&schema=' + oSchema.id;
+                                    url += '&data=' + oRecord.verbose[oSchema.id].id;
+                                    location.href = url;
+                                }, true);
+                            }
                         }
                     }
                 });

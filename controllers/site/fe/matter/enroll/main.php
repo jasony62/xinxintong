@@ -24,15 +24,12 @@ class main extends base {
 	/**
 	 * 返回活动页
 	 *
-	 * @param string $site
 	 * @param string $app
 	 * @param string $page 要进入活动的哪一页，页面的名称
 	 *
 	 */
-	public function index_action($site, $app, $rid = '', $page = '', $ignoretime = 'N') {
-		empty($site) && $this->outputError('没有指定当前站点的ID');
+	public function index_action($app, $rid = '', $page = '', $ignoretime = 'N') {
 		empty($app) && $this->outputError('登记活动ID为空');
-		$app = $this->escape($app);
 
 		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false || $oApp->state !== '1') {
@@ -140,7 +137,7 @@ class main extends base {
 	 * 3、如果已经登记过，且没有指定登记过访问页面，进入第一个查看页
 	 */
 	private function _defaultPage($oApp, $rid = '', $redirect = false, $ignoretime = 'N') {
-		$oUser = $this->who;
+		$oUser = $this->getUser($oApp);
 		$oOpenPage = null;
 		$modelPage = $this->model('matter\enroll\page');
 
@@ -209,9 +206,6 @@ class main extends base {
 	 *
 	 */
 	public function get_action($app, $rid = '', $page = null, $ek = null, $ignoretime = 'N', $cascaded = 'N') {
-		/* 登记活动定义 */
-		$app = $this->escape($app);
-
 		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields]);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
@@ -235,7 +229,10 @@ class main extends base {
 		if ($oApp->use_site_header === 'Y' || $oApp->use_site_footer === 'Y') {
 			$params['site'] = $this->model('site')->byId(
 				$oApp->siteid,
-				['cascaded' => 'header_page_name,footer_page_name']
+				[
+					'fields' => 'id,name,summary,heading_pic,header_page_name,footer_page_name',
+					'cascaded' => 'header_page_name,footer_page_name',
+				]
 			);
 		}
 

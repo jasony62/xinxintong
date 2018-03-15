@@ -24,22 +24,23 @@ class receiver extends \site\fe\matter\base {
 		$modelApp = $this->model('matter\enroll');
 		$modelRev = $this->model('matter\enroll\receiver');
 
-		$app = $modelApp->byId($app, array('cascaded' => 'Y'));
+		$oApp = $modelApp->byId($app, ['cascaded' => 'Y']);
+		$oUser = $this->getUser($oApp);
+
 		if (!$this->afterSnsOAuth()) {
-			if (false === $this->_snsOAuth($site)) {
+			if (false === $this->_snsOAuth($oUser, $oApp->siteid)) {
 				$this->outputInfo('仅限关注用户访问');
 			}
 		}
 
-		$user = $this->who;
-		$uid = $user->uid;
+		$uid = $oUser->uid;
 		if (false === ($receiver = $modelRev->byUser($site, $uid))) {
-			$nickname = $user->nickname;
+			$nickname = $oUser->nickname;
 			$modelRev->insert(
 				'xxt_enroll_receiver',
 				[
 					'siteid' => $site,
-					'aid' => $app->id,
+					'aid' => $oApp->id,
 					'join_at' => time(),
 					'userid' => $uid,
 					'nickname' => empty($nickname) ? '未知姓名' : $modelRev->escape($nickname),
@@ -55,9 +56,9 @@ class receiver extends \site\fe\matter\base {
 	 *
 	 * @param string $site
 	 */
-	private function _snsOAuth($siteid) {
+	private function _snsOAuth($oUser, $siteid) {
 		if ($this->userAgent() === 'wx') {
-			if (!isset($this->who->sns->wx)) {
+			if (!isset($oUser->sns->wx)) {
 				$modelWx = $this->model('sns\wx');
 				if ($wxConfig = $modelWx->bySite($siteid)) {
 					if ($wxConfig->joined === 'Y') {
@@ -69,7 +70,7 @@ class receiver extends \site\fe\matter\base {
 					}
 				}
 			}
-			if (!isset($this->who->sns->qy)) {
+			if (!isset($oUser->sns->qy)) {
 				if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
 					if ($qyConfig->joined === 'Y') {
 						$this->snsOAuth($qyConfig, 'qy');
@@ -77,7 +78,7 @@ class receiver extends \site\fe\matter\base {
 				}
 			}
 		} else if ($this->userAgent() === 'yx') {
-			if (!isset($this->who->sns->yx)) {
+			if (!isset($oUser->sns->yx)) {
 				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
 					if ($yxConfig->joined === 'Y') {
 						$this->snsOAuth($yxConfig, 'yx');

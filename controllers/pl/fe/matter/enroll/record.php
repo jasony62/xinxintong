@@ -975,6 +975,7 @@ class record extends \pl\fe\matter\base {
 		$modelRec = $this->model('matter\enroll\record');
 
 		// 筛选条件
+		$filter = $modelRec->unescape($filter);
 		$oCriteria = empty($filter) ? new \stdClass : json_decode($filter);
 		$rid = empty($oCriteria->record->rid) ? '' : $oCriteria->record->rid;
 		if (!empty($oCriteria->record->group_id)) {

@@ -25,6 +25,12 @@ define(['frame'], function(ngApp) {
             data: { act: 'site.matter.enroll.submit', matter_type: 'enroll' },
             desc: '登记活动————用户A提交新填写记录',
         }, {
+            data: { act: 'site.matter.enroll.item.submit', matter_type: 'enroll' },
+            desc: '登记活动————用户A提交新协作填写记录',
+        }, {
+            data: { act: 'site.matter.enroll.item.other.submit', matter_type: 'enroll' },
+            desc: '登记活动————用户A提交的填写记录获得新协作填写记录',
+        }, {
             data: { act: 'site.matter.enroll.share.friend', matter_type: 'enroll' },
             desc: '登记活动————用户A分享活动给微信好友',
         }, {

@@ -337,6 +337,9 @@ class event_model extends \TMS_MODEL {
 	 * 提交协作填写项
 	 */
 	public function otherSubmitItem($oApp, $oRecData, $oItem, $oOperator) {
+		if (empty($oRecData->userid)) {
+			return false;
+		}
 		$current = time();
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
@@ -356,7 +359,7 @@ class event_model extends \TMS_MODEL {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
 		}
 
-		$oUser = (object) ['userid' => $oRecData->userid];
+		$oUser = (object) ['uid' => $oRecData->userid];
 
 		return $this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
 	}
@@ -403,6 +406,9 @@ class event_model extends \TMS_MODEL {
 	 *
 	 */
 	public function otherRemoveItem($oApp, $oRecData, $oItem, $oOperator) {
+		if (empty($oRecData->userid)) {
+			return false;
+		}
 		$current = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		/* 取消推荐 */
@@ -433,7 +439,7 @@ class event_model extends \TMS_MODEL {
 				'modify_log' => $oNewModifyLog,
 			];
 
-			$oUser = (object) ['userid' => $oRecData->userid];
+			$oUser = (object) ['uid' => $oRecData->userid];
 			$this->_updateUsrData($oApp, $oItem->rid, false, $oUser, $oUpdatedData);
 		}
 

@@ -128,9 +128,9 @@
                                         </div>
                                     </div>
                                 </blockquote>
-                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                             </div>
-                            <div class='bottom-bar text-right'>
+                            <div class='bottom-bar'>
+                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
                                 <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)">评论&nbsp;<span ng-bind="rec.remark_num"></span></button>
                                 <span ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">

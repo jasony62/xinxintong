@@ -81,7 +81,13 @@ class main extends base {
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
 			if ($oOpenPage->name === 'repos') {
 				\TPL::assign('title', $oApp->title);
-				\TPL::output('/site/fe/matter/enroll/repos');
+				if ($oApp->repos_unit === 'R') {
+					// 按记录进行共享
+					\TPL::output('/site/fe/matter/enroll/repos2');
+				} else {
+					// 按数据进行共享
+					\TPL::output('/site/fe/matter/enroll/repos');
+				}
 			} else if ($oOpenPage->name === 'rank') {
 				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/rank');

@@ -22,6 +22,49 @@ window.__util.makeDialog = function(id, html) {
 };
 
 var ngMod = angular.module('directive.enroll', []);
+ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
+    var html;
+    html = "<div class='tms-nav-target'>";
+    html += "<div ng-if=\"navs.addRecord\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'addRecord')\">添加记录</button></div>";
+    html += "<div ng-if=\"navs.gotoRecord\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'gotoRecord')\">查看记录</button></div>";
+    html += "<div ng-if=\"navs.repos\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'repos')\">共享</button></div>";
+    html += "<div ng-if=\"navs.rank\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'rank')\">排行</button></div>";
+    html += "<div ng-if=\"navs.save\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'save')\">保存</button></div>";
+    html += "<div ng-if=\"historyLen()\"><button class='btn btn-default btn-sm' ng-click=\"back()\">返回</button></div>";
+    html += "</div>";
+    $templateCache.put('appNavTemplate.html', html);
+    return {
+        restrict: 'A',
+        replace: true,
+        scope: {
+            navs: '=appNavs'
+        },
+        template: "<button uib-popover-template=\"'appNavTemplate.html'\" popover-placement=\"top-right\" popover-trigger=\"'outsideClick'\" popover-append-to-body=\"true\" class=\"tms-nav-toggle\" popover-class=\"tms-nav-popover\"><span class='glyphicon glyphicon-option-vertical'></span></button>",
+        controller: ['$scope', function($scope) {
+            $scope.back = function() {
+                history.back();
+            };
+            $scope.historyLen = function() {
+                return history.length;
+            };
+            $scope.goto = function(event, page) {
+                switch (page) {
+                    case 'addRecord':
+                        $scope.$parent.addRecord(event);
+                        break;
+                    case 'gotoRecord':
+                        $scope.$parent.gotoRecord();
+                        break;
+                    case 'save':
+                        $scope.$parent.save();
+                        break;
+                    default:
+                        $scope.$parent.gotoPage(event, page);
+                }
+            };
+        }]
+    };
+}]);
 ngMod.directive('tmsDate', ['$compile', function($compile) {
     return {
         restrict: 'A',

@@ -151,6 +151,7 @@
                 </div>
             </div>
         </div>
+        <div tms-app-nav app-navs="appNavs"></div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
@@ -162,8 +163,6 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/repos.js');?>"></script>
-    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
-    <div class="tms-switch tms-switch-app" ng-click="gotoApp($event)"></div>
 </body>
 
 </html>

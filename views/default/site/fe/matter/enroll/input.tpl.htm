@@ -39,6 +39,7 @@
             <div ng-controller='ctrlInput'>
                 <form name='enroll' novalidate dynamic-html="page.html">
                 </form>
+                <div tms-app-nav app-navs="appNavs"></div>
             </div>
             <div g-if="params.activeRound">
                 <div class='text-center help-block'>
@@ -111,9 +112,6 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/input.js');?>"></script>
-    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
-    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
-    <div class="tms-switch tms-switch-save" ng-click="save()"></div>
 </body>
 
 </html>

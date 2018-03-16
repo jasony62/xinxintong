@@ -220,8 +220,23 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation',
                 $scope.fetch(1);
             }
         });
-        /*设置页面分享信息*/
-        $scope.setSnsShare();
     });
 }]);
-ngApp.controller('ctrlList', ['$scope', function($scope) {}]);
+ngApp.controller('ctrlList', ['$scope', function($scope) {
+    var oApp;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        oApp = params.app;
+        /*设置页面分享信息*/
+        $scope.setSnsShare();
+        /*设置页面分享信息*/
+        $scope.setSnsShare();
+        /*设置页面导航*/
+        $scope.appNavs = {};
+        if (oApp.can_repos === 'Y') {
+            $scope.appNavs.repos = {};
+        }
+        if (oApp.can_rank === 'Y') {
+            $scope.appNavs.rank = {};
+        }
+    });
+}]);

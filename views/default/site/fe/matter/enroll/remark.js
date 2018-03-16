@@ -37,6 +37,24 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         return http2.post(url, { content: content });
     }
 
+    function fnAfterLoad() {
+        /*设置页面导航*/
+        $scope.appNavs = {
+            addRecord: {}
+        };
+        if (oApp.can_repos === 'Y') {
+            $scope.appNavs.repos = {};
+        }
+        if (oApp.can_rank === 'Y') {
+            $scope.appNavs.rank = {};
+        }
+        if ($scope.record) {
+            if ($scope.record.userid === $scope.user.uid) {
+                $scope.appNavs.gotoRecord = {};
+            }
+        }
+    }
+
     if (!LS.s().ek) {
         noticebox.error('参数不完整');
         return;
@@ -193,7 +211,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         return val ? $sce.trustAsHtml(val) : '';
     };
     $scope.bRemarkRecord = !_schemaId; // 评论记录还是数据
-    $scope.bRequireOption = true;
     $scope.requireLikeNum = 0; // 对象可以被评论需要的赞同数据
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oAssignedSchema, aCoworkSchemas;
@@ -259,6 +276,8 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                 if (oApp.actionRule && oApp.actionRule.remark && oApp.actionRule.remark.requireLike && parseInt(oApp.actionRule.remark.requireLikeNum)) {
                     $scope.requireLikeNum = parseInt(oApp.actionRule.remark.requireLikeNum) - parseInt(oRecord.like_num);
                 }
+                /* 结束数据加载后的处理 */
+                fnAfterLoad();
             });
         } else {
             /**
@@ -282,9 +301,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                             });
                         }
                     }
-                    if (oRecord.userid !== $scope.user.uid) {
-                        $scope.bRequireOption = false;
-                    }
                     $scope.record = oRecord;
                     $scope.data = oRecData;
                     listRemarks();
@@ -295,6 +311,8 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                         $scope.requireLikeNum = parseInt(oApp.actionRule.remark.requireLikeNum) - parseInt(oRecData.like_num);
                     }
                 }
+                /* 结束数据加载后的处理 */
+                fnAfterLoad();
             });
             $scope.visibleSchemas = [oAssignedSchema];
         }
@@ -376,7 +394,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$uibModal', 'tmsLocation', 'http2', '
     $scope.$watch('record', function(oRecord) {
         if (oRecord) {
             $scope.$watch('coworkSchemas', function(aSchemas) {
-                console.log('sss', aSchemas);
                 if (aSchemas) {
                     aSchemas.forEach(function(oSchema) {
                         http2.get(LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {

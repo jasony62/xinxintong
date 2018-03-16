@@ -109,7 +109,7 @@ class item extends base {
 			['id' => $oRecord->id]
 		);
 
-		$oNewItem = $modelData->byId($oNewItem->id);
+		$oNewItem = $modelData->byId($oNewItem->id, ['fields' => '*']);
 
 		/* 更新用户汇总信息及积分 */
 		$modelEvt = $this->model('matter\enroll\event');

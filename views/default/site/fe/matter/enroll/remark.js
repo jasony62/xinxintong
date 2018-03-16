@@ -376,6 +376,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$uibModal', 'tmsLocation', 'http2', '
     $scope.$watch('record', function(oRecord) {
         if (oRecord) {
             $scope.$watch('coworkSchemas', function(aSchemas) {
+                console.log('sss', aSchemas);
                 if (aSchemas) {
                     aSchemas.forEach(function(oSchema) {
                         http2.get(LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {

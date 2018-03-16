@@ -88,7 +88,7 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt']).config
         }
     };
     $scope.open = function(opened) {
-        if(opened.type == 'link') {
+        if($scope.channel.invite) {
             location.href = opened.url + '&inviteToken=' + invite_token;
         }else {
             location.href = opened.url;

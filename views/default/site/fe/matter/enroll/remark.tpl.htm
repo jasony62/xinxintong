@@ -122,7 +122,7 @@
                 <div id='remarks'>
                     <div class='remarkList'>
                         <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
-                            <div ng-if="remark.agreed==='Y'||remark.agreed==='N'">
+                            <div class='recommend' ng-if="remark.agreed==='Y'||remark.agreed==='N'">
                                 <span ng-if="remark.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="remark.agreed==='N'" class="label label-danger">屏蔽</span>
                             </div>

@@ -57,6 +57,9 @@ define(['frame'], function(ngApp) {
         }, {
             data: { act: 'site.matter.enroll.data.recommend', matter_type: 'enroll' },
             desc: '登记活动————用户A填写的数据被推荐',
+        }, {
+            data: { act: 'site.matter.enroll.remark.recommend', matter_type: 'enroll' },
+            desc: '登记活动————用户A发表的评论被推荐',
         }];
         $scope.rules = {};
         _aDefaultActions.forEach(function(oRule) {

@@ -348,6 +348,9 @@ class remark extends base {
 			['id' => $oRemark->id]
 		);
 
+		/* 处理用户汇总数据，积分数据 */
+		$this->model('matter\enroll\event')->recommendRemark($oApp, $oRemark, $oUser, $value);
+
 		return new \ResponseData($value);
 	}
 }

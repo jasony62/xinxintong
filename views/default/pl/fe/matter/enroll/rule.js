@@ -115,7 +115,10 @@ define(['frame'], function(ngApp) {
             desc: '用户A赞同别人发表的评论',
         }, {
             data: { act: 'site.matter.enroll.data.recommend' },
-            desc: '用户A填写数据被推荐',
+            desc: '用户A填写的记录被推荐',
+        }, {
+            data: { act: 'site.matter.enroll.remark.recommend' },
+            desc: '用户A发表的评论被推荐',
         }];
         $scope.rules = {};
         _aDefaultRules.forEach(function(oRule) {

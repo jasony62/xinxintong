@@ -101,7 +101,7 @@ p {
 /*remark*/
 #cowork, #remarks {
 	position: relative;
-	margin-top: 1rem;
+	margin-top: 3rem;
 }
 
 #cowork:before {
@@ -109,7 +109,7 @@ p {
 	position: absolute;
 	left: 50%;
 	margin-left: -1em;
-	top: -1em;
+	top: -2em;
 	font-size: .7em;
 	color: #eee;
 	padding: .2em 1em;
@@ -126,7 +126,7 @@ p {
 	position: absolute;
 	left: 50%;
 	margin-left: -1em;
-	top: -1em;
+	top: -2em;
 	font-size: .7em;
 	color: #eee;
 	padding: .2em 1em;
@@ -151,8 +151,24 @@ p {
 	border-bottom: 0;
 }
 
+#remarks .remark {
+	position: relative;
+}
+
+#remarks .remark .recommend {
+	position: absolute;
+	top: -3px;
+	right: 0;
+	margin: 0;
+}
+
+#remarks .remark .recommend .label {
+	border-radius: 0;
+	font-weight: 400;
+}
+
 #remarks .remark>* {
-	margin: 1em 0;
+	margin: 1em 0 .2em;
 }
 
 #remarks .remark.blink {

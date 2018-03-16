@@ -157,7 +157,12 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/repos2.js');?>"></script>
-    <div class="tms-switch tms-switch-app" ng-click="gotoApp($event)"></div>
+    <button uib-popover-template="'appNavTemplate.html'" popover-placement="top-right" popover-trigger="'outsideClick'" class="tms-nav-toggle"><span class='glyphicon glyphicon-option-vertical'></span></button>
+    <script type="text/ng-template" id="appNavTemplate.html">
+        <div class='tms-nav-target'>
+            <button class='btn btn-default btn-sm' ng-click="gotoApp($event)">活动</button>
+        </div>
+    </script>
 </body>
 
 </html>

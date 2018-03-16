@@ -26,7 +26,7 @@ ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', fun
         var posted = {};
         posted[prop] = _oNewInvite[prop];
         http2.post('/rest/site/fe/invite/update?invite=' + $scope.invite.id, posted, function(rsp) {
-            _oInvite[prop] = _oNewInvite[prop];
+            $scope.invite[prop] = _oNewInvite[prop];
         });
     };
     http2.get('/rest/site/fe/user/get', function(rsp) {

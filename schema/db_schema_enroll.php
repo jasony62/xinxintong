@@ -238,13 +238,14 @@ $sql .= ",userid varchar(40) not null default ''"; // 发表评论的人
 $sql .= ",user_src char(1) not null default 'S'"; // 用户来源团队用户账号（Platform）或个人用户账号（Site）；没用了，userid已经统一了
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int";
-$sql .= ",content text";
+$sql .= ",content text null";
 $sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的评论
 $sql .= ",data_id int not null default 0"; // xxt_enroll_record_data的id
 $sql .= ",remark_id int not null default 0"; // 是对哪条评论进行的评论
-$sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
+$sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
+$sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

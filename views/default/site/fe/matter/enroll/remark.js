@@ -86,6 +86,17 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
             }
         }
     };
+    $scope.agreeRemark = function(oRemark, value) {
+        var url;
+        if (oRemark.agreed !== value) {
+            url = LS.j('remark/agree', 'site');
+            url += '&remark=' + oRemark.id;
+            url += '&value=' + value;
+            http2.get(url).then(function(rsp) {
+                oRemark.agreed = rsp.data;
+            });
+        }
+    };
     $scope.likeRemark = function(oRemark) {
         var url;
         url = LS.j('remark/like', 'site');

@@ -246,8 +246,6 @@ class remark extends base {
 	 *
 	 */
 	public function like_action($remark) {
-		$remark = $this->escape($remark);
-
 		$modelRem = $this->model('matter\enroll\remark');
 		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,like_log']);
 		if (false === $oRemark) {
@@ -291,5 +289,65 @@ class remark extends base {
 		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
+	}
+	/**
+	 * 组长对评论表态
+	 */
+	public function agree_action($remark, $value = '') {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,agreed,agreed_log']);
+		if (false === $oRemark) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		$modelGrpUsr = $this->model('matter\group\player');
+		/* 当前用户所属分组及角色 */
+		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
+			return new \ParameterError('只允许组长进行推荐');
+		}
+		/* 填写记录用户所属分组 */
+		if ($oGrpLeader->is_leader === 'Y') {
+			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+			if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
+				return new \ParameterError('只允许组长推荐本组数据');
+			}
+		}
+
+		if (!in_array($value, ['Y', 'N', 'A'])) {
+			$value = '';
+		}
+		$beforeValue = $oRemark->agreed;
+		if ($beforeValue === $value) {
+			return new \ParameterError('不能重复设置推荐状态');
+		}
+
+		/**
+		 * 更新记录数据
+		 */
+		$oAgreedLog = $oRemark->agreed_log;
+		if (isset($oAgreedLog->{$oUser->uid})) {
+			$oLog = $oAgreedLog->{$oUser->uid};
+			$oLog->time = time();
+			$oLog->value = $value;
+		} else {
+			$oAgreedLog->{$oUser->uid} = (object) ['time' => time(), 'value' => $value];
+		}
+
+		$modelRem->update(
+			'xxt_enroll_record_remark',
+			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
+			['id' => $oRemark->id]
+		);
+
+		return new \ResponseData($value);
 	}
 }

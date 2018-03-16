@@ -16,8 +16,11 @@ class remark_model extends \TMS_MODEL {
 			['id' => $id],
 		];
 		if ($oRemark = $this->query_obj_ss($q)) {
-			if ($fields === '*' || false !== strpos($fields, 'like_log')) {
+			if (property_exists($oRemark, 'like_log')) {
 				$oRemark->like_log = empty($oRemark->like_log) ? new \stdClass : json_decode($oRemark->like_log);
+			}
+			if (property_exists($oRemark, 'agreed_log')) {
+				$oRemark->agreed_log = empty($oRemark->agreed_log) ? new \stdClass : json_decode($oRemark->agreed_log);
 			}
 		}
 

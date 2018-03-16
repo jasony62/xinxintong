@@ -16,6 +16,14 @@ class main extends \site\fe\matter\base {
 		$data['user'] = $user;
 
 		$channel = $this->model('matter\channel')->byId($id);
+		$oInvitee = new \stdClass;
+		$oInvitee->id = $channel->siteid;
+		$oInvitee->type = 'S';
+		$oInvite = $this->model('invite')->byMatter($channel, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+		if ($oInvite && $oInvite->state === '1') {
+			$channel->invite = $oInvite;
+		}
+		
 		$data['channel'] = $channel;
 
 		return new \ResponseData($data);

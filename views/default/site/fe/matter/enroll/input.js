@@ -211,6 +211,7 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
 }]);
 ngApp.controller('ctrlWxUploadFileTip', ['$scope', '$interval', function($scope, $interval) {
     $scope.domId = '';
+    $scope.isIos = /iphone|ipad/i.test(navigator.userAgent);
     $scope.closeTip = function() {
         var domTip = document.querySelector($scope.domId);
         var evt = document.createEvent("HTMLEvents");
@@ -519,12 +520,13 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             fnAfterLoad(params.page, $scope.data);
         }
         /* 微信不支持上传文件，指导用户进行处理 */
-        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {
             if (_oApp.entryRule && _oApp.entryRule.scope && _oApp.entryRule.scope.member === 'Y') {
                 for (var i = 0, ii = params.page.dataSchemas.length; i < ii; i++) {
                     if (params.page.dataSchemas[i].schema.type === 'file') {
-                        var domTip = document.querySelector('#wxUploadFileTip');
-                        var evt = document.createEvent("HTMLEvents");
+                        var domTip, evt;
+                        domTip = document.querySelector('#wxUploadFileTip');
+                        evt = document.createEvent("HTMLEvents");
                         evt.initEvent("show", false, false);
                         domTip.dispatchEvent(evt);
                         break;

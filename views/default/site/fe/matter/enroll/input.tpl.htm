@@ -57,10 +57,15 @@
     </div>
     <script type="text/ng-template" id="wxUploadFileTip.html">
         <div ng-controller="ctrlWxUploadFileTip" ng-init="domId='#wxUploadFileTip'">
-            <p>如果微信无法上传文件，请按如下步骤操作：</p>
-            <p>1、点击当前界面右上角的3个点；</p>
-            <p>2、选择【在浏览器中打开】；</p>
-            <p>3、在打开的浏览器中进行后续。</p>
+            <div ng-if="isIos">
+                <p>苹果手机不支持在页面中上传文件，请将该页面转发到PC机上的浏览器进行操作。</p>
+            </div>
+            <div ng-if="!isIos">
+                <p>如果微信无法上传文件，请按如下步骤操作：</p>
+                <p>1、点击当前界面右上角的3个点；</p>
+                <p>2、选择【在浏览器中打开】；</p>
+                <p>3、在打开的浏览器中进行后续。</p>
+            </div>
             <div class='text-right'>
                 <button class='btn btn-default btn-sm' ng-click="closeTip()">知道了，关闭</button>
             </div>

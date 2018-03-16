@@ -26,11 +26,11 @@ class main extends \TMS_CONTROLLER {
 		$params = [];
 
 		// 签到活动定义
-		$signinApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
+		$signinApp = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
 		$params['app'] = &$signinApp;
 
 		// 当前访问用户的基本信息
-		$user = $this->who;
+		$user = new \stdClass;
 		$params['user'] = $user;
 
 		// 打开哪个页面？

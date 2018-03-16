@@ -29,31 +29,36 @@ class main extends \site\fe\matter\base {
 		$oInvitee = new \stdClass;
 		$oInvitee->id = $oLink->siteid;
 		$oInvitee->type = 'S';
-		$passCheckInv = false;
+		$passInvite = false; // 是否通过邀请
+		$bychannelInvite = false; // 是否有频道开启了邀请
 		if (!empty($oLink->channels)) {
 			foreach ($oLink->channels as $channel) {
 				$oInvite = $modelInvite->byMatter($channel, $oInvitee, ['fields' => 'id,code,expire_at,state']);
 				if ($oInvite && $oInvite->state === '1') {
+					$bychannelInvite = true;
 					$rst = $this->_checkInviteToken($this->who->uid, $channel);
 					if ($rst[0]) {
-						$passCheckInv = true;
+						$passInvite = true;
 						break;
 					}
 				}
 			}
 		}
-		if (!$passCheckInv) {
+		if (!$passInvite) {
 			$oInvite = $modelInvite->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
 			if ($oInvite && $oInvite->state === '1') {
 				$rst = $this->_checkInviteToken($this->who->uid, $oLink);
 				if ($rst[0]) {
-					$passCheckInv = true;
+					$passInvite = true;
 				}
 			} else {
-				$passCheckInv = true;
+				// 如果都没有开启邀请则通过
+				if (!$bychannelInvite) {
+					$passInvite = true;
+				}
 			}
 		}
-		if (!$passCheckInv) {
+		if (!$passInvite) {
 			die('邀请验证令牌未通过验证或已过有效期');
 		}
 

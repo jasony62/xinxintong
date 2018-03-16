@@ -41,7 +41,15 @@ class i extends TMS_CONTROLLER {
 
 		/* 要访问的素材 */
 		$modelMat = $this->model('matter\\' . $oInvite->matter_type);
-		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => 'id,state,siteid,entry_rule']);
+		switch ($oInvite->matter_type) {
+			case 'channel':
+				$fields = 'id,state,siteid';
+				break;
+			default:
+				$fields = 'id,state,siteid,entry_rule';
+				break;
+		}
+		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => $fields]);
 		if (false === $oMatter || $oMatter->state !== '1') {
 			$this->outputError('邀请访问的素材【' . $oInvite->matter_title . '】不存在');
 		}
@@ -85,7 +93,15 @@ class i extends TMS_CONTROLLER {
 		}
 		/* 要访问的素材 */
 		$modelMat = $this->model('matter\\' . $oInvite->matter_type);
-		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => 'id,state,siteid,entry_rule']);
+		switch ($oInvite->matter_type) {
+			case 'channel':
+				$fields = 'id,state,siteid';
+				break;
+			default:
+				$fields = 'id,state,siteid,entry_rule';
+				break;
+		}
+		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => $fields]);
 		if (false === $oMatter || $oMatter->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

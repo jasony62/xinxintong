@@ -91,7 +91,10 @@ class user_model extends \TMS_MODEL {
 				$aDbData['group_id'] = $value;
 				break;
 			case 'modify_log':
-				$oBeforeData->modify_log[] = $value;
+				if (empty($oBeforeData->modify_log)) {
+					$oBeforeData->modify_log = [];
+				}
+				array_unshift($oBeforeData->modify_log, $value);
 				$aDbData['modify_log'] = json_encode($oBeforeData->modify_log);
 				break;
 			}

@@ -79,6 +79,7 @@
                         </blockquote>
                     </div>
                     <div class='bottom-bar' ng-if="bRemarkRecord">
+                        <button ng-if="record.userid===user.uid" class='btn btn-default btn-sm' ng-click="editRecord($event)"><span class='glyphicon glyphicon-edit'></span></button>
                         <button class='btn btn-default btn-sm' ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':record.like_log[user.uid]}"></span>&nbsp;<span ng-bind="record.like_num"></span></button>
                         <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>
                         <div ng-if="params.groupUser.is_leader==='S'||(params.groupUser.is_leader==='Y'&&(record.userid===params.groupUser.userid||groupOthers[record.userid]))">
@@ -99,8 +100,12 @@
                     <div class='schemaList' ng-controller="ctrlCowork">
                         <div ng-repeat="schema in coworkSchemas">
                             <div class='text-muted data-title'>{{schema.title}}</div>
-                            <div ng-repeat="item in record.verbose[schema.id].value">
+                            <div ng-repeat="item in record.verbose[schema.id].value" class='item'>
                                 <hr>
+                                <div class='recommend' ng-if="item.agreed==='Y'||item.agreed==='N'">
+                                    <span ng-if="item.agreed==='Y'" class="label label-success">推荐</span>
+                                    <span ng-if="item.agreed==='N'" class="label label-danger">屏蔽</span>
+                                </div>
                                 <blockquote>
                                     <p dynamic-html="item.value"></p>
                                     <footer>{{item.nickname}}</footer>
@@ -110,6 +115,11 @@
                                     <button ng-if="!item._others" class='btn btn-default btn-sm' ng-click="removeItem(schema,$index)"><span class='glyphicon glyphicon-trash'></span></button>
                                     <button ng-if="!item._others" class='btn btn-default btn-sm' ng-click="editItem(schema,$index)"><span class='glyphicon glyphicon-edit'></span></button>
                                     <button class='btn btn-default btn-sm' ng-click="likeItem(item)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>
+                                    <div ng-if="params.groupUser.is_leader==='S'||(params.groupUser.is_leader==='Y'&&(record.userid===params.groupUser.userid||groupOthers[record.userid]))">
+                                        <button ng-if="item.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="agreeItem(item,'Y')">推荐</button>
+                                        <button ng-if="item.agreed==='Y'" class='btn btn-default btn-sm' ng-click="agreeItem(item,'')">取消推荐</button>
+                                    </div>
+                                    <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeItemRemark(item)"><span class="glyphicon glyphicon-share-alt"></span></button>
                                 </div>
                             </div>
                             <div class='text-center'>

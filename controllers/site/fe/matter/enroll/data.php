@@ -187,9 +187,13 @@ class data extends base {
 	 * @param string $value
 	 *
 	 */
-	public function recommend_action($ek, $schema, $value = '') {
+	public function recommend_action($ek, $schema, $data = null, $value = '') {
 		$modelData = $this->model('matter\enroll\data');
-		$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,rid,enroll_key,state,userid,agreed,agreed_log']);
+		if (!empty($data)) {
+			$oRecData = $modelData->byId($data, ['fields' => 'id,aid,rid,enroll_key,state,userid,agreed,agreed_log']);
+		} else {
+			$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,rid,enroll_key,state,userid,agreed,agreed_log']);
+		}
 		if (false === $oRecData || $oRecData->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

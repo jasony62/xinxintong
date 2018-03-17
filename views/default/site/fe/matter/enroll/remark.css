@@ -58,10 +58,6 @@ p {
 	background: #fff;
 }
 
-#record {
-	padding-top: 0;
-}
-
 #record .title {
 	margin: 0 -1rem .5rem -1rem;
 	background: #ddd;
@@ -151,18 +147,18 @@ p {
 	border-bottom: 0;
 }
 
-#remarks .remark {
+#cowork .item, #remarks .remark {
 	position: relative;
 }
 
-#remarks .remark .recommend {
+#cowork .item .recommend, #remarks .remark .recommend {
 	position: absolute;
 	top: -3px;
 	right: 0;
 	margin: 0;
 }
 
-#remarks .remark .recommend .label {
+#cowork .item .recommend .label, #remarks .remark .recommend .label {
 	border-radius: 0;
 	font-weight: 400;
 }

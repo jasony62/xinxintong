@@ -30,7 +30,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
 
     function addRemark(content, oRemark) {
         var url;
-        url = LS.j('remark/add', 'site', 'ek', 'schema', 'data');
+        url = LS.j('remark/add', 'site', 'ek', 'data');
         if (oRemark) {
             url += '&remark=' + oRemark.id;
         }
@@ -47,11 +47,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         }
         if (oApp.can_rank === 'Y') {
             $scope.appNavs.rank = {};
-        }
-        if ($scope.record) {
-            if ($scope.record.userid === $scope.user.uid) {
-                $scope.appNavs.gotoRecord = {};
-            }
         }
     }
 
@@ -171,6 +166,21 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
             });
         }
     };
+    $scope.editRecord = function(event) {
+        if ($scope.record.userid !== $scope.user.uid) {
+            noticebox.warn('不允许编辑其他用户提交的记录');
+            return;
+        }
+        var page;
+        for (var i in $scope.app.pages) {
+            var oPage = $scope.app.pages[i];
+            if (oPage.type === 'I') {
+                page = oPage.name;
+                break;
+            }
+        }
+        $scope.gotoPage(event, page, $scope.record.enroll_key);
+    };
     $scope.likeItem = function(oItem) {
         http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
             oItem.like_log = rsp.data.like_log;
@@ -191,18 +201,6 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         $timeout(function() {
             elRemark.classList.remove('blink');
         }, 1000);
-    };
-    $scope.gotoRecord = function() {
-        var oPage;
-        if ($scope.record.userid === $scope.user.uid) {
-            for (var i in $scope.app.pages) {
-                oPage = $scope.app.pages[i];
-                if (oPage.type === 'V') {
-                    $scope.gotoPage(null, oPage.name, $scope.record.enroll_key);
-                    break;
-                }
-            }
-        }
     };
     $scope.value2Label = function(oSchema) {
         var val, aVal, aLab = [];
@@ -332,7 +330,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
 /**
  * 协作题
  */
-ngApp.controller('ctrlCowork', ['$scope', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $uibModal, LS, http2, noticebox) {
+ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $uibModal, LS, http2, noticebox) {
     $scope.addItem = function(oSchema) {
         $uibModal.open({
             templateUrl: 'writeItem.html',
@@ -399,6 +397,50 @@ ngApp.controller('ctrlCowork', ['$scope', '$uibModal', 'tmsLocation', 'http2', '
         noticebox.confirm('删除填写项，确定？').then(function() {
             http2.get(LS.j('item/remove', 'site') + '&data=' + oRecData.id + '&item=' + oItem.id).then(function(rsp) {
                 oRecData.value.splice(index, 1);
+            });
+        });
+    };
+    $scope.agreeItem = function(oItem, value) {
+        var url;
+        if (oItem.agreed !== value) {
+            url = LS.j('data/recommend', 'site', 'ek') + '&data=' + oItem.id;
+            url += '&value=' + value;
+            http2.get(url).then(function(rsp) {
+                oItem.agreed = value;
+            });
+        }
+    };
+    $scope.writeItemRemark = function(oItem) {
+        $uibModal.open({
+            templateUrl: 'writeRemark.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {};
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+            }],
+            backdrop: 'static',
+        }).result.then(function(data) {
+            http2.post(LS.j('remark/add', 'site', 'ek') + '&data=' + oItem.id, { content: data.content }).then(function(rsp) {
+                var oNewRemark;
+                oNewRemark = rsp.data;
+                oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
+                $scope.remarks.splice(0, 0, oNewRemark);
+                $timeout(function() {
+                    var elRemark, parentNode, offsetTop;
+                    elRemark = document.querySelector('#remark-' + oNewRemark.id);
+                    parentNode = elRemark.parentNode;
+                    while (parentNode && parentNode.tagName !== 'BODY') {
+                        offsetTop += parentNode.offsetTop;
+                        parentNode = parentNode.parentNode;
+                    }
+                    document.body.scrollTop = offsetTop - 40;
+                    elRemark.classList.add('blink');
+                    $timeout(function() {
+                        elRemark.classList.remove('blink');
+                    }, 1000);
+                });
             });
         });
     };

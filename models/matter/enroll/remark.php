@@ -56,8 +56,11 @@ class remark_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_enroll_record_remark',
-			"enroll_key='$ek' and schema_id='$schemaId'",
+			"enroll_key='$ek'",
 		];
+		if (!empty($schemaId)) {
+			$q[2] .= " and schema_id='$schemaId'";
+		}
 		if (!empty($oUser->uid)) {
 			$q[2] .= " and (agreed<>'N' or userid='{$oUser->uid}')";
 		}

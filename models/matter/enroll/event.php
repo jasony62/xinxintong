@@ -756,7 +756,7 @@ class event_model extends \TMS_MODEL {
 		}
 		$oUser = (object) ['uid' => $oRecordOrData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecordOrData->rid, true, $oOperator, $oUpdatedUsrData);
+		return $this->_updateUsrData($oApp, $oRecordOrData->rid, true, $oUser, $oUpdatedUsrData);
 	}
 	/**
 	 * 撤销填写记录点赞

@@ -47,7 +47,7 @@ class main extends \site\fe\base {
 		$invMatters = [];
 		// 根据$inviteToken查询用户通过什么素材进入的
 		$oToken = $this->model('invite\token')->byToken($inviteToken, ['fields' => 'userid,matter_id,matter_type']);
-		if ($oToken === false || $oToken->userid !== $user->uid) {
+		if ($oToken === false) {
 			return new \ResponseError('inviteToken参数错误');
 		}
 		$objMatter1 = $this->model('matter\\' . $oToken->matter_type)->byId($oToken->matter_id, ['fields' => 'id,title']);

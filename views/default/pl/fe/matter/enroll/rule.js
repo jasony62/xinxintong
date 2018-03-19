@@ -99,8 +99,8 @@ define(['frame'], function(ngApp) {
             data: { act: 'site.matter.enroll.data.get.like' },
             desc: '用户A填写数据获得赞同',
         }, {
-            data: { act: 'site.matter.enroll.data.do.like' },
-            desc: '用户A赞同别人的填写数据',
+            data: { act: 'site.matter.enroll.cowork.get.like' },
+            desc: '用户A填写的协作数据获得赞同',
         }, {
             data: { act: 'site.matter.enroll.data.get.remark' },
             desc: '用户A填写数据获得评论',
@@ -113,9 +113,6 @@ define(['frame'], function(ngApp) {
         }, {
             data: { act: 'site.matter.enroll.remark.get.like' },
             desc: '用户A发表的评论获得赞同',
-        }, {
-            data: { act: 'site.matter.enroll.remark.do.like' },
-            desc: '用户A赞同别人发表的评论',
         }, {
             data: { act: 'site.matter.enroll.data.get.agree' },
             desc: '用户A填写的记录获得推荐',

@@ -23,6 +23,8 @@ $sqls[] = "ALTER TABLE xxt_enroll_user change last_like_other_at last_do_like_at
 $sqls[] = "ALTER TABLE xxt_enroll_user change like_other_num do_like_num int not null default 0";
 $sqls[] = "ALTER TABLE xxt_enroll_user change last_like_other_remark_at last_do_like_remark_at int not null default 0";
 $sqls[] = "ALTER TABLE xxt_enroll_user change like_other_remark_num do_like_remark_num int not null default 0";
+$sqls[] = "ALTER TABLE xxt_enroll_user add last_do_like_cowork_at int not null default 0 after do_like_num";
+$sqls[] = "ALTER TABLE xxt_enroll_user add do_like_cowork_num int not null default 0 after last_do_like_cowork_at";
 //
 $sqls[] = "ALTER TABLE xxt_enroll_user change last_recommend_at last_agree_at int not null default 0";
 $sqls[] = "ALTER TABLE xxt_enroll_user change recommend_num agree_num int not null default 0";
@@ -47,6 +49,8 @@ $sqls[] = "ALTER TABLE xxt_mission_user change last_like_other_at last_do_like_a
 $sqls[] = "ALTER TABLE xxt_mission_user change like_other_num do_like_num int not null default 0";
 $sqls[] = "ALTER TABLE xxt_mission_user change last_like_other_remark_at last_do_like_remark_at int not null default 0";
 $sqls[] = "ALTER TABLE xxt_mission_user change like_other_remark_num do_like_remark_num int not null default 0";
+$sqls[] = "ALTER TABLE xxt_mission_user add last_do_like_cowork_at int not null default 0 after do_like_num";
+$sqls[] = "ALTER TABLE xxt_mission_user add do_like_cowork_num int not null default 0 after last_do_like_cowork_at";
 //
 $sqls[] = "ALTER TABLE xxt_mission_user change last_recommend_at last_agree_at int not null default 0";
 $sqls[] = "ALTER TABLE xxt_mission_user change recommend_num agree_num int not null default 0";

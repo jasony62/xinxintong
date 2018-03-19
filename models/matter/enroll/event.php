@@ -37,6 +37,14 @@ class event_model extends \TMS_MODEL {
 	 */
 	const DoLikeEventName = 'site.matter.enroll.data.do.like';
 	/**
+	 * 用户A填写数据被赞同
+	 */
+	const GetLikeCoworkEventName = 'site.matter.enroll.cowork.get.like';
+	/**
+	 * 用户A赞同别人的填写的协作数据
+	 */
+	const DoLikeCoworkEventName = 'site.matter.enroll.cowork.do.like';
+	/**
 	 * 用户A评论被赞同
 	 */
 	const GetLikeRemarkEventName = 'site.matter.enroll.remark.get.like';
@@ -546,6 +554,12 @@ class event_model extends \TMS_MODEL {
 		return $this->_doLikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
 	}
 	/**
+	 * 赞同填写协作记录数据
+	 */
+	public function likeCowork($oApp, $oRecData, $oOperator) {
+		return $this->_doLikeCowork($oApp, $oRecData, $oOperator);
+	}
+	/**
 	 *
 	 */
 	private function _doLikeRecOrData($oApp, $oRecOrData, $oOperator, $logArgType) {
@@ -566,28 +580,28 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->do_like_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-		/* 如果是第一次点赞给积分 */
-		$bFirstLike = true;
-		$oEnlUsrRnd = $modelUsr->byId($oApp, $operatorId, ['fields' => 'id,nickname,last_do_like_at,do_like_num,user_total_coin,modify_log', 'rid' => $oRecOrData->rid]);
-		if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
-			for ($i = count($oEnlUsrRnd->modify_log) - 1; $i >= 0; $i--) {
-				$oLog = $oEnlUsrRnd->modify_log[$i];
-				if (strpos($oLog->op, self::DoLikeEventName) === 0) {
-					if (isset($oNewModifyLog->args->id) && isset($oNewModifyLog->args->type)) {
-						if ($oNewModifyLog->args->id === $oRecOrData->id && $oNewModifyLog->args->type === $logArgType) {
-							$bFirstLike = false;
-							break;
-						}
-					}
-				}
-			}
-		}
-		if ($bFirstLike) {
-			$aCoinResult = $modelUsr->awardCoin($oApp, $operatorId, $oRecOrData->rid, self::DoLikeEventName);
-			if ($aCoinResult[0] === true) {
-				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-			}
-		}
+		return $this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
+	}
+	/**
+	 *
+	 */
+	private function _doLikeCowork($oApp, $oRecOrData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$current = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $operatorId;
+		$oNewModifyLog->at = $current;
+		$oNewModifyLog->op = self::DoLikeCoworkEventName . '_Y';
+		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->last_do_like_cowork_at = $current;
+		$oUpdatedUsrData->do_like_cowork_num = 1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
 		return $this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
 	}
@@ -607,7 +621,7 @@ class event_model extends \TMS_MODEL {
 	 * 填写协作数据获得赞同
 	 */
 	public function getLikeCowork($oApp, $oRecData, $oOperator) {
-		return $this->_getLikeRecOrData($oApp, $oRecData, $oOperator, 'cowork');
+		return $this->_getLikeCowork($oApp, $oRecData, $oOperator);
 	}
 	/**
 	 * 填写记录或数据被点赞
@@ -626,15 +640,38 @@ class event_model extends \TMS_MODEL {
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		if ($logArgType === 'cowork') {
-			$oUpdatedUsrData->last_like_cowork_at = $current;
-			$oUpdatedUsrData->like_cowork_num = 1;
-		} else {
-			$oUpdatedUsrData->last_like_at = $current;
-			$oUpdatedUsrData->like_num = 1;
-		}
+		$oUpdatedUsrData->last_like_at = $current;
+		$oUpdatedUsrData->like_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetLikeEventName);
+		if ($aCoinResult[0] === true) {
+			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
+		}
+		$oUser = (object) ['uid' => $oRecOrData->userid];
+
+		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+	}
+	/**
+	 * 填写记录或数据被点赞
+	 */
+	private function _getLikeCowork($oApp, $oRecOrData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$current = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oRecOrData->userid;
+		$oNewModifyLog->at = $current;
+		$oNewModifyLog->op = self::GetLikeCoworkEventName . '_Y';
+		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'operator' => $operatorId];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->last_like_cowork_at = $current;
+		$oUpdatedUsrData->like_cowork_num = 1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetLikeCoworkEventName);
 		if ($aCoinResult[0] === true) {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
 		}
@@ -653,6 +690,12 @@ class event_model extends \TMS_MODEL {
 	 */
 	public function undoLikeRecData($oApp, $oRecData, $oOperator) {
 		return $this->_undoLikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+	}
+	/**
+	 * 撤销填写数据点赞
+	 */
+	public function undoLikeCowork($oApp, $oRecData, $oOperator) {
+		return $this->_undoLikeCowork($oApp, $oRecData, $oOperator);
 	}
 	/**
 	 * 撤销赞同操作
@@ -709,15 +752,81 @@ class event_model extends \TMS_MODEL {
 						$aRollbackLogs[] = $oLog;
 					}
 				}
-				/* 回退积分奖励。只要做了赞同的操作就给积分，不论结果是什么 */
-				// if (!empty($oBeforeModifyLog->coin)) {
-				// 	$aResult['user_total_coin'] = (-1) * (int) $oBeforeModifyLog->coin;
-				// }
 				/* 最后一次事件发生时间 */
 				if ($oBeforeModifyLog === $oLastestModifyLog) {
 					$aResult['last_do_like_at'] = 0;
 				} else if (!empty($oLastestModifyLog->at)) {
 					$aResult['last_do_like_at'] = $oLastestModifyLog->at;
+				}
+			}
+			if (empty($aResult)) {
+				return false;
+			}
+			return (object) $aResult;
+		};
+
+		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oOperator, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+	}
+	/**
+	 * 撤销赞同操作
+	 */
+	private function _undoLikeCowork($oApp, $oRecOrData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $operatorId;
+		$oNewModifyLog->at = time();
+		$oNewModifyLog->op = self::DoLikeCoworkEventName . '_N';
+		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->do_like_cowork_num = -1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		/* 日志回退函数 */
+		$fnRollback = function ($oUserData) use ($oRecOrData) {
+			$aResult = []; // 要更新的数据
+			if ($oUserData && count($oUserData->modify_log)) {
+				$oLastestModifyLog = null; // 最近一次事件日志
+				$oBeforeModifyLog = null; // 操作指定对象对应的事件日志
+				$aRollbackLogs = []; // 插销操作日志
+				foreach ($oUserData->modify_log as $oLog) {
+					if ($oLog->op === self::DoLikeCoworkEventName . '_Y') {
+						if (isset($oLog->args->id)) {
+							/* 检查是否是已经撤销的操作 */
+							$bRollbacked = false;
+							foreach ($aRollbackLogs as $oRollbackLog) {
+								if ($oLog->args->id === $oRollbackLog->args->id) {
+									$bRollbacked = true;
+									break;
+								}
+							}
+							if ($bRollbacked) {
+								continue;
+							}
+							/* 和撤销的操作同类型的最近发生的操作的日志，除了撤销的操作本身 */
+							$oLastestModifyLog = $oLog;
+							/* 由撤销的操作产生的日志 */
+							if (empty($oBeforeModifyLog)) {
+								if ($oLog->args->id === $oRecOrData->id) {
+									$oBeforeModifyLog = $oLog;
+								}
+							}
+							if (isset($oBeforeModifyLog) && $oLastestModifyLog !== $oBeforeModifyLog) {
+								break;
+							}
+						}
+					} else if ($oLog->op === self::DoLikeCoworkEventName . '_N') {
+						$aRollbackLogs[] = $oLog;
+					}
+				}
+				/* 最后一次事件发生时间 */
+				if ($oBeforeModifyLog === $oLastestModifyLog) {
+					$aResult['last_do_like_cowork_at'] = 0;
+				} else if (!empty($oLastestModifyLog->at)) {
+					$aResult['last_do_like_cowork_at'] = $oLastestModifyLog->at;
 				}
 			}
 			if (empty($aResult)) {
@@ -744,7 +853,7 @@ class event_model extends \TMS_MODEL {
 	 * 取消协作填写数据被点赞
 	 */
 	public function undoGetLikeCowork($oApp, $oRecData, $oOperator) {
-		return $this->_undoGetLikeRecOrData($oApp, $oRecData, $oOperator, 'cowork');
+		return $this->_undoGetLikeCowork($oApp, $oRecData, $oOperator);
 	}
 	/**
 	 * 取消被点赞
@@ -763,11 +872,7 @@ class event_model extends \TMS_MODEL {
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		if ($logArgType === 'cowork') {
-			$oUpdatedUsrData->like_cowork_num = -1;
-		} else {
-			$oUpdatedUsrData->like_num = -1;
-		}
+		$oUpdatedUsrData->like_num = -1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
 		/* 日志回退函数 */
@@ -792,15 +897,7 @@ class event_model extends \TMS_MODEL {
 								continue;
 							}
 							/* 和撤销的操作同类型的最近发生的操作的日志，除了撤销的操作本身 */
-							if ($logArgType === 'cowork') {
-								if ($oLog->args->type === 'cowork') {
-									$oLastestModifyLog = $oLog;
-								}
-							} else {
-								if ($oLog->args->type !== 'cowork') {
-									$oLastestModifyLog = $oLog;
-								}
-							}
+							$oLastestModifyLog = $oLog;
 							/* 由撤销的操作产生的日志 */
 							if (empty($oBeforeModifyLog)) {
 								if ($oLog->args->id === $oRecOrData->id && $oLog->args->type === $logArgType && $oLog->args->operator === $operatorId) {
@@ -820,20 +917,89 @@ class event_model extends \TMS_MODEL {
 					$aResult['user_total_coin'] = (-1) * (int) $oBeforeModifyLog->coin;
 				}
 				/* 最后一次事件发生时间 */
-				if ($logArgType === 'cowork') {
-					if ($oBeforeModifyLog === $oLastestModifyLog) {
-						$aResult['last_like_cowork_at'] = 0;
-					} else if (!empty($oLastestModifyLog->at)) {
-						$aResult['last_like_cowork_at'] = $oLastestModifyLog->at;
-					}
-				} else {
-					if ($oBeforeModifyLog === $oLastestModifyLog) {
-						$aResult['last_like_at'] = 0;
-					} else if (!empty($oLastestModifyLog->at)) {
-						$aResult['last_like_at'] = $oLastestModifyLog->at;
+				if ($oBeforeModifyLog === $oLastestModifyLog) {
+					$aResult['last_like_at'] = 0;
+				} else if (!empty($oLastestModifyLog->at)) {
+					$aResult['last_like_at'] = $oLastestModifyLog->at;
+				}
+			}
+			if (empty($aResult)) {
+				return false;
+			}
+			return (object) $aResult;
+		};
+
+		$oUser = (object) ['uid' => $oRecOrData->userid];
+
+		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+	}
+	/**
+	 * 取消被点赞
+	 * 取消获得的积分
+	 */
+	private function _undoGetLikeCowork($oApp, $oRecOrData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$current = time();
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oRecOrData->userid;
+		$oNewModifyLog->at = $current;
+		$oNewModifyLog->op = self::GetLikeCoworkEventName . '_N';
+		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'operator' => $operatorId];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->like_cowork_num = -1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		/* 日志回退函数 */
+		$fnRollback = function ($oUserData) use ($oRecOrData, $operatorId) {
+			$aResult = []; // 要更新的数据
+			if ($oUserData && count($oUserData->modify_log)) {
+				$oLastestModifyLog = null; // 最近一次事件日志
+				$oBeforeModifyLog = null; // 操作指定对象对应的事件日志
+				$aRollbackLogs = []; // 插销操作日志
+				foreach ($oUserData->modify_log as $oLog) {
+					if ($oLog->op === self::GetLikeCoworkEventName . '_Y') {
+						if (isset($oLog->args->id) && isset($oLog->args->operator)) {
+							/* 检查是否是已经撤销的操作 */
+							$bRollbacked = false;
+							foreach ($aRollbackLogs as $oRollbackLog) {
+								if ($oLog->args->id === $oRollbackLog->args->id && $oLog->args->operator === $oRollbackLog->args->operator) {
+									$bRollbacked = true;
+									break;
+								}
+							}
+							if ($bRollbacked) {
+								continue;
+							}
+							/* 和撤销的操作同类型的最近发生的操作的日志，除了撤销的操作本身 */
+							$oLastestModifyLog = $oLog;
+							/* 由撤销的操作产生的日志 */
+							if (empty($oBeforeModifyLog)) {
+								if ($oLog->args->id === $oRecOrData->id && $oLog->args->operator === $operatorId) {
+									$oBeforeModifyLog = $oLog;
+								}
+							}
+							if (isset($oBeforeModifyLog) && $oLastestModifyLog !== $oBeforeModifyLog) {
+								break;
+							}
+						}
+					} else if ($oLog->op === self::GetLikeCoworkEventName . '_N') {
+						$aRollbackLogs[] = $oLog;
 					}
 				}
-
+				/* 回退积分奖励 */
+				if (!empty($oBeforeModifyLog->coin)) {
+					$aResult['user_total_coin'] = (-1) * (int) $oBeforeModifyLog->coin;
+				}
+				/* 最后一次事件发生时间 */
+				if ($oBeforeModifyLog === $oLastestModifyLog) {
+					$aResult['last_like_cowork_at'] = 0;
+				} else if (!empty($oLastestModifyLog->at)) {
+					$aResult['last_like_cowork_at'] = $oLastestModifyLog->at;
+				}
 			}
 			if (empty($aResult)) {
 				return false;
@@ -866,27 +1032,6 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->last_do_like_remark_at = $current;
 		$oUpdatedUsrData->do_like_remark_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
-
-		/* 如果是第一次点赞给积分 */
-		$bFirstLike = true;
-		$oEnlUsrRnd = $modelUsr->byId($oApp, $operatorId, ['fields' => 'id,nickname,last_do_like_remark_at,do_like_remark_num,user_total_coin,modify_log', 'rid' => $oRemark->rid]);
-		if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
-			for ($i = count($oEnlUsrRnd->modify_log) - 1; $i >= 0; $i--) {
-				$oLog = $oEnlUsrRnd->modify_log[$i];
-				if (strpos($oLog->op, self::DoLikeRemarkEventName) === 0) {
-					if (isset($oNewModifyLog->args->id) && $oNewModifyLog->args->id === $oRemark->id) {
-						$bFirstLike = false;
-						break;
-					}
-				}
-			}
-		}
-		if ($bFirstLike) {
-			$aCoinResult = $modelUsr->awardCoin($oApp, $operatorId, $oRemark->rid, self::DoLikeRemarkEventName);
-			if ($aCoinResult[0] === true) {
-				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-			}
-		}
 
 		return $this->_updateUsrData($oApp, $oRemark->rid, false, $oOperator, $oUpdatedUsrData);
 	}

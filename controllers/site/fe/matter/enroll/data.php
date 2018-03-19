@@ -322,20 +322,20 @@ class data extends base {
 		$modelEnlEvt = $this->model('matter\enroll\event');
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
-			$modelEnlEvt->likeRecData($oApp, $oRecData, $oUser);
-			/* 获得点赞 */
 			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$modelEnlEvt->likeCowork($oApp, $oRecData, $oUser);
 				$modelEnlEvt->getLikeCowork($oApp, $oRecData, $oUser);
 			} else {
+				$modelEnlEvt->likeRecData($oApp, $oRecData, $oUser);
 				$modelEnlEvt->getLikeRecData($oApp, $oRecData, $oUser);
 			}
 		} else {
-			/* 撤销发起点赞 */
-			$modelEnlEvt->undoLikeRecData($oApp, $oRecData, $oUser);
-			/* 撤销获得点赞 */
+			/* 撤销点赞 */
 			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$modelEnlEvt->undoLikeCowork($oApp, $oRecData, $oUser);
 				$modelEnlEvt->undoGetLikeCowork($oApp, $oRecData, $oUser);
 			} else {
+				$modelEnlEvt->undoLikeRecData($oApp, $oRecData, $oUser);
 				$modelEnlEvt->undoGetLikeRecData($oApp, $oRecData, $oUser);
 			}
 		}

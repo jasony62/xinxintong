@@ -44,4 +44,18 @@ class token_model extends \TMS_MODEL {
 
 		return [true, $oToken];
 	}
+	/*
+	 *
+	 */
+	public function byToken($token, $options = []) {
+		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		$q = [
+			$fields,
+			'xxt_invite_access',
+			['token' => $token],
+		];
+		$oToken = $this->query_obj_ss($q);
+
+		return $oToken;
+	}
 }

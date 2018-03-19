@@ -6,6 +6,7 @@ module.exports = {
         '/site/fe/user/member': ['./views/default/site/fe/user/member.js'],
         '/site/fe/matter/article/main': ['./views/default/site/fe/matter/article/main.js'],
         '/site/fe/matter/link/main': ['./views/default/site/fe/matter/link/main.js'],
+        '/site/fe/matter/channel/main': ['./views/default/site/fe/matter/channel/main.js'],
         '/site/fe/matter/enroll/input': ['./views/default/site/fe/matter/enroll/input.js'],
         '/site/fe/matter/enroll/view': ['./views/default/site/fe/matter/enroll/view.js'],
         '/site/fe/matter/enroll/list': ['./views/default/site/fe/matter/enroll/list.js'],

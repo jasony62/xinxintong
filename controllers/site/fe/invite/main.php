@@ -35,6 +35,47 @@ class main extends \site\fe\base {
 		\TPL::output('/site/fe/invite/matter');
 		exit;
 	}
+	/*
+	 * 根据matter和inviteToken返回用户有权邀请的素材
+	 */
+	public function listInviteMatter_action($matter, $inviteToken) {
+		$user = $this->who;
+		if (empty($user->unionid)) {
+			return new \ResponseError('仅限注册用户访问');
+		}
+
+		$invMatters = [];
+		// 根据$inviteToken查询用户通过什么素材进入的
+		$oToken = $this->model('invite\token')->byToken($inviteToken, ['fields' => 'userid,matter_id,matter_type']);
+		if ($oToken === false || $oToken->userid !== $user->uid) {
+			return new \ResponseError('inviteToken参数错误');
+		}
+		$objMatter1 = $this->model('matter\\' . $oToken->matter_type)->byId($oToken->matter_id, ['fields' => 'id,title']);
+		$invMatters[] = $objMatter1;
+
+		// 根据matter获取当前素材信息
+		$matter = explode(',', $matter);
+		list($type, $id) = $matter;
+		// 如果是同一个素材直接返回
+		if ($type === $objMatter1->type && $id == $objMatter1->id) {
+			return new \ResponseData($invMatters);
+		}
+
+		/* 检查用户是否已经通过邀请 */
+		$objMatter2 = $this->model('matter\\' . $type)->byId($id, ['fields' => 'id,title,siteid']);
+		$siteUsers = $this->model('site\user\account')->byUnionid($user->unionid, ['fields' => 'uid', 'siteid' => $objMatter2->siteid]);
+		if (count($siteUsers)) {
+			$modelInvLog = $this->model('invite\log');
+			foreach ($siteUsers as $oSiteUser) {
+				if (true === $modelInvLog->hasPassed($objMatter2, $oSiteUser->uid)) {
+					$invMatters[] = $objMatter2;
+					break;
+				}
+			}
+		}
+
+		return new \ResponseData($invMatters);
+	}
 	/**
 	 * 根据邀请的编码获得邀请
 	 */

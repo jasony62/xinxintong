@@ -28,27 +28,29 @@
             <div class='col-md-6 col-md-offset-3'>
                 <div class='panel'>
                     <div class='panel-body'>
-                        <section id='matter'>
-                            <ul>
-                                <li class="radio" ng-repeat="matter in matterList">
-                                    <label>
-                                        <input type="radio" ng-model="criteria.id" ng-value="matter.id" id="{{matter.id}}" name="inviteMatter">
-                                        <span ng-bind="matter.matter_title"></span>
-                                        <div class='form-group' ng-if="matter.matter_pic">
-                                            <div class='matter-pic'>
-                                                <div class='img-thumbnail' ng-style="{'background-image':'url('+matter.matter_pic+')'}"></div>
-                                            </div>
-                                        </div>
-                                        <div class='text-muted' ng-if="matter.matter_summary">
-                                            <div ng-bind="matter.matter_summary"></div>
-                                        </div>
-                                    </label>
-                                </li>
-                            </ul>
-                        </section>
+                        <div ng-repeat="matter in matterList" class='form-group'>
+                            <label>
+                                <input type="radio" ng-model="criteria.id" ng-value="matter.id" id="{{matter.id}}" name="inviteMatter">
+                                <span ng-bind="matter.title"></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div ng-if="invite">
+                    <div class="panel" ng-if="invite.matter_pic||invite.matter_summary">
+                        <section id='matter'>
+                            <div class="panel-body">
+                                <div class='form-group' ng-if="invite.matter_pic">
+                                    <div class='matter-pic'>
+                                        <div class='img-thumbnail' ng-style="{'background-image':'url('+invite.matter_pic+')'}"></div>
+                                    </div>
+                                </div>
+                                <div class='text-muted' ng-if="invite.matter_summary">
+                                    <div ng-bind="invite.matter_summary"></div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
                     <div class='panel'>
                         <div class='panel-body'>
                             <section id='inviteCodes'>

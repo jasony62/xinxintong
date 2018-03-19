@@ -1,7 +1,7 @@
 'use strict';
 var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt']);
 ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', function($scope, $uibModal, http2, tmsSnsShare) {
-    var _oNewInvite, _oMatterList;
+    var _oNewInvite, _oMatterList = {};
     $scope.newInvite = _oNewInvite = {};
     $scope.criteria = {id: ''};
     $scope.addInviteCode = function() {

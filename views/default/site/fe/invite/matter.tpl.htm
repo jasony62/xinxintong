@@ -29,17 +29,22 @@
                 <div class='panel'>
                     <div class='panel-body'>
                         <section id='matter'>
-                            <div class='form-group'>
-                                <div ng-bind="invite.matter_title"></div>
-                            </div>
-                            <div class='form-group' ng-if="invite.matter_pic">
-                                <div class='matter-pic'>
-                                    <div class='img-thumbnail' ng-style="{'background-image':'url('+invite.matter_pic+')'}"></div>
-                                </div>
-                            </div>
-                            <div class='text-muted' ng-if="invite.matter_summary">
-                                <div ng-bind="invite.matter_summary"></div>
-                            </div>
+                            <ul>
+                                <li class="radio" ng-repeat="matter in matterList">
+                                    <label>
+                                        <input type="radio" ng-model="criteria.id" ng-value="matter.id" id="{{matter.id}}" name="inviteMatter">
+                                        <span ng-bind="matter.matter_title"></span>
+                                        <div class='form-group' ng-if="matter.matter_pic">
+                                            <div class='matter-pic'>
+                                                <div class='img-thumbnail' ng-style="{'background-image':'url('+matter.matter_pic+')'}"></div>
+                                            </div>
+                                        </div>
+                                        <div class='text-muted' ng-if="matter.matter_summary">
+                                            <div ng-bind="matter.matter_summary"></div>
+                                        </div>
+                                    </label>
+                                </li>
+                            </ul>
                         </section>
                     </div>
                 </div>

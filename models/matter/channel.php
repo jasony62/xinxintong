@@ -38,7 +38,7 @@ class channel_model extends article_base {
 		$id = $this->escape($id);
 		$type = $this->escape($type);
 		$q = [
-			'c.id,c.title,cm.create_at,c.style_page_id,c.header_page_id,c.footer_page_id,c.style_page_name,c.header_page_name,c.footer_page_name',
+			"c.id,c.title,cm.create_at,c.style_page_id,c.header_page_id,c.footer_page_id,c.style_page_name,c.header_page_name,c.footer_page_name,'channel' type",
 			'xxt_channel_matter cm,xxt_channel c',
 			"cm.matter_id='$id' and cm.matter_type='$type' and cm.channel_id=c.id and c.state=1",
 		];

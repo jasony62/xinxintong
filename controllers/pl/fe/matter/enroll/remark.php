@@ -237,7 +237,6 @@ class remark extends \pl\fe\matter\base {
 		} else {
 			$remarkIds = [$posted->remark];
 		}
-
 		$modelRem = $this->model('matter\enroll\remark');
 		if (!in_array($value, ['Y', 'N', 'A'])) {
 			$value = '';
@@ -251,13 +250,19 @@ class remark extends \pl\fe\matter\base {
 		}
 
 		if(!empty($name)){
-			$oRemark=$modelRem->query_obj_ss(['*','xxt_enroll_record_remark',['id'=>$posted->remark]]);
 			$modelEnl = $this->model('matter\enroll');
-			$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
 			$modelRec = $this->model('matter\enroll\record');
-			$oRecord = $modelRec->byId($oRemark->enroll_key);
-			$oRemark->enroll_nickname=$modelRem->query_val_ss(['uname','xxt_site_account',['siteid'=>$oRemark->siteid,'uid'=>$oRemark->enroll_userid]]);
-			$this->_notifyAgree($oApp, $oRecord, $oRemark, $name);
+			$oRemarks = [];
+			foreach ($remarkIds as $remkid) {
+				$oRemark=$modelRem->query_obj_ss(['*','xxt_enroll_record_remark',['id'=>$remkid]]);
+				if (!isset($oApp)) {
+					$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+				}
+				// $oRecord = $modelRec->byId($oRemark->enroll_key);
+				$oRemark->enroll_nickname=$modelRem->query_val_ss(['uname','xxt_site_account',['siteid'=>$oRemark->siteid,'uid'=>$oRemark->enroll_userid]]);
+				$oRemarks[] = $oRemark;
+			}
+			$this->_notifyAgree($oApp, $oRemarks, $name);
 		}
 		
 		foreach ($remarkIds as $id) {
@@ -273,7 +278,10 @@ class remark extends \pl\fe\matter\base {
 	/**
 	 * 给发评论的人发送通知
 	 */
-	private function _notifyAgree($oApp, $oRecord, $oRemark, $tmplName) {
+	private function _notifyAgree($oApp, $oRemarks, $tmplName) {
+		if (empty($oRemarks)) {
+			return false;
+		}
 		/* 模板消息参数 */
 		$notice = $this->model('site\notice')->byName($oApp->siteid, $tmplName);
 		if ($notice === false) {
@@ -283,7 +291,6 @@ class remark extends \pl\fe\matter\base {
 		if (!isset($tmplConfig->tmplmsg)) {
 			return false;
 		}
-		
 		$params = new \stdClass;
 		foreach ($tmplConfig->tmplmsg->params as $param) {
 			if (!isset($tmplConfig->mapping->{$param->pname})) {
@@ -303,32 +310,35 @@ class remark extends \pl\fe\matter\base {
 			$params->{$param->pname} = $value;
 		}
 
-		/* 获得活动的用户链接 */
-		$noticeURL = $this->model('matter\enroll')->getEntryUrl($oApp->siteid, $oApp->id);
-		$noticeURL .= '&page=remark&ek=' . $oRemark->enroll_key;
-		$noticeURL .= '&schema=' . $oRemark->schema_id;
-		$params->url = $noticeURL;
-
 		/* 消息的创建人 */
 		$modelWay = $this->model('site\fe\way');
-		$who=$modelWay->who($oRemark->siteid);
+		$who=$modelWay->who($oApp->siteid);
 		$creater = new \stdClass;
 		$creater->uid = $who->uid;
 		$creater->name = $who->nickname;
 		$creater->src = 'pl';
 
-		/* 消息的接收人 */
-		$receiver = new \stdClass;
-		$receiver->assoc_with = $oRemark->enroll_key;
-		$receiver->userid = $oRemark->userid;
-
-		/*判断是否是同一个人*/
-		if($creater->uid==$receiver->userid){
-			return false;
-		}
-
-		/* 给用户发通知消息 */
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
-		$modelTmplBat->send($oRemark->siteid, $tmplConfig->msgid, $creater, [$receiver], $params, ['send_from' => 'enroll:' . $oRemark->aid . ':' . $oRemark->enroll_key]);
+		$modelEnr = $this->model('matter\enroll');
+		foreach ($oRemarks as $oRemark) {
+			/*判断是否是同一个人*/
+			if($creater->uid == $oRemark->userid){
+				continue;
+			}
+
+			/* 获得活动的用户链接 */
+			$noticeURL = $modelEnr->getEntryUrl($oApp->siteid, $oApp->id);
+			$noticeURL .= '&page=remark&ek=' . $oRemark->enroll_key;
+			$noticeURL .= '&schema=' . $oRemark->schema_id;
+			$params->url = $noticeURL;
+
+			/* 消息的接收人 */
+			$receiver = new \stdClass;
+			$receiver->assoc_with = $oRemark->enroll_key;
+			$receiver->userid = $oRemark->userid;
+
+			/* 给用户发通知消息 */
+			$modelTmplBat->send($oRemark->siteid, $tmplConfig->msgid, $creater, [$receiver], $params, ['send_from' => 'enroll:' . $oRemark->aid . ':' . $oRemark->enroll_key]);
+		}
 	}
 }

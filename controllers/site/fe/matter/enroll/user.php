@@ -92,8 +92,8 @@ class user extends base {
 					$extattr = json_decode($addressbook->extattr);
 					$addressbook->schema_title = $schema->title;
 					$addressbook->enroll_num = $oUser->enroll_num;
-					$addressbook->remark_other_num = $oUser->remark_other_num;
-					$addressbook->like_other_num = $oUser->like_other_num;
+					$addressbook->do_remark_num = $oUser->do_remark_num;
+					$addressbook->do_like_num = $oUser->do_like_num;
 				}
 				$oUser->mschema = $addressbook;
 			}

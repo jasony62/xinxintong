@@ -64,7 +64,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         if ($scope.bRemarkRecord) {
             oRecord = $scope.record;
             if (oRecord.agreed !== value) {
-                url = LS.j('record/recommend', 'site', 'ek');
+                url = LS.j('record/agree', 'site', 'ek');
                 url += '&value=' + value;
                 http2.get(url).then(function(rsp) {
                     oRecord.agreed = value;
@@ -73,7 +73,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         } else {
             oRecData = $scope.data;
             if (oRecData.agreed !== value) {
-                url = LS.j('data/recommend', 'site', 'ek', 'schema');
+                url = LS.j('data/agree', 'site', 'ek', 'schema');
                 url += '&value=' + value;
                 http2.get(url).then(function(rsp) {
                     oRecData.agreed = value;
@@ -348,7 +348,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation'
             oNewItem = {
                 value: data.content
             };
-            url = LS.j('item/add', 'site');
+            url = LS.j('cowork/add', 'site');
             if (oRecData) {
                 url += '&data=' + oRecData.id;
             } else {
@@ -385,7 +385,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation'
             oNewItem = {
                 value: data.content
             };
-            http2.post(LS.j('item/update', 'site') + '&data=' + oRecData.id + '&item=' + oItem.id, oNewItem).then(function(rsp) {
+            http2.post(LS.j('cowork/update', 'site') + '&data=' + oRecData.id + '&item=' + oItem.id, oNewItem).then(function(rsp) {
                 oItem.value = data.content;
             });
         });
@@ -395,7 +395,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation'
         oRecData = $scope.record.verbose[oSchema.id];
         oItem = oRecData.value[index];
         noticebox.confirm('删除填写项，确定？').then(function() {
-            http2.get(LS.j('item/remove', 'site') + '&data=' + oRecData.id + '&item=' + oItem.id).then(function(rsp) {
+            http2.get(LS.j('cowork/remove', 'site') + '&data=' + oRecData.id + '&item=' + oItem.id).then(function(rsp) {
                 oRecData.value.splice(index, 1);
             });
         });
@@ -403,7 +403,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation'
     $scope.agreeItem = function(oItem, value) {
         var url;
         if (oItem.agreed !== value) {
-            url = LS.j('data/recommend', 'site', 'ek') + '&data=' + oItem.id;
+            url = LS.j('data/agree', 'site', 'ek') + '&data=' + oItem.id;
             url += '&value=' + value;
             http2.get(url).then(function(rsp) {
                 oItem.agreed = value;

@@ -94,7 +94,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     $scope.recommend = function(oRecord, value) {
         var url;
         if (oRecord.agreed !== value) {
-            url = LS.j('record/recommend', 'site');
+            url = LS.j('record/agree', 'site');
             url += '&ek=' + oRecord.enroll_key;
             url += '&value=' + value;
             http2.get(url).then(function(rsp) {

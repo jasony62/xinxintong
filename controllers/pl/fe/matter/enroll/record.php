@@ -364,7 +364,7 @@ class record extends \pl\fe\matter\base {
 				$modelMisMat->agreed($oApp, 'R', $oBeforeRecord, $oUpdated->agreed);
 			}
 			/* 处理了用户汇总数据，积分数据 */
-			$this->model('matter\enroll\event')->recommendRecord($oApp, $oBeforeRecord, $oUser, $oUpdated->agreed);
+			$this->model('matter\enroll\event')->agreeRecord($oApp, $oBeforeRecord, $oUser, $oUpdated->agreed);
 		}
 		if (isset($oPosted->tags)) {
 			$oUpdated->tags = $modelEnl->escape($oPosted->tags);

@@ -5,7 +5,7 @@ include_once dirname(__FILE__) . '/base.php';
 /**
  * 登记记录数据的项
  */
-class item extends base {
+class cowork extends base {
 	/**
 	 * 添加题目数据的项
 	 * 1、需要记录修改日志
@@ -113,8 +113,7 @@ class item extends base {
 
 		/* 更新用户汇总信息及积分 */
 		$modelEvt = $this->model('matter\enroll\event');
-		$modelEvt->submitItem($oApp, $oNewItem, $oUser);
-		$modelEvt->otherSubmitItem($oApp, $oRecData, $oNewItem, $oUser);
+		$modelEvt->submitCowork($oApp, $oRecData, $oNewItem, $oUser);
 
 		return new \ResponseData([$oNewItem, $oRecData]);
 	}
@@ -254,8 +253,7 @@ class item extends base {
 
 		/* 更新用户汇总信息及积分 */
 		$modelEvt = $this->model('matter\enroll\event');
-		$modelEvt->removeItem($oApp, $oItem, $oUser);
-		$modelEvt->otherRemoveItem($oApp, $oRecData, $oItem, $oUser);
+		$modelEvt->removeCowork($oApp, $oRecData, $oItem, $oUser);
 
 		return new \ResponseData($oRecData->value);
 	}

@@ -187,20 +187,29 @@ class data extends base {
 	 * @param string $value
 	 *
 	 */
-	public function recommend_action($ek, $schema, $data = null, $value = '') {
+	public function agree_action($ek, $schema, $data = null, $value = '') {
 		$modelData = $this->model('matter\enroll\data');
 		if (!empty($data)) {
-			$oRecData = $modelData->byId($data, ['fields' => 'id,aid,rid,enroll_key,state,userid,agreed,agreed_log']);
+			$oRecData = $modelData->byId($data, ['fields' => 'id,aid,rid,enroll_key,schema_id,state,userid,agreed,agreed_log']);
 		} else {
-			$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,rid,enroll_key,state,userid,agreed,agreed_log']);
+			$oRecData = $modelData->byRecord($ek, ['schema' => $schema, 'fields' => 'id,aid,rid,enroll_key,schema_id,state,userid,agreed,agreed_log']);
 		}
 		if (false === $oRecData || $oRecData->state !== '1') {
-			return new \ObjectNotFoundError();
+			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
 		}
 
 		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
+			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
+		}
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if ($oSchema->id === $oRecData->schema_id) {
+				$oDataSchema = $oSchema;
+				break;
+			}
+		}
+		if (!isset($oDataSchema)) {
+			return new \ObjectNotFoundError('（3）指定的对象不存在或不可用');
 		}
 		if (empty($oApp->entryRule->group->id)) {
 			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
@@ -249,9 +258,12 @@ class data extends base {
 			$modelMisMat = $this->model('matter\mission\matter');
 			$modelMisMat->agreed($oApp, 'D', $oRecData, $value);
 		}
-
 		/* 处理了用户汇总数据，积分数据 */
-		$this->model('matter\enroll\event')->recommendRecordData($oApp, $oRecData, $oUser, $value);
+		if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+			$this->model('matter\enroll\event')->agreeCowork($oApp, $oRecData, $oUser, $value);
+		} else {
+			$this->model('matter\enroll\event')->agreeRecData($oApp, $oRecData, $oUser, $value);
+		}
 
 		return new \ResponseData($rst);
 	}
@@ -270,21 +282,24 @@ class data extends base {
 		$modelData = $this->model('matter\enroll\data');
 		$oRecData = $modelData->byId($data, ['fields' => 'id,aid,rid,enroll_key,schema_id,like_log,userid,multitext_seq,like_num']);
 		if (false === $oRecData) {
-			return new \ObjectNotFoundError();
+			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
 		}
 
 		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
+			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
 		}
 
-		/* 检查是否是多项填写题题的点赞，如果是，需要$id */
+		/* 数据项的题目 */
 		$oDataSchema = null;
 		foreach ($oApp->dataSchemas as $dataSchema) {
-			if ($dataSchema->id === $oRecData->schema_id && $dataSchema->type === 'multitext') {
+			if ($dataSchema->id === $oRecData->schema_id) {
 				$oDataSchema = $dataSchema;
 				break;
 			}
+		}
+		if (empty($oDataSchema)) {
+			return new \ObjectNotFoundError('（3）指定的对象不存在或不可用');
 		}
 
 		$oUser = $this->getUser($oApp);
@@ -303,40 +318,32 @@ class data extends base {
 			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],
 			['id' => $oRecData->id]
 		);
-		// if (isset($oDataSchema) && $oDataSchema->type === 'multitext' && $oRecData->multitext_seq != 0) {
-		// 	// 总数据点赞数 +1
-		// 	if ($incLikeNum > 0) {
-		// 		$modelData->update("update xxt_enroll_record_data set like_num=like_num +1 where enroll_key='{$oRecData->enroll_key}' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");
-		// 	} else {
-		// 		$modelData->update("update xxt_enroll_record_data set like_num=like_num -1 where enroll_key='{$oRecData->enroll_key}' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");
-		// 	}
-		// }
 
 		$modelEnlEvt = $this->model('matter\enroll\event');
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
 			$modelEnlEvt->likeRecData($oApp, $oRecData, $oUser);
-			/* 被点赞 */
-			$modelEnlEvt->belikedRecData($oApp, $oRecData, $oUser);
+			/* 获得点赞 */
+			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$modelEnlEvt->getLikeCowork($oApp, $oRecData, $oUser);
+			} else {
+				$modelEnlEvt->getLikeRecData($oApp, $oRecData, $oUser);
+			}
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRecData($oApp, $oRecData, $oUser);
-			/* 撤销被点赞 */
-			$modelEnlEvt->undoBeLikedRecData($oApp, $oRecData, $oUser);
+			/* 撤销获得点赞 */
+			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$modelEnlEvt->undoGetLikeCowork($oApp, $oRecData, $oUser);
+			} else {
+				$modelEnlEvt->undoGetLikeRecData($oApp, $oRecData, $oUser);
+			}
 		}
 
-		$result = [];
-		//if (isset($oDataSchema) && $oDataSchema->type === 'multitext' && $oRecData->multitext_seq != 0) {
-		//	$leader = $modelData->byRecord($oRecData->enroll_key, ['schema' => $oRecData->schema_id, 'fields' => 'like_log,like_num']);
-		//	$result['itemLike_log'] = $oLikeLog;
-		//	$result['itemLike_num'] = $likeNum;
-		//$result['like_log'] = $leader->like_log;
-		//$result['like_num'] = $leader->like_num;
-		//} else {
-		$result['like_log'] = $oLikeLog;
-		$result['like_num'] = $likeNum;
-		//}
+		$aResult = [];
+		$aResult['like_log'] = $oLikeLog;
+		$aResult['like_num'] = $likeNum;
 
-		return new \ResponseData($result);
+		return new \ResponseData($aResult);
 	}
 }

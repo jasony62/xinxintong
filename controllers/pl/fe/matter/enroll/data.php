@@ -106,7 +106,7 @@ class data extends \pl\fe\matter\base {
 		}
 
 		/* 处理了用户汇总数据，积分数据 */
-		$this->model('matter\enroll\event')->recommendRecordData($oApp, $oRecData, $oUser, $value);
+		$this->model('matter\enroll\event')->agreeRecData($oApp, $oRecData, $oUser, $value);
 
 		/**
 		 * 发送模板消息

@@ -84,11 +84,11 @@ define(['frame'], function(ngApp) {
             data: { act: 'site.matter.enroll.submit' },
             desc: '用户A提交新填写记录',
         }, {
-            data: { act: 'site.matter.enroll.item.submit' },
-            desc: '用户A提交新协作填写记录',
+            data: { act: 'site.matter.enroll.cowork.get.submit' },
+            desc: '用户A提交的填写记录获得新协作填写数据',
         }, {
-            data: { act: 'site.matter.enroll.item.other.submit' },
-            desc: '用户A提交的填写记录获得新协作填写记录',
+            data: { act: 'site.matter.enroll.cowork.do.submit' },
+            desc: '用户A提交新协作填写数据',
         }, {
             data: { act: 'site.matter.enroll.share.friend' },
             desc: '用户A分享活动给微信好友',
@@ -96,29 +96,35 @@ define(['frame'], function(ngApp) {
             data: { act: 'site.matter.enroll.share.timeline' },
             desc: '用户A分享活动至朋友圈',
         }, {
-            data: { act: 'site.matter.enroll.data.like' },
-            desc: '用户A填写数据被赞同',
+            data: { act: 'site.matter.enroll.data.get.like' },
+            desc: '用户A填写数据获得赞同',
         }, {
-            data: { act: 'site.matter.enroll.data.other.like' },
+            data: { act: 'site.matter.enroll.data.do.like' },
             desc: '用户A赞同别人的填写数据',
         }, {
-            data: { act: 'site.matter.enroll.data.comment' },
-            desc: '用户A填写数据被评论',
+            data: { act: 'site.matter.enroll.data.get.remark' },
+            desc: '用户A填写数据获得评论',
         }, {
-            data: { act: 'site.matter.enroll.data.other.comment' },
-            desc: '用户A点评别人的填写数据',
+            data: { act: 'site.matter.enroll.cowork.get.remark' },
+            desc: '用户A填写协作数据获得评论',
         }, {
-            data: { act: 'site.matter.enroll.remark.like' },
-            desc: '用户A发表的评论被赞同',
+            data: { act: 'site.matter.enroll.data.do.remark' },
+            desc: '用户A发表评论',
         }, {
-            data: { act: 'site.matter.enroll.remark.other.like' },
+            data: { act: 'site.matter.enroll.remark.get.like' },
+            desc: '用户A发表的评论获得赞同',
+        }, {
+            data: { act: 'site.matter.enroll.remark.do.like' },
             desc: '用户A赞同别人发表的评论',
         }, {
-            data: { act: 'site.matter.enroll.data.recommend' },
-            desc: '用户A填写的记录被推荐',
+            data: { act: 'site.matter.enroll.data.get.agree' },
+            desc: '用户A填写的记录获得推荐',
         }, {
-            data: { act: 'site.matter.enroll.remark.recommend' },
-            desc: '用户A发表的评论被推荐',
+            data: { act: 'site.matter.enroll.cowork.get.agree' },
+            desc: '用户A发表的协作填写记录获得推荐',
+        }, {
+            data: { act: 'site.matter.enroll.remark.get.agree' },
+            desc: '用户A发表的评论获得推荐',
         }];
         $scope.rules = {};
         _aDefaultRules.forEach(function(oRule) {

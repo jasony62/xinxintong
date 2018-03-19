@@ -772,12 +772,12 @@ class record extends base {
 			/* 发起点赞 */
 			$modelEnlEvt->likeRecord($oApp, $oRecord, $oUser);
 			/* 被点赞 */
-			$modelEnlEvt->belikedRecord($oApp, $oRecord, $oUser);
+			$modelEnlEvt->getLikeRecord($oApp, $oRecord, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRecord($oApp, $oRecord, $oUser);
 			/* 撤销被点赞 */
-			$modelEnlEvt->undoBeLikedRecord($oApp, $oRecord, $oUser);
+			$modelEnlEvt->undoGetLikeRecord($oApp, $oRecord, $oUser);
 		}
 
 		$oResult = new \stdClass;
@@ -794,7 +794,7 @@ class record extends base {
 	 * @param string $value
 	 *
 	 */
-	public function recommend_action($ek, $value = '') {
+	public function agree_action($ek, $value = '') {
 		$modelRec = $this->model('matter\enroll\record');
 		$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,aid,rid,enroll_key,userid,agreed,agreed_log']);
 		if (false === $oRecord || $oRecord->state !== '1') {
@@ -854,7 +854,7 @@ class record extends base {
 		}
 
 		/* 处理用户汇总数据，积分数据 */
-		$this->model('matter\enroll\event')->recommendRecord($oApp, $oRecord, $oUser, $value);
+		$this->model('matter\enroll\event')->agreeRecord($oApp, $oRecord, $oUser, $value);
 
 		return new \ResponseData('ok');
 	}

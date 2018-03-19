@@ -1344,7 +1344,7 @@ class record_model extends record_base {
 		/* 更新项目的用户数据 */
 		if (!empty($oApp->mission_id)) {
 			$q = [
-				'userid,enroll_num,remark_num,like_num,like_remark_num,remark_other_num,like_other_num,like_other_remark_num,user_total_coin',
+				'userid,enroll_num,remark_num,like_num,like_remark_num,do_remark_num,do_like_num,do_like_remark_num,user_total_coin',
 				'xxt_enroll_user',
 				['aid' => $oApp->id, 'state' => 1, 'rid' => 'ALL'],
 			];
@@ -1357,9 +1357,9 @@ class record_model extends record_base {
 						'remark_num' => (object) ['op' => '-=', 'pat' => $oUser->remark_num],
 						'like_num' => (object) ['op' => '-=', 'pat' => $oUser->like_num],
 						'like_remark_num' => (object) ['op' => '-=', 'pat' => $oUser->like_remark_num],
-						'remark_other_num' => (object) ['op' => '-=', 'pat' => $oUser->remark_other_num],
-						'like_other_num' => (object) ['op' => '-=', 'pat' => $oUser->like_other_num],
-						'like_other_remark_num' => (object) ['op' => '-=', 'pat' => $oUser->like_other_remark_num],
+						'do_remark_num' => (object) ['op' => '-=', 'pat' => $oUser->do_remark_num],
+						'do_like_num' => (object) ['op' => '-=', 'pat' => $oUser->do_like_num],
+						'do_like_remark_num' => (object) ['op' => '-=', 'pat' => $oUser->do_like_remark_num],
 						'user_total_coin' => (object) ['op' => '-=', 'pat' => $oUser->user_total_coin],
 					],
 					['mission_id' => $oApp->mission_id, 'userid' => $oUser->userid, 'state' => 1]
@@ -1374,9 +1374,9 @@ class record_model extends record_base {
 				'remark_num' => 0,
 				'like_num' => 0,
 				'like_remark_num' => 0,
-				'remark_other_num' => 0,
-				'like_other_num' => 0,
-				'like_other_remark_num' => 0,
+				'do_remark_num' => 0,
+				'do_like_num' => 0,
+				'do_like_remark_num' => 0,
 				'user_total_coin' => 0,
 			],
 			['aid' => $oApp->id]

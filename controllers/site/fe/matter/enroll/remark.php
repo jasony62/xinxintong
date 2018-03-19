@@ -88,8 +88,8 @@ class remark extends base {
 			return new \ObjectNotFoundError();
 		}
 		if (!empty($recDataId)) {
-			$oRecordData = $modelRecData->byId($recDataId);
-			if (false === $oRecordData && $oRecordData->state !== '1') {
+			$oRecData = $modelRecData->byId($recDataId);
+			if (false === $oRecData && $oRecData->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
 		}
@@ -125,9 +125,9 @@ class remark extends base {
 		$oRemark->enroll_key = $ek;
 		$oRemark->enroll_group_id = $oRecord->group_id;
 		$oRemark->enroll_userid = $oRecord->userid;
-		$oRemark->schema_id = isset($oRecordData) ? $oRecordData->schema_id : '';
+		$oRemark->schema_id = isset($oRecData) ? $oRecData->schema_id : '';
 		$oRemark->data_id = $recDataId;
-		$oRemark->remark_id = $modelRec->escape($remark);
+		$oRemark->remark_id = $remark;
 		$oRemark->create_at = $current;
 		$oRemark->content = $modelRec->escape($oPosted->content);
 
@@ -137,14 +137,24 @@ class remark extends base {
 		if (!empty($recDataId)) {
 			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
 			// 如果每一条的数据呗评论了那么这道题的总数据+1
-			if ($oRecordData->multitext_seq != 0) {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecordData->schema_id}' and multitext_seq = 0");
+			if ($oRecData->multitext_seq != 0) {
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");
 			}
 		}
 
 		/* 更新用户汇总数据 */
 		if (!empty($recDataId)) {
-			$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecordData, $oUser);
+			foreach ($oApp->dataSchemas as $dataSchema) {
+				if ($dataSchema->id === $oRecData->schema_id) {
+					$oDataSchema = $dataSchema;
+					break;
+				}
+			}
+			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oUser);
+			} else {
+				$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oUser);
+			}
 		} else {
 			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oUser);
 		}
@@ -280,12 +290,12 @@ class remark extends base {
 			/* 发起点赞 */
 			$modelEnlEvt->likeRemark($oApp, $oRemark, $oUser);
 			/* 被点赞 */
-			$modelEnlEvt->belikedRemark($oApp, $oRemark, $oUser);
+			$modelEnlEvt->getLikeRemark($oApp, $oRemark, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRemark($oApp, $oRemark, $oUser);
 			/* 撤销被点赞 */
-			$modelEnlEvt->undoBeLikedRemark($oApp, $oRemark, $oUser);
+			$modelEnlEvt->undoGetLikeRemark($oApp, $oRemark, $oUser);
 		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
@@ -349,7 +359,7 @@ class remark extends base {
 		);
 
 		/* 处理用户汇总数据，积分数据 */
-		$this->model('matter\enroll\event')->recommendRemark($oApp, $oRemark, $oUser, $value);
+		$this->model('matter\enroll\event')->agreeRemark($oApp, $oRemark, $oUser, $value);
 
 		return new \ResponseData($value);
 	}

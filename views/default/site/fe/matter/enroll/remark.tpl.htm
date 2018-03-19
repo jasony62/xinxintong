@@ -36,18 +36,6 @@
         <div class='container'>
             <div class='row'>
                 <div id='record'>
-                    <div class='title text-right' ng-if="bRequireOption">
-                        <div class="btn-group" uib-dropdown>
-                            <button class="option btn btn-default" uib-dropdown-toggle>
-                                <span class="glyphicon glyphicon-option-vertical"></span>
-                            </button>
-                            <ul class="dropdown-menu" uib-dropdown-menu>
-                                <li>
-                                    <a href ng-click="gotoRecord()" ng-if="record.userid===user.uid">查看记录</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
                     <div class='user text-muted'>
                         <div class='nickname'>{{record.nickname||'匿名用户'}}</div>
                         <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
@@ -159,6 +147,7 @@
                 </div>
             </div>
         </div>
+        <div tms-app-nav app-navs="appNavs"></div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
@@ -188,10 +177,6 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/remark.js');?>"></script>
-    <div class="tms-switch tms-switch-back" ng-click="back()" ng-if="historyLen()"></div>
-    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
-    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
-    <div class="tms-switch tms-switch-app" ng-click="gotoApp($event)"></div>
 </body>
 
 </html>

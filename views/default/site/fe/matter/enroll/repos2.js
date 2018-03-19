@@ -173,6 +173,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         });
         /*设置页面分享信息*/
         $scope.setSnsShare();
+        /*设置页面导航*/
+        $scope.appNavs = {
+            addRecord: {}
+        };
+        if (oApp.can_rank === 'Y') {
+            $scope.appNavs.rank = {};
+        }
     });
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,

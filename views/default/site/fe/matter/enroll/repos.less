@@ -90,11 +90,22 @@ img {
 
 		}
 
-		.bottom-bar>*+* {
-			margin-left: 8px;
+		.bottom-bar {
+			display: flex;
 
-			.like {
-				color: red;
+			&>*+* {
+				margin-left: 8px;
+
+				.like {
+					color: red;
+				}
+
+			}
+
+			.datetime {
+				flex: 1;
+				line-height: 30px;
+				font-size: .8em;
 			}
 
 		}

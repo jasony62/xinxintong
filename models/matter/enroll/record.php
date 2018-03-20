@@ -318,7 +318,7 @@ class record_model extends record_base {
 	 * @param object $oUser
 	 * @param array $aOptions
 	 */
-	public function byUser(&$oApp, &$oUser, $aOptions = []) {
+	public function byUser($oApp, $oUser, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
 
@@ -669,20 +669,37 @@ class record_model extends record_base {
 		}
 
 		// 查询结果排序
-		if (!empty($oOptions->orderby) && !empty($oOptions->schemaId)) {
-			$schemaId = $oOptions->schemaId;
-			$orderby = $oOptions->orderby;
-			$q[1] .= ",xxt_enroll_record_data d";
-			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId' and d.multitext_seq = 0";
-			$q2['o'] = 'd.' . $orderby . ' desc';
-		} elseif (!empty($oOptions->orderby) && $oOptions->orderby === 'sum') {
-			$q2['o'] = 'r.score desc';
-		} elseif (!empty($oOptions->orderby) && $oOptions->orderby === 'agreed') {
-			$q2['o'] = 'r.agreed desc';
+		if (!empty($oOptions->orderby)) {
+			if (!empty($oOptions->schemaId)) {
+				$schemaId = $oOptions->schemaId;
+				$orderby = $oOptions->orderby;
+				$q[1] .= ",xxt_enroll_record_data d";
+				$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId' and d.multitext_seq = 0";
+				$q2['o'] = 'd.' . $orderby . ' desc';
+			} else {
+				$fnOrderBy = function ($orderbys) {
+					is_string($orderbys) && $orderbys = [$orderbys];
+					$sqls = [];
+					foreach ($orderbys as $orderby) {
+						switch ($orderby) {
+						case 'sum':
+							$sqls[] = 'r.score desc';
+							break;
+						case 'agreed':
+							$sqls[] = 'r.agreed desc';
+							break;
+						case 'like_num':
+							$sqls[] = 'r.like_num desc';
+							break;
+						}
+					}
+					return implode(',', $sqls);
+				};
+				$q2['o'] = $fnOrderBy($oOptions->orderby);
+			}
 		} else {
 			$q2['o'] = 'r.enroll_at desc';
 		}
-
 		/**
 		 * 处理获得的数据
 		 */

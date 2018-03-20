@@ -34,6 +34,12 @@
     </nav>
     <div ng-cloak class='ng-cloak app' ng-controller="ctrlRemark">
         <div class='container'>
+            <div ng-if="tasks.length">
+                <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
+                    <span>{{task.msg}}</span>
+                    <span ng-switch-when="record.cowork.pre"></span>
+                </div>
+            </div>
             <div class='row'>
                 <div id='record'>
                     <div class='user text-muted'>
@@ -156,7 +162,7 @@
                         <div class='alert alert-info' ng-switch-when="member">需要<a href='' class='alert-link' ng-click="askBecomeMember()">填写联系人信息</a>后才能发表留言</div>
                     </div>
                     <div class='text-center' ng-if="params.entryRuleResult.passed==='Y'">
-                        <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-plus'></span> 添加留言<span ng-if="requireLikeNum>0">【还需要{{requireLikeNum}}个赞同】</span></button>
+                        <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-plus'></span> 添加留言</button>
                     </div>
                 </div>
             </div>

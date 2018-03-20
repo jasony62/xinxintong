@@ -114,8 +114,8 @@ define(['frame'], function(ngApp) {
             oSearch.remark = oRemark.id;
             $location.path('/rest/pl/fe/matter/enroll/editor');
         };
-        $scope.$watch('app', function(nv) {
-            if (nv) {
+        $scope.$watch('app', function(oApp) {
+            if (oApp) {
                 $scope.doSearch(1);
             }
         });

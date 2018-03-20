@@ -43,11 +43,6 @@ define(['frame'], function(ngApp) {
             $scope.$watch('rule', function(nv, ov) {
                 if (nv !== ov) {
                     $scope.rulesModified = true;
-                    if (nv.remark) {
-                        if (nv.remark.requireLike && !nv.remark.requireLikeNum) {
-                            nv.remark.requireLikeNum = 3;
-                        }
-                    }
                 }
             }, true);
         });
@@ -59,10 +54,13 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/matter/enroll/coin/rules?site=' + _oApp.siteid + '&app=' + _oApp.id;
             http2.get(url, function(rsp) {
                 rsp.data.forEach(function(oRule) {
-                    var oRuleData = $scope.rules[oRule.act].data;
-                    oRuleData.id = oRule.id;
-                    oRuleData.actor_delta = oRule.actor_delta;
-                    oRuleData.actor_overlap = oRule.actor_overlap;
+                    var oRuleData;
+                    if ($scope.rules[oRule.act]) {
+                        oRuleData = $scope.rules[oRule.act].data;
+                        oRuleData.id = oRule.id;
+                        oRuleData.actor_delta = oRule.actor_delta;
+                        oRuleData.actor_overlap = oRule.actor_overlap;
+                    }
                 });
             });
         }

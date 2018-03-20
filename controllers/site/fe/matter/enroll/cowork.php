@@ -18,7 +18,7 @@ class cowork extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		if (empty($data)) {
 			/* 要更新的记录 */
-			$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,group_id']);
+			$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,group_id,like_num']);
 			if (false === $oRecord || $oRecord->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
@@ -47,7 +47,7 @@ class cowork extends base {
 				return new \ObjectNotFoundError();
 			}
 			/* 要更新的记录 */
-			$oRecord = $modelRec->byId($oRecData->enroll_key, ['fields' => 'id,state,data']);
+			$oRecord = $modelRec->byId($oRecData->enroll_key, ['fields' => 'id,state,data,like_num']);
 			if (false === $oRecord || $oRecord->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
@@ -74,6 +74,18 @@ class cowork extends base {
 		}
 		if ($oUpdatedSchema->type !== 'multitext') {
 			return new \ParameterError('题目的类型不是多项填写题');
+		}
+
+		/* 检查数量限制 */
+		if (isset($oApp->actionRule->record->cowork->pre)) {
+			$oRule = $oApp->actionRule->record->cowork->pre;
+			/* 限制了最多点赞次数 */
+			if (!empty($oRule->record->likeNum)) {
+				if ((int) $oRecord->like_num < (int) $oRule->record->likeNum) {
+					$desc = empty($oRule->desc) ? ('点赞次数至少【' . $oRule->record->likeNum . '】个') : $oRule->desc;
+					return new \ResponseError($desc);
+				}
+			}
 		}
 
 		$oUser = $this->getUser($oApp);

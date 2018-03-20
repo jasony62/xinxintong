@@ -40,7 +40,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     };
 }]);
 ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', function($scope, $sce, http2, LS, srvRound, $timeout) {
-    var oApp, facRound, _oPage, _oCriteria, _oShareableSchemas;
+    var _oApp, facRound, _oPage, _oCriteria, _oShareableSchemas;
     $scope.page = _oPage = { at: 1, size: 12 };
     $scope.criteria = _oCriteria = { creator: 'all' };
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
@@ -142,9 +142,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         $scope.activeDir = oDir;
         $scope.recordList(1);
     };
+    /* 关闭任务提示 */
+    $scope.closeTask = function(index) {
+        $scope.tasks.splice(index, 1);
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        oApp = params.app;
-        oApp.dataSchemas.forEach(function(schema) {
+        _oApp = params.app;
+        _oApp.dataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
             }
@@ -159,8 +163,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         }
         $scope.groupOthers = groupOthersById;
         $scope.recordList(1);
-        $scope.facRound = facRound = srvRound.ins(oApp);
-        if (oApp.multi_rounds === 'Y') {
+        $scope.facRound = facRound = srvRound.ins(_oApp);
+        if (_oApp.multi_rounds === 'Y') {
             facRound.list().then(function(result) {
                 if (result.active) {
                     for (var i = 0, ii = result.rounds.length; i < ii; i++) {
@@ -181,11 +185,30 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         });
         /*设置页面分享信息*/
         $scope.setSnsShare();
+        /*设置任务提示*/
+        if (_oApp.actionRule) {
+            var actionRule, recordRule, tasks;
+            actionRule = _oApp.actionRule;
+            tasks = [];
+            if (recordRule = actionRule.record) {
+                if (recordRule.submit && recordRule.submit.end && !recordRule.submit.end._ok) {
+                    if (recordRule.submit.end.desc) {
+                        tasks.push({ type: 'info', msg: recordRule.submit.end.desc, id: 'record.submit.end' });
+                    }
+                }
+                if (recordRule.like && recordRule.like.end && !recordRule.like.end._ok) {
+                    if (recordRule.like.end.desc) {
+                        tasks.push({ type: 'info', msg: recordRule.like.end.desc, id: 'record.like.end', gap: recordRule.like.end._no[0] });
+                    }
+                }
+            }
+            $scope.tasks = tasks;
+        }
         /*设置页面导航*/
         $scope.appNavs = {
             addRecord: {}
         };
-        if (oApp.can_rank === 'Y') {
+        if (_oApp.can_rank === 'Y') {
             $scope.appNavs.rank = {};
         }
     });

@@ -164,7 +164,7 @@ class repos extends base {
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
-		$oOptions->orderby = 'agreed';
+		$oOptions->orderby = ['agreed', 'like_num'];
 		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
 
 		// 查询结果

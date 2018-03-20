@@ -147,11 +147,11 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         rid && (url += '&rid=' + rid);
         page && (url += '&page=' + page);
         newRecord && newRecord === 'Y' && (url += '&newRecord=Y');
-        if (/remark|repos/.test(page)) {
-            location = url;
-        } else {
-            location.replace(url);
-        }
+        //if (/remark|repos/.test(page)) {
+        location = url;
+        //} else {
+        location.replace(url);
+        //}
     };
     $scope.openMatter = function(id, type, replace, newWindow) {
         var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;

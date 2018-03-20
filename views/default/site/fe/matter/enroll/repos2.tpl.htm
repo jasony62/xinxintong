@@ -33,6 +33,15 @@
         </div>
     </nav>
     <div class='app container' ng-cloak class='ng-cloak' ng-controller="ctrlRepos">
+        <div ng-if="tasks.length">
+            <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
+                <span>{{task.msg}}</span>
+                <span ng-switch-when="record.submit.end">
+                    <a href class="alert-link" ng-click="addRecord($event)">，去添加</a>
+                </span>
+                <span ng-switch-when="record.like.end">，还需要【{{task.gap}}】次</span>
+            </div>
+        </div>
         <div class='row'>
             <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened">
                 <uib-accordion>
@@ -97,11 +106,8 @@
                             </div>
                             <div class='data'>
                                 <blockquote>
-                                    <div class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]" ng-repeat="schema in schemas" ng-switch on="schema.type">
+                                    <div class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]||schema.cowork==='Y'" ng-repeat="schema in schemas" ng-switch on="schema.type">
                                         <div class='text-muted data-title'>{{schema.title}}</div>
-                                        <div ng-if="schema.cowork==='Y'">
-                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)"><span class='glyphicon glyphicon-plus'></span> 协作填写</button>
-                                        </div>
                                         <div ng-switch-when="file">
                                             <div ng-repeat="file in rec.data[schema.id]">
                                                 <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
@@ -131,13 +137,16 @@
                                         <div ng-switch-default>
                                             <span>{{rec.data[schema.id]}}</span>
                                         </div>
+                                        <div ng-if="schema.cowork==='Y'">
+                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看详情 <span class='glyphicon glyphicon-menu-right'></span></button>
+                                        </div>
                                     </div>
                                 </blockquote>
                             </div>
                             <div class='bottom-bar'>
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
-                                <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)">留言&nbsp;<span ng-bind="rec.remark_num"></span></button>
+                                <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
                                 <span ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
                                     <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
                                     <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>

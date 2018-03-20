@@ -277,6 +277,9 @@ class main extends base {
 			}
 		}
 
+		/* 检查活动规则 */
+		$this->_checkActionRule($oApp, $oUser, isset($params['activeRound']) ? $params['activeRound'] : null);
+
 		if (!in_array($page, ['repos', 'remark', 'rank', 'score'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */
@@ -318,6 +321,40 @@ class main extends base {
 		}
 
 		return new \ResponseData($params);
+	}
+	/**
+	 * 检查活动规则满足情况
+	 */
+	private function _checkActionRule(&$oApp, $oUser, $oActiveRnd) {
+		if (empty($oApp->actionRule)) {
+			return true;
+		}
+		$oActionRule = $oApp->actionRule;
+
+		/* 对提交填写记录数量有要求 */
+		if (isset($oActionRule->record->submit->end)) {
+			$oRule = $oActionRule->record->submit->end;
+			if (!empty($oRule->min)) {
+				$oRecords = $this->model('matter\enroll\record')->byUser($oApp, $oUser, ['fields' => 'id', 'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '']);
+				if (count($oRecords) >= $oRule->min) {
+					$oRule->_ok = [count($oRecords)];
+				} else {
+					$oRule->_no = [count($oRecords)];
+				}
+			}
+		}
+		/* 对提交填写记录的投票数量有要求 */
+		if (isset($oActionRule->record->like->end)) {
+			$oRule = $oActionRule->record->like->end;
+			if (!empty($oRule->min)) {
+				$oAppUser = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, ['fields' => 'id,do_like_num', 'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '']);
+				if ($oAppUser && (int) $oAppUser->do_like_num >= (int) $oRule->min) {
+					$oRule->_ok = [(int) $oAppUser->do_like_num];
+				} else {
+					$oRule->_no = [(int) $oRule->min - (int) $oAppUser->do_like_num];
+				}
+			}
+		}
 	}
 	/**
 	 * 获得用户执行操作规则的状态

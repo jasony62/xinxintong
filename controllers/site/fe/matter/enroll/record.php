@@ -760,6 +760,21 @@ class record extends base {
 			$oLikeLog->{$oUser->uid} = time();
 			$incLikeNum = 1;
 		}
+		/* 检查数量限制 */
+		if ($incLikeNum > 0) {
+			if (isset($oApp->actionRule->record->like->end)) {
+				$oRule = $oApp->actionRule->record->like->end;
+				/* 限制了最多点赞次数 */
+				if (!empty($oRule->max)) {
+					$oAppUser = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, ['fields' => 'id,do_like_num', 'rid' => $oRecord->rid]);
+					if ($oAppUser && (int) $oAppUser->do_like_num >= (int) $oRule->max) {
+						$desc = empty($oRule->desc) ? ('点赞次数最多【' . $oRule->max . '】') : $oRule->desc;
+						return new \ResponseError($desc);
+					}
+				}
+			}
+		}
+
 		$likeNum = $oRecord->like_num + $incLikeNum;
 		$modelRec->update(
 			'xxt_enroll_record',

@@ -141,7 +141,7 @@ class event_model extends \TMS_MODEL {
 			if ($oMission->user_app_type === 'group') {
 				$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
 				$oMisGrpUser = $this->model('matter\group\player')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
-				if (isset($oMisGrpUser->round_id) && $oMisUser->group_id !== $oMisGrpUser->round_id) {
+				if (isset($oMisGrpUser->round_id)) {
 					$oUpdatedMisUsrData->group_id = $oMisGrpUser->round_id;
 				}
 			}

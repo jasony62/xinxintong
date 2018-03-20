@@ -26,7 +26,7 @@ button.option {
 }
 
 .glyphicon.like {
-	color: red;
+	color: orange;
 }
 
 .bottom-bar {
@@ -118,7 +118,7 @@ p {
 }
 
 #remarks:before {
-	content: '评论';
+	content: '留言';
 	position: absolute;
 	left: 50%;
 	margin-left: -1em;

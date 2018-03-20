@@ -19,7 +19,7 @@
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-comment visible-lg-inline"></i> <span>评论页</span>
+                    <i class="glyphicon glyphicon-comment visible-lg-inline"></i> <span>留言页</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -152,11 +152,11 @@
                         </div>
                     </div>
                     <div ng-if="params.entryRuleResult.passed==='N'" ng-switch on="params.entryRuleResult.scope">
-                        <div class='alert alert-info' ng-switch-when="sns">需要<a href='' class='alert-link' ng-click="askFollowSns()">关注公众号</a>后才能发表评论</div>
-                        <div class='alert alert-info' ng-switch-when="member">需要<a href='' class='alert-link' ng-click="askBecomeMember()">填写联系人信息</a>后才能发表评论</div>
+                        <div class='alert alert-info' ng-switch-when="sns">需要<a href='' class='alert-link' ng-click="askFollowSns()">关注公众号</a>后才能发表留言</div>
+                        <div class='alert alert-info' ng-switch-when="member">需要<a href='' class='alert-link' ng-click="askBecomeMember()">填写联系人信息</a>后才能发表留言</div>
                     </div>
                     <div class='text-center' ng-if="params.entryRuleResult.passed==='Y'">
-                        <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-plus'></span> 添加评论<span ng-if="requireLikeNum>0">【还需要{{requireLikeNum}}个赞同】</span></button>
+                        <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-plus'></span> 添加留言<span ng-if="requireLikeNum>0">【还需要{{requireLikeNum}}个赞同】</span></button>
                     </div>
                 </div>
             </div>
@@ -179,11 +179,11 @@
     </script>
     <script type="text/ng-template" id="writeRemark.html">
         <div class="modal-body">
-            <textarea class='form-control' rows=8 placeholder='请输入评论内容' autofocus ng-model="data.content"></textarea>
+            <textarea class='form-control' rows=8 placeholder='请输入留言内容' autofocus ng-model="data.content"></textarea>
         </div>
         <div class="modal-footer">
             <button class="btn btn-default" ng-click="cancel()">取消</button>
-            <button class="btn btn-primary" ng-click="ok()">提交评论</button>
+            <button class="btn btn-primary" ng-click="ok()">提交留言</button>
         </div>
     </script>
     <script src="/static/js/xxt.ui.error.js"></script>

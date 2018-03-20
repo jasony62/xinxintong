@@ -97,8 +97,11 @@
                             </div>
                             <div class='data'>
                                 <blockquote>
-                                    <div class='schema' ng-if="rec.data[schema.id]" ng-repeat="schema in schemas" ng-switch on="schema.type">
+                                    <div class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]" ng-repeat="schema in schemas" ng-switch on="schema.type">
                                         <div class='text-muted data-title'>{{schema.title}}</div>
+                                        <div ng-if="schema.cowork==='Y'">
+                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)"><span class='glyphicon glyphicon-plus'></span> 协作填写</button>
+                                        </div>
                                         <div ng-switch-when="file">
                                             <div ng-repeat="file in rec.data[schema.id]">
                                                 <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls">
@@ -110,9 +113,11 @@
                                                 <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
                                             </div>
                                         </div>
-                                        <ul ng-switch-when="image">
-                                            <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
-                                        </ul>
+                                        <div ng-switch-when="image">
+                                            <ul>
+                                                <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
+                                            </ul>
+                                        </div>
                                         <div ng-switch-when="multitext">
                                             <ul ng-if="rec.data[schema.id]" style='padding-left:20px'>
                                                 <li ng-repeat="item in rec.data[schema.id]"><span ng-bind="item.value"></span></li>

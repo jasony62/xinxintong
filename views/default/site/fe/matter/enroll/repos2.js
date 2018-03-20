@@ -91,6 +91,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         url += '&page=remark';
         location.href = url;
     };
+    $scope.coworkRecord = function(oRecord) {
+        var url;
+        url = LS.j('', 'site', 'app');
+        url += '&ek=' + oRecord.enroll_key;
+        url += '&page=remark';
+        url += '#cowork';
+        location.href = url;
+    };
     $scope.recommend = function(oRecord, value) {
         var url;
         if (oRecord.agreed !== value) {

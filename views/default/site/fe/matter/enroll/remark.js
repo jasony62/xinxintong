@@ -57,13 +57,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
     function fnAfterLoad(oRecord) {
         /*设置任务提示*/
         if (oApp.actionRule) {
-            var actionRule, tasks, ruleCheck;
+            var actionRule, ruleCheck;
             actionRule = oApp.actionRule;
-            tasks = [];
             if (true !== (ruleCheck = fnCanCowork(oRecord))) {
-                tasks.push({ type: 'info', msg: ruleCheck, id: 'record.cowork.pre' });
+                $scope.tasks.push({ type: 'info', msg: ruleCheck, id: 'record.cowork.pre' });
             }
-            $scope.tasks = tasks;
         }
         /*设置页面导航*/
         $scope.appNavs = {
@@ -85,6 +83,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
     ek = LS.s().ek;
     _schemaId = LS.s().schema;
     _recDataId = LS.s().data;
+    $scope.tasks = [];
     $scope.newRemark = {};
     $scope.recommend = function(value) {
         var url, oRecord, oRecData;
@@ -471,6 +470,13 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation'
                                 });
                             }
                         }, function() {});
+                        http2.get(LS.j('cowork/task', 'site', 'app', 'ek') + '&schema=' + oSchema.id).then(function(rsp) {
+                            if (rsp.data && rsp.data.length) {
+                                rsp.data.forEach(function(oRule) {
+                                    $scope.tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id });
+                                });
+                            }
+                        });
                     });
                 }
             });

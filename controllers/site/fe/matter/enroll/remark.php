@@ -26,7 +26,7 @@ class remark extends base {
 		$modelRem = $this->model('matter\enroll\remark');
 		$options = [];
 		if (!empty($data)) {
-			$options['data_id'] = $modelRem->escape($data);
+			$options['data_id'] = $data;
 		}
 
 		$result = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $options);

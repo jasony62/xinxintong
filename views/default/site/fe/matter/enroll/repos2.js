@@ -187,21 +187,16 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         $scope.setSnsShare();
         /*设置任务提示*/
         if (_oApp.actionRule) {
-            var actionRule, recordRule, tasks;
-            actionRule = _oApp.actionRule;
-            tasks = [];
-            if (recordRule = actionRule.record) {
-                if (recordRule.submit && recordRule.submit.end && !recordRule.submit.end._ok) {
-                    if (recordRule.submit.end.desc) {
-                        tasks.push({ type: 'info', msg: recordRule.submit.end.desc, id: 'record.submit.end' });
-                    }
+            var tasks = [];
+            http2.get(LS.j('repos/task', 'site', 'app')).then(function(rsp) {
+                if (rsp.data && rsp.data.length) {
+                    rsp.data.forEach(function(oRule) {
+                        if (!oRule._ok) {
+                            tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0 });
+                        }
+                    });
                 }
-                if (recordRule.like && recordRule.like.end && !recordRule.like.end._ok) {
-                    if (recordRule.like.end.desc) {
-                        tasks.push({ type: 'info', msg: recordRule.like.end.desc, id: 'record.like.end', gap: recordRule.like.end._no[0] });
-                    }
-                }
-            }
+            });
             $scope.tasks = tasks;
         }
         /*设置页面导航*/

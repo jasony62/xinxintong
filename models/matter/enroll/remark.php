@@ -27,10 +27,10 @@ class remark_model extends \TMS_MODEL {
 		return $oRemark;
 	}
 	/**
-	 *
+	 * 用户在指定活动中发表的评论
 	 */
-	public function byUser($oApp, $oUser, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function byUser($oApp, $oUser, $oOptions = []) {
+		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : '*';
 
 		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');
 		if (empty($userid)) {
@@ -42,6 +42,10 @@ class remark_model extends \TMS_MODEL {
 			'xxt_enroll_record_remark',
 			['aid' => $oApp->id, 'userid' => $userid],
 		];
+		if (!empty($oOptions['ek'])) {
+			$q[2]['enroll_key'] = $oOptions['ek'];
+		}
+
 		$remarks = $this->query_objs_ss($q);
 
 		return $remarks;

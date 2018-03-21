@@ -8,19 +8,14 @@ define(['frame'], function(ngApp) {
             j: function() {
                 return '&page=' + this.at + '&size=' + this.size;
             }
-        }
+        };
         $scope.fetchLogs = function() {
             var url;
             url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + _oApp.siteid + '&app=' + _oApp.id + page.j();
             http2.get(url, function(rsp) {
                 if (rsp.data.logs) {
-                    $scope.tabActive = 2;
                     $scope.logs = logs = rsp.data.logs;
                     $scope.page.total = rsp.data.total;
-                }
-
-                if (rsp.data.logs.length == 0) {
-                    $scope.tabActive = 0;
                 }
             });
         };

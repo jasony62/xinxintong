@@ -126,7 +126,7 @@ img {
 			position: relative;
 
 			&:before {
-				content: '推荐评论';
+				content: '推荐留言';
 				position: absolute;
 				left: 50%;
 				margin-left: -1em;
@@ -167,12 +167,18 @@ img {
 		margin-bottom: 0;
 	}
 
-	.app.container {
+	.app .records.col-xs-12 {
 		padding: 0;
 	}
 
-	#filterCriteria .form-control, #filterCriteria .input-group-btn .btn {
-		border-radius: 0;
+	#filterCriteria {
+		margin-left: -1px;
+		margin-right: -2px;
+
+		.form-control, .input-group-btn .btn {
+			border-radius: 0;
+		}
+
 	}
 
 	#advCriteria {

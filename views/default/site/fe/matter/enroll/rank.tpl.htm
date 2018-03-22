@@ -44,16 +44,16 @@
                         <option value='group' ng-if="app.group_app_id||app.entryRule.scope.group==='Y'">用户分组</option>
                         <option value='data' ng-if="isRemark">提交内容</option>
                         <option value='data-rec' ng-if="isRemark">提交内容-推荐</option>
-                        <option value='remark' ng-if="isRemark">内容评论</option>
-                        <option value='remark-rec' ng-if="isRemark">内容评论-推荐</option>
+                        <option value='remark' ng-if="isRemark">内容留言</option>
+                        <option value='remark-rec' ng-if="isRemark">内容留言-推荐</option>
                     </select>
                 </div>
                 <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='user'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll' ng-if="config.enroll">提交记录数量</option>
-                        <option value='remark' ng-if="config.remark">获得评论数量</option>
+                        <option value='remark' ng-if="config.remark">获得留言数量</option>
                         <option value='like' ng-if="config.like">获得点赞数量</option>
-                        <option value='remark_other' ng-if="config.remark_other">发表评论数量</option>
+                        <option value='remark_other' ng-if="config.remark_other">发表留言数量</option>
                         <option value='like_other' ng-if="config.like_other">进行点赞数量</option>
                         <option value='total_coin' ng-if="config.total_coin">积分</option>
                         <option value='score' ng-if="config.score">得分</option>
@@ -62,9 +62,9 @@
                 <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='group'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll' ng-if="config.enroll">提交记录数量</option>
-                        <option value='remark' ng-if="config.remark">获得评论数量</option>
+                        <option value='remark' ng-if="config.remark">获得留言数量</option>
                         <option value='like' ng-if="config.like">获得点赞数量</option>
-                        <option value='remark_other' ng-if="config.remark_other">发表评论数量</option>
+                        <option value='remark_other' ng-if="config.remark_other">发表留言数量</option>
                         <option value='like_other' ng-if="config.like_other">进行点赞数量</option>
                         <option value='total_coin' ng-if="config.total_coin">积分</option>
                         <option value='score' ng-if="config.score">得分</option>
@@ -72,7 +72,7 @@
                 </div>
                 <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='data'||appState.criteria.obj==='data-rec'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
-                        <option value='remark'>获得评论数量</option>
+                        <option value='remark'>获得留言数量</option>
                         <option value='like'>获得点赞数量</option>
                     </select>
                 </div>
@@ -265,7 +265,7 @@
                     <ul ng-switch-when="remark">
                         <li class='hidden-xs'>
                             <div class='col-md-1'>序号</div>
-                            <div class='col-md-6 text-left'>评论内容</div>
+                            <div class='col-md-6 text-left'>留言内容</div>
                             <div class='col-md-3'>用户</div>
                             <div class='col-md-2'>赞同数</div>
                         </li>
@@ -300,7 +300,7 @@
                     <ul ng-switch-when="remark-rec">
                         <li class='hidden-xs'>
                             <div class='col-md-1'>序号</div>
-                            <div class='col-md-6 text-left'>评论内容</div>
+                            <div class='col-md-6 text-left'>留言内容</div>
                             <div class='col-md-3'>用户</div>
                             <div class='col-md-2'>赞同数</div>
                         </li>

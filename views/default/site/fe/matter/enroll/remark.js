@@ -20,7 +20,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                     }
                     if (oRemark.remark_id !== '0') {
                         oUpperRemark = oRemarks[oRemark.remark_id];
-                        oRemark.content = '<a href="" ng-click="gotoUpper(' + oRemark.remark_id + ')">回复 ' + oUpperRemark.nickname + ' 的评论：</a><br/>' + oRemark.content;
+                        oRemark.content = '<a href="" ng-click="gotoUpper(' + oRemark.remark_id + ')">回复 ' + oUpperRemark.nickname + ' 的留言：</a><br/>' + oRemark.content;
                     }
                 }
             }
@@ -144,7 +144,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                 oNewRemark = rsp.data;
                 oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
                 if (oUpperRemark) {
-                    oNewRemark.content = '<a href="" ng-click="gotoUpper(' + oUpperRemark.id + ')">回复 ' + oUpperRemark.nickname + ' 的评论：</a><br/>' + oNewRemark.content;
+                    oNewRemark.content = '<a href="" ng-click="gotoUpper(' + oUpperRemark.id + ')">回复 ' + oUpperRemark.nickname + ' 的留言：</a><br/>' + oNewRemark.content;
                 }
                 $scope.remarks.splice(0, 0, oNewRemark);
                 $timeout(function() {
@@ -237,7 +237,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);
     };
-    $scope.bRemarkRecord = !_schemaId; // 评论记录还是数据
+    $scope.bRemarkRecord = !_schemaId; // 留言记录还是数据
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oAssignedSchema, aCoworkSchemas;
         oApp = params.app;
@@ -268,7 +268,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         }
         if ($scope.bRemarkRecord) {
             /**
-             * 整条记录的评论
+             * 整条记录的留言
              */
             http2.get(LS.j('repos/recordGet', 'site', 'app', 'ek')).then(function(rsp) {
                 var oRecord, aVisibleSchemas;
@@ -303,7 +303,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
             });
         } else {
             /**
-             * 单道题目的评论
+             * 单道题目的留言
              */
             http2.get(LS.j('data/get', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
                 var oRecord, oRecData;

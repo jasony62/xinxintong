@@ -67,9 +67,7 @@ class main extends \site\fe\matter\base {
 				)
 			);
 		}
-		if ($article->custom_body === 'N') {
-			$article->remarks = $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
-		} else if ($article->page_id) {
+		if ($article->custom_body === 'Y' && $article->page_id) {
 			/* 定制页 */
 			$modelCode = $this->model('code\page');
 			$article->page = $modelCode->lastPublishedByName($site, $article->body_page_name);

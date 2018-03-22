@@ -423,7 +423,7 @@ class user_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 * 发表过评论的用户
+	 * 发表过留言的用户
 	 */
 	public function remarkerByApp($oApp, $page = 1, $size = 30, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -470,7 +470,7 @@ class user_model extends \TMS_MODEL {
 			}
 			$result->comment = implode(',', $comments);
 		}
-		/* 发表评论次数 */
+		/* 发表留言次数 */
 		$modelRec = $this->model('matter\enroll\remark');
 		$remarks = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);
 		$result->do_remark_num = count($remarks);

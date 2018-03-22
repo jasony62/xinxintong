@@ -177,7 +177,7 @@ class main extends \pl\fe\matter\main_base {
 		return new \ResponseData($article);
 	}
 	/**
-	 * 获得指定文章的所有评论
+	 * 获得指定文章的所有留言
 	 *
 	 * $id article's id
 	 */
@@ -351,7 +351,7 @@ class main extends \pl\fe\matter\main_base {
 		isset($oPosted->summary) && $oPosted->summary = $modelArt->escape($oPosted->summary);
 		isset($oPosted->author) && $oPosted->author = $modelArt->escape($oPosted->author);
 		isset($oPosted->body) && $oPosted->body = $modelArt->escape(urldecode($oPosted->body));
-	 	if (isset($oPosted->entryRule)) {
+		if (isset($oPosted->entryRule)) {
 			$oPosted->entry_rule = $modelArt->escape($modelArt->toJson($oPosted->entryRule));
 			unset($oPosted->entryRule);
 		}

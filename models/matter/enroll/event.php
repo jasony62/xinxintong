@@ -45,11 +45,11 @@ class event_model extends \TMS_MODEL {
 	 */
 	const DoLikeCoworkEventName = 'site.matter.enroll.cowork.do.like';
 	/**
-	 * 用户A评论被赞同
+	 * 用户A留言被赞同
 	 */
 	const GetLikeRemarkEventName = 'site.matter.enroll.remark.get.like';
 	/**
-	 * 用户A赞同别人的评论
+	 * 用户A赞同别人的留言
 	 */
 	const DoLikeRemarkEventName = 'site.matter.enroll.remark.do.like';
 	/**
@@ -57,11 +57,11 @@ class event_model extends \TMS_MODEL {
 	 */
 	const GetAgreeEventName = 'site.matter.enroll.data.get.agree';
 	/**
-	 * 推荐评论事件名称
+	 * 推荐留言事件名称
 	 */
 	const GetAgreeCoworkEventName = 'site.matter.enroll.cowork.get.agree';
 	/**
-	 * 推荐评论事件名称
+	 * 推荐留言事件名称
 	 */
 	const GetAgreeRemarkEventName = 'site.matter.enroll.remark.get.agree';
 	/**
@@ -83,7 +83,7 @@ class event_model extends \TMS_MODEL {
 			$oUpdatedEnlUsrData->group_id = $oUser->group_id;
 		}
 
-		/* 更新发起评论的活动用户轮次数据 */
+		/* 更新发起留言的活动用户轮次数据 */
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		$oEnlUsrRnd = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => $rid]);
 		if (false === $oEnlUsrRnd) {
@@ -432,28 +432,28 @@ class event_model extends \TMS_MODEL {
 		return true;
 	}
 	/**
-	 * 评论填写记录
+	 * 留言填写记录
 	 */
 	public function remarkRecord($oApp, $oRecOrData, $oOperator) {
 		$this->_doRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record');
 		$this->_getRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record');
 	}
 	/**
-	 * 评论填写数据
+	 * 留言填写数据
 	 */
 	public function remarkRecData($oApp, $oRecOrData, $oOperator) {
 		$this->_doRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record.data');
 		$this->_getRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record.data');
 	}
 	/**
-	 * 评论填写数据
+	 * 留言填写数据
 	 */
 	public function remarkCowork($oApp, $oRecOrData, $oOperator) {
 		$this->_doRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record.data');
 		$this->_getRemarkCowork($oApp, $oRecOrData, $oOperator);
 	}
 	/**
-	 * 评论填写记录或数据
+	 * 留言填写记录或数据
 	 */
 	private function _doRemarkRecOrData($oApp, $oRecOrData, $oOperator, $logArgType) {
 		$operatorId = $this->_getOperatorId($oOperator);
@@ -481,7 +481,7 @@ class event_model extends \TMS_MODEL {
 		return $this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
 	}
 	/**
-	 * 填写记录或数据获得评论
+	 * 填写记录或数据获得留言
 	 */
 	private function _getRemarkRecOrData($oApp, $oRecOrData, $oOperator, $logArgType) {
 		$operatorId = $this->_getOperatorId($oOperator);
@@ -511,7 +511,7 @@ class event_model extends \TMS_MODEL {
 		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
 	}
 	/**
-	 * 填写协作数据获得评论
+	 * 填写协作数据获得留言
 	 */
 	private function _getRemarkCowork($oApp, $oRecOrData, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
@@ -1012,8 +1012,8 @@ class event_model extends \TMS_MODEL {
 		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
 	}
 	/**
-	 * 评论点赞
-	 * 同一条评论只有第一次点赞时才给积分奖励
+	 * 留言点赞
+	 * 同一条留言只有第一次点赞时才给积分奖励
 	 */
 	public function likeRemark($oApp, $oRemark, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
@@ -1036,7 +1036,7 @@ class event_model extends \TMS_MODEL {
 		return $this->_updateUsrData($oApp, $oRemark->rid, false, $oOperator, $oUpdatedUsrData);
 	}
 	/**
-	 * 评论被点赞
+	 * 留言被点赞
 	 */
 	public function getLikeRemark($oApp, $oRemark, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
@@ -1065,7 +1065,7 @@ class event_model extends \TMS_MODEL {
 		return $this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
 	}
 	/**
-	 * 撤销发起对评论点赞
+	 * 撤销发起对留言点赞
 	 */
 	public function undoLikeRemark($oApp, $oRemark, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
@@ -1086,7 +1086,7 @@ class event_model extends \TMS_MODEL {
 		return $this->_updateUsrData($oApp, $oRemark->rid, true, $oOperator, $oUpdatedUsrData);
 	}
 	/**
-	 * 撤销评论被点赞
+	 * 撤销留言被点赞
 	 */
 	public function undoGetLikeRemark($oApp, $oRemark, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);

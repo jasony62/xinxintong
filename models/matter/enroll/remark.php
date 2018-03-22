@@ -1,7 +1,7 @@
 <?php
 namespace matter\enroll;
 /**
- * 登记数据评论
+ * 登记数据留言
  */
 class remark_model extends \TMS_MODEL {
 	/**
@@ -27,7 +27,7 @@ class remark_model extends \TMS_MODEL {
 		return $oRemark;
 	}
 	/**
-	 * 用户在指定活动中发表的评论
+	 * 用户在指定活动中发表的留言
 	 */
 	public function byUser($oApp, $oUser, $oOptions = []) {
 		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : '*';
@@ -51,7 +51,7 @@ class remark_model extends \TMS_MODEL {
 		return $remarks;
 	}
 	/**
-	 * 获得指定登记记录的评论
+	 * 获得指定登记记录的留言
 	 */
 	public function listByRecord($oUser, $ek, $schemaId, $page = 1, $size = 10, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -108,7 +108,7 @@ class remark_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 * 获得指定登记记录的评论
+	 * 获得指定登记记录的留言
 	 */
 	public function listByApp($oApp, $page = 1, $size = 10, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';

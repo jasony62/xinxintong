@@ -3,11 +3,11 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动登记记录评论
+ * 登记活动登记记录留言
  */
 class remark extends base {
 	/**
-	 * 返回一条登记记录的所有评论
+	 * 返回一条登记记录的所有留言
 	 */
 	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99) {
 		$modelRec = $this->model('matter\enroll\record');
@@ -34,7 +34,7 @@ class remark extends base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 返回多项填写题的所有评论
+	 * 返回多项填写题的所有留言
 	 */
 	public function listMultitext_action($ek, $schema, $page = 1, $size = 99) {
 		if (empty($schema)) {
@@ -71,10 +71,10 @@ class remark extends base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 给指定的登记记录的添加评论
-	 * 进行评论操作的用户需满足进入活动规则的条件
+	 * 给指定的登记记录的添加留言
+	 * 进行留言操作的用户需满足进入活动规则的条件
 	 *
-	 * @param $remark 被评论的评论
+	 * @param $remark 被留言的留言
 	 *
 	 */
 	public function add_action($ek, $data, $remark = 0) {
@@ -102,15 +102,15 @@ class remark extends base {
 		/* 操作规则 */
 		$oEntryRuleResult = $this->checkEntryRule2($oApp);
 		if (isset($oEntryRuleResult->passed) && $oEntryRuleResult->passed === 'N') {
-			return new \ComplianceError('用户身份不符合进入规则，无法发表评论');
+			return new \ComplianceError('用户身份不符合进入规则，无法发表留言');
 		}
 
 		$oPosted = $this->getPostJson();
 		if (empty($oPosted->content)) {
-			return new \ResponseError('评论内容不允许为空');
+			return new \ResponseError('留言内容不允许为空');
 		}
 
-		/* 发表评论的用户 */
+		/* 发表留言的用户 */
 		$oUser = $this->getUser($oApp);
 
 		$current = time();
@@ -136,7 +136,7 @@ class remark extends base {
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
 		if (!empty($recDataId)) {
 			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
-			// 如果每一条的数据呗评论了那么这道题的总数据+1
+			// 如果每一条的数据呗留言了那么这道题的总数据+1
 			if ($oRecData->multitext_seq != 0) {
 				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");
 			}
@@ -164,7 +164,7 @@ class remark extends base {
 		return new \ResponseData($oRemark);
 	}
 	/**
-	 * 通知评论登记记录事件
+	 * 通知留言登记记录事件
 	 */
 	private function _notifyHasRemark($oApp, $oRecord, $oRemark) {
 		/* 模板消息参数 */
@@ -250,7 +250,7 @@ class remark extends base {
 		return true;
 	}
 	/**
-	 * 点赞登记记录中的某一个评论
+	 * 点赞登记记录中的某一个留言
 	 *
 	 * @param string $remark remark'id
 	 *
@@ -301,7 +301,7 @@ class remark extends base {
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
 	}
 	/**
-	 * 组长对评论表态
+	 * 组长对留言表态
 	 */
 	public function agree_action($remark, $value = '') {
 		$modelRem = $this->model('matter\enroll\remark');

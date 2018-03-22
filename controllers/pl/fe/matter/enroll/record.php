@@ -385,7 +385,7 @@ class record extends \pl\fe\matter\base {
 				if ($resOld->user_total_coin > 0) {
 					return new \ResponseError('用户在当前轮次上以获得积分，不能更换轮次！！');
 				}
-				/* 查询此用户的记录是否被点赞或者被评论，如果有就不能更改 */
+				/* 查询此用户的记录是否被点赞或者被留言，如果有就不能更改 */
 				$qd = [
 					'count(*)',
 					'xxt_enroll_record_data',
@@ -393,7 +393,7 @@ class record extends \pl\fe\matter\base {
 				];
 				$UsrDataSum = $modelRec->query_val_ss($qd);
 				if ($UsrDataSum > 0) {
-					return new \ResponseError('此数据在当前轮次上被点赞或被评论，不能更换轮次！！');
+					return new \ResponseError('此数据在当前轮次上被点赞或被留言，不能更换轮次！！');
 				}
 
 				/* 在新的轮次中用户是否以有记录 */
@@ -1060,7 +1060,7 @@ class record extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
 			}
 			if (isset($remarkables) && in_array($schema->id, $remarkables)) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '评论数');
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '留言数');
 			}
 		}
 		if ($bRequireNickname) {
@@ -1213,7 +1213,7 @@ class record extends \pl\fe\matter\base {
 					$cellScore = empty($oRecScore->{$schema->id}) ? 0 : $oRecScore->{$schema->id};
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 				}
-				// 评论数
+				// 留言数
 				if (isset($remarkables) && in_array($schema->id, $remarkables)) {
 					if (isset($oVerbose->{$schema->id})) {
 						$remark_num = $oVerbose->{$schema->id}->remark_num;
@@ -1514,7 +1514,7 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($countOfImport);
 	}
 	/**
-	 * 返回一条登记记录的所有评论
+	 * 返回一条登记记录的所有留言
 	 */
 	public function listRemark_action($ek, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
@@ -1525,7 +1525,7 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 给指定的登记记录的添加评论
+	 * 给指定的登记记录的添加留言
 	 */
 	public function addRemark_action($ek) {
 		if (false === ($user = $this->accountUser())) {
@@ -1533,7 +1533,7 @@ class record extends \pl\fe\matter\base {
 		}
 		$data = $this->getPostJson();
 		if (empty($data->content)) {
-			return new \ResponseError('评论内容不允许为空');
+			return new \ResponseError('留言内容不允许为空');
 		}
 
 		$modelRec = $this->model('matter\enroll\record');
@@ -1544,7 +1544,7 @@ class record extends \pl\fe\matter\base {
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($oRecord->siteid, ['cascaded' => 'N']);
 		/**
-		 * 发表评论的用户
+		 * 发表留言的用户
 		 */
 		$oRemark = new \stdClass;
 		$oRemark->siteid = $oRecord->siteid;

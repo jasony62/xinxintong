@@ -9,7 +9,7 @@ div[wrap][schema-type=multitext] ul,div[wrap][schema-type=file] ul{padding-left:
 div[schema-type=image]>ul>li>img{width:100%;}
 div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 div[wrap].wrap-splitline.remarkable{padding-bottom:2em;position:relative;}
-div[wrap].wrap-splitline.remarkable:after{content:'评论：'attr(data-remark);position:absolute;right:1em;bottom:.3em;font-size:.7em;padding:.2em 1em;background:#444;color:#fff;border-radius:1em;}
+div[wrap].wrap-splitline.remarkable:after{content:'留言：'attr(data-remark);position:absolute;right:1em;bottom:.3em;font-size:.7em;padding:.2em 1em;background:#444;color:#fff;border-radius:1em;}
 div[wrap] .supplement{font-style:italic;margin-top:1em;}
 
 /*list*/

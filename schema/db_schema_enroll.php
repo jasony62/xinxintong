@@ -42,7 +42,7 @@ $sql .= ",can_coinpay char(1) not null default 'N'"; // 是否可以进行打赏
 $sql .= ",can_siteuser char(1) not null default 'N'"; // 是否可以进入用户主页
 $sql .= ",can_cowork char(1) not null default 'N'"; // 是否支持多人修改同一条登记记录
 $sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登记
-$sql .= ",remark_notice char(1) not null default 'N'"; // 支持评论提醒
+$sql .= ",remark_notice char(1) not null default 'N'"; // 支持留言提醒
 $sql .= ",assigned_nickname text null"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
 $sql .= ",tags text null"; // 登记记录标签
 $sql .= ",category_tags text null"; // 素材分类标签
@@ -154,7 +154,7 @@ $sql .= ",first_enroll_at int not null"; // 填写报名信息时间
 $sql .= ",tags text null";
 $sql .= ",data_tag text null";
 $sql .= ",comment text null";
-$sql .= ",remark_num int not null default 0"; // 评论数
+$sql .= ",remark_num int not null default 0"; // 留言数
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",referrer text null"; // should be removed
 $sql .= ",data longtext null"; // 登记的数据项
@@ -191,8 +191,8 @@ $sql .= ",value text null";
 $sql .= ",tag text null"; // 标签的id，json格式的数组
 $sql .= ",supplement text null"; // 补充说明
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
-$sql .= ",remark_num int not null default 0"; // 评论数
-$sql .= ",last_remark_at int not null default 0"; // 最后一次被评论的时间
+$sql .= ",remark_num int not null default 0"; // 留言数
+$sql .= ",last_remark_at int not null default 0"; // 最后一次被留言的时间
 $sql .= ",score float not null default 0"; // 登记项获得的分数
 $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
@@ -223,25 +223,25 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动内容评论
+ * 登记活动内容留言
  */
 $sql = "create table if not exists xxt_enroll_record_remark(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''";
-$sql .= ",enroll_group_id varchar(32) not null default ''"; // 被评论内容所属的用户分组id
-$sql .= ",enroll_key varchar(32) not null"; // 被评论的记录
+$sql .= ",enroll_group_id varchar(32) not null default ''"; // 被留言内容所属的用户分组id
+$sql .= ",enroll_key varchar(32) not null"; // 被留言的记录
 $sql .= ",enroll_userid varchar(40) not null default ''"; // 提交登记记录的人
-$sql .= ",group_id varchar(32) not null default ''"; // 发表评论的人所属用户分组id
-$sql .= ",userid varchar(40) not null default ''"; // 发表评论的人
+$sql .= ",group_id varchar(32) not null default ''"; // 发表留言的人所属用户分组id
+$sql .= ",userid varchar(40) not null default ''"; // 发表留言的人
 $sql .= ",user_src char(1) not null default 'S'"; // 用户来源团队用户账号（Platform）或个人用户账号（Site）；没用了，userid已经统一了
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int";
 $sql .= ",content text null";
-$sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的评论
+$sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的留言
 $sql .= ",data_id int not null default 0"; // xxt_enroll_record_data的id
-$sql .= ",remark_id int not null default 0"; // 是对哪条评论进行的评论
+$sql .= ",remark_id int not null default 0"; // 是对哪条留言进行的留言
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
@@ -253,7 +253,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动的参与人及行为汇总，包含：登记人和评论人
+ * 登记活动的参与人及行为汇总，包含：登记人和留言人
  */
 $sql = "create table if not exists xxt_enroll_user(";
 $sql .= "id int not null auto_increment";
@@ -271,28 +271,28 @@ $sql .= ",last_do_cowork_at int not null default 0"; // 最后一次进行协作
 $sql .= ",do_cowork_num int not null default 0"; // 进行协作填写的数量
 $sql .= ",last_remark_at int not null default 0"; // 最后一次获得评价的时间
 $sql .= ",remark_num int not null default 0"; // 获得的评价条数
-$sql .= ",last_remark_cowork_at int not null default 0"; // 最后一次协作填写获得评论的时间
+$sql .= ",last_remark_cowork_at int not null default 0"; // 最后一次协作填写获得留言的时间
 $sql .= ",remark_cowork_num int not null default 0"; // 协作填写获得的评价条数
 $sql .= ",last_like_at int not null default 0"; // 登记内容最后一次获得点赞的时间
 $sql .= ",like_num int not null default 0"; // 登记内容获得点赞的次数
 $sql .= ",last_like_cowork_at int not null default 0"; // 协作填写最后一次获得点赞的时间
 $sql .= ",like_cowork_num int not null default 0"; // 协作填写获得点赞的次数
-$sql .= ",last_like_remark_at int not null default 0"; // 评论最后一次获得点赞的时间
-$sql .= ",like_remark_num int not null default 0"; // 评论获得点赞的次数
+$sql .= ",last_like_remark_at int not null default 0"; // 留言最后一次获得点赞的时间
+$sql .= ",like_remark_num int not null default 0"; // 留言获得点赞的次数
 $sql .= ",last_do_remark_at int not null default 0"; // 最后一次发表评价的时间
 $sql .= ",do_remark_num int not null default 0"; // 发表的评价条数
 $sql .= ",last_do_like_at int not null default 0"; // 最后一次对登记内容进行点赞的时间
 $sql .= ",do_like_num int not null default 0"; // 对登记内容进行点赞的次数
 $sql .= ",last_do_like_cowork_at int not null default 0"; // 最后一次对协作进行点赞的时间
 $sql .= ",do_like_cowork_num int not null default 0"; // 对协作进行点赞的次数
-$sql .= ",last_do_like_remark_at int not null default 0"; // 最后一次对评论进行点赞的时间
-$sql .= ",do_like_remark_num int not null default 0"; // 对评论进行点赞的次数
+$sql .= ",last_do_like_remark_at int not null default 0"; // 最后一次对留言进行点赞的时间
+$sql .= ",do_like_remark_num int not null default 0"; // 对留言进行点赞的次数
 $sql .= ",last_agree_at int not null default 0"; // 最后一次获得推荐的时间
 $sql .= ",agree_num int not null default 0"; // 获得推荐的次数
 $sql .= ",last_agree_cowork_at int not null default 0"; // 最后一次协作获得推荐的时间
 $sql .= ",agree_cowork_num int not null default 0"; // 协作获得推荐的次数
-$sql .= ",last_agree_remark_at int not null default 0"; // 最后一次评论获得推荐的时间
-$sql .= ",agree_remark_num int not null default 0"; // 评论获得推荐的次数
+$sql .= ",last_agree_remark_at int not null default 0"; // 最后一次留言获得推荐的时间
+$sql .= ",agree_remark_num int not null default 0"; // 留言获得推荐的次数
 $sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
 $sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;

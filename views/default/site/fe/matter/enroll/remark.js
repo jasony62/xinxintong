@@ -347,7 +347,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
 /**
  * 协作题
  */
-ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $uibModal, LS, http2, noticebox) {
+ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $anchorScroll, $uibModal, LS, http2, noticebox) {
     $scope.addItem = function(oSchema) {
         var oCoworkRule;
         if (oCoworkRule = $scope.ruleCowork($scope.record)) {
@@ -487,12 +487,14 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation'
                                     }
                                 });
                             }
+                            //$anchorScroll();
                         }, function() {});
                         http2.get(LS.j('cowork/task', 'site', 'app', 'ek') + '&schema=' + oSchema.id).then(function(rsp) {
                             if (rsp.data && rsp.data.length) {
                                 rsp.data.forEach(function(oRule) {
                                     $scope.coworkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
                                 });
+                                //$anchorScroll();
                             }
                         });
                         http2.get(LS.j('remark/task', 'site', 'app')).then(function(rsp) {
@@ -500,6 +502,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation'
                                 rsp.data.forEach(function(oRule) {
                                     $scope.remarkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
                                 });
+                                //$anchorScroll();
                             }
                         });
                     });

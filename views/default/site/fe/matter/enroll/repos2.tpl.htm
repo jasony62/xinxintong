@@ -84,16 +84,19 @@
                 </uib-accordion>
             </div>
             <div class='records col-md-9 col-xs-12'>
-                <div class='form-group'>
-                    <div id='filterCriteria' class='input-group'>
-                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
-                        <div class='input-group-btn'>
-                            <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
-                            <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button id='advCriteriaSwitch' class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
-                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
-                            </button>
-                        </div>
+                <div ng-if="activeRound" class='active-round text-muted text-center'>
+                    <span ng-bind="activeRound.title"></span>
+                    <span ng-if="activeRound.start_at>0"> / {{activeRound.start_at*1000|date:'MM.dd HH:mm'}}</span>
+                    <span ng-if="activeRound.end_at>0"> - {{activeRound.end_at*1000|date:'MM.dd HH:mm'}}</span>
+                </div>
+                <div id='filterCriteria' class='input-group'>
+                    <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
+                        <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
+                        <button id='advCriteriaSwitch' class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
+                            <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
+                        </button>
                     </div>
                 </div>
                 <div id='repos'>
@@ -103,7 +106,7 @@
                                 <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
                                 <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
-                                <div class='nickname text-muted'>{{rec.nickname}}</div>
+                                <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
                             </div>
                             <div class='data'>
                                 <blockquote>

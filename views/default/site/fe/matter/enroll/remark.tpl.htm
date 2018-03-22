@@ -44,7 +44,7 @@
             <div class='row'>
                 <div id='record'>
                     <div class='user text-muted'>
-                        <div class='nickname'>{{record.nickname||'匿名用户'}}</div>
+                        <div class='nickname'><span class='glyphicon glyphicon-user'></span> {{record.nickname||'隐藏'}}</div>
                         <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                     </div>
                     <hr>
@@ -115,7 +115,7 @@
                                 </div>
                                 <blockquote>
                                     <p dynamic-html="item.value"></p>
-                                    <footer>{{item.nickname}}</footer>
+                                    <footer>{{item.nickname||'隐藏'}}</footer>
                                 </blockquote>
                                 <div class='bottom-bar' ng-if="bRemarkRecord">
                                     <div class='datetime'>{{item.submit_at*1000|date:'MM-dd HH:mm'}}</div>
@@ -131,7 +131,8 @@
                             </div>
                             <div class='text-center'>
                                 <hr>
-                                <button class="btn btn-default" ng-click="addItem(schema)"><span class='glyphicon glyphicon-plus'></span> 添加</button>
+                                <button class="btn btn-default" ng-click="addItem(schema)"><span class='glyphicon glyphicon-plus'></span> 添加 <span class='text-muted' ng-if="constraint">（还需要{{constraint.gap}}<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
+                                </button>
                             </div>
                         </div>
                     </div>

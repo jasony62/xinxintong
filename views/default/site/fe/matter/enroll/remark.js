@@ -36,31 +36,14 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         }
         return http2.post(url, { content: content });
     }
-    /*检查是否满足开始协作条件*/
-    function fnCanCowork(oRecord) {
-        if (oApp.actionRule) {
-            var actionRule;
-            actionRule = oApp.actionRule;
-            if (actionRule.record && actionRule.record.cowork && actionRule.record.cowork.pre) {
-                if (actionRule.record.cowork.pre.record && actionRule.record.cowork.pre.record.likeNum) {
-                    if (actionRule.record.cowork.pre.record.likeNum > oRecord.like_num) {
-                        if (actionRule.record.cowork.pre.desc) {
-                            return actionRule.record.cowork.pre.desc;
-                        }
-                    }
-                }
-            }
-        }
-        return true;
-    }
 
     function fnAfterLoad(oRecord) {
         /*设置任务提示*/
         if (oApp.actionRule) {
-            var actionRule, ruleCheck;
-            actionRule = oApp.actionRule;
-            if (true !== (ruleCheck = fnCanCowork(oRecord))) {
-                $scope.tasks.push({ type: 'info', msg: ruleCheck, id: 'record.cowork.pre' });
+            var oCoworkRule;
+            oCoworkRule = $scope.ruleCowork(oRecord);
+            if (oCoworkRule) {
+                $scope.tasks.push({ type: 'info', msg: oCoworkRule.desc, id: 'record.cowork.pre' });
             }
         }
         /*设置页面导航*/
@@ -85,6 +68,27 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
     _recDataId = LS.s().data;
     $scope.tasks = [];
     $scope.newRemark = {};
+    $scope.ruleCowork = function(oRecord) {
+        var desc, gap;
+        if (oApp.actionRule) {
+            var actionRule;
+            actionRule = oApp.actionRule;
+            if (actionRule.record && actionRule.record.cowork && actionRule.record.cowork.pre) {
+                if (actionRule.record.cowork.pre.record && actionRule.record.cowork.pre.record.likeNum) {
+                    if (actionRule.record.cowork.pre.record.likeNum > oRecord.like_num) {
+                        gap = actionRule.record.cowork.pre.record.likeNum - oRecord.like_num;
+                        if (actionRule.record.cowork.pre.desc) {
+                            desc = actionRule.record.cowork.pre.desc;
+                        }
+                    }
+                }
+            }
+        }
+        if (!desc) {
+            return false;
+        }
+        return { desc: desc, gap: gap };
+    };
     $scope.recommend = function(value) {
         var url, oRecord, oRecData;
         if ($scope.bRemarkRecord) {
@@ -341,6 +345,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
  */
 ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $uibModal, LS, http2, noticebox) {
     $scope.addItem = function(oSchema) {
+        var oCoworkRule;
+        if (oCoworkRule = $scope.ruleCowork($scope.record)) {
+            noticebox.warn(oCoworkRule.desc);
+            return;
+        }
         $uibModal.open({
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -453,6 +462,11 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation'
             });
         });
     };
+    $scope.$watch('record', function(oRecord) {
+        if (oRecord) {
+            $scope.constraint = $scope.ruleCowork(oRecord);
+        }
+    }, true);
     $scope.$watch('record', function(oRecord) {
         if (oRecord) {
             $scope.$watch('coworkSchemas', function(aSchemas) {

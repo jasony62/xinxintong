@@ -147,6 +147,49 @@ class repos extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
+	 * 按照活动规则是否需要隐藏记录的用户名称
+	 */
+	private function _requireAnonymous($oApp) {
+		$bAnonymous = false;
+		if (isset($oApp->actionRule->record->anonymous)) {
+			$oRule = $oApp->actionRule->record->anonymous;
+			/* 记录点赞截止时间关联 */
+			if (!empty($oRule->time->record->like->end)) {
+				if (isset($oApp->actionRule->record->like->end->time)) {
+					$oRule2 = $oApp->actionRule->record->like->end->time;
+					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
+						if ($oRule2->mode === 'after_round_start_at') {
+							$modelRnd = $this->model('matter\enroll\round');
+							$oActiveRnd = $modelRnd->getActive($oApp);
+							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
+								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
+								$bAnonymous = time() < $endtime;
+							}
+						}
+					}
+				}
+			}
+			/* 协作点赞截止时间 */
+			if (!empty($oRule->time->cowork->like->end)) {
+				if (isset($oApp->actionRule->cowork->like->end->time)) {
+					$oRule2 = $oApp->actionRule->cowork->like->end->time;
+					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
+						if ($oRule2->mode === 'after_round_start_at') {
+							$modelRnd = $this->model('matter\enroll\round');
+							$oActiveRnd = $modelRnd->getActive($oApp);
+							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
+								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
+								$bAnonymous = time() < $endtime;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $bAnonymous;
+	}
+	/**
 	 * 返回指定活动的登记记录的共享内容
 	 */
 	public function recordList_action($app, $page = 1, $size = 12) {
@@ -156,6 +199,9 @@ class repos extends base {
 			return new \ObjectNotFoundError();
 		}
 		$oUser = $this->getUser($oApp);
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$oActiveRnd = $modelRnd->getActive($oApp);
 
 		// 登记数据过滤条件
 		$oPosted = $this->getPostJson();
@@ -180,6 +226,8 @@ class repos extends base {
 
 		$oResult = $mdoelRec->byApp($oApp, $oOptions, $oCriteria);
 		if (!empty($oResult->records)) {
+			/* 是否限制了匿名规则 */
+			$bAnonymous = $this->_requireAnonymous($oApp);
 			$aSchareableSchemas = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
@@ -216,6 +264,9 @@ class repos extends base {
 					}
 					$oRecord->data = $oRecordData;
 				}
+				if ($bAnonymous) {
+					unset($oRecord->nickname);
+				}
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
 				unset($oRecord->verified);
@@ -234,7 +285,7 @@ class repos extends base {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,data_schemas']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,data_schemas,action_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -244,6 +295,13 @@ class repos extends base {
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
+		/* 是否限制了匿名规则 */
+		$bAnonymous = $this->_requireAnonymous($oApp);
+		if ($bAnonymous) {
+			unset($oRecord->nickname);
+		}
+
 		if (isset($oRecord->verbose)) {
 			$fnCheckSchemaVisibility = function ($oSchema, $oRecordData) {
 				if (!empty($oSchema->visibility->rules)) {

@@ -49,11 +49,11 @@ class code extends \pl\fe\base {
 			if ($prop === 'stop') {
 				$aUpdated[$prop] = $modelCode->escape($val);
 			}
-			if ($prop === 'expireAt' && is_numeric($val)) {
-				$aUpdated['expire_at'] = (int)$val;
+			if ($prop === 'expire_at' && is_numeric($val)) {
+				$aUpdated[$prop] = (int)$val;
 			}
-			if ($prop === 'maxCount' && is_int($val)) {
-				$aUpdated['max_count'] = $val;
+			if ($prop === 'max_count' && is_int($val)) {
+				$aUpdated[$prop] = $val;
 			}
 		}
 		if (!empty($aUpdated)) {

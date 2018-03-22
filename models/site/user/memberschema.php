@@ -234,7 +234,7 @@ class memberschema_model extends \TMS_MODEL {
 	/**
 	 * 获取此通讯录有权导入的其它通讯录
 	 */
-	public function importSchema($site, $id) {
+	public function listRelateSchema($site, $id) {
 		if (($schema = $this->byId($id, "id,matter_id,matter_type,type")) === false) {
 			return new \ResponseError('请检查参数设置');
 		}

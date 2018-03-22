@@ -48,14 +48,21 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static',
                 controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                     $scope.code = {};
-                    ['remark'].forEach(function(prop) {
+                    ['stop', 'expire_at', 'max_count', 'remark'].forEach(function(prop) {
                         $scope.code[prop] = oCode[prop]
                     });
                     $scope.cancel = function() {
                         $mi.dismiss();
                     };
                     $scope.ok = function() {
-                        $mi.close($scope.code);
+                        var regu = /^[1-9]\d*$/;
+                        if ($scope.code.max_count != '') {
+                            if (!regu.test($scope.code.max_count)) {
+                                alert( '请输入正确的使用次数值' );
+                            } else {
+                                $mi.close($scope.code);
+                            }
+                        }
                     };
                 }]
             }).result.then(function(oNewCode) {

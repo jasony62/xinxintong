@@ -118,6 +118,25 @@
     <div class="modal-body">
         <form class="form-horizontal">
             <div class="form-group">
+                <label class="col-md-3 control-label">是否停止使用</label>
+                <div class="col-md-9">
+                    <label class="radio-inline"><input name="isUse" type="radio" value="Y" ng-model="code.stop">是</label>
+                    <label class="radio-inline"><input name="isUse" type="radio" value="N" ng-model="code.stop" ng-checked="true" required>否</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">截止时间</label>
+                <div class="col-md-9">
+                    <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="code.expire_at" tms-state="signinAt"></tms-datepicker>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">使用次数</label>
+                <div class="col-md-9">
+                    <input class="form-control" type="text" ng-trim="true"  ng-model="code.max_count" id="count"/>
+                </div>
+            </div>
+            <div class="form-group">
                 <label class="col-md-3 control-label">备注</label>
                 <div class="col-md-9">
                     <textarea class='form-control' ng-model="code.remark"></textarea>

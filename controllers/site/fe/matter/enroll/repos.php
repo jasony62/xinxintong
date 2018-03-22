@@ -290,7 +290,7 @@ class repos extends base {
 		return new \ResponseData($oRecord);
 	}
 	/**
-	 *
+	 * 共享相关任务
 	 */
 	public function task_action($app) {
 		$modelApp = $this->model('matter\enroll');
@@ -298,9 +298,6 @@ class repos extends base {
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,entry_rule,action_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
-		}
-		if (empty($oApp->actionRule)) {
-			return new \ResponseData([]);
 		}
 
 		$modelRnd = $this->model('matter\enroll\round');
@@ -319,9 +316,25 @@ class repos extends base {
 				if (count($oRecords) >= $oRule->min) {
 					$oRule->_ok = [count($oRecords)];
 				} else {
-					$oRule->_no = [count($oRecords)];
+					$oRule->_no = [(int) $oRule->min - count($oRecords)];
 				}
-				$oRule->id = 'record.sumbit.end';
+				$oRule->id = 'record.submit.end';
+				$tasks[] = $oRule;
+			}
+		}
+		/* 对开启点赞有要求 */
+		if (isset($oActionRule->record->like->pre)) {
+			$oRule = $oActionRule->record->like->pre;
+			if (!empty($oRule->record->num)) {
+				$oOptions = new \stdClass;
+				$oOptions->record = (object) ['rid' => isset($oActiveRnd) ? $oActiveRnd->rid : ''];
+				$oResult = $this->model('matter\enroll\record')->byApp($oApp, $oOptions);
+				if ($oResult->total >= $oRule->record->num) {
+					$oRule->_ok = [(int) $oResult->total];
+				} else {
+					$oRule->_no = [(int) $oRule->record->num - (int) $oResult->total];
+				}
+				$oRule->id = 'record.like.pre';
 				$tasks[] = $oRule;
 			}
 		}

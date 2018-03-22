@@ -37,8 +37,9 @@
             <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
                 <span>{{task.msg}}</span>
                 <span ng-switch-when="record.submit.end">
-                    <a href class="alert-link" ng-click="addRecord($event)">，去添加</a>
+                    <span ng-if="task.gap">，还需要【{{task.gap}}】条</span><a href class="alert-link" ng-click="addRecord($event)">，去添加</a>
                 </span>
+                <span ng-switch-when="record.like.pre">，还需要【{{task.gap}}】条</span>
                 <span ng-switch-when="record.like.end">，还需要【{{task.gap}}】次</span>
             </div>
         </div>
@@ -138,7 +139,8 @@
                                             <span>{{rec.data[schema.id]}}</span>
                                         </div>
                                         <div ng-if="schema.cowork==='Y'">
-                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看详情 <span class='glyphicon glyphicon-menu-right'></span></button>
+                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看或填写 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </blockquote>

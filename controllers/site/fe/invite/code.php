@@ -26,9 +26,22 @@ class code extends \site\fe\base {
 		if ($posted = $this->getPostJson()) {
 			foreach ($posted as $prop => $val) {
 				switch ($prop) {
-				case 'remark':
-					$aProto[$prop] = $modelInv->escape($val);
-					break;
+					case 'remark':
+						$aProto[$prop] = $modelInv->escape($val);
+						break;
+					case 'stop':
+						$aProto[$prop] = $modelInv->escape($val);
+						break;
+					case 'expire_at':
+						if (is_numeric($val)) {
+							$aProto[$prop] = (int)$val;
+						}
+						break;
+					case 'max_count':
+						if (is_int($val)) {
+							$aProto[$prop] = $val;
+						}
+						break;
 				}
 			}
 		}

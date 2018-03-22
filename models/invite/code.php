@@ -44,12 +44,12 @@ class code_model extends \TMS_MODEL {
 		$oNewCode->code = $code;
 		$oNewCode->remark = empty($aProto['remark']) ? '' : $aProto['remark'];
 		$oNewCode->create_at = time();
-		$oNewCode->expire_at = 0;
+		$oNewCode->expire_at = empty($aProto['expire_at']) ? 0 : $aProto['expire_at'];
 		$oNewCode->last_use_at = 0;
-		$oNewCode->max_count = 0;
+		$oNewCode->max_count = empty($aProto['max_count']) ? 0 : $aProto['max_count'];
 		$oNewCode->used_count = 0;
 		$oNewCode->relay_invitee_count = 0;
-		$oNewCode->stop = 'N';
+		$oNewCode->stop =  empty($aProto['stop']) ? 'N' : $aProto['stop'];;
 		$oNewCode->state = 1;
 
 		$oNewCode->id = $this->insert('xxt_invite_code', $oNewCode, true);

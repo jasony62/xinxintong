@@ -89,8 +89,14 @@ define(['frame'], function(ngApp) {
             data: { act: 'site.matter.enroll.share.timeline' },
             desc: '用户A分享活动至朋友圈',
         }, {
+            data: { act: 'site.matter.enroll.data.do.like' },
+            desc: '用户A给填写记录点赞',
+        }, {
             data: { act: 'site.matter.enroll.data.get.like' },
             desc: '用户A填写数据获得赞同',
+        }, {
+            data: { act: 'site.matter.enroll.cowork.do.like' },
+            desc: '用户A点赞其他用户填写的协作数据',
         }, {
             data: { act: 'site.matter.enroll.cowork.get.like' },
             desc: '用户A填写的协作数据获得赞同',

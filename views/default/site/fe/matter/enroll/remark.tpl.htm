@@ -36,8 +36,7 @@
         <div class='container'>
             <div ng-if="tasks.length">
                 <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
-                    <span>{{task.msg}}</span>
-                    <span ng-switch-when="record.cowork.pre"></span>
+                    <span>{{task.msg}}</span><span ng-if="task.coin">，每个数据可获得【{{task.coin}}个】积分</span>
                     <span ng-switch-when="cowork.submit.end"></span>
                 </div>
             </div>

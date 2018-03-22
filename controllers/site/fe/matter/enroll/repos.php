@@ -377,6 +377,13 @@ class repos extends base {
 					$oRule->_no = [(int) $oRule->min - count($oRecords)];
 				}
 				$oRule->id = 'record.submit.end';
+				/* 积分奖励 */
+				require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
+				$modelCoinRule = $this->model('matter\enroll\coin');
+				$aCoin = $modelCoinRule->coinByMatter(\matter\enroll\event_model::SubmitEventName, $oApp);
+				if ($aCoin && $aCoin[0]) {
+					$oRule->coin = $aCoin[1];
+				}
 				$tasks[] = $oRule;
 			}
 		}
@@ -407,6 +414,13 @@ class repos extends base {
 					$oRule->_no = [(int) $oRule->min - (int) $oAppUser->do_like_num];
 				}
 				$oRule->id = 'record.like.end';
+				/* 积分奖励 */
+				require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
+				$modelCoinRule = $this->model('matter\enroll\coin');
+				$aCoin = $modelCoinRule->coinByMatter(\matter\enroll\event_model::DoLikeEventName, $oApp);
+				if ($aCoin && $aCoin[0]) {
+					$oRule->coin = $aCoin[1];
+				}
 				$tasks[] = $oRule;
 			}
 		}

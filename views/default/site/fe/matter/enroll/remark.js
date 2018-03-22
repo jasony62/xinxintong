@@ -487,7 +487,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation'
                         http2.get(LS.j('cowork/task', 'site', 'app', 'ek') + '&schema=' + oSchema.id).then(function(rsp) {
                             if (rsp.data && rsp.data.length) {
                                 rsp.data.forEach(function(oRule) {
-                                    $scope.tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id });
+                                    $scope.tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
                                 });
                             }
                         });

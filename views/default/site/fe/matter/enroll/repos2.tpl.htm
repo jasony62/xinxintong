@@ -37,9 +37,9 @@
             <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
                 <span>{{task.msg}}</span>
                 <span ng-switch-when="record.submit.end">
-                    <span ng-if="task.gap">，还需要【{{task.gap}}】条</span><a href class="alert-link" ng-click="addRecord($event)">，去添加</a>
+                    <span ng-if="task.gap">，还需要【{{task.gap}}】条</span><span ng-if="task.coin">，每条记录可获得【{{task.coin}}个】积分</span><a href class="alert-link" ng-click="addRecord($event)">，去添加</a>
                 </span>
-                <span ng-switch-when="record.like.pre">，还需要【{{task.gap}}】条</span>
+                <span ng-switch-when="record.like.pre">，还需要【{{task.gap}}】条</span><span ng-if="task.coin">，每个点赞可获得【{{task.coin}}个】积分</span></span>
                 <span ng-switch-when="record.like.end">，还需要【{{task.gap}}】次</span>
             </div>
         </div>

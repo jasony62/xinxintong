@@ -151,7 +151,7 @@ class user extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 发表过评论的用户
+	 * 发表过留言的用户
 	 */
 	public function remarker_action($app, $page = 1, $size = 30) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -296,7 +296,7 @@ class user extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '评论');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '留言');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '获得推荐');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
@@ -391,7 +391,7 @@ class user extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '评论');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '留言');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '获得推荐');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');

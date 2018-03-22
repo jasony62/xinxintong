@@ -217,7 +217,7 @@ class data_model extends \TMS_MODEL {
 						/* 处理被删除的数据 */
 						if (count($beforeSchemaItems) > 0) {
 							foreach ($beforeSchemaItems as $oBeforeSchemaItem) {
-								// 如果删除某项，需要删除其对应的点赞数和评论数
+								// 如果删除某项，需要删除其对应的点赞数和留言数
 								$this->update("update xxt_enroll_record_data set remark_num = remark_num - " . $oBeforeSchemaItem->remark_num . " , like_num = like_num - " . $oBeforeSchemaItem->like_num . " where aid = '{$oApp->id}' and rid = '{$oRecord->rid}' and enroll_key = '{$oRecord->enroll_key}' and schema_id = '{$schemaId}' and multitext_seq = 0");
 								$this->update(
 									'xxt_enroll_record_data',

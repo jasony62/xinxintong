@@ -96,16 +96,16 @@ define(['frame'], function(ngApp) {
             desc: '用户A填写的协作数据获得赞同',
         }, {
             data: { act: 'site.matter.enroll.data.get.remark' },
-            desc: '用户A填写数据获得评论',
+            desc: '用户A填写数据获得留言',
         }, {
             data: { act: 'site.matter.enroll.cowork.get.remark' },
-            desc: '用户A填写协作数据获得评论',
+            desc: '用户A填写协作数据获得留言',
         }, {
             data: { act: 'site.matter.enroll.data.do.remark' },
-            desc: '用户A发表评论',
+            desc: '用户A发表留言',
         }, {
             data: { act: 'site.matter.enroll.remark.get.like' },
-            desc: '用户A发表的评论获得赞同',
+            desc: '用户A发表的留言获得赞同',
         }, {
             data: { act: 'site.matter.enroll.data.get.agree' },
             desc: '用户A填写的记录获得推荐',
@@ -114,7 +114,7 @@ define(['frame'], function(ngApp) {
             desc: '用户A发表的协作填写记录获得推荐',
         }, {
             data: { act: 'site.matter.enroll.remark.get.agree' },
-            desc: '用户A发表的评论获得推荐',
+            desc: '用户A发表的留言获得推荐',
         }];
         $scope.rules = {};
         _aDefaultRules.forEach(function(oRule) {

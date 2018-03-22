@@ -179,7 +179,7 @@ define(['frame'], function(ngApp) {
                     recordSchemasExt.push(oSchema);
                 }
                 if (oSchema.remarkable && oSchema.remarkable === 'Y') {
-                    recordSchemasExt.push({ type: 'remark', title: '评论数', id: oSchema.id });
+                    recordSchemasExt.push({ type: 'remark', title: '留言数', id: oSchema.id });
                 }
                 if (oSchema.requireScore && oSchema.requireScore === 'Y') {
                     recordSchemasExt.push({ type: 'calcScore', title: '得分', id: oSchema.id });

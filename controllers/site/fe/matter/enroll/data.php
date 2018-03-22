@@ -277,7 +277,7 @@ class data extends base {
 	 */
 	public function like_action($data) {
 		if (empty($data)) {
-			return new \ResponseError('参数错误：未指定被评论内容ID');
+			return new \ResponseError('参数错误：未指定被留言内容ID');
 		}
 		$modelData = $this->model('matter\enroll\data');
 		$oRecData = $modelData->byId($data, ['fields' => 'id,aid,rid,enroll_key,schema_id,like_log,userid,multitext_seq,like_num']);

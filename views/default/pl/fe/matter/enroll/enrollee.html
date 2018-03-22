@@ -11,7 +11,7 @@
                     </button>
                     <ul class="dropdown-menu" uib-dropdown-menu>
                         <li><a href ng-click="chooseOrderby('enroll_num')"><span class='glyphicon' ng-class="criteria.orderby==='enroll_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
-                        <li><a href ng-click="chooseOrderby('do_remark_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_remark_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 评论数</a></li>
+                        <li><a href ng-click="chooseOrderby('do_remark_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_remark_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 留言数</a></li>
                         <li><a href ng-click="chooseOrderby('do_like_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>
                         <li><a href ng-click="chooseOrderby('agree_num')"><span class='glyphicon' ng-class="criteria.orderby==='agree_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 获得推荐数</a></li>
                         <li><a href ng-click="chooseOrderby('user_total_coin')"><span class='glyphicon' ng-class="criteria.orderby==='user_total_coin'?'glyphicon-check':'glyphicon-unchecked'"></span> 积分数</a></li>
@@ -55,7 +55,7 @@
                         <th>姓名</th>
                         <th ng-if="app.group_app_id">分组</th>
                         <th>填写记录</th>
-                        <th>发表评论</th>
+                        <th>发表留言</th>
                         <th>发表点赞</th>
                         <th>获得推荐</th>
                         <th>积分</th>

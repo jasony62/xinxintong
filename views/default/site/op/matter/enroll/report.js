@@ -52,7 +52,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     }
                     if (schema.remarkable && schema.remarkable === 'Y') {
                         remarkableSchemas.push(schema);
-                        recordSchemas2.push({ type: 'remark', title: '评论数', id: schema.id });
+                        recordSchemas2.push({ type: 'remark', title: '留言数', id: schema.id });
                         recordSchemas2.push({ type: 'agreed', title: '设置态度', id: schema.id });
                     }
                     if (schema.format && schema.format === 'number') {

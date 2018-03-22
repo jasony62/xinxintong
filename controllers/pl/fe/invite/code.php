@@ -46,6 +46,15 @@ class code extends \pl\fe\base {
 			if ($prop === 'remark') {
 				$aUpdated[$prop] = $modelCode->escape($val);
 			}
+			if ($prop === 'stop') {
+				$aUpdated[$prop] = $modelCode->escape($val);
+			}
+			if ($prop === 'expireAt' && is_numeric($val)) {
+				$aUpdated['expire_at'] = (int)$val;
+			}
+			if ($prop === 'maxCount' && is_int($val)) {
+				$aUpdated['max_count'] = $val;
+			}
 		}
 		if (!empty($aUpdated)) {
 			$modelCode->update('xxt_invite_code', $aUpdated, ['id' => $oCode->id]);

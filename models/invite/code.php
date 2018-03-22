@@ -84,7 +84,7 @@ class code_model extends \TMS_MODEL {
 			$bSuccess = $rst === 1;
 			if (!$bSuccess) {
 				$oInviteCode = $this->byId($oInviteCode->id, ['fields' => 'id,invite_id,max_count,used_count']);
-				if ($$oInviteCode->max_count > 0 && $oInviteCode->used_count >= $$oInviteCode->max_count) {
+				if ($oInviteCode->max_count > 0 && $oInviteCode->used_count >= $$oInviteCode->max_count) {
 					return [false, '邀请码已经超过使用次数'];
 				}
 			}

@@ -1,3 +1,5 @@
+@import "../../../../../../static/less/site.fe.base.less";
+
 blockquote {
 	font-size: 16px;
 	margin-bottom: 8px;
@@ -69,8 +71,15 @@ img {
 		}
 
 		.data {
-			blockquote>div+div {
-				margin-top: 8px;
+			blockquote {
+				&>div+div {
+					margin-top: 8px;
+				}
+
+				.schema>div+div {
+					margin-top: 8px;
+				}
+
 			}
 
 			.data-title:before {
@@ -81,7 +90,7 @@ img {
 				border-top: 6px solid #fff;
 				border-right: 6px solid #fff;
 				border-bottom: 6px solid #fff;
-				border-left: 6px solid orange;
+				border-left: 6px solid @brand-primary;
 			}
 
 			.datetime {
@@ -97,7 +106,7 @@ img {
 				margin-left: 8px;
 
 				.like {
-					color: red;
+					color: @brand-primary;
 				}
 
 			}

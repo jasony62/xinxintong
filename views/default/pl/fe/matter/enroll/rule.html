@@ -7,13 +7,95 @@
                     <div class='row'>
                         <div class='col-md-4'>
                             <div class='form-group'>
-                                <label>是否填写记录获得赞同后才能进行评论，以及赞同的数量</label>
-                                <div class='input-group'>
-                                    <div class='input-group-addon'>
-                                        <input type='checkbox' ng-model="rule.remark.requireLike">
-                                    </div>
-                                    <input type='text' class='form-control' ng-model="rule.remark.requireLikeNum" placeholder="输入需要获得的赞同数">
-                                </div>
+                                <label>每轮次至少提交的记录数量</label>
+                                <input type='text' class='form-control' ng-model="rule.record.submit.end.min" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮提交记录的截止时间</label>
+                                <input type='text' class='form-control' ng-model="rule.record.submit.end.offset" placeholder="输入需要的时间">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮提交填写记录的要求说明</label>
+                                <input type='text' class='form-control' ng-model="rule.record.submit.end.desc">
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <label>每轮次至少提交多少条记录后开启填写记录投票（点赞）</label>
+                                <input type='text' class='form-control' ng-model="rule.record.like.pre.record.num" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮次至少提交多少条记录后开启填写记录投票（点赞）的要求说明</label>
+                                <input type='text' class='form-control' ng-model="rule.record.like.pre.desc">
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <label>每轮次每人对填写记录至少点赞数</label>
+                                <input type='text' class='form-control' ng-model="rule.record.like.end.min" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮次每人对填写记录最多点赞数</label>
+                                <input type='text' class='form-control' ng-model="rule.record.like.end.max" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮记录点赞的截止时间</label>
+                                <input type='text' class='form-control' ng-model="rule.record.like.end.offset" placeholder="输入需要的时间">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮对填写记录投票（点赞）的要求说明</label>
+                                <input type='text' class='form-control' ng-model="rule.record.like.end.desc">
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <label>获得多少个投票（点赞）的填写记录才能开启协作填写</label>
+                                <input type='text' class='form-control' ng-model="rule.record.cowork.pre.record.likeNum" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>开启协作填写要求说明</label>
+                                <input type='text' class='form-control' ng-model="rule.record.cowork.pre.desc">
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <label>每轮次每条已开启协作填写记录至少提交的协作填写数据的数量</label>
+                                <input type='text' class='form-control' ng-model="rule.cowork.submit.end.cowork.num" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮次每条已开启协作填写记录至少提交的留言的数量</label>
+                                <input type='text' class='form-control' ng-model="rule.cowork.submit.end.remark.num" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮次每条已开启协作填写记录至少提交的协作填写数据或留言的数量</label>
+                                <input type='text' class='form-control' ng-model="rule.cowork.submit.end.coworkOrRemark.num" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮次每条开启协作填写的记录的协作填写数据或留言要求说明</label>
+                                <input type='text' class='form-control' ng-model="rule.cowork.submit.end.desc">
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <label>每轮次每个填写记录至少获得多少个协作填写数据项后开始投票</label>
+                                <input type='text' class='form-control' ng-model="rule.cowork.like.pre.cowork.num" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮次每个填写记录至少获得多少个协作填写数据项后开始投票的要求说明</label>
+                                <input type='text' class='form-control' ng-model="rule.cowork.like.pre.desc">
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <label>每轮次每人对每协作填写题至少投票（点赞）数</label>
+                                <input type='text' class='form-control' ng-model="rule.cowork.like.end.min" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮次每人对每协作填写题最多投票（点赞）数</label>
+                                <input type='text' class='form-control' ng-model="rule.cowork.like.end.max" placeholder="输入需要的数量">
+                            </div>
+                            <div class='form-group'>
+                                <label>每轮次每人对每协作填写题点投票（点赞）量要求说明</label>
+                                <input type='text' class='form-control' ng-model="rule.cowork.like.end.desc">
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <label>获得多少投票（赞同）的协同填写数据显示在共享页</label>
+                                <input type='text' class='form-control' ng-model="rule.cowork.repos.pre.likeNum" placeholder="输入需要的数量">
                             </div>
                             <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-click="save()">保存</button>
                         </div>

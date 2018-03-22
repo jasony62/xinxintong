@@ -164,7 +164,7 @@ class repos extends base {
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
-		$oOptions->orderby = 'agreed';
+		$oOptions->orderby = ['agreed', 'like_num'];
 		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
 
 		// 查询结果
@@ -288,5 +288,71 @@ class repos extends base {
 		}
 
 		return new \ResponseData($oRecord);
+	}
+	/**
+	 * 共享相关任务
+	 */
+	public function task_action($app) {
+		$modelApp = $this->model('matter\enroll');
+
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,entry_rule,action_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$oActiveRnd = $modelRnd->getActive($oApp);
+
+		$oUser = $this->getUser($oApp);
+
+		$oActionRule = $oApp->actionRule;
+
+		$tasks = [];
+		/* 对提交填写记录数量有要求 */
+		if (isset($oActionRule->record->submit->end)) {
+			$oRule = $oActionRule->record->submit->end;
+			if (!empty($oRule->min)) {
+				$oRecords = $this->model('matter\enroll\record')->byUser($oApp, $oUser, ['fields' => 'id', 'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '']);
+				if (count($oRecords) >= $oRule->min) {
+					$oRule->_ok = [count($oRecords)];
+				} else {
+					$oRule->_no = [(int) $oRule->min - count($oRecords)];
+				}
+				$oRule->id = 'record.submit.end';
+				$tasks[] = $oRule;
+			}
+		}
+		/* 对开启点赞有要求 */
+		if (isset($oActionRule->record->like->pre)) {
+			$oRule = $oActionRule->record->like->pre;
+			if (!empty($oRule->record->num)) {
+				$oOptions = new \stdClass;
+				$oOptions->record = (object) ['rid' => isset($oActiveRnd) ? $oActiveRnd->rid : ''];
+				$oResult = $this->model('matter\enroll\record')->byApp($oApp, $oOptions);
+				if ($oResult->total >= $oRule->record->num) {
+					$oRule->_ok = [(int) $oResult->total];
+				} else {
+					$oRule->_no = [(int) $oRule->record->num - (int) $oResult->total];
+				}
+				$oRule->id = 'record.like.pre';
+				$tasks[] = $oRule;
+			}
+		}
+		/* 对提交填写记录的投票数量有要求 */
+		if (isset($oActionRule->record->like->end)) {
+			$oRule = $oActionRule->record->like->end;
+			if (!empty($oRule->min)) {
+				$oAppUser = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, ['fields' => 'id,do_like_num', 'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '']);
+				if ($oAppUser && (int) $oAppUser->do_like_num >= (int) $oRule->min) {
+					$oRule->_ok = [(int) $oAppUser->do_like_num];
+				} else {
+					$oRule->_no = [(int) $oRule->min - (int) $oAppUser->do_like_num];
+				}
+				$oRule->id = 'record.like.end';
+				$tasks[] = $oRule;
+			}
+		}
+
+		return new \ResponseData($tasks);
 	}
 }

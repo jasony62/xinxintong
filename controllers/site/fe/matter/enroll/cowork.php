@@ -5,7 +5,7 @@ include_once dirname(__FILE__) . '/base.php';
 /**
  * 登记记录数据的项
  */
-class item extends base {
+class cowork extends base {
 	/**
 	 * 添加题目数据的项
 	 * 1、需要记录修改日志
@@ -18,7 +18,7 @@ class item extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		if (empty($data)) {
 			/* 要更新的记录 */
-			$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,group_id']);
+			$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,group_id,like_num']);
 			if (false === $oRecord || $oRecord->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
@@ -47,7 +47,7 @@ class item extends base {
 				return new \ObjectNotFoundError();
 			}
 			/* 要更新的记录 */
-			$oRecord = $modelRec->byId($oRecData->enroll_key, ['fields' => 'id,state,data']);
+			$oRecord = $modelRec->byId($oRecData->enroll_key, ['fields' => 'id,state,data,like_num']);
 			if (false === $oRecord || $oRecord->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
@@ -74,6 +74,18 @@ class item extends base {
 		}
 		if ($oUpdatedSchema->type !== 'multitext') {
 			return new \ParameterError('题目的类型不是多项填写题');
+		}
+
+		/* 检查数量限制 */
+		if (isset($oApp->actionRule->record->cowork->pre)) {
+			$oRule = $oApp->actionRule->record->cowork->pre;
+			/* 限制了最多点赞次数 */
+			if (!empty($oRule->record->likeNum)) {
+				if ((int) $oRecord->like_num < (int) $oRule->record->likeNum) {
+					$desc = empty($oRule->desc) ? ('点赞次数至少【' . $oRule->record->likeNum . '】个') : $oRule->desc;
+					return new \ResponseError($desc);
+				}
+			}
 		}
 
 		$oUser = $this->getUser($oApp);
@@ -113,8 +125,7 @@ class item extends base {
 
 		/* 更新用户汇总信息及积分 */
 		$modelEvt = $this->model('matter\enroll\event');
-		$modelEvt->submitItem($oApp, $oNewItem, $oUser);
-		$modelEvt->otherSubmitItem($oApp, $oRecData, $oNewItem, $oUser);
+		$modelEvt->submitCowork($oApp, $oRecData, $oNewItem, $oUser);
 
 		return new \ResponseData([$oNewItem, $oRecData]);
 	}
@@ -254,9 +265,99 @@ class item extends base {
 
 		/* 更新用户汇总信息及积分 */
 		$modelEvt = $this->model('matter\enroll\event');
-		$modelEvt->removeItem($oApp, $oItem, $oUser);
-		$modelEvt->otherRemoveItem($oApp, $oRecData, $oItem, $oUser);
+		$modelEvt->removeCowork($oApp, $oRecData, $oItem, $oUser);
 
 		return new \ResponseData($oRecData->value);
+	}
+	/**
+	 * 获得和协作填写相关的任务定义
+	 */
+	public function task_action($app, $ek, $schema) {
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,entry_rule,action_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oUser = $this->getUser($oApp);
+
+		$oStat = new \stdClass;
+		$tasks = [];
+		/* 对提交填写记录的投票数量有要求 */
+		if (isset($oApp->actionRule->cowork->submit->end)) {
+			$oRule = $oApp->actionRule->cowork->submit->end;
+			$bPassed = true;
+			/* 检查是否提交了协作填写数据，或进行了留言 */
+			if (!empty($oRule->cowork->num) || !empty($oRule->coworkOrRemark->num)) {
+				$modelData = $this->model('matter\enroll\data');
+				$items = $modelData->getMultitext($ek, $schema, ['excludeRoot' => true]);
+				$oStat->itemNum = count($items);
+				$oStat->items = $items;
+				if (!empty($oRule->cowork->num)) {
+					$bPassed = $oStat->itemNum >= (int) $oRule->cowork->num;
+				}
+			}
+			if ($bPassed && (!empty($oRule->remark->num) || !empty($oRule->coworkOrRemark->num))) {
+				$modelRem = $this->model('matter\enroll\remark');
+				$remarks = $modelRem->byUser($oApp, $oUser, ['ek' => $ek]);
+				$oStat->remarkNum = count($remarks);
+				if (!empty($oRule->remark->num)) {
+					$bPassed = $oStat->remarkNum >= (int) $oRule->remark->num;
+				}
+			}
+			if ($bPassed && !empty($oRule->coworkOrRemark->num)) {
+				$bPassed = $oStat->itemNum + $oStat->remarkNum >= (int) $oRule->coworkOrRemark->num;
+			}
+			if (!$bPassed) {
+				$oRule->id = 'cowork.submit.end';
+				$tasks[] = $oRule;
+			}
+		}
+		/* 对开启投票有限制 */
+		if (isset($oApp->actionRule->cowork->like->pre)) {
+			$oRule = $oApp->actionRule->cowork->like->pre;
+			$bPassed = true;
+			/* 检查是否提交了协作填写数据，或进行了留言 */
+			if (!empty($oRule->cowork->num)) {
+				if (!isset($oStat->itemNum)) {
+					$modelData = $this->model('matter\enroll\data');
+					$items = $modelData->getMultitext($ek, $schema, ['excludeRoot' => true]);
+					$oStat->itemNum = count($items);
+					$oStat->items = $items;
+				}
+				$bPassed = $oStat->itemNum >= (int) $oRule->cowork->num;
+			}
+			if (!$bPassed) {
+				$oRule->id = 'cowork.like.pre';
+				$tasks[] = $oRule;
+			}
+		}
+		/* 对投票数量有限制 */
+		if (isset($oApp->actionRule->cowork->like->end)) {
+			$oRule = $oApp->actionRule->cowork->like->end;
+			$bPassed = true;
+			if (!empty($oRule->min)) {
+				if (!isset($oStat->items)) {
+					$modelData = $this->model('matter\enroll\data');
+					$items = $modelData->getMultitext($ek, $schema, ['excludeRoot' => true]);
+					$oStat->itemNum = count($items);
+					$oStat->items = $items;
+				}
+				$likeNum = 0;
+				foreach ($oStat->items as $oItem) {
+					if (isset($oItem->like_log->{$oUser->uid})) {
+						$likeNum++;
+					}
+				}
+				$bPassed = $likeNum >= (int) $oRule->min;
+			}
+			if (!$bPassed) {
+				$oRule->id = 'cowork.like.end';
+				$tasks[] = $oRule;
+			}
+		}
+
+		return new \ResponseData($tasks);
 	}
 }

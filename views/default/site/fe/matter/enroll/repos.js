@@ -153,7 +153,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce'
     $scope.recommend = function(oRecData, value) {
         var url;
         if (oRecData.agreed !== value) {
-            url = '/rest/site/fe/matter/enroll/data/recommend';
+            url = '/rest/site/fe/matter/enroll/data/agree';
             url += '?site=' + oApp.siteid;
             url += '&ek=' + oRecData.enroll_key;
             url += '&schema=' + oRecData.schema_id;

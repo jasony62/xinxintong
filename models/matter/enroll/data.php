@@ -751,22 +751,31 @@ class data_model extends \TMS_MODEL {
 
 		return $oRecData;
 	}
-	/*
-		*
-	*/
-	public function getMultitext($ek, $schema, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS . ',multitext_seq';
+	/**
+	 * 获得多项填写题数据
+	 */
+	public function getMultitext($ek, $schema, $oOptions = []) {
+		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : self::DEFAULT_FIELDS . ',multitext_seq';
 
 		$q = [
 			$fields,
 			'xxt_enroll_record_data',
-			"enroll_key = '" . $this->escape($ek) . "' and state = 1 and schema_id = '" . $this->escape($schema) . "'",
+			['enroll_key' => $ek, 'state' => 1, 'schema_id' => $schema],
 		];
+		if (isset($oOptions['excludeRoot']) && $oOptions['excludeRoot']) {
+			$q[2]['multitext_seq'] = (object) ['op' => '>', 'pat' => 0];
+		}
 
 		$fnHandler = function (&$oData) {
-			$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
-			$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
-			$oData->agreed_log = empty($oData->agreed_log) ? new \stdClass : json_decode($oData->agreed_log);
+			if (property_exists($oData, 'tag')) {
+				$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
+			}
+			if (property_exists($oData, 'like_log')) {
+				$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
+			}
+			if (property_exists($oData, 'agreed_log')) {
+				$oData->agreed_log = empty($oData->agreed_log) ? new \stdClass : json_decode($oData->agreed_log);
+			}
 		};
 
 		$q2 = [];

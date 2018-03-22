@@ -26,7 +26,6 @@ ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
     var html;
     html = "<div class='tms-nav-target'>";
     html += "<div ng-if=\"navs.addRecord\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'addRecord')\">添加记录</button></div>";
-    html += "<div ng-if=\"navs.gotoRecord\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'gotoRecord')\">查看记录</button></div>";
     html += "<div ng-if=\"navs.repos\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'repos')\">共享</button></div>";
     html += "<div ng-if=\"navs.rank\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'rank')\">排行</button></div>";
     html += "<div ng-if=\"navs.save\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'save')\">保存</button></div>";
@@ -51,9 +50,6 @@ ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
                 switch (page) {
                     case 'addRecord':
                         $scope.$parent.addRecord(event);
-                        break;
-                    case 'gotoRecord':
-                        $scope.$parent.gotoRecord();
                         break;
                     case 'save':
                         $scope.$parent.save();

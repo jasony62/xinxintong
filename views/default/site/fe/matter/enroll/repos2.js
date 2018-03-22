@@ -40,7 +40,8 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     };
 }]);
 ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', function($scope, $sce, http2, LS, srvRound, $timeout) {
-    var oApp, facRound, _oPage, _oCriteria, _oShareableSchemas;
+    var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
+    _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12 };
     $scope.criteria = _oCriteria = { creator: 'all' };
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
@@ -70,6 +71,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                             }
                         }
                     }
+                    if (_coworkRequireLikeNum > oRecord.like_num) {
+                        oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
+                    }
                     $scope.repos.push(oRecord);
                 });
             }
@@ -91,10 +95,18 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         url += '&page=remark';
         location.href = url;
     };
+    $scope.coworkRecord = function(oRecord) {
+        var url;
+        url = LS.j('', 'site', 'app');
+        url += '&ek=' + oRecord.enroll_key;
+        url += '&page=remark';
+        url += '#cowork';
+        location.href = url;
+    };
     $scope.recommend = function(oRecord, value) {
         var url;
         if (oRecord.agreed !== value) {
-            url = LS.j('record/recommend', 'site');
+            url = LS.j('record/agree', 'site');
             url += '&ek=' + oRecord.enroll_key;
             url += '&value=' + value;
             http2.get(url).then(function(rsp) {
@@ -134,9 +146,34 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         $scope.activeDir = oDir;
         $scope.recordList(1);
     };
+    /* 关闭任务提示 */
+    $scope.closeTask = function(index) {
+        $scope.tasks.splice(index, 1);
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        oApp = params.app;
-        oApp.dataSchemas.forEach(function(schema) {
+        _oApp = params.app;
+        /* 活动任务 */
+        if (_oApp.actionRule) {
+            /* 设置活动任务提示 */
+            var tasks = [];
+            http2.get(LS.j('repos/task', 'site', 'app')).then(function(rsp) {
+                if (rsp.data && rsp.data.length) {
+                    rsp.data.forEach(function(oRule) {
+                        if (!oRule._ok) {
+                            tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0 });
+                        }
+                    });
+                }
+            });
+            $scope.tasks = tasks;
+            /* 开启协作填写需要的点赞数 */
+            if (_oApp.actionRule.record && _oApp.actionRule.record.cowork && _oApp.actionRule.record.cowork.pre) {
+                if (_oApp.actionRule.record.cowork.pre.record && _oApp.actionRule.record.cowork.pre.record.likeNum !== undefined) {
+                    _coworkRequireLikeNum = parseInt(_oApp.actionRule.record.cowork.pre.record.likeNum);
+                }
+            }
+        }
+        _oApp.dataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
             }
@@ -151,9 +188,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         }
         $scope.groupOthers = groupOthersById;
         $scope.recordList(1);
-        $scope.facRound = facRound = srvRound.ins(oApp);
-        if (oApp.multi_rounds === 'Y') {
-            facRound.list().then(function(result) {
+        $scope.facRound = _facRound = srvRound.ins(_oApp);
+        if (_oApp.multi_rounds === 'Y') {
+            _facRound.list().then(function(result) {
                 if (result.active) {
                     for (var i = 0, ii = result.rounds.length; i < ii; i++) {
                         if (result.rounds[i].rid === result.active.rid) {
@@ -177,7 +214,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         $scope.appNavs = {
             addRecord: {}
         };
-        if (oApp.can_rank === 'Y') {
+        if (_oApp.can_rank === 'Y') {
             $scope.appNavs.rank = {};
         }
     });

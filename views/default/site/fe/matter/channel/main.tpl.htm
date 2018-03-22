@@ -77,6 +77,18 @@
                 <div class='form-group'>
                     <button class='btn btn-default btn-block' ng-if="Matter.end" ng-click="Matter.nextPage()">更多</button>
                 </div>
+                <div id="behavior" class="behavior">
+                    <div id="action">
+                        <a href="" ng-click="siteUser(siteInfo.id)">
+                            <i class="glyphicon glyphicon-user"></i>
+                            <span> 个人中心</span>
+                        </a>
+                        <a href="" class="invite" ng-click="invite(user,channel)" ng-if="channel.invite">
+                            <i class="icon_invite"></i>
+                            <span> 邀请体验</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -93,7 +105,7 @@
     <script src="/static/js/ng-infinite-scroll.min.js"></script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/xxt.share.js?_=1"></script>
-    <script src="<?php echo auto_version('/views/default/site/fe/matter/channel/main.js');?>"></script>
+    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/channel/main.js');?>"></script>
 </body>
 
 </html>

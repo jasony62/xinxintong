@@ -26,7 +26,7 @@ class remark extends base {
 		$modelRem = $this->model('matter\enroll\remark');
 		$options = [];
 		if (!empty($data)) {
-			$options['data_id'] = $modelRem->escape($data);
+			$options['data_id'] = $data;
 		}
 
 		$result = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $options);
@@ -88,8 +88,8 @@ class remark extends base {
 			return new \ObjectNotFoundError();
 		}
 		if (!empty($recDataId)) {
-			$oRecordData = $modelRecData->byId($recDataId);
-			if (false === $oRecordData && $oRecordData->state !== '1') {
+			$oRecData = $modelRecData->byId($recDataId);
+			if (false === $oRecData && $oRecData->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
 		}
@@ -125,9 +125,9 @@ class remark extends base {
 		$oRemark->enroll_key = $ek;
 		$oRemark->enroll_group_id = $oRecord->group_id;
 		$oRemark->enroll_userid = $oRecord->userid;
-		$oRemark->schema_id = isset($oRecordData) ? $oRecordData->schema_id : '';
+		$oRemark->schema_id = isset($oRecData) ? $oRecData->schema_id : '';
 		$oRemark->data_id = $recDataId;
-		$oRemark->remark_id = $modelRec->escape($remark);
+		$oRemark->remark_id = $remark;
 		$oRemark->create_at = $current;
 		$oRemark->content = $modelRec->escape($oPosted->content);
 
@@ -137,14 +137,24 @@ class remark extends base {
 		if (!empty($recDataId)) {
 			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
 			// 如果每一条的数据呗评论了那么这道题的总数据+1
-			if ($oRecordData->multitext_seq != 0) {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecordData->schema_id}' and multitext_seq = 0");
+			if ($oRecData->multitext_seq != 0) {
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");
 			}
 		}
 
 		/* 更新用户汇总数据 */
 		if (!empty($recDataId)) {
-			$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecordData, $oUser);
+			foreach ($oApp->dataSchemas as $dataSchema) {
+				if ($dataSchema->id === $oRecData->schema_id) {
+					$oDataSchema = $dataSchema;
+					break;
+				}
+			}
+			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oUser);
+			} else {
+				$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oUser);
+			}
 		} else {
 			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oUser);
 		}
@@ -246,8 +256,6 @@ class remark extends base {
 	 *
 	 */
 	public function like_action($remark) {
-		$remark = $this->escape($remark);
-
 		$modelRem = $this->model('matter\enroll\remark');
 		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,like_log']);
 		if (false === $oRemark) {
@@ -282,14 +290,77 @@ class remark extends base {
 			/* 发起点赞 */
 			$modelEnlEvt->likeRemark($oApp, $oRemark, $oUser);
 			/* 被点赞 */
-			$modelEnlEvt->belikedRemark($oApp, $oRemark, $oUser);
+			$modelEnlEvt->getLikeRemark($oApp, $oRemark, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRemark($oApp, $oRemark, $oUser);
 			/* 撤销被点赞 */
-			$modelEnlEvt->undoBeLikedRemark($oApp, $oRemark, $oUser);
+			$modelEnlEvt->undoGetLikeRemark($oApp, $oRemark, $oUser);
 		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
+	}
+	/**
+	 * 组长对评论表态
+	 */
+	public function agree_action($remark, $value = '') {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,agreed,agreed_log']);
+		if (false === $oRemark) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		$modelGrpUsr = $this->model('matter\group\player');
+		/* 当前用户所属分组及角色 */
+		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
+			return new \ParameterError('只允许组长进行推荐');
+		}
+		/* 填写记录用户所属分组 */
+		if ($oGrpLeader->is_leader === 'Y') {
+			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+			if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
+				return new \ParameterError('只允许组长推荐本组数据');
+			}
+		}
+
+		if (!in_array($value, ['Y', 'N', 'A'])) {
+			$value = '';
+		}
+		$beforeValue = $oRemark->agreed;
+		if ($beforeValue === $value) {
+			return new \ParameterError('不能重复设置推荐状态');
+		}
+
+		/**
+		 * 更新记录数据
+		 */
+		$oAgreedLog = $oRemark->agreed_log;
+		if (isset($oAgreedLog->{$oUser->uid})) {
+			$oLog = $oAgreedLog->{$oUser->uid};
+			$oLog->time = time();
+			$oLog->value = $value;
+		} else {
+			$oAgreedLog->{$oUser->uid} = (object) ['time' => time(), 'value' => $value];
+		}
+
+		$modelRem->update(
+			'xxt_enroll_record_remark',
+			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
+			['id' => $oRemark->id]
+		);
+
+		/* 处理用户汇总数据，积分数据 */
+		$this->model('matter\enroll\event')->agreeRemark($oApp, $oRemark, $oUser, $value);
+
+		return new \ResponseData($value);
 	}
 }

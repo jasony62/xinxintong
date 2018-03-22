@@ -27,7 +27,7 @@ class user extends \pl\fe\matter\base {
 		$oCriteria = $this->getPostJson();
 
 		$aOptions = [];
-		$aOptions = ['fields' => 'userid,nickname,group_id,user_total_coin,enroll_num,last_enroll_at,remark_other_num,last_remark_other_at,like_other_num,last_like_other_at,recommend_num,last_recommend_at,signin_num,last_signin_at'];
+		$aOptions = ['fields' => 'userid,nickname,group_id,user_total_coin,enroll_num,last_enroll_at,do_remark_num,last_do_remark_at,do_like_num,last_do_like_at,agree_num,last_agree_at,signin_num,last_signin_at'];
 
 		/* filter */
 		if (!empty($oCriteria->filter->by) && !empty($oCriteria->filter->keyword)) {

@@ -43,7 +43,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
             var oCoworkRule;
             oCoworkRule = $scope.ruleCowork(oRecord);
             if (oCoworkRule) {
-                $scope.tasks.push({ type: 'info', msg: oCoworkRule.desc, id: 'record.cowork.pre' });
+                $scope.coworkTasks.push({ type: 'info', msg: oCoworkRule.desc, id: 'record.cowork.pre' });
             }
         }
         /*设置页面导航*/
@@ -66,7 +66,8 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
     ek = LS.s().ek;
     _schemaId = LS.s().schema;
     _recDataId = LS.s().data;
-    $scope.tasks = [];
+    $scope.coworkTasks = [];
+    $scope.remarkTasks = [];
     $scope.newRemark = {};
     $scope.ruleCowork = function(oRecord) {
         var desc, gap;
@@ -238,8 +239,11 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         return val ? $sce.trustAsHtml(val) : '';
     };
     /* 关闭任务提示 */
-    $scope.closeTask = function(index) {
-        $scope.tasks.splice(index, 1);
+    $scope.closeCoworkTask = function(index) {
+        $scope.coworkTasks.splice(index, 1);
+    };
+    $scope.closeRemarkTask = function(index) {
+        $scope.remarkTasks.splice(index, 1);
     };
     $scope.bRemarkRecord = !_schemaId; // 留言记录还是数据
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
@@ -487,7 +491,14 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$uibModal', 'tmsLocation'
                         http2.get(LS.j('cowork/task', 'site', 'app', 'ek') + '&schema=' + oSchema.id).then(function(rsp) {
                             if (rsp.data && rsp.data.length) {
                                 rsp.data.forEach(function(oRule) {
-                                    $scope.tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
+                                    $scope.coworkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
+                                });
+                            }
+                        });
+                        http2.get(LS.j('remark/task', 'site', 'app')).then(function(rsp) {
+                            if (rsp.data && rsp.data.length) {
+                                rsp.data.forEach(function(oRule) {
+                                    $scope.remarkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
                                 });
                             }
                         });

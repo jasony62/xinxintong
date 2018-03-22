@@ -15,7 +15,7 @@
 <body>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
+    <nav class='navbar site-navbar-default' ng-cloak class='ng-cloak'>
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
@@ -142,7 +142,7 @@
                                             <span>{{rec.data[schema.id]}}</span>
                                         </div>
                                         <div ng-if="schema.cowork==='Y'">
-                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看或填写 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
+                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看全部<span ng-if="rec.coworkState[schema.id].length">{{rec.coworkState[schema.id].length}}个</span>或添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
                                             </button>
                                         </div>
                                     </div>
@@ -156,6 +156,17 @@
                                     <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
                                     <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
                                 </span>
+                            </div>
+                            <div class='remarks' ng-if="rec.agreedRemarks.length">
+                                <div class='remark' ng-repeat="remark in rec.agreedRemarks">
+                                    <div class='top-bar text-muted'>
+                                        <div ng-bind="remark.create_at*1000|date:'MM-dd HH:mm'"></div>
+                                        <div ng-bind-html="remark.nickname"></div>
+                                    </div>
+                                    <blockquote>
+                                        <div ng-bind-html="remark.content"></div>
+                                    </blockquote>
+                                </div>
                             </div>
                         </div>
                     </div>

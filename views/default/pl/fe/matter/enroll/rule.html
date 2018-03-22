@@ -94,19 +94,19 @@
                                 <div class='panel-heading'>提交协作填写（答案）</div>
                                 <div class='panel-body'>
                                     <div class='form-group'>
-                                        <label>每轮每条记录（问题）至少提交的协作填写数据（答案）的数量</label>
+                                        <label>每轮每条记录（问题）每个人至少提交的协作填写数据（答案）的数量</label>
                                         <input type='text' class='form-control' ng-model="rule.cowork.submit.end.cowork.num" placeholder="输入需要的数量">
                                     </div>
                                     <div class='form-group'>
-                                        <label>每轮每条记录（问题）至少提交的留言的数量</label>
+                                        <label>每轮每条记录（问题）每个人至少提交的留言的数量</label>
                                         <input type='text' class='form-control' ng-model="rule.cowork.submit.end.remark.num" placeholder="输入需要的数量">
                                     </div>
                                     <div class='form-group'>
-                                        <label>每轮每条记录（问题）至少提交的协作填写数据（答案）或留言的数量</label>
+                                        <label>每轮每条记录（问题）每个人至少提交的协作填写数据（答案）或留言的数量</label>
                                         <input type='text' class='form-control' ng-model="rule.cowork.submit.end.coworkOrRemark.num" placeholder="输入需要的数量">
                                     </div>
                                     <div class='form-group'>
-                                        <label>每轮每条记录（问题）需要提交的协作填写数据（答案）或留言的要求说明</label>
+                                        <label>每轮每条记录（问题）每个人需要提交的协作填写数据（答案）或留言的要求说明</label>
                                         <textarea type='text' class='form-control' ng-model="rule.cowork.submit.end.desc"></textarea>
                                     </div>
                                 </div>
@@ -156,18 +156,26 @@
                                             <input type='checkbox' ng-model="rule.cowork.anonymous.time.cowork.like.end">投票（点赞）截止时间前，协作填写（答案）匿名</label>
                                     </div>
                                     <div class='form-group'>
+                                        <label>获得多少点赞（投票）的协同填写数据（答案）显示在共享页</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.repos.pre.cowork.likeNum" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
                                         <label>每轮对每协作填写数据（答案）点赞（投票）的要求说明</label>
-                                        <input type='text' class='form-control' ng-model="rule.cowork.like.end.desc">
+                                        <textarea class='form-control' ng-model="rule.cowork.like.end.desc"></textarea>
                                     </div>
                                 </div>
                             </div>
                             <hr>
                             <div class='panel panel-default'>
-                                <div class='panel-heading'>协作填写（答案）开启点赞（投票）</div>
+                                <div class='panel-heading'>留言显示在共享页</div>
                                 <div class='panel-body'>
                                     <div class='form-group'>
-                                        <label>获得多少点赞（投票）的协同填写数据（答案）显示在共享页</label>
-                                        <input type='text' class='form-control' ng-model="rule.cowork.repos.pre.likeNum" placeholder="输入需要的数量">
+                                        <label>获得多少点赞（投票）的留言显示在共享页</label>
+                                        <input type='text' class='form-control' ng-model="rule.remark.repos.pre.remark.likeNum" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>留言显示在共享页的要求说明</label>
+                                        <textarea class='form-control' ng-model="rule.remark.repos.pre.desc"></textarea>
                                     </div>
                                 </div>
                             </div>

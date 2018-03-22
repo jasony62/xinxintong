@@ -1,5 +1,5 @@
 'use strict';
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt', 'directive.enroll']);
 ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', function($scope, $uibModal, http2, tmsSnsShare) {
     var _oNewInvite, _oMatterList = {};
     $scope.newInvite = _oNewInvite = {};

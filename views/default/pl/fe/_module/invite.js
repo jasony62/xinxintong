@@ -55,9 +55,9 @@ define(['frame'], function(ngApp) {
                         $mi.dismiss();
                     };
                     $scope.ok = function() {
-                        var regu = /^[1-9]\d*$/;
+                        var regx = /^[1-9]\d*$/;
                         if ($scope.code.max_count != '') {
-                            if (!regu.test($scope.code.max_count)) {
+                            if (!regx.test($scope.code.max_count)) {
                                 alert( '请输入正确的使用次数值' );
                             } else {
                                 $mi.close($scope.code);

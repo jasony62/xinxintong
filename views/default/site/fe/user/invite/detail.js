@@ -1,6 +1,6 @@
 'use strict';
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt', 'directive.enroll']);
 ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsShare', function($scope, $q, $uibModal, http2, tmsSnsShare) {
     var _inviteId, _oInvite, _oNewInvite, _oPage;
     _inviteId = location.search.match('invite=(.*)')[1];
@@ -46,14 +46,21 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsSha
             backdrop: 'static',
             controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                 $scope.code = {};
-                ['remark'].forEach(function(prop) {
+                ['stop', 'expire_at', 'max_count', 'remark'].forEach(function(prop) {
                     $scope.code[prop] = oCode[prop]
                 });
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };
                 $scope.ok = function() {
-                    $mi.close($scope.code);
+                    var regx = /^[1-9]\d*$/;
+                    if ($scope.code.max_count != '') {
+                        if (!regx.test($scope.code.max_count)) {
+                            alert( '请输入正确的使用次数值' );
+                        } else {
+                            $mi.close($scope.code);
+                        }
+                    }
                 };
             }]
         }).result.then(function(oNewCode) {

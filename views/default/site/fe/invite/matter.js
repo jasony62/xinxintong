@@ -1,5 +1,5 @@
 'use strict';
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt', 'directive.enroll']);
 ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', function($scope, $uibModal, http2, tmsSnsShare) {
     var _oNewInvite, _oMatterList = {};
     $scope.newInvite = _oNewInvite = {};
@@ -10,10 +10,19 @@ ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', fun
             backdrop: 'static',
             controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                 $scope.code = {};
+                $scope.isDate = 'N';
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };
                 $scope.ok = function() {
+                    var regx = /^[0-9]\d*$/;
+                    if ($scope.code.max_count === '' || (!regx.test($scope.code.max_count))) {
+                        alert( '请输入正确的使用次数值' );
+                        return false;
+                    }
+                    if($scope.isDate=='N') {
+                        $scope.code.expire_at = '0';
+                    }
                     $mi.close($scope.code);
                 };
             }]

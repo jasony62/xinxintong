@@ -16,10 +16,9 @@ ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', fun
                 };
                 $scope.ok = function() {
                     var regx = /^[0-9]\d*$/;
-                    if ($scope.code.max_count != '') {
-                        if (!regx.test($scope.code.max_count)) {
-                            alert( '请输入正确的使用次数值' );
-                        }
+                    if ($scope.code.max_count === '' || (!regx.test($scope.code.max_count))) {
+                        alert( '请输入正确的使用次数值' );
+                        return false;
                     }
                     if($scope.isDate=='N') {
                         $scope.code.expire_at = '0';

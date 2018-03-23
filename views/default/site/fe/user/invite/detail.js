@@ -27,15 +27,15 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsSha
             controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                 $scope.code = {};
                 $scope.isDate = 'N';
+                $scope.state = 'add';
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };
                 $scope.ok = function() {
                     var regx = /^[0-9]\d*$/;
-                    if ($scope.code.max_count != '') {
-                        if (!regx.test($scope.code.max_count)) {
-                            alert( '请输入正确的使用次数值' );
-                        }
+                    if ($scope.code.max_count !== '' && (!regx.test($scope.code.max_count))) {
+                        alert( '请输入正确的使用次数值' );
+                        return false;
                     }
                     if($scope.isDate=='N') {
                         $scope.code.expire_at = '0';
@@ -56,21 +56,32 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsSha
             backdrop: 'static',
             controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                 $scope.code = {};
+                $scope.state = 'config';
                 ['stop', 'expire_at', 'max_count', 'remark'].forEach(function(prop) {
-                    $scope.code[prop] = oCode[prop]
+                    if(prop=='expire_at') {
+                        if(oCode[prop] == '0') {
+                            $scope.isDate = 'N';
+                        } else {
+                            $scope.isDate = 'Y';
+                            $scope.code['expire_at'] = oCode['expire_at'];
+                        }
+                    }else {
+                        $scope.code[prop] = oCode[prop]
+                    }
                 });
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };
                 $scope.ok = function() {
-                    var regx = /^[1-9]\d*$/;
-                    if ($scope.code.max_count != '') {
-                        if (!regx.test($scope.code.max_count)) {
-                            alert( '请输入正确的使用次数值' );
-                        } else {
-                            $mi.close($scope.code);
-                        }
+                    var regx = /^[0-9]\d*$/;
+                    if ($scope.code.max_count === '' || (!regx.test($scope.code.max_count))) {
+                        alert( '请输入正确的使用次数值' );
+                        return false;
                     }
+                    if($scope.isDate=='N') {
+                        $scope.code.expire_at = '0';
+                    }
+                    $mi.close($scope.code);
                 };
             }]
         }).result.then(function(oNewCode) {

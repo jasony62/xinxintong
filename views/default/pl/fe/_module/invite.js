@@ -48,24 +48,26 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static',
                 controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                     $scope.code = {};
-                    if(oCode['expire_at']=='0') {
-                        $scope.isDate = 'N';
-                    }else {
-                        $scope.isDate = 'Y';
-                        $scope.code['expire_at'] = oCode['expire_at'];
-                    }
                     ['stop', 'expire_at', 'max_count', 'remark'].forEach(function(prop) {
-                        $scope.code[prop] = oCode[prop]
+                        if(prop=='expire_at') {
+                            if(oCode[prop] == '0') {
+                                $scope.isDate = 'N';
+                            } else {
+                                $scope.isDate = 'Y';
+                                $scope.code['expire_at'] = oCode['expire_at'];
+                            }
+                        }else {
+                            $scope.code[prop] = oCode[prop]
+                        }
                     });
                     $scope.cancel = function() {
                         $mi.dismiss();
                     };
                     $scope.ok = function() {
                         var regx = /^[0-9]\d*$/;
-                        if ($scope.code.max_count != '') {
-                            if (!regx.test($scope.code.max_count)) {
-                                alert( '请输入正确的使用次数值' );
-                            }
+                        if ($scope.code.max_count === '' || (!regx.test($scope.code.max_count))) {
+                            alert( '请输入正确的使用次数值' );
+                            return false;
                         }
                         if($scope.isDate=='N') {
                             $scope.code.expire_at = '0';

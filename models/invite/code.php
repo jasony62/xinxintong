@@ -67,7 +67,7 @@ class code_model extends \TMS_MODEL {
 		if ($oInviteCode->stop !== 'N') {
 			return [false, '邀请码已经停止使用'];
 		}
-		if ($oInviteCode->expire_at > 0 && $oInviteCode->expire_at > time()) {
+		if ($oInviteCode->expire_at > 0 && $oInviteCode->expire_at < time()) {
 			return [false, '邀请码已经过期'];
 		}
 		if ($oInviteCode->max_count > 0 && $oInviteCode->used_count >= $oInviteCode->max_count) {

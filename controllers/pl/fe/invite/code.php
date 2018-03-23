@@ -31,7 +31,7 @@ class code extends \pl\fe\base {
 						}
 						break;
 					case 'max_count':
-						if (is_int($val)) {
+						if (is_numeric($val)) {
 							$aProto[$prop] = $val;
 						}
 						break;
@@ -72,7 +72,7 @@ class code extends \pl\fe\base {
 			if ($prop === 'expire_at' && is_numeric($val)) {
 				$aUpdated[$prop] = (int)$val;
 			}
-			if ($prop === 'max_count' && is_int($val)) {
+			if ($prop === 'max_count' && is_numeric($val)) {
 				$aUpdated[$prop] = $val;
 			}
 		}

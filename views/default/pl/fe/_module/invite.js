@@ -77,7 +77,7 @@ define(['frame'], function(ngApp) {
                 }]
             }).result.then(function(oNewCode) {
                 http2.post('/rest/pl/fe/invite/code/update?code=' + oCode.id, oNewCode, function(rsp) {
-                    ['remark'].forEach(function(prop) {
+                    ['stop', 'expire_at', 'max_count', 'remark'].forEach(function(prop) {
                         oCode[prop] = oNewCode[prop]
                     });
                 });

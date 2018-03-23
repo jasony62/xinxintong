@@ -86,7 +86,7 @@ class schema extends \pl\fe\base {
 	 * 获得此通讯录有权导入的通讯录
 	 * @return [type] [description]
 	 */
-	public function listImportSchema_action($site, $id) {
+	public function listRelateSchema_action($site, $id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -121,10 +121,12 @@ class schema extends \pl\fe\base {
 		}
 		$oobjSchema->oextAttrs = $oextAttrs;
 
-		$schemas = $this->getPostJson();
-		if (empty($schemas)) {
+		$post = $this->getPostJson();
+		if (empty($post->schemas)) {
 			return new \ResponseError('请选择要导入的通讯录');
 		}
+
+		$schemas = $post->schemas;
 		// 获得要导入的通讯录的题目配置
 		$objSchemas = new \stdClass;
 		foreach ($schemas as $schema) {
@@ -166,6 +168,10 @@ class schema extends \pl\fe\base {
 			'xxt_site_member',
 			"forbidden='N' and schema_id in $schemas",
 		];
+		if (!empty($post->users)) {
+			$byUsers = '(' . implode(',', $post->users) . ')';
+			$q[2] .= ' and userid in $byUsers';
+		}
 		$q2 = ['o' => 'create_at desc,id desc'];
 		$usersAll = $model->query_objs_ss($q, $q2);
 		if (empty($usersAll)) {

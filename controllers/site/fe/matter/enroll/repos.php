@@ -147,6 +147,49 @@ class repos extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
+	 * 按照活动规则是否需要隐藏记录的用户名称
+	 */
+	private function _requireAnonymous($oApp) {
+		$bAnonymous = false;
+		if (isset($oApp->actionRule->record->anonymous)) {
+			$oRule = $oApp->actionRule->record->anonymous;
+			/* 记录点赞截止时间关联 */
+			if (!empty($oRule->time->record->like->end)) {
+				if (isset($oApp->actionRule->record->like->end->time)) {
+					$oRule2 = $oApp->actionRule->record->like->end->time;
+					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
+						if ($oRule2->mode === 'after_round_start_at') {
+							$modelRnd = $this->model('matter\enroll\round');
+							$oActiveRnd = $modelRnd->getActive($oApp);
+							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
+								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
+								$bAnonymous = time() < $endtime;
+							}
+						}
+					}
+				}
+			}
+			/* 协作点赞截止时间 */
+			if (!empty($oRule->time->cowork->like->end)) {
+				if (isset($oApp->actionRule->cowork->like->end->time)) {
+					$oRule2 = $oApp->actionRule->cowork->like->end->time;
+					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
+						if ($oRule2->mode === 'after_round_start_at') {
+							$modelRnd = $this->model('matter\enroll\round');
+							$oActiveRnd = $modelRnd->getActive($oApp);
+							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
+								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
+								$bAnonymous = time() < $endtime;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $bAnonymous;
+	}
+	/**
 	 * 返回指定活动的登记记录的共享内容
 	 */
 	public function recordList_action($app, $page = 1, $size = 12) {
@@ -155,7 +198,28 @@ class repos extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
+		/* 协作填写显示在共享页所需点赞数量 */
+		$coworkReposLikeNum = 0;
+		if (isset($oApp->actionRule->cowork->repos->pre)) {
+			$oRule = $oApp->actionRule->cowork->repos->pre;
+			if (!empty($oRule->cowork->likeNum)) {
+				$coworkReposLikeNum = (int) $oRule->cowork->likeNum;
+			}
+		}
+		/* 留言显示在共享页所需点赞数量 */
+		$remarkReposLikeNum = 0;
+		if (isset($oApp->actionRule->remark->repos->pre)) {
+			$oRule = $oApp->actionRule->remark->repos->pre;
+			if (!empty($oRule->remark->likeNum)) {
+				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
+			}
+		}
+
 		$oUser = $this->getUser($oApp);
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$oActiveRnd = $modelRnd->getActive($oApp);
 
 		// 登记数据过滤条件
 		$oPosted = $this->getPostJson();
@@ -168,7 +232,7 @@ class repos extends base {
 		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
 
 		// 查询结果
-		$mdoelRec = $this->model('matter\enroll\record');
+		$modelRec = $this->model('matter\enroll\record');
 		$oCriteria = new \stdClass;
 		$oCriteria->record = new \stdClass;
 		!empty($oPosted->rid) && $oCriteria->record->rid = $oPosted->rid;
@@ -178,19 +242,24 @@ class repos extends base {
 		}
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
-		$oResult = $mdoelRec->byApp($oApp, $oOptions, $oCriteria);
+		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria);
 		if (!empty($oResult->records)) {
+			$modelData = $this->model('matter\enroll\data');
+			/* 是否限制了匿名规则 */
+			$bAnonymous = $this->_requireAnonymous($oApp);
 			$aSchareableSchemas = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
-					$aSchareableSchemas[] = $oSchema->id;
+					$aSchareableSchemas[] = $oSchema;
 				}
 			}
 			foreach ($oResult->records as $oRecord) {
+				$aCoworkState = [];
 				/* 清除非共享数据 */
 				if (isset($oRecord->data)) {
 					$oRecordData = new \stdClass;
-					foreach ($aSchareableSchemas as $schemaId) {
+					foreach ($aSchareableSchemas as $oSchema) {
+						$schemaId = $oSchema->id;
 						if (strpos($schemaId, 'member.extattr.') === 0) {
 							$memberSchemaId = str_replace('member.extattr.', '', $schemaId);
 							if (!empty($oRecord->data->member->extattr->{$memberSchemaId})) {
@@ -211,10 +280,33 @@ class repos extends base {
 								$oRecordData->member->{$memberSchemaId} = $oRecord->data->member->{$memberSchemaId};
 							}
 						} else if (!empty($oRecord->data->{$schemaId})) {
-							$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
+							/* 协作填写题 */
+							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value']);
+								$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+								if ($coworkReposLikeNum) {
+									$reposItems = [];
+									foreach ($items as $oItem) {
+										if ($oItem->like_num >= $coworkReposLikeNum || $oItem->agreed === 'Y') {
+											$reposItems[] = $oItem;
+										}
+									}
+									$items = $reposItems;
+								}
+								$oRecordData->{$schemaId} = $items;
+							} else {
+								$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
+							}
 						}
 					}
 					$oRecord->data = $oRecordData;
+					if (!empty($aCoworkState)) {
+						$oRecord->coworkState = (object) $aCoworkState;
+					}
+				}
+				/* 隐藏昵称 */
+				if ($bAnonymous) {
+					unset($oRecord->nickname);
 				}
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
@@ -223,6 +315,21 @@ class repos extends base {
 				unset($oRecord->yx_openid);
 				unset($oRecord->qy_openid);
 				unset($oRecord->headimgurl);
+				/* 获得推荐的评论数据 */
+				$q = [
+					'id,agreed,like_num,like_log,nickname,content,create_at',
+					'xxt_enroll_record_remark',
+					"enroll_key='{$oRecord->enroll_key}'",
+				];
+				if ($remarkReposLikeNum) {
+					$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";
+				} else {
+					$q[2] .= " and agreed='Y'";
+				}
+				$q2 = [
+					'o' => 'agreed desc,like_num desc,create_at desc',
+				];
+				$oRecord->agreedRemarks = $modelRec->query_objs_ss($q, $q2);
 			}
 		}
 		return new \ResponseData($oResult);
@@ -234,7 +341,7 @@ class repos extends base {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,data_schemas']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,data_schemas,action_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -244,6 +351,13 @@ class repos extends base {
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
+		/* 是否限制了匿名规则 */
+		$bAnonymous = $this->_requireAnonymous($oApp);
+		if ($bAnonymous) {
+			unset($oRecord->nickname);
+		}
+
 		if (isset($oRecord->verbose)) {
 			$fnCheckSchemaVisibility = function ($oSchema, $oRecordData) {
 				if (!empty($oSchema->visibility->rules)) {
@@ -290,6 +404,50 @@ class repos extends base {
 		return new \ResponseData($oRecord);
 	}
 	/**
+	 * 获得指定记录的留言
+	 */
+	public function remarkList_action($ek) {
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$fields = 'id,aid,state,enroll_key';
+		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oApp = $modelApp->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,state,action_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 留言显示在共享页所需点赞数量 */
+		$remarkReposLikeNum = 0;
+		if (isset($oApp->actionRule->remark->repos->pre)) {
+			$oRule = $oApp->actionRule->remark->repos->pre;
+			if (!empty($oRule->remark->likeNum)) {
+				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
+			}
+		}
+
+		$q = [
+			'id,agreed,like_num,like_log,nickname,content,create_at',
+			'xxt_enroll_record_remark',
+			"enroll_key='{$oRecord->enroll_key}'",
+		];
+		if ($remarkReposLikeNum) {
+			$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";
+		} else {
+			$q[2] .= " and agreed='Y'";
+		}
+		$q2 = [
+			'o' => 'agreed desc,like_num desc,create_at desc',
+		];
+		$remarks = $modelRec->query_objs_ss($q, $q2);
+
+		return new \ResponseData($remarks);
+	}
+	/**
 	 * 共享相关任务
 	 */
 	public function task_action($app) {
@@ -319,6 +477,13 @@ class repos extends base {
 					$oRule->_no = [(int) $oRule->min - count($oRecords)];
 				}
 				$oRule->id = 'record.submit.end';
+				/* 积分奖励 */
+				require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
+				$modelCoinRule = $this->model('matter\enroll\coin');
+				$aCoin = $modelCoinRule->coinByMatter(\matter\enroll\event_model::SubmitEventName, $oApp);
+				if ($aCoin && $aCoin[0]) {
+					$oRule->coin = $aCoin[1];
+				}
 				$tasks[] = $oRule;
 			}
 		}

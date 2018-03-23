@@ -122,29 +122,32 @@ img {
 		.remarks {
 			font-size: .9em;
 			border-top: 1px dashed #ddd;
-			padding: 1rem 0 1rem 2rem;
+			margin-top: 16px;
+			padding: 1rem 0 0 2rem;
 			position: relative;
 
 			&:before {
 				content: '推荐留言';
 				position: absolute;
 				left: 50%;
-				margin-left: -1em;
+				margin-left: -2em;
 				top: -0.7em;
 				color: #999;
 			}
 
 			.remark {
-				margin-bottom: 1em;
+				.top-bar {
+					display: flex;
+				}
 
-				.bottom-bar>:first-child {
+				.top-bar>:first-child {
 					flex: 1;
 				}
 
-				.bottom-bar>:first-child:before {
-					content: '\2014 \00A0';
-				}
+			}
 
+			.remark+.remark {
+				margin-bottom: 1em;
 			}
 
 		}

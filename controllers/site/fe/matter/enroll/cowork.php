@@ -311,6 +311,13 @@ class cowork extends base {
 			}
 			if (!$bPassed) {
 				$oRule->id = 'cowork.submit.end';
+				/* 积分奖励 */
+				require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
+				$modelCoinRule = $this->model('matter\enroll\coin');
+				$aCoin = $modelCoinRule->coinByMatter(\matter\enroll\event_model::DoSubmitCoworkEventName, $oApp);
+				if ($aCoin && $aCoin[0]) {
+					$oRule->coin = $aCoin[1];
+				}
 				$tasks[] = $oRule;
 			}
 		}

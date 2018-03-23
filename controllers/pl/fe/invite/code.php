@@ -25,9 +25,6 @@ class code extends \pl\fe\base {
 					case 'remark':
 						$aProto[$prop] = $modelInv->escape($val);
 						break;
-					case 'stop':
-						$aProto[$prop] = $modelInv->escape($val);
-						break;
 					case 'expire_at':
 						if (is_numeric($val)) {
 							$aProto[$prop] = (int)$val;

@@ -34,17 +34,10 @@
     </nav>
     <div ng-cloak class='ng-cloak app' ng-controller="ctrlRemark">
         <div class='container'>
-            <div ng-if="tasks.length">
-                <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
-                    <span>{{task.msg}}</span>
-                    <span ng-switch-when="record.cowork.pre"></span>
-                    <span ng-switch-when="cowork.submit.end"></span>
-                </div>
-            </div>
             <div class='row'>
                 <div id='record'>
                     <div class='user text-muted'>
-                        <div class='nickname'>{{record.nickname||'匿名用户'}}</div>
+                        <div class='nickname'><span class='glyphicon glyphicon-user'></span> {{record.nickname||'隐藏'}}</div>
                         <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                     </div>
                     <hr>
@@ -88,7 +81,7 @@
                     <div class='bottom-bar' ng-if="bRemarkRecord">
                         <button ng-if="record.userid===user.uid" class='btn btn-default btn-sm' ng-click="editRecord($event)"><span class='glyphicon glyphicon-edit'></span></button>
                         <button class='btn btn-default btn-sm' ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':record.like_log[user.uid]}"></span>&nbsp;<span ng-bind="record.like_num"></span></button>
-                        <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>
+                        <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span></button>
                         <div ng-if="params.groupUser.is_leader==='S'||(params.groupUser.is_leader==='Y'&&(record.userid===params.groupUser.userid||groupOthers[record.userid]))">
                             <button ng-if="record.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend('Y')">推荐</button>
                             <button ng-if="record.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend('')">取消推荐</button>
@@ -96,7 +89,7 @@
                     </div>
                     <div class='bottom-bar' ng-if="!bRemarkRecord">
                         <button class='btn btn-default btn-sm' ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></button>
-                        <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-share-alt"></span></button>
+                        <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span></button>
                         <div ng-if="params.groupUser.is_leader==='S'||(params.groupUser.is_leader==='Y'&&(record.userid===params.groupUser.userid||groupOthers[record.userid]))">
                             <button ng-if="data.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend('Y')">推荐</button>
                             <button ng-if="data.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend('')">取消推荐</button>
@@ -104,6 +97,12 @@
                     </div>
                 </div>
                 <div id='cowork' ng-if="coworkSchemas.length">
+                    <div ng-if="coworkTasks.length">
+                        <div uib-alert ng-repeat="task in coworkTasks" class='alert-info' close="closeCoworkTask($index)" ng-switch="task.id">
+                            <span>{{task.msg}}</span><span ng-if="task.coin">，每个可获得【{{task.coin}}个】积分</span>
+                            <span ng-switch-when="cowork.submit.end"></span>
+                        </div>
+                    </div>
                     <div class='schemaList' ng-controller="ctrlCowork">
                         <div ng-repeat="schema in coworkSchemas">
                             <div class='text-muted data-title'>{{schema.title}}</div>
@@ -115,7 +114,7 @@
                                 </div>
                                 <blockquote>
                                     <p dynamic-html="item.value"></p>
-                                    <footer>{{item.nickname}}</footer>
+                                    <footer>{{item.nickname||'隐藏'}}</footer>
                                 </blockquote>
                                 <div class='bottom-bar' ng-if="bRemarkRecord">
                                     <div class='datetime'>{{item.submit_at*1000|date:'MM-dd HH:mm'}}</div>
@@ -126,44 +125,50 @@
                                         <button ng-if="item.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="agreeItem(item,'Y')">推荐</button>
                                         <button ng-if="item.agreed==='Y'" class='btn btn-default btn-sm' ng-click="agreeItem(item,'')">取消推荐</button>
                                     </div>
-                                    <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeItemRemark(item)"><span class="glyphicon glyphicon-share-alt"></span></button>
+                                    <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeItemRemark(item)"><span class="glyphicon glyphicon-comment"></span></button>
                                 </div>
                             </div>
                             <div class='text-center'>
                                 <hr>
-                                <button class="btn btn-default" ng-click="addItem(schema)"><span class='glyphicon glyphicon-plus'></span> 添加</button>
+                                <button class="btn btn-primary" ng-click="addItem(schema)"><span class='glyphicon glyphicon-plus'></span> 添加 <span class='text-muted' ng-if="constraint">（还需要{{constraint.gap}}<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div id='remarks'>
-                    <div class='remarkList'>
-                        <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
-                            <div class='recommend' ng-if="remark.agreed==='Y'||remark.agreed==='N'">
-                                <span ng-if="remark.agreed==='Y'" class="label label-success">推荐</span>
-                                <span ng-if="remark.agreed==='N'" class="label label-danger">屏蔽</span>
-                            </div>
-                            <blockquote>
-                                <p dynamic-html="remark.content"></p>
-                                <footer>{{remark.nickname}}</footer>
-                            </blockquote>
-                            <div class='bottom-bar'>
-                                <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
-                                <div ng-if="params.groupUser.is_leader==='S'||(params.groupUser.is_leader==='Y'&&(record.userid===params.groupUser.userid||groupOthers[record.userid]))">
-                                    <button ng-if="remark.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="agreeRemark(remark,'Y')">推荐</button>
-                                    <button ng-if="remark.agreed==='Y'" class='btn btn-default btn-sm' ng-click="agreeRemark(remark,'')">取消推荐</button>
-                                </div>
-                                <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
-                                <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark(remark)"><span class='glyphicon glyphicon-share-alt'></span></button>
-                            </div>
+                    <div class='remark' ng-if="remarkTasks.length">
+                        <div uib-alert ng-repeat="task in remarkTasks" class='alert-info' close="closeRemarkTask($index)" ng-switch="task.id">
+                            <span>{{task.msg}}</span>
                         </div>
                     </div>
-                    <div ng-if="params.entryRuleResult.passed==='N'" ng-switch on="params.entryRuleResult.scope">
-                        <div class='alert alert-info' ng-switch-when="sns">需要<a href='' class='alert-link' ng-click="askFollowSns()">关注公众号</a>后才能发表留言</div>
-                        <div class='alert alert-info' ng-switch-when="member">需要<a href='' class='alert-link' ng-click="askBecomeMember()">填写联系人信息</a>后才能发表留言</div>
+                    <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
+                        <div class='recommend' ng-if="remark.agreed==='Y'||remark.agreed==='N'">
+                            <span ng-if="remark.agreed==='Y'" class="label label-success">推荐</span>
+                            <span ng-if="remark.agreed==='N'" class="label label-danger">屏蔽</span>
+                        </div>
+                        <blockquote>
+                            <p dynamic-html="remark.content"></p>
+                            <footer>{{remark.nickname}}</footer>
+                        </blockquote>
+                        <div class='bottom-bar'>
+                            <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
+                            <div ng-if="params.groupUser.is_leader==='S'||(params.groupUser.is_leader==='Y'&&(record.userid===params.groupUser.userid||groupOthers[record.userid]))">
+                                <button ng-if="remark.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="agreeRemark(remark,'Y')">推荐</button>
+                                <button ng-if="remark.agreed==='Y'" class='btn btn-default btn-sm' ng-click="agreeRemark(remark,'')">取消推荐</button>
+                            </div>
+                            <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
+                            <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark(remark)"><span class='glyphicon glyphicon-comment'></span></button>
+                        </div>
                     </div>
-                    <div class='text-center' ng-if="params.entryRuleResult.passed==='Y'">
-                        <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-plus'></span> 添加留言</button>
+                    <div class='remark'>
+                        <div ng-if="params.entryRuleResult.passed==='N'" ng-switch on="params.entryRuleResult.scope">
+                            <div class='alert alert-info' ng-switch-when="sns">需要<a href='' class='alert-link' ng-click="askFollowSns()">关注公众号</a>后才能发表留言</div>
+                            <div class='alert alert-info' ng-switch-when="member">需要<a href='' class='alert-link' ng-click="askBecomeMember()">填写联系人信息</a>后才能发表留言</div>
+                        </div>
+                        <div class='text-center' ng-if="params.entryRuleResult.passed==='Y'">
+                            <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-plus'></span> 添加留言</button>
+                        </div>
                     </div>
                 </div>
             </div>

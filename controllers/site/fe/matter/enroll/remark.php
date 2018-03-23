@@ -363,4 +363,28 @@ class remark extends base {
 
 		return new \ResponseData($value);
 	}
+	/**
+	 * 和留言相关的任务
+	 */
+	public function task_action($app) {
+		$modelApp = $this->model('matter\enroll');
+
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,action_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$tasks = [];
+		/* 留言出现在共享数据页 */
+		if (isset($oApp->actionRule->remark->repos->pre)) {
+			$oRule = $oApp->actionRule->remark->repos->pre;
+			if ($oRule->desc) {
+				$oRule->id = 'remark.repos.pre';
+				$tasks[] = $oRule;
+			}
+		}
+
+		return new \ResponseData($tasks);
+
+	}
 }

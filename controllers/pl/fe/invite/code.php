@@ -18,9 +18,29 @@ class code extends \pl\fe\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$modelCode = $this->model('invite\code')->setOnlyWriteDbConn(true);
+		$aProto = [];
+		if ($posted = $this->getPostJson()) {
+			foreach ($posted as $prop => $val) {
+				switch ($prop) {
+					case 'remark':
+						$aProto[$prop] = $modelInv->escape($val);
+						break;
+					case 'expire_at':
+						if (is_numeric($val)) {
+							$aProto[$prop] = (int)$val;
+						}
+						break;
+					case 'max_count':
+						if (is_numeric($val)) {
+							$aProto[$prop] = $val;
+						}
+						break;
+				}
+			}
+		}
 
-		$oCode = $modelCode->add($oInvite);
+		$modelCode = $this->model('invite\code')->setOnlyWriteDbConn(true);
+		$oCode = $modelCode->add($oInvite, $aProto);
 
 		return new \ResponseData($oCode);
 	}
@@ -52,7 +72,7 @@ class code extends \pl\fe\base {
 			if ($prop === 'expire_at' && is_numeric($val)) {
 				$aUpdated[$prop] = (int)$val;
 			}
-			if ($prop === 'max_count' && is_int($val)) {
+			if ($prop === 'max_count' && is_numeric($val)) {
 				$aUpdated[$prop] = $val;
 			}
 		}

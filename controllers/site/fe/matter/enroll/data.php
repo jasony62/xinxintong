@@ -19,9 +19,31 @@ class data extends base {
 			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,state,data_schemas']);
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,state,data_schemas,action_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
+		}
+
+		/* 是否限制了匿名规则 */
+		$bAnonymous = false;
+		if (isset($oApp->actionRule->cowork->anonymous)) {
+			$oRule = $oApp->actionRule->cowork->anonymous;
+			/* 协作点赞截止时间 */
+			if (!empty($oRule->time->cowork->like->end)) {
+				if (isset($oApp->actionRule->cowork->like->end->time)) {
+					$oRule2 = $oApp->actionRule->cowork->like->end->time;
+					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
+						if ($oRule2->mode === 'after_round_start_at') {
+							$modelRnd = $this->model('matter\enroll\round');
+							$oActiveRnd = $modelRnd->getActive($oApp);
+							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
+								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
+								$bAnonymous = time() < $endtime;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		$oSchemas = new \stdClass;
@@ -53,6 +75,9 @@ class data extends base {
 					$oRecData->items = $modelRecDat->query_objs_ss($q);
 					foreach ($oRecData->items as $oItem) {
 						$oItem->like_log = empty($oItem->like_log) ? [] : json_decode($oItem->like_log);
+						if ($bAnonymous) {
+							unset($oItem->nickname);
+						}
 					}
 				}
 			}

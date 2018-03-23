@@ -557,7 +557,7 @@ class user_model extends \TMS_MODEL {
 	 */
 	public function awardCoin($oApp, $userid, $rid, $coinEvent, $coinRules = null) {
 		if (empty($coinRules)) {
-			$modelCoinRule = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
+			$modelCoinRule = $this->model('matter\enroll\coin');
 			$coinRules = $modelCoinRule->rulesByMatter($coinEvent, $oApp);
 		}
 		if (empty($coinRules)) {

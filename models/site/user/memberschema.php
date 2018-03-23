@@ -239,8 +239,6 @@ class memberschema_model extends \TMS_MODEL {
 			return new \ResponseError('请检查参数设置');
 		}
 
-		$site = $this->escape($site);
-		$id = $this->escape($id);
 		//如果是项目通讯录从项目下的活动通讯录和项目所属团队通讯录中导入用户
 		if ($schema->matter_type === 'mission' && $schema->matter_id !== '') {
 			$qm = [

@@ -423,7 +423,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         }
         if (!bHasSaveButton) {
-            $scope.appActs.save = {};
+            $scope.appActs = {
+                save: {}
+            };
         }
         /*设置页面导航*/
         $scope.appNavs = {};

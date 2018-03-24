@@ -219,7 +219,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce'
             addRecord: {}
         };
         if (oApp.can_rank === 'Y') {
-            $scope.appActs.rank = {};
+            $scope.appNavs = { rank: {} };
         }
     });
     $scope.advCriteriaStatus = {

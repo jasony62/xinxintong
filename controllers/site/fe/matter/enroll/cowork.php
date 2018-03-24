@@ -276,7 +276,7 @@ class cowork extends base {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,entry_rule,action_rule']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state,entry_rule,action_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

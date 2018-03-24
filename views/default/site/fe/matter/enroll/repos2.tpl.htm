@@ -46,7 +46,11 @@
         <div class='row'>
             <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened">
                 <uib-accordion>
-                    <div uib-accordion-group class="panel-default" heading="目录" ng-if="dirSchemas.length" is-open='advCriteriaStatus.dirOpen'>
+                    <div uib-accordion-group class="panel-default" ng-if="dirSchemas.length" is-open='advCriteriaStatus.dirOpen'>
+                        <uib-accordion-heading>
+                            目录
+                            <button class="close"><span>&times;</span></button>
+                        </uib-accordion-heading>
                         <div class='dir-level-1' ng-repeat="dir1 in dirSchemas">
                             <div class='dir' ng-click="shiftDir(dir1)" ng-class="{active:dir1===activeDir}">{{dir1.op.l}}</div>
                             <div ng-if="dir1.op.childrenDir.length">
@@ -62,7 +66,11 @@
                         </div>
                         <button class='btn btn-default btn-block' ng-click="shiftDir()">清除选择</button>
                     </div>
-                    <div uib-accordion-group class="panel-default" heading="筛选" is-open='advCriteriaStatus.filterOpen'>
+                    <div uib-accordion-group class="panel-default" is-open='advCriteriaStatus.filterOpen'>
+                        <uib-accordion-heading>
+                            筛选
+                            <button class="close"><span>&times;</span></button>
+                        </uib-accordion-heading>
                         <div class='form-group' ng-if='rounds.length'>
                             <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
                                 <option value='all'>全部轮次</option>
@@ -82,6 +90,9 @@
                         </div>
                     </div>
                 </uib-accordion>
+                <div class='text-center'>
+                    <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
+                </div>
             </div>
             <div class='records col-md-9 col-xs-12'>
                 <div ng-if="activeRound" class='active-round text-muted text-center'>

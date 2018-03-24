@@ -228,8 +228,10 @@ ngApp.controller('ctrlList', ['$scope', function($scope) {
         oApp = params.app;
         /*设置页面分享信息*/
         $scope.setSnsShare();
-        /*设置页面分享信息*/
-        $scope.setSnsShare();
+        /*设置页面操作*/
+        $scope.appActs = {
+            addRecord: {}
+        };
         /*设置页面导航*/
         $scope.appNavs = {};
         if (oApp.can_repos === 'Y') {

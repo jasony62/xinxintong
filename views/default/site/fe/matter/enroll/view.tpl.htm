@@ -13,14 +13,14 @@
     <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
-<body>
+<body ng-controller='ctrlView'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-list-alt visible-lg-inline"></i> <span class='icon-note' ng-bind='page.title'></span>
+                    <i class="glyphicon glyphicon-list-alt visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">{{page.title}} <span class="caret"></span></span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -34,10 +34,9 @@
         </div>
     </nav>
     <div ng-cloak class='ng-cloak app'>
-        <div class='container' ng-controller='ctrlView'>
+        <div class='container'>
             <div dynamic-html="page.html">
             </div>
-            <div tms-app-nav app-navs="appNavs"></div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

@@ -46,10 +46,12 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                 $scope.coworkTasks.push({ type: 'info', msg: oCoworkRule.desc, id: 'record.cowork.pre' });
             }
         }
-        /*设置页面导航*/
-        $scope.appNavs = {
+        /*设置页面操作*/
+        $scope.appActs = {
             addRecord: {}
         };
+        /*设置页面导航*/
+        $scope.appNavs = {};
         if (oApp.can_repos === 'Y') {
             $scope.appNavs.repos = {};
         }

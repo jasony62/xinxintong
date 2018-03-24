@@ -410,8 +410,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 fnToggleAssocOptions(dataSchemas, oRecordData);
             }
         }, true);
-        /*设置页面导航*/
-        $scope.appNavs = {};
+        /*设置页面操作*/
         // 如果页面上有保存按钮，隐藏内置的保存按钮
         if (oPage.act_schemas) {
             var bHasSaveButton = false,
@@ -424,8 +423,10 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         }
         if (!bHasSaveButton) {
-            $scope.appNavs.save = {};
+            $scope.appActs.save = {};
         }
+        /*设置页面导航*/
+        $scope.appNavs = {};
         if (_oApp.can_repos === 'Y') {
             $scope.appNavs.repos = {};
         }

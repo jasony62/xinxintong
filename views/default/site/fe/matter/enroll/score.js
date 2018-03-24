@@ -47,12 +47,15 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', functio
             /*设置页面分享信息*/
             $scope.setSnsShare(oRecord);
             /*设置页面导航*/
-            $scope.appActs = {};
+            var oAppNavs = {};
             if (oApp.can_repos === 'Y') {
-                $scope.appActs.repos = {};
+                oAppNavs.repos = {};
             }
             if (oApp.can_rank === 'Y') {
-                $scope.appActs.rank = {};
+                oAppNavs.rank = {};
+            }
+            if (Object.keys(oAppNavs)) {
+                $scope.appNavs = oAppNavs;
             }
         });
     });

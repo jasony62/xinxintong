@@ -36,7 +36,7 @@ ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
         scope: {
             navs: '=appNavs'
         },
-        template: "<span uib-popover-template=\"'appNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'outsideClick'\"><span ng-transclude></span></span>",
+        template: "<span><span ng-if=\"!navs\"><span ng-transclude></span></span><span ng-if=\"navs\" uib-popover-template=\"'appNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'outsideClick'\"><span ng-transclude></span> <span class=\"caret\"></span></span></span>",
         controller: ['$scope', function($scope) {
             $scope.goto = function(event, page) {
                 $scope.$parent.gotoPage(event, page);

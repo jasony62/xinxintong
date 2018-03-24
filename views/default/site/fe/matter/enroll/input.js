@@ -428,12 +428,15 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             };
         }
         /*设置页面导航*/
-        $scope.appNavs = {};
+        var oAppNavs = {};
         if (_oApp.can_repos === 'Y') {
-            $scope.appNavs.repos = {};
+            oAppNavs.repos = {};
         }
         if (_oApp.can_rank === 'Y') {
-            $scope.appNavs.rank = {};
+            oAppNavs.rank = {};
+        }
+        if (Object.keys(oAppNavs).length) {
+            $scope.appNavs = oAppNavs;
         }
     }
 

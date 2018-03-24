@@ -7,6 +7,7 @@
     <base href="/" />
     <title>我的邀请</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/views/default/site/fe/matter/enroll/directive.css" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/fe/user/invite/detail.css');?>" rel="stylesheet">
 </head>
@@ -87,6 +88,32 @@
         </div>
         <div class="modal-body">
             <form class="form-horizontal">
+                <div class="form-group" ng-if="state=='config'">
+                    <label class="col-md-3 control-label">是否停止使用</label>
+                    <div class="col-md-9">
+                        <label class="radio-inline"><input name="isUse" type="radio" value="Y" ng-model="code.stop">是</label>
+                        <label class="radio-inline"><input name="isUse" type="radio" value="N" ng-model="code.stop">否</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">截止时间</label>
+                    <div class="col-md-9">
+                        <label class="radio-inline"><input name="isDate" type="radio" value="N" ng-model="isDate">无</label>
+                        <label class="radio-inline"><input name="isDate" type="radio" value="Y" ng-model="isDate">有</label>
+                        <div ng-if="isDate=='Y'">
+                            <div tms-date="'Y'" tms-date-value="code.expire_at" >
+                                <div wrap="date" class="form-control input-lg" ng-bind="code.expire_at*1000|date:'yy-MM-dd HH:mm'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">使用次数</label>
+                    <div class="col-md-9">
+                        <input class="form-control" type="text" ng-trim="true"  ng-model="code.max_count" id="count"/>
+                        <span class="text-danger">* 数字0代表不限制使用次数</span>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-md-3 control-label">备注</label>
                     <div class="col-md-9">
@@ -105,6 +132,7 @@
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/ui-tms.js"></script>
     <script src="/asset/js/xxt.ui.share.js"></script>
+    <script src="/views/default/site/fe/matter/enroll/directive.js"></script>
     <script src="<?php echo auto_version('/views/default/site/fe/user/invite/detail.js');?>"></script>
 </body>
 

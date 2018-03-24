@@ -48,19 +48,36 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static',
                 controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                     $scope.code = {};
-                    ['remark'].forEach(function(prop) {
-                        $scope.code[prop] = oCode[prop]
+                    ['stop', 'expire_at', 'max_count', 'remark'].forEach(function(prop) {
+                        if(prop=='expire_at') {
+                            if(oCode[prop] == '0') {
+                                $scope.isDate = 'N';
+                            } else {
+                                $scope.isDate = 'Y';
+                                $scope.code['expire_at'] = oCode['expire_at'];
+                            }
+                        }else {
+                            $scope.code[prop] = oCode[prop]
+                        }
                     });
                     $scope.cancel = function() {
                         $mi.dismiss();
                     };
                     $scope.ok = function() {
+                        var regx = /^[0-9]\d*$/;
+                        if ($scope.code.max_count === '' || (!regx.test($scope.code.max_count))) {
+                            alert( '请输入正确的使用次数值' );
+                            return false;
+                        }
+                        if($scope.isDate=='N') {
+                            $scope.code.expire_at = '0';
+                        }
                         $mi.close($scope.code);
                     };
                 }]
             }).result.then(function(oNewCode) {
                 http2.post('/rest/pl/fe/invite/code/update?code=' + oCode.id, oNewCode, function(rsp) {
-                    ['remark'].forEach(function(prop) {
+                    ['stop', 'expire_at', 'max_count', 'remark'].forEach(function(prop) {
                         oCode[prop] = oNewCode[prop]
                     });
                 });

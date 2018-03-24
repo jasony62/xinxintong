@@ -6,10 +6,13 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/matter/mission/coin/rules?site=' + _oMission.siteid + '&mission=' + _oMission.id;
             http2.get(url, function(rsp) {
                 rsp.data.forEach(function(oRule) {
-                    var oRuleData = $scope.rules[oRule.act].data;
-                    oRuleData.id = oRule.id;
-                    oRuleData.actor_delta = oRule.actor_delta;
-                    oRuleData.actor_overlap = oRule.actor_overlap;
+                    var oRuleData;
+                    if ($scope.rules[oRule.act]) {
+                        oRuleData = $scope.rules[oRule.act].data;
+                        oRuleData.id = oRule.id;
+                        oRuleData.actor_delta = oRule.actor_delta;
+                        oRuleData.actor_overlap = oRule.actor_overlap;
+                    }
                 });
             });
         }

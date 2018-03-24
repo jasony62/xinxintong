@@ -89,9 +89,10 @@ class base extends \site\fe\matter\base {
 		if (isset($assocGroupId)) {
 			$modelGrpUsr = $this->model('matter\group\player');
 			$oAssocGrpApp = (object) ['id' => $assocGroupId];
-			$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oUser->uid, ['fields' => 'round_id', 'onlyOne' => true]);
+			$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oUser->uid, ['fields' => 'round_id,is_leader', 'onlyOne' => true]);
 			if ($oGrpMemb) {
 				$oUser->group_id = $oGrpMemb->round_id;
+				$oUser->is_leader = $oGrpMemb->is_leader;
 			}
 		}
 

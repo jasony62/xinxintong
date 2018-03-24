@@ -491,9 +491,9 @@ class repos extends base {
 		if (isset($oActionRule->record->like->pre)) {
 			$oRule = $oActionRule->record->like->pre;
 			if (!empty($oRule->record->num)) {
-				$oOptions = new \stdClass;
-				$oOptions->record = (object) ['rid' => isset($oActiveRnd) ? $oActiveRnd->rid : ''];
-				$oResult = $this->model('matter\enroll\record')->byApp($oApp, $oOptions);
+				$oCriteria = new \stdClass;
+				$oCriteria->record = (object) ['rid' => isset($oActiveRnd) ? $oActiveRnd->rid : ''];
+				$oResult = $this->model('matter\enroll\record')->byApp($oApp, null, $oCriteria);
 				if ($oResult->total >= $oRule->record->num) {
 					$oRule->_ok = [(int) $oResult->total];
 				} else {
@@ -515,6 +515,29 @@ class repos extends base {
 				}
 				$oRule->id = 'record.like.end';
 				$tasks[] = $oRule;
+			}
+		}
+		/* 对组长的任务要求 */
+		if (!empty($oUser->group_id) && isset($oUser->is_leader) && $oUser->is_leader === 'Y') {
+			/* 对组长推荐记录的要求 */
+			if (isset($oActionRule->leader->record->agree->end)) {
+				$oRule = $oActionRule->leader->record->agree->end;
+				if (!empty($oRule->min)) {
+					$oCriteria = new \stdClass;
+					$oCriteria->record = (object) [
+						'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '',
+						'group_id' => $oUser->group_id,
+						'agreed' => 'Y',
+					];
+					$oResult = $this->model('matter\enroll\record')->byApp($oApp, null, $oCriteria);
+					if ($oResult->total >= $oRule->min) {
+						$oRule->_ok = [(int) $oResult->total];
+					} else {
+						$oRule->_no = [(int) $oRule->min - (int) $oResult->total];
+					}
+					$oRule->id = 'leader.record.agree.end';
+					$tasks[] = $oRule;
+				}
 			}
 		}
 

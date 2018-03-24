@@ -499,7 +499,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$anchorScroll', '$uibModa
                                 //$anchorScroll();
                             }
                         });
-                        http2.get(LS.j('remark/task', 'site', 'app')).then(function(rsp) {
+                        http2.get(LS.j('remark/task', 'site', 'app') + '&ek=' + oRecord.enroll_key).then(function(rsp) {
                             if (rsp.data && rsp.data.length) {
                                 rsp.data.forEach(function(oRule) {
                                     $scope.remarkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });

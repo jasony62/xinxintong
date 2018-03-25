@@ -289,13 +289,9 @@ class remark extends base {
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
 			$modelEnlEvt->likeRemark($oApp, $oRemark, $oUser);
-			/* 被点赞 */
-			$modelEnlEvt->getLikeRemark($oApp, $oRemark, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRemark($oApp, $oRemark, $oUser);
-			/* 撤销被点赞 */
-			$modelEnlEvt->undoGetLikeRemark($oApp, $oRemark, $oUser);
 		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
@@ -326,7 +322,7 @@ class remark extends base {
 		}
 		/* 填写记录用户所属分组 */
 		if ($oGrpLeader->is_leader === 'Y') {
-			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRemark->userid, ['fields' => 'round_id', 'onlyOne' => true]);
 			if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
 				return new \ParameterError('只允许组长推荐本组数据');
 			}

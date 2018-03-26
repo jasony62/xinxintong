@@ -300,6 +300,13 @@ class memberschema_model extends \TMS_MODEL {
 		//依照时间排序
 		$sortAt = [];
 		foreach ($schemas as $key => $val) {
+			if (!empty($val->ext_attrs)) {
+				$extAttrs = json_decode($val->ext_attrs);
+				$val->extAttrs = $extAttrs;
+			} else {
+				$val->extAttrs = new \stdClass;
+			}
+			unset($val->ext_attrs);
 			$sortAt[$key] = $val->create_at;
 		}
 		array_multisort($sortAt, SORT_DESC, $schemas);

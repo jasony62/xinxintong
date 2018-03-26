@@ -116,7 +116,6 @@ class schema extends \pl\fe\base {
 			$exta = new \stdClass;
 			$exta->title = $extAttr->title;
 			$exta->type = $extAttr->type;
-			$exta->unique = $extAttr->unique;
 			$oextAttrs[$extAttr->id] = $exta;
 		}
 		$oobjSchema->oextAttrs = $oextAttrs;
@@ -140,7 +139,6 @@ class schema extends \pl\fe\base {
 				$exta = new \stdClass;
 				$exta->title = $extAttr2->title;
 				$exta->type = $extAttr2->type;
-				$exta->unique = $extAttr2->unique;
 				$key = array_search($exta, $oobjSchema->oextAttrs);
 				// 记录此题在被导入的通讯录中题目的关系
 				if ($key !== false) {

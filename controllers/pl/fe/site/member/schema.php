@@ -111,6 +111,7 @@ class schema extends \pl\fe\base {
 		if ($oobjSchema === false) {
 			return new \ResponseError('指定的通讯录不存在');
 		}
+		// 题目匹配规则（名称和类型都相同）
 		$oextAttrs = [];
 		foreach ($oobjSchema->extAttrs as $extAttr) {
 			$exta = new \stdClass;
@@ -126,14 +127,14 @@ class schema extends \pl\fe\base {
 		}
 
 		$schemas = $post->schemas;
-		// 获得要导入的通讯录的题目配置
+		// 获得选择的要导入通讯录的题目配置
 		$objSchemas = new \stdClass;
 		foreach ($schemas as $schema) {
 			$objSchema = $modelSchema->byId($schema, ['fields' => 'ext_attrs']);
 			if ($objSchema === false) {
 				return new \ResponseError('指定的通讯录不存在');
 			}
-			// 获取此通讯录中与被导入的通讯录中title,type,unique相同的扩展题目，并将被导入通讯录总的此题的id作为数据的id
+			// 获取此通讯录中与被导入的通讯录中title,type相同的扩展题目，并与被导入通讯录中此题建立关系
 			$relateextAttrs = new \stdClass;
 			foreach ($objSchema->extAttrs as $extAttr2) {
 				$exta = new \stdClass;
@@ -220,21 +221,22 @@ class schema extends \pl\fe\base {
 		} else {
 			$i = 0;
 		}
-		$groups = $usersGroup[$i];
+		$users = $usersGroup[$i];
 		$value = "";
-		foreach ($groups as $group) {
-			$groupExtattr = json_decode($group->extattr);
+		foreach ($users as $user) {
+			// 处理用户的题目
+			$userExtattr = json_decode($user->extattr);
 			$newGroupExtattr = new \stdClass;
-			foreach ($groupExtattr as $key => $gExtattr) {
-				if (isset($objSchemas->{$group->schema_id}->relateextAttrs->{$key})) {
-					$newGroupExtattr->{$objSchemas->{$group->schema_id}->relateextAttrs->{$key}} = $gExtattr;
+			foreach ($userExtattr as $key => $gExtattr) {
+				if (isset($objSchemas->{$user->schema_id}->relateextAttrs->{$key})) {
+					$newGroupExtattr->{$objSchemas->{$user->schema_id}->relateextAttrs->{$key}} = $gExtattr;
 				}
 			}
-			$group->extattr = $model->toJson($newGroupExtattr);
-			unset($group->schema_id);
-			$group = (array) $model->escape($group);
-			$groupValue = array_values($group);
-			$value .= ",('$site',$id,$create_at,'" . implode("','", $groupValue) . "')";
+			$user->extattr = $model->toJson($newGroupExtattr);
+			unset($user->schema_id);
+			$user = (array) $model->escape($user);
+			$userValue = array_values($user);
+			$value .= ",('$site',$id,$create_at,'" . implode("','", $userValue) . "')";
 		}
 		$value = substr($value, 1);
 

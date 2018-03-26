@@ -923,7 +923,8 @@ provider('srvMemberPicker', function() {
                                     if (members.length) {
                                         ids = [];
                                         members.forEach(function(oMember) {
-                                            ids.push(oMember.id);
+                                            oMember.checkedId = oMatter.type == 'mschema' ? oMember.userid : oMember.id;
+                                            ids.push(oMember.checkedId);
                                         });
                                         schemas && schemas.length ? schemaUser(schemas, 0) : matterUser();
                                     }

@@ -226,13 +226,13 @@ class schema extends \pl\fe\base {
 		foreach ($users as $user) {
 			// 处理用户的题目
 			$userExtattr = json_decode($user->extattr);
-			$newGroupExtattr = new \stdClass;
+			$newUserExtattr = new \stdClass;
 			foreach ($userExtattr as $key => $gExtattr) {
 				if (isset($objSchemas->{$user->schema_id}->relateextAttrs->{$key})) {
-					$newGroupExtattr->{$objSchemas->{$user->schema_id}->relateextAttrs->{$key}} = $gExtattr;
+					$newUserExtattr->{$objSchemas->{$user->schema_id}->relateextAttrs->{$key}} = $gExtattr;
 				}
 			}
-			$user->extattr = $model->toJson($newGroupExtattr);
+			$user->extattr = $model->toJson($newUserExtattr);
 			unset($user->schema_id);
 			$user = (array) $model->escape($user);
 			$userValue = array_values($user);

@@ -1,6 +1,6 @@
 define(['require', 'mschemaService'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter', 'service.mschema']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.mschema']);
     ngApp.constant('CstApp', {
         alertMsg: {
             'schema.duplicated': '不允许重复添加登记项',

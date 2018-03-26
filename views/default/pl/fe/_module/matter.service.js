@@ -928,7 +928,7 @@ provider('srvMemberPicker', function() {
                                         members.forEach(function(oMember) {
                                             ids.push(oMember.id);
                                         });
-                                        schemas.length ? schemaUser(schemas, 0) : matterUser();
+                                        schemas && schemas.length ? schemaUser(schemas, 0) : matterUser();
                                     }
                                     function schemaUser(schemas, round) {
                                         http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id + '&rounds=' + rounds, {'schemas': schemas, 'users': ids}, function(rsp) {
@@ -954,7 +954,6 @@ provider('srvMemberPicker', function() {
                         }
                     },
                     controller: ['$scope', '$uibModalInstance', 'http2', 'tmsSchema', 'mschema', 'action', function($scope2, $mi, http2, tmsSchema, _oMschema, _oAction) {
-                        oMatter.type == 'mschema' ? doSchemas() : doSearch(1);
                         var _oPage, _oRows, _bAdded;
                         $scope2.mschema = _oMschema;
                         $scope2.action = _oAction;
@@ -976,14 +975,15 @@ provider('srvMemberPicker', function() {
                                 this.count = 0;
                             }
                         };
+                        oMatter.type == 'mschema' ? doSchemas() : $scope2.doSearch(1);
                         function doSchemas() {
                             http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + oMschema.siteid + '&id=' + oMschema.id, function(rsp) {
-                                $scope.importSchemas = rsp.data;
+                                $scope2.importSchemas = rsp.data;
                                 _oRows.impschemaId = rsp.data[0].id;
-                                doSearch(1);
+                                $scope2.doSearch(1);
                             });
                         };
-                        function doSearch(pageAt) {
+                        $scope2.doSearch = function(pageAt) {
                             pageAt && (_oPage.at = pageAt);
                             var selectedSchemaId = _oRows.impschemaId ? _oRows.impschemaId : _oMschema.id;
                             var url, filter = '';
@@ -1036,6 +1036,8 @@ provider('srvMemberPicker', function() {
                     size: 'lg',
                     backdrop: 'static',
                     windowClass: 'auto-height mattersgallery'
+                }).result.then(function () {
+                    defer.resolve();
                 });
                 return defer.promise;
             }

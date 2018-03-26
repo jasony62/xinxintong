@@ -15,7 +15,7 @@ class attachment extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app);
+		$oApp = $modelApp->byId($app);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -42,7 +42,7 @@ class attachment extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app);
+		$oApp = $modelApp->byId($app);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -65,7 +65,7 @@ class attachment extends \pl\fe\matter\base {
 		}
 
 		$oAtt = new \stdClass;
-		$oAtt->matter_id = $id;
+		$oAtt->matter_id = $oApp->id;
 		$oAtt->matter_type = 'enroll';
 		$oAtt->name = $oFile->name;
 		$oAtt->type = $oFile->type;

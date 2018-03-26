@@ -17,8 +17,6 @@
                 <button class='btn btn-default hide' ng-click="newSchema('location')">上传位置</button>
             </div>
             <div class='flexrow'>
-            </div>
-            <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('html')" style="padding:6px 0">描述说明</button>
                 <div class="btn-group">
                     <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style='width:100%;'>
@@ -28,6 +26,9 @@
                         <li><a href ng-click="newSchema('score')">打分题</a></li>
                         <li><a href ng-click="newSchema('date')">日期题</a></li>
                         <li><a href ng-click="newSchema('url')">上传链接</a></li>
+                        <li class="divider"></li>
+                        <li><a href ng-click="newMedia('audio')">音频文件</a></li>
+                        <li><a href ng-click="newMedia('vedio')">视频文件</a></li>
                     </ul>
                 </div>
             </div>
@@ -216,5 +217,29 @@
     </div>
     <div class="modal-footer ">
         <button class="btn btn-primary " ng-click="ok() ">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="newMedia.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">文件</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-group'>
+            <button id='addAttachment' class='btn btn-default btn-sm'>
+                <span class='glyphicon glyphicon-plus'></span> 选择文件并上传
+            </button>
+        </div>
+        <div class='input-group'>
+            <div class='form-control' ng-bind="attachment.name"></div>
+            <div class='input-group-btn'>
+                <button class='btn btn-default' ng-click='delAttachment()'>
+                    <span class='glyphicon glyphicon-remove'></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">确定</button>
     </div>
 </script>

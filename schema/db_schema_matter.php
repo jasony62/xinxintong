@@ -69,22 +69,6 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 文章附件
- */
-$sql = "create table if not exists xxt_article_attachment(";
-$sql .= "id int not null auto_increment";
-$sql .= ",article_id int not null";
-$sql .= ",name varchar(255) not null";
-$sql .= ",type varchar(255) not null";
-$sql .= ",size int not null";
-$sql .= ",last_modified bigint(13) not null";
-$sql .= ",url text";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
  * 文章发布过程日志
  */
 $sql = "create table if not exists xxt_article_download_log(";
@@ -366,6 +350,23 @@ $sql .= ",matter_id varchar(40) not null";
 $sql .= ",identity varchar(100) not null";
 $sql .= ",idsrc char(2) not null default ''";
 $sql .= ",label varchar(255) not null default ''";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 素材附件
+ */
+$sql = "create table if not exists xxt_matter_attachment(";
+$sql .= "id int not null auto_increment";
+$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type char(20) not null";
+$sql .= ",name varchar(255) not null";
+$sql .= ",type varchar(255) not null";
+$sql .= ",size int not null";
+$sql .= ",last_modified bigint(13) not null";
+$sql .= ",url text null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

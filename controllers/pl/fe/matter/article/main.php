@@ -96,7 +96,7 @@ class main extends \pl\fe\matter\main_base {
 			$q2['o'] = 'a.share_friend_num desc';
 			break;
 		case 'share_timeline':
-			$q2['o'] = 'a.share_timeline_num desc';
+			$q2['o'] = 'a.share_timeline_num desƒc';
 			break;
 		case 'like':
 			$q2['o'] = 'a.score desc';
@@ -148,33 +148,33 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$modelAct = $this->model('matter\article');
-		$article = $modelAct->byId($id);
-		if ($article === false) {
+		$oArticle = $modelAct->byId($id);
+		if ($oArticle === false) {
 			return new \ObjectNotFoundError();
 		}
 
-		$article->uid = $user->id;
+		$oArticle->uid = $user->id;
 		if ($cascade === 'Y') {
 			/* channels */
-			$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
+			$oArticle->channels = $this->model('matter\channel')->byMatter($id, 'article');
 			/* attachments */
-			if ($article->has_attachment === 'Y') {
-				$article->attachments = $modelAct->query_objs_ss(array('*', 'xxt_article_attachment', "article_id='$id'"));
+			if ($oArticle->has_attachment === 'Y') {
+				$oArticle->attachments = $modelAct->query_objs_ss(['*', 'xxt_matter_attachment', ['matter_id' => $id]]);
 			}
 			/* 所属项目 */
-			if ($article->mission_id) {
-				$article->mission = $this->model('matter\mission')->byId($article->mission_id);
+			if ($oArticle->mission_id) {
+				$oArticle->mission = $this->model('matter\mission')->byId($oArticle->mission_id);
 			}
 		}
 		/*如果此单图文属于引用那么需要返回被引用的单图文*/
-		if ($article->from_mode === 'C') {
-			$id2 = $article->from_id;
-			$article2 = $modelAct->byId($id2, ['fields' => 'body,author,siteid,id']);
-			$article->body = $article2->body;
-			$article->author = $article2->author;
+		if ($oArticle->from_mode === 'C') {
+			$id2 = $oArticle->from_id;
+			$oArticle2 = $modelAct->byId($id2, ['fields' => 'body,author,siteid,id']);
+			$oArticle->body = $oArticle2->body;
+			$oArticle->author = $oArticle2->author;
 		}
 
-		return new \ResponseData($article);
+		return new \ResponseData($oArticle);
 	}
 	/**
 	 * 获得指定文章的所有留言
@@ -425,85 +425,6 @@ class main extends \pl\fe\matter\main_base {
 		exit;
 	}
 	/**
-	 * 上传成功后将附件信息保存到数据库中
-	 */
-	public function attachmentAdd_action($site, $id) {
-		$file = $this->getPostJson();
-
-		if (defined('SAE_TMP_PATH')) {
-			$url = 'alioss://article/' . $id . '/' . $file->name;
-		} else {
-			$modelRes = $this->model('fs/local', $site, '_resumable');
-			$modelAtt = $this->model('fs/local', $site, '附件');
-			$fileUploaded = $modelRes->rootDir . '/article_' . $id . '_' . $file->uniqueIdentifier;
-			$fileUploaded2 = $modelAtt->rootDir . '/article_' . $id . '_' . $file->name;
-			if (false === rename($fileUploaded, $fileUploaded2)) {
-				return new ResponseError('移动上传文件失败');
-			}
-			$url = 'local://article_' . $id . '_' . $file->name;
-		}
-		$att = array();
-		$att['article_id'] = $id;
-		$att['name'] = $file->name;
-		$att['type'] = $file->type;
-		$att['size'] = $file->size;
-		$att['last_modified'] = $file->lastModified;
-		$att['url'] = $url;
-
-		$att['id'] = $this->model()->insert('xxt_article_attachment', $att, true);
-
-		$this->model()->update(
-			'xxt_article',
-			array('has_attachment' => 'Y'),
-			"id='$id'"
-		);
-
-		return new \ResponseData($att);
-	}
-	/**
-	 * 删除附件
-	 */
-	public function attachmentDel_action($site, $id) {
-		// 附件对象
-		$att = $this->model()->query_obj_ss(array('article_id,name,url', 'xxt_article_attachment', "id='$id'"));
-		/**
-		 * remove from fs
-		 */
-		if (strpos($att->url, 'alioss') === 0) {
-			$fs = $this->model('fs/alioss', $site, 'xxt-attachment');
-			$object = $site . '/article/' . $att->article_id . '/' . $att->name;
-			$rsp = $fs->delete_object($object);
-		} else if (strpos($att->url, 'local') === 0) {
-			$fs = $this->model('fs/local', $site, '附件');
-			$path = 'article_' . $att->article_id . '_' . $att->name;
-			$rsp = $fs->delete($path);
-		} else {
-			$fs = $this->model('fs/saestore', $site);
-			$fs->delete($att->url);
-		}
-		/**
-		 * remove from local
-		 */
-		$rst = $this->model()->delete('xxt_article_attachment', "id='$id'");
-		if ($rst == 1) {
-			$q = array(
-				'1',
-				'xxt_article_attachment',
-				"id='$id'",
-			);
-			$cnt = $this->model()->query_val_ss($q);
-			if ($cnt == 0) {
-				$this->model()->update(
-					'xxt_article',
-					array('has_attachment' => 'N'),
-					"id='$id'"
-				);
-			}
-		}
-
-		return new \ResponseData($rst);
-	}
-	/**
 	 * 将文件生成的图片转为正文
 	 */
 	private function setBodyByAtt($articleid, $dir) {
@@ -574,7 +495,7 @@ class main extends \pl\fe\matter\main_base {
 			$att['size'] = $file->size;
 			$att['last_modified'] = $file->lastModified;
 			$att['url'] = 'local://article_' . $oArticle->id . '_' . $filename;
-			$this->model()->insert('xxt_article_attachment', $att, true);
+			$this->model()->insert('xxt_matter_attachment', $att, true);
 
 			/* 处理附件 */
 			$modelRes = $this->model('fs/local', $site, '_resumable');

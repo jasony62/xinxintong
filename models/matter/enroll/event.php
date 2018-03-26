@@ -72,6 +72,52 @@ class event_model extends \TMS_MODEL {
 		return $operatorId;
 	}
 	/**
+	 * 记录事件日志
+	 */
+	private function _logEvent($oApp, $rid, $oTarget, $oEvent, $oOwnerEvent = null) {
+		$oNewLog = new \stdClass;
+		/* 事件 */
+		$oNewLog->event_name = $oEvent->name;
+		$oNewLog->event_op = $oEvent->op;
+		$oNewLog->event_at = $oEvent->at;
+		$oNewLog->earn_coin = isset($oEvent->coin) ? $oEvent->coin : 0;
+
+		/* 活动 */
+		$oNewLog->aid = $oApp->id;
+		$oNewLog->siteid = $oApp->siteid;
+		$oNewLog->rid = $rid;
+
+		/* 发起事件的用户 */
+		$oOperator = $oEvent->user;
+		$oNewLog->group_id = isset($oOperator->group_id) ? $oOperator->group_id : '';
+		$oNewLog->userid = $oOperator->uid;
+		$oNewLog->nickname = isset($oOperator->nickname) ? $this->escape($oOperator->nickname) : '';
+
+		/* 事件操作的对象 */
+		$oNewLog->target_id = $oTarget->id;
+		$oNewLog->target_type = $oTarget->type;
+
+		/* 事件操作的对象的创建用户 */
+		if (isset($oOwnerEvent)) {
+			$oOwner = $oOwnerEvent->user;
+			$oNewLog->owner_userid = $oOwner->uid;
+			if (!isset($oOwner->nickname)) {
+				$modelUsr = $this->model('matter\enroll\user');
+				$oOwnerUsr = $modelUsr->byId($oApp, $oOwner->uid, ['fields' => 'nickname']);
+				if ($oOwnerUsr) {
+					$oNewLog->owner_nickname = $this->escape($oOwnerUsr->nickname);
+				}
+			} else {
+				$oNewLog->owner_nickname = $this->escape($oOwner->nickname);
+			}
+			$oNewLog->owner_earn_coin = isset($oOwnerEvent->coin) ? $oOwnerEvent->coin : 0;
+		}
+
+		$oNewLog->id = $this->insert('xxt_enroll_log', $oNewLog, true);
+
+		return $oNewLog;
+	}
+	/**
 	 * 更新用户汇总数据
 	 */
 	private function _updateUsrData($oApp, $rid, $bJumpCreate, $oUser, $oUsrEventData, $fnUsrRndData = null, $fnUsrAppData = null, $fnUsrMisData = null) {
@@ -168,19 +214,19 @@ class event_model extends \TMS_MODEL {
 	 * 用户提交记录
 	 */
 	public function submitRecord($oApp, $oRecord, $oUser, $bSubmitNewRecord) {
-		$current = time();
+		$eventAt = isset($oRecord->enroll_at) ? $oRecord->enroll_at : time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oUser->uid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::SubmitEventName;
 		$oNewModifyLog->args = (object) ['id' => $oRecord->id];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
 		$oUpdatedUsrData->nickname = $this->escape($oUser->nickname);
-		$oUpdatedUsrData->last_enroll_at = $current;
+		$oUpdatedUsrData->last_enroll_at = $eventAt;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 		if (isset($oRecord->score->sum)) {
 			$oUpdatedUsrData->score = $oRecord->score->sum;
@@ -196,7 +242,7 @@ class event_model extends \TMS_MODEL {
 			}
 			$oUpdatedUsrData->enroll_num = 1;
 		}
-
+		/* 更新用户汇总数据 */
 		$fnUpdateRndUser = function ($oUserData) use ($oRecord, $oUser) {
 			$oResult = new \stdClass;
 			if (isset($oUser->group_id)) {
@@ -219,32 +265,67 @@ class event_model extends \TMS_MODEL {
 			return $oResult;
 		};
 
-		return $this->_updateUsrData($oApp, $oRecord->rid, false, $oUser, $oUpdatedUsrData, $fnUpdateRndUser, $fnUpdateAppUser);
+		$this->_updateUsrData($oApp, $oRecord->rid, false, $oUser, $oUpdatedUsrData, $fnUpdateRndUser, $fnUpdateAppUser);
+
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecord->id;
+		$oTarget->type = 'record';
+		$oEvent = new \stdClass;
+		$oEvent->name = self::SubmitEventName;
+		$oEvent->op = 'New';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oUser;
+		$oEvent->coin = isset($oUpdatedUsrData->user_total_coin) ? $oUpdatedUsrData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent);
+
+		return true;
 	}
 	/**
 	 * 填写记录获得提交协作填写项
 	 */
 	public function submitCowork($oApp, $oRecData, $oItem, $oOperator, $bSubmitNewItem = true) {
-		$this->_doSubmitCowork($oApp, $oItem, $oOperator, $bSubmitNewItem);
-		$this->_getSubmitCowork($oApp, $oRecData, $oItem, $oOperator, $bSubmitNewItem);
+		$oOperatorData = $this->_doSubmitCowork($oApp, $oItem, $oOperator, $bSubmitNewItem);
+		$oOwnerData = $this->_getSubmitCowork($oApp, $oRecData, $oItem, $oOperator, $bSubmitNewItem);
+
+		$eventAt = isset($oItem->submit_at) ? $oItem->submit_at : time();
+
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oItem->id;
+		$oTarget->type = 'cowork';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoSubmitCoworkEventName;
+		$oEvent->op = 'New';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 执行提交协作填写项
 	 */
 	private function _doSubmitCowork($oApp, $oItem, $oUser, $bSubmitNewItem = true) {
-		$current = time();
+		$eventAt = isset($oItem->submit_at) ? $oItem->submit_at : time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->op = self::DoSubmitCoworkEventName;
 		$oNewModifyLog->userid = $oUser->uid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->args = (object) ['id' => $oItem->id];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
 		$oUpdatedUsrData->nickname = $this->escape($oUser->nickname);
-		$oUpdatedUsrData->last_do_cowork_at = $current;
+		$oUpdatedUsrData->last_do_cowork_at = $eventAt;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
 		/* 提交新协作数据项 */
@@ -264,7 +345,9 @@ class event_model extends \TMS_MODEL {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
 		}
 
-		return $this->_updateUsrData($oApp, $oItem->rid, false, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oItem->rid, false, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 填写记录获得提交协作填写项
@@ -273,18 +356,18 @@ class event_model extends \TMS_MODEL {
 		if (empty($oRecData->userid)) {
 			return false;
 		}
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oOperator->uid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetSubmitCoworkEventName;
 		$oNewModifyLog->args = (object) ['id' => $oItem->id];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		$oUpdatedUsrData->last_cowork_at = $current;
+		$oUpdatedUsrData->last_cowork_at = $eventAt;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 		/* 提交新协作数据项 */
 		if (true === $bSubmitNewItem) {
@@ -305,7 +388,9 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRecData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 撤销协作填写项
@@ -313,12 +398,36 @@ class event_model extends \TMS_MODEL {
 	public function removeCowork($oApp, $oRecData, $oItem, $oOperator) {
 		$this->_unDoSubmitCowork($oApp, $oItem, $oOperator);
 		$this->_unGetSubmitCowork($oApp, $oRecData, $oItem, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oItem->id;
+		$oTarget->type = 'cowork';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoSubmitCoworkEventName;
+		$oEvent->op = 'Del';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+
+		$oLog = $this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+
+		/* 更新被撤销的事件 */
+		$this->update(
+			'xxt_enroll_log',
+			['undo_event_id' => $oLog->id],
+			['target_id' => $oItem->id, 'target_type' => 'cowork', 'event_name' => self::DoSubmitCoworkEventName, 'event_op' => 'New', 'undo_event_id' => 0]
+		);
 	}
 	/**
 	 * 撤销协作填写项
 	 */
 	private function _unDoSubmitCowork($oApp, $oItem, $oUser) {
-		$current = time();
+		$eventAt = time();
 		/* 日志回退函数 */
 		$fnRollback = function ($oUserData) use ($oItem) {
 			$aResult = [];
@@ -357,7 +466,7 @@ class event_model extends \TMS_MODEL {
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oUser->uid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::DoSubmitCoworkEventName . '_Del';
 		$oNewModifyLog->args = (object) ['id' => $oItem->id];
 		/* 更新的数据 */
@@ -368,7 +477,7 @@ class event_model extends \TMS_MODEL {
 
 		$this->_updateUsrData($oApp, $oItem->rid, false, $oUser, $oUpdatedData, $fnRollback, $fnRollback, $fnRollback);
 
-		return true;
+		return $oUpdatedData;
 	}
 	/**
 	 * 撤销协作填写数据项
@@ -377,7 +486,7 @@ class event_model extends \TMS_MODEL {
 		if (empty($oRecData->userid)) {
 			return false;
 		}
-		$current = time();
+		$eventAt = time();
 		/* 日志回退函数 */
 		$fnRollback = function ($oUserData) use ($oItem) {
 			$aResult = [];
@@ -416,7 +525,7 @@ class event_model extends \TMS_MODEL {
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oOperator->uid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetSubmitCoworkEventName . '_Del';
 		$oNewModifyLog->args = (object) ['id' => $oItem->id];
 		/* 更新的数据 */
@@ -434,42 +543,99 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 留言填写记录
 	 */
-	public function remarkRecord($oApp, $oRecOrData, $oOperator) {
-		$this->_doRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record');
-		$this->_getRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record');
+	public function remarkRecord($oApp, $oRecord, $oOperator) {
+		$oOperatorData = $this->_doRemarkRecOrData($oApp, $oRecord, $oOperator, 'record');
+		$oOwnerData = $this->_getRemarkRecOrData($oApp, $oRecord, $oOperator, 'record');
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecord->id;
+		$oTarget->type = 'record';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoRemarkEventName;
+		$oEvent->op = 'New';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 留言填写数据
 	 */
 	public function remarkRecData($oApp, $oRecOrData, $oOperator) {
-		$this->_doRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record.data');
-		$this->_getRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record.data');
+		$oOperatorData = $this->_doRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record.data');
+		$oOwnerData = $this->_getRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record.data');
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecOrData->id;
+		$oTarget->type = 'record.data';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoRemarkEventName;
+		$oEvent->op = 'New';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecOrData->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecOrData->rid, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 留言填写数据
 	 */
-	public function remarkCowork($oApp, $oRecOrData, $oOperator) {
-		$this->_doRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record.data');
-		$this->_getRemarkCowork($oApp, $oRecOrData, $oOperator);
+	public function remarkCowork($oApp, $oCowork, $oOperator) {
+		$oOperatorData = $this->_doRemarkRecOrData($oApp, $oCowork, $oOperator, 'cowork');
+		$oOwnerData = $this->_getRemarkCowork($oApp, $oCowork, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oCowork->id;
+		$oTarget->type = 'cowork';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoRemarkEventName;
+		$oEvent->op = 'New';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oCowork->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oCowork->rid, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 留言填写记录或数据
 	 */
 	private function _doRemarkRecOrData($oApp, $oRecOrData, $oOperator, $logArgType) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::DoRemarkEventName . '_New';
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'type' => $logArgType];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		$oUpdatedUsrData->last_do_remark_at = $current;
+		$oUpdatedUsrData->last_do_remark_at = $eventAt;
 		$oUpdatedUsrData->do_remark_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
@@ -478,26 +644,28 @@ class event_model extends \TMS_MODEL {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
 		}
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 填写记录或数据获得留言
 	 */
 	private function _getRemarkRecOrData($oApp, $oRecOrData, $oOperator, $logArgType) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetRemarkEventName . '_New';
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'type' => $logArgType];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		$oUpdatedUsrData->last_remark_at = $current;
+		$oUpdatedUsrData->last_remark_at = $eventAt;
 		$oUpdatedUsrData->remark_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
@@ -508,26 +676,28 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 填写协作数据获得留言
 	 */
 	private function _getRemarkCowork($oApp, $oRecOrData, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetRemarkCoworkEventName . '_New';
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		$oUpdatedUsrData->last_remark_cowork_at = $current;
+		$oUpdatedUsrData->last_remark_cowork_at = $eventAt;
 		$oUpdatedUsrData->remark_cowork_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
@@ -538,109 +708,157 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 赞同填写记录
 	 * 同一条记录只有第一次点赞时才给积分奖励
 	 */
 	public function likeRecord($oApp, $oRecord, $oOperator) {
-		return $this->_doLikeRecOrData($oApp, $oRecord, $oOperator, 'record');
+		$oOperatorData = $this->_doLikeRecOrData($oApp, $oRecord, $oOperator, 'record');
+		$oOwnerData = $this->_getLikeRecOrData($oApp, $oRecord, $oOperator, 'record');
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecord->id;
+		$oTarget->type = 'record';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoLikeEventName;
+		$oEvent->op = 'Y';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 赞同填写记录数据
 	 */
 	public function likeRecData($oApp, $oRecData, $oOperator) {
-		return $this->_doLikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+		$oOperatorData = $this->_doLikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+		$oOwnerData = $this->_getLikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecData->id;
+		$oTarget->type = 'record.data';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoLikeEventName;
+		$oEvent->op = 'Y';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 赞同填写协作记录数据
 	 */
 	public function likeCowork($oApp, $oRecData, $oOperator) {
-		return $this->_doLikeCowork($oApp, $oRecData, $oOperator);
+		$oOperatorData = $this->_doLikeCowork($oApp, $oRecData, $oOperator);
+		$oOwnerData = $this->_getLikeCowork($oApp, $oRecData, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecData->id;
+		$oTarget->type = 'cowork';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoLikeEventName;
+		$oEvent->op = 'Y';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 *
 	 */
 	private function _doLikeRecOrData($oApp, $oRecOrData, $oOperator, $logArgType) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::DoLikeEventName . '_Y';
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'type' => $logArgType];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		$oUpdatedUsrData->last_do_like_at = $current;
+		$oUpdatedUsrData->last_do_like_at = $eventAt;
 		$oUpdatedUsrData->do_like_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 *
 	 */
 	private function _doLikeCowork($oApp, $oRecOrData, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::DoLikeCoworkEventName . '_Y';
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		$oUpdatedUsrData->last_do_like_cowork_at = $current;
+		$oUpdatedUsrData->last_do_like_cowork_at = $eventAt;
 		$oUpdatedUsrData->do_like_cowork_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
-	}
-	/**
-	 * 填写记录获得赞同
-	 */
-	public function getLikeRecord($oApp, $oRecord, $oOperator) {
-		return $this->_getLikeRecOrData($oApp, $oRecord, $oOperator, 'record');
-	}
-	/**
-	 * 填写数据获得赞同
-	 */
-	public function getLikeRecData($oApp, $oRecData, $oOperator) {
-		return $this->_getLikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
-	}
-	/**
-	 * 填写协作数据获得赞同
-	 */
-	public function getLikeCowork($oApp, $oRecData, $oOperator) {
-		return $this->_getLikeCowork($oApp, $oRecData, $oOperator);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 填写记录或数据被点赞
 	 */
 	private function _getLikeRecOrData($oApp, $oRecOrData, $oOperator, $logArgType) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oRecOrData->userid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetLikeEventName . '_Y';
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'type' => $logArgType, 'operator' => $operatorId];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		$oUpdatedUsrData->last_like_at = $current;
+		$oUpdatedUsrData->last_like_at = $eventAt;
 		$oUpdatedUsrData->like_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetLikeEventName);
@@ -649,26 +867,28 @@ class event_model extends \TMS_MODEL {
 		}
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 填写记录或数据被点赞
 	 */
 	private function _getLikeCowork($oApp, $oRecOrData, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oRecOrData->userid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetLikeCoworkEventName . '_Y';
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'operator' => $operatorId];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		$oUpdatedUsrData->last_like_cowork_at = $current;
+		$oUpdatedUsrData->last_like_cowork_at = $eventAt;
 		$oUpdatedUsrData->like_cowork_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetLikeCoworkEventName);
@@ -677,25 +897,102 @@ class event_model extends \TMS_MODEL {
 		}
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 撤销填写记录点赞
 	 */
 	public function undoLikeRecord($oApp, $oRecord, $oOperator) {
-		return $this->_undoLikeRecOrData($oApp, $oRecord, $oOperator, 'record');
+		$this->_undoLikeRecOrData($oApp, $oRecord, $oOperator, 'record');
+		$this->_undoGetLikeRecOrData($oApp, $oRecord, $oOperator, 'record');
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecord->id;
+		$oTarget->type = 'record';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoLikeEventName;
+		$oEvent->op = 'N';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+
+		$oLog = $this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
+
+		/* 更新被撤销的事件 */
+		$this->update(
+			'xxt_enroll_log',
+			['undo_event_id' => $oLog->id],
+			['target_id' => $oRecord->id, 'target_type' => 'record', 'event_name' => self::DoLikeEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+		);
 	}
 	/**
 	 * 撤销填写数据点赞
 	 */
 	public function undoLikeRecData($oApp, $oRecData, $oOperator) {
-		return $this->_undoLikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+		$this->_undoLikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+		$this->_undoGetLikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecord->id;
+		$oTarget->type = 'record.data';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoLikeEventName;
+		$oEvent->op = 'N';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+
+		$oLog = $this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
+
+		/* 更新被撤销的事件 */
+		$this->update(
+			'xxt_enroll_log',
+			['undo_event_id' => $oLog->id],
+			['target_id' => $oRecData->id, 'target_type' => 'record.data', 'event_name' => self::DoLikeEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+		);
 	}
 	/**
 	 * 撤销填写数据点赞
 	 */
-	public function undoLikeCowork($oApp, $oRecData, $oOperator) {
-		return $this->_undoLikeCowork($oApp, $oRecData, $oOperator);
+	public function undoLikeCowork($oApp, $oCowork, $oOperator) {
+		$this->_undoLikeCowork($oApp, $oCowork, $oOperator);
+		$this->_undoGetLikeCowork($oApp, $oCowork, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oCowork->id;
+		$oTarget->type = 'cowork';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoLikeEventName;
+		$oEvent->op = 'N';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oCowork->userid];
+
+		$oLog = $this->_logEvent($oApp, $oCowork->rid, $oTarget, $oEvent, $oOwnerEvent);
+
+		/* 更新被撤销的事件 */
+		$this->update(
+			'xxt_enroll_log',
+			['undo_event_id' => $oLog->id],
+			['target_id' => $oCowork->id, 'target_type' => 'cowork', 'event_name' => self::DoLikeEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+		);
 	}
 	/**
 	 * 撤销赞同操作
@@ -765,7 +1062,9 @@ class event_model extends \TMS_MODEL {
 			return (object) $aResult;
 		};
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oOperator, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oOperator, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 撤销赞同操作
@@ -835,25 +1134,9 @@ class event_model extends \TMS_MODEL {
 			return (object) $aResult;
 		};
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oOperator, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
-	}
-	/**
-	 * 取消填写记录被点赞
-	 */
-	public function undoGetLikeRecord($oApp, $oRecord, $oOperator) {
-		return $this->_undoGetLikeRecOrData($oApp, $oRecord, $oOperator, 'record');
-	}
-	/**
-	 * 取消填写数据被点赞
-	 */
-	public function undoGetLikeRecData($oApp, $oRecData, $oOperator) {
-		return $this->_undoGetLikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
-	}
-	/**
-	 * 取消协作填写数据被点赞
-	 */
-	public function undoGetLikeCowork($oApp, $oRecData, $oOperator) {
-		return $this->_undoGetLikeCowork($oApp, $oRecData, $oOperator);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oOperator, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 取消被点赞
@@ -861,12 +1144,12 @@ class event_model extends \TMS_MODEL {
 	 */
 	private function _undoGetLikeRecOrData($oApp, $oRecOrData, $oOperator, $logArgType) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oRecOrData->userid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetLikeEventName . '_N';
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'type' => $logArgType, 'operator' => $operatorId];
 
@@ -931,7 +1214,9 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 取消被点赞
@@ -939,12 +1224,12 @@ class event_model extends \TMS_MODEL {
 	 */
 	private function _undoGetLikeCowork($oApp, $oRecOrData, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oRecOrData->userid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetLikeCoworkEventName . '_N';
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'operator' => $operatorId];
 
@@ -1009,50 +1294,80 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 留言点赞
 	 * 同一条留言只有第一次点赞时才给积分奖励
 	 */
 	public function likeRemark($oApp, $oRemark, $oOperator) {
+		$oOperatorData = $this->_doLikeRemark($oApp, $oRemark, $oOperator);
+		$oOwnerData = $this->_getLikeRemark($oApp, $oRemark, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRemark->id;
+		$oTarget->type = 'remark';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoLikeEventName;
+		$oEvent->op = 'Y';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRemark->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRemark->rid, $oTarget, $oEvent, $oOwnerEvent);
+	}
+	/**
+	 * 留言点赞
+	 */
+	private function _doLikeRemark($oApp, $oRemark, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::DoLikeRemarkEventName . '_Y';
 		$oNewModifyLog->args = (object) ['id' => $oRemark->id];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		$oUpdatedUsrData->last_do_like_remark_at = $current;
+		$oUpdatedUsrData->last_do_like_remark_at = $eventAt;
 		$oUpdatedUsrData->do_like_remark_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-		return $this->_updateUsrData($oApp, $oRemark->rid, false, $oOperator, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRemark->rid, false, $oOperator, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 留言被点赞
 	 */
-	public function getLikeRemark($oApp, $oRemark, $oOperator) {
+	private function _getLikeRemark($oApp, $oRemark, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oRemark->userid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetLikeRemarkEventName . '_Y';
 		$oNewModifyLog->args = (object) ['id' => $oRemark->id, 'operator' => $operatorId];
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
-		$oUpdatedUsrData->last_like_remark_at = $current;
+		$oUpdatedUsrData->last_like_remark_at = $eventAt;
 		$oUpdatedUsrData->like_remark_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 		$aCoinResult = $modelUsr->awardCoin($oApp, $oRemark->userid, $oRemark->rid, self::GetLikeRemarkEventName);
@@ -1062,19 +1377,52 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRemark->userid];
 
-		return $this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 撤销发起对留言点赞
 	 */
 	public function undoLikeRemark($oApp, $oRemark, $oOperator) {
+		$this->_undoLikeRemark($oApp, $oRemark, $oOperator);
+		$this->_undoGetLikeRemark($oApp, $oRemark, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRemark->id;
+		$oTarget->type = 'remark';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoLikeEventName;
+		$oEvent->op = 'N';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRemark->userid];
+
+		$oLog = $this->_logEvent($oApp, $oRemark->rid, $oTarget, $oEvent, $oOwnerEvent);
+
+		/* 更新被撤销的事件 */
+		$this->update(
+			'xxt_enroll_log',
+			['undo_event_id' => $oLog->id],
+			['target_id' => $oRemark->id, 'target_type' => 'remark', 'event_name' => self::DoLikeEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+		);
+	}
+	/**
+	 * 撤销发起对留言点赞
+	 */
+	private function _undoLikeRemark($oApp, $oRemark, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::DoLikeRemarkEventName . '_N';
 		$oNewModifyLog->args = (object) ['id' => $oRemark->id];
 
@@ -1083,20 +1431,22 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->do_like_remark_num = -1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-		return $this->_updateUsrData($oApp, $oRemark->rid, true, $oOperator, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRemark->rid, true, $oOperator, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 撤销留言被点赞
 	 */
-	public function undoGetLikeRemark($oApp, $oRemark, $oOperator) {
+	private function _undoGetLikeRemark($oApp, $oRemark, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oRemark->userid;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetLikeRemarkEventName . '_N';
 		$oNewModifyLog->args = (object) ['id' => $oRemark->id, 'operator' => $operatorId];
 
@@ -1125,44 +1475,120 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRemark->userid];
 
-		return $this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 对记录执行推荐相关操作
 	 */
 	public function agreeRecord($oApp, $oRecord, $oOperator, $value) {
-		$rst = null;
 		if ('Y' === $value) {
-			$rst = $this->_getAgreeRecOrData($oApp, $oRecord, $oOperator, 'record');
-		} else if ('Y' === $oRecord->agreed) {
-			$rst = $this->_undoGetAgreeRecOrData($oApp, $oRecord, $oOperator, $value, 'record');
-		}
+			$oOwnerData = $this->_getAgreeRecOrData($oApp, $oRecord, $oOperator, 'record');
+			$eventAt = time();
+			/* 记录事件日志 */
+			$oTarget = new \stdClass;
+			$oTarget->id = $oRecord->id;
+			$oTarget->type = 'record';
+			//
+			$oEvent = new \stdClass;
+			$oEvent->name = self::GetAgreeEventName;
+			$oEvent->op = 'Y';
+			$oEvent->at = $eventAt;
+			$oEvent->user = $oOperator;
+			//
+			$oOwnerEvent = new \stdClass;
+			$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+			$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		return $rst;
+			$this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
+		} else if ('Y' === $oRecord->agreed) {
+			$oOwnerData = $this->_undoGetAgreeRecOrData($oApp, $oRecord, $oOperator, $value, 'record');
+			$eventAt = time();
+			/* 记录事件日志 */
+			$oTarget = new \stdClass;
+			$oTarget->id = $oRecord->id;
+			$oTarget->type = 'record';
+			//
+			$oEvent = new \stdClass;
+			$oEvent->name = self::GetAgreeEventName;
+			$oEvent->op = $value;
+			$oEvent->at = $eventAt;
+			$oEvent->user = $oOperator;
+			//
+			$oOwnerEvent = new \stdClass;
+			$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+
+			$oLog = $this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
+
+			/* 更新被撤销的事件 */
+			$this->update(
+				'xxt_enroll_log',
+				['undo_event_id' => $oLog->id],
+				['target_id' => $oRecord->id, 'target_type' => 'record', 'event_name' => self::GetAgreeEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+			);
+		}
 	}
 	/**
 	 * 对记录数据执行推荐相关操作
 	 */
 	public function agreeRecData($oApp, $oRecData, $oOperator, $value) {
-		$rst = null;
 		if ('Y' === $value) {
-			$rst = $this->_getAgreeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
-		} else if ('Y' === $oRecData->agreed) {
-			$rst = $this->_undoGetAgreeRecOrData($oApp, $oRecData, $oOperator, $value, 'record.data');
-		}
+			$oOwnerData = $this->_getAgreeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+			$eventAt = time();
+			/* 记录事件日志 */
+			$oTarget = new \stdClass;
+			$oTarget->id = $oRecData->id;
+			$oTarget->type = 'record.data';
+			//
+			$oEvent = new \stdClass;
+			$oEvent->name = self::GetAgreeEventName;
+			$oEvent->op = 'Y';
+			$oEvent->at = $eventAt;
+			$oEvent->user = $oOperator;
+			//
+			$oOwnerEvent = new \stdClass;
+			$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+			$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		return $rst;
+			$this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+		} else if ('Y' === $oRecData->agreed) {
+			$oOwnerData = $this->_undoGetAgreeRecOrData($oApp, $oRecData, $oOperator, $value, 'record.data');
+			$eventAt = time();
+			/* 记录事件日志 */
+			$oTarget = new \stdClass;
+			$oTarget->id = $oRecData->id;
+			$oTarget->type = 'record.data';
+			//
+			$oEvent = new \stdClass;
+			$oEvent->name = self::GetAgreeEventName;
+			$oEvent->op = $value;
+			$oEvent->at = $eventAt;
+			$oEvent->user = $oOperator;
+			//
+			$oOwnerEvent = new \stdClass;
+			$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+
+			$oLog = $this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+
+			/* 更新被撤销的事件 */
+			$this->update(
+				'xxt_enroll_log',
+				['undo_event_id' => $oLog->id],
+				['target_id' => $oRecData->id, 'target_type' => 'record.data', 'event_name' => self::GetAgreeEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+			);
+		}
 	}
 	/**
 	 * 赞同填写记录或数据
 	 */
 	private function _getAgreeRecOrData($oApp, $oRecOrData, $oOperator, $logArgType) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetAgreeEventName . '_Y';
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'type' => $logArgType];
 
@@ -1174,7 +1600,7 @@ class event_model extends \TMS_MODEL {
 		}
 		/* 更新的数据 */
 		$oUpdatedUsrData = (object) [
-			'last_agree_at' => $current,
+			'last_agree_at' => $eventAt,
 			'agree_num' => 1,
 			'user_total_coin' => $aCoinResult[0] === true ? $aCoinResult[1] : 0,
 			'modify_log' => $oNewModifyLog,
@@ -1182,19 +1608,21 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 取消赞同记录数据
 	 */
 	private function _undoGetAgreeRecOrData($oApp, $oRecOrData, $oOperator, $value, $logArgType) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetAgreeEventName . '_' . $value;
 		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'type' => $logArgType];
 		/* 更新的数据 */
@@ -1259,31 +1687,70 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 对记录数据执行推荐相关操作
 	 */
 	public function agreeCowork($oApp, $oRecData, $oOperator, $value) {
-		$rst = null;
 		if ('Y' === $value) {
-			$rst = $this->_getAgreeCowork($oApp, $oRecData, $oOperator);
-		} else if ('Y' === $oRecData->agreed) {
-			$rst = $this->_undoGetAgreeCowork($oApp, $oRecData, $oOperator, $value);
-		}
+			$oOwnerData = $this->_getAgreeCowork($oApp, $oRecData, $oOperator);
+			$eventAt = time();
+			/* 记录事件日志 */
+			$oTarget = new \stdClass;
+			$oTarget->id = $oRecData->id;
+			$oTarget->type = 'cowork';
+			//
+			$oEvent = new \stdClass;
+			$oEvent->name = self::GetAgreeCoworkEventName;
+			$oEvent->op = 'Y';
+			$oEvent->at = $eventAt;
+			$oEvent->user = $oOperator;
+			//
+			$oOwnerEvent = new \stdClass;
+			$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+			$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		return $rst;
+			$this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+		} else if ('Y' === $oRecData->agreed) {
+			$oOwnerData = $this->_undoGetAgreeCowork($oApp, $oRecData, $oOperator, $value);
+			$eventAt = time();
+			/* 记录事件日志 */
+			$oTarget = new \stdClass;
+			$oTarget->id = $oRecData->id;
+			$oTarget->type = 'cowork';
+			//
+			$oEvent = new \stdClass;
+			$oEvent->name = self::GetAgreeCoworkEventName;
+			$oEvent->op = $value;
+			$oEvent->at = $eventAt;
+			$oEvent->user = $oOperator;
+			//
+			$oOwnerEvent = new \stdClass;
+			$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+
+			$oLog = $this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+
+			/* 更新被撤销的事件 */
+			$this->update(
+				'xxt_enroll_log',
+				['undo_event_id' => $oLog->id],
+				['target_id' => $oRecData->id, 'target_type' => 'cowork', 'event_name' => self::GetAgreeCoworkEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+			);
+		}
 	}
 	/**
 	 * 赞同填写记录或数据
 	 */
 	private function _getAgreeCowork($oApp, $oRecData, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetAgreeCoworkEventName . '_Y';
 		$oNewModifyLog->args = (object) ['id' => $oRecData->id];
 
@@ -1295,7 +1762,7 @@ class event_model extends \TMS_MODEL {
 		}
 		/* 更新的数据 */
 		$oUpdatedUsrData = (object) [
-			'last_agree_cowork_at' => $current,
+			'last_agree_cowork_at' => $eventAt,
 			'agree_cowork_num' => 1,
 			'user_total_coin' => $aCoinResult[0] === true ? $aCoinResult[1] : 0,
 			'modify_log' => $oNewModifyLog,
@@ -1303,19 +1770,21 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRecData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 取消赞同记录数据
 	 */
 	private function _undoGetAgreeCowork($oApp, $oRecData, $oOperator, $value) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetAgreeCoworkEventName . '_' . $value;
 		$oNewModifyLog->args = (object) ['id' => $oRecData->id];
 		/* 更新的数据 */
@@ -1380,31 +1849,70 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRecData->userid];
 
-		return $this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+		$this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 对记录执行推荐相关操作
 	 */
 	public function agreeRemark($oApp, $oRemark, $oOperator, $value) {
-		$rst = null;
 		if ('Y' === $value) {
-			$rst = $this->_getAgreeRemark($oApp, $oRemark, $oOperator);
-		} else if ('Y' === $oRemark->agreed) {
-			$rst = $this->_undoGetAgreeRemark($oApp, $oRemark, $oOperator, $value);
-		}
+			$oOwnerData = $this->_getAgreeRemark($oApp, $oRemark, $oOperator);
+			$eventAt = time();
+			/* 记录事件日志 */
+			$oTarget = new \stdClass;
+			$oTarget->id = $oRemark->id;
+			$oTarget->type = 'remark';
+			//
+			$oEvent = new \stdClass;
+			$oEvent->name = self::GetAgreeRemarkEventName;
+			$oEvent->op = 'Y';
+			$oEvent->at = $eventAt;
+			$oEvent->user = $oOperator;
+			//
+			$oOwnerEvent = new \stdClass;
+			$oOwnerEvent->user = (object) ['uid' => $oRemark->userid];
+			$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		return $rst;
+			$this->_logEvent($oApp, $oRemark->rid, $oTarget, $oEvent, $oOwnerEvent);
+		} else if ('Y' === $oRemark->agreed) {
+			$oOwnerData = $this->_undoGetAgreeRemark($oApp, $oRemark, $oOperator, $value);
+			$eventAt = time();
+			/* 记录事件日志 */
+			$oTarget = new \stdClass;
+			$oTarget->id = $oRemark->id;
+			$oTarget->type = 'remark';
+			//
+			$oEvent = new \stdClass;
+			$oEvent->name = self::GetAgreeRemarkEventName;
+			$oEvent->op = $value;
+			$oEvent->at = $eventAt;
+			$oEvent->user = $oOperator;
+			//
+			$oOwnerEvent = new \stdClass;
+			$oOwnerEvent->user = (object) ['uid' => $oRemark->userid];
+
+			$oLog = $this->_logEvent($oApp, $oRemark->rid, $oTarget, $oEvent, $oOwnerEvent);
+
+			/* 更新被撤销的事件 */
+			$this->update(
+				'xxt_enroll_log',
+				['undo_event_id' => $oLog->id],
+				['target_id' => $oRemark->id, 'target_type' => 'remark', 'event_name' => self::GetAgreeRemarkEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+			);
+		}
 	}
 	/**
 	 * 赞同填写记录或数据
 	 */
 	private function _getAgreeRemark($oApp, $oRemark, $oOperator) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetAgreeRemarkEventName . '_Y';
 		$oNewModifyLog->args = (object) ['id' => $oRemark->id];
 
@@ -1417,7 +1925,7 @@ class event_model extends \TMS_MODEL {
 
 		/* 更新的数据 */
 		$oUpdatedUsrData = (object) [
-			'last_agree_remark_at' => $current,
+			'last_agree_remark_at' => $eventAt,
 			'agree_remark_num' => 1,
 			'user_total_coin' => $aCoinResult[0] === true ? $aCoinResult[1] : 0,
 			'modify_log' => $oNewModifyLog,
@@ -1425,18 +1933,20 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRemark->userid];
 
-		return $this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
 	}
 	/**
 	 * 取消赞同记录数据
 	 */
 	private function _undoGetAgreeRemark($oApp, $oRemark, $oOperator, $value) {
 		$operatorId = $this->_getOperatorId($oOperator);
-		$current = time();
+		$eventAt = time();
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $operatorId;
-		$oNewModifyLog->at = $current;
+		$oNewModifyLog->at = $eventAt;
 		$oNewModifyLog->op = self::GetAgreeRemarkEventName . '_' . $value;
 		$oNewModifyLog->args = (object) ['id' => $oRemark->id];
 		/* 更新的数据 */
@@ -1501,6 +2011,8 @@ class event_model extends \TMS_MODEL {
 
 		$oUser = (object) ['uid' => $oRemark->userid];
 
-		return $this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+		$this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+
+		return $oUpdatedUsrData;
 	}
 }

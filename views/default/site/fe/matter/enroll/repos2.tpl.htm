@@ -12,14 +12,14 @@
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
 </head>
 
-<body>
+<body ng-controller="ctrlRepos">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default' ng-cloak class='ng-cloak'>
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span>数据共享</span>
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">数据共享</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -32,7 +32,7 @@
             </ul>
         </div>
     </nav>
-    <div class='app container' ng-cloak class='ng-cloak' ng-controller="ctrlRepos">
+    <div class='app container' ng-cloak class='ng-cloak'>
         <div ng-if="tasks.length">
             <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
                 <span>{{task.msg}}</span>
@@ -46,7 +46,11 @@
         <div class='row'>
             <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened">
                 <uib-accordion>
-                    <div uib-accordion-group class="panel-default" heading="目录" ng-if="dirSchemas.length" is-open='advCriteriaStatus.dirOpen'>
+                    <div uib-accordion-group class="panel-default" ng-if="dirSchemas.length" is-open='advCriteriaStatus.dirOpen'>
+                        <uib-accordion-heading>
+                            目录
+                            <button class="close"><span>&times;</span></button>
+                        </uib-accordion-heading>
                         <div class='dir-level-1' ng-repeat="dir1 in dirSchemas">
                             <div class='dir' ng-click="shiftDir(dir1)" ng-class="{active:dir1===activeDir}">{{dir1.op.l}}</div>
                             <div ng-if="dir1.op.childrenDir.length">
@@ -62,7 +66,11 @@
                         </div>
                         <button class='btn btn-default btn-block' ng-click="shiftDir()">清除选择</button>
                     </div>
-                    <div uib-accordion-group class="panel-default" heading="筛选" is-open='advCriteriaStatus.filterOpen'>
+                    <div uib-accordion-group class="panel-default" is-open='advCriteriaStatus.filterOpen'>
+                        <uib-accordion-heading>
+                            筛选
+                            <button class="close"><span>&times;</span></button>
+                        </uib-accordion-heading>
                         <div class='form-group' ng-if='rounds.length'>
                             <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
                                 <option value='all'>全部轮次</option>
@@ -82,6 +90,9 @@
                         </div>
                     </div>
                 </uib-accordion>
+                <div class='text-center'>
+                    <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
+                </div>
             </div>
             <div class='records col-md-9 col-xs-12'>
                 <div ng-if="activeRound" class='active-round text-muted text-center'>
@@ -176,8 +187,8 @@
                 </div>
             </div>
         </div>
-        <div tms-app-nav app-navs="appNavs"></div>
     </div>
+    <div tms-app-act app-acts="appActs"></div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">

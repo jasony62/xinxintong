@@ -82,8 +82,10 @@ class remark_model extends \TMS_MODEL {
 
 		$q2 = [
 			'o' => 'agreed desc,create_at desc',
-			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
+		if (isset($page) && isset($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
 		$aRemarks = $this->query_objs_ss($q, $q2);
 		if (count($aRemarks)) {
 			$fnHandlers = [];

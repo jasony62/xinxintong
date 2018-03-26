@@ -765,6 +765,9 @@ class data_model extends \TMS_MODEL {
 		if (isset($oOptions['excludeRoot']) && $oOptions['excludeRoot']) {
 			$q[2]['multitext_seq'] = (object) ['op' => '>', 'pat' => 0];
 		}
+		if (isset($oOptions['agreed'])) {
+			$q[2]['agreed'] = $oOptions['agreed'];
+		}
 
 		$fnHandler = function (&$oData) {
 			if (property_exists($oData, 'tag')) {

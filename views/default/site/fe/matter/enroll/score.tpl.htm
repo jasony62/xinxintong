@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app='app' ng-controller='ctrlMain'>
 
 <head>
     <meta charset="utf-8">
@@ -12,14 +12,14 @@
     <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
-<body ng-app='app' ng-controller='ctrlMain'>
+<body ng-controller="ctrlScore">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-floppy-saved visible-lg-inline"></i><span>成绩单</span>
+                    <i class="glyphicon glyphicon-floppy-saved visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">成绩单</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -33,7 +33,7 @@
         </div>
     </nav>
     <div ng-cloak class='ng-cloak app'>
-        <div class='container' ng-controller="ctrlScore">
+        <div class='container'>
             <table class='table table-bordered'>
                 <tr>
                     <td>总分</td>
@@ -66,7 +66,7 @@
                 </div>
                 <p class='user-score'>你的得分：<span>{{record.score[schema.id]}}</span></p>
             </div>
-            <div tms-app-nav app-navs="appNavs"></div>
+            <div tms-app-act app-acts="appActs"></div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

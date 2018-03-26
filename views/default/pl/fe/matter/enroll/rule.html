@@ -179,6 +179,50 @@
                                     </div>
                                 </div>
                             </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>组长任务说明</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>组长至少推荐记录（问题）的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.record.agree.end.min" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>组长最多推荐记录（问题）的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.record.agree.end.max" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>组长推荐记录（问题）</label>
+                                        <textarea class='form-control' ng-model="rule.leader.record.agree.end.desc"></textarea>
+                                    </div>
+                                    <hr>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长至少推荐协作填写（答案）的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.cowork.agree.end.min" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长最多推荐协作填写（答案）的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.cowork.agree.end.max" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长推荐协作填写（答案）</label>
+                                        <textarea class='form-control' ng-model="rule.leader.cowork.agree.end.desc"></textarea>
+                                    </div>
+                                    <hr>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长至少推荐留言的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.remark.agree.end.min" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长最多推荐留言的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.remark.agree.end.max" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长推荐留言</label>
+                                        <textarea class='form-control' ng-model="rule.leader.remark.agree.end.desc"></textarea>
+                                    </div>
+                                </div>
+                            </div>
                             <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-click="save()">保存</button>
                         </div>
                     </div>

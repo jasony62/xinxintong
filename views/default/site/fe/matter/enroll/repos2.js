@@ -210,12 +210,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         });
         /*设置页面分享信息*/
         $scope.setSnsShare();
-        /*设置页面导航*/
-        $scope.appNavs = {
+        /*设置页面操作*/
+        $scope.appActs = {
             addRecord: {}
         };
+        /*设置页面导航*/
         if (_oApp.can_rank === 'Y') {
-            $scope.appNavs.rank = {};
+            $scope.appNavs = { rank: {} };
         }
     });
     $scope.advCriteriaStatus = {

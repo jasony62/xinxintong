@@ -289,13 +289,9 @@ class remark extends base {
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
 			$modelEnlEvt->likeRemark($oApp, $oRemark, $oUser);
-			/* 被点赞 */
-			$modelEnlEvt->getLikeRemark($oApp, $oRemark, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRemark($oApp, $oRemark, $oUser);
-			/* 撤销被点赞 */
-			$modelEnlEvt->undoGetLikeRemark($oApp, $oRemark, $oUser);
 		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
@@ -326,7 +322,7 @@ class remark extends base {
 		}
 		/* 填写记录用户所属分组 */
 		if ($oGrpLeader->is_leader === 'Y') {
-			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRemark->userid, ['fields' => 'round_id', 'onlyOne' => true]);
 			if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
 				return new \ParameterError('只允许组长推荐本组数据');
 			}
@@ -366,21 +362,44 @@ class remark extends base {
 	/**
 	 * 和留言相关的任务
 	 */
-	public function task_action($app) {
+	public function task_action($app, $ek) {
 		$modelApp = $this->model('matter\enroll');
 
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,action_rule']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state,entry_rule,action_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		$oUser = $this->getUser($oApp);
 
 		$tasks = [];
-		/* 留言出现在共享数据页 */
-		if (isset($oApp->actionRule->remark->repos->pre)) {
-			$oRule = $oApp->actionRule->remark->repos->pre;
-			if ($oRule->desc) {
-				$oRule->id = 'remark.repos.pre';
-				$tasks[] = $oRule;
+		if (isset($oApp->actionRule)) {
+			$oActionRule = $oApp->actionRule;
+			/* 留言出现在共享数据页 */
+			if (isset($oActionRule->remark->repos->pre)) {
+				$oRule = $oActionRule->remark->repos->pre;
+				if ($oRule->desc) {
+					$oRule->id = 'remark.repos.pre';
+					$tasks[] = $oRule;
+				}
+			}
+			/* 对组长的任务要求 */
+			if (!empty($oUser->group_id) && isset($oUser->is_leader) && $oUser->is_leader === 'Y') {
+				/* 对组长推荐记录的要求 */
+				if (isset($oActionRule->leader->remark->agree->end)) {
+					$oRule = $oActionRule->leader->remark->agree->end;
+					if (!empty($oRule->min)) {
+						$modelRem = $this->model('matter\enroll\remark');
+						$remarks = $modelRem->listByRecord(null, $ek, null, null, null, ['agreed' => 'Y']);
+						$remarkNum = count($remarks);
+						if ($remarkNum >= $oRule->min) {
+							$oRule->_ok = [$remarkNum];
+						} else {
+							$oRule->_no = [(int) $oRule->min - $remarkNum];
+						}
+						$oRule->id = 'leader.remark.agree.end';
+						$tasks[] = $oRule;
+					}
+				}
 			}
 		}
 

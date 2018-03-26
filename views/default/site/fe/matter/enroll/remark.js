@@ -46,15 +46,20 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                 $scope.coworkTasks.push({ type: 'info', msg: oCoworkRule.desc, id: 'record.cowork.pre' });
             }
         }
-        /*设置页面导航*/
-        $scope.appNavs = {
+        /*设置页面操作*/
+        $scope.appActs = {
             addRecord: {}
         };
+        /*设置页面导航*/
+        var oAppNavs = {};
         if (oApp.can_repos === 'Y') {
-            $scope.appNavs.repos = {};
+            oAppNavs.repos = {};
         }
         if (oApp.can_rank === 'Y') {
-            $scope.appNavs.rank = {};
+            oAppNavs.rank = {};
+        }
+        if (Object.keys(oAppNavs).length) {
+            $scope.appNavs = oAppNavs;
         }
     }
 
@@ -497,7 +502,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$anchorScroll', '$uibModa
                                 //$anchorScroll();
                             }
                         });
-                        http2.get(LS.j('remark/task', 'site', 'app')).then(function(rsp) {
+                        http2.get(LS.j('remark/task', 'site', 'app') + '&ek=' + oRecord.enroll_key).then(function(rsp) {
                             if (rsp.data && rsp.data.length) {
                                 rsp.data.forEach(function(oRule) {
                                     $scope.remarkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });

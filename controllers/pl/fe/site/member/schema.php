@@ -86,7 +86,7 @@ class schema extends \pl\fe\base {
 	 * 获得此通讯录有权导入的通讯录
 	 * @return [type] [description]
 	 */
-	public function listRelateSchema_action($site, $id) {
+	public function listImportSchema_action($site, $id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

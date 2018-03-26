@@ -169,7 +169,7 @@ class schema extends \pl\fe\base {
 			"forbidden='N' and schema_id in $schemas",
 		];
 		if (!empty($post->users)) {
-			$byUsers = '(' . implode(',', $post->users) . ')';
+			$byUsers = '("' . implode('","', $post->users) . '")';
 			$q[2] .= " and userid in $byUsers";
 		}
 		$q2 = ['o' => 'create_at desc,id desc'];

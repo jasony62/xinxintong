@@ -967,6 +967,7 @@ provider('srvMemberPicker', function() {
                         $scope2.rows = _oRows = {
                             selected: {},
                             count: 0,
+                            impschemaId: '',
                             change: function(index) {
                                 this.selected[index] ? this.count++ : this.count--;
                             },
@@ -979,13 +980,13 @@ provider('srvMemberPicker', function() {
                             http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + oMschema.siteid + '&id=' + oMschema.id, function(rsp) {
                                 $scope2.importSchemas = rsp.data;
                                 $scope2.mschema = rsp.data[0];
-                                $scope2.impschemaId = rsp.data[0].id;
+                                _oRows.impschemaId = rsp.data[0].id;
                                 doSearch(1);
                             });
                         };
                         $scope2.doSearch = doSearch = function(pageAt) {
                             pageAt && (_oPage.at = pageAt);
-                            var selectedSchemaId = $scope2.impschemaId ? $scope2.impschemaId : _oMschema.id;
+                            var selectedSchemaId = _oRows.impschemaId ? _oRows.impschemaId : _oMschema.id;
                             var url, filter = '';
                             if (_oPage.keyword !== '') {
                                 filter = '&kw=' + _oPage.keyword;

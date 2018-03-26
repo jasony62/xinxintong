@@ -4,7 +4,7 @@
 </div>
 <div class="modal-body">
     <div>
-        <select class="form-control" ng-if="importSchemas&&importSchemas.length>0" style="display:inline-block;width:150px;margin-bottom:15px;" ng-model="impschemaId" ng-options="impschema.id as impschema.title for impschema in importSchemas" ng-change="doSearch(1)"></select>
+        <select class="form-control" ng-if="importSchemas&&importSchemas.length>0" style="display:inline-block;width:150px;margin-bottom:15px;" ng-model="rows.impschemaId" ng-options="impschema.id as impschema.title for impschema in importSchemas" ng-change="doSearch(1)"></select>
     </div>
     <div>
         <table class='table table-bordered'>

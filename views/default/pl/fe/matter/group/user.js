@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlUser', ['$scope', '$q', '$uibModal', 'http2', 'noticebox', 'cstApp', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', function($scope, $q, $uibModal, http2, noticebox, cstApp, srvGroupApp, srvGroupRound, srvGroupPlayer) {
+    ngApp.provider.controller('ctrlUser', ['$scope', '$q', '$uibModal', 'http2', 'noticebox', 'cstApp', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', 'srvMemberPicker', function($scope, $q, $uibModal, http2, noticebox, cstApp, srvGroupApp, srvGroupRound, srvGroupPlayer, srvMemberPicker) {
         $scope.syncByApp = function(data) {
             srvGroupApp.syncByApp().then(function(count) {
                 $scope.list();
@@ -14,6 +14,13 @@ define(['frame'], function(ngApp) {
                     case 'signin':
                         break;
                     case 'mschema':
+                        var matter = {
+                            type: 'group',
+                            appid: $scope.app.id
+                        }
+                        srvMemberPicker.open(matter, oSourceApp).then(function() {
+                            $scope.list();
+                        });
                         $uibModal.open({
                             templateUrl: '/views/default/pl/fe/_module/memberPicker.html',
                             resolve: {

@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', 'srvMschema', function($scope, $location, $uibModal, http2, srvSite, srvMschema) {
+    ngApp.provider.controller('ctrlMain', ['$scope', '$location', '$uibModal', 'http2', 'srvSite', 'srvMschema', 'srvMemberPicker', function($scope, $location, $uibModal, http2, srvSite, srvMschema, srvMemberPicker) {
         $scope.days = [{
             n: '会话',
             v: '0'
@@ -94,7 +94,7 @@ define(['frame'], function(ngApp) {
                     };
                     $scope2.importSchemaPost = function(schemas, rounds) {
                         var defer = $q.defer();
-                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id + '&rounds=' + rounds, schemas, function(rsp) {
+                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id + '&rounds=' + rounds, {'schemas': schemas}, function(rsp) {
                             if (rsp.data.state !== 'end') {
                                 var group = parseInt(rsp.data.group) + 1;
                                 noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
@@ -109,6 +109,12 @@ define(['frame'], function(ngApp) {
                 }],
                 backdrop: 'static',
             })
+        };
+        $scope.importUser = function() {
+            var matter = {
+                type: 'mschema'
+            }
+            srvMemberPicker.open(matter, $scope.choosedSchema).then(function() {});
         };
     }]);
     /**

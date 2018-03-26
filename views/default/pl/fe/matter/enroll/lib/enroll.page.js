@@ -136,9 +136,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
         var tinymceEditor;
         $scope.activeWrap = false;
         $scope.setActiveWrap = function(domWrap) {
-            var activeWrap;
             $scope.activeWrap = editorProxy.setActiveWrap(domWrap);
-            activeWrap = $scope.activeWrap;
         };
         $scope.wrapEditorHtml = function() {
             var url = null;

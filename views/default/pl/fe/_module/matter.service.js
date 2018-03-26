@@ -914,9 +914,6 @@ provider('srvMemberPicker', function() {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/_module/memberPicker.html',
                     resolve: {
-                        mschema: function() {
-                            return oMschema;
-                        },
                         action: function() {
                             return {
                                 label: '加入',
@@ -953,9 +950,8 @@ provider('srvMemberPicker', function() {
                             }
                         }
                     },
-                    controller: ['$scope', '$uibModalInstance', 'http2', 'tmsSchema', 'mschema', 'action', function($scope2, $mi, http2, tmsSchema, _oMschema, _oAction) {
-                        var _oPage, _oRows, _bAdded, doSearch;
-                        $scope2.mschema = _oMschema;
+                    controller: ['$scope', '$uibModalInstance', 'http2', 'tmsSchema', 'action', function($scope2, $mi, http2, tmsSchema, _oAction) {
+                        var _oPage, _oRows, _bAdded, _oMschema, doSearch;
                         $scope2.action = _oAction;
                         $scope2.page = _oPage = {
                             at: 1,
@@ -965,6 +961,7 @@ provider('srvMemberPicker', function() {
                         };
                         // 选中的记录
                         $scope2.rows = _oRows = {
+                            schemas: {},
                             selected: {},
                             count: 0,
                             impschemaId: '',
@@ -979,29 +976,32 @@ provider('srvMemberPicker', function() {
                         function doSchemas() {
                             http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + oMschema.siteid + '&id=' + oMschema.id, function(rsp) {
                                 $scope2.importSchemas = rsp.data;
-                                $scope2.mschema = rsp.data[0];
                                 _oRows.impschemaId = rsp.data[0].id;
+                                rsp.data.forEach(function(oSchema) {
+                                    _oRows.schemas[oSchema.id] = oSchema;
+                                });
                                 doSearch(1);
                             });
                         };
                         $scope2.doSearch = doSearch = function(pageAt) {
                             pageAt && (_oPage.at = pageAt);
-                            var selectedSchemaId = _oRows.impschemaId ? _oRows.impschemaId : _oMschema.id;
-                            var url, filter = '';
+                            var url, filter = '', selectedSchemaId;
+                            selectedSchemaId = _oRows.impschemaId ? _oRows.impschemaId : oMschema.id;
+                            $scope2.mschema = _oMschema = oMatter.type == 'mschema' ? _oRows.schemas[selectedSchemaId] : oMschema;
                             if (_oPage.keyword !== '') {
                                 filter = '&kw=' + _oPage.keyword;
                                 filter += '&by=' + _oPage.searchBy;
                             }
-                            url = '/rest/pl/fe/site/member/list?site=' + _oMschema.siteid + '&schema=' + selectedSchemaId;
+                            url = '/rest/pl/fe/site/member/list?site=' + oMschema.siteid + '&schema=' + selectedSchemaId;
                             url += '&page=' + _oPage.at + '&size=' + _oPage.size + filter
                             url += '&contain=total';
                             http2.get(url, function(rsp) {
                                 var members;
                                 members = rsp.data.members;
                                 if (members.length) {
-                                    if ($scope2.mschema.extAttrs.length) {
+                                    if (_oMschema.extAttrs.length) {
                                         members.forEach(function(oMember) {
-                                            oMember._extattr = tmsSchema.member.getExtattrsUIValue($scope2.mschema.extAttrs, oMember);
+                                            oMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oMember);
                                         });
                                     }
                                 }

@@ -170,7 +170,7 @@ class schema extends \pl\fe\base {
 		];
 		if (!empty($post->users)) {
 			$byUsers = '(' . implode(',', $post->users) . ')';
-			$q[2] .= ' and userid in $byUsers';
+			$q[2] .= " and userid in $byUsers";
 		}
 		$q2 = ['o' => 'create_at desc,id desc'];
 		$usersAll = $model->query_objs_ss($q, $q2);

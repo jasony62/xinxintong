@@ -64,7 +64,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_mission): ' . $mysqli->error;
 }
 /**
- * 登记活动的参与人及行为汇总，包含：登记人和评论人
+ * 登记活动的参与人及行为汇总，包含：登记人和留言人
  */
 $sql = "create table if not exists xxt_mission_user(";
 $sql .= "id int not null auto_increment";
@@ -81,28 +81,28 @@ $sql .= ",last_do_cowork_at int not null default 0"; // 最后一次进行协作
 $sql .= ",do_cowork_num int not null default 0"; // 进行协作填写的数量
 $sql .= ",last_remark_at int not null default 0"; // 最后一次获得评价的时间
 $sql .= ",remark_num int not null default 0"; // 获得的评价条数
-$sql .= ",last_remark_cowork_at int not null default 0"; // 最后一次协作填写获得评论的时间
+$sql .= ",last_remark_cowork_at int not null default 0"; // 最后一次协作填写获得留言的时间
 $sql .= ",remark_cowork_num int not null default 0"; // 协作填写获得的评价条数
 $sql .= ",last_like_at int not null default 0"; // 登记内容最后一次获得点赞的时间
 $sql .= ",like_num int not null default 0"; // 登记内容获得点赞的次数
 $sql .= ",last_like_cowork_at int not null default 0"; // 协作填写最后一次获得点赞的时间
 $sql .= ",like_cowork_num int not null default 0"; // 协作填写获得点赞的次数
-$sql .= ",last_like_remark_at int not null default 0"; // 评论最后一次获得点赞的时间
-$sql .= ",like_remark_num int not null default 0"; // 评论获得点赞的次数
+$sql .= ",last_like_remark_at int not null default 0"; // 留言最后一次获得点赞的时间
+$sql .= ",like_remark_num int not null default 0"; // 留言获得点赞的次数
 $sql .= ",last_do_remark_at int not null default 0"; // 最后一次发表评价的时间
 $sql .= ",do_remark_num int not null default 0"; // 发表的评价条数
 $sql .= ",last_do_like_at int not null default 0"; // 最后一次对登记内容进行点赞的时间
 $sql .= ",do_like_num int not null default 0"; // 对登记内容进行点赞的次数
 $sql .= ",last_do_like_cowork_at int not null default 0"; // 最后一次对协作进行点赞的时间
 $sql .= ",do_like_cowork_num int not null default 0"; // 对协作进行点赞的次数
-$sql .= ",last_do_like_remark_at int not null default 0"; // 最后一次对评论进行点赞的时间
-$sql .= ",do_like_remark_num int not null default 0"; // 对评论进行点赞的次数
+$sql .= ",last_do_like_remark_at int not null default 0"; // 最后一次对留言进行点赞的时间
+$sql .= ",do_like_remark_num int not null default 0"; // 对留言进行点赞的次数
 $sql .= ",last_agree_at int not null default 0"; // 最后一次获得推荐的时间
 $sql .= ",agree_num int not null default 0"; // 获得推荐的次数
 $sql .= ",last_agree_cowork_at int not null default 0"; // 最后一次协作获得推荐的时间
 $sql .= ",agree_cowork_num int not null default 0"; // 协作获得推荐的次数
-$sql .= ",last_agree_remark_at int not null default 0"; // 最后一次评论获得推荐的时间
-$sql .= ",agree_remark_num int not null default 0"; // 评论获得推荐的次数
+$sql .= ",last_agree_remark_at int not null default 0"; // 最后一次留言获得推荐的时间
+$sql .= ",agree_remark_num int not null default 0"; // 留言获得推荐的次数
 $sql .= ",last_signin_at int not null default 0"; // 最后一次签到时间
 $sql .= ",signin_num int not null default 0"; // 签到的次数
 $sql .= ",user_total_coin int not null default 0"; // 用户在某个活动中的总分数

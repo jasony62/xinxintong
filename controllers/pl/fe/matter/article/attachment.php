@@ -44,23 +44,24 @@ class attachment extends \pl\fe\matter\base {
 			}
 			$url = 'local://article_' . $id . '_' . $file->name;
 		}
-		$att = array();
-		$att['article_id'] = $id;
-		$att['name'] = $file->name;
-		$att['type'] = $file->type;
-		$att['size'] = $file->size;
-		$att['last_modified'] = $file->lastModified;
-		$att['url'] = $url;
+		$oAtt = new \stdClass;
+		$oAtt->matter_id = $id;
+		$oAtt->matter_type = 'article';
+		$oAtt->name = $file->name;
+		$oAtt->type = $file->type;
+		$oAtt->size = $file->size;
+		$oAtt->last_modified = $file->lastModified;
+		$oAtt->url = $url;
 
-		$att['id'] = $model->insert('xxt_article_attachment', $att, true);
+		$oAtt->id = $model->insert('xxt_matter_attachment', $oAtt, true);
 		/* 更新文章状态 */
 		$model->update(
 			'xxt_article',
-			array('has_attachment' => 'Y'),
-			"id='$id'"
+			['has_attachment' => 'Y'],
+			['id' => $id]
 		);
 
-		return new \ResponseData($att);
+		return new \ResponseData($oAtt);
 	}
 	/**
 	 * 删除附件
@@ -68,17 +69,17 @@ class attachment extends \pl\fe\matter\base {
 	public function del_action($site, $id) {
 		$model = $this->model();
 		// 附件对象
-		$att = $model->query_obj_ss(array('article_id,name,url', 'xxt_article_attachment', "id='$id'"));
+		$att = $model->query_obj_ss(array('matter_id,name,url', 'xxt_matter_attachment', "id='$id'"));
 		/**
 		 * remove from fs
 		 */
 		if (strpos($att->url, 'alioss') === 0) {
 			$fs = $this->model('fs/alioss', $site, 'xxt-attachment');
-			$object = $site . '/article/' . $att->article_id . '/' . $att->name;
+			$object = $site . '/article/' . $att->matter_id . '/' . $att->name;
 			$rsp = $fs->delete_object($object);
 		} else if (strpos($att->url, 'local') === 0) {
 			$fs = $this->model('fs/local', $site, '附件');
-			$path = 'article_' . $att->article_id . '_' . $att->name;
+			$path = 'article_' . $att->matter_id . '_' . $att->name;
 			$rsp = $fs->delete($path);
 		} else {
 			$fs = $this->model('fs/saestore', $site);
@@ -87,11 +88,11 @@ class attachment extends \pl\fe\matter\base {
 		/**
 		 * remove from local
 		 */
-		$rst = $model->delete('xxt_article_attachment', "id='$id'");
+		$rst = $model->delete('xxt_matter_attachment', "id='$id'");
 		if ($rst == 1) {
 			$q = array(
 				'1',
-				'xxt_article_attachment',
+				'xxt_matter_attachment',
 				"id='$id'",
 			);
 			$cnt = $model->query_val_ss($q);

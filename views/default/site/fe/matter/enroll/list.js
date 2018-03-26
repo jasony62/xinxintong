@@ -228,15 +228,20 @@ ngApp.controller('ctrlList', ['$scope', function($scope) {
         oApp = params.app;
         /*设置页面分享信息*/
         $scope.setSnsShare();
-        /*设置页面分享信息*/
-        $scope.setSnsShare();
+        /*设置页面操作*/
+        $scope.appActs = {
+            addRecord: {}
+        };
         /*设置页面导航*/
-        $scope.appNavs = {};
+        var oAppNavs = {};
         if (oApp.can_repos === 'Y') {
-            $scope.appNavs.repos = {};
+            oAppNavs.repos = {};
         }
         if (oApp.can_rank === 'Y') {
-            $scope.appNavs.rank = {};
+            oAppNavs.rank = {};
+        }
+        if (Object.keys(oAppNavs)) {
+            $scope.appNavs = oAppNavs;
         }
     });
 }]);

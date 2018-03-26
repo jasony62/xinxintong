@@ -22,7 +22,7 @@ class user extends \site\op\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 发表过评论的用户
+	 * 发表过留言的用户
 	 */
 	public function remarker_action($app, $page = 1, $size = 30) {
 		$modelEnl = $this->model('matter\enroll');

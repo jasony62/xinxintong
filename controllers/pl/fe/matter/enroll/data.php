@@ -128,7 +128,7 @@ class data extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 给登记人发送评论通知
+	 * 给登记人发送留言通知
 	 */
 	private function _notifyAgree($oApp, $oRecord, $tmplName, $schema) {
 		/* 模板消息参数 */

@@ -586,7 +586,12 @@ class record_model extends record_base {
 
 		// 记录是否通过审核
 		if (!empty($oCriteria->record->verified)) {
-			$w .= " and verified='{$oCriteria->record->verified}'";
+			$w .= " and r.verified='{$oCriteria->record->verified}'";
+		}
+
+		// 记录推荐状态
+		if (isset($oCriteria->record->agreed)) {
+			$w .= " and r.agreed='{$oCriteria->record->agreed}'";
 		}
 
 		// 指定了记录标签

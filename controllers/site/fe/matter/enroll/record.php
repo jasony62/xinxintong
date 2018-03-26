@@ -786,13 +786,9 @@ class record extends base {
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
 			$modelEnlEvt->likeRecord($oApp, $oRecord, $oUser);
-			/* 被点赞 */
-			$modelEnlEvt->getLikeRecord($oApp, $oRecord, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRecord($oApp, $oRecord, $oUser);
-			/* 撤销被点赞 */
-			$modelEnlEvt->undoGetLikeRecord($oApp, $oRecord, $oUser);
 		}
 
 		$oResult = new \stdClass;

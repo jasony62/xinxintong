@@ -9,11 +9,11 @@
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
                         <th style='width:72px'>态度</th>
-                        <th style='width:100px'>评论时间</th>
-                        <th style='width:140px'>评论用户</th>
-                        <th class='custom-col'>评论内容</th>
+                        <th style='width:100px'>留言时间</th>
+                        <th style='width:140px'>留言用户</th>
+                        <th class='custom-col'>留言内容</th>
                         <th style='width:5em'>赞同数</th>
-                        <th class='custom-col'>评论题目</th>
+                        <th class='custom-col'>留言题目</th>
                         <th style='width:140px'>提交用户</th>
                         <th style='width:140px'>提交内容</th>
                         <th style='width:48px'>操作</th>
@@ -28,19 +28,19 @@
                             <input type='checkbox' ng-model="rows.selected[$index]">
                         </td>
                         <td data-th='态度'>{{r._agreed}}</td>
-                        <td data-th='评论时间'>
+                        <td data-th='留言时间'>
                             <div>{{(r.create_at*1000)|date:'MM-dd HH:mm'}}</div>
                         </td>
-                        <td data-th='评论用户'>
+                        <td data-th='留言用户'>
                             <div>{{r.nickname}}</div>
                         </td>
-                        <td data-th='评论内容' ng-click="gotoRemark(r)">
+                        <td data-th='留言内容' ng-click="gotoRemark(r)">
                             <div>{{r.content}}</div>
                         </td>
                         <td data-th='赞同数'>
                             <div>{{r.like_num}}</div>
                         </td>
-                        <td data-th='评论题目'>
+                        <td data-th='留言题目'>
                             <div>{{app._schemasById[r.schema_id].title}}</div>
                         </td>
                         <td data-th='提交用户'>
@@ -85,7 +85,7 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href='' ng-click="chooseOrderby('create_at')"><span class='glyphicon' ng-class="criteria.orderby==='create_at'?'glyphicon-check':'glyphicon-unchecked'"></span> 发表评论时间</a></li>
+                            <li><a href='' ng-click="chooseOrderby('create_at')"><span class='glyphicon' ng-class="criteria.orderby==='create_at'?'glyphicon-check':'glyphicon-unchecked'"></span> 发表留言时间</a></li>
                             <li><a href='' ng-click="chooseOrderby('like_num')"><span class='glyphicon' ng-class="criteria.orderby==='like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 获得赞同数</a></li>
                         </ul>
                     </div>

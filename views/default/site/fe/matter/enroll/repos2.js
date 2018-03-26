@@ -92,7 +92,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         var url;
         url = LS.j('', 'site', 'app');
         url += '&ek=' + oRecord.enroll_key;
-        url += '&page=remark';
+        url += '&page=remark#remarks';
         location.href = url;
     };
     $scope.coworkRecord = function(oRecord) {
@@ -160,7 +160,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                 if (rsp.data && rsp.data.length) {
                     rsp.data.forEach(function(oRule) {
                         if (!oRule._ok) {
-                            tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0 });
+                            tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0, coin: oRule.coin ? oRule.coin : 0 });
                         }
                     });
                 }
@@ -210,12 +210,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         });
         /*设置页面分享信息*/
         $scope.setSnsShare();
-        /*设置页面导航*/
-        $scope.appNavs = {
+        /*设置页面操作*/
+        $scope.appActs = {
             addRecord: {}
         };
+        /*设置页面导航*/
         if (_oApp.can_rank === 'Y') {
-            $scope.appNavs.rank = {};
+            $scope.appNavs = { rank: {} };
         }
     });
     $scope.advCriteriaStatus = {

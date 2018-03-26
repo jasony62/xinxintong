@@ -13,7 +13,7 @@
     <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
-<body>
+<body ng-controller='ctrlInput'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div id="wxUploadFileTip" uib-popover-template="'wxUploadFileTip.html'" uib-popover popover-placement="bottom" popover-trigger="'show'" popover-append-to-body="true"></div>
@@ -21,7 +21,7 @@
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i><span class='icon-note' ng-bind='page.title'></span>
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">{{page.title}}</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -36,11 +36,8 @@
     </nav>
     <div ng-cloak class='app ng-cloak'>
         <div id='enroll' class='container'>
-            <div ng-controller='ctrlInput'>
-                <form name='enroll' novalidate dynamic-html="page.html">
-                </form>
-                <div tms-app-nav app-navs="appNavs"></div>
-            </div>
+            <form name='enroll' novalidate dynamic-html="page.html">
+            </form>
             <div g-if="params.activeRound">
                 <div class='text-center help-block'>
                     <span ng-bind="params.activeRound.title"></span>
@@ -50,6 +47,7 @@
             </div>
         </div>
     </div>
+    <div ng-if="appActs" tms-app-act app-acts="appActs"></div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">

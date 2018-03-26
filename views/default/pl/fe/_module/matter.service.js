@@ -930,8 +930,8 @@ provider('srvMemberPicker', function() {
                                         });
                                         schemas && schemas.length ? schemaUser(schemas, 0) : matterUser();
                                     }
-                                    function schemaUser(schemas, round) {
-                                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id + '&rounds=' + rounds, {'schemas': schemas, 'users': ids}, function(rsp) {
+                                    function schemaUser(schemas, rounds) {
+                                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + oMatter.siteid + '&id=' + oMatter.id + '&rounds=' + rounds, {'schemas': schemas, 'users': ids}, function(rsp) {
                                             if (rsp.data.state !== 'end') {
                                                 var group = parseInt(rsp.data.group) + 1;
                                                 noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
@@ -943,7 +943,7 @@ provider('srvMemberPicker', function() {
                                         });
                                     };
                                     function matterUser() {
-                                        http2.post('/rest/pl/fe/matter/group/player/addByApp?app=' + oMatter.appid, ids, function(rsp) {
+                                        http2.post('/rest/pl/fe/matter/group/player/addByApp?app=' + oMatter.id, ids, function(rsp) {
                                             noticebox.success('加入【' + rsp.data + '】个用户');
                                             defer.resolve(rsp.data);
                                         });
@@ -954,7 +954,7 @@ provider('srvMemberPicker', function() {
                         }
                     },
                     controller: ['$scope', '$uibModalInstance', 'http2', 'tmsSchema', 'mschema', 'action', function($scope2, $mi, http2, tmsSchema, _oMschema, _oAction) {
-                        var _oPage, _oRows, _bAdded;
+                        var _oPage, _oRows, _bAdded, doSearch;
                         $scope2.mschema = _oMschema;
                         $scope2.action = _oAction;
                         $scope2.page = _oPage = {
@@ -975,15 +975,15 @@ provider('srvMemberPicker', function() {
                                 this.count = 0;
                             }
                         };
-                        oMatter.type == 'mschema' ? doSchemas() : $scope2.doSearch(1);
                         function doSchemas() {
                             http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + oMschema.siteid + '&id=' + oMschema.id, function(rsp) {
                                 $scope2.importSchemas = rsp.data;
+                                $scope2.mschema = rsp.data[0];
                                 _oRows.impschemaId = rsp.data[0].id;
-                                $scope2.doSearch(1);
+                                doSearch(1);
                             });
                         };
-                        $scope2.doSearch = function(pageAt) {
+                        $scope2.doSearch = doSearch = function(pageAt) {
                             pageAt && (_oPage.at = pageAt);
                             var selectedSchemaId = _oRows.impschemaId ? _oRows.impschemaId : _oMschema.id;
                             var url, filter = '';
@@ -998,9 +998,9 @@ provider('srvMemberPicker', function() {
                                 var members;
                                 members = rsp.data.members;
                                 if (members.length) {
-                                    if (_oMschema.extAttrs.length) {
+                                    if ($scope2.mschema.extAttrs.length) {
                                         members.forEach(function(oMember) {
-                                            oMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oMember);
+                                            oMember._extattr = tmsSchema.member.getExtattrsUIValue($scope2.mschema.extAttrs, oMember);
                                         });
                                     }
                                 }
@@ -1032,6 +1032,7 @@ provider('srvMemberPicker', function() {
                                 });
                             }
                         };
+                        oMatter.type == 'mschema' ? doSchemas() : doSearch(1);
                     }],
                     size: 'lg',
                     backdrop: 'static',

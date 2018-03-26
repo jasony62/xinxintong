@@ -15,8 +15,9 @@ define(['frame'], function(ngApp) {
                         break;
                     case 'mschema':
                         var matter = {
-                            type: 'group',
-                            appid: $scope.app.id
+                            id: $scope.app.id,
+                            siteid: $scope.app.siteid,
+                            type: 'group'
                         }
                         srvMemberPicker.open(matter, oSourceApp).then(function() {
                             $scope.list();

@@ -112,6 +112,8 @@ define(['frame'], function(ngApp) {
         };
         $scope.importUser = function() {
             var matter = {
+                id: $scope.choosedSchema.id,
+                siteid: $scope.site.id,
                 type: 'mschema'
             }
             srvMemberPicker.open(matter, $scope.choosedSchema).then(function() {});

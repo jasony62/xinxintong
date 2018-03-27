@@ -169,7 +169,7 @@ class event_model extends \TMS_MODEL {
 					}
 				}
 			}
-			if (isset($oUpdatedRndUsrData)) {
+			if (isset($oUpdatedAppUsrData)) {
 				$modelUsr->modify($oEnlUsrApp, $oUpdatedAppUsrData);
 			} else {
 				$modelUsr->modify($oEnlUsrApp, $oUpdatedEnlUsrData);

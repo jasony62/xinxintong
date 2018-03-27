@@ -21,23 +21,33 @@ class group extends \pl\be\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 *
+	 * 添加用户组
 	 */
-	public function add_action($name) {
-		$g['group_name'] = $name;
-		$gid = $this->model()->insert('account_group', $g, true);
+	public function add_action() {
+		$modelAcnt = $this->model('account');
 
-		$rst = $this->model('account')->getGroup($gid);
+		$q = ['max(group_id)', 'account_group', '1=1'];
+		$maxId = (int) $modelAcnt->query_val_ss($q);
+		$newGroupId = $maxId + 1;
 
-		return new \ResponseData($rst);
+		$oPosted = $this->getPostJson();
+
+		$g['group_id'] = $newGroupId;
+		$g['group_name'] = empty($oPosted->name) ? '新用户组' : $modelAcnt->escape($oPosted->name);
+
+		$modelAcnt->insert('account_group', $g, false);
+
+		$oNewGroup = $modelAcnt->getGroup($newGroupId);
+
+		return new \ResponseData($oNewGroup);
 	}
 	/**
-	 *
+	 * 更新用户组
 	 */
 	public function update_action($gid) {
-		$nv = (array) $this->getPostJson();
+		$nv = $this->getPostJson();
 
-		$ret = $this->model()->update('account_group', $nv, "group_id=$gid");
+		$ret = $this->model()->update('account_group', $nv, ['group_id' => $gid]);
 
 		return new \ResponseData($ret);
 	}

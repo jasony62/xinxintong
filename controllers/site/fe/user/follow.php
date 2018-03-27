@@ -130,6 +130,7 @@ class follow extends \site\fe\base {
 				$oMatter->id = $oMschema->id;
 				$oMatter->siteid = $oMschema->siteid;
 				$oMatter->title = $oMschema->title;
+				$oMatter->type = 'mschema';
 				$aParams['referer'] = $modelMs->getEntryUrl($oMschema->siteid, $oMschema->id);
 			} else {
 				$oMatter = $this->model('matter\\' . $oQrcode->matter_type)->byId($oQrcode->matter_id, ['fields' => 'id,siteid,state,title,summary,pic']);

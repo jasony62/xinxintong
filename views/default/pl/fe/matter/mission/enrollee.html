@@ -20,22 +20,22 @@
                 <th class='th-action' ng-class="{'active':criteria.orderBy==='last_enroll_at'}" style='width:96px' ng-click="chooseOrderBy('last_enroll_at')">
                     <div>最近填写 <span class='glyphicon glyphicon-arrow-down'></span></div>
                 </th>
-                <th class='th-action' ng-class="{'active':criteria.orderBy==='remark_other_num'}" style='width:64px' ng-click="chooseOrderBy('remark_other_num')">
-                    <div>评论 <span class='glyphicon glyphicon-arrow-down'></span></div>
+                <th class='th-action' ng-class="{'active':criteria.orderBy==='do_remark_num'}" style='width:64px' ng-click="chooseOrderBy('do_remark_num')">
+                    <div>留言 <span class='glyphicon glyphicon-arrow-down'></span></div>
                 </th>
-                <th class='th-action' ng-class="{'active':criteria.orderBy==='last_remark_other_at'}" style='width:96px' ng-click="chooseOrderBy('last_remark_other_at')">
-                    <div>最近评论 <span class='glyphicon glyphicon-arrow-down'></span></div>
+                <th class='th-action' ng-class="{'active':criteria.orderBy==='last_do_remark_at'}" style='width:96px' ng-click="chooseOrderBy('last_do_remark_at')">
+                    <div>最近留言 <span class='glyphicon glyphicon-arrow-down'></span></div>
                 </th>
-                <th class='th-action' ng-class="{'active':criteria.orderBy==='like_other_num'}" style='width:64px' ng-click="chooseOrderBy('like_other_num')">
+                <th class='th-action' ng-class="{'active':criteria.orderBy==='do_like_num'}" style='width:64px' ng-click="chooseOrderBy('do_like_num')">
                     <div>点赞 <span class='glyphicon glyphicon-arrow-down'></span></div>
                 </th>
                 <th class='th-action' ng-class="{'active':criteria.orderBy==='last_remark_like_at'}" style='width:96px' ng-click="chooseOrderBy('last_remark_like_at')">
                     <div>最近点赞 <span class='glyphicon glyphicon-arrow-down'></span></div>
                 </th>
-                <th class='th-action' ng-class="{'active':criteria.orderBy==='recommend_num'}" style='width:64px' ng-click="chooseOrderBy('recommend_num')">
+                <th class='th-action' ng-class="{'active':criteria.orderBy==='agree_num'}" style='width:64px' ng-click="chooseOrderBy('agree_num')">
                     <div>推荐 <span class='glyphicon glyphicon-arrow-down'></span></div>
                 </th>
-                <th class='th-action' ng-class="{'active':criteria.orderBy==='last_recommend_at'}" style='width:96px' ng-click="chooseOrderBy('last_recommend_at')">
+                <th class='th-action' ng-class="{'active':criteria.orderBy==='last_agree_at'}" style='width:96px' ng-click="chooseOrderBy('last_agree_at')">
                     <div>最近推荐 <span class='glyphicon glyphicon-arrow-down'></span></div>
                 </th>
                 <th class='th-action' ng-class="{'active':criteria.orderBy==='signin_num'}" style='width:96px' ng-click="chooseOrderBy('signin_num')">
@@ -61,22 +61,22 @@
                     <div>{{enrollee.last_enroll_at}}</div>
                 </td>
                 <td>
-                    <div>{{enrollee.remark_other_num}}</div>
+                    <div>{{enrollee.do_remark_num}}</div>
                 </td>
                 <td>
-                    <div>{{enrollee.last_remark_other_at}}</div>
+                    <div>{{enrollee.last_do_remark_at}}</div>
                 </td>
                 <td>
-                    <div>{{enrollee.like_other_num}}</div>
+                    <div>{{enrollee.do_like_num}}</div>
                 </td>
                 <td>
-                    <div>{{enrollee.last_like_other_at}}</div>
+                    <div>{{enrollee.last_do_like_at}}</div>
                 </td>
                 <td>
-                    <div>{{enrollee.recommend_num}}</div>
+                    <div>{{enrollee.agree_num}}</div>
                 </td>
                 <td>
-                    <div>{{enrollee.last_recommend_at}}</div>
+                    <div>{{enrollee.last_agree_at}}</div>
                 </td>
                 <td>
                     <div>{{enrollee.signin_num}}</div>

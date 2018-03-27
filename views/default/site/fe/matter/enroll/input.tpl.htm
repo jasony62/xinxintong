@@ -13,7 +13,7 @@
     <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
-<body>
+<body ng-controller='ctrlInput'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div id="wxUploadFileTip" uib-popover-template="'wxUploadFileTip.html'" uib-popover popover-placement="bottom" popover-trigger="'show'" popover-append-to-body="true"></div>
@@ -21,7 +21,7 @@
         <div class='container'>
             <div class="navbar-header">
                 <a href="" class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i><span class='icon-note' ng-bind='page.title'></span>
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">{{page.title}}</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -36,10 +36,8 @@
     </nav>
     <div ng-cloak class='app ng-cloak'>
         <div id='enroll' class='container'>
-            <div ng-controller='ctrlInput'>
-                <form name='enroll' novalidate dynamic-html="page.html">
-                </form>
-            </div>
+            <form name='enroll' novalidate dynamic-html="page.html">
+            </form>
             <div g-if="params.activeRound">
                 <div class='text-center help-block'>
                     <span ng-bind="params.activeRound.title"></span>
@@ -49,6 +47,7 @@
             </div>
         </div>
     </div>
+    <div ng-if="appActs" tms-app-act app-acts="appActs"></div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">
@@ -56,10 +55,15 @@
     </div>
     <script type="text/ng-template" id="wxUploadFileTip.html">
         <div ng-controller="ctrlWxUploadFileTip" ng-init="domId='#wxUploadFileTip'">
-            <p>如果微信无法上传文件，请按如下步骤操作：</p>
-            <p>1、点击当前界面右上角的3个点；</p>
-            <p>2、选择【在浏览器中打开】；</p>
-            <p>3、在打开的浏览器中进行后续。</p>
+            <div ng-if="isIos">
+                <p>苹果手机不支持在页面中上传文件，请将该页面转发到PC机上的浏览器进行操作。</p>
+            </div>
+            <div ng-if="!isIos">
+                <p>如果微信无法上传文件，请按如下步骤操作：</p>
+                <p>1、点击当前界面右上角的3个点；</p>
+                <p>2、选择【在浏览器中打开】；</p>
+                <p>3、在打开的浏览器中进行后续。</p>
+            </div>
             <div class='text-right'>
                 <button class='btn btn-default btn-sm' ng-click="closeTip()">知道了，关闭</button>
             </div>
@@ -111,9 +115,6 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/input.js');?>"></script>
-    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
-    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
-    <div class="tms-switch tms-switch-save" ng-click="save()"></div>
 </body>
 
 </html>

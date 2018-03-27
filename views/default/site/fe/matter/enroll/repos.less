@@ -1,3 +1,9 @@
+@import "../../../../../../static/less/site.fe.base.less";
+
+body {
+	margin-bottom: 64px;
+}
+
 blockquote {
 	font-size: 16px;
 	margin-bottom: 8px;
@@ -9,7 +15,7 @@ img {
 
 #advCriteria {
 	.panel-group {
-		margin-bottom: 0;
+		margin-bottom: 8px;
 	}
 
 	.form-control {
@@ -69,8 +75,15 @@ img {
 		}
 
 		.data {
-			blockquote>div+div {
-				margin-top: 8px;
+			blockquote {
+				&>div+div {
+					margin-top: 8px;
+				}
+
+				.schema>div+div {
+					margin-top: 8px;
+				}
+
 			}
 
 			.data-title:before {
@@ -81,7 +94,7 @@ img {
 				border-top: 6px solid #fff;
 				border-right: 6px solid #fff;
 				border-bottom: 6px solid #fff;
-				border-left: 6px solid orange;
+				border-left: 6px solid @brand-primary;
 			}
 
 			.datetime {
@@ -90,11 +103,22 @@ img {
 
 		}
 
-		.bottom-bar>*+* {
-			margin-left: 8px;
+		.bottom-bar {
+			display: flex;
 
-			.like {
-				color: red;
+			&>*+* {
+				margin-left: 8px;
+
+				.like {
+					color: @brand-primary;
+				}
+
+			}
+
+			.datetime {
+				flex: 1;
+				line-height: 30px;
+				font-size: .8em;
 			}
 
 		}
@@ -102,29 +126,32 @@ img {
 		.remarks {
 			font-size: .9em;
 			border-top: 1px dashed #ddd;
-			padding: 1rem 0 1rem 2rem;
+			margin-top: 16px;
+			padding: 1rem 0 0 2rem;
 			position: relative;
 
 			&:before {
-				content: '推荐评论';
+				content: '推荐留言';
 				position: absolute;
 				left: 50%;
-				margin-left: -1em;
+				margin-left: -2em;
 				top: -0.7em;
 				color: #999;
 			}
 
 			.remark {
-				margin-bottom: 1em;
+				.top-bar {
+					display: flex;
+				}
 
-				.bottom-bar>:first-child {
+				.top-bar>:first-child {
 					flex: 1;
 				}
 
-				.bottom-bar>:first-child:before {
-					content: '\2014 \00A0';
-				}
+			}
 
+			.remark+.remark {
+				margin-bottom: 1em;
 			}
 
 		}
@@ -147,17 +174,23 @@ img {
 		margin-bottom: 0;
 	}
 
-	.app.container {
+	.app .records.col-xs-12 {
 		padding: 0;
 	}
 
-	#filterCriteria .form-control, #filterCriteria .input-group-btn .btn {
-		border-radius: 0;
+	#filterCriteria {
+		margin-left: -1px;
+		margin-right: -2px;
+
+		.form-control, .input-group-btn .btn {
+			border-radius: 0;
+		}
+
 	}
 
 	#advCriteria {
 		position: absolute;
-		top: 34px;
+		top: 0;
 		right: 0;
 		margin-top: 1px;
 		width: 300px;

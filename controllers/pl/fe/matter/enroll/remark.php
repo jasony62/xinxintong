@@ -3,7 +3,7 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
- * 登记记录的评论
+ * 登记记录的留言
  */
 class remark extends \pl\fe\matter\base {
 	/**
@@ -19,10 +19,10 @@ class remark extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 返回一条登记记录的所有评论
+	 * 返回一条登记记录的所有留言
 	 *
 	 * @param string $ek
-	 * @param string $schema schema's id，如果不指定，返回的是对整条记录的评论
+	 * @param string $schema schema's id，如果不指定，返回的是对整条记录的留言
 	 * @param string $id xxt_enroll_record_data's id
 	 *
 	 */
@@ -44,7 +44,7 @@ class remark extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 返回指定活动下所有评论
+	 * 返回指定活动下所有留言
 	 */
 	public function byApp_action($site, $app, $page = 1, $size = 30) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -80,8 +80,8 @@ class remark extends \pl\fe\matter\base {
 		return new \ResponseData($values);
 	}
 	/**
-	 * 给指定的登记记录的添加评论
-	 * 需要处理用户没有提交评论的登记项数据的情况（用户提交数据后又增加了登记项）
+	 * 给指定的登记记录的添加留言
+	 * 需要处理用户没有提交留言的登记项数据的情况（用户提交数据后又增加了登记项）
 	 */
 	public function add_action($ek, $schema = null, $id) {
 		if (false === ($user = $this->accountUser())) {
@@ -89,11 +89,11 @@ class remark extends \pl\fe\matter\base {
 		}
 
 		if (empty($id)) {
-			return new \ResponseError('参数错误：未指定被评论内容ID');
+			return new \ResponseError('参数错误：未指定被留言内容ID');
 		}
 		$data = $this->getPostJson();
 		if (empty($data->content)) {
-			return new \ResponseError('评论内容不允许为空');
+			return new \ResponseError('留言内容不允许为空');
 		}
 		$current = time();
 
@@ -118,7 +118,7 @@ class remark extends \pl\fe\matter\base {
 		}
 
 		/**
-		 * 发表评论的用户
+		 * 发表留言的用户
 		 */
 		$oRemark = new \stdClass;
 		$oRemark->siteid = $oRecord->siteid;
@@ -143,7 +143,7 @@ class remark extends \pl\fe\matter\base {
 			if ($oSchemaData) {
 				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = $oSchemaData->id");
 				if (isset($schemaType) && $schemaType === 'multitext') {
-					// 如果某项的数据被评论了那么这道题的总数据+1
+					// 如果某项的数据被留言了那么这道题的总数据+1
 					if ($oSchemaData->multitext_seq != 0) {
 						$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='$schema' and multitext_seq = 0");
 					}
@@ -168,7 +168,7 @@ class remark extends \pl\fe\matter\base {
 		return new \ResponseData($oRemark);
 	}
 	/**
-	 * 给登记人发送评论通知
+	 * 给登记人发送留言通知
 	 */
 	private function _notifyHasRemark($oApp, $oRecord, $oRemark) {
 		/* 模板消息参数 */
@@ -190,7 +190,7 @@ class remark extends \pl\fe\matter\base {
 			if ($mapping->src === 'matter') {
 				if (isset($oApp->{$mapping->id})) {
 					$value = $oApp->{$mapping->id};
-				}else if($mapping->id==='event_at'){
+				} else if ($mapping->id === 'event_at') {
 					$value = date('Y-m-d H:i:s');
 				}
 			} else if ($mapping->src === 'text') {
@@ -230,36 +230,41 @@ class remark extends \pl\fe\matter\base {
 		}
 		$posted = $this->getPostJson();
 		if (empty($posted->remark)) {
-			return new \ParameterError('没有指定评论数据');
+			return new \ParameterError('没有指定留言数据');
 		}
 		if (is_array($posted->remark)) {
 			$remarkIds = $posted->remark;
 		} else {
 			$remarkIds = [$posted->remark];
 		}
-
 		$modelRem = $this->model('matter\enroll\remark');
 		if (!in_array($value, ['Y', 'N', 'A'])) {
 			$value = '';
 		}
-		
+
 		//确定模板名称
-		if($value==='Y'){
-			$name='site.enroll.remark.recommend';
-		}else if($value==='N'){
-			$name='site.enroll.remark.mask';
+		if ($value === 'Y') {
+			$name = 'site.enroll.remark.recommend';
+		} else if ($value === 'N') {
+			$name = 'site.enroll.remark.mask';
 		}
 
-		if(!empty($name)){
-			$oRemark=$modelRem->query_obj_ss(['*','xxt_enroll_record_remark',['id'=>$posted->remark]]);
+		if (!empty($name)) {
 			$modelEnl = $this->model('matter\enroll');
-			$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
 			$modelRec = $this->model('matter\enroll\record');
-			$oRecord = $modelRec->byId($oRemark->enroll_key);
-			$oRemark->enroll_nickname=$modelRem->query_val_ss(['uname','xxt_site_account',['siteid'=>$oRemark->siteid,'uid'=>$oRemark->enroll_userid]]);
-			$this->_notifyAgree($oApp, $oRecord, $oRemark, $name);
+			$oRemarks = [];
+			foreach ($remarkIds as $remkid) {
+				$oRemark = $modelRem->query_obj_ss(['*', 'xxt_enroll_record_remark', ['id' => $remkid]]);
+				if (!isset($oApp)) {
+					$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+				}
+				// $oRecord = $modelRec->byId($oRemark->enroll_key);
+				$oRemark->enroll_nickname = $modelRem->query_val_ss(['uname', 'xxt_site_account', ['siteid' => $oRemark->siteid, 'uid' => $oRemark->enroll_userid]]);
+				$oRemarks[] = $oRemark;
+			}
+			$this->_notifyAgree($oApp, $oRemarks, $name);
 		}
-		
+
 		foreach ($remarkIds as $id) {
 			$rst = $modelRem->update(
 				'xxt_enroll_record_remark',
@@ -271,9 +276,12 @@ class remark extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 给发评论的人发送通知
+	 * 给发留言的人发送通知
 	 */
-	private function _notifyAgree($oApp, $oRecord, $oRemark, $tmplName) {
+	private function _notifyAgree($oApp, $oRemarks, $tmplName) {
+		if (empty($oRemarks)) {
+			return false;
+		}
 		/* 模板消息参数 */
 		$notice = $this->model('site\notice')->byName($oApp->siteid, $tmplName);
 		if ($notice === false) {
@@ -283,7 +291,6 @@ class remark extends \pl\fe\matter\base {
 		if (!isset($tmplConfig->tmplmsg)) {
 			return false;
 		}
-		
 		$params = new \stdClass;
 		foreach ($tmplConfig->tmplmsg->params as $param) {
 			if (!isset($tmplConfig->mapping->{$param->pname})) {
@@ -293,7 +300,7 @@ class remark extends \pl\fe\matter\base {
 			if ($mapping->src === 'matter') {
 				if (isset($oApp->{$mapping->id})) {
 					$value = $oApp->{$mapping->id};
-				}else if($mapping->id==='event_at'){
+				} else if ($mapping->id === 'event_at') {
 					$value = date('Y-m-d H:i:s');
 				}
 			} else if ($mapping->src === 'text') {
@@ -303,32 +310,35 @@ class remark extends \pl\fe\matter\base {
 			$params->{$param->pname} = $value;
 		}
 
-		/* 获得活动的用户链接 */
-		$noticeURL = $this->model('matter\enroll')->getEntryUrl($oApp->siteid, $oApp->id);
-		$noticeURL .= '&page=remark&ek=' . $oRemark->enroll_key;
-		$noticeURL .= '&schema=' . $oRemark->schema_id;
-		$params->url = $noticeURL;
-
 		/* 消息的创建人 */
 		$modelWay = $this->model('site\fe\way');
-		$who=$modelWay->who($oRemark->siteid);
+		$who = $modelWay->who($oApp->siteid);
 		$creater = new \stdClass;
 		$creater->uid = $who->uid;
 		$creater->name = $who->nickname;
 		$creater->src = 'pl';
 
-		/* 消息的接收人 */
-		$receiver = new \stdClass;
-		$receiver->assoc_with = $oRemark->enroll_key;
-		$receiver->userid = $oRemark->userid;
-
-		/*判断是否是同一个人*/
-		if($creater->uid==$receiver->userid){
-			return false;
-		}
-
-		/* 给用户发通知消息 */
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
-		$modelTmplBat->send($oRemark->siteid, $tmplConfig->msgid, $creater, [$receiver], $params, ['send_from' => 'enroll:' . $oRemark->aid . ':' . $oRemark->enroll_key]);
+		$modelEnr = $this->model('matter\enroll');
+		foreach ($oRemarks as $oRemark) {
+			/*判断是否是同一个人*/
+			if ($creater->uid == $oRemark->userid) {
+				continue;
+			}
+
+			/* 获得活动的用户链接 */
+			$noticeURL = $modelEnr->getEntryUrl($oApp->siteid, $oApp->id);
+			$noticeURL .= '&page=remark&ek=' . $oRemark->enroll_key;
+			$noticeURL .= '&schema=' . $oRemark->schema_id;
+			$params->url = $noticeURL;
+
+			/* 消息的接收人 */
+			$receiver = new \stdClass;
+			$receiver->assoc_with = $oRemark->enroll_key;
+			$receiver->userid = $oRemark->userid;
+
+			/* 给用户发通知消息 */
+			$modelTmplBat->send($oRemark->siteid, $tmplConfig->msgid, $creater, [$receiver], $params, ['send_from' => 'enroll:' . $oRemark->aid . ':' . $oRemark->enroll_key]);
+		}
 	}
 }

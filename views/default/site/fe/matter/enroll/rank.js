@@ -404,5 +404,14 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         $scope.changeCriteria();
         /*设置页面分享信息*/
         $scope.setSnsShare();
+        /*设置页面操作*/
+        $scope.appActs = {
+            addRecord: {}
+        };
+        /*设置页面导航*/
+        $scope.appNavs = {};
+        if (oApp.can_repos === 'Y') {
+            $scope.appNavs.repos = {};
+        }
     });
 }]);

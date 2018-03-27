@@ -88,12 +88,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         }
     }
     var tasksOfOnReady = [];
-    $scope.back = function() {
-        history.back();
-    };
-    $scope.historyLen = function() {
-        return history.length;
-    };
     $scope.closeWindow = function() {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             window.wx.closeWindow();
@@ -153,11 +147,11 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         rid && (url += '&rid=' + rid);
         page && (url += '&page=' + page);
         newRecord && newRecord === 'Y' && (url += '&newRecord=Y');
-        if (/remark|repos/.test(page)) {
-            location = url;
-        } else {
-            location.replace(url);
-        }
+        //if (/remark|repos/.test(page)) {
+        location = url;
+        //} else {
+        location.replace(url);
+        //}
     };
     $scope.openMatter = function(id, type, replace, newWindow) {
         var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;
@@ -177,9 +171,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         } else {
             tasksOfOnReady.push(task);
         }
-    };
-    $scope.save = function() {
-        $scope.$broadcast('xxt.app.enroll.save');
     };
     /* 设置公众号分享信息 */
     $scope.setSnsShare = function(oRecord, oParams) {
@@ -301,37 +292,29 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             });
         }
 
-        if (!document.querySelector('.tms-switch-favor')) {
-            tmsFavor.showSwitch($scope.user, oApp);
-        } else {
-            $scope.favor = function(user, article) {
+        $scope.favor = function(user, article) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (!user.loginExpire) {
+                tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                    user.loginExpire = data.loginExpire;
+                    tmsFavor.open(article);
+                });
+            } else {
+                tmsFavor.open(article);
+            }
+        };
+        if (oApp.can_siteuser === 'Y') {
+            $scope.siteUser = function(id) {
                 event.preventDefault();
                 event.stopPropagation();
 
-                if (!user.loginExpire) {
-                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
-                        user.loginExpire = data.loginExpire;
-                        tmsFavor.open(article);
-                    });
-                } else {
-                    tmsFavor.open(article);
-                }
-            }
-        }
-        if (oApp.can_siteuser === 'Y') {
-            if (!document.querySelector('.tms-switch-siteuser')) {
-                tmsSiteUser.showSwitch(oApp.siteid, true);
-            } else {
-                $scope.siteUser = function(id) {
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    var url = 'http://' + location.host;
-                    url += '/rest/site/fe/user';
-                    url += "?site=" + id;
-                    location.href = url;
-                }
-            }
+                var url = 'http://' + location.host;
+                url += '/rest/site/fe/user';
+                url += "?site=" + id;
+                location.href = url;
+            };
         }
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, execTask);

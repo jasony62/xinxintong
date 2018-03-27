@@ -37,6 +37,12 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		/*检查用户是否有创建团队的权限*/
+		$modelAcct = $this->model('account');
+		if (!$modelAcct->canManagePlatform($oUser->id)) {
+			return new \ResponseError('当前账号没有开放创建团队权限，请联系系统管理员');
+		}
+
 		$modelSite = $this->model('site');
 		$oProto = $this->getPostJson();
 

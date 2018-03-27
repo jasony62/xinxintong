@@ -1,7 +1,7 @@
 <?php
 namespace matter\enroll;
 /**
- * 登记数据评论
+ * 登记数据留言
  */
 class remark_model extends \TMS_MODEL {
 	/**
@@ -16,18 +16,21 @@ class remark_model extends \TMS_MODEL {
 			['id' => $id],
 		];
 		if ($oRemark = $this->query_obj_ss($q)) {
-			if ($fields === '*' || false !== strpos($fields, 'like_log')) {
+			if (property_exists($oRemark, 'like_log')) {
 				$oRemark->like_log = empty($oRemark->like_log) ? new \stdClass : json_decode($oRemark->like_log);
+			}
+			if (property_exists($oRemark, 'agreed_log')) {
+				$oRemark->agreed_log = empty($oRemark->agreed_log) ? new \stdClass : json_decode($oRemark->agreed_log);
 			}
 		}
 
 		return $oRemark;
 	}
 	/**
-	 *
+	 * 用户在指定活动中发表的留言
 	 */
-	public function byUser($oApp, $oUser, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function byUser($oApp, $oUser, $oOptions = []) {
+		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : '*';
 
 		$userid = isset($oUser->uid) ? $oUser->uid : (isset($oUser->userid) ? $oUser->userid : '');
 		if (empty($userid)) {
@@ -39,32 +42,39 @@ class remark_model extends \TMS_MODEL {
 			'xxt_enroll_record_remark',
 			['aid' => $oApp->id, 'userid' => $userid],
 		];
+		if (!empty($oOptions['ek'])) {
+			$q[2]['enroll_key'] = $oOptions['ek'];
+		}
+
 		$remarks = $this->query_objs_ss($q);
 
 		return $remarks;
 	}
 	/**
-	 * 获得指定登记记录的评论
+	 * 获得指定登记记录的留言
 	 */
-	public function listByRecord($oUser, $ek, $schemaId, $page = 1, $size = 10, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function listByRecord($oUser, $ek, $schemaId, $page = 1, $size = 10, $oOptions = []) {
+		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : '*';
 
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$q = [
 			$fields,
 			'xxt_enroll_record_remark',
-			"enroll_key='$ek' and schema_id='$schemaId'",
+			"enroll_key='$ek'",
 		];
+		if (!empty($schemaId)) {
+			$q[2] .= " and schema_id='$schemaId'";
+		}
 		if (!empty($oUser->uid)) {
 			$q[2] .= " and (agreed<>'N' or userid='{$oUser->uid}')";
 		}
-		if (isset($options['agreed']) && $options['agreed'] === 'Y') {
+		if (isset($oOptions['agreed']) && $oOptions['agreed'] === 'Y') {
 			$q[2] .= " and agreed='Y'";
 		}
-		if (isset($options['data_id'])) {
-			$rdId = $options['data_id'];
+		if (isset($oOptions['data_id'])) {
+			$rdId = $oOptions['data_id'];
 			if (is_array($rdId)) {
-				$rdId = implode('","', $options['data_id']);
+				$rdId = implode('","', $oOptions['data_id']);
 			}
 			$rdId = '("' . $rdId . '")';
 			$q[2] .= " and data_id in $rdId";
@@ -72,8 +82,10 @@ class remark_model extends \TMS_MODEL {
 
 		$q2 = [
 			'o' => 'agreed desc,create_at desc',
-			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
+		if (isset($page) && isset($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
 		$aRemarks = $this->query_objs_ss($q, $q2);
 		if (count($aRemarks)) {
 			$fnHandlers = [];
@@ -90,28 +102,28 @@ class remark_model extends \TMS_MODEL {
 				}
 			}
 		}
-		$result->remarks = $aRemarks;
+		$oResult->remarks = $aRemarks;
 
 		$q[0] = 'count(*)';
-		$result->total = (int) $this->query_val_ss($q);
+		$oResult->total = (int) $this->query_val_ss($q);
 
-		return $result;
+		return $oResult;
 	}
 	/**
-	 * 获得指定登记记录的评论
+	 * 获得指定登记记录的留言
 	 */
-	public function listByApp($oApp, $page = 1, $size = 10, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function listByApp($oApp, $page = 1, $size = 10, $oOptions = []) {
+		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : '*';
 
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$q = [
 			$fields,
 			'xxt_enroll_record_remark',
 			"aid='$oApp->id'",
 		];
 		/* filter */
-		if (isset($options['criteria'])) {
-			$oCriteria = $options['criteria'];
+		if (isset($oOptions['criteria'])) {
+			$oCriteria = $oOptions['criteria'];
 			if (isset($oCriteria->enrollee)) {
 				$q[2] .= " and enroll_userid='{$oCriteria->enrollee}'";
 			}
@@ -125,8 +137,8 @@ class remark_model extends \TMS_MODEL {
 
 		$q2 = [];
 		/* orderby */
-		if (isset($options['criteria'])) {
-			$oCriteria = $options['criteria'];
+		if (isset($oOptions['criteria'])) {
+			$oCriteria = $oOptions['criteria'];
 			if (isset($oCriteria->orderby)) {
 				$q2['o'] = $oCriteria->orderby . ' desc';
 			} else {
@@ -161,12 +173,12 @@ class remark_model extends \TMS_MODEL {
 			}
 		}
 
-		$result->remarks = $aRemarks;
-		$result->records = $oAssocRecords;
+		$oResult->remarks = $aRemarks;
+		$oResult->records = $oAssocRecords;
 
 		$q[0] = 'count(*)';
-		$result->total = (int) $this->query_val_ss($q);
+		$oResult->total = (int) $this->query_val_ss($q);
 
-		return $result;
+		return $oResult;
 	}
 }

@@ -56,14 +56,14 @@ class rank extends base {
 			$q2 = ['o' => 'u.like_num desc,u.last_like_at'];
 			break;
 		case 'remark_other':
-			$q[0] .= ',u.remark_other_num';
-			$q[2] .= ' and u.remark_other_num>0';
-			$q2 = ['o' => 'u.remark_other_num desc,u.last_remark_other_at'];
+			$q[0] .= ',u.do_remark_num';
+			$q[2] .= ' and u.do_remark_num>0';
+			$q2 = ['o' => 'u.do_remark_num desc,u.last_do_remark_at'];
 			break;
 		case 'like_other':
-			$q[0] .= ',u.like_other_num';
-			$q[2] .= ' and u.like_other_num>0';
-			$q2 = ['o' => 'u.like_other_num desc,u.last_like_other_at'];
+			$q[0] .= ',u.do_like_num';
+			$q[2] .= ' and u.do_like_num>0';
+			$q2 = ['o' => 'u.do_like_num desc,u.last_do_like_at'];
 			break;
 		case 'total_coin':
 			$q[0] .= ',u.user_total_coin';
@@ -155,10 +155,10 @@ class rank extends base {
 			$sql .= 'sum(like_num)';
 			break;
 		case 'remark_other':
-			$sql .= 'sum(remark_other_num)';
+			$sql .= 'sum(do_remark_num)';
 			break;
 		case 'like_other':
-			$sql .= 'sum(like_other_num)';
+			$sql .= 'sum(do_like_num)';
 			break;
 		case 'total_coin':
 			$sql .= 'sum(user_total_coin)';

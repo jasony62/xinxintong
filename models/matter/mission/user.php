@@ -58,23 +58,37 @@ class user_model extends \TMS_MODEL {
 		foreach ($oUpdatedData as $field => $value) {
 			switch ($field) {
 			case 'last_enroll_at':
+			case 'last_cowork_at':
+			case 'last_do_cowork_at':
 			case 'last_like_at':
-			case 'last_like_other_at':
+			case 'last_like_cowork_at':
+			case 'last_do_like_at':
 			case 'last_remark_at':
-			case 'last_remark_other_at':
+			case 'last_remark_cowork_at':
+			case 'last_do_remark_at':
 			case 'last_like_remark_at':
-			case 'last_like_othe_remarkr_at':
-			case 'last_recommend_at':
+			case 'last_do_like_cowork_at':
+			case 'last_do_like_remark_at':
+			case 'last_agree_at':
+			case 'last_agree_cowork_at':
+			case 'last_agree_remark_at':
 				$aDbData[$field] = $value;
 				break;
 			case 'enroll_num':
+			case 'cowork_num':
+			case 'do_cowork_num':
+			case 'do_like_num':
+			case 'do_like_cowork_num':
+			case 'do_like_remark_num':
 			case 'like_num':
-			case 'like_other_num':
-			case 'remark_num':
-			case 'remark_other_num':
+			case 'like_cowork_num':
 			case 'like_remark_num':
-			case 'like_other_remark_num':
-			case 'recommend_num':
+			case 'do_remark_num':
+			case 'remark_num':
+			case 'remark_cowork_num':
+			case 'agree_num':
+			case 'agree_cowork_num':
+			case 'agree_remark_num':
 			case 'user_total_coin':
 				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;
 				break;
@@ -82,7 +96,10 @@ class user_model extends \TMS_MODEL {
 				$aDbData['group_id'] = $value;
 				break;
 			case 'modify_log':
-				$oBeforeData->modify_log[] = $value;
+				if (empty($oBeforeData->modify_log)) {
+					$oBeforeData->modify_log = [];
+				}
+				array_unshift($oBeforeData->modify_log, $value);
 				$aDbData['modify_log'] = json_encode($oBeforeData->modify_log);
 				break;
 			}

@@ -189,7 +189,7 @@ ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
         },
         remark: {
             id: 'remark',
-            label: '评论'
+            label: '留言'
         }
     };
 }]);

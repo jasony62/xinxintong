@@ -303,12 +303,80 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 });
             };
             $scope.newSchema = function(type) {
-                var newSchema, mission, oProto;
+                var newSchema;
 
-                newSchema = schemaLib.newSchema(type, $scope.app, oProto);
+                newSchema = schemaLib.newSchema(type, $scope.app);
                 $scope._appendSchema(newSchema);
 
                 return newSchema;
+            };
+            $scope.newMedia = function(mediaType) {
+                var oApp = $scope.app;
+                $uibModal.open({
+                    templateUrl: 'newMedia.html',
+                    controller: ['$uibModalInstance', '$scope', '$timeout', 'noticebox', function($mi, $scope2, $timeout, noticebox) {
+                        $timeout(function() {
+                            var oResumable = new Resumable({
+                                target: '/rest/pl/fe/matter/enroll/attachment/upload?site=' + oApp.siteid + '&app=' + oApp.id,
+                                testChunks: false,
+                            });
+                            oResumable.assignBrowse(document.getElementById('addAttachment'));
+                            oResumable.on('fileAdded', function(file, event) {
+                                $scope.$apply(function() {
+                                    noticebox.progress('开始上传文件');
+                                });
+                                oResumable.upload();
+                            });
+                            oResumable.on('progress', function(file, event) {
+                                $scope.$apply(function() {
+                                    noticebox.progress('正在上传文件：' + Math.floor(oResumable.progress() * 100) + '%');
+                                });
+                            });
+                            oResumable.on('complete', function() {
+                                var f, lastModified, posted;
+                                f = oResumable.files.pop().file;
+                                lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+                                posted = {
+                                    name: f.name,
+                                    size: f.size,
+                                    type: f.type,
+                                    lastModified: lastModified,
+                                    uniqueIdentifier: f.uniqueIdentifier,
+                                };
+                                http2.post('/rest/pl/fe/matter/enroll/attachment/add?site=' + oApp.siteid + '&app=' + oApp.id, posted, function success(rsp) {
+                                    $scope2.attachment = rsp.data;
+                                });
+                            });
+                        });
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.ok = function() {
+                            $mi.close($scope2.attachment);
+                        };
+                    }],
+                    backdrop: 'static',
+                }).result.then(function(oAttachment) {
+                    var oNewSchema, oProto, mediaUrl, html;
+                    oProto = { title: oAttachment.name };
+                    mediaUrl = '/rest/site/fe/matter/enroll/attachment/get?site=' + oApp.siteid + '&app=' + oApp.id + '&attachment=' + oAttachment.id;
+                    oNewSchema = schemaLib.newSchema('html', $scope.app, oProto);
+                    switch (mediaType) {
+                        case 'vedio':
+                            html = '<div><video controls="controls" preload="none" style="width:100%;">';
+                            html += '<source src="' + mediaUrl + '" type="' + oAttachment.type + '" />';
+                            html += '</video></div>';
+                            break;
+                        case 'audio':
+                            html = '<div><audio controls="controls" preload="none" style="width:100%;">';
+                            html += '<source src="' + mediaUrl + '" type="' + oAttachment.type + '" />';
+                            html += '</audio></div>';
+                            break;
+                    }
+                    oNewSchema.content = html;
+                    oNewSchema.mediaType = mediaType;
+                    $scope._appendSchema(oNewSchema);
+                });
             };
             $scope.newMember = function(ms, oMsSchema) {
                 var oNewSchema = schemaLib.newSchema(oMsSchema.type, $scope.app);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app='app' ng-controller='ctrlMain'>
 
 <head>
     <meta charset="utf-8">
@@ -12,14 +12,14 @@
     <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
-<body ng-app='app' ng-controller='ctrlMain'>
+<body ng-controller="ctrlRank">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-signal visible-lg-inline"></i> <span>数据排行</span>
+                    <i class="glyphicon glyphicon-signal visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">数据排行</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -33,7 +33,7 @@
         </div>
     </nav>
     <div ng-cloak class='ng-cloak container'>
-        <div id='rank' class='app' ng-controller="ctrlRank">
+        <div id='rank' class='app'>
             <div class='row filter'>
                 <div class="col-md-2 col-xs-4" ng-if="app.multi_rounds==='Y'">
                     <div class='form-control' ng-click="setRound()" title='{{checkedRoundTitles}}' style='overflow:hidden;white-space:nowrap;'>{{checkedRoundTitles}}</div>
@@ -44,16 +44,16 @@
                         <option value='group' ng-if="app.group_app_id||app.entryRule.scope.group==='Y'">用户分组</option>
                         <option value='data' ng-if="isRemark">提交内容</option>
                         <option value='data-rec' ng-if="isRemark">提交内容-推荐</option>
-                        <option value='remark' ng-if="isRemark">内容评论</option>
-                        <option value='remark-rec' ng-if="isRemark">内容评论-推荐</option>
+                        <option value='remark' ng-if="isRemark">内容留言</option>
+                        <option value='remark-rec' ng-if="isRemark">内容留言-推荐</option>
                     </select>
                 </div>
                 <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='user'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll' ng-if="config.enroll">提交记录数量</option>
-                        <option value='remark' ng-if="config.remark">获得评论数量</option>
+                        <option value='remark' ng-if="config.remark">获得留言数量</option>
                         <option value='like' ng-if="config.like">获得点赞数量</option>
-                        <option value='remark_other' ng-if="config.remark_other">发表评论数量</option>
+                        <option value='remark_other' ng-if="config.remark_other">发表留言数量</option>
                         <option value='like_other' ng-if="config.like_other">进行点赞数量</option>
                         <option value='total_coin' ng-if="config.total_coin">积分</option>
                         <option value='score' ng-if="config.score">得分</option>
@@ -62,9 +62,9 @@
                 <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='group'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll' ng-if="config.enroll">提交记录数量</option>
-                        <option value='remark' ng-if="config.remark">获得评论数量</option>
+                        <option value='remark' ng-if="config.remark">获得留言数量</option>
                         <option value='like' ng-if="config.like">获得点赞数量</option>
-                        <option value='remark_other' ng-if="config.remark_other">发表评论数量</option>
+                        <option value='remark_other' ng-if="config.remark_other">发表留言数量</option>
                         <option value='like_other' ng-if="config.like_other">进行点赞数量</option>
                         <option value='total_coin' ng-if="config.total_coin">积分</option>
                         <option value='score' ng-if="config.score">得分</option>
@@ -72,7 +72,7 @@
                 </div>
                 <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='data'||appState.criteria.obj==='data-rec'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
-                        <option value='remark'>获得评论数量</option>
+                        <option value='remark'>获得留言数量</option>
                         <option value='like'>获得点赞数量</option>
                     </select>
                 </div>
@@ -265,7 +265,7 @@
                     <ul ng-switch-when="remark">
                         <li class='hidden-xs'>
                             <div class='col-md-1'>序号</div>
-                            <div class='col-md-6 text-left'>评论内容</div>
+                            <div class='col-md-6 text-left'>留言内容</div>
                             <div class='col-md-3'>用户</div>
                             <div class='col-md-2'>赞同数</div>
                         </li>
@@ -300,7 +300,7 @@
                     <ul ng-switch-when="remark-rec">
                         <li class='hidden-xs'>
                             <div class='col-md-1'>序号</div>
-                            <div class='col-md-6 text-left'>评论内容</div>
+                            <div class='col-md-6 text-left'>留言内容</div>
                             <div class='col-md-3'>用户</div>
                             <div class='col-md-2'>赞同数</div>
                         </li>
@@ -336,6 +336,7 @@
                     </ul>
                 </div>
             </div>
+            <div tms-app-act app-acts="appActs"></div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
@@ -380,8 +381,6 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/rank.js');?>"></script>
-    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
-    <div class="tms-switch tms-switch-app" ng-click="gotoApp($event)"></div>
 </body>
 
 </html>

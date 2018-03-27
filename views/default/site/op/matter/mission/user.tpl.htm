@@ -45,12 +45,12 @@
                                 <div ng-bind="matter.user.rank.user_total_coin||0"></div>
                             </div>
                             <div class='col-xs-6' ng-if="matter.indicator.remark">
-                                <label>获得评论</label>
+                                <label>获得留言</label>
                                 <div ng-bind="matter.user.remark_num||0"></div>
                             </div>
                             <div class='col-xs-6' ng-if="matter.indicator.remark">
-                                <label>发表评论</label>
-                                <div ng-bind="matter.user.remark_other_num||0"></div>
+                                <label>发表留言</label>
+                                <div ng-bind="matter.user.do_remark_num||0"></div>
                             </div>
                             <div class='col-xs-6' ng-if="matter.indicator.like">
                                 <label>获得赞同</label>
@@ -58,7 +58,7 @@
                             </div>
                             <div class='col-xs-6' ng-if="matter.indicator.like">
                                 <label>表示赞同</label>
-                                <div ng-bind="matter.user.like_other_num||0"></div>
+                                <div ng-bind="matter.user.do_like_num||0"></div>
                             </div>
                             <div class='col-xs-12' ng-if="matter.indicator.end_submit" ng-switch on="matter.indicator.end_submit">
                                 <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>

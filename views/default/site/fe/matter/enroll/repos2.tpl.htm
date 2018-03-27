@@ -12,14 +12,14 @@
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
 </head>
 
-<body>
+<body ng-controller="ctrlRepos">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
+    <nav class='navbar site-navbar-default' ng-cloak class='ng-cloak'>
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span>数据共享</span>
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">数据共享</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -32,11 +32,25 @@
             </ul>
         </div>
     </nav>
-    <div class='app container' ng-cloak class='ng-cloak' ng-controller="ctrlRepos">
+    <div class='app container' ng-cloak class='ng-cloak'>
+        <div ng-if="tasks.length">
+            <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
+                <span>{{task.msg}}</span>
+                <span ng-switch-when="record.submit.end">
+                    <span ng-if="task.gap">，还需要【{{task.gap}}】条</span><span ng-if="task.coin">，每条记录可获得【{{task.coin}}个】积分</span><a href class="alert-link" ng-click="addRecord($event)">，去添加</a>
+                </span>
+                <span ng-switch-when="record.like.pre">，还需要【{{task.gap}}】条</span><span ng-if="task.coin">，每个点赞可获得【{{task.coin}}个】积分</span></span>
+                <span ng-switch-when="record.like.end">，还需要【{{task.gap}}】次</span>
+            </div>
+        </div>
         <div class='row'>
             <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened">
                 <uib-accordion>
-                    <div uib-accordion-group class="panel-default" heading="目录" ng-if="dirSchemas.length" is-open='advCriteriaStatus.dirOpen'>
+                    <div uib-accordion-group class="panel-default" ng-if="dirSchemas.length" is-open='advCriteriaStatus.dirOpen'>
+                        <uib-accordion-heading>
+                            目录
+                            <button class="close"><span>&times;</span></button>
+                        </uib-accordion-heading>
                         <div class='dir-level-1' ng-repeat="dir1 in dirSchemas">
                             <div class='dir' ng-click="shiftDir(dir1)" ng-class="{active:dir1===activeDir}">{{dir1.op.l}}</div>
                             <div ng-if="dir1.op.childrenDir.length">
@@ -52,7 +66,11 @@
                         </div>
                         <button class='btn btn-default btn-block' ng-click="shiftDir()">清除选择</button>
                     </div>
-                    <div uib-accordion-group class="panel-default" heading="筛选" is-open='advCriteriaStatus.filterOpen'>
+                    <div uib-accordion-group class="panel-default" is-open='advCriteriaStatus.filterOpen'>
+                        <uib-accordion-heading>
+                            筛选
+                            <button class="close"><span>&times;</span></button>
+                        </uib-accordion-heading>
                         <div class='form-group' ng-if='rounds.length'>
                             <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
                                 <option value='all'>全部轮次</option>
@@ -72,18 +90,24 @@
                         </div>
                     </div>
                 </uib-accordion>
+                <div class='text-center'>
+                    <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
+                </div>
             </div>
-            <div class='col-md-9 col-xs-12'>
-                <div class='form-group'>
-                    <div id='filterCriteria' class='input-group'>
-                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
-                        <div class='input-group-btn'>
-                            <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
-                            <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button id='advCriteriaSwitch' class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
-                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
-                            </button>
-                        </div>
+            <div class='records col-md-9 col-xs-12'>
+                <div ng-if="activeRound" class='active-round text-muted text-center'>
+                    <span ng-bind="activeRound.title"></span>
+                    <span ng-if="activeRound.start_at>0"> / {{activeRound.start_at*1000|date:'MM.dd HH:mm'}}</span>
+                    <span ng-if="activeRound.end_at>0"> - {{activeRound.end_at*1000|date:'MM.dd HH:mm'}}</span>
+                </div>
+                <div id='filterCriteria' class='input-group'>
+                    <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
+                        <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
+                        <button id='advCriteriaSwitch' class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
+                            <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
+                        </button>
                     </div>
                 </div>
                 <div id='repos'>
@@ -93,11 +117,11 @@
                                 <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
                                 <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                                 <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
-                                <div class='nickname text-muted'>{{rec.nickname}}</div>
+                                <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
                             </div>
                             <div class='data'>
                                 <blockquote>
-                                    <div class='schema' ng-if="rec.data[schema.id]" ng-repeat="schema in schemas" ng-switch on="schema.type">
+                                    <div class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]||schema.cowork==='Y'" ng-repeat="schema in schemas" ng-switch on="schema.type">
                                         <div class='text-muted data-title'>{{schema.title}}</div>
                                         <div ng-switch-when="file">
                                             <div ng-repeat="file in rec.data[schema.id]">
@@ -110,9 +134,11 @@
                                                 <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
                                             </div>
                                         </div>
-                                        <ul ng-switch-when="image">
-                                            <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
-                                        </ul>
+                                        <div ng-switch-when="image">
+                                            <ul>
+                                                <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
+                                            </ul>
+                                        </div>
                                         <div ng-switch-when="multitext">
                                             <ul ng-if="rec.data[schema.id]" style='padding-left:20px'>
                                                 <li ng-repeat="item in rec.data[schema.id]"><span ng-bind="item.value"></span></li>
@@ -126,17 +152,32 @@
                                         <div ng-switch-default>
                                             <span>{{rec.data[schema.id]}}</span>
                                         </div>
+                                        <div ng-if="schema.cowork==='Y'">
+                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看全部<span ng-if="rec.coworkState[schema.id].length">{{rec.coworkState[schema.id].length}}个</span>或添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </blockquote>
-                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                             </div>
-                            <div class='bottom-bar text-right'>
+                            <div class='bottom-bar'>
+                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
-                                <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)">评论&nbsp;<span ng-bind="rec.remark_num"></span></button>
+                                <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
                                 <span ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
                                     <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
                                     <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
                                 </span>
+                            </div>
+                            <div class='remarks' ng-if="rec.agreedRemarks.length">
+                                <div class='remark' ng-repeat="remark in rec.agreedRemarks">
+                                    <div class='top-bar text-muted'>
+                                        <div ng-bind="remark.create_at*1000|date:'MM-dd HH:mm'"></div>
+                                        <div ng-bind-html="remark.nickname"></div>
+                                    </div>
+                                    <blockquote>
+                                        <div ng-bind-html="remark.content"></div>
+                                    </blockquote>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -147,6 +188,7 @@
             </div>
         </div>
     </div>
+    <div tms-app-act app-acts="appActs"></div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">
@@ -157,7 +199,6 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/repos2.js');?>"></script>
-    <div class="tms-switch tms-switch-app" ng-click="gotoApp($event)"></div>
 </body>
 
 </html>

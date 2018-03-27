@@ -24,30 +24,30 @@ class main extends \site\fe\matter\base {
 		$user = $this->who;
 
 		$modelArticle = $this->model('matter\article');
-		$article = $modelArticle->byId($id);
-		if (false === $article) {
+		$oArticle = $modelArticle->byId($id);
+		if (false === $oArticle) {
 			return new \ObjectNotFoundError();
 		}
 
 		/*如果此单图文属于引用那么需要返回被引用的单图文*/
-		if ($article->from_mode === 'C') {
-			$id2 = $article->from_id;
-			$article2 = $modelArticle->byId($id2, ['fields' => 'body,author,siteid,id']);
-			$article->body = $article2->body;
-			$article->author = $article2->author;
+		if ($oArticle->from_mode === 'C') {
+			$id2 = $oArticle->from_id;
+			$oArticle2 = $modelArticle->byId($id2, ['fields' => 'body,author,siteid,id']);
+			$oArticle->body = $oArticle2->body;
+			$oArticle->author = $oArticle2->author;
 		}
 		/* 单图文所属的频道 */
-		$article->channels = $this->model('matter\channel')->byMatter($id, 'article', ['public_visible' => 'Y']);
+		$oArticle->channels = $this->model('matter\channel')->byMatter($id, 'article', ['public_visible' => 'Y']);
 		$modelCode = $this->model('code\page');
-		foreach ($article->channels as &$channel) {
+		foreach ($oArticle->channels as &$channel) {
 			if ($channel->style_page_id) {
 				$channel->style_page = $modelCode->lastPublishedByName($site, $channel->style_page_name, 'id,html,css,js');
 			}
 		}
 		/* 单图文所属的标签 */
 		$tags = [];
-		if (!empty($article->matter_cont_tag)) {
-			foreach ($article->matter_cont_tag as $key => $tagId) {
+		if (!empty($oArticle->matter_cont_tag)) {
+			foreach ($oArticle->matter_cont_tag as $key => $tagId) {
 				$T = [
 					'id,title',
 					'xxt_tag',
@@ -57,28 +57,26 @@ class main extends \site\fe\matter\base {
 				$tags[] = $tag;
 			}
 		}
-		$article->tags = $tags;
-		if ($article->has_attachment === 'Y') {
-			$article->attachments = $model->query_objs_ss(
+		$oArticle->tags = $tags;
+		if ($oArticle->has_attachment === 'Y') {
+			$oArticle->attachments = $model->query_objs_ss(
 				array(
 					'*',
-					'xxt_article_attachment',
-					['article_id' => $id],
+					'xxt_matter_attachment',
+					['matter_id' => $id, 'matter_type' => 'article'],
 				)
 			);
 		}
-		if ($article->custom_body === 'N') {
-			$article->remarks = $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
-		} else if ($article->page_id) {
+		if ($oArticle->custom_body === 'Y' && $oArticle->page_id) {
 			/* 定制页 */
 			$modelCode = $this->model('code\page');
-			$article->page = $modelCode->lastPublishedByName($site, $article->body_page_name);
+			$oArticle->page = $modelCode->lastPublishedByName($site, $oArticle->body_page_name);
 		}
 		$data = array();
-		$data['article'] = &$article;
+		$data['article'] = &$oArticle;
 		$data['user'] = &$user;
 		/* 站点信息 */
-		if ($article->use_site_header === 'Y' || $article->use_site_footer === 'Y') {
+		if ($oArticle->use_site_header === 'Y' || $oArticle->use_site_footer === 'Y') {
 			$site = $this->model('site')->byId(
 				$site,
 				array('cascaded' => 'header_page_name,footer_page_name')
@@ -92,10 +90,10 @@ class main extends \site\fe\matter\base {
 			$site->yx = $this->model('sns\yx')->bySite($site->id, 'cardname,cardid');
 		}
 		/*项目页面设置*/
-		if ($article->use_mission_header === 'Y' || $article->use_mission_footer === 'Y') {
-			if ($article->mission_id) {
+		if ($oArticle->use_mission_header === 'Y' || $oArticle->use_mission_footer === 'Y') {
+			if ($oArticle->mission_id) {
 				$data['mission'] = $this->model('matter\mission')->byId(
-					$article->mission_id,
+					$oArticle->mission_id,
 					array('cascaded' => 'header_page_name,footer_page_name')
 				);
 			}
@@ -137,8 +135,8 @@ class main extends \site\fe\matter\base {
 		 */
 		$q = [
 			'*',
-			'xxt_article_attachment',
-			['article_id' => $articleid, 'id' => $attachmentid],
+			'xxt_matter_attachment',
+			['matter_id' => $articleid, 'matter_type' => 'article', 'id' => $attachmentid],
 		];
 		if (false === ($att = $modelArticle->query_obj_ss($q))) {
 			die('指定的附件不存在');

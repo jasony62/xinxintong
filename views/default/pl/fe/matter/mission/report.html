@@ -50,7 +50,7 @@
                     <td ng-repeat="app in report.orderedApps" ng-switch on="app.type" ng-click="chooseUser(user,app)">
                         <div ng-switch-when="enroll">
                             <div ng-if="user.data[$index].enroll_num">记录：{{user.data[$index].enroll_num}}</div>
-                            <div ng-if="user.data[$index].remark_other_num">评论：{{user.data[$index].remark_other_num}}</div>
+                            <div ng-if="user.data[$index].do_remark_num">留言：{{user.data[$index].do_remark_num}}</div>
                             <div ng-if="user.data[$index].comment">备注：{{user.data[$index].comment}}</div>
                         </div>
                         <div ng-switch-when="signin" ng-if="user.data[$index]">

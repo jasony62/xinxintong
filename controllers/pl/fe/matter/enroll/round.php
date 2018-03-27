@@ -113,20 +113,20 @@ class round extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
-		if (isset($posted->start_at) && isset($posted->end_at) && $posted->start_at > $posted->end_at) {
+		if (!empty($oPosted->start_at) && !empty($oPosted->end_at) && $oPosted->start_at > $oPosted->end_at) {
 			return new \ResponseError('更新失败，本轮次的开始时间不能晚于结束时间！');
 		}
 		/* 指定了开始时间的轮次，自动指定为启用状态 */
-		if ((int) $oRound->start_at > 0 && (int) $posted->start_at === 0) {
-			$posted->state = 0;
-		} else if ((int) $oRound->start_at === 0 && (int) $posted->start_at > 0) {
-			$posted->state = 1;
+		if ((int) $oRound->start_at > 0 && (int) $oPosted->start_at === 0) {
+			$oPosted->state = 0;
+		} else if ((int) $oRound->start_at === 0 && (int) $oPosted->start_at > 0) {
+			$oPosted->state = 1;
 		}
 
 		/* 更改轮次的状态 */
-		if (isset($posted->state) && (int) $posted->state !== (int) $oRound->state && (int) $posted->state === 1 && (int) $posted->start_at === 0) {
+		if (isset($oPosted->state) && (int) $oPosted->state !== (int) $oRound->state && (int) $oPosted->state === 1 && (int) $oPosted->start_at === 0) {
 			if ($lastRound = $modelRnd->getAssignedActive($oApp)) {
 				return new \ResponseError('请先停止轮次【' . $lastRound->title . '】');
 			}
@@ -134,7 +134,7 @@ class round extends \pl\fe\matter\base {
 
 		$rst = $modelRnd->update(
 			'xxt_enroll_round',
-			$posted,
+			$oPosted,
 			['aid' => $app, 'rid' => $rid]
 		);
 

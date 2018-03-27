@@ -10,9 +10,9 @@ define(['frame'], function(ngApp) {
                 $scope.enrollees = enrollees = rsp.data.enrollees;
                 enrollees.forEach(function(oEnrollee) {
                     oEnrollee.last_enroll_at = oEnrollee.last_enroll_at > 0 ? $filter('date')(oEnrollee.last_enroll_at * 1000, dateFormat) : '';
-                    oEnrollee.last_remark_other_at = oEnrollee.last_remark_other_at > 0 ? $filter('date')(oEnrollee.last_remark_other_at * 1000, dateFormat) : '';
-                    oEnrollee.last_like_other_at = oEnrollee.last_like_other_at > 0 ? $filter('date')(oEnrollee.last_like_other_at * 1000, dateFormat) : '';
-                    oEnrollee.last_recommend_at = oEnrollee.last_recommend_at > 0 ? $filter('date')(oEnrollee.last_recommend_at * 1000, dateFormat) : '';
+                    oEnrollee.last_do_remark_at = oEnrollee.last_do_remark_at > 0 ? $filter('date')(oEnrollee.last_do_remark_at * 1000, dateFormat) : '';
+                    oEnrollee.last_do_like_at = oEnrollee.last_do_like_at > 0 ? $filter('date')(oEnrollee.last_do_like_at * 1000, dateFormat) : '';
+                    oEnrollee.last_agree_at = oEnrollee.last_agree_at > 0 ? $filter('date')(oEnrollee.last_agree_at * 1000, dateFormat) : '';
                 });
             });
         }

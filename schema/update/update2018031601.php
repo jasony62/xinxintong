@@ -3,9 +3,8 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "alter table xxt_enroll_record_stat add rid varchar(13) not null default '' after aid";
-$sqls[] = "alter table xxt_enroll_record_stat drop primary key";
-
+$sqls[] = "ALTER TABLE xxt_enroll_record_remark add agreed_log text null after agreed";
+//
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {
 		header('HTTP/1.0 500 Internal Server Error');

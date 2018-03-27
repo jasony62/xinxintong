@@ -3,11 +3,11 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动登记记录评论
+ * 登记活动登记记录留言
  */
 class remark extends base {
 	/**
-	 * 返回一条登记记录的所有评论
+	 * 返回一条登记记录的所有留言
 	 */
 	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99) {
 		$modelRec = $this->model('matter\enroll\record');
@@ -26,7 +26,7 @@ class remark extends base {
 		$modelRem = $this->model('matter\enroll\remark');
 		$options = [];
 		if (!empty($data)) {
-			$options['data_id'] = $modelRem->escape($data);
+			$options['data_id'] = $data;
 		}
 
 		$result = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $options);
@@ -34,7 +34,7 @@ class remark extends base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 返回多项填写题的所有评论
+	 * 返回多项填写题的所有留言
 	 */
 	public function listMultitext_action($ek, $schema, $page = 1, $size = 99) {
 		if (empty($schema)) {
@@ -71,13 +71,13 @@ class remark extends base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 给指定的登记记录的添加评论
-	 * 进行评论操作的用户需满足进入活动规则的条件
+	 * 给指定的登记记录的添加留言
+	 * 进行留言操作的用户需满足进入活动规则的条件
 	 *
-	 * @param $remark 被评论的评论
+	 * @param $remark 被留言的留言
 	 *
 	 */
-	public function add_action($ek, $data, $remark = 0) {
+	public function add_action($ek, $data = 0, $remark = 0) {
 		$recDataId = $data;
 
 		$modelRec = $this->model('matter\enroll\record');
@@ -88,8 +88,8 @@ class remark extends base {
 			return new \ObjectNotFoundError();
 		}
 		if (!empty($recDataId)) {
-			$oRecordData = $modelRecData->byId($recDataId);
-			if (false === $oRecordData && $oRecordData->state !== '1') {
+			$oRecData = $modelRecData->byId($recDataId);
+			if (false === $oRecData && $oRecData->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
 		}
@@ -102,15 +102,15 @@ class remark extends base {
 		/* 操作规则 */
 		$oEntryRuleResult = $this->checkEntryRule2($oApp);
 		if (isset($oEntryRuleResult->passed) && $oEntryRuleResult->passed === 'N') {
-			return new \ComplianceError('用户身份不符合进入规则，无法发表评论');
+			return new \ComplianceError('用户身份不符合进入规则，无法发表留言');
 		}
 
 		$oPosted = $this->getPostJson();
 		if (empty($oPosted->content)) {
-			return new \ResponseError('评论内容不允许为空');
+			return new \ResponseError('留言内容不允许为空');
 		}
 
-		/* 发表评论的用户 */
+		/* 发表留言的用户 */
 		$oUser = $this->getUser($oApp);
 
 		$current = time();
@@ -125,9 +125,9 @@ class remark extends base {
 		$oRemark->enroll_key = $ek;
 		$oRemark->enroll_group_id = $oRecord->group_id;
 		$oRemark->enroll_userid = $oRecord->userid;
-		$oRemark->schema_id = isset($oRecordData) ? $oRecordData->schema_id : '';
-		$oRemark->data_id = $recDataId;
-		$oRemark->remark_id = $modelRec->escape($remark);
+		$oRemark->schema_id = isset($oRecData) ? $oRecData->schema_id : '';
+		$oRemark->data_id = empty($recDataId) ? 0 : $recDataId;
+		$oRemark->remark_id = $remark;
 		$oRemark->create_at = $current;
 		$oRemark->content = $modelRec->escape($oPosted->content);
 
@@ -136,15 +136,25 @@ class remark extends base {
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
 		if (!empty($recDataId)) {
 			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
-			// 如果每一条的数据呗评论了那么这道题的总数据+1
-			if ($oRecordData->multitext_seq != 0) {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecordData->schema_id}' and multitext_seq = 0");
+			// 如果每一条的数据呗留言了那么这道题的总数据+1
+			if ($oRecData->multitext_seq != 0) {
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");
 			}
 		}
 
 		/* 更新用户汇总数据 */
 		if (!empty($recDataId)) {
-			$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecordData, $oUser);
+			foreach ($oApp->dataSchemas as $dataSchema) {
+				if ($dataSchema->id === $oRecData->schema_id) {
+					$oDataSchema = $dataSchema;
+					break;
+				}
+			}
+			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oUser);
+			} else {
+				$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oUser);
+			}
 		} else {
 			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oUser);
 		}
@@ -154,7 +164,7 @@ class remark extends base {
 		return new \ResponseData($oRemark);
 	}
 	/**
-	 * 通知评论登记记录事件
+	 * 通知留言登记记录事件
 	 */
 	private function _notifyHasRemark($oApp, $oRecord, $oRemark) {
 		/* 模板消息参数 */
@@ -240,14 +250,12 @@ class remark extends base {
 		return true;
 	}
 	/**
-	 * 点赞登记记录中的某一个评论
+	 * 点赞登记记录中的某一个留言
 	 *
 	 * @param string $remark remark'id
 	 *
 	 */
 	public function like_action($remark) {
-		$remark = $this->escape($remark);
-
 		$modelRem = $this->model('matter\enroll\remark');
 		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,like_log']);
 		if (false === $oRemark) {
@@ -281,15 +289,121 @@ class remark extends base {
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
 			$modelEnlEvt->likeRemark($oApp, $oRemark, $oUser);
-			/* 被点赞 */
-			$modelEnlEvt->belikedRemark($oApp, $oRemark, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRemark($oApp, $oRemark, $oUser);
-			/* 撤销被点赞 */
-			$modelEnlEvt->undoBeLikedRemark($oApp, $oRemark, $oUser);
 		}
 
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
+	}
+	/**
+	 * 组长对留言表态
+	 */
+	public function agree_action($remark, $value = '') {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,agreed,agreed_log']);
+		if (false === $oRemark) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		$modelGrpUsr = $this->model('matter\group\player');
+		/* 当前用户所属分组及角色 */
+		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
+			return new \ParameterError('只允许组长进行推荐');
+		}
+		/* 填写记录用户所属分组 */
+		if ($oGrpLeader->is_leader === 'Y') {
+			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRemark->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+			if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
+				return new \ParameterError('只允许组长推荐本组数据');
+			}
+		}
+
+		if (!in_array($value, ['Y', 'N', 'A'])) {
+			$value = '';
+		}
+		$beforeValue = $oRemark->agreed;
+		if ($beforeValue === $value) {
+			return new \ParameterError('不能重复设置推荐状态');
+		}
+
+		/**
+		 * 更新记录数据
+		 */
+		$oAgreedLog = $oRemark->agreed_log;
+		if (isset($oAgreedLog->{$oUser->uid})) {
+			$oLog = $oAgreedLog->{$oUser->uid};
+			$oLog->time = time();
+			$oLog->value = $value;
+		} else {
+			$oAgreedLog->{$oUser->uid} = (object) ['time' => time(), 'value' => $value];
+		}
+
+		$modelRem->update(
+			'xxt_enroll_record_remark',
+			['agreed' => $value, 'agreed_log' => json_encode($oAgreedLog)],
+			['id' => $oRemark->id]
+		);
+
+		/* 处理用户汇总数据，积分数据 */
+		$this->model('matter\enroll\event')->agreeRemark($oApp, $oRemark, $oUser, $value);
+
+		return new \ResponseData($value);
+	}
+	/**
+	 * 和留言相关的任务
+	 */
+	public function task_action($app, $ek) {
+		$modelApp = $this->model('matter\enroll');
+
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state,entry_rule,action_rule']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oUser = $this->getUser($oApp);
+
+		$tasks = [];
+		if (isset($oApp->actionRule)) {
+			$oActionRule = $oApp->actionRule;
+			/* 留言出现在共享数据页 */
+			if (isset($oActionRule->remark->repos->pre)) {
+				$oRule = $oActionRule->remark->repos->pre;
+				if ($oRule->desc) {
+					$oRule->id = 'remark.repos.pre';
+					$tasks[] = $oRule;
+				}
+			}
+			/* 对组长的任务要求 */
+			if (!empty($oUser->group_id) && isset($oUser->is_leader) && $oUser->is_leader === 'Y') {
+				/* 对组长推荐记录的要求 */
+				if (isset($oActionRule->leader->remark->agree->end)) {
+					$oRule = $oActionRule->leader->remark->agree->end;
+					if (!empty($oRule->min)) {
+						$modelRem = $this->model('matter\enroll\remark');
+						$remarks = $modelRem->listByRecord(null, $ek, null, null, null, ['agreed' => 'Y']);
+						$remarkNum = count($remarks);
+						if ($remarkNum >= $oRule->min) {
+							$oRule->_ok = [$remarkNum];
+						} else {
+							$oRule->_no = [(int) $oRule->min - $remarkNum];
+						}
+						$oRule->id = 'leader.remark.agree.end';
+						$tasks[] = $oRule;
+					}
+				}
+			}
+		}
+
+		return new \ResponseData($tasks);
+
 	}
 }

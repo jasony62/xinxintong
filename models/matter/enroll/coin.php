@@ -41,6 +41,29 @@ class coin_model extends \TMS_MODEL {
 		return $rules;
 	}
 	/**
+	 * 返回登记活动对应的积分
+	 *
+	 * @param $coinEvent
+	 * @param $oApp
+	 *
+	 */
+	public function coinByMatter($coinEvent, $oApp) {
+		$coinRules = $this->rulesByMatter($coinEvent, $oApp);
+		if (empty($coinRules)) {
+			return [false];
+		}
+
+		$deltaCoin = 0; // 增加的积分
+		foreach ($coinRules as $rule) {
+			$deltaCoin += (int) $rule->actor_delta;
+		}
+		if ($deltaCoin === 0) {
+			return [false];
+		}
+
+		return [true, $deltaCoin];
+	}
+	/**
 	 * 返回用于记录积分的活动创建人
 	 *
 	 * @param object $oApp

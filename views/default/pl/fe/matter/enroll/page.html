@@ -85,8 +85,8 @@
                         <div class='btn-group'>
                             <button class='btn btn-default' ng-click="moveWrap('up')"><i class='fa fa-arrow-up'></i></button>
                             <button class='btn btn-default' ng-click="moveWrap('down')"><i class='fa fa-arrow-down'></i></button>
-                            <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-if="activeWrap.schema.type!=='html'"><i class='fa fa-level-up'></i></button>
-                            <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-if="activeWrap.schema.type!=='html'"><i class='fa fa-level-down'></i></button>
+                            <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-if="activeWrap.type!=='html'"><i class='fa fa-level-up'></i></button>
+                            <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-if="activeWrap.type!=='html'"><i class='fa fa-level-down'></i></button>
                         </div>
                     </div>
                 </div>

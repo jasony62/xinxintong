@@ -13,14 +13,14 @@
     <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
-<body>
+<body ng-controller='ctrlList'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-th-list visible-lg-inline"></i><span class='icon-note' ng-bind='page.title'></span>
+                    <i class="glyphicon glyphicon-th-list visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">{{page.title}}</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -35,10 +35,11 @@
     </nav>
     <div ng-cloak class='ng-cloak app'>
         <div class='container'>
-            <div class='row' ng-controller='ctrlList' dynamic-html="page.html">
+            <div class='row' dynamic-html="page.html">
             </div>
         </div>
     </div>
+    <div tms-app-act app-acts="appActs"></div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">
@@ -86,8 +87,6 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/list.js');?>"></script>
-    <div class="tms-switch tms-switch-repos" ng-click="gotoPage($event,'repos')" ng-if="app.can_repos==='Y'"></div>
-    <div class="tms-switch tms-switch-rank" ng-click="gotoPage($event,'rank')" ng-if="app.can_rank==='Y'"></div>
 </body>
 
 </html>

@@ -35,7 +35,7 @@
                 <th ng-if="matterType=='signin'" style='width:80px'>签到轮次</th>
                 <th ng-if="matterType=='enroll'||matterType=='signin'" style='width:64px'>记录数</th>
                 <th ng-if="matterType=='enroll'" style='width:64px'>填写人</th>
-                <th ng-if="matterType=='enroll'" style='width:64px'>评论数</th>
+                <th ng-if="matterType=='enroll'" style='width:64px'>留言数</th>
                 <th style='width:120px'>开始时间</th>
                 <th style='width:120px'>结束时间</th>
                 <th style='width:74px'>用户可见</th>
@@ -52,7 +52,7 @@
                 <td data-th='记录数' ng-if="matterType=='enroll'" ng-click="openMatter(m,'record')" title='点击查看详细数据'><span>{{m.opData[0].total}}</span></td>
                 <td data-th='记录数' ng-if="matterType=='signin'" ng-click="openMatter(m,'record')" title='点击查看详细数据'><span>{{m.opData[0].total}}</span></td>
                 <td data-th='填写人' ng-if="matterType=='enroll'" ng-click="openMatter(m,'enrollee')" title='点击查看详细数据'><span>{{m.opData[0].enrollee_num}}</span></td>
-                <td data-th='评论数' ng-if="matterType=='enroll'" ng-click="openMatter(m,'remark')" title='点击查看详细数据'><span>{{m.opData[0].remark_total}}</span></td>
+                <td data-th='留言数' ng-if="matterType=='enroll'" ng-click="openMatter(m,'remark')" title='点击查看详细数据'><span>{{m.opData[0].remark_total}}</span></td>
                 <td><span ng-if='m.start_at>0'>{{m.start_at*1000|date:'yy-MM-dd HH:mm'}}</span></td>
                 <td><span ng-if='m.end_at>0'>{{m.end_at*1000|date:'yy-MM-dd HH:mm'}}</span></td>
                 <td ng-click="togglePublic(m)"><i class='glyphicon' ng-class="m.is_public==='Y'?'glyphicon-eye-open':'glyphicon-eye-close'"></i></td>

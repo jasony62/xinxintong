@@ -29,7 +29,7 @@ $sql .= ",hide_pic char(1) not null default 'N'"; // hide head image in body of 
 $sql .= ",can_picviewer char(1) not null default 'N'";
 $sql .= ",can_share char(1) not null default 'N'";
 $sql .= ",can_fullsearch char(1) not null default 'Y'"; // 是否可以进行全文检索
-$sql .= ",can_discuss char(1) not null default 'N'"; // 是否可以进行评论
+$sql .= ",can_discuss char(1) not null default 'N'"; // 是否可以进行留言
 $sql .= ",can_coinpay char(1) not null default 'N'"; // 是否可以进行打赏
 $sql .= ",can_siteuser char(1) not null default 'Y'"; // 是否可以进入用户主页
 $sql .= ",summary varchar(240) not null default ''";
@@ -41,11 +41,11 @@ $sql .= ",page_id int not null default 0"; // 定制页，should remove
 $sql .= ",body_page_name varchar(13) not null default ''"; // 定制页
 $sql .= ",finished char(1) not null default 'Y'"; // 完成编辑
 $sql .= ",approved char(1) not null default 'Y'"; // 审核通过
-$sql .= ",remark_notice char(1) not null default 'Y'"; // 接收评论提示
-$sql .= ",remark_notice_all char(1) not null default 'N'"; // 通知所有参与评论的人有新评论
+$sql .= ",remark_notice char(1) not null default 'Y'"; // 接收留言提示 should be removed
+$sql .= ",remark_notice_all char(1) not null default 'N'"; // 通知所有参与留言的人有新留言 should be removed
 $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",score int not null default 0"; // 点赞数
-$sql .= ",remark_num int not null default 0"; // 评论数
+$sql .= ",remark_num int not null default 0"; // 留言数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
 $sql .= ",has_attachment char(1) not null default 'N'";
@@ -63,22 +63,6 @@ $sql .= ",from_site_name varchar(50) not null default ''";
 $sql .= ",from_id int not null default 0";
 $sql .= ",matter_cont_tag varchar(255) not null default ''";
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 文章附件
- */
-$sql = "create table if not exists xxt_article_attachment(";
-$sql .= "id int not null auto_increment";
-$sql .= ",article_id int not null";
-$sql .= ",name varchar(255) not null";
-$sql .= ",type varchar(255) not null";
-$sql .= ",size int not null";
-$sql .= ",last_modified bigint(13) not null";
-$sql .= ",url text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -366,6 +350,23 @@ $sql .= ",matter_id varchar(40) not null";
 $sql .= ",identity varchar(100) not null";
 $sql .= ",idsrc char(2) not null default ''";
 $sql .= ",label varchar(255) not null default ''";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 素材附件
+ */
+$sql = "create table if not exists xxt_matter_attachment(";
+$sql .= "id int not null auto_increment";
+$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type char(20) not null";
+$sql .= ",name varchar(255) not null";
+$sql .= ",type varchar(255) not null";
+$sql .= ",size int not null";
+$sql .= ",last_modified bigint(13) not null";
+$sql .= ",url text null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

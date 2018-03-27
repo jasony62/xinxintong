@@ -153,7 +153,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce'
     $scope.recommend = function(oRecData, value) {
         var url;
         if (oRecData.agreed !== value) {
-            url = '/rest/site/fe/matter/enroll/data/recommend';
+            url = '/rest/site/fe/matter/enroll/data/agree';
             url += '?site=' + oApp.siteid;
             url += '&ek=' + oRecData.enroll_key;
             url += '&schema=' + oRecData.schema_id;
@@ -214,6 +214,13 @@ ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce'
         }
         /*设置页面分享信息*/
         $scope.setSnsShare();
+        /*设置页面导航*/
+        $scope.appActs = {
+            addRecord: {}
+        };
+        if (oApp.can_rank === 'Y') {
+            $scope.appNavs = { rank: {} };
+        }
     });
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,

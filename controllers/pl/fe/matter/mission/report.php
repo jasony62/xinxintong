@@ -384,8 +384,8 @@ class report extends \pl\fe\matter\base {
 							if (!empty($v->enroll_num)) {
 								$content[] = '记录：' . $v->enroll_num;
 							}
-							if (!empty($v->remark_other_num)) {
-								$content[] = "\n 评论：" . $v->remark_other_num;
+							if (!empty($v->do_remark_num)) {
+								$content[] = "\n 留言：" . $v->do_remark_num;
 							}
 							$content = implode("\n ", $content);
 						} else if (isset($v->signin_num)) {

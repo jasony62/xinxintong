@@ -7,7 +7,7 @@ require_once TMS_APP_DIR . '/controllers/site/op/base.php';
  */
 class remark extends \site\op\base {
 	/**
-	 * 返回一条登记记录的所有评论
+	 * 返回一条登记记录的所有留言
 	 */
 	public function list_action($ek, $schema = '', $page = 1, $size = 99) {
 		if (!$this->checkAccessToken()) {
@@ -21,7 +21,7 @@ class remark extends \site\op\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 返回指定活动下所有评论
+	 * 返回指定活动下所有留言
 	 */
 	public function byApp_action($app, $page = 1, $size = 30) {
 		$modelEnl = $this->model('matter\enroll');
@@ -45,7 +45,7 @@ class remark extends \site\op\base {
 	public function agree_action($value = '') {
 		$posted = $this->getPostJson();
 		if (empty($posted->remark)) {
-			return new \ParameterError('没有指定评论数据');
+			return new \ParameterError('没有指定留言数据');
 		}
 		if (is_array($posted->remark)) {
 			$remarkIds = $posted->remark;

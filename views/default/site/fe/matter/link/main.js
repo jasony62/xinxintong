@@ -37,10 +37,10 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['
         if (!user.loginExpire) {
             tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 user.loginExpire = data.loginExpire;
-                location.href = "/rest/site/fe/invite?matter=link," + link.id;
+                location.href = "/rest/site/fe/invite?matter=link," + link.id + '&inviteToken=' + invite_token;
             });
         } else {
-            location.href = "/rest/site/fe/invite?matter=link," + link.id;
+            location.href = "/rest/site/fe/invite?matter=link," + link.id + '&inviteToken=' + invite_token;
         }
     };
     $scope.siteUser = function(id) {

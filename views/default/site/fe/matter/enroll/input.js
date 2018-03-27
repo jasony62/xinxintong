@@ -211,6 +211,7 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
 }]);
 ngApp.controller('ctrlWxUploadFileTip', ['$scope', '$interval', function($scope, $interval) {
     $scope.domId = '';
+    $scope.isIos = /iphone|ipad/i.test(navigator.userAgent);
     $scope.closeTip = function() {
         var domTip = document.querySelector($scope.domId);
         var evt = document.createEvent("HTMLEvents");
@@ -390,7 +391,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         submitState.finish(true);
     }
     /* 页面和记录数据加载完成 */
-    function afterLoad(dataSchemas, oRecordData) {
+    function fnAfterLoad(oPage, oRecordData) {
+        var dataSchemas;
+        dataSchemas = oPage.dataSchemas;
         // 设置题目的默认值
         ngApp.oUtilSchema.autoFillDefault(_oApp._schemasById, $scope.data);
         // 控制关联题目的可见性
@@ -407,6 +410,34 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 fnToggleAssocOptions(dataSchemas, oRecordData);
             }
         }, true);
+        /*设置页面操作*/
+        // 如果页面上有保存按钮，隐藏内置的保存按钮
+        if (oPage.act_schemas) {
+            var bHasSaveButton = false,
+                actSchemas = JSON.parse(oPage.act_schemas);
+            for (var i = actSchemas.length - 1; i >= 0; i--) {
+                if (actSchemas[i].name === 'save') {
+                    bHasSaveButton = true;
+                    break;
+                }
+            }
+        }
+        if (!bHasSaveButton) {
+            $scope.appActs = {
+                save: {}
+            };
+        }
+        /*设置页面导航*/
+        var oAppNavs = {};
+        if (_oApp.can_repos === 'Y') {
+            oAppNavs.repos = {};
+        }
+        if (_oApp.can_rank === 'Y') {
+            oAppNavs.rank = {};
+        }
+        if (Object.keys(oAppNavs).length) {
+            $scope.appNavs = oAppNavs;
+        }
     }
 
     window.onbeforeunload = function(e) {
@@ -435,14 +466,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             tasksOfBeforeSubmit.push(fn);
         }
     };
-    $scope.$on('xxt.app.enroll.save', function() {
+    $scope.save = function(event) {
         //_localSave('save');
-        $scope.submit(event, 'result', 'save');
-    });
-    $scope.save = function(event, nextAction) {
-        //_localSave('save');
-        $scope.submit(event, nextAction, 'save');
-        $scope.gotoPage(event, nextAction);
+        $scope.submit(event, '', 'save');
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById, dataOfRecord, p, value;
@@ -451,19 +477,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         _oApp = params.app;
         if (params.page.data_schemas) {
             params.page.dataSchemas = JSON.parse(params.page.data_schemas);
-        }
-        // 如果页面上有保存按钮，隐藏内置的保存按钮
-        if (params.page.act_schemas) {
-            var actSchemas = JSON.parse(params.page.act_schemas);
-            for (var i = actSchemas.length - 1; i >= 0; i--) {
-                if (actSchemas[i].name === 'save') {
-                    var domSave = document.querySelector('.tms-switch-save');
-                    if (domSave) {
-                        domSave.style.display = 'none';
-                    }
-                    break;
-                }
-            }
         }
         if (_oApp.end_submit_at > 0 && parseInt(_oApp.end_submit_at) < (new Date * 1) / 1000) {
             fnDisableActions();
@@ -504,21 +517,22 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 /*设置页面分享信息*/
                 $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
                 /*根据加载的数据设置页面*/
-                afterLoad(params.page.dataSchemas, $scope.data);
+                fnAfterLoad(params.page, $scope.data);
             });
         } else {
             /*设置页面分享信息*/
             $scope.setSnsShare(false, { 'newRecord': LS.s().newRecord });
             /*根据加载的数据设置页面*/
-            afterLoad(params.page.dataSchemas, $scope.data);
+            fnAfterLoad(params.page, $scope.data);
         }
         /* 微信不支持上传文件，指导用户进行处理 */
-        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {
             if (_oApp.entryRule && _oApp.entryRule.scope && _oApp.entryRule.scope.member === 'Y') {
                 for (var i = 0, ii = params.page.dataSchemas.length; i < ii; i++) {
                     if (params.page.dataSchemas[i].schema.type === 'file') {
-                        var domTip = document.querySelector('#wxUploadFileTip');
-                        var evt = document.createEvent("HTMLEvents");
+                        var domTip, evt;
+                        domTip = document.querySelector('#wxUploadFileTip');
+                        evt = document.createEvent("HTMLEvents");
                         evt.initEvent("show", false, false);
                         domTip.dispatchEvent(evt);
                         break;

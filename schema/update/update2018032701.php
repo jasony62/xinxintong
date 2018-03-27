@@ -1,10 +1,10 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
+$sqls = [];
 //
-$sqls[] = "alter table xxt_enroll add rp_config text";
-
+$sqls[] = "ALTER TABLE xxt_enroll change repos_unit repos_unit char(1) not null default 'R'";
+//
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {
 		header('HTTP/1.0 500 Internal Server Error');

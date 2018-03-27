@@ -39,7 +39,7 @@ define(['require'], function() {
             title: '单图文'
         }]
     });
-    ngApp.config(['$routeProvider', '$locationProvider', '$controllerProvider', 'srvSiteProvider', 'srvTagProvider', function($routeProvider, $locationProvider, $controllerProvider, srvSiteProvider, srvTagProvider) {
+    ngApp.config(['$routeProvider', '$locationProvider', '$controllerProvider', 'srvSiteProvider', 'srvTagProvider', 'srvInviteProvider', function($routeProvider, $locationProvider, $controllerProvider, srvSiteProvider, srvTagProvider, srvInviteProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/matter/channel/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
@@ -60,19 +60,46 @@ define(['require'], function() {
             controller: $controllerProvider.register
         };
         $routeProvider
+            .when('/rest/pl/fe/matter/channel/preview', new RouteParam('preview'))
+            .when('/rest/pl/fe/matter/channel/invite', new RouteParam('invite', '/views/default/pl/fe/_module/'))
+            .when('/rest/pl/fe/matter/channel/log', new RouteParam('log'))
             .otherwise(new RouteParam('main'));
+
         $locationProvider.html5Mode(true);
         (function() {
-            var siteId = location.search.match(/[\?&]site=([^&]*)/)[1];
+            var siteId = location.search.match(/[\?&]site=([^&]*)/)[1],
+                id = location.search.match(/[\?&]id=([^&]*)/)[1];
             srvSiteProvider.config(siteId);
             srvTagProvider.config(siteId);
-            $locationProvider.html5Mode(true);
+            srvInviteProvider.config('channel', id);
         })();
     }]);
     ngApp.controller('ctrlChannel', ['$scope', '$location', 'http2', 'srvSite', function($scope, $location, http2, srvSite) {
         var ls = $location.search();
         $scope.id = ls.id;
         $scope.siteId = ls.site;
+        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+            var subView = currentRoute.match(/([^\/]+?)\?/);
+            $scope.subView = subView[1] === 'channel' ? 'main' : subView[1];
+            switch ($scope.subView) {
+                case 'main':
+                    $scope.opened = 'edit';
+                    break;
+                case 'preview':
+                case 'invite':
+                    $scope.opened = 'publish';
+                    break;
+                case 'log':
+                    $scope.opened = 'other';
+                    break;
+                default:
+                    $scope.opened = '';
+            }
+        });
+        $scope.switchTo = function(subView) {
+            var url = '/rest/pl/fe/matter/channel/' + subView;
+            $location.path(url);
+        };
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });

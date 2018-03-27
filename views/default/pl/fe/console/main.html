@@ -103,7 +103,7 @@
                         <th ng-if="criteria.matter.type==='signin'" style='width:80px'>签到轮次</th>
                         <th ng-if="criteria.matter.type==='enroll'||criteria.matter.type==='signin'" style='width:64px'>记录数</th>
                         <th ng-if="criteria.matter.type==='enroll'" style='width:64px'>填写人</th>
-                        <th ng-if="criteria.matter.type==='enroll'" style='width:64px'>评论数</th>
+                        <th ng-if="criteria.matter.type==='enroll'" style='width:64px'>留言数</th>
                         <th style='width:140px'>创建人</th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:48px'>星标</th>
@@ -119,7 +119,7 @@
                         <td data-th='记录数' ng-if="criteria.matter.type==='enroll'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>
                         <td data-th='记录数' ng-if="criteria.matter.type==='signin'" ng-click="openMatter(m,'record')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].total}}</span></td>
                         <td data-th='填写人' ng-if="criteria.matter.type==='enroll'" ng-click="openMatter(m,'enrollee')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].enrollee_num}}</span></td>
-                        <td data-th='评论数' ng-if="criteria.matter.type==='enroll'" ng-click="openMatter(m,'remark')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].remark_total}}</span></td>
+                        <td data-th='留言数' ng-if="criteria.matter.type==='enroll'" ng-click="openMatter(m,'remark')" title='点击查看详细数据' style='cursor:pointer;'><span>{{m.opData[0].remark_total}}</span></td>
                         <td data-th='创建人'><span>{{m.operator_name||m.creater_name}}</span></td>
                         <td data-th='创建时间'><span>{{(m.operate_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</span></td>
                         <td data-th='星标' class='hidden-xs'>

@@ -106,7 +106,7 @@ class data extends \pl\fe\matter\base {
 		}
 
 		/* 处理了用户汇总数据，积分数据 */
-		$this->model('matter\enroll\event')->recommendRecordData($oApp, $oRecData, $oUser, $value);
+		$this->model('matter\enroll\event')->agreeRecData($oApp, $oRecData, $oUser, $value);
 
 		/**
 		 * 发送模板消息
@@ -128,7 +128,7 @@ class data extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 给登记人发送评论通知
+	 * 给登记人发送留言通知
 	 */
 	private function _notifyAgree($oApp, $oRecord, $tmplName, $schema) {
 		/* 模板消息参数 */

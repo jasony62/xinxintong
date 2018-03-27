@@ -1,15 +1,18 @@
 'use strict';
+require('../../../../../../asset/js/xxt.ui.page.js');
+
 if (/MicroMessenger/.test(navigator.userAgent)) {
     //signPackage.debug = true;
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-angular.module('app', ['ui.bootstrap', 'infinite-scroll']).config(['$locationProvider', function($locationProvider) {
+angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
-}]).controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
-    var siteId, channelId, shareby;
+}]).controller('ctrl', ['$scope', '$location', '$http', '$q', 'tmsDynaPage', function($scope, $location, $http, $q, tmsDynaPage) {
+    var siteId, channelId, invite_token, shareby;
     siteId = $location.search().site;
     channelId = $location.search().id;
+    invite_token = $location.search().inviteToken;
     shareby = $location.search().shareby ? $location.search().shareby : '';
     var setShare = function() {
         var shareid, sharelink;
@@ -85,7 +88,27 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll']).config(['$locationPro
         }
     };
     $scope.open = function(opened) {
-        location.href = opened.url;
+        if($scope.channel.invite) {
+            location.href = opened.url + '&inviteToken=' + invite_token;
+        }else {
+            location.href = opened.url;
+        }
+    };
+    $scope.siteUser = function(id) {
+        var url = 'http://' + location.host;
+        url += '/rest/site/fe/user';
+        url += "?site=" + siteId;
+        location.href = url;
+    };
+    $scope.invite = function(user, channel) {
+        if (!user.loginExpire) {
+            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                user.loginExpire = data.loginExpire;
+                location.href = "/rest/site/fe/invite?matter=channel," + channel.id + '&inviteToken=' + invite_token;
+            });
+        } else {
+            location.href = "/rest/site/fe/invite?matter=channel," + channel.id + '&inviteToken=' + invite_token;
+        }
     };
     var getChannel = function() {
         var deferred = $q.defer();

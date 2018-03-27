@@ -318,7 +318,7 @@ class record_model extends record_base {
 	 * @param object $oUser
 	 * @param array $aOptions
 	 */
-	public function byUser(&$oApp, &$oUser, $aOptions = []) {
+	public function byUser($oApp, $oUser, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
 
@@ -527,14 +527,16 @@ class record_model extends record_base {
 		$bRequireScore = false; // 数值型的填空题需要计算分值
 		$oSchemasById = new \stdClass; // 方便查找题目
 		$visibilitySchemas = []; // 设置了可见性规则的题目
-		foreach ($oApp->dataSchemas as $oSchema) {
-			$oSchemasById->{$oSchema->id} = $oSchema;
-			if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
-				$bRequireScore = true;
-				break;
-			}
-			if (!empty($oSchema->visibility->rules)) {
-				$visibilitySchemas[] = $oSchema;
+		if (!empty($oApp->dataSchemas)) {
+			foreach ($oApp->dataSchemas as $oSchema) {
+				$oSchemasById->{$oSchema->id} = $oSchema;
+				if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
+					$bRequireScore = true;
+					break;
+				}
+				if (!empty($oSchema->visibility->rules)) {
+					$visibilitySchemas[] = $oSchema;
+				}
 			}
 		}
 
@@ -584,7 +586,12 @@ class record_model extends record_base {
 
 		// 记录是否通过审核
 		if (!empty($oCriteria->record->verified)) {
-			$w .= " and verified='{$oCriteria->record->verified}'";
+			$w .= " and r.verified='{$oCriteria->record->verified}'";
+		}
+
+		// 记录推荐状态
+		if (isset($oCriteria->record->agreed)) {
+			$w .= " and r.agreed='{$oCriteria->record->agreed}'";
 		}
 
 		// 指定了记录标签
@@ -657,7 +664,7 @@ class record_model extends record_base {
 		];
 
 		//测验场景或数值填空题共用score字段
-		if ($oApp->scenario === 'quiz' || $bRequireScore) {
+		if (isset($oApp->scenario) && ($oApp->scenario === 'quiz' || $bRequireScore)) {
 			$q[0] .= ',r.score';
 		}
 
@@ -669,20 +676,37 @@ class record_model extends record_base {
 		}
 
 		// 查询结果排序
-		if (!empty($oOptions->orderby) && !empty($oOptions->schemaId)) {
-			$schemaId = $oOptions->schemaId;
-			$orderby = $oOptions->orderby;
-			$q[1] .= ",xxt_enroll_record_data d";
-			$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId' and d.multitext_seq = 0";
-			$q2['o'] = 'd.' . $orderby . ' desc';
-		} elseif (!empty($oOptions->orderby) && $oOptions->orderby === 'sum') {
-			$q2['o'] = 'r.score desc';
-		} elseif (!empty($oOptions->orderby) && $oOptions->orderby === 'agreed') {
-			$q2['o'] = 'r.agreed desc';
+		if (!empty($oOptions->orderby)) {
+			if (!empty($oOptions->schemaId)) {
+				$schemaId = $oOptions->schemaId;
+				$orderby = $oOptions->orderby;
+				$q[1] .= ",xxt_enroll_record_data d";
+				$q[2] .= " and r.enroll_key = d.enroll_key and d.schema_id = '$schemaId' and d.multitext_seq = 0";
+				$q2['o'] = 'd.' . $orderby . ' desc';
+			} else {
+				$fnOrderBy = function ($orderbys) {
+					is_string($orderbys) && $orderbys = [$orderbys];
+					$sqls = [];
+					foreach ($orderbys as $orderby) {
+						switch ($orderby) {
+						case 'sum':
+							$sqls[] = 'r.score desc';
+							break;
+						case 'agreed':
+							$sqls[] = 'r.agreed desc';
+							break;
+						case 'like_num':
+							$sqls[] = 'r.like_num desc';
+							break;
+						}
+					}
+					return implode(',', $sqls);
+				};
+				$q2['o'] = $fnOrderBy($oOptions->orderby);
+			}
 		} else {
 			$q2['o'] = 'r.enroll_at desc';
 		}
-
 		/**
 		 * 处理获得的数据
 		 */
@@ -707,17 +731,23 @@ class record_model extends record_base {
 				}
 			};
 			foreach ($records as $oRec) {
-				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
-				$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
+				if (property_exists($oRec, 'like_log')) {
+					$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
+				}
+				if (property_exists($oRec, 'data_tag')) {
+					$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
+				}
 				//测验场景或数值填空题共用score字段
-				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($oRec->score)) {
-					$score = str_replace("\n", ' ', $oRec->score);
-					$score = json_decode($score);
+				if (isset($oApp->scenario)) {
+					if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($oRec->score)) {
+						$score = str_replace("\n", ' ', $oRec->score);
+						$score = json_decode($score);
 
-					if ($score === null) {
-						$oRec->score = 'json error(' . json_last_error_msg() . '):' . $oRec->score;
-					} else {
-						$oRec->score = $score;
+						if ($score === null) {
+							$oRec->score = 'json error(' . json_last_error_msg() . '):' . $oRec->score;
+						} else {
+							$oRec->score = $score;
+						}
 					}
 				}
 				//附加说明
@@ -800,13 +830,15 @@ class record_model extends record_base {
 					}
 				}
 				// 记录的分数
-				if ($oApp->scenario === 'voting' || $oApp->scenario === 'common') {
-					if (!isset($scoreSchemas)) {
-						$scoreSchemas = $this->_mapOfScoreSchema($oApp);
-						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
+				if (isset($oApp->scenario)) {
+					if ($oApp->scenario === 'voting' || $oApp->scenario === 'common') {
+						if (!isset($scoreSchemas)) {
+							$scoreSchemas = $this->_mapOfScoreSchema($oApp);
+							$countScoreSchemas = count(array_keys((array) $scoreSchemas));
+						}
+						$oRec->_score = $this->_calcVotingScore($scoreSchemas, $data);
+						$oRec->_average = $countScoreSchemas === 0 ? 0 : $oRec->_score / $countScoreSchemas;
 					}
-					$oRec->_score = $this->_calcVotingScore($scoreSchemas, $data);
-					$oRec->_average = $countScoreSchemas === 0 ? 0 : $oRec->_score / $countScoreSchemas;
 				}
 			}
 			$oResult->records = $records;
@@ -1344,7 +1376,7 @@ class record_model extends record_base {
 		/* 更新项目的用户数据 */
 		if (!empty($oApp->mission_id)) {
 			$q = [
-				'userid,enroll_num,remark_num,like_num,like_remark_num,remark_other_num,like_other_num,like_other_remark_num,user_total_coin',
+				'userid,enroll_num,remark_num,like_num,like_remark_num,do_remark_num,do_like_num,do_like_remark_num,user_total_coin',
 				'xxt_enroll_user',
 				['aid' => $oApp->id, 'state' => 1, 'rid' => 'ALL'],
 			];
@@ -1357,9 +1389,9 @@ class record_model extends record_base {
 						'remark_num' => (object) ['op' => '-=', 'pat' => $oUser->remark_num],
 						'like_num' => (object) ['op' => '-=', 'pat' => $oUser->like_num],
 						'like_remark_num' => (object) ['op' => '-=', 'pat' => $oUser->like_remark_num],
-						'remark_other_num' => (object) ['op' => '-=', 'pat' => $oUser->remark_other_num],
-						'like_other_num' => (object) ['op' => '-=', 'pat' => $oUser->like_other_num],
-						'like_other_remark_num' => (object) ['op' => '-=', 'pat' => $oUser->like_other_remark_num],
+						'do_remark_num' => (object) ['op' => '-=', 'pat' => $oUser->do_remark_num],
+						'do_like_num' => (object) ['op' => '-=', 'pat' => $oUser->do_like_num],
+						'do_like_remark_num' => (object) ['op' => '-=', 'pat' => $oUser->do_like_remark_num],
 						'user_total_coin' => (object) ['op' => '-=', 'pat' => $oUser->user_total_coin],
 					],
 					['mission_id' => $oApp->mission_id, 'userid' => $oUser->userid, 'state' => 1]
@@ -1374,9 +1406,9 @@ class record_model extends record_base {
 				'remark_num' => 0,
 				'like_num' => 0,
 				'like_remark_num' => 0,
-				'remark_other_num' => 0,
-				'like_other_num' => 0,
-				'like_other_remark_num' => 0,
+				'do_remark_num' => 0,
+				'do_like_num' => 0,
+				'do_like_remark_num' => 0,
 				'user_total_coin' => 0,
 			],
 			['aid' => $oApp->id]

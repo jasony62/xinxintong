@@ -11,9 +11,9 @@
                     </button>
                     <ul class="dropdown-menu" uib-dropdown-menu>
                         <li><a href ng-click="chooseOrderby('enroll_num')"><span class='glyphicon' ng-class="criteria.orderby==='enroll_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
-                        <li><a href ng-click="chooseOrderby('remark_other_num')"><span class='glyphicon' ng-class="criteria.orderby==='remark_other_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 评论数</a></li>
-                        <li><a href ng-click="chooseOrderby('like_other_num')"><span class='glyphicon' ng-class="criteria.orderby==='like_other_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>
-                        <li><a href ng-click="chooseOrderby('recommend_num')"><span class='glyphicon' ng-class="criteria.orderby==='recommend_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 获得推荐数</a></li>
+                        <li><a href ng-click="chooseOrderby('do_remark_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_remark_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 留言数</a></li>
+                        <li><a href ng-click="chooseOrderby('do_like_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>
+                        <li><a href ng-click="chooseOrderby('agree_num')"><span class='glyphicon' ng-class="criteria.orderby==='agree_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 获得推荐数</a></li>
                         <li><a href ng-click="chooseOrderby('user_total_coin')"><span class='glyphicon' ng-class="criteria.orderby==='user_total_coin'?'glyphicon-check':'glyphicon-unchecked'"></span> 积分数</a></li>
                         <li><a href ng-click="chooseOrderby('score')"><span class='glyphicon' ng-class="criteria.orderby==='score'?'glyphicon-check':'glyphicon-unchecked'"></span> 得分数</a></li>
                         <li ng-if="app.group_app_id"><a href ng-click="chooseOrderby('group_id')"><span class='glyphicon' ng-class="criteria.orderby==='group_id'?'glyphicon-check':'glyphicon-unchecked'"></span> 分组名称</a></li>
@@ -55,7 +55,7 @@
                         <th>姓名</th>
                         <th ng-if="app.group_app_id">分组</th>
                         <th>填写记录</th>
-                        <th>发表评论</th>
+                        <th>发表留言</th>
                         <th>发表点赞</th>
                         <th>获得推荐</th>
                         <th>积分</th>
@@ -81,16 +81,16 @@
                             <div ng-if='m.enroll_num'>{{m.enroll_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.remark_other_num'>{{m.user.remark_other_num}}</div>
-                            <div ng-if='m.remark_other_num'>{{m.remark_other_num}}</div>
+                            <div ng-if='m.user.do_remark_num'>{{m.user.do_remark_num}}</div>
+                            <div ng-if='m.do_remark_num'>{{m.do_remark_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.like_other_num'>{{m.user.like_other_num}}</div>
-                            <div ng-if='m.like_other_num'>{{m.like_other_num}}</div>
+                            <div ng-if='m.user.do_like_num'>{{m.user.do_like_num}}</div>
+                            <div ng-if='m.do_like_num'>{{m.do_like_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.recommend_num'>{{m.user.recommend_num}}</div>
-                            <div ng-if='m.recommend_num'>{{m.recommend_num}}</div>
+                            <div ng-if='m.user.agree_num'>{{m.user.agree_num}}</div>
+                            <div ng-if='m.agree_num'>{{m.agree_num}}</div>
                         </td>
                         <td>
                             <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>

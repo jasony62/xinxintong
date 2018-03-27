@@ -904,4 +904,146 @@ provider('srvInvite', function() {
             }
         }
     }];
+}).
+provider('srvMemberPicker', function() {
+    this.$get = ['$q', 'http2', '$uibModal', 'noticebox', function($q, http2, $uibModal, noticebox) {
+        return {
+            open: function(oMatter, oMschema) {
+                var defer = $q.defer(),
+                    url;
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/_module/memberPicker.html',
+                    resolve: {
+                        action: function() {
+                            return {
+                                label: '加入',
+                                execute: function(members, schemas) {
+                                    var ids, defer;
+                                    defer = $q.defer();
+                                    if (members.length) {
+                                        ids = [];
+                                        members.forEach(function(oMember) {
+                                            oMember.checkedId = oMatter.type == 'mschema' ? oMember.userid : oMember.id;
+                                            ids.push(oMember.checkedId);
+                                        });
+                                        schemas && schemas.length ? schemaUser(schemas, 0) : matterUser();
+                                    }
+                                    function schemaUser(schemas, rounds) {
+                                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + oMatter.siteid + '&id=' + oMatter.id + '&rounds=' + rounds, {'schemas': schemas, 'users': ids}, function(rsp) {
+                                            if (rsp.data.state !== 'end') {
+                                                var group = parseInt(rsp.data.group) + 1;
+                                                noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
+                                                schemaUser(schemas, group);
+                                            } else {
+                                                defer.resolve(rsp.data);
+                                                noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
+                                            }
+                                        });
+                                    };
+                                    function matterUser() {
+                                        http2.post('/rest/pl/fe/matter/group/player/addByApp?app=' + oMatter.id, ids, function(rsp) {
+                                            noticebox.success('加入【' + rsp.data + '】个用户');
+                                            defer.resolve(rsp.data);
+                                        });
+                                    }
+                                    return defer.promise;
+                                }
+                            }
+                        }
+                    },
+                    controller: ['$scope', '$uibModalInstance', 'http2', 'tmsSchema', 'action', function($scope2, $mi, http2, tmsSchema, _oAction) {
+                        var _oPage, _oRows, _bAdded, _oMschema, doSearch;
+                        $scope2.action = _oAction;
+                        $scope2.page = _oPage = {
+                            at: 1,
+                            size: 30,
+                            keyword: '',
+                            //searchBy: $scope2.searchBys[0].v
+                        };
+                        // 选中的记录
+                        $scope2.rows = _oRows = {
+                            schemas: {},
+                            selected: {},
+                            count: 0,
+                            impschemaId: '',
+                            change: function(index) {
+                                this.selected[index] ? this.count++ : this.count--;
+                            },
+                            reset: function() {
+                                this.selected = {};
+                                this.count = 0;
+                            }
+                        };
+                        function doSchemas() {
+                            http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + oMschema.siteid + '&id=' + oMschema.id, function(rsp) {
+                                $scope2.importSchemas = rsp.data;
+                                _oRows.impschemaId = rsp.data[0].id;
+                                rsp.data.forEach(function(oSchema) {
+                                    _oRows.schemas[oSchema.id] = oSchema;
+                                });
+                                doSearch(1);
+                            });
+                        };
+                        $scope2.doSearch = doSearch = function(pageAt) {
+                            pageAt && (_oPage.at = pageAt);
+                            var url, filter = '', selectedSchemaId;
+                            selectedSchemaId = _oRows.impschemaId ? _oRows.impschemaId : oMschema.id;
+                            $scope2.mschema = _oMschema = oMatter.type == 'mschema' ? _oRows.schemas[selectedSchemaId] : oMschema;
+                            if (_oPage.keyword !== '') {
+                                filter = '&kw=' + _oPage.keyword;
+                                filter += '&by=' + _oPage.searchBy;
+                            }
+                            url = '/rest/pl/fe/site/member/list?site=' + oMschema.siteid + '&schema=' + selectedSchemaId;
+                            url += '&page=' + _oPage.at + '&size=' + _oPage.size + filter
+                            url += '&contain=total';
+                            http2.get(url, function(rsp) {
+                                var members;
+                                members = rsp.data.members;
+                                if (members.length) {
+                                    if (_oMschema.extAttrs.length) {
+                                        members.forEach(function(oMember) {
+                                            oMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oMember);
+                                        });
+                                    }
+                                }
+                                $scope2.members = members;
+                                _oPage.total = rsp.data.total;
+                                _oRows.reset();
+                            });
+                        };
+                        $scope2.cancel = function() {
+                            _bAdded ? $mi.close() : $mi.dismiss();
+                        };
+                        $scope2.execute = function(bClose) {
+                            var schemas, pickedMembers;
+                            if(_oRows.impschemaId) {
+                                schemas = [];
+                                schemas.push(_oRows.impschemaId);
+                            }
+                            if (_oRows.count) {
+                                pickedMembers = [];
+                                for (var i in _oRows.selected) {
+                                    pickedMembers.push($scope2.members[i]);
+                                }
+                                _oAction.execute(pickedMembers, schemas).then(function() {
+                                    if (bClose) {
+                                        $mi.close();
+                                    } else {
+                                        _bAdded = true;
+                                    }
+                                });
+                            }
+                        };
+                        oMatter.type == 'mschema' ? doSchemas() : doSearch(1);
+                    }],
+                    size: 'lg',
+                    backdrop: 'static',
+                    windowClass: 'auto-height mattersgallery'
+                }).result.then(function () {
+                    defer.resolve();
+                });
+                return defer.promise;
+            }
+        }
+    }];
 });

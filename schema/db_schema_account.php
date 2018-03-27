@@ -39,6 +39,7 @@ $sql = 'CREATE TABLE IF NOT EXISTS `account_group` (
     `p_mp_create` tinyint not null default 0 comment \'创建公众号\',
     `p_mp_permission` tinyint not null default 0 comment \'设置公众号权限\',
     `p_platform_manage` tinyint  not null default 0 comment \'平台管理\',
+    `p_create_site` tinyint  not null default 0 comment \'创建团队\',
     PRIMARY KEY (`group_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {

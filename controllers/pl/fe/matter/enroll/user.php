@@ -151,7 +151,7 @@ class user extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 发表过评论的用户
+	 * 发表过留言的用户
 	 */
 	public function remarker_action($app, $page = 1, $size = 30) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -296,7 +296,7 @@ class user extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '评论');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '留言');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '获得推荐');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
@@ -347,18 +347,18 @@ class user extends \pl\fe\matter\base {
 				} else {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
-				if (isset($record->user->remark_other_num)) {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->remark_other_num);
+				if (isset($record->user->do_remark_num)) {
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->do_remark_num);
 				} else {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
-				if (isset($record->user->like_other_num)) {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->like_other_num);
+				if (isset($record->user->do_like_num)) {
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->do_like_num);
 				} else {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
-				if (isset($record->user->recommend_num)) {
-					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->recommend_num);
+				if (isset($record->user->agree_num)) {
+					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user->agree_num);
 				} else {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, '');
 				}
@@ -391,7 +391,7 @@ class user extends \pl\fe\matter\base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '评论');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '留言');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '获得推荐');
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
@@ -419,9 +419,9 @@ class user extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, empty($record->group) ? '' : $record->group->l);
 				}
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->enroll_num);
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->remark_other_num);
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->like_other_num);
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->recommend_num);
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->do_remark_num);
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->do_like_num);
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->agree_num);
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->user_total_coin);
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $record->score);
 				if (isset($sns->wx->joined) && $sns->wx->joined === 'Y') {

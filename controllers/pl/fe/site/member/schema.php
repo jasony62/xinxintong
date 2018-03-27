@@ -92,7 +92,7 @@ class schema extends \pl\fe\base {
 		}
 
 		$modelSchema = $this->model('site\user\memberschema');
-		$schemas = $modelSchema->importSchema($site, $id);
+		$schemas = $modelSchema->listRelateSchema($site, $id);
 
 		return new \ResponseData($schemas);
 	}
@@ -106,9 +106,48 @@ class schema extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$schemas = $this->getPostJson();
-		if (empty($schemas)) {
+		$modelSchema = $this->model('site\user\memberschema');
+		$oobjSchema = $modelSchema->byId($id, ['fields' => 'ext_attrs']);
+		if ($oobjSchema === false) {
+			return new \ResponseError('指定的通讯录不存在');
+		}
+		// 题目匹配规则（名称和类型都相同）
+		$oextAttrs = [];
+		foreach ($oobjSchema->extAttrs as $extAttr) {
+			$exta = new \stdClass;
+			$exta->title = $extAttr->title;
+			$exta->type = $extAttr->type;
+			$oextAttrs[$extAttr->id] = $exta;
+		}
+		$oobjSchema->oextAttrs = $oextAttrs;
+
+		$post = $this->getPostJson();
+		if (empty($post->schemas)) {
 			return new \ResponseError('请选择要导入的通讯录');
+		}
+
+		$schemas = $post->schemas;
+		// 获得选择的要导入通讯录的题目配置
+		$objSchemas = new \stdClass;
+		foreach ($schemas as $schema) {
+			$objSchema = $modelSchema->byId($schema, ['fields' => 'ext_attrs']);
+			if ($objSchema === false) {
+				return new \ResponseError('指定的通讯录不存在');
+			}
+			// 获取此通讯录中与被导入的通讯录中title,type相同的扩展题目，并与被导入通讯录中此题建立关系
+			$relateextAttrs = new \stdClass;
+			foreach ($objSchema->extAttrs as $extAttr2) {
+				$exta = new \stdClass;
+				$exta->title = $extAttr2->title;
+				$exta->type = $extAttr2->type;
+				$key = array_search($exta, $oobjSchema->oextAttrs);
+				// 记录此题在被导入的通讯录中题目的关系
+				if ($key !== false) {
+					$relateextAttrs->{$extAttr2->id} = $key;
+				}
+			}
+			$objSchema->relateextAttrs = $relateextAttrs;
+			$objSchemas->{$schema} = $objSchema;
 		}
 
 		$model = $this->model();
@@ -124,10 +163,14 @@ class schema extends \pl\fe\base {
 		//获取所有即将导入的用户
 		$schemas = '(' . implode(',', $schemas) . ')';
 		$q = [
-			'userid,unionid,create_at,identity,name,mobile,mobile_verified,email,email_verified,extattr,depts,tags,verified,forbidden,invite_code',
+			'schema_id,userid,unionid,create_at,identity,name,mobile,mobile_verified,email,email_verified,extattr,depts,tags,verified,forbidden,invite_code',
 			'xxt_site_member',
 			"forbidden='N' and schema_id in $schemas",
 		];
+		if (!empty($post->users)) {
+			$byUsers = '("' . implode('","', $post->users) . '")';
+			$q[2] .= " and userid in $byUsers";
+		}
 		$q2 = ['o' => 'create_at desc,id desc'];
 		$usersAll = $model->query_objs_ss($q, $q2);
 		if (empty($usersAll)) {
@@ -153,8 +196,6 @@ class schema extends \pl\fe\base {
 			}
 
 			//从通讯录中删除重复的userid
-			$site = $model->escape($site);
-			$id = $model->escape($id);
 			if (!empty($usersOld)) {
 				$usersOld = "('" . implode("','", $usersOld) . "')";
 				$model->delete('xxt_site_member', "siteid = '$site' and schema_id = $id and userid in $usersOld");
@@ -180,12 +221,22 @@ class schema extends \pl\fe\base {
 		} else {
 			$i = 0;
 		}
-		$groups = $usersGroup[$i];
+		$users = $usersGroup[$i];
 		$value = "";
-		foreach ($groups as $group) {
-			$group = (array) $model->escape($group);
-			$groupValue = array_values($group);
-			$value .= ",('$site',$id,$create_at,'" . implode("','", $groupValue) . "')";
+		foreach ($users as $user) {
+			// 处理用户的题目
+			$userExtattr = json_decode($user->extattr);
+			$newUserExtattr = new \stdClass;
+			foreach ($userExtattr as $key => $gExtattr) {
+				if (isset($objSchemas->{$user->schema_id}->relateextAttrs->{$key})) {
+					$newUserExtattr->{$objSchemas->{$user->schema_id}->relateextAttrs->{$key}} = $gExtattr;
+				}
+			}
+			$user->extattr = $model->toJson($newUserExtattr);
+			unset($user->schema_id);
+			$user = (array) $model->escape($user);
+			$userValue = array_values($user);
+			$value .= ",('$site',$id,$create_at,'" . implode("','", $userValue) . "')";
 		}
 		$value = substr($value, 1);
 

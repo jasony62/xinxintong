@@ -10,6 +10,7 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link rel="stylesheet" href="/views/default/site/fe/matter/enroll/directive.css" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/fe/invite/matter.css');?>" rel="stylesheet">
 </head>
 
@@ -28,68 +29,77 @@
             <div class='col-md-6 col-md-offset-3'>
                 <div class='panel'>
                     <div class='panel-body'>
+                        <div ng-repeat="matter in matterList" class='form-group'>
+                            <label>
+                                <input type="radio" ng-model="criteria.id" ng-value="matter.id" id="{{matter.id}}" name="inviteMatter">
+                                <span ng-bind="matter.title"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div ng-if="invite">
+                    <div class="panel" ng-if="invite.matter_pic||invite.matter_summary">
                         <section id='matter'>
-                            <div class='form-group'>
-                                <div ng-bind="invite.matter_title"></div>
-                            </div>
-                            <div class='form-group' ng-if="invite.matter_pic">
-                                <div class='matter-pic'>
-                                    <div class='img-thumbnail' ng-style="{'background-image':'url('+invite.matter_pic+')'}"></div>
+                            <div class="panel-body">
+                                <div class='form-group' ng-if="invite.matter_pic">
+                                    <div class='matter-pic'>
+                                        <div class='img-thumbnail' ng-style="{'background-image':'url('+invite.matter_pic+')'}"></div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class='text-muted' ng-if="invite.matter_summary">
-                                <div ng-bind="invite.matter_summary"></div>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-                <div class='panel'>
-                    <div class='panel-body'>
-                        <section id='inviteCodes'>
-                            <div class='form-group'>
-                                <span class='glyphicon glyphicon-info-sign'></span> 专属邀请码
-                            </div>
-                            <div class='list-group'>
-                                <div class='inviteCode list-group-item' ng-repeat="code in inviteCodes">
-                                    <div ng-bind="code.code"></div>
-                                    <div ng-bind="code.remark"></div>
-                                </div>
-                            </div>
-                            <button class='btn btn-default' ng-click="addInviteCode()"><span class='glyphicon glyphicon-plus'></span> 添加邀请码</button>
-                        </section>
-                    </div>
-                </div>
-                <div class='panel'>
-                    <div class='panel-body'>
-                        <section id='inviteUrl'>
-                            <div class='form-group' ng-if="wxAgent">
-                                <span class='glyphicon glyphicon-info-sign'></span> 通过微信直接将邀请分享至好友或朋友圈
-                            </div>
-                            <div class='form-group'>
-                                <span class='glyphicon glyphicon-info-sign'></span> 请复制下面的专属链接进行分享
-                            </div>
-                            <div class='form-group'>
-                                <span>{{invite.entryUrl}}</span>
-                            </div>
-                            <div class='form-group'>
-                                <span class='glyphicon glyphicon-info-sign'></span> 请输入邀请留言
-                            </div>
-                            <div class='message form-group'>
-                                <div>
-                                    <textarea class='form-control' rows='3' ng-model="newInvite.message"></textarea>
-                                </div>
-                                <div>
-                                    <button class='btn btn-default' ng-click="updateInvite('message')">提交</button>
+                                <div class='text-muted' ng-if="invite.matter_summary">
+                                    <div ng-bind="invite.matter_summary"></div>
                                 </div>
                             </div>
                         </section>
-                        <hr>
-                        <a ng-href="/rest/site/fe/user/invite/detail?invite={{invite.id}}">查看详情</a>
                     </div>
-                </div>
-                <div class='panel'>
-                    <div class='panel-body'>
-                        <span class='glyphicon glyphicon-info-sign'></span> 可以在【个人主页】【我的邀请】中查看发出的所有邀请情况
+                    <div class='panel'>
+                        <div class='panel-body'>
+                            <section id='inviteCodes'>
+                                <div class='form-group'>
+                                    <span class='glyphicon glyphicon-info-sign'></span> 专属邀请码
+                                </div>
+                                <div class='list-group'>
+                                    <div class='inviteCode list-group-item' ng-repeat="code in inviteCodes">
+                                        <div ng-bind="code.code"></div>
+                                        <div ng-bind="code.remark"></div>
+                                    </div>
+                                </div>
+                                <button class='btn btn-default' ng-click="addInviteCode()"><span class='glyphicon glyphicon-plus'></span> 添加邀请码</button>
+                            </section>
+                        </div>
+                    </div>
+                    <div class='panel' >
+                        <div class='panel-body'>
+                            <section id='inviteUrl'>
+                                <div class='form-group' ng-if="wxAgent">
+                                    <span class='glyphicon glyphicon-info-sign'></span> 通过微信直接将邀请分享至好友或朋友圈
+                                </div>
+                                <div class='form-group'>
+                                    <span class='glyphicon glyphicon-info-sign'></span> 请复制下面的专属链接进行分享
+                                </div>
+                                <div class='form-group'>
+                                    <span>{{invite.entryUrl}}</span>
+                                </div>
+                                <div class='form-group'>
+                                    <span class='glyphicon glyphicon-info-sign'></span> 请输入邀请留言
+                                </div>
+                                <div class='message form-group'>
+                                    <div>
+                                        <textarea class='form-control' rows='3' ng-model="newInvite.message"></textarea>
+                                    </div>
+                                    <div>
+                                        <button class='btn btn-default' ng-click="updateInvite('message')">提交</button>
+                                    </div>
+                                </div>
+                            </section>
+                            <hr>
+                            <a ng-href="/rest/site/fe/user/invite/detail?invite={{invite.id}}">查看详情</a>
+                        </div>
+                    </div>
+                    <div class='panel'>
+                        <div class='panel-body'>
+                            <span class='glyphicon glyphicon-info-sign'></span> 可以在【个人主页】【我的邀请】中查看发出的所有邀请情况
+                        </div>
                     </div>
                 </div>
             </div>
@@ -101,6 +111,25 @@
         </div>
         <div class="modal-body">
             <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">截止时间</label>
+                    <div class="col-md-9">
+                        <label class="radio-inline"><input name="isDate" type="radio" value="N" ng-model="isDate">无</label>
+                        <label class="radio-inline"><input name="isDate" type="radio" value="Y" ng-model="isDate">有</label>
+                        <div ng-if="isDate=='Y'">
+                            <div tms-date="'Y'" tms-date-value="code.expire_at" >
+                                <div wrap="date" class="form-control input-lg" ng-bind="code.expire_at*1000|date:'yy-MM-dd HH:mm'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">使用次数</label>
+                    <div class="col-md-9">
+                        <input class="form-control" type="text" ng-trim="true"  ng-model="code.max_count" id="count"/>
+                        <span class="text-danger">* 数字0代表不限制使用次数</span>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-md-3 control-label">备注</label>
                     <div class="col-md-9">
@@ -119,6 +148,7 @@
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/ui-tms.js"></script>
     <script src="/asset/js/xxt.ui.share.js"></script>
+    <script src="/views/default/site/fe/matter/enroll/directive.js"></script>
     <script src="<?php echo auto_version('/views/default/site/fe/invite/matter.js');?>"></script>
 </body>
 

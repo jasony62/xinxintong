@@ -64,23 +64,37 @@ class user_model extends \TMS_MODEL {
 		foreach ($oUpdatedData as $field => $value) {
 			switch ($field) {
 			case 'last_enroll_at':
+			case 'last_cowork_at':
+			case 'last_do_cowork_at':
 			case 'last_like_at':
-			case 'last_like_other_at':
+			case 'last_like_cowork_at':
+			case 'last_do_like_at':
+			case 'last_do_like_cowork_at':
 			case 'last_remark_at':
-			case 'last_remark_other_at':
+			case 'last_remark_cowork_at':
+			case 'last_do_remark_at':
 			case 'last_like_remark_at':
-			case 'last_like_other_remark_at':
-			case 'last_recommend_at':
+			case 'last_do_like_remark_at':
+			case 'last_agree_at':
+			case 'last_agree_cowork_at':
+			case 'last_agree_remark_at':
 				$aDbData[$field] = $value;
 				break;
 			case 'enroll_num':
+			case 'cowork_num':
+			case 'do_cowork_num':
+			case 'do_like_num':
+			case 'do_like_cowork_num':
+			case 'do_like_remark_num':
 			case 'like_num':
-			case 'like_other_num':
-			case 'remark_num':
-			case 'remark_other_num':
+			case 'like_cowork_num':
 			case 'like_remark_num':
-			case 'like_other_remark_num':
-			case 'recommend_num':
+			case 'do_remark_num':
+			case 'remark_num':
+			case 'remark_cowork_num':
+			case 'agree_num':
+			case 'agree_cowork_num':
+			case 'agree_remark_num':
 			case 'user_total_coin':
 				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;
 				break;
@@ -91,7 +105,10 @@ class user_model extends \TMS_MODEL {
 				$aDbData['group_id'] = $value;
 				break;
 			case 'modify_log':
-				$oBeforeData->modify_log[] = $value;
+				if (empty($oBeforeData->modify_log)) {
+					$oBeforeData->modify_log = [];
+				}
+				array_unshift($oBeforeData->modify_log, $value);
 				$aDbData['modify_log'] = json_encode($oBeforeData->modify_log);
 				break;
 			}
@@ -255,7 +272,7 @@ class user_model extends \TMS_MODEL {
 		}
 		$members = $this->query_objs_ss($q, $q2);
 		if (count($members)) {
-			$sel = ['fields' => 'nickname,last_enroll_at,enroll_num,last_remark_at,remark_num,last_like_at,like_num,last_like_remark_at,like_remark_num,last_remark_other_at,remark_other_num,last_like_other_at,like_other_num,last_like_other_remark_at,like_other_remark_num,last_recommend_at,recommend_num,user_total_coin,score,group_id'];
+			$sel = ['fields' => 'nickname,last_enroll_at,enroll_num,last_remark_at,remark_num,last_like_at,like_num,last_like_remark_at,like_remark_num,last_do_remark_at,do_remark_num,last_do_like_at,do_like_num,last_do_like_remark_at,do_like_remark_num,last_agree_at,agree_num,user_total_coin,score,group_id'];
 			!empty($options['rid']) && $sel['rid'] = $this->escape($options['rid']);
 			foreach ($members as &$oMember) {
 				$oMember->extattr = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
@@ -406,7 +423,7 @@ class user_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 * 发表过评论的用户
+	 * 发表过留言的用户
 	 */
 	public function remarkerByApp($oApp, $page = 1, $size = 30, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -415,10 +432,10 @@ class user_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			"xxt_enroll_user",
-			"aid='{$oApp->id}' and remark_other_num>0 and rid = 'ALL'",
+			"aid='{$oApp->id}' and do_remark_num>0 and rid = 'ALL'",
 		];
 		$q2 = [
-			'o' => 'last_remark_other_at desc',
+			'o' => 'last_do_remark_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
 		$users = $this->query_objs_ss($q, $q2);
@@ -453,10 +470,10 @@ class user_model extends \TMS_MODEL {
 			}
 			$result->comment = implode(',', $comments);
 		}
-		/* 发表评论次数 */
+		/* 发表留言次数 */
 		$modelRec = $this->model('matter\enroll\remark');
 		$remarks = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);
-		$result->remark_other_num = count($remarks);
+		$result->do_remark_num = count($remarks);
 
 		return $result;
 	}
@@ -540,7 +557,7 @@ class user_model extends \TMS_MODEL {
 	 */
 	public function awardCoin($oApp, $userid, $rid, $coinEvent, $coinRules = null) {
 		if (empty($coinRules)) {
-			$modelCoinRule = $this->model('matter\enroll\coin')->setOnlyWriteDbConn(true);
+			$modelCoinRule = $this->model('matter\enroll\coin');
 			$coinRules = $modelCoinRule->rulesByMatter($coinEvent, $oApp);
 		}
 		if (empty($coinRules)) {

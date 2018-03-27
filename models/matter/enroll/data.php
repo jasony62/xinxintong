@@ -217,7 +217,7 @@ class data_model extends \TMS_MODEL {
 						/* 处理被删除的数据 */
 						if (count($beforeSchemaItems) > 0) {
 							foreach ($beforeSchemaItems as $oBeforeSchemaItem) {
-								// 如果删除某项，需要删除其对应的点赞数和评论数
+								// 如果删除某项，需要删除其对应的点赞数和留言数
 								$this->update("update xxt_enroll_record_data set remark_num = remark_num - " . $oBeforeSchemaItem->remark_num . " , like_num = like_num - " . $oBeforeSchemaItem->like_num . " where aid = '{$oApp->id}' and rid = '{$oRecord->rid}' and enroll_key = '{$oRecord->enroll_key}' and schema_id = '{$schemaId}' and multitext_seq = 0");
 								$this->update(
 									'xxt_enroll_record_data',
@@ -751,22 +751,34 @@ class data_model extends \TMS_MODEL {
 
 		return $oRecData;
 	}
-	/*
-		*
-	*/
-	public function getMultitext($ek, $schema, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS . ',multitext_seq';
+	/**
+	 * 获得多项填写题数据
+	 */
+	public function getMultitext($ek, $schema, $oOptions = []) {
+		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : self::DEFAULT_FIELDS . ',multitext_seq';
 
 		$q = [
 			$fields,
 			'xxt_enroll_record_data',
-			"enroll_key = '" . $this->escape($ek) . "' and state = 1 and schema_id = '" . $this->escape($schema) . "'",
+			['enroll_key' => $ek, 'state' => 1, 'schema_id' => $schema],
 		];
+		if (isset($oOptions['excludeRoot']) && $oOptions['excludeRoot']) {
+			$q[2]['multitext_seq'] = (object) ['op' => '>', 'pat' => 0];
+		}
+		if (isset($oOptions['agreed'])) {
+			$q[2]['agreed'] = $oOptions['agreed'];
+		}
 
 		$fnHandler = function (&$oData) {
-			$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
-			$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
-			$oData->agreed_log = empty($oData->agreed_log) ? new \stdClass : json_decode($oData->agreed_log);
+			if (property_exists($oData, 'tag')) {
+				$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
+			}
+			if (property_exists($oData, 'like_log')) {
+				$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
+			}
+			if (property_exists($oData, 'agreed_log')) {
+				$oData->agreed_log = empty($oData->agreed_log) ? new \stdClass : json_decode($oData->agreed_log);
+			}
 		};
 
 		$q2 = [];

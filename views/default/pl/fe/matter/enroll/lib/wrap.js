@@ -449,7 +449,7 @@ define([], function() {
             } else {
                 $label = $dom.children('label');
                 $label.html(oSchema.title);
-                $label.toggleClass('hide', oConfig.hidename);
+                $label.toggleClass('hide', !!oConfig.hidename);
                 if (oSchema.description && oSchema.description.length) {
                     if (!$dom.find('[class="description"]').length) {
                         $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])

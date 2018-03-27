@@ -535,6 +535,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             }
         });
         $scope.updWrap = function() {
+            $scope.ep.$$modified = true;
             editorProxy.modifySchema($scope.activeWrap);
             $scope.$emit('xxt.matter.enroll.app.data_schemas.modified', {
                 originator: $scope.ep,
@@ -571,6 +572,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
      */
     ngMod.controller('ctrlValueWrap', ['$scope', function($scope) {
         $scope.updWrap = function() {
+            $scope.ep.$$modified = true;
             editorProxy.modifySchema($scope.activeWrap);
         };
     }]);
@@ -633,11 +635,12 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             $scope.updWrap();
         };
         $scope.updWrap = function() {
+            $scope.ep.$$modified = true;
             editorProxy.modifySchema($scope.activeWrap);
         };
     }]);
-    /*
-       enrollee list wrap
+    /**
+     * enrollee list wrap
      */
     ngMod.controller('ctrlEnrolleeListWrap', ['$scope', '$timeout', function($scope, $timeout) {
         var listSchemas = $scope.activeWrap.schemas,

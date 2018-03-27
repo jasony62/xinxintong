@@ -190,6 +190,49 @@ class repos extends base {
 		return $bAnonymous;
 	}
 	/**
+	 * 按照活动规则是否只能查看同组数据
+	 */
+	private function _requireSameGroup($oApp) {
+		$bSameGroup = false;
+		if (isset($oApp->actionRule->record->group)) {
+			$oRule = $oApp->actionRule->record->group;
+			/* 记录点赞截止时间关联 */
+			if (!empty($oRule->time->record->like->end)) {
+				if (isset($oApp->actionRule->record->like->end->time)) {
+					$oRule2 = $oApp->actionRule->record->like->end->time;
+					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
+						if ($oRule2->mode === 'after_round_start_at') {
+							$modelRnd = $this->model('matter\enroll\round');
+							$oActiveRnd = $modelRnd->getActive($oApp);
+							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
+								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
+								$bSameGroup = time() < $endtime;
+							}
+						}
+					}
+				}
+			}
+			/* 协作点赞截止时间 */
+			if (!empty($oRule->time->cowork->like->end)) {
+				if (isset($oApp->actionRule->cowork->like->end->time)) {
+					$oRule2 = $oApp->actionRule->cowork->like->end->time;
+					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
+						if ($oRule2->mode === 'after_round_start_at') {
+							$modelRnd = $this->model('matter\enroll\round');
+							$oActiveRnd = $modelRnd->getActive($oApp);
+							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
+								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
+								$bSameGroup = time() < $endtime;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $bSameGroup;
+	}
+	/**
 	 * 返回指定活动的登记记录的共享内容
 	 */
 	public function recordList_action($app, $page = 1, $size = 12) {
@@ -199,6 +242,14 @@ class repos extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		/* 非同组记录显示在共享页需要的赞同数 */
+		$recordReposLikeNum = 0;
+		if (isset($oApp->actionRule->record->repos->pre)) {
+			$oRule = $oApp->actionRule->record->repos->pre;
+			if (!empty($oRule->record->likeNum)) {
+				$recordReposLikeNum = (int) $oRule->record->likeNum;
+			}
+		}
 		/* 协作填写显示在共享页所需点赞数量 */
 		$coworkReposLikeNum = 0;
 		if (isset($oApp->actionRule->cowork->repos->pre)) {
@@ -236,7 +287,27 @@ class repos extends base {
 		$oCriteria = new \stdClass;
 		$oCriteria->record = new \stdClass;
 		!empty($oPosted->rid) && $oCriteria->record->rid = $oPosted->rid;
-		!empty($oPosted->userGroup) && $oCriteria->record->group_id = $oPosted->userGroup;
+
+		/* 用户分组限制 */
+		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+			$bSameGroup = $this->_requireSameGroup($oApp);
+			if ($bSameGroup) {
+				$oCriteria->record->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+			} else if ($recordReposLikeNum) {
+				/* 限制同组数据或赞同数大于等于 */
+				$oCriteria->GroupOrLikeNum = new \stdClass;
+				$oCriteria->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+				$oCriteria->GroupOrLikeNum->like_num = $recordReposLikeNum;
+			}
+		}
+		/* 指定了分组过滤条件 */
+		if (!isset($oCriteria->record->group_id) && !isset($oCriteria->GroupOrLikeNum)) {
+			if (!empty($oPosted->userGroup)) {
+				$oCriteria->record->group_id = $oPosted->userGroup;
+			}
+		}
+
+		/* 记录的创建人 */
 		if (!empty($oPosted->creator) && $oPosted->creator !== 'all') {
 			$oCriteria->record->user_id = $oPosted->creator;
 		}
@@ -508,10 +579,14 @@ class repos extends base {
 			$oRule = $oActionRule->record->like->end;
 			if (!empty($oRule->min)) {
 				$oAppUser = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, ['fields' => 'id,do_like_num', 'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '']);
-				if ($oAppUser && (int) $oAppUser->do_like_num >= (int) $oRule->min) {
-					$oRule->_ok = [(int) $oAppUser->do_like_num];
+				if ($oAppUser) {
+					if ($oAppUser && (int) $oAppUser->do_like_num >= (int) $oRule->min) {
+						$oRule->_ok = [(int) $oAppUser->do_like_num];
+					} else {
+						$oRule->_no = [(int) $oRule->min - (int) $oAppUser->do_like_num];
+					}
 				} else {
-					$oRule->_no = [(int) $oRule->min - (int) $oAppUser->do_like_num];
+					$oRule->_no = [(int) $oRule->min];
 				}
 				$oRule->id = 'record.like.end';
 				$tasks[] = $oRule;

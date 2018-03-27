@@ -77,7 +77,7 @@ class remark extends base {
 	 * @param $remark 被留言的留言
 	 *
 	 */
-	public function add_action($ek, $data, $remark = 0) {
+	public function add_action($ek, $data = 0, $remark = 0) {
 		$recDataId = $data;
 
 		$modelRec = $this->model('matter\enroll\record');
@@ -126,7 +126,7 @@ class remark extends base {
 		$oRemark->enroll_group_id = $oRecord->group_id;
 		$oRemark->enroll_userid = $oRecord->userid;
 		$oRemark->schema_id = isset($oRecData) ? $oRecData->schema_id : '';
-		$oRemark->data_id = $recDataId;
+		$oRemark->data_id = empty($recDataId) ? 0 : $recDataId;
 		$oRemark->remark_id = $remark;
 		$oRemark->create_at = $current;
 		$oRemark->content = $modelRec->escape($oPosted->content);

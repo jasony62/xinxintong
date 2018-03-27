@@ -363,12 +363,12 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     oNewSchema = schemaLib.newSchema('html', $scope.app, oProto);
                     switch (mediaType) {
                         case 'vedio':
-                            html = '<div><video controls="controls" style="width:100%;">';
+                            html = '<div><video controls="controls" preload="none" style="width:100%;">';
                             html += '<source src="' + mediaUrl + '" type="' + oAttachment.type + '" />';
                             html += '</video></div>';
                             break;
                         case 'audio':
-                            html = '<div><audio controls="controls" style="width:100%;">';
+                            html = '<div><audio controls="controls" preload="none" style="width:100%;">';
                             html += '<source src="' + mediaUrl + '" type="' + oAttachment.type + '" />';
                             html += '</audio></div>';
                             break;

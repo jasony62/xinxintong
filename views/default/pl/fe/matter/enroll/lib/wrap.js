@@ -561,7 +561,7 @@ define([], function() {
         $wrap = $(domWrap);
         if (oPage) {
             oSchema.id = $wrap.attr('schema');
-            oWrap = oPage.wrapBySchema(schema);
+            oWrap = oPage.wrapBySchema(oSchema);
         }
 
         if (oWrap) return oWrap;
@@ -776,24 +776,27 @@ define([], function() {
     };
     ValueWrap.prototype.embed = function(oWrap) {
         var wrapAttrs, label, html, config = oWrap.config,
-            schema = oWrap.schema;
+            oSchema = oWrap.schema;
 
         wrapAttrs = this.wrapAttrs(oWrap);
-        if (schema.type === 'html') {
-            html = schema.content;
+        if (oSchema.type === 'html') {
+            html = oSchema.content;
+            if (oSchema.mediaType) {
+                html = '<label>' + oSchema.title + '</label>' + html;
+            }
             return {
                 tag: 'div',
                 attrs: {
                     id: config.id,
                     wrap: 'value',
-                    schema: schema.id,
-                    'schema-type': schema.type,
+                    schema: oSchema.id,
+                    'schema-type': oSchema.type,
                     'class': 'form-group'
                 },
                 html: html
             }
         } else {
-            label = '<label>' + schema.title + '</label>'
+            label = '<label>' + oSchema.title + '</label>'
             html = label + this.htmlValue(schema);
             return {
                 tag: 'div',
@@ -813,10 +816,10 @@ define([], function() {
             $dom.attr(embeded.attrs);
             $dom.html(embeded.html);
         } else {
-            if (oSchema.type === 'html') {
-                $dom.html(oSchema.content);
-            } else {
+            if (oSchema.type !== 'html' || oSchema.mediaType) {
                 $dom.find('label').html(oSchema.title);
+            } else {
+                $dom.html(oSchema.content);
             }
             config.inline === 'Y' ? $dom.addClass('wrap-inline') : $dom.removeClass('wrap-inline');
             config.splitLine === 'Y' ? $dom.addClass('wrap-splitline') : $dom.removeClass('wrap-splitline');

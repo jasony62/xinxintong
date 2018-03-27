@@ -582,6 +582,7 @@ class enroll_model extends enroll_base {
 		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新登记活动' : $this->escape($oCustomConfig->proto->title);
 		$oNewApp->summary = empty($oCustomConfig->proto->summary) ? '' : $this->escape($oCustomConfig->proto->summary);
 		$oNewApp->can_repos = empty($oCustomConfig->proto->can_repos) ? 'N' : $this->escape($oCustomConfig->proto->can_repos);
+		$oNewApp->repos_unit = empty($oCustomConfig->proto->repos_unit) ? 'Y' : $this->escape($oCustomConfig->proto->repos_unit);
 		$oNewApp->can_rank = empty($oCustomConfig->proto->can_rank) ? 'N' : $this->escape($oCustomConfig->proto->can_rank);
 		$oNewApp->enroll_app_id = empty($oCustomConfig->proto->enrollApp->id) ? '' : $this->escape($oCustomConfig->proto->enrollApp->id);
 		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;

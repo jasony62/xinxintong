@@ -95,7 +95,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         }
         return { desc: desc, gap: gap };
     };
-    $scope.recommend = function(value) {
+    $scope.setAgreed = function(value) {
         var url, oRecord, oRecData;
         if ($scope.bRemarkRecord) {
             oRecord = $scope.record;
@@ -272,6 +272,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
          * 分组信息
          */
         var groupOthersById;
+        $scope.groupUser = params.groupUser;
         if (params.groupOthers && params.groupOthers.length) {
             groupOthersById = {};
             params.groupOthers.forEach(function(oOther) {

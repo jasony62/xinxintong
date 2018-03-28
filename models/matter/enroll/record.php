@@ -12,14 +12,14 @@ class record_model extends record_base {
 	 * @param object $app
 	 * @param object $oUser [uid,nickname]
 	 */
-	public function enroll(&$oApp, $oUser = null, $aOptions = []) {
+	public function enroll($oApp, $oUser = null, $aOptions = []) {
 		$referrer = isset($aOptions['referrer']) ? $aOptions['referrer'] : '';
 		$enrollAt = isset($aOptions['enrollAt']) ? $aOptions['enrollAt'] : time();
 		isset($aOptions['assignRid']) && $assignRid = $aOptions['assignRid'];
 
 		$ek = $this->genKey($oApp->siteid, $oApp->id);
 
-		$record = [
+		$aRecord = [
 			'aid' => $oApp->id,
 			'siteid' => $oApp->siteid,
 			'enroll_at' => $enrollAt,
@@ -32,32 +32,40 @@ class record_model extends record_base {
 		/* 记录所属轮次 */
 		$modelRun = $this->model('matter\enroll\round');
 		if (isset($assignRid)) {
-			$record['rid'] = $assignRid;
+			$aRecord['rid'] = $assignRid;
 		} else if ($oActiveRound = $modelRun->getActive($oApp)) {
-			$record['rid'] = $oActiveRound->rid;
+			$aRecord['rid'] = $oActiveRound->rid;
 		}
 		/* 登记用户昵称 */
 		if (isset($aOptions['nickname'])) {
-			$record['nickname'] = $this->escape($aOptions['nickname']);
+			$aRecord['nickname'] = $this->escape($aOptions['nickname']);
 		} else {
 			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $aOptions);
-			$record['nickname'] = $this->escape($nickname);
+			$aRecord['nickname'] = $this->escape($nickname);
 		}
 		/* 登记用户的社交账号信息 */
 		if (!empty($oUser)) {
 			$oUserOpenids = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid']);
 			if ($oUserOpenids) {
-				$record['wx_openid'] = $oUserOpenids->wx_openid;
-				$record['yx_openid'] = $oUserOpenids->yx_openid;
-				$record['qy_openid'] = $oUserOpenids->qy_openid;
+				$aRecord['wx_openid'] = $oUserOpenids->wx_openid;
+				$aRecord['yx_openid'] = $oUserOpenids->yx_openid;
+				$aRecord['qy_openid'] = $oUserOpenids->qy_openid;
+			}
+		}
+
+		/* 登记记录的表态 */
+		if (isset($oApp->actionRule->record->default->agreed)) {
+			$agreed = $oApp->actionRule->record->default->agreed;
+			if (in_array($agreed, ['A', 'D'])) {
+				$aRecord['agreed'] = $agreed;
 			}
 		}
 
 		/* 移动用户未签到的原因 */
 		if (!empty($oUser->uid)) {
-			$rid = !empty($record['rid']) ? $record['rid'] : 'ALL';
+			$rid = !empty($aRecord['rid']) ? $aRecord['rid'] : 'ALL';
 			if (isset($oApp->absent_cause->{$oUser->uid}) && isset($oApp->absent_cause->{$oUser->uid}->{$rid})) {
-				$record['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid}->{$rid});
+				$aRecord['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid}->{$rid});
 				unset($oApp->absent_cause->{$oUser->uid}->{$rid});
 				if (count(get_object_vars($oApp->absent_cause->{$oUser->uid})) == 0) {
 					unset($oApp->absent_cause->{$oUser->uid});
@@ -72,7 +80,7 @@ class record_model extends record_base {
 			}
 		}
 
-		$this->insert('xxt_enroll_record', $record, false);
+		$this->insert('xxt_enroll_record', $aRecord, false);
 
 		return $ek;
 	}
@@ -513,7 +521,7 @@ class record_model extends record_base {
 	 * records 数据列表
 	 * total 数据总条数
 	 */
-	public function byApp($oApp, $oOptions = null, $oCriteria = null) {
+	public function byApp($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}
@@ -592,6 +600,20 @@ class record_model extends record_base {
 		// 记录推荐状态
 		if (isset($oCriteria->record->agreed)) {
 			$w .= " and r.agreed='{$oCriteria->record->agreed}'";
+		}
+
+		// 讨论状态的记录仅提交人，同组用户或超级用户可见
+		if (isset($oUser)) {
+			if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+				if (!empty($oUser->uid)) {
+					$w .= " and (r.agreed<>'D'";
+					$w .= " or r.userid='{$oUser->uid}'";
+					if (!empty($oUser->group_id)) {
+						$w .= " or r.group_id='{$oUser->group_id}'";
+					}
+					$w .= ")";
+				}
+			}
 		}
 
 		// 预制条件：指定分组或赞同数大于

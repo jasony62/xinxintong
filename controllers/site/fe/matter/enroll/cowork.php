@@ -18,7 +18,7 @@ class cowork extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		if (empty($data)) {
 			/* 要更新的记录 */
-			$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,group_id,like_num']);
+			$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,group_id,like_num,agreed']);
 			if (false === $oRecord || $oRecord->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
@@ -47,7 +47,7 @@ class cowork extends base {
 				return new \ObjectNotFoundError();
 			}
 			/* 要更新的记录 */
-			$oRecord = $modelRec->byId($oRecData->enroll_key, ['fields' => 'id,state,data,like_num']);
+			$oRecord = $modelRec->byId($oRecData->enroll_key, ['fields' => 'id,state,data,like_num,agreed']);
 			if (false === $oRecord || $oRecord->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
@@ -104,6 +104,9 @@ class cowork extends base {
 		$oNewItem->schema_id = $oUpdatedSchema->id;
 		$oNewItem->value = $this->escape($oPosted->value);
 		$oNewItem->multitext_seq = count($oRecData->value) + 1;
+		if ($oRecord->agreed === 'D') {
+			$oNewItem->agreed = 'D';
+		}
 		$oNewItem->id = $modelData->insert('xxt_enroll_record_data', $oNewItem, true);
 
 		/* 更新题目数据 */

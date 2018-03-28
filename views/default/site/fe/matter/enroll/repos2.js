@@ -103,7 +103,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         url += '#cowork';
         location.href = url;
     };
-    $scope.recommend = function(oRecord, value) {
+    $scope.setAgreed = function(oRecord, value) {
         var url;
         if (oRecord.agreed !== value) {
             url = LS.j('record/agree', 'site');

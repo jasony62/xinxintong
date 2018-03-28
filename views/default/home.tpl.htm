@@ -41,20 +41,23 @@
                             <span class="site_fe_home site_fe_home_icon xxt_person"></span>
                             <span ng-bind="user.nickname"></span>
                         </a>
-                        <ul class="dropdown-menu hidden-xs" role="menu">
+                        <ul class="dropdown-menu dropdown-menu-lg hidden-xs" role="menu">
                             <li>
-                                <a href='/rest/pl/fe' target='_self' class="icon_sign">
-                                    <span class="site_fe_home site_fe_home_icon xxt_person_index"></span>我的工作台
+                                <a href='/rest/pl/fe' target='_self'>
+                                    <span class="site_fe_home_icon"><i class="site_fe_home xxt_person_index"></i></span>
+                                    <span class="dropdown-menu-text">我的工作台</span>
                                 </a>
                             </li>
                             <li>
-                                <a href='/rest/site/fe/user?site=platform' target='_self' class="icon_sign">
-                                    <span class="site_fe_home site_fe_home_icon xxt_setting"></span>账号信息设置
+                                <a href='/rest/site/fe/user?site=platform' target='_self'>
+                                    <span class="site_fe_home_icon"><i class="site_fe_home xxt_setting"></i></span>
+                                    <span class="dropdown-menu-text">账号信息设置</span>
                                 </a>
                             </li>
                             <li>
-                                <a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self' class="icon_sign">
-                                    <span class="site_fe_home site_fe_home_icon xxt_quite"></span>退出登录
+                                <a href='/rest/site/fe/user/logout/do?site=platform&redirect=Y' target='_self'>
+                                    <span class="site_fe_home_icon"><i class="site_fe_home xxt_quite"></i></span>
+                                    <span class="dropdown-menu-text">退出登录</span>
                                 </a>
                             </li>
                         </ul>

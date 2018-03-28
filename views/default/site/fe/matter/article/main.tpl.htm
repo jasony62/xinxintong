@@ -35,7 +35,7 @@
                             <a ng-href="{{'/rest/site/home?site='+site.id}}" target='_self' ng-bind="site.name"></a>
                             <div uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="site.can_subscribe==='Y'">
                                 <i class="glyphicon glyphicon-option-vertical" uib-dropdown-toggle></i>
-                                <ul class="dropdown-menu" uib-dropdown-menu>
+                                <ul class="dropdown-menu dropdown-menu-lg" uib-dropdown-menu>
                                     <li>
                                         <a href='' ng-click="subscribeSite()">关注</a>
                                     </li>

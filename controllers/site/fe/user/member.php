@@ -216,6 +216,11 @@ class member extends \site\fe\base {
 			throw new \Exception('程序异常：无法创建自定义用户');
 		}
 
+		// 如果通讯录被分组活动绑定，并且设置了自动更新用户，需要更新
+		if ($oNewMember->verified === 'Y') {
+			$modelMem->syncToGroupPlayer($oMschema->id, $oNewMember);
+		}
+
 		//记录站点活跃数
 		$this->model('site\active')->add($oNewMember->siteid, $cookieUser, 0, 'creatMember');
 
@@ -263,6 +268,11 @@ class member extends \site\fe\base {
 		/* 绑定当前站点用户 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->bindMember($oMschema->siteid, $oFound);
+
+		// 如果通讯录被分组活动绑定，并且设置了自动更新用户，需要更新
+		if ($oFound->verified === 'Y') {
+			$modelMem->syncToGroupPlayer($oFound->schema_id, $oFound);
+		}
 
 		return new \ResponseData($oFound);
 	}

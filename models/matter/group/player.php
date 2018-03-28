@@ -807,7 +807,7 @@ class player_model extends \TMS_MODEL {
 				$oUser->qy_openid = $oWallUser->qy_openid;
 				$oUser->headimgurl = $oWallUser->headimgurl;
 				if (empty($oWallUser->enroll_key)) {
-					$ek = $modelPly->genKey($site, $oGrpApp->id);
+					$ek = $this->genKey($site, $oGrpApp->id);
 					$oWallUser->enroll_key = $ek;
 				}
 				$this->enroll($oGrpApp, $oUser, ['enroll_key' => $oWallUser->enroll_key, 'enroll_at' => $oWallUser->join_at]);
@@ -818,5 +818,107 @@ class player_model extends \TMS_MODEL {
 		$oSourceApp->onlySpeaker = $onlySpeaker;
 
 		return $oSourceApp;
+	}
+	/**
+	 * 同步数据
+	 */
+	public function _syncRecord($siteId, &$objGrp, &$records, &$modelRec, $type = '', $assignRound = '') {
+		$this->setOnlyWriteDbConn(true);
+		$cnt = 0;
+		if (!empty($records)) {
+			$options = ['cascaded' => 'Y'];
+			foreach ($records as $record) {
+				if ($record->state === '1' || $record->state === 'N') {
+					if ($type === 'mschema') {
+						$record = $this->_getMschData($objGrp, $record->enroll_key);
+					} else {
+						$record = $modelRec->byId($record->enroll_key, $options);
+					}
+					$user = new \stdClass;
+					$user->uid = $record->userid;
+					$user->nickname = $record->nickname;
+					$user->wx_openid = $record->wx_openid;
+					$user->yx_openid = $record->yx_openid;
+					$user->qy_openid = $record->qy_openid;
+					$user->headimgurl = $record->headimgurl;
+					if ($oldPlayer = $this->byId($objGrp->id, $record->enroll_key, ['cascaded' => 'N'])) {
+						$updata = [];
+						if (!empty($assignRound) && is_object($assignRound)) {
+							$updata['round_id'] = $assignRound->round_id;
+							$updata['round_title'] = $assignRound->title;
+						}
+						if ($oldPlayer->nickname !== $user->nickname) {
+							$updata['nickname'] = $user->nickname;
+						}
+						if ($oldPlayer->wx_openid !== $user->wx_openid) {
+							$updata['wx_openid'] = $user->wx_openid;
+						}
+						if ($oldPlayer->yx_openid !== $user->yx_openid) {
+							$updata['yx_openid'] = $user->yx_openid;
+						}
+						if ($oldPlayer->qy_openid !== $user->qy_openid) {
+							$updata['qy_openid'] = $user->qy_openid;
+						}
+						if ($oldPlayer->headimgurl !== $user->headimgurl) {
+							$updata['headimgurl'] = $user->headimgurl;
+						}
+						if (!empty($updata)) {
+							$this->modify($record->enroll_key, $updata);
+						}
+						// 已经同步过的用户
+						$this->setData($objGrp, $record->enroll_key, $record->data);
+					} else {
+						// 新用户
+						$options2 = ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at];
+						if (!empty($assignRound) && is_object($assignRound)) {
+							$options2['round_id'] = $assignRound->round_id;
+							$options2['round_title'] = $assignRound->title;
+						}
+						$this->enroll($objGrp, $user, $options2);
+						$this->setData($objGrp, $record->enroll_key, $record->data);
+					}
+					$cnt++;
+				} else {
+					// 删除用户
+					if ($this->remove($objGrp->id, $record->enroll_key, true)) {
+						$cnt++;
+					}
+				}
+			}
+		}
+
+		return $cnt;
+	}
+	/**
+	 * 获取通讯录用户的data
+	 *
+	 */
+	public function _getMschData($objGrp, $id) {
+		/* 获取变化的登记数据 */
+		$modelRec = $this->model('site\user\member');
+		$q = [
+			'm.id enroll_key,m.modify_at enroll_at,m.name nickname,m.name,m.mobile,m.email,m.extattr,m.forbidden,m.userid,a.wx_openid,a.yx_openid,a.qy_openid,a.headimgurl',
+			'xxt_site_member m,xxt_site_account a',
+			"m.id = $id and a.uid = m.userid",
+		];
+		$record = $modelRec->query_obj_ss($q);
+		if ($record === false) {
+			return new \ResponseError('用户数据未查到');
+		}
+		if (!empty($record->extattr)) {
+			$extattr = json_decode($record->extattr);
+			foreach ($extattr as $k => $e) {
+				$record->{$k} = $e;
+			}
+		}
+
+		$dataSchemas = json_decode($objGrp->data_schemas);
+		$data = new \stdClass;
+		foreach ($dataSchemas as $ds) {
+			$data->{$ds->id} = isset($ds->format) ? $record->{$ds->format} : (isset($record->{$ds->id}) ? $record->{$ds->id} : '');
+		}
+
+		$record->data = $data;
+		return $record;
 	}
 }

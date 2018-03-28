@@ -575,7 +575,7 @@ class record_model extends record_base {
 		}
 
 		// 根据用户分组过滤
-		if (!empty($oCriteria->record->group_id)) {
+		if (isset($oCriteria->record->group_id)) {
 			$w .= " and r.group_id='{$oCriteria->record->group_id}'";
 		}
 
@@ -592,6 +592,13 @@ class record_model extends record_base {
 		// 记录推荐状态
 		if (isset($oCriteria->record->agreed)) {
 			$w .= " and r.agreed='{$oCriteria->record->agreed}'";
+		}
+
+		// 预制条件：指定分组或赞同数大于
+		if (isset($oCriteria->GroupOrLikeNum) && is_object($oCriteria->GroupOrLikeNum)) {
+			if (!empty($oCriteria->GroupOrLikeNum->group_id) && isset($oCriteria->GroupOrLikeNum->like_num)) {
+				$w .= " and (r.group_id='{$oCriteria->GroupOrLikeNum->group_id}' or r.like_num>={$oCriteria->GroupOrLikeNum->like_num})";
+			}
 		}
 
 		// 指定了记录标签

@@ -19,11 +19,10 @@ class data extends base {
 			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,state,data_schemas,action_rule']);
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,state,data_schemas,entry_rule,action_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
 		}
-
 		/* 是否限制了匿名规则 */
 		$bAnonymous = false;
 		if (isset($oApp->actionRule->cowork->anonymous)) {
@@ -70,8 +69,20 @@ class data extends base {
 					$q = [
 						$fields,
 						'xxt_enroll_record_data',
-						['state' => 1, 'enroll_key' => $ek, 'schema_id' => $oRecData->schema_id, 'multitext_seq' => (object) ['op' => '<>', 'pat' => '0']],
+						"state=1 and enroll_key='{$ek}' and schema_id='{$oRecData->schema_id}' and multitext_seq>0",
 					];
+					/* 是否设置了对其他组用户可见条件 */
+					$coworkRemarkLikeNum = 0;
+					if (isset($oApp->actionRule->cowork->remark->pre)) {
+						$oRule = $oApp->actionRule->cowork->remark->pre;
+						if (!empty($oRule->cowork->likeNum)) {
+							$coworkRemarkLikeNum = (int) $oRule->cowork->likeNum;
+						}
+					}
+					if ($coworkRemarkLikeNum) {
+						$oUser = $this->getUser($oApp);
+						$q[2] .= " and (group_id='" . (empty($oUser->group_id) ? '' : $oUser->group_id) . "' or like_num>={$coworkRemarkLikeNum})";
+					}
 					$oRecData->items = $modelRecDat->query_objs_ss($q);
 					foreach ($oRecData->items as $oItem) {
 						$oItem->like_log = empty($oItem->like_log) ? [] : json_decode($oItem->like_log);

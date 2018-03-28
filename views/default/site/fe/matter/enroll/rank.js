@@ -213,10 +213,18 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
                 $scope2.checkedRounds = oCheckedRounds = {};
                 $scope2.countOfChecked = 0;
                 $scope2.toggleCheckedRound = function(rid) {
-                    if (rid === 'ALL' && oCheckedRounds.ALL) {
-                        $scope2.checkedRounds = oCheckedRounds = { ALL: true };
-                    } else if (oCheckedRounds[rid]) {
-                        oCheckedRounds.ALL = false;
+                    if (rid === 'ALL') {
+                        if (oCheckedRounds.ALL) {
+                            $scope2.checkedRounds = oCheckedRounds = { ALL: true };
+                        } else {
+                            $scope2.checkedRounds = oCheckedRounds = {};
+                        }
+                    } else {
+                        if (oCheckedRounds[rid]) {
+                            delete oCheckedRounds.ALL;
+                        } else {
+                            delete oCheckedRounds[rid];
+                        }
                     }
                     $scope2.countOfChecked = Object.keys(oCheckedRounds).length;
                 };

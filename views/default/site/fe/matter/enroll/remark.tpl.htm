@@ -50,10 +50,10 @@
                                 </ul>
                                 <div ng-switch-when="file">
                                     <div ng-repeat="file in record.verbose[schema.id].value">
-                                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls" preload="none">
                                             <source src="{{file.url}}" type="{{file.type}}" />
                                         </video>
-                                        <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                        <audio ng-if="file.type.indexOf('audio')===0" controls="controls" preload="none">
                                             <source src="{{file.url}}" type="{{file.type}}" />
                                         </audio>
                                         <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />

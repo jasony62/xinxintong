@@ -70,6 +70,14 @@
                                             <input type='checkbox' ng-model="rule.record.anonymous.time.record.like.end">点赞（投票）截止时间前，记录匿名</label>
                                     </div>
                                     <div class='form-group'>
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' ng-model="rule.record.group.time.record.like.end">点赞（投票）截止时间前，共享页仅能查看本组记录</label>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每条记录获得多少个点赞（投票）后在共享页对其他组可见</label>
+                                        <input type='text' class='form-control' ng-model="rule.record.repos.pre.record.likeNum" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
                                         <label>每轮对记录点赞（投票）的要求说明</label>
                                         <textarea class='form-control' ng-model="rule.record.like.end.desc"></textarea>
                                     </div>
@@ -153,11 +161,19 @@
                                     </div>
                                     <div class='form-group'>
                                         <label class='checkbox-inline'>
+                                            <input type='checkbox' ng-model="rule.record.group.time.cowork.like.end">投票（点赞）截止时间前，共享页仅能查看本组记录</label>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class='checkbox-inline'>
                                             <input type='checkbox' ng-model="rule.cowork.anonymous.time.cowork.like.end">投票（点赞）截止时间前，协作填写（答案）匿名</label>
                                     </div>
                                     <div class='form-group'>
                                         <label>获得多少点赞（投票）的协同填写数据（答案）显示在共享页</label>
                                         <input type='text' class='form-control' ng-model="rule.cowork.repos.pre.cowork.likeNum" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每个填写数据（答案）获得多少个点赞（投票）后在讨论页对其他组可见</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.remark.pre.cowork.likeNum" placeholder="输入需要的数量">
                                     </div>
                                     <div class='form-group'>
                                         <label>每轮对每协作填写数据（答案）点赞（投票）的要求说明</label>

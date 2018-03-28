@@ -789,7 +789,7 @@ class player_model extends \TMS_MODEL {
 		$u = [
 			'*',
 			'xxt_wall_enroll',
-			"wid = '{$byApp}' and siteid = '{$site}'",
+			"wid = '{$byApp}' and siteid = '{$oGrpApp->siteid}'",
 		];
 		if ($onlySpeaker === 'Y') {
 			$u[2] .= " and last_msg_at>0";
@@ -807,7 +807,7 @@ class player_model extends \TMS_MODEL {
 				$oUser->qy_openid = $oWallUser->qy_openid;
 				$oUser->headimgurl = $oWallUser->headimgurl;
 				if (empty($oWallUser->enroll_key)) {
-					$ek = $this->genKey($site, $oGrpApp->id);
+					$ek = $this->genKey($oGrpApp->siteid, $oGrpApp->id);
 					$oWallUser->enroll_key = $ek;
 				}
 				$this->enroll($oGrpApp, $oUser, ['enroll_key' => $oWallUser->enroll_key, 'enroll_at' => $oWallUser->join_at]);

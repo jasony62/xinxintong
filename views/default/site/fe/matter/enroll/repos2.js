@@ -215,8 +215,15 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
             addRecord: {}
         };
         /*设置页面导航*/
+        var oAppNavs = {};
         if (_oApp.can_rank === 'Y') {
-            $scope.appNavs = { rank: {} };
+            oAppNavs.rank = {};
+        }
+        if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
+            oAppNavs.action = {};
+        }
+        if (Object.keys(oAppNavs).length) {
+            $scope.appNavs = oAppNavs;
         }
     });
     $scope.advCriteriaStatus = {

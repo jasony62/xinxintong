@@ -779,7 +779,7 @@ class event_model extends \TMS_MODEL {
 		$oTarget->type = 'cowork';
 		//
 		$oEvent = new \stdClass;
-		$oEvent->name = self::DoLikeEventName;
+		$oEvent->name = self::DoLikeCoworkEventName;
 		$oEvent->op = 'Y';
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oOperator;
@@ -977,7 +977,7 @@ class event_model extends \TMS_MODEL {
 		$oTarget->type = 'cowork';
 		//
 		$oEvent = new \stdClass;
-		$oEvent->name = self::DoLikeEventName;
+		$oEvent->name = self::DoLikeCoworkEventName;
 		$oEvent->op = 'N';
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oOperator;
@@ -1313,7 +1313,7 @@ class event_model extends \TMS_MODEL {
 		$oTarget->type = 'remark';
 		//
 		$oEvent = new \stdClass;
-		$oEvent->name = self::DoLikeEventName;
+		$oEvent->name = self::DoLikeRemarkEventName;
 		$oEvent->op = 'Y';
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oOperator;
@@ -1395,7 +1395,7 @@ class event_model extends \TMS_MODEL {
 		$oTarget->type = 'remark';
 		//
 		$oEvent = new \stdClass;
-		$oEvent->name = self::DoLikeEventName;
+		$oEvent->name = self::DoLikeRemarkEventName;
 		$oEvent->op = 'N';
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oOperator;
@@ -2014,5 +2014,40 @@ class event_model extends \TMS_MODEL {
 		$this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
 
 		return $oUpdatedUsrData;
+	}
+	/**
+	 * 返回活动事件日志
+	 */
+	public function logByApp($oApp, $oOptions = []) {
+		$fields = empty($oOptions['fields']) ? '*' : $oOptions['fields'];
+		$q = [
+			$fields,
+			'xxt_enroll_log',
+			['aid' => $oApp->id],
+		];
+		$q2 = ['o' => 'event_at desc'];
+
+		/* 查询结果分页 */
+		if (isset($oOptions['page']) && is_object($oOptions['page'])) {
+			$oPage = $oOptions['page'];
+		} else {
+			$oPage = (object) ['at' => 1, 'size' => 30];
+			$q2['r'] = ['o' => ((int) $oPage->at - 1) * (int) $oPage->size, 'l' => (int) $oPage->size];
+		}
+
+		$logs = $this->query_objs_ss($q, $q2);
+
+		$oResult = new \stdClass;
+		$oResult->logs = $logs;
+		/* 符合条件的数据总数 */
+		if (count($logs) < (int) $oPage->size) {
+			$oResult->total = ((int) $oPage->at - 1) * (int) $oPage->size + count($logs);
+		} else {
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$oResult->total = $total;
+		}
+
+		return $oResult;
 	}
 }

@@ -58,6 +58,9 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         if (oApp.can_rank === 'Y') {
             oAppNavs.rank = {};
         }
+        if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
+            oAppNavs.action = {};
+        }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
         }

@@ -34,6 +34,103 @@
     </nav>
     <div ng-cloak class='ng-cloak app'>
         <div class='container'>
+            <div class='row'>
+                <div class='col-md-12'>
+                    <div class='list-group'>
+                        <div class='action list-group-item' ng-repeat="log in logs">
+                            <div class='header'>
+                                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
+                                <div class='datetime text-muted'>{{log.event_at*1000|date:'MM-dd HH:mm'}}</div>
+                            </div>
+                            <div class='event' ng-switch on="log.event_name">
+                                <div ng-switch-when="site.matter.enroll.submit">
+                                    <span class='nickname'>{{log.nickname}}</span> 新增记录
+                                </div>
+                                <div ng-switch-when="site.matter.enroll.cowork.do.submit">
+                                    <span class='nickname'>{{log.nickname}}</span> 在
+                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录下新增数据
+                                </div>
+                                <div ng-switch-when="site.matter.enroll.data.do.remark">
+                                    <span class='nickname'>{{log.nickname}}</span> 在
+                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据下留言
+                                </div>
+                                <div ng-switch-when="site.matter.enroll.data.do.like">
+                                    <div ng-switch on="log.event_op">
+                                        <div ng-switch-when="Y">
+                                            <span class='nickname'>{{log.nickname}}</span> 对
+                                            <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录点赞
+                                        </div>
+                                        <div ng-switch-when="N">
+                                            <span class='nickname'>{{log.nickname}}</span> 对
+                                            <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录取消点赞
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-switch-when="site.matter.enroll.cowork.do.like">
+                                    <div ng-switch on="log.event_op">
+                                        <div ng-switch-when="Y">
+                                            <span class='nickname'>{{log.nickname}}</span> 对
+                                            <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据点赞
+                                        </div>
+                                        <div ng-switch-when="N">
+                                            <span class='nickname'>{{log.nickname}}</span> 对
+                                            <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据取消点赞
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-switch-when="site.matter.enroll.remark.do.like">
+                                    <div ng-switch on="log.event_op">
+                                        <div ng-switch-when="Y">
+                                            <span class='nickname'>{{log.nickname}}</span> 对
+                                            <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言点赞
+                                        </div>
+                                        <div ng-switch-when="N">
+                                            <span class='nickname'>{{log.nickname}}</span> 对
+                                            <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言取消点赞
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-switch-when="site.matter.enroll.data.get.agree">
+                                    <div ng-switch on="log.event_op">
+                                        <div ng-switch-when="Y">
+                                            <span class='nickname'>{{log.owner_nickname}}</span> 的记录获得推荐
+                                        </div>
+                                        <div ng-switch-default>
+                                            <span class='nickname'>{{log.owner_nickname}}</span> 的记录被修改了表态
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-switch-when="site.matter.enroll.cowork.get.agree">
+                                    <div ng-switch on="log.event_op">
+                                        <div ng-switch-when="Y">
+                                            <span class='nickname'>{{log.owner_nickname}}</span> 的数据获得推荐
+                                        </div>
+                                        <div ng-switch-default>
+                                            <span class='nickname'>{{log.owner_nickname}}</span> 的数据被修改了表态
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-switch-when="site.matter.enroll.remark.get.agree">
+                                    <div ng-switch on="log.event_op">
+                                        <div ng-switch-when="Y">
+                                            <span class='nickname'>{{log.owner_nickname}}</span> 的留言获得推荐
+                                        </div>
+                                        <div ng-switch-default>
+                                            <span class='nickname'>{{log.owner_nickname}}</span> 的留言被修改了表态
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-switch-default>
+                                    <div class='nickname'>{{log.nickname}}</div>
+                                    <div class='eventname'>{{log.eventName}}</div>
+                                    <div class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</div>
+                                    <div ng-if="log.event_op">{{log.event_op}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

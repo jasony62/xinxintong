@@ -375,4 +375,44 @@ class member_model extends \TMS_MODEL {
 
 		return $members;
 	}
+	/*
+	 * 如果通讯录被分组活动绑定进行需要自动同步
+	 */
+	public function syncToGroupPlayer($schemaId, $oNewMember) {
+		$user = new \stdClass;
+		$user->enroll_key = $oNewMember->id;
+		$user->state = $oNewMember->forbidden;
+		$users = [];
+		$users[] = $user;
+
+		$modelGrp = $this->model('matter\group');
+		$modelPly = $this->model('matter\group\player');
+		$modelRound = $this->model('matter\group\round');
+		$groups = $modelGrp->bySchemaApp($schemaId, ['autoSync' => 'Y']);
+		$groupIds = [];
+		if (!empty($groups)) {
+			foreach ($groups as $group) {
+				if (!empty($group->data_schemas)) {
+					$group->dataSchemas = json_decode($group->data_schemas);
+				} else {
+					$group->dataSchemas = [];
+				}
+				$assignRound = '';
+				if (!empty($group->sync_round)) {
+					$round = $modelRound->byId($group->sync_round, ['fields' => 'round_id,title']);
+					if ($round !== false) {
+						$assignRound = new \stdClass;
+						$assignRound->round_id = $round->round_id;
+						$assignRound->title = $round->title;
+					}
+				}
+
+				$cnt = $modelPly->_syncRecord($group->siteid, $group, $users, $this, 'mschema', $assignRound);
+
+				$groupIds[$group->id] = $cnt;
+			}
+		}
+
+		return $groupIds;
+	}
 }

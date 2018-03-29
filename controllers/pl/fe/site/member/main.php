@@ -59,8 +59,8 @@ class main extends \pl\fe\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$modelMem = $this->model('site\user\member');
-		$oldMember = $modelMem->byId($id, 'schema_id');
+		$modelMem = $this->model('site\user\member')->setOnlyWriteDbConn(true);
+		$oldMember = $modelMem->byId($id, ['fields' => 'schema_id']);
 		$attrs = $this->model('site\user\memberschema')->byId($oldMember->schema_id, ['fields' => 'attr_mobile,attr_email,attr_name,extattr']);
 
 		$oPosted = $this->getPostJson();
@@ -100,6 +100,12 @@ class main extends \pl\fe\base {
 			$newMember,
 			['siteid' => $site, 'id' => $id]
 		);
+
+		// 如果通讯录被分组活动绑定，并且设置了自动更新用户，需要更新用户
+		if (isset($newMember['verified']) && $newMember['verified'] === 'Y') {
+			$newMember2 = $modelMem->byId($id, ['fields' => 'id,forbidden,schema_id']);
+			$modelMem->syncToGroupPlayer($newMember2->schema_id, $newMember2);
+		}
 
 		return new \ResponseData($rst);
 	}

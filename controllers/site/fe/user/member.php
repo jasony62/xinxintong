@@ -247,7 +247,7 @@ class member extends \site\fe\base {
 
 		$oMember = $this->getPostJson();
 		/* 检查数据合法性。根据用户填写的自定义信息，找回数据。 */
-		$modelMem = $this->model('site\user\member');
+		$modelMem = $this->model('site\user\member')->setOnlyWriteDbConn(true);
 		if (false === ($oFound = $modelMem->findMember($oMember, $oMschema, false))) {
 			return new \ParameterError('找不到匹配的联系人信息');
 		}

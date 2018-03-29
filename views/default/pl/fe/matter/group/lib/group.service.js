@@ -156,7 +156,7 @@ provider('srvGroupApp', function() {
                                     }
                                 });
                                 _oApp._schemasById = schemasById;
-                                defer.resolve();
+                                defer.resolve(_oApp);
                             });
                         }
                     }

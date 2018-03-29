@@ -10,6 +10,13 @@ ngApp.controller('ctrlAction', ['$scope', '$sce', 'tmsLocation', 'http2', functi
             $scope.logs = _aLogs = rsp.data.logs;
         });
     };
+    $scope.gotoRemark = function(oLog) {
+        var url;
+        url = LS.j('', 'site', 'app');
+        url += '&ek=' + oLog.enroll_key;
+        url += '&page=remark';
+        location.href = url;
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
         /*设置页面导航*/

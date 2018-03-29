@@ -74,7 +74,7 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 记录事件日志
 	 */
-	private function _logEvent($oApp, $rid, $oTarget, $oEvent, $oOwnerEvent = null) {
+	private function _logEvent($oApp, $rid, $ek, $oTarget, $oEvent, $oOwnerEvent = null) {
 		$oNewLog = new \stdClass;
 		/* 事件 */
 		$oNewLog->event_name = $oEvent->name;
@@ -86,6 +86,7 @@ class event_model extends \TMS_MODEL {
 		$oNewLog->aid = $oApp->id;
 		$oNewLog->siteid = $oApp->siteid;
 		$oNewLog->rid = $rid;
+		$oNewLog->enroll_key = $ek;
 
 		/* 发起事件的用户 */
 		$oOperator = $oEvent->user;
@@ -278,7 +279,7 @@ class event_model extends \TMS_MODEL {
 		$oEvent->user = $oUser;
 		$oEvent->coin = isset($oUpdatedUsrData->user_total_coin) ? $oUpdatedUsrData->user_total_coin : 0;
 
-		$this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent);
+		$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent);
 
 		return true;
 	}
@@ -307,7 +308,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		$this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 执行提交协作填写项
@@ -414,7 +415,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent = new \stdClass;
 		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
 
-		$oLog = $this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$oLog = $this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 		/* 更新被撤销的事件 */
 		$this->update(
@@ -564,7 +565,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		$this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 留言填写数据
@@ -590,7 +591,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->user = (object) ['uid' => $oRecOrData->userid];
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		$this->_logEvent($oApp, $oRecOrData->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$this->_logEvent($oApp, $oRecOrData->rid, $oRecOrData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 留言填写数据
@@ -616,7 +617,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->user = (object) ['uid' => $oCowork->userid];
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		$this->_logEvent($oApp, $oCowork->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$this->_logEvent($oApp, $oCowork->rid, $oCowork->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 留言填写记录或数据
@@ -737,7 +738,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		$this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 赞同填写记录数据
@@ -763,7 +764,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		$this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 赞同填写协作记录数据
@@ -789,7 +790,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		$this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 *
@@ -923,7 +924,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent = new \stdClass;
 		$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
 
-		$oLog = $this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$oLog = $this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 		/* 更新被撤销的事件 */
 		$this->update(
@@ -954,7 +955,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent = new \stdClass;
 		$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
 
-		$oLog = $this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$oLog = $this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 		/* 更新被撤销的事件 */
 		$this->update(
@@ -985,7 +986,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent = new \stdClass;
 		$oOwnerEvent->user = (object) ['uid' => $oCowork->userid];
 
-		$oLog = $this->_logEvent($oApp, $oCowork->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$oLog = $this->_logEvent($oApp, $oCowork->rid, $oCowork->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 		/* 更新被撤销的事件 */
 		$this->update(
@@ -1323,7 +1324,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->user = (object) ['uid' => $oRemark->userid];
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-		$this->_logEvent($oApp, $oRemark->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 留言点赞
@@ -1403,7 +1404,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent = new \stdClass;
 		$oOwnerEvent->user = (object) ['uid' => $oRemark->userid];
 
-		$oLog = $this->_logEvent($oApp, $oRemark->rid, $oTarget, $oEvent, $oOwnerEvent);
+		$oLog = $this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 		/* 更新被撤销的事件 */
 		$this->update(
@@ -1501,7 +1502,7 @@ class event_model extends \TMS_MODEL {
 			$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
 			$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-			$this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
+			$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 		} else if ('Y' === $oRecord->agreed) {
 			$oOwnerData = $this->_undoGetAgreeRecOrData($oApp, $oRecord, $oOperator, $value, 'record');
 			$eventAt = time();
@@ -1519,7 +1520,7 @@ class event_model extends \TMS_MODEL {
 			$oOwnerEvent = new \stdClass;
 			$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
 
-			$oLog = $this->_logEvent($oApp, $oRecord->rid, $oTarget, $oEvent, $oOwnerEvent);
+			$oLog = $this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 			/* 更新被撤销的事件 */
 			$this->update(
@@ -1551,7 +1552,7 @@ class event_model extends \TMS_MODEL {
 			$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
 			$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-			$this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+			$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 		} else if ('Y' === $oRecData->agreed) {
 			$oOwnerData = $this->_undoGetAgreeRecOrData($oApp, $oRecData, $oOperator, $value, 'record.data');
 			$eventAt = time();
@@ -1569,7 +1570,7 @@ class event_model extends \TMS_MODEL {
 			$oOwnerEvent = new \stdClass;
 			$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
 
-			$oLog = $this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+			$oLog = $this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 			/* 更新被撤销的事件 */
 			$this->update(
@@ -1713,7 +1714,7 @@ class event_model extends \TMS_MODEL {
 			$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
 			$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-			$this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+			$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 		} else if ('Y' === $oRecData->agreed) {
 			$oOwnerData = $this->_undoGetAgreeCowork($oApp, $oRecData, $oOperator, $value);
 			$eventAt = time();
@@ -1731,7 +1732,7 @@ class event_model extends \TMS_MODEL {
 			$oOwnerEvent = new \stdClass;
 			$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
 
-			$oLog = $this->_logEvent($oApp, $oRecData->rid, $oTarget, $oEvent, $oOwnerEvent);
+			$oLog = $this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 			/* 更新被撤销的事件 */
 			$this->update(
@@ -1875,7 +1876,7 @@ class event_model extends \TMS_MODEL {
 			$oOwnerEvent->user = (object) ['uid' => $oRemark->userid];
 			$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
-			$this->_logEvent($oApp, $oRemark->rid, $oTarget, $oEvent, $oOwnerEvent);
+			$this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 		} else if ('Y' === $oRemark->agreed) {
 			$oOwnerData = $this->_undoGetAgreeRemark($oApp, $oRemark, $oOperator, $value);
 			$eventAt = time();
@@ -1893,7 +1894,7 @@ class event_model extends \TMS_MODEL {
 			$oOwnerEvent = new \stdClass;
 			$oOwnerEvent->user = (object) ['uid' => $oRemark->userid];
 
-			$oLog = $this->_logEvent($oApp, $oRemark->rid, $oTarget, $oEvent, $oOwnerEvent);
+			$oLog = $this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 			/* 更新被撤销的事件 */
 			$this->update(

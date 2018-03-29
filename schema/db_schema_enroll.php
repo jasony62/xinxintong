@@ -329,6 +329,7 @@ $sql .= "id bigint not null auto_increment";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",rid varchar(13) not null default ''";
+$sql .= ",enroll_key varchar(32) not null";
 $sql .= ",group_id varchar(32) not null default ''";
 $sql .= ",userid varchar(40) not null default ''"; // 发起操作的用户
 $sql .= ",nickname varchar(255) not null default ''"; // 发起操作的用户昵称

@@ -17,7 +17,8 @@ class event extends base {
 		}
 		$modelEvt = $this->model('matter\enroll\event');
 
-		$oResult = $modelEvt->logByApp($oApp);
+		$fields = 'rid,enroll_key,event_at,event_name,event_op,group_id,userid,nickname,earn_coin,owner_userid,owner_nickname,owner_earn_coin,target_id,target_type';
+		$oResult = $modelEvt->logByApp($oApp, ['fields' => $fields]);
 
 		return new \ResponseData($oResult);
 	}

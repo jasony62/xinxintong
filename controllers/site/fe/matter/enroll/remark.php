@@ -261,7 +261,7 @@ class remark extends base {
 	 */
 	public function like_action($remark) {
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,like_log']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,enroll_key,userid,like_log']);
 		if (false === $oRemark) {
 			return new \ObjectNotFoundError();
 		}
@@ -305,7 +305,7 @@ class remark extends base {
 	 */
 	public function agree_action($remark, $value = '') {
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,agreed,agreed_log']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,enroll_key,userid,agreed,agreed_log']);
 		if (false === $oRemark) {
 			return new \ObjectNotFoundError();
 		}

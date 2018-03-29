@@ -24,6 +24,15 @@
                                         <input type='text' class='form-control' ng-model="rule.record.submit.end.time.value" placeholder="输入需要的时间">
                                     </div>
                                     <div class='form-group'>
+                                        <label>提交的记录（问题）的默认表态</label>
+                                        <select class='form-control' ng-model="rule.record.default.agreed">
+                                            <option value=''></option>
+                                            <option value='A'>接受</option>
+                                            <option value='D'>讨论</option>
+                                        </select>
+                                        <div class='help-block'>【讨论】状态的记录仅记录的提交人或同组用户或超级用户可见</div>
+                                    </div>
+                                    <div class='form-group'>
                                         <label>每轮提交记录（问题）的要求说明</label>
                                         <textarea class='form-control' ng-model="rule.record.submit.end.desc"></textarea>
                                     </div>

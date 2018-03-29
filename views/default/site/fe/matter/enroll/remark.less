@@ -23,10 +23,6 @@ button.option {
 	padding: 0;
 }
 
-.dropdown-menu>li>a {
-	padding-left: 20px;
-}
-
 .glyphicon.like {
 	color: @brand-primary;
 }
@@ -39,11 +35,7 @@ button.option {
 	margin-left: 8px;
 }
 
-#record .bottom-bar {
-	justify-content: flex-end;
-}
-
-#cowork .bottom-bar .datetime, #remarks .bottom-bar .datetime {
+#record .bottom-bar .datetime, #cowork .bottom-bar .datetime, #remarks .bottom-bar .datetime {
 	color: #777;
 	flex: 1;
 	line-height: 30px;
@@ -73,12 +65,17 @@ p {
 	min-width: auto;
 }
 
-#record .user {
+#record .top-bar {
 	display: flex;
-}
 
-#record .user .nickname {
-	flex-grow: 1;
+	.nickname {
+		flex-grow: 1;
+	}
+
+	.label {
+		padding: .3em .6em;
+	}
+
 }
 
 #record .data blockquote>div+div {

@@ -115,8 +115,12 @@
                         <div class='record' ng-repeat="rec in repos">
                             <div class='header'>
                                 <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
-                                <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
-                                <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
+                                <div ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
+                                    <span ng-if="rec.agreed===''" class="label label-default">未表态</span>
+                                    <span ng-if="rec.agreed==='D'" class="label label-danger">讨论</span>
+                                    <span ng-if="rec.agreed==='A'" class="label label-success">接受</span>
+                                    <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
+                                </div>
                                 <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
                             </div>
                             <div class='data'>
@@ -163,10 +167,20 @@
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
                                 <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
-                                <span ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
-                                    <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
-                                    <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
-                                </span>
+                                <div ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
+                                    <div class="btn-group" uib-dropdown>
+                                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                                            表态
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
+                                            <li><a href ng-click="setAgreed(rec,'')">不表态</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'D')">讨论</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'A')">接受</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'Y')">推荐</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                             <div class='remarks' ng-if="rec.agreedRemarks.length">
                                 <div class='remark' ng-repeat="remark in rec.agreedRemarks">

@@ -798,8 +798,8 @@ class record extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 推荐登记记录中的某一个题
-	 * 只有组长才有权限做
+	 * 推荐登记记录中
+	 * 只有组长和超级用户才有权限
 	 *
 	 * @param string $ek
 	 * @param string $value
@@ -835,7 +835,7 @@ class record extends base {
 			}
 		}
 
-		if (!in_array($value, ['Y', 'N', 'A'])) {
+		if (!in_array($value, ['Y', 'N', 'A', 'D'])) {
 			$value = '';
 		}
 		$beforeValue = $oRecord->agreed;

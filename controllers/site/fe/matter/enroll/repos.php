@@ -313,7 +313,7 @@ class repos extends base {
 		}
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
-		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria);
+		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oUser);
 		if (!empty($oResult->records)) {
 			$modelData = $this->model('matter\enroll\data');
 			/* 是否限制了匿名规则 */

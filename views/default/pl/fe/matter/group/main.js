@@ -1,9 +1,14 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', '$q', 'srvSite', 'noticebox', 'srvGroupApp', '$uibModal', 'srvTag', function($scope, http2, $q, srvSite, noticebox, srvGroupApp, $uibModal, srvTag) {
+    ngApp.provider.controller('ctrlMain', ['cstApp', '$scope', 'http2', '$q', 'srvSite', 'noticebox', 'srvGroupApp', '$uibModal', 'srvTag', function(cstApp, $scope, http2, $q, srvSite, noticebox, srvGroupApp, $uibModal, srvTag) {
         $scope.update = function(names) {
             srvGroupApp.update(names).then(function(rsp) {
                 noticebox.success('完成保存');
+            });
+        };
+        $scope.assocWithApp = function() {
+            srvGroupApp.assocWithApp(cstApp.importSource).then(function(data) {
+                $scope.chooseAssocWitchApp = data;
             });
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {

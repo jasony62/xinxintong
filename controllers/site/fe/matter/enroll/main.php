@@ -62,6 +62,9 @@ class main extends base {
 				// 按数据进行共享
 				\TPL::output('/site/fe/matter/enroll/repos');
 			}
+		} elseif ($page === 'action') {
+			\TPL::assign('title', $oApp->title);
+			\TPL::output('/site/fe/matter/enroll/action');
 		} elseif ($page === 'remark') {
 			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/remark');
@@ -88,6 +91,9 @@ class main extends base {
 					// 按数据进行共享
 					\TPL::output('/site/fe/matter/enroll/repos');
 				}
+			} else if ($oOpenPage->name === 'action') {
+				\TPL::assign('title', $oApp->title);
+				\TPL::output('/site/fe/matter/enroll/action');
 			} else if ($oOpenPage->name === 'rank') {
 				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/rank');
@@ -277,7 +283,7 @@ class main extends base {
 			}
 		}
 
-		if (!in_array($page, ['repos', 'remark', 'rank', 'score'])) {
+		if (!in_array($page, ['action', 'repos', 'remark', 'rank', 'score'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */
 			if (empty($page)) {

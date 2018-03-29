@@ -397,16 +397,18 @@ class base extends \site\fe\base {
 					$modelMs = $this->model('site\user\memberschema');
 					foreach ($oEntryRule->member as $mschemaId => $oRule) {
 						$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
-						if ($oMschema->is_wx_fan === 'Y') {
-							$oApp2 = clone $oApp;
-							$oApp2->entryRule = new \stdClass;
-							$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
-							$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
-							if (false === $aResult[0]) {
-								return $aResult;
+						if ($oMschema) {
+							if ($oMschema->is_wx_fan === 'Y') {
+								$oApp2 = clone $oApp;
+								$oApp2->entryRule = new \stdClass;
+								$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
+								$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
+								if (false === $aResult[0]) {
+									return $aResult;
+								}
 							}
+							$aMemberSchemaIds[] = $mschemaId;
 						}
-						$aMemberSchemaIds[] = $mschemaId;
 					}
 					$this->gotoMember($oApp, $aMemberSchemaIds);
 				} else {

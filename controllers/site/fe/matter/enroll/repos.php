@@ -565,10 +565,15 @@ class repos extends base {
 				$oCriteria = new \stdClass;
 				$oCriteria->record = (object) ['rid' => isset($oActiveRnd) ? $oActiveRnd->rid : ''];
 				$oResult = $this->model('matter\enroll\record')->byApp($oApp, null, $oCriteria);
-				if ($oResult->total >= $oRule->record->num) {
+				if ((int) $oResult->total >= (int) $oRule->record->num) {
 					$oRule->_ok = [(int) $oResult->total];
 				} else {
 					$oRule->_no = [(int) $oRule->record->num - (int) $oResult->total];
+					$desc = empty($oRule->desc) ? ('提交【' . $oRule->record->num . '条】记录后开启点赞（投票）') : $oRule->desc;
+					if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+						$desc .= '，';
+					}
+					$oRule->desc .= '还需提交【' . ((int) $oRule->record->num - (int) $oResult->total) . '条】记录。';
 				}
 				$oRule->id = 'record.like.pre';
 				$tasks[] = $oRule;

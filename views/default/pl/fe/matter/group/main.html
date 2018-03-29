@@ -58,13 +58,27 @@
             </div>
             <div class='form-group' ng-if="app.sourceApp">
                 <label>分组用户来源</label>
-                <div class="input-group">
-                    <input class='form-control' value="{{app.sourceApp.title}}" disabled="">
-                    <div class="input-group-btn">
-                        <button class="btn btn-default" ng-click="cancelSourceApp()">
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                        <a class='btn btn-default' href='' ng-click="gotoSourceApp()"><span class='glyphicon glyphicon-new-window'></span></a>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input class='form-control' value="{{app.sourceApp.title}}" disabled="">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" ng-click="cancelSourceApp()">
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                            <a class='btn btn-default' href='' ng-click="gotoSourceApp()"><span class='glyphicon glyphicon-new-window'></span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="app.sourceApp.type=='mschema'||chooseAssocWitchApp.sourceApp.type=='memberschema'">
+                    <label class='checkbox-inline'>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.auto_sync' ng-change="update('auto_sync')">自动同步用户
+                    </label>
+                    <div class="form-group" ng-if="app.auto_sync=='Y'">
+                        默认同步到：
+                        <select class="form-control" ng-model="app.sync_round" ng-change="update('sync_round')">
+                            <option value="">无</option>
+                            <option value="{{round.round_id}}" ng-repeat="round in app.rounds">{{round.title}}</option>
+                        </select>
                     </div>
                 </div>
             </div>

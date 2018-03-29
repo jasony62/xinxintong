@@ -797,7 +797,7 @@ define([], function() {
             }
         } else {
             label = '<label>' + oSchema.title + '</label>'
-            html = label + this.htmlValue(schema);
+            html = label + this.htmlValue(oSchema);
             return {
                 tag: 'div',
                 attrs: wrapAttrs,

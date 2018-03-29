@@ -2024,8 +2024,16 @@ class event_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_enroll_log',
-			['aid' => $oApp->id],
+			"aid='{$oApp->id}'",
 		];
+
+		/* 按用户筛选 */
+		if (isset($oOptions['user']) && is_object($oOptions['user'])) {
+			$oUser = $oOptions['user'];
+			if (!empty($oUser->uid)) {
+				$q[2] .= " and(userid='{$oUser->uid}' or owner_userid='{$oUser->uid}')";
+			}
+		}
 		$q2 = ['o' => 'event_at desc'];
 
 		/* 查询结果分页 */
@@ -2033,8 +2041,8 @@ class event_model extends \TMS_MODEL {
 			$oPage = $oOptions['page'];
 		} else {
 			$oPage = (object) ['at' => 1, 'size' => 30];
-			$q2['r'] = ['o' => ((int) $oPage->at - 1) * (int) $oPage->size, 'l' => (int) $oPage->size];
 		}
+		$q2['r'] = ['o' => ((int) $oPage->at - 1) * (int) $oPage->size, 'l' => (int) $oPage->size];
 
 		$logs = $this->query_objs_ss($q, $q2);
 

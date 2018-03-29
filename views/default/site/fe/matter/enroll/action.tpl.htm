@@ -36,12 +36,16 @@
         <div class='container'>
             <div class='row'>
                 <div class='col-md-12'>
+                    <div class='form-group'>
+                        <label class='radio-inline'>
+                            <input type='radio' name='scope' value='A' ng-model="filter.scope">全部</label>
+                        <label class='radio-inline'>
+                            <input type='radio' name='scope' value='M' ng-model="filter.scope">我的</label>
+                    </div>
+                    <!--log list-->
                     <div class='list-group'>
                         <div class='action list-group-item' ng-repeat="log in logs">
-                            <div class='header'>
-                                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
-                                <div class='datetime text-muted'>{{log.event_at*1000|date:'MM-dd HH:mm'}}</div>
-                            </div>
+                            <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
                             <div class='event' ng-switch on="log.event_name">
                                 <div ng-switch-when="site.matter.enroll.submit">
                                     <span class='nickname'>{{log.nickname}}</span> 新增记录
@@ -126,8 +130,24 @@
                                     <div class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</div>
                                     <div ng-if="log.event_op">{{log.event_op}}</div>
                                 </div>
+                                <div class='coin' ng-if="log.earn_coin>0">
+                                    <span>{{log.nickname}}</span> 得到 <span>{{log.earn_coin}}</span> 个积分
+                                </div>
+                                <div class='coin' ng-if="log.owner_earn_coin>0">
+                                    <span>{{log.owner_nickname}}</span> 得到 <span>{{log.owner_earn_coin}}</span> 个积分
+                                </div>
+                            </div>
+                            <div class='footer'>
+                                <div class='datetime text-muted'>{{log.event_at*1000|date:'MM-dd HH:mm'}}</div>
+                                <div ng-if="log.canGotoRemark">
+                                    <a href ng-click="gotoRemark(log)">讨论<span class='glyphicon glyphicon-menu-right'></span></a>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <!--end log list-->
+                    <div class='site-pagination text-center'>
+                        <ul uib-pagination ng-if="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="search()"></ul>
                     </div>
                 </div>
             </div>

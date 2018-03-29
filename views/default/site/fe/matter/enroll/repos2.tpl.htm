@@ -114,7 +114,7 @@
                     <div class='records'>
                         <div class='record' ng-repeat="rec in repos">
                             <div class='header'>
-                                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
+                                <div class='seq label label-default'>{{$index+1}}</div>
                                 <div ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
                                     <span ng-if="rec.agreed===''" class="label label-default">未表态</span>
                                     <span ng-if="rec.agreed==='D'" class="label label-danger">讨论</span>
@@ -166,7 +166,7 @@
                             <div class='bottom-bar'>
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
-                                <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
+                                <button ng-if="schema.remarkable==='Y'" class='btn btn-default btn-sm' ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
                                 <div ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
                                     <div class="btn-group" uib-dropdown>
                                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>

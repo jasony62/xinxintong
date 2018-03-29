@@ -2,24 +2,45 @@ body {
     margin-bottom: 64px;
 }
 
-.header {
-    display: flex;
+.action {
+    position: relative;
 
     .seq {
-        margin-right: 8px;
+        position: absolute;
+        top: -0.8em;
+        left: -0.5em;
+
+        &.label {
+            padding-bottom: .2em;
+            font-weight: 400;
+            border-radius: .5em;
+        }
+
     }
 
-    .label {
-        padding-top: .3em
+    .event {
+        &>*+* {
+            margin-top: .5em;
+        }
+
     }
 
-    .datetime {
-        flex: 1;
-        text-align: right;
+    .footer {
+        display: flex;
+        margin-top: .5em;
         font-size: .9em;
+
+        .datetime {
+            flex: 1;
+        }
+
     }
+
 }
 
-.event {
-    margin-top: 1em;
+.site-pagination {
+    ul {
+        margin: 0;
+    }
+
 }

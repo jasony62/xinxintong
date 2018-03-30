@@ -13,6 +13,7 @@
             <select class='form-control' ng-switch-when="submit" ng-model='activeWrap.schema.next' ng-change="updWrap()">
                 <option value=''>不跳转</option>
                 <option value='{{p.name}}' ng-repeat="p in nextPages">{{p.title}}</option>
+                <option value='action'>活动动态页</option>
                 <option value='repos'>共享数据页</option>
                 <option value='rank'>排行榜</option>
                 <option value='score'>测验结果</option>
@@ -34,6 +35,7 @@
             <select class='form-control' ng-switch-default ng-model='activeWrap.schema.next' ng-change="updWrap()">
                 <option value=''>不跳转</option>
                 <option value='{{p.name}}' ng-repeat="p in nextPages">{{p.title}}</option>
+                <option value='action'>活动动态页</option>
                 <option value='repos'>共享数据页</option>
                 <option value='rank'>排行榜</option>
                 <option value='score'>测验结果</option>

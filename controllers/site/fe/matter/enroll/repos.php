@@ -313,7 +313,7 @@ class repos extends base {
 		}
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
-		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria);
+		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oUser);
 		if (!empty($oResult->records)) {
 			$modelData = $this->model('matter\enroll\data');
 			/* 是否限制了匿名规则 */
@@ -517,105 +517,5 @@ class repos extends base {
 		$remarks = $modelRec->query_objs_ss($q, $q2);
 
 		return new \ResponseData($remarks);
-	}
-	/**
-	 * 共享相关任务
-	 */
-	public function task_action($app) {
-		$modelApp = $this->model('matter\enroll');
-
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state,entry_rule,action_rule']);
-		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		$modelRnd = $this->model('matter\enroll\round');
-		$oActiveRnd = $modelRnd->getActive($oApp);
-
-		$oUser = $this->getUser($oApp);
-
-		$oActionRule = $oApp->actionRule;
-
-		$tasks = [];
-		/* 对提交填写记录数量有要求 */
-		if (isset($oActionRule->record->submit->end)) {
-			$oRule = $oActionRule->record->submit->end;
-			if (!empty($oRule->min)) {
-				$oRecords = $this->model('matter\enroll\record')->byUser($oApp, $oUser, ['fields' => 'id', 'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '']);
-				if (count($oRecords) >= $oRule->min) {
-					$oRule->_ok = [count($oRecords)];
-				} else {
-					$oRule->_no = [(int) $oRule->min - count($oRecords)];
-				}
-				$oRule->id = 'record.submit.end';
-				/* 积分奖励 */
-				require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
-				$modelCoinRule = $this->model('matter\enroll\coin');
-				$aCoin = $modelCoinRule->coinByMatter(\matter\enroll\event_model::SubmitEventName, $oApp);
-				if ($aCoin && $aCoin[0]) {
-					$oRule->coin = $aCoin[1];
-				}
-				$tasks[] = $oRule;
-			}
-		}
-		/* 对开启点赞有要求 */
-		if (isset($oActionRule->record->like->pre)) {
-			$oRule = $oActionRule->record->like->pre;
-			if (!empty($oRule->record->num)) {
-				$oCriteria = new \stdClass;
-				$oCriteria->record = (object) ['rid' => isset($oActiveRnd) ? $oActiveRnd->rid : ''];
-				$oResult = $this->model('matter\enroll\record')->byApp($oApp, null, $oCriteria);
-				if ($oResult->total >= $oRule->record->num) {
-					$oRule->_ok = [(int) $oResult->total];
-				} else {
-					$oRule->_no = [(int) $oRule->record->num - (int) $oResult->total];
-				}
-				$oRule->id = 'record.like.pre';
-				$tasks[] = $oRule;
-			}
-		}
-		/* 对提交填写记录的投票数量有要求 */
-		if (isset($oActionRule->record->like->end)) {
-			$oRule = $oActionRule->record->like->end;
-			if (!empty($oRule->min)) {
-				$oAppUser = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, ['fields' => 'id,do_like_num', 'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '']);
-				if ($oAppUser) {
-					if ($oAppUser && (int) $oAppUser->do_like_num >= (int) $oRule->min) {
-						$oRule->_ok = [(int) $oAppUser->do_like_num];
-					} else {
-						$oRule->_no = [(int) $oRule->min - (int) $oAppUser->do_like_num];
-					}
-				} else {
-					$oRule->_no = [(int) $oRule->min];
-				}
-				$oRule->id = 'record.like.end';
-				$tasks[] = $oRule;
-			}
-		}
-		/* 对组长的任务要求 */
-		if (!empty($oUser->group_id) && isset($oUser->is_leader) && $oUser->is_leader === 'Y') {
-			/* 对组长推荐记录的要求 */
-			if (isset($oActionRule->leader->record->agree->end)) {
-				$oRule = $oActionRule->leader->record->agree->end;
-				if (!empty($oRule->min)) {
-					$oCriteria = new \stdClass;
-					$oCriteria->record = (object) [
-						'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '',
-						'group_id' => $oUser->group_id,
-						'agreed' => 'Y',
-					];
-					$oResult = $this->model('matter\enroll\record')->byApp($oApp, null, $oCriteria);
-					if ($oResult->total >= $oRule->min) {
-						$oRule->_ok = [(int) $oResult->total];
-					} else {
-						$oRule->_no = [(int) $oRule->min - (int) $oResult->total];
-					}
-					$oRule->id = 'leader.record.agree.end';
-					$tasks[] = $oRule;
-				}
-			}
-		}
-
-		return new \ResponseData($tasks);
 	}
 }

@@ -10,6 +10,7 @@ module.exports = {
         '/site/fe/matter/enroll/input': ['./views/default/site/fe/matter/enroll/input.js'],
         '/site/fe/matter/enroll/view': ['./views/default/site/fe/matter/enroll/view.js'],
         '/site/fe/matter/enroll/list': ['./views/default/site/fe/matter/enroll/list.js'],
+        '/site/fe/matter/enroll/action': ['./views/default/site/fe/matter/enroll/action.js'],
         '/site/fe/matter/enroll/remark': ['./views/default/site/fe/matter/enroll/remark.js'],
         '/site/fe/matter/enroll/repos': ['./views/default/site/fe/matter/enroll/repos.js'],
         '/site/fe/matter/enroll/repos2': ['./views/default/site/fe/matter/enroll/repos2.js'],
@@ -21,7 +22,7 @@ module.exports = {
         '/site/fe/matter/signin/view': ['./views/default/site/fe/matter/signin/view.js'],
         '/site/fe/matter/signin/preview': ['./views/default/site/fe/matter/signin/preview.js'],
         '/site/fe/matter/plan/main': ['./views/default/site/fe/matter/plan/main.js'],
-        '/site/fe/invite/access':['./views/default/site/fe/invite/access.js']
+        '/site/fe/invite/access': ['./views/default/site/fe/invite/access.js']
     },
     output: {
         path: path.resolve(__dirname, 'bundles/default'),

@@ -65,8 +65,17 @@ class remark_model extends \TMS_MODEL {
 		if (!empty($schemaId)) {
 			$q[2] .= " and schema_id='$schemaId'";
 		}
-		if (!empty($oUser->uid)) {
-			$q[2] .= " and (agreed<>'N' or userid='{$oUser->uid}')";
+		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+			if (!empty($oUser->uid)) {
+				$w = " and (";
+				$w .= "(agreed<>'N' and agreed<>'D')";
+				$w .= " or userid='{$oUser->uid}'";
+				if (!empty($oUser->group_id)) {
+					$w .= " or group_id='{$oUser->group_id}'";
+				}
+				$w .= ")";
+				$q[2] .= $w;
+			}
 		}
 		if (isset($oOptions['agreed']) && $oOptions['agreed'] === 'Y') {
 			$q[2] .= " and agreed='Y'";

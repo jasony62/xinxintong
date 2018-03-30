@@ -76,6 +76,12 @@ ul {
 }
 
 .site_fe_home {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top:0;
+	left: 0;
+	background-repeat: no-repeat;
 	background-image: url('/static/img/site_fe_home.png');
 }
 
@@ -104,10 +110,14 @@ ul {
 
 /* 字体图标图片 */
 .site_fe_home_icon {
+	display: inline-block;
 	position: absolute;
 	width: 18px;
 	height: 18px;
 	background-repeat: no-repeat;
+	margin: auto;
+	top:0;
+	bottom:0;
 }
 
 .xxt_console {
@@ -124,20 +134,15 @@ ul {
 }
 
 .xxt_person {
-	top: 16px;
 	left: 15px;
 	background-position: -107px -32px;
 }
 
 .xxt_setting {
-	top: 58px;
-	left: 11px;
 	background-position: -112px -114px;
 }
 
 .xxt_quite {
-	top: 103px;
-	left: 12px;
 	background-position: -109px -165px;
 }
 
@@ -182,13 +187,17 @@ ul {
 	padding: 0px;
 }
 
-.dropdown-menu>li>a {
-	padding: 10px 20px 10px 40px;
+.dropdown-menu-lg>li>a {
+	padding:10px 20px;
+	position: relative;
 }
 
-.dropdown-menu>li>a>.xxt_person_index {
-	top: 14px;
-	left: 11px;
+.dropdown-menu>li>a>.dropdown-menu-text {
+	font-size: 14px;
+	margin-left: 30px;
+}
+
+.dropdown-menu>li>a .xxt_person_index {
 	background-position: -205px -71px;
 }
 

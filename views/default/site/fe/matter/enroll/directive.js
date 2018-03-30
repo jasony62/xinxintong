@@ -25,8 +25,9 @@ var ngMod = angular.module('directive.enroll', []);
 ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
     var html;
     html = "<div class='tms-nav-target'>";
-    html += "<div ng-if=\"navs.repos\"><button class='btn btn-default btn-sm btn-block' ng-click=\"goto($event,'repos')\">数据共享页</button></div>";
+    html += "<div ng-if=\"navs.repos\"><button class='btn btn-default btn-sm btn-block' ng-click=\"goto($event,'repos')\">共享页</button></div>";
     html += "<div ng-if=\"navs.rank\"><button class='btn btn-default btn-sm btn-block' ng-click=\"goto($event,'rank')\">排行页</button></div>";
+    html += "<div ng-if=\"navs.action\"><button class='btn btn-default btn-sm btn-block' ng-click=\"goto($event,'action')\">动态页</button></div>";
     html += "</div>";
     $templateCache.put('appNavTemplate.html', html);
     return {

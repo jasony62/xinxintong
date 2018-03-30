@@ -9,7 +9,7 @@ class main extends base {
 	/**
 	 *
 	 */
-	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,multi_rounds,read_num,repos_unit,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,rank_config';
+	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,multi_rounds,read_num,repos_unit,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,rank_config,scenario_config';
 	/**
 	 *
 	 */
@@ -62,6 +62,9 @@ class main extends base {
 				// 按数据进行共享
 				\TPL::output('/site/fe/matter/enroll/repos');
 			}
+		} elseif ($page === 'action') {
+			\TPL::assign('title', $oApp->title);
+			\TPL::output('/site/fe/matter/enroll/action');
 		} elseif ($page === 'remark') {
 			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/remark');
@@ -88,6 +91,9 @@ class main extends base {
 					// 按数据进行共享
 					\TPL::output('/site/fe/matter/enroll/repos');
 				}
+			} else if ($oOpenPage->name === 'action') {
+				\TPL::assign('title', $oApp->title);
+				\TPL::output('/site/fe/matter/enroll/action');
 			} else if ($oOpenPage->name === 'rank') {
 				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/rank');
@@ -277,7 +283,7 @@ class main extends base {
 			}
 		}
 
-		if (!in_array($page, ['repos', 'remark', 'rank', 'score'])) {
+		if (!in_array($page, ['action', 'repos', 'remark', 'rank', 'score'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */
 			if (empty($page)) {

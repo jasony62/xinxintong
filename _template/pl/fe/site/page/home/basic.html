@@ -8,7 +8,7 @@
                     <div>{{site.name}}</div>
                     <div uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="site.can_contribute==='Y'||site.can_subscribe==='Y'">
                         <i class="glyphicon glyphicon-option-vertical" uib-dropdown-toggle></i>
-                        <ul class="dropdown-menu" uib-dropdown-menu>
+                        <ul class="dropdown-menu dropdown-menu-lg" uib-dropdown-menu>
                             <li>
                                 <a ng-if="site.can_contribute==='Y'" href='' ng-click="contributeSite()">投稿</a>
                                 <a ng-if="site.can_subscribe==='Y'" href='' ng-click="subscribeSite()">关注</a>

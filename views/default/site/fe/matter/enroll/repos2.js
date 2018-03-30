@@ -156,7 +156,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         if (_oApp.actionRule) {
             /* 设置活动任务提示 */
             var tasks = [];
-            http2.get(LS.j('repos/task', 'site', 'app')).then(function(rsp) {
+            http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
                 if (rsp.data && rsp.data.length) {
                     rsp.data.forEach(function(oRule) {
                         if (!oRule._ok) {

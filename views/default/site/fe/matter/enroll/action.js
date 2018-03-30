@@ -39,6 +39,21 @@ ngApp.controller('ctrlAction', ['$scope', '$sce', 'tmsLocation', 'http2', functi
     }, true)
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
+        /* 活动任务 */
+        if (_oApp.actionRule) {
+            /* 设置活动任务提示 */
+            var tasks = [];
+            http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
+                if (rsp.data && rsp.data.length) {
+                    rsp.data.forEach(function(oRule) {
+                        if (!oRule._ok) {
+                            tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0, coin: oRule.coin ? oRule.coin : 0 });
+                        }
+                    });
+                }
+            });
+            $scope.tasks = tasks;
+        }
         /*设置页面导航*/
         var oAppNavs = {};
         if (_oApp.can_repos === 'Y') {

@@ -123,7 +123,7 @@ class event extends base {
 		if (isset($oActionRule->record->like->pre)) {
 			$oRule = $oActionRule->record->like->pre;
 			if (!empty($oRule->record->num)) {
-				if (!empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+				if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
 					if (!empty($oUser->group_id)) {
 						$oCriteria = new \stdClass;
 						$oCriteria->record = (object) ['rid' => empty($oActiveRnd) ? '' : $oActiveRnd->rid];

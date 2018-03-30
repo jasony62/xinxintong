@@ -96,7 +96,7 @@ class event extends base {
 		if (isset($oActionRule->record->submit->end)) {
 			$oRule = $oActionRule->record->submit->end;
 			if (!empty($oRule->min)) {
-				$oRecords = $this->model('matter\enroll\record')->byUser($oApp, $oUser, ['fields' => 'id', 'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '']);
+				$oRecords = $this->model('matter\enroll\record')->byUser($oApp, $oUser, ['fields' => 'id', 'rid' => empty($oActiveRnd) ? '' : $oActiveRnd->rid]);
 				if (count($oRecords) >= $oRule->min) {
 					$oRule->_ok = [count($oRecords)];
 				} else {
@@ -126,7 +126,7 @@ class event extends base {
 				if (!empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
 					if (!empty($oUser->group_id)) {
 						$oCriteria = new \stdClass;
-						$oCriteria->record = (object) ['rid' => isset($oActiveRnd) ? $oActiveRnd->rid : ''];
+						$oCriteria->record = (object) ['rid' => empty($oActiveRnd) ? '' : $oActiveRnd->rid];
 						$oCriteria->record->group_id = $oUser->group_id;
 						$oResult = $this->model('matter\enroll\record')->byApp($oApp, null, $oCriteria);
 						if ((int) $oResult->total >= (int) $oRule->record->num) {
@@ -149,7 +149,7 @@ class event extends base {
 		if (isset($oActionRule->record->like->end)) {
 			$oRule = $oActionRule->record->like->end;
 			if (!empty($oRule->min)) {
-				$oAppUser = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, ['fields' => 'id,do_like_num', 'rid' => isset($oActiveRnd) ? $oActiveRnd->rid : '']);
+				$oAppUser = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, ['fields' => 'id,do_like_num', 'rid' => empty($oActiveRnd) ? '' : $oActiveRnd->rid]);
 				if ($oAppUser) {
 					if ($oAppUser && (int) $oAppUser->do_like_num >= (int) $oRule->min) {
 						$oRule->_ok = [(int) $oAppUser->do_like_num];

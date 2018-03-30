@@ -109,7 +109,7 @@ class group_model extends app_base {
 		return $apps;
 	}
 	/**
-	 * 和登记活动关联的分组活动
+	 * 和签到活动关联的分组活动
 	 */
 	public function bySigninApp($signinAppId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -118,6 +118,23 @@ class group_model extends app_base {
 			'xxt_group',
 			['source_app' => '{"id":"' . $signinAppId . '","type":"signin"}'],
 		];
+		$apps = $this->query_objs_ss($q);
+
+		return $apps;
+	}
+	/**
+	 * 和通讯录关联的分组活动
+	 */
+	public function bySchemaApp($schemaId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_group',
+			['source_app' => '{"id":"' . $schemaId . '","type":"mschema"}'],
+		];
+		if (isset($options['autoSync'])) {
+			$q[2]['auto_sync'] = $options['autoSync'];
+		}
 		$apps = $this->query_objs_ss($q);
 
 		return $apps;

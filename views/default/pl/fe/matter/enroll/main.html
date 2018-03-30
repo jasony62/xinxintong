@@ -103,6 +103,10 @@
             </div>
             <div class='checkbox'>
                 <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_action" ng-change="update('scenarioConfig')">开放活动动态页</label>
+            </div>
+            <div class='checkbox'>
+                <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_coin" ng-change="update('can_coin')">支持用户积分</label>
             </div>
         </div>

@@ -24,12 +24,12 @@ class remark extends base {
 		$oUser = $this->getUser($oApp);
 
 		$modelRem = $this->model('matter\enroll\remark');
-		$options = [];
+		$aOptions = [];
 		if (!empty($data)) {
-			$options['data_id'] = $data;
+			$aOptions['data_id'] = $data;
 		}
 
-		$result = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $options);
+		$result = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
 
 		return new \ResponseData($result);
 	}
@@ -55,16 +55,16 @@ class remark extends base {
 
 		$oRecDatas = $this->model('matter\enroll\data')->getMultitext($ek, $schema, ['fields' => 'id,multitext_seq,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
 
-		$options = [];
+		$aOptions = [];
 		if (count($oRecDatas)) {
 			$data_ids = [];
 			foreach ($oRecDatas as $oRecData) {
 				$data_ids[] = $oRecData->id;
 			}
-			$options['data_id'] = $data_ids;
+			$aOptions['data_id'] = $data_ids;
 		}
 
-		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $options);
+		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
 
 		$result->data = $oRecDatas;
 
@@ -130,6 +130,10 @@ class remark extends base {
 		$oRemark->remark_id = $remark;
 		$oRemark->create_at = $current;
 		$oRemark->content = $modelRec->escape($oPosted->content);
+		/* 如果记录是讨论状态，留言也是讨论状态 */
+		if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
+			$oRemark->agreed = 'D';
+		}
 
 		$oRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oRemark, true);
 
@@ -257,7 +261,7 @@ class remark extends base {
 	 */
 	public function like_action($remark) {
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,like_log']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,enroll_key,userid,like_log']);
 		if (false === $oRemark) {
 			return new \ObjectNotFoundError();
 		}
@@ -301,7 +305,7 @@ class remark extends base {
 	 */
 	public function agree_action($remark, $value = '') {
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,userid,agreed,agreed_log']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,enroll_key,userid,agreed,agreed_log']);
 		if (false === $oRemark) {
 			return new \ObjectNotFoundError();
 		}

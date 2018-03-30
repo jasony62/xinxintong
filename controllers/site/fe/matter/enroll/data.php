@@ -71,6 +71,7 @@ class data extends base {
 						'xxt_enroll_record_data',
 						"state=1 and enroll_key='{$ek}' and schema_id='{$oRecData->schema_id}' and multitext_seq>0",
 					];
+					$oUser = $this->getUser($oApp);
 					/* 是否设置了对其他组用户可见条件 */
 					$coworkRemarkLikeNum = 0;
 					if (isset($oApp->actionRule->cowork->remark->pre)) {
@@ -80,8 +81,20 @@ class data extends base {
 						}
 					}
 					if ($coworkRemarkLikeNum) {
-						$oUser = $this->getUser($oApp);
 						$q[2] .= " and (group_id='" . (empty($oUser->group_id) ? '' : $oUser->group_id) . "' or like_num>={$coworkRemarkLikeNum})";
+					}
+					/* 过滤讨论 */
+					if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+						if (!empty($oUser->uid)) {
+							$w = " and (";
+							$w .= "(agreed<>'N' and agreed<>'D')";
+							$w .= " or userid='{$oUser->uid}'";
+							if (!empty($oUser->group_id)) {
+								$w .= " or group_id='{$oUser->group_id}'";
+							}
+							$w .= ")";
+							$q[2] .= $w;
+						}
 					}
 					$oRecData->items = $modelRecDat->query_objs_ss($q);
 					foreach ($oRecData->items as $oItem) {

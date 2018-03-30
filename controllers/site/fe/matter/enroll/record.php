@@ -733,14 +733,14 @@ class record extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 点赞登记记录中的某一个题
+	 * 点赞登记记录
 	 *
 	 * @param string $ek
 	 *
 	 */
 	public function like_action($ek) {
 		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek, ['fields' => 'id,enroll_key,state,aid,rid,userid,like_log,like_num']);
+		$oRecord = $modelRec->byId($ek, ['fields' => 'id,enroll_key,state,aid,rid,userid,group_id,like_log,like_num']);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -751,6 +751,24 @@ class record extends base {
 		}
 
 		$oUser = $this->getUser($oApp);
+
+		/* 检查是否满足了点赞的前置条件 */
+		if (!empty($oApp->actionRule->record->like->pre->record->num)) {
+			/* 当前轮次，当前组已经提交的记录数 */
+			$oRule = $oApp->actionRule->record->like->pre;
+			$oCriteria = new \stdClass;
+			$oCriteria->record = new \stdClass;
+			$oCriteria->record->group_id = $oRecord->group_id;
+			$oResult = $modelRec->byApp($oApp, ['fields' => 'id'], $oCriteria);
+			if ((int) $oResult->total < (int) $oRule->record->num) {
+				$desc = empty($oRule->desc) ? ('提交【' . $oRule->record->num . '条】记录后开启点赞（投票）') : $oRule->desc;
+				if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+					$desc .= '，';
+				}
+				$desc .= '还需提交【' . ((int) $oRule->record->num - (int) $oResult->total) . '条】记录。';
+				return new \ResponseError($desc);
+			}
+		}
 
 		$oLikeLog = $oRecord->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {
@@ -798,8 +816,8 @@ class record extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 推荐登记记录中的某一个题
-	 * 只有组长才有权限做
+	 * 推荐登记记录中
+	 * 只有组长和超级用户才有权限
 	 *
 	 * @param string $ek
 	 * @param string $value
@@ -835,7 +853,7 @@ class record extends base {
 			}
 		}
 
-		if (!in_array($value, ['Y', 'N', 'A'])) {
+		if (!in_array($value, ['Y', 'N', 'A', 'D'])) {
 			$value = '';
 		}
 		$beforeValue = $oRecord->agreed;

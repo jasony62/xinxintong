@@ -340,12 +340,6 @@ class event_model extends \TMS_MODEL {
 			$oUpdatedUsrData->do_cowork_num = 1;
 		}
 
-		/* 提交记录的积分奖励 */
-		$aCoinResult = $modelUsr->awardCoin($oApp, $oUser->uid, $oItem->rid, self::DoSubmitCoworkEventName);
-		if ($aCoinResult[0] === true) {
-			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-		}
-
 		$this->_updateUsrData($oApp, $oItem->rid, false, $oUser, $oUpdatedUsrData);
 
 		return $oUpdatedUsrData;
@@ -379,12 +373,6 @@ class event_model extends \TMS_MODEL {
 				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
 			}
 			$oUpdatedUsrData->cowork_num = 1;
-		}
-
-		/* 提交记录的积分奖励 */
-		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecData->userid, $oRecData->rid, self::GetSubmitCoworkEventName);
-		if ($aCoinResult[0] === true) {
-			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
 		}
 
 		$oUser = (object) ['uid' => $oRecData->userid];

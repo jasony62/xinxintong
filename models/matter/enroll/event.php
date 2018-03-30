@@ -90,8 +90,9 @@ class event_model extends \TMS_MODEL {
 
 		/* 发起事件的用户 */
 		$oOperator = $oEvent->user;
+		$oOperatorId = $this->_getOperatorId($oOperator);
 		$oNewLog->group_id = isset($oOperator->group_id) ? $oOperator->group_id : '';
-		$oNewLog->userid = $oOperator->uid;
+		$oNewLog->userid = $oOperatorId;
 		$oNewLog->nickname = isset($oOperator->nickname) ? $this->escape($oOperator->nickname) : '';
 
 		/* 事件操作的对象 */

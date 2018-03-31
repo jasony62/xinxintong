@@ -498,12 +498,14 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$anchorScroll', '$uibModa
                             var oRecData;
                             if (rsp.data.verbose && rsp.data.verbose[oSchema.id]) {
                                 oRecData = $scope.record.verbose[oSchema.id];
-                                oRecData.value = rsp.data.verbose[oSchema.id].items;
-                                oRecData.value.forEach(function(oItem) {
-                                    if (oItem.userid !== $scope.user.uid) {
-                                        oItem._others = true;
-                                    }
-                                });
+                                if (oRecData) {
+                                    oRecData.value = rsp.data.verbose[oSchema.id].items;
+                                    oRecData.value.forEach(function(oItem) {
+                                        if (oItem.userid !== $scope.user.uid) {
+                                            oItem._others = true;
+                                        }
+                                    });
+                                }
                             }
                             //$anchorScroll();
                         }, function() {});

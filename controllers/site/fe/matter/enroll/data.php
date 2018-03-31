@@ -72,25 +72,28 @@ class data extends base {
 						"state=1 and enroll_key='{$ek}' and schema_id='{$oRecData->schema_id}' and multitext_seq>0",
 					];
 					$oUser = $this->getUser($oApp);
-					/* 是否设置了对其他组用户可见条件 */
+					/* 是否设置了对其他组用户在评论页可见条件 */
 					$coworkRemarkLikeNum = 0;
 					if (isset($oApp->actionRule->cowork->remark->pre)) {
 						$oRule = $oApp->actionRule->cowork->remark->pre;
 						if (!empty($oRule->cowork->likeNum)) {
 							$coworkRemarkLikeNum = (int) $oRule->cowork->likeNum;
 						}
+						if ($coworkRemarkLikeNum) {
+							$q[2] .= " and (group_id='" . (empty($oUser->group_id) ? '' : $oUser->group_id) . "' or like_num>={$coworkRemarkLikeNum})";
+						}
 					}
-					if ($coworkRemarkLikeNum) {
-						$q[2] .= " and (group_id='" . (empty($oUser->group_id) ? '' : $oUser->group_id) . "' or like_num>={$coworkRemarkLikeNum})";
-					}
-					/* 过滤讨论 */
-					if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+					/* 根据状态和用户角色过滤答案 */
+					if ($oRecord->userid !== $oUser->uid && (empty($oUser->is_leader) || $oUser->is_leader !== 'S')) {
 						if (!empty($oUser->uid)) {
 							$w = " and (";
 							$w .= "(agreed<>'N' and agreed<>'D')";
 							$w .= " or userid='{$oUser->uid}'";
 							if (!empty($oUser->group_id)) {
 								$w .= " or group_id='{$oUser->group_id}'";
+							}
+							if (isset($oUser->is_editor) && $oUser->is_editor === 'Y') {
+								$w .= " or group_id=''";
 							}
 							$w .= ")";
 							$q[2] .= $w;
@@ -279,7 +282,7 @@ class data extends base {
 			}
 		}
 
-		if (!in_array($value, ['Y', 'N', 'A'])) {
+		if (!in_array($value, ['Y', 'N', 'A', 'D'])) {
 			$value = '';
 		}
 		$beforeValue = $oRecData->agreed;

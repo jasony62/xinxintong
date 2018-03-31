@@ -611,6 +611,9 @@ class record_model extends record_base {
 					if (!empty($oUser->group_id)) {
 						$w .= " or r.group_id='{$oUser->group_id}'";
 					}
+					if (isset($oUser->is_editor) && $oUser->is_editor === 'Y') {
+						$w .= " or r.group_id=''";
+					}
 					$w .= ")";
 				}
 			}

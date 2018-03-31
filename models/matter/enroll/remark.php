@@ -56,6 +56,11 @@ class remark_model extends \TMS_MODEL {
 	public function listByRecord($oUser, $ek, $schemaId, $page = 1, $size = 10, $oOptions = []) {
 		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : '*';
 
+		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'rid,userid,state']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
+		}
+
 		$oResult = new \stdClass;
 		$q = [
 			$fields,
@@ -65,13 +70,17 @@ class remark_model extends \TMS_MODEL {
 		if (!empty($schemaId)) {
 			$q[2] .= " and schema_id='$schemaId'";
 		}
-		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-			if (!empty($oUser->uid)) {
+		/* 根据数据状态或分组显示可见行 */
+		if (!empty($oUser->uid) && $oRecord->userid !== $oUser->uid) {
+			if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
 				$w = " and (";
 				$w .= "(agreed<>'N' and agreed<>'D')";
 				$w .= " or userid='{$oUser->uid}'";
 				if (!empty($oUser->group_id)) {
 					$w .= " or group_id='{$oUser->group_id}'";
+				}
+				if (isset($oUser->is_editor) && $oUser->is_editor === 'Y') {
+					$w .= " or group_id=''";
 				}
 				$w .= ")";
 				$q[2] .= $w;

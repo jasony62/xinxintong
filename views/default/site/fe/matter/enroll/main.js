@@ -293,9 +293,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         }
 
         $scope.favor = function(user, article) {
-            event.preventDefault();
-            event.stopPropagation();
-
             if (!user.loginExpire) {
                 tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                     user.loginExpire = data.loginExpire;
@@ -307,9 +304,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         };
         if (oApp.can_siteuser === 'Y') {
             $scope.siteUser = function(id) {
-                event.preventDefault();
-                event.stopPropagation();
-
                 var url = 'http://' + location.host;
                 url += '/rest/site/fe/user';
                 url += "?site=" + id;

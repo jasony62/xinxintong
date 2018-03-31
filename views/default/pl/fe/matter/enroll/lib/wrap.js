@@ -737,10 +737,12 @@ define([], function() {
         var html;
         switch (schema.type) {
             case 'shorttext':
-            case 'longtext':
             case 'member':
             case 'location':
                 html = '<div>{{Record.current.data.' + schema.id + '}}</div>';
+                break;
+            case 'longtext':
+                html = '<div ng-bind-html="Record.current.data.' + schema.id + '"></div>';
                 break;
             case 'url':
                 html = '<div ng-bind-html="Record.current.data.' + schema.id + '._text"></div>';
@@ -818,6 +820,10 @@ define([], function() {
         } else {
             if (oSchema.type !== 'html' || oSchema.mediaType) {
                 $dom.find('label').html(oSchema.title);
+                if (oSchema.type === 'longtext') {
+                    var embeded = this.embed(oWrap);
+                    $dom.html(embeded.html);
+                }
             } else {
                 $dom.html(oSchema.content);
             }

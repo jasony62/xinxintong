@@ -148,6 +148,9 @@
                                         </div>
                                         <div ng-switch-when="single"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
                                         <div ng-switch-when="multiple"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
+                                        <div ng-switch-when="longtext">
+                                            <span ng-bind-html="rec.data[schema.id]"></span>
+                                        </div>
                                         <div ng-switch-when="url">
                                             <span ng-bind-html="rec.data[schema.id]._text"></span>
                                         </div>
@@ -164,7 +167,7 @@
                             <div class='bottom-bar'>
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
-                                <button ng-if="schema.remarkable==='Y'" class='btn btn-default btn-sm' ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
+                                <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
                                 <div ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
                                     <div class="btn-group" uib-dropdown>
                                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>

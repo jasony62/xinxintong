@@ -289,7 +289,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                             break;
                         case 'url':
                             data[oSchema.id] = oRecord.data[oSchema.id];
-                            if(data[oSchema.id]) {
+                            if (data[oSchema.id]) {
                                 data[oSchema.id]._text = '【' + data[oSchema.id].title + '】' + data[oSchema.id].description;
                             }
                             break;

@@ -8,7 +8,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",mpid varchar(32) not null default ''"; // should be removed
 $sql .= ",entry text"; // 创建图文的入口，管理端，投稿活动等
-$sql .= ",target_mps text"; // 发布到哪个子账号
+$sql .= ",target_mps text"; // 发布到哪个子账号 // should be removed
 $sql .= ",creater varchar(40) not null default ''"; //accountid/fid
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",creater_src char(1)"; //A:accouont|F:fans|M:member
@@ -33,10 +33,10 @@ $sql .= ",can_discuss char(1) not null default 'N'"; // 是否可以进行留言
 $sql .= ",can_coinpay char(1) not null default 'N'"; // 是否可以进行打赏
 $sql .= ",can_siteuser char(1) not null default 'Y'"; // 是否可以进入用户主页
 $sql .= ",summary varchar(240) not null default ''";
-$sql .= ",url text"; // 图文消息的原文地址，即点击“阅读原文”后的URL
+$sql .= ",url text null"; // 图文消息的原文地址，即点击“阅读原文”后的URL
 $sql .= ",weight int default 0"; // 权重
 $sql .= ",custom_body char(1) not null default 'N'";
-$sql .= ",body longtext";
+$sql .= ",body longtext null";
 $sql .= ",page_id int not null default 0"; // 定制页，should remove
 $sql .= ",body_page_name varchar(13) not null default ''"; // 定制页
 $sql .= ",finished char(1) not null default 'Y'"; // 完成编辑
@@ -63,6 +63,7 @@ $sql .= ",from_site_name varchar(50) not null default ''";
 $sql .= ",from_id int not null default 0";
 $sql .= ",matter_cont_tag varchar(255) not null default ''";
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
+$sql .= ",config text null"; // 页面设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -117,7 +118,8 @@ $sql .= ",open_directly char(1) not null default 'N'";
 $sql .= ",return_data char(1) not null default 'N'"; // 是否直接执行链接并返回数据
 $sql .= ",embedded char(1) not null default 'N'"; // 将链接嵌入到页面中
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
-$sql .= ",entry_rule text"; // 参与规则
+$sql .= ",entry_rule text null"; // 参与规则
+$sql .= ",config text null"; // 页面设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -251,6 +253,7 @@ $sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
 $sql .= ",footer_page_id int not null default 0"; // 通用页尾
 $sql .= ",footer_page_name varchar(13) not null default ''"; // 通用页尾
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
+$sql .= ",config text null"; // 页面设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

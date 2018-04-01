@@ -49,6 +49,11 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['
         url += "?site=" + siteId;
         location.href = url;
     };
+    $scope.gotoNavApp = function(oNavApp) {
+        if (oNavApp.id) {
+            location.href = '/rest/site/fe/matter/enroll?site=' + $scope.link.siteid + '&app=' + oNavApp.id;
+        }
+    };
     $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {
         $scope.siteInfo = rsp.data;
         $http.get('/rest/site/fe/matter/link/get?site=' + siteId + '&id=' + linkId).success(function(rsp) {

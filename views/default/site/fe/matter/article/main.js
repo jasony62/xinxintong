@@ -298,6 +298,11 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             location.href = '/rest/site/fe/matter/' + type + '?site=' + siteId + '&app=' + id;
         }
     };
+    $scope.gotoNavApp = function(oNavApp) {
+        if (oNavApp.id) {
+            location.href = '/rest/site/fe/matter/enroll?site=' + $scope.article.siteid + '&app=' + oNavApp.id;
+        }
+    };
     $scope.subscribeSite = function() {
         if (!$scope.user.loginExpire) {
             if (window.sessionStorage) {

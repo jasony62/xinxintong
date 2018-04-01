@@ -95,6 +95,9 @@ class base_model extends \TMS_MODEL {
 			if (isset($oMatter->entry_rule)) {
 				$oMatter->entry_rule = json_decode($oMatter->entry_rule);
 			}
+			if (property_exists($oMatter, 'config')) {
+				$oMatter->config = empty($oMatter->config) ? new \stdClass : json_decode($oMatter->config);
+			}
 		}
 
 		return $oMatter;

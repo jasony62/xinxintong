@@ -45,11 +45,11 @@
                 <label>所属项目</label>
                 <div class="input-group">
                     <input class='form-control' title="{{editing.mission.title}}" value="{{editing.mission.title}}" readonly="">
-                    <span class="input-group-btn">
+                    <div class="input-group-btn">
                         <button class="btn btn-default" type="button" ng-click="quitMission()">
                             <span class='glyphicon glyphicon-remove'></span>
-                    </button>
-                    </span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class='form-group' ng-if="!editing.mission">
@@ -75,6 +75,18 @@
                     <span class="tag" ng-repeat="t in editing.matter_mg_tag" ng-bind="t.title"></span>
                 </p>
             </div>
+            <div class='form-group'>
+                <label>指定关联应用</label>
+                <div class="pl-input-group" ng-repeat="app in editing.config.nav.app">
+                    <div class='form-control pl-line' ng-bind="app.title"></div>
+                    <button class="btn btn-default" ng-click="removeNavApp($index)">
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </div>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-success' ng-click="assignNavApp()">指定关联应用</button>
+            </div>
         </div>
     </div>
     <div class='panel panel-default' ng-if="editing.entry">
@@ -85,20 +97,20 @@
             </div>
         </div>
     </div>
-    <div id='main-access'  class="panel panel-default" ng-controller='ctrlAccess'>
+    <div id='main-access' class="panel panel-default" ng-controller='ctrlAccess'>
         <div class="panel-body">
             <div class='form-group'>
                 <label>设置参与规则</label>
                 <div class='checkbox'>
                     <label>
                         <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label>
-                        <span ng-if="rule.scope.member==='Y'">
+                    <span ng-if="rule.scope.member==='Y'">
                             <span class='badge' ng-repeat="(msid,entry) in editing.entryRule.member">
-                                <a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a>
-                                <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid)"></a>
-                            </span>
-                            <a href ng-click="chooseMschema()">添加</a>
-                        </span>
+                                    <a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a>
+                                    <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid)"></a>
+                                </span>
+                    <a href ng-click="chooseMschema()">添加</a>
+                    </span>
                 </div>
                 <div class='checkbox' ng-if="snsCount===1">
                     <label>

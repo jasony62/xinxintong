@@ -16,7 +16,7 @@ class main extends \site\fe\matter\base {
 		$inviteToken = $_GET['inviteToken'];
 
 		$rst = $this->model('invite\token')->checkToken($inviteToken, $userid, $oMatter);
-			
+
 		return $rst;
 	}
 	/**
@@ -193,6 +193,21 @@ class main extends \site\fe\matter\base {
 					}
 				}
 			}
+		}
+
+		/* 链接所属的频道 */
+		$oLink->channels = $this->model('matter\channel')->byMatter($oLink->id, 'link', ['public_visible' => 'Y']);
+		if (count($oLink->channels) && !isset($oLink->config->nav->app)) {
+			$aNavApps = [];
+			foreach ($oLink->channels as $oChannel) {
+				if (!empty($oChannel->config->nav->app)) {
+					$aNavApps = array_merge($aNavApps, $oChannel->config->nav->app);
+				}
+			}
+			if (!isset($oLink->config->nav)) {
+				$oLink->config->nav = new \stdClass;
+			}
+			$oLink->config->nav->app = $aNavApps;
 		}
 
 		$data = [];

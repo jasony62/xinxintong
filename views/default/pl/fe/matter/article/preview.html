@@ -2,12 +2,10 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <label>用户访问链接</label>
-            <div class='input-group'>
-                <input class='form-control' readonly value="{{entry.url}}">
-                <div class='input-group-btn'>
-                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
-                    <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                </div>
+            <div class='pl-input-group'>
+                <div class='form-control pl-line' ng-bind="entry.url"></div>
+                <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
             </div>
             <div class='form-group'>
                 <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>

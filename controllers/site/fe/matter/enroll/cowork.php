@@ -292,7 +292,7 @@ class cowork extends base {
 			/* 参与用户的任务要求 */
 			if (isset($oActionRule->cowork)) {
 				$oCoworkRule = $oActionRule->cowork;
-				/* 对提交填写记录的投票数量有要求 */
+				/* 对提交协作填写数据的数量有要求 */
 				if (isset($oCoworkRule->submit->end)) {
 					$oRule = $oCoworkRule->submit->end;
 					$bPassed = true;
@@ -304,6 +304,28 @@ class cowork extends base {
 						$oStat->items = $items;
 						if (!empty($oRule->cowork->num)) {
 							$bPassed = $oStat->itemNum >= (int) $oRule->cowork->num;
+							if (!$bPassed) {
+								if (empty($oRule->desc)) {
+									$desc = '每人需要提交【' . $oRule->cowork->num . '条】协作填写数据（答案），';
+								} else {
+									$desc = $oRule->desc;
+									if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+										$desc .= '，';
+									}
+								}
+								$oRule->desc .= $desc . '还需【' . ((int) $oRule->cowork->num - $oStat->itemNum) . '条】。';
+								/* 积分奖励 */
+								require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
+								$modelCoinRule = $this->model('matter\enroll\coin');
+								$aCoin = $modelCoinRule->coinByMatter(\matter\enroll\event_model::DoSubmitCoworkEventName, $oApp);
+								if ($aCoin && $aCoin[0]) {
+									$oRule->coin = $aCoin[1];
+									if (!in_array(mb_substr($oRule->desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+										$oRule->desc .= '。';
+									}
+									$oRule->desc .= '每条协作可获得【' . $oRule->coin . '个】积分。';
+								}
+							}
 						}
 					}
 					if ($bPassed && (!empty($oRule->remark->num) || !empty($oRule->coworkOrRemark->num))) {
@@ -312,20 +334,65 @@ class cowork extends base {
 						$oStat->remarkNum = count($remarks);
 						if (!empty($oRule->remark->num)) {
 							$bPassed = $oStat->remarkNum >= (int) $oRule->remark->num;
+							if (!$bPassed) {
+								if (empty($oRule->desc)) {
+									$desc = '每人需要提交【' . $oRule->remark->num . '条】留言，';
+								} else {
+									$desc = $oRule->desc;
+									if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+										$desc .= '，';
+									}
+								}
+								$oRule->desc .= $desc . '还需【' . ((int) $oRule->remark->num - $oStat->remarkNum) . '条】。';
+								/* 积分奖励 */
+								require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
+								$modelCoinRule = $this->model('matter\enroll\coin');
+								$aCoin = $modelCoinRule->coinByMatter(\matter\enroll\event_model::DoRemarkEventName, $oApp);
+								if ($aCoin && $aCoin[0]) {
+									$oRule->coin = $aCoin[1];
+									if (!in_array(mb_substr($oRule->desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+										$oRule->desc .= '。';
+									}
+									$oRule->desc .= '每条留言可获得【' . $oRule->coin . '个】积分。';
+								}
+							}
 						}
 					}
 					if ($bPassed && !empty($oRule->coworkOrRemark->num)) {
 						$bPassed = $oStat->itemNum + $oStat->remarkNum >= (int) $oRule->coworkOrRemark->num;
+						if (!$bPassed && empty($oRule->desc)) {
+							if (empty($oRule->desc)) {
+								$desc = '每人需要提交【' . $oRule->coworkOrRemark->num . '条】协作填写数据（答案）或留言，';
+							} else {
+								$desc = $oRule->desc;
+								if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+									$desc .= '，';
+								}
+							}
+							$oRule->desc .= $desc . '还需【' . ((int) $oRule->coworkOrRemark->num - ($oStat->itemNum + $oStat->remarkNum)) . '条】。';
+							/* 积分奖励 */
+							require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
+							$modelCoinRule = $this->model('matter\enroll\coin');
+							$aCoin = $modelCoinRule->coinByMatter(\matter\enroll\event_model::DoSubmitCoworkEventName, $oApp);
+							if ($aCoin && $aCoin[0]) {
+								$oRule->coin = $aCoin[1];
+								if (!in_array(mb_substr($oRule->desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+									$oRule->desc .= '。';
+								}
+								$oRule->desc .= '每条协作数据可获得【' . $oRule->coin . '个】积分。';
+							}
+							$aCoin = $modelCoinRule->coinByMatter(\matter\enroll\event_model::DoRemarkEventName, $oApp);
+							if ($aCoin && $aCoin[0]) {
+								$oRule->coin = $aCoin[1];
+								if (!in_array(mb_substr($oRule->desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+									$oRule->desc .= '。';
+								}
+								$oRule->desc .= '每条留言可获得【' . $oRule->coin . '个】积分。';
+							}
+						}
 					}
 					if (!$bPassed) {
 						$oRule->id = 'cowork.submit.end';
-						/* 积分奖励 */
-						require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
-						$modelCoinRule = $this->model('matter\enroll\coin');
-						$aCoin = $modelCoinRule->coinByMatter(\matter\enroll\event_model::DoSubmitCoworkEventName, $oApp);
-						if ($aCoin && $aCoin[0]) {
-							$oRule->coin = $aCoin[1];
-						}
 						$tasks[] = $oRule;
 					}
 				}
@@ -345,6 +412,15 @@ class cowork extends base {
 					}
 					if (!$bPassed) {
 						$oRule->id = 'cowork.like.pre';
+						if (empty($oRule->desc)) {
+							$desc = '需要提交【' . $oRule->cowork->num . '条】协作填写数据（答案）才能开启点赞（投票），';
+						} else {
+							$desc = $oRule->desc;
+							if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+								$desc .= '，';
+							}
+						}
+						$oRule->desc .= $desc . '还需【' . ((int) $oRule->cowork->num - $oStat->itemNum) . '条】。';
 						$tasks[] = $oRule;
 					}
 				}
@@ -368,8 +444,16 @@ class cowork extends base {
 						$bPassed = $likeNum >= (int) $oRule->min;
 					}
 					if (!$bPassed) {
+						$oRule->_no = [(int) $oRule->min - (int) $likeNum];
 						$oRule->id = 'cowork.like.end';
+						$desc = empty($oRule->desc) ? ('每轮次每人需要选择【' . $oRule->min . ((int) $oRule->max > (int) $oRule->min ? ('-' . $oRule->max) : '') . '条】协作填写数据（答案）点赞（投票）') : $oRule->desc;
+						if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+							$desc .= '，';
+						}
+						$oRule->desc .= $desc . '还需【' . $oRule->_no[0] . '条】。';
 						$tasks[] = $oRule;
+					} else {
+						$oRule->_ok = [$likeNum];
 					}
 				}
 			}
@@ -386,6 +470,11 @@ class cowork extends base {
 							$oRule->_ok = [$coworkNum];
 						} else {
 							$oRule->_no = [(int) $oRule->min - $coworkNum];
+							$desc = empty($oRule->desc) ? ('每轮次组长需要推荐【' . $oRule->min . ((int) $oRule->max > (int) $oRule->min ? ('-' . $oRule->max) : '') . '条】协作填写数据（答案）') : $oRule->desc;
+							if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+								$desc .= '，';
+							}
+							$oRule->desc .= $desc . '还需【' . $oRule->_no[0] . '条】。';
 						}
 						$oRule->id = 'leader.cowork.agree.end';
 						$tasks[] = $oRule;

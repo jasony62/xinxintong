@@ -129,7 +129,7 @@
                 <div id='cowork' ng-if="coworkSchemas.length">
                     <div ng-if="coworkTasks.length">
                         <div uib-alert ng-repeat="task in coworkTasks" class='alert-info' close="closeCoworkTask($index)" ng-switch="task.id">
-                            <span>{{task.msg}}</span><span ng-if="task.coin">，每个可获得【{{task.coin}}个】积分</span>
+                            <span>{{task.msg}}</span>
                             <span ng-switch-when="cowork.submit.end"></span>
                         </div>
                     </div>

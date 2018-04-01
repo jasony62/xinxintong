@@ -201,38 +201,38 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
             }
             //if (!document.querySelector('.tms-switch-favor')) {
-            tmsFavor.showSwitch($scope.user, oArticle);
+            //tmsFavor.showSwitch($scope.user, oArticle);
             //} else {
-            $scope.favor = function(user, article) {
-                if (!user.loginExpire) {
-                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
-                        user.loginExpire = data.loginExpire;
-                        tmsFavor.open(article);
-                    });
-                } else {
-                    tmsFavor.open(article);
-                }
-            };
+            // $scope.favor = function(user, article) {
+            //     if (!user.loginExpire) {
+            //         tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+            //             user.loginExpire = data.loginExpire;
+            //             tmsFavor.open(article);
+            //         });
+            //     } else {
+            //         tmsFavor.open(article);
+            //     }
+            // };
             //}
-            if (!document.querySelector('.tms-switch-forward')) {
-                tmsForward.showSwitch($scope.user, oArticle);
-            } else {
-                $scope.forward = function(user, article) {
-                    if (!user.loginExpire) {
-                        tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
-                            user.loginExpire = data.loginExpire;
-                            tmsForward.open(article);
-                        });
-                    } else {
-                        tmsForward.open(article);
-                    }
-                };
-            }
-            if (oArticle.can_coinpay === 'Y') {
-                if (!document.querySelector('.tms-switch-coinpay')) {
-                    tmsCoinPay.showSwitch(oArticle.siteid, 'article,' + oArticle.id);
-                }
-            }
+            // if (!document.querySelector('.tms-switch-forward')) {
+            //     tmsForward.showSwitch($scope.user, oArticle);
+            // } else {
+            //     $scope.forward = function(user, article) {
+            //         if (!user.loginExpire) {
+            //             tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+            //                 user.loginExpire = data.loginExpire;
+            //                 tmsForward.open(article);
+            //             });
+            //         } else {
+            //             tmsForward.open(article);
+            //         }
+            //     };
+            // }
+            // if (oArticle.can_coinpay === 'Y') {
+            //     if (!document.querySelector('.tms-switch-coinpay')) {
+            //         tmsCoinPay.showSwitch(oArticle.siteid, 'article,' + oArticle.id);
+            //     }
+            // }
             if (oArticle.can_siteuser === 'Y') {
                 //if (!document.querySelector('.tms-switch-siteuser')) {
                 //    tmsSiteUser.showSwitch(oArticle.siteid, true);
@@ -311,8 +311,5 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             tmsSubscribe.open($scope.user, $scope.site);
         }
     };
-    document.querySelector('#gototop').addEventListener('click', function() {
-        document.querySelector('.article').scrollTop = 0;
-    });
     loadArticle().then(articleLoaded);
 }]);

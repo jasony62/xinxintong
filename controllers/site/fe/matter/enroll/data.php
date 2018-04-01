@@ -342,6 +342,11 @@ class data extends base {
 			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
 		}
 
+		$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['cascaded' => 'N', 'fields' => 'id,state,like_data_num']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError('（3）指定的对象不存在或不可用');
+		}
+
 		/* 数据项的题目 */
 		$oDataSchema = null;
 		foreach ($oApp->dataSchemas as $dataSchema) {
@@ -351,7 +356,7 @@ class data extends base {
 			}
 		}
 		if (empty($oDataSchema)) {
-			return new \ObjectNotFoundError('（3）指定的对象不存在或不可用');
+			return new \ObjectNotFoundError('（4）指定的对象不存在或不可用');
 		}
 
 		$oUser = $this->getUser($oApp);
@@ -369,6 +374,12 @@ class data extends base {
 			'xxt_enroll_record_data',
 			['like_log' => json_encode($oLikeLog), 'like_num' => $likeNum],
 			['id' => $oRecData->id]
+		);
+
+		$modelData->update(
+			'xxt_enroll_record',
+			['like_data_num' => $oRecord->like_data_num + $incLikeNum],
+			['id' => $oRecord->id]
 		);
 
 		$modelEnlEvt = $this->model('matter\enroll\event');

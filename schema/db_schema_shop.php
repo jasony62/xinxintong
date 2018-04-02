@@ -210,6 +210,7 @@ $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",score int not null default 0";
 $sql .= ",approved char(1) not null default 'N'"; // 是否批准推送到主页
+$sql .= ",as_global char(1) not null default 'N'"; // 是否作为平台素材
 $sql .= ",weight int not null default 0";
 $sql .= ",home_group char(1) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

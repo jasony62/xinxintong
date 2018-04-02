@@ -77,6 +77,26 @@ class recommend extends \pl\be\base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 作为平台素材
+	 */
+	public function asGlobal_action($application, $homeGroup = '') {
+		$modelHome = $this->model('matter\home');
+
+		$rst = $modelHome->asGlobal($application);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 撤销作为平台素材
+	 */
+	public function cancelGlobal_action($application) {
+		$modelHome = $this->model('matter\home');
+
+		$rst = $modelHome->cancelGlobal($application);
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 *
 	 */
 	public function listSite_action($page = 1, $size = 8) {

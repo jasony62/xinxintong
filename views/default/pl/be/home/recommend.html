@@ -63,9 +63,10 @@ th {
                         <th>标题</th>
                         <th>说明</th>
                         <th>提交人</th>
-                        <th>提交时间</th>
+                        <th style='width:112px'>提交时间</th>
                         <th style='width:96px'>出现在主页</th>
                         <th style='width:96px'>活动置顶</th>
+                        <th style='width:96px'>平台素材</th>
                         <th style='width:100px'></th>
                     </tr>
                 </thead>
@@ -82,7 +83,11 @@ th {
                         </td>
                         <td>
                             <span ng-if="m.weight!=='0'">Y</span>
-                            <button class='btn btn-xs btn-default pull-right' ng-if="m.weight!=='0'" ng-click="cancleHome(m)">取消</button>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.weight!=='0'" ng-click="cancelTop(m)">取消</button>
+                        </td>
+                        <td>
+                            <span>{{m.as_global}}</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.as_global==='Y'" ng-click="cancelGlobal(m)">撤销</button>
                         </td>
                         <td>
                             <button class='btn btn-xs btn-default' ng-click="preview(m)">查看</button>
@@ -260,14 +265,25 @@ th {
             <button class="close" type="button" ng-click="cancel()">×</button>
             <h5 class="modal-title">预览</h5>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" ng-if="filter.category!=='channel'">
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="matter.approved" disabled>发布到平台主页</label>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-default" ng-click="pushHome()">发布到主页</button>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="matter.as_global" disabled>作为平台素材</label>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-default" ng-click="asGlobal()">作为平台活动</button>
+            </div>
         </div>
-        <div class="modal-footer" ng-if="filter.category!=='channel'">
-            <button class="btn btn-success" ng-click="ok()">发布到主页</button>
-        </div>
-        <div class="modal-footer" ng-if="filter.category==='channel'">
-            <button class="btn btn-success" ng-click="toMiddle()">发布到主页中间</button>
-            <button class="btn btn-success" ng-click="toRight()">发布到主页右侧</button>
+        <div class='modal-body' ng-if="filter.category==='channel'">
+            <button class="btn btn-default" ng-click="toMiddle()">发布到主页中间</button>
+            <button class="btn btn-default" ng-click="toRight()">发布到主页右侧</button>
         </div>
     </script>
 </div>

@@ -66,10 +66,11 @@ define(['frame'], function(ngApp) {
                 $scope.page.total = rsp.data.total;
             });
         };
-        $scope.preview = function(application) {
+        $scope.preview = function(oMatter) {
             $uibModal.open({
                 templateUrl: 'previewMatter.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.matter = angular.copy(oMatter);
                     $scope2.filter = $scope.criteria;
                     $scope2.toMiddle = function() {
                         $mi.close({ 'home_group': 'c' });
@@ -80,42 +81,55 @@ define(['frame'], function(ngApp) {
                     $scope2.cancel = function() {
                         $mi.dismiss();
                     };
-                    $scope2.ok = function() {
-                        $mi.close($scope.data);
+                    $scope2.pushHome = function() {
+                        $mi.close();
+                    };
+                    $scope2.asGlobal = function() {
+                        var url = '/rest/pl/be/home/recommend/asGlobal?application=' + oMatter.id;
+                        http2.post(url, {}, function(rsp) {
+                            oMatter.as_global = 'Y';
+                            $mi.dismiss();
+                        });
                     };
                 }],
                 backdrop: 'static'
             }).result.then(function(data) {
-                var url = '/rest/pl/be/home/recommend/pushMatter?application=' + application.id;
+                var url = '/rest/pl/be/home/recommend/pushMatter?application=' + oMatter.id;
                 if ($scope.criteria.category == 'channel') {
                     url += '&homeGroup=' + data.home_group;
                 }
                 http2.post(url, {}, function(rsp) {
-                    application.approved = 'Y';
+                    oMatter.approved = 'Y';
                     if ($scope.criteria.category == 'channel') {
-                        application.home_group = data.home_group;
+                        oMatter.home_group = data.home_group;
                     }
                 });
             });
         };
-        $scope.pullHome = function(application) {
-            var url = '/rest/pl/be/home/recommend/pullMatter?application=' + application.id;
+        $scope.pullHome = function(oMatter) {
+            var url = '/rest/pl/be/home/recommend/pullMatter?application=' + oMatter.id;
             http2.post(url, {}, function(rsp) {
-                application.approved = 'N';
+                oMatter.approved = 'N';
             });
         };
-        $scope.carryHome = function(application) {
-            var url = '/rest/pl/be/home/recommend/pushMatterTop?application=' + application.id;
+        $scope.carryHome = function(oMatter) {
+            var url = '/rest/pl/be/home/recommend/pushMatterTop?application=' + oMatter.id;
             http2.post(url, {}, function(rsp) {
-                application.weight = '1';
+                oMatter.weight = '1';
             });
-        }
-        $scope.cancleHome = function(application) {
-            var url = '/rest/pl/be/home/recommend/pullMatterTop?application=' + application.id;
+        };
+        $scope.cancelTop = function(oMatter) {
+            var url = '/rest/pl/be/home/recommend/pullMatterTop?application=' + oMatter.id;
             http2.post(url, {}, function(rsp) {
-                application.weight = '0';
+                oMatter.weight = '0';
             });
-        }
+        };
+        $scope.cancelGlobal = function(oMatter) {
+            var url = '/rest/pl/be/home/recommend/canelGlobal?application=' + oMatter.id;
+            http2.post(url, {}, function(rsp) {
+                oMatter.as_global = 'N';
+            });
+        };
         $scope.searchMatter();
     }]);
     ngApp.provider.controller('ctrlSite', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {

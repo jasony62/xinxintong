@@ -575,7 +575,7 @@ class user_model extends \TMS_MODEL {
 		/* 参与活动的用户 */
 		$oEnrollUsr = $this->byId($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => $rid]);
 		if (false === $oEnrollUsr) {
-			return [false];
+			return [false, 'deltaCoin' => $deltaCoin];
 		}
 
 		/* 奖励积分 */

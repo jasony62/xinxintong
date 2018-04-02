@@ -381,7 +381,10 @@ class remark extends base {
 			/* 留言出现在共享数据页 */
 			if (isset($oActionRule->remark->repos->pre)) {
 				$oRule = $oActionRule->remark->repos->pre;
-				if ($oRule->desc) {
+				if (!empty($oRule->remark->likeNum)) {
+					if (empty($oRule->desc)) {
+						$oRule->desc = '留言获得【' . $oRule->remark->likeNum . '个】点赞（投票）后会显示在共享页。';
+					}
 					$oRule->id = 'remark.repos.pre';
 					$tasks[] = $oRule;
 				}
@@ -399,6 +402,15 @@ class remark extends base {
 							$oRule->_ok = [$remarkNum];
 						} else {
 							$oRule->_no = [(int) $oRule->min - $remarkNum];
+							if (empty($oRule->desc)) {
+								$desc = '组长需要选择【' . $oRule->min . ($oRule->max > $oRule->min ? ('-' . $oRule->max) : '') . '条】留言推荐，';
+							} else {
+								$desc = $oRule->desc;
+								if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+									$desc .= '，';
+								}
+							}
+							$oRule->desc .= $desc . '还需【' . $oRule->_no[0] . '条】。';
 						}
 						$oRule->id = 'leader.remark.agree.end';
 						$tasks[] = $oRule;

@@ -296,15 +296,24 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                         var oSchemaData;
                         if (oSchemaData = oRecord.verbose[oSchema.id]) {
                             if (!angular.isArray(oSchemaData) || oSchemaData.length) {
-                                if (/file|url/.test(oSchema.type)) {
-                                    oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
-                                    if ('url' === oSchema.type) {
-                                        oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
-                                    }
-                                } else if (oSchema.type === 'image') {
-                                    oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
-                                } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
-                                    oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
+                                switch (oSchema.type) {
+                                    case 'longtext':
+                                        oRecord.verbose[oSchema.id].value = ngApp.oUtilSchema.txtSubstitute(oRecord.verbose[oSchema.id].value);
+                                        break;
+                                    case 'file':
+                                    case 'url':
+                                        oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
+                                        if ('url' === oSchema.type) {
+                                            oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
+                                        }
+                                        break;
+                                    case 'image':
+                                        oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
+                                        break;
+                                    case 'single':
+                                    case 'multiple':
+                                        oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
+                                        break;
                                 }
                                 aVisibleSchemas.push(oSchema);
                             }
@@ -489,12 +498,14 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$anchorScroll', '$uibModa
                             var oRecData;
                             if (rsp.data.verbose && rsp.data.verbose[oSchema.id]) {
                                 oRecData = $scope.record.verbose[oSchema.id];
-                                oRecData.value = rsp.data.verbose[oSchema.id].items;
-                                oRecData.value.forEach(function(oItem) {
-                                    if (oItem.userid !== $scope.user.uid) {
-                                        oItem._others = true;
-                                    }
-                                });
+                                if (oRecData) {
+                                    oRecData.value = rsp.data.verbose[oSchema.id].items;
+                                    oRecData.value.forEach(function(oItem) {
+                                        if (oItem.userid !== $scope.user.uid) {
+                                            oItem._others = true;
+                                        }
+                                    });
+                                }
                             }
                             //$anchorScroll();
                         }, function() {});

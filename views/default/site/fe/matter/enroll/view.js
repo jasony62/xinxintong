@@ -103,7 +103,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
         $scope.Record = facRecord = Record.ins(app);
     });
 }]);
-ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Record', function($scope, LS, http2, noticebox, Record) {
+ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticebox', 'Record', function($scope, $sce, LS, http2, noticebox, Record) {
     function fnGetRecord() {
         return http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid'));
     }
@@ -144,6 +144,9 @@ ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'http2', 'noticebox', 'Re
             }
             if (originalValue) {
                 switch (oSchema.type) {
+                    case 'longtext':
+                        afterValue = ngApp.oUtilSchema.txtSubstitute(originalValue);
+                        break;
                     case 'single':
                         if (oSchema.ops && oSchema.ops.length) {
                             for (var i = oSchema.ops.length - 1; i >= 0; i--) {

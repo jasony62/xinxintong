@@ -9,7 +9,7 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 返回单图文视图
 	 */
-	public function index_action($site, $id) {
+	public function index_action($id) {
 		$access = $this->accessControlUser('article', $id);
 		if ($access[0] === false) {
 			die($access[1]);
@@ -177,20 +177,6 @@ class main extends \pl\fe\matter\main_base {
 		return new \ResponseData($oArticle);
 	}
 	/**
-	 * 获得指定文章的所有留言
-	 *
-	 * $id article's id
-	 */
-	public function remarkGet_action($id, $page = 1, $size = 30) {
-		$range = array(
-			'p' => $page,
-			's' => $size,
-		);
-		$rst = $this->model('matter\article')->remarks($id, null, $range);
-
-		return new \ResponseData($rst);
-	}
-	/**
 	 * 创建新图文
 	 * 在站点下或项目下创建图文
 	 *
@@ -335,13 +321,13 @@ class main extends \pl\fe\matter\main_base {
 	 *
 	 * @param int $id article's id
 	 */
-	public function update_action($site, $id) {
+	public function update_action($id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelArt = $this->model('matter\article');
-		$oArticle = $modelArt->byId($id, ['fields' => 'from_mode,siteid,id,mission_id,title,summary,pic']);
+		$oArticle = $modelArt->byId($id, ['fields' => 'id,state,from_mode,siteid,id,mission_id,title,summary,pic']);
 		if (false === $oArticle) {
 			return new \ObjectNotFoundError();
 		}
@@ -354,6 +340,8 @@ class main extends \pl\fe\matter\main_base {
 		if (isset($oPosted->entryRule)) {
 			$oPosted->entry_rule = $modelArt->escape($modelArt->toJson($oPosted->entryRule));
 			unset($oPosted->entryRule);
+		} else if (isset($oPosted->config)) {
+			$oPosted->config = $modelArt->escape($modelArt->toJson($oPosted->config));
 		}
 		/* 如果是引用关系，不修改正文 */
 		if ($oArticle->from_mode === 'C') {
@@ -366,7 +354,10 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		if ($oArticle = $modelArt->modify($oUser, $oArticle, $oPosted)) {
-			$this->model('matter\log')->matterOp($site, $oUser, $oArticle, 'U');
+			if (property_exists($oArticle, 'config')) {
+				$oArticle->config = empty($oArticle->config) ? new \stdClass : json_decode($oArticle->config);
+			}
+			$this->model('matter\log')->matterOp($oArticle->siteid, $oUser, $oArticle, 'U');
 		}
 
 		return new \ResponseData($oArticle);

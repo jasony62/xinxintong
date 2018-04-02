@@ -36,9 +36,9 @@
         <div ng-if="tasks.length">
             <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
                 <span>{{task.msg}}</span>
-                <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class="alert-link" ng-click="addRecord($event)">，去添加</a></span>
+                <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class="alert-link" ng-click="addRecord($event)">。去添加</a></span>
                 <span ng-switch-when="record.like.pre"></span>
-                <span ng-switch-when="record.like.end">，还需要【{{task.gap}}】次</span>
+                <span ng-switch-when="record.like.end"></span>
             </div>
         </div>
         <div class='row'>
@@ -113,10 +113,8 @@
                         <div class='record' ng-repeat="rec in repos">
                             <div class='header'>
                                 <div class='seq label label-default'>{{$index+1}}</div>
-                                <div ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
-                                    <span ng-if="rec.agreed===''" class="label label-default">未表态</span>
-                                    <span ng-if="rec.agreed==='D'" class="label label-danger">讨论</span>
-                                    <span ng-if="rec.agreed==='A'" class="label label-success">接受</span>
+                                <div>
+                                    <span ng-if="rec.agreed==='D'&&(rec.userid===groupUser.userid||groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="label label-danger">讨论</span>
                                     <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
                                 </div>
                                 <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
@@ -148,6 +146,9 @@
                                         </div>
                                         <div ng-switch-when="single"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
                                         <div ng-switch-when="multiple"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
+                                        <div ng-switch-when="longtext">
+                                            <span ng-bind-html="rec.data[schema.id]"></span>
+                                        </div>
                                         <div ng-switch-when="url">
                                             <span ng-bind-html="rec.data[schema.id]._text"></span>
                                         </div>
@@ -164,8 +165,8 @@
                             <div class='bottom-bar'>
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <button class='btn btn-default btn-sm' ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
-                                <button ng-if="schema.remarkable==='Y'" class='btn btn-default btn-sm' ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
-                                <div ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
+                                <button class='btn btn-default btn-sm' ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
+                                <div ng-if="groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
                                     <div class="btn-group" uib-dropdown>
                                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                                             表态

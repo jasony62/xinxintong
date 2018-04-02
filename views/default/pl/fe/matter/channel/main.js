@@ -1,14 +1,14 @@
 define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'srvSite', '$uibModal', 'srvTag', 'cstApp', function($scope, http2, srvSite, $uibModal, srvTag, cstApp) {
         function arrangeMatters() {
-            $scope.matters = $scope.editing.matters;
-            if ($scope.editing.top_type) {
+            $scope.matters = _oEditing.matters;
+            if (_oEditing.top_type) {
                 $scope.topMatter = $scope.matters[0];
                 $scope.matters = $scope.matters.slice(1);
             } else {
                 $scope.topMatter = false;
             }
-            if ($scope.editing.bottom_type) {
+            if (_oEditing.bottom_type) {
                 var l = $scope.matters.length;
                 $scope.bottomMatter = $scope.matters[l - 1];
                 $scope.matters = $scope.matters.slice(0, l - 1);
@@ -20,27 +20,27 @@ define(['frame'], function(ngApp) {
         function postFixed(pos, params) {
             http2.post('/rest/pl/fe/matter/channel/setfixed?site=' + $scope.siteId + '&id=' + $scope.id + '&pos=' + pos, params, function(rsp) {
                 if (pos === 'top') {
-                    $scope.editing.top_type = params.t;
-                    $scope.editing.top_id = params.id;
+                    _oEditing.top_type = params.t;
+                    _oEditing.top_id = params.id;
                 } else if (pos === 'bottom') {
-                    $scope.editing.bottom_type = params.t;
-                    $scope.editing.bottom_id = params.id;
+                    _oEditing.bottom_type = params.t;
+                    _oEditing.bottom_id = params.id;
                 }
-                $scope.editing.matters = rsp.data;
+                _oEditing.matters = rsp.data;
                 arrangeMatters();
             });
         }
-
+        var _oEditing;
         $scope.matterTypes = cstApp.matterTypes;
         $scope.acceptMatterTypes = cstApp.acceptMatterTypes;
         $scope.volumes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
         $scope.update = function(name) {
             var modifiedData = {};
-            modifiedData[name] = $scope.editing[name];
+            modifiedData[name] = _oEditing[name];
             http2.post('/rest/pl/fe/matter/channel/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
                 if (name === 'orderby') {
                     http2.get('/rest/pl/fe/matter/channel/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
-                        $scope.editing = rsp.data;
+                        _oEditing = rsp.data;
                     });
                 }
             });
@@ -84,8 +84,8 @@ define(['frame'], function(ngApp) {
                         matter.type = result.type;
                     });
                     relations = { matter: result.matters };
-                    http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + $scope.editing.id, relations, function(rsp) {
-                        $scope.editing.matters = rsp.data;
+                    http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations, function(rsp) {
+                        _oEditing.matters = rsp.data;
                         arrangeMatters();
                     });
                 }
@@ -95,7 +95,7 @@ define(['frame'], function(ngApp) {
             http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId, function(rsp) {
                 var article = rsp.data,
                     relations = { matter: [article] };
-                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + $scope.editing.id, relations, function(rsp) {
+                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations, function(rsp) {
                     location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + article.id;
                 });
             });
@@ -104,7 +104,7 @@ define(['frame'], function(ngApp) {
             http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {
                 var link = rsp.data,
                     relations = { matter: [link] };
-                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + $scope.editing.id, relations, function(rsp) {
+                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations, function(rsp) {
                     location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + link.id;
                 });
             });
@@ -115,7 +115,7 @@ define(['frame'], function(ngApp) {
                 type: matter.type.toLowerCase()
             };
             http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + $scope.siteId + '&reload=Y&id=' + $scope.id, removed, function(rsp) {
-                $scope.editing.matters = rsp.data;
+                _oEditing.matters = rsp.data;
                 arrangeMatters();
             });
         };
@@ -125,10 +125,39 @@ define(['frame'], function(ngApp) {
         $scope.tagMatter = function(subType) {
             var oTags;
             oTags = $scope.oTag;
-            srvTag._tagMatter($scope.editing, oTags, subType);
+            srvTag._tagMatter(_oEditing, oTags, subType);
+        };
+        $scope.assignNavApp = function() {
+            var oOptions = {
+                matterTypes: [{
+                    value: 'enroll',
+                    title: '登记活动',
+                    url: '/rest/pl/fe/matter'
+                }],
+                singleMatter: true
+            };
+            srvSite.openGallery(oOptions).then(function(result) {
+                if (result.matters && result.matters.length === 1) {
+                    !_oEditing.config.nav && (_oEditing.config.nav = {});
+                    !_oEditing.config.nav.app && (_oEditing.config.nav.app = []);
+                    _oEditing.config.nav.app.push({
+                        id: result.matters[0].id,
+                        title: result.matters[0].title
+                    });
+                    $scope.update('config');
+                }
+            });
+        };
+        $scope.removeNavApp = function(index) {
+            _oEditing.config.nav.app.splice(index, 1);
+            if (_oEditing.config.nav.app.length === 0) {
+                delete _oEditing.config.nav.app;
+            }
+            $scope.update('config');
         };
         $scope.$watch('editing', function(nv) {
             if (!nv) return;
+            _oEditing = nv;
             arrangeMatters();
         });
         (function() {

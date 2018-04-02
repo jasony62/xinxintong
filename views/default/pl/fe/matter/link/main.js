@@ -123,7 +123,7 @@ define(['frame'], function(ngApp) {
 
         function _changeUserScope(ruleScope, oSiteSns) {
             var oEntryRule = $scope.editing.entry_rule;
-                oEntryRule.scope = ruleScope;
+            oEntryRule.scope = ruleScope;
             $scope.update('entry_rule');
             $scope.submit();
             _oBeforeRule = angular.copy($scope.rule);
@@ -285,6 +285,34 @@ define(['frame'], function(ngApp) {
                     modifiedData['mission_id'] = 0;
                     that.submit();
                 });
+        };
+        $scope.assignNavApp = function() {
+            var oOptions = {
+                matterTypes: [{
+                    value: 'enroll',
+                    title: '登记活动',
+                    url: '/rest/pl/fe/matter'
+                }],
+                singleMatter: true
+            };
+            srvSite.openGallery(oOptions).then(function(result) {
+                if (result.matters && result.matters.length === 1) {
+                    !$scope.editing.config.nav && ($scope.editing.config.nav = {});
+                    !$scope.editing.config.nav.app && ($scope.editing.config.nav.app = []);
+                    $scope.editing.config.nav.app.push({
+                        id: result.matters[0].id,
+                        title: result.matters[0].title
+                    });
+                    $scope.update('config');
+                }
+            });
+        };
+        $scope.removeNavApp = function(index) {
+            $scope.editing.config.nav.app.splice(index, 1);
+            if ($scope.editing.config.nav.app.length === 0) {
+                delete $scope.editing.config.nav.app;
+            }
+            $scope.update('config');
         };
         $scope.$watch('editing.urlsrc', function(nv) {
             switch (nv) {

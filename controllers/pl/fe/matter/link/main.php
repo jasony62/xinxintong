@@ -23,7 +23,7 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 *
 	 */
-	public function get_action($site, $id) {
+	public function get_action($id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -172,7 +172,7 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 更新链接属性
 	 */
-	public function update_action($site, $id) {
+	public function update_action($id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -198,12 +198,15 @@ class main extends \pl\fe\matter\main_base {
 					}
 				}
 				$oUpdated->entry_rule = $modelLink->escape($modelLink->toJson($v));
+			} else if ($n === 'config') {
+				$oUpdated->config = $modelLink->escape($modelLink->toJson($v));
 			}
+
 			$oLink->{$n} = $v;
 		}
 
 		if ($oLink = $modelLink->modify($oUser, $oLink, $oUpdated)) {
-			$this->model('matter\log')->matterOp($site, $oUser, $oLink, 'U');
+			$this->model('matter\log')->matterOp($oLink->siteid, $oUser, $oLink, 'U');
 		}
 
 		return new \ResponseData($oLink);

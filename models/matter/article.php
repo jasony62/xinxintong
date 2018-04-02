@@ -43,23 +43,27 @@ class article_model extends article_base {
 			$this->table(),
 			["id" => $id],
 		];
-		if ($matter = $this->query_obj_ss($q)) {
-			!empty($matter->matter_cont_tag) && $matter->matter_cont_tag = json_decode($matter->matter_cont_tag);
-			!empty($matter->matter_mg_tag) && $matter->matter_mg_tag = json_decode($matter->matter_mg_tag);
-			$matter->type = $this->getTypeName();
+		if ($oMatter = $this->query_obj_ss($q)) {
+			!empty($oMatter->matter_cont_tag) && $oMatter->matter_cont_tag = json_decode($oMatter->matter_cont_tag);
+			!empty($oMatter->matter_mg_tag) && $oMatter->matter_mg_tag = json_decode($oMatter->matter_mg_tag);
+			$oMatter->type = $this->getTypeName();
+
+			if (property_exists($oMatter, 'config')) {
+				$oMatter->config = empty($oMatter->config) ? new \stdClass : json_decode($oMatter->config);
+			}
 			if ($fields === '*' || false !== strpos($fields, 'siteid')) {
-				$matter->entryUrl = $this->getEntryUrl($matter->siteid, $id);
+				$oMatter->entryUrl = $this->getEntryUrl($oMatter->siteid, $id);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
-				if (empty($matter->entry_rule)) {
-					$matter->entryRule = $matter->entry_rule = new \stdClass;
+				if (empty($oMatter->entry_rule)) {
+					$oMatter->entryRule = $oMatter->entry_rule = new \stdClass;
 				} else {
-					$matter->entryRule = $matter->entry_rule = json_decode($matter->entry_rule);
+					$oMatter->entryRule = $oMatter->entry_rule = json_decode($oMatter->entry_rule);
 				}
 			}
 		}
 
-		return $matter;
+		return $oMatter;
 	}
 	/**
 	 *

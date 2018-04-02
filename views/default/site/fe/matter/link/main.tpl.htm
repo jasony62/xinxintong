@@ -66,11 +66,21 @@
                             <i class="glyphicon glyphicon-star-empty"></i>
                             <span> 收藏</span>
                         </a>
+                        <a ng-if="link.config.nav.app.length" uib-popover-template="'optionTemplate.html'" popover-placement="top-right" popover-trigger="'outsideClick'" popover-append-to-body="true">
+                            <i class="glyphicon glyphicon-option-vertical"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script type="text/ng-template" id="optionTemplate.html">
+        <div>
+            <div ng-repeat="app in link.config.nav.app">
+                <button class='btn btn-default btn-sm btn-block' ng-click="gotoNavApp(app)">{{app.title}}</button>
+            </div>
+        </div>
+    </script>
     <script type="text/javascript">
     if (/MicroMessenger/i.test(navigator.userAgent)) {
         var siteid = location.search.match(/site=([^&]*)/)[1];

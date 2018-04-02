@@ -160,6 +160,9 @@ utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {
         });
     }
 };
+utilSchema.txtSubstitute = function(oTxtData) {
+    return oTxtData.replace(/\n/g, '<br>');
+};
 utilSchema.urlSubstitute = function(oUrlData) {
     var text;
     text = '';

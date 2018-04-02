@@ -162,9 +162,11 @@ class main extends \pl\fe\matter\main_base {
 		$oUpdated = new \stdClass;
 		$oPosted = $this->getPostJson();
 		foreach ($oPosted as $k => $v) {
-			if (in_array($k, ['title', 'summary', 'fixed_title'])) {
+			if ($k === 'config') {
+				$oUpdated->config = $modelCh->escape($modelCh->toJson($v));
+			} else if (in_array($k, ['title', 'summary', 'fixed_title'])) {
 				$aUpdatedHomeCh[$k] = $oUpdated->{$k} = $modelCh->escape($v);
-			}if ($k === 'pic') {
+			} else if ($k === 'pic') {
 				$aUpdatedHomeCh[$k] = $oUpdated->{$k} = $v;
 			} else {
 				$oUpdated->{$k} = $v;

@@ -7,6 +7,19 @@
                     <div class='row'>
                         <div class='col-md-6'>
                             <div class='panel panel-default'>
+                                <div class='panel-heading'>角色</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>指定活动编辑组</label>
+                                        <select class='form-control' ng-model="rule.role.editor.group">
+                                            <option value=''>不指定</option>
+                                            <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
+                                        </select>
+                                        <div class='help-block'>可以见处理所有不是分组内的记录和数据</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='panel panel-default'>
                                 <div class='panel-heading'>提交记录（问题）</div>
                                 <div class='panel-body'>
                                     <div class='form-group'>

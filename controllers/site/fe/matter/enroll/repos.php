@@ -241,6 +241,7 @@ class repos extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		$oUser = $this->getUser($oApp);
 
 		/* 非同组记录显示在共享页需要的赞同数 */
 		$recordReposLikeNum = 0;
@@ -266,8 +267,6 @@ class repos extends base {
 				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
 			}
 		}
-
-		$oUser = $this->getUser($oApp);
 
 		$modelRnd = $this->model('matter\enroll\round');
 		$oActiveRnd = $modelRnd->getActive($oApp);

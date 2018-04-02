@@ -82,13 +82,16 @@
                             <button class="btn btn-custom-default" ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></button>
                         </div>
                         <div id="action">
-                            <a href="" ng-click="siteUser(site.id)">
+                            <a href ng-click="siteUser(site.id)">
                                 <i class="glyphicon glyphicon-user"></i>
                                 <span> 个人中心</span>
                             </a>
-                            <a href="" ng-click="favor(user,article)">
+                            <a href ng-click="favor(user,article)">
                                 <i class="glyphicon glyphicon-star-empty"></i>
                                 <span> 收藏</span>
+                            </a>
+                            <a ng-if="article.config.nav.app.length" uib-popover-template="'optionTemplate.html'" popover-placement="top-right" popover-trigger="'outsideClick'" popover-append-to-body="true">
+                                <i class="glyphicon glyphicon-option-vertical"></i>
                             </a>
                         </div>
                     </div>
@@ -98,7 +101,13 @@
         <footer ng-if="article.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
         <footer ng-if="article.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     </div>
-    <div id='gototop' class='tms-switch'></div>
+    <script type="text/ng-template" id="optionTemplate.html">
+        <div>
+            <div ng-repeat="app in article.config.nav.app">
+                <button class='btn btn-default btn-sm btn-block' ng-click="gotoNavApp(app)">{{app.title}}</button>
+            </div>
+        </div>
+    </script>
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>

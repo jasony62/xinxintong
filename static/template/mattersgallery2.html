@@ -2,6 +2,8 @@
     <select class='form-control' ng-if='matterTypes&&matterTypes.length>0' style='display:inline-block;width:120px' ng-model='p.matterType' ng-options='t.title for t in matterTypes'></select>
     <label class='checkbox-inline' ng-if="mission">
         <input type='checkbox' ng-model="p.sameMission" ng-disabled="p.onlySameMission" ng-true-value="'Y'" ng-false-value="'N'" ng-change="doSearch()">同一项目内</label>
+    <label class='checkbox-inline' ng-if="!mission">
+        <input type='checkbox' ng-model="p.fromPlatform" ng-true-value="'Y'" ng-false-value="'N'" ng-change="doSearch()">平台素材</label>
     <div class="form-inline" style='display:inline-block;margin-left:20px'>
         <div class='input-group'>
             <input type='input' class='form-control' placeholder='按名称筛选' ng-model='filter.byTitle'>

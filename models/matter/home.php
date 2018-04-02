@@ -241,6 +241,30 @@ class home_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
+	 * 作为平台素材
+	 */
+	public function asGlobal($applicationId) {
+		$data = [
+			'as_global' => 'Y',
+		];
+
+		$rst = $this->update('xxt_home_matter', $data, ["id" => $applicationId]);
+
+		return $rst;
+	}
+	/**
+	 * 取消作为平台素材
+	 */
+	public function cancelGlobal($applicationId) {
+		$rst = $this->update(
+			'xxt_home_matter',
+			['approved' => 'N'],
+			["id" => $applicationId]
+		);
+
+		return $rst;
+	}
+	/**
 	 * 已经批准在主页上的素材
 	 */
 	public function &atHome($options = []) {

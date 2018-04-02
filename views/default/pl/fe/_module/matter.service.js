@@ -81,7 +81,7 @@ provider('srvSite', function() {
             openGallery: function(options) {
                 var defer = $q.defer();
                 $uibModal.open({
-                    templateUrl: '/static/template/mattersgallery2.html?_=8',
+                    templateUrl: '/static/template/mattersgallery2.html?_=9',
                     controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
                         var fields = ['id', 'title'];
                         $scope.filter = {};
@@ -130,6 +130,9 @@ provider('srvSite', function() {
                             /*同一个项目*/
                             if ($scope.p.sameMission === 'Y') {
                                 url += '&mission=' + $scope.mission.id;
+                            }
+                            if ($scope.p.fromPlatform === 'Y') {
+                                url += '&platform=Y';
                             }
                             $http.post(url, params).success(function(rsp) {
                                 $scope.matters = rsp.data.docs || rsp.data.apps || rsp.data.missions;
@@ -928,8 +931,9 @@ provider('srvMemberPicker', function() {
                                         });
                                         schemas && schemas.length ? schemaUser(schemas, 0) : matterUser();
                                     }
+
                                     function schemaUser(schemas, rounds) {
-                                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + oMatter.siteid + '&id=' + oMatter.id + '&rounds=' + rounds, {'schemas': schemas, 'users': ids}, function(rsp) {
+                                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + oMatter.siteid + '&id=' + oMatter.id + '&rounds=' + rounds, { 'schemas': schemas, 'users': ids }, function(rsp) {
                                             if (rsp.data.state !== 'end') {
                                                 var group = parseInt(rsp.data.group) + 1;
                                                 noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
@@ -940,6 +944,7 @@ provider('srvMemberPicker', function() {
                                             }
                                         });
                                     };
+
                                     function matterUser() {
                                         http2.post('/rest/pl/fe/matter/group/player/addByApp?app=' + oMatter.id, ids, function(rsp) {
                                             noticebox.success('加入【' + rsp.data + '】个用户');
@@ -974,6 +979,7 @@ provider('srvMemberPicker', function() {
                                 this.count = 0;
                             }
                         };
+
                         function doSchemas() {
                             http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + oMschema.siteid + '&id=' + oMschema.id, function(rsp) {
                                 $scope2.importSchemas = rsp.data;
@@ -986,7 +992,8 @@ provider('srvMemberPicker', function() {
                         };
                         $scope2.doSearch = doSearch = function(pageAt) {
                             pageAt && (_oPage.at = pageAt);
-                            var url, filter = '', selectedSchemaId;
+                            var url, filter = '',
+                                selectedSchemaId;
                             selectedSchemaId = _oRows.impschemaId ? _oRows.impschemaId : oMschema.id;
                             $scope2.mschema = _oMschema = oMatter.type == 'mschema' ? _oRows.schemas[selectedSchemaId] : oMschema;
                             if (_oPage.keyword !== '') {
@@ -1016,7 +1023,7 @@ provider('srvMemberPicker', function() {
                         };
                         $scope2.execute = function(bClose) {
                             var schemas, pickedMembers;
-                            if(_oRows.impschemaId) {
+                            if (_oRows.impschemaId) {
                                 schemas = [];
                                 schemas.push(_oRows.impschemaId);
                             }
@@ -1039,7 +1046,7 @@ provider('srvMemberPicker', function() {
                     size: 'lg',
                     backdrop: 'static',
                     windowClass: 'auto-height mattersgallery'
-                }).result.then(function () {
+                }).result.then(function() {
                     defer.resolve();
                 });
                 return defer.promise;

@@ -84,7 +84,7 @@ class main extends main_base {
 	 *
 	 * @param string $onlySns 是否仅查询进入规则为仅限关注用户访问的活动列表
 	 */
-	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $scenario = null, $onlySns = 'N') {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $scenario = null, $onlySns = 'N', $platform = 'N') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -97,9 +97,11 @@ class main extends main_base {
 			"state<>0",
 		];
 		if (!empty($mission)) {
-			$q[2] .= " and mission_id=" . $modelApp->escape($mission);
+			$q[2] .= " and mission_id=" . $mission;
+		} else if ($platform === 'Y') {
+			$q[2] .= " and exists(select 1 from xxt_home_matter where as_global='Y' and matter_type='enroll' and matter_id=e.id)";
 		} else {
-			$q[2] .= " and siteid='" . $modelApp->escape($site) . "'";
+			$q[2] .= " and siteid='" . $site . "'";
 		}
 		if (!empty($scenario)) {
 			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";

@@ -239,10 +239,8 @@ class event_model extends \TMS_MODEL {
 			$oNewModifyLog->op .= '_New';
 			/* 提交记录的积分奖励 */
 			$aCoinResult = $modelUsr->awardCoin($oApp, $oUser->uid, $oRecord->rid, self::SubmitEventName);
-			if ($aCoinResult[0] === true) {
+			if (!empty($aCoinResult[1])) {
 				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-			} else if (isset($aCoinResult['deltaCoin'])) {
-				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 			}
 			$oUpdatedUsrData->enroll_num = 1;
 		}
@@ -271,7 +269,7 @@ class event_model extends \TMS_MODEL {
 
 		$this->_updateUsrData($oApp, $oRecord->rid, false, $oUser, $oUpdatedUsrData, $fnUpdateRndUser, $fnUpdateAppUser);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if (isset($aCoinResult) && $aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $oUser->uid, $oRecord->rid, self::SubmitEventName);
 		}
 
@@ -341,17 +339,15 @@ class event_model extends \TMS_MODEL {
 			$oNewModifyLog->op .= '_New';
 			/* 提交记录的积分奖励 */
 			$aCoinResult = $modelUsr->awardCoin($oApp, $oUser->uid, $oItem->rid, self::DoSubmitCoworkEventName);
-			if ($aCoinResult[0] === true) {
+			if (!empty($aCoinResult[1])) {
 				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-			} elseif (isset($aCoinResult['deltaCoin'])) {
-				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 			}
 			$oUpdatedUsrData->do_cowork_num = 1;
 		}
 
 		$this->_updateUsrData($oApp, $oItem->rid, false, $oUser, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if (isset($aCoinResult) && $aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $oUser->uid, $oItem->rid, self::DoSubmitCoworkEventName);
 		}
 
@@ -382,10 +378,8 @@ class event_model extends \TMS_MODEL {
 			$oNewModifyLog->op .= '_New';
 			/* 提交记录的积分奖励 */
 			$aCoinResult = $modelUsr->awardCoin($oApp, $oOperator->uid, $oItem->rid, self::GetSubmitCoworkEventName);
-			if ($aCoinResult[0] === true) {
+			if (!empty($aCoinResult[1])) {
 				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-			} else if (isset($aCoinResult['deltaCoin'])) {
-				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 			}
 			$oUpdatedUsrData->cowork_num = 1;
 		}
@@ -394,7 +388,7 @@ class event_model extends \TMS_MODEL {
 
 		$this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if (isset($aCoinResult) && $aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $oOperator->uid, $oItem->rid, self::GetSubmitCoworkEventName);
 		}
 
@@ -648,15 +642,13 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
 		$aCoinResult = $modelUsr->awardCoin($oApp, $operatorId, $oRecOrData->rid, self::DoRemarkEventName);
-		if ($aCoinResult[0] === true) {
+		if (!empty($aCoinResult[1])) {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-		} else if (isset($aCoinResult['deltaCoin'])) {
-			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 		}
 
 		$this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $operatorId, $oRecOrData->rid, self::DoRemarkEventName);
 		}
 
@@ -684,17 +676,15 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
 		$aCoinResult = $modelUsr->awardCoin($oApp, $operatorId, $oRecOrData->rid, self::GetRemarkEventName);
-		if ($aCoinResult[0] === true) {
+		if (!empty($aCoinResult[1])) {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-		} else if (isset($aCoinResult['deltaCoin'])) {
-			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 		}
 
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
 		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $operatorId, $oRecOrData->rid, self::GetRemarkEventName);
 		}
 
@@ -722,17 +712,15 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
 		$aCoinResult = $modelUsr->awardCoin($oApp, $operatorId, $oRecOrData->rid, self::GetRemarkCoworkEventName);
-		if ($aCoinResult[0] === true) {
+		if (!empty($aCoinResult[1])) {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-		} else if (isset($aCoinResult['deltaCoin'])) {
-			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 		}
 
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
 		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $operatorId, $oRecOrData->rid, self::GetRemarkCoworkEventName);
 		}
 
@@ -888,16 +876,14 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->like_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetLikeEventName);
-		if ($aCoinResult[0] === true) {
+		if (!empty($aCoinResult[1])) {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-		} else if (isset($aCoinResult['deltaCoin'])) {
-			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 		}
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
 		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetLikeEventName);
 		}
 
@@ -924,16 +910,14 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->like_cowork_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetLikeCoworkEventName);
-		if ($aCoinResult[0] === true) {
+		if (!empty($aCoinResult[1])) {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-		} else if (isset($aCoinResult['deltaCoin'])) {
-			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 		}
 		$oUser = (object) ['uid' => $oRecOrData->userid];
 
 		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetLikeCoworkEventName);
 		}
 
@@ -1409,17 +1393,15 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->like_remark_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 		$aCoinResult = $modelUsr->awardCoin($oApp, $oRemark->userid, $oRemark->rid, self::GetLikeRemarkEventName);
-		if ($aCoinResult[0] === true) {
+		if (!empty($aCoinResult[1])) {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
-		} else if (isset($aCoinResult['deltaCoin'])) {
-			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 		}
 
 		$oUser = (object) ['uid' => $oRemark->userid];
 
 		$this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $oRemark->userid, $oRemark->rid, self::GetLikeRemarkEventName);
 		}
 
@@ -1639,10 +1621,8 @@ class event_model extends \TMS_MODEL {
 		/* 奖励积分 */
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetAgreeEventName);
-		if ($aCoinResult[0] === true) {
+		if (!empty($aCoinResult[1])) {
 			$oNewModifyLog->coin = $aCoinResult[1];
-		} else if (isset($aCoinResult['deltaCoin'])) {
-			$oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 		}
 		/* 更新的数据 */
 		$oUpdatedUsrData = (object) [
@@ -1656,7 +1636,7 @@ class event_model extends \TMS_MODEL {
 
 		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetAgreeEventName);
 		}
 
@@ -1807,10 +1787,8 @@ class event_model extends \TMS_MODEL {
 		/* 奖励积分 */
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecData->userid, $oRecData->rid, self::GetAgreeCoworkEventName);
-		if ($aCoinResult[0] === true) {
+		if (!empty($aCoinResult[1])) {
 			$oNewModifyLog->coin = $aCoinResult[1];
-		} else if (isset($aCoinResult['deltaCoin'])) {
-			$oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 		}
 		/* 更新的数据 */
 		$oUpdatedUsrData = (object) [
@@ -1824,7 +1802,7 @@ class event_model extends \TMS_MODEL {
 
 		$this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $oRecData->userid, $oRecData->rid, self::GetAgreeCoworkEventName);
 		}
 
@@ -1975,10 +1953,8 @@ class event_model extends \TMS_MODEL {
 		/* 奖励积分 */
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		$aCoinResult = $modelUsr->awardCoin($oApp, $oRemark->userid, $oRemark->rid, self::GetAgreeRemarkEventName);
-		if ($aCoinResult[0] === true) {
+		if (!empty($aCoinResult[1])) {
 			$oNewModifyLog->coin = $aCoinResult[1];
-		} else if (isset($aCoinResult['deltaCoin'])) {
-			$oNewModifyLog->coin = $aCoinResult['deltaCoin'];
 		}
 
 		/* 更新的数据 */
@@ -1993,7 +1969,7 @@ class event_model extends \TMS_MODEL {
 
 		$this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
-		if (isset($aCoinResult) && $aCoinResult[0] === false && isset($aCoinResult['deltaCoin'])) {
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
 			$modelUsr->awardCoin($oApp, $oRemark->userid, $oRemark->rid, self::GetAgreeRemarkEventName);
 		}
 

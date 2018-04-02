@@ -317,4 +317,24 @@ class user_model extends \TMS_MODEL {
 
 		return true;
 	}
+	/*
+	 * 用户参与过的项目
+	 */
+	public function byUser($userId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : 'u.userid,u.nickname,u.user_total_coin,u.modify_log,m.id,m.title';
+
+		$q = array(
+			$fields,
+			'xxt_mission_user u,xxt_mission m',
+			"u.userid = '{$userId}' and u.mission_id = m.id and m.state = 1",
+		);
+
+		if (!empty($options['bySite'])) {
+			$q['2'] .= " and u.siteid = '{$options['bySite']}'";
+		}
+
+		$missions = $this->query_objs_ss($q);
+
+		return $missions;
+	}
 }

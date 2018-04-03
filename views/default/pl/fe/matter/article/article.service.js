@@ -109,21 +109,23 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                 return defer.promise;
             },
             quitMission: function() {
-                var _this = this,
-                    matter = {
-                        id: edit.id,
-                        type: 'article',
-                        title: edit.title
-                    },
-                    defer = $q.defer();
-                http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + siteId + '&id=' + edit.mission_id, matter, function(rsp) {
-                    delete edit.mission;
-                    edit.mission_id = null;
-                    _this.update(['mission_id']).then(function() {
-                        defer.resolve();
+                if (window.confirm('确定将[' + edit.title + ']从项目中移除？')) {
+                    var _this = this,
+                        matter = {
+                            id: edit.id,
+                            type: 'article',
+                            title: edit.title
+                        },
+                        defer = $q.defer();
+                    http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + siteId + '&id=' + edit.mission_id, matter, function(rsp) {
+                        delete edit.mission;
+                        edit.mission_id = 0;
+                        _this.update(['mission_id']).then(function() {
+                            defer.resolve();
+                        });
                     });
-                });
-                return defer.promise;
+                    return defer.promise;
+                }
             },
             changeUserScope: function(ruleScope, oSiteSns, oDefaultInputPage) {
                 var oEntryRule = edit.entryRule;

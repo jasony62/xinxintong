@@ -51,17 +51,19 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.quitMission = function() {
-            var oApp = $scope.app,
-                matter = {
-                    id: oApp.id,
-                    type: 'group',
-                    title: oApp.title
-                };
-            http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteid + '&id=' + oApp.mission_id, matter, function(rsp) {
-                delete oApp.mission;
-                oApp.mission_id = null;
-                srvGroupApp.update(['mission_id']);
-            });
+            if (window.confirm('确定将[' + $scope.app.title + ']从项目中移除？')) {
+                var oApp = $scope.app,
+                    matter = {
+                        id: oApp.id,
+                        type: 'group',
+                        title: oApp.title
+                    };
+                http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteid + '&id=' + oApp.mission_id, matter, function(rsp) {
+                    delete oApp.mission;
+                    oApp.mission_id = 0;
+                    srvGroupApp.update(['mission_id']);
+                });
+            }
         };
         $scope.tagMatter = function(subType) {
             var oTags;

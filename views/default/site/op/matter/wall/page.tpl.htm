@@ -16,9 +16,14 @@
 <body ng-cloak class='ng-cloak'>
     <div dynamic-html="Page.html">
     </div>
+    <div ng-if="Wall.scenario =='interact'" class='timestamp'>
+        <tms-datepicker class='tms-datepicker' tms-obj="rnd" tms-date="Wall.timestamp" tms-state="startAt"></tms-datepicker>
+    </div>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/angular.min.js "></script>
     <script src="/static/js/angular-sanitize.min.js "></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js"></script>
     <script src="/views/default/site/op/matter/wall/page.js?_=2"></script>
 </body>
 

@@ -77,7 +77,7 @@ if (!$mysqli->query($sql)) {
 //
 $sql = "create table if not exists xxt_short_url_token (";
 $sql .= "id int not null auto_increment";
-$sql .= ",code char(4) not null";
+$sql .= ",code varchar(40) not null";
 $sql .= ",state int not null default 1";
 $sql .= ",access_token varchar(255) not null";
 $sql .= ",create_at int not null";

@@ -26,7 +26,7 @@ class coin extends \site\fe\base {
 		$q = [
 			'a.siteid,a.uid userid,s.name',
 			'xxt_site_account a,xxt_site s',
-			"a.unionid = '{$this->who->unionid}'  and a.siteid = s.id and s.state = 1 and is_reg_primary = 'Y'"
+			"a.unionid = '{$this->who->unionid}'  and a.siteid = s.id and s.state = 1 and is_reg_primary = 'Y' and s.id <> 'platform'"
 		];
 
 		$sites = $model->query_objs_ss($q);
@@ -36,14 +36,17 @@ class coin extends \site\fe\base {
 	/*
 	 *
 	 */
-	public function matters_action($site, $user) {
+	public function matters_action($site, $user, $type = null) {
 		// 获取获得积分的所有活动
 		$model = $this->model();
 		$q = [
 			'matter_id,matter_type,matter_title',
 			'xxt_coin_log',
-			"siteid = '$site' and userid = '{$user}'"
+			['siteid' => $site, 'userid' => $user]
 		];
+		if (!empty($type)) {
+			$q[2]['matter_type'] = $type;
+		}
 		$p = ['g' => 'matter_id,matter_type'];
 		
 		$matters = $model->query_objs_ss($q, $p);

@@ -9,7 +9,7 @@ class coin extends \site\fe\base {
 	/**
 	 *
 	 */
-	public function index_action($page = '') {
+	public function index_action() {
 		\TPL::output('/site/fe/user/coin/main');
 
 		exit;
@@ -26,7 +26,7 @@ class coin extends \site\fe\base {
 		$q = [
 			'a.siteid,a.uid userid,s.name',
 			'xxt_site_account a,xxt_site s',
-			"a.unionid = '{$this->who->unionid}'  and a.siteid = s.id and s.state = 1"
+			"a.unionid = '{$this->who->unionid}'  and a.siteid = s.id and s.state = 1 and is_reg_primary = 'Y'"
 		];
 
 		$sites = $model->query_objs_ss($q);

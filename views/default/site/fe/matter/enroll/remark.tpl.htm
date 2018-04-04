@@ -198,7 +198,9 @@
                             <footer>{{remark.nickname}}</footer>
                         </blockquote>
                         <div class='bottom-bar'>
-                            <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
+                            <div class='datetime'>{{remark.modify_at*1000|date:'MM-dd HH:mm'}}</div>
+                            <button class='btn btn-default btn-sm' ng-click="removeRemark(remark)"><span class='glyphicon glyphicon-trash'></span></button>
+                            <button class='btn btn-default btn-sm' ng-click="editRemark(remark)"><span class='glyphicon glyphicon-edit'></span></button>
                             <div ng-if="groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(record.userid===groupUser.userid||groupOthers[record.userid]))">
                                 <div class="btn-group" uib-dropdown>
                                     <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>

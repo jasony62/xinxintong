@@ -177,6 +177,32 @@ ngApp.controller('ctrlRemark', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
             });
         });
     };
+    $scope.editRemark = function(oRemark) {
+        $uibModal.open({
+            templateUrl: 'writeRemark.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: oRemark.content
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+            }],
+            backdrop: 'static',
+        }).result.then(function(data) {
+            http2.post(LS.j('remark/update', 'site') + '&remark=' + oRemark.id, { content: data.content }).then(function(rsp) {
+                oRemark.content = data.content;
+            });
+        });
+    };
+    $scope.removeRemark = function(oRemark) {
+        noticebox.confirm('撤销留言，确定？').then(function() {
+            http2.post(LS.j('remark/remove', 'site') + '&remark=' + oRemark.id).then(function(rsp) {
+                $scope.remarks.splice($scope.remarks.indexOf(oRemark), 1);
+            });
+        });
+    };
     $scope.likeRecord = function() {
         var oRecord, oRecData;
         if ($scope.bRemarkRecord) {

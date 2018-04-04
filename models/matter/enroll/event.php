@@ -727,6 +727,44 @@ class event_model extends \TMS_MODEL {
 		return $oUpdatedUsrData;
 	}
 	/**
+	 * 更新留言
+	 */
+	public function updateRemark($oApp, $oRemark, $oOperator) {
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRemark->id;
+		$oTarget->type = 'remark';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoRemarkEventName;
+		$oEvent->op = 'Upd';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = 0;
+
+		$this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent);
+	}
+	/**
+	 * 撤销留言
+	 */
+	public function removeRemark($oApp, $oRemark, $oOperator) {
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRemark->id;
+		$oTarget->type = 'remark';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoRemarkEventName;
+		$oEvent->op = 'Del';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = 0;
+
+		$this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent);
+	}
+	/**
 	 * 赞同填写记录
 	 * 同一条记录只有第一次点赞时才给积分奖励
 	 */

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>我的积分</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/user/coin/main.css');?>" rel="stylesheet">
+</head>
+
+<body ng-controller='ctrlCoin'>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
+        <div class='container-fluid text-right'>
+            <p class="navbar-text">
+                <a class='navbar-link' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?> &nbsp;
+                    <span class='glyphicon glyphicon-menu-right'></span>
+                </a>
+            </p>
+        </div>
+    </nav>
+    <div class="container ng-cloak" ng-cloak>
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="navbar navbar-default tms-panel-heading">
+                    <div class='container-fluid'>
+                        <div class='input-group'>
+                            <select class='form-control' title='团队列表' ng-model="criteria.sid">
+                                <option value="{{site.id}} " ng-repeat="site in sites">{{site.name}}</option>
+                            </select>
+                        </div>
+                        <form class="navbar-form navbar-left">
+                            <select class='form-control category' ng-model="criteria.matterType" ng-change="chooseMatterType()">
+                                <option value='recent'>最近</option>
+                                <option value='mission'>项目</option>
+                                <option value='article'>单图文</option>
+                                <option value='enroll'>登记活动</option>
+                                <option value='signin'>签到活动</option>
+                                <option value='group'>分组活动</option>
+                                <option value='lottery'>抽奖活动</option>
+                                <option value='news'>多图文</option>
+                                <option value='channel'>频道</option>
+                                <option value='text'>文本</option>
+                                <option value='link'>链接</option>
+                                <option value='merchant'>订购</option>
+                                <option value='wall'>信息墙</option>
+                                <option value='custom'>定制页</option>
+                                <option value='recycle'>回收站</option>
+                            </select>
+                        </form>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/coin/main-loader.js?_=1"></script>
+</body>
+
+</html>

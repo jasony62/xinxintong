@@ -50,18 +50,23 @@ class attachment extends \pl\fe\matter\base {
 		$oFile = $this->getPostJson();
 
 		if (defined('SAE_TMP_PATH')) {
-			/*文件存储在阿里*/
+			/* 文件存储在阿里 */
 			$url = 'alioss://enroll/' . $oApp->id . '/' . $file->name;
 		} else {
-			/*文件存储在本地*/
+			/* 文件存储在本地 */
 			$modelRes = $this->model('fs/local', $oApp->siteid, '_resumable');
 			$modelAtt = $this->model('fs/local', $oApp->siteid, '附件');
 			$fileUploaded = $modelRes->rootDir . '/enroll_' . $oApp->id . '_' . $oFile->uniqueIdentifier;
-			$fileUploaded2 = $modelAtt->rootDir . '/enroll_' . $oApp->id . '_' . $modelApp->toLocalEncoding($oFile->name);
+
+			$targetDir = $modelAtt->rootDir . '/enroll/' . date('Ym');
+			if (!file_exists($targetDir)) {
+				mkdir($targetDir, 0777, true);
+			}
+			$fileUploaded2 = $targetDir . '/' . $oApp->id . '_' . $modelApp->toLocalEncoding($oFile->name);
 			if (false === rename($fileUploaded, $fileUploaded2)) {
 				return new ResponseError('移动上传文件失败');
 			}
-			$url = 'local://enroll_' . $oApp->id . '_' . $oFile->name;
+			$url = 'local://enroll/' . date('Ym') . '/' . $oApp->id . '_' . $oFile->name;
 		}
 
 		$oAtt = new \stdClass;
@@ -78,7 +83,7 @@ class attachment extends \pl\fe\matter\base {
 		return new \ResponseData($oAtt);
 	}
 	/**
-	 * 删除附件
+	 * 删除附件???
 	 */
 	public function del_action($id) {
 		if (false === ($oUser = $this->accountUser())) {

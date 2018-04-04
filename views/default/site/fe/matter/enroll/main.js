@@ -174,35 +174,38 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
     };
     /* 设置公众号分享信息 */
     $scope.setSnsShare = function(oRecord, oParams) {
-        var oApp, oPage, oUser, sharelink, shareid, shareby, summary;
-        oApp = $scope.app;
-        oPage = $scope.page;
-        oUser = $scope.user;
-        /* 设置活动的当前链接 */
-        sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid');
-        if (oPage && oPage.share_page && oPage.share_page === 'Y') {
-            sharelink += '&page=' + oPage.name;
-            //if (!(/iphone|ipad/i.test(navigator.userAgent))) {
-            /*ios下操作无效，且导致微信jssdk失败*/
-            // if (window.history && window.history.replaceState) {
-            //     window.history.replaceState({}, oApp.title, sharelink);
-            // }
-            //}
-        } else if (LS.s().page) {
-            sharelink += '&page=' + LS.s().page;
-        }
-        oRecord && oRecord.enroll_key && (sharelink += '&ek=' + oRecord.enroll_key);
-        if (oParams) {
-            angular.forEach(oParams, function(v, k) {
-                if (v !== undefined) {
-                    sharelink += '&' + k + '=' + v;
-                }
-            });
-        }
-        shareid = oUser.uid + '_' + (new Date * 1);
-        sharelink += "&shareby=" + shareid;
-        /* 设置分享 */
-        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+        function fnReadySnsShare() {
+            if (window.__wxjs_environment === 'miniprogram') {
+                return;
+            }
+            var oApp, oPage, oUser, sharelink, shareid, shareby, summary;
+            oApp = $scope.app;
+            oPage = $scope.page;
+            oUser = $scope.user;
+            /* 设置活动的当前链接 */
+            sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid');
+            if (oPage && oPage.share_page && oPage.share_page === 'Y') {
+                sharelink += '&page=' + oPage.name;
+                //if (!(/iphone|ipad/i.test(navigator.userAgent))) {
+                /*ios下操作无效，且导致微信jssdk失败*/
+                // if (window.history && window.history.replaceState) {
+                //     window.history.replaceState({}, oApp.title, sharelink);
+                // }
+                //}
+            } else if (LS.s().page) {
+                sharelink += '&page=' + LS.s().page;
+            }
+            oRecord && oRecord.enroll_key && (sharelink += '&ek=' + oRecord.enroll_key);
+            if (oParams) {
+                angular.forEach(oParams, function(v, k) {
+                    if (v !== undefined) {
+                        sharelink += '&' + k + '=' + v;
+                    }
+                });
+            }
+            shareid = oUser.uid + '_' + (new Date * 1);
+            sharelink += "&shareby=" + shareid;
+            /* 设置分享 */
             summary = oApp.summary;
             if (oPage && oPage.share_summary && oPage.share_summary.length && oRecord) {
                 summary = oRecord.data[oPage.share_summary];
@@ -228,6 +231,13 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                 jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']
             });
             tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
+        }
+        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+            if (!window.WeixinJSBridge || !WeixinJSBridge.invoke) {
+                document.addEventListener('WeixinJSBridgeReady', fnReadySnsShare, false);
+            } else {
+                fnReadySnsShare();
+            }
         }
     };
     $scope.isSmallLayout = false;

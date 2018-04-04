@@ -159,6 +159,7 @@
                                             <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看全部<span ng-if="rec.coworkState[schema.id].length">{{rec.coworkState[schema.id].length}}个</span>或添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
                                             </button>
                                         </div>
+                                        <div ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]" class='supplement'>{{rec.supplement[schema.id]}}</div>
                                     </div>
                                 </blockquote>
                             </div>

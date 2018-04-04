@@ -964,7 +964,7 @@ class event_model extends \TMS_MODEL {
 		$eventAt = time();
 		/* 记录事件日志 */
 		$oTarget = new \stdClass;
-		$oTarget->id = $oRecord->id;
+		$oTarget->id = $oRecData->id;
 		$oTarget->type = 'record.data';
 		//
 		$oEvent = new \stdClass;
@@ -974,9 +974,9 @@ class event_model extends \TMS_MODEL {
 		$oEvent->user = $oOperator;
 		//
 		$oOwnerEvent = new \stdClass;
-		$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
 
-		$oLog = $this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+		$oLog = $this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 		/* 更新被撤销的事件 */
 		$this->update(

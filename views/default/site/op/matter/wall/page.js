@@ -42,8 +42,8 @@ var setPage = function($scope, page) {
         $scope.Page = page;
     }
 };
-app = angular.module('app', ['ngSanitize']);
-app.config(['$controllerProvider', function($cp) {
+app = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'ui.tms']);
+app.config(['$controllerProvider', '$uibTooltipProvider', function($cp, $uibTooltipProvider) {
     app.provider = {
         controller: $cp.register
     }
@@ -75,9 +75,6 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
     $scope.siteId = ls.match(/site=([^&]*)/)[1];
     $scope.wallId = ls.match(/wall=([^&]*)/)[1];
     $scope.stop = false;
-    $http.get('/clock.php').success(function(rsp) {
-        $scope.time = rsp.data;
-    });
     $http.get('/rest/site/op/matter/wall/pageGet?site=' + $scope.siteId + '&wall=' + $scope.wallId).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
@@ -100,6 +97,9 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
                 return;
             }
             setPage($scope, params.page);
+            $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+                $scope.Wall.timestamp = data.value;
+            });
         }else{
             setPage($scope, params.page);
             $http.get('/rest/site/op/matter/wall/messageList?site=' + $scope.siteId + '&wall=' + $scope.wallId + '&_=' + (new Date() * 1), {

@@ -95,6 +95,13 @@ class remark extends base {
 				return new \ObjectNotFoundError();
 			}
 		}
+		if (!empty($remark)) {
+			$modelRem = $this->model('matter\enroll\remark');
+			$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,content,modify_at,modify_log']);
+			if (false === $oRemark && $oRemark->state !== '1') {
+				return new \ObjectNotFoundError('（1）访问的资源不可用');
+			}
+		}
 
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
@@ -116,29 +123,29 @@ class remark extends base {
 		$oUser = $this->getUser($oApp);
 
 		$current = time();
-		$oRemark = new \stdClass;
-		$oRemark->siteid = $oRecord->siteid;
-		$oRemark->aid = $oRecord->aid;
-		$oRemark->rid = $oRecord->rid;
-		$oRemark->userid = $oUser->uid;
-		$oRemark->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-		$oRemark->user_src = 'S';
-		$oRemark->nickname = $modelRec->escape($oUser->nickname);
-		$oRemark->enroll_key = $ek;
-		$oRemark->enroll_group_id = $oRecord->group_id;
-		$oRemark->enroll_userid = $oRecord->userid;
-		$oRemark->schema_id = isset($oRecData) ? $oRecData->schema_id : '';
-		$oRemark->data_id = empty($recDataId) ? 0 : $recDataId;
-		$oRemark->remark_id = $remark;
-		$oRemark->create_at = $current;
-		$oRemark->modify_at = $current;
-		$oRemark->content = $modelRec->escape($oPosted->content);
+		$oNewRemark = new \stdClass;
+		$oNewRemark->siteid = $oRecord->siteid;
+		$oNewRemark->aid = $oRecord->aid;
+		$oNewRemark->rid = $oRecord->rid;
+		$oNewRemark->userid = $oUser->uid;
+		$oNewRemark->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+		$oNewRemark->user_src = 'S';
+		$oNewRemark->nickname = $modelRec->escape($oUser->nickname);
+		$oNewRemark->enroll_key = $ek;
+		$oNewRemark->enroll_group_id = $oRecord->group_id;
+		$oNewRemark->enroll_userid = $oRecord->userid;
+		$oNewRemark->schema_id = isset($oRecData) ? $oRecData->schema_id : '';
+		$oNewRemark->data_id = empty($recDataId) ? 0 : $recDataId;
+		$oNewRemark->remark_id = isset($oRemark) ? $oRemark->id : 0;
+		$oNewRemark->create_at = $current;
+		$oNewRemark->modify_at = $current;
+		$oNewRemark->content = $modelRec->escape($oPosted->content);
 		/* 如果记录是讨论状态，留言也是讨论状态 */
 		if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
-			$oRemark->agreed = 'D';
+			$oNewRemark->agreed = 'D';
 		}
 
-		$oRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oRemark, true);
+		$oNewRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oNewRemark, true);
 
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
 		if (!empty($recDataId)) {
@@ -166,9 +173,12 @@ class remark extends base {
 			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oUser);
 		}
 
-		$this->_notifyHasRemark($oApp, $oRecord, $oRemark);
+		/* 生成提醒 */
+		$this->model('matter\enroll\notice')->addRemark($oApp, $oRecord, $oNewRemark, $oUser, isset($oRecData) ? $oRecData : null, isset($oRemark) ? $oRemark : null);
 
-		return new \ResponseData($oRemark);
+		//$this->_notifyHasRemark($oApp, $oRecord, $oNewRemark);
+
+		return new \ResponseData($oNewRemark);
 	}
 	/**
 	 * 修改留言

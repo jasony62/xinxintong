@@ -2,6 +2,15 @@ body {
     margin-bottom: 64px;
 }
 
+.tms-flex-row {
+    display: flex;
+
+    .tms-flex-grow {
+        flex: 1;
+    }
+
+}
+
 .action {
     position: relative;
 
@@ -32,6 +41,47 @@ body {
 
         .datetime {
             flex: 1;
+        }
+
+    }
+
+}
+
+.notice {
+    position: relative;
+
+    .seq {
+        position: absolute;
+        top: -0.8em;
+        left: -0.5em;
+
+        &.label {
+            padding-bottom: .2em;
+            font-weight: 400;
+            border-radius: .5em;
+        }
+
+    }
+
+    .event {
+        &>*+* {
+            margin-top: .5em;
+        }
+
+        .event-user, .event-action {
+            font-size: .9em;
+        }
+
+        .event-action {
+            a {
+                display: inline-block;
+                color: #777;
+            }
+
+            &>*+* {
+                margin-left: 1em;
+            }
+
         }
 
     }

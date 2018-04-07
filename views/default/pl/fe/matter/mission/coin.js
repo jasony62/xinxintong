@@ -52,7 +52,7 @@ define(['frame'], function(ngApp) {
             data: { act: 'site.matter.enroll.cowork.get.remark', matter_type: 'enroll' },
             desc: '登记活动————用户A填写协作数据获得留言',
         }, {
-            data: { act: 'site.matter.enroll.data.do.remark', matter_type: 'enroll' },
+            data: { act: 'site.matter.enroll.do.remark', matter_type: 'enroll' },
             desc: '登记活动————用户A发表留言',
         }, {
             data: { act: 'site.matter.enroll.remark.get.like', matter_type: 'enroll' },

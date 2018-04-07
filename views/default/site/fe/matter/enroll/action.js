@@ -2,7 +2,19 @@
 require('./action.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlAction', ['$scope', '$sce', 'tmsLocation', 'http2', function($scope, $sce, LS, http2) {
+ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', function($scope, $q, LS, http2) {
+    function fnCloseNotice(oNotice) {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('notice/close', 'site', 'app');
+        url += '&notice=' + oNotice.id;
+        http2.get(url).then(function(rsp) {
+            $scope.notices.splice($scope.notices.indexOf(oNotice), 1);
+            defer.resolve();
+        });
+        return defer.promise;
+    }
+
     var _oApp, _aLogs, _oPage, _oFilter;
     $scope.page = _oPage = {
         at: 1,
@@ -11,8 +23,8 @@ ngApp.controller('ctrlAction', ['$scope', '$sce', 'tmsLocation', 'http2', functi
             return 'page=' + this.at + '&size=' + this.size;
         }
     };
-    $scope.filter = _oFilter = { scope: 'A' };
-    $scope.search = function(pageAt) {
+    $scope.filter = _oFilter = { scope: 'N' };
+    $scope.searchEvent = function(pageAt) {
         var url;
         pageAt && (_oPage.at = pageAt);
         url = LS.j('event/timeline', 'site', 'app');
@@ -23,18 +35,39 @@ ngApp.controller('ctrlAction', ['$scope', '$sce', 'tmsLocation', 'http2', functi
             _oPage.total = rsp.data.total;
         });
     };
-    $scope.gotoRemark = function(oLog) {
+    $scope.searchNotice = function(pageAt) {
         var url;
-        if (oLog.enroll_key) {
+        pageAt && (_oPage.at = pageAt);
+        url = LS.j('notice/list', 'site', 'app');
+        url += '&' + _oPage.j();
+        http2.get(url).then(function(rsp) {
+            $scope.notices = rsp.data.notices;
+            _oPage.total = rsp.data.total;
+        });
+    };
+    $scope.closeNotice = function(oNotice, bGotoRemark) {
+        fnCloseNotice(oNotice).then(function() {
+            if (bGotoRemark) {
+                $scope.gotoRemark(oNotice.enroll_key);
+            }
+        });
+    };
+    $scope.gotoRemark = function(ek) {
+        var url;
+        if (ek) {
             url = LS.j('', 'site', 'app');
-            url += '&ek=' + oLog.enroll_key;
+            url += '&ek=' + ek;
             url += '&page=remark';
             location.href = url;
         }
     };
     $scope.$watch('filter', function(nv, ov) {
         if (nv && nv !== ov) {
-            $scope.search(1);
+            if (/N/.test(nv.scope)) {
+                $scope.searchNotice(1);
+            } else {
+                $scope.searchEvent(1);
+            }
         }
     }, true)
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
@@ -65,6 +98,7 @@ ngApp.controller('ctrlAction', ['$scope', '$sce', 'tmsLocation', 'http2', functi
         if (Object.keys(oAppNavs)) {
             $scope.appNavs = oAppNavs;
         }
-        $scope.search(1);
+        //$scope.searchEvent(1);
+        $scope.searchNotice(1);
     });
 }]);

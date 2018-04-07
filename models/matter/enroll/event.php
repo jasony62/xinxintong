@@ -27,7 +27,7 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 用户A点评别人的填写数据
 	 */
-	const DoRemarkEventName = 'site.matter.enroll.data.do.remark';
+	const DoRemarkEventName = 'site.matter.enroll.do.remark';
 	/**
 	 * 用户A填写数据被赞同
 	 */

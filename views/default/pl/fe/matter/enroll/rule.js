@@ -101,7 +101,7 @@ define(['frame'], function(ngApp) {
             data: { act: 'site.matter.enroll.cowork.get.remark' },
             desc: '用户A填写协作数据获得留言',
         }, {
-            data: { act: 'site.matter.enroll.data.do.remark' },
+            data: { act: 'site.matter.enroll.do.remark' },
             desc: '用户A发表留言',
         }, {
             data: { act: 'site.matter.enroll.remark.get.like' },

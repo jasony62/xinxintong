@@ -171,6 +171,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                 }
             });
             $scope.tasks = tasks;
+            /* 设置活动事件提醒 */
+            http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
+                $scope.noticeCount = rsp.data;
+            });
             /* 开启协作填写需要的点赞数 */
             if (_oApp.actionRule.record && _oApp.actionRule.record.cowork && _oApp.actionRule.record.cowork.pre) {
                 if (_oApp.actionRule.record.cowork.pre.record && _oApp.actionRule.record.cowork.pre.record.likeNum !== undefined) {

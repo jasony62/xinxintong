@@ -69,15 +69,15 @@ class coin extends \site\fe\base {
 	/*
 	 *
 	 */
-	public function logs_action($site, $user, $matter = null, $page = null, $size = null) {
-		$logs = $this->userLogs($site, $user, $matter = null, $page = null, $size = null);
+	public function logs_action($site, $user, $matter = null, $groupByMatter = false, $page = null, $size = null) {
+		$data = $this->userLogs($site, $user, $matter, $groupByMatter, $page, $size);
 
-		return new \ResponseData($logs);
+		return new \ResponseData($data);
 	}
 	/*
 	 *
 	 */
-	private function userLogs($site, $user, $matter = null, $page = null, $size = null) {
+	private function userLogs($site, $user, $matter = null, $groupByMatter = false, $page = null, $size = null) {
 		$model = $this->model();
 		$q = [
 			'c.matter_id,c.matter_type,c.matter_title,c.act,c.occur_at,c.delta,c.total',
@@ -95,7 +95,7 @@ class coin extends \site\fe\base {
 					$q[1] .= ',xxt_enroll_user e';
 					$q[2] .= " and e.userid = c.userid and e.rid = 'ALL'";
 					break;
-				case '':
+				case 'plan':
 					$q[0] .= ',p.coin apptotalcoin';
 					$q[1] .= ',xxt_plan_user p';
 					$q[2] .= " and p.userid = c.userid";
@@ -104,12 +104,24 @@ class coin extends \site\fe\base {
 		}
 
 		$p = ['o' => 'c.occur_at desc'];
+
+		if ($groupByMatter) {
+			$p['g'] = 'matter_id,matter_type';
+		}
+
 		if (!empty($page) && !empty($size)) {
 			$p['r'] = ['o' => $page, 'l' => $size];
 		}
 
 		$logs = $model->query_objs_ss($q, $p);
+		// 总数
+		$q[0] = 'count(id)';
+		$sum = $model->query_val_ss($q);
 
-		return $logs;
+		$data = new \stdClass;
+		$data->logs = $logs;
+		$data->total = $sum;
+
+		return $data;
 	}
 }

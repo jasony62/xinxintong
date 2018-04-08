@@ -16,6 +16,7 @@ window.loading = {
             waitSeconds: 0,
             paths: {
                 "angular": "/static/js/angular.min",
+                "ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
                 "main": "/views/default/site/fe/user/coin/main",
             },
             shim: {
@@ -24,14 +25,18 @@ window.loading = {
                 },
             },
             urlArgs: function(id, url) {
-                if (/angular/.test(id)) {
+                if (/angular|ui-bootstrap/.test(id)) {
                     return '';
                 }
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['main'], function() {
-            angular.bootstrap(document, ['app']);
+        require(['angular'], function() {
+            require(['ui-bootstrap'], function() {
+                require(['main'], function() {
+                    angular.bootstrap(document, ['app']);
+                });
+            });
         });
     }
 };

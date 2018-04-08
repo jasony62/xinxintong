@@ -31,22 +31,17 @@
                 <nav class="navbar navbar-default tms-panel-heading">
                     <div class='container-fluid'>
                         <form class="navbar-form navbar-left">
-                            <select class='form-control' title='团队列表' ng-model="filter.sid">
+                            <select class='form-control' title='团队列表' ng-model="frameSid">
                                 <option value="{{site.siteid}} " ng-repeat="site in sites">{{site.name}}</option>
                             </select>
                         </form>
                         <form class="navbar-form navbar-left">
-                            <select class='form-control' title='类型列表' ng-model="filter.type">
+                            <select class='form-control' title='类型列表' ng-model="unionType">
                                 <option value=''>全部类型</option>
                                 <option value='mission'>项目</option>
                                 <option value='article'>单图文</option>
                                 <option value='enroll'>登记活动</option>
                                 <option value='signin'>签到活动</option>
-                            </select>
-                        </form>
-                        <form class="navbar-form navbar-left">
-                            <select class='form-control' title='素材列表' ng-model="criteria.mid">
-                                <option value="{{matter.id}}" ng-repeat="matter in matters">{{matter.name}}</option>
                             </select>
                         </form>
                     </div>
@@ -56,19 +51,17 @@
                         <thead>
                             <tr>
                                 <th style='width:48px'>序号</th>
-                                <th style='width:120px'>时间</th>
-                                <th>获得积分原因</th>
-                                <th>获得积分</th>
+                                <th style='width:100px'>活动类型</th>
+                                <th>活动名称</th>
                                 <th>获得总积分</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="log in logs">
+                            <tr ng-repeat="matter in matters" ng-click="view(matter.type, matter.id)">
                                 <td>{{$index+1}}</td>
-                                <td>{{log.create_at*1000|date:'yy-MM-dd: HH:mm'}}</td>
-                                <td>{{log.act}}</td>
-                                <td>{{log.delta}}</td>
-                                <td>{{log.user_total_coin}}</td>
+                                <td>{{matter.type}}</td>
+                                <td>{{matter.title}}</td>
+                                <td>{{matter.user_total_coin}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -76,13 +69,51 @@
                 <div class='form-group'>
                     <div class='pl-pagination'>
                         <span>总数：{{page.total}}</span>
-                        <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                        <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script type="text/ng-template" id="detaiLog.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">积分日志详情</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-group'>
+                <table class='table table-bordered table-striped'>
+                    <thead>
+                        <tr>
+                            <th style='width:48px'>序号</th>
+                            <th style='width:120px'>时间</th>
+                            <th>获得积分原因</th>
+                            <th>获得积分</th>
+                            <th>获得总积分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="log in logs">
+                            <td>{{$index+1}}</td>
+                            <td>{{log.create_at*1000|date:'yy-MM-dd: HH:mm'}}</td>
+                            <td>{{log.act}}</td>
+                            <td>{{log.delta}}</td>
+                            <td>{{log.user_total_coin}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="ok()">确定</button>
+        </div>
+    </script>
     <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/coin/main-loader.js?_=1"></script>
 </body>
-
 </html>

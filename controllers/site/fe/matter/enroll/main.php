@@ -65,9 +65,9 @@ class main extends base {
 		} elseif ($page === 'action') {
 			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/action');
-		} elseif ($page === 'remark') {
+		} elseif ($page === 'cowork') {
 			\TPL::assign('title', $oApp->title);
-			\TPL::output('/site/fe/matter/enroll/remark');
+			\TPL::output('/site/fe/matter/enroll/cowork');
 		} elseif ($page === 'rank') {
 			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/rank');
@@ -283,7 +283,7 @@ class main extends base {
 			}
 		}
 
-		if (!in_array($page, ['action', 'repos', 'remark', 'rank', 'score'])) {
+		if (!in_array($page, ['action', 'repos', 'cowork', 'rank', 'score'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */
 			if (empty($page)) {

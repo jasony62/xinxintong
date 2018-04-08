@@ -45,19 +45,19 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', function
             _oPage.total = rsp.data.total;
         });
     };
-    $scope.closeNotice = function(oNotice, bGotoRemark) {
+    $scope.closeNotice = function(oNotice, bGotoCowork) {
         fnCloseNotice(oNotice).then(function() {
-            if (bGotoRemark) {
-                $scope.gotoRemark(oNotice.enroll_key);
+            if (bGotoCowork) {
+                $scope.gotoCowork(oNotice.enroll_key);
             }
         });
     };
-    $scope.gotoRemark = function(ek) {
+    $scope.gotoCowork = function(ek) {
         var url;
         if (ek) {
             url = LS.j('', 'site', 'app');
             url += '&ek=' + ek;
-            url += '&page=remark';
+            url += '&page=cowork';
             location.href = url;
         }
     };

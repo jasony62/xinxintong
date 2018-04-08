@@ -62,7 +62,7 @@
                                         <div class='tms-flex-grow'>{{notice.event_nickname}}</div>
                                         <div>{{notice.event_at*1000|date:'MM-dd HH:mm'}}</div>
                                     </div>
-                                    <div ng-switch on="notice.event_name" ng-click="gotoRemark(notice.enroll_key)">
+                                    <div ng-switch on="notice.event_name" ng-click="gotoCowork(notice.enroll_key)">
                                         <div ng-switch-when="site.matter.enroll.submit">
                                             <span>（{{notice.notice_reason}}）</span>
                                             <div ng-switch on="notice.notice_reason">
@@ -208,8 +208,8 @@
                                 </div>
                                 <div class='footer'>
                                     <div class='datetime text-muted'>{{log.event_at*1000|date:'MM-dd HH:mm'}}</div>
-                                    <div ng-if="log.canGotoRemark">
-                                        <a href ng-click="gotoRemark(log.enroll_key)">讨论<span class='glyphicon glyphicon-menu-right'></span></a>
+                                    <div ng-if="log.canGotoCowork">
+                                        <a href ng-click="gotoCowork(log.enroll_key)">讨论<span class='glyphicon glyphicon-menu-right'></span></a>
                                     </div>
                                 </div>
                             </div>

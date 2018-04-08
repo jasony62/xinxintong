@@ -85,7 +85,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
         $scope.gotoPage(event, page, facRecord.current.enroll_key);
     };
     $scope.remarkRecord = function(event) {
-        $scope.gotoPage(event, 'remark', facRecord.current.enroll_key);
+        $scope.gotoPage(event, 'cowork', facRecord.current.enroll_key);
     };
     $scope.removeRecord = function(event, page) {
         if ($scope.app.can_cowork && $scope.app.can_cowork !== 'Y') {
@@ -244,7 +244,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                                 domWrap.classList.add('remarkable');
                                 domWrap.addEventListener('click', function() {
                                     var url = LS.j('', 'site', 'app');
-                                    url += '&page=remark';
+                                    url += '&page=cowork';
                                     url += '&ek=' + oRecord.enroll_key;
                                     url += '&schema=' + oSchema.id;
                                     url += '&data=' + oRecord.verbose[oSchema.id].id;

@@ -25,57 +25,31 @@ class remark extends base {
 
 		$modelRem = $this->model('matter\enroll\remark');
 		$aOptions = [
-			'fields' => 'id,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,like_num,like_log',
+			'fields' => 'id,seq_in_record,seq_in_data,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log',
 		];
 		if (!empty($data)) {
 			$aOptions['data_id'] = $data;
 		}
 
-		$result = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
-
-		return new \ResponseData($result);
-	}
-	/**
-	 * 返回多项填写题的所有留言
-	 */
-	public function listMultitext_action($ek, $schema, $page = 1, $size = 99) {
-		if (empty($schema)) {
-			return new \ResponseError('没有指定题目id');
-		}
-		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek, ['aid,state']);
-		if (false === $oRecord && $oRecord->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
-		if (false === $oApp && $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		$oUser = $this->getUser($oApp);
-
-		$oRecDatas = $this->model('matter\enroll\data')->getMultitext($ek, $schema, ['fields' => 'id,multitext_seq,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
-
-		$aOptions = [];
-		if (count($oRecDatas)) {
-			$data_ids = [];
-			foreach ($oRecDatas as $oRecData) {
-				$data_ids[] = $oRecData->id;
+		$oResult = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
+		if (!empty($oResult->remarks)) {
+			$modelRecData = $this->model('matter\enroll\data');
+			foreach ($oResult->remarks as $oRemark) {
+				if (!empty($oRemark->data_id)) {
+					$oData = $modelRecData->byId($oRemark->data_id, ['fields' => 'id,schema_id,nickname,multitext_seq']);
+					$oRemark->data = $oData;
+				}
 			}
-			$aOptions['data_id'] = $data_ids;
 		}
 
-		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
-
-		$result->data = $oRecDatas;
-
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 给指定的登记记录的添加留言
 	 * 进行留言操作的用户需满足进入活动规则的条件
 	 *
+	 * @param $ek 被留言的记录
+	 * @param $data 被留言的数据
 	 * @param $remark 被留言的留言
 	 *
 	 */
@@ -140,24 +114,48 @@ class remark extends base {
 		$oNewRemark->create_at = $current;
 		$oNewRemark->modify_at = $current;
 		$oNewRemark->content = $modelRec->escape($oPosted->content);
+		/* 在记录中的序号 */
+		$seq = (int) $modelRec->query_val_ss([
+			'max(seq_in_record)',
+			'xxt_enroll_record_remark',
+			['enroll_key' => $oRecord->enroll_key],
+		]);
+		$oNewRemark->seq_in_record = $seq + 1;
+		/* 在数据中的序号 */
+		if (isset($oRecData)) {
+			$seq = (int) $modelRec->query_val_ss([
+				'max(seq_in_data)',
+				'xxt_enroll_record_remark',
+				['data_id' => $oRecData->id],
+			]);
+			$oNewRemark->seq_in_data = $seq + 1;
+		}
 		/* 如果记录是讨论状态，留言也是讨论状态 */
 		if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
 			$oNewRemark->agreed = 'D';
 		}
-
 		$oNewRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oNewRemark, true);
 
+		/* 留言总数 */
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
-		if (!empty($recDataId)) {
-			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
-			// 如果每一条的数据呗留言了那么这道题的总数据+1
-			if ($oRecData->multitext_seq != 0) {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");
+		/* 记录的直接留言 */
+		if (!isset($oRecData) && !isset($oRemark)) {
+			$modelRec->update("update xxt_enroll_record set rec_remark_num=rec_remark_num+1 where enroll_key='$ek'");
+		} else {
+			if (isset($oRecData)) {
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
+				// 如果每一条的数据被留言了那么这道题的总数据+1
+				if ($oRecData->multitext_seq != 0) {
+					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");
+				}
+			}
+			if (isset($oRemark)) {
+				$modelRec->update("update xxt_enroll_record_remark set remark_num=remark_num+1 where id='{$oRemark->id}'");
 			}
 		}
 
 		/* 更新用户汇总数据 */
-		if (!empty($recDataId)) {
+		if (isset($oRecData)) {
 			foreach ($oApp->dataSchemas as $dataSchema) {
 				if ($dataSchema->id === $oRecData->schema_id) {
 					$oDataSchema = $dataSchema;

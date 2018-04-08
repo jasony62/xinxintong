@@ -331,7 +331,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     otherwise.push({ name: 'rank', 'title': '排行榜' });
                     exclude.push({ name: 'action', 'title': '活动动态页' });
                     exclude.push({ name: 'repos', 'title': '共享数据页' });
-                    exclude.push({ name: 'remark', 'title': '讨论页' });
+                    exclude.push({ name: 'cowork', 'title': '讨论页' });
                     exclude.push({ name: 'rank', 'title': '排行榜' });
                     exclude.push({ name: 'score', 'title': '测验结果' });
 

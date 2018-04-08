@@ -12,7 +12,7 @@
     <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
-<body ng-controller="ctrlRemark">
+<body ng-controller="ctrlCowork">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
@@ -90,7 +90,7 @@
                         <div class='datetime'>{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                         <button ng-if="record.userid===user.uid" class='btn btn-default btn-sm' ng-click="editRecord($event)"><span class='glyphicon glyphicon-edit'></span></button>
                         <button class='btn btn-default btn-sm' ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':record.like_log[user.uid]}"></span>&nbsp;<span ng-bind="record.like_num"></span></button>
-                        <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span></button>
+                        <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="record.rec_remark_num"></span></button>
                         <div ng-if="groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(record.userid===groupUser.userid||groupOthers[record.userid]))">
                             <div class="btn-group" uib-dropdown>
                                 <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
@@ -112,7 +112,7 @@
                         <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span></button>
                         <div ng-if="groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(record.userid===groupUser.userid||groupOthers[record.userid]))">
                             <div class="btn-group" uib-dropdown>
-                                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                                <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
                                     表态
                                     <span class="caret"></span>
                                 </button>
@@ -133,16 +133,19 @@
                             <span ng-switch-when="cowork.submit.end"></span>
                         </div>
                     </div>
-                    <div class='schemaList' ng-controller="ctrlCowork">
+                    <div class='schemaList' ng-controller="ctrlCoworkData">
                         <div ng-repeat="schema in coworkSchemas">
                             <div class='text-muted data-title'>{{schema.title}}</div>
-                            <div ng-repeat="item in record.verbose[schema.id].value" class='item'>
+                            <div id='item-{{item.id}}' ng-repeat="item in record.verbose[schema.id].value" class='item'>
                                 <hr>
-                                <div class='recommend' ng-if="user.uid===record.userid||groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(record.userid===groupUser.userid||groupOthers[record.userid]))">
-                                    <span ng-if="item.agreed===''" class="label label-default">未表态</span>
-                                    <span ng-if="item.agreed==='D'" class="label label-danger">讨论</span>
-                                    <span ng-if="item.agreed==='A'" class="label label-success">接受</span>
-                                    <span ng-if="item.agreed==='Y'" class="label label-success">推荐</span>
+                                <div class='top-bar tms-flex-row'>
+                                    <div class='seq tms-flex-grow text-muted'>#<span ng-bind="item.multitext_seq"></span></div>
+                                    <div class='recommend' ng-if="user.uid===record.userid||groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(record.userid===groupUser.userid||groupOthers[record.userid]))">
+                                        <span ng-if="item.agreed===''" class="label label-default">未表态</span>
+                                        <span ng-if="item.agreed==='D'" class="label label-danger">讨论</span>
+                                        <span ng-if="item.agreed==='A'" class="label label-success">接受</span>
+                                        <span ng-if="item.agreed==='Y'" class="label label-success">推荐</span>
+                                    </div>
                                 </div>
                                 <blockquote>
                                     <p dynamic-html="item.value"></p>
@@ -153,9 +156,10 @@
                                     <button ng-if="!item._others" class='btn btn-default btn-sm' ng-click="removeItem(schema,$index)"><span class='glyphicon glyphicon-trash'></span></button>
                                     <button ng-if="!item._others" class='btn btn-default btn-sm' ng-click="editItem(schema,$index)"><span class='glyphicon glyphicon-edit'></span></button>
                                     <button class='btn btn-default btn-sm' ng-click="likeItem(item)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>
+                                    <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeItemRemark(item)"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="item.remark_num"></span></button>
                                     <div ng-if="groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(record.userid===groupUser.userid||groupOthers[record.userid]))">
                                         <div class="btn-group" uib-dropdown>
-                                            <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                                            <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
                                                 表态
                                                 <span class="caret"></span>
                                             </button>
@@ -167,7 +171,6 @@
                                             </ul>
                                         </div>
                                     </div>
-                                    <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeItemRemark(item)"><span class="glyphicon glyphicon-comment"></span></button>
                                 </div>
                             </div>
                             <div class='text-center'>
@@ -185,7 +188,8 @@
                         </div>
                     </div>
                     <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
-                        <div class='top-bar'>
+                        <div class='top-bar tms-flex-row'>
+                            <div class='seq tms-flex-grow text-muted'>#<span ng-bind="bRemarkRecord?remark.seq_in_record:record.seq_in_data"></span> <span class='reply' ng-if="remark.reply" ng-bind-html="remark.reply"></span></div>
                             <div class='recommend' ng-if="groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(record.userid===groupUser.userid||groupOthers[record.userid]))">
                                 <span ng-if="remark.agreed===''" class="label label-default">未表态</span>
                                 <span ng-if="remark.agreed==='D'" class="label label-danger">讨论</span>
@@ -201,9 +205,11 @@
                             <div class='datetime'>{{remark.modify_at*1000|date:'MM-dd HH:mm'}}</div>
                             <button class='btn btn-default btn-sm' ng-click="removeRemark(remark)"><span class='glyphicon glyphicon-trash'></span></button>
                             <button class='btn btn-default btn-sm' ng-click="editRemark(remark)"><span class='glyphicon glyphicon-edit'></span></button>
+                            <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
+                            <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark(remark)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="remark.remark_num"></span></button>
                             <div ng-if="groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(record.userid===groupUser.userid||groupOthers[record.userid]))">
                                 <div class="btn-group" uib-dropdown>
-                                    <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                                    <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
                                         表态
                                         <span class="caret"></span>
                                     </button>
@@ -215,8 +221,6 @@
                                     </ul>
                                 </div>
                             </div>
-                            <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
-                            <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark(remark)"><span class='glyphicon glyphicon-comment'></span></button>
                         </div>
                     </div>
                     <div class='remark'>
@@ -249,10 +253,25 @@
     </script>
     <script type="text/ng-template" id="writeRemark.html">
         <div class="modal-body">
-            <textarea class='form-control' rows=8 placeholder='请输入留言内容' autofocus ng-model="data.content"></textarea>
+            <div style="position:absolute;top:8px;bottom:8px;left:8px;right:8px;display:flex;flex-direction:column">
+                <div ng-if="remarks.length" style='overflow-y:auto;'>
+                    <ul class='list-group'>
+                        <li class='list-group-item' ng-repeat="remark in remarks">
+                            <div>
+                                <span class='text-muted' ng-bind="remark.modify_at*1000|date:'MM-dd HH:mm'"></span>
+                                <span class='text-muted' ng-bind="remark.nickname"></span>
+                            </div>
+                            <div ng-bind-html="remark.content"></div>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <textarea class='form-control' rows=8 placeholder='请输入留言内容' autofocus ng-model="data.content"></textarea>
+                </div>
+            </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-default" ng-click="cancel()">取消</button>
+            <button class="btn btn-default" ng-click="cancel()">关闭</button>
             <button class="btn btn-primary" ng-click="ok()">提交留言</button>
         </div>
     </script>
@@ -260,7 +279,7 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/remark.js');?>"></script>
+    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/cowork.js');?>"></script>
 </body>
 
 </html>

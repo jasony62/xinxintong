@@ -18,17 +18,32 @@ define(['require', 'angular'], function(require, angular) {
                 return '&page=' + this.at + '&size=' + this.size;
             }
         };
-        $scope.view = function(type, id) {
+        $scope.view = function(sid, type, id) {
             $uibModal.open({
                 templateUrl: 'detaiLog.html',
-                controller:['$uibModalInstance', '$scope', function($mi, $scope) {
-                    $scope.page = {
+                controller:['$uibModalInstance', '$scope', '$http', function($mi, $scope2, $http) {
+                    $scope2.oSite = angular.copy(_oSite);
+                    $scope2.page = {
                         at: 1,
                         size: 20,
                         j: function() {
                             return '&page=' + this.at + '&size=' + this.size;
                         }
-                    }
+                    };
+                    $scope2.doSearch = function() {
+                        var url;
+                        url = '/rest/site/fe/user/coin/logs?site=' + sid;
+                        url += '&user=' + $scope2.oSite[sid].userid + '&matterType=' + type + '&matterId=' + id;
+                        url +=  '&groupByMatter=true' + page.join();
+
+                        $http.get(url).success(function(rsp) {
+                            if(rsp.data.logs.length !== 0) {
+                                $scope2.logs = rsp.data.logs;
+                                $scope2.page.total = rsp.data.total;
+                            }
+                        });
+                    };
+                    $scope2.doSearch();
                 }],
                 backdrop: 'static'
             })
@@ -37,14 +52,14 @@ define(['require', 'angular'], function(require, angular) {
             pageAt && (page.at = pageAt);
 
             var url;
-            url = '/rest/site/fe/user/coin/matters?site=' + _oCriteria.sid;
+            url = '/rest/site/fe/user/coin/logs?site=' + _oCriteria.sid;
             url += '&user=' + _oSite[_oCriteria.sid].userid;
-            url +=  page.join();
+            url +=  '&groupByMatter=true' + page.join();
             if(_oCriteria.type) {
-                url += '&type=' + _oCriteria.type;
+                url += '&matterType=' + _oCriteria.type;
             }
             $http.get(url).success(function(rsp) {
-                if(rsp.data.length!==0) {
+                if(rsp.data.logs.length!==0) {
                     $scope.matters = rsp.data;
                     $scope.page.total = rsp.data.total;
                 }

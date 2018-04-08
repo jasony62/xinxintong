@@ -57,7 +57,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="matter in matters" ng-click="view(matter.type, matter.id)">
+                            <tr ng-repeat="matter in matters" ng-click="view(frameSid, matter.type, matter.id)">
                                 <td>{{$index+1}}</td>
                                 <td>{{matter.type}}</td>
                                 <td>{{matter.title}}</td>

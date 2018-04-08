@@ -69,15 +69,15 @@ class coin extends \site\fe\base {
 	/*
 	 *
 	 */
-	public function logs_action($site, $user, $matter = null, $groupByMatter = false, $page = null, $size = null) {
-		$data = $this->userLogs($site, $user, $matter, $groupByMatter, $page, $size);
+	public function logs_action($site, $user, $matterType = null, $matterId = null, $groupByMatter = false, $page = null, $size = null) {
+		$data = $this->userLogs($site, $user, $matterType, $matterId, $groupByMatter, $page, $size);
 
 		return new \ResponseData($data);
 	}
 	/*
 	 *
 	 */
-	private function userLogs($site, $user, $matter = null, $groupByMatter = false, $page = null, $size = null) {
+	private function userLogs($site, $user, $matterType = null, $matterId = null, $groupByMatter = false, $page = null, $size = null) {
 		$model = $this->model();
 		$q = [
 			'c.matter_id,c.matter_type,c.matter_title,c.act,c.occur_at,c.delta,c.total',
@@ -85,9 +85,7 @@ class coin extends \site\fe\base {
 			"c.siteid = '{$site}' and c.userid = '{$user}'"
 		];
 
-		if (!empty($matter)) {
-			$matter = explode(',', $matter);
-			list($matterType, $matterId) = $matter;
+		if (!empty($matterType) && !empty($matterId)) {
 			$q[2] .= " and matter_id = '{$matterId}' and matter_type = '{$matterType}'";
 			switch ($matterType) {
 				case 'enroll':
@@ -101,6 +99,8 @@ class coin extends \site\fe\base {
 					$q[2] .= " and p.userid = c.userid";
 					break;
 			}
+		} else if (!empty($matterType)) {
+			$q[2] .= " and matter_type = '{$matterType}'";
 		}
 
 		$p = ['o' => 'c.occur_at desc'];

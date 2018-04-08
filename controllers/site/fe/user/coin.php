@@ -116,7 +116,11 @@ class coin extends \site\fe\base {
 		$logs = $model->query_objs_ss($q, $p);
 		// 总数
 		$q[0] = 'count(id)';
-		$sum = $model->query_val_ss($q);
+		$p = [];
+		if ($groupByMatter) {
+			$p['g'] = 'matter_id,matter_type';
+		}
+		$sum = $model->query_val_ss($q, $p);
 
 		$data = new \stdClass;
 		$data->logs = $logs;

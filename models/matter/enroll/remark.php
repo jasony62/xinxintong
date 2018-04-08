@@ -22,6 +22,9 @@ class remark_model extends \TMS_MODEL {
 			if (property_exists($oRemark, 'agreed_log')) {
 				$oRemark->agreed_log = empty($oRemark->agreed_log) ? new \stdClass : json_decode($oRemark->agreed_log);
 			}
+			if (property_exists($oRemark, 'modify_log')) {
+				$oRemark->modify_log = empty($oRemark->modify_log) ? [] : json_decode($oRemark->modify_log);
+			}
 		}
 
 		return $oRemark;
@@ -65,7 +68,7 @@ class remark_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_enroll_record_remark',
-			"enroll_key='$ek'",
+			"enroll_key='$ek' and state=1",
 		];
 		if (!empty($schemaId)) {
 			$q[2] .= " and schema_id='$schemaId'";

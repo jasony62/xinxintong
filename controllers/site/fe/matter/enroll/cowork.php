@@ -18,7 +18,7 @@ class cowork extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		if (empty($data)) {
 			/* 要更新的记录 */
-			$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,group_id,like_num,agreed']);
+			$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,nickname,group_id,like_num,agreed']);
 			if (false === $oRecord || $oRecord->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
@@ -33,6 +33,7 @@ class cowork extends base {
 				$oRecData->enroll_key = $oRecord->enroll_key;
 				$oRecData->submit_at = time();
 				$oRecData->userid = $oRecord->userid;
+				$oRecData->nickname = $oRecord->nickname;
 				$oRecData->group_id = $oRecord->group_id;
 				$oRecData->schema_id = $schema;
 				$oRecData->multitext_seq = 0;
@@ -42,7 +43,7 @@ class cowork extends base {
 			}
 		} else {
 			/* 要更新的题目 */
-			$oRecData = $modelData->byId($data, ['fields' => 'id,userid,state,aid,rid,enroll_key,schema_id,multitext_seq,value']);
+			$oRecData = $modelData->byId($data, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,schema_id,multitext_seq,value']);
 			if (false === $oRecData || $oRecData->state !== '1') {
 				return new \ObjectNotFoundError();
 			}
@@ -129,6 +130,8 @@ class cowork extends base {
 		/* 更新用户汇总信息及积分 */
 		$modelEvt = $this->model('matter\enroll\event');
 		$modelEvt->submitCowork($oApp, $oRecData, $oNewItem, $oUser);
+		/* 生成提醒 */
+		$this->model('matter\enroll\notice')->addCowork($oApp, $oRecData, $oNewItem, $oUser);
 
 		return new \ResponseData([$oNewItem, $oRecData]);
 	}

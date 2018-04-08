@@ -7,7 +7,7 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 缺省返回的列
 	 */
-	const DEFAULT_FIELDS = 'id,value,tag,supplement,rid,enroll_key,schema_id,userid,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq';
+	const DEFAULT_FIELDS = 'id,value,tag,supplement,rid,enroll_key,schema_id,userid,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq';
 	/**
 	 * 按题目记录数据
 	 */

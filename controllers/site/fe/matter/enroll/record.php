@@ -280,6 +280,10 @@ class record extends base {
 		/* 处理用户汇总数据，积分数据 */
 		$oRecord = $modelRec->byId($ek);
 		$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
+		/* 生成提醒 */
+		if ($bSubmitNewRecord) {
+			$this->model('matter\enroll\notice')->addRecord($oEnrollApp, $oRecord, $oUser);
+		}
 
 		/* 记录操作日志 */
 		$oOperation = new \stdClass;

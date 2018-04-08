@@ -187,7 +187,7 @@
         }
         $scope.$watch('Wall.timestamp', function(nv) {
             if(!nv) {
-                alert('请点击左上角指定时间');
+                alert('请点击左上角设定活动开始时间');
                 return false;
             }else{
                 time = nv;

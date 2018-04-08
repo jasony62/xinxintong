@@ -30,32 +30,55 @@
             <div class="col-md-12">
                 <nav class="navbar navbar-default tms-panel-heading">
                     <div class='container-fluid'>
-                        <div class='input-group'>
-                            <select class='form-control' title='团队列表' ng-model="criteria.sid">
-                                <option value="{{site.id}} " ng-repeat="site in sites">{{site.name}}</option>
-                            </select>
-                        </div>
                         <form class="navbar-form navbar-left">
-                            <select class='form-control category' ng-model="criteria.matterType" ng-change="chooseMatterType()">
-                                <option value='recent'>最近</option>
+                            <select class='form-control' title='团队列表' ng-model="filter.sid">
+                                <option value="{{site.siteid}} " ng-repeat="site in sites">{{site.name}}</option>
+                            </select>
+                        </form>
+                        <form class="navbar-form navbar-left">
+                            <select class='form-control' title='类型列表' ng-model="filter.type">
+                                <option value=''>全部类型</option>
                                 <option value='mission'>项目</option>
                                 <option value='article'>单图文</option>
                                 <option value='enroll'>登记活动</option>
                                 <option value='signin'>签到活动</option>
-                                <option value='group'>分组活动</option>
-                                <option value='lottery'>抽奖活动</option>
-                                <option value='news'>多图文</option>
-                                <option value='channel'>频道</option>
-                                <option value='text'>文本</option>
-                                <option value='link'>链接</option>
-                                <option value='merchant'>订购</option>
-                                <option value='wall'>信息墙</option>
-                                <option value='custom'>定制页</option>
-                                <option value='recycle'>回收站</option>
+                            </select>
+                        </form>
+                        <form class="navbar-form navbar-left">
+                            <select class='form-control' title='素材列表' ng-model="criteria.mid">
+                                <option value="{{matter.id}}" ng-repeat="matter in matters">{{matter.name}}</option>
                             </select>
                         </form>
                     </div>
                 </nav>
+                <div>
+                    <table class='table table-bordered table-striped'>
+                        <thead>
+                            <tr>
+                                <th style='width:48px'>序号</th>
+                                <th style='width:120px'>时间</th>
+                                <th>获得积分原因</th>
+                                <th>获得积分</th>
+                                <th>获得总积分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="log in logs">
+                                <td>{{$index+1}}</td>
+                                <td>{{log.create_at*1000|date:'yy-MM-dd: HH:mm'}}</td>
+                                <td>{{log.act}}</td>
+                                <td>{{log.delta}}</td>
+                                <td>{{log.user_total_coin}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class='form-group'>
+                    <div class='pl-pagination'>
+                        <span>总数：{{page.total}}</span>
+                        <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -62,18 +62,9 @@ class main extends base {
 				// 按数据进行共享
 				\TPL::output('/site/fe/matter/enroll/repos');
 			}
-		} elseif ($page === 'action') {
+		} else if (in_array($page, ['cowork', 'share', 'action', 'rank', 'score'])) {
 			\TPL::assign('title', $oApp->title);
-			\TPL::output('/site/fe/matter/enroll/action');
-		} elseif ($page === 'cowork') {
-			\TPL::assign('title', $oApp->title);
-			\TPL::output('/site/fe/matter/enroll/cowork');
-		} elseif ($page === 'rank') {
-			\TPL::assign('title', $oApp->title);
-			\TPL::output('/site/fe/matter/enroll/rank');
-		} elseif ($page === 'score') {
-			\TPL::assign('title', $oApp->title);
-			\TPL::output('/site/fe/matter/enroll/score');
+			\TPL::output('/site/fe/matter/enroll/' . $page);
 		} else {
 			if (empty($page)) {
 				/* 计算打开哪个页面 */
@@ -82,8 +73,8 @@ class main extends base {
 				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp->id, $page);
 			}
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
+			\TPL::assign('title', $oApp->title);
 			if ($oOpenPage->name === 'repos') {
-				\TPL::assign('title', $oApp->title);
 				if ($oApp->repos_unit === 'R') {
 					// 按记录进行共享
 					\TPL::output('/site/fe/matter/enroll/repos2');
@@ -91,23 +82,13 @@ class main extends base {
 					// 按数据进行共享
 					\TPL::output('/site/fe/matter/enroll/repos');
 				}
-			} else if ($oOpenPage->name === 'action') {
-				\TPL::assign('title', $oApp->title);
-				\TPL::output('/site/fe/matter/enroll/action');
-			} else if ($oOpenPage->name === 'rank') {
-				\TPL::assign('title', $oApp->title);
-				\TPL::output('/site/fe/matter/enroll/rank');
-			} elseif ($oOpenPage->name === 'score') {
-				\TPL::assign('title', $oApp->title);
-				\TPL::output('/site/fe/matter/enroll/score');
+			} else if (in_array($oOpenPage->name, ['action', 'rank', 'score'])) {
+				\TPL::output('/site/fe/matter/enroll/' . $oOpenPage->name);
 			} else if ($oOpenPage->type === 'I') {
-				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/input');
 			} else if ($oOpenPage->type === 'V') {
-				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/view');
 			} else if ($oOpenPage->type === 'L') {
-				\TPL::assign('title', $oApp->title);
 				\TPL::output('/site/fe/matter/enroll/list');
 			}
 		}
@@ -283,7 +264,7 @@ class main extends base {
 			}
 		}
 
-		if (!in_array($page, ['action', 'repos', 'cowork', 'rank', 'score'])) {
+		if (!in_array($page, ['action', 'repos', 'cowork', 'share', 'rank', 'score'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */
 			if (empty($page)) {

@@ -7,6 +7,18 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class remark extends base {
 	/**
+	 * 返回指定留言
+	 */
+	public function get_action($remark) {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,data_id,remark_id,content,modify_at']);
+		if (false === $oRemark && $oRemark->state !== '1') {
+			return new \ObjectNotFoundError('（1）访问的资源不可用');
+		}
+
+		return new \ResponseData($oRemark);
+	}
+	/**
 	 * 返回一条登记记录的所有留言
 	 */
 	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99) {

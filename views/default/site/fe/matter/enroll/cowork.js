@@ -306,6 +306,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
     $scope.closeRemarkTask = function(index) {
         $scope.remarkTasks.splice(index, 1);
     };
+    $scope.shareRemark = function(oRemark) {
+        location.href = LS.j('', 'site', 'app', 'ek') + '&remark=' + oRemark.id + '&page=share';
+    };
     $scope.bRemarkRecord = !_schemaId; // 留言记录还是数据
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oAssignedSchema, oSchemasById, aCoworkSchemas;
@@ -586,6 +589,9 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                 });
             });
         });
+    };
+    $scope.shareItem = function(oItem) {
+        location.href = LS.j('', 'site', 'app', 'ek') + '&data=' + oItem.id + '&page=share';
     };
     $scope.$watch('record', function(oRecord) {
         if (oRecord) {

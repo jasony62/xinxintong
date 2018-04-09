@@ -110,6 +110,7 @@ class data extends base {
 			}
 		}
 
+		$oRecord->schema_id = $oRecData->schema_id;
 		$oRecord->verbose = new \stdClass;
 		$oRecord->verbose->{$oRecData->schema_id} = $oRecData;
 

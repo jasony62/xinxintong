@@ -12,6 +12,7 @@ module.exports = {
         '/site/fe/matter/enroll/list': ['./views/default/site/fe/matter/enroll/list.js'],
         '/site/fe/matter/enroll/action': ['./views/default/site/fe/matter/enroll/action.js'],
         '/site/fe/matter/enroll/cowork': ['./views/default/site/fe/matter/enroll/cowork.js'],
+        '/site/fe/matter/enroll/share': ['./views/default/site/fe/matter/enroll/share.js'],
         '/site/fe/matter/enroll/repos': ['./views/default/site/fe/matter/enroll/repos.js'],
         '/site/fe/matter/enroll/repos2': ['./views/default/site/fe/matter/enroll/repos2.js'],
         '/site/fe/matter/enroll/rank': ['./views/default/site/fe/matter/enroll/rank.js'],

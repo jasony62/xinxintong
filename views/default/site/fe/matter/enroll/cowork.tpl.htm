@@ -157,6 +157,7 @@
                                     <button ng-if="!item._others" class='btn btn-default btn-sm' ng-click="editItem(schema,$index)"><span class='glyphicon glyphicon-edit'></span></button>
                                     <button class='btn btn-default btn-sm' ng-click="likeItem(item)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>
                                     <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeItemRemark(item)"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="item.remark_num"></span></button>
+                                    <button class='btn btn-default btn-sm' ng-click="shareItem(item)"><span class='glyphicon glyphicon-share'></span></button>
                                     <div ng-if="groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(record.userid===groupUser.userid||groupOthers[record.userid]))">
                                         <div class="btn-group" uib-dropdown>
                                             <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
@@ -207,6 +208,7 @@
                             <button class='btn btn-default btn-sm' ng-click="editRemark(remark)"><span class='glyphicon glyphicon-edit'></span></button>
                             <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
                             <button ng-if="params.entryRuleResult.passed==='Y'" class='btn btn-default btn-sm' ng-click="writeRemark(remark)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="remark.remark_num"></span></button>
+                            <button class='btn btn-default btn-sm' ng-click="shareRemark(remark)"><span class='glyphicon glyphicon-share'></span></button>
                             <div ng-if="groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(record.userid===groupUser.userid||groupOthers[record.userid]))">
                                 <div class="btn-group" uib-dropdown>
                                     <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>

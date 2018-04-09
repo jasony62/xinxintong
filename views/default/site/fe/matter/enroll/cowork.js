@@ -42,7 +42,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
 
     function fnAfterLoad(oRecord) {
         /*设置任务提示*/
-        if (oApp.actionRule) {
+        if (_oApp.actionRule) {
             var oCoworkRule;
             oCoworkRule = $scope.ruleCowork(oRecord);
             if (oCoworkRule) {
@@ -55,25 +55,37 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
         };
         /*设置页面导航*/
         var oAppNavs = {};
-        if (oApp.can_repos === 'Y') {
+        if (_oApp.can_repos === 'Y') {
             oAppNavs.repos = {};
         }
-        if (oApp.can_rank === 'Y') {
+        if (_oApp.can_rank === 'Y') {
             oAppNavs.rank = {};
         }
-        if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
+        if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
             oAppNavs.action = {};
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
         }
     }
+    /* 是否可以对记录进行表态 */
+    function fnCanAgreeRecord(oRecord, oUser) {
+        if (oUser.is_leader) {
+            if (oUser.is_leader === 'S') {
+                return true;
+            }
+            if (oUser.is_leader === 'Y' && oUser.group_id === oRecord.group_id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     if (!LS.s().ek) {
         noticebox.error('参数不完整');
         return;
     }
-    var oApp, aShareable, ek, _schemaId, _recDataId;
+    var _oApp, _oUser, aShareable, ek, _schemaId, _recDataId;
     ek = LS.s().ek;
     _schemaId = LS.s().schema;
     _recDataId = LS.s().data;
@@ -82,9 +94,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
     $scope.newRemark = {};
     $scope.ruleCowork = function(oRecord) {
         var desc, gap;
-        if (oApp.actionRule) {
+        if (_oApp.actionRule) {
             var actionRule;
-            actionRule = oApp.actionRule;
+            actionRule = _oApp.actionRule;
             if (actionRule.record && actionRule.record.cowork && actionRule.record.cowork.pre) {
                 if (actionRule.record.cowork.pre.record && actionRule.record.cowork.pre.record.likeNum) {
                     if (actionRule.record.cowork.pre.record.likeNum > oRecord.like_num) {
@@ -312,11 +324,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
     $scope.bRemarkRecord = !_schemaId; // 留言记录还是数据
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oAssignedSchema, oSchemasById, aCoworkSchemas;
-        oApp = params.app;
+        _oApp = params.app;
+        _oUser = params.user;
         aShareable = [];
         aCoworkSchemas = [];
         oSchemasById = {};
-        oApp.dataSchemas.forEach(function(oSchema) {
+        _oApp.dataSchemas.forEach(function(oSchema) {
             if (oSchema.shareable && oSchema.shareable === 'Y') {
                 aShareable.push(oSchema);
             }
@@ -348,6 +361,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
             http2.get(LS.j('repos/recordGet', 'site', 'app', 'ek')).then(function(rsp) {
                 var oRecord, aVisibleSchemas;
                 $scope.record = oRecord = rsp.data;
+                $scope.record._canAgree = fnCanAgreeRecord(oRecord, _oUser);
                 aVisibleSchemas = [];
                 aShareable.forEach(function(oSchema) {
                     if (aCoworkSchemas.indexOf(oSchema) === -1) {
@@ -437,13 +451,14 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                         }
                         if (oRecData.tag) {
                             oRecData.tag.forEach(function(index, tagId) {
-                                if (oApp._tagsById[index]) {
-                                    oRecData.tag[tagId] = oApp._tagsById[index];
+                                if (_oApp._tagsById[index]) {
+                                    oRecData.tag[tagId] = _oApp._tagsById[index];
                                 }
                             });
                         }
                     }
                     $scope.record = oRecord;
+                    $scope.record._canAgree = fnCanAgreeRecord(oRecord, _oUser);
                     $scope.data = oRecData;
                     listRemarks();
                     /*设置页面分享信息*/

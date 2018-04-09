@@ -1,2 +1,3 @@
 .container{margin-top: 71px;}
 .navbar .navbar-text {float: none;}
+#log>table>tbody>tr{cursor: pointer;}

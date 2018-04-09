@@ -39,6 +39,7 @@
                             <select class='form-control' title='类型列表' ng-model="unionType">
                                 <option value=''>全部类型</option>
                                 <option value='mission'>项目</option>
+                                <option value='plan'>计划</option>
                                 <option value='article'>单图文</option>
                                 <option value='enroll'>登记活动</option>
                                 <option value='signin'>签到活动</option>
@@ -55,14 +56,14 @@
                         </form>
                     </div>
                 </nav>
-                <div>
+                <div id='log'>
                     <table class='table table-bordered table-striped'>
                         <thead>
                             <tr>
                                 <th style='width:48px'>序号</th>
                                 <th style='width:100px'>活动类型</th>
                                 <th>活动名称</th>
-                                <th>当前总积分</th>
+                                <th>总积分</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -94,20 +95,20 @@
                 <table class='table table-bordered table-striped'>
                     <thead>
                         <tr>
-                            <th style='width:48px'>序号</th>
-                            <th style='width:120px'>时间</th>
+                            <th style='width:45px'>序号</th>
+                            <th style='width:125px'>时间</th>
                             <th>获得积分原因</th>
                             <th>获得积分</th>
-                            <th>获得总积分</th>
+                            <th>总积分</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat="log in logs">
                             <td>{{$index+1}}</td>
-                            <td>{{log.create_at*1000|date:'yy-MM-dd: HH:mm'}}</td>
+                            <td>{{log.occur_at*1000|date:'yy-MM-dd: HH:mm'}}</td>
                             <td>{{log.act}}</td>
                             <td>{{log.delta}}</td>
-                            <td>{{log.user_total_coin}}</td>
+                            <td>{{log.total}}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -120,7 +121,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-default" ng-click="ok()">确定</button>
+            <button class="btn btn-default" ng-click="cancel()">确定</button>
         </div>
     </script>
     <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/coin/main-loader.js?_=1"></script>

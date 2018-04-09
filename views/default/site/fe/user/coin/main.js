@@ -11,7 +11,8 @@ define(['require', 'angular'], function(require, angular) {
         $scope.matterTypes = {
            'article': '单图文',
            'enroll': '登记活动',
-           'signin': '签到活动'
+           'signin': '签到活动',
+           'plan': '计划'
         };
         $scope.criteria = _oCriteria = {
             sid: '',
@@ -40,7 +41,7 @@ define(['require', 'angular'], function(require, angular) {
                         var url;
                         url = '/rest/site/fe/user/coin/logs?site=' + sid;
                         url += '&user=' + $scope2.oSite[sid].userid + '&matterType=' + type + '&matterId=' + id;
-                        url +=  '&groupByMatter=true' + page.join();
+                        url +=  page.join();
 
                         $http.get(url).success(function(rsp) {
                             if(rsp.data.logs.length !== 0) {
@@ -49,6 +50,9 @@ define(['require', 'angular'], function(require, angular) {
                             }
                         });
                     };
+                    $scope2.cancel = function() {
+                        $mi.close();
+                    }
                     $scope2.doSearch();
                 }],
                 backdrop: 'static'
@@ -58,17 +62,21 @@ define(['require', 'angular'], function(require, angular) {
             pageAt && (page.at = pageAt);
 
             var url;
-            url = '/rest/site/fe/user/coin/logs?site=' + _oCriteria.sid;
-            url += '&user=' + _oSite[_oCriteria.sid].userid;
-            url += '&matterType=' + _oCriteria.type;
-            url += '&byName=' + $scope.byTitle;
-            url +=  '&groupByMatter=true' + page.join();
 
-            $http.get(url).success(function(rsp) {
-                if(rsp.data.logs.length!==0) {
-                    $scope.matters = rsp.data.logs;
-                    $scope.page.total = rsp.data.total;
-                }
+            if(_oCriteria.type=='mission') {
+                url = '/rest/site/fe/user/coin/missions?site=' + _oCriteria.sid + '&user=' + _oSite[_oCriteria.sid].userid;
+
+
+            }else {
+                url = '/rest/site/fe/user/coin/logs?site=' + _oCriteria.sid;
+                url += '&user=' + _oSite[_oCriteria.sid].userid;
+                url += '&matterType=' + _oCriteria.type;
+                url +=  '&groupByMatter=true' + page.join();
+            }
+
+            $http.post(url, {'byName': $scope.byTitle}).success(function(rsp) {
+                $scope.matters = rsp.data.logs;
+                $scope.page.total = rsp.data.total;
             });
         };
         $scope.cleanFilter = function() {

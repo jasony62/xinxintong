@@ -156,6 +156,7 @@ $sql .= ",tags text null";
 $sql .= ",data_tag text null";
 $sql .= ",comment text null";
 $sql .= ",remark_num int not null default 0"; // 留言数
+$sql .= ",rec_remark_num int not null default 0"; // 留言数
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",referrer text null"; // should be removed
 $sql .= ",data longtext null"; // 登记的数据项
@@ -229,6 +230,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_enroll_record_remark(";
 $sql .= "id int not null auto_increment";
+$sql .= ",seq_in_record int not null default 0"; // 留言在记录中的序号
+$sql .= ",seq_in_data int not null default 0"; // 留言在数据中的序号
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''";
@@ -245,6 +248,7 @@ $sql .= ",content text null";
 $sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的留言
 $sql .= ",data_id int not null default 0"; // xxt_enroll_record_data的id
 $sql .= ",remark_id int not null default 0"; // 是对哪条留言进行的留言
+$sql .= ",remark_num int not null default 0"; // 留言数
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）

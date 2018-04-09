@@ -416,7 +416,7 @@ class repos extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,agreed,data';
+		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,rec_remark_num,agreed,data';
 		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();

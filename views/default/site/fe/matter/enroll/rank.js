@@ -94,13 +94,13 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
     }
     var oApp, oAppState, oAgreedLabel;
     oAgreedLabel = { 'Y': '推荐', 'N': '屏蔽', 'A': '' };
-    $scope.gotoRemark = function(ek, schemaId, id, remarkId) {
+    $scope.gotoCowork = function(ek, schemaId, id, remarkId) {
         var url = LS.j('', 'site', 'app');
         url += '&ek=' + ek;
         url += '&schema=' + schemaId;
         url += '&data=' + id;
         remarkId && (url += '&remark=' + remarkId);
-        url += '&page=remark';
+        url += '&page=cowork';
         location.href = url;
     };
     $scope.doSearch = function(pageAt) {

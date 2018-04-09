@@ -162,7 +162,7 @@ class data extends \pl\fe\matter\base {
 
 		/* 获得活动的用户链接 */
 		$noticeURL = $this->model('matter\enroll')->getEntryUrl($oApp->siteid, $oApp->id);
-		$noticeURL .= '&page=remark&ek=' . $oRecord->enroll_key;
+		$noticeURL .= '&page=cowork&ek=' . $oRecord->enroll_key;
 		$noticeURL .= '&schema=' . $schema;
 		$params->url = $noticeURL;
 

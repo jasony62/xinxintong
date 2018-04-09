@@ -202,7 +202,7 @@ class remark extends \pl\fe\matter\base {
 
 		/* 获得活动的用户链接 */
 		$noticeURL = $this->model('matter\enroll')->getEntryUrl($oApp->siteid, $oApp->id);
-		$noticeURL .= '&page=remark&ek=' . $oRecord->enroll_key;
+		$noticeURL .= '&page=cowork&ek=' . $oRecord->enroll_key;
 		$noticeURL .= '&schema=' . $oRemark->schema_id;
 		$params->url = $noticeURL;
 
@@ -328,7 +328,7 @@ class remark extends \pl\fe\matter\base {
 
 			/* 获得活动的用户链接 */
 			$noticeURL = $modelEnr->getEntryUrl($oApp->siteid, $oApp->id);
-			$noticeURL .= '&page=remark&ek=' . $oRemark->enroll_key;
+			$noticeURL .= '&page=cowork&ek=' . $oRemark->enroll_key;
 			$noticeURL .= '&schema=' . $oRemark->schema_id;
 			$params->url = $noticeURL;
 

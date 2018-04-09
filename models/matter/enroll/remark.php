@@ -101,8 +101,11 @@ class remark_model extends \TMS_MODEL {
 			$q[2] .= " and data_id in $rdId";
 		}
 
+		// $q2 = [
+		// 	'o' => 'agreed desc,create_at desc',
+		// ];
 		$q2 = [
-			'o' => 'agreed desc,create_at desc',
+			'o' => 'seq_in_record',
 		];
 		if (isset($page) && isset($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];

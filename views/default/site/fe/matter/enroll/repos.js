@@ -91,9 +91,9 @@ ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce'
             }
         });
     }
-    $scope.gotoRemark = function(oRecordData, id) {
+    $scope.gotoCowork = function(oRecordData, id) {
         var url;
-        url = '/rest/site/fe/matter/enroll?site=' + oApp.siteid + '&app=' + oApp.id + '&page=remark';
+        url = '/rest/site/fe/matter/enroll?site=' + oApp.siteid + '&app=' + oApp.id + '&page=cowork';
         url += '&ek=' + oRecordData.enroll_key;
         url += '&schema=' + oRecordData.schema_id;
         url += '&data=' + id;

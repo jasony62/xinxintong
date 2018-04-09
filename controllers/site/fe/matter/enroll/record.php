@@ -460,7 +460,7 @@ class record extends base {
 		$noticeURL = $modelQurl->urlByUrl($oApp->siteid, $appURL);
 		/* 模板消息参数 */
 		$params = new \stdClass;
-		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.submit');
+		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.submit', ['onlySite' => false]);
 		if ($notice === false) {
 			return false;
 		}

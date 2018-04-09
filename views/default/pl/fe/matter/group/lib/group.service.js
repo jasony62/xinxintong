@@ -34,7 +34,7 @@ provider('srvGroupApp', function() {
                         } catch (e) {
                             console.error('error', e);
                         }
-                        _oApp.opUrl = 'http://' + location.host + '/rest/site/op/matter/group?site=' + _siteId + '&app=' + _appId;
+                        _oApp.opUrl = location.protocol + '//' + location.host + '/rest/site/op/matter/group?site=' + _siteId + '&app=' + _appId;
                         if (_oApp.page_code_id == 0 && _oApp.scenario.length) {
                             url = '/rest/pl/fe/matter/group/page/create?site=' + _siteId + '&app=' + _appId + '&scenario=' + _oApp.scenario;
                             http2.get(url, function(rsp) {

@@ -79,7 +79,7 @@ define(['frame'], function(ngApp) {
             targetUrl = app.opUrl;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
-                    opEntry.url = 'http://' + location.host + '/q/' + entry.code;
+                    opEntry.url = location.protocol + '//' + location.host + '/q/' + entry.code;
                     opEntry.password = entry.password;
                     opEntry.code = entry.code;
                     opEntry.can_favor = entry.can_favor;
@@ -90,7 +90,7 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.add(targetUrl, $scope.app.title).then(function(task) {
                 $scope.app.op_short_url_code = task.code;
                 srvGroupApp.update('op_short_url_code');
-                opEntry.url = 'http://' + location.host + '/q/' + task.code;
+                opEntry.url = location.protocol + '//' + location.host + '/q/' + task.code;
                 opEntry.code = task.code;
             });
         };

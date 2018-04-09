@@ -89,7 +89,7 @@ class fullsearch_model extends MultiArticleReply {
 			$r .= '<Title><![CDATA[' . $matter->title . ']]></Title>';
 			$r .= '<Description><![CDATA[' . $matter->summary . ']]></Description>';
 			if (!empty($matter->pic) && stripos($matter->pic, 'http') === false) {
-				$r .= '<PicUrl><![CDATA[' . 'http://' . APP_HTTP_HOST . $matter->pic . ']]></PicUrl>';
+				$r .= '<PicUrl><![CDATA[' . APP_PROTOCOL . APP_HTTP_HOST . $matter->pic . ']]></PicUrl>';
 			} else {
 				$r .= '<PicUrl><![CDATA[' . $matter->pic . ']]></PicUrl>';
 			}
@@ -102,8 +102,8 @@ class fullsearch_model extends MultiArticleReply {
 			$r .= '<item>';
 			$r .= '<Title><![CDATA[查看更多]]></Title>';
 			$r .= '<Description><![CDATA[]]></Description>';
-			$r .= '<PicUrl><![CDATA[http://developer.189.cn/kcfinder/upload/9dc76342bbd2d4444748416b3ede427d/%E5%9B%BE%E7%89%87/%E5%85%B6%E4%BB%96/%E6%90%9C%E7%B4%A2%E5%9B%BE%E6%A0%87.jpg]]></PicUrl>';
-			$r .= '<Url><![CDATA[http://' . APP_HTTP_HOST . '/rest/site/fe/matter/article/search?site=' . $this->site . '&keyword=' . $this->keyword . ']]></Url>';
+			//$r .= '<PicUrl><![CDATA[]]></PicUrl>';
+			$r .= '<Url><![CDATA[' . APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/matter/article/search?site=' . $this->site . '&keyword=' . $this->keyword . ']]></Url>';
 			$r .= '</item>';
 		}
 		return $r;

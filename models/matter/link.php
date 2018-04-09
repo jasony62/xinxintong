@@ -125,7 +125,7 @@ class link_model extends base_model {
 				die('unknown link urlsrc.');
 			}
 		} else {
-			$url = "http://" . APP_HTTP_HOST . "/rest/site/fe/matter/link";
+			$url = APP_PROTOCOL . APP_HTTP_HOST . "/rest/site/fe/matter/link";
 			$url .= "?site=$siteId&id=$id&type=" . $this->getTypeName();
 
 			return $url;

@@ -36,7 +36,7 @@ define(['main'], function(ngApp) {
         };
         $scope.$watch('wx', function(wx) {
             if (!wx) return;
-            $scope.url = 'http://' + location.host + '/rest/site/sns/wx/api?site=platform';
+            $scope.url = location.protocol + '//' + location.host + '/rest/site/sns/wx/api?site=platform';
         });
         $scope.syncUsers = function() {
             $scope.$root.progmsg = '开始更新';

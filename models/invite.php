@@ -7,7 +7,7 @@ class invite_model extends \TMS_MODEL {
 	 *
 	 */
 	public function getEntryUrl($oInvite) {
-		$url = "http://" . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= "/i/{$oInvite->code}";
 
 		return $url;

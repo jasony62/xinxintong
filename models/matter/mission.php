@@ -16,13 +16,13 @@ class mission_model extends app_base {
 	 * 获得访问入口url
 	 */
 	public function getEntryUrl($siteId, $id) {
-		$url = "http://" . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter/mission";
 		if ($siteId === 'platform') {
 			if ($oMission = $this->byId($id, ['cascaded' => 'N'])) {
 				$url .= "?site={$oMission->siteid}&mission=" . $id;
 			} else {
-				$url = "http://" . APP_HTTP_HOST;
+				$url = APP_PROTOCOL . APP_HTTP_HOST;
 			}
 		} else {
 			$url .= "?site={$siteId}&mission=" . $id;
@@ -34,7 +34,7 @@ class mission_model extends app_base {
 	 * 获得访问入口url
 	 */
 	public function getOpUrl($siteId, $id) {
-		$url = "http://" . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= "/rest/site/op/matter/mission";
 		$url .= "?site={$siteId}&mission=" . $id;
 

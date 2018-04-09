@@ -73,7 +73,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
     };
     var setShare = function(app, user) {
         var sharelink;
-        sharelink = 'http://' + location.hostname + "/rest/site/fe/matter/lottery";
+        sharelink = location.protocol + '//' + location.hostname + "/rest/site/fe/matter/lottery";
         sharelink += "?site=" + siteId;
         sharelink += "&app=" + appId;
         window.shareid = user.uid + (new Date()).getTime();

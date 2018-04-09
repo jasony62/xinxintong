@@ -26,7 +26,7 @@ define(['require', 'angular'], function(require, angular) {
             return defer.promise;
         }
         $scope.openMatter = function(matter) {
-            var url = 'http://' + location.host + '/rest/site/fe/matter';
+            var url = location.protocol + '//' + location.host + '/rest/site/fe/matter';
             if (/article|custom|news|channel/.test(matter.matter_type)) {
                 url += '?id=' + matter.matter_id + '&type=' + matter.matter_type + '&site=' + matter.siteid;
             } else {

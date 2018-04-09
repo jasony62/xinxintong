@@ -1,5 +1,10 @@
 ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$anchorScroll', '$uibModal', 'tmsFavor', 'tmsForward', 'tmsDynaPage', function($scope, $q, $http, $location, $anchorScroll, $uibModal, tmsFavor, tmsForward, tmsDynaPage) {
-    var width = angular.element(window).width(), sitePageAt = 1,appPageAt = 1, matterPageAt = 1,templatePageAt = 1,channelMatterPageAt = 1;
+    var width = angular.element(window).width(),
+        sitePageAt = 1,
+        appPageAt = 1,
+        matterPageAt = 1,
+        templatePageAt = 1,
+        channelMatterPageAt = 1;
     $scope.width = width;
     $scope.moreMatters = function(type, matter) {
         switch (type) {
@@ -26,22 +31,24 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         }
     };
     $scope.openMatter = function(matter) {
-        location.href = (matter.type || matter.matter_type)!==undefined ? matter.url : '/rest/site/home?site=' + matter.siteid;
+        location.href = (matter.type || matter.matter_type) !== undefined ? matter.url : '/rest/site/home?site=' + matter.siteid;
     };
+
     function dealImgSrc(item) {
-        if(Object.keys(item).indexOf('pic')!==-1&&item.pic==null) {
+        if (Object.keys(item).indexOf('pic') !== -1 && item.pic == null) {
             item.src = item.pic = '';
-        }else if(Object.keys(item).indexOf('thumbnail')!==-1&&item.thumbnail==null){
+        } else if (Object.keys(item).indexOf('thumbnail') !== -1 && item.thumbnail == null) {
             item.src = item.thumnail = '';
-        }else {
+        } else {
             item.src = item.pic ? item.pic : item.thumbnail;
         }
         return item;
     }
     var _templates = [];
+
     function listTemplates() {
         $http.get('/rest/home/listTemplate?page=' + templatePageAt + '&size=10').success(function(rsp) {
-            if(rsp.data.length) {
+            if (rsp.data.length) {
                 rsp.data.forEach(function(data) {
                     dealImgSrc(data);
                     _templates.push(data);
@@ -52,6 +59,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         });
     };
     var _sites = [];
+
     function listSites() {
         $http.get('/rest/home/listSite?page=' + sitePageAt + '&size=10').success(function(rsp) {
             if (rsp.data.sites.length) {
@@ -152,7 +160,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+            tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsFavor.open(matter);
             });
@@ -166,7 +174,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+            tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsForward.open(matter);
             });
@@ -183,6 +191,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
             _loadAll();
         }
     };
+
     function _loadAll() {
         listSites();
         listTemplates();

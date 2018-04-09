@@ -8,7 +8,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.makeOpUrl = function() {
             srvQuickEntry.add(targetUrl, $scope.mission.title).then(function(task) {
-                opEntry.url = 'http://' + host + '/q/' + task.code;
+                opEntry.url = location.protocol + '//' + host + '/q/' + task.code;
                 opEntry.code = task.code;
             });
         };
@@ -37,7 +37,7 @@ define(['frame'], function(ngApp) {
             host = host.length === 2 ? host[1] : location.host;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
-                    opEntry.url = 'http://' + host + '/q/' + entry.code;
+                    opEntry.url = location.protocol + '//' + host + '/q/' + entry.code;
                     opEntry.password = entry.password;
                     opEntry.code = entry.code;
                     opEntry.can_favor = entry.can_favor;

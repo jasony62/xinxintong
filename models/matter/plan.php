@@ -23,13 +23,13 @@ class plan_model extends app_base {
 		if ($siteId === 'platform') {
 			$oApp = $this->byId($id, ['fields' => 'siteid,state', 'cascaded' => 'N']);
 			if (false === $oApp || $oApp->state !== '1') {
-				return 'http://' . APP_HTTP_HOST . '/404.html';
+				return APP_PROTOCOL . APP_HTTP_HOST . '/404.html';
 			} else {
 				$siteId = $oApp->siteid;
 			}
 		}
 
-		$url = 'http://' . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= '/rest/site/fe/matter/plan';
 		$url .= "?site={$siteId}&app={$id}";
 
@@ -39,7 +39,7 @@ class plan_model extends app_base {
 	 * 任务活动的汇总展示链接
 	 */
 	public function getOpUrl($siteId, $id) {
-		$url = 'http://' . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= '/rest/site/op/matter/plan';
 		$url .= "?site={$siteId}&app=" . $id;
 
@@ -49,7 +49,7 @@ class plan_model extends app_base {
 	 * 任务活动的统计报告链接
 	 */
 	public function getRpUrl($siteId, $id) {
-		$url = 'http://' . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= '/rest/site/op/matter/plan/report';
 		$url .= "?site={$siteId}&app=" . $id;
 

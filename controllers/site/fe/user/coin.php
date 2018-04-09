@@ -111,7 +111,7 @@ class coin extends \site\fe\base {
 
 		$data = new \stdClass;
 		$data->logs = $missions;
-		$q[0] = 'count(id)';
+		$q[0] = 'count(m.id)';
 		$data->total = $model->query_val_ss($q);
 
 		return $data;
@@ -172,14 +172,14 @@ class coin extends \site\fe\base {
 		$logs = $model->query_objs_ss($q, $p);
 
 		// 总数
-		if (empty($matterType)) {
-			$q[0] = 'count(c.id)';
-			$sum = $model->query_val_ss($q);
-		} else if (!empty($matterType) && empty($matterId)) {
+		if (!empty($matterType) && empty($matterId)) {
 			$q[0] = 'c.id';
 			$p = ['g' => 'matter_id'];
 			$res = $model->query_objs_ss($q, $p);
 			$sum = count($res);
+		} else {
+			$q[0] = 'count(c.id)';
+			$sum = $model->query_val_ss($q);
 		}
 
 		$data = new \stdClass;

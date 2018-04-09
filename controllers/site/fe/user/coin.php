@@ -51,7 +51,7 @@ class coin extends \site\fe\base {
 			$options['at'] = ['page' => $page, 'size' => $size];
 		}
 
-		$data = $this->byUser($user, $options);
+		$data = $model->byUser($user, $options);
 		foreach ($data->logs as $log) {
 			$log->modify_log = json_decode($log->modify_log);
 		}

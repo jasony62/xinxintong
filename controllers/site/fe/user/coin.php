@@ -70,14 +70,15 @@ class coin extends \site\fe\base {
 	 *
 	 */
 	public function logs_action($site, $user, $matterType = null, $matterId = null, $groupByMatter = false, $page = null, $size = null) {
-		$data = $this->userLogs($site, $user, $matterType, $matterId, $groupByMatter, $page, $size);
+		$filter = $this->getPostJson();
+		$data = $this->userLogs($site, $user, $matterType, $matterId, $groupByMatter, $filter, $page, $size);
 
 		return new \ResponseData($data);
 	}
 	/*
 	 *
 	 */
-	private function userLogs($site, $user, $matterType = null, $matterId = null, $groupByMatter = false, $page = null, $size = null) {
+	private function userLogs($site, $user, $matterType = null, $matterId = null, $groupByMatter = false, $filter, $page = null, $size = null) {
 		$model = $this->model();
 		if ($groupByMatter === false) {
 			$q = [
@@ -86,6 +87,9 @@ class coin extends \site\fe\base {
 				"c.siteid = '{$site}' and c.userid = '{$user}'"
 			];
 
+			if (!empty($filter->byName)) {
+				$q[2] .= " and c.matter_title like '%" . $model->escape($filter->byName) . "%'";
+			}
 			if (!empty($matterType) && !empty($matterId)) {
 				$q[2] .= " and c.matter_id = '{$matterId}' and c.matter_type = '{$matterType}'";
 				switch ($matterType) {
@@ -112,6 +116,9 @@ class coin extends \site\fe\base {
 
 			if (!empty($matterType)) {
 				$from .= " and c.matter_type = '{$matterType}'";
+			}
+			if (!empty($filter->byName)) {
+				$from .= " and c.matter_title like '%" . $model->escape($filter->byName) . "%'";
 			}
 			
 			$from .= " ORDER BY c.id desc ) tmp";

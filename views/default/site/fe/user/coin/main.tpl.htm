@@ -44,6 +44,15 @@
                                 <option value='signin'>签到活动</option>
                             </select>
                         </form>
+                        <form class="navbar-form navbar-left">
+                            <div class="input-group">
+                                <input type="text" class='form-control' placeholder="按名称筛选" ng-model="byTitle">
+                                <span class='input-group-btn'>
+                                    <button class='btn btn-default' ng-click="list(1)"><span class='glyphicon glyphicon-search'></button>
+                                    <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></button>
+                                </span>
+                            </div>
+                        </form>
                     </div>
                 </nav>
                 <div>

@@ -7,6 +7,7 @@ define(['require', 'angular'], function(require, angular) {
         var page, _oCriteria, _oSite={};
         $scope.frameSid = '';
         $scope.unionType = '';
+        $scope.byTitle = '';
         $scope.criteria = _oCriteria = {
             sid: '',
             type: ''
@@ -54,16 +55,19 @@ define(['require', 'angular'], function(require, angular) {
             var url;
             url = '/rest/site/fe/user/coin/logs?site=' + _oCriteria.sid;
             url += '&user=' + _oSite[_oCriteria.sid].userid;
+            url += '&matterType=' + _oCriteria.type;
+            url += '&byTitle=' + $scope.byTitle;
             url +=  '&groupByMatter=true' + page.join();
-            if(_oCriteria.type) {
-                url += '&matterType=' + _oCriteria.type;
-            }
+
             $http.get(url).success(function(rsp) {
                 if(rsp.data.logs.length!==0) {
                     $scope.matters = rsp.data;
                     $scope.page.total = rsp.data.total;
                 }
             });
+        };
+        $scope.cleanFilter = function() {
+            $scope.byTitle = '';
         };
         $http.get('/rest/site/fe/get?site=' + siteId).success(function(rsp) {
             $scope.site = rsp.data;

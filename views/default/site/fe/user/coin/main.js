@@ -8,6 +8,11 @@ define(['require', 'angular'], function(require, angular) {
         $scope.frameSid = '';
         $scope.unionType = '';
         $scope.byTitle = '';
+        $scope.matterTypes = {
+           'article': '单图文',
+           'enroll': '登记活动',
+           'signin': '签到活动'
+        };
         $scope.criteria = _oCriteria = {
             sid: '',
             type: ''
@@ -56,12 +61,12 @@ define(['require', 'angular'], function(require, angular) {
             url = '/rest/site/fe/user/coin/logs?site=' + _oCriteria.sid;
             url += '&user=' + _oSite[_oCriteria.sid].userid;
             url += '&matterType=' + _oCriteria.type;
-            url += '&byTitle=' + $scope.byTitle;
+            url += '&byName=' + $scope.byTitle;
             url +=  '&groupByMatter=true' + page.join();
 
             $http.get(url).success(function(rsp) {
                 if(rsp.data.logs.length!==0) {
-                    $scope.matters = rsp.data;
+                    $scope.matters = rsp.data.logs;
                     $scope.page.total = rsp.data.total;
                 }
             });

@@ -62,15 +62,15 @@
                                 <th style='width:48px'>序号</th>
                                 <th style='width:100px'>活动类型</th>
                                 <th>活动名称</th>
-                                <th>获得总积分</th>
+                                <th>当前总积分</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="matter in matters" ng-click="view(frameSid, matter.type, matter.id)">
+                            <tr ng-repeat="matter in matters" ng-click="view(frameSid, matter.matter_type, matter.matter_id)">
                                 <td>{{$index+1}}</td>
-                                <td>{{matter.type}}</td>
-                                <td>{{matter.title}}</td>
-                                <td>{{matter.user_total_coin}}</td>
+                                <td>{{matterTypes[matter.matter_type]}}</td>
+                                <td>{{matter.matter_title}}</td>
+                                <td>{{matter.total}}</td>
                             </tr>
                         </tbody>
                     </table>

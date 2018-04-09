@@ -73,11 +73,7 @@ class coin extends \site\fe\base {
 
 		$data = $this->missionByUser($user, $options);
 		foreach ($data->logs as $log) {
-			$modify_log = json_decode($log->modify_log);
-			$log->modify_log = new \stdClass;
-			$log->modify_log->occur_at = $modify_log->at;
-			$log->modify_log->delta = $modify_log->coin;
-			$log->modify_log->act = $modify_log->op;
+			$log->modify_log = json_decode($log->modify_log);
 		}
 
 		return new \ResponseData($data);
@@ -91,12 +87,9 @@ class coin extends \site\fe\base {
 		$q = array(
 			$fields,
 			'xxt_mission_user u,xxt_mission m',
-			"u.userid = '{$userId}' and u.mission_id = m.id and m.state = 1",
+			"u.userid = '{$userId}' and u.mission_id = m.id and m.state = 1 and u.siteid = '{$options['bySite']}'",
 		);
 
-		if (!empty($options['bySite'])) {
-			$q['2'] .= " and u.siteid = '{$options['bySite']}'";
-		}
 		if (!empty($options['byName'])) {
 			$q['2'] .= " and m.title like '%" . $options['byName'] . "%'";
 		}

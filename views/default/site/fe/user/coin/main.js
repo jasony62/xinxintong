@@ -25,11 +25,12 @@ define(['require', 'angular'], function(require, angular) {
                 return '&page=' + this.at + '&size=' + this.size;
             }
         };
-        $scope.view = function(sid, type, id) {
+        $scope.view = function(sid, id, matterType, type) {
             $uibModal.open({
                 templateUrl: 'detaiLog.html',
                 controller:['$uibModalInstance', '$scope', '$http', function($mi, $scope2, $http) {
                     $scope2.oSite = angular.copy(_oSite);
+                    $scope2.type = type;
                     $scope2.page = {
                         at: 1,
                         size: 20,
@@ -37,14 +38,21 @@ define(['require', 'angular'], function(require, angular) {
                             return '&page=' + this.at + '&size=' + this.size;
                         }
                     };
-                    $scope2.doSearch = function() {
+                    $scope2.doSearch = function(pageAt) {
+                        pageAt && ($scope2.page.at = pageAt);
                         var url;
-                        url = '/rest/site/fe/user/coin/logs?site=' + sid;
-                        url += '&user=' + $scope2.oSite[sid].userid + '&matterType=' + type + '&matterId=' + id;
-                        url +=  page.join();
 
+                        if(type=='mission') {
+                            url = '/rest/site/fe/user/coin/missions?site=' + _oCriteria.sid + '&user=' + _oSite[_oCriteria.sid].userid;
+                        }else {
+                            url = '/rest/site/fe/user/coin/logs?site=' + sid;
+                            url += '&user=' + $scope2.oSite[sid].userid + '&matterType=' + matterType + '&matterId=' + id;
+                            url +=  page.join();
+                        }
                         $http.get(url).success(function(rsp) {
-                            if(rsp.data.logs.length !== 0) {
+                            if(type == 'mission') {
+                                $scope2.logs = rsp.data.logs.modify_log;
+                            }else{
                                 $scope2.logs = rsp.data.logs;
                                 $scope2.page.total = rsp.data.total;
                             }
@@ -62,18 +70,15 @@ define(['require', 'angular'], function(require, angular) {
             pageAt && (page.at = pageAt);
 
             var url;
-
             if(_oCriteria.type=='mission') {
                 url = '/rest/site/fe/user/coin/missions?site=' + _oCriteria.sid + '&user=' + _oSite[_oCriteria.sid].userid;
-
-
             }else {
                 url = '/rest/site/fe/user/coin/logs?site=' + _oCriteria.sid;
                 url += '&user=' + _oSite[_oCriteria.sid].userid;
                 url += '&matterType=' + _oCriteria.type;
-                url +=  '&groupByMatter=true' + page.join();
+                url +=  '&groupByMatter=true';
             }
-
+            url += page.join();
             $http.post(url, {'byName': $scope.byTitle}).success(function(rsp) {
                 $scope.matters = rsp.data.logs;
                 $scope.page.total = rsp.data.total;

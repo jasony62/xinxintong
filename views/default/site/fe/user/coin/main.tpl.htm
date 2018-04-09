@@ -61,15 +61,15 @@
                         <thead>
                             <tr>
                                 <th style='width:48px'>序号</th>
-                                <th style='width:100px'>活动类型</th>
+                                <th ng-if="unionType!=='mission'" style='width:100px'>活动类型</th>
                                 <th>活动名称</th>
                                 <th>总积分</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="matter in matters" ng-click="view(frameSid, matter.matter_type, matter.matter_id)">
+                            <tr ng-repeat="matter in matters" ng-click="view(frameSid, matter.matter_id, matter.matter_type, unionType)">
                                 <td>{{$index+1}}</td>
-                                <td>{{matterTypes[matter.matter_type]}}</td>
+                                <td ng-if="unionType!=='mission'">{{matterTypes[matter.matter_type]}}</td>
                                 <td>{{matter.matter_title}}</td>
                                 <td>{{matter.total}}</td>
                             </tr>
@@ -113,7 +113,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class='form-group'>
+            <div class='form-group' ng-if="type!=='mission'">
                 <div class='pl-pagination'>
                     <span>总数：{{page.total}}</span>
                     <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>

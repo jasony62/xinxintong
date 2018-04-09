@@ -332,9 +332,6 @@ class user_model extends \TMS_MODEL {
 		if (!empty($options['bySite'])) {
 			$q['2'] .= " and u.siteid = '{$options['bySite']}'";
 		}
-		if (!empty($options['byName'])) {
-			$q['2'] .= " and m.title like '%" . $options['byName'] . "%'";
-		}
 
 		$missions = $this->query_objs_ss($q);
 

@@ -56,23 +56,64 @@ class coin extends \site\fe\base {
 	/*
 	 *
 	 */
-	public function missions_action($site, $user) {
+	public function missions_action($site, $user, $page = null, $size = null) {
 		$filter = $this->getPostJson();
-		$modelMisUser = $this->model('matter\mission\user');
+		$model = $this->model());
 		$options = [
-			'bySite' => $site, 
-			'fields' => 'u.user_total_coin as apptotalcoin,u.modify_log,m.id,m.title'
+			'bySite' => $site,
+			'fields' => 'u.user_total_coin as total,u.modify_log,m.id,m.title matter_title'
 		];
 		if (!empty($filter->byName)) {
-			$options['byName'] = $modelMisUser->escape($filter->byName);
+			$options['byName'] = $model->escape($filter->byName);
 		}
-		$missions = $modelMisUser->byUser($user, $options);
-
-		foreach ($missions as $mission) {
-			$mission->modify_log = json_decode($mission->modify_log);
+		if (!empty($page) && !empty($size)) {
+			$options['at'] = ['page' => $page, 'size' => $size];
+		}
+		
+		$data = $model->missionByUser($user, $options);
+		foreach ($data->logs as $log) {
+			$modify_log = json_decode($log->modify_log);
+			$log->modify_log = new \stdClass;
+			$log->modify_log->occur_at = $modify_log->at;
+			$log->modify_log->delta = $modify_log->coin;
+			$log->modify_log->act = $modify_log->op;
 		}
 
-		return new \ResponseData($missions);
+		return new \ResponseData($data);
+	}
+	/*
+	 *
+	 */
+	private function missionByUser($userId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = array(
+			$fields,
+			'xxt_mission_user u,xxt_mission m',
+			"u.userid = '{$userId}' and u.mission_id = m.id and m.state = 1",
+		);
+
+		if (!empty($options['bySite'])) {
+			$q['2'] .= " and u.siteid = '{$options['bySite']}'";
+		}
+		if (!empty($options['byName'])) {
+			$q['2'] .= " and m.title like '%" . $options['byName'] . "%'";
+		}
+
+		$p = [];
+		if (!empty($options['at'])) {
+			$p['r'] = ['o' => ($options['at']['page'] - 1), 'l' => $options['at']['size']];
+		}
+
+		$model = $this->model();
+		$missions = $model->query_objs_ss($q, $p);
+
+		$data = new \stdClass;
+		$data->logs = $missions;
+		$q[0] = 'count(id)';
+		$data->total = $model->query_val_ss($q);
+
+		return $data;
 	}
 	/*
 	 *
@@ -143,11 +184,9 @@ class coin extends \site\fe\base {
 			$p = ['o' => 'id desc', 'g' => 'matter_id,matter_type'];
 		}
 
-
 		if (!empty($page) && !empty($size)) {
 			$p['r'] = ['o' => ($page - 1), 'l' => $size];
 		}
-
 		$logs = $model->query_objs_ss($q, $p);
 
 		// 总数

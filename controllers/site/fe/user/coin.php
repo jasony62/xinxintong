@@ -58,7 +58,7 @@ class coin extends \site\fe\base {
 	 */
 	public function missions_action($site, $user, $page = null, $size = null) {
 		$filter = $this->getPostJson();
-		$model = $this->model());
+		$model = $this->model();
 		$options = [
 			'bySite' => $site,
 			'fields' => 'u.user_total_coin as total,u.modify_log,m.id,m.title matter_title'
@@ -69,7 +69,7 @@ class coin extends \site\fe\base {
 		if (!empty($page) && !empty($size)) {
 			$options['at'] = ['page' => $page, 'size' => $size];
 		}
-		
+
 		$data = $model->missionByUser($user, $options);
 		foreach ($data->logs as $log) {
 			$modify_log = json_decode($log->modify_log);

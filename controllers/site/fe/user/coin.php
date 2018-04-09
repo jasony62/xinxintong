@@ -36,26 +36,6 @@ class coin extends \site\fe\base {
 	/*
 	 *
 	 */
-	public function matters_action($site, $user, $type = null) {
-		// 获取获得积分的所有活动
-		$model = $this->model();
-		$q = [
-			'matter_id,matter_type,matter_title',
-			'xxt_coin_log',
-			['siteid' => $site, 'userid' => $user]
-		];
-		if (!empty($type)) {
-			$q[2]['matter_type'] = $type;
-		}
-		$p = ['g' => 'matter_id,matter_type'];
-		
-		$matters = $model->query_objs_ss($q, $p);
-		
-		return new \ResponseData($matters);
-	}
-	/*
-	 *
-	 */
 	public function missions_action($site, $user, $page = null, $size = null) {
 		$model = $this->model();
 		$options = [

@@ -57,8 +57,16 @@ class coin extends \site\fe\base {
 	 *
 	 */
 	public function missions_action($site, $user) {
+		$filter = $this->getPostJson();
 		$modelMisUser = $this->model('matter\mission\user');
-		$missions = $modelMisUser->byUser($user, ['bySite' => $site, 'fields' => 'u.user_total_coin as apptotalcoin,u.modify_log,m.id,m.title']);
+		$options = [
+			'bySite' => $site, 
+			'fields' => 'u.user_total_coin as apptotalcoin,u.modify_log,m.id,m.title'
+		];
+		if (!empty($filter->byName)) {
+			$options['byName'] = $modelMisUser->escape($filter->byName);
+		}
+		$missions = $modelMisUser->byUser($user, $options);
 
 		foreach ($missions as $mission) {
 			$mission->modify_log = json_decode($mission->modify_log);
@@ -71,14 +79,18 @@ class coin extends \site\fe\base {
 	 */
 	public function logs_action($site, $user, $matterType = null, $matterId = null, $groupByMatter = false, $page = null, $size = null) {
 		$filter = $this->getPostJson();
-		$data = $this->userLogs($site, $user, $matterType, $matterId, $groupByMatter, $filter, $page, $size);
+		$options = [];
+		if (!empty($filter->byName)) {
+			$options['byName'] =$this->model()->escape($filter->byName);
+		}
+		$data = $this->userLogs($site, $user, $matterType, $matterId, $groupByMatter, $options, $page, $size);
 
 		return new \ResponseData($data);
 	}
 	/*
 	 *
 	 */
-	private function userLogs($site, $user, $matterType = null, $matterId = null, $groupByMatter = false, $filter, $page = null, $size = null) {
+	private function userLogs($site, $user, $matterType = null, $matterId = null, $groupByMatter = false, $options = [], $page = null, $size = null) {
 		$model = $this->model();
 		if ($groupByMatter === false) {
 			$q = [
@@ -87,8 +99,8 @@ class coin extends \site\fe\base {
 				"c.siteid = '{$site}' and c.userid = '{$user}'"
 			];
 
-			if (!empty($filter->byName)) {
-				$q[2] .= " and c.matter_title like '%" . $model->escape($filter->byName) . "%'";
+			if (!empty($options['byName'])) {
+				$q[2] .= " and c.matter_title like '%" . $options['byName'] . "%'";
 			}
 			if (!empty($matterType) && !empty($matterId)) {
 				$q[2] .= " and c.matter_id = '{$matterId}' and c.matter_type = '{$matterType}'";
@@ -117,8 +129,8 @@ class coin extends \site\fe\base {
 			if (!empty($matterType)) {
 				$from .= " and c.matter_type = '{$matterType}'";
 			}
-			if (!empty($filter->byName)) {
-				$from .= " and c.matter_title like '%" . $model->escape($filter->byName) . "%'";
+			if (!empty($options['byName'])) {
+				$from .= " and c.matter_title like '%" . $options['byName'] . "%'";
 			}
 			
 			$from .= " ORDER BY c.id desc ) tmp";

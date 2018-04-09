@@ -37,7 +37,7 @@ class coin extends \site\fe\base {
 	 *
 	 */
 	public function missions_action($site, $user, $page = null, $size = null) {
-		$model = $this->model();
+		$model = $this->model('matter\mission\user');
 		$options = [
 			'bySite' => $site,
 			'fields' => 'u.user_total_coin as apptotalcoin,u.modify_log,m.id,m.title matter_title'
@@ -51,43 +51,12 @@ class coin extends \site\fe\base {
 			$options['at'] = ['page' => $page, 'size' => $size];
 		}
 
-		$data = $this->missionByUser($user, $options);
+		$data = $this->byUser($user, $options);
 		foreach ($data->logs as $log) {
 			$log->modify_log = json_decode($log->modify_log);
 		}
 
 		return new \ResponseData($data);
-	}
-	/*
-	 *
-	 */
-	private function missionByUser($userId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-
-		$q = array(
-			$fields,
-			'xxt_mission_user u,xxt_mission m',
-			"u.userid = '{$userId}' and u.mission_id = m.id and m.state = 1 and u.siteid = '{$options['bySite']}'",
-		);
-
-		if (!empty($options['byName'])) {
-			$q['2'] .= " and m.title like '%" . $options['byName'] . "%'";
-		}
-
-		$p = [];
-		if (!empty($options['at'])) {
-			$p['r'] = ['o' => ($options['at']['page'] - 1), 'l' => $options['at']['size']];
-		}
-
-		$model = $this->model();
-		$missions = $model->query_objs_ss($q, $p);
-
-		$data = new \stdClass;
-		$data->logs = $missions;
-		$q[0] = 'count(m.id)';
-		$data->total = $model->query_val_ss($q);
-
-		return $data;
 	}
 	/*
 	 *

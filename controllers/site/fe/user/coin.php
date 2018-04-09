@@ -40,7 +40,7 @@ class coin extends \site\fe\base {
 		$model = $this->model('matter\mission\user');
 		$options = [
 			'bySite' => $site,
-			'fields' => 'u.user_total_coin as apptotalcoin,u.modify_log,m.id,m.title matter_title'
+			'fields' => 'u.user_total_coin as apptotalcoin,u.modify_log,m.id matter_id,m.title matter_title'
 		];
 
 		$filter = $this->getPostJson();

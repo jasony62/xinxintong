@@ -321,7 +321,7 @@ class user_model extends \TMS_MODEL {
 	 * 用户参与过的项目
 	 */
 	public function byUser($userId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$fields = isset($options['fields']) ? $options['fields'] : 'u.user_total_coin,u.modify_log,m.id,m.title';
 
 		$q = array(
 			$fields,
@@ -336,7 +336,7 @@ class user_model extends \TMS_MODEL {
 			$q['2'] .= " and m.title like '%" . $options['byName'] . "%'";
 		}
 
-		$p = [];
+		$p = ['o' => 'u.id desc'];
 		if (!empty($options['at'])) {
 			$p['r'] = ['o' => ($options['at']['page'] - 1), 'l' => $options['at']['size']];
 		}

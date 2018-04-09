@@ -79,48 +79,75 @@ class coin extends \site\fe\base {
 	 */
 	private function userLogs($site, $user, $matterType = null, $matterId = null, $groupByMatter = false, $page = null, $size = null) {
 		$model = $this->model();
-		$q = [
-			'c.matter_id,c.matter_type,c.matter_title,c.act,c.occur_at,c.delta,c.total',
-			'xxt_coin_log c',
-			"c.siteid = '{$site}' and c.userid = '{$user}'"
-		];
+		if ($groupByMatter === false) {
+			$q = [
+				'c.matter_id,c.matter_type,c.matter_title,c.act,c.occur_at,c.delta,c.total',
+				'xxt_coin_log c',
+				"c.siteid = '{$site}' and c.userid = '{$user}'"
+			];
 
-		if (!empty($matterType) && !empty($matterId)) {
-			$q[2] .= " and matter_id = '{$matterId}' and matter_type = '{$matterType}'";
-			switch ($matterType) {
-				case 'enroll':
-					$q[0] .= ',e.user_total_coin apptotalcoin';
-					$q[1] .= ',xxt_enroll_user e';
-					$q[2] .= " and e.userid = c.userid and e.rid = 'ALL'";
-					break;
-				case 'plan':
-					$q[0] .= ',p.coin apptotalcoin';
-					$q[1] .= ',xxt_plan_user p';
-					$q[2] .= " and p.userid = c.userid";
-					break;
+			if (!empty($matterType) && !empty($matterId)) {
+				$q[2] .= " and c.matter_id = '{$matterId}' and c.matter_type = '{$matterType}'";
+				switch ($matterType) {
+					case 'enroll':
+						$q[0] .= ',e.user_total_coin apptotalcoin';
+						$q[1] .= ',xxt_enroll_user e';
+						$q[2] .= " and e.aid = c.matter_id and e.userid = c.userid and e.rid = 'ALL'";
+						break;
+					case 'plan':
+						$q[0] .= ',p.coin apptotalcoin';
+						$q[1] .= ',xxt_plan_user p';
+						$q[2] .= " and p.aid = c.matter_id and p.userid = c.userid";
+						break;
+				}
+			} else if (!empty($matterType)) {
+				$q[2] .= " and c.matter_type = '{$matterType}'";
 			}
-		} else if (!empty($matterType)) {
-			$q[2] .= " and matter_type = '{$matterType}'";
+
+			$p = ['o' => 'c.id desc'];
+		} else {
+			// 以单个素材分组显示
+			$from = " ( ";
+			$from .= "select c.id,c.matter_id,c.matter_type,c.matter_title,c.act,c.occur_at,c.delta,c.total from xxt_coin_log c where c.siteid = '{$site}' and c.userid = '{$user}'";
+
+			if (!empty($matterType)) {
+				$from .= " and c.matter_type = '{$matterType}'";
+			}
+			
+			$from .= " ORDER BY c.id desc ) tmp";
+
+			$q = [
+				'*',
+				$from,
+			];
+
+			$p = ['o' => 'id desc', 'g' => 'matter_id,matter_type'];
 		}
 
-		$p = ['o' => 'c.occur_at desc'];
-
-		if ($groupByMatter) {
-			$p['g'] = 'matter_id,matter_type';
-		}
 
 		if (!empty($page) && !empty($size)) {
-			$p['r'] = ['o' => $page, 'l' => $size];
+			$p['r'] = ['o' => ($page - 1), 'l' => $size];
 		}
 
 		$logs = $model->query_objs_ss($q, $p);
+
 		// 总数
-		$q[0] = 'count(id)';
-		$p = [];
-		if ($groupByMatter) {
-			$p['g'] = 'matter_id,matter_type';
+		if ($groupByMatter === false) {
+			$q[0] = 'count(c.id)';
+			$sum = $model->query_val_ss($q);
+		} else {
+			$q = [
+				'id',
+				'xxt_coin_log',
+				"siteid = '{$site}' and userid = '{$user}'"
+			];
+			if (!empty($matterType)) {
+				$q[2] .= " and matter_type = '{$matterType}'";
+			}
+			$p = ['g' => 'matter_id,matter_type'];
+			$res = $model->query_objs_ss($q, $p);
+			$sum = count($res);
 		}
-		$sum = $model->query_val_ss($q, $p);
 
 		$data = new \stdClass;
 		$data->logs = $logs;

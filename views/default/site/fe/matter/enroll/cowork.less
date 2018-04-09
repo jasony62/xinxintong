@@ -12,7 +12,7 @@ img {
 }
 
 hr {
-	margin: 12px 0 16px;
+	margin: 12px 0 12px;
 }
 
 blockquote {
@@ -27,52 +27,46 @@ button.option {
 	color: @brand-primary;
 }
 
-.modal.auto-height .modal-dialog, .modal.auto-height .modal-dialog.modal-lg {
-	width: 900px;
-	left: 50%;
-	margin-left: -450px;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-}
+.modal.model-remark {
+	.modal-dialog {
+		width: 900px;
+		left: 50%;
+		margin-left: -450px;
+		position: absolute;
+		top: 0;
+		bottom: 0;
 
-.modal.auto-height.middle-width .modal-dialog.modal-lg {
-	width: 600px;
-	margin-left: -300px;
-}
+		.modal-content {
+			height: 100%;
 
-.modal.auto-height.full-width .modal-dialog {
-	width: 98%;
-	left: 50%;
-	margin-left: -49%;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-}
+			.modal-body {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				overflow: auto;
 
-.modal.auto-height .modal-dialog .modal-content {
-	height: 100%
-}
+				>div {
+					position: absolute;
+					top: 8px;
+					bottom: 8px;
+					left: 8px;
+					right: 8px;
+					display: flex;
+					flex-direction: column;
+				}
 
-.modal.auto-height .modal-dialog .modal-content .modal-body {
-	position: absolute;
-	top: 8px;
-	bottom: 65px;
-	left: 0;
-	right: 0;
-	overflow: auto
-}
+			}
 
-.modal.auto-height .modal-dialog .modal-content .modal-footer {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	margin-top: 0
+		}
+
+	}
+
 }
 
 @media screen and (max-width:768px) {
-	.modal.auto-height .modal-dialog, .modal.auto-height .modal-dialog.modal-lg {
+	.modal.model-remark .modal-dialog {
 		width: 100%;
 		position: absolute;
 		top: 0;
@@ -83,19 +77,26 @@ button.option {
 
 }
 
+.top-bar {
+	&>*+* {
+		margin-left: 8px;
+	}
+
+}
+
 .bottom-bar {
-	display: flex;
-}
-
-.bottom-bar>*+* {
-	margin-left: 8px;
-}
-
-#record .bottom-bar .datetime, #cowork .bottom-bar .datetime, #remarks .bottom-bar .datetime {
+	font-size: 14px;
 	color: #777;
-	flex: 1;
-	line-height: 30px;
-	font-size: .8em;
+
+	&>*+* {
+		margin-left: 16px;
+	}
+
+	a {
+		color: #777;
+		text-decoration: none;
+	}
+
 }
 
 p {
@@ -103,8 +104,8 @@ p {
 }
 
 /*record*/
-#record, #cowork {
-	padding: 8px;
+#record, #cowork, #remarks {
+	padding: 16px;
 	background: #fff;
 }
 
@@ -169,65 +170,56 @@ p {
 }
 
 #cowork {
-	.recommend {
-		line-height: 1;
-	}
-
-	.recommend>.label {
-		display: inline-block;
-		padding: .3em .6em;
-	}
-
-	.bottom-bar {
-		justify-content: flex-end;
+	.item {
+		position: relative;
 	}
 
 }
 
-#remarks:before {
-	content: '留言';
-	position: absolute;
-	left: 50%;
-	margin-left: -1em;
-	top: -2em;
-	font-size: .7em;
-	color: #eee;
-	padding: .2em 1em;
-	background: #666;
-	border-radius: 1em;
-}
+#remarks {
+	&:before {
+		content: '留言';
+		position: absolute;
+		left: 50%;
+		margin-left: -1em;
+		top: -2em;
+		font-size: .7em;
+		color: #eee;
+		padding: .2em 1em;
+		background: #666;
+		border-radius: 1em;
+	}
 
-#remarks .remarkList {
-	background: #fff;
-	min-height: 167px;
-	margin-bottom: 30px;
-}
+	.remarkList {
+		background: #fff;
+		min-height: 167px;
+		margin-bottom: 30px;
+	}
 
-#remarks .remark {
-	background: #fff;
-	border-bottom: 1px solid #ddd;
-	transition: background 1s;
-	padding: 8px;
-}
+	.remark {
+		position: relative;
+		background: #fff;
+		border-bottom: 1px solid #ddd;
+		transition: background 1s;
+		padding: 8px 0;
+	}
 
-#remarks .remark:last-child {
-	border-bottom: 0;
-}
+	.remark:last-child {
+		border-bottom: 0;
+	}
 
-#cowork .item, #remarks .remark {
-	position: relative;
-}
+	.remark>* {
+		margin: 1em 0 .2em;
+	}
 
-#remarks .remark>* {
-	margin: 1em 0 .2em;
-}
+	.remark.blink {
+		background: #d9edf7;
+	}
 
-#remarks .remark.blink {
-	background: #d9edf7;
-}
+	.form-control {
+		border-radius: 0;
+	}
 
-#remarks .form-control {
-	border-radius: 0;
 }
 
 .tag {

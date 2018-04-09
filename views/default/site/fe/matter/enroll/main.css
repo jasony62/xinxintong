@@ -15,4 +15,4 @@ body{position:relative;font-size:16px;padding:0;}
 	.nav > li > a{padding:10px 10px;}
 }
 .tms-flex-row{display:flex;align-items:center;}
-.tms-flex-row   .tms-flex-grow{flex:1;}
+.tms-flex-row .tms-flex-grow{flex:1;}

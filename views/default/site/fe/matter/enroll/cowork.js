@@ -183,7 +183,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
                     $mi.close($scope2.data);
                 };
             }],
-            windowClass: 'auto-height',
+            windowClass: 'model-remark',
             backdrop: 'static',
         }).result.then(function(data) {
             addRemark(data.content, oUpperRemark).then(function(rsp) {
@@ -579,7 +579,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                     $mi.close($scope2.data);
                 };
             }],
-            windowClass: 'auto-height',
+            windowClass: 'model-remark',
             backdrop: 'static',
         }).result.then(function(data) {
             http2.post(LS.j('remark/add', 'site', 'ek') + '&data=' + oItem.id, { content: data.content }).then(function(rsp) {

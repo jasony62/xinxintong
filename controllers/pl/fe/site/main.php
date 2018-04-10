@@ -162,7 +162,7 @@ class main extends \pl\fe\base {
 			return new \ObjectNotFoundError();
 		}
 		/* 团队首页地址 */
-		$oSite->homeUrl = 'http://' . APP_HTTP_HOST . '/rest/site/home?site=' . $oSite->id;
+		$oSite->homeUrl = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/home?site=' . $oSite->id;
 
 		/* 检查当前用户的角色 */
 		$oSite->uid = $oUser->id;

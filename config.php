@@ -31,6 +31,10 @@ file_exists(dirname(__FILE__) . '/cus/app.php') && include_once dirname(__FILE__
  */
 !defined('APP_HTTP_HOST') && define('APP_HTTP_HOST', $_SERVER['HTTP_HOST']);
 /**
+ * https
+ */
+!defined('APP_PROTOCOL') && define('APP_PROTOCOL', 'http://');
+/**
  * 定义应用的标题
  */
 !defined('APP_TITLE') && define('APP_TITLE', '信信通');

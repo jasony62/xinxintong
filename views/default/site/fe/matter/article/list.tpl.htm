@@ -17,7 +17,7 @@
                 <span class='glyphicon glyphicon-search'></span>
                 <input type='text' class='form-control' ng-model='searchKeyword' ng-keypress='keypress($event)' required />
             </div>
-            <button type='submit' class='btn' ng-click='search()' >搜 索</button>
+            <button type='submit' class='btn' ng-click='search()'>搜 索</button>
         </div>
         <div id='content' class='content'>
             <ul class='list-group' ng-if='matters.length'>
@@ -55,12 +55,6 @@
     <script src="/static/js/ng-infinite-scroll.min.js"></script>
     <script src="/static/js/xxt.share.js?_=1"></script>
     <script src="/views/default/site/fe/matter/article/list.js?_=1"></script>
-    <script type="text/javascript">
-    if (document.location.host === 'xinxintong.sinaapp.com') {
-        var _bdhmProtocol = (("https:" == document.location.protocol) ? "https://" : "http://");
-        document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F40ec59c933400d729f57930675635edb' type='text/javascript'%3E%3C/script%3E"));
-    }
-    </script>
 </body>
 
 </html>

@@ -225,7 +225,7 @@ class ordernew extends \site\fe\matter\base {
 			$pendings[$product->catelog->submit_order_tmplmsg]['data'][] = $data;
 		}
 		/*订单访问地址*/
-		$url = 'http://' . APP_HTTP_HOST . "/rest/op/matter/merchant/order";
+		$url = APP_PROTOCOL . APP_HTTP_HOST . "/rest/op/matter/merchant/order";
 		$url .= "?site=" . $site;
 		$url .= "&shop=" . $order->sid;
 		$url .= "&order=" . $order->id;

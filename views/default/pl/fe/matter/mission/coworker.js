@@ -53,7 +53,7 @@ define(['frame'], function(ngApp) {
                 var host, url;
                 host = $scope.mission.opUrl.match(/\/\/(\S+?)\//);
                 host = host.length === 2 ? host[1] : location.host;
-                url = 'http://' + host + rsp.data;
+                url = location.protocol + '//' + host + rsp.data;
                 $scope.inviteURL = url;
                 $('#shareMission').trigger('show');
             });

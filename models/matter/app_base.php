@@ -28,7 +28,7 @@ abstract class app_base extends base_model {
 		$app = $this->byId($id);
 
 		if (!empty($app->pic) && stripos($app->pic, 'http') === false) {
-			$pic = 'http://' . APP_HTTP_HOST . $app->pic;
+			$pic = APP_PROTOCOL . APP_HTTP_HOST . $app->pic;
 		} else {
 			$pic = $app->pic;
 		}

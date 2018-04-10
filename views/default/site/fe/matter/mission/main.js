@@ -90,7 +90,7 @@ require(['matterService'], function() {
         $scope.criteria = _oCriteria = {};
         $scope.siteUser = function() {
             var url;
-            url = 'http://' + location.host;
+            url = location.protocol + '//' + location.host;
             url += '/rest/site/fe/user';
             url += "?site=" + siteId;
             location.href = url;

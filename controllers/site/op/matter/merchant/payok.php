@@ -174,7 +174,7 @@ class payok extends \xxt_base {
 			/**
 			 * 如果设置了客户人员，向客服人员发消息
 			 */
-			$url = 'http://' . APP_HTTP_HOST . "/rest/op/merchant/order";
+			$url = APP_PROTOCOL . APP_HTTP_HOST . "/rest/op/merchant/order";
 			$url .= "?mpid=" . $siteId;
 			$url .= "&shop=" . $order->sid;
 			$url .= "&order=" . $order->id;

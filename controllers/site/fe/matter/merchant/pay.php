@@ -111,7 +111,7 @@ class pay extends \site\fe\matter\base {
 		}
 		$products = implode(',', $products);
 
-		$notifyUrl = "http://" . APP_HTTP_HOST;
+		$notifyUrl = APP_PROTOCOL . APP_HTTP_HOST;
 		$notifyUrl .= "/rest/op/merchant/payok/notify";
 
 		$tools = $this->model('mpproxy/WxPayJsApi');

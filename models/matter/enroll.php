@@ -23,13 +23,13 @@ class enroll_model extends enroll_base {
 		if ($siteId === 'platform') {
 			$oApp = $this->byId($id, ['cascaded' => 'N']);
 			if (false === $oApp) {
-				return 'http://' . APP_HTTP_HOST . '/404.html';
+				return APP_PROTOCOL . APP_HTTP_HOST . '/404.html';
 			} else {
 				$siteId = $oApp->siteid;
 			}
 		}
 
-		$url = 'http://' . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter/enroll";
 		$url .= "?site={$siteId}&app=" . $id;
 
@@ -47,7 +47,7 @@ class enroll_model extends enroll_base {
 	 * 登记活动的汇总展示链接
 	 */
 	public function getOpUrl($siteId, $id) {
-		$url = 'http://' . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= '/rest/site/op/matter/enroll';
 		$url .= "?site={$siteId}&app=" . $id;
 
@@ -57,7 +57,7 @@ class enroll_model extends enroll_base {
 	 * 登记活动的统计报告链接
 	 */
 	public function getRpUrl($siteId, $id) {
-		$url = 'http://' . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= '/rest/site/op/matter/enroll/report';
 		$url .= "?site={$siteId}&app=" . $id;
 

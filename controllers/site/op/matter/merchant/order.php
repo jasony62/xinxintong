@@ -287,7 +287,7 @@ class order extends \site\op\base {
 			$pendings[$orderTmplmsgId]['data'][] = $data;
 		}
 		/*订单访问地址*/
-		$url = 'http://' . APP_HTTP_HOST . "/rest/app/merchant/order";
+		$url = APP_PROTOCOL . APP_HTTP_HOST . "/rest/app/merchant/order";
 		$url .= "?mpid=" . $site;
 		$url .= "&shop=" . $order->sid;
 		$url .= "&order=" . $order->id;

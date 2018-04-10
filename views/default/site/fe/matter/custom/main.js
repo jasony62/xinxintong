@@ -26,7 +26,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                 url += "&shareby=" + shareby;
                 $http.get(url);*/
             };
-            sharelink = 'http://' + location.hostname + '/rest/site/fe/matter';
+            sharelink = location.protocol + '//' + location.hostname + '/rest/site/fe/matter';
             sharelink += '?siteId=' + siteId;
             sharelink += '&type=custom';
             sharelink += '&id=' + id;

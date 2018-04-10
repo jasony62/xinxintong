@@ -31,7 +31,7 @@ class memberschema_model extends \TMS_MODEL {
 				}
 				$oSchema->attrs = $oAttrs;
 				if (property_exists($oSchema, 'url') && isset($oSchema->siteid) && isset($oSchema->id)) {
-					$oSchema->fullUrl = 'http://' . APP_HTTP_HOST . $oSchema->url . '?site=' . $oSchema->siteid . '&schema=' . $oSchema->id;
+					$oSchema->fullUrl = APP_PROTOCOL . APP_HTTP_HOST . $oSchema->url . '?site=' . $oSchema->siteid . '&schema=' . $oSchema->id;
 				}
 				if (property_exists($oSchema, 'ext_attrs')) {
 					$oSchema->extAttrs = empty($oSchema->ext_attrs) ? [] : json_decode($oSchema->ext_attrs);
@@ -225,7 +225,7 @@ class memberschema_model extends \TMS_MODEL {
 	 *
 	 */
 	public function getEntryUrl($siteId, $mschemaId) {
-		$url = "http://" . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= '/rest/site/fe/user/member';
 		$url .= "?site={$siteId}&schema={$mschemaId}";
 

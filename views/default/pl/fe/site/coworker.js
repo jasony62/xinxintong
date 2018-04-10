@@ -36,7 +36,7 @@ define(['frame'], function(ngApp) {
         //获取邀请动态链接
         $scope.makeInvite = function() {
             http2.get('/rest/pl/fe/site/coworker/makeInvite?site=' + $scope.siteId, function(rsp) {
-                var url = 'http://' + location.host + rsp.data;
+                var url = location.protocol + '//' + location.host + rsp.data;
                 $scope.inviteURL = url;
                 $('#shareSite').trigger('show');
             });

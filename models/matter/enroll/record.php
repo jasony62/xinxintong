@@ -731,6 +731,12 @@ class record_model extends record_base {
 						case 'like_num':
 							$sqls[] = 'r.like_num desc';
 							break;
+						case 'enroll_at':
+							$sqls[] = 'r.enroll_at desc';
+							break;
+						case 'enroll_at asc':
+							$sqls[] = 'r.enroll_at';
+							break;
 						}
 					}
 					return implode(',', $sqls);

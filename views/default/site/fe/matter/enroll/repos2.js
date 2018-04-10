@@ -43,11 +43,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12 };
-    $scope.criteria = _oCriteria = { creator: 'all' };
+    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' };
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.recordList = function(pageAt) {
         var url;
+        _oPage.total = 0;
         if (pageAt) {
             _oPage.at = pageAt;
         } else {
@@ -141,6 +142,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         $scope.recordList(1);
     };
     $scope.shiftOwner = function() {
+        $scope.recordList(1);
+    };
+    $scope.shiftAgreed = function(agreed) {
+        _oCriteria.agreed = agreed;
+        $scope.recordList(1);
+    };
+    $scope.shiftOrderby = function(orderby) {
+        _oCriteria.orderby = orderby;
         $scope.recordList(1);
     };
     $scope.shiftDir = function(oDir) {

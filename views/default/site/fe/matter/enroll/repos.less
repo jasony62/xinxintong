@@ -13,6 +13,10 @@ img {
     max-width: 100%
 }
 
+.dropdown-menu {
+    min-width: auto;
+}
+
 .navbar-header {
     .page-title {
         display: inline-block;
@@ -85,12 +89,17 @@ img {
 
 }
 
-/* record */
-#repos {
-    .dropdown-menu {
-        min-width: auto;
+#filterQuick {
+    margin: 4px 8px;
+
+    .checkbox {
+        display: inline-block;
     }
 
+}
+
+/* record */
+#repos {
     .record {
         background: #fff;
         border-bottom: 1px solid #ddd;
@@ -240,10 +249,19 @@ img {
         margin-top: 1px;
         width: 300px;
         background: #fff;
-        padding: 8px;
+        padding: 0 0 8px;
         border: 1px solid #ccc;
         border-top: 0;
         z-index: 1000;
+
+        .panel-group {
+            .panel {
+                margin: 0 -1px;
+                border-radius: 0;
+            }
+
+        }
+
     }
 
 }

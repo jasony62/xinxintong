@@ -133,11 +133,13 @@ ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce'
 
         http2.get(url).then(function(rsp) {
             if (shareableSchemas[oRecord.schema_id].type == 'multitext' && oRecord._items[id]) {
-                oRecord.items[index].like_log = rsp.data.itemLike_log;
-                oRecord.items[index].like_num = rsp.data.itemLike_num;
+                oRecord.items[index].like_log = rsp.data.like_log;
+                oRecord.items[index].like_num = rsp.data.like_num;
+            }else{
+                oRecord.like_log = rsp.data.like_log;
+                oRecord.like_num = rsp.data.like_num;
             }
-            oRecord.like_log = rsp.data.like_log;
-            oRecord.like_num = rsp.data.like_num;
+
         });
     };
     $scope.likeRemark = function(oRemark) {

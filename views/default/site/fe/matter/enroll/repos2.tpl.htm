@@ -116,6 +116,7 @@
                                 <div>
                                     <span ng-if="rec.agreed==='D'&&(rec.userid===groupUser.userid||groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="label label-danger">讨论</span>
                                     <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
+                                    <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
                                 </div>
                                 <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
                             </div>
@@ -178,6 +179,7 @@
                                             <li><a href ng-click="setAgreed(rec,'D')">讨论</a></li>
                                             <li><a href ng-click="setAgreed(rec,'A')">接受</a></li>
                                             <li><a href ng-click="setAgreed(rec,'Y')">推荐</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'N')">屏蔽</a></li>
                                         </ul>
                                     </div>
                                 </div>

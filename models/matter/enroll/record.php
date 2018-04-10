@@ -606,7 +606,8 @@ class record_model extends record_base {
 		if (isset($oUser)) {
 			if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
 				if (!empty($oUser->uid)) {
-					$w .= " and (r.agreed<>'D'";
+					$w .= " and (";
+					$w .= " (r.agreed<>'D' and r.agreed<>'N')";
 					$w .= " or r.userid='{$oUser->uid}'";
 					if (!empty($oUser->group_id)) {
 						$w .= " or r.group_id='{$oUser->group_id}'";

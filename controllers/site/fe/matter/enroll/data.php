@@ -84,19 +84,31 @@ class data extends base {
 						}
 					}
 					/* 根据状态和用户角色过滤答案 */
-					if ($oRecord->userid !== $oUser->uid && (empty($oUser->is_leader) || $oUser->is_leader !== 'S')) {
-						if (!empty($oUser->uid)) {
-							$w = " and (";
-							$w .= "(agreed<>'N' and agreed<>'D')";
-							$w .= " or userid='{$oUser->uid}'";
-							if (!empty($oUser->group_id)) {
-								$w .= " or group_id='{$oUser->group_id}'";
+					if ($oRecord->userid !== $oUser->uid) {
+						if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+							if (!empty($oUser->uid)) {
+								$w = " and (";
+								$w .= "(agreed<>'N' and agreed<>'D')";
+								$w .= " or userid='{$oUser->uid}'";
+								if (!empty($oUser->group_id)) {
+									$w .= " or group_id='{$oUser->group_id}'";
+								}
+								if (isset($oUser->is_editor) && $oUser->is_editor === 'Y') {
+									$w .= " or group_id=''";
+								}
+								$w .= ")";
+								$q[2] .= $w;
 							}
-							if (isset($oUser->is_editor) && $oUser->is_editor === 'Y') {
-								$w .= " or group_id=''";
+						}
+					} else {
+						if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+							if (!empty($oUser->uid)) {
+								$w = " and (";
+								$w .= "agreed<>'N'";
+								$w .= " or userid='{$oUser->uid}'";
+								$w .= ")";
+								$q[2] .= $w;
 							}
-							$w .= ")";
-							$q[2] .= $w;
 						}
 					}
 					$oRecData->items = $modelRecDat->query_objs_ss($q);

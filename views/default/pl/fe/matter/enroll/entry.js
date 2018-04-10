@@ -46,7 +46,7 @@ define(['frame'], function(ngApp) {
             host = host.length === 2 ? host[1] : location.host;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
-                    opEntry.url = 'http://' + host + '/q/' + entry.code;
+                    opEntry.url = location.protocol + '//' + host + '/q/' + entry.code;
                     opEntry.password = entry.password;
                     opEntry.code = entry.code;
                     opEntry.can_favor = entry.can_favor;
@@ -57,7 +57,7 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.add(targetUrl, $scope.app.title).then(function(task) {
                 $scope.app.op_short_url_code = task.code;
                 srvEnrollApp.update('op_short_url_code');
-                opEntry.url = 'http://' + host + '/q/' + task.code;
+                opEntry.url = location.protocol + '//' + host + '/q/' + task.code;
                 opEntry.code = task.code;
             });
         };
@@ -90,7 +90,7 @@ define(['frame'], function(ngApp) {
             host = host.length === 2 ? host[1] : location.host;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
-                    rpEntry.url = 'http://' + host + '/q/' + entry.code;
+                    rpEntry.url = location.protocol + '//' + host + '/q/' + entry.code;
                     rpEntry.password = entry.password;
                     rpEntry.code = entry.code;
                     rpEntry.can_favor = entry.can_favor;
@@ -101,7 +101,7 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.add(targetUrl, $scope.app.title).then(function(task) {
                 $scope.app.rp_short_url_code = task.code;
                 srvEnrollApp.update('rp_short_url_code');
-                rpEntry.url = 'http://' + host + '/q/' + task.code;
+                rpEntry.url = location.protocol + '//' + host + '/q/' + task.code;
                 rpEntry.code = task.code;
             });
         };

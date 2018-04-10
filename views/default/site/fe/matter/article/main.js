@@ -174,7 +174,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 var shareid, sharelink, shareby;
                 shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
                 shareid = $scope.user.uid + '_' + (new Date() * 1);
-                sharelink = 'http://' + location.hostname + '/rest/site/fe/matter';
+                sharelink = location.protocol + '//' + location.hostname + '/rest/site/fe/matter';
                 sharelink += '?site=' + siteId;
                 sharelink += '&type=article';
                 sharelink += '&id=' + id;
@@ -205,7 +205,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             //} else {
             // $scope.favor = function(user, article) {
             //     if (!user.loginExpire) {
-            //         tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+            //         tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
             //             user.loginExpire = data.loginExpire;
             //             tmsFavor.open(article);
             //         });
@@ -219,7 +219,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             // } else {
             //     $scope.forward = function(user, article) {
             //         if (!user.loginExpire) {
-            //             tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
+            //             tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
             //                 user.loginExpire = data.loginExpire;
             //                 tmsForward.open(article);
             //             });
@@ -238,7 +238,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 //    tmsSiteUser.showSwitch(oArticle.siteid, true);
                 //} else {
                 $scope.siteUser = function(id) {
-                    var url = 'http://' + location.host;
+                    var url = location.protocol + '//' + location.host;
                     url += '/rest/site/fe/user';
                     url += "?site=" + siteId;
                     location.href = url;

@@ -282,15 +282,15 @@ ngApp.controller('ctrlPage', ['$scope', '$uibModal', 'http2', function($scope, $
             switch (page.type) {
                 case 'shelf':
                     $scope.shelfs.push(page)
-                    page._url = 'http://' + location.host + '/rest/site/fe/matter/merchant/shelf?site=' + page.siteid + '&shop=' + $scope.shopId + '&page=' + page.id;
+                    page._url = location.protocol + '//' + location.host + '/rest/site/fe/matter/merchant/shelf?site=' + page.siteid + '&shop=' + $scope.shopId + '&page=' + page.id;
                     break;
                 case 'orderlist':
                     $scope.orderlists.push(page)
-                    page._url = 'http://' + location.host + '/rest/site/fe/matter/merchant/orderlist?site=' + page.siteid + '&shop=' + $scope.shopId;
+                    page._url = location.protocol + '//' + location.host + '/rest/site/fe/matter/merchant/orderlist?site=' + page.siteid + '&shop=' + $scope.shopId;
                     break;
                 case 'op.orderlist':
                     $scope.opOrderlists.push(page)
-                    page._url = 'http://' + location.host + '/rest/site/op/matter/merchant/orderlist?site=' + page.siteid + '&shop=' + $scope.shopId;
+                    page._url = location.protocol + '//' + location.host + '/rest/site/op/matter/merchant/orderlist?site=' + page.siteid + '&shop=' + $scope.shopId;
                     break;
                 default:
                     $scope.others.push(page);
@@ -303,7 +303,7 @@ ngApp.controller('ctrlPage', ['$scope', '$uibModal', 'http2', function($scope, $
         url += '&type=shelf';
         http2.get(url, function(rsp) {
             var page = rsp.data;
-            page._url = 'http://' + location.host + '/rest/site/fe/matter/merchant/shelf?site=' + page.siteid + '&shop=' + $scope.shopId + '&page=' + page.id;
+            page._url = location.protocol + '//' + location.host + '/rest/site/fe/matter/merchant/shelf?site=' + page.siteid + '&shop=' + $scope.shopId + '&page=' + page.id;
             $scope.shelfs.push(rsp.data);
         });
     };

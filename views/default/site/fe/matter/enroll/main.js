@@ -180,15 +180,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             oPage = $scope.page;
             oUser = $scope.user;
             /* 设置活动的当前链接 */
-            sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'rid');
+            sharelink = location.protocol + '//' + location.host + LS.j('', 'site', 'app', 'rid');
             if (oPage && oPage.share_page && oPage.share_page === 'Y') {
                 sharelink += '&page=' + oPage.name;
-                //if (!(/iphone|ipad/i.test(navigator.userAgent))) {
-                /*ios下操作无效，且导致微信jssdk失败*/
-                // if (window.history && window.history.replaceState) {
-                //     window.history.replaceState({}, oApp.title, sharelink);
-                // }
-                //}
             } else if (LS.s().page) {
                 sharelink += '&page=' + LS.s().page;
             }
@@ -301,7 +295,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
 
         $scope.favor = function(user, article) {
             if (!user.loginExpire) {
-                tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                     user.loginExpire = data.loginExpire;
                     tmsFavor.open(article);
                 });
@@ -311,7 +305,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         };
         if (oApp.can_siteuser === 'Y') {
             $scope.siteUser = function(id) {
-                var url = 'http://' + location.host;
+                var url = location.protocol + '//' + location.host;
                 url += '/rest/site/fe/user';
                 url += "?site=" + id;
                 location.href = url;

@@ -20,13 +20,13 @@ class lottery_model extends app_base {
 	 *
 	 */
 	public function getEntryUrl($siteId, $id) {
-		$url = "http://" . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter/lottery";
 		if ($siteId === 'platform') {
 			if ($oApp = $this->byId($id, ['cascaded' => 'N'])) {
 				$url .= "?site={$oApp->siteid}&app=" . $id;
 			} else {
-				$url = "http://" . APP_HTTP_HOST . '/404.html';
+				$url = APP_PROTOCOL . APP_HTTP_HOST . '/404.html';
 			}
 		} else {
 			$url .= "?site=$siteId&app=" . $id;

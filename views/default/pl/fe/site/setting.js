@@ -176,7 +176,7 @@ define(['require'], function(require) {
         (function() {
             var text2Clipboard = new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         })();
-        $scope.homeURL = 'http://' + location.host + '/rest/site/home?site=' + $scope.siteId;
+        $scope.homeURL = location.protocol + '//' + location.host + '/rest/site/home?site=' + $scope.siteId;
     }]);
     ngApp.controller('ctrlMschema', ['$scope', 'http2', '$http', '$uibModal', 'MemberSchema', function($scope, http2, $http, $uibModal, MemberSchema) {
         function shiftAttr(schema) {
@@ -216,7 +216,7 @@ define(['require'], function(require) {
         ];
         $scope.fullUrl = function(schema) {
             var url = '';
-            !/^http/.test(schema.url) && (url = 'http://' + location.host);
+            !/^http/.test(schema.url) && (url = location.protocol + '//' + location.host);
             return url + schema.url + '?site=' + $scope.siteId + '&schema=' + schema.id;
         };
         $scope.addSchema = function() {

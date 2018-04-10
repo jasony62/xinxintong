@@ -25,7 +25,7 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['
     };
     $scope.favor = function(user, link) {
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+            tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsFavor.open(link);
             });
@@ -35,7 +35,7 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['
     };
     $scope.invite = function(user, link) {
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+            tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 user.loginExpire = data.loginExpire;
                 location.href = "/rest/site/fe/invite?matter=link," + link.id + '&inviteToken=' + invite_token;
             });
@@ -44,7 +44,7 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['
         }
     };
     $scope.siteUser = function(id) {
-        var url = 'http://' + location.host;
+        var url = location.protocol + '//' + location.host;
         url += '/rest/site/fe/user';
         url += "?site=" + siteId;
         location.href = url;
@@ -57,15 +57,15 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt']).config(['
     $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {
         $scope.siteInfo = rsp.data;
         $http.get('/rest/site/fe/matter/link/get?site=' + siteId + '&id=' + linkId).success(function(rsp) {
-            if(rsp.data) {
+            if (rsp.data) {
                 $scope.link = rsp.data.link;
                 $scope.user = rsp.data.user;
                 $scope.qrcode = '/rest/site/fe/matter/link/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
-                if(Object.keys($scope.link).indexOf('invite')!==-1) {
+                if (Object.keys($scope.link).indexOf('invite') !== -1) {
                     var len = $scope.link.fullUrl.length;
-                    if($scope.link.fullUrl.charAt(len-1)!=='?') {
+                    if ($scope.link.fullUrl.charAt(len - 1) !== '?') {
                         $scope.link.fullUrl = $scope.link.fullUrl + '&inviteToken=' + invite_token;
-                    }else {
+                    } else {
                         $scope.link.fullUrl = $scope.link.fullUrl + 'inviteToken=' + invite_token;
                     }
                 }

@@ -25,7 +25,7 @@ var setShareData = function(scope, params) {
         return false;
     }
     var sharelink, summary;
-    sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
+    sharelink = location.protocol + '//' + location.host + LS.j('', 'site', 'app');
     if (params.page.share_page && params.page.share_page === 'Y') {
         sharelink += '&page=' + params.page.name;
         sharelink += '&ek=' + params.enrollKey;

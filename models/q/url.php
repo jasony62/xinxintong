@@ -102,7 +102,7 @@ class url_model extends \TMS_MODEL {
 	 * 任务访问链接
 	 */
 	public function urlByCode($code) {
-		$url = 'http://' . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= "/q/{$code}";
 
 		return $url;

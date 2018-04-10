@@ -244,7 +244,7 @@ ngApp.controller('ctrlMain', ['$scope', '$location', 'http2', 'tmsLocation', 'tm
     };
     $scope.invite = function() {
         if (!_oUser.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+            tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 _oUser.loginExpire = data.loginExpire;
                 location.href = "/rest/site/fe/invite?matter=plan," + _oApp.id;
             });

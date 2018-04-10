@@ -653,7 +653,7 @@ class wall_model extends enroll_base {
 				if (!empty($groupUsers)) {
 					$message['touser'] = implode('|', $groupUsers);
 					if ($msg['type'] === 'text') {
-						$joinUrl = 'http://' . APP_HTTP_HOST . "/rest/app/wall?wid=$wid";
+						$joinUrl = APP_PROTOCOL . APP_HTTP_HOST . "/rest/app/wall?wid=$wid";
 						$message['text']['content'] = $txt . "（<a href='$joinUrl'>参与讨论</a>）";
 					}
 					$this->send2Qyuser($site, $message);
@@ -705,7 +705,7 @@ class wall_model extends enroll_base {
 	 *
 	 */
 	public function getEntryUrl($runningSiteId, $id) {
-		$url = "http://" . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter/wall";
 		$url .= "?site=$runningSiteId&app=" . $id;
 

@@ -10,7 +10,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', 'tmsLocation', 'tmsSnsShare', '
             }
             var sharelink;
             /* 设置活动的当前链接 */
-            sharelink = 'http://' + location.host + LS.j('', 'site', 'app', 'ek') + '&page=cowork' + '#' + anchor;
+            sharelink = location.protocol + '//' + location.host + LS.j('', 'site', 'app', 'ek') + '&page=cowork' + '#' + anchor;
             /* 分享次数计数器 */
             tmsSnsShare.config({
                 siteId: oApp.siteid,

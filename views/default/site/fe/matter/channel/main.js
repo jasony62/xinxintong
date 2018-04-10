@@ -88,21 +88,21 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt']).config
         }
     };
     $scope.open = function(opened) {
-        if($scope.channel.invite) {
+        if ($scope.channel.invite) {
             location.href = opened.url + '&inviteToken=' + invite_token;
-        }else {
+        } else {
             location.href = opened.url;
         }
     };
     $scope.siteUser = function(id) {
-        var url = 'http://' + location.host;
+        var url = location.protocol + '//' + location.host;
         url += '/rest/site/fe/user';
         url += "?site=" + siteId;
         location.href = url;
     };
     $scope.invite = function(user, channel) {
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+            tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                 user.loginExpire = data.loginExpire;
                 location.href = "/rest/site/fe/invite?matter=channel," + channel.id + '&inviteToken=' + invite_token;
             });

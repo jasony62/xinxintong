@@ -93,7 +93,7 @@ abstract class Reply {
 			$r .= '<Title><![CDATA[' . $oMatter->title . ']]></Title>';
 			$r .= '<Description><![CDATA[' . (isset($oMatter->summary) ? $oMatter->summary : '') . ']]></Description>';
 			if (!empty($oMatter->pic) && stripos($oMatter->pic, 'http') === false) {
-				$r .= '<PicUrl><![CDATA[' . 'http://' . APP_HTTP_HOST . $oMatter->pic . ']]></PicUrl>';
+				$r .= '<PicUrl><![CDATA[' . APP_PROTOCOL . APP_HTTP_HOST . $oMatter->pic . ']]></PicUrl>';
 			} else {
 				$r .= '<PicUrl><![CDATA[' . (isset($oMatter->pic) ? $oMatter->pic : '') . ']]></PicUrl>';
 			}

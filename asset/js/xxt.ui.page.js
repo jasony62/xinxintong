@@ -111,7 +111,11 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
     };
     this.openPlugin = function(content) {
         var frag, wrap, frm, body, deferred = $q.defer();
-        document.documentElement.scrollTop = 0;
+        if(document.documentElement.clientWidth > 768) {
+            document.documentElement.scrollTop  = 0;
+        } else {
+            document.body.scrollTop  = 0;
+        }
         body = document.getElementsByTagName('body')[0];
         body.style.cssText="overflow-y:hidden";
         frag = document.createDocumentFragment();

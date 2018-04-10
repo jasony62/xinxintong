@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>我的积分</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/user/coin/main.css');?>" rel="stylesheet">
+</head>
+
+<body ng-controller='ctrlCoin'>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
+        <div class='container-fluid text-right'>
+            <p class="navbar-text">
+                <a class='navbar-link' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?> &nbsp;
+                    <span class='glyphicon glyphicon-menu-right'></span>
+                </a>
+            </p>
+        </div>
+    </nav>
+    <div class="container ng-cloak" ng-cloak>
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="navbar navbar-default tms-panel-heading">
+                    <div class='container-fluid'>
+                        <form class="navbar-form navbar-left">
+                            <div class='input-group'>
+                                <select class='form-control' title='团队列表' ng-model="frameSid">
+                                    <option value="{{site.siteid}} " ng-repeat="site in sites">{{site.name}}</option>
+                                </select>
+                                <div class='input-group-btn'>
+                                    <button class='btn btn-default'><span class='glyphicon glyphicon-yen'></span> {{oSite[frameSid].coin}}</button>
+                                </div>
+                            </div>
+                        </form>
+                        <form class="navbar-form navbar-left">
+                            <select class='form-control' title='类型列表' ng-model="unionType">
+                                <option value=''>全部类型</option>
+                                <option value='mission'>项目</option>
+                                <option value='plan'>计划</option>
+                                <option value='article'>单图文</option>
+                                <option value='enroll'>登记活动</option>
+                                <option value='signin'>签到活动</option>
+                            </select>
+                        </form>
+                        <form class="navbar-form navbar-left">
+                            <div class="input-group">
+                                <input type="text" class='form-control' placeholder="按名称筛选" ng-model="byTitle">
+                                <span class='input-group-btn'>
+                                    <button class='btn btn-default' ng-click="list(1)"><span class='glyphicon glyphicon-search'></button>
+                                    <button class='btn btn-default' ng-click="cleanFilter()"><span class='glyphicon glyphicon-remove'></button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </nav>
+                <div>
+                    <table class='table table-bordered table-striped'>
+                        <thead>
+                            <tr>
+                                <th style='width:48px'>序号</th>
+                                <th ng-if="unionType===''" style='width:100px'>类型</th>
+                                <th ng-if="unionType===''" style='width:125px'>时间</th>
+                                <th>名称</th>
+                                <th ng-if="unionType===''">获得积分</th>
+                                <th ng-if="unionType!==''">当前活动所获积分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="matter in matters" ng-class="{'active':criteria.type!==''}"ng-click="view(matter)">
+                                <td>{{$index+1}}</td>
+                                <td ng-if="unionType===''">{{matterTypes[matter.matter_type]}}</td>
+                                <td ng-if="unionType===''">{{matter.occur_at*1000|date:'yy-MM-dd HH:mm' }}</td>
+                                <td>{{matter.matter_title}}</td>
+                                <td ng-if="unionType===''">{{matter.delta}}</td>
+                                <td ng-if="unionType!==''">{{matter.apptotalcoin||''}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class='form-group'>
+                    <div class='pl-pagination'>
+                        <span>总数：{{page.total}}</span>
+                        <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="detaiLog.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">积分日志详情</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-group'>
+                <table class='table table-bordered table-striped'>
+                    <thead>
+                        <tr>
+                            <th style='width:45px'>序号</th>
+                            <th style='width:125px'>时间</th>
+                            <th>获得积分原因</th>
+                            <th>获得积分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="log in logs">
+                            <td>{{$index+1}}</td>
+                            <td>{{(log.occur_at||log.at)*1000|date:'yy-MM-dd HH:mm'}}</td>
+                            <td>{{log.act||log.op}}</td>
+                            <td>{{log.delta||log.coin}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class='form-group' ng-if="type!=='mission'">
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">确定</button>
+        </div>
+    </script>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/coin/main-loader.js?_=1"></script>
+</body>
+</html>

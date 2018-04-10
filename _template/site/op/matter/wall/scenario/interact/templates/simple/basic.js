@@ -125,7 +125,7 @@
 
                     if(total!==0) {
                         if(total % eachPartPerson ===0) {
-                            $(btns[(total / eachPartPerson) - 1]).css('opacity','1')
+                            $(btns[(total / eachPartPerson) - 1]).css({'color':'#a16d32','background-image':"url('/static/img/xxq_interact/interactBt.png')",'background-position':'0 0'});
                         }
                     }
 
@@ -169,6 +169,7 @@
             $('.mask').find('img').attr('src',$scope.Wall.result_img[index].imgsrc);
         }
         $scope.open = function() {
+            $(this).css({'color':'#a16d32','background-image':"url('/static/img/xxq_interact/interactBt.png')",'background-position':'0 0'});
             var prev = $(event.target).prev(),
                 next = $(event.target).next();
             setTimeout(function(){
@@ -187,7 +188,7 @@
         }
         $scope.$watch('Wall.timestamp', function(nv) {
             if(!nv) {
-                alert('请点击左上角指定时间');
+                alert('请点击左上角设定活动开始时间');
                 return false;
             }else{
                 time = nv;

@@ -15,6 +15,6 @@ ul{width: 100%;padding-left: 0;margin-bottom:0;list-style: none;overflow: hidden
 @keyframes moveImg{0%{width: 20px;height: 20px;position: absolute;margin: auto;right: 0;top: 110px;left: 25px;bottom: 0;}
 50%{width: 125px;height: 190px;position: absolute;margin: auto;right: 0;top: 0;left: 0;bottom: 0;}
 100%{width: 290px;height: 420px;margin:auto;top:0;left:0;right:0;bottom:0;position:absolute;}}
-.main>.box>.case_button{position: absolute;bottom:10px;left:46%;opacity: 0.4;display: inline-block;cursor: pointer;color:#a16d32;font-size:14px;line-height: 28px;text-align: center;width: 86px;height: 28px;background:url('/static/img/xxq_interact/interactBt.png') no-repeat 0 0;}
+.main>.box>.case_button{position: absolute;bottom:10px;left:46%;display: inline-block;cursor: pointer;color:#fff;font-size:14px;line-height: 28px;text-align: center;width: 86px;height: 28px;background-image:url('/static/img/xxq_interact/interactBt1.png');background-repeat:no-repeat;background-position:0 2px;}
 .mask{display: none;width: 100%;height: 100%;position: absolute;top:0;left:0;bottom:0;right:0;background:rgba(0,0,0,0.9);}
 .mask > img{display: block;width: 518px;height: 100%;margin: 0 auto;}

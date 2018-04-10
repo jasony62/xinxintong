@@ -62,7 +62,7 @@ class notice_model extends \TMS_MODEL {
 				$oNewNotice->nickname = $this->escape($oGrpUser->nickname);
 				$oNewNotice->event_userid = $oUser->uid;
 				$oNewNotice->event_nickname = $this->escape($oUser->nickname);
-				$oNewNotice->event_target_id = $oRecord->enroll_key;
+				$oNewNotice->event_target_id = $oRecord->id;
 				$oNewNotice->event_target_type = 'record';
 				$oNewNotice->event_name = event_model::SubmitEventName;
 				$oNewNotice->event_op = 'New';

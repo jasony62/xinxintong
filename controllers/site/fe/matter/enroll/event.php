@@ -178,7 +178,7 @@ class event extends base {
 								$desc .= '，';
 							}
 						}
-						$oRule->desc .= $desc . '还需【' . ((int) $oRule->min - (int) $oAppUser->do_like_num) . '条】。';
+						$oRule->desc = $desc . '还需【' . ((int) $oRule->min - (int) $oAppUser->do_like_num) . '条】。';
 					}
 					$oRule->id = 'record.like.end';
 					$tasks[] = $oRule;

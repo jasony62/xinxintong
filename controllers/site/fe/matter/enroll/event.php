@@ -38,32 +38,32 @@ class event extends base {
 			foreach ($oResult->logs as $oLog) {
 				if ($oLog->userid === $oUser->uid) {
 					$oLog->nickname = '你';
-					$oLog->canGotoRemark = true;
+					$oLog->canGotoCowork = true;
 				}
 				if ($oLog->owner_userid === $oUser->uid) {
 					$oLog->owner_nickname = '你';
-					$oLog->canGotoRemark = true;
+					$oLog->canGotoCowork = true;
 				}
 				if (isset($oUser->is_leader) && $oUser->is_leader === 'S') {
-					$oLog->canGotoRemark = true;
+					$oLog->canGotoCowork = true;
 				}
-				if (empty($oLog->canGotoRemark)) {
+				if (empty($oLog->canGotoCowork)) {
 					$oRecord = $modelRec->byId($oLog->enroll_key, ['fields' => 'group_id,agreed,like_num']);
 					if ($oRecord) {
 						if ($oRecord->agreed === 'Y') {
-							$oLog->canGotoRemark = true;
+							$oLog->canGotoCowork = true;
 						} else if (!empty($oRecord->group_id)) {
 							/* 如果是分组内的数据，只有组内成员，或者组内成员投票达到共享要求 */
 							if (!empty($oUser->group_id) && $oRecord->group_id === $oUser->group_id) {
-								$oLog->canGotoRemark = true;
+								$oLog->canGotoCowork = true;
 							} else if ($recordReposLikeNum > 0) {
 								if ($oRecord->like_num >= $recordReposLikeNum) {
-									$oLog->canGotoRemark = true;
+									$oLog->canGotoCowork = true;
 								}
 							}
 						} else {
 							if ($oRecord->agreed !== 'D' && $oRecord->agreed !== 'N') {
-								$oLog->canGotoRemark = true;
+								$oLog->canGotoCowork = true;
 							}
 						}
 					}

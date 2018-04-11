@@ -117,15 +117,33 @@
                                 <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
                                 <div class='event' ng-switch on="log.event_name">
                                     <div ng-switch-when="site.matter.enroll.submit">
-                                        <span class='nickname'>{{log.nickname}}</span> 新增记录
+                                        <span class='nickname'>{{log.nickname}}</span> 添加记录
                                     </div>
                                     <div ng-switch-when="site.matter.enroll.cowork.do.submit">
                                         <span class='nickname'>{{log.nickname}}</span> 在
-                                        <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录下新增数据
+                                        <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录下添加数据
                                     </div>
                                     <div ng-switch-when="site.matter.enroll.do.remark">
-                                        <span class='nickname'>{{log.nickname}}</span> 在
-                                        <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据下留言
+                                        <div ng-switch on="log.target_type">
+                                            <div ng-switch-when="record">
+                                                <div ng-switch on="log.event_op">
+                                                    <span class='nickname'>{{log.nickname}}</span> 在
+                                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录下<span ng-switch-when="New">添加</span><span ng-switch-when="Upd">修改</span>留言
+                                                </div>
+                                            </div>
+                                            <div ng-switch-when="record.data">
+                                                <div ng-switch on="log.event_op">
+                                                    <span class='nickname'>{{log.nickname}}</span> 在
+                                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据下<span ng-switch-when="New">添加</span><span ng-switch-when="Upd">修改</span>留言
+                                                </div>
+                                            </div>
+                                            <div ng-switch-when="remark">
+                                                <div ng-switch on="log.event_op">
+                                                    <span class='nickname'>{{log.nickname}}</span> 在
+                                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言下<span ng-switch-when="New">添加</span><span ng-switch-when="Upd">修改</span>留言
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div ng-switch-when="site.matter.enroll.data.do.like">
                                         <div ng-switch on="log.event_op">
@@ -209,7 +227,7 @@
                                 <div class='footer'>
                                     <div class='datetime text-muted'>{{log.event_at*1000|date:'MM-dd HH:mm'}}</div>
                                     <div ng-if="log.canGotoCowork">
-                                        <a href ng-click="gotoCowork(log.enroll_key)">讨论<span class='glyphicon glyphicon-menu-right'></span></a>
+                                        <a href ng-click="gotoCowork(log.enroll_key)">查看<span class='glyphicon glyphicon-menu-right'></span></a>
                                     </div>
                                 </div>
                             </div>

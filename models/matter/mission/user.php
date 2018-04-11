@@ -317,4 +317,38 @@ class user_model extends \TMS_MODEL {
 
 		return true;
 	}
+	/*
+	 * 用户参与过的项目
+	 */
+	public function byUser($userId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : 'u.user_total_coin,u.modify_log,m.id,m.title';
+
+		$q = array(
+			$fields,
+			'xxt_mission_user u,xxt_mission m',
+			"u.userid = '{$userId}' and u.mission_id = m.id and m.state = 1",
+		);
+
+		if (!empty($options['bySite'])) {
+			$q['2'] .= " and u.siteid = '{$options['bySite']}'";
+		}
+		if (!empty($options['byName'])) {
+			$q['2'] .= " and m.title like '%" . $options['byName'] . "%'";
+		}
+
+		$p = ['o' => 'u.id desc'];
+		if (!empty($options['at'])) {
+			$p['r'] = ['o' => ($options['at']['page'] - 1), 'l' => $options['at']['size']];
+		}
+
+		$model = $this->model();
+		$missions = $model->query_objs_ss($q, $p);
+
+		$data = new \stdClass;
+		$data->logs = $missions;
+		$q[0] = 'count(m.id)';
+		$data->total = $model->query_val_ss($q);
+
+		return $data;
+	}
 }

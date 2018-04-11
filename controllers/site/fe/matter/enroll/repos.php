@@ -278,8 +278,18 @@ class repos extends base {
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
-		$oOptions->orderby = ['agreed', 'like_num'];
 		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
+
+		if (!empty($oPosted->orderby)) {
+			switch ($oPosted->orderby) {
+			case 'earliest':
+				$oOptions->orderby = ['enroll_at asc'];
+				break;
+			case 'mostliked':
+				$oOptions->orderby = ['like_num', 'enroll_at'];
+				break;
+			}
+		}
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
@@ -305,10 +315,13 @@ class repos extends base {
 				$oCriteria->record->group_id = $oPosted->userGroup;
 			}
 		}
-
 		/* 记录的创建人 */
-		if (!empty($oPosted->creator) && $oPosted->creator !== 'all') {
-			$oCriteria->record->user_id = $oPosted->creator;
+		if (!empty($oPosted->creator)) {
+			$oCriteria->record->userid = $oUser->uid;
+		}
+		/* 记录的表态 */
+		if (!empty($oPosted->agreed) && $oPosted->agreed !== 'all') {
+			$oCriteria->record->agreed = $oPosted->agreed;
 		}
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 

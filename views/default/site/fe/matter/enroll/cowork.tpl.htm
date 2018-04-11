@@ -45,6 +45,7 @@
                                     <span ng-if="record.agreed==='D'">讨论</span>
                                     <span ng-if="record.agreed==='A'">接受</span>
                                     <span ng-if="record.agreed==='Y'">推荐</span>
+                                    <span ng-if="record.agreed==='N'">屏蔽</span>
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
@@ -52,12 +53,14 @@
                                     <li><a href ng-click="setAgreed('D')">讨论</a></li>
                                     <li><a href ng-click="setAgreed('A')">接受</a></li>
                                     <li><a href ng-click="setAgreed('Y')">推荐</a></li>
+                                    <li><a href ng-click="setAgreed('N')">推荐</a></li>
                                 </ul>
                             </div>
                         </div>
                         <div ng-if="!record._canAgree&&(record.agreed==='Y'||user.uid===record.userid||user.is_editor==='Y')" ng-switch on="record.agreed">
                             <button ng-switch-when="D" class='btn btn-xs btn-danger'>讨论</button>
                             <button ng-switch-when="Y" class='btn btn-xs btn-success'>推荐</button>
+                            <button ng-switch-when="N" class='btn btn-xs btn-danger'>屏蔽</button>
                             <button ng-switch-when="" class='btn btn-xs btn-default'>未表态</button>
                         </div>
                         <div ng-if="record.userid===user.uid">
@@ -137,6 +140,7 @@
                                                 <span ng-if="item.agreed==='D'">讨论</span>
                                                 <span ng-if="item.agreed==='A'">接受</span>
                                                 <span ng-if="item.agreed==='Y'">推荐</span>
+                                                <span ng-if="item.agreed==='N'">屏蔽</span>
                                                 <span class="caret"></span>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
@@ -144,12 +148,14 @@
                                                 <li><a href ng-click="agreeItem(item,'D')">讨论</a></li>
                                                 <li><a href ng-click="agreeItem(item,'A')">接受</a></li>
                                                 <li><a href ng-click="agreeItem(item,'Y')">推荐</a></li>
+                                                <li><a href ng-click="agreeItem(item,'N')">屏蔽</a></li>
                                             </ul>
                                         </div>
                                     </div>
-                                    <div ng-if="!record._canAgree&&(record.agreed==='Y'||user.uid===item.userid||user.is_editor==='Y')" ng-switch on="item.agreed">
+                                    <div ng-if="!record._canAgree&&(item.agreed==='Y'||(item.agreed==='D'&&user.uid===record.userid)||user.uid===item.userid||user.is_editor==='Y')" ng-switch on="item.agreed">
                                         <button ng-switch-when="D" class='btn btn-xs btn-danger'>讨论</button>
                                         <button ng-switch-when="Y" class='btn btn-xs btn-success'>推荐</button>
+                                        <button ng-switch-when="N" class='btn btn-xs btn-danger'>屏蔽</button>
                                         <button ng-switch-when="" class='btn btn-xs btn-default'>未表态</button>
                                     </div>
                                     <div ng-if="!item._others">
@@ -199,6 +205,7 @@
                                         <span ng-if="remark.agreed==='D'">讨论</span>
                                         <span ng-if="remark.agreed==='A'">接受</span>
                                         <span ng-if="remark.agreed==='Y'">推荐</span>
+                                        <span ng-if="remark.agreed==='N'">屏蔽</span>
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
@@ -206,12 +213,14 @@
                                         <li><a href ng-click="agreeRemark(remark,'D')">讨论</a></li>
                                         <li><a href ng-click="agreeRemark(remark,'A')">接受</a></li>
                                         <li><a href ng-click="agreeRemark(remark,'Y')">推荐</a></li>
+                                        <li><a href ng-click="agreeRemark(remark,'N')">屏蔽</a></li>
                                     </ul>
                                 </div>
                             </div>
-                            <div ng-if="!record._canAgree&&(record.agreed==='Y'||user.uid===remark.userid||user.is_editor==='Y')" ng-switch on="remark.agreed">
+                            <div ng-if="!record._canAgree&&(remark.agreed==='Y'||(remark.agreed==='D')||user.uid===remark.userid||user.is_editor==='Y')" ng-switch on="remark.agreed">
                                 <button ng-switch-when="D" class='btn btn-xs btn-danger'>讨论</button>
                                 <button ng-switch-when="Y" class='btn btn-xs btn-success'>推荐</button>
+                                <button ng-switch-when="N" class='btn btn-xs btn-danger'>屏蔽</button>
                                 <button ng-switch-when="" class='btn btn-xs btn-default'>未表态</button>
                             </div>
                             <div ng-if="remark.userid===user.uid">

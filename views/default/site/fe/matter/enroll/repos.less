@@ -13,6 +13,10 @@ img {
     max-width: 100%
 }
 
+.dropdown-menu {
+    min-width: auto;
+}
+
 .navbar-header {
     .page-title {
         display: inline-block;
@@ -32,7 +36,9 @@ img {
         .caret {
             margin-left: 4px;
         }
+
     }
+
 }
 
 .tms-nav-target {
@@ -47,7 +53,9 @@ img {
             vertical-align: middle;
             margin-left: 4px;
         }
+
     }
+
 }
 
 #advCriteria {
@@ -78,11 +86,19 @@ img {
     .dir.active {
         background-color: #ddd;
     }
+
 }
 
+#filterQuick {
+    margin: 4px 8px;
+
+    .checkbox {
+        display: inline-block;
+    }
+
+}
 
 /* record */
-
 #repos {
     .record {
         background: #fff;
@@ -106,9 +122,10 @@ img {
 
             .nickname {
                 flex-grow: 1;
-                text-align: right;
+                text-align: left;
                 font-size: .9em;
             }
+
         }
 
         .data {
@@ -120,6 +137,7 @@ img {
                 .schema>div+div {
                     margin-top: 8px;
                 }
+
             }
 
             .data-title:before {
@@ -136,24 +154,32 @@ img {
             .datetime {
                 font-size: .8em;
             }
+
         }
 
         .bottom-bar {
             display: flex;
+            font-size: .9em;
+            color: #777;
 
             &>*+* {
-                margin-left: 8px;
+                margin-left: 16px;
 
                 .like {
                     color: @brand-primary;
                 }
+
             }
 
             .datetime {
                 flex: 1;
-                line-height: 30px;
-                font-size: .8em;
             }
+
+            a {
+                text-decoration: none;
+                color: #777;
+            }
+
         }
 
         .remarks {
@@ -180,12 +206,15 @@ img {
                 .top-bar>:first-child {
                     flex: 1;
                 }
+
             }
 
             .remark+.remark {
                 margin-bottom: 1em;
             }
+
         }
+
     }
 
     .tag {
@@ -196,6 +225,7 @@ img {
         font-size: .8em;
         color: #fff;
     }
+
 }
 
 @media screen and (max-width:768px) {
@@ -209,11 +239,12 @@ img {
 
     #filterCriteria {
         margin-left: -1px;
-        margin-right: -2px;
+        margin-right: -1px;
 
         .form-control, .input-group-btn .btn {
             border-radius: 0;
         }
+
     }
 
     #advCriteria {
@@ -223,9 +254,19 @@ img {
         margin-top: 1px;
         width: 300px;
         background: #fff;
-        padding: 8px;
+        padding: 0 0 8px;
         border: 1px solid #ccc;
         border-top: 0;
         z-index: 1000;
+
+        .panel-group {
+            .panel {
+                margin: 0 -1px;
+                border-radius: 0;
+            }
+
+        }
+
     }
+
 }

@@ -133,7 +133,7 @@
                     </div>
                     <div class="checkbox">
                         <label>
-                            <input type='checkbox' ng-model="criteria.creator" ng-change="shiftOwner()">我的
+                            <input type='checkbox' ng-model="criteria.creator" ng-change="shiftOwner()"> 我的
                         </label>
                     </div>
                 </div>
@@ -144,7 +144,7 @@
                                 <div class='seq label label-default'>{{$index+1}}</div>
                                 <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
                                 <div ng-if="!rec._canAgree">
-                                    <button ng-if="rec.agreed==='D'&&(rec.userid===groupUser.userid||groupUser.is_leader==='S'||user.is_editor==='Y'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
+                                    <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
                                     <button ng-if="rec.agreed==='Y'" class="btn btn-success btn-xs">推荐</button>
                                     <button ng-if="rec.agreed==='N'" class="btn btn-danger btn-xs">屏蔽</button>
                                 </div>
@@ -205,7 +205,7 @@
                                             <span>{{rec.data[schema.id]}}</span>
                                         </div>
                                         <div ng-if="schema.cowork==='Y'">
-                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看全部<span ng-if="rec.coworkState[schema.id].length">{{rec.coworkState[schema.id].length}}个</span>或添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
+                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看全部或添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
                                             </button>
                                         </div>
                                         <div ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]" class='supplement'>{{rec.supplement[schema.id]}}</div>

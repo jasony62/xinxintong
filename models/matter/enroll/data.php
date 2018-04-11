@@ -768,6 +768,9 @@ class data_model extends \TMS_MODEL {
 		if (isset($oOptions['agreed'])) {
 			$q[2]['agreed'] = $oOptions['agreed'];
 		}
+		if (isset($oOptions['user'])) {
+			$oUser = $oOptions['user'];
+		}
 
 		$fnHandler = function (&$oData) {
 			if (property_exists($oData, 'tag')) {

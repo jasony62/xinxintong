@@ -365,7 +365,7 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value']);
+								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
 								$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
 								if ($coworkReposLikeNum) {
 									$reposItems = [];

@@ -64,7 +64,6 @@
                                     </div>
                                     <div ng-switch on="notice.event_name" ng-click="gotoCowork(notice.enroll_key)">
                                         <div ng-switch-when="site.matter.enroll.submit">
-                                            <span>（{{notice.notice_reason}}）</span>
                                             <div ng-switch on="notice.notice_reason">
                                                 <div ng-switch-when="same.group">在你们的分组下添加记录</div>
                                                 <div ng-switch-when="as.editor">添加记录</div>

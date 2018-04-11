@@ -597,17 +597,21 @@ class record_model extends record_base {
 			$w .= " and r.verified='{$oCriteria->record->verified}'";
 		}
 
-		// 记录推荐状态
+		/**
+		 * 记录推荐状态
+		 */
 		if (isset($oCriteria->record->agreed)) {
 			$w .= " and r.agreed='{$oCriteria->record->agreed}'";
+		} else {
+			// 屏蔽状态的记录默认不可见
+			$w .= " and r.agreed<>'N'";
 		}
-
 		// 讨论状态的记录仅提交人，同组用户或超级用户可见
 		if (isset($oUser)) {
 			if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
 				if (!empty($oUser->uid)) {
 					$w .= " and (";
-					$w .= " (r.agreed<>'D' and r.agreed<>'N')";
+					$w .= " r.agreed<>'D'";
 					$w .= " or r.userid='{$oUser->uid}'";
 					if (!empty($oUser->group_id)) {
 						$w .= " or r.group_id='{$oUser->group_id}'";

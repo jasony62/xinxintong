@@ -35,7 +35,7 @@ class TMS_CONTROLLER {
 		if (false !== strpos($path, 'http')) {
 			$url = $path;
 		} else {
-			$url = 'http://' . APP_HTTP_HOST;
+			$url = APP_PROTOCOL . APP_HTTP_HOST;
 			$url .= $path;
 		}
 		header("Location: $url");

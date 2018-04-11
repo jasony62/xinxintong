@@ -134,6 +134,10 @@
                 <div class='checkbox'>
                     <label>
                         <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="rule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.entryRule.group.id}}' target='_self'>{{app.entryRule.group.title}} - {{app.entryRule.group.round.title}}</a></span>中分组 <a ng-if="rule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a>
+                    <div style='margin-left:20px'>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-model="app.entryRule.group.optional" ng-change="changeUserScope('group')">不强制要求用户在分组活动中</label>
+                    </div>
                 </div>
             </div>
             <div class='form-group'>

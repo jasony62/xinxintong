@@ -40,6 +40,18 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     };
 }]);
 ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', function($scope, $sce, http2, LS, srvRound, $timeout) {
+    /* 是否可以对记录进行表态 */
+    function fnCanAgreeRecord(oRecord, oUser) {
+        if (oUser.is_leader) {
+            if (oUser.is_leader === 'S') {
+                return true;
+            }
+            if (oUser.is_leader === 'Y' && oUser.group_id === oRecord.group_id) {
+                return true;
+            }
+        }
+        return false;
+    }
     var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12 };
@@ -80,6 +92,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                     if (_coworkRequireLikeNum > oRecord.like_num) {
                         oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
                     }
+                    oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
                     $scope.repos.push(oRecord);
                 });
             }

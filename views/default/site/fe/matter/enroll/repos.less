@@ -122,7 +122,7 @@ img {
 
             .nickname {
                 flex-grow: 1;
-                text-align: right;
+                text-align: left;
                 font-size: .9em;
             }
 
@@ -159,9 +159,11 @@ img {
 
         .bottom-bar {
             display: flex;
+            font-size: .9em;
+            color: #777;
 
             &>*+* {
-                margin-left: 8px;
+                margin-left: 16px;
 
                 .like {
                     color: @brand-primary;
@@ -171,8 +173,11 @@ img {
 
             .datetime {
                 flex: 1;
-                line-height: 30px;
-                font-size: .8em;
+            }
+
+            a {
+                text-decoration: none;
+                color: #777;
             }
 
         }
@@ -234,7 +239,7 @@ img {
 
     #filterCriteria {
         margin-left: -1px;
-        margin-right: -2px;
+        margin-right: -1px;
 
         .form-control, .input-group-btn .btn {
             border-radius: 0;

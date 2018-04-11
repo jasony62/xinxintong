@@ -854,7 +854,7 @@ class record extends base {
 	 */
 	public function agree_action($ek, $value = '') {
 		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,aid,rid,enroll_key,userid,agreed,agreed_log']);
+		$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,aid,rid,enroll_key,userid,group_id,agreed,agreed_log']);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -888,6 +888,29 @@ class record extends base {
 		$beforeValue = $oRecord->agreed;
 		if ($beforeValue === $value) {
 			return new \ParameterError('不能重复设置推荐状态');
+		}
+
+		/* 检查推荐数量限制 */
+		if ($value === 'Y') {
+			if (!empty($oApp->actionRule->leader->record->agree->end)) {
+				/* 当前轮次，当前组已经提交的记录数 */
+				$oRule = $oApp->actionRule->leader->record->agree->end;
+				if (!empty($oRule->max)) {
+					$oCriteria = new \stdClass;
+					$oCriteria->record = new \stdClass;
+					$oCriteria->record->group_id = $oRecord->group_id;
+					$oCriteria->record->agreed = 'Y';
+					$oResult = $modelRec->byApp($oApp, ['fields' => 'id'], $oCriteria);
+					if ((int) $oResult->total >= (int) $oRule->max) {
+						$desc = empty($oRule->desc) ? ('每轮次每组最多允许推荐【' . $oRule->max . '条】记录（问题）') : $oRule->desc;
+						if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+							$desc .= '，';
+						}
+						$desc .= '已经推荐【' . $oResult->total . '条】。';
+						return new \ResponseError($desc);
+					}
+				}
+			}
 		}
 		/**
 		 * 更新记录数据

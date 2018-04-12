@@ -38,6 +38,7 @@ class link_model extends base_model {
 			if ($oLink->mission_id) {
 				$oLink->mission = $this->model('matter\mission')->byId($oLink->mission_id);
 			}
+			$oLink->entryUrl = $this->getEntryUrl($oLink->siteid, $oLink->id);
 		}
 
 		return $oLink;
@@ -71,7 +72,7 @@ class link_model extends base_model {
 	/**
 	 *
 	 */
-	public function getEntryUrl($siteId, $id, $openid = null, $call = null) {
+	public function getEntryUrl($siteId, $id, $openid = null, $call = null, $matter = '') {
 		if (isset($matter->urlsrc)) {
 			/**
 			 * link
@@ -125,7 +126,13 @@ class link_model extends base_model {
 				die('unknown link urlsrc.');
 			}
 		} else {
-			$url = "http://" . APP_HTTP_HOST . "/rest/site/fe/matter/link";
+			$matter = $this->byId($id);
+			if ($matter->urlsrc == 0 && $matter->embedded === 'Y' && (strpos($matter->url, 'https') === false)) {
+				$url = 'http://' . APP_HTTP_HOST . "/rest/site/fe/matter/link";
+			} else {
+				$url = APP_PROTOCOL . APP_HTTP_HOST . "/rest/site/fe/matter/link";
+			}
+			
 			$url .= "?site=$siteId&id=$id&type=" . $this->getTypeName();
 
 			return $url;

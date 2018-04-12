@@ -36,7 +36,7 @@ ngApp.controller('ctrlProduct', ['$scope', 'http2', '$location', function($scope
         http2.get('/rest/pl/fe/matter/merchant/product/get?product=' + $scope.productId, function(rsp) {
             var url;
             $scope.editing = rsp.data;
-            url = 'http://' + location.host;
+            url = location.protocol + '//' + location.host;
             url += "/rest/site/fe/matter/merchant/product";
             url += "?site=" + $scope.siteId;
             url += "&shop=" + $scope.shopId;

@@ -2,7 +2,19 @@
 require('./action.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlAction', ['$scope', '$sce', 'tmsLocation', 'http2', function($scope, $sce, LS, http2) {
+ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', function($scope, $q, LS, http2) {
+    function fnCloseNotice(oNotice) {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('notice/close', 'site', 'app');
+        url += '&notice=' + oNotice.id;
+        http2.get(url).then(function(rsp) {
+            $scope.notices.splice($scope.notices.indexOf(oNotice), 1);
+            defer.resolve();
+        });
+        return defer.promise;
+    }
+
     var _oApp, _aLogs, _oPage, _oFilter;
     $scope.page = _oPage = {
         at: 1,
@@ -11,30 +23,57 @@ ngApp.controller('ctrlAction', ['$scope', '$sce', 'tmsLocation', 'http2', functi
             return 'page=' + this.at + '&size=' + this.size;
         }
     };
-    $scope.filter = _oFilter = { scope: 'A' };
-    $scope.search = function(pageAt) {
-        var url;
+    $scope.filter = _oFilter = { scope: 'N' };
+    $scope.searchEvent = function(pageAt) {
+        var url, defer;
         pageAt && (_oPage.at = pageAt);
+        defer = $q.defer();
         url = LS.j('event/timeline', 'site', 'app');
         url += '&scope=' + _oFilter.scope || 'A';
         url += '&' + _oPage.j();
         http2.get(url).then(function(rsp) {
             $scope.logs = _aLogs = rsp.data.logs;
             _oPage.total = rsp.data.total;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
+    $scope.searchNotice = function(pageAt) {
+        var url, defer;
+        pageAt && (_oPage.at = pageAt);
+        defer = $q.defer();
+        url = LS.j('notice/list', 'site', 'app');
+        url += '&' + _oPage.j();
+        http2.get(url).then(function(rsp) {
+            $scope.notices = rsp.data.notices;
+            _oPage.total = rsp.data.total;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
+    $scope.closeNotice = function(oNotice, bGotoCowork) {
+        fnCloseNotice(oNotice).then(function() {
+            if (bGotoCowork) {
+                $scope.gotoCowork(oNotice.enroll_key);
+            }
         });
     };
-    $scope.gotoRemark = function(oLog) {
+    $scope.gotoCowork = function(ek) {
         var url;
-        if (oLog.enroll_key) {
+        if (ek) {
             url = LS.j('', 'site', 'app');
-            url += '&ek=' + oLog.enroll_key;
-            url += '&page=remark';
+            url += '&ek=' + ek;
+            url += '&page=cowork';
             location.href = url;
         }
     };
     $scope.$watch('filter', function(nv, ov) {
         if (nv && nv !== ov) {
-            $scope.search(1);
+            if (/N/.test(nv.scope)) {
+                $scope.searchNotice(1);
+            } else {
+                $scope.searchEvent(1);
+            }
         }
     }, true)
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
@@ -65,6 +104,11 @@ ngApp.controller('ctrlAction', ['$scope', '$sce', 'tmsLocation', 'http2', functi
         if (Object.keys(oAppNavs)) {
             $scope.appNavs = oAppNavs;
         }
-        $scope.search(1);
+        $scope.searchNotice(1).then(function(data) {
+            if (data.total === 0) {
+                $scope.filter.scope = 'A';
+                //$scope.searchEvent(1);
+            }
+        });
     });
 }]);

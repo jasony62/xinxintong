@@ -40,14 +40,27 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     };
 }]);
 ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', function($scope, $sce, http2, LS, srvRound, $timeout) {
+    /* 是否可以对记录进行表态 */
+    function fnCanAgreeRecord(oRecord, oUser) {
+        if (oUser.is_leader) {
+            if (oUser.is_leader === 'S') {
+                return true;
+            }
+            if (oUser.is_leader === 'Y' && oUser.group_id === oRecord.group_id) {
+                return true;
+            }
+        }
+        return false;
+    }
     var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12 };
-    $scope.criteria = _oCriteria = { creator: 'all' };
+    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' };
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.recordList = function(pageAt) {
         var url;
+        _oPage.total = 0;
         if (pageAt) {
             _oPage.at = pageAt;
         } else {
@@ -79,6 +92,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                     if (_coworkRequireLikeNum > oRecord.like_num) {
                         oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
                     }
+                    oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
                     $scope.repos.push(oRecord);
                 });
             }
@@ -97,14 +111,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         var url;
         url = LS.j('', 'site', 'app');
         url += '&ek=' + oRecord.enroll_key;
-        url += '&page=remark#remarks';
+        url += '&page=cowork#remarks';
         location.href = url;
     };
     $scope.coworkRecord = function(oRecord) {
         var url;
         url = LS.j('', 'site', 'app');
         url += '&ek=' + oRecord.enroll_key;
-        url += '&page=remark';
+        url += '&page=cowork';
         url += '#cowork';
         location.href = url;
     };
@@ -141,6 +155,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         $scope.recordList(1);
     };
     $scope.shiftOwner = function() {
+        $scope.recordList(1);
+    };
+    $scope.shiftAgreed = function(agreed) {
+        _oCriteria.agreed = agreed;
+        $scope.recordList(1);
+    };
+    $scope.shiftOrderby = function(orderby) {
+        _oCriteria.orderby = orderby;
         $scope.recordList(1);
     };
     $scope.shiftDir = function(oDir) {
@@ -225,6 +247,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
             oAppNavs.rank = {};
         }
         if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
+            /* 设置活动事件提醒 */
+            http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
+                $scope.noticeCount = rsp.data;
+            });
             oAppNavs.action = {};
         }
         if (Object.keys(oAppNavs).length) {

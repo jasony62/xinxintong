@@ -27,7 +27,7 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 用户A点评别人的填写数据
 	 */
-	const DoRemarkEventName = 'site.matter.enroll.data.do.remark';
+	const DoRemarkEventName = 'site.matter.enroll.do.remark';
 	/**
 	 * 用户A填写数据被赞同
 	 */
@@ -727,6 +727,44 @@ class event_model extends \TMS_MODEL {
 		return $oUpdatedUsrData;
 	}
 	/**
+	 * 更新留言
+	 */
+	public function updateRemark($oApp, $oRemark, $oOperator) {
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRemark->id;
+		$oTarget->type = 'remark';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoRemarkEventName;
+		$oEvent->op = 'Upd';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = 0;
+
+		$this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent);
+	}
+	/**
+	 * 撤销留言
+	 */
+	public function removeRemark($oApp, $oRemark, $oOperator) {
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRemark->id;
+		$oTarget->type = 'remark';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoRemarkEventName;
+		$oEvent->op = 'Del';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = 0;
+
+		$this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent);
+	}
+	/**
 	 * 赞同填写记录
 	 * 同一条记录只有第一次点赞时才给积分奖励
 	 */
@@ -964,7 +1002,7 @@ class event_model extends \TMS_MODEL {
 		$eventAt = time();
 		/* 记录事件日志 */
 		$oTarget = new \stdClass;
-		$oTarget->id = $oRecord->id;
+		$oTarget->id = $oRecData->id;
 		$oTarget->type = 'record.data';
 		//
 		$oEvent = new \stdClass;
@@ -974,9 +1012,9 @@ class event_model extends \TMS_MODEL {
 		$oEvent->user = $oOperator;
 		//
 		$oOwnerEvent = new \stdClass;
-		$oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
 
-		$oLog = $this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+		$oLog = $this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 
 		/* 更新被撤销的事件 */
 		$this->update(

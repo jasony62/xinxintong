@@ -23,12 +23,12 @@ class signin_model extends enroll_base {
 		if ($siteId === 'platform') {
 			$oApp = $this->byId($id, ['cascaded' => 'N', 'fields' => 'id,siteid']);
 			if (false === $oApp) {
-				return 'http://' . APP_HTTP_HOST . '/404.html';
+				return APP_PROTOCOL . APP_HTTP_HOST . '/404.html';
 			}
 			$siteId = $oApp->siteid;
 		}
 
-		$url = 'http://' . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= '/rest/site/fe/matter/signin';
 		$url .= "?site={$siteId}&app=" . $id;
 		if (!empty($roundId)) {
@@ -41,7 +41,7 @@ class signin_model extends enroll_base {
 	 * 签到活动的汇总展示链接
 	 */
 	public function getOpUrl($siteId, $id) {
-		$url = 'http://' . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= '/rest/site/op/matter/signin';
 		$url .= "?site={$siteId}&app=" . $id;
 

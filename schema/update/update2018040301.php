@@ -1,11 +1,9 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
+$sqls = [];
 //
-$sqls[] = "alter table xxt_site_member_schema add at_user_home char(1) not null default 'N'";
-//
-$sqls[] = "update xxt_site_member_schema set at_user_home='Y'";
+$sqls[] = "ALTER TABLE xxt_short_url_token change code code varchar(40) not null";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

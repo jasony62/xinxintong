@@ -51,17 +51,19 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.quitMission = function() {
-            var oApp = $scope.app,
-                matter = {
-                    id: oApp.id,
-                    type: 'group',
-                    title: oApp.title
-                };
-            http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteid + '&id=' + oApp.mission_id, matter, function(rsp) {
-                delete oApp.mission;
-                oApp.mission_id = null;
-                srvGroupApp.update(['mission_id']);
-            });
+            if (window.confirm('确定将[' + $scope.app.title + ']从项目中移除？')) {
+                var oApp = $scope.app,
+                    matter = {
+                        id: oApp.id,
+                        type: 'group',
+                        title: oApp.title
+                    };
+                http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteid + '&id=' + oApp.mission_id, matter, function(rsp) {
+                    delete oApp.mission;
+                    oApp.mission_id = 0;
+                    srvGroupApp.update(['mission_id']);
+                });
+            }
         };
         $scope.tagMatter = function(subType) {
             var oTags;
@@ -77,7 +79,7 @@ define(['frame'], function(ngApp) {
             targetUrl = app.opUrl;
             srvQuickEntry.get(targetUrl).then(function(entry) {
                 if (entry) {
-                    opEntry.url = 'http://' + location.host + '/q/' + entry.code;
+                    opEntry.url = location.protocol + '//' + location.host + '/q/' + entry.code;
                     opEntry.password = entry.password;
                     opEntry.code = entry.code;
                     opEntry.can_favor = entry.can_favor;
@@ -88,7 +90,7 @@ define(['frame'], function(ngApp) {
             srvQuickEntry.add(targetUrl, $scope.app.title).then(function(task) {
                 $scope.app.op_short_url_code = task.code;
                 srvGroupApp.update('op_short_url_code');
-                opEntry.url = 'http://' + location.host + '/q/' + task.code;
+                opEntry.url = location.protocol + '//' + location.host + '/q/' + task.code;
                 opEntry.code = task.code;
             });
         };

@@ -3,12 +3,24 @@
 
 <head>
     <meta charset="utf-8">
-    <title><?php TPL::pt('title');?></title>
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
     <meta content="width=device-width,user-scalable=yes" name="viewport">
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body{background-color:#EEE;font-family:Microsoft Yahei,Arial}
-        .form{position:absolute;width:300px;left:50%;margin-left:-150px;top:140px}
+    body {
+        background-color: #EEE;
+        font-family: Microsoft Yahei, Arial
+    }
+
+    .form {
+        position: absolute;
+        width: 300px;
+        left: 50%;
+        margin-left: -150px;
+        top: 140px
+    }
     </style>
 </head>
 
@@ -27,8 +39,8 @@
     </div>
     <script>
     if (history) {
-        var url = 'http://' + location.host + '/rest/q' + location.search; 
-        url += '&favor=Y'; 
+        var url = location.protocol + '//' + location.host + '/rest/q' + location.search;
+        url += '&favor=Y';
         history.pushState({}, '收藏', url);
     }
     </script>

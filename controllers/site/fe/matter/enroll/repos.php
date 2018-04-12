@@ -278,8 +278,18 @@ class repos extends base {
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
-		$oOptions->orderby = ['agreed', 'like_num'];
 		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
+
+		if (!empty($oPosted->orderby)) {
+			switch ($oPosted->orderby) {
+			case 'earliest':
+				$oOptions->orderby = ['enroll_at asc'];
+				break;
+			case 'mostliked':
+				$oOptions->orderby = ['like_num', 'enroll_at'];
+				break;
+			}
+		}
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
@@ -305,10 +315,13 @@ class repos extends base {
 				$oCriteria->record->group_id = $oPosted->userGroup;
 			}
 		}
-
 		/* 记录的创建人 */
-		if (!empty($oPosted->creator) && $oPosted->creator !== 'all') {
-			$oCriteria->record->user_id = $oPosted->creator;
+		if (!empty($oPosted->creator)) {
+			$oCriteria->record->userid = $oUser->uid;
+		}
+		/* 记录的表态 */
+		if (!empty($oPosted->agreed) && $oPosted->agreed !== 'all') {
+			$oCriteria->record->agreed = $oPosted->agreed;
 		}
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
@@ -352,7 +365,7 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value']);
+								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
 								$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
 								if ($coworkReposLikeNum) {
 									$reposItems = [];
@@ -416,7 +429,7 @@ class repos extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,agreed,data';
+		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,rec_remark_num,agreed,data';
 		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();

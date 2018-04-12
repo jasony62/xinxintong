@@ -9,7 +9,7 @@ define(['frame'], function(ngApp) {
         $scope.$parent.subView = 'page';
         $scope.$watch('wall', function(nv) {
             if (nv) {
-                $scope.url = 'http://' + location.host + '/rest/site/op/matter/wall?site=' + $scope.siteId + '&wall=' + nv.id;
+                $scope.url = location.protocol + '//' + location.host + '/rest/site/op/matter/wall?site=' + $scope.siteId + '&wall=' + nv.id;
             }
         });
         //显示信息

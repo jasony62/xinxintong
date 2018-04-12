@@ -78,7 +78,7 @@ define(['require'], function() {
         });
         http2.get('/rest/pl/fe/matter/link/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
             $scope.editing = rsp.data;
-            $scope.entryUrl = 'http://' + location.host + '/rest/site/fe/matter/link?site=' + $scope.siteId + '&id=' + $scope.id;
+            $scope.entryUrl = rsp.data.entryUrl;
         });
     }]);
     /***/

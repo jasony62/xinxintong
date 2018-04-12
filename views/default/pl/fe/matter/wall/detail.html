@@ -131,6 +131,7 @@
                             <option value='16'>16</option>
                             <option value='20'>20</option>
                             <option value='24'>24</option>
+                            <option value='48'>48</option>
                         </select>
                     </div>
                 </div>
@@ -147,7 +148,7 @@
                     </ul>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='interact'">
-                    <label>分享素材的二维码（建议尺寸：250像素*268像素；数量上限：3个）</label>
+                    <label>分享素材的二维码（建议尺寸：360像素*213像素；数量上限：3个）</label>
                     <ul class="img-tiles clearfix">
                         <li wrap="img" ng-repeat="img in wall.matters_img" class="img-thumbnail" title="图片">
                             <img ng-src='{{img.qrcodesrc}}' style="width:100%;height:134px;left:0px;top: 50%margin-top: -68px;" />
@@ -160,7 +161,7 @@
                     </ul>
                 </div>
                 <div class='form-group' ng-if="wall.scenario=='interact'">
-                    <label>宝箱底图（建议尺寸：260像素*380像素；数量：4张）</label>
+                    <label>宝箱底图（建议尺寸：290像素*420像素；数量上限：4张）</label>
                     <ul class="img-tiles boxImg clearfix">
                         <li wrap="img" ng-repeat="img in wall.result_img" class="img-thumbnail" title="图片">
                             <img ng-src='{{img.imgsrc}}' style="width:100%;height:210px;left:0px;top: 50%margin-top: -105px;" />

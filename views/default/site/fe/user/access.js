@@ -116,7 +116,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
     $scope.refreshPin = function() {
         var time = new Date().getTime(),
             url = '/rest/site/fe/user/login/getCaptcha?site=platform&codelen=4&width=130&height=34&fontsize=20';
-        $scope.pinImg = url + '&' + time;
+        $scope.pinImg = url + '&_=' + time;
     };
     $http.get('/rest/site/fe/get?site=' + _siteId).success(function(rsp) {
         $scope.site = rsp.data;

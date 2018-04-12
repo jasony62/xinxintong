@@ -1,0 +1,236 @@
+@import "../../../../../../static/less/site.fe.base.less";
+
+img {
+	max-width: 100%
+}
+
+@media screen and (max-width:768px) {
+	.site-navbar-default {
+		margin-bottom: 0;
+	}
+
+}
+
+hr {
+	margin: 12px 0 12px;
+}
+
+blockquote {
+	font-size: 16px;
+}
+
+button.option {
+	padding: 0;
+}
+
+.glyphicon.like {
+	color: @brand-primary;
+}
+
+.dropdown-menu {
+	min-width: auto;
+}
+
+.modal.model-remark {
+	.modal-dialog {
+		width: 900px;
+		left: 50%;
+		margin-left: -450px;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+
+		.modal-content {
+			height: 100%;
+
+			.modal-body {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				overflow: auto;
+
+				>div {
+					position: absolute;
+					top: 8px;
+					bottom: 8px;
+					left: 8px;
+					right: 8px;
+					display: flex;
+					flex-direction: column;
+				}
+
+			}
+
+		}
+
+	}
+
+}
+
+@media screen and (max-width:768px) {
+	.modal.model-remark .modal-dialog {
+		width: 100%;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		margin-left: 0;
+	}
+
+}
+
+.top-bar {
+	&>*+* {
+		margin-left: 8px;
+	}
+
+}
+
+.bottom-bar {
+	font-size: 14px;
+	color: #777;
+
+	&>*+* {
+		margin-left: 16px;
+	}
+
+	a {
+		color: #777;
+		text-decoration: none;
+	}
+
+}
+
+p {
+	word-break: break-all;
+}
+
+/*record*/
+#record, #cowork, #remarks {
+	padding: 16px;
+	background: #fff;
+}
+
+#record .title {
+	margin: 0 -1rem .5rem -1rem;
+	background: #ddd;
+	padding: .5rem 1rem;
+	border-bottom: 1px solid #ccc;
+}
+
+#record .title .dropdown-menu {
+	right: 0;
+	left: auto;
+	min-width: auto;
+}
+
+#record .top-bar {
+	display: flex;
+
+	.nickname {
+		flex-grow: 1;
+	}
+
+	.label {
+		padding: .3em .6em;
+	}
+
+}
+
+#record .data blockquote>div+div {
+	margin-top: 8px;
+}
+
+#record .data .data-title:before, #cowork .data-title:before {
+	content: ' ';
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	border-top: 6px solid #fff;
+	border-right: 6px solid #fff;
+	border-bottom: 6px solid #fff;
+	border-left: 6px solid @brand-primary;
+}
+
+/*remark*/
+#cowork, #remarks {
+	position: relative;
+	margin-top: 3rem;
+}
+
+#cowork:before {
+	content: '协作';
+	position: absolute;
+	left: 50%;
+	margin-left: -1em;
+	top: -2em;
+	font-size: .7em;
+	color: #eee;
+	padding: .2em 1em;
+	background: #666;
+	border-radius: 1em;
+}
+
+#cowork {
+	.item {
+		position: relative;
+	}
+
+}
+
+#remarks {
+	&:before {
+		content: '留言';
+		position: absolute;
+		left: 50%;
+		margin-left: -1em;
+		top: -2em;
+		font-size: .7em;
+		color: #eee;
+		padding: .2em 1em;
+		background: #666;
+		border-radius: 1em;
+	}
+
+	.remarkList {
+		background: #fff;
+		min-height: 167px;
+		margin-bottom: 30px;
+	}
+
+	.remark {
+		position: relative;
+		background: #fff;
+		border-bottom: 1px solid #ddd;
+		transition: background 1s;
+		padding: 8px 0;
+	}
+
+	.remark:last-child {
+		border-bottom: 0;
+	}
+
+	.remark>* {
+		margin: 1em 0 .2em;
+	}
+
+	.remark.blink {
+		background: #d9edf7;
+	}
+
+	.form-control {
+		border-radius: 0;
+	}
+
+}
+
+.tag {
+	background: #3af;
+	padding: 4px 6px;
+	margin: 4px;
+	border-radius: 2px;
+	font-size: .8em;
+	color: #fff;
+}

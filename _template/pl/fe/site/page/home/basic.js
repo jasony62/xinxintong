@@ -12,26 +12,30 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             return '&page=' + this.at + '&size=' + this.size;
         }
     }
+
     function listTemplates() {
         $http.get('/rest/site/home/listTemplate?site=' + siteId).success(function(rsp) {
             $scope.templates = rsp.data;
         });
     }
+
     function tagMatters() {
         $http.get('/rest/pl/fe/matter/tag/listTags?site=' + siteId + '&subType=C').success(function(rsp) {
             $scope.oTagsC = rsp.data;
         });
     }
+
     function dealImgSrc(matter) {
-        if(Object.keys(matter).indexOf('pic')!==-1&&matter.pic==null) {
+        if (Object.keys(matter).indexOf('pic') !== -1 && matter.pic == null) {
             matter.src = matter.pic = '';
-        }else if(Object.keys(matter).indexOf('thumbnail')!==-1&&matter.thumbnail==null){
+        } else if (Object.keys(matter).indexOf('thumbnail') !== -1 && matter.thumbnail == null) {
             matter.src = matter.thumnail = '';
-        }else {
+        } else {
             matter.src = matter.pic ? matter.pic : matter.thumbnail;
         }
         return matter;
     }
+
     function c_listChannels() {
         $scope.c_prev_channels = [], $scope.c_next_channels = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=C').success(function(rsp) {
@@ -66,6 +70,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             });
         });
     }
+
     function r_listChannels() {
         $scope.r_prev_channels = [], $scope.r_next_channels = [], $scope.channelMatters = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=R').success(function(rsp) {
@@ -112,7 +117,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
+            tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsFavor.open(matter);
             });
@@ -125,7 +130,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         event.stopPropagation();
 
         if (!user.loginExpire) {
-            tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
+            tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/login?site=' + siteId).then(function(data) {
                 user.loginExpire = data.loginExpire;
                 tmsForward.open(matter);
             });
@@ -145,6 +150,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
             _loadAll();
         }
     };
+
     function _loadAll() {
         tagMatters();
         listTemplates();

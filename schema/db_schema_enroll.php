@@ -65,6 +65,7 @@ $sql .= ",rp_config text null"; // 统计报告页面用户选择的标识信息
 $sql .= ",rank_config text null"; // 排行榜页面设置信息
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",absent_cause text null";
+$sql .= ",wxacode_url text null"; // 参与规则
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -155,6 +156,7 @@ $sql .= ",tags text null";
 $sql .= ",data_tag text null";
 $sql .= ",comment text null";
 $sql .= ",remark_num int not null default 0"; // 留言数
+$sql .= ",rec_remark_num int not null default 0"; // 留言数
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",referrer text null"; // should be removed
 $sql .= ",data longtext null"; // 登记的数据项
@@ -228,6 +230,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_enroll_record_remark(";
 $sql .= "id int not null auto_increment";
+$sql .= ",seq_in_record int not null default 0"; // 留言在记录中的序号
+$sql .= ",seq_in_data int not null default 0"; // 留言在数据中的序号
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''";
@@ -238,16 +242,19 @@ $sql .= ",group_id varchar(32) not null default ''"; // 发表留言的人所属
 $sql .= ",userid varchar(40) not null default ''"; // 发表留言的人
 $sql .= ",user_src char(1) not null default 'S'"; // 用户来源团队用户账号（Platform）或个人用户账号（Site）；没用了，userid已经统一了
 $sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",create_at int";
+$sql .= ",create_at int not null";
+$sql .= ",modify_at int not null default 0";
 $sql .= ",content text null";
 $sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的留言
 $sql .= ",data_id int not null default 0"; // xxt_enroll_record_data的id
 $sql .= ",remark_id int not null default 0"; // 是对哪条留言进行的留言
+$sql .= ",remark_num int not null default 0"; // 留言数
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
+$sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -344,6 +351,29 @@ $sql .= ",owner_userid varchar(40) not null default ''"; // 受到操作影响�
 $sql .= ",owner_nickname varchar(255) not null default ''"; // 受到操作影响的用户昵称
 $sql .= ",owner_earn_coin int not null default 0"; // 获得的积分奖励
 $sql .= ",undo_event_id int not null default 0"; // 产生的结果是否已经被其他事件撤销
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+//
+$sql = "create table if not exists xxt_enroll_notice(";
+$sql .= "id bigint not null auto_increment";
+$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null default ''";
+$sql .= ",enroll_key varchar(32) not null";
+$sql .= ",userid varchar(40) not null default ''"; // 被通知的用户
+$sql .= ",nickname varchar(255) not null default ''"; // 被通知的用户的昵称
+$sql .= ",notice_reason varchar(255) not null default ''"; // 被通知的原因
+$sql .= ",event_userid varchar(40) not null default ''"; // 发起事件的用户
+$sql .= ",event_nickname varchar(255) not null default ''"; // 发起事件的用户昵称
+$sql .= ",event_target_id int not null"; // 事件操作的对象
+$sql .= ",event_target_type varchar(20) not null"; // 事件操作的对象的类型
+$sql .= ",event_name varchar(255) not null default ''"; // 事件名称
+$sql .= ",event_op varchar(10) not null default ''"; // 事件操作
+$sql .= ",event_at int not null";
+$sql .= ",state tinyint not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

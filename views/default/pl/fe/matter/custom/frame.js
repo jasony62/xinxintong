@@ -49,7 +49,7 @@ ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', 'srvSite', funct
                 });
             });
         }
-        url = 'http://' + location.host + '/rest/site/fe/matter?site=' + ls.site + '&id=' + ls.id + '&type=custom';
+        url = location.protocol + '//' + location.host + '/rest/site/fe/matter?site=' + ls.site + '&id=' + ls.id + '&type=custom';
         $scope.entry = {
             url: url,
             qrcode: '/rest/site/fe/matter/article/qrcode?site=' + ls.site + '&url=' + encodeURIComponent(url),

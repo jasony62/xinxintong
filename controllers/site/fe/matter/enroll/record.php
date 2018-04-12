@@ -280,6 +280,10 @@ class record extends base {
 		/* 处理用户汇总数据，积分数据 */
 		$oRecord = $modelRec->byId($ek);
 		$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
+		/* 生成提醒 */
+		if ($bSubmitNewRecord) {
+			$this->model('matter\enroll\notice')->addRecord($oEnrollApp, $oRecord, $oUser);
+		}
 
 		/* 记录操作日志 */
 		$oOperation = new \stdClass;
@@ -456,7 +460,7 @@ class record extends base {
 		$noticeURL = $modelQurl->urlByUrl($oApp->siteid, $appURL);
 		/* 模板消息参数 */
 		$params = new \stdClass;
-		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.submit');
+		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.submit', ['onlySite' => false]);
 		if ($notice === false) {
 			return false;
 		}
@@ -753,20 +757,45 @@ class record extends base {
 		$oUser = $this->getUser($oApp);
 
 		/* 检查是否满足了点赞的前置条件 */
-		if (!empty($oApp->actionRule->record->like->pre->record->num)) {
+		if (!empty($oApp->actionRule->record->like->pre)) {
 			/* 当前轮次，当前组已经提交的记录数 */
 			$oRule = $oApp->actionRule->record->like->pre;
-			$oCriteria = new \stdClass;
-			$oCriteria->record = new \stdClass;
-			$oCriteria->record->group_id = $oRecord->group_id;
-			$oResult = $modelRec->byApp($oApp, ['fields' => 'id'], $oCriteria);
-			if ((int) $oResult->total < (int) $oRule->record->num) {
-				$desc = empty($oRule->desc) ? ('提交【' . $oRule->record->num . '条】记录后开启点赞（投票）') : $oRule->desc;
-				if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
-					$desc .= '，';
+			if (!empty($oRule->record->num)) {
+				$oCriteria = new \stdClass;
+				$oCriteria->record = new \stdClass;
+				$oCriteria->record->group_id = $oRecord->group_id;
+				$oResult = $modelRec->byApp($oApp, ['fields' => 'id'], $oCriteria);
+				if ((int) $oResult->total < (int) $oRule->record->num) {
+					$desc = empty($oRule->desc) ? ('提交【' . $oRule->record->num . '条】记录后开启点赞（投票）') : $oRule->desc;
+					if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+						$desc .= '，';
+					}
+					$desc .= '还需提交【' . ((int) $oRule->record->num - (int) $oResult->total) . '条】记录。';
+					return new \ResponseError($desc);
 				}
-				$desc .= '还需提交【' . ((int) $oRule->record->num - (int) $oResult->total) . '条】记录。';
-				return new \ResponseError($desc);
+			}
+			if (!empty($oRule->record->submit->end)) {
+				if (!empty($oApp->actionRule->record->submit->end->time)) {
+					$oTimeRule = $oApp->actionRule->record->submit->end->time;
+					if (!empty($oTimeRule->mode) && !empty($oTimeRule->unit) && !empty($oTimeRule->value)) {
+						if ($oTimeRule->mode === 'after_round_start_at') {
+							if ($oTimeRule->unit === 'hour') {
+								$oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp);
+								if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
+									if (((int) $oActiveRnd->start_at + ($oTimeRule->value * 3600)) > time()) {
+										$desc = empty($oRule->desc) ? ('提交记录结束后开启点赞（投票）') : $oRule->desc;
+										if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+											$desc .= '，';
+										}
+										$endDate = date('y-m-j H:i', (int) $oActiveRnd->start_at + ($oTimeRule->value * 3600));
+										$desc .= '结束时间【' . $endDate . '】。';
+										return new \ResponseError($desc);
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -825,7 +854,7 @@ class record extends base {
 	 */
 	public function agree_action($ek, $value = '') {
 		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,aid,rid,enroll_key,userid,agreed,agreed_log']);
+		$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,aid,rid,enroll_key,userid,group_id,agreed,agreed_log']);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -859,6 +888,29 @@ class record extends base {
 		$beforeValue = $oRecord->agreed;
 		if ($beforeValue === $value) {
 			return new \ParameterError('不能重复设置推荐状态');
+		}
+
+		/* 检查推荐数量限制 */
+		if ($value === 'Y') {
+			if (!empty($oApp->actionRule->leader->record->agree->end)) {
+				/* 当前轮次，当前组已经提交的记录数 */
+				$oRule = $oApp->actionRule->leader->record->agree->end;
+				if (!empty($oRule->max)) {
+					$oCriteria = new \stdClass;
+					$oCriteria->record = new \stdClass;
+					$oCriteria->record->group_id = $oRecord->group_id;
+					$oCriteria->record->agreed = 'Y';
+					$oResult = $modelRec->byApp($oApp, ['fields' => 'id'], $oCriteria);
+					if ((int) $oResult->total >= (int) $oRule->max) {
+						$desc = empty($oRule->desc) ? ('每轮次每组最多允许推荐【' . $oRule->max . '条】记录（问题）') : $oRule->desc;
+						if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+							$desc .= '，';
+						}
+						$desc .= '已经推荐【' . $oResult->total . '条】。';
+						return new \ResponseError($desc);
+					}
+				}
+			}
 		}
 		/**
 		 * 更新记录数据

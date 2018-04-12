@@ -29,6 +29,9 @@ utilSchema.checkFormat = function(oSchema, value) {
             return '题目［' + oSchema.title + '］请输入数值';
         }
     } else if (oSchema.format === 'name') {
+        if(/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入字母或者汉字，并不少于2个字符';
+        }
         if (value.length < 2) {
             return '题目［' + oSchema.title + '］请输入正确的姓名（不少于2个字符）';
         }

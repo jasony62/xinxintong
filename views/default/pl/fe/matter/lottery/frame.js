@@ -162,16 +162,16 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
             award._type = $scope.awardTypes[award.type].n;
             award._period = $scope.awardPeriods[award.period].n;
         });
-        if(app.matter_mg_tag !== ''){
-             app.matter_mg_tag.forEach(function(cTag,index){
-                $scope.oTag.forEach(function(oTag){
-                    if(oTag.id === cTag){
+        if (app.matter_mg_tag !== '') {
+            app.matter_mg_tag.forEach(function(cTag, index) {
+                $scope.oTag.forEach(function(oTag) {
+                    if (oTag.id === cTag) {
                         app.matter_mg_tag[index] = oTag;
                     }
                 });
             });
         }
         $scope.app = app;
-        $scope.url = 'http://' + location.host + '/rest/site/fe/matter/lottery?site=' + $scope.siteId + '&app=' + $scope.id;
+        $scope.url = location.protocol + '//' + location.host + '/rest/site/fe/matter/lottery?site=' + $scope.siteId + '&app=' + $scope.id;
     });
 }]);

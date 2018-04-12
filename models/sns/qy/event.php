@@ -8,7 +8,7 @@ class event_model extends \TMS_MODEL {
 	 *
 	 */
 	private function baseUrl() {
-		$url = "http://" . APP_HTTP_HOST;
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		//$port = $_SERVER["SERVER_PORT"];
 		//$port != '80' && $port != '443'  && $url .= ':' . $port;
 		return $url;

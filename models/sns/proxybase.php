@@ -73,7 +73,7 @@ class proxybase {
 	/**
 	 * 提交信息到公众号平台
 	 */
-	protected function httpPost($cmd, $posted, $newAccessToken = false) {
+	protected function httpPost($cmd, $posted, $newAccessToken = false, $rawResponse = false) {
 		$token = $this->accessToken($newAccessToken);
 		if ($token[0] === false) {
 			return $token;
@@ -94,9 +94,13 @@ class proxybase {
 		if (false === ($response = curl_exec($ch))) {
 			$err = curl_error($ch);
 			curl_close($ch);
-			return array(false, $err);
+			return [false, $err];
 		}
 		curl_close($ch);
+
+		if ($rawResponse) {
+			return [true, $response];
+		}
 
 		$response = preg_replace("/\\\\\w|\x{000f}/", '', $response);
 		$rst = json_decode($response);
@@ -105,17 +109,17 @@ class proxybase {
 				return $this->httpPost($cmd, $posted, true);
 			}
 			if ($rst->errcode !== 0) {
-				return array(false, $rst->errmsg . "($rst->errcode)");
+				return [false, $rst->errmsg . "($rst->errcode)"];
 			}
 		} else if (empty($rst)) {
 			if (strpos($response, '{') === 0) {
-				return array(false, 'json failed:' . $response);
+				return [false, 'json failed:' . $response];
 			} else {
-				return array(false, $response);
+				return [false, $response];
 			}
 		}
 
-		return array(true, $rst);
+		return [true, $rst];
 	}
 	/**
 	 * 将url的数据抓取到本地并保存在临时文件中返回

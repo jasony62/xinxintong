@@ -7,6 +7,18 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class remark extends base {
 	/**
+	 * 返回指定留言
+	 */
+	public function get_action($remark) {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,data_id,remark_id,content,modify_at']);
+		if (false === $oRemark && $oRemark->state !== '1') {
+			return new \ObjectNotFoundError('（1）访问的资源不可用');
+		}
+
+		return new \ResponseData($oRemark);
+	}
+	/**
 	 * 返回一条登记记录的所有留言
 	 */
 	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99) {
@@ -24,56 +36,32 @@ class remark extends base {
 		$oUser = $this->getUser($oApp);
 
 		$modelRem = $this->model('matter\enroll\remark');
-		$aOptions = [];
+		$aOptions = [
+			'fields' => 'id,seq_in_record,seq_in_data,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log',
+		];
 		if (!empty($data)) {
 			$aOptions['data_id'] = $data;
 		}
 
-		$result = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
-
-		return new \ResponseData($result);
-	}
-	/**
-	 * 返回多项填写题的所有留言
-	 */
-	public function listMultitext_action($ek, $schema, $page = 1, $size = 99) {
-		if (empty($schema)) {
-			return new \ResponseError('没有指定题目id');
-		}
-		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek, ['aid,state']);
-		if (false === $oRecord && $oRecord->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
-		if (false === $oApp && $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		$oUser = $this->getUser($oApp);
-
-		$oRecDatas = $this->model('matter\enroll\data')->getMultitext($ek, $schema, ['fields' => 'id,multitext_seq,agreed,value,like_num,like_log,remark_num,supplement,tag,multitext_seq']);
-
-		$aOptions = [];
-		if (count($oRecDatas)) {
-			$data_ids = [];
-			foreach ($oRecDatas as $oRecData) {
-				$data_ids[] = $oRecData->id;
+		$oResult = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
+		if (!empty($oResult->remarks)) {
+			$modelRecData = $this->model('matter\enroll\data');
+			foreach ($oResult->remarks as $oRemark) {
+				if (!empty($oRemark->data_id)) {
+					$oData = $modelRecData->byId($oRemark->data_id, ['fields' => 'id,schema_id,nickname,multitext_seq']);
+					$oRemark->data = $oData;
+				}
 			}
-			$aOptions['data_id'] = $data_ids;
 		}
 
-		$result = $this->model('matter\enroll\remark')->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
-
-		$result->data = $oRecDatas;
-
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 给指定的登记记录的添加留言
 	 * 进行留言操作的用户需满足进入活动规则的条件
 	 *
+	 * @param $ek 被留言的记录
+	 * @param $data 被留言的数据
 	 * @param $remark 被留言的留言
 	 *
 	 */
@@ -91,6 +79,13 @@ class remark extends base {
 			$oRecData = $modelRecData->byId($recDataId);
 			if (false === $oRecData && $oRecData->state !== '1') {
 				return new \ObjectNotFoundError();
+			}
+		}
+		if (!empty($remark)) {
+			$modelRem = $this->model('matter\enroll\remark');
+			$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,content,modify_at,modify_log']);
+			if (false === $oRemark && $oRemark->state !== '1') {
+				return new \ObjectNotFoundError('（1）访问的资源不可用');
 			}
 		}
 
@@ -114,40 +109,65 @@ class remark extends base {
 		$oUser = $this->getUser($oApp);
 
 		$current = time();
-		$oRemark = new \stdClass;
-		$oRemark->siteid = $oRecord->siteid;
-		$oRemark->aid = $oRecord->aid;
-		$oRemark->rid = $oRecord->rid;
-		$oRemark->userid = $oUser->uid;
-		$oRemark->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-		$oRemark->user_src = 'S';
-		$oRemark->nickname = $modelRec->escape($oUser->nickname);
-		$oRemark->enroll_key = $ek;
-		$oRemark->enroll_group_id = $oRecord->group_id;
-		$oRemark->enroll_userid = $oRecord->userid;
-		$oRemark->schema_id = isset($oRecData) ? $oRecData->schema_id : '';
-		$oRemark->data_id = empty($recDataId) ? 0 : $recDataId;
-		$oRemark->remark_id = $remark;
-		$oRemark->create_at = $current;
-		$oRemark->content = $modelRec->escape($oPosted->content);
+		$oNewRemark = new \stdClass;
+		$oNewRemark->siteid = $oRecord->siteid;
+		$oNewRemark->aid = $oRecord->aid;
+		$oNewRemark->rid = $oRecord->rid;
+		$oNewRemark->userid = $oUser->uid;
+		$oNewRemark->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+		$oNewRemark->user_src = 'S';
+		$oNewRemark->nickname = $modelRec->escape($oUser->nickname);
+		$oNewRemark->enroll_key = $ek;
+		$oNewRemark->enroll_group_id = $oRecord->group_id;
+		$oNewRemark->enroll_userid = $oRecord->userid;
+		$oNewRemark->schema_id = isset($oRecData) ? $oRecData->schema_id : '';
+		$oNewRemark->data_id = empty($recDataId) ? 0 : $recDataId;
+		$oNewRemark->remark_id = isset($oRemark) ? $oRemark->id : 0;
+		$oNewRemark->create_at = $current;
+		$oNewRemark->modify_at = $current;
+		$oNewRemark->content = $modelRec->escape($oPosted->content);
+		/* 在记录中的序号 */
+		$seq = (int) $modelRec->query_val_ss([
+			'max(seq_in_record)',
+			'xxt_enroll_record_remark',
+			['enroll_key' => $oRecord->enroll_key],
+		]);
+		$oNewRemark->seq_in_record = $seq + 1;
+		/* 在数据中的序号 */
+		if (isset($oRecData)) {
+			$seq = (int) $modelRec->query_val_ss([
+				'max(seq_in_data)',
+				'xxt_enroll_record_remark',
+				['data_id' => $oRecData->id],
+			]);
+			$oNewRemark->seq_in_data = $seq + 1;
+		}
 		/* 如果记录是讨论状态，留言也是讨论状态 */
 		if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
-			$oRemark->agreed = 'D';
+			$oNewRemark->agreed = 'D';
 		}
+		$oNewRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oNewRemark, true);
 
-		$oRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oRemark, true);
-
+		/* 留言总数 */
 		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
-		if (!empty($recDataId)) {
-			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
-			// 如果每一条的数据呗留言了那么这道题的总数据+1
-			if ($oRecData->multitext_seq != 0) {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");
+		/* 记录的直接留言 */
+		if (!isset($oRecData) && !isset($oRemark)) {
+			$modelRec->update("update xxt_enroll_record set rec_remark_num=rec_remark_num+1 where enroll_key='$ek'");
+		} else {
+			if (isset($oRecData)) {
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
+				// 如果每一条的数据被留言了那么这道题的总数据+1
+				if ($oRecData->multitext_seq != 0) {
+					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");
+				}
+			}
+			if (isset($oRemark)) {
+				$modelRec->update("update xxt_enroll_record_remark set remark_num=remark_num+1 where id='{$oRemark->id}'");
 			}
 		}
 
 		/* 更新用户汇总数据 */
-		if (!empty($recDataId)) {
+		if (isset($oRecData)) {
 			foreach ($oApp->dataSchemas as $dataSchema) {
 				if ($dataSchema->id === $oRecData->schema_id) {
 					$oDataSchema = $dataSchema;
@@ -163,9 +183,95 @@ class remark extends base {
 			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oUser);
 		}
 
-		$this->_notifyHasRemark($oApp, $oRecord, $oRemark);
+		/* 生成提醒 */
+		$this->model('matter\enroll\notice')->addRemark($oApp, $oRecord, $oNewRemark, $oUser, isset($oRecData) ? $oRecData : null, isset($oRemark) ? $oRemark : null);
 
-		return new \ResponseData($oRemark);
+		//$this->_notifyHasRemark($oApp, $oRecord, $oNewRemark);
+
+		return new \ResponseData($oNewRemark);
+	}
+	/**
+	 * 修改留言
+	 * 1、只允许修改自己的留言
+	 */
+	public function update_action($remark) {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,userid,state,rid,enroll_key,content,modify_at,modify_log']);
+		if (false === $oRemark && $oRemark->state !== '1') {
+			return new \ObjectNotFoundError('（1）访问的资源不可用');
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp && $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		if ($oUser->uid !== $oRemark->userid) {
+			return new \ResponseError('没有修改指定留言的权限');
+		}
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->content)) {
+			return new \ResponseError('留言内容不允许为空');
+		}
+		if ($oPosted->content === $oRemark->content) {
+			return new \ResponseError('留言内容没有变化');
+		}
+
+		$current = time();
+		$oRemark->modify_log[] = (object) ['at' => $oRemark->modify_at, 'c' => $oRemark->content];
+		$rst = $modelRem->update(
+			'xxt_enroll_record_remark',
+			[
+				'content' => $modelRem->escape($oPosted->content),
+				'modify_at' => $current,
+				'modify_log' => $modelRem->escape($modelRem->toJson($oRemark->modify_log)),
+			],
+			['id' => $oRemark->id]
+		);
+
+		/* 记录日志 */
+		$this->model('matter\enroll\event')->updateRemark($oApp, $oRemark, $oUser);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 删除留言
+	 */
+	public function remove_action($remark) {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,userid,state']);
+		if (false === $oRemark && $oRemark->state !== '1') {
+			return new \ObjectNotFoundError('（1）访问的资源不可用');
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp && $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+		if ($oUser->uid !== $oRemark->userid) {
+			return new \ResponseError('没有撤销指定留言的权限');
+		}
+
+		$current = time();
+		$rst = $modelRem->update(
+			'xxt_enroll_record_remark',
+			[
+				'state' => 0,
+				'modify_at' => $current,
+			],
+			['id' => $oRemark->id]
+		);
+
+		/* 记录日志 */
+		$this->model('matter\enroll\event')->removeRemark($oApp, $oRemark, $oUser);
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 * 通知留言登记记录事件

@@ -25,9 +25,9 @@ var ngMod = angular.module('directive.enroll', []);
 ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
     var html;
     html = "<div class='tms-nav-target'>";
-    html += "<div ng-if=\"navs.repos\"><button class='btn btn-default btn-sm btn-block' ng-click=\"goto($event,'repos')\">共享页</button></div>";
-    html += "<div ng-if=\"navs.rank\"><button class='btn btn-default btn-sm btn-block' ng-click=\"goto($event,'rank')\">排行页</button></div>";
-    html += "<div ng-if=\"navs.action\"><button class='btn btn-default btn-sm btn-block' ng-click=\"goto($event,'action')\">动态页</button></div>";
+    html += "<div ng-if=\"navs.repos\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'repos')\">共享页</button></div>";
+    html += "<div ng-if=\"navs.rank\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'rank')\">排行页</button></div>";
+    html += "<div ng-if=\"navs.action\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'action')\">动态页<span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span></button></div>";
     html += "</div>";
     $templateCache.put('appNavTemplate.html', html);
     return {
@@ -35,9 +35,10 @@ ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
         replace: true,
         transclude: true,
         scope: {
-            navs: '=appNavs'
+            navs: '=appNavs',
+            noticeCount: '=noticeCount'
         },
-        template: "<span><span ng-if=\"!navs\"><span ng-transclude></span></span><span ng-if=\"navs\" uib-popover-template=\"'appNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'outsideClick'\"><span ng-transclude></span> <span class=\"caret\"></span></span></span>",
+        template: "<span><span ng-if=\"!navs\"><span ng-transclude></span></span><span ng-if=\"navs\" uib-popover-template=\"'appNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'outsideClick'\"><span ng-transclude></span><span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span><span class=\"caret\"></span></span></span>",
         controller: ['$scope', function($scope) {
             $scope.goto = function(event, page) {
                 $scope.$parent.gotoPage(event, page);
@@ -48,8 +49,8 @@ ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
 ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
     var html;
     html = "<div>";
-    html += "<div ng-if=\"acts.addRecord\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'addRecord')\">添加记录</button></div>";
-    html += "<div ng-if=\"acts.save\"><button class='btn btn-default btn-sm' ng-click=\"goto($event,'save')\">保存</button></div>";
+    html += "<div ng-if=\"acts.addRecord\"><button class='btn btn-default' ng-click=\"goto($event,'addRecord')\">添加记录</button></div>";
+    html += "<div ng-if=\"acts.save\"><button class='btn btn-default' ng-click=\"goto($event,'save')\">保存</button></div>";
     html += "</div>";
     $templateCache.put('appActTemplate.html', html);
     return {

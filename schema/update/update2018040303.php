@@ -1,10 +1,10 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
 //
-$sqls[] = 'alter table xxt_enroll_record_data add score float not null default 0 after last_remark_at';
-
+$sqls[] = "ALTER TABLE xxt_mission add wxacode_url text null";
+$sqls[] = "ALTER TABLE xxt_enroll add wxacode_url text null";
+//
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {
 		header('HTTP/1.0 500 Internal Server Error');

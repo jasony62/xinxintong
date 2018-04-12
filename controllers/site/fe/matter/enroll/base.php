@@ -122,40 +122,42 @@ class base extends \site\fe\matter\base {
 		$oScope = $oEntryRule->scope;
 
 		if (isset($oScope->member) && $oScope->member === 'Y') {
-			if (!isset($oEntryRule->member)) {
-				$msg = '需要填写通讯录信息，请联系活动的组织者解决。';
-				if (true === $bRedirect) {
-					$this->outputInfo($msg);
-				} else {
-					return [false, $msg];
-				}
-			}
-			$aResult = $this->enterAsMember($oApp);
-			/**
-			 * 限通讯录用户访问
-			 * 如果指定的任何一个通讯录要求用户关注公众号，但是用户还没有关注，那么就要求用户先关注公众号，再填写通讯录
-			 */
-			if (false === $aResult[0]) {
-				if (true === $bRedirect) {
-					$aMemberSchemaIds = [];
-					$modelMs = $this->model('site\user\memberschema');
-					foreach ($oEntryRule->member as $mschemaId => $oRule) {
-						$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
-						if ($oMschema->is_wx_fan === 'Y') {
-							$oApp2 = clone $oApp;
-							$oApp2->entryRule = new \stdClass;
-							$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
-							$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
-							if (false === $aResult[0]) {
-								return $aResult;
-							}
-						}
-						$aMemberSchemaIds[] = $mschemaId;
+			if (empty($oEntryRule->optional->member) || $oEntryRule->optional->member !== 'Y') {
+				if (!isset($oEntryRule->member)) {
+					$msg = '需要填写通讯录信息，请联系活动的组织者解决。';
+					if (true === $bRedirect) {
+						$this->outputInfo($msg);
+					} else {
+						return [false, $msg];
 					}
-					$this->gotoMember($oApp, $aMemberSchemaIds);
-				} else {
-					$msg = '您没有填写通讯录信息，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
-					return [false, $msg];
+				}
+				$aResult = $this->enterAsMember($oApp);
+				/**
+				 * 限通讯录用户访问
+				 * 如果指定的任何一个通讯录要求用户关注公众号，但是用户还没有关注，那么就要求用户先关注公众号，再填写通讯录
+				 */
+				if (false === $aResult[0]) {
+					if (true === $bRedirect) {
+						$aMemberSchemaIds = [];
+						$modelMs = $this->model('site\user\memberschema');
+						foreach ($oEntryRule->member as $mschemaId => $oRule) {
+							$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+							if ($oMschema->is_wx_fan === 'Y') {
+								$oApp2 = clone $oApp;
+								$oApp2->entryRule = new \stdClass;
+								$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
+								$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
+								if (false === $aResult[0]) {
+									return $aResult;
+								}
+							}
+							$aMemberSchemaIds[] = $mschemaId;
+						}
+						$this->gotoMember($oApp, $aMemberSchemaIds);
+					} else {
+						$msg = '您没有填写通讯录信息，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+						return [false, $msg];
+					}
 				}
 			}
 		}
@@ -166,30 +168,32 @@ class base extends \site\fe\matter\base {
 			}
 		}
 		if (isset($oScope->group) && $oScope->group === 'Y') {
-			$bMatched = false;
-			/* 限分组用户访问 */
-			if (isset($oEntryRule->group->id)) {
-				$oGroupApp = $this->model('matter\group')->byId($oEntryRule->group->id, ['fields' => 'id,state,title']);
-				if ($oGroupApp && $oGroupApp->state === '1') {
-					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
-					if (count($oGroupUsr)) {
-						$oGroupUsr = $oGroupUsr[0];
-						if (isset($oEntryRule->group->round->id)) {
-							if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
+			if (empty($oEntryRule->optional->group) || $oEntryRule->optional->group !== 'Y') {
+				$bMatched = false;
+				/* 限分组用户访问 */
+				if (isset($oEntryRule->group->id)) {
+					$oGroupApp = $this->model('matter\group')->byId($oEntryRule->group->id, ['fields' => 'id,state,title']);
+					if ($oGroupApp && $oGroupApp->state === '1') {
+						$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
+						if (count($oGroupUsr)) {
+							$oGroupUsr = $oGroupUsr[0];
+							if (isset($oEntryRule->group->round->id)) {
+								if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
+									$bMatched = true;
+								}
+							} else {
 								$bMatched = true;
 							}
-						} else {
-							$bMatched = true;
 						}
 					}
 				}
-			}
-			if (false === $bMatched) {
-				$msg = '您目前的分组，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
-				if (true === $bRedirect) {
-					$this->outputInfo($msg);
-				} else {
-					return [false, $msg];
+				if (false === $bMatched) {
+					$msg = '您目前的分组，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+					if (true === $bRedirect) {
+						$this->outputInfo($msg);
+					} else {
+						return [false, $msg];
+					}
 				}
 			}
 		}

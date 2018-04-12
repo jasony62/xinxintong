@@ -199,7 +199,11 @@ class home extends TMS_CONTROLLER {
 		$result = $modelHome->atHomeMatter($options);
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {
-				$matter->url = $this->model('matter\\' . $matter->matter_type)->getEntryUrl($matter->siteid, $matter->matter_id);
+				if ($matter->matter_type === 'link') {
+					$matter->url =  $this->getInviteUrl($matter);					
+				} else {
+					$matter->url = $this->model('matter\\' . $matter->matter_type)->getEntryUrl($matter->siteid, $matter->matter_id);
+				}
 			}
 		}
 
@@ -218,29 +222,7 @@ class home extends TMS_CONTROLLER {
 		if (count($result->matters)) {
 			foreach ($result->matters as &$matter) {
 				if ($matter->matter_type === 'link') {
-					$oLink = $this->model('matter\link')->byIdWithParams($matter->matter_id);
-					$oInvitee = new \stdClass;
-					$oInvitee->id = $oLink->siteid;
-					$oInvitee->type = 'S';
-					$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
-					if ($oInvite && $oInvite->state === '1') {
-						$oCreator = new \stdClass;
-						$oCreator->id = $matter->siteid;
-						$oCreator->name = '';
-						$oCreator->type = 'S';
-						$modelInv = $this->model('invite');
-						$link = new \stdClass;
-						$link->id = $matter->matter_id;
-						$link->type = $matter->matter_type;
-						$oInvite = $modelInv->byMatter($link, $oCreator, ['fields' => 'id,code']);
-						if ($oInvite) {
-							$matter->url = $modelInv->getEntryUrl($oInvite);
-						} else {
-							$matter->url = $this->model('matter\\' . $matter->matter_type)->getEntryUrl($matter->siteid, $matter->matter_id);
-						}
-					} else {
-						$matter->url = $this->model('matter\\' . $matter->matter_type)->getEntryUrl($matter->siteid, $matter->matter_id);
-					}
+					$matter->url =  $this->getInviteUrl($matter);					
 				} else {
 					$matter->url = $this->model('matter\\' . $matter->matter_type)->getEntryUrl($matter->siteid, $matter->matter_id);
 				}
@@ -264,5 +246,32 @@ class home extends TMS_CONTROLLER {
 			$user = false;
 		}
 		return $user;
+	}
+	/*
+	 * 如果素材开启了邀请机制需要获取邀请的链接
+	 */
+	private function getInviteUrl($matter) {
+		$oMatter = $this->model('matter\\' . $matter->matter_type)->byId($matter->matter_id);
+		$oInvitee = new \stdClass;
+		$oInvitee->id = $oMatter->siteid;
+		$oInvitee->type = 'S';
+		$oInvite = $this->model('invite')->byMatter($oMatter, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+		if ($oInvite && $oInvite->state === '1') {
+			$oCreator = new \stdClass;
+			$oCreator->id = $matter->siteid;
+			$oCreator->name = '';
+			$oCreator->type = 'S';
+			$modelInv = $this->model('invite');
+			$oInvite = $modelInv->byMatter($oMatter, $oCreator, ['fields' => 'id,code']);
+			if ($oInvite) {
+				$url = $modelInv->getEntryUrl($oInvite);
+			} else {
+				$url = $this->model('matter\\' . $matter->matter_type)->getEntryUrl($matter->siteid, $matter->matter_id);
+			}
+		} else {
+			$url = $this->model('matter\\' . $matter->matter_type)->getEntryUrl($matter->siteid, $matter->matter_id);
+		}
+
+		return $url;
 	}
 }

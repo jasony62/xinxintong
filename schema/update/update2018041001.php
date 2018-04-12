@@ -1,10 +1,11 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
+$sqls = [];
 //
-$sqls[] = "alter table xxt_site_home_channel add home_group char(1) not null default 'C' ";
-
+$sqls[] = "ALTER TABLE xxt_enroll_log change target_id target_id varchar(40) not null";
+$sqls[] = "ALTER TABLE xxt_enroll_notice change event_target_id event_target_id varchar(40) not null";
+//
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {
 		header('HTTP/1.0 500 Internal Server Error');

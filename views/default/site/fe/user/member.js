@@ -209,7 +209,7 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             //pinWidth = preEle.offsetWidth - 20;
             pinWidth = 120;
             url = '/rest/site/fe/user/login/getCaptcha?site=platform&codelen=4&width=' + pinWidth + '&height=32&fontsize=20';
-            $scope.pinImg = url + '&' + time;
+            $scope.pinImg = url + '&_=' + time;
         }
     };
     http2.get('/rest/site/fe/get?site=' + LS.s().site).then(function(rsp) {

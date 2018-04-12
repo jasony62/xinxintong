@@ -735,9 +735,9 @@ class log_model extends \TMS_MODEL {
 
 		return true;
 	}
-	/*
-		* 获取用户分享过的素材
-	*/
+	/**
+	 * 获取用户分享过的素材
+	 */
 	public function listUserShare($site = '', $users, $page = null, $size = null) {
 		$user = "'" . implode("','", $users) . "'";
 		$q = [
@@ -767,8 +767,8 @@ class log_model extends \TMS_MODEL {
 
 		return $data;
 	}
-	/*
-		* 获取我的分享信息
+	/**
+	 * 获取我的分享信息
 	*/
 	public function getMyShareLog($oUserid, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
 		$q = [];
@@ -842,84 +842,84 @@ class log_model extends \TMS_MODEL {
 			break;
 		}
 
-		if ($users) {
-			foreach ($users as $user) {
-				if (!isset($user->read_sum)) {
-					$q = [
-						'count(*) read_sum',
-						'xxt_log_matter_read',
-						[],
-					];
-					$q[2]["matter_id"] = $matterId;
-					$q[2]["matter_type"] = $matterType;
-					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
-					$q[2]["userid"] = $user->userid;
+		// if ($users) {
+		// 	foreach ($users as $user) {
+		// 		if (!isset($user->read_sum)) {
+		// 			$q = [
+		// 				'count(*) read_sum',
+		// 				'xxt_log_matter_read',
+		// 				[],
+		// 			];
+		// 			$q[2]["matter_id"] = $matterId;
+		// 			$q[2]["matter_type"] = $matterType;
+		// 			$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
+		// 			$q[2]["userid"] = $user->userid;
 
-					$rst = $this->query_obj_ss($q);
-					if ($rst) {
-						$user->read_sum = $rst->read_sum;
-					} else {
-						$user->read_sum = 0;
-					}
-				}
-				if (!isset($user->shareF_sum)) {
-					$q = [
-						'count(*) shareF_sum',
-						'xxt_log_matter_share',
-						[],
-					];
-					$q[2]["matter_id"] = $matterId;
-					$q[2]["matter_type"] = $matterType;
-					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
-					$q[2]["userid"] = $user->userid;
-					$q[2]["share_to"] = 'F';
+		// 			$rst = $this->query_obj_ss($q);
+		// 			if ($rst) {
+		// 				$user->read_sum = $rst->read_sum;
+		// 			} else {
+		// 				$user->read_sum = 0;
+		// 			}
+		// 		}
+		// 		if (!isset($user->shareF_sum)) {
+		// 			$q = [
+		// 				'count(*) shareF_sum',
+		// 				'xxt_log_matter_share',
+		// 				[],
+		// 			];
+		// 			$q[2]["matter_id"] = $matterId;
+		// 			$q[2]["matter_type"] = $matterType;
+		// 			$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
+		// 			$q[2]["userid"] = $user->userid;
+		// 			$q[2]["share_to"] = 'F';
 
-					$rst = $this->query_obj_ss($q);
-					if ($rst) {
-						$user->shareF_sum = $rst->shareF_sum;
-					} else {
-						$user->shareF_sum = 0;
-					}
-				}
-				if (!isset($user->shareT_sum)) {
-					$q = [
-						'count(*) shareT_sum',
-						'xxt_log_matter_share',
-						[],
-					];
-					$q[2]["matter_id"] = $matterId;
-					$q[2]["matter_type"] = $matterType;
-					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
-					$q[2]["userid"] = $user->userid;
-					$q[2]["share_to"] = 'T';
+		// 			$rst = $this->query_obj_ss($q);
+		// 			if ($rst) {
+		// 				$user->shareF_sum = $rst->shareF_sum;
+		// 			} else {
+		// 				$user->shareF_sum = 0;
+		// 			}
+		// 		}
+		// 		if (!isset($user->shareT_sum)) {
+		// 			$q = [
+		// 				'count(*) shareT_sum',
+		// 				'xxt_log_matter_share',
+		// 				[],
+		// 			];
+		// 			$q[2]["matter_id"] = $matterId;
+		// 			$q[2]["matter_type"] = $matterType;
+		// 			$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $oUserid . '_%'];
+		// 			$q[2]["userid"] = $user->userid;
+		// 			$q[2]["share_to"] = 'T';
 
-					$rst = $this->query_obj_ss($q);
-					if ($rst) {
-						$user->shareT_sum = $rst->shareT_sum;
-					} else {
-						$user->shareT_sum = 0;
-					}
-				}
-				/*ta带来的阅读数是否加上ta自己的阅读数？？？*/
-				if (!isset($user->attractRead_sum)) {
-					$q = [
-						'count(*) attractRead_sum',
-						'xxt_log_matter_read',
-						[],
-					];
-					$q[2]["matter_id"] = $matterId;
-					$q[2]["matter_type"] = $matterType;
-					$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $user->userid . '_%'];
+		// 			$rst = $this->query_obj_ss($q);
+		// 			if ($rst) {
+		// 				$user->shareT_sum = $rst->shareT_sum;
+		// 			} else {
+		// 				$user->shareT_sum = 0;
+		// 			}
+		// 		}
+		// 		/*ta带来的阅读数是否加上ta自己的阅读数？？？*/
+		// 		if (!isset($user->attractRead_sum)) {
+		// 			$q = [
+		// 				'count(*) attractRead_sum',
+		// 				'xxt_log_matter_read',
+		// 				[],
+		// 			];
+		// 			$q[2]["matter_id"] = $matterId;
+		// 			$q[2]["matter_type"] = $matterType;
+		// 			$q[2]["matter_shareby"] = (object) ['op' => 'like', 'pat' => $user->userid . '_%'];
 
-					$rst = $this->query_obj_ss($q);
-					if ($rst) {
-						$user->attractRead_sum = $rst->attractRead_sum;
-					} else {
-						$user->attractRead_sum = 0;
-					}
-				}
-			}
-		}
+		// 			$rst = $this->query_obj_ss($q);
+		// 			if ($rst) {
+		// 				$user->attractRead_sum = $rst->attractRead_sum;
+		// 			} else {
+		// 				$user->attractRead_sum = 0;
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 		$data = new \stdClass;
 		$data->users = $users;

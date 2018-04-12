@@ -47,8 +47,11 @@ class account_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_site_account',
-			["siteid" => $siteId, $snsName . '_openid' => $openid],
+			[$snsName . '_openid' => $openid],
 		];
+		if (!empty($siteId) && $siteId !== 'ALL') {
+			$q[2]["siteid"] = $siteId;
+		}
 		if (isset($options['is_primary'])) {
 			$q[2]['is_' . $snsName . '_primary'] = $options['is_primary'];
 		}

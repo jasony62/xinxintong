@@ -10,16 +10,16 @@ class share extends \site\fe\base {
 	 *
 	 */
 	public function index_action($site, $page = '') {
-		if (!$this->afterSnsOAuth()) {
-			/* 检查是否需要第三方社交帐号OAuth */
-			$this->requireSnsOAuth($site);
-		}
-
 		switch ($page) {
 			case 'log':
 				\TPL::output('/site/fe/user/share/log');
 				break;
 			default:
+				if (!$this->afterSnsOAuth()) {
+					/* 检查是否需要第三方社交帐号OAuth */
+					$this->requireSnsOAuth($site);
+				}
+				
 				\TPL::output('/site/fe/user/share/main');
 				break;
 		}

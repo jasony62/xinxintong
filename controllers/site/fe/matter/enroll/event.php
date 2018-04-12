@@ -210,7 +210,7 @@ class event extends base {
 								$desc .= '，';
 							}
 						}
-						$oRule->desc .= $desc . '还需推荐【' . ((int) $oRule->min - (int) $oResult->total) . '条】。';
+						$oRule->desc = $desc . '还需推荐【' . ((int) $oRule->min - (int) $oResult->total) . '条】。';
 					}
 					$oRule->id = 'leader.record.agree.end';
 					$tasks[] = $oRule;

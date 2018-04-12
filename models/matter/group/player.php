@@ -576,12 +576,12 @@ class player_model extends \TMS_MODEL {
 			$dataSchemas[] = $dataSchema;
 		}
 		$extDataSchemas = [];
-		if (!empty($oMschema->extattr)) {
-			foreach ($oMschema->extattr as $ea) {
+		if (!empty($oMschema->extAttrs)) {
+			foreach ($oMschema->extAttrs as $ea) {
 				$dataSchema = new \stdClass;
 				$dataSchema->id = $ea->id;
-				$dataSchema->type = 'shorttext';
-				$dataSchema->title = $ea->label;
+				$dataSchema->type = $ea->type;
+				$dataSchema->title = $ea->title;
 				$extDataSchemas[] = $dataSchema;
 			}
 		}
@@ -592,7 +592,7 @@ class player_model extends \TMS_MODEL {
 		$this->update(
 			'xxt_group',
 			[
-				'last_sync_at' => time(),
+				'last_sync_at' => 0,
 				'source_app' => '{"id":"' . $mschemaId . '","type":"mschema"}',
 				'data_schemas' => $this->toJson($oMschema->data_schemas),
 			],
@@ -601,37 +601,37 @@ class player_model extends \TMS_MODEL {
 		/* 清空已有分组数据 */
 		$this->clean($oGrpApp->id, true);
 		/* 获取所有登记数据 */
-		$modelMem = $this->model('site\user\member');
-		$members = $modelMem->byMschema($mschemaId);
-		/* 导入数据 */
-		if (count($members)) {
-			$modelGrp = $this->model('matter\group');
-			$objGrp = $modelGrp->byId($oGrpApp->id, ['cascaded' => 'N']);
-			$options = ['cascaded' => 'Y'];
-			$modelUsr = $this->model('site\user\account');
-			foreach ($members as $oMember) {
-				$oSiteUser = $modelUsr->byId($oMember->userid);
-				$oUser = new \stdClass;
-				$oUser->uid = $oMember->userid;
-				$oUser->nickname = $modelUsr->escape($oSiteUser->nickname);
-				$oUser->wx_openid = $oSiteUser->wx_openid;
-				$oUser->yx_openid = $oSiteUser->yx_openid;
-				$oUser->qy_openid = $oSiteUser->qy_openid;
-				$oUser->headimgurl = $oSiteUser->headimgurl;
-				$this->enroll($objGrp, $oUser, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
-				$data = new \stdClass;
-				foreach ($dataSchemas as $ds) {
-					$data->{$ds->id} = isset($oMember->{$ds->format}) ? $oMember->{$ds->format} : '';
-				}
-				if (count($extDataSchemas) && !empty($oMember->extattr)) {
-					$oExtData = json_decode($oMember->extattr);
-					foreach ($extDataSchemas as $ds) {
-						$data->{$ds->id} = isset($oExtData->{$ds->id}) ? $oExtData->{$ds->id} : '';
-					}
-				}
-				$this->setData($objGrp, $oMember->id, $data);
-			}
-		}
+		// $modelMem = $this->model('site\user\member');
+		// $members = $modelMem->byMschema($mschemaId);
+		// /* 导入数据 */
+		// if (count($members)) {
+		// 	$modelGrp = $this->model('matter\group');
+		// 	$objGrp = $modelGrp->byId($oGrpApp->id, ['cascaded' => 'N']);
+		// 	$options = ['cascaded' => 'Y'];
+		// 	$modelUsr = $this->model('site\user\account');
+		// 	foreach ($members as $oMember) {
+		// 		$oSiteUser = $modelUsr->byId($oMember->userid);
+		// 		$oUser = new \stdClass;
+		// 		$oUser->uid = $oMember->userid;
+		// 		$oUser->nickname = $modelUsr->escape($oSiteUser->nickname);
+		// 		$oUser->wx_openid = $oSiteUser->wx_openid;
+		// 		$oUser->yx_openid = $oSiteUser->yx_openid;
+		// 		$oUser->qy_openid = $oSiteUser->qy_openid;
+		// 		$oUser->headimgurl = $oSiteUser->headimgurl;
+		// 		$this->enroll($objGrp, $oUser, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
+		// 		$data = new \stdClass;
+		// 		foreach ($dataSchemas as $ds) {
+		// 			$data->{$ds->id} = isset($oMember->{$ds->format}) ? $oMember->{$ds->format} : '';
+		// 		}
+		// 		if (count($extDataSchemas) && !empty($oMember->extattr)) {
+		// 			$oExtData = json_decode($oMember->extattr);
+		// 			foreach ($extDataSchemas as $ds) {
+		// 				$data->{$ds->id} = isset($oExtData->{$ds->id}) ? $oExtData->{$ds->id} : '';
+		// 			}
+		// 		}
+		// 		$this->setData($objGrp, $oMember->id, $data);
+		// 	}
+		// }
 
 		return $oMschema;
 	}
@@ -652,7 +652,7 @@ class player_model extends \TMS_MODEL {
 		$this->update(
 			'xxt_group',
 			[
-				'last_sync_at' => time(),
+				'last_sync_at' => 0,
 				'source_app' => '{"id":"' . $byApp . '","type":"enroll"}',
 				'data_schemas' => $this->escape($this->toJson($aDataSchemas)),
 				'assigned_nickname' => $oSourceApp->assigned_nickname,
@@ -664,29 +664,29 @@ class player_model extends \TMS_MODEL {
 		$this->clean($oGrpApp->id, true);
 
 		/* 获取所有登记数据 */
-		$q = [
-			'enroll_key',
-			'xxt_enroll_record',
-			['aid' => $byApp, 'state' => 1],
-		];
-		$eks = $this->query_vals_ss($q);
-		/* 导入数据 */
-		if (!empty($eks)) {
-			$modelRec = $this->model('matter\enroll\record');
-			$options = ['cascaded' => 'Y'];
-			foreach ($eks as $ek) {
-				$oRecord = $modelRec->byId($ek, $options);
-				$oUser = new \stdClass;
-				$oUser->uid = $oRecord->userid;
-				$oUser->nickname = $oRecord->nickname;
-				$oUser->wx_openid = $oRecord->wx_openid;
-				$oUser->yx_openid = $oRecord->yx_openid;
-				$oUser->qy_openid = $oRecord->qy_openid;
-				$oUser->headimgurl = $oRecord->headimgurl;
-				$this->enroll($oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
-				$this->setData($oGrpApp, $ek, $oRecord->data);
-			}
-		}
+		// $q = [
+		// 	'enroll_key',
+		// 	'xxt_enroll_record',
+		// 	['aid' => $byApp, 'state' => 1],
+		// ];
+		// $eks = $this->query_vals_ss($q);
+		// /* 导入数据 */
+		// if (!empty($eks)) {
+		// 	$modelRec = $this->model('matter\enroll\record');
+		// 	$options = ['cascaded' => 'Y'];
+		// 	foreach ($eks as $ek) {
+		// 		$oRecord = $modelRec->byId($ek, $options);
+		// 		$oUser = new \stdClass;
+		// 		$oUser->uid = $oRecord->userid;
+		// 		$oUser->nickname = $oRecord->nickname;
+		// 		$oUser->wx_openid = $oRecord->wx_openid;
+		// 		$oUser->yx_openid = $oRecord->yx_openid;
+		// 		$oUser->qy_openid = $oRecord->qy_openid;
+		// 		$oUser->headimgurl = $oRecord->headimgurl;
+		// 		$this->enroll($oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
+		// 		$this->setData($oGrpApp, $ek, $oRecord->data);
+		// 	}
+		// }
 
 		return $oSourceApp;
 	}
@@ -718,7 +718,7 @@ class player_model extends \TMS_MODEL {
 		$this->update(
 			'xxt_group',
 			[
-				'last_sync_at' => time(),
+				'last_sync_at' => 0,
 				'source_app' => '{"id":"' . $byApp . '","type":"signin"}',
 				'data_schemas' => $this->escape($this->toJson($aSourceDataSchemas)),
 				'assigned_nickname' => $oSourceApp->assigned_nickname,
@@ -731,29 +731,29 @@ class player_model extends \TMS_MODEL {
 		$this->clean($oGrpApp->id, true);
 
 		/* 获取数据 */
-		$q = [
-			'enroll_key',
-			'xxt_signin_record',
-			"aid='$byApp' and state=1",
-		];
-		$eks = $this->query_vals_ss($q);
-		/* 导入数据 */
-		if (!empty($eks)) {
-			$modelRec = $this->model('matter\signin\record');
-			$options = array('cascaded' => 'Y');
-			foreach ($eks as $ek) {
-				$oRecord = $modelRec->byId($ek, $options);
-				$oUser = new \stdClass;
-				$oUser->uid = $oRecord->userid;
-				$oUser->nickname = $oRecord->nickname;
-				$oUser->wx_openid = $oRecord->wx_openid;
-				$oUser->yx_openid = $oRecord->yx_openid;
-				$oUser->qy_openid = $oRecord->qy_openid;
-				$oUser->headimgurl = $oRecord->headimgurl;
-				$this->enroll($oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
-				$this->setData($oGrpApp, $ek, $oRecord->data);
-			}
-		}
+		// $q = [
+		// 	'enroll_key',
+		// 	'xxt_signin_record',
+		// 	"aid='$byApp' and state=1",
+		// ];
+		// $eks = $this->query_vals_ss($q);
+		// /* 导入数据 */
+		// if (!empty($eks)) {
+		// 	$modelRec = $this->model('matter\signin\record');
+		// 	$options = array('cascaded' => 'Y');
+		// 	foreach ($eks as $ek) {
+		// 		$oRecord = $modelRec->byId($ek, $options);
+		// 		$oUser = new \stdClass;
+		// 		$oUser->uid = $oRecord->userid;
+		// 		$oUser->nickname = $oRecord->nickname;
+		// 		$oUser->wx_openid = $oRecord->wx_openid;
+		// 		$oUser->yx_openid = $oRecord->yx_openid;
+		// 		$oUser->qy_openid = $oRecord->qy_openid;
+		// 		$oUser->headimgurl = $oRecord->headimgurl;
+		// 		$this->enroll($oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
+		// 		$this->setData($oGrpApp, $ek, $oRecord->data);
+		// 	}
+		// }
 
 		return $oSourceApp;
 	}
@@ -774,7 +774,7 @@ class player_model extends \TMS_MODEL {
 		$this->update(
 			'xxt_group',
 			[
-				'last_sync_at' => time(),
+				'last_sync_at' => 0,
 				'source_app' => '{"id":"' . $byApp . '","type":"wall"}',
 				'data_schemas' => $this->escape($this->toJson($aSourceDataSchemas)),
 			],
@@ -786,36 +786,36 @@ class player_model extends \TMS_MODEL {
 		$this->clean($oGrpApp->id, true);
 
 		//获取所有用户数据
-		$u = [
-			'*',
-			'xxt_wall_enroll',
-			"wid = '{$byApp}' and siteid = '{$oGrpApp->siteid}'",
-		];
-		if ($onlySpeaker === 'Y') {
-			$u[2] .= " and last_msg_at>0";
-		}
-		$wallUsers = $this->query_objs_ss($u);
-		/* 导入数据 */
-		if (!empty($wallUsers)) {
-			foreach ($wallUsers as $oWallUser) {
-				$oWallUser->data = empty($oWallUser->data) ? '' : $this->toJson($oWallUser->data);
-				$oUser = new \stdClass;
-				$oUser->uid = $oWallUser->userid;
-				$oUser->nickname = $oWallUser->nickname;
-				$oUser->wx_openid = $oWallUser->wx_openid;
-				$oUser->yx_openid = $oWallUser->yx_openid;
-				$oUser->qy_openid = $oWallUser->qy_openid;
-				$oUser->headimgurl = $oWallUser->headimgurl;
-				if (empty($oWallUser->enroll_key)) {
-					$ek = $this->genKey($oGrpApp->siteid, $oGrpApp->id);
-					$oWallUser->enroll_key = $ek;
-				}
-				$this->enroll($oGrpApp, $oUser, ['enroll_key' => $oWallUser->enroll_key, 'enroll_at' => $oWallUser->join_at]);
-				$this->setData($oGrpApp, $oWallUser->enroll_key, $oWallUser->data);
-			}
-		}
+		// $u = [
+		// 	'*',
+		// 	'xxt_wall_enroll',
+		// 	"wid = '{$byApp}' and siteid = '{$oGrpApp->siteid}'",
+		// ];
+		// if ($onlySpeaker === 'Y') {
+		// 	$u[2] .= " and last_msg_at>0";
+		// }
+		// $wallUsers = $this->query_objs_ss($u);
+		// /* 导入数据 */
+		// if (!empty($wallUsers)) {
+		// 	foreach ($wallUsers as $oWallUser) {
+		// 		$oWallUser->data = empty($oWallUser->data) ? '' : $this->toJson($oWallUser->data);
+		// 		$oUser = new \stdClass;
+		// 		$oUser->uid = $oWallUser->userid;
+		// 		$oUser->nickname = $oWallUser->nickname;
+		// 		$oUser->wx_openid = $oWallUser->wx_openid;
+		// 		$oUser->yx_openid = $oWallUser->yx_openid;
+		// 		$oUser->qy_openid = $oWallUser->qy_openid;
+		// 		$oUser->headimgurl = $oWallUser->headimgurl;
+		// 		if (empty($oWallUser->enroll_key)) {
+		// 			$ek = $this->genKey($oGrpApp->siteid, $oGrpApp->id);
+		// 			$oWallUser->enroll_key = $ek;
+		// 		}
+		// 		$this->enroll($oGrpApp, $oUser, ['enroll_key' => $oWallUser->enroll_key, 'enroll_at' => $oWallUser->join_at]);
+		// 		$this->setData($oGrpApp, $oWallUser->enroll_key, $oWallUser->data);
+		// 	}
+		// }
 
-		$oSourceApp->onlySpeaker = $onlySpeaker;
+		// $oSourceApp->onlySpeaker = $onlySpeaker;
 
 		return $oSourceApp;
 	}

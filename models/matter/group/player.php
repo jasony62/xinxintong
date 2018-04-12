@@ -576,28 +576,17 @@ class player_model extends \TMS_MODEL {
 			$dataSchemas[] = $dataSchema;
 		}
 		$extDataSchemas = [];
-		if (!empty($oMschema->extattr)) {
-			foreach ($oMschema->extattr as $ea) {
-				$dataSchema = new \stdClass;
-				$dataSchema->id = $ea->id;
-				$dataSchema->type = 'shorttext';
-				$dataSchema->title = $ea->label;
-				$extDataSchemas[] = $dataSchema;
-			}
-		}
-		$extDataSchemas2 = [];
 		if (!empty($oMschema->extAttrs)) {
 			foreach ($oMschema->extAttrs as $ea) {
 				$dataSchema = new \stdClass;
 				$dataSchema->id = $ea->id;
 				$dataSchema->type = $ea->type;
 				$dataSchema->title = $ea->title;
-				$extDataSchemas2[] = $dataSchema;
+				$extDataSchemas[] = $dataSchema;
 			}
 		}
 
-		$extDataSchemas3 = array_merge($extDataSchemas, $extDataSchemas2);
-		$oMschema->data_schemas = array_merge($dataSchemas, $extDataSchemas3);
+		$oMschema->data_schemas = array_merge($dataSchemas, $extDataSchemas);
 
 		/* 导入活动定义 */
 		$this->update(

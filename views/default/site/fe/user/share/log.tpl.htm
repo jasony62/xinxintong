@@ -13,34 +13,39 @@
 <body ng-controller="ctrlNgApp" class="ng-cloak" ng-cloak>
     <nav class='navbar site-navbar-default navbar-fixed-top'>
         <div class='container-fluid text-right'>
-            <p class="navbar-text">
+            <p class='navbar-text'>
                 <a class='navbar-link' href='/rest/site/home?site={{site.id}}' target='_self'>{{site.name}} &nbsp;
                     <span class='glyphicon glyphicon-menu-right'></span>
                 </a>
             </p>
         </div>
     </nav>
-    <div class="container">
-        <div class="orderItem">
-            <div class="col-xs-3 col-md-3" ng-class="{'active':filter==='read'}" ng-click="order('read', false)">阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-            <div class="col-xs-3 col-md-3" ng-class="{'active':filter==='shareT'}" ng-click="order('shareT',false)">分享<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-            <div class="col-xs-3 col-md-3" ng-class="{'active':filter==='shareF'}" ng-click="order('shareF',false)">转发<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
-            <div class="col-xs-3 col-md-3" ng-class="{'active':filter==='attractRead'}" ng-click="order('attractRead',false)">带来阅读<i class="glyphicon glyphicon-sort-by-attributes-alt"></i></div>
+    <div class='container'>
+        <div class='order-item'>
+            <div class='col-xs-3 col-md-3' ng-class="{'active':filter==='read'}" ng-click="order('read', false)">阅读<i class='glyphicon glyphicon-sort-by-attributes-alt'></i></div>
+            <div class='col-xs-3 col-md-3' ng-class="{'active':filter==='shareT'}" ng-click="order('shareT',false)">分享<i class='glyphicon glyphicon-sort-by-attributes-alt'></i></div>
+            <div class='col-xs-3 col-md-3' ng-class="{'active':filter==='shareF'}" ng-click="order('shareF',false)">转发<i class='glyphicon glyphicon-sort-by-attributes-alt'></i></div>
+            <div class='col-xs-3 col-md-3' ng-class="{'active':filter==='attractRead'}" ng-click="order('attractRead',false)">带来阅读<i class='glyphicon glyphicon-sort-by-attributes-alt'></i></div>
         </div>
-        <div class="orderResult">
+        <div class='order-result'>
             <ul>
-                <li ng-class-odd="'odd result'" ng-class-even="'even result'" ng-repeat="result in results">
-                    <p class="nickname">{{result.nickname}}</p>
-                    <div class="lineOne">
-                        <p class="readSum">阅读数：<span ng-bind="{{result.read_sum}}"></span></p>
-                        <p class="shareFSum">发送给朋友数：<span ng-bind="{{result.shareF_sum}}"></span></p>
-                    </div>
-                    <div class="lineTwo">
-                        <p class="shareTSum">分享到朋友圈数：<span ng-bind="{{result.shareT_sum}}"></span></p>
-                        <p class="attractReadSum">Ta带来的阅读数：<span ng-bind="{{result.attractRead_sum}}"></span></p>
-                    </div>
+                <li class='result-text'>
+                    <div class='col-sm-2 col-xs-2'>排名</div>
+                    <div class='col-sm-7 col-xs-8 text-left'>用户</div>
+                    <div class='col-sm-3 col-xs-2'>数据</div>
                 </li>
-                <li class="note">暂无此排序下的数据~</li>
+                <li class='result-record' ng-repeat="user in users | filter: findnum" ng-class="{'first':$index=='0','second':$index=='1','third':$index=='2'}">
+                    <div class='col-sm-2 col-xs-2 ranking'>
+                        <span class='index-img' ng-if="$index<3" ng-class="{'first-img':$index=='0','second-img':$index=='1','third-img':$index=='2'}"></span>
+                        <span class='index-num' ng-if="$index>=3">{{(page.at-1)*page.size+$index+1}}</span>
+                    </div>
+                    <div class='col-sm-7 col-xs-8 text-left line'>
+                        <img class='user-headimg' ng-src="{{user.headimgurl}}" />
+                        <span calss='user-name'>{{user.nickname}}</span>
+                    </div>
+                    <div class='col-sm-3 col-xs-2 line'>{{user.num}}</div>
+                </li>
+                <li class='note'>暂无此排序下的数据~</li>
             </ul>
             <div ng-if="results.length < page.total">
                 <button class="btn btn-primary btn-block" ng-click="more()">加载更多</button>

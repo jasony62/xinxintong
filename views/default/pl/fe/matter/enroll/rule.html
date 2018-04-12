@@ -59,6 +59,10 @@
                                         <label>每轮次至少提交多少条记录后开启点赞（投票）</label>
                                         <input type='text' class='form-control' ng-model="rule.record.like.pre.record.num" placeholder="输入需要的数量">
                                     </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.record.like.pre.record.submit.end"> 每轮提交记录（问题）的截止时间后开启点赞（投票）</label>
+                                    </div>
                                     <div class='form-group'>
                                         <label>每轮次至少提交多少条记录后开启点赞（投票）的要求说明</label>
                                         <textarea class='form-control' ng-model="rule.record.like.pre.desc"></textarea>

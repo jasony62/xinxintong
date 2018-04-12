@@ -39,7 +39,7 @@
                     <span>{{task.msg}}</span>
                     <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分，</span><a href class="alert-link" ng-click="addRecord($event)">去添加</a></span>
                     <span ng-switch-when="record.like.pre"></span>
-                    <span ng-switch-when="record.like.end">，还需要【{{task.gap}}】次</span>
+                    <span ng-switch-when="record.like.end"></span>
                 </div>
             </div>
             <div class='row'>
@@ -64,7 +64,6 @@
                                     </div>
                                     <div ng-switch on="notice.event_name" ng-click="gotoCowork(notice.enroll_key)">
                                         <div ng-switch-when="site.matter.enroll.submit">
-                                            <span>（{{notice.notice_reason}}）</span>
                                             <div ng-switch on="notice.notice_reason">
                                                 <div ng-switch-when="same.group">在你们的分组下添加记录</div>
                                                 <div ng-switch-when="as.editor">添加记录</div>

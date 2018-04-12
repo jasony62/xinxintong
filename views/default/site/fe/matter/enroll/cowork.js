@@ -74,8 +74,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$sce', '$uibModal', 'tmsL
             if (oUser.is_leader === 'S') {
                 return true;
             }
-            if (oUser.is_leader === 'Y' && oUser.group_id === oRecord.group_id) {
-                return true;
+            if (oUser.is_leader === 'Y') {
+                if (oUser.group_id === oRecord.group_id) {
+                    return true;
+                } else if (oUser.is_editor && oUser.is_editor === 'Y') {
+                    return true;
+                }
             }
         }
         return false;

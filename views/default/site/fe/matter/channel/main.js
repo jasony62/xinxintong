@@ -34,7 +34,7 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt']).config
         } else {
             sharelink += "&shareby=" + shareid;
         }
-        window.xxt.share.set($scope.channel.title, sharelink, $scope.channel.title, '');
+        window.xxt.share.set($scope.channel.title, sharelink, $scope.channel.summary, '');
     };
     $scope.Matter = {
         matters: [],

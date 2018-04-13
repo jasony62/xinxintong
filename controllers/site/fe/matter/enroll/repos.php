@@ -287,7 +287,7 @@ class repos extends base {
 			case 'mostliked':
 				$oOptions->orderby = ['like_num', 'enroll_at'];
 				break;;
-			default:
+			case 'agreed':
 				$oOptions->orderby = ['agreed', 'enroll_at'];
 				break;
 			}

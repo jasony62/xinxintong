@@ -41,7 +41,7 @@ class notice_model extends \TMS_MODEL {
 		$notice = count($notice) === 1 ? $notice[0] : false;
 
 		if (!$bOnlySite) {
-			if (false === $notice && $siteId !== 'platform') {
+			if ((false === $notice || $notice->tmplmsg_config_id == 0) && $siteId !== 'platform') {
 				$notice = $this->_queryBy("siteid='platform' and event_name='$name'", $options);
 				$notice = count($notice) === 1 ? $notice[0] : false;
 			}

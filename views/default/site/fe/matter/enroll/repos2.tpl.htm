@@ -108,12 +108,14 @@
                             <span ng-if="criteria.orderby==='lastest'">最近提交</span>
                             <span ng-if="criteria.orderby==='earliest'">最早提交</span>
                             <span ng-if="criteria.orderby==='mostliked'">最多赞同</span>
+                            <span ng-if="criteria.orderby==='agreed'">精选推荐</span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
                             <li><a href ng-click="shiftOrderby('lastest')">最近提交</a></li>
                             <li><a href ng-click="shiftOrderby('earliest')">最早提交</a></li>
                             <li><a href ng-click="shiftOrderby('mostliked')">最多赞同</a></li>
+                            <li><a href ng-click="shiftOrderby('agreed')">精选推荐</a></li>
                         </ul>
                     </div>
                     <div class="btn-group" uib-dropdown>

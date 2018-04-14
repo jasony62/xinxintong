@@ -273,7 +273,6 @@ class repos extends base {
 
 		// 登记数据过滤条件
 		$oPosted = $this->getPostJson();
-
 		// 登记记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
@@ -287,6 +286,9 @@ class repos extends base {
 				break;
 			case 'mostliked':
 				$oOptions->orderby = ['like_num', 'enroll_at'];
+				break;;
+			case 'agreed':
+				$oOptions->orderby = ['agreed', 'enroll_at'];
 				break;
 			}
 		}

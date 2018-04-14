@@ -181,6 +181,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);
     };
+    $scope.advCriteriaStatus = {
+        opened: !$scope.isSmallLayout,
+        dirOpen: false,
+        filterOpen: true
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
         /* 活动任务 */
@@ -261,9 +266,4 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
             $scope.appNavs = oAppNavs;
         }
     });
-    $scope.advCriteriaStatus = {
-        opened: !$scope.isSmallLayout,
-        dirOpen: false,
-        filterOpen: true
-    };
 }]);

@@ -176,6 +176,11 @@ p {
 #cowork {
 	.item {
 		position: relative;
+		transition: background 1s;
+	}
+
+	.blink {
+		background: #d9edf7;
 	}
 
 }
@@ -206,17 +211,18 @@ p {
 		border-bottom: 1px solid #ddd;
 		transition: background 1s;
 		padding: 8px 0;
+
+		&:last-child {
+			border-bottom: 0;
+		}
+
+		&>* {
+			margin: 1em 0 .2em;
+		}
+
 	}
 
-	.remark:last-child {
-		border-bottom: 0;
-	}
-
-	.remark>* {
-		margin: 1em 0 .2em;
-	}
-
-	.remark.blink {
+	.blink {
 		background: #d9edf7;
 	}
 

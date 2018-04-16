@@ -59,7 +59,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12 };
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' };
+    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'agreed' };
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.recordList = function(pageAt) {
@@ -181,6 +181,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);
     };
+    $scope.advCriteriaStatus = {
+        opened: !$scope.isSmallLayout,
+        dirOpen: false,
+        filterOpen: true
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
         /* 活动任务 */
@@ -261,9 +266,4 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
             $scope.appNavs = oAppNavs;
         }
     });
-    $scope.advCriteriaStatus = {
-        opened: !$scope.isSmallLayout,
-        dirOpen: false,
-        filterOpen: true
-    };
 }]);

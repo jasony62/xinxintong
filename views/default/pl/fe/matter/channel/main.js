@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'srvSite', '$uibModal', 'srvTag', 'cstApp', function($scope, http2, srvSite, $uibModal, srvTag, cstApp) {
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', 'srvSite', '$uibModal', 'srvTag', 'cstApp', function($scope, http2, mediagallery, srvSite, $uibModal, srvTag, cstApp) {
         function arrangeMatters() {
             $scope.matters = _oEditing.matters;
             if (_oEditing.top_type) {
@@ -44,6 +44,19 @@ define(['frame'], function(ngApp) {
                     });
                 }
             });
+        };
+        $scope.removePic = function() {
+            _oEditing.pic = '';
+            $scope.update('pic');
+        };
+        $scope.setPic = function() {
+            var options = {
+                callback: function(url) {
+                    _oEditing.pic = url + '?_=' + (new Date * 1);
+                    $scope.update('pic');
+                }
+            };
+            mediagallery.open(_oEditing.siteid, options);
         };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {

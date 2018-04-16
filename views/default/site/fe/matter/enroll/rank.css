@@ -263,15 +263,15 @@ ul > li {
 }
 
 .first-user-img {
-	background-position: -46px -34px;
+	background-position: 0 -25px;
 }
 
 .second-user-img {
-	background-position: -47px -98px;
+	background-position: -1px -89px;
 }
 
 .third-user-img {
-	background-position: -46px -171px;
+	background-position: -1px -162px;
 }
 
 .text-color {

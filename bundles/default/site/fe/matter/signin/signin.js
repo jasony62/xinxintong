@@ -1,1 +1,2511 @@
-!function(e){function t(i){if(n[i])return n[i].exports;var o=n[i]={i:i,l:!1,exports:{}};return e[i].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var n={};t.m=e,t.c=n,t.i=function(e){return e},t.d=function(e,n,i){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:i})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=106)}({0:function(e,t){function n(e,t){var n=e[1]||"",o=e[3];if(!o)return n;if(t&&"function"==typeof btoa){var r=i(o);return[n].concat(o.sources.map(function(e){return"/*# sourceURL="+o.sourceRoot+e+" */"})).concat([r]).join("\n")}return[n].join("\n")}function i(e){return"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(e))))+" */"}e.exports=function(e){var t=[];return t.toString=function(){return this.map(function(t){var i=n(t,e);return t[2]?"@media "+t[2]+"{"+i+"}":i}).join("")},t.i=function(e,n){"string"==typeof e&&(e=[[null,e,""]]);for(var i={},o=0;o<this.length;o++){var r=this[o][0];"number"==typeof r&&(i[r]=!0)}for(o=0;o<e.length;o++){var a=e[o];"number"==typeof a[0]&&i[a[0]]||(n&&!a[2]?a[2]=n:n&&(a[2]="("+a[2]+") and ("+n+")"),t.push(a))}},t}},1:function(e,t,n){function i(e,t){for(var n=0;n<e.length;n++){var i=e[n],o=m[i.id];if(o){o.refs++;for(var r=0;r<o.parts.length;r++)o.parts[r](i.parts[r]);for(;r<i.parts.length;r++)o.parts.push(u(i.parts[r],t))}else{for(var a=[],r=0;r<i.parts.length;r++)a.push(u(i.parts[r],t));m[i.id]={id:i.id,refs:1,parts:a}}}}function o(e,t){for(var n=[],i={},o=0;o<e.length;o++){var r=e[o],a=t.base?r[0]+t.base:r[0],s=r[1],c=r[2],l=r[3],u={css:s,media:c,sourceMap:l};i[a]?i[a].parts.push(u):n.push(i[a]={id:a,parts:[u]})}return n}function r(e,t){var n=h(e.insertInto);if(!n)throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");var i=w[w.length-1];if("top"===e.insertAt)i?i.nextSibling?n.insertBefore(t,i.nextSibling):n.appendChild(t):n.insertBefore(t,n.firstChild),w.push(t);else{if("bottom"!==e.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");n.appendChild(t)}}function a(e){if(null===e.parentNode)return!1;e.parentNode.removeChild(e);var t=w.indexOf(e);t>=0&&w.splice(t,1)}function s(e){var t=document.createElement("style");return e.attrs.type="text/css",l(t,e.attrs),r(e,t),t}function c(e){var t=document.createElement("link");return e.attrs.type="text/css",e.attrs.rel="stylesheet",l(t,e.attrs),r(e,t),t}function l(e,t){Object.keys(t).forEach(function(n){e.setAttribute(n,t[n])})}function u(e,t){var n,i,o,r;if(t.transform&&e.css){if(!(r=t.transform(e.css)))return function(){};e.css=r}if(t.singleton){var l=b++;n=v||(v=s(t)),i=d.bind(null,n,l,!1),o=d.bind(null,n,l,!0)}else e.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(n=c(t),i=p.bind(null,n,t),o=function(){a(n),n.href&&URL.revokeObjectURL(n.href)}):(n=s(t),i=f.bind(null,n),o=function(){a(n)});return i(e),function(t){if(t){if(t.css===e.css&&t.media===e.media&&t.sourceMap===e.sourceMap)return;i(e=t)}else o()}}function d(e,t,n,i){var o=n?"":i.css;if(e.styleSheet)e.styleSheet.cssText=y(t,o);else{var r=document.createTextNode(o),a=e.childNodes;a[t]&&e.removeChild(a[t]),a.length?e.insertBefore(r,a[t]):e.appendChild(r)}}function f(e,t){var n=t.css,i=t.media;if(i&&e.setAttribute("media",i),e.styleSheet)e.styleSheet.cssText=n;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(n))}}function p(e,t,n){var i=n.css,o=n.sourceMap,r=void 0===t.convertToAbsoluteUrls&&o;(t.convertToAbsoluteUrls||r)&&(i=x(i)),o&&(i+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))+" */");var a=new Blob([i],{type:"text/css"}),s=e.href;e.href=URL.createObjectURL(a),s&&URL.revokeObjectURL(s)}var m={},g=function(e){var t;return function(){return void 0===t&&(t=e.apply(this,arguments)),t}}(function(){return window&&document&&document.all&&!window.atob}),h=function(e){var t={};return function(n){return void 0===t[n]&&(t[n]=e.call(this,n)),t[n]}}(function(e){return document.querySelector(e)}),v=null,b=0,w=[],x=n(3);e.exports=function(e,t){if("undefined"!=typeof DEBUG&&DEBUG&&"object"!=typeof document)throw new Error("The style-loader cannot be used in a non-browser environment");t=t||{},t.attrs="object"==typeof t.attrs?t.attrs:{},t.singleton||(t.singleton=g()),t.insertInto||(t.insertInto="head"),t.insertAt||(t.insertAt="bottom");var n=o(e,t);return i(n,t),function(e){for(var r=[],a=0;a<n.length;a++){var s=n[a],c=m[s.id];c.refs--,r.push(c)}if(e){i(o(e,t),t)}for(var a=0;a<r.length;a++){var c=r[a];if(0===c.refs){for(var l=0;l<c.parts.length;l++)c.parts[l]();delete m[c.id]}}}};var y=function(){var e=[];return function(t,n){return e[t]=n,e.filter(Boolean).join("\n")}}()},106:function(e,t,n){e.exports=n(51)},2:function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("page.ui.xxt",[]);ngMod.directive("dynamicHtml",["$compile",function(e){return{restrict:"EA",replace:!0,link:function(t,n,i){t.$watch(i.dynamicHtml,function(i){i&&i.length&&(n.html(i),e(n.contents())(t))})}}}]),ngMod.service("tmsDynaPage",["$q",function($q){this.loadCss=function(e){var t,n;t=document.createElement("style"),t.innerHTML=e,n=document.querySelector("head"),n.appendChild(t)},this.loadExtCss=function(e){var t,n;t=document.createElement("link"),t.href=e,t.rel="stylesheet",n=document.querySelector("head"),n.appendChild(t)},this.loadJs=function(ngApp,js){!function(ngApp){eval(js)}(ngApp)},this.loadScript=function(e){var t,n,i=$q.defer();return n=function(){var o;o=document.createElement("script"),o.src=e[t],o.onload=function(){t++,t<e.length?n():i.resolve()},document.body.appendChild(o)},e&&(angular.isString(e)&&(e=[e]),e.length&&(t=0,n())),i.promise},this.loadExtJs=function(e,t){var n,i=this,o=$q.defer(),r=t.ext_js.length;return n=function(n){var a;a=document.createElement("script"),a.src=n.url,a.onload=function(){0===--r&&(t.js&&t.js.length&&i.loadJs(e,t.js),o.resolve())},document.body.appendChild(a)},t.ext_js&&t.ext_js.length&&t.ext_js.forEach(n),o.promise},this.loadCode=function(e,t){var n=this,i=$q.defer();return t.ext_css&&t.ext_css.length&&t.ext_css.forEach(function(e){n.loadExtCss(e.url)}),t.css&&t.css.length&&this.loadCss(t.css),t.ext_js&&t.ext_js.length?n.loadExtJs(e,t).then(function(){i.resolve()}):(t.js&&t.js.length&&n.loadJs(e,t.js),i.resolve()),i.promise},this.openPlugin=function(e){var t,n,i,o,r=$q.defer();return document.documentElement.clientWidth>768?document.documentElement.scrollTop=0:document.body.scrollTop=0,o=document.getElementsByTagName("body")[0],o.style.cssText="overflow-y:hidden",t=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),i=document.createElement("iframe"),n.appendChild(i),n.onclick=function(){n.parentNode.removeChild(n),o.style.cssText="overflow-y:auto"},t.appendChild(n),document.body.appendChild(t),0===e.indexOf("http")?(window.onClosePlugin=function(e){n.parentNode.removeChild(n),o.style.cssText="overflow-y:auto",r.resolve(e)},i.setAttribute("src",e)):i.contentDocument&&i.contentDocument.body&&(i.contentDocument.body.innerHTML=e),r.promise}}])},20:function(e,t,n){"use strict";var i={};i.isEmpty=function(e,t){if(void 0===t)return!0;switch(e.type){case"multiple":for(var n in t)if(!0===t[n])return!1;return!0;default:return 0===t.length}},i.checkRequire=function(e,t){return void 0!==t&&!this.isEmpty(e,t)||"请填写必填题目［"+e.title+"］"},i.checkFormat=function(e,t){if("number"===e.format){if(!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(t))return"题目［"+e.title+"］请输入数值"}else if("name"===e.format){if(/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(t))return"题目［"+e.title+"］请输入字母或者汉字，并不少于2个字符";if(t.length<2)return"题目［"+e.title+"］请输入正确的姓名（不少于2个字符）"}else if("mobile"===e.format){if(!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(t))return"题目［"+e.title+"］请输入正确的手机号（11位数字）"}else if("email"===e.format&&!/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(t))return"题目［"+e.title+"］请输入正确的邮箱";return!0},i.checkCount=function(e,t){return!(void 0!==e.count&&t.length>e.count)||"［"+e.title+"］超出上传数量（"+e.count+"）限制"},i.checkValue=function(e,t){var n;if(e.required&&"Y"===e.required&&!0!==(n=this.checkRequire(e,t)))return n;if(t){if("shorttext"===e.type&&e.format&&!0!==(n=this.checkFormat(e,t)))return n;if("multiple"===e.type&&"Y"===e.limitChoice&&e.range){var i=0;for(var o in t)t[o]&&i++;if(i<e.range[0]||i>e.range[1])return"【"+e.title+"】中最多只能选择("+e.range[1]+")项，最少需要选择("+e.range[0]+")项"}if(/image|file/.test(e.type)&&e.count&&!0!==(n=this.checkCount(e,t)))return n}return!0},i.loadRecord=function(e,t,n){if(!n)return!1;var o,r,a;for(o in n)if("member"===o)t.member=angular.extend(t.member,n.member);else if(r=e[o])if(/score|url/.test(r.type))t[o]=n[o],"url"===r.type&&(t[o]._text=i.urlSubstitute(t[o]));else if(n[o].length)if("image"===r.type){a=n[o].split(","),t[o]=[];for(var s in a)t[o].push({imgSrc:a[s]})}else if("multiple"===r.type){a=n[o].split(","),t[o]={};for(var s in a)t[o][a[s]]=!0}else t[o]=n[o];return!0},i.autoFillDefault=function(e,t){angular.forEach(e,function(e){e.defaultValue&&void 0===t[e.id]&&(t[e.id]=e.defaultValue)})},i.autoFillMember=function(e,t,n){t.members&&angular.forEach(e,function(e){if(e.schema_id&&t.members[e.schema_id]){var i,o,r;if(i=t.members[e.schema_id],o=e.id.split("."),2===o.length)n[o[1]]=i[o[1]];else if(3===o.length&&i.extattr)switch(n.extattr||(n.extattr={}),e.type){case"multiple":if(r=i.extattr[o[2]],angular.isObject(r)){n.extattr[o[2]]={};for(var a in r)r[a]&&(n.extattr[o[2]][a]=!0)}break;default:n.extattr[o[2]]=i.extattr[o[2]]}}})},i.txtSubstitute=function(e){return e.replace(/\n/g,"<br>")},i.urlSubstitute=function(e){var t;return t="",e&&(e.title&&(t+="【"+e.title+"】"),e.description&&(t+=e.description)),t+='<a href="'+e.url+'">网页链接</a>'},e.exports=i},21:function(e,t,n){"use strict";void 0===window.xxt&&(window.xxt={}),window.xxt.image={options:{},choose:function(e,t){var n,i=[];if(n=e.promise,window.YixinJSBridge)window.YixinJSBridge.invoke("pickImage",{type:t,quality:100},function(t){var n;t.data&&t.data.length&&(n={imgSrc:"data:"+t.mime+";base64,"+t.data},i.push(n)),e.resolve(i)});else{var o=document.createElement("input");o.setAttribute("type","file"),o.addEventListener("change",function(t){var n,r,a,s;for(r=t.target.files.length,n=0;n<r;n++){a=t.target.files[n],s={".jp":"image/jpeg",".pn":"image/png",".gi":"image/gif"}[a.name.match(/\.(\w){2}/g)[0]||".jp"],a.type2=a.type||s;var c=new FileReader;c.onload=function(t){return function(n){var r={};r.imgSrc=n.target.result.replace(/^.+(,)/,"data:"+t.type2+";base64,"),i.push(r),document.body.removeChild(o),e.resolve(i)}}(a),c.readAsDataURL(a)}},!1),o.style.opacity=0,document.body.appendChild(o),o.click()}return n},wxUpload:function(e,t){var n;return n=e.promise,0===t.imgSrc.indexOf("weixin://")||0===t.imgSrc.indexOf("wxLocalResource://")?window.wx.uploadImage({localId:t.imgSrc,isShowProgressTips:1,success:function(n){t.serverId=n.serverId,e.resolve(t)}}):e.resolve(t),n}}},22:function(e,t,n){"use strict";void 0===window.xxt&&(window.xxt={}),window.xxt.geo={options:{},getAddress:function(e,t,n){var i;if(i=t.promise,window.wx)window.wx.getLocation({success:function(i){var o="/rest/site/fe/matter/enroll/locationGet";o+="?site="+n,o+="&lat="+i.latitude,o+="&lng="+i.longitude,e.get(o).then(function(e){t.resolve({errmsg:"ok",lat:i.latitude,lng:i.longitude,address:e.data.address})})}});else try{var o=window.navigator;if(null!==o){var r=o.geolocation;null!==r?r.getCurrentPosition(function(i){var o="/rest/site/fe/matter/enroll/locationGet";o+="?site="+n,o+="&lat="+i.coords.latitude,o+="&lng="+i.coords.longitude,e.get(o).then(function(e){t.resolve({errmsg:"ok",lat:i.coords.latitude,lng:i.coords.longitude,address:e.data.address})})},function(){t.resolve({errmsg:"获取地理位置失败"})}):t.resolve({errmsg:"无法获取地理位置"})}else t.resolve({errmsg:"无法获取地理位置"})}catch(e){alert("exception:"+e.message)}return i}}},25:function(e,t,n){t=e.exports=n(0)(void 0),t.push([e.i,".dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:998}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-body,.dialog .dlg-header{padding:15px 15px 0}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}",""])},26:function(e,t,n){var i=n(25);"string"==typeof i&&(i=[[e.i,i,""]]);var o={};o.transform=void 0;n(1)(i,o);i.locals&&(e.exports=i.locals)},27:function(e,t,n){"use strict";var i={};i.state={modified:!1,state:"waiting",_cacheKey:!1,start:function(e,t,n){var i;if(e&&(i=e.target,("BUTTON"===i.tagName||(i=i.parentNode)&&"BUTTON"===i.tagName)&&/submit\(.*\)/.test(i.getAttribute("ng-click")))){var o;this.button=i,o=i.querySelector("span"),o.setAttribute("data-label",o.innerHTML),o.innerHTML="正在提交数据...",this.button.classList.add("submit-running")}this.state="save"==n?"waiting":"running",this._cacheKey=t||1*new Date},finish:function(e){if(this.state="waiting",this.modified=!1,this.button){var t;t=this.button.querySelector("span"),t.innerHTML=t.getAttribute("data-label"),t.removeAttribute("data-label"),this.button.classList.remove("submit-running"),this.button=null}window.localStorage&&!e&&window.localStorage.removeItem(this._cacheKey)},isRunning:function(){return"running"===this.state},cache:function(e){if(window.localStorage){var t,n;t=this._cacheKey,n=angular.copy(e),n._cacheAt=1*new Date,n=JSON.stringify(n),window.localStorage.setItem(t,n)}},fromCache:function(e){if(window.localStorage){var t,n;t=this._cacheKey,n=window.localStorage.getItem(t),e||window.localStorage.removeItem(t),n&&(n=JSON.parse(n))}return n}},e.exports=i},28:function(e,t){var n={};n.makeDialog=function(e,t){var n,i;return i=document.createElement("div"),i.setAttribute("id",e),i.classList.add("dialog","mask"),n="<div class='dialog dlg'>",t.header&&t.header.length&&(n+="<div class='dlg-header'>"+t.header+"</div>"),n+="<div class='dlg-body'>"+t.body+"</div>",t.footer&&t.footer.length&&(n+="<div class='dlg-footer'>"+t.footer+"</div>"),n+="</div>",i.innerHTML=n,document.body.appendChild(i),i.children};var i=angular.module("directive.signin",[]);i.directive("tmsDate",["$compile",function(e){return{restrict:"A",scope:{value:"=tmsDateValue"},controller:["$scope",function(e){e.close=function(){var t;t=document.querySelector("#"+e.dialogID),document.body.removeChild(t),e.opened=!1},e.ok=function(){var t;t=new Date,t.setTime(0),t.setFullYear(e.data.year),t.setMonth(e.data.month-1),t.setDate(e.data.date),t.setHours(e.data.hour),t.setMinutes(e.data.minute),e.value=parseInt(t.getTime()/1e3),e.close()}}],link:function(t,i,o){var r,a,s,c;void 0===t.value&&(t.value=1*new Date/1e3),a=new Date,a.setTime(1e3*t.value),t.options={years:[2014,2015,2016,2017,2018,2019,2020],months:[1,2,3,4,5,6,7,8,9,10,11,12],dates:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],hours:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],minutes:[0,5,10,15,20,25,30,35,40,45,50,55]},s=5*Math.round(a.getMinutes()/5),t.data={year:a.getFullYear(),month:a.getMonth()+1,date:a.getDate(),hour:a.getHours(),minute:s},-1===t.options.minutes.indexOf(s)&&t.options.minutes.push(s),c='<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>',c+='<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>',c+='<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>',c+='<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>',c+='<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>',r=function(i){if(i.preventDefault(),i.stopPropagation(),!t.opened){var o,r;r="_dlg-"+1*new Date,o={header:"",body:c,footer:'<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'},o=n.makeDialog(r,o),t.opened=!0,t.dialogID=r,e(o)(t)}},i[0].querySelector("[ng-bind]").addEventListener("click",r)}}}]),i.directive("tmsCheckboxGroup",function(){return{restrict:"A",link:function(e,t,n){var i,o,r,a;n.tmsCheckboxGroup&&n.tmsCheckboxGroup.length&&(i=n.tmsCheckboxGroup,n.tmsCheckboxGroupModel&&n.tmsCheckboxGroupModel.length&&(o=n.tmsCheckboxGroupModel,n.tmsCheckboxGroupUpper&&n.tmsCheckboxGroupUpper.length&&(a=n.tmsCheckboxGroupUpper,r=document.querySelectorAll("[name="+i+"]"),e.$watch(o+"."+i,function(e){var t;t=0,angular.forEach(e,function(e,n){e&&t++}),t>=a?[].forEach.call(r,function(e){void 0===e.checked?!e.classList.contains("checked")&&e.setAttribute("disabled",!0):!e.checked&&(e.disabled=!0)}):[].forEach.call(r,function(e){void 0===e.checked?e.removeAttribute("disabled"):e.disabled=!1})},!0))))}}}),i.directive("flexImg",function(){return{restrict:"A",replace:!0,template:"<img ng-src='{{img.imgSrc}}'>",link:function(e,t,n){angular.element(t).on("load",function(){var e,t,n=this.clientWidth,i=this.clientHeight;n>i?(e=n/i*80,angular.element(this).css({height:"100%",width:e+"px",top:"0",left:"50%","margin-left":-1*e/2+"px"})):(t=i/n*80,angular.element(this).css({width:"100%",height:t+"px",left:"0",top:"50%","margin-top":-1*t/2+"px"}))})}}}),i.directive("dynamicHtml",["$compile",function(e){return{restrict:"EA",replace:!0,link:function(t,n,i){t.$watch(i.dynamicHtml,function(i){i&&i.length&&(n.html(i),e(n.contents())(t))})}}}])},29:function(e,t,n){"use strict";n(7),/MicroMessenger/i.test(navigator.userAgent)&&window.signPackage&&window.wx?window.wx.ready(function(){window.wx.showOptionMenu()}):/YiXin/i.test(navigator.userAgent)&&document.addEventListener("YixinJSBridgeReady",function(){YixinJSBridge.call("showOptionMenu")},!1),n(26),n(8),n(6),n(2),n(21),n(22),n(28);var i=function(e,t){if(!window.xxt||!window.xxt.share)return!1;var n,i;n=location.protocol+"//"+location.host+LS.j("","site","app"),t.page.share_page&&"Y"===t.page.share_page&&(n+="&page="+t.page.name,n+="&ek="+t.enrollKey),i=t.app.summary,t.page.share_summary&&t.page.share_summary.length&&t.record&&(i=t.record.data[t.page.share_summary]),e.shareData={title:t.app.title,link:n,desc:i,pic:t.app.pic},window.xxt.share.set(t.app.title,n,i,t.app.pic),window.shareCounter=0,window.xxt.share.options.logger=function(e){}},o=angular.module("app",["ngSanitize","notice.ui.xxt","http.ui.xxt","page.ui.xxt","directive.signin","snsshare.ui.xxt"]);o.config(["$controllerProvider","$locationProvider",function(e,t){o.provider={controller:e.register},t.html5Mode(!0)}]),o.controller("ctrlMain",["$scope","$timeout","http2","tmsLocation","tmsDynaPage",function(e,t,n,r,a){function s(){n.get(r.j("askFollow","site")).then(function(){},function(e){var t,n;t=document.body,n=document.createElement("iframe"),n.setAttribute("id","frmPopup"),n.height=t.clientHeight,t.scrollTop=0,t.appendChild(n),window.closeAskFollow=function(){n.style.display="none"},n.setAttribute("src",r.j("askFollow","site")),n.style.display="block"})}function c(t){var n,i,o,r;r=!0,n=e,o=t.match(/\((.*?)\)/)[1].replace(/'|"/g,"").split(","),angular.forEach(t.replace(/\(.*?\)/,"").split("."),function(e){if(i&&(n=i),!n[e])return void(r=!1);i=n[e]}),r&&i.apply(n,o)}var l=[];e.closeWindow=function(){/MicroMessenger/i.test(navigator.userAgent)?window.wx.closeWindow():/YiXin/i.test(navigator.userAgent)&&window.YixinJSBridge.call("closeWebView")},e.addRecord=function(t,n){n?e.gotoPage(t,n,null,null,!1,"Y"):alert("没有指定登记编辑页")},e.gotoPage=function(t,n,i,o,a,c){if(t.preventDefault(),t.stopPropagation(),a&&!e.User.fan)return void s();var l=r.j("","site","app");void 0!==i&&null!==i&&i.length&&(l+="&ek="+i),void 0!==o&&null!==o&&o.length&&(l+="&rid="+o),void 0!==n&&null!==n&&n.length&&(l+="&page="+n),void 0!==c&&"Y"===c&&(l+="&newRecord=Y"),location.replace(l)},e.openMatter=function(e,t,n,i){var o="/rest/site/fe/matter?site="+r.s().site+"&id="+e+"&type="+t;n?location.replace(o):!1===i?location.href=o:window.open(o)},e.gotoLottery=function(e,t,n){e.preventDefault(),e.stopPropagation(),location.replace("/rest/app/lottery?mpid="+r.s().mpid+"&lottery="+t+"&enrollKey="+n)},e.followMp=function(t,n){/YiXin/i.test(navigator.userAgent)?location.href="yixin://opencard?pid="+e.mpa.yx_cardid:void 0!==n&&n.length?e.gotoPage(t,n):alert("请在易信中打开页面")},e.onReady=function(t){e.params?c(t):l.push(t)},n.get(r.j("get","site","app","rid","page","ek","newRecord")).then(function(n){var r=n.data,s=r.site,c=r.app,u=r.mission,d={};c.data_schemas=JSON.parse(c.data_schemas),c.data_schemas.forEach(function(e){d[e.id]=e}),c._schemasById=d,e.params=r,e.site=s,e.mission=u,e.app=c,e.user=r.user,"Y"===c.multi_rounds&&(e.activeRound=r.activeRound),i(e,r),"Y"===c.use_site_header&&s&&s.header_page&&a.loadCode(o,s.header_page),"Y"===c.use_mission_header&&u&&u.header_page&&a.loadCode(o,u.header_page),"Y"===c.use_mission_footer&&u&&u.footer_page&&a.loadCode(o,u.footer_page),"Y"===c.use_site_footer&&s&&s.footer_page&&a.loadCode(o,s.footer_page),r.page&&a.loadCode(o,r.page).then(function(){e.page=r.page}),l.length&&angular.forEach(l,PG.exec),t(function(){e.$broadcast("xxt.app.signin.ready",r)});var f;(f=document.querySelector(".loading"))&&f.parentNode.removeChild(f)})}]),e.exports=o},3:function(e,t){e.exports=function(e){var t="undefined"!=typeof window&&window.location;if(!t)throw new Error("fixUrls requires window.location");if(!e||"string"!=typeof e)return e;var n=t.protocol+"//"+t.host,i=n+t.pathname.replace(/\/[^\/]*$/,"/");return e.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi,function(e,t){var o=t.trim().replace(/^"(.*)"$/,function(e,t){return t}).replace(/^'(.*)'$/,function(e,t){return t});if(/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(o))return e;var r;return r=0===o.indexOf("//")?o:0===o.indexOf("/")?n+o:i+o.replace(/^\.\//,""),"url("+JSON.stringify(r)+")"})}},51:function(e,t,n){"use strict";n(84);var i=n(29);i.oUtilSchema=n(20),i.oUtilSubmit=n(27),i.config(["$compileProvider",function(e){e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/)}]),i.factory("Input",["http2","$q","$timeout","tmsLocation",function(e,t,n,o){var r,a;return r=function(){},r.prototype.check=function(e,t,n){var o,r,a,s,c;if(n.data_schemas&&n.data_schemas.length){o=JSON.parse(n.data_schemas);for(var l=0,u=o.length;l<u;l++){if(r=o[l],a=r.schema,0===a.id.indexOf("member.")){var d=a.id.substr(7);-1===d.indexOf(".")?s=e.member[d]:(d=d.split("."),s=e.member.extattr[d[1]])}else s=e[a.id];if(void 0===a.required&&"Y"===r.config.required&&(a.required="Y"),a.type&&"html"!==a.type&&!0!==(c=i.oUtilSchema.checkValue(a,s)))return c}}return!0},r.prototype.submit=function(t,n){var i,r,a;a=angular.copy(t),Object.keys&&0===Object.keys(a.member).length&&delete a.member,i=o.j("record/submit","site","app"),n&&n.length&&(i+="&ek="+n);for(var s in a)r=a[s],angular.isArray(r)&&r.length&&void 0!==r[0].imgSrc&&void 0!==r[0].serverId&&r.forEach(function(e){delete e.imgSrc});return e.post(i,a,{autoBreak:!1})},{ins:function(){return a||(a=new r),a}}}]),i.directive("tmsImageInput",["$compile","$q",function(e,t){var n,i,o;return n=[],i=function(t){var n;n="<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'camera')\">拍照</button></div>",n+="<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'album')\">相册</button></div>",n=__util.makeDialog("pickImageFrom",{body:n}),e(n)(t)},o=function(e){var n=t.defer();return n.resolve("ok"),n.promise},{restrict:"A",controller:["$scope","$timeout","noticebox",function(e,r,a){e.beforeSubmit(function(){return o(e.data)}),e.chooseImage=function(o,s,c){if(null!==o&&(-1===n.indexOf(o)&&n.push(o),void 0===e.data[o]&&(e.data[o]=[]),null!==s&&e.data[o].length===s))return void a.warn("最多允许上传"+s+"张图片");if(window.YixinJSBridge){if(void 0===c)return e.cachedImgFieldName=o,void i(e);o=e.cachedImgFieldName,e.cachedImgFieldName=null,angular.element("#pickImageFrom").remove()}window.xxt.image.choose(t.defer(),c).then(function(t){var n,i,a,s;n=e.$root.$$phase,"$digest"===n||"$apply"===n?e.data[o]=e.data[o].concat(t):e.$apply(function(){e.data[o]=e.data[o].concat(t)}),r(function(){for(i=0,a=t.length;i<a;i++)s=t[i],document.querySelector('ul[name="'+o+'"] li:nth-last-child(2) img').setAttribute("src",s.imgSrc);e.$broadcast("xxt.signin.image.choose.done",o)})})},e.removeImage=function(e,t){e.splice(t,1)}}]}}]),i.directive("tmsFileInput",["$q",function(e){var t,n;return t=new Resumable({target:"/rest/site/fe/matter/signin/record/uploadFile?site="+LS.s().site+"&aid="+LS.s().app,testChunks:!1,chunkSize:524288}),n=function(n){var i;return i=e.defer(),t.files&&0!==t.files.length||i.resolve("empty"),t.on("progress",function(){var e,i;i=t.progress();var e=n.$root.$$phase;"$digest"===e||"$apply"===e?n.progressOfUploadFile=Math.ceil(100*i):n.$apply(function(){n.progressOfUploadFile=Math.ceil(100*i)})}),t.on("complete",function(){var e=n.$root.$$phase;"$digest"===e||"$apply"===e?n.progressOfUploadFile="完成":n.$apply(function(){n.progressOfUploadFile="完成"}),t.cancel(),i.resolve("ok")}),t.upload(),i.promise},{restrict:"A",controller:["$scope",function(e){e.progressOfUploadFile=0,e.beforeSubmit(function(){return n(e)}),e.chooseFile=function(n,i,o){var r=document.createElement("input");r.setAttribute("type","file"),void 0!==o&&r.setAttribute("accept",o),r.addEventListener("change",function(i){var o,r,a;for(r=i.target.files.length,o=0;o<r;o++)a=i.target.files[o],t.addFile(a),void 0===e.data[n]&&(e.data[n]=[]),e.data[n].push({uniqueIdentifier:t.files[0].uniqueIdentifier,name:a.name,size:a.size,type:a.type,url:""});e.$apply("data."+n),e.$broadcast("xxt.signin.file.choose.done",n)},!1),r.click()}}]}}]),i.controller("ctrlSignin",["$scope","Input","tmsLocation","noticebox",function(e,t,n,o){function r(t){var i;i=e.record?e.record.enroll_key:void 0,s.submit(e.data,i).then(function(r){var a;r.data.forword?(a=n.j("","site","app"),a+="&page="+r.data.forword,a+="&ek="+r.data.ek,location.replace(a),o.success("完成提交")):"closeWindow"===t?e.closeWindow():"_autoForward"===t?(a=n.j("","site","app"),location.replace(a),o.success("完成提交")):t&&t.length?(a=n.j("","site","app"),a+="&page="+t,a+="&ek="+r.data.ek,location.replace(a),o.success("完成提交")):(o.success("完成提交"),void 0===i&&(e.record={enroll_key:r.data.ek}),e.$broadcast("xxt.app.signin.submit.done",r.data))},function(e){c.finish()})}function a(e,t){(0,l[e])().then(function(n){e++,e<l.length?a(e,t):r(t)})}window.onbeforeunload=function(){c.modified&&c.cache(e.data)};var s,c,l;l=[],s=t.ins(),e.data={member:{}},e.supplement={},e.submitState=c=i.oUtilSubmit.state,e.beforeSubmit=function(e){-1===l.indexOf(e)&&l.push(e)},e.submit=function(t,n){var i,u,d,f;d=e.app,f=e.record,c.isRunning()||(u="/site/"+d.siteid+"/app/signin/"+d.id+"/record/"+(f?f.enroll_key:"")+"/submit",c.start(t,u),!0===(i=s.check(e.data,d,e.page))?l.length?a(0,n):r(n):(c.finish(),o.warn(i)))},e.$on("xxt.app.signin.ready",function(t,n){if(n.record&&(i.oUtilSchema.loadRecord(n.app._schemasById,e.data,n.record.data),e.record=n.record),window.localStorage){var o=c.fromCache();o&&(o.member&&delete o.member,angular.extend(e.data,o),c.modified=!0)}e.$watch("data",function(e,t){e!==t&&(c.modified=!0)},!0)});var u=!1;e.$watch("data.member.schema_id",function(t){!1===u&&t&&e.user&&(i.oUtilSchema.autoFillMember(e.user,e.data.member),u=!0)})}])},6:function(e,t,n){"use strict";var i=angular.module("http.ui.xxt",[]);i.provider("tmsLocation",function(){var e;this.config=function(t){e=t||location.pathname},this.$get=["$location",function(t){return e||(e=location.pathname),{s:function(){return t.search()},j:function(n){var i=e,o=[];n&&n.length&&(i+="/"+n);for(var r=1,a=arguments.length;r<a;r++)o.push(arguments[r]+"="+(t.search()[arguments[r]]||""));return o.length&&(i+="?"+o.join("&")),i}}}]}),i.service("http2",["$rootScope","$http","$timeout","$q","$sce","$compile",function(e,t,n,i,o,r){function a(t,n,i){var a;return a=angular.element("<div></div>"),a.attr({class:"tms-notice alert alert-"+(n||"info"),"ng-style":"{'z-index':1099}"}).html(o.trustAsHtml(t)),i||a[0].addEventListener("click",function(){document.body.removeChild(a[0])},!0),r(a)(e),document.body.appendChild(a[0]),a[0]}function s(e){e&&document.body.removeChild(e)}this.get=function(e,o){var r,c,l=i.defer();return o=angular.extend({headers:{accept:"application/json"},autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},o),!0===o.showProgress&&(c=n(function(){c=null,r=a(o.showProgressText,"info")},o.showProgressDelay)),t.get(e,o).success(function(e){if(!0===o.showProgress&&(c&&n.cancel(c),r&&(s(r),r=null)),angular.isString(e)){if(o.autoNotice&&a(e,"warning"),o.autoBreak)return;l.reject(e)}else if(0!=e.err_code){if(o.autoNotice){var t;t=angular.isString(e.err_msg)?e.err_msg:angular.isArray(e.err_msg)?e.err_msg.join("<br>"):JSON.stringify(e.err_msg),a(t,"warning")}if(o.autoBreak)return;l.reject(e)}else l.resolve(e)}).error(function(e,t){!0===o.showProgress&&(c&&n.cancel(c),r&&(s(r),r=null)),a(null===e?"网络不可用":e,"danger")}),l.promise},this.post=function(e,o,r){var c,l,u=i.defer();return r=angular.extend({headers:{accept:"application/json"},autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},r),!0===r.showProgress&&(l=n(function(){l=null,c=a(r.showProgressText,"info")},r.showProgressDelay)),t.post(e,o,r).success(function(e){if(!0===r.showProgress&&(l&&n.cancel(l),c&&(s(c),c=null)),angular.isString(e)){if(r.autoNotice&&(a(e,"warning"),c=null),r.autoBreak)return;u.reject(e)}else if(0!=e.err_code){if(r.autoNotice){var t;t=angular.isString(e.err_msg)?e.err_msg:angular.isArray(e.err_msg)?e.err_msg.join("<br>"):JSON.stringify(e.err_msg),a(t,"warning")}if(r.autoBreak)return;u.reject(e)}else u.resolve(e)}).error(function(e,t){!0===r.showProgress&&(l&&n.cancel(l),c&&(s(c),c=null)),a(null===e?"网络不可用":e,"danger")}),u.promise}}])},69:function(e,t,n){t=e.exports=n(0)(void 0),t.push([e.i,".ng-cloak{display:none}body,html{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial}body{position:relative;padding:15px;font-size:16px}img{max-width:100%}ul{list-style:none}li,ul,ul.img-tiles li{margin:0;padding:0}ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;float:left}ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}ul.img-tiles li.img-picker button span{font-size:36px}div[wrap].wrap-splitline{padding-bottom:.5em;border-bottom:1px solid #fff}div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0}div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}div[wrap=matter]>span{cursor:pointer;text-decoration:underline}#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box}",""])},7:function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("snsshare.ui.xxt",[]);ngMod.service("tmsSnsShare",["$http",function($http){function setWxShare(e,t,n,i,o){window.wx.onMenuShareTimeline({title:o.descAsTitle?n:e,link:t,imgUrl:i,success:function(){try{o.logger&&o.logger("T")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareT: fail")}}),window.wx.onMenuShareAppMessage({title:e,desc:n,link:t,imgUrl:i,success:function(){try{o.logger&&o.logger("F")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareF: fail")}})}function setYxShare(e,t,n,i,o){var r={img_url:i,link:t,title:e,desc:n};window.YixinJSBridge.on("menu:share:appmessage",function(e){try{o.logger&&o.logger("F")}catch(e){alert("share failed:"+e.message)}window.YixinJSBridge.invoke("sendAppMessage",r,function(e){})}),window.YixinJSBridge.on("menu:share:timeline",function(e){try{o.logger&&o.logger("T")}catch(e){alert("share failed:"+e.message)}window.YixinJSBridge.invoke("shareTimeline",r,function(e){})})}this.config=function(e){this.options=e},this.set=function(title,link,desc,img,fnOther){var _this=this;if(img&&-1===img.indexOf(location.protocol)&&(img=location.protocol+"//"+location.host+img),/MicroMessenger/i.test(navigator.userAgent)){var script;script=document.createElement("script"),script.src=location.protocol+"//res.wx.qq.com/open/js/jweixin-1.0.0.js",script.onload=function(){var xhr,url;xhr=new XMLHttpRequest,url="/rest/site/fe/wxjssdksignpackage?site="+_this.options.siteId+"&url="+encodeURIComponent(location.href.split("#")[0]),xhr.open("GET",url,!0),xhr.onreadystatechange=function(){if(4==xhr.readyState)if(xhr.status>=200&&xhr.status<400){var signPackage;try{eval("("+xhr.responseText+")"),signPackage&&(signPackage.debug=!1,signPackage.jsApiList=_this.options.jsApiList,wx.config(signPackage),wx.ready(function(){setWxShare(title,link,desc,img,_this.options)}),wx.error(function(e){alert(JSON.stringify(e))}))}catch(e){alert("local error:"+e.toString())}}else alert("http error:"+xhr.statusText)},xhr.send()},document.body.appendChild(script)}else/Yixin/i.test(navigator.userAgent)?void 0===window.YixinJSBridge?document.addEventListener("YixinJSBridgeReady",function(){setYxShare(title,link,desc,img,_this.options)},!1):setYxShare(title,link,desc,img,_this.options):fnOther&&"function"==typeof fnOther&&fnOther(title,link,desc,img)}}])},8:function(e,t,n){"use strict";angular.module("notice.ui.xxt",["ngSanitize"]).service("noticebox",["$timeout","$q",function(e,t){var n="tmsbox"+1*new Date,i={type:"",timer:null},o=function(e,t){var o;return o=document.querySelector("#"+n),null===o?(o=document.createElement("div"),o.setAttribute("id",n),o.classList.add("notice-box"),o.classList.add("alert"),o.classList.add("alert-"+e),o.innerHTML="<div>"+t+"</div>",document.body.appendChild(o),i.type=e):(i.type!==e&&(o.classList.remove("alert-"+e),i.type=e),o.childNodes[0].innerHTML=t),o};this.close=function(){var e;(e=document.querySelector("#"+n))&&document.body.removeChild(e)},this.error=function(t){var n,r;i.timer&&(e.cancel(i.timer),i.timer=null),n=o("danger",t),r=document.createElement("button"),r.classList.add("close"),r.innerHTML="<span>&times;</span>",n.insertBefore(r,n.childNodes[0]),r.addEventListener("click",function(){document.body.removeChild(n)})},this.warn=function(t){var n,r;i.timer&&(e.cancel(i.timer),i.timer=null),n=o("warning",t),r=document.createElement("button"),r.classList.add("close"),r.innerHTML="<span>&times;</span>",n.insertBefore(r,n.childNodes[0]),r.addEventListener("click",function(){document.body.removeChild(n)})},this.success=function(t){var n;i.timer&&e.cancel(i.timer),n=o("success",t),i.timer=e(function(){n.parentNode&&n.parentNode===document.body&&document.body.removeChild(n),i.timer=null},2e3)},this.info=function(t){var n;i.timer&&e.cancel(i.timer),n=o("info",t),i.timer=e(function(){n.parentNode&&n.parentNode===document.body&&document.body.removeChild(n),i.timer=null},2e3)},this.progress=function(e){o("progress",e)},this.confirm=function(n){var r,a,s;return r=t.defer(),i.timer&&(e.cancel(i.timer),i.timer=null),a=o("warning",n),s=document.createElement("button"),s.classList.add("btn","btn-default","btn-sm"),s.innerHTML="是",a.appendChild(s,a.childNodes[0]),s.addEventListener("click",function(){document.body.removeChild(a),r.resolve()}),s=document.createElement("button"),s.classList.add("btn","btn-default","btn-sm"),s.innerHTML="否",a.appendChild(s,a.childNodes[0]),s.addEventListener("click",function(){document.body.removeChild(a),r.reject()}),r.promise}}])},84:function(e,t,n){var i=n(69);"string"==typeof i&&(i=[[e.i,i,""]]);var o={};o.transform=void 0;n(1)(i,o);i.locals&&(e.exports=i.locals)}});
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 106);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 0:
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+
+/***/ 1:
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(selector) {
+		if (typeof memo[selector] === "undefined") {
+			memo[selector] = fn.call(this, selector);
+		}
+
+		return memo[selector]
+	};
+})(function (target) {
+	return document.querySelector(target)
+});
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(3);
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton) options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+	if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	options.attrs.type = "text/css";
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	options.attrs.type = "text/css";
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = options.transform(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+
+/***/ 106:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(51);
+
+
+/***/ }),
+
+/***/ 2:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('page.ui.xxt', []);
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}]);
+ngMod.service('tmsDynaPage', ['$q', function($q) {
+    this.loadCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
+    this.loadExtCss = function(url) {
+        var link, head;
+        link = document.createElement('link');
+        link.href = url;
+        link.rel = 'stylesheet';
+        head = document.querySelector('head');
+        head.appendChild(link);
+    };
+    this.loadJs = function(ngApp, js) {
+        (function(ngApp) {
+            eval(js);
+        })(ngApp);
+    };
+    this.loadScript = function(urls) {
+        var index, fnLoad, deferred = $q.defer();
+        fnLoad = function() {
+            var script;
+            script = document.createElement('script');
+            script.src = urls[index];
+            script.onload = function() {
+                index++;
+                if (index < urls.length) {
+                    fnLoad();
+                } else {
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (urls) {
+            angular.isString(urls) && (urls = [urls]);
+            if (urls.length) {
+                index = 0;
+                fnLoad();
+            }
+        }
+
+        return deferred.promise;
+    };
+    this.loadExtJs = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer(),
+            jslength = code.ext_js.length,
+            loadScript2;
+        loadScript2 = function(js) {
+            var script;
+            script = document.createElement('script');
+            script.src = js.url;
+            script.onload = function() {
+                jslength--;
+                if (jslength === 0) {
+                    if (code.js && code.js.length) {
+                        _self.loadJs(ngApp, code.js);
+                    }
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (code.ext_js && code.ext_js.length) {
+            code.ext_js.forEach(loadScript2);
+        }
+        return deferred.promise;
+    };
+    this.loadCode = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer();
+        if (code.ext_css && code.ext_css.length) {
+            code.ext_css.forEach(function(css) {
+                _self.loadExtCss(css.url);
+            });
+        }
+        if (code.css && code.css.length) {
+            this.loadCss(code.css);
+        }
+        if (code.ext_js && code.ext_js.length) {
+            _self.loadExtJs(ngApp, code).then(function() {
+                deferred.resolve();
+            });
+        } else {
+            if (code.js && code.js.length) {
+                _self.loadJs(ngApp, code.js);
+            }
+            deferred.resolve();
+        }
+        return deferred.promise;
+    };
+    this.openPlugin = function(content) {
+        var frag, wrap, frm, body, deferred = $q.defer();
+        if(document.documentElement.clientWidth > 768) {
+            document.documentElement.scrollTop  = 0;
+        } else {
+            document.body.scrollTop  = 0;
+        }
+        body = document.getElementsByTagName('body')[0];
+        body.style.cssText="overflow-y:hidden";
+        frag = document.createDocumentFragment();
+        wrap = document.createElement('div');
+        wrap.setAttribute('id', 'frmPlugin');
+        frm = document.createElement('iframe');
+        wrap.appendChild(frm);
+        wrap.onclick = function() {
+            wrap.parentNode.removeChild(wrap);
+            body.style.cssText="overflow-y:auto";
+        };
+        frag.appendChild(wrap);
+        document.body.appendChild(frag);
+        if (content.indexOf('http') === 0) {
+            window.onClosePlugin = function(result) {
+                wrap.parentNode.removeChild(wrap);
+                body.style.cssText="overflow-y:auto";
+                deferred.resolve(result);
+            };
+            frm.setAttribute('src', content);
+        } else {
+            if (frm.contentDocument && frm.contentDocument.body) {
+                frm.contentDocument.body.innerHTML = content;
+            }
+        }
+        return deferred.promise;
+    };
+}]);
+
+
+/***/ }),
+
+/***/ 20:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var utilSchema = {};
+utilSchema.isEmpty = function(oSchema, value) {
+    if (value === undefined) {
+        return true;
+    }
+    switch (oSchema.type) {
+        case 'multiple':
+            for (var p in value) {
+                //至少有一个选项
+                if (value[p] === true) {
+                    return false;
+                }
+            }
+            return true;
+        default:
+            return value.length === 0;
+    }
+};
+utilSchema.checkRequire = function(oSchema, value) {
+    if (value === undefined || this.isEmpty(oSchema, value)) {
+        return '请填写必填题目［' + oSchema.title + '］';
+    }
+    return true;
+};
+utilSchema.checkFormat = function(oSchema, value) {
+    if (oSchema.format === 'number') {
+        if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入数值';
+        }
+    } else if (oSchema.format === 'name') {
+        if(/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入字母或者汉字，并不少于2个字符';
+        }
+        if (value.length < 2) {
+            return '题目［' + oSchema.title + '］请输入正确的姓名（不少于2个字符）';
+        }
+    } else if (oSchema.format === 'mobile') {
+        if (!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入正确的手机号（11位数字）';
+        }
+    } else if (oSchema.format === 'email') {
+        if (!/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入正确的邮箱';
+        }
+    }
+    return true;
+};
+utilSchema.checkCount = function(oSchema, value) {
+    if (oSchema.count !== undefined && value.length > oSchema.count) {
+        return '［' + oSchema.title + '］超出上传数量（' + oSchema.count + '）限制';
+    }
+    return true;
+};
+utilSchema.checkValue = function(oSchema, value) {
+    var sCheckResult;
+    if (oSchema.required && oSchema.required === 'Y') {
+        if (true !== (sCheckResult = this.checkRequire(oSchema, value))) {
+            return sCheckResult;
+        }
+    }
+    if (value) {
+        if (oSchema.type === 'shorttext' && oSchema.format) {
+            if (true !== (sCheckResult = this.checkFormat(oSchema, value))) {
+                return sCheckResult;
+            }
+        }
+        if (oSchema.type === 'multiple' && oSchema.limitChoice === 'Y' && oSchema.range) {
+            var opCount = 0;
+            for (var i in value) {
+                if (value[i]) {
+                    opCount++;
+                }
+            }
+            if (opCount < oSchema.range[0] || opCount > oSchema.range[1]) {
+                return '【' + oSchema.title + '】中最多只能选择(' + oSchema.range[1] + ')项，最少需要选择(' + oSchema.range[0] + ')项';
+            }
+        }
+        if (/image|file/.test(oSchema.type) && oSchema.count) {
+            if (true !== (sCheckResult = this.checkCount(oSchema, value))) {
+                return sCheckResult;
+            }
+        }
+    }
+    return true;
+};
+utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
+    if (!dataOfRecord) return false;
+    var schemaId, oSchema, value;
+    for (schemaId in dataOfRecord) {
+        if (schemaId === 'member') {
+            dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
+        } else if (oSchema = schemasById[schemaId]) {
+            if (/score|url/.test(oSchema.type)) {
+                dataOfPage[schemaId] = dataOfRecord[schemaId];
+                if ('url' === oSchema.type) {
+                    dataOfPage[schemaId]._text = utilSchema.urlSubstitute(dataOfPage[schemaId]);
+                }
+            } else if (dataOfRecord[schemaId].length) {
+                if (oSchema.type === 'image') {
+                    value = dataOfRecord[schemaId].split(',');
+                    dataOfPage[schemaId] = [];
+                    for (var i in value) {
+                        dataOfPage[schemaId].push({
+                            imgSrc: value[i]
+                        });
+                    }
+                } else if (oSchema.type === 'multiple') {
+                    value = dataOfRecord[schemaId].split(',');
+                    dataOfPage[schemaId] = {};
+                    for (var i in value) dataOfPage[schemaId][value[i]] = true;
+                } else {
+                    dataOfPage[schemaId] = dataOfRecord[schemaId];
+                }
+            }
+        }
+    }
+    return true;
+};
+/**
+ * 给页面中的提交数据填充题目默认值
+ */
+utilSchema.autoFillDefault = function(schemasById, oPageData) {
+    angular.forEach(schemasById, function(oSchema) {
+        if (oSchema.defaultValue && oPageData[oSchema.id] === undefined) {
+            oPageData[oSchema.id] = oSchema.defaultValue;
+        }
+    });
+};
+/**
+ * 给页面中的提交数据填充用户通讯录数据
+ */
+utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {
+    if (oUser.members) {
+        angular.forEach(schemasById, function(oSchema) {
+            if (oSchema.schema_id && oUser.members[oSchema.schema_id]) {
+                var oMember, attr, val;
+                oMember = oUser.members[oSchema.schema_id];
+                attr = oSchema.id.split('.');
+                if (attr.length === 2) {
+                    oPageDataMember[attr[1]] = oMember[attr[1]];
+                } else if (attr.length === 3 && oMember.extattr) {
+                    if (!oPageDataMember.extattr) {
+                        oPageDataMember.extattr = {};
+                    }
+                    switch (oSchema.type) {
+                        case 'multiple':
+                            val = oMember.extattr[attr[2]];
+                            if (angular.isObject(val)) {
+                                oPageDataMember.extattr[attr[2]] = {};
+                                for (var p in val) {
+                                    if (val[p]) {
+                                        oPageDataMember.extattr[attr[2]][p] = true;
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            oPageDataMember.extattr[attr[2]] = oMember.extattr[attr[2]];
+                    }
+                }
+            }
+        });
+    }
+};
+utilSchema.txtSubstitute = function(oTxtData) {
+    return oTxtData.replace(/\n/g, '<br>');
+};
+utilSchema.urlSubstitute = function(oUrlData) {
+    var text;
+    text = '';
+    if (oUrlData) {
+        if (oUrlData.title) {
+            text += '【' + oUrlData.title + '】';
+        }
+        if (oUrlData.description) {
+            text += oUrlData.description;
+        }
+    }
+    text += '<a href="' + oUrlData.url + '">网页链接</a>';
+
+    return text;
+};
+module.exports = utilSchema;
+
+/***/ }),
+
+/***/ 21:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.image = {
+    options: {},
+    choose: function(deferred, from) {
+        var promise, imgs = [];
+        promise = deferred.promise;
+        // if (window.wx !== undefined) {
+        //     window.wx.chooseImage({
+        //         success: function(res) {
+        //             var i, img;
+        //             for (i in res.localIds) {
+        //                 img = {
+        //                     imgSrc: res.localIds[i]
+        //                 };
+        //                 imgs.push(img);
+        //             }
+        //             deferred.resolve(imgs);
+        //         }
+        //     });
+        // } else
+        if (window.YixinJSBridge) {
+            window.YixinJSBridge.invoke(
+                'pickImage', {
+                    type: from,
+                    quality: 100
+                },
+                function(result) {
+                    var img;
+                    if (result.data && result.data.length) {
+                        img = {
+                            imgSrc: 'data:' + result.mime + ';base64,' + result.data
+                        };
+                        imgs.push(img);
+                    }
+                    deferred.resolve(imgs);
+                });
+        } else {
+            var ele = document.createElement('input');
+            ele.setAttribute('type', 'file');
+            ele.addEventListener('change', function(evt) {
+                var i, cnt, f, type;
+                cnt = evt.target.files.length;
+                for (i = 0; i < cnt; i++) {
+                    f = evt.target.files[i];
+                    type = {
+                        ".jp": "image/jpeg",
+                        ".pn": "image/png",
+                        ".gi": "image/gif"
+                    }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                    f.type2 = f.type || type;
+                    var reader = new FileReader();
+                    reader.onload = (function(theFile) {
+                        return function(e) {
+                            var img = {};
+                            img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                            imgs.push(img);
+                            document.body.removeChild(ele);
+                            deferred.resolve(imgs);
+                        };
+                    })(f);
+                    reader.readAsDataURL(f);
+                }
+            }, false);
+            ele.style.opacity = 0;
+            document.body.appendChild(ele);
+            ele.click();
+        }
+        return promise;
+    },
+    wxUpload: function(deferred, img) {
+        var promise;
+        promise = deferred.promise;
+        if (0 === img.imgSrc.indexOf('weixin://') || 0 === img.imgSrc.indexOf('wxLocalResource://')) {
+            window.wx.uploadImage({
+                localId: img.imgSrc,
+                isShowProgressTips: 1,
+                success: function(res) {
+                    img.serverId = res.serverId;
+                    deferred.resolve(img);
+                }
+            });
+        } else {
+            deferred.resolve(img);
+        }
+        return promise;
+    }
+};
+
+
+/***/ }),
+
+/***/ 22:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.geo = {
+    options: {},
+    getAddress: function(http2, deferred, siteId) {
+        var promise;
+        promise = deferred.promise;
+        if (window.wx) {
+            window.wx.getLocation({
+                success: function(res) {
+                    var url = '/rest/site/fe/matter/enroll/locationGet';
+                    url += '?site=' + siteId;
+                    url += '&lat=' + res.latitude;
+                    url += '&lng=' + res.longitude;
+                    http2.get(url).then(function(rsp) {
+                        deferred.resolve({
+                            errmsg: 'ok',
+                            lat: res.latitude,
+                            lng: res.longitude,
+                            address: rsp.data.address
+                        });
+                    });
+                }
+            });
+        } else {
+            try {
+                var nav = window.navigator;
+                if (nav !== null) {
+                    var geoloc = nav.geolocation;
+                    if (geoloc !== null) {
+                        geoloc.getCurrentPosition(function(position) {
+                            var url = '/rest/site/fe/matter/enroll/locationGet';
+                            url += '?site=' + siteId;
+                            url += '&lat=' + position.coords.latitude;
+                            url += '&lng=' + position.coords.longitude;
+                            http2.get(url).then(function(rsp) {
+                                deferred.resolve({
+                                    errmsg: 'ok',
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude,
+                                    address: rsp.data.address
+                                });
+                            });
+                        }, function() {
+                            deferred.resolve({
+                                errmsg: '获取地理位置失败'
+                            })
+                        });
+                    } else {
+                        deferred.resolve({
+                            errmsg: "无法获取地理位置"
+                        });
+                    }
+                } else {
+                    deferred.resolve({
+                        errmsg: "无法获取地理位置"
+                    });
+                }
+            } catch (e) {
+                alert('exception:' + e.message);
+            }
+        }
+        return promise;
+    },
+};
+
+
+/***/ }),
+
+/***/ 25:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "/*dialog*/\r\n.dialog.mask{position:fixed;background:rgba(0,0,0,0.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:998}\r\n.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}\r\n.dialog .dlg-header{padding:15px 15px 0 15px}\r\n.dialog .dlg-body{padding:15px 15px 0 15px}\r\n.dialog .dlg-footer{text-align:right;padding:15px}\r\n.dialog .dlg-footer button{border-radius:0}\r\n\r\n/*filter*/\r\ndiv[wrap=filter] .detail{background:#ccc}\r\ndiv[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}\r\ndiv[wrap=filter] .detail .actions .btn{border-radius:0}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 26:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(25);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./directive.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./directive.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 27:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var utilSubmit = {};
+utilSubmit.state = {
+    modified: false,
+    state: 'waiting',
+    _cacheKey: false,
+    start: function(event, cacheKey, type) {
+        var submitButton;
+        if (event) {
+            submitButton = event.target;
+            if (submitButton.tagName === 'BUTTON' || ((submitButton = submitButton.parentNode) && submitButton.tagName === 'BUTTON')) {
+                if (/submit\(.*\)/.test(submitButton.getAttribute('ng-click'))) {
+                    var span;
+                    this.button = submitButton;
+                    span = submitButton.querySelector('span');
+                    span.setAttribute('data-label', span.innerHTML);
+                    span.innerHTML = '正在提交数据...';
+                    this.button.classList.add('submit-running');
+                }
+            }
+        }
+        this.state = type == 'save' ? 'waiting' : 'running';
+        this._cacheKey = cacheKey ? cacheKey : (new Date * 1);
+    },
+    finish: function(keep) {
+        this.state = 'waiting';
+        this.modified = false;
+        if (this.button) {
+            var span;
+            span = this.button.querySelector('span');
+            span.innerHTML = span.getAttribute('data-label');
+            span.removeAttribute('data-label');
+            this.button.classList.remove('submit-running');
+            this.button = null;
+        }
+        if (window.localStorage && !keep) {
+            window.localStorage.removeItem(this._cacheKey);
+        }
+    },
+    isRunning: function() {
+        return this.state === 'running';
+    },
+    cache: function(cachedData) {
+        if (window.localStorage) {
+            var key, val;
+            key = this._cacheKey;
+            val = angular.copy(cachedData);
+            val._cacheAt = (new Date * 1);
+            val = JSON.stringify(val);
+            window.localStorage.setItem(key, val);
+        }
+    },
+    fromCache: function(keep) {
+        if (window.localStorage) {
+            var key, val;
+            key = this._cacheKey;
+            val = window.localStorage.getItem(key);
+            if (!keep) window.localStorage.removeItem(key);
+            if (val) {
+                val = JSON.parse(val);
+                /*if (val._cacheAt && (val._cacheAt + 1800000) < (new Date * 1)) {
+                    val = false;
+                }
+                delete val._cacheAt;*/
+            }
+        }
+        return val;
+    }
+};
+module.exports = utilSubmit;
+
+/***/ }),
+
+/***/ 28:
+/***/ (function(module, exports) {
+
+var __util = {};
+__util.makeDialog = function(id, html) {
+    var dlg, mask;
+
+    mask = document.createElement('div');
+    mask.setAttribute('id', id);
+    mask.classList.add('dialog', 'mask');
+
+    dlg = "<div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div>";
+
+    mask.innerHTML = dlg;
+
+    document.body.appendChild(mask);
+
+    return mask.children;
+};
+var ngMod = angular.module('directive.signin', []);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsDateValue'
+        },
+        controller: ['$scope', function($scope) {
+            $scope.close = function() {
+                var mask;
+                mask = document.querySelector('#' + $scope.dialogID);
+                document.body.removeChild(mask);
+                $scope.opened = false;
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = parseInt(dtObject.getTime() / 1000);
+                $scope.close();
+            };
+        }],
+        link: function(scope, elem, attrs) {
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
+            dtObject = new Date();
+            dtObject.setTime(scope.value * 1000);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017, 2018, 2019, 2020],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date() * 1);
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
+        }
+    }
+}]);
+ngMod.directive('tmsCheckboxGroup', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var groupName, model, options, upper;
+            if (attrs.tmsCheckboxGroup && attrs.tmsCheckboxGroup.length) {
+                groupName = attrs.tmsCheckboxGroup;
+                if (attrs.tmsCheckboxGroupModel && attrs.tmsCheckboxGroupModel.length) {
+                    model = attrs.tmsCheckboxGroupModel;
+                    if (attrs.tmsCheckboxGroupUpper && attrs.tmsCheckboxGroupUpper.length) {
+                        upper = attrs.tmsCheckboxGroupUpper;
+                        options = document.querySelectorAll('[name=' + groupName + ']');
+                        scope.$watch(model + '.' + groupName, function(data) {
+                            var cnt;
+                            cnt = 0;
+                            angular.forEach(data, function(v, p) {
+                                v && cnt++;
+                            });
+                            if (cnt >= upper) {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        !el.classList.contains('checked') && el.setAttribute('disabled', true);
+                                    } else {
+                                        !el.checked && (el.disabled = true);
+                                    }
+                                });
+                            } else {
+                                [].forEach.call(options, function(el) {
+                                    if (el.checked === undefined) {
+                                        el.removeAttribute('disabled');
+                                    } else {
+                                        el.disabled = false;
+                                    }
+                                });
+                            }
+                        }, true);
+                    }
+                }
+            }
+        }
+    };
+});
+ngMod.directive('flexImg', function() {
+    return {
+        restrict: 'A',
+        replace: true,
+        template: "<img ng-src='{{img.imgSrc}}'>",
+        link: function(scope, elem, attrs) {
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
+                    sw, sh;
+                if (w > h) {
+                    sw = w / h * 80;
+                    angular.element(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
+                } else {
+                    sh = h / w * 80;
+                    angular.element(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
+                }
+            })
+        }
+    }
+});
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}]);
+
+/***/ }),
+
+/***/ 29:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(7);
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
+    window.wx.ready(function() {
+        window.wx.showOptionMenu();
+    });
+} else if (/YiXin/i.test(navigator.userAgent)) {
+    document.addEventListener('YixinJSBridgeReady', function() {
+        YixinJSBridge.call('showOptionMenu');
+    }, false);
+}
+
+__webpack_require__(26);
+
+__webpack_require__(8);
+__webpack_require__(6);
+__webpack_require__(2);
+__webpack_require__(21);
+__webpack_require__(22);
+
+__webpack_require__(28);
+
+var setShareData = function(scope, params) {
+    if (!window.xxt || !window.xxt.share) {
+        return false;
+    }
+    var sharelink, summary;
+    sharelink = location.protocol + '//' + location.host + LS.j('', 'site', 'app');
+    if (params.page.share_page && params.page.share_page === 'Y') {
+        sharelink += '&page=' + params.page.name;
+        sharelink += '&ek=' + params.enrollKey;
+    }
+    //window.shareid = params.user.vid + (new Date()).getTime();
+    //sharelink += "&shareby=" + window.shareid;
+    summary = params.app.summary;
+    if (params.page.share_summary && params.page.share_summary.length && params.record)
+        summary = params.record.data[params.page.share_summary];
+    scope.shareData = {
+        title: params.app.title,
+        link: sharelink,
+        desc: summary,
+        pic: params.app.pic
+    };
+    window.xxt.share.set(params.app.title, sharelink, summary, params.app.pic);
+    window.shareCounter = 0;
+    window.xxt.share.options.logger = function(shareto) {};
+};
+var ngApp = angular.module('app', ['ngSanitize', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'directive.signin', 'snsshare.ui.xxt']);
+ngApp.config(['$controllerProvider', '$locationProvider', function($cp, $locationProvider) {
+    ngApp.provider = {
+        controller: $cp.register
+    };
+    $locationProvider.html5Mode(true);
+}]);
+ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tmsDynaPage', function($scope, $timeout, http2, LS, tmsDynaPage) {
+    function openAskFollow() {
+        http2.get(LS.j('askFollow', 'site')).then(function() {}, function(content) {
+            var body, el;;
+            body = document.body;
+            el = document.createElement('iframe');
+            el.setAttribute('id', 'frmPopup');
+            el.height = body.clientHeight;
+            body.scrollTop = 0;
+            body.appendChild(el);
+            window.closeAskFollow = function() {
+                el.style.display = 'none';
+            };
+            el.setAttribute('src', LS.j('askFollow', 'site'));
+            el.style.display = 'block';
+        });
+    }
+
+    function execTask(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    }
+
+    var tasksOfOnReady = [];
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            window.YixinJSBridge.call('closeWebView');
+        }
+    };
+    $scope.addRecord = function(event, page) {
+        page ? $scope.gotoPage(event, page, null, null, false, 'Y') : alert('没有指定登记编辑页');
+    };
+    $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (fansOnly && !$scope.User.fan) {
+            openAskFollow();
+            return;
+        }
+        var url = LS.j('', 'site', 'app');
+        if (ek !== undefined && ek !== null && ek.length) {
+            url += '&ek=' + ek;
+        }
+        rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
+        page !== undefined && page !== null && page.length && (url += '&page=' + page);
+        newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
+        location.replace(url);
+    };
+    $scope.openMatter = function(id, type, replace, newWindow) {
+        var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;
+        if (replace) {
+            location.replace(url);
+        } else {
+            if (newWindow === false) {
+                location.href = url;
+            } else {
+                window.open(url);
+            }
+        }
+    };
+    $scope.gotoLottery = function(event, lottery, ek) {
+        event.preventDefault();
+        event.stopPropagation();
+        location.replace('/rest/app/lottery?mpid=' + LS.s().mpid + '&lottery=' + lottery + '&enrollKey=' + ek);
+    };
+    $scope.followMp = function(event, page) {
+        if (/YiXin/i.test(navigator.userAgent)) {
+            location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
+        } else if (page !== undefined && page.length) {
+            $scope.gotoPage(event, page);
+        } else {
+            alert('请在易信中打开页面');
+        }
+    };
+    $scope.onReady = function(task) {
+        if ($scope.params) {
+            execTask(task);
+        } else {
+            tasksOfOnReady.push(task);
+        }
+    };
+    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function(rsp) {
+        var params = rsp.data,
+            oSite = params.site,
+            oApp = params.app,
+            oMission = params.mission,
+            schemasById = {};
+
+        oApp.data_schemas = JSON.parse(oApp.data_schemas);
+        oApp.data_schemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        oApp._schemasById = schemasById;
+        $scope.params = params;
+        $scope.site = oSite;
+        $scope.mission = oMission;
+        $scope.app = oApp;
+        $scope.user = params.user;
+        if (oApp.multi_rounds === 'Y') {
+            $scope.activeRound = params.activeRound;
+        }
+        setShareData($scope, params);
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
+        }
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, PG.exec);
+        }
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.signin.ready', params);
+        });
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
+    });
+}]);
+module.exports = ngApp;
+
+/***/ }),
+
+/***/ 3:
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+
+/***/ 51:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(84);
+var ngApp = __webpack_require__(29);
+ngApp.oUtilSchema = __webpack_require__(20);
+ngApp.oUtilSubmit = __webpack_require__(27);
+ngApp.config(['$compileProvider', function($compileProvider) {
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
+}]);
+ngApp.factory('Input', ['http2', '$q', '$timeout', 'tmsLocation', function(http2, $q, $timeout, LS) {
+    var Input, _ins;
+    Input = function() {};
+    Input.prototype.check = function(data, app, page) {
+        var dataSchemas, oItem, oSchema, value, sCheckResult;
+        if (page.data_schemas && page.data_schemas.length) {
+            dataSchemas = JSON.parse(page.data_schemas);
+            for (var i = 0, ii = dataSchemas.length; i < ii; i++) {
+                oItem = dataSchemas[i];
+                oSchema = oItem.schema;
+                //定义value
+                if (oSchema.id.indexOf('member.') === 0) {
+                    var memberSchema = oSchema.id.substr(7);
+                    if (memberSchema.indexOf('.') === -1) {
+                        value = data.member[memberSchema];
+                    } else {
+                        memberSchema = memberSchema.split('.');
+                        value = data.member.extattr[memberSchema[1]];
+                    }
+                } else {
+                    value = data[oSchema.id];
+                }
+                /* 为了兼容老版本 */
+                if (oSchema.required === undefined && oItem.config.required === 'Y') {
+                    oSchema.required = 'Y';
+                }
+                if (oSchema.type && oSchema.type !== 'html') {
+                    if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                        return sCheckResult;
+                    }
+                }
+            }
+        }
+        return true;
+    };
+    Input.prototype.submit = function(data, ek) {
+        var url, d, posted;
+        posted = angular.copy(data);
+        if (Object.keys && Object.keys(posted.member).length === 0) {
+            delete posted.member;
+        }
+        url = LS.j('record/submit', 'site', 'app');
+        ek && ek.length && (url += '&ek=' + ek);
+        for (var i in posted) {
+            d = posted[i];
+            if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
+                d.forEach(function(d2) {
+                    delete d2.imgSrc;
+                });
+            }
+        }
+        return http2.post(url, posted, { autoBreak: false });
+    };
+    return {
+        ins: function() {
+            if (!_ins) {
+                _ins = new Input();
+            }
+            return _ins;
+        }
+    }
+}]);
+ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
+    var modifiedImgFields, openPickFrom, onSubmit;
+    modifiedImgFields = [];
+    openPickFrom = function(scope) {
+        var html;
+        html = "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'camera')\">拍照</button></div>";
+        html += "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'album')\">相册</button></div>";
+        html = __util.makeDialog('pickImageFrom', {
+            body: html
+        });
+        $compile(html)(scope);
+    };
+    onSubmit = function(data) {
+        var defer = $q.defer(),
+            i = 0,
+            j = 0,
+            nextWxImage;
+        defer.resolve('ok');
+        return defer.promise;
+    };
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
+            $scope.beforeSubmit(function() {
+                return onSubmit($scope.data);
+            });
+            $scope.chooseImage = function(imgFieldName, count, from) {
+                if (imgFieldName !== null) {
+                    modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
+                    $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
+                    if (count !== null && $scope.data[imgFieldName].length === count) {
+                        noticebox.warn('最多允许上传' + count + '张图片');
+                        return;
+                    }
+                }
+                if (window.YixinJSBridge) {
+                    if (from === undefined) {
+                        $scope.cachedImgFieldName = imgFieldName;
+                        openPickFrom($scope);
+                        return;
+                    }
+                    imgFieldName = $scope.cachedImgFieldName;
+                    $scope.cachedImgFieldName = null;
+                    angular.element('#pickImageFrom').remove();
+                }
+                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
+                    var phase, i, j, img;
+                    phase = $scope.$root.$$phase;
+                    if (phase === '$digest' || phase === '$apply') {
+                        $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                    } else {
+                        $scope.$apply(function() {
+                            $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                        });
+                    }
+                    $timeout(function() {
+                        for (i = 0, j = imgs.length; i < j; i++) {
+                            img = imgs[i];
+                            //if (window.wx !== undefined) {
+                            document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);
+                            //}
+                        }
+                        $scope.$broadcast('xxt.signin.image.choose.done', imgFieldName);
+                    });
+                });
+            };
+            $scope.removeImage = function(imgField, index) {
+                imgField.splice(index, 1);
+            };
+        }]
+    }
+}]);
+ngApp.directive('tmsFileInput', ['$q', function($q) {
+    var r, onSubmit;
+    //require(['resumable'], function(Resumable) {
+    r = new Resumable({
+        target: '/rest/site/fe/matter/signin/record/uploadFile?site=' + LS.s().site + '&aid=' + LS.s().app,
+        testChunks: false,
+        chunkSize: 512 * 1024
+    });
+    //});
+    onSubmit = function($scope) {
+        var defer;
+        defer = $q.defer();
+        if (!r.files || r.files.length === 0)
+            defer.resolve('empty');
+        r.on('progress', function() {
+            var phase, p;
+            p = r.progress();
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = Math.ceil(p * 100);
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = Math.ceil(p * 100);
+                });
+            }
+        });
+        r.on('complete', function() {
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = '完成';
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = '完成';
+                });
+            }
+            r.cancel();
+            defer.resolve('ok');
+        });
+        r.upload();
+        return defer.promise;
+    };
+    return {
+        restrict: 'A',
+        controller: ['$scope', function($scope) {
+            $scope.progressOfUploadFile = 0;
+            $scope.beforeSubmit(function() {
+                return onSubmit($scope);
+            });
+            $scope.chooseFile = function(fileFieldName, count, accept) {
+                var ele = document.createElement('input');
+                ele.setAttribute('type', 'file');
+                accept !== undefined && ele.setAttribute('accept', accept);
+                ele.addEventListener('change', function(evt) {
+                    var i, cnt, f;
+                    cnt = evt.target.files.length;
+                    for (i = 0; i < cnt; i++) {
+                        f = evt.target.files[i];
+                        r.addFile(f);
+                        $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
+                        $scope.data[fileFieldName].push({
+                            uniqueIdentifier: r.files[0].uniqueIdentifier,
+                            name: f.name,
+                            size: f.size,
+                            type: f.type,
+                            url: ''
+                        });
+                    }
+                    $scope.$apply('data.' + fileFieldName);
+                    $scope.$broadcast('xxt.signin.file.choose.done', fileFieldName);
+                }, false);
+                ele.click();
+            };
+        }]
+    }
+}]);
+ngApp.controller('ctrlSignin', ['$scope', 'Input', 'tmsLocation', 'noticebox', function($scope, Input, LS, noticebox) {
+    function doSubmit(nextAction) {
+        var ek, btnSubmit;
+        ek = $scope.record ? $scope.record.enroll_key : undefined;
+        facInput.submit($scope.data, ek).then(function(rsp) {
+            var url;
+            if (rsp.data.forword) {
+                url = LS.j('', 'site', 'app');
+                url += '&page=' + rsp.data.forword;
+                url += '&ek=' + rsp.data.ek;
+                location.replace(url);
+                noticebox.success('完成提交');
+            } else if (nextAction === 'closeWindow') {
+                $scope.closeWindow();
+            } else if (nextAction === '_autoForward') {
+                // 根据指定的进入规则自动跳转到对应页面
+                url = LS.j('', 'site', 'app');
+                location.replace(url);
+                noticebox.success('完成提交');
+            } else if (nextAction && nextAction.length) {
+                url = LS.j('', 'site', 'app');
+                url += '&page=' + nextAction;
+                url += '&ek=' + rsp.data.ek;
+                location.replace(url);
+                noticebox.success('完成提交');
+            } else {
+                noticebox.success('完成提交');
+                if (ek === undefined) {
+                    $scope.record = {
+                        enroll_key: rsp.data.ek
+                    }
+                }
+                $scope.$broadcast('xxt.app.signin.submit.done', rsp.data);
+            }
+        }, function(rsp) {
+            submitState.finish();
+        });
+    }
+
+    function doTask(seq, nextAction) {
+        var task = tasksOfBeforeSubmit[seq];
+        task().then(function(rsp) {
+            seq++;
+            seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);
+        });
+    }
+    window.onbeforeunload = function() {
+        // 保存未提交数据
+        submitState.modified && submitState.cache($scope.data);
+    };
+
+    var facInput, submitState, tasksOfBeforeSubmit;
+    tasksOfBeforeSubmit = [];
+    facInput = Input.ins();
+    $scope.data = {
+        member: {}
+    };
+    $scope.supplement = {};
+    $scope.submitState = submitState = ngApp.oUtilSubmit.state;
+    $scope.beforeSubmit = function(fn) {
+        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
+            tasksOfBeforeSubmit.push(fn);
+        }
+    };
+    $scope.submit = function(event, nextAction) {
+        var sCheckResult, cacheKey, oApp, oRecord;
+        oApp = $scope.app;
+        oRecord = $scope.record;
+        if (!submitState.isRunning()) {
+            cacheKey = '/site/' + oApp.siteid + '/app/signin/' + oApp.id + '/record/' + (oRecord ? oRecord.enroll_key : '') + '/submit';
+            submitState.start(event, cacheKey);
+            if (true === (sCheckResult = facInput.check($scope.data, oApp, $scope.page))) {
+                tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
+            } else {
+                submitState.finish();
+                noticebox.warn(sCheckResult);
+            }
+        }
+    };
+    $scope.$on('xxt.app.signin.ready', function(event, params) {
+        if (params.record) {
+            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
+            $scope.record = params.record;
+        }
+        /* 恢复用户未提交的数据 */
+        if (window.localStorage) {
+            var cached = submitState.fromCache();
+            if (cached) {
+                if (cached.member) {
+                    delete cached.member;
+                }
+                angular.extend($scope.data, cached);
+                submitState.modified = true;
+            }
+        }
+        // 跟踪数据变化
+        $scope.$watch('data', function(nv, ov) {
+            if (nv !== ov) {
+                submitState.modified = true;
+            }
+        }, true);
+    });
+    var hasAutoFillMember = false;
+    $scope.$watch('data.member.schema_id', function(schemaId) {
+        if (false === hasAutoFillMember && schemaId && $scope.user) {
+            ngApp.oUtilSchema.autoFillMember($scope.user, $scope.data.member);
+            hasAutoFillMember = true;
+        }
+    });
+}]);
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('http.ui.xxt', []);
+ngMod.provider('tmsLocation', function() {
+    var _baseUrl;
+
+    this.config = function(baseUrl) {
+        _baseUrl = baseUrl || location.pathname;
+    };
+
+    this.$get = ['$location', function($location) {
+        if (!_baseUrl) {
+            _baseUrl = location.pathname;
+        }
+        return {
+            s: function() {
+                return $location.search();
+            },
+            j: function(method) {
+                var url = _baseUrl,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (var i = 1, l = arguments.length; i < l; i++) {
+                    search.push(arguments[i] + '=' + ($location.search()[arguments[i]] || ''));
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            }
+        };
+    }];
+});
+ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
+    function createAlert(msg, type, keep) {
+        var alertDomEl;
+        /* backdrop */
+        alertDomEl = angular.element('<div></div>');
+        alertDomEl.attr({
+            'class': 'tms-notice alert alert-' + (type ? type : 'info'),
+            'ng-style': '{\'z-index\':1099}'
+        }).html($sce.trustAsHtml(msg));
+        if (!keep) {
+            alertDomEl[0].addEventListener('click', function() {
+                document.body.removeChild(alertDomEl[0]);
+            }, true);
+        }
+        $compile(alertDomEl)($rootScope);
+        document.body.appendChild(alertDomEl[0]);
+
+        return alertDomEl[0];
+    }
+
+    function removeAlert(alertDomEl) {
+        if (alertDomEl) {
+            document.body.removeChild(alertDomEl);
+        }
+    }
+
+    this.get = function(url, options) {
+        var _alert, _timer, _defer = $q.defer();
+        options = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(options.showProgressText, 'info');
+            }, options.showProgressDelay);
+        }
+        $http.get(url, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (angular.isString(rsp)) {
+                if (options.autoNotice) {
+                    createAlert(rsp, 'warning');
+                }
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else if (rsp.err_code != 0) {
+                if (options.autoNotice) {
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else if (angular.isArray(rsp.err_msg)) {
+                        errmsg = rsp.err_msg.join('<br>');
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
+                }
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else {
+                _defer.resolve(rsp);
+            }
+        }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+    this.post = function(url, posted, options) {
+        var _alert, _timer, _defer = $q.defer();
+        options = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(options.showProgressText, 'info');
+            }, options.showProgressDelay);
+        }
+        $http.post(url, posted, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (angular.isString(rsp)) {
+                if (options.autoNotice) {
+                    createAlert(rsp, 'warning');
+                    _alert = null;
+                }
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else if (rsp.err_code != 0) {
+                if (options.autoNotice) {
+                    var errmsg;
+                    if (angular.isString(rsp.err_msg)) {
+                        errmsg = rsp.err_msg;
+                    } else if (angular.isArray(rsp.err_msg)) {
+                        errmsg = rsp.err_msg.join('<br>');
+                    } else {
+                        errmsg = JSON.stringify(rsp.err_msg);
+                    }
+                    createAlert(errmsg, 'warning');
+                }
+                if (options.autoBreak) {
+                    return
+                } else {
+                    _defer.reject(rsp);
+                }
+            } else {
+                _defer.resolve(rsp);
+            }
+        }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+}]);
+
+/***/ }),
+
+/***/ 69:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".ng-cloak{display:none;}\r\nhtml,body{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}\r\nbody{position:relative;padding:15px;font-size:16px;}\r\nimg{max-width:100%}\r\nul{margin:0;padding:0;list-style:none}\r\nli{margin:0;padding:0}\r\n\r\n/* img tiles */\r\nul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}\r\nul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none;}\r\nul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}\r\nul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}\r\nul.img-tiles li.img-picker button span{font-size:36px}\r\n\r\n/* default form style*/\r\ndiv[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}\r\ndiv[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}\r\ndiv[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}\r\ndiv[wrap=matter]>span{cursor:pointer;text-decoration:underline;}\r\n\r\n/* auth */\r\n#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 7:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ 
+ var ngMod = angular.module('snsshare.ui.xxt', []);
+ ngMod.service('tmsSnsShare', ['$http', function($http) {
+     function setWxShare(title, link, desc, img, options) {
+         var _this = this;
+         window.wx.onMenuShareTimeline({
+             title: options.descAsTitle ? desc : title,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('T');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareT: fail');
+             }
+         });
+         window.wx.onMenuShareAppMessage({
+             title: title,
+             desc: desc,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('F');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareF: fail');
+             }
+         });
+     }
+
+     function setYxShare(title, link, desc, img, options) {
+         var _this = this,
+             shareData = {
+                 'img_url': img,
+                 'link': link,
+                 'title': title,
+                 'desc': desc
+             };
+
+         window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
+             try {
+                 options.logger && options.logger('F');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
+         });
+         window.YixinJSBridge.on('menu:share:timeline', function(argv) {
+             try {
+                 options.logger && options.logger('T');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
+         });
+     }
+
+     this.config = function(options) {
+         this.options = options;
+     };
+     this.set = function(title, link, desc, img, fnOther) {
+         var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf(location.protocol) === -1 && (img = location.protocol + '//' + location.host + img);
+         if (/MicroMessenger/i.test(navigator.userAgent)) {
+             var script;
+             script = document.createElement('script');
+             script.src = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.0.0.js';
+             script.onload = function() {
+                 var xhr, url;
+                 xhr = new XMLHttpRequest();
+                 url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                 xhr.open('GET', url, true);
+                 xhr.onreadystatechange = function() {
+                     if (xhr.readyState == 4) {
+                         if (xhr.status >= 200 && xhr.status < 400) {
+                             var signPackage;
+                             try {
+                                 eval("(" + xhr.responseText + ')');
+                                 if (signPackage) {
+                                     signPackage.debug = false;
+                                     signPackage.jsApiList = _this.options.jsApiList;
+                                     wx.config(signPackage);
+                                     wx.ready(function() {
+                                         setWxShare(title, link, desc, img, _this.options);
+                                     });
+                                     wx.error(function(res) {
+                                         alert(JSON.stringify(res));
+                                     });
+                                 }
+                             } catch (e) {
+                                 alert('local error:' + e.toString());
+                             }
+                         } else {
+                             alert('http error:' + xhr.statusText);
+                         }
+                     };
+                 }
+                 xhr.send();
+             };
+             document.body.appendChild(script);
+         } else if (/Yixin/i.test(navigator.userAgent)) {
+             if (window.YixinJSBridge === undefined) {
+                 document.addEventListener('YixinJSBridgeReady', function() {
+                     setYxShare(title, link, desc, img, _this.options);
+                 }, false);
+             } else {
+                 setYxShare(title, link, desc, img, _this.options);
+             }
+         } else if (fnOther && typeof fnOther === 'function') {
+             fnOther(title, link, desc, img);
+         }
+     };
+ }]);
+
+/***/ }),
+
+/***/ 8:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('notice.ui.xxt', ['ngSanitize']);
+ngMod.service('noticebox', ['$timeout', '$q', function($timeout, $q) {
+    var _boxId = 'tmsbox' + (new Date * 1),
+        _last = {
+            type: '',
+            timer: null
+        },
+        _getBox = function(type, msg) {
+            var box;
+            box = document.querySelector('#' + _boxId);
+            if (box === null) {
+                box = document.createElement('div');
+                box.setAttribute('id', _boxId);
+                box.classList.add('notice-box');
+                box.classList.add('alert');
+                box.classList.add('alert-' + type);
+                box.innerHTML = '<div>' + msg + '</div>';
+                document.body.appendChild(box);
+                _last.type = type;
+            } else {
+                if (_last.type !== type) {
+                    box.classList.remove('alert-' + type);
+                    _last.type = type;
+                }
+                box.childNodes[0].innerHTML = msg;
+            }
+
+            return box;
+        };
+
+    this.close = function() {
+        var box;
+        box = document.querySelector('#' + _boxId);
+        if (box) {
+            document.body.removeChild(box);
+        }
+    };
+    this.error = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('danger', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.warn = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.success = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('success', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.info = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('info', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.progress = function(msg) {
+        /*显示消息框*/
+        _getBox('progress', msg);
+    };
+    this.confirm = function(msg) {
+        var defer, box, btn;
+        defer = $q.defer();
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*添加操作*/
+        btn = document.createElement('button');
+        btn.classList.add('btn', 'btn-default', 'btn-sm');
+        btn.innerHTML = '是';
+        box.appendChild(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+            defer.resolve();
+        });
+        btn = document.createElement('button');
+        btn.classList.add('btn', 'btn-default', 'btn-sm');
+        btn.innerHTML = '否';
+        box.appendChild(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+            defer.reject();
+        });
+
+        return defer.promise;
+    };
+}]);
+
+/***/ }),
+
+/***/ 84:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(69);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./signin.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./signin.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ })
+
+/******/ });

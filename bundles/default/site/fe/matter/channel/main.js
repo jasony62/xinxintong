@@ -1,1 +1,398 @@
-!function(e){function t(o){if(n[o])return n[o].exports;var r=n[o]={i:o,l:!1,exports:{}};return e[o].call(r.exports,r,r.exports,t),r.l=!0,r.exports}var n={};t.m=e,t.c=n,t.i=function(e){return e},t.d=function(e,n,o){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:o})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=90)}({2:function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("page.ui.xxt",[]);ngMod.directive("dynamicHtml",["$compile",function(e){return{restrict:"EA",replace:!0,link:function(t,n,o){t.$watch(o.dynamicHtml,function(o){o&&o.length&&(n.html(o),e(n.contents())(t))})}}}]),ngMod.service("tmsDynaPage",["$q",function($q){this.loadCss=function(e){var t,n;t=document.createElement("style"),t.innerHTML=e,n=document.querySelector("head"),n.appendChild(t)},this.loadExtCss=function(e){var t,n;t=document.createElement("link"),t.href=e,t.rel="stylesheet",n=document.querySelector("head"),n.appendChild(t)},this.loadJs=function(ngApp,js){!function(ngApp){eval(js)}(ngApp)},this.loadScript=function(e){var t,n,o=$q.defer();return n=function(){var r;r=document.createElement("script"),r.src=e[t],r.onload=function(){t++,t<e.length?n():o.resolve()},document.body.appendChild(r)},e&&(angular.isString(e)&&(e=[e]),e.length&&(t=0,n())),o.promise},this.loadExtJs=function(e,t){var n,o=this,r=$q.defer(),i=t.ext_js.length;return n=function(n){var s;s=document.createElement("script"),s.src=n.url,s.onload=function(){0===--i&&(t.js&&t.js.length&&o.loadJs(e,t.js),r.resolve())},document.body.appendChild(s)},t.ext_js&&t.ext_js.length&&t.ext_js.forEach(n),r.promise},this.loadCode=function(e,t){var n=this,o=$q.defer();return t.ext_css&&t.ext_css.length&&t.ext_css.forEach(function(e){n.loadExtCss(e.url)}),t.css&&t.css.length&&this.loadCss(t.css),t.ext_js&&t.ext_js.length?n.loadExtJs(e,t).then(function(){o.resolve()}):(t.js&&t.js.length&&n.loadJs(e,t.js),o.resolve()),o.promise},this.openPlugin=function(e){var t,n,o,r,i=$q.defer();return document.documentElement.clientWidth>768?document.documentElement.scrollTop=0:document.body.scrollTop=0,r=document.getElementsByTagName("body")[0],r.style.cssText="overflow-y:hidden",t=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),n.appendChild(o),n.onclick=function(){n.parentNode.removeChild(n),r.style.cssText="overflow-y:auto"},t.appendChild(n),document.body.appendChild(t),0===e.indexOf("http")?(window.onClosePlugin=function(e){n.parentNode.removeChild(n),r.style.cssText="overflow-y:auto",i.resolve(e)},o.setAttribute("src",e)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=e),i.promise}}])},35:function(e,t,n){"use strict";n(2),/MicroMessenger/.test(navigator.userAgent)&&(signPackage.jsApiList=["hideOptionMenu","onMenuShareTimeline","onMenuShareAppMessage"],wx.config(signPackage)),angular.module("app",["ui.bootstrap","infinite-scroll","page.ui.xxt"]).config(["$locationProvider",function(e){e.html5Mode(!0)}]).controller("ctrl",["$scope","$location","$http","$q","tmsDynaPage",function(e,t,n,o,r){var i,s,c,a;i=t.search().site,s=t.search().id,c=t.search().inviteToken,a=t.search().shareby?t.search().shareby:"";var l=function(){var t,o;t=e.user.vid+(new Date).getTime(),window.xxt.share.options.logger=function(o){var r="/rest/site/fe/matter/logShare";r+="?shareid="+t,r+="&site="+i,r+="&id="+s,r+="&type=channel",r+="&title="+e.channel.title,r+="&shareto="+o,r+="&shareby="+a,n.get(r)},o=location.href,/shareby=/.test(o)?o=o.replace(/shareby=[^&]*/,"shareby="+t):o+="&shareby="+t,window.xxt.share.set(e.channel.title,o,e.channel.summary,e.channel.pic,"")};e.Matter={matters:[],busy:!1,page:1,orderby:"time",changeOrderby:function(){this.reset()},reset:function(){this.matters=[],this.busy=!1,this.end=!1,this.page=1,this.nextPage()},nextPage:function(){var e,t=this;this.end||(this.busy=!0,e="/rest/site/fe/matter/channel/mattersGet",e+="?site="+i,e+="&id="+s,e+="&orderby="+this.orderby,e+="&page="+this.page,e+="&size=10",n.get(e).success(function(e){if(e.data.matters.length){for(var n=e.data.matters,o=0,r=n.length;o<r;o++)t.matters.push(n[o]);t.page++}else t.end=!0;t.busy=!1}))}},e.elSiteCard=angular.element(document.querySelector("#site-card")),e.siteCardToggled=function(e){var t;e&&(t=document.querySelector("#site-card>.dropdown-menu"))&&(t.style.left="auto",t.style.right=0)},e.open=function(t){e.channel.invite?location.href=t.url+"&inviteToken="+c:location.href=t.url},e.siteUser=function(e){var t=location.protocol+"//"+location.host;t+="/rest/site/fe/user",t+="?site="+i,location.href=t},e.invite=function(e,t){e.loginExpire?location.href="/rest/site/fe/invite?matter=channel,"+t.id+"&inviteToken="+c:r.openPlugin(location.protocol+"//"+location.host+"/rest/site/fe/user/access?site=platform#login").then(function(n){e.loginExpire=n.loginExpire,location.href="/rest/site/fe/invite?matter=channel,"+t.id+"&inviteToken="+c})};var u=function(){var t=o.defer();return n.get("/rest/site/home/get?site="+i).success(function(t){e.siteInfo=t.data}),n.get("/rest/site/fe/matter/channel/get?site="+i+"&id="+s).success(function(o){e.user=o.data.user,e.channel=o.data.channel,e.qrcode="/rest/site/fe/matter/channel/qrcode?site="+i+"&url="+encodeURIComponent(location.href),/MicroMessenge|Yixin/i.test(navigator.userAgent)&&l(),t.resolve(),n.post("/rest/site/fe/matter/logAccess?site="+i+"&id="+s+"&type=channel&title="+e.channel.title+"&shareby="+a,{search:location.search.replace("?",""),referer:document.referrer})}).error(function(e,t){if(401===t){var n=document.createElement("iframe");n.setAttribute("id","frmAuth"),n.onload=function(){this.height=document.documentElement.clientHeight},document.body.appendChild(n),0===e.indexOf("http")?(window.onAuthSuccess=function(){n.style.display="none",u()},n.setAttribute("src",e),n.style.display="block"):n.contentDocument&&n.contentDocument.body&&(n.contentDocument.body.innerHTML=e,n.style.display="block")}else alert(e)}),t.promise};u()}])},90:function(e,t,n){e.exports=n(35)}});
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 90);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 2:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('page.ui.xxt', []);
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}]);
+ngMod.service('tmsDynaPage', ['$q', function($q) {
+    this.loadCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
+    this.loadExtCss = function(url) {
+        var link, head;
+        link = document.createElement('link');
+        link.href = url;
+        link.rel = 'stylesheet';
+        head = document.querySelector('head');
+        head.appendChild(link);
+    };
+    this.loadJs = function(ngApp, js) {
+        (function(ngApp) {
+            eval(js);
+        })(ngApp);
+    };
+    this.loadScript = function(urls) {
+        var index, fnLoad, deferred = $q.defer();
+        fnLoad = function() {
+            var script;
+            script = document.createElement('script');
+            script.src = urls[index];
+            script.onload = function() {
+                index++;
+                if (index < urls.length) {
+                    fnLoad();
+                } else {
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (urls) {
+            angular.isString(urls) && (urls = [urls]);
+            if (urls.length) {
+                index = 0;
+                fnLoad();
+            }
+        }
+
+        return deferred.promise;
+    };
+    this.loadExtJs = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer(),
+            jslength = code.ext_js.length,
+            loadScript2;
+        loadScript2 = function(js) {
+            var script;
+            script = document.createElement('script');
+            script.src = js.url;
+            script.onload = function() {
+                jslength--;
+                if (jslength === 0) {
+                    if (code.js && code.js.length) {
+                        _self.loadJs(ngApp, code.js);
+                    }
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (code.ext_js && code.ext_js.length) {
+            code.ext_js.forEach(loadScript2);
+        }
+        return deferred.promise;
+    };
+    this.loadCode = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer();
+        if (code.ext_css && code.ext_css.length) {
+            code.ext_css.forEach(function(css) {
+                _self.loadExtCss(css.url);
+            });
+        }
+        if (code.css && code.css.length) {
+            this.loadCss(code.css);
+        }
+        if (code.ext_js && code.ext_js.length) {
+            _self.loadExtJs(ngApp, code).then(function() {
+                deferred.resolve();
+            });
+        } else {
+            if (code.js && code.js.length) {
+                _self.loadJs(ngApp, code.js);
+            }
+            deferred.resolve();
+        }
+        return deferred.promise;
+    };
+    this.openPlugin = function(content) {
+        var frag, wrap, frm, body, deferred = $q.defer();
+        if(document.documentElement.clientWidth > 768) {
+            document.documentElement.scrollTop  = 0;
+        } else {
+            document.body.scrollTop  = 0;
+        }
+        body = document.getElementsByTagName('body')[0];
+        body.style.cssText="overflow-y:hidden";
+        frag = document.createDocumentFragment();
+        wrap = document.createElement('div');
+        wrap.setAttribute('id', 'frmPlugin');
+        frm = document.createElement('iframe');
+        wrap.appendChild(frm);
+        wrap.onclick = function() {
+            wrap.parentNode.removeChild(wrap);
+            body.style.cssText="overflow-y:auto";
+        };
+        frag.appendChild(wrap);
+        document.body.appendChild(frag);
+        if (content.indexOf('http') === 0) {
+            window.onClosePlugin = function(result) {
+                wrap.parentNode.removeChild(wrap);
+                body.style.cssText="overflow-y:auto";
+                deferred.resolve(result);
+            };
+            frm.setAttribute('src', content);
+        } else {
+            if (frm.contentDocument && frm.contentDocument.body) {
+                frm.contentDocument.body.innerHTML = content;
+            }
+        }
+        return deferred.promise;
+    };
+}]);
+
+
+/***/ }),
+
+/***/ 35:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(2);
+
+if (/MicroMessenger/.test(navigator.userAgent)) {
+    //signPackage.debug = true;
+    signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+    wx.config(signPackage);
+}
+angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt']).config(['$locationProvider', function($locationProvider) {
+    $locationProvider.html5Mode(true);
+}]).controller('ctrl', ['$scope', '$location', '$http', '$q', 'tmsDynaPage', function($scope, $location, $http, $q, tmsDynaPage) {
+    var siteId, channelId, invite_token, shareby;
+    siteId = $location.search().site;
+    channelId = $location.search().id;
+    invite_token = $location.search().inviteToken;
+    shareby = $location.search().shareby ? $location.search().shareby : '';
+    var setShare = function() {
+        var shareid, sharelink;
+        shareid = $scope.user.uid + (new Date()).getTime();
+        window.xxt.share.options.logger = function(shareto) {
+            var url = "/rest/site/fe/matter/logShare";
+            url += "?shareid=" + shareid;
+            url += "&site=" + siteId;
+            url += "&id=" + channelId;
+            url += "&type=channel";
+            url += "&title=" + $scope.channel.title;
+            url += "&shareto=" + shareto;
+            url += "&shareby=" + shareby;
+            $http.get(url);
+        };
+        sharelink = location.href;
+        if (/shareby=/.test(sharelink)) {
+            sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
+        } else {
+            sharelink += "&shareby=" + shareid;
+        }
+        window.xxt.share.set($scope.channel.title, sharelink, $scope.channel.summary, $scope.channel.pic, '');
+    };
+    $scope.Matter = {
+        matters: [],
+        busy: false,
+        page: 1,
+        orderby: 'time',
+        changeOrderby: function() {
+            this.reset();
+        },
+        reset: function() {
+            this.matters = [];
+            this.busy = false;
+            this.end = false;
+            this.page = 1;
+            this.nextPage();
+        },
+        nextPage: function() {
+            var url, _this = this;
+
+            if (this.end) return;
+
+            this.busy = true;
+            url = '/rest/site/fe/matter/channel/mattersGet';
+            url += '?site=' + siteId;
+            url += '&id=' + channelId;
+            url += '&orderby=' + this.orderby;
+            url += '&page=' + this.page;
+            url += '&size=10';
+            $http.get(url).success(function(rsp) {
+                if (rsp.data.matters.length) {
+                    var matters = rsp.data.matters;
+                    for (var i = 0, l = matters.length; i < l; i++) {
+                        _this.matters.push(matters[i]);
+                    }
+                    _this.page++;
+                } else {
+                    _this.end = true;
+                }
+                _this.busy = false;
+            });
+        }
+    };
+    $scope.elSiteCard = angular.element(document.querySelector('#site-card'));
+    $scope.siteCardToggled = function(open) {
+        var elDropdownMenu;
+        if (open) {
+            if (elDropdownMenu = document.querySelector('#site-card>.dropdown-menu')) {
+                elDropdownMenu.style.left = 'auto';
+                elDropdownMenu.style.right = 0;
+            }
+        }
+    };
+    $scope.open = function(opened) {
+        if ($scope.channel.invite) {
+            location.href = opened.url + '&inviteToken=' + invite_token;
+        } else {
+            location.href = opened.url;
+        }
+    };
+    $scope.siteUser = function(id) {
+        var url = location.protocol + '//' + location.host;
+        url += '/rest/site/fe/user';
+        url += "?site=" + siteId;
+        location.href = url;
+    };
+    $scope.invite = function(user, channel) {
+        if (!user.loginExpire) {
+            tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                user.loginExpire = data.loginExpire;
+                location.href = "/rest/site/fe/invite?matter=channel," + channel.id + '&inviteToken=' + invite_token;
+            });
+        } else {
+            location.href = "/rest/site/fe/invite?matter=channel," + channel.id + '&inviteToken=' + invite_token;
+        }
+    };
+    var getChannel = function() {
+        var deferred = $q.defer();
+        $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {
+            $scope.siteInfo = rsp.data;
+        });
+        $http.get('/rest/site/fe/matter/channel/get?site=' + siteId + '&id=' + channelId).success(function(rsp) {
+            $scope.user = rsp.data.user;
+            $scope.channel = rsp.data.channel;
+            $scope.qrcode = '/rest/site/fe/matter/channel/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
+            if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
+                setShare();
+            }
+            deferred.resolve();
+            $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + channelId + '&type=channel&title=' + $scope.channel.title + '&shareby=' + shareby, {
+                search: location.search.replace('?', ''),
+                referer: document.referrer
+            });
+        }).error(function(content, httpCode) {
+            if (httpCode === 401) {
+                var el = document.createElement('iframe');
+                el.setAttribute('id', 'frmAuth');
+                el.onload = function() {
+                    this.height = document.documentElement.clientHeight;
+                };
+                document.body.appendChild(el);
+                if (content.indexOf('http') === 0) {
+                    window.onAuthSuccess = function() {
+                        el.style.display = 'none';
+                        getChannel();
+                    };
+                    el.setAttribute('src', content);
+                    el.style.display = 'block';
+                } else {
+                    if (el.contentDocument && el.contentDocument.body) {
+                        el.contentDocument.body.innerHTML = content;
+                        el.style.display = 'block';
+                    }
+                }
+            } else {
+                alert(content);
+            }
+        });
+        return deferred.promise;
+    };
+    getChannel();
+}]);
+
+/***/ }),
+
+/***/ 90:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(35);
+
+
+/***/ })
+
+/******/ });

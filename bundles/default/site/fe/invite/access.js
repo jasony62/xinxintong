@@ -1,1 +1,272 @@
-!function(e){function t(n){if(i[n])return i[n].exports;var r=i[n]={i:n,l:!1,exports:{}};return e[n].call(r.exports,r,r.exports,t),r.l=!0,r.exports}var i={};t.m=e,t.c=i,t.i=function(e){return e},t.d=function(e,i,n){t.o(e,i)||Object.defineProperty(e,i,{configurable:!1,enumerable:!0,get:n})},t.n=function(e){var i=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(i,"a",i),i},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=88)}({33:function(e,t,i){"use strict";i(7),angular.module("app",["ui.bootstrap","ui.tms","snsshare.ui.xxt"]).controller("ctrlMain",["$scope","http2","tmsSnsShare",function(e,t,i){e.requireLogin=!1,e.data={},e.submit=function(){t.post("/rest/i/matterUrl?invite="+e.invite.id,e.data,function(e){location.href=e.data})},t.get("/rest/site/fe/user/get",function(n){var r,s;e.loginUser=r=n.data,r.unionid&&r.uname&&(/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(r.uname)?s="mobile":/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(r.uname)&&(s="email")),t.get("/rest/site/fe/invite/get"+location.search,function(t){var n=t.data;if(e.invite=n,/MicroMessenger|Yixin/i.test(navigator.userAgent)){var a,o;location.search.match(/shareby=([^&]*)/)&&location.search.match(/shareby=([^&]*)/)[1],a=e.loginUser.uid+"_"+1*new Date,o=location.href+"&shareby="+a,i.config({siteId:n.matter_siteid,jsApiList:["hideOptionMenu","onMenuShareTimeline","onMenuShareAppMessage"]}),i.set(n.matter_title,o,n.matter_summary,n.matter_pic)}n.entryRule&&(e.entryRule=n.entryRule,"member"===n.entryRule.scope&&n.entryRule.mschemas&&n.entryRule.mschemas.length&&(e.mschema=n.entryRule.mschemas[0],e.data.member={schema_id:e.mschema.id},"mobile"===s&&e.mschema.attrs.mobile?e.data.member.mobile=r.uname:"email"===s&&e.mschema.attrs.email&&(e.data.member.email=r.uname),e.requireLogin=!0))})})}])},7:function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("snsshare.ui.xxt",[]);ngMod.service("tmsSnsShare",["$http",function($http){function setWxShare(e,t,i,n,r){window.wx.onMenuShareTimeline({title:r.descAsTitle?i:e,link:t,imgUrl:n,success:function(){try{r.logger&&r.logger("T")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareT: fail")}}),window.wx.onMenuShareAppMessage({title:e,desc:i,link:t,imgUrl:n,success:function(){try{r.logger&&r.logger("F")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareF: fail")}})}function setYxShare(e,t,i,n,r){var s={img_url:n,link:t,title:e,desc:i};window.YixinJSBridge.on("menu:share:appmessage",function(e){try{r.logger&&r.logger("F")}catch(e){alert("share failed:"+e.message)}window.YixinJSBridge.invoke("sendAppMessage",s,function(e){})}),window.YixinJSBridge.on("menu:share:timeline",function(e){try{r.logger&&r.logger("T")}catch(e){alert("share failed:"+e.message)}window.YixinJSBridge.invoke("shareTimeline",s,function(e){})})}this.config=function(e){this.options=e},this.set=function(title,link,desc,img,fnOther){var _this=this;if(img&&-1===img.indexOf(location.protocol)&&(img=location.protocol+"//"+location.host+img),/MicroMessenger/i.test(navigator.userAgent)){var script;script=document.createElement("script"),script.src=location.protocol+"//res.wx.qq.com/open/js/jweixin-1.0.0.js",script.onload=function(){var xhr,url;xhr=new XMLHttpRequest,url="/rest/site/fe/wxjssdksignpackage?site="+_this.options.siteId+"&url="+encodeURIComponent(location.href.split("#")[0]),xhr.open("GET",url,!0),xhr.onreadystatechange=function(){if(4==xhr.readyState)if(xhr.status>=200&&xhr.status<400){var signPackage;try{eval("("+xhr.responseText+")"),signPackage&&(signPackage.debug=!1,signPackage.jsApiList=_this.options.jsApiList,wx.config(signPackage),wx.ready(function(){setWxShare(title,link,desc,img,_this.options)}),wx.error(function(e){alert(JSON.stringify(e))}))}catch(e){alert("local error:"+e.toString())}}else alert("http error:"+xhr.statusText)},xhr.send()},document.body.appendChild(script)}else/Yixin/i.test(navigator.userAgent)?void 0===window.YixinJSBridge?document.addEventListener("YixinJSBridgeReady",function(){setYxShare(title,link,desc,img,_this.options)},!1):setYxShare(title,link,desc,img,_this.options):fnOther&&"function"==typeof fnOther&&fnOther(title,link,desc,img)}}])},88:function(e,t,i){e.exports=i(33)}});
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 88);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 33:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(7);
+
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt']);
+ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsSnsShare', function($scope, http2, tmsSnsShare) {
+    $scope.requireLogin = false;
+    $scope.data = {};
+    $scope.submit = function() {
+        http2.post('/rest/i/matterUrl?invite=' + $scope.invite.id, $scope.data, function(rsp) {
+            location.href = rsp.data;
+        });
+    };
+    http2.get('/rest/site/fe/user/get', function(rsp) {
+        var oUser, unameType;
+        $scope.loginUser = oUser = rsp.data;
+        if (oUser.unionid && oUser.uname) {
+            if (/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(oUser.uname)) {
+                unameType = 'mobile';
+            } else if (/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(oUser.uname)) {
+                unameType = 'email';
+            }
+        }
+        http2.get('/rest/site/fe/invite/get' + location.search, function(rsp) {
+            var oInvite = rsp.data;
+            $scope.invite = oInvite;
+            /* 设置分享 */
+            if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+                var shareid, sharelink, shareby;
+                shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+                shareid = $scope.loginUser.uid + '_' + (new Date() * 1);
+                sharelink = location.href + "&shareby=" + shareid;
+                tmsSnsShare.config({
+                    siteId: oInvite.matter_siteid,
+                    jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage']
+                });
+                tmsSnsShare.set(oInvite.matter_title, sharelink, oInvite.matter_summary, oInvite.matter_pic);
+            }
+            if (oInvite.entryRule) {
+                $scope.entryRule = oInvite.entryRule;
+                if (oInvite.entryRule.scope === 'member') {
+                    if (oInvite.entryRule.mschemas && oInvite.entryRule.mschemas.length) {
+                        $scope.mschema = oInvite.entryRule.mschemas[0];
+                        $scope.data.member = { schema_id: $scope.mschema.id };
+                        if (unameType === 'mobile' && $scope.mschema.attrs.mobile) {
+                            $scope.data.member.mobile = oUser.uname;
+                        } else if (unameType === 'email' && $scope.mschema.attrs.email) {
+                            $scope.data.member.email = oUser.uname;
+                        }
+                        $scope.requireLogin = true;
+                    }
+                }
+            }
+        });
+    });
+}]);
+
+/***/ }),
+
+/***/ 7:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ 
+ var ngMod = angular.module('snsshare.ui.xxt', []);
+ ngMod.service('tmsSnsShare', ['$http', function($http) {
+     function setWxShare(title, link, desc, img, options) {
+         var _this = this;
+         window.wx.onMenuShareTimeline({
+             title: options.descAsTitle ? desc : title,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('T');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareT: fail');
+             }
+         });
+         window.wx.onMenuShareAppMessage({
+             title: title,
+             desc: desc,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('F');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareF: fail');
+             }
+         });
+     }
+
+     function setYxShare(title, link, desc, img, options) {
+         var _this = this,
+             shareData = {
+                 'img_url': img,
+                 'link': link,
+                 'title': title,
+                 'desc': desc
+             };
+
+         window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
+             try {
+                 options.logger && options.logger('F');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
+         });
+         window.YixinJSBridge.on('menu:share:timeline', function(argv) {
+             try {
+                 options.logger && options.logger('T');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
+         });
+     }
+
+     this.config = function(options) {
+         this.options = options;
+     };
+     this.set = function(title, link, desc, img, fnOther) {
+         var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf(location.protocol) === -1 && (img = location.protocol + '//' + location.host + img);
+         if (/MicroMessenger/i.test(navigator.userAgent)) {
+             var script;
+             script = document.createElement('script');
+             script.src = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.0.0.js';
+             script.onload = function() {
+                 var xhr, url;
+                 xhr = new XMLHttpRequest();
+                 url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                 xhr.open('GET', url, true);
+                 xhr.onreadystatechange = function() {
+                     if (xhr.readyState == 4) {
+                         if (xhr.status >= 200 && xhr.status < 400) {
+                             var signPackage;
+                             try {
+                                 eval("(" + xhr.responseText + ')');
+                                 if (signPackage) {
+                                     signPackage.debug = false;
+                                     signPackage.jsApiList = _this.options.jsApiList;
+                                     wx.config(signPackage);
+                                     wx.ready(function() {
+                                         setWxShare(title, link, desc, img, _this.options);
+                                     });
+                                     wx.error(function(res) {
+                                         alert(JSON.stringify(res));
+                                     });
+                                 }
+                             } catch (e) {
+                                 alert('local error:' + e.toString());
+                             }
+                         } else {
+                             alert('http error:' + xhr.statusText);
+                         }
+                     };
+                 }
+                 xhr.send();
+             };
+             document.body.appendChild(script);
+         } else if (/Yixin/i.test(navigator.userAgent)) {
+             if (window.YixinJSBridge === undefined) {
+                 document.addEventListener('YixinJSBridgeReady', function() {
+                     setYxShare(title, link, desc, img, _this.options);
+                 }, false);
+             } else {
+                 setYxShare(title, link, desc, img, _this.options);
+             }
+         } else if (fnOther && typeof fnOther === 'function') {
+             fnOther(title, link, desc, img);
+         }
+     };
+ }]);
+
+/***/ }),
+
+/***/ 88:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(33);
+
+
+/***/ })
+
+/******/ });

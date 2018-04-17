@@ -16,7 +16,7 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt']).config
     shareby = $location.search().shareby ? $location.search().shareby : '';
     var setShare = function() {
         var shareid, sharelink;
-        shareid = $scope.user.vid + (new Date()).getTime();
+        shareid = $scope.user.uid + (new Date()).getTime();
         window.xxt.share.options.logger = function(shareto) {
             var url = "/rest/site/fe/matter/logShare";
             url += "?shareid=" + shareid;

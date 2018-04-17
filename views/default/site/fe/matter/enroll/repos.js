@@ -39,7 +39,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce', function($scope, LS, http2, srvRound, $sce) {
+ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce', 'tmsDynaPage', function($scope, LS, http2, srvRound, $sce, tmsDynaPage) {
     var oApp, facRound, page, criteria, shareableSchemas, userGroups, _items;
     _items = {};
     $scope.schemaCount = 0;
@@ -89,6 +89,7 @@ ngApp.controller('ctrlRepos', ['$scope', 'tmsLocation', 'http2', 'Round', '$sce'
                     $scope.repos.push(oRecord);
                 });
             }
+            tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
         });
     }
     $scope.gotoCowork = function(oRecordData, id) {

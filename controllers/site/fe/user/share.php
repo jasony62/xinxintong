@@ -47,7 +47,7 @@ class share extends \site\fe\base {
 			}
 			$modelAct = $this->model('site\user\account');
 			$site2 = ($site === 'platform') ? 'ALL' : $site;
-			$aSiteAccounts = $modelAct->byOpenid($site2, $snsName, $openid, ['fields' => 'uid', 'is_primary' => 'Y']);
+			$aSiteAccounts = $modelAct->byOpenid($site2, $snsName, $openid, ['fields' => 'uid']);
 			foreach ($aSiteAccounts as $oSiteAccount) {
 				$users[] = $oSiteAccount->uid;
 			}

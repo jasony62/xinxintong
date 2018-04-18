@@ -79,7 +79,7 @@ class main extends \pl\fe\base {
 	public function userActions_action($site, $orderby, $startAt, $endAt, $page = 1, $size = 30) {
 		$q = array();
 
-		$s = 'l.openid,l.nickname,l.userid';
+		$s = 'l.nickname,l.userid';
 		$s .= ',sum(l.act_read) read_num';
 		$s .= ',sum(l.act_share_friend) share_friend_num';
 		$s .= ',sum(l.act_share_timeline) share_timeline_num';

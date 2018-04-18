@@ -58,7 +58,7 @@
                 <div infinite-scroll="Matter.nextPage()" infinite-scroll-disabled="Matter.busy" infinite-scroll-distance="1">
                     <div class='media-item' ng-repeat='m in Matter.matters' ng-click='open(m)'>
                         <div class="media-item-left">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+m.pic||m.thumbnail+')'}">
+                            <div class="media-item-img" ng-style="{'background-image':'url('+m.pic+')'}">
                             </div>
                         </div>
                         <div class="media-item-body">
@@ -95,7 +95,7 @@
     <script type="text/javascript">
     if (/MicroMessenger/i.test(navigator.userAgent)) {
         var siteid = location.search.match(/site=([^&]*)/)[1];
-        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='https:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
         document.write("<script src='\/rest\/site\/fe\/base\/wxjssdksignpackage?site=" + siteid + "&url=" + encodeURIComponent(location.href.split('#')[0]) + "'><\/script>");
     }
     </script>

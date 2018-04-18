@@ -14,7 +14,7 @@ html,body,#content,#content>.row{height:100%;}
 #qrCode>img{width:75%;}
 @media screen and (max-width:768px){
 	#qrCode{display:none;}
-  #action>a:first-child{display:none;}
+  .behavior{display:none;}
   .invite>a{display:block;}
   .invite>a>.icon_invite{left:38%;}
 }

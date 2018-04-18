@@ -39,7 +39,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', function($scope, $sce, http2, LS, srvRound, $timeout) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', 'tmsDynaPage', function($scope, $sce, http2, LS, srvRound, $timeout, tmsDynaPage) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (oUser.is_leader) {
@@ -100,6 +100,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                     $scope.repos.push(oRecord);
                 });
             }
+            tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
         });
     }
     $scope.likeRecord = function(oRecord) {

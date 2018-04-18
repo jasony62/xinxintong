@@ -176,7 +176,7 @@ ngMod.service('tmsFavor', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsModal
             event.stopPropagation();
             $rootScope.$apply(function() {
                 if (!oUser.loginExpire) {
-                    tmsDynaPage.openPlugin('http://' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                    tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
                         oUser.loginExpire = data.loginExpire;
                         _this.open(oMatter);
                     });

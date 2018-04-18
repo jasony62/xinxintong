@@ -34,7 +34,7 @@ ngMod.service('tmsCoinPay', function() {
         eSwitch.addEventListener('click', function(event) {
             event.preventDefault();
             event.stopPropagation();
-            var url = 'http://' + location.host;
+            var url = location.protocol + '//' + location.host;
             url += '/rest/site/fe/coin/pay';
             url += "?site=" + siteId;
             url += "&matter=" + matter;

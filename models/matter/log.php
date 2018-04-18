@@ -470,15 +470,15 @@ class log_model extends \TMS_MODEL {
 			$d['matter_type'] = $matter->type;
 			$d['matter_title'] = $this->escape($matter->title);
 			!empty($matter->summary) && $d['matter_summary'] = $this->escape($matter->summary);
-			!empty($matter->pic) && $d['matter_pic'] = $matter->pic;
+			!empty($matter->pic) && $d['matter_pic'] = $this->escape($matter->pic);
 			!empty($matter->scenario) && $d['matter_scenario'] = $matter->scenario;
 			$d['last_op'] = 'Y';
 			$d['user_last_op'] = 'Y';
 			if (!empty($data)) {
 				if (is_object($data) || is_array($data)) {
-					$d['data'] = $this->toJson($data);
+					$d['data'] = $this->escape($this->toJson($data));
 				} else {
-					$d['data'] = $data;
+					$d['data'] = $this->escape($data);
 				}
 			}
 			$logid = $this->insert('xxt_log_matter_op', $d, true);
@@ -490,15 +490,15 @@ class log_model extends \TMS_MODEL {
 			$d['operation'] = $op;
 			$d['matter_title'] = $this->escape($matter->title);
 			!empty($matter->summary) && $d['matter_summary'] = $this->escape($matter->summary);
-			!empty($matter->pic) && $d['matter_pic'] = $matter->pic;
+			!empty($matter->pic) && $d['matter_pic'] = $this->escape($matter->pic);
 			!empty($matter->scenario) && $d['matter_scenario'] = $matter->scenario;
 			$d['last_op'] = 'Y';
 			$d['user_last_op'] = 'Y';
 			if (!empty($data)) {
 				if (is_object($data) || is_array($data)) {
-					$d['data'] = $this->toJson($data);
+					$d['data'] = $this->escape($this->toJson($data));
 				} else {
-					$d['data'] = $data;
+					$d['data'] = $this->escape($data);
 				}
 			}
 
@@ -769,7 +769,7 @@ class log_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获取我的分享信息
-	*/
+	 */
 	public function getMyShareLog($oUserid, $matterType, $matterId, $orderBy = 'read', $page = null, $size = null) {
 		$q = [];
 		$q2 = [];

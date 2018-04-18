@@ -13,7 +13,7 @@
     <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
-<body ng-controller='ctrlView'>
+<body ng-controller='ctrlView' class='matter_enroll'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
@@ -35,7 +35,7 @@
     </nav>
     <div ng-cloak class='ng-cloak app'>
         <div class='container'>
-            <div dynamic-html="page.html">
+            <div dynamic-html="page.html" class='data'>
             </div>
         </div>
     </div>

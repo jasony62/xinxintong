@@ -7,8 +7,14 @@ document.body.appendChild(eViewer);
 body = document.querySelector('body');
 var eImgs, aImgs, currentIndex;
 aImgs = [];
-eImgs = document.querySelectorAll('.wrap img');
-
+switch(body.getAttribute('class').split(" ", 1)[0]) {
+    case 'matter_article':
+        eImgs = document.querySelectorAll('.wrap img');
+    break;
+    case 'matter_enroll':
+        eImgs = document.querySelectorAll('.data img');
+    break;
+}
 var PicViewer = function(selector, options) {
     function imgHeight() {
         return elImg.height * currentScale;

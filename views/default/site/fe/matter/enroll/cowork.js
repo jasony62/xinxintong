@@ -3,7 +3,7 @@ require('./cowork.css');
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
-ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox) {
+ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', function($scope, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage) {
     function listRemarks() {
         http2.get(LS.j('remark/list', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
             var remarks, oRemark, oUpperRemark, oRemarks;
@@ -479,6 +479,8 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                             if ('url' === oAssignedSchema.type) {
                                 oRecData.value._text = ngApp.oUtilSchema.urlSubstitute(oRecData.value);
                             }
+                        }else if(/image/.test(oAssignedSchema.type)) {
+                            oRecData.value = oRecData.value.split(',');
                         }
                         if (oRecData.tag) {
                             oRecData.tag.forEach(function(index, tagId) {
@@ -492,6 +494,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                     $scope.record._canAgree = fnCanAgreeRecord(oRecord, _oUser);
                     $scope.data = oRecData;
                     listRemarks();
+                    tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
                     /*设置页面分享信息*/
                     $scope.setSnsShare(oRecord, { 'schema': LS.s().schema, 'data': LS.s().data });
                 }

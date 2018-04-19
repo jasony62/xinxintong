@@ -232,6 +232,17 @@
     <div class='tms-tool-sidebar tms-tool-backtop hidden-xs' ng-click="gotoTop()">
         <span class="site_fe_home site_fe_home_icon xxt_backTop"></span>
     </div>
+    <div class="tms-tool-sidebar tms-tool-qrcode hidden-xs" ng-if="platform.home_qrcode_group">
+        <span class="site_fe_home site_fe_home_icon xxt_talk_qrcode" ng-mouseenter="active=true" ng-mouseleave="active=false"></span>
+        <div class="gotalk" ng-show="active">
+            <div class="talk-qrcodes" ng-if="platform.home_qrcode_group">
+                <div class="talk-qrcode" ng-repeat="qrocde in platform.home_qrcode_group">
+                    <span ng-bind="qrocde.tip"></span>
+                    <img class="qrcode" ng-src="{{qrocde.picUrl}}" />
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script type="text/ng-template" id="favorTemplateSite.html">
     <div class="modal-header">

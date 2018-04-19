@@ -46,8 +46,7 @@ class record extends base {
 		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
 		if (false === ($oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
-			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
-			die('登记活动不存在');
+			return new \ObjectNotFoundError('指定的活动不存在');
 		}
 
 		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
@@ -86,39 +85,7 @@ class record extends base {
 		$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
 
 		if ($subType === 'save') {
-			if (empty($submitkey)) {
-				$submitkey = empty($oUser) ? '' : $oUser->uid;
-			}
-
-			$schemasById = []; // 方便获取登记项定义
-			foreach ($oEnrollApp->dataSchemas as $schema) {
-				$schemasById[$schema->id] = $schema;
-			}
-			$dbData = $this->model('matter\enroll\data')->disposRecrdData($oEnrollApp, $schemasById, $oEnrolledData, $submitkey);
-			if ($dbData[0] === false) {
-				return new \ResponseError($dbData[1]);
-			}
-			$dbData = $dbData[1];
-
-			$oPosted->data = $dbData;
-			$data_tag = new \stdClass;
-			if (isset($oPosted->tag) && count(get_object_vars($oPosted->tag))) {
-				foreach ($oPosted->tag as $schId => $saveTags) {
-					$data_tag->{$schId} = [];
-					foreach ($saveTags as $saveTag) {
-						$data_tag->{$schId}[] = $saveTag->id;
-					}
-				}
-				unset($oPosted->tag);
-			}
-			$oPosted->data_tag = $data_tag;
-			!empty($rid) && $oPosted->rid = $rid;
-			/* 插入到用户对素材的行为日志中 */
-			$operation = new \stdClass;
-			$operation->name = 'saveData';
-			$operation->data = $modelEnl->toJson($oPosted);
-			$logid = $this->_logUserOp($oEnrollApp, $operation, $oUser);
-
+			$logid = $this->_saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted);
 			return new \ResponseData($logid);
 		}
 
@@ -326,6 +293,46 @@ class record extends base {
 		}
 
 		return [true, ''];
+	}
+	/**
+	 * 保存记录数据
+	 */
+	private function _saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted) {
+		if (empty($submitkey)) {
+			$submitkey = empty($oUser) ? '' : $oUser->uid;
+		}
+
+		$schemasById = []; // 方便获取登记项定义
+		foreach ($oEnrollApp->dataSchemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
+		$dbData = $this->model('matter\enroll\data')->disposRecrdData($oEnrollApp, $schemasById, $oEnrolledData, $submitkey);
+		if ($dbData[0] === false) {
+			return new \ResponseError($dbData[1]);
+		}
+		$dbData = $dbData[1];
+
+		$oPosted->data = $dbData;
+		$data_tag = new \stdClass;
+		if (isset($oPosted->tag) && count(get_object_vars($oPosted->tag))) {
+			foreach ($oPosted->tag as $schId => $saveTags) {
+				$data_tag->{$schId} = [];
+				foreach ($saveTags as $saveTag) {
+					$data_tag->{$schId}[] = $saveTag->id;
+				}
+			}
+			unset($oPosted->tag);
+		}
+		$oPosted->data_tag = $data_tag;
+		!empty($rid) && $oPosted->rid = $rid;
+
+		/* 插入到用户对素材的行为日志中 */
+		$operation = new \stdClass;
+		$operation->name = 'saveData';
+		$operation->data = $oPosted;
+		$logid = $this->_logUserOp($oEnrollApp, $operation, $oUser);
+
+		return $logid;
 	}
 	/**
 	 * 记录用户提交日志

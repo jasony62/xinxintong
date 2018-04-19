@@ -92,7 +92,7 @@ class record_model extends record_base {
 	 * @param string $ek
 	 * @param array $submitData 用户提交的数据
 	 */
-	public function setData($oUser, &$oApp, $ek, $submitData, $submitkey = '', $firstSubmit = false, $assignScore = null) {
+	public function setData($oUser, $oApp, $ek, $submitData, $submitkey = '', $bFirstSubmit = false, $assignScore = null) {
 		if (empty($submitData)) {
 			return [true];
 		}
@@ -109,7 +109,7 @@ class record_model extends record_base {
 			$oRecordUpdated->score = $this->escape($this->toJson($oResult->score));
 		}
 		/* 记录提交日志 */
-		if ($firstSubmit === false) {
+		if ($bFirstSubmit === false) {
 			if (empty($oRecord->submit_log)) {
 				$recordSubmitLogs = [];
 			} else {

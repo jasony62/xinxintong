@@ -2,7 +2,7 @@
 require_once dirname(__FILE__) . '/local.php';
 require_once dirname(__FILE__) . '/alioss.php';
 /**
- *
+ * 用户存储
  */
 class user_model {
 

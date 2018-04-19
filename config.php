@@ -111,3 +111,7 @@ if (defined('SAE_TMP_PATH')) {
 } else {
 	define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
 }
+/**
+ * 用户上传文件存储位置
+ */
+!defined('APP_FS_USER') && define('APP_FS_USER', 'local');

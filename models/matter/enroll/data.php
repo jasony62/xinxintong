@@ -264,6 +264,7 @@ class data_model extends \TMS_MODEL {
 	}
 	/**
 	 * 处理提交的数据
+	 * 包括图片和文件的上传
 	 */
 	public function disposRecrdData($oApp, $schemasById, $submitData, $submitkey) {
 		$oDbData = new \stdClass; // 处理后的保存到数据库中的登记记录

@@ -16,7 +16,7 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt']).config
     shareby = $location.search().shareby ? $location.search().shareby : '';
     var setShare = function() {
         var shareid, sharelink;
-        shareid = $scope.user.uid + (new Date()).getTime();
+        shareid = $scope.user.uid + '_' +(new Date()).getTime();
         window.xxt.share.options.logger = function(shareto) {
             var url = "/rest/site/fe/matter/logShare";
             url += "?shareid=" + shareid;
@@ -35,6 +35,16 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt']).config
             sharelink += "&shareby=" + shareid;
         }
         window.xxt.share.set($scope.channel.title, sharelink, $scope.channel.summary, $scope.channel.pic, '');
+    };
+    function dealImgSrc(item) {
+        if (Object.keys(item).indexOf('pic') !== -1 && item.pic == null) {
+            item.src = item.pic = '';
+        } else if (Object.keys(item).indexOf('thumbnail') !== -1 && item.thumbnail == null) {
+            item.src = item.thumnail = '';
+        } else {
+            item.src = item.pic ? item.pic : item.thumbnail;
+        }
+        return item;
     };
     $scope.Matter = {
         matters: [],
@@ -67,6 +77,7 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt']).config
                 if (rsp.data.matters.length) {
                     var matters = rsp.data.matters;
                     for (var i = 0, l = matters.length; i < l; i++) {
+                        dealImgSrc(matters[i]);
                         _this.matters.push(matters[i]);
                     }
                     _this.page++;

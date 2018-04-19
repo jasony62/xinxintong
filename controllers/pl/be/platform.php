@@ -18,6 +18,9 @@ class platform extends \pl\be\base {
 			if (!empty($platform->home_carousel)) {
 				$platform->home_carousel = json_decode($platform->home_carousel);
 			}
+			if (!empty($platform->home_qrcode_group)) {
+				$platform->home_qrcode_group = json_decode($platform->home_qrcode_group);
+			}
 			if (!empty($platform->home_nav)) {
 				$platform->home_nav = json_decode($platform->home_nav);
 			}
@@ -38,6 +41,8 @@ class platform extends \pl\be\base {
 		foreach ($nv as $n => $v) {
 			if ($n === 'home_carousel') {
 				$nv->{$n} = json_encode($v);
+			} else if ($n === 'home_qrcode_group') {
+				$nv->{$n} = $model->escape($model->toJson($v));
 			} else if ($n === 'home_nav') {
 				$nv->{$n} = $model->escape($model->toJson($v));
 			}

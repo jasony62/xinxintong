@@ -120,14 +120,17 @@ class notice extends \pl\fe\base {
 		}
 
 		$model = $this->model();
+		if (!empty($mapping)) {
+			$model->delete('xxt_tmplmsg_mapping', "siteid='$site' and id=$mapping");
 
-		$model->delete('xxt_tmplmsg_mapping', "siteid='$site' and id=$mapping");
-
-		$rst = $model->update(
-			'xxt_site_notice',
-			array('tmplmsg_config_id' => 0),
-			"siteid='$site' and event_name='$name'"
-		);
+			$rst = $model->update(
+				'xxt_site_notice',
+				array('tmplmsg_config_id' => 0),
+				"siteid='$site' and event_name='$name'"
+			);
+		} else {
+			$rst = 0;
+		}
 
 		return new \ResponseData($rst);
 	}

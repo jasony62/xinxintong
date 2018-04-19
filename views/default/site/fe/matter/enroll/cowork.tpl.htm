@@ -12,7 +12,7 @@
     <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
-<body ng-controller="ctrlCowork">
+<body ng-controller="ctrlCowork" class='matter_enroll'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
@@ -53,7 +53,7 @@
                                     <li><a href ng-click="setAgreed('D')">讨论</a></li>
                                     <li><a href ng-click="setAgreed('A')">接受</a></li>
                                     <li><a href ng-click="setAgreed('Y')">推荐</a></li>
-                                    <li><a href ng-click="setAgreed('N')">推荐</a></li>
+                                    <li><a href ng-click="setAgreed('N')">屏蔽</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -270,8 +270,10 @@
             <textarea class='form-control' rows=8 placeholder='请输入内容' autofocus ng-model="data.content"></textarea>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-default" ng-click="cancel()">取消</button>
-            <button class="btn btn-primary" ng-click="ok()">提交</button>
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">取消</button>
+                <button class="btn btn-primary" ng-click="ok()">提交</button>
+            </div>
         </div>
     </script>
     <script type="text/ng-template" id="writeRemark.html">
@@ -290,8 +292,8 @@
                     <textarea class='form-control' rows=8 placeholder='请输入留言内容' autofocus ng-model="data.content"></textarea>
                 </div>
                 <div class='text-center'>
-                    <button class="btn btn-primary" ng-click="ok()">提交留言</button>
                     <button class="btn btn-default" ng-click="cancel()">关闭</button>
+                    <button class="btn btn-primary" ng-click="ok()">提交留言</button>
                 </div>
             </div>
         </div>

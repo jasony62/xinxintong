@@ -14,10 +14,11 @@ html,body,#content,#content>.row{height:100%;}
 #qrCode>img{width:75%;}
 @media screen and (max-width:768px){
 	#qrCode{display:none;}
-    .invite>a{display:block;}
-    .invite>a>.icon_invite{left:38%;}
+  .behavior{display:none;}
+  .invite>a{display:block;}
+  .invite>a>.icon_invite{left:38%;}
 }
 @media screen and (min-width:768px){
-    .invite>a{display:inline-block;border-radius:50px;box-shadow:0px 0px 35px #4780F3;}
-    .invite>a>.icon_invite{left:25px;}
+  .invite>a{display:inline-block;border-radius:50px;box-shadow:0px 0px 35px #4780F3;}
+  .invite>a>.icon_invite{left:25px;}
 }

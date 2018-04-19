@@ -33,7 +33,7 @@ window.loading = {
 };
 if (/MicroMessenger/i.test(navigator.userAgent)) {
 	var mpid = location.search.match(/[\?&]mpid=([^&]*)/)[1];
-	requirejs(["http://res.wx.qq.com/open/js/jweixin-1.0.0.js"], function(wx) {
+	requirejs(["https://res.wx.qq.com/open/js/jweixin-1.0.0.js"], function(wx) {
 		window.wx = wx;
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', "/rest/mi/matter/wxjssdksignpackage?mpid=" + mpid + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);

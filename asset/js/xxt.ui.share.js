@@ -71,11 +71,11 @@
      this.set = function(title, link, desc, img, fnOther) {
          var _this = this;
          // 将图片的相对地址改为绝对地址
-         img && img.indexOf('http') === -1 && (img = 'http://' + location.host + img);
+         img && img.indexOf(location.protocol) === -1 && (img = location.protocol + '//' + location.host + img);
          if (/MicroMessenger/i.test(navigator.userAgent)) {
              var script;
              script = document.createElement('script');
-             script.src = 'http://res.wx.qq.com/open/js/jweixin-1.0.0.js';
+             script.src = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.0.0.js';
              script.onload = function() {
                  var xhr, url;
                  xhr = new XMLHttpRequest();

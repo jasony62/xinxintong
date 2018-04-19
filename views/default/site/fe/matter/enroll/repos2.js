@@ -39,15 +39,19 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', function($scope, $sce, http2, LS, srvRound, $timeout) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', 'tmsDynaPage', function($scope, $sce, http2, LS, srvRound, $timeout, tmsDynaPage) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (oUser.is_leader) {
             if (oUser.is_leader === 'S') {
                 return true;
             }
-            if (oUser.is_leader === 'Y' && oUser.group_id === oRecord.group_id) {
-                return true;
+            if (oUser.is_leader === 'Y') {
+                if (oUser.group_id === oRecord.group_id) {
+                    return true;
+                } else if (oUser.is_editor && oUser.is_editor === 'Y') {
+                    return true;
+                }
             }
         }
         return false;
@@ -55,7 +59,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12 };
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' };
+    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'agreed' };
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.recordList = function(pageAt) {
@@ -96,6 +100,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                     $scope.repos.push(oRecord);
                 });
             }
+            tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
         });
     }
     $scope.likeRecord = function(oRecord) {
@@ -177,6 +182,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);
     };
+    $scope.advCriteriaStatus = {
+        opened: !$scope.isSmallLayout,
+        dirOpen: false,
+        filterOpen: true
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
         /* 活动任务 */
@@ -257,9 +267,4 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
             $scope.appNavs = oAppNavs;
         }
     });
-    $scope.advCriteriaStatus = {
-        opened: !$scope.isSmallLayout,
-        dirOpen: false,
-        filterOpen: true
-    };
 }]);

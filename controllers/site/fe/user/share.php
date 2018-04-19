@@ -9,12 +9,17 @@ class share extends \site\fe\base {
 	/**
 	 *
 	 */
-	public function index_action($page = '') {
+	public function index_action($site, $page = '') {
 		switch ($page) {
 			case 'log':
 				\TPL::output('/site/fe/user/share/log');
 				break;
 			default:
+				if (!$this->afterSnsOAuth()) {
+					/* 检查是否需要第三方社交帐号OAuth */
+					$this->requireSnsOAuth($site);
+				}
+				
 				\TPL::output('/site/fe/user/share/main');
 				break;
 		}
@@ -28,16 +33,29 @@ class share extends \site\fe\base {
 	 * @param string $matterType
 	 */
 	public function listShare_action($site = '', $userid = '', $page = null, $size = null) {
+		$oUser = $this->who;
 		$model = $this->model('matter\log');
 		$users = [];
 		// 指定用户的访问记录
 		if (!empty($userid)) {
 			$users[] = $model->escape($userid);
-		} else if (empty($this->who->unionid)) {
-			$users[] = $this->who->uid;
+		} else if (isset($oUser->sns)) {
+			$sns = $oUser->sns;
+			if (isset($sns->wx)) {
+				$snsName = 'wx';
+				$openid = $sns->wx->openid;
+			}
+			$modelAct = $this->model('site\user\account');
+			$site2 = ($site === 'platform') ? 'ALL' : $site;
+			$aSiteAccounts = $modelAct->byOpenid($site2, $snsName, $openid, ['fields' => 'uid', 'is_primary' => 'Y']);
+			foreach ($aSiteAccounts as $oSiteAccount) {
+				$users[] = $oSiteAccount->uid;
+			}
+		} else if (empty($oUser->unionid)) {
+			$users[] = $oUser->uid;
 		} else {
 			$modelAct = $this->model('site\user\account');
-			$aSiteAccounts = $modelAct->byUnionid($this->who->unionid, ['fields' => 'uid']);
+			$aSiteAccounts = $modelAct->byUnionid($oUser->unionid, ['fields' => 'uid']);
 			foreach ($aSiteAccounts as $oSiteAccount) {
 				$users[] = $oSiteAccount->uid;
 			}

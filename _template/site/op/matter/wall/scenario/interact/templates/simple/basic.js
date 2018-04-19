@@ -196,7 +196,7 @@
             }
         })
         angular.element(document).ready(function() {
-            createQrcode(imgs, 130);
+            createQrcode(imgs, 70);
             createBlock(boxs, 20);
             layout(boxs, eachPartPerson);
         });

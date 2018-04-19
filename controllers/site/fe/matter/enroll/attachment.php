@@ -29,7 +29,8 @@ class attachment extends base {
 		}
 
 		if (strpos($oAtt->url, 'alioss') === 0) {
-			$downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/' . $oApp->siteid . '/enroll/' . $oApp->id . '/' . urlencode($oAtt->name);
+			$fsAlioss = \TMS_APP::M('fs/alioss', $this->siteId, '_attachment');
+			$downloadUrl = $fsAlioss->getHostUrl() . '/' . $oApp->siteid . '/_attachment/enroll/' . $oApp->id . '/' . urlencode($oAtt->name);
 			$this->redirect($downloadUrl);
 		} else if (strpos($oAtt->url, 'local') === 0) {
 			$fs = $this->model('fs/local', $oApp->siteid, '附件');

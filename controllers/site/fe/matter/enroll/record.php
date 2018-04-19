@@ -518,56 +518,49 @@ class record extends base {
 	 *
 	 */
 	public function uploadFile_action($app, $submitkey = '') {
-		/* support CORS */
-		//header('Access-Control-Allow-Origin:*');
-		//header('Access-Control-Allow-Methods:POST');
-		//if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-		//	exit;
-		//}
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
 		if (empty($submitkey)) {
-			$oUser = $this->getUser($oApp);
-			$submitkey = $oUser->uid;
+			$submitkey = $this->who->uid;
 		}
-		/** 分块上传文件 */
-		if (defined('SAE_TMP_PATH')) {
-			$dest = '/' . $app . '/' . $submitkey . '_' . $_POST['resumableFilename'];
-			$resumable = \TMS_APP::M('fs/resumableAliOss', $oApp->siteid, $dest, 'xinxintong');
-			$resumable->handleRequest($_POST);
-		} else {
-			$modelFs = \TMS_APP::M('fs/local', $oApp->siteid, '_resumable');
-			$dest = $submitkey . '_' . $_POST['resumableIdentifier'];
-			$resumable = \TMS_APP::M('fs/resumable', $oApp->siteid, $dest, $modelFs);
-			$resumable->handleRequest($_POST);
-		}
+		/**
+		 * 分块上传文件
+		 */
+		$dest = '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $_POST['resumableFilename'];
+		$oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, '_user');
+		$aResult = $oResumable->handleRequest($_POST);
 
-		return new \ResponseData('ok');
+		if (true === $aResult[0]) {
+			return new \ResponseData('ok');
+		} else {
+			return new \ResponseError($aResult[1]);
+		}
 	}
 	/**
 	 * 用保存的数据填写指定的记录数据
 	 */
 	private function _fillWithSaved($oApp, $oUser, &$oRecord) {
-		$oSaveLog = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
-		if (count($oSaveLog) == 1) {
-			$oSaveLog = $oSaveLog[0];
-			$oSaveLog->opData = json_decode($oSaveLog->operate_data);
-			$bMatched = true;
-			if (!empty($oRecord->rid) && (isset($oSaveLog->opData->rid) && $oSaveLog->opData->rid !== $oRecord->rid)) {
-				$bMatched = false;
-			}
-			if ($bMatched) {
-				$oLogData = $oSaveLog->opData;
-				if (isset($oLogData)) {
-					$oRecord->data = $oLogData->data;
-					$oRecord->supplement = $oLogData->supplement;
-					$oRecord->data_tag = $oLogData->data_tag;
+		if (!empty($oUser->uid)) {
+			$oSaveLog = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
+			if (count($oSaveLog) == 1) {
+				$oSaveLog = $oSaveLog[0];
+				$oSaveLog->opData = json_decode($oSaveLog->operate_data);
+				$bMatched = true;
+				if (!empty($oRecord->rid) && (isset($oSaveLog->opData->rid) && $oSaveLog->opData->rid !== $oRecord->rid)) {
+					$bMatched = false;
+				}
+				if ($bMatched) {
+					$oLogData = $oSaveLog->opData;
+					if (isset($oLogData)) {
+						$oRecord->data = $oLogData->data;
+						$oRecord->supplement = $oLogData->supplement;
+						$oRecord->data_tag = $oLogData->data_tag;
 
-					return true;
+						return true;
+					}
 				}
 			}
 		}

@@ -12,10 +12,10 @@ class user_model {
 	 */
 	private $service;
 
-	public function __construct($siteId, $bucket = 'xinxintong') {
+	public function __construct($siteId) {
 		$this->siteId = $siteId;
-		if (defined('SAE_TMP_PATH')) {
-			$this->service = new alioss_model($siteId, $bucket);
+		if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
+			$this->service = new alioss_model($siteId);
 		} else {
 			$this->service = new local_model($siteId, '_user');
 		}

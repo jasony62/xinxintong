@@ -11,7 +11,7 @@ if (!defined('OSS_API_PATH')) {
 }
 
 //加载conf.inc.php文件
-$cusConfigFile = file_exists(dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'cus' . DIRECTORY_SEPARATOR . 'ali-oss.conf.inc.php');
+$cusConfigFile = dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'cus' . DIRECTORY_SEPARATOR . 'ali-oss.conf.inc.php';
 if (file_exists($cusConfigFile)) {
 	require_once $cusConfigFile;
 } else {
@@ -939,9 +939,9 @@ class ALIOSS {
 		//file
 		$this->is_empty($file, OSS_FILE_PATH_IS_NOT_ALLOWED_EMPTY);
 
-		if ($this->chk_chinese($file)) {
-			$file = iconv('utf-8', 'gbk', $file);
-		}
+		//if ($this->chk_chinese($file)) {
+		//	$file = iconv('utf-8', 'gbk', $file);
+		//}
 
 		$options[self::OSS_FILE_UPLOAD] = $file;
 
@@ -1508,7 +1508,7 @@ class ALIOSS {
 
 		if (isset($options[self::OSS_FILE_UPLOAD])) {
 			if ($this->chk_chinese($options[self::OSS_FILE_UPLOAD])) {
-				$options[self::OSS_FILE_UPLOAD] = mb_convert_encoding($options[self::OSS_FILE_UPLOAD], 'UTF-8');
+				//$options[self::OSS_FILE_UPLOAD] = mb_convert_encoding($options[self::OSS_FILE_UPLOAD], 'UTF-8');
 			}
 		}
 

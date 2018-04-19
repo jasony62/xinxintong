@@ -29,7 +29,6 @@ class task extends base {
 	 */
 	public function listByUser_action($app, $withMock = 'Y') {
 		$modelApp = $this->model('matter\plan');
-		$app = $modelApp->escape($app);
 		$oApp = $modelApp->byId($app, ['fields' => 'id,state,notweekend']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
@@ -68,27 +67,25 @@ class task extends base {
 	/**
 	 * 分段上传文件
 	 *
-	 * @param string $site
 	 * @param string $app
 	 * @param string $submitKey
 	 *
 	 */
-	public function uploadFile_action($site, $app, $submitkey = '') {
+	public function uploadFile_action($app, $submitkey = '') {
+		$modelApp = $this->model('matter\plan');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,state']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 		if (empty($submitkey)) {
-			$user = $this->who;
-			$submitkey = $user->uid;
+			$submitkey = $this->who->uid;
 		}
-		/** 分块上传文件 */
-		if (defined('SAE_TMP_PATH')) {
-			$dest = '/' . $app . '/' . $submitkey . '_' . $_POST['resumableFilename'];
-			$resumable = $this->model('fs/resumableAliOss', $site, $dest, 'xinxintong');
-			$resumable->handleRequest($_POST);
-		} else {
-			$modelFs = $this->model('fs/local', $site, '_resumable');
-			$dest = $submitkey . '_' . $_POST['resumableIdentifier'];
-			$resumable = $this->model('fs/resumable', $site, $dest, $modelFs);
-			$resumable->handleRequest($_POST);
-		}
+		/**
+		 * 分块上传文件
+		 */
+		$dest = '/plan/' . $oApp->id . '/' . $submitkey . '_' . $_POST['resumableFilename'];
+		$oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, '_user');
+		$oResumable->handleRequest($_POST);
 
 		return new \ResponseData('ok');
 	}

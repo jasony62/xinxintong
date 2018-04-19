@@ -159,6 +159,7 @@ $sql .= ",home_page_id int not null default 0"; // 平台主页
 $sql .= ",home_page_name varchar(13) not null default ''"; // 平台主页
 $sql .= ",autoup_homepage char(1) not null default 'Y'"; // 是否自动更新主页页面
 $sql .= ",home_carousel text"; // 首页轮播
+$sql .= ",home_qrcode_group text null"; // 首页群二维码
 $sql .= ",template_page_id int not null default 0"; // 平台模版库
 $sql .= ",template_page_name varchar(13) not null default ''"; // 平台模版库
 $sql .= ",autoup_templatepage char(1) not null default 'Y'"; // 是否自动更新主页页面

@@ -39,20 +39,24 @@ class share extends \site\fe\base {
 		// 指定用户的访问记录
 		if (!empty($userid)) {
 			$users[] = $model->escape($userid);
-		} else if (isset($oUser->sns)) {
-			$sns = $oUser->sns;
-			if (isset($sns->wx)) {
-				$snsName = 'wx';
-				$openid = $sns->wx->openid;
-			}
-			$modelAct = $this->model('site\user\account');
-			$site2 = ($site === 'platform') ? 'ALL' : $site;
-			$aSiteAccounts = $modelAct->byOpenid($site2, $snsName, $openid, ['fields' => 'uid', 'is_primary' => 'Y']);
-			foreach ($aSiteAccounts as $oSiteAccount) {
-				$users[] = $oSiteAccount->uid;
-			}
 		} else if (empty($oUser->unionid)) {
-			$users[] = $oUser->uid;
+			if (isset($oUser->sns)) {
+				$sns = $oUser->sns;
+				if (isset($sns->wx)) {
+					$snsName = 'wx';
+					$openid = $sns->wx->openid;
+					$modelAct = $this->model('site\user\account');
+					$site2 = ($site === 'platform') ? 'ALL' : $site;
+					$aSiteAccounts = $modelAct->byOpenid($site2, $snsName, $openid, ['fields' => 'uid']);
+					foreach ($aSiteAccounts as $oSiteAccount) {
+						$users[] = $oSiteAccount->uid;
+					}
+				} else {
+					$users[] = $oUser->uid;
+				}
+			} else {
+				$users[] = $oUser->uid;
+			}
 		} else {
 			$modelAct = $this->model('site\user\account');
 			$aSiteAccounts = $modelAct->byUnionid($oUser->unionid, ['fields' => 'uid']);

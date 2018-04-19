@@ -156,4 +156,43 @@ define(['frame'], function(ngApp) {
             $scope.navs = navs = platform.home_nav;
         });
     }]);
+    ngApp.provider.controller('ctrlHomeQrcode', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+        var qrcodes;
+        $scope.add = function() {
+            var options = {
+                callback: function(url) {
+                    qrcodes.push({
+                        picUrl: url + '?_=' + (new Date() * 1)
+                    });
+                    $scope.update('home_qrcode_group');
+                }
+            };
+            mediagallery.open('platform', options);
+        };
+        $scope.doTip = function(tip) {
+            $scope.update('home_qrcode_group');
+        }
+        $scope.remove = function(slide, index) {
+            qrcodes.splice(index, 1);
+            $scope.update('home_qrcode_group');
+        };
+        $scope.up = function(slide, index) {
+            if (index === 0) return;
+            qrcodes.splice(index, 1);
+            qrcodes.splice(--index, 0, slide);
+            $scope.update('home_qrcode_group');
+        };
+        $scope.down = function(slide, index) {
+            if (index === qrcodes.length - 1) return;
+            qrcodes.splice(index, 1);
+            qrcodes.splice(++index, 0, slide);
+            $scope.update('home_qrcode_group');
+        };
+        $scope.$watch('platform', function(platform) {
+            if (platform === undefined) return;
+            if (!platform.home_qrcode_group) platform.home_qrcode_group = [];
+            qrcodes = platform.home_qrcode_group;
+            $scope.qrcodes = qrcodes;
+        });
+    }]);
 });

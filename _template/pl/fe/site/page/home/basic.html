@@ -124,7 +124,7 @@
     <div class="tms-tool-sidebar tms-tool-qrcode hidden-xs" ng-if="site.home_qrcode_group">
         <span class="site_fe_home site_fe_home_icon xxt_talk_qrcode" ng-mouseenter="active=true" ng-mouseleave="active=false"></span>
         <div class="gotalk" ng-show="active">
-            <div class="talk-qrcodes" ng-if="site.home_qrcode_group">
+            <div class="talk-qrcodes">
                 <div class="talk-qrcode" ng-repeat="qrocde in site.home_qrcode_group">
                     <span ng-bind="qrocde.tip"></span>
                     <img class="qrcode" ng-src="{{qrocde.picUrl}}" />

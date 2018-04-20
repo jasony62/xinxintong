@@ -285,26 +285,41 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
                 }
                 $uibModal.open({
                     templateUrl: 'recordVoice.html',
-                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                        var _oData;
+                    controller: ['$scope', '$interval', '$uibModalInstance', function($scope2, $interval, $mi) {
+                        var _oData, _timer;
                         $scope2.data = _oData = {
-                            name: '录音' + oSchemaData.length + 1
+                            name: '录音' + oSchemaData.length + 1,
+                            time: 0,
+                            reset: function() {
+                                this.time = 0;
+                                delete this.localId;
+                            }
                         };
                         $scope2.startRecord = function() {
                             wx.startRecord();
+                            _oData.reset();
+                            _timer = $interval(function() {
+                                _oData.time++;
+                            }, 1000);
                             wx.onVoiceRecordEnd({
                                 // 录音时间超过一分钟没有停止的时候会执行 complete 回调
                                 complete: function(res) {
-                                    _oData.localId = res.localId;
+                                    $scope.$apply(function() {
+                                        _oData.localId = res.localId;
+                                    });
+                                    $interval.cancel(_timer);
                                 }
                             });
                         };
                         $scope2.stopRecord = function() {
                             wx.stopRecord({
                                 success: function(res) {
-                                    _oData.localId = res.localId;
+                                    $scope.$apply(function() {
+                                        _oData.localId = res.localId;
+                                    });
                                 }
                             });
+                            $interval.cancel(_timer);
                         };
                         $scope2.play = function() {
                             wx.playVoice({
@@ -334,7 +349,6 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
                     var oNewVoice;
                     oNewVoice = {
                         localId: oResult.localId,
-                        //localId: 'rec123',
                         name: oResult.name
                     };
                     if (oResult.localId) {

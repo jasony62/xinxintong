@@ -89,7 +89,7 @@
                                 <div ng-switch-when="voice">
                                     <div ng-repeat="voice in record.verbose[schema.id].value">
                                         <audio controls="controls" preload="none">
-                                            <source src="{{voice.url}}" type="{{file.type}}" />
+                                            <source src="{{voice.url}}" type="{{voice.type}}" />
                                         </audio>
                                     </div>
                                 </div>

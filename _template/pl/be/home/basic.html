@@ -233,7 +233,7 @@
                 <div class="mobile_qrcodes">
                     <ul class="pull-left list-unstyled">
                         <li class="list-item" ng-repeat="qrcode in platform.home_qrcode_group" ng-click="checked($index)">
-                            <a href="#" class="unchecked"><span class='qrcode_tip' ng-bind="qrcode.tip"></span></a>
+                            <a href="#" class="unchecked"><span ng-bind="qrcode.tip"></span></a>
                         </li>
                     </ul>
                     <div class="pull-right">

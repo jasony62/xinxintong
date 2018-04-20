@@ -393,6 +393,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                                         oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
                                         if ('url' === oSchema.type) {
                                             oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
+                                        } else if ('file' === oSchema.type) {
+                                            oRecord.verbose[oSchema.id].value.forEach(function(oFile) {
+                                                if (oFile.url) {
+                                                    oFile.url = $sce.trustAsResourceUrl(oFile.url);
+                                                }
+                                            });
                                         }
                                         break;
                                     case 'image':
@@ -479,7 +485,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                             if ('url' === oAssignedSchema.type) {
                                 oRecData.value._text = ngApp.oUtilSchema.urlSubstitute(oRecData.value);
                             }
-                        }else if(/image/.test(oAssignedSchema.type)) {
+                        } else if (/image/.test(oAssignedSchema.type)) {
                             oRecData.value = oRecData.value.split(',');
                         }
                         if (oRecData.tag) {

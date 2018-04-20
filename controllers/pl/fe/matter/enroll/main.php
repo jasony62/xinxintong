@@ -835,9 +835,8 @@ class main extends main_base {
 			return new \ResponseError('not support');
 		}
 
-		$modelFs = $this->model('fs/local', $site, '_resumable');
 		$dest = '/enroll_' . $site . '_' . $_POST['resumableFilename'];
-		$resumable = $this->model('fs/resumable', $site, $dest, $modelFs);
+		$resumable = $this->model('fs/resumable', $site, $dest);
 
 		$resumable->handleRequest($_POST);
 

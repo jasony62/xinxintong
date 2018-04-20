@@ -169,7 +169,7 @@
                                     <li class="list-group-item" ng-if="file.type.indexOf('video')===0">
                                         <span><a ng-href="{{file.url}}" target="_blank">{{file.name}}</a></span>
                                         <video controls="controls" style="width:100%;">
-                                            <source src="{{file.url}}" type="{{file.type}}" />
+                                            <source ng-src="{{file.url}}" type="{{file.type}}" />
                                         </video>
                                     </li>
                                     <li class="list-group-item" ng-if="file.type.indexOf('audio')===0">

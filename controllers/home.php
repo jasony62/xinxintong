@@ -105,6 +105,10 @@ class home extends TMS_CONTROLLER {
 		if (!empty($platform->home_nav)) {
 			$platform->home_nav = json_decode($platform->home_nav);
 		}
+		/* 群二维码 */
+		if (!empty($platform->home_qrcode_group)) {
+			$platform->home_qrcode_group = json_decode($platform->home_qrcode_group);
+		}
 
 		$param = [
 			'platform' => $platform,

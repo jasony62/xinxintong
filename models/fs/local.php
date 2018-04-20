@@ -28,8 +28,16 @@ class local_model {
 	/**
 	 * 返回指定文件名的文件的存储位置
 	 */
-	public function getPath($filename) {
-		$path = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename);
+	public function getPath($filename, $bEncoding = true) {
+		$path = $this->rootDir;
+		if (strpos($filename, '/') !== 0) {
+			$path .= '/';
+		}
+		if ($bEncoding) {
+			$path .= TMS_MODEL::toLocalEncoding($filename);
+		} else {
+			$path .= $filename;
+		}
 
 		return $path;
 	}
@@ -60,6 +68,22 @@ class local_model {
 	public function read($filename) {
 		$absPath = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename);
 		return file_get_contents($absPath);
+	}
+	/**
+	 * 创建并打开文件
+	 */
+	public function createAndOpen($filename) {
+		/* 文件的完整路径 */
+		$absPath = $this->rootDir . (strpos($filename, '/') === 0 ? '' : '/') . $filename;
+		/* 文件目录是否存在，不存在则创建 */
+		$dirname = dirname($absPath);
+		if (!file_exists($dirname)) {
+			mkdir($dirname, 0777, true);
+		}
+
+		$fp = fopen($absPath, 'w');
+
+		return $fp;
 	}
 	/**
 	 *

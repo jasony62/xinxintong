@@ -277,6 +277,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                             data[oSchema.id] = imgs;
                             break;
                         case 'file':
+                        case 'voice':
                             var files = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : {};
                             data[oSchema.id] = files;
                             break;

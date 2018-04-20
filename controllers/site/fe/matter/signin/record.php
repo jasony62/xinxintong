@@ -352,32 +352,25 @@ class record extends base {
 	/**
 	 * 分段上传文件
 	 *
-	 * @param string $site
 	 * @param string $app
 	 * @param string $submitKey
 	 */
-	public function uploadFile_action($site, $app, $submitkey = '') {
-		/* support CORS */
-		header('Access-Control-Allow-Origin:*');
-		header('Access-Control-Allow-Methods:POST');
-		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			exit;
+	public function uploadFile_action($app, $submitkey = '') {
+		$modelApp = $this->model('matter\signin');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
 		}
+
 		if (empty($submitkey)) {
-			$user = $this->who;
-			$submitkey = $user->uid;
+			$submitkey = $this->who->uid;
 		}
-		/** 分块上传文件 */
-		if (defined('SAE_TMP_PATH')) {
-			$dest = '/' . $app . '/' . $submitkey . '_' . $_POST['resumableFilename'];
-			$resumable = \TMS_APP::M('fs/resumableAliOss', $site, $dest, 'xinxintong');
-			$resumable->handleRequest();
-		} else {
-			$modelFs = \TMS_APP::M('fs/local', $site, '_resumable');
-			$dest = $submitkey . '_' . $_POST['resumableIdentifier'];
-			$resumable = \TMS_APP::M('fs/resumable', $site, $dest, $modelFs);
-			$resumable->handleRequest($_POST);
-		}
+		/**
+		 * 分块上传文件
+		 */
+		$dest = '/signin/' . $oApp->id . '/' . $submitkey . '_' . $_POST['resumableFilename'];
+		$oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, '_user');
+		$oResumable->handleRequest($_POST);
 
 		return new \ResponseData('ok');
 	}

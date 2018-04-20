@@ -400,22 +400,6 @@ class main extends \pl\fe\matter\main_base {
 		return new \ResponseData($data);
 	}
 	/**
-	 * 上传附件
-	 */
-	public function upload_action($site, $articleid) {
-		if (defined('SAE_TMP_PATH')) {
-			$dest = '/article/' . $articleid . '/' . $_POST['resumableFilename'];
-			$resumable = $this->model('fs/resumableAliOss', $site, $dest);
-			$resumable->handleRequest();
-		} else {
-			$modelFs = $this->model('fs/local', $site, '_resumable');
-			$dest = '/article_' . $articleid . '_' . $_POST['resumableIdentifier'];
-			$resumable = $this->model('fs/resumable', $site, $dest, $modelFs);
-			$resumable->handleRequest($_POST);
-		}
-		exit;
-	}
-	/**
 	 * 将文件生成的图片转为正文
 	 */
 	private function setBodyByAtt($articleid, $dir) {

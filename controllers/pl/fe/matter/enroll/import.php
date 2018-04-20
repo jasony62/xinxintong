@@ -62,12 +62,10 @@ class import extends \pl\fe\matter\base {
 
 		if (defined('SAE_TMP_PATH')) {
 			return new \ResponseError('not support');
-		} else {
-			$modelFs = $this->model('fs/local', $site, '_resumable');
-			$dest = '/enroll_' . $app . '_' . $_POST['resumableFilename'];
-			$resumable = $this->model('fs/resumable', $site, $dest, $modelFs);
 		}
 
+		$dest = '/enroll_' . $app . '_' . $_POST['resumableFilename'];
+		$resumable = $this->model('fs/resumable', $site, $dest);
 		$resumable->handleRequest($_POST);
 
 		exit;

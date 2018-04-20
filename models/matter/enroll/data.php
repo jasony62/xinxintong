@@ -264,6 +264,7 @@ class data_model extends \TMS_MODEL {
 	}
 	/**
 	 * 处理提交的数据
+	 * 包括图片和文件的上传
 	 */
 	public function disposRecrdData($oApp, $schemasById, $submitData, $submitkey) {
 		$oDbData = new \stdClass; // 处理后的保存到数据库中的登记记录
@@ -304,37 +305,38 @@ class data_model extends \TMS_MODEL {
 				case 'file':
 					if (is_array($submitVal)) {
 						$treatedValue = [];
-						foreach ($submitVal as $file) {
-							if (isset($file->uniqueIdentifier)) {
+						foreach ($submitVal as $oFile) {
+							if (isset($oFile->uniqueIdentifier)) {
 								/* 新上传的文件 */
-								if (defined('SAE_TMP_PATH')) {
+								if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
 									$fsAli = $this->model('fs/alioss', $oApp->siteid);
-									$dest = '/' . $oApp->id . '/' . $submitkey . '_' . $file->name;
+									$dest = '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $oFile->name;
 									$fileUploaded2 = $fsAli->getBaseURL() . $dest;
 								} else {
-									$fsUser = $this->model('fs/local', $oApp->siteid, '_user');
 									$fsResum = $this->model('fs/local', $oApp->siteid, '_resumable');
-									$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
+									$fileUploaded = $fsResum->rootDir . '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $oFile->name;
+									$fsUser = $this->model('fs/local', $oApp->siteid, '_user');
 									$dirUploaded = $fsUser->rootDir . '/' . $submitkey;
 									if (!file_exists($dirUploaded)) {
 										if (false === mkdir($dirUploaded, 0777, true)) {
-											return array(false, '创建文件上传目录失败');
+											return [false, '创建文件上传目录失败'];
 										}
 									}
-									if (file_exists($fileUploaded)) {
-										/* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
-										$fileUploaded2 = $dirUploaded . '/' . $file->name;
-										if (false === @rename($fileUploaded, $fileUploaded2)) {
-											return array(false, '移动上传文件失败');
-										}
+									if (!file_exists($fileUploaded)) {
+										return [false, '上传文件没有被正确保存'];
+									}
+									/* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
+									$fileUploaded2 = $dirUploaded . '/' . $oFile->name;
+									if (false === @rename($fileUploaded, $fileUploaded2)) {
+										return [false, '移动上传文件失败'];
 									}
 								}
-								unset($file->uniqueIdentifier);
-								$file->url = $fileUploaded2;
-								$treatedValue[] = $file;
+								unset($oFile->uniqueIdentifier);
+								$oFile->url = $fileUploaded2;
+								$treatedValue[] = $oFile;
 							} else {
 								/* 已经上传过的文件 */
-								$treatedValue[] = $file;
+								$treatedValue[] = $oFile;
 							}
 						}
 						$oDbData->{$schemaId} = $treatedValue;
@@ -342,6 +344,24 @@ class data_model extends \TMS_MODEL {
 						$oDbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【file】需要的类型不匹配');
+					}
+					break;
+				case 'voice':
+					if (is_array($submitVal)) {
+						$treatedValue = [];
+						$userFs = $this->model('fs/user', $oApp->siteid);
+						foreach ($submitVal as $oVoice) {
+							if (isset($oVoice->serverId)) {
+								$rst = $userFs->storeWxVoice($oVoice);
+								if (false === $rst[0]) {
+									return $rst;
+								}
+								$treatedValue[] = $oVoice;
+							} else {
+								$treatedValue[] = $oVoice;
+							}
+						}
+						$oDbData->{$schemaId} = $treatedValue;
 					}
 					break;
 				case 'multiple':

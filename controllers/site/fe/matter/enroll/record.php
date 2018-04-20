@@ -46,8 +46,7 @@ class record extends base {
 		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
 		if (false === ($oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
-			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
-			die('登记活动不存在');
+			return new \ObjectNotFoundError('指定的活动不存在');
 		}
 
 		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
@@ -86,39 +85,7 @@ class record extends base {
 		$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
 
 		if ($subType === 'save') {
-			if (empty($submitkey)) {
-				$submitkey = empty($oUser) ? '' : $oUser->uid;
-			}
-
-			$schemasById = []; // 方便获取登记项定义
-			foreach ($oEnrollApp->dataSchemas as $schema) {
-				$schemasById[$schema->id] = $schema;
-			}
-			$dbData = $this->model('matter\enroll\data')->disposRecrdData($oEnrollApp, $schemasById, $oEnrolledData, $submitkey);
-			if ($dbData[0] === false) {
-				return new \ResponseError($dbData[1]);
-			}
-			$dbData = $dbData[1];
-
-			$oPosted->data = $dbData;
-			$data_tag = new \stdClass;
-			if (isset($oPosted->tag) && count(get_object_vars($oPosted->tag))) {
-				foreach ($oPosted->tag as $schId => $saveTags) {
-					$data_tag->{$schId} = [];
-					foreach ($saveTags as $saveTag) {
-						$data_tag->{$schId}[] = $saveTag->id;
-					}
-				}
-				unset($oPosted->tag);
-			}
-			$oPosted->data_tag = $data_tag;
-			!empty($rid) && $oPosted->rid = $rid;
-			/* 插入到用户对素材的行为日志中 */
-			$operation = new \stdClass;
-			$operation->name = 'saveData';
-			$operation->data = $modelEnl->toJson($oPosted);
-			$logid = $this->_logUserOp($oEnrollApp, $operation, $oUser);
-
+			$logid = $this->_saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted);
 			return new \ResponseData($logid);
 		}
 
@@ -328,6 +295,46 @@ class record extends base {
 		return [true, ''];
 	}
 	/**
+	 * 保存记录数据
+	 */
+	private function _saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted) {
+		if (empty($submitkey)) {
+			$submitkey = empty($oUser) ? '' : $oUser->uid;
+		}
+
+		$schemasById = []; // 方便获取登记项定义
+		foreach ($oEnrollApp->dataSchemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
+		$dbData = $this->model('matter\enroll\data')->disposRecrdData($oEnrollApp, $schemasById, $oEnrolledData, $submitkey);
+		if ($dbData[0] === false) {
+			return new \ResponseError($dbData[1]);
+		}
+		$dbData = $dbData[1];
+
+		$oPosted->data = $dbData;
+		$data_tag = new \stdClass;
+		if (isset($oPosted->tag) && count(get_object_vars($oPosted->tag))) {
+			foreach ($oPosted->tag as $schId => $saveTags) {
+				$data_tag->{$schId} = [];
+				foreach ($saveTags as $saveTag) {
+					$data_tag->{$schId}[] = $saveTag->id;
+				}
+			}
+			unset($oPosted->tag);
+		}
+		$oPosted->data_tag = $data_tag;
+		!empty($rid) && $oPosted->rid = $rid;
+
+		/* 插入到用户对素材的行为日志中 */
+		$operation = new \stdClass;
+		$operation->name = 'saveData';
+		$operation->data = $oPosted;
+		$logid = $this->_logUserOp($oEnrollApp, $operation, $oUser);
+
+		return $logid;
+	}
+	/**
 	 * 记录用户提交日志
 	 *
 	 * @param object $app
@@ -511,56 +518,49 @@ class record extends base {
 	 *
 	 */
 	public function uploadFile_action($app, $submitkey = '') {
-		/* support CORS */
-		//header('Access-Control-Allow-Origin:*');
-		//header('Access-Control-Allow-Methods:POST');
-		//if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-		//	exit;
-		//}
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
 		if (empty($submitkey)) {
-			$oUser = $this->getUser($oApp);
-			$submitkey = $oUser->uid;
+			$submitkey = $this->who->uid;
 		}
-		/** 分块上传文件 */
-		if (defined('SAE_TMP_PATH')) {
-			$dest = '/' . $app . '/' . $submitkey . '_' . $_POST['resumableFilename'];
-			$resumable = \TMS_APP::M('fs/resumableAliOss', $oApp->siteid, $dest, 'xinxintong');
-			$resumable->handleRequest($_POST);
-		} else {
-			$modelFs = \TMS_APP::M('fs/local', $oApp->siteid, '_resumable');
-			$dest = $submitkey . '_' . $_POST['resumableIdentifier'];
-			$resumable = \TMS_APP::M('fs/resumable', $oApp->siteid, $dest, $modelFs);
-			$resumable->handleRequest($_POST);
-		}
+		/**
+		 * 分块上传文件
+		 */
+		$dest = '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $_POST['resumableFilename'];
+		$oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, '_user');
+		$aResult = $oResumable->handleRequest($_POST);
 
-		return new \ResponseData('ok');
+		if (true === $aResult[0]) {
+			return new \ResponseData('ok');
+		} else {
+			return new \ResponseError($aResult[1]);
+		}
 	}
 	/**
 	 * 用保存的数据填写指定的记录数据
 	 */
 	private function _fillWithSaved($oApp, $oUser, &$oRecord) {
-		$oSaveLog = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
-		if (count($oSaveLog) == 1) {
-			$oSaveLog = $oSaveLog[0];
-			$oSaveLog->opData = json_decode($oSaveLog->operate_data);
-			$bMatched = true;
-			if (!empty($oRecord->rid) && (isset($oSaveLog->opData->rid) && $oSaveLog->opData->rid !== $oRecord->rid)) {
-				$bMatched = false;
-			}
-			if ($bMatched) {
-				$oLogData = $oSaveLog->opData;
-				if (isset($oLogData)) {
-					$oRecord->data = $oLogData->data;
-					$oRecord->supplement = $oLogData->supplement;
-					$oRecord->data_tag = $oLogData->data_tag;
+		if (!empty($oUser->uid)) {
+			$oSaveLog = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
+			if (count($oSaveLog) == 1) {
+				$oSaveLog = $oSaveLog[0];
+				$oSaveLog->opData = json_decode($oSaveLog->operate_data);
+				$bMatched = true;
+				if (!empty($oRecord->rid) && (isset($oSaveLog->opData->rid) && $oSaveLog->opData->rid !== $oRecord->rid)) {
+					$bMatched = false;
+				}
+				if ($bMatched) {
+					$oLogData = $oSaveLog->opData;
+					if (isset($oLogData)) {
+						$oRecord->data = $oLogData->data;
+						$oRecord->supplement = $oLogData->supplement;
+						$oRecord->data_tag = $oLogData->data_tag;
 
-					return true;
+						return true;
+					}
 				}
 			}
 		}

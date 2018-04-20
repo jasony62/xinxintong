@@ -258,10 +258,10 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
         controller: ['$scope', '$uibModal', 'noticebox', function($scope, $uibModal, noticebox) {
             $scope.startVoice = function(schemaId) {
                 var oSchema, oSchemaData;
-                // if (!window.wx || !wx.startRecord) {
-                //     noticebox.warn('请在微信中进行录音');
-                //     return;
-                // }
+                if (!window.wx || !wx.startRecord) {
+                    noticebox.warn('请在微信中进行录音');
+                    return;
+                }
                 if ($scope.schemasById && $scope.schemasById[schemaId]) {
                     oSchema = $scope.schemasById[schemaId];
                 } else if ($scope.app && $scope.app.dataSchemas && $scope.app.dataSchemas.length) {

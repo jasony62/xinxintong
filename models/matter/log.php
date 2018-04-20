@@ -954,7 +954,7 @@ class log_model extends \TMS_MODEL {
 		$q1 = [
 			$fields,
 			'xxt_log_matter_read',
-			"matter_id = '{$matterId}' and matter_type = '{$mattertype}' and siteid = '{$site}'"
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and siteid = '{$site}'"
 		];
 
 		if (!empty($options['shareby'])) {
@@ -983,10 +983,10 @@ class log_model extends \TMS_MODEL {
 
 		foreach ($logs as $log) {
 			// 查询用户转发数和分享数
-			$log->shareFSum = $this->userShareNum($site, $log->userid, $matterId, $mattertype, 'F', $options);
-			$log->shareTSum = $this->userShareNum($site, $log->userid, $matterId, $mattertype, 'T', $options);
+			$log->shareFSum = $this->userShareNum($site, $log->userid, $matterId, $matterType, 'F', $options);
+			$log->shareTSum = $this->userShareNum($site, $log->userid, $matterId, $matterType, 'T', $options);
 			// 带来的阅读数和阅读人数  
-			$ttractReads = $this->userTtractRead($site, $log->userid, $matterId, $mattertype, $options);
+			$ttractReads = $this->userTtractRead($site, $log->userid, $matterId, $matterType, $options);
 			$log->attractReaderNum = count($res);
 			$attractReadNum = 0;
 			foreach ($res as $re) {
@@ -1005,11 +1005,11 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 查询用户转发数和分享数
 	 */
-	private function userShareNum($site, $logUid, $matterId, $mattertype, $shareTo, $options) {
+	private function userShareNum($site, $logUid, $matterId, $matterType, $shareTo, $options) {
 		$q = [
 			'count(id)',
 			'xxt_log_matter_share',
-			"matter_id = '{$matterId}' and matter_type = '{$mattertype}' and siteid = '{$site}' and userid = '{$logUid}' and share_to = '{$shareTo}'"
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and siteid = '{$site}' and userid = '{$logUid}' and share_to = '{$shareTo}'"
 		];
 		if (!empty($options['start'])) {
 			$q[2] .= " and share_at > {$options['start']}";
@@ -1025,11 +1025,11 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 查询用户带来的下一级阅读数和阅读人数
 	*/
-	private function userTtractRead($site, $logUid, $matterId, $mattertype, $options) {
+	private function userTtractRead($site, $logUid, $matterId, $matterType, $options) {
 		$q = [
 			'count(id) as num',
 			'xxt_log_matter_read',
-			"matter_id = '{$matterId}' and matter_type = '{$mattertype}' and userid <> '{$logUid}' and siteid = '{$site}' and matter_shareby like '" . $logUid . "_%'"
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and userid <> '{$logUid}' and siteid = '{$site}' and matter_shareby like '" . $logUid . "_%'"
 		];
 		if (!empty($options['start'])) {
 			$q[2] .= " and read_at > {$options['start']}";
@@ -1050,7 +1050,7 @@ class log_model extends \TMS_MODEL {
 		$q1 = [
 			$fields,
 			'xxt_log_matter_share',
-			"matter_id = '{$matterId}' and matter_type = '{$mattertype}' and siteid = '{$site}'"
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and siteid = '{$site}'"
 		];
 		if (!empty($options['shareby'])) {
 			$q1[2] .= " and matter_shareby like '" . $options['shareby'] . "_%'";
@@ -1078,10 +1078,10 @@ class log_model extends \TMS_MODEL {
 
 		foreach ($logs as $log) {
 			// 查询用户转发数和分享数
-			$log->shareFSum = $this->userShareNum($site, $log->userid, $matterId, $mattertype, 'F', $options);
-			$log->shareTSum = $this->userShareNum($site, $log->userid, $matterId, $mattertype, 'T', $options);
+			$log->shareFSum = $this->userShareNum($site, $log->userid, $matterId, $matterType, 'F', $options);
+			$log->shareTSum = $this->userShareNum($site, $log->userid, $matterId, $matterType, 'T', $options);
 			// 带来的阅读数和阅读人数  
-			$ttractReads = $this->userTtractRead($site, $log->userid, $matterId, $mattertype, $options);
+			$ttractReads = $this->userTtractRead($site, $log->userid, $matterId, $matterType, $options);
 			$log->attractReaderNum = count($res);
 			$attractReadNum = 0;
 			foreach ($res as $re) {

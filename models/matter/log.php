@@ -949,7 +949,7 @@ class log_model extends \TMS_MODEL {
 	 * 素材运营数据追踪
 	 */
 	public function operateStatRead($site, $matterId, $matterType, $options = []) {
-		$fields = 'id,userid,nickname,openid,matter_shareby,max(read_at) time,count(id) as num';
+		$fields = 'id,userid,nickname,openid,matter_shareby,max(read_at) time,count(id) as readNum';
 
 		$q1 = [
 			$fields,
@@ -1045,7 +1045,7 @@ class log_model extends \TMS_MODEL {
 	 * 素材运营数据追踪
 	 */
 	public function operateStatShare($site, $matterId, $matterType, $options = []) {
-		$fields = 'id,userid,nickname,openid,matter_shareby,max(share_at) time,count(id) as num';
+		$fields = 'id,userid,nickname,openid,matter_shareby,max(share_at) time,count(id) shareNum';
 
 		$q1 = [
 			$fields,

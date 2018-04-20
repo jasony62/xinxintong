@@ -945,4 +945,156 @@ class log_model extends \TMS_MODEL {
 
 		return $logs;
 	}
+	/**
+	 * 素材运营数据追踪
+	 */
+	public function operateStatRead($site, $matterId, $matterType, $options = []) {
+		$fields = 'id,userid,nickname,openid,matter_shareby,max(read_at) time,count(id) as num';
+
+		$q1 = [
+			$fields,
+			'xxt_log_matter_read',
+			"matter_id = '{$matterId}' and matter_type = '{$mattertype}' and siteid = '{$site}'"
+		];
+
+		if (!empty($options['shareby'])) {
+			$q1[2] .= " and matter_shareby like '" . $options['shareby'] . "_%'";
+		} else {
+			$q1[2] .= " and matter_shareby in ('','undefined')";
+		}
+
+		if (!empty($options['start'])) {
+			$q1[2] .= " and read_at > {$options['start']}";
+		}
+		if (!empty($options['end'])) {
+			$q1[2] .= " and read_at < {$options['end']}";
+		}
+		if (!empty($options['nickname'])) {
+			$q1[2] .= " and nickname like '%" . $options['nickname'] . "%'";
+		}
+
+		$p1 = ['g' => 'userid', 'o' => 'time desc'];
+		if (isset($options['paging'])) {
+			$p1['r']['o'] = ($options['paging']['page'] - 1) * $options['paging']['size'];
+			$p1['r']['l'] = $options['paging']['size'];
+		}
+
+		$logs = $this->query_objs_ss($q1, $p1);
+
+		foreach ($logs as $log) {
+			// 查询用户转发数和分享数
+			$log->shareFSum = $this->userShareNum($site, $log->userid, $matterId, $mattertype, 'F', $options);
+			$log->shareTSum = $this->userShareNum($site, $log->userid, $matterId, $mattertype, 'T', $options);
+			// 带来的阅读数和阅读人数  
+			$ttractReads = $this->userTtractRead($site, $log->userid, $matterId, $mattertype, $options);
+			$log->attractReaderNum = count($res);
+			$attractReadNum = 0;
+			foreach ($res as $re) {
+				$attractReadNum += $re->num;
+			}
+			$log->attractReadNum = $attractReadNum;
+		}
+
+		$data = new \stdClass;
+		$data->logs = $logs;
+		$q1[0] = "count(id)";
+		$data->total = $this->query_val_ss($q1);
+
+		return $data;
+	}
+	/**
+	 * 查询用户转发数和分享数
+	 */
+	private function userShareNum($site, $logUid, $matterId, $mattertype, $shareTo, $options) {
+		$q = [
+			'count(id)',
+			'xxt_log_matter_share',
+			"matter_id = '{$matterId}' and matter_type = '{$mattertype}' and siteid = '{$site}' and userid = '{$logUid}' and share_to = '{$shareTo}'"
+		];
+		if (!empty($options['start'])) {
+			$q[2] .= " and share_at > {$options['start']}";
+		}
+		if (!empty($options['end'])) {
+			$q[2] .= " and share_at < {$options['end']}";
+		}
+
+		$num = $this->query_val_ss($q);
+
+		return $num;
+	}
+	/**
+	 * 查询用户带来的下一级阅读数和阅读人数
+	*/
+	private function userTtractRead($site, $logUid, $matterId, $mattertype, $options) {
+		$q = [
+			'count(id) as num',
+			'xxt_log_matter_read',
+			"matter_id = '{$matterId}' and matter_type = '{$mattertype}' and userid <> '{$logUid}' and siteid = '{$site}' and matter_shareby like '" . $logUid . "_%'"
+		];
+		if (!empty($options['start'])) {
+			$q[2] .= " and read_at > {$options['start']}";
+		}
+
+		$p = ['g' => 'userid'];
+
+		$res = $this->query_objs_ss($q, $p);
+
+		return $res;
+	}
+	/**
+	 * 素材运营数据追踪
+	 */
+	public function operateStatShare($site, $matterId, $matterType, $options = []) {
+		$fields = 'id,userid,nickname,openid,matter_shareby,max(share_at) time,count(id) as num';
+
+		$q1 = [
+			$fields,
+			'xxt_log_matter_share',
+			"matter_id = '{$matterId}' and matter_type = '{$mattertype}' and siteid = '{$site}'"
+		];
+		if (!empty($options['shareby'])) {
+			$q1[2] .= " and matter_shareby like '" . $options['shareby'] . "_%'";
+		} else {
+			$q1[2] .= " and matter_shareby in ('','undefined')";
+		}
+
+		if (!empty($options['start'])) {
+			$q1[2] .= " and share_at > {$options['start']}";
+		}
+		if (!empty($options['end'])) {
+			$q1[2] .= " and share_at < {$options['end']}";
+		}
+		if (!empty($options['nickname'])) {
+			$q1[2] .= " and nickname like '%" . $options['nickname'] . "%'";
+		}
+
+		$p1 = ['g' => 'userid', 'o' => 'time desc'];
+		if (isset($options['paging'])) {
+			$p1['r']['o'] = ($options['paging']['page'] - 1) * $options['paging']['size'];
+			$p1['r']['l'] = $options['paging']['size'];
+		}
+
+		$logs = $this->query_objs_ss($q1, $p1);
+
+		foreach ($logs as $log) {
+			// 查询用户转发数和分享数
+			$log->shareFSum = $this->userShareNum($site, $log->userid, $matterId, $mattertype, 'F', $options);
+			$log->shareTSum = $this->userShareNum($site, $log->userid, $matterId, $mattertype, 'T', $options);
+			// 带来的阅读数和阅读人数  
+			$ttractReads = $this->userTtractRead($site, $log->userid, $matterId, $mattertype, $options);
+			$log->attractReaderNum = count($res);
+			$attractReadNum = 0;
+			foreach ($res as $re) {
+				$attractReadNum += $re->num;
+			}
+			$log->attractReadNum = $attractReadNum;
+		}
+
+		$data = new \stdClass;
+		$data->logs = $logs;
+		$q1[0] = "count(id)";
+		$data->total = $this->query_val_ss($q1);
+
+		return $logs;
+	}
 }

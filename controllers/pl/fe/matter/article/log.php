@@ -29,4 +29,38 @@ class log extends \pl\fe\matter\base {
 
 		return new \ResponseData($reads);
 	}
+	/**
+	 *
+	 */
+	public function operateStat_action($site, $appId, $operateType = 'read', $page = 1, $size = 30) {
+		$modelLog = $this->model('matter\log');
+
+		$options = [];
+		$options['operateType'] = $operateType;
+		$filter = $this->getPostJson();
+
+		if (!empty($page) && !empty($size)) {
+			$options['paging'] = ['page' => $page, 'size' => $size];
+		}
+		if (!empty($filter->start)) {
+			$options['start'] = $modelLog->escape($filter->start);
+		}
+		if (!empty($filter->end)) {
+			$options['end'] = $modelLog->escape($filter->end);
+		}
+		if (!empty($filter->nickname)) {
+			$options['nickname'] = $modelLog->escape($filter->nickname);
+		}
+		if (!empty($filter->shareby)) {
+			$options['shareby'] = $modelLog->escape($filter->shareby);
+		}
+
+		if ($operateType === 'read') {
+			$logs = $modelLog->operateStatRead($site, $appId, 'article', $options);
+		} else {
+			$logs = $modelLog->operateStatShare($site, $appId, 'article', $options);
+		}
+
+		return new \ResponseData($logs);
+	}
 }

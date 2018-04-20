@@ -199,7 +199,13 @@
                     </ul>
                 </div>
                 <div ng-if="platform.home_qrcode_group.length==1" >
-                    <img ng-src="{{qrcode.picUrl}}" ng-repeat="qrcode in platform.home_qrcode_group" style="width:100%;height:367px">
+                    <div ng-repeat="qrcode in platform.home_qrcode_group" >
+                        <h3>
+                            <i class="glyphicon glyphicon-qrcode"></i>
+                            <span ng-bind="qrcode.tip" style="margin-left:7px;"></span>
+                        </h3>
+                        <img ng-src="{{qrcode.picUrl}}" style="width:100%;height:367px;margin-top:-3px">
+                    </div>
                 </div>
             </div>
             <div class="mainSide visible-xs-block">
@@ -224,8 +230,16 @@
                         </ul>
                     </span>
                 </uib-tabset>
-                <div style="text-align:center" ng-if="platform.home_qrcode_group.length==1" >
-                    <img ng-src="{{qrcode.picUrl}}" ng-repeat="qrcode in platform.home_qrcode_group" style="width:200px;height:244px">
+                <div class="mobile_qrcodes">
+                    <ul class="pull-left list-unstyled">
+                        <li class="list-item" ng-repeat="qrcode in platform.home_qrcode_group" ng-click="checked($index)">
+                            <a href="#" class="unchecked"><span class='qrcode_tip' ng-bind="qrcode.tip"></span></a>
+                        </li>
+                    </ul>
+                    <div class="pull-right">
+                        <img class="qrcode_url" ng-src="{{url}}">
+                        <span class="qrcode_txt">长按识别<i class="glyphicon glyphicon-hand-up"></i></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -242,9 +256,9 @@
         <span class="site_fe_home site_fe_home_icon xxt_talk_qrcode" ng-mouseenter="active=true" ng-mouseleave="active=false"></span>
         <div class="gotalk" ng-show="active">
             <div class="talk-qrcodes">
-                <div class="talk-qrcode" ng-repeat="qrocde in platform.home_qrcode_group">
-                    <span ng-bind="qrocde.tip"></span>
-                    <img class="qrcode" ng-src="{{qrocde.picUrl}}" />
+                <div class="talk-qrcode" ng-repeat="qrcode in platform.home_qrcode_group">
+                    <span ng-bind="qrcode.tip"></span>
+                    <img class="qrcode" ng-src="{{qrcode.picUrl}}" />
                 </div>
             </div>
         </div>

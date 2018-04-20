@@ -28,7 +28,21 @@
 	.matters .section+.section{margin-top:4px;}
 }
 
-/* 右侧栏小功能 */
+/**
+*	mobile qrcodes
+*/
+.mobile_qrcodes{width: 100%;padding:15px 10px 10px 15px;position:relative;margin-top:30px;overflow:hidden;border:1px solid #f5f5f5;}
+.mobile_qrcodes>div{overflow:hidden;}
+.mobile_qrcodes .qrcode_url{float:left;width:100px;height:100px;margin-right:5px;}
+.mobile_qrcodes .qrcode_txt{float:left;width:20px;font-size:12px;color:#999;}
+.mobile_qrcodes a.unchecked{color:#000;}
+.mobile_qrcodes a.unchecked:before{width:0;}
+.mobile_qrcodes a.active{color:#2994d0;}
+.mobile_qrcodes a.active:before{width:4px;}
+
+/**
+* pc qrcodes
+*/
 .tms-tool-qrcode{bottom:128px;}
 .xxt_talk_qrcode{width:60px;height:60px;top:0;left:0;background-position:-142px -368px;}
 .qrcode{width:96px;height:96px;}

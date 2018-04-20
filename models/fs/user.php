@@ -41,11 +41,10 @@ class user_model {
 	/**
 	 * 存储指定url对应的文件
 	 */
-	public function storeUrl($url) {
+	public function storeUrl($url, $ext = 'jpg') {
 		/**
 		 * 下载文件
 		 */
-		$ext = 'jpg';
 		$response = file_get_contents($url);
 		$responseInfo = $http_response_header;
 		foreach ($responseInfo as $loop) {
@@ -64,7 +63,7 @@ class user_model {
 		$dir = date("ymdH"); // 每个小时分一个目录
 		$storename = date("is") . rand(10000, 99999) . "." . $ext;
 		/**
-		 * 写到alioss
+		 * 写到指定位置
 		 */
 		$newUrl = $this->writeFile($dir, $storename, $response);
 
@@ -143,5 +142,76 @@ class user_model {
 		} else {
 			return [false, '图片数据格式错误：' . json_encode($img)];
 		}
+	}
+	/**
+	 * 保存微信录音文件
+	 *
+	 * @param $oVoice
+	 */
+	public function storeWxVoice(&$oVoice) {
+		if (!isset($oVoice->serverId)) {
+			return [false, '录音数据为空'];
+		}
+
+		if (($snsConfig = TMS_APP::model('sns\wx')->bySite($this->siteId)) && $snsConfig->joined === 'Y') {
+			$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
+		} else if (($snsConfig = TMS_APP::model('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
+			$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
+		} else if ($snsConfig = TMS_APP::model('sns\qy')->bySite($this->siteId)) {
+			if ($snsConfig->joined === 'Y') {
+				$snsProxy = TMS_APP::model('sns\qy\proxy', $snsConfig);
+			}
+		}
+
+		$modelLog = TMS_APP::model('log');
+		$modelLog->log('trace', 'enroll-wxvoice-0', $oVoice->serverId);
+
+		$rst = $snsProxy->mediaGetUrl2($oVoice->serverId);
+		if ($rst[0] !== false) {
+			$rst = $this->_storeWxVoiceUrl($rst[1]);
+		}
+
+		$oVoice->url = $rst[1];
+		unset($oVoice->serverId);
+
+		return $rst;
+	}
+	/**
+	 * 从指定的url下载微信录音数据，并保存成文件
+	 */
+	private function _storeWxVoiceUrl($url) {
+		/**
+		 * 下载文件
+		 */
+		$modelLog = TMS_APP::model('log');
+		$modelLog->log('trace', 'enroll-wxvoice-1', $url);
+
+		$response = file_get_contents($url);
+
+		$modelLog->log('trace', 'enroll-wxvoice-2', $response);
+
+		$responseInfo = $http_response_header;
+		foreach ($responseInfo as $loop) {
+			if (strpos($loop, "Content-disposition") !== false) {
+				$disposition = trim(substr($loop, 21));
+				$filename = explode(';', $disposition);
+				$filename = array_pop($filename);
+				$filename = explode('=', $filename);
+				$filename = array_pop($filename);
+				$filename = str_replace('"', '', $filename);
+				$filename = explode('.', $filename);
+				$ext = array_pop($filename);
+				break;
+			}
+		}
+		$dir = date("ymdH"); // 每个小时分一个目录
+		$storename = date("is") . rand(10000, 99999) . ".amr";
+
+		/* 写到指定位置 */
+		$newUrl = $this->writeFile($dir, $storename, $response);
+
+		/* 将amr转换成mp3格式 */
+
+		return array(true, $newUrl);
 	}
 }

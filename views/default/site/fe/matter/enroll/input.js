@@ -220,42 +220,44 @@ ngApp.controller('ctrlWxUploadFileTip', ['$scope', '$interval', function($scope,
     };
 }]);
 ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
-    function doUpload2Wx() {
-        function uploadNext() {
-            var oPendingData;
-            oPendingData = _aPendingUploadVoices[uploadedCount];
-            wx.uploadVoice({
-                localId: oPendingData.localId,
-                isShowProgressTips: 1,
-                success: function(res) {
-                    oPendingData.serverId = res.serverId;
-                    delete oPendingData.localId;
-                    uploadedCount++;
-                    if (uploadedCount < _aPendingUploadVoices.length) {
-                        uploadNext();
-                    } else {
-                        _aPendingUploadVoices = [];
-                        defer.resolve();
-                    }
-                },
-                fail: function(res) {
-                    noticebox.error('录音文件上传失败：' + res.errMsg);
-                    defer.reject();
-                }
-            });
-        }
-        var defer, uploadedCount;
+    function doUpload2Wx(oPendingData) {
+        var defer;
         defer = $q.defer();
-        uploadedCount = 0;
-        uploadNext();
+        wx.uploadVoice({
+            localId: oPendingData.localId,
+            isShowProgressTips: 1,
+            success: function(res) {
+                oPendingData.serverId = res.serverId;
+                delete oPendingData.localId;
+                defer.resolve();
+            },
+            fail: function(res) {
+                noticebox.error('录音文件上传失败：' + res.errMsg);
+                defer.reject();
+            }
+        });
         return defer.promise;
     }
-
-    var _aPendingUploadVoices = []; // 待上传的录音文件
 
     return {
         restrict: 'A',
         controller: ['$scope', '$uibModal', 'noticebox', function($scope, $uibModal, noticebox) {
+            $scope.clickFile = function(schemaId, index) {
+                var buttons, oSchemaData;
+                if ($scope.data[schemaId] && $scope.data[schemaId][index]) {
+                    buttons = [
+                        { label: '删除', value: 'delete' }, { label: '取消', value: 'cancel' }
+                    ];
+                    oSchemaData = $scope.data[schemaId];
+                    noticebox.confirm('操作录音文件【' + oSchemaData[index].name + '】', buttons).then(function(value) {
+                        switch (value) {
+                            case 'delete':
+                                oSchemaData.splice(index, 1);
+                                break;
+                        }
+                    });
+                }
+            };
             $scope.startVoice = function(schemaId) {
                 var oSchema, oSchemaData;
                 if (!window.wx || !wx.startRecord) {
@@ -288,7 +290,7 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
                     controller: ['$scope', '$interval', '$uibModalInstance', function($scope2, $interval, $mi) {
                         var _oData, _timer;
                         $scope2.data = _oData = {
-                            name: '录音' + oSchemaData.length + 1,
+                            name: '录音' + (oSchemaData.length + 1),
                             time: 0,
                             reset: function() {
                                 this.time = 0;
@@ -349,15 +351,15 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
                     var oNewVoice;
                     oNewVoice = {
                         localId: oResult.localId,
-                        name: oResult.name
+                        name: oResult.name,
+                        time: oResult.time
                     };
                     if (oResult.localId) {
                         $scope.data[oSchema.id].push(oNewVoice);
-                        _aPendingUploadVoices.push(oNewVoice);
                     }
                     /* 记录整体提交时处理文件上传 */
                     $scope.beforeSubmit(function() {
-                        return doUpload2Wx();
+                        return doUpload2Wx(oNewVoice);
                     });
                 });
             };

@@ -407,6 +407,17 @@ define([], function() {
                 html += '</li>';
                 html += '</ul>';
                 break;
+            case 'voice':
+                inpAttrs['tms-voice-input'] = 'Y';
+                html += '<ul class="list-group voice" name="' + oSchema.id + '">';
+                html += '<li wrap="voice" ng-repeat="voice in data.' + oSchema.id + '" class="list-group-item" ng-click="clickFile(\'' + oSchema.id + '\',$index)">';
+                html += '<span class="voice-name" ng-bind="voice.name"></span>';
+                html += '</li>';
+                html += '<li class="list-group-item voice-picker">';
+                html += '<button class="btn btn-success" ng-click="startVoice(\'' + oSchema.id + '\')">' + oSchema.title + '</button>';
+                html += '</li>';
+                html += '</ul>';
+                break;
             case 'score':
                 if (oSchema.ops && oSchema.ops.length > 0) {
                     html += this._htmlScoreItem(oWrap, forEdit);
@@ -530,6 +541,16 @@ define([], function() {
                             sNgClick;
 
                         sNgClick = 'chooseFile(' + "'" + oSchema.id + "'," + (oSchema.count || 1) + ')';
+                        $button.attr('ng-click', sNgClick).html(oSchema.title);
+                        _htmlSupplement($dom, oSchema);
+                        _htmlTag($dom, oSchema);
+                    })(this);
+                } else if (/voice/.test(oSchema.type)) {
+                    (function(lib) {
+                        var $button = $dom.find('li.voice-picker button'),
+                            sNgClick;
+
+                        sNgClick = 'startVoice(' + "'" + oSchema.id + "')";
                         $button.attr('ng-click', sNgClick).html(oSchema.title);
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
@@ -763,6 +784,9 @@ define([], function() {
             case 'file':
                 html = '<ul><li ng-repeat="file in Record.current.data.' + schema.id + '"><span ng-bind="file.name"></span></li></ul>';
                 break;
+            case 'voice':
+                html = '<ul><li ng-repeat="voice in Record.current.data.' + schema.id + '"><span ng-bind="voice.name"></span></li></ul>';
+                break;
             case 'multitext':
                 html = '<ul><li ng-repeat="item in Record.current.data.' + schema.id + '"><span ng-bind="item.value"></span></li></ul>';
                 break;
@@ -946,6 +970,9 @@ define([], function() {
             case 'file':
                 html += '<ul><li ng-repeat="file in r.data.' + oSchema.id + '"><span ng-bind="file.name"></span></li></ul>';
                 break;
+            case 'voice':
+                html += '<ul><li ng-repeat="voice in r.data.' + oSchema.id + '"><span ng-bind="voice.name"></span></li></ul>';
+                break;
             case 'multitext':
                 html += '<ul><li ng-repeat="item in r.data.' + oSchema.id + '"><span ng-bind="item.value"></span></li></ul>';
                 break;
@@ -1101,32 +1128,13 @@ define([], function() {
         if (prefab = PrefabActSchema[schema.name]) {
             action = prefab.act;
             angular.isFunction(action) && (action = action(schema));
-            if (schema.name === 'acceptInvite') {
-                attrs['ng-controller'] = 'ctrlInvite';
-            } else if (['editRecord', 'removeRecord', 'remarkRecord'].indexOf(schema.name) !== -1) {
+            if (['editRecord', 'removeRecord', 'remarkRecord'].indexOf(schema.name) !== -1) {
                 attrs['ng-controller'] = 'ctrlRecord';
             }
             return {
                 tag: 'div',
                 attrs: attrs,
                 html: tmplBtn(action, schema.label)
-            };
-        } else if (schema.name === 'sendInvite') {
-            var html;
-            action = "send($event,'" + schema.accept + "'";
-            schema.next && (action += ",'" + schema.next + "'");
-            action += ")";
-            html = '<input type="text" class="form-control" placeholder="自定义用户标识" ng-model="invitee">';
-            html += '<span class="input-group-btn">';
-            html += '<button class="btn btn-success" type="button" ng-click="' + action + '"><span>' + label + '</span></button>';
-            html += '</span>';
-            attrs.class += "  input-group input-group-lg";
-            attrs['ng-controller'] = 'ctrlInvite';
-
-            return {
-                tag: 'div',
-                attrs: attrs,
-                html: html
             };
         }
     };

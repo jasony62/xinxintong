@@ -346,6 +346,24 @@ class data_model extends \TMS_MODEL {
 						throw new \Exception('登记的数据类型和登记项【file】需要的类型不匹配');
 					}
 					break;
+				case 'voice':
+					if (is_array($submitVal)) {
+						$treatedValue = [];
+						$userFs = $this->model('fs/user', $oApp->siteid);
+						foreach ($submitVal as $oVoice) {
+							if (isset($oVoice->serverId)) {
+								$rst = $userFs->storeWxVoice($oVoice);
+								if (false === $rst[0]) {
+									return $rst;
+								}
+								$treatedValue[] = $oVoice;
+							} else {
+								$treatedValue[] = $oVoice;
+							}
+						}
+						$oDbData->{$schemaId} = $treatedValue;
+					}
+					break;
 				case 'multiple':
 					if (is_object($submitVal)) {
 						// 多选题，将选项合并为逗号分隔的字符串

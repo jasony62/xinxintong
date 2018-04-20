@@ -185,6 +185,13 @@
                                                 <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
                                             </div>
                                         </div>
+                                        <div ng-switch-when="voice">
+                                            <div ng-repeat="voice in rec.data[schema.id]">
+                                                <audio controls="controls" preload="none">
+                                                    <source src="{{voice.url}}" type="{{voice.type}}" />
+                                                </audio>
+                                            </div>
+                                        </div>
                                         <div ng-switch-when="image">
                                             <ul>
                                                 <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>

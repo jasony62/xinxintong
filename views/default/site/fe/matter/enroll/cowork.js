@@ -389,11 +389,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                                         oRecord.verbose[oSchema.id].value = ngApp.oUtilSchema.txtSubstitute(oRecord.verbose[oSchema.id].value);
                                         break;
                                     case 'file':
+                                    case 'voice':
                                     case 'url':
                                         oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
                                         if ('url' === oSchema.type) {
                                             oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
-                                        } else if ('file' === oSchema.type) {
+                                        } else if (/file|voice/.test(oSchema.type)) {
                                             oRecord.verbose[oSchema.id].value.forEach(function(oFile) {
                                                 if (oFile.url) {
                                                     oFile.url = $sce.trustAsResourceUrl(oFile.url);

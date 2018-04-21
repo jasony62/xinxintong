@@ -223,6 +223,7 @@
                                         <li><a href ng-click="agreeRemark(remark,'N')">屏蔽</a></li>
                                     </ul>
                                 </div>
+                                <button class='btn btn-xs btn-default' ng-if="coworkSchemas.length&&remark.as_cowork_id==='0'" ng-click="remarkAsCowork(remark)">作为答案</button>
                             </div>
                             <div ng-if="!record._canAgree&&(remark.agreed==='Y'||(remark.agreed==='D')||user.uid===remark.userid||user.is_editor==='Y')" ng-switch on="remark.agreed">
                                 <button ng-switch-when="D" class='btn btn-xs btn-danger'>讨论</button>

@@ -343,6 +343,12 @@ class log_model extends \TMS_MODEL {
 		if (!empty($options['byRid'])) {
 			$q[2] .= " and l.operate_data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
 		}
+		if (!empty($options['start'])) {
+			$q[2] .= " and l.operate_at > " . $this->escape($options['start']);
+		}
+		if (!empty($options['end'])) {
+			$q[2] .= " and l.operate_at < " . $this->escape($options['end']);
+		}
 
 		/**
 		 * 分页数据
@@ -963,8 +969,8 @@ class log_model extends \TMS_MODEL {
 			$$countShareT .= " and s1.share_at < {$options['end']}";
 		}
 
-		$fields .= ",(" . $countShareF . ") as shareFNum"
-		$fields .= ",(" . $countShareT . ") as shareTNum"
+		$fields .= ",(" . $countShareF . ") as shareFNum";
+		$fields .= ",(" . $countShareT . ") as shareTNum";
 
 		$q1 = [
 			$fields,
@@ -984,8 +990,8 @@ class log_model extends \TMS_MODEL {
 		if (!empty($options['end'])) {
 			$q1[2] .= " and r.read_at < {$options['end']}";
 		}
-		if (!empty($options['nickname'])) {
-			$q1[2] .= " and r.nickname like '%" . $options['nickname'] . "%'";
+		if (!empty($options['byUser'])) {
+			$q1[2] .= " and r.byUser like '%" . $options['byUser'] . "%'";
 		}
 
 		$p1 = ['g' => 'r.userid', 'o' => 'shareFNum desc,shareTNum desc,r.id desc'];
@@ -1032,5 +1038,11 @@ class log_model extends \TMS_MODEL {
 		$res = $this->query_objs_ss($q, $p);
 
 		return $res;
+	}
+	/**
+	 * 
+	*/
+	public function user() {
+
 	}
 }

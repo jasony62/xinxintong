@@ -25,12 +25,24 @@ class log extends \pl\fe\matter\base {
 	public function list_action($id, $page = 1, $size = 30) {
 		$modelLog = $this->model('matter\log');
 
-		$reads = $modelLog->listUserMatterOp($id, 'article', [], $page, $size);
+		$filter = $this->getPostJson();
+		$options = [];
+		if (!empty($filter->start)) {
+			$options['start'] = $filter->start;
+		}
+		if (!empty($filter->end)) {
+			$options['end'] = $filter->end;
+		}
+		if (!empty($filter->byUser)) {
+			$options['byUser'] = $filter->byUser;
+		}
+
+		$reads = $modelLog->listUserMatterOp($id, 'article', $options, $page, $size);
 
 		return new \ResponseData($reads);
 	}
 	/**
-	 *
+	 * 运营传播统计
 	 */
 	public function operateStat_action($site, $appId, $page = 1, $size = 30) {
 		$modelLog = $this->model('matter\log');
@@ -48,8 +60,8 @@ class log extends \pl\fe\matter\base {
 		if (!empty($filter->end)) {
 			$options['end'] = $modelLog->escape($filter->end);
 		}
-		if (!empty($filter->nickname)) {
-			$options['nickname'] = $modelLog->escape($filter->nickname);
+		if (!empty($filter->byUser)) {
+			$options['byUser'] = $modelLog->escape($filter->byUser);
 		}
 		if (!empty($filter->shareby)) {
 			$options['shareby'] = $modelLog->escape($filter->shareby);
@@ -75,8 +87,8 @@ class log extends \pl\fe\matter\base {
 		if (!empty($filter->end)) {
 			$options['end'] = $modelLog->escape($filter->end);
 		}
-		if (!empty($filter->nickname)) {
-			$options['nickname'] = $modelLog->escape($filter->nickname);
+		if (!empty($filter->byUser)) {
+			$options['byUser'] = $modelLog->escape($filter->byUser);
 		}
 		if (!empty($filter->shareby)) {
 			$options['shareby'] = $modelLog->escape($filter->shareby);
@@ -146,7 +158,7 @@ class log extends \pl\fe\matter\base {
 		$q = [
 			'id,userid,openid,nickname,download_at,attachment_id',
 			'xxt_article_download_log',
-			['article_id' = $id]
+			['article_id' => $id]
 		];
 		if (!empty($filter->start)) {
 			$start = new \stdClass;
@@ -160,8 +172,8 @@ class log extends \pl\fe\matter\base {
 			$end->pat = $model->escape($filter->end);
 			$q[2]['download_at'] = $end;
 		}
-		if (!empty($filter->nickname)) {
-			$q['2']['nickname'] = $model->escape($filter->nickname);
+		if (!empty($filter->byUser)) {
+			$q['2']['byUser'] = $model->escape($filter->byUser);
 		}
 
 		$p = ['o' => 'download_at desc'];

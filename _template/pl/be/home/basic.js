@@ -33,7 +33,11 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     $scope.openMatter = function(matter) {
         location.href = (matter.type || matter.matter_type) !== undefined ? matter.url : '/rest/site/home?site=' + matter.siteid;
     };
-
+    $scope.checked = function(index) {
+        $('.mobile_qrcodes a').removeClass('active').addClass('unchecked');
+        $('.mobile_qrcodes a').eq(index).removeClass('unchecked').addClass('active');
+        $scope.url = $scope.platform.home_qrcode_group[index].picUrl;
+    };
     function dealImgSrc(item) {
         if (Object.keys(item).indexOf('pic') !== -1 && item.pic == null) {
             item.src = item.pic = '';
@@ -199,6 +203,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         $scope.listMatters();
         $scope.listChannels1();
         $scope.listChannels2();
+        $scope.checked(0);
     }
     $scope.$watch('platform', function(platform) {
         if (platform === undefined) return;

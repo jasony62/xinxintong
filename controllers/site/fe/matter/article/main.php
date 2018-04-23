@@ -139,7 +139,7 @@ class main extends \site\fe\matter\base {
 		 * 访问控制
 		 */
 		$modelArticle = $this->model('matter\article');
-		$article = $modelArticle->byId($articleid);
+		$oArticle = $modelArticle->byId($articleid);
 		/**
 		 * 获取附件
 		 */
@@ -154,9 +154,6 @@ class main extends \site\fe\matter\base {
 		/**
 		 * 记录日志
 		 */
-		$site = $modelArticle->escape($site);
-		$articleid = $modelArticle->escape($articleid);
-		$attachmentid = $modelArticle->escape($attachmentid);
 		$modelArticle->update("update xxt_article set download_num=download_num+1 where id='$articleid'");
 		$log = [
 			'userid' => $user->uid,
@@ -171,7 +168,8 @@ class main extends \site\fe\matter\base {
 		$modelArticle->insert('xxt_article_download_log', $log, false);
 
 		if (strpos($att->url, 'alioss') === 0) {
-			$downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/' . $site . '/article/' . $articleid . '/' . urlencode($att->name);
+			$fsAlioss = \TMS_APP::M('fs/alioss', $this->siteId, '_attachment');
+			$downloadUrl = $fsAlioss->getHostUrl() . '/' . $site . '/_attachment/article/' . $articleid . '/' . urlencode($att->name);
 			$this->redirect($downloadUrl);
 		} else if (strpos($att->url, 'local') === 0) {
 			$fs = $this->model('fs/local', $site, '附件');

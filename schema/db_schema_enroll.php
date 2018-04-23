@@ -255,6 +255,7 @@ $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N�
 $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
+$sql .= ",as_cowork_id int not null default 0"; // 作为协作数据后对应的协作数据id
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

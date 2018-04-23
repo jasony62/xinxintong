@@ -175,6 +175,32 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
             oRemark.like_num = rsp.data.like_num;
         });
     };
+    $scope.remarkAsCowork = function(oRemark) {
+        var url, oSchema;
+        url = LS.j('remark/asCowork', 'site');
+        url += '&remark=' + oRemark.id;
+        if ($scope.coworkSchemas.length === 1) {
+            oSchema = $scope.coworkSchemas[0];
+            url += '&schema=' + oSchema.id;
+            http2.get(url).then(function(rsp) {
+                var oItem;
+                oItem = rsp.data;
+                $scope.record.verbose[oSchema.id].value.push(oItem);
+                $location.hash('item-' + oItem.id);
+                $timeout(function() {
+                    var elItem;
+                    $anchorScroll();
+                    elItem = document.querySelector('#item-' + oItem.id);
+                    elItem.classList.toggle('blink', true);
+                    $timeout(function() {
+                        elItem.classList.toggle('blink', false);
+                    }, 1000);
+                });
+            });
+        } else {
+            alert('需要指定对应的题目！');
+        }
+    };
     $scope.writeRemark = function(oUpperRemark) {
         var remarkRemarks;
         if ($scope.remarks && $scope.remarks.length) {
@@ -389,10 +415,17 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                                         oRecord.verbose[oSchema.id].value = ngApp.oUtilSchema.txtSubstitute(oRecord.verbose[oSchema.id].value);
                                         break;
                                     case 'file':
+                                    case 'voice':
                                     case 'url':
                                         oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
                                         if ('url' === oSchema.type) {
                                             oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
+                                        } else if (/file|voice/.test(oSchema.type)) {
+                                            oRecord.verbose[oSchema.id].value.forEach(function(oFile) {
+                                                if (oFile.url) {
+                                                    oFile.url = $sce.trustAsResourceUrl(oFile.url);
+                                                }
+                                            });
                                         }
                                         break;
                                     case 'image':
@@ -479,7 +512,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                             if ('url' === oAssignedSchema.type) {
                                 oRecData.value._text = ngApp.oUtilSchema.urlSubstitute(oRecData.value);
                             }
-                        }else if(/image/.test(oAssignedSchema.type)) {
+                        } else if (/image/.test(oAssignedSchema.type)) {
                             oRecData.value = oRecData.value.split(',');
                         }
                         if (oRecData.tag) {

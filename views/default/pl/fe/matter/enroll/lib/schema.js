@@ -100,7 +100,7 @@ define([], function() {
                         schema.limitChoice = 'N';
                         schema.range = [1, schema.ops.length];
                     }
-                } else if (type === 'image' || type === 'file') {
+                } else if (/image|file|voice/.test(type)) {
                     schema.count = 1;
                 } else if (type === 'score') {
                     schema.range = [1, 5];
@@ -109,7 +109,7 @@ define([], function() {
                     schema.content = '请点击下面“编辑”按钮，编辑本说明文字';
                 }
             }
-            if (/longtext|file|image|multitext|url/.test(type)) {
+            if (/longtext|file|image|multitext|url|voice/.test(type)) {
                 schema.remarkable = 'Y';
             }
             if (proto && proto.format !== undefined) {

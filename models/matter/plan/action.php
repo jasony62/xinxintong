@@ -173,17 +173,17 @@ class action_model extends \TMS_MODEL {
 				case 'file':
 					if (is_array($submitVal)) {
 						$treatedValue = [];
-						foreach ($submitVal as $file) {
-							if (isset($file->uniqueIdentifier)) {
+						foreach ($submitVal as $oFile) {
+							if (isset($oFile->uniqueIdentifier)) {
 								/* 新上传的文件 */
-								if (defined('SAE_TMP_PATH')) {
+								if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
 									$fsAli = $this->model('fs/alioss', $oAction->siteid);
-									$dest = '/' . $oAction->id . '/' . $submitkey . '_' . $file->name;
+									$dest = '/plan/' . $oAction->id . '/' . $submitkey . '_' . $oFile->name;
 									$fileUploaded2 = $fsAli->getBaseURL() . $dest;
 								} else {
-									$fsUser = $this->model('fs/local', $oAction->siteid, '_user');
 									$fsResum = $this->model('fs/local', $oAction->siteid, '_resumable');
-									$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
+									$fileUploaded = $fsResum->rootDir . '/plan/' . $oAction->id . '/' . $submitkey . '_' . $oFile->name;
+									$fsUser = $this->model('fs/local', $oAction->siteid, '_user');
 									$dirUploaded = $fsUser->rootDir . '/' . $submitkey;
 									if (!file_exists($dirUploaded)) {
 										if (false === mkdir($dirUploaded, 0777, true)) {
@@ -201,12 +201,12 @@ class action_model extends \TMS_MODEL {
 								if (empty($fileUploaded2)) {
 									return [false, '没有获得上传的文件'];
 								}
-								unset($file->uniqueIdentifier);
-								$file->url = $fileUploaded2;
-								$treatedValue[] = $file;
+								unset($oFile->uniqueIdentifier);
+								$oFile->url = $fileUploaded2;
+								$treatedValue[] = $oFile;
 							} else {
 								/* 已经上传过的文件 */
-								$treatedValue[] = $file;
+								$treatedValue[] = $oFile;
 							}
 						}
 						$dbData->{$schemaId} = $treatedValue;

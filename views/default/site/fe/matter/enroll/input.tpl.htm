@@ -110,6 +110,35 @@
             <button class="btn btn-primary" ng-click="ok()">使用选择的内容填写</button>
         </div>
     </script>
+    <script type="text/ng-template" id="recordVoice.html">
+        <div class="modal-header">
+            <h5 class="modal-title">录音</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' ng-model="data.name">
+                    <div class='input-group-addon'>
+                        <span ng-bind="data.time"></span>秒
+                    </div>
+                </div>
+                <div class='help-block'><small class='text-danger'><span class='glyphicon glyphicon-exclamation-sign'></span> 时间超过1分钟自动停止录音</small></div>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-default" ng-click="startRecord()">开始录音</button>
+                <button class="btn btn-default" ng-click="stopRecord()">停止</button>
+            </div>
+            <div class='form-group' ng-if="data.localId">
+                <button class="btn btn-default" ng-click="play()">播放</button>
+                <button class="btn btn-default" ng-click="pause()">暂停</button>
+                <button class="btn btn-default" ng-click="stop()">停止</button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            <button class="btn btn-default" ng-click="ok()" ng-disabled="!data.localId">完成</button>
+        </div>
+    </script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>

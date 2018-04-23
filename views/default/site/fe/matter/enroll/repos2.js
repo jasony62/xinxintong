@@ -90,6 +90,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                                 case 'url':
                                     schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
                                     break;
+                                case 'file':
+                                case 'voice':
+                                    schemaData.forEach(function(oFile) {
+                                        if (oFile.url) {
+                                            oFile.url = $sce.trustAsResourceUrl(oFile.url);
+                                        }
+                                    });
+                                    break;
                             }
                         }
                     }

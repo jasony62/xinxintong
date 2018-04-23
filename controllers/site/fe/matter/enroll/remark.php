@@ -37,7 +37,7 @@ class remark extends base {
 
 		$modelRem = $this->model('matter\enroll\remark');
 		$aOptions = [
-			'fields' => 'id,seq_in_record,seq_in_data,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log',
+			'fields' => 'id,seq_in_record,seq_in_data,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log,as_cowork_id',
 		];
 		if (!empty($data)) {
 			$aOptions['data_id'] = $data;
@@ -468,6 +468,70 @@ class remark extends base {
 		$this->model('matter\enroll\event')->agreeRemark($oApp, $oRemark, $oUser, $value);
 
 		return new \ResponseData($value);
+	}
+	/**
+	 * 将留言作为记录的协作填写内容
+	 *
+	 * @param string $remark remark'id
+	 *
+	 */
+	public function asCowork_action($remark, $schema) {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,enroll_key,userid,nickname,group_id,content']);
+		if (false === $oRemark) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelData = $this->model('matter\enroll\data');
+		$oRecData = $modelData->byRecord($oRemark->enroll_key, ['schema' => $schema]);
+		if (false === $oRecData || $oRecData->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oRecData->value = empty($oRecData->value) ? [] : json_decode($oRecData->value);
+
+		$oUser = $this->getUser($oApp);
+
+		$current = time();
+		$oCowork = (object) [
+			'aid' => $oApp->id,
+			'rid' => $oRemark->rid,
+			'enroll_key' => $oRemark->enroll_key,
+			'submit_at' => $current,
+			'userid' => $oRemark->userid,
+			'nickname' => $this->escape($oRemark->nickname),
+			'group_id' => $oRemark->group_id,
+			'schema_id' => $oRecData->schema_id,
+			'multitext_seq' => count($oRecData->value) + 1,
+			'value' => $this->escape($oRemark->content),
+			'agreed' => 'A',
+		];
+		$oCowork->id = $modelData->insert('xxt_enroll_record_data', $oCowork, true);
+
+		$modelData->update(
+			'xxt_enroll_record_remark',
+			['as_cowork_id' => $oCowork->id],
+			['id' => $oRemark->id]
+		);
+
+		$oRecData->value[] = (object) ['id' => $oCowork->id, 'value' => $oRemark->content];
+
+		$modelData->update(
+			'xxt_enroll_record_data',
+			['value' => $this->escape($modelData->toJson($oRecData->value))],
+			['id' => $oRecData->id]
+		);
+
+		/* 记操作日志 */
+		$modelEvt = $this->model('matter\enroll\event');
+		$modelEvt->remarkAsCowork($oApp, $oRecData, $oCowork, $oRemark, $oUser);
+
+		return new \ResponseData($oCowork);
 	}
 	/**
 	 * 和留言相关的任务

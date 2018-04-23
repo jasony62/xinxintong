@@ -176,13 +176,20 @@
                                         <div class='text-muted data-title'>{{schema.title}}</div>
                                         <div ng-switch-when="file">
                                             <div ng-repeat="file in rec.data[schema.id]">
-                                                <video ng-if="file.type.indexOf('video')===0" style="width:40%;" controls="controls" preload="none">
+                                                <video ng-if="file.type.indexOf('video')===0" controls="controls" preload="none">
                                                     <source src="{{file.url}}" type="{{file.type}}" />
                                                 </video>
                                                 <audio ng-if="file.type.indexOf('audio')===0" controls="controls" preload="none">
                                                     <source src="{{file.url}}" type="{{file.type}}" />
                                                 </audio>
                                                 <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
+                                            </div>
+                                        </div>
+                                        <div ng-switch-when="voice">
+                                            <div ng-repeat="voice in rec.data[schema.id]">
+                                                <audio controls="controls" preload="none">
+                                                    <source src="{{voice.url}}" type="{{voice.type}}" />
+                                                </audio>
                                             </div>
                                         </div>
                                         <div ng-switch-when="image">
@@ -207,7 +214,7 @@
                                             <span>{{rec.data[schema.id]}}</span>
                                         </div>
                                         <div ng-if="schema.cowork==='Y'">
-                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看全部或添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
+                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看全部（<span ng-bind="rec.coworkState[schema.id].length"></span>）或添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
                                             </button>
                                         </div>
                                         <div ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]" class='supplement'>{{rec.supplement[schema.id]}}</div>

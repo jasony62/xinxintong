@@ -92,7 +92,7 @@ class record_model extends record_base {
 	 * @param string $ek
 	 * @param array $submitData 用户提交的数据
 	 */
-	public function setData($oUser, &$oApp, $ek, $submitData, $submitkey = '', $firstSubmit = false, $assignScore = null) {
+	public function setData($oUser, $oApp, $ek, $submitData, $submitkey = '', $bFirstSubmit = false) {
 		if (empty($submitData)) {
 			return [true];
 		}
@@ -102,6 +102,10 @@ class record_model extends record_base {
 			return [false, '指定的对象不存在'];
 		}
 		$oResult = $this->model('matter\enroll\data')->setData($oUser, $oApp, $oRecord, $submitData, $submitkey);
+		if (is_array($oResult) && false === $oResult[0]) {
+			return $oResult;
+		}
+
 		/* 更新在登记记录上记录数据 */
 		$oRecordUpdated = new \stdClass;
 		$oRecordUpdated->data = $this->escape($this->toJson($oResult->dbData));
@@ -109,7 +113,7 @@ class record_model extends record_base {
 			$oRecordUpdated->score = $this->escape($this->toJson($oResult->score));
 		}
 		/* 记录提交日志 */
-		if ($firstSubmit === false) {
+		if ($bFirstSubmit === false) {
 			if (empty($oRecord->submit_log)) {
 				$recordSubmitLogs = [];
 			} else {

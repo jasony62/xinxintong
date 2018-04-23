@@ -65,6 +65,10 @@ class event_model extends \TMS_MODEL {
 	 */
 	const GetAgreeRemarkEventName = 'site.matter.enroll.remark.get.agree';
 	/**
+	 * 将用户留言转换设置为协作数据
+	 */
+	const DoRemarkAsCoworkEventName = 'site.matter.enroll.remark.as.cowork';
+	/**
 	 *
 	 */
 	private function _getOperatorId($oOperator) {
@@ -393,6 +397,33 @@ class event_model extends \TMS_MODEL {
 		}
 
 		return $oUpdatedUsrData;
+	}
+	/**
+	 * 评论转成协作数据
+	 */
+	public function remarkAsCowork($oApp, $oRecData, $oItem, $oRemark, $oOperator) {
+		//$oOperatorData = $this->_doSubmitCowork($oApp, $oItem, $oOperator, true);
+		//$oOwnerData = $this->_getSubmitCowork($oApp, $oRecData, $oItem, $oOperator, true);
+
+		$eventAt = isset($oItem->submit_at) ? $oItem->submit_at : time();
+
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oItem->id;
+		$oTarget->type = 'cowork';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoRemarkAsCoworkEventName;
+		$oEvent->op = 'New';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+		//$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 撤销协作填写项

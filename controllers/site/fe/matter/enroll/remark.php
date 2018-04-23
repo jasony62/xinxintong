@@ -242,7 +242,7 @@ class remark extends base {
 	 */
 	public function remove_action($remark) {
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,userid,state']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,userid,state,rid,enroll_key']);
 		if (false === $oRemark && $oRemark->state !== '1') {
 			return new \ObjectNotFoundError('（1）访问的资源不可用');
 		}

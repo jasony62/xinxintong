@@ -36,6 +36,9 @@ class log extends \pl\fe\matter\base {
 		if (!empty($filter->byUserId)) {
 			$options['byUserId'] = $filter->byUserId;
 		}
+		if (!empty($filter->byOp)) {
+			$options['byOp'] = $filter->byOp;
+		}
 
 		$reads = $modelLog->listUserMatterOp($id, 'article', $options, $page, $size);
 

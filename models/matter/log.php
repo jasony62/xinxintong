@@ -1024,7 +1024,9 @@ class log_model extends \TMS_MODEL {
 			'xxt_log_matter_read r',
 			$where
 		];
-		$data->total = $this->query_val_ss($q1);
+		$p1 = ['g' => 'r.userid'];
+		$total = $this->query_objs_ss($q1, $p1);
+		$data->total = count($total);
 
 		return $data;
 	}

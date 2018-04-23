@@ -958,18 +958,18 @@ class log_model extends \TMS_MODEL {
 	 * 素材运营数据追踪
 	 */
 	public function operateStat($site, $matterId, $matterType, $options = []) {
-		$fields = 's1.userid,s1.nickname,s1.openid,count(s1.id) as readNum';
+		$fields = 'r.userid,r.nickname,r.openid,count(r.id) as readNum';
 
 		// 查询用户转发数和分享数
-		$countShareF = "select count(id) from xxt_log_matter_share s1 where s1.matter_id = '{$matterId}' and s1.matter_type = '{$matterType}' and s1.siteid = '{$site}' and s1.userid = r.userid and share_to = 'F'";
-		$countShareT = "select count(id) from xxt_log_matter_share s2 where s2.matter_id = '{$matterId}' and s2.matter_type = '{$matterType}' and s2.siteid = '{$site}' and s2.userid = r.userid and share_to = 'T'";
+		$countShareF = "select count(s1.id) from xxt_log_matter_share s1 where s1.matter_id = '{$matterId}' and s1.matter_type = '{$matterType}' and s1.siteid = '{$site}' and s1.userid = r.userid and s1.share_to = 'F'";
+		$countShareT = "select count(s2.id) from xxt_log_matter_share s2 where s2.matter_id = '{$matterId}' and s2.matter_type = '{$matterType}' and s2.siteid = '{$site}' and s2.userid = r.userid and s2.share_to = 'T'";
 		if (!empty($options['start'])) {
 			$countShareF .= " and s1.share_at > {$options['start']}";
 			$countShareT .= " and s2.share_at > {$options['start']}";
 		}
 		if (!empty($options['end'])) {
 			$$countShareF .= " and s1.share_at < {$options['end']}";
-			$$countShareT .= " and s1.share_at < {$options['end']}";
+			$$countShareT .= " and s2.share_at < {$options['end']}";
 		}
 
 		$fields .= ",(" . $countShareF . ") as shareFNum";
@@ -994,7 +994,7 @@ class log_model extends \TMS_MODEL {
 			$q1[2] .= " and r.read_at < {$options['end']}";
 		}
 		if (!empty($options['byUser'])) {
-			$q1[2] .= " and r.byUser like '%" . $options['byUser'] . "%'";
+			$q1[2] .= " and r.nickname like '%" . $options['byUser'] . "%'";
 		}
 
 		$p1 = ['g' => 'r.userid', 'o' => 'shareFNum desc,shareTNum desc,r.id desc'];
@@ -1018,7 +1018,7 @@ class log_model extends \TMS_MODEL {
 
 		$data = new \stdClass;
 		$data->logs = $logs;
-		$q1[0] = "count(id)";
+		$q1[0] = "count(r.id)";
 		$data->total = $this->query_val_ss($q1);
 
 		return $data;

@@ -958,7 +958,7 @@ class log_model extends \TMS_MODEL {
 	 * 素材运营数据追踪
 	 */
 	public function operateStat($site, $matterId, $matterType, $options = []) {
-		$fields = 'r.userid,r.nickname,r.openid,count(r.id) as readNum';
+		$fields = 'select r.userid,r.nickname,r.openid,count(r.id) as readNum';
 
 		// 查询用户转发数和分享数
 		$countShareF = "select count(s1.id) from xxt_log_matter_share s1 where s1.matter_id = '{$matterId}' and s1.matter_type = '{$matterType}' and s1.siteid = '{$site}' and s1.userid = r.userid and s1.share_to = 'F'";
@@ -975,36 +975,37 @@ class log_model extends \TMS_MODEL {
 		$fields .= ",(" . $countShareF . ") as shareFNum";
 		$fields .= ",(" . $countShareT . ") as shareTNum";
 
-		$q1 = [
-			$fields,
-			'xxt_log_matter_read r',
-			"r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.siteid = '{$site}'"
-		];
+		// 拼装sql
+		$sql = $fields;
+		$sql .= " from xxt_log_matter_read r ";
 
+		$where = "r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.siteid = '{$site}'";
 		if (!empty($options['shareby'])) {
-			$q1[2] .= " and r.matter_shareby like '" . $options['shareby'] . "_%'";
+			$where .= " and r.matter_shareby like '" . $options['shareby'] . "_%'";
 		} else {
-			$q1[2] .= " and r.matter_shareby in ('','undefined')";
+			$where .= " and r.matter_shareby in ('','undefined')";
 		}
 
 		if (!empty($options['start'])) {
-			$q1[2] .= " and r.read_at > {$options['start']}";
+			$where .= " and r.read_at > {$options['start']}";
 		}
 		if (!empty($options['end'])) {
-			$q1[2] .= " and r.read_at < {$options['end']}";
+			$where .= " and r.read_at < {$options['end']}";
 		}
 		if (!empty($options['byUser'])) {
-			$q1[2] .= " and r.nickname like '%" . $options['byUser'] . "%'";
+			$where .= " and r.nickname like '%" . $options['byUser'] . "%'";
 		}
 
-		$p1 = ['g' => 'r.userid', 'o' => 'shareFNum desc,shareTNum desc,r.id desc'];
+		$sql .= " where " . $where;
+		// 排序
+		$sql .= " group by r.userid order by shareFNum desc,shareTNum desc,r.id desc";
 		if (isset($options['paging'])) {
-			$p1['r']['o'] = ($options['paging']['page'] - 1) * $options['paging']['size'];
-			$p1['r']['l'] = $options['paging']['size'];
+			$sql .= " limit " . ($options['paging']['page'] - 1) * $options['paging']['size'];
+			$sql .= " , " . $options['paging']['size'];
 		}
 
-		$logs = $this->query_objs_ss($q1, $p1);
-
+		$q = [$sql, ''];
+		$logs = $this->query_objs_ss($q);
 		foreach ($logs as $log) {
 			// 带来的阅读数和阅读人数  
 			$ttractReads = $this->userTtractRead($site, $log->userid, $matterId, $matterType, $options);
@@ -1018,7 +1019,11 @@ class log_model extends \TMS_MODEL {
 
 		$data = new \stdClass;
 		$data->logs = $logs;
-		$q1[0] = "count(r.id)";
+		$q1 = [
+			"count(r.id)",
+			'xxt_log_matter_read r',
+			$where
+		];
 		$data->total = $this->query_val_ss($q1);
 
 		return $data;

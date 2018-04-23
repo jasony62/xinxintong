@@ -33,8 +33,8 @@ class log extends \pl\fe\matter\base {
 		if (!empty($filter->end)) {
 			$options['end'] = $filter->end;
 		}
-		if (!empty($filter->byUser)) {
-			$options['byUser'] = $filter->byUser;
+		if (!empty($filter->byUserId)) {
+			$options['byUserId'] = $filter->byUserId;
 		}
 
 		$reads = $modelLog->listUserMatterOp($id, 'article', $options, $page, $size);
@@ -48,7 +48,6 @@ class log extends \pl\fe\matter\base {
 		$modelLog = $this->model('matter\log');
 
 		$options = [];
-		$options['operateType'] = $operateType;
 		$filter = $this->getPostJson();
 
 		if (!empty($page) && !empty($size)) {
@@ -74,13 +73,12 @@ class log extends \pl\fe\matter\base {
 	/**
 	 * 导出传播情况
 	 */
-	public function exportOperateStat_action($site, $appId, $operateType = 'read', $filter = '') {
+	public function exportOperateStat_action($site, $appId, $filter = '') {
 		$modelLog = $this->model('matter\log');
 		$filter = $modelLog->unescape($filter);
 		$filter = empty($filter) ? new \stdClass : json_decode($filter);
 
 		$options = [];
-		$options['operateType'] = $operateType;
 		if (!empty($filter->start)) {
 			$options['start'] = $modelLog->escape($filter->start);
 		}

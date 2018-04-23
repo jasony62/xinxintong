@@ -337,6 +337,9 @@ class log_model extends \TMS_MODEL {
 				$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
 			}
 		}
+		if (!empty($options['byUserId'])) {
+			$q[2] .= " and l.userid = '" . $this->escape($options['byUserId']) . "'";
+		}
 		if (!empty($options['byOp']) && strcasecmp($options['byOp'], 'all') !== 0) {
 			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
 		}

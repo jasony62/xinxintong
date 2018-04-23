@@ -62,6 +62,7 @@ $sql .= ",template_version varchar(10) not null default ''"; //模板版本号
 $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",rp_short_url_code char(4) not null default ''"; // 统计报告页面的短链接编码
 $sql .= ",rp_config text null"; // 统计报告页面用户选择的标识信息
+$sql .= ",repos_config text null"; // 共享页页面设置信息
 $sql .= ",rank_config text null"; // 排行榜页面设置信息
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",absent_cause text null";

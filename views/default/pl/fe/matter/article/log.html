@@ -1,6 +1,7 @@
 <div class='col-md-12'>
     <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#log-view">日志</a></li>
+        <li><a data-toggle="tab" href="#spread-view">传播</a></li>
         <li><a data-toggle="tab" href="#favor-view">收藏</a></li>
     </ul>
     <div class="tab-content" style="padding-top: 1em">
@@ -26,6 +27,69 @@
             <div class='form-group form-inline'>
                 <span style='height:34px;line-height:34px'>总数：{{read.page.total}}</span>
                 <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right" ng-show="read.page.total>read.page.size" boundary-links="true" total-items="read.page.total" max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="read.list()"></ul>
+            </div>
+        </div>
+        <div class="tab-pane" id='spread-view'>
+            <div class="row" id="filter">
+                <div class='col-md-3'>
+                    <div class='form-group'>
+                        <label>开始时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='spread.criteria.start' tms-state='spread.criteria.start'></tms-datepicker>
+                    </div>
+                </div>
+                <div class='col-md-3'>
+                    <div class='form-group'>
+                        <label>结束时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='spread.criteria.end' tms-state='spread.criteria.end'></tms-datepicker>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>筛选昵称</label>
+                        <div class='input-group'>
+                            <input type="text" ng-model="spread.criteria.byUser" class="form-control">
+                            <div class="input-group-btn">
+                                <button class='btn btn-default' ng-click="spread.list()"><i class='glyphicon glyphicon-search'></i></button>
+                                <button class='btn btn-default' ng-click="cleanFilter()"><i class='glyphicon glyphicon-remove'></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button class='btn btn-success pull-right' ng-click='export()'>导出记录</button>
+                </div>
+            </div>
+            <div id="result">
+                <table class='table table-bordered table-striped pl-workspace'>
+                    <thead>
+                        <tr>
+                            <th style='width:48px;'>序号</th>
+                            <th>用户名</th>
+                            <th style='width:120px;'>阅读数</th>
+                            <th style='width:120px;'>转发数</th>
+                            <th style='width:120px;'>分享数</th>
+                            <th style='width:120px;'>带来的阅读数</th>
+                            <th style='width:120px;'>带来的人数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat='spreader in spreaders'>
+                            <td>{{(page.at-1)*page.size+$index+1}}</td>
+                            <td>{{spreader.nickname||'未知'}}</td>
+                            <td>{{spreader.read_num}}</td>
+                            <td>{{spreader.zhuanfa_num}}</td>
+                            <td>{{spreader.share_num}}</td>
+                            <td>{{spreader.bring_read_num}}</td>
+                            <td>{{spreader.bring_num}}</td>
+                            <td><a href="" ng-click="open(spreader.userid)">展开</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class='form-group form-inline'>
+                    <span style='height:34px;line-height:34px'>总数：{{spread.page.total}}</span>
+                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right" ng-show="spread.page.total>spread.page.size" boundary-links="true" total-items="spread.page.total" max-size="7" items-per-page="spread.page.size" rotate="false" ng-model="spread.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="spread.list()"></ul>
+                </div>
             </div>
         </div>
         <div class="tab-pane" id='favor-view'>

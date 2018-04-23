@@ -1009,9 +1009,9 @@ class log_model extends \TMS_MODEL {
 		foreach ($logs as $log) {
 			// 带来的阅读数和阅读人数  
 			$ttractReads = $this->userTtractRead($site, $log->userid, $matterId, $matterType, $options);
-			$log->attractReaderNum = count($res);
+			$log->attractReaderNum = count($ttractReads);
 			$attractReadNum = 0;
-			foreach ($res as $re) {
+			foreach ($ttractReads as $re) {
 				$attractReadNum += $re->num;
 			}
 			$log->attractReadNum = $attractReadNum;

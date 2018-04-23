@@ -446,23 +446,6 @@ class proxy_model extends \sns\proxybase {
 		return [true, $url];
 	}
 	/**
-	 * 获得下载媒体文件的链接（jssdk上传的语音）
-	 *
-	 * @param string $mediaid
-	 */
-	public function mediaGetUrl2($mediaId) {
-		$rst = $this->accessToken();
-		if ($rst[0] === false) {
-			return $rst[1];
-		}
-
-		$url = 'https://api.weixin.qq.com/cgi-bin/media/get';
-		$url .= "?access_token={$rst[1]}";
-		$url .= "&media_id=$mediaId";
-
-		return [true, $url];
-	}
-	/**
 	 * 将图文消息上传到微信公众号平台
 	 */
 	public function mediaUploadNews($message) {

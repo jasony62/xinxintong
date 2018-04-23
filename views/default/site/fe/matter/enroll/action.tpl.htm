@@ -210,6 +210,9 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div ng-switch-when="site.matter.enroll.remark.as.cowork">
+                                        <span class='nickname'>{{log.nickname}}</span>将<span class='nickname'>{{log.owner_nickname}}</span> 的留言设置为协作数据（答案）
+                                    </div>
                                     <div ng-switch-default>
                                         <div class='nickname'>{{log.nickname}}</div>
                                         <div class='eventname'>{{log.eventName}}</div>

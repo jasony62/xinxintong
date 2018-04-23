@@ -59,7 +59,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12 };
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'agreed' };
+    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' };
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.recordList = function(pageAt) {
@@ -91,6 +91,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                                     schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
                                     break;
                                 case 'file':
+                                case 'voice':
                                     schemaData.forEach(function(oFile) {
                                         if (oFile.url) {
                                             oFile.url = $sce.trustAsResourceUrl(oFile.url);
@@ -245,6 +246,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                 }
                 $scope.rounds = result.rounds;
             });
+        }
+        if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
+            _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
         }
         http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
             $scope.dirSchemas = rsp.data;

@@ -62,6 +62,7 @@ $sql .= ",template_version varchar(10) not null default ''"; //模板版本号
 $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
 $sql .= ",rp_short_url_code char(4) not null default ''"; // 统计报告页面的短链接编码
 $sql .= ",rp_config text null"; // 统计报告页面用户选择的标识信息
+$sql .= ",repos_config text null"; // 共享页页面设置信息
 $sql .= ",rank_config text null"; // 排行榜页面设置信息
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",absent_cause text null";
@@ -255,6 +256,7 @@ $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N�
 $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
+$sql .= ",as_cowork_id int not null default 0"; // 作为协作数据后对应的协作数据id
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

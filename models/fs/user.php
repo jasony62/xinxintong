@@ -41,13 +41,11 @@ class user_model {
 	/**
 	 * 存储指定url对应的文件
 	 */
-	public function storeUrl($url, $ext = 'jpg') {
-		/**
-		 * 下载文件
-		 */
-		$response = file_get_contents($url);
-		$responseInfo = $http_response_header;
-		foreach ($responseInfo as $loop) {
+	private function _storeImageUrl($url, $ext = 'jpg') {
+		/* 下载文件 */
+		$imageContent = file_get_contents($url);
+		$aResponseInfo = $http_response_header;
+		foreach ($aResponseInfo as $loop) {
 			if (strpos($loop, "Content-disposition") !== false) {
 				$disposition = trim(substr($loop, 21));
 				$filename = explode(';', $disposition);
@@ -65,9 +63,9 @@ class user_model {
 		/**
 		 * 写到指定位置
 		 */
-		$newUrl = $this->writeFile($dir, $storename, $response);
+		$newUrl = $this->writeFile($dir, $storename, $imageContent);
 
-		return array(true, $newUrl);
+		return [true, $newUrl];
 	}
 	/**
 	 * 存储base64的文件数据
@@ -116,14 +114,14 @@ class user_model {
 			}
 			$rst = $snsProxy->mediaGetUrl($img->serverId);
 			if ($rst[0] !== false) {
-				$rst = $this->storeUrl($rst[1]);
+				$rst = $this->_storeImageUrl($rst[1]);
 			}
 		} else if (isset($img->imgSrc)) {
 			if (0 === strpos($img->imgSrc, 'http')) {
 				/**
 				 * url
 				 */
-				$rst = $this->storeUrl($img->imgSrc);
+				$rst = $this->_storeImageUrl($img->imgSrc);
 			} else if (false !== strpos($img->imgSrc, TMS_UPLOAD_DIR)) {
 				/**
 				 * 已经上传本地的
@@ -163,12 +161,9 @@ class user_model {
 			}
 		}
 
-		$modelLog = TMS_APP::model('log');
-		$modelLog->log('trace', 'enroll-wxvoice-0', $oVoice->serverId);
-
-		$rst = $snsProxy->mediaGetUrl2($oVoice->serverId);
+		$rst = $snsProxy->mediaGetUrl($oVoice->serverId);
 		if ($rst[0] !== false) {
-			$rst = $this->_storeWxVoiceUrl($rst[1]);
+			$rst = $this->_storeWxVoiceUrl($rst[1], $oVoice);
 		}
 
 		$oVoice->url = $rst[1];
@@ -179,39 +174,37 @@ class user_model {
 	/**
 	 * 从指定的url下载微信录音数据，并保存成文件
 	 */
-	private function _storeWxVoiceUrl($url) {
-		/**
-		 * 下载文件
-		 */
-		$modelLog = TMS_APP::model('log');
-		$modelLog->log('trace', 'enroll-wxvoice-1', $url);
+	private function _storeWxVoiceUrl($url, &$oVoice) {
+		/* 下载文件 */
+		$voiceContent = file_get_contents($url);
 
-		$response = file_get_contents($url);
-
-		$modelLog->log('trace', 'enroll-wxvoice-2', $response);
-
-		$responseInfo = $http_response_header;
-		foreach ($responseInfo as $loop) {
-			if (strpos($loop, "Content-disposition") !== false) {
-				$disposition = trim(substr($loop, 21));
-				$filename = explode(';', $disposition);
-				$filename = array_pop($filename);
-				$filename = explode('=', $filename);
-				$filename = array_pop($filename);
-				$filename = str_replace('"', '', $filename);
-				$filename = explode('.', $filename);
-				$ext = array_pop($filename);
-				break;
-			}
+		/* 文件保存到本地 */
+		$tempname = uniqid();
+		$localFs = new local_model($this->siteId, '_temp');
+		$amr = $localFs->writeFile('', $tempname . '.amr', $voiceContent);
+		if (false === $amr) {
+			return [false, '写入文件失败（1）'];
 		}
-		$dir = date("ymdH"); // 每个小时分一个目录
-		$storename = date("is") . rand(10000, 99999) . ".amr";
-
-		/* 写到指定位置 */
-		$newUrl = $this->writeFile($dir, $storename, $response);
+		$mp3 = str_replace('amr', 'mp3', $amr);
 
 		/* 将amr转换成mp3格式 */
+		$command = "/usr/local/bin/ffmpeg -i $amr $mp3";
+		$error = [];
+		exec($command, $error);
 
-		return array(true, $newUrl);
+		$voiceContent = $localFs->read($tempname . '.mp3');
+		$oVoice->size = strlen($voiceContent);
+		$oVoice->type = 'audio/mpeg';
+
+		/* 写到指定位置 */
+		$dir = date("ymdH"); // 每个小时分一个目录
+		$storename = date("is") . rand(10000, 99999) . ".mp3";
+		$newUrl = $this->writeFile($dir, $storename, $voiceContent);
+
+		/* 删除临时文件 */
+		$localFs->delete($tempname . '.amr');
+		$localFs->delete($tempname . '.mp3');
+
+		return [true, $newUrl];
 	}
 }

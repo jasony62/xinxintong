@@ -443,6 +443,11 @@ class record extends base {
 						}
 					}
 					break;
+				case 'voice':
+					if (!defined('WX_VOICE_AMR_2_MP3') || WX_VOICE_AMR_2_MP3 !== 'Y') {
+						return [false, '运行环境不支持处理微信录音文件，题目【' . $oSchema->title . '】无效'];
+					}
+					break;
 				}
 			}
 		}

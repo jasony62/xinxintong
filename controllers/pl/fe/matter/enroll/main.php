@@ -461,6 +461,8 @@ class main extends main_base {
 				$oUpdated->round_cron = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'rpConfig') {
 				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'reposConfig') {
+				$oUpdated->repos_config = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'rankConfig') {
 				$oUpdated->rank_config = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'absent_cause') {

@@ -106,7 +106,7 @@ ngMod.service('noticebox', ['$timeout', '$q', function($timeout, $q) {
         /*显示消息框*/
         _getBox('progress', msg);
     };
-    this.confirm = function(msg) {
+    this.confirm = function(msg, buttons) {
         var defer, box, btn;
         defer = $q.defer();
         /*取消自动关闭*/
@@ -117,22 +117,35 @@ ngMod.service('noticebox', ['$timeout', '$q', function($timeout, $q) {
         /*显示消息框*/
         box = _getBox('warning', msg);
         /*添加操作*/
-        btn = document.createElement('button');
-        btn.classList.add('btn', 'btn-default', 'btn-sm');
-        btn.innerHTML = '是';
-        box.appendChild(btn, box.childNodes[0]);
-        btn.addEventListener('click', function() {
-            document.body.removeChild(box);
-            defer.resolve();
-        });
-        btn = document.createElement('button');
-        btn.classList.add('btn', 'btn-default', 'btn-sm');
-        btn.innerHTML = '否';
-        box.appendChild(btn, box.childNodes[0]);
-        btn.addEventListener('click', function() {
-            document.body.removeChild(box);
-            defer.reject();
-        });
+        if (buttons && buttons.length) {
+            buttons.forEach(function(oButton) {
+                btn = document.createElement('button');
+                btn.classList.add('btn', 'btn-default', 'btn-sm');
+                btn.innerHTML = oButton.label;
+                box.appendChild(btn, box.childNodes[0]);
+                btn.addEventListener('click', function() {
+                    document.body.removeChild(box);
+                    defer.resolve(oButton.value);
+                });
+            });
+        } else {
+            btn = document.createElement('button');
+            btn.classList.add('btn', 'btn-default', 'btn-sm');
+            btn.innerHTML = '是';
+            box.appendChild(btn, box.childNodes[0]);
+            btn.addEventListener('click', function() {
+                document.body.removeChild(box);
+                defer.resolve();
+            });
+            btn = document.createElement('button');
+            btn.classList.add('btn', 'btn-default', 'btn-sm');
+            btn.innerHTML = '否';
+            box.appendChild(btn, box.childNodes[0]);
+            btn.addEventListener('click', function() {
+                document.body.removeChild(box);
+                defer.reject();
+            });
+        }
 
         return defer.promise;
     };

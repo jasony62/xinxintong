@@ -115,3 +115,7 @@ if (defined('SAE_TMP_PATH')) {
  * 用户上传文件存储位置
  */
 !defined('APP_FS_USER') && define('APP_FS_USER', 'local');
+/**
+ * 支持微信录音转码（amr->mp3）
+ */
+!defined('WX_VOICE_AMR_2_MP3') && define('WX_VOICE_AMR_2_MP3', 'N');

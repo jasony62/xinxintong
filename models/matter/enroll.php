@@ -143,6 +143,14 @@ class enroll_model extends enroll_base {
 					$oApp->rpConfig = new \stdClass;
 				}
 			}
+			if ($fields === '*' || false !== strpos($fields, 'repos_config')) {
+				if (!empty($oApp->repos_config)) {
+					$oApp->reposConfig = json_decode($oApp->repos_config);
+				} else {
+					$oApp->reposConfig = new \stdClass;
+				}
+				unset($oApp->repos_config);
+			}
 			if ($fields === '*' || false !== strpos($fields, 'rank_config')) {
 				if (!empty($oApp->rank_config)) {
 					$oApp->rankConfig = json_decode($oApp->rank_config);

@@ -82,31 +82,25 @@ class log extends \pl\fe\matter\base {
 	/**
 	 * 导出传播情况
 	 */
-	public function exportOperateStat_action($site, $appId, $filter = '') {
+	public function exportOperateStat_action($site, $appId, $start = '', $end = '', $shareby = '') {
 		$modelAct = $this->model('matter\article');
 		$oArticle = $modelAct->byId($appId, ['fields' => 'id,title']);
 		if ($oArticle === false) {
 			return new \ObjectNotFoundError();
 		}
 
-		$modelLog = $this->model('matter\log');
-		$filter = $modelLog->unescape($filter);
-		$filter = empty($filter) ? new \stdClass : json_decode($filter);
-
 		$options = [];
-		if (!empty($filter->start)) {
-			$options['start'] = $modelLog->escape($filter->start);
+		if (!empty($start)) {
+			$options['start'] = $start;
 		}
-		if (!empty($filter->end)) {
-			$options['end'] = $modelLog->escape($filter->end);
+		if (!empty($end)) {
+			$options['end'] = $end;
 		}
-		if (!empty($filter->byUser)) {
-			$options['byUser'] = $modelLog->escape($filter->byUser);
-		}
-		if (!empty($filter->shareby)) {
-			$options['shareby'] = $modelLog->escape($filter->shareby);
+		if (!empty($shareby)) {
+			$options['shareby'] = $shareby;
 		}
 
+		$modelLog = $this->model('matter\log');
 		$logs = $modelLog->operateStat($site, $appId, 'article', $options)->logs;
 
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';

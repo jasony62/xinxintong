@@ -948,12 +948,17 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 素材运营数据追踪
 	 */
-	public function operateStat($site, $matterId, $matterType, $options = []) {
+	public function operateStat($site, $matterId = '', $matterType = '', $options = []) {
 		// 查询用户转发数和分享数
-		$countShareF = "select count(s1.id) from xxt_log_matter_share s1 where s1.matter_id = '{$matterId}' and s1.matter_type = '{$matterType}' and s1.siteid = '{$site}' and s1.userid = r.userid and s1.share_to = 'F'";
-		$countShareT = "select count(s2.id) from xxt_log_matter_share s2 where s2.matter_id = '{$matterId}' and s2.matter_type = '{$matterType}' and s2.siteid = '{$site}' and s2.userid = r.userid and s2.share_to = 'T'";
+		$countShareF = "select count(s1.id) from xxt_log_matter_share s1 where s1.matter_id = r.matter_id and s1.matter_type = r.matter_type and s1.siteid = '{$site}' and s1.userid = r.userid and s1.share_to = 'F'";
+		$countShareT = "select count(s2.id) from xxt_log_matter_share s2 where s2.matter_id = r.matter_id and s2.matter_type = r.matter_type and s2.siteid = '{$site}' and s2.userid = r.userid and s2.share_to = 'T'";
 
-		$where = "r.matter_id = '{$matterId}' and r.matter_type = '{$matterType}' and r.siteid = '{$site}'";
+		$where = "r.siteid = '{$site}'";
+		if (!empty($matterType) && !empty($matterId)) {
+			$where .= " and r.matter_type = '{$matterType}' and r.matter_id = '{$matterId}'";
+		} else if (!empty($matterType)) {
+			$where .= " and r.matter_type = '{$matterType}'";
+		}
 		if (!empty($options['shareby'])) {
 			$where .= " and r.matter_shareby like '" . $options['shareby'] . "_%'";
 			$countShareF .= " and s1.matter_shareby like '" . $options['shareby'] . "_%'";
@@ -979,7 +984,7 @@ class log_model extends \TMS_MODEL {
 		}
 
 		// 拼装sql
-		$fields = 'select r.id,r.userid,r.nickname,r.matter_shareby,r.openid,count(r.id) as readNum';
+		$fields = 'select r.id,r.userid,r.nickname,r.matter_shareby,r.openid,r.matter_id,r.matter_type,count(r.id) as readNum';
 		$fields .= ",(" . $countShareF . ") as shareFNum";
 		$fields .= ",(" . $countShareT . ") as shareTNum";
 		$sql = $fields;
@@ -996,7 +1001,7 @@ class log_model extends \TMS_MODEL {
 		$logs = $this->query_objs_ss($q);
 		foreach ($logs as $log) {
 			// 带来的阅读数和阅读人数  
-			$ttractReads = $this->userTtractRead($site, $log->userid, $matterId, $matterType, $options);
+			$ttractReads = $this->userTtractRead($site, $log->userid, $log->matter_id, $log->matter_type, $options);
 			$log->attractReaderNum = count($ttractReads);
 			$attractReadNum = 0;
 			foreach ($ttractReads as $re) {

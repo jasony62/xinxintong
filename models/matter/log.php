@@ -979,7 +979,7 @@ class log_model extends \TMS_MODEL {
 		}
 
 		// 拼装sql
-		$fields = 'select r.userid,r.nickname,r.matter_shareby,r.openid,count(r.id) as readNum';
+		$fields = 'select r.id,r.userid,r.nickname,r.matter_shareby,r.openid,count(r.id) as readNum';
 		$fields .= ",(" . $countShareF . ") as shareFNum";
 		$fields .= ",(" . $countShareT . ") as shareTNum";
 		$sql = $fields;
@@ -1040,9 +1040,9 @@ class log_model extends \TMS_MODEL {
 	 * 
 	*/
 	public function UserMatterAction($matterId, $matterType, $options, $page = '', $size = '') {
-		if (!empty($options['byOp']) && $options['byOp'] === 'read') {
+		if ($options['byOp'] === 'read') {
 			$q = [
-				'userid,nickname,read_at',
+				'id,userid,nickname,read_at',
 				'xxt_log_matter_read',
 				"matter_type='" . $matterType . "' and matter_id='" . $matterId . "'",
 			];
@@ -1057,11 +1057,16 @@ class log_model extends \TMS_MODEL {
 			$p = ['o' => 'read_at desc'];
 		} else {
 			$q = [
-				'userid,nickname,share_at',
+				'id,userid,nickname,share_at,share_to',
 				'xxt_log_matter_share',
 				"matter_type='" . $matterType . "' and matter_id='" . $matterId . "'",
 			];
 
+			if ($options['byOp'] === 'share.friend') {
+				$q[2] .= " and share_to = 'F'";
+			} else {
+				$q[2] .= " and share_to = 'T'";
+			}
 			if (!empty($options['start'])) {
 				$q[2] .= " and share_at > {$options['start']}";
 			}

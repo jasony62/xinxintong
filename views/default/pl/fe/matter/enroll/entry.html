@@ -36,13 +36,21 @@
                         <div>
                             <div class='radio'>
                                 <label>
-                                    <input type='radio' name='defaultReposOrder' value='lastest' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最近提交
+                                    <input type='radio' name='defaultReposOrder' value='lastest' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最近修改
                                 </label>
                             </div>
                             <div class='radio'>
                                 <label>
-                                    <input type='radio' name='defaultReposOrder' value='earliest' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最早提交
+                                    <input type='radio' name='defaultReposOrder' value='earliest' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最早修改
+                            </div>
+                            <div class='radio'>
+                                <label>
+                                    <input type='radio' name='defaultReposOrder' value='lastest_first' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最近提交
                                 </label>
+                            </div>
+                            <div class='radio'>
+                                <label>
+                                    <input type='radio' name='defaultReposOrder' value='earliest_first' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最早提交
                             </div>
                             <div class='radio'>
                                 <label>

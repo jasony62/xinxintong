@@ -284,6 +284,12 @@ class repos extends base {
 			case 'earliest':
 				$oOptions->orderby = ['enroll_at asc'];
 				break;
+			case 'earliest_first':
+				$oOptions->orderby = ['first_enroll_at asc'];
+				break;
+			case 'lastest_first':
+				$oOptions->orderby = ['first_enroll_at desc'];
+				break;
 			case 'mostliked':
 				$oOptions->orderby = ['like_num', 'enroll_at'];
 				break;

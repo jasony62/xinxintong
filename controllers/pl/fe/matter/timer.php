@@ -47,6 +47,7 @@ class timer extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 		$oConfig = $this->getPostJson();
+		$modelTim = $this->model('matter\timer');
 
 		$oTimer = new \stdClass;
 		$oTimer->matter_type = $oConfig->matter->type;
@@ -55,7 +56,7 @@ class timer extends \pl\fe\base {
 		$oTimer->enabled = 'N';
 
 		$oTimer->task_model = $oConfig->task->model;
-		!empty($oConfig->task->arguments) && $oTimer->task_arguments = $oConfig->task->arguments;
+		!empty($oConfig->task->arguments) && $oTimer->task_arguments = $this->escape($modelTim->toJson($oConfig->task->arguments));
 		$oTimer->task_expire_at = isset($oTimer->expireAt) ? $oTimer->expireAt : 0;
 
 		if (isset($oConfig->timer)) {
@@ -75,8 +76,10 @@ class timer extends \pl\fe\base {
 			$oTimer->left_count = 1;
 		}
 
-		$modelTim = $this->model('matter\timer');
 		$oTimer->id = $modelTim->insert('xxt_timer_task', $oTimer, true);
+		if (isset($oTimer->task_arguments)) {
+			$oTimer->task_arguments = json_decode($oTimer->task_arguments);
+		}
 
 		return new \ResponseData($oTimer);
 	}
@@ -112,12 +115,23 @@ class timer extends \pl\fe\base {
 		default:
 			return new \ParameterError('指定了不支持的定时任务时间周期【' . $pattern . '】');
 		}
+		if (isset($oNewUpdate->task_arguments)) {
+			$oTaskArguments = $oNewUpdate->task_arguments;
+			if (is_object($oNewUpdate->task_arguments)) {
+				$oNewUpdate->task_arguments = $this->model()->toJson($oNewUpdate->task_arguments);
+			}
+			$oNewUpdate->task_arguments = $this->escape($oNewUpdate->task_arguments);
+		}
 
 		$rst = $this->model()->update(
 			'xxt_timer_task',
 			$oNewUpdate,
 			['siteid' => $site, 'id' => $id]
 		);
+
+		if (isset($oTaskArguments)) {
+			$oNewUpdate->task_arguments = $oTaskArguments;
+		}
 
 		return new \ResponseData($oNewUpdate);
 	}

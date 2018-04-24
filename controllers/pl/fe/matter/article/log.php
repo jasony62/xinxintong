@@ -27,20 +27,26 @@ class log extends \pl\fe\matter\base {
 
 		$filter = $this->getPostJson();
 		$options = [];
+		if (empty($filter->byUserId)) {
+			return new \ResponseError('未指定用户');
+		}
+		if (empty($filter->byOp)) {
+			return new \ResponseError('未指定用户行为');
+		}
+		$options['byUserId'] = $modelLog->escape($filter->byUserId);
+		$options['byOp'] = $modelLog->escape($filter->byOp);
+		
 		if (!empty($filter->start)) {
-			$options['start'] = $filter->start;
+			$options['start'] = $modelLog->escape($filter->start);
 		}
 		if (!empty($filter->end)) {
-			$options['end'] = $filter->end;
+			$options['end'] = $modelLog->escape($filter->end);
 		}
-		if (!empty($filter->byUserId)) {
-			$options['byUserId'] = $filter->byUserId;
-		}
-		if (!empty($filter->byOp)) {
-			$options['byOp'] = $filter->byOp;
+		if (!empty($filter->shareby)) {
+			$options['shareby'] = $modelLog->escape($filter->shareby);
 		}
 
-		$reads = $modelLog->listUserMatterOp($id, 'article', $options, $page, $size);
+		$reads = $modelLog->UserMatterAction($id, 'article', $options, $page, $size);
 
 		return new \ResponseData($reads);
 	}

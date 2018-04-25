@@ -8,14 +8,12 @@
             <tr>
                 <th>时间</th>
                 <th>用户</th>
-                <th>累计次数</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat="log in logs">
-                <td>{{log.operate_at*1000|date: 'yy-MM-dd HH:mm'}}</td>
+                <td>{{log.time*1000|date: 'yy-MM-dd HH:mm'}}</td>
                 <td>{{log.nickname}}</td>
-                <td>{{log.user_op_num}}</td>
             </tr>
         </tbody>
     </table>

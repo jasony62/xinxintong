@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlUser', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlSiteuser', ['$scope', 'http2', function($scope, http2) {
         var catelogs;
         $scope.catelog = null;
         $scope.catelogs = catelogs = [];

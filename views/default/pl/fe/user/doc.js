@@ -11,8 +11,8 @@ define(['frame'], function(ngApp) {
         };
         //分页
         $scope.doSearch = function() {
-            http2.get('/rest/pl/fe/user/readList?uid=' + $scope.userId + _oPage.j(), function(rsp) {
-                $scope.matters = rsp.data.matters;
+            http2.get('/rest/pl/fe/user/readList?site='+ $scope.siteId +'&uid=' + $scope.userId + _oPage.j(), function(rsp) {
+                $scope.matters = rsp.data.logs;
                 _oPage.total = rsp.data.total || 0;
             });
         };

@@ -19,14 +19,14 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                 }
                 //收藏接口
                 switch(type) {
-                    case 'log':
-                        url = '/rest/pl/fe/matter/article/log/list?id=' + article.id;
-                    break;
                     case 'spread':
                         url = '/rest/pl/fe/matter/article/log/operateStat?site=' + article.siteid + '&appId=' + article.id;
                     break;
                     case 'favor':
                         url = '/rest/pl/fe/matter/article/favor/list?site=' + article.siteid + '&id=' + article.id;
+                    break;
+                    case 'download':
+                        url = '/rest/pl/fe/matter/article/log/attachmentLog?site=' + article.siteid + '&appId=' + article.id;
                     break;
                 }
                 url += page._j();

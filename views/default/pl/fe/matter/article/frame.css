@@ -15,3 +15,10 @@ div.mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
 
 /*main-view*/
 #main-access .badge a{color:#fff;text-decoration:none;}
+
+/* log-view */
+#spread-view .bg0{background: #fff;}
+#spread-view .bg1{background: #ccc;}
+#spread-view .operate_btn a{margin-right: 10px;}
+.hidden{visibility: hidden;}
+.visible{visibility: visible;}

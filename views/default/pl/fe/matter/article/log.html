@@ -1,56 +1,32 @@
 <div class='col-md-12'>
     <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#log-view">日志</a></li>
-        <li><a data-toggle="tab" href="#spread-view">传播</a></li>
+        <li class="active"><a data-toggle="tab" href="#spread-view">传播</a></li>
         <li><a data-toggle="tab" href="#favor-view">收藏</a></li>
+        <li><a data-toggle="tab" href="#download-view">附件下载日志</a></li>
     </ul>
     <div class="tab-content" style="padding-top: 1em">
-        <div class="active tab-pane" id='log-view'>
-            <table class='table table-bordered table-striped'>
-                <thead>
-                    <tr>
-                        <th>打开时间</th>
-                        <th>用户</th>
-                        <th>操作</th>
-                        <th>累计操作次数</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat='log in read.logs'>
-                        <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
-                        <td>{{log.nickname||'未知'}}</td>
-                        <td>{{log.operation}}</td>
-                        <td>{{log.user_op_num}}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class='form-group form-inline'>
-                <span style='height:34px;line-height:34px'>总数：{{read.page.total}}</span>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right" ng-show="read.page.total>read.page.size" boundary-links="true" total-items="read.page.total" max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="read.list()"></ul>
-            </div>
-        </div>
-        <div class="tab-pane" id='spread-view'>
+        <div class="active tab-pane" id='spread-view'>
             <div class="row" id="filter">
                 <div class='col-md-3'>
                     <div class='form-group'>
                         <label>开始时间</label>
-                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='spread.criteria.start' tms-state='spread.criteria.start'></tms-datepicker>
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='spread.criteria.start' tms-state='start'></tms-datepicker>
                     </div>
                 </div>
                 <div class='col-md-3'>
                     <div class='form-group'>
                         <label>结束时间</label>
-                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='spread.criteria.end' tms-state='spread.criteria.end'></tms-datepicker>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='spread.criteria.end' tms-state='end'></tms-datepicker>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label>筛选昵称</label>
+                        <label>昵称筛选</label>
                         <div class='input-group'>
                             <input type="text" ng-model="spread.criteria.byUser" class="form-control">
                             <div class="input-group-btn">
-                                <button class='btn btn-default' ng-click="spread.list()"><i class='glyphicon glyphicon-search'></i></button>
-                                <button class='btn btn-default' ng-click="cleanFilter()"><i class='glyphicon glyphicon-remove'></i></button>
+                                <button class='btn btn-default' title="筛选" ng-click="spread.list()"><i class='glyphicon glyphicon-search'></i></button>
+                                <button class='btn btn-default' title="取消" ng-click="spread.cancle()"><i class='glyphicon glyphicon-remove'></i></button>
                             </div>
                         </div>
                     </div>
@@ -66,23 +42,29 @@
                             <th style='width:48px;'>序号</th>
                             <th>用户名</th>
                             <th style='width:120px;'>阅读数</th>
-                            <th style='width:120px;'>转发数</th>
                             <th style='width:120px;'>分享数</th>
+                            <th style='width:120px;'>转发数</th>
                             <th style='width:120px;'>带来的阅读数</th>
                             <th style='width:120px;'>带来的人数</th>
-                            <th>操作</th>
+                            <th style='width:200px;'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat='spreader in spreaders'>
-                            <td>{{(page.at-1)*page.size+$index+1}}</td>
-                            <td>{{spreader.nickname||'未知'}}</td>
-                            <td>{{spreader.read_num}}</td>
-                            <td>{{spreader.zhuanfa_num}}</td>
-                            <td>{{spreader.share_num}}</td>
-                            <td>{{spreader.bring_read_num}}</td>
-                            <td>{{spreader.bring_num}}</td>
-                            <td><a href="" ng-click="open(spreader.userid)">展开</a></td>
+                        <tr class="bg0" ng-repeat='spreader in spread.spreaders'>
+                            <td>{{(spread.page.at-1)*spread.page.size+$index+1}}</td>
+                            <td>{{spreader.nickname}}</td>
+                            <td ng-click="spread.detail(spreader, 'read')"><a href="#">{{spreader.readNum}}</a></td>
+                            <td ng-click="spread.detail(spreader, 'share.timeline')"><a href="#">{{spreader.shareTNum}}</a></td>
+                            <td ng-click="spread.detail(spreader, 'share.friend')"><a href="#">{{spreader.shareFNum}}</a></td>
+                            <td>{{spreader.attractReadNum}}</td>
+                            <td>{{spreader.attractReaderNum}}</td>
+                            <td>
+                                <div class="operate_btn" ng-if="spreader.attractReaderNum!==0">
+                                    <a href="#" ng-click="spread.open($event, spreader.userid)" title="展开"><i class="glyphicon glyphicon-chevron-down"></i></a>
+                                    <a href="#" class="hidden" ng-click="spread.close($event)" title="收缩"><i class="glyphicon glyphicon-chevron-up"></i></a>
+                                    <a href="#" ng-click="export(spreader)" title="导出其下的子级记录"><i class="glyphicon glyphicon-export"></i></a>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -112,5 +94,58 @@
                 <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right" ng-show="favor.page.total>favor.page.size" boundary-links="true" total-items="favor.page.total" max-size="7" items-per-page="favor.page.size" rotate="false" ng-model="favor.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="favor.list()"></ul>
             </div>
         </div>
+        <div class="tab-pane" id='download-view'>
+            <table class='table table-bordered table-striped'>
+                <thead>
+                    <tr>
+                        <th>用户昵称</th>
+                        <th>下载时间</th>
+                        <th>附件名称</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='log in download.logs'>
+                        <td>{{log.nickname}}</td>
+                        <td>{{log.favor_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>{{log.title||'未知'}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='form-group form-inline'>
+                <span style='height:34px;line-height:34px'>总数：{{download.page.total}}</span>
+                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right" ng-show="download.page.total>download.page.size" boundary-links="true" total-items="download.page.total" max-size="7" items-per-page="download.page.size" rotate="false" ng-model="download.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="download.list()"></ul>
+            </div>
+        </div>
     </div>
 </div>
+<script type="text/ng-template" id="detail.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancle()">×</button>
+        <h5 class="modal-title">详情</h5>
+    </div>
+    <div class="modal-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>用户</th>
+                    <th>累计次数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="log in logs">
+                    <td>{{log.operate_at*1000|date: 'yy-MM-dd HH:mm'}}</td>
+                    <td>{{log.nickname}}</td>
+                    <td>{{log.user_op_num}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="form-group form-inline">
+            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer;float:right" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancle()">确定</button>
+    </div>
+</script>

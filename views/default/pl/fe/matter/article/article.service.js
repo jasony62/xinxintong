@@ -19,9 +19,6 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                 }
                 //收藏接口
                 switch(type) {
-                    case 'spread':
-                        url = '/rest/pl/fe/matter/article/log/operateStat?site=' + article.siteid + '&appId=' + article.id;
-                    break;
                     case 'favor':
                         url = '/rest/pl/fe/matter/article/favor/list?site=' + article.siteid + '&id=' + article.id;
                     break;

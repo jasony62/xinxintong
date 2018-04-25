@@ -556,7 +556,8 @@ provider('srvQuickEntry', function() {
             }
         };
     }];
-}).provider('srvRecordConverter', function() {
+}).
+provider('srvRecordConverter', function() {
     this.$get = ['$sce', function($sce) {
         function _memberAttr(oMember, oSchema) {
             var keys, originalValue, afterValue;
@@ -830,7 +831,8 @@ provider('srvTmplmsgNotice', function() {
             }
         };
     }];
-}).controller('ctrlSetChannel', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
+}).
+controller('ctrlSetChannel', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
     $scope.$on('channel.xxt.combox.done', function(event, aSelected) {
         var i, j, existing, aNewChannels = [],
             relations = {},
@@ -1053,4 +1055,125 @@ provider('srvMemberPicker', function() {
             }
         }
     }];
-});
+}).
+controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($scope, http2, $uibModal, $compile) {
+    var page, criteria, app;
+    $scope.page = page = {
+        at: 1,
+        size: 30,
+        _j: function() {
+            return '&page=' + this.at + '&size=' + this.size;
+        }
+    };
+    $scope.criteria = criteria = {
+        start: '',
+        end: '',
+        byUser: ''
+    };
+    $scope.list = function() {
+        var url;
+        url = '/rest/pl/fe/matter/'+ app.type +'/log/operateStat?site=' + app.siteid + '&appId=' + app.id + page._j();
+        http2.post(url, criteria, function(rsp) {
+            $scope.spreaders = rsp.data.logs;
+            page.total = rsp.data.total;
+        });
+    };
+    $scope.cancle = function() {
+        criteria.byUser = '';
+        $scope.list();
+    };
+    $scope.detail = function(user, type) {
+        $uibModal.open({
+            templateUrl: '/views/default/pl/fe/_module/statDetail.html?_=1',
+            controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, http2) {
+                var _oCriteria = {
+                    byOp: type,
+                    byUserId: user.userid,
+                    start: criteria.start,
+                    end: criteria.end,
+                    shareby: user.matter_shareby
+                }
+                $scope.page = {
+                    at: 1,
+                    size: 15,
+                    j: function() {
+                        return '&page=' + this.at + '&size=' + this.size;
+                    }
+                };
+                $scope.doSearch = function() {
+                    var url;
+                    url = '/rest/pl/fe/matter/' + app.type + '/log/userMatterAction?appId=' + app.id + $scope.page.j();
+                    http2.post(url, _oCriteria, function(rsp) {
+                        $scope.logs = rsp.data.logs;
+                        $scope.page.total = rsp.data.total;
+                    });
+                };
+                $scope.cancle = function() {
+                    $mi.dismiss();
+                };
+                $scope.doSearch();
+            }],
+            backdrop: 'static'
+        })
+    };
+    $scope.open = function(event, uid) {
+        var _oPage, url;
+        $(event.currentTarget).addClass('hidden').next().removeClass('hidden');
+        $scope.oPage = _oPage = {
+            at: 1,
+            size: 10,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        };
+        criteria.shareby = uid;
+        url = '/rest/pl/fe/matter/'+ type +'/log/operateStat?site=' + app.siteid + '&appId=' + app.id + page._j();
+        http2.post(url, criteria, function(rsp) {
+            var template, $template, persons=[];
+            persons = rsp.data.logs;
+            $scope.oPage.total = users.total;
+            for(var i=persons.length-1; i>=0; i--) {
+                template ='<tr class="bg1">';
+                template +='<td>'+(i+1)+'</td>';
+                template +='<td>'+persons[i].nickname+'</td>';
+                template +='<td ng-click=\'spread.detail(editing,'+JSON.stringify(persons[i])+',"read")\'><a href="#">'+persons[i].readNum+'</a></td>';
+                template +='<td ng-click=\'spread.detail(editing,'+JSON.stringify(persons[i])+', "share.timeline")\'><a href="#">'+persons[i].shareTNum+'</a></td>';
+                template +='<td ng-click=\'spread.detail(editing,'+JSON.stringify(persons[i])+', "share.friend")\'><a href="#">'+persons[i].shareFNum+'</a></td>';
+                template +='<td>'+persons[i].attractReadNum+'</td>';
+                template +='<td>'+persons[i].attractReaderNum+'</td>';
+                template +='<td>';
+                template +='</td>';
+                template +='</tr>';
+                $template = $compile(template)($scope);
+                $(event.target).parents('tr').after($template);
+            }
+        });
+    };
+    $scope.close = function(event) {
+        var str = $(event.target).parents('tr').attr('class');
+        $('tbody').find('tr').each(function() {
+            if($(this).attr('class') !== str) {
+                $(this).remove();
+            }
+        });
+        $(event.currentTarget).addClass('hidden').prev().removeClass('hidden');
+    }
+    $scope.export = function(user) {
+        var url;
+        url = '/rest/pl/fe/matter/'+ app.type +'/log/exportOperateStat?site='+ app.siteid +'&appId='+ app.id;
+        url += '&start='+ criteria.start +'&end='+ criteria.end;
+        if(user) {url += '&shareby='+user.userid;}
+        window.open(url);
+    };
+    $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+        criteria[data.state] = data.value;
+        if(criteria.start&&criteria.end) {
+            $scope.list();
+        }
+    });
+    $scope.$watch('editing', function(nv) {
+        if(!nv) return;
+        app = nv;
+        $scope.list();
+    });
+}]);

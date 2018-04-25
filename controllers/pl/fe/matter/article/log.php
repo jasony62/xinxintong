@@ -22,7 +22,7 @@ class log extends \pl\fe\matter\base {
 	 * 查询日志
 	 *
 	 */
-	public function list_action($id, $page = 1, $size = 30) {
+	public function userMatterAction_action($appId, $page = 1, $size = 30) {
 		$modelLog = $this->model('matter\log');
 
 		$filter = $this->getPostJson();
@@ -46,7 +46,7 @@ class log extends \pl\fe\matter\base {
 			$options['shareby'] = $modelLog->escape($filter->shareby);
 		}
 
-		$reads = $modelLog->UserMatterAction($id, 'article', $options, $page, $size);
+		$reads = $modelLog->userMatterAction($appId, 'article', $options, $page, $size);
 
 		return new \ResponseData($reads);
 	}
@@ -158,32 +158,31 @@ class log extends \pl\fe\matter\base {
 	/**
 	 * 附件下载日志
 	 */
-	public function attachmentLog($id, $page = 1, $size = 30) {
-		$model = $this->model();
+	public function attachmentLog_action($appId, $page = 1, $size = 30) {
+		$model = $this->model('matter\article');
+		$oArticle = $model->byId($appId, ['fields' => 'id,title']);
+		if ($oArticle === false) {
+			return new \ObjectNotFoundError();
+		}
+
 		$filter = $this->getPostJson();
 
 		$q = [
-			'id,userid,openid,nickname,download_at,attachment_id',
-			'xxt_article_download_log',
-			['article_id' => $id]
+			'ar.id,ar.userid,ar.openid,ar.nickname,ar.download_at,ar.attachment_id,m.name',
+			'xxt_article_download_log ar,xxt_matter_attachment m',
+			"ar.article_id = $appId and ar.attachment_id = m.id"
 		];
 		if (!empty($filter->start)) {
-			$start = new \stdClass;
-			$start->op = '>';
-			$start->pat = $model->escape($filter->start);
-			$q[2]['download_at'] = $start;
+			$q[2] .= " and ar.download_at > $model->escape($filter->start)";
 		}
 		if (!empty($filter->end)) {
-			$end = new \stdClass;
-			$end->op = '<';
-			$end->pat = $model->escape($filter->end);
-			$q[2]['download_at'] = $end;
+			$q[2] .= " and ar.download_at < $model->escape($filter->end)";
 		}
 		if (!empty($filter->byUser)) {
-			$q['2']['byUser'] = $model->escape($filter->byUser);
+			$q[2] .= " and ar.nickname like '%" . $model->escape($filter->byUser) . "%'";
 		}
 
-		$p = ['o' => 'download_at desc'];
+		$p = ['o' => 'ar.download_at desc'];
 		if (!empty($page) && !empty($size)) {
 			$p['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
@@ -192,7 +191,7 @@ class log extends \pl\fe\matter\base {
 
 		$data = new \stdClass;
 		$data->logs = $logs;
-		$q[0] = 'count(id)';
+		$q[0] = 'count(ar.id)';
 		$data->total = $model->query_val_ss($q);
 
 		return new \ResponseData($data);

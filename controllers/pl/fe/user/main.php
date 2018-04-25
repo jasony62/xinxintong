@@ -9,6 +9,15 @@ class main extends \pl\fe\base {
 	/**
 	 *
 	 */
+	public function get_access_rule() {
+		$rule_action['rule_type'] = 'white';
+		$rule_action['actions'][] = 'get';
+
+		return $rule_action;
+	}
+	/**
+	 *
+	 */
 	public function index_action() {
 		\TPL::output('/pl/fe/user/frame');
 		exit;
@@ -155,15 +164,6 @@ class main extends \pl\fe\base {
 		}
 
 		return new \ResponseData($result);
-	}
-	/**
-	 *
-	 */
-	public function get_access_rule() {
-		$rule_action['rule_type'] = 'white';
-		$rule_action['actions'][] = 'get';
-
-		return $rule_action;
 	}
 	/**
 	 * 获得当前用户信息

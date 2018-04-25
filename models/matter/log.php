@@ -1069,7 +1069,7 @@ class log_model extends \TMS_MODEL {
 	public function userMatterAction($matterId, $matterType, $options, $page = '', $size = '') {
 		if ($options['byOp'] === 'read') {
 			$q = [
-				'id,userid,nickname,read_at',
+				'id,userid,nickname,read_at time',
 				'xxt_log_matter_read',
 				"matter_type='" . $matterType . "' and matter_id='" . $matterId . "'",
 			];
@@ -1084,7 +1084,7 @@ class log_model extends \TMS_MODEL {
 			$p = ['o' => 'read_at desc'];
 		} else {
 			$q = [
-				'id,userid,nickname,share_at,share_to',
+				'id,userid,nickname,share_at time,share_to',
 				'xxt_log_matter_share',
 				"matter_type='" . $matterType . "' and matter_id='" . $matterId . "'",
 			];

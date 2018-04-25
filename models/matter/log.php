@@ -1018,7 +1018,7 @@ class log_model extends \TMS_MODEL {
 			$sql .= " limit " . ($options['paging']['page'] - 1) * $options['paging']['size'];
 			$sql .= " , " . $options['paging']['size'];
 		}
-// var_dump($sql);die;
+
 		$q = [$sql, ''];
 		$logs = $this->query_objs_ss($q);
 		foreach ($logs as $log) {
@@ -1052,7 +1052,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'count(id) as num',
 			'xxt_log_matter_read',
-			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and userid <> '{$logUid}' and siteid = '{$site}' and matter_shareby like '" . $logUid . "_%'"
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and siteid = '{$site}' and matter_shareby like '" . $logUid . "_%'"
 		];
 		if (!empty($options['start'])) {
 			$q[2] .= " and read_at > {$options['start']}";

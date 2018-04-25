@@ -1035,11 +1035,13 @@ class log_model extends \TMS_MODEL {
 		$data = new \stdClass;
 		$data->logs = $logs;
 		$q1 = [
-			"count(r.id)",
+			"id",
 			'xxt_log_matter_read r',
 			$where
 		];
-		$p1 = ['g' => 'r.userid'];
+		if (!empty($options['groupby']) && $options['groupby'] !== 'N') {
+			$p1 = ['g' => $options['groupby']];
+		}
 		$total = $this->query_objs_ss($q1, $p1);
 		$data->total = count($total);
 

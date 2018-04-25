@@ -1117,7 +1117,7 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
         })
     };
     $scope.open = function(event, uid) {
-        var _oPage, url;
+        var _oPage, _criteria, url;
         $(event.currentTarget).addClass('hidden').next().removeClass('hidden');
         $scope.oPage = _oPage = {
             at: 1,
@@ -1126,12 +1126,13 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
                 return '&page=' + this.at + '&size=' + this.size;
             }
         };
-        criteria.shareby = uid;
-        url = '/rest/pl/fe/matter/'+ type +'/log/operateStat?site=' + app.siteid + '&appId=' + app.id + page._j();
-        http2.post(url, criteria, function(rsp) {
+        _criteria = angular.copy(criteria);
+        _criteria.shareby = uid;
+        url = '/rest/pl/fe/matter/'+ app.type +'/log/operateStat?site=' + app.siteid + '&appId=' + app.id + page._j();
+        http2.post(url, _criteria, function(rsp) {
             var template, $template, persons=[];
             persons = rsp.data.logs;
-            $scope.oPage.total = users.total;
+            $scope.oPage.total = rsp.data.total;
             for(var i=persons.length-1; i>=0; i--) {
                 template ='<tr class="bg1">';
                 template +='<td>'+(i+1)+'</td>';

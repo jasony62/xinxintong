@@ -1,11 +1,11 @@
 <style>
-    .bg0{background: #fff;}
-    .bg1{background: #ccc;}
-    .operate_btn a{margin-right: 10px;}
-    .hidden{visibility: hidden;}
-    .visible{visibility: visible;}
+    #stat .bg0{background: #fff;}
+    #stat .bg1{background: #ccc;}
+    #stat .operate_btn a{margin-right: 10px;}
+    #stat .hidden{visibility: hidden;}
+    #stat .visible{visibility: visible;}
 </style>
-<div ng-controller="ctrlStat">
+<div ng-controller="ctrlStat" id="stat">
     <div class="row">
         <div class='col-md-3'>
             <div class='form-group'>
@@ -51,7 +51,7 @@
             </thead>
             <tbody>
                 <tr class="bg0" ng-repeat='spreader in spreaders'>
-                    <td>{{(spread.page.at-1)*spread.page.size+$index+1}}</td>
+                    <td>{{(page.at-1)*page.size+$index+1}}</td>
                     <td>{{spreader.nickname}}</td>
                     <td ng-click="detail(spreader, 'read')"><a href="#">{{spreader.readNum}}</a></td>
                     <td ng-click="detail(spreader, 'share.timeline')"><a href="#">{{spreader.shareTNum}}</a></td>

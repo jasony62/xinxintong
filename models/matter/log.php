@@ -1052,7 +1052,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'count(id) as num',
 			'xxt_log_matter_read',
-			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and siteid = '{$site}' and matter_shareby like '" . $logUid . "_%'"
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and userid <> '{$logUid}' and siteid = '{$site}' and matter_shareby like '" . $logUid . "_%'"
 		];
 		if (!empty($options['start'])) {
 			$q[2] .= " and read_at > {$options['start']}";

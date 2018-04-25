@@ -57,6 +57,7 @@ class log extends \pl\fe\matter\base {
 		$modelLog = $this->model('matter\log');
 
 		$options = [];
+		$options['groupby'] = 'r.userid';
 		$filter = $this->getPostJson();
 
 		if (!empty($page) && !empty($size)) {
@@ -90,6 +91,7 @@ class log extends \pl\fe\matter\base {
 		}
 
 		$options = [];
+		$options['groupby'] = 'r.userid';
 		if (!empty($start)) {
 			$options['start'] = $start;
 		}

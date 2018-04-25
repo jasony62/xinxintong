@@ -128,35 +128,4 @@ class main extends \pl\fe\base {
 
 		return new \ResponseData(array('users' => $stat, 'total' => $cnt));
 	}
-	/**
-	 * 用户和哪些素材有过互动
-	 */
-	public function userMatterActions_action($site, $userId, $startAt, $endAt, $page = 1, $size = 30) {
-		$modelLog = $this->model('matter\log');
-
-		$options = [];
-		$options['byUser'] = $userId;
-		
-		if (!empty($page) && !empty($size)) {
-			$options['paging'] = ['page' => $page, 'size' => $size];
-		}
-		if (!empty($startAt)) {
-			$options['start'] = $startAt;
-		}
-		if (!empty($endAt)) {
-			$options['end'] = $endAt;
-		}
-
-		$data = $modelLog->operateStat($site, '', '', $options);
-		if ($data->total > 0) {
-			foreach ($data->logs as $log) {
-				$app = $this->model('matter\\' . $log->matter_type)->byId($log->matter_id, ['fields' => 'id,title', 'cascaded' => 'N']);
-				if ($app) {
-					$log->matter_title = $app->title;
-				}
-			}
-		}
-
-		return new \ResponseData($data);
-	}
 }

@@ -949,6 +949,9 @@ class log_model extends \TMS_MODEL {
 	 * 素材运营数据追踪
 	 */
 	public function operateStat($site, $matterId = '', $matterType = '', $options = []) {
+		$fields = 'r.id,r.userid,r.nickname,r.matter_shareby,r.openid,r.matter_id,r.matter_type,max(r.read_at) readAt';
+		$table = 'xxt_log_matter_read r';
+
 		// 查询用户转发数和分享数
 		$countShareF = "select count(s1.id) from xxt_log_matter_share s1 where s1.matter_id = r.matter_id and s1.matter_type = r.matter_type and s1.siteid = '{$site}' and s1.userid = r.userid and s1.share_to = 'F'";
 		$countShareT = "select count(s2.id) from xxt_log_matter_share s2 where s2.matter_id = r.matter_id and s2.matter_type = r.matter_type and s2.siteid = '{$site}' and s2.userid = r.userid and s2.share_to = 'T'";
@@ -960,9 +963,11 @@ class log_model extends \TMS_MODEL {
 			$where .= " and r.matter_type = '{$matterType}'";
 		}
 		if (!empty($options['shareby'])) {
-			$where .= " and r.matter_shareby like '" . $options['shareby'] . "_%'";
-			$countShareF .= " and s1.matter_shareby like '" . $options['shareby'] . "_%'";
-			$countShareT .= " and s2.matter_shareby like '" . $options['shareby'] . "_%'";
+			if ($options['shareby'] !== 'N') {
+				$where .= " and r.matter_shareby like '" . $options['shareby'] . "_%'";
+				$countShareF .= " and s1.matter_shareby like '" . $options['shareby'] . "_%'";
+				$countShareT .= " and s2.matter_shareby like '" . $options['shareby'] . "_%'";
+			}
 		} else {
 			$where .= " and r.matter_shareby in ('','undefined')";
 			$countShareF .= " and s1.matter_shareby in ('','undefined')";
@@ -982,21 +987,38 @@ class log_model extends \TMS_MODEL {
 		if (!empty($options['byUser'])) {
 			$where .= " and r.nickname like '%" . $options['byUser'] . "%'";
 		}
+		if (!empty($options['byUserId'])) {
+			$where .= " and r.userid = '" . $options['byUserId'] . "'";
+		}
+
+		// 分组，排序
+		if (empty($options['groupby']) || $options['groupby'] === 'N') {
+			$groupby = " ";
+		} else {
+			$fields .= ",count(r.id) as readNum";
+			$groupby = " group by " . $options['groupby'];
+		}
+
+		if (isset($options['orderby'])) {
+			$orderby = " order by " . $options['orderby'];
+		} else {
+			$orderby = " order by shareFNum desc,shareTNum desc,r.id desc";
+		}
 
 		// 拼装sql
-		$fields = 'select r.id,r.userid,r.nickname,r.matter_shareby,r.openid,r.matter_id,r.matter_type,count(r.id) as readNum';
 		$fields .= ",(" . $countShareF . ") as shareFNum";
 		$fields .= ",(" . $countShareT . ") as shareTNum";
-		$sql = $fields;
-		$sql .= " from xxt_log_matter_read r ";
+		$sql = 'select ' . $fields;
+		$sql .= " from " . $table;
 		$sql .= " where " . $where;
-		// 排序
-		$sql .= " group by r.userid order by shareFNum desc,shareTNum desc,r.id desc";
+		$sql .= $groupby;
+		$sql .= $orderby;
+
 		if (isset($options['paging'])) {
 			$sql .= " limit " . ($options['paging']['page'] - 1) * $options['paging']['size'];
 			$sql .= " , " . $options['paging']['size'];
 		}
-
+// var_dump($sql);die;
 		$q = [$sql, ''];
 		$logs = $this->query_objs_ss($q);
 		foreach ($logs as $log) {

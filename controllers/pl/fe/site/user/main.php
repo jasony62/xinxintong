@@ -23,33 +23,39 @@ class main extends \pl\fe\base {
 	/**
 	 * 用户访问详情列表
 	 */
-	public function readList_action($site = null, $uid, $page = 1, $size = 12) {
+	public function readList_action($site, $uid, $startAt = '', $endAt = '', $page = 1, $size = 12) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
-		$q = [
-			'*',
-			'xxt_log_matter_read',
-			['userid' => $uid],
-		];
-		!empty($site) && $q[2]['siteid'] = $site;
-		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
-		$q2['o'] = ['read_at desc'];
-
-		$matters = $model->query_objs_ss($q, $q2);
-
-		$result = new \stdClass;
-		$result->matters = $matters;
-		if (empty($matters)) {
-			$result->total = 0;
-		} else {
-			$q[0] = 'count(*)';
-			$result->total = $model->query_val_ss($q);
+		$modelLog = $this->model('matter\log');
+		$options = [];
+		$options['byUserId'] = $uid;
+		$options['groupby'] = 'r.matter_type,r.matter_id';
+		$options['shareby'] = 'N';
+		$options['orderby'] = 'readAt desc';
+		
+		if (!empty($page) && !empty($size)) {
+			$options['paging'] = ['page' => $page, 'size' => $size];
+		}
+		if (!empty($startAt)) {
+			$options['start'] = $startAt;
+		}
+		if (!empty($endAt)) {
+			$options['end'] = $endAt;
 		}
 
-		return new \responseData($result);
+		$data = $modelLog->operateStat($site, '', '', $options);
+		if ($data->total > 0) {
+			foreach ($data->logs as $log) {
+				$app = $this->model('matter\\' . $log->matter_type)->byId($log->matter_id, ['fields' => 'id,title', 'cascaded' => 'N']);
+				if ($app) {
+					$log->matter_title = $app->title;
+				}
+			}
+		}
+
+		return new \ResponseData($data);
 	}
 	/**
 	 * 获得指定用户在指定站点参与的活动

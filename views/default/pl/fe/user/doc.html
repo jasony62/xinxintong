@@ -1,0 +1,30 @@
+<div class='row'>
+    <div class='col-md-12'>
+        <table class='table table-bordered table-striped'>
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>素材名称</th>
+                    <th>阅读数</th>
+                    <th>分享数</th>
+                    <th>转发数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="matter in matters">
+                    <td>{{matter.time*1000|date:'yy-MM-dd: HH-mm'}}</td>
+                    <td>{{matter.matter_title}}</td>
+                    <td>{{matter.readNum}}</td>
+                    <td>{{matter.shareNum}}</td>
+                    <td>{{matter.zhuanfaNum}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='form-group clearfix' ng-if="page.total>page.size">
+            <div class='pl-pagination'>
+                <span>总数：{{page.total}}</span>
+                <ul uib-pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            </div>
+        </div>
+    </div>
+</div>

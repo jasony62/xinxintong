@@ -14,11 +14,11 @@ define(['frame'], function(ngApp) {
             }
         };
         //分页
-        $scope.doSearch = function() {
+        $scope.list = function() {
             var url;
             url = '/rest/pl/fe/user/readList?site='+ $scope.siteId +'&uid=' + $scope.userId;
             url += '&startAt=' + _oCriteria.start + '&endAt=' + _oCriteria.end;
-            url + _oPage.j();
+            url += _oPage.j();
             http2.get(url, function(rsp) {
                 $scope.matters = rsp.data.logs;
                 _oPage.total = rsp.data.total || 0;
@@ -26,7 +26,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.cancle = function() {
             _oCriteria.start = _oCriteria.end = '';
-            $scope.doSearch();
+            $scope.list();
         };
         $scope.detail = function(matter, type) {
             $uibModal.open({
@@ -45,7 +45,7 @@ define(['frame'], function(ngApp) {
                             return '&page=' + this.at + '&size=' + this.size;
                         }
                     };
-                    $scope.list = function() {
+                    $scope.doSearch = function() {
                         var url;
                         url = '/rest/pl/fe/user/userDetailLogs?matterId=' + matter.matter_id + '&matterType=' + matter.matter_type + $scope.page.j();
                         http2.post(url, criteria, function(rsp) {
@@ -56,7 +56,7 @@ define(['frame'], function(ngApp) {
                     $scope.cancle = function() {
                         $mi.dismiss();
                     };
-                    $scope.list();
+                    $scope.doSearch();
                 }],
                 backdrop: 'static'
             })
@@ -64,10 +64,10 @@ define(['frame'], function(ngApp) {
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             _oCriteria[data.state] = data.value;
             if(_oCriteria.start || _oCriteria.end) {
-                $scope.doSearch();
+                $scope.list();
             }
         });
-        $scope.doSearch();
+        $scope.list();
     }])
 
 });

@@ -7,13 +7,13 @@
         <thead>
             <tr>
                 <th>时间</th>
-                <th>用户</th>
+                <th>来源用户</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat="log in logs">
                 <td>{{log.time*1000|date: 'yy-MM-dd HH:mm'}}</td>
-                <td>{{log.nickname}}</td>
+                <td>{{log.origin}}</td>
             </tr>
         </tbody>
     </table>

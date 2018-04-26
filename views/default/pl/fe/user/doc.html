@@ -22,20 +22,20 @@
                 <tr>
                     <th style='width:120px;'>时间</th>
                     <th>素材名称</th>
-                    <th style='width:120px;'>阅读数</th>
-                    <th style='width:120px;'>分享数</th>
-                    <th style='width:120px;'>转发数</th>
-                    <th style='width:120px;'>带来的阅读数</th>
-                    <th style='width:120px;'>带来的人数</th>
+                    <th style='width:120px;'>总阅读数</th>
+                    <th style='width:120px;'>总分享数</th>
+                    <th style='width:120px;'>总转发数</th>
+                    <th style='width:150px;'>带来的二级阅读数</th>
+                    <th style='width:120px;'>带来的二级人数</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="matter in matters">
                     <td>{{matter.readAt*1000|date:'yy-MM-dd HH:mm'}}</td>
                     <td>{{matter.matter_title}}</td>
-                    <td>{{matter.readNum}}</td>
-                    <td>{{matter.shareTNum}}</td>
-                    <td>{{matter.shareFNum}}</td>
+                    <td ng-click="detail(matter, 'read')"><a href="#">{{matter.readNum}}</a></td>
+                    <td ng-click="detail(matter, 'share.timeline')"><a href="#">{{matter.shareTNum}}</a></td>
+                    <td ng-click="detail(matter, 'share.friend')"><a href="#">{{matter.shareFNum}}</a></td>
                     <td>{{matter.attractReadNum}}</td>
                     <td>{{matter.attractReaderNum}}</td>
                 </tr>

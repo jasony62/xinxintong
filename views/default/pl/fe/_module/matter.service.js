@@ -1137,9 +1137,9 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
                 template ='<tr class="bg1">';
                 template +='<td>'+(i+1)+'</td>';
                 template +='<td>'+persons[i].nickname+'</td>';
-                template +='<td ng-click=\'spread.detail(editing,'+JSON.stringify(persons[i])+',"read")\'><a href="#">'+persons[i].readNum+'</a></td>';
-                template +='<td ng-click=\'spread.detail(editing,'+JSON.stringify(persons[i])+', "share.timeline")\'><a href="#">'+persons[i].shareTNum+'</a></td>';
-                template +='<td ng-click=\'spread.detail(editing,'+JSON.stringify(persons[i])+', "share.friend")\'><a href="#">'+persons[i].shareFNum+'</a></td>';
+                template +='<td ng-click=\'detail('+JSON.stringify(persons[i])+',"read")\'><a href="#">'+persons[i].readNum+'</a></td>';
+                template +='<td ng-click=\'detail('+JSON.stringify(persons[i])+', "share.timeline")\'><a href="#">'+persons[i].shareTNum+'</a></td>';
+                template +='<td ng-click=\'detail('+JSON.stringify(persons[i])+', "share.friend")\'><a href="#">'+persons[i].shareFNum+'</a></td>';
                 template +='<td>'+persons[i].attractReadNum+'</td>';
                 template +='<td>'+persons[i].attractReaderNum+'</td>';
                 template +='<td>';

@@ -1168,7 +1168,7 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
     };
     $scope.$on('xxt.tms-datepicker.change', function(event, data) {
         criteria[data.state] = data.value;
-        if(criteria.start&&criteria.end) {
+        if(criteria.start||criteria.end) {
             $scope.list();
         }
     });

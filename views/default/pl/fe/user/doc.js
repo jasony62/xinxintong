@@ -30,7 +30,7 @@ define(['frame'], function(ngApp) {
         }
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             _oCriteria[data.state] = data.value;
-            if(_oCriteria.start&&_oCriteria.end) {
+            if(_oCriteria.start || _oCriteria.end) {
                 $scope.doSearch();
             }
         });

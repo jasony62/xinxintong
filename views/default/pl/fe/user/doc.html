@@ -1,3 +1,20 @@
+<div class="row">
+    <div class='col-md-3'>
+        <div class='form-group'>
+            <label>开始时间</label>
+            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='criteria.start' tms-state='start'></tms-datepicker>
+        </div>
+    </div>
+    <div class='col-md-3'>
+        <div class='form-group'>
+            <label>结束时间</label>
+            <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='criteria.end' tms-state='end'></tms-datepicker>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <button class='btn btn-default pull-right' ng-click="cancle()">取消筛选</button>
+    </div>
+</div>
 <div class='row'>
     <div class='col-md-12'>
         <table class='table table-bordered table-striped'>
@@ -14,7 +31,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat="matter in matters">
-                    <td>{{matter.readAt*1000|date:'yy-MM-dd: HH-mm'}}</td>
+                    <td>{{matter.readAt*1000|date:'yy-MM-dd HH:mm'}}</td>
                     <td>{{matter.matter_title}}</td>
                     <td>{{matter.readNum}}</td>
                     <td>{{matter.shareTNum}}</td>

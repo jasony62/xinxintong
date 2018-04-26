@@ -1,5 +1,6 @@
 'use strict';
 require('./cowork.css');
+require('../../../../../../asset/js/xxt.ui.image.js');
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -236,7 +237,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                     }
                 };
             }],
-            windowClass: 'model-remark',
+            windowClass: 'model-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             addRemark(data.content, oUpperRemark).then(function(rsp) {
@@ -282,6 +283,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                     }
                 };
             }],
+            windowClass: 'model-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             http2.post(LS.j('remark/update', 'site') + '&remark=' + oRemark.id, { content: data.content }).then(function(rsp) {

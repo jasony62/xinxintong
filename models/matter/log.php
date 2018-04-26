@@ -953,6 +953,7 @@ class log_model extends \TMS_MODEL {
 		$table = 'xxt_log_matter_read r';
 
 		// 查询用户转发数和分享数
+		$countRead = "select count(r2.id) from xxt_log_matter_read r2 where r2.matter_id = r.matter_id and r2.matter_type = r.matter_type and r2.siteid = '{$site}' and r2.userid = r.userid";
 		$countShareF = "select count(s1.id) from xxt_log_matter_share s1 where s1.matter_id = r.matter_id and s1.matter_type = r.matter_type and s1.siteid = '{$site}' and s1.userid = r.userid and s1.share_to = 'F'";
 		$countShareT = "select count(s2.id) from xxt_log_matter_share s2 where s2.matter_id = r.matter_id and s2.matter_type = r.matter_type and s2.siteid = '{$site}' and s2.userid = r.userid and s2.share_to = 'T'";
 
@@ -964,23 +965,27 @@ class log_model extends \TMS_MODEL {
 		}
 		if (!empty($options['shareby'])) {
 			if ($options['shareby'] !== 'N') {
-				$where .= " and r.matter_shareby like '" . $options['shareby'] . "_%'";
-				$countShareF .= " and s1.matter_shareby like '" . $options['shareby'] . "_%'";
-				$countShareT .= " and s2.matter_shareby like '" . $options['shareby'] . "_%'";
+				$where .= " and r.userid <> '{$options['shareby']}' and r.matter_shareby like '" . $options['shareby'] . "_%'";
+				// $countRead .= " and r2.matter_shareby like '" . $options['shareby'] . "_%'";
+				// $countShareF .= " and s1.matter_shareby like '" . $options['shareby'] . "_%'";
+				// $countShareT .= " and s2.matter_shareby like '" . $options['shareby'] . "_%'";
 			}
 		} else {
 			$where .= " and r.matter_shareby in ('','undefined')";
-			$countShareF .= " and s1.matter_shareby in ('','undefined')";
-			$countShareT .= " and s2.matter_shareby in ('','undefined')";
+			// $countRead .= " and s1.matter_shareby in ('','undefined')";
+			// $countShareF .= " and s1.matter_shareby in ('','undefined')";
+			// $countShareT .= " and s2.matter_shareby in ('','undefined')";
 		}
 
 		if (!empty($options['start'])) {
 			$where .= " and r.read_at > {$options['start']}";
+			$countRead .= " and r2.read_at > {$options['start']}";
 			$countShareF .= " and s1.share_at > {$options['start']}";
 			$countShareT .= " and s2.share_at > {$options['start']}";
 		}
 		if (!empty($options['end'])) {
 			$where .= " and r.read_at < {$options['end']}";
+			$countRead .= " and r2.read_at < {$options['end']}";
 			$countShareF .= " and s1.share_at < {$options['end']}";
 			$countShareT .= " and s2.share_at < {$options['end']}";
 		}
@@ -995,7 +1000,6 @@ class log_model extends \TMS_MODEL {
 		if (empty($options['groupby']) || $options['groupby'] === 'N') {
 			$groupby = " ";
 		} else {
-			$fields .= ",count(r.id) as readNum";
 			$groupby = " group by " . $options['groupby'];
 		}
 
@@ -1006,6 +1010,7 @@ class log_model extends \TMS_MODEL {
 		}
 
 		// 拼装sql
+		$fields .= ",(" . $countRead . ") as readNum";
 		$fields .= ",(" . $countShareF . ") as shareFNum";
 		$fields .= ",(" . $countShareT . ") as shareTNum";
 		$sql = 'select ' . $fields;
@@ -1071,7 +1076,7 @@ class log_model extends \TMS_MODEL {
 	public function userMatterAction($matterId, $matterType, $options, $page = '', $size = '') {
 		if ($options['byOp'] === 'read') {
 			$q = [
-				'id,userid,nickname,read_at time',
+				'id,userid,nickname,read_at time,matter_shareby',
 				'xxt_log_matter_read',
 				"matter_type='" . $matterType . "' and matter_id='" . $matterId . "'",
 			];
@@ -1080,13 +1085,13 @@ class log_model extends \TMS_MODEL {
 				$q[2] .= " and read_at > {$options['start']}";
 			}
 			if (!empty($options['end'])) {
-				$q[2] .= " and read_at > {$options['end']}";
+				$q[2] .= " and read_at < {$options['end']}";
 			}
 
 			$p = ['o' => 'read_at desc'];
 		} else {
 			$q = [
-				'id,userid,nickname,share_at time,share_to',
+				'id,userid,nickname,share_at time,share_to,matter_shareby',
 				'xxt_log_matter_share',
 				"matter_type='" . $matterType . "' and matter_id='" . $matterId . "'",
 			];
@@ -1100,7 +1105,7 @@ class log_model extends \TMS_MODEL {
 				$q[2] .= " and share_at > {$options['start']}";
 			}
 			if (!empty($options['end'])) {
-				$q[2] .= " and share_at > {$options['end']}";
+				$q[2] .= " and share_at < {$options['end']}";
 			}
 
 			$p = ['o' => 'share_at desc'];
@@ -1109,14 +1114,14 @@ class log_model extends \TMS_MODEL {
 		if (!empty($options['byUserId'])) {
 			$q[2] .= " and userid = '" . $options['byUserId'] . "'";
 		}
-		if (!empty($options['shareby'])) {
-			if ($key = strpos($options['shareby'], '_')) {
-				$options['shareby'] = substr($options['shareby'], 0, $key);
-			}
-			$q[2] .= " and matter_shareby like '" . $options['shareby'] . "_%'";
-		} else {
-			$q[2] .= " and matter_shareby in ('','undefined')";
-		}
+		// if (!empty($options['shareby'])) {
+		// 	if ($key = strpos($options['shareby'], '_')) {
+		// 		$options['shareby'] = substr($options['shareby'], 0, $key);
+		// 	}
+		// 	$q[2] .= " and matter_shareby like '" . $options['shareby'] . "_%'";
+		// } else {
+		// 	$q[2] .= " and matter_shareby in ('','undefined')";
+		// }
 
 		if (!empty($page) && !empty($size)) {
 			$p['r'] = [
@@ -1125,8 +1130,25 @@ class log_model extends \TMS_MODEL {
 			];
 		}
 
+		$logs = $this->query_objs_ss($q, $p);
+		foreach ($logs as $log) {
+			$q = [
+				'nickname',
+				'xxt_log_matter_share',
+				['shareid' => $log->matter_shareby]
+			];
+			if (!empty($log->matter_shareby)) {
+				if ($res = $this->query_obj_ss($q)) {
+					$log->origin = $res->nickname;
+				}
+			}
+			if (!isset($log->origin)) {
+				$log->origin = '';
+			}
+		}
+		
 		$result = new \stdClass;
-		$result->logs = $this->query_objs_ss($q, $p);
+		$result->logs = $logs;
 		$q[0] = 'count(*)';
 		$result->total = $this->query_val_ss($q);
 

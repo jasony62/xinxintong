@@ -67,6 +67,34 @@ class main extends \pl\fe\base {
 		return new \ResponseData($data);
 	}
 	/**
+	 *
+	 */
+	public function userDetailLogs_action($matterId, $matterType, $page = 1, $size = 30) {
+		$modelLog = $this->model('matter\log');
+
+		$filter = $this->getPostJson();
+		$options = [];
+		if (empty($filter->byUserId)) {
+			return new \ResponseError('未指定用户');
+		}
+		if (empty($filter->byOp)) {
+			return new \ResponseError('未指定用户行为');
+		}
+		$options['byUserId'] = $modelLog->escape($filter->byUserId);
+		$options['byOp'] = $modelLog->escape($filter->byOp);
+		
+		if (!empty($filter->start)) {
+			$options['start'] = $modelLog->escape($filter->start);
+		}
+		if (!empty($filter->end)) {
+			$options['end'] = $modelLog->escape($filter->end);
+		}
+
+		$logs = $modelLog->userMatterAction($matterId, $matterType, $options, $page, $size);
+
+		return new \ResponseData($logs);
+	}
+	/**
 	 * 获得指定用户在指定站点参与的活动
 	 *
 	 * @param string $site site'id

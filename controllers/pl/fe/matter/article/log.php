@@ -46,9 +46,9 @@ class log extends \pl\fe\matter\base {
 			$options['shareby'] = $modelLog->escape($filter->shareby);
 		}
 
-		$reads = $modelLog->userMatterAction($appId, 'article', $options, $page, $size);
+		$logs = $modelLog->userMatterAction($appId, 'article', $options, $page, $size);
 
-		return new \ResponseData($reads);
+		return new \ResponseData($logs);
 	}
 	/**
 	 * 运营传播统计

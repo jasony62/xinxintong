@@ -1132,13 +1132,13 @@ class log_model extends \TMS_MODEL {
 
 		$logs = $this->query_objs_ss($q, $p);
 		foreach ($logs as $log) {
-			$q = [
+			$q1 = [
 				'nickname',
 				'xxt_log_matter_share',
 				['shareid' => $log->matter_shareby]
 			];
 			if (!empty($log->matter_shareby)) {
-				if ($res = $this->query_obj_ss($q)) {
+				if ($res = $this->query_obj_ss($q1)) {
 					$log->origin = $res->nickname;
 				}
 			}

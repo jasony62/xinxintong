@@ -81,17 +81,10 @@
             </div>
         </div>
     </script>
-    <script type="text/javascript">
-    if (/MicroMessenger/i.test(navigator.userAgent)) {
-        var siteid = location.search.match(/site=([^&]*)/)[1];
-        document.write("<script src='https:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
-        document.write("<script src='\/rest\/site\/fe\/base\/wxjssdksignpackage?site=" + siteid + "&url=" + encodeURIComponent(location.href.split('#')[0]) + "'><\/script>");
-    }
-    </script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/static/js/xxt.share.js?_=1"></script>
+    <script src="/static/js/xxt.ui.error.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/link/main.js');?>"></script>
 </body>
 

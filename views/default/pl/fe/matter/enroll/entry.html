@@ -36,13 +36,21 @@
                         <div>
                             <div class='radio'>
                                 <label>
-                                    <input type='radio' name='defaultReposOrder' value='lastest' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最近提交
+                                    <input type='radio' name='defaultReposOrder' value='lastest' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最近修改
                                 </label>
                             </div>
                             <div class='radio'>
                                 <label>
-                                    <input type='radio' name='defaultReposOrder' value='earliest' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最早提交
+                                    <input type='radio' name='defaultReposOrder' value='earliest' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最早修改
+                            </div>
+                            <div class='radio'>
+                                <label>
+                                    <input type='radio' name='defaultReposOrder' value='lastest_first' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最近提交
                                 </label>
+                            </div>
+                            <div class='radio'>
+                                <label>
+                                    <input type='radio' name='defaultReposOrder' value='earliest_first' ng-model="app.reposConfig.defaultOrder" ng-change="update('reposConfig')">最早提交
                             </div>
                             <div class='radio'>
                                 <label>
@@ -214,10 +222,6 @@
             <div class='form-group'>
                 <p><i class="glyphicon glyphicon-bell"></i> 事件提醒</p>
             </div>
-            <div class='checkbox'>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">用户提交填写内容时通知</label>
-            </div>
             <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
                 <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信公众号用户扫码作为接收人 <span class="caret"></span></button>
             </div>
@@ -232,11 +236,22 @@
                     </button>
                 </div>
             </div>
-            <hr>
+            <div class='checkbox'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">用户提交填写内容时通知</label>
+            </div>
             <div>
                 <div class='checkbox'>
-                    <label class='checkbox-inline' uib-tooltip='定时将包含【汇总结果分享链接】消息发送给所有接收人'>
-                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.report.state" ng-change="shiftTimerTask('report')">定时向所有接收人发送活动报告 <span class='glyphicon glyphicon-question-sign'></span></label>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.report.state" ng-change="shiftTimerTask('report')">定时向所有接收人发送活动提醒</label>
+                </div>
+                <div class='form-group'>
+                    <label class='radio-inline'>
+                        <input type='radio' name='reportPage' value="report" ng-model="timerTask.report.task.task_arguments.page" ng-change="saveTimerTask('report')">汇总结果分享链接</label>
+                    <label class='radio-inline'>
+                        <input type='radio' name='reportPage' value="repos" ng-model="timerTask.report.task.task_arguments.page" ng-change="saveTimerTask('report')">数据共享页</label>
+                    <label class='radio-inline'>
+                        <input type='radio' name='reportPage' value="action" ng-model="timerTask.report.task.task_arguments.page" ng-change="saveTimerTask('report')">动态页</label>
                 </div>
                 <div ng-if="timerTask.report.taskId">
                     <div class='radio'>
@@ -393,6 +408,7 @@
                     </div>
                 </div>
             </div>
+            <hr>
             <div>
                 <div class='checkbox'>
                     <label class='checkbox-inline' uib-tooltip='定时将包含【活动进入链接】消息发送给所有填写人'>

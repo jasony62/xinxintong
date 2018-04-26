@@ -105,15 +105,19 @@
                 <div id='filterQuick' class='form-inline' ng-cloak>
                     <div class="btn-group" uib-dropdown>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span ng-if="criteria.orderby==='lastest'">最近提交</span>
-                            <span ng-if="criteria.orderby==='earliest'">最早提交</span>
+                            <span ng-if="criteria.orderby==='lastest'">最近修改</span>
+                            <span ng-if="criteria.orderby==='earliest'">最早修改</span>
+                            <span ng-if="criteria.orderby==='lastest_first'">最近提交</span>
+                            <span ng-if="criteria.orderby==='earliest_first'">最早提交</span>
                             <span ng-if="criteria.orderby==='mostliked'">最多赞同</span>
                             <span ng-if="criteria.orderby==='agreed'">精选推荐</span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href ng-click="shiftOrderby('lastest')">最近提交</a></li>
-                            <li><a href ng-click="shiftOrderby('earliest')">最早提交</a></li>
+                            <li><a href ng-click="shiftOrderby('lastest')">最近修改</a></li>
+                            <li><a href ng-click="shiftOrderby('earliest')">最早修改</a></li>
+                            <li><a href ng-click="shiftOrderby('lastest_first')">最近提交</a></li>
+                            <li><a href ng-click="shiftOrderby('earliest_first')">最早提交</a></li>
                             <li><a href ng-click="shiftOrderby('mostliked')">最多赞同</a></li>
                             <li><a href ng-click="shiftOrderby('agreed')">精选推荐</a></li>
                         </ul>
@@ -214,7 +218,7 @@
                                             <span>{{rec.data[schema.id]}}</span>
                                         </div>
                                         <div ng-if="schema.cowork==='Y'">
-                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)">查看全部（<span ng-bind="rec.coworkState[schema.id].length"></span>）或添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
+                                            <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)"><span ng-if="rec.coworkState[schema.id].length">查看全部（<span ng-bind="rec.coworkState[schema.id].length"></span>）或</span>添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
                                             </button>
                                         </div>
                                         <div ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]" class='supplement'>{{rec.supplement[schema.id]}}</div>

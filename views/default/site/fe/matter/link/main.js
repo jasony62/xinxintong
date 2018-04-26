@@ -4,7 +4,7 @@ require('../../../../../../asset/js/xxt.ui.share.js');
 
 angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.ui.xxt']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
-}]).controller('ctrl', ['$scope', '$location', '$http', 'tmsFavor', 'tmsDynaPage', function($scope, $location, $http, tmsFavor, tmsDynaPage) {
+}]).controller('ctrl', ['$scope', '$location', '$http', 'tmsFavor', 'tmsDynaPage', 'tmsSnsShare', function($scope, $location, $http, tmsFavor, tmsDynaPage, tmsSnsShare) {
     var siteId, linkId, invite_token, shareby;
     siteId = $location.search().site;
     linkId = $location.search().id;

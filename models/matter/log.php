@@ -1110,6 +1110,9 @@ class log_model extends \TMS_MODEL {
 			$q[2] .= " and userid = '" . $options['byUserId'] . "'";
 		}
 		if (!empty($options['shareby'])) {
+			if ($key = strpos($options['shareby'], '_')) {
+				$options['shareby'] = substr($options['shareby'], 0, $key);
+			}
 			$q[2] .= " and matter_shareby like '" . $options['shareby'] . "_%'";
 		} else {
 			$q[2] .= " and matter_shareby in ('','undefined')";

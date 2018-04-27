@@ -1,6 +1,9 @@
 'use strict';
 require('./cowork.css');
 require('../../../../../../asset/js/xxt.ui.image.js');
+require('../../../../../../asset/js/xxt.ui.editor.js');
+
+window.moduleAngularModules = ['editor.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');

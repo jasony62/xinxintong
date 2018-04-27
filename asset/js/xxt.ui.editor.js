@@ -58,8 +58,7 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
         oSelection = _iframeDoc.getSelection();
         oSelection.removeAllRanges();
         oSelection.addRange(oRange);
-        //alert(JSON.stringify(oParam));
-
+        
         return oRange;
     }
 

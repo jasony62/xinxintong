@@ -423,6 +423,7 @@ class repos extends base {
 				$oRecord->agreedRemarks = $modelRec->query_objs_ss($q, $q2);
 			}
 		}
+
 		return new \ResponseData($oResult);
 	}
 	/**

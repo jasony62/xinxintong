@@ -504,6 +504,12 @@ class remark extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($oRemark->enroll_key, ['fields' => 'id,state,data']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
 		$modelData = $this->model('matter\enroll\data');
 		$oRecData = $modelData->byRecord($oRemark->enroll_key, ['schema' => $schema]);
 		if (false === $oRecData || $oRecData->state !== '1') {
@@ -536,11 +542,17 @@ class remark extends base {
 		);
 
 		$oRecData->value[] = (object) ['id' => $oCowork->id, 'value' => $oRemark->content];
-
 		$modelData->update(
 			'xxt_enroll_record_data',
 			['value' => $this->escape($modelData->toJson($oRecData->value))],
 			['id' => $oRecData->id]
+		);
+
+		$oRecord->data->{$oRecData->schema_id} = $oRecData->value;
+		$modelRec->update(
+			'xxt_enroll_record',
+			['data' => $this->escape($modelRec->toJson($oRecord->data))],
+			['id' => $oRecord->id]
 		);
 
 		/* 记操作日志 */

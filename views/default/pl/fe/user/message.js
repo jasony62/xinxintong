@@ -33,7 +33,7 @@ define(['frame'], function(ngApp) {
         $scope.matterType = $scope.selMatter[0].value; //默认显示编辑项
         //获取消息 包括 用户 和 管理员；用什么区分 用户信息左侧显示，管理员右侧显示
         $scope.doSearch = function() {
-            var url = '/rest/pl/fe/site/user/fans/track?site=' + $scope.siteId + '&openid=' + $scope.sns.openId + $scope.page.j();
+            var url = '/rest/pl/fe/user/fans/track?site=' + $scope.siteId + '&openid=' + $scope.sns.openId + $scope.page.j();
             http2.get(url, function(rsp) {
                 $scope.track = rsp.data.data;
                 $scope.page.total = rsp.data.total;
@@ -88,7 +88,7 @@ define(['frame'], function(ngApp) {
                 };
             }
             //发送接口？
-            http2.post('/rest/pl/fe/site/user/send/custom?site=' + $scope.siteId + '&openid=' + $scope.sns.openId + '&src=' + $scope.sns.src, data, function(rsp) {
+            http2.post('/rest/pl/fe/user/send/custom?site=' + $scope.siteId + '&openid=' + $scope.sns.openId + '&src=' + $scope.sns.src, data, function(rsp) {
                 //初始化分页
                 $scope.page.at = 1;
                 $scope.doSearch();

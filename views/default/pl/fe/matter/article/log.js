@@ -1,17 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlLog', ['$scope', 'http2', 'srvLog', function($scope, http2, srvLog) {
-        var read, favor;
-        $scope.read = read = {
-            page: {},
-            list: function() {
-                var _this = this;
-                srvLog.list($scope.editing, this.page, 'log').then(function(data) {
-                    _this.logs = data.logs;
-                    _this.page.total = data.total;
-                });
-            }
-        };
+        var favor, download;
         $scope.favor = favor = {
             page: {},
             list: function() {
@@ -22,10 +12,21 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
+        $scope.download = download = {
+            page: {},
+            criteria: {},
+            list: function() {
+                var _this = this;
+                srvLog.list($scope.editing, this.page, 'download', this.criteria).then(function(logs) {
+                    _this.logs = logs.logs;
+                    _this.page.total = logs.total;
+                });
+            }
+        }
         $scope.$watch('editing', function(nv) {
             if(!nv) return;
-            read.list();
             favor.list();
+            download.list();
         });
     }]);
 });

@@ -31,7 +31,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.openProfile = function(uid, unionid) {
-            location.href = '/rest/pl/fe/site/user/fans?site=' + $scope.site.id + '&uid=' + uid + '&unionid=' + unionid;
+            location.href = '/rest/pl/fe/user/fans?site=' + $scope.site.id + '&uid=' + uid + '&unionid=' + unionid;
         };
         $scope.$watch('site', function(site) {
             if (site === undefined) return;

@@ -42,6 +42,14 @@
                         </li>
                     </ul>
                 </li>
+                <li ng-class="{'opened':opened==='other'}">
+                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('log')">其他 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'41px':'0'}">
+                        <li ng-class="{'active':subView==='log'}">
+                            <a href='' ng-click="switchTo('log')">运行日志</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
         <!--导航+主体内容-->

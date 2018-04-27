@@ -5,7 +5,7 @@ define(['require'], function(require) {
     ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
     ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', 'srvSiteProvider', function($lp, $rp, $cp, srvSiteProvider) {
         var RouteParam = function(name, loadjs) {
-            var baseURL = '/views/default/pl/fe/site/user/';
+            var baseURL = '/views/default/pl/fe/user/';
             this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             if (loadjs) {
@@ -25,11 +25,11 @@ define(['require'], function(require) {
             controller: $cp.register
         };
         $rp
-            .when('/rest/pl/fe/site/user/main', new RouteParam('main', true))
-            .when('/rest/pl/fe/site/user/doc', new RouteParam('doc', true))
-            .when('/rest/pl/fe/site/user/app', new RouteParam('app', true))
-            .when('/rest/pl/fe/site/user/favor', new RouteParam('favor', true))
-            .when('/rest/pl/fe/site/user/message', new RouteParam('message', true))
+            .when('/rest/pl/fe/user/main', new RouteParam('main', true))
+            .when('/rest/pl/fe/user/doc', new RouteParam('doc', true))
+            .when('/rest/pl/fe/user/app', new RouteParam('app', true))
+            .when('/rest/pl/fe/user/favor', new RouteParam('favor', true))
+            .when('/rest/pl/fe/user/message', new RouteParam('message', true))
             .otherwise(new RouteParam('main', true));
         $lp.html5Mode(true);
     }]);
@@ -64,14 +64,14 @@ define(['require'], function(require) {
             }
         });
         $scope.switchTo = function(subView) {
-            var url = '/rest/pl/fe/site/user/' + subView;
+            var url = '/rest/pl/fe/user/' + subView;
             $location.path(url);
         };
         srvSite.get().then(function(site) {
             $scope.site = site;
         });
         //获取 增加公众号信息
-        http2.get('/rest/pl/fe/site/user/fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function(rsp) {
+        http2.get('/rest/pl/fe/user/fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function(rsp) {
             $scope.fans = rsp.data;
             $scope.fans.wx && ($scope.wx = $scope.fans.wx);
             $scope.fans.qy && ($scope.qy = $scope.fans.qy);

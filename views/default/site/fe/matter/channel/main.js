@@ -29,11 +29,15 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt', 'snssha
             },
             jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage']
         });
-        sharelink = location.href;
-        if (/shareby=/.test(sharelink)) {
-            sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
-        } else {
-            sharelink += "&shareby=" + shareid;
+        if($scope.channel.invite) {
+            sharelink = location.protocol + '//' + location.host + '/i/'+ $scope.channel.invite.code;
+        }else {
+            sharelink = location.href;
+            if (/shareby=/.test(sharelink)) {
+                sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
+            } else {
+                sharelink += "&shareby=" + shareid;
+            }
         }
         tmsSnsShare.set($scope.channel.title, sharelink, $scope.channel.summary, $scope.channel.pic);
     }

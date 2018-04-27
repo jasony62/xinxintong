@@ -30,6 +30,7 @@ body {
 /* pl-navbar */
 
 /* nav */
+
 .navbar {
 	border-radius: 0;
 }
@@ -415,6 +416,63 @@ body {
 	top: 0;
 	left: 0;
 	background-position: -142px -368px;
+}
+
+/*modal*/
+.modal.auto-height .modal-dialog, .modal.auto-height .modal-dialog.modal-lg {
+	width: 900px;
+	left: 50%;
+	margin-left: -450px;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+}
+
+.modal.auto-height.middle-width .modal-dialog.modal-lg {
+	width: 600px;
+	margin-left: -300px;
+}
+
+.modal.auto-height.full-width .modal-dialog {
+	width: 98%;
+	left: 50%;
+	margin-left: -49%;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+}
+
+.modal.auto-height .modal-dialog .modal-content {
+	height: 100%
+}
+
+.modal.auto-height .modal-dialog .modal-content .modal-body {
+	position: absolute;
+	top: 0;
+	bottom: 65px;
+	left: 0;
+	right: 0;
+	overflow: auto
+}
+
+.modal.auto-height .modal-dialog .modal-content .modal-footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin-top: 0
+}
+
+@media screen and (max-width:768px) {
+	.modal.auto-height .modal-dialog, .modal.auto-height .modal-dialog.modal-lg {
+		width: 100%;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		margin-left: 0;
+	}
+
 }
 
 /*loading*/

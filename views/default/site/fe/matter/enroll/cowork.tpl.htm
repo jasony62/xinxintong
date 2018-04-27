@@ -286,23 +286,27 @@
     </script>
     <script type="text/ng-template" id="writeRemark.html">
         <div class="modal-body">
-            <div>
-                <ul ng-if="remarks.length" class='list-group' style='overflow-y:auto;'>
-                    <li class='list-group-item' ng-repeat="remark in remarks">
-                        <div style='font-size:.9em;'>
-                            <span class='text-muted' ng-bind="remark.modify_at*1000|date:'MM-dd HH:mm'"></span>
-                            <span class='text-muted' ng-bind="remark.nickname"></span>
-                        </div>
-                        <div ng-bind-html="remark.content"></div>
-                    </li>
-                </ul>
-                <div class='form-group'>
-                    <textarea class='form-control' rows=8 placeholder='请输入留言内容' autofocus ng-model="data.content"></textarea>
-                </div>
-                <div class='text-center'>
-                    <button class="btn btn-default" ng-click="cancel()">关闭</button>
-                    <button class="btn btn-primary" ng-click="ok()">提交留言</button>
-                </div>
+            <uib-tabset active="active">
+                <uib-tab index="0" heading="编辑">
+                    <div id='remarkEditor' content='data.content' tms-editor></div>
+                </uib-tab>
+                <uib-tab index="1" heading="相关留言">
+                    <ul ng-if="remarks.length" class='list-group' style='overflow-y:auto;'>
+                        <li class='list-group-item' ng-repeat="remark in remarks">
+                            <div style='font-size:.9em;'>
+                                <span class='text-muted' ng-bind="remark.modify_at*1000|date:'MM-dd HH:mm'"></span>
+                                <span class='text-muted' ng-bind="remark.nickname"></span>
+                            </div>
+                            <div ng-bind-html="remark.content"></div>
+                        </li>
+                    </ul>
+                </uib-tab>
+            </uib-tabset>
+        </div>
+        <div class="modal-footer">
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">关闭</button>
+                <button class="btn btn-primary" ng-click="ok()">提交留言</button>
             </div>
         </div>
     </script>

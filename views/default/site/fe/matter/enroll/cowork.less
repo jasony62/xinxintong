@@ -23,62 +23,16 @@ button.option {
 	padding: 0;
 }
 
+p {
+	word-break: break-all;
+}
+
 .glyphicon.like {
 	color: @brand-primary;
 }
 
 .dropdown-menu {
 	min-width: auto;
-}
-
-.modal.model-remark {
-	.modal-dialog {
-		width: 900px;
-		left: 50%;
-		margin-left: -450px;
-		position: absolute;
-		top: 0;
-		bottom: 0;
-
-		.modal-content {
-			height: 100%;
-
-			.modal-body {
-				position: absolute;
-				top: 0;
-				bottom: 0;
-				left: 0;
-				right: 0;
-				overflow: auto;
-
-				>div {
-					position: absolute;
-					top: 8px;
-					bottom: 8px;
-					left: 8px;
-					right: 8px;
-					display: flex;
-					flex-direction: column;
-				}
-
-			}
-
-		}
-
-	}
-
-}
-
-@media screen and (max-width:768px) {
-	.modal.model-remark .modal-dialog {
-		width: 100%;
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		margin-left: 0;
-	}
-
 }
 
 .top-bar {
@@ -101,10 +55,6 @@ button.option {
 		text-decoration: none;
 	}
 
-}
-
-p {
-	word-break: break-all;
 }
 
 /*record*/

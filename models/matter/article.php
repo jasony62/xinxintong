@@ -21,7 +21,7 @@ class article_model extends article_base {
 		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter";
 		if ($siteId === 'platform') {
-			if ($oArticle = $this->byId($id)) {
+			if ($oArticle = $this->byId($id, ['byEntryUrl' => 'N'])) {
 				$url .= "?site={$oArticle->siteid}&id={$id}&type=article";
 			} else {
 				$url = APP_PROTOCOL . APP_HTTP_HOST;
@@ -37,7 +37,7 @@ class article_model extends article_base {
 	 */
 	public function &byId($id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-
+		$byEntryUrl = isset($options['byEntryUrl']) ? $options['byEntryUrl'] : 'Y';
 		$q = [
 			$fields,
 			$this->table(),
@@ -51,7 +51,7 @@ class article_model extends article_base {
 			if (property_exists($oMatter, 'config')) {
 				$oMatter->config = empty($oMatter->config) ? new \stdClass : json_decode($oMatter->config);
 			}
-			if ($fields === '*' || false !== strpos($fields, 'siteid')) {
+			if (($fields === '*' || false !== strpos($fields, 'siteid')) && $byEntryUrl === 'Y') {
 				$oMatter->entryUrl = $this->getEntryUrl($oMatter->siteid, $id);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {

@@ -40,12 +40,13 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
             } else if (/remark-.+/.test($location.hash())) {
                 $timeout(function() {
                     var elRemark;
-                    $anchorScroll();
-                    elRemark = document.querySelector('#' + $location.hash());
-                    elRemark.classList.toggle('blink', true);
-                    $timeout(function() {
-                        elRemark.classList.toggle('blink', false);
-                    }, 1000);
+                    if (elRemark = document.querySelector('#' + $location.hash())) {
+                        $anchorScroll();
+                        elRemark.classList.toggle('blink', true);
+                        $timeout(function() {
+                            elRemark.classList.toggle('blink', false);
+                        }, 1000);
+                    }
                 });
             }
         });

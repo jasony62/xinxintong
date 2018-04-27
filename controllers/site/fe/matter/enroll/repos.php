@@ -410,7 +410,7 @@ class repos extends base {
 				$q = [
 					'id,agreed,like_num,like_log,nickname,content,create_at',
 					'xxt_enroll_record_remark',
-					"enroll_key='{$oRecord->enroll_key}'",
+					"enroll_key='{$oRecord->enroll_key}' and state=1",
 				];
 				if ($remarkReposLikeNum) {
 					$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";

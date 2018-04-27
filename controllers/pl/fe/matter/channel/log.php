@@ -1,21 +1,16 @@
 <?php
-namespace pl\fe\matter\article;
+namespace pl\fe\matter\channel;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/main_base.php';
 /*
- * 登记活动日志控制器
+ * 日志控制器
  */
 class log extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
 	public function index_action($id) {
-		$access = $this->accessControlUser('article', $id);
-		if ($access[0] === false) {
-			die($access[1]);
-		}
-
-		\TPL::output('/pl/fe/matter/article/frame');
+		\TPL::output('/pl/fe/matter/channel/frame');
 		exit;
 	}
 	/**
@@ -46,9 +41,9 @@ class log extends \pl\fe\matter\base {
 			$options['shareby'] = $modelLog->escape($filter->shareby);
 		}
 
-		$logs = $modelLog->userMatterAction($appId, 'article', $options, $page, $size);
+		$reads = $modelLog->userMatterAction($appId, 'channel', $options, $page, $size);
 
-		return new \ResponseData($logs);
+		return new \ResponseData($reads);
 	}
 	/**
 	 * 运营传播统计
@@ -76,7 +71,7 @@ class log extends \pl\fe\matter\base {
 			$options['shareby'] = $modelLog->escape($filter->shareby);
 		}
 
-		$logs = $modelLog->operateStat($site, $appId, 'article', $options);
+		$logs = $modelLog->operateStat($site, $appId, 'channel', $options);
 
 		return new \ResponseData($logs);
 	}
@@ -84,9 +79,9 @@ class log extends \pl\fe\matter\base {
 	 * 导出传播情况
 	 */
 	public function exportOperateStat_action($site, $appId, $start = '', $end = '', $shareby = '') {
-		$modelAct = $this->model('matter\article');
-		$oArticle = $modelAct->byId($appId, ['fields' => 'id,title']);
-		if ($oArticle === false) {
+		$modelAct = $this->model('matter\channel');
+		$oApp = $modelAct->byId($appId, ['fields' => 'id,title']);
+		if ($oApp === false) {
 			return new \ObjectNotFoundError();
 		}
 
@@ -103,7 +98,7 @@ class log extends \pl\fe\matter\base {
 		}
 
 		$modelLog = $this->model('matter\log');
-		$logs = $modelLog->operateStat($site, $appId, 'article', $options)->logs;
+		$logs = $modelLog->operateStat($site, $appId, 'channel', $options)->logs;
 
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 		// Create new PHPExcel object
@@ -111,9 +106,9 @@ class log extends \pl\fe\matter\base {
 		// Set properties
 		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
 			->setLastModifiedBy(APP_TITLE)
-			->setTitle($oArticle->title)
-			->setSubject($oArticle->title)
-			->setDescription($oArticle->title);
+			->setTitle($oApp->title)
+			->setSubject($oApp->title)
+			->setDescription($oApp->title);
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '昵称');
@@ -139,7 +134,7 @@ class log extends \pl\fe\matter\base {
 		header('Content-Type: application/vnd.ms-excel');
 		header('Cache-Control: max-age=0');
 
-		$filename = $oArticle->title . '.xlsx';
+		$filename = $oApp->title . '.xlsx';
 		$ua = $_SERVER["HTTP_USER_AGENT"];
 		//if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
 		if (preg_match("/MSIE/", $ua)) {
@@ -156,46 +151,5 @@ class log extends \pl\fe\matter\base {
 		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');
 		exit;
-	}
-	/**
-	 * 附件下载日志
-	 */
-	public function attachmentLog_action($appId, $page = 1, $size = 30) {
-		$model = $this->model('matter\article');
-		$oArticle = $model->byId($appId, ['fields' => 'id,title']);
-		if ($oArticle === false) {
-			return new \ObjectNotFoundError();
-		}
-
-		$filter = $this->getPostJson();
-
-		$q = [
-			'ar.id,ar.userid,ar.openid,ar.nickname,ar.download_at,ar.attachment_id,m.name',
-			'xxt_article_download_log ar,xxt_matter_attachment m',
-			"ar.article_id = $appId and ar.attachment_id = m.id"
-		];
-		if (!empty($filter->start)) {
-			$q[2] .= " and ar.download_at > $model->escape($filter->start)";
-		}
-		if (!empty($filter->end)) {
-			$q[2] .= " and ar.download_at < $model->escape($filter->end)";
-		}
-		if (!empty($filter->byUser)) {
-			$q[2] .= " and ar.nickname like '%" . $model->escape($filter->byUser) . "%'";
-		}
-
-		$p = ['o' => 'ar.download_at desc'];
-		if (!empty($page) && !empty($size)) {
-			$p['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
-		}
-
-		$logs = $model->query_objs_ss($q, $p);
-
-		$data = new \stdClass;
-		$data->logs = $logs;
-		$q[0] = 'count(ar.id)';
-		$data->total = $model->query_val_ss($q);
-
-		return new \ResponseData($data);
 	}
 }

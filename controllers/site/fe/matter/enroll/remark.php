@@ -271,13 +271,13 @@ class remark extends base {
 		/* 留言总数 */
 		$rst = $modelEnl->update("update xxt_enroll_record set remark_num=remark_num-1 where enroll_key='{$oRemark->enroll_key}'");
 		if ($oRemark->remark_id !== '0') {
-			$modelRec->update("update xxt_enroll_record_remark set remark_num=remark_num-1 where id='{$oRemark->remark_id}'");
+			$modelRem->update("update xxt_enroll_record_remark set remark_num=remark_num-1 where id='{$oRemark->remark_id}'");
 		} else if ($oRemark->data_id !== '0') {
 			$modelRecData = $this->model('matter\enroll\data');
 			$oRecData = $modelRecData->byId($oRemark->data_id);
-			$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num-1 where id=" . $oRemark->data_id);
+			$modelRem->update("update xxt_enroll_record_data set remark_num=remark_num-1 where id=" . $oRemark->data_id);
 			if ($oRecData->multitext_seq > 0) {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num-1 where multitext_seq=0 and enroll_key='{$oRecData->enroll_key}' and schema_id='{$oRecData->schema_id}'");
+				$modelRem->update("update xxt_enroll_record_data set remark_num=remark_num-1 where multitext_seq=0 and enroll_key='{$oRecData->enroll_key}' and schema_id='{$oRecData->schema_id}'");
 			}
 		} else {
 			$modelEnl->update("update xxt_enroll_record set rec_remark_num=rec_remark_num-1 where enroll_key='{$oRemark->enroll_key}'");

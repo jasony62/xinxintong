@@ -171,7 +171,11 @@ class event extends base {
 					}
 					if (!empty($oRule->_no)) {
 						if (empty($oRule->desc)) {
-							$desc = '每轮次需要选择【' . $oRule->min . ((int) $oRule->max > (int) $oRule->min ? ('-' . $oRule->max) : '') . '条】记录点赞（投票），';
+							if (isset($oRule->max)) {
+								$desc = '每轮次需要选择【' . $oRule->min . ((int) $oRule->max > (int) $oRule->min ? ('-' . $oRule->max) : '') . '条】记录点赞（投票），';
+							} else {
+								$desc = '每轮次需要至少选择【' . $oRule->min . '条】记录点赞（投票），';
+							}
 						} else {
 							$desc = $oRule->desc;
 							if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {

@@ -1,6 +1,9 @@
 'use strict';
 require('./cowork.css');
 require('../../../../../../asset/js/xxt.ui.image.js');
+require('../../../../../../asset/js/xxt.ui.editor.js');
+
+window.moduleAngularModules = ['editor.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -37,12 +40,13 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
             } else if (/remark-.+/.test($location.hash())) {
                 $timeout(function() {
                     var elRemark;
-                    $anchorScroll();
-                    elRemark = document.querySelector('#' + $location.hash());
-                    elRemark.classList.toggle('blink', true);
-                    $timeout(function() {
-                        elRemark.classList.toggle('blink', false);
-                    }, 1000);
+                    if (elRemark = document.querySelector('#' + $location.hash())) {
+                        $anchorScroll();
+                        elRemark.classList.toggle('blink', true);
+                        $timeout(function() {
+                            elRemark.classList.toggle('blink', false);
+                        }, 1000);
+                    }
                 });
             }
         });

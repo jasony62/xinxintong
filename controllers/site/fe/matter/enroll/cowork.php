@@ -254,7 +254,12 @@ class cowork extends base {
 				['state' => 1, 'enroll_key' => $oRecData->enroll_key, 'schema_id' => $oRecData->schema_id, 'multitext_seq' => (object) ['op' => '>=', 'pat' => $oItem->multitext_seq]]
 			);
 		}
-
+		/* 更新作为题目来源的留言 */
+		$modelData->update(
+			'xxt_enroll_record_remark',
+			['as_cowork_id' => 0],
+			['as_cowork_id' => $oItem->id]
+		);
 		/* 更新题目数据 */
 		$modelData->update(
 			'xxt_enroll_record_data',

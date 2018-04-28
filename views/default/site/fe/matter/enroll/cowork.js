@@ -207,27 +207,27 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
         }
     };
     $scope.writeRemark = function(oUpperRemark) {
-        var remarkRemarks;
-        if ($scope.remarks && $scope.remarks.length) {
-            remarkRemarks = [];
-            if (oUpperRemark) {
-                $scope.remarks.forEach(function(oRemark) {
-                    if (oRemark.remark_id && oRemark.remark_id === oUpperRemark.id) {
-                        remarkRemarks.push(oRemark);
-                    }
-                });
-            } else {
-                $scope.remarks.forEach(function(oRemark) {
-                    if (oRemark.remark_id === '0' && oRemark.data_id === '0') {
-                        remarkRemarks.push(oRemark);
-                    }
-                });
-            }
-        }
+        // var remarkRemarks;
+        // if ($scope.remarks && $scope.remarks.length) {
+        //     remarkRemarks = [];
+        //     if (oUpperRemark) {
+        //         $scope.remarks.forEach(function(oRemark) {
+        //             if (oRemark.remark_id && oRemark.remark_id === oUpperRemark.id) {
+        //                 remarkRemarks.push(oRemark);
+        //             }
+        //         });
+        //     } else {
+        //         $scope.remarks.forEach(function(oRemark) {
+        //             if (oRemark.remark_id === '0' && oRemark.data_id === '0') {
+        //                 remarkRemarks.push(oRemark);
+        //             }
+        //         });
+        //     }
+        // }
         $uibModal.open({
             templateUrl: 'writeRemark.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.remarks = remarkRemarks;
+                //$scope2.remarks = remarkRemarks;
                 $scope2.data = {
                     content: '编写留言...'
                 };

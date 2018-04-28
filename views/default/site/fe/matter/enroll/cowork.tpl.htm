@@ -9,7 +9,7 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
 </head>
 
 <body ng-controller="ctrlCowork" class='matter_enroll'>
@@ -286,24 +286,9 @@
     </script>
     <script type="text/ng-template" id="writeRemark.html">
         <div class="modal-body">
-            <uib-tabset active="active">
-                <uib-tab index="0" heading="编辑">
-                    <div id='remarkEditor' content='data.content' tms-editor></div>
-                </uib-tab>
-                <uib-tab index="1" heading="相关留言">
-                    <ul ng-if="remarks.length" class='list-group' style='overflow-y:auto;'>
-                        <li class='list-group-item' ng-repeat="remark in remarks">
-                            <div style='font-size:.9em;'>
-                                <span class='text-muted' ng-bind="remark.modify_at*1000|date:'MM-dd HH:mm'"></span>
-                                <span class='text-muted' ng-bind="remark.nickname"></span>
-                            </div>
-                            <div ng-bind-html="remark.content"></div>
-                        </li>
-                    </ul>
-                </uib-tab>
-            </uib-tabset>
+            <div id='remarkEditor' content='data.content' tms-editor></div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" tms-hide-parent-height='400'>
             <div class='text-center'>
                 <button class="btn btn-default" ng-click="cancel()">关闭</button>
                 <button class="btn btn-primary" ng-click="ok()">提交留言</button>

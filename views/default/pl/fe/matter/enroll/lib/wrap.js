@@ -295,18 +295,22 @@ define([], function() {
             case 'multitext':
                 html += '<ul class="list-group multitext">';
                 html += '<li class="list-group-item" ng-repeat="item in data.' + oSchema.id + ' track by $index">';
-                html += '<div wrap="multitext-history" class="input-group input-group-lg">';
-                oSchema.history === 'Y' && (html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="' + 'dataBySchema(\'' + oSchema.id + '\')' + '">查找</button></span>');
-                html += '<input type="text" ng-model="data.' + oSchema.id + '[$index].value" title="' + oSchema.title + '"';
+                html += '<div wrap="multitext-history" class="top-bar tms-flex-row"><div class="tms-flex-grow" dynamic-html="item.value"';
                 oSchema.placeholder && (html += ' placeholder="' + oSchema.title + '"');
                 oSchema.required === 'Y' && (html += 'required=""');
-                html += ' class="form-control input-lg"';
                 forEdit && (html += ' readonly');
-                html += '>';
-                html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(data.' + oSchema.id + ', $index)"><i class="glyphicon glyphicon-trash"></i></button></span>';
+                html += '></div>';
+                html += '<div class="btn-group" uib-dropdown>';
+                html += '<button class="btn btn-default dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
+                html += '<li><a href ng-click="removeItem(data.' + oSchema.id + ', $index)"><span class="glyphicon glyphicon-trash"></span> 删除</a></li>';
+                html += '<li><a href ng-click="editItem(data.' + oSchema.id + ', $index)"><span class="glyphicon glyphicon-edit"></span> 编辑</a></li>';
+                oSchema.history === 'Y' && (html += '<li><a href ng-click="' + 'dataBySchema(\'' + oSchema.id + '\', $index)' + '"><span class="glyphicon glyphicon-search"></span> 查找</a></li>');
+                html += '</ul>';
+                html += '</div>';
                 html += '</div>';
                 html += '</li>';
-                html += '<li class="list-group-item"><button class="btn btn-success"  ng-click="addItem(\'' + oSchema.id + '\')">添加内容</button></li>';
+                html += '<li class="list-group-item"><button class="btn btn-success"  ng-click="addItem(\'' + oSchema.id + '\')">添加</button></li>';
                 html += '</ul>';
                 break;
             case 'shorttext':
@@ -399,9 +403,15 @@ define([], function() {
                 inpAttrs['tms-file-input'] = 'Y';
                 html += '<ul class="list-group file" name="' + oSchema.id + '">';
                 html += '<li class="list-group-item" ng-show="progressOfUploadFile"><div class="progressOfUploadFile" ng-bind="progressOfUploadFile"></li>';
-                html += '<li wrap="file" ng-repeat="file in data.' + oSchema.id + '" class="list-group-item" ng-click="clickFile(\'' + oSchema.id + '\',$index)">';
-                html += '<span class="file-name" ng-bind="file.name"></span>';
-                html += '</li>';
+                html += '<li ng-repeat="file in data.' + oSchema.id + '" class="list-group-item">';
+                html += '<div wrap="file" class="top-bar tms-flex-row">';
+                html += '<div class="tms-flex-grow" ng-bind="file.name"></div>';
+                html += '<div class="btn-group" uib-dropdown><button class="btn btn-default dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
+                html += '<li><a href ng-click="clickFile(\'' + oSchema.id + '\',$index)"><span class="glyphicon glyphicon-trash"></span> 删除</a></li>';
+                html += '</ul></div>';
+                html += '</div>';
+                html += '<li>';
                 html += '<li class="list-group-item file-picker">';
                 html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')">' + oSchema.title + '</button>';
                 html += '</li>';
@@ -410,9 +420,15 @@ define([], function() {
             case 'voice':
                 inpAttrs['tms-voice-input'] = 'Y';
                 html += '<ul class="list-group voice" name="' + oSchema.id + '">';
-                html += '<li wrap="voice" ng-repeat="voice in data.' + oSchema.id + '" class="list-group-item" ng-click="clickFile(\'' + oSchema.id + '\',$index)">';
-                html += '<span class="voice-name" ng-bind="voice.name"></span>';
-                html += '</li>';
+                html += '<li ng-repeat="voice in data.' + oSchema.id + '" class="list-group-item">';
+                html += '<div wrap="voice" class="top-bar tms-flex-row">';
+                html += '<div class="tms-flex-grow voice-name" ng-bind="voice.name"></div>';
+                html += '<div class="btn-group" uib-dropdown><button class="btn btn-default dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
+                html += '<li><a href ng-click="clickFile(\'' + oSchema.id + '\',$index)"><span class="glyphicon glyphicon-trash"></span> 删除</a></li>';
+                html += '</ul></div>';
+                html += '</div>';
+                html += '<li>';
                 html += '<li class="list-group-item voice-picker">';
                 html += '<button class="btn btn-success" ng-click="startVoice(\'' + oSchema.id + '\')">' + oSchema.title + '</button>';
                 html += '</li>';
@@ -788,7 +804,7 @@ define([], function() {
                 html = '<ul><li ng-repeat="voice in Record.current.data.' + schema.id + '"><span ng-bind="voice.name"></span></li></ul>';
                 break;
             case 'multitext':
-                html = '<ul><li ng-repeat="item in Record.current.data.' + schema.id + '"><span ng-bind="item.value"></span></li></ul>';
+                html = '<ul><li ng-repeat="item in Record.current.data.' + schema.id + '"><span ng-bind-html="item.value"></span></li></ul>';
                 break;
             case '_enrollAt':
                 html = "<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
@@ -945,11 +961,13 @@ define([], function() {
                 html += '<div><img ng-src="{{r.sns.oSchema.id}}"/></div>';
                 break;
             case 'shorttext':
-            case 'longtext':
             case 'location':
             case 'member':
             case 'sns':
                 html += '<div>{{r.data.' + oSchema.id + '}}</div>';
+                break;
+            case 'longtext':
+                html += '<div ng-bind-html="r.data.' + oSchema.id + '"></div>';
                 break;
             case 'url':
                 html += '<div ng-bind-html="r.data.' + oSchema.id + '.title"></div>';
@@ -974,7 +992,7 @@ define([], function() {
                 html += '<ul><li ng-repeat="voice in r.data.' + oSchema.id + '"><span ng-bind="voice.name"></span></li></ul>';
                 break;
             case 'multitext':
-                html += '<ul><li ng-repeat="item in r.data.' + oSchema.id + '"><span ng-bind="item.value"></span></li></ul>';
+                html += '<ul><li ng-repeat="item in r.data.' + oSchema.id + '"><span ng-bind-html="item.value"></span></li></ul>';
                 break;
             case '_enrollAt':
                 html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";

@@ -203,7 +203,7 @@
                                         </div>
                                         <div ng-switch-when="multitext">
                                             <ul ng-if="rec.data[schema.id]" style='padding-left:20px'>
-                                                <li ng-repeat="item in rec.data[schema.id]"><span ng-bind="item.value"></span></li>
+                                                <li ng-repeat="item in rec.data[schema.id]"><span dynamic-html="item.value"></span></li>
                                             </ul>
                                         </div>
                                         <div ng-switch-when="single"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>

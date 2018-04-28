@@ -569,12 +569,20 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         $uibModal.open({
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.data = {};
+                $scope2.data = {
+                    content: '编写答案...'
+                };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
-                    $mi.close($scope2.data);
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
                 };
             }],
+            windowClass: 'model-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             var oRecData, oNewItem, url;
@@ -610,9 +618,15 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
-                    $mi.close($scope2.data);
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
                 };
             }],
+            windowClass: 'model-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             var oNewItem;
@@ -658,13 +672,20 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             templateUrl: 'writeRemark.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.remarks = itemRemarks;
-                $scope2.data = {};
+                $scope2.data = {
+                    content: '编写留言...'
+                };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
-                    $mi.close($scope2.data);
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
                 };
             }],
-            windowClass: 'model-remark',
+            windowClass: 'model-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             http2.post(LS.j('remark/add', 'site', 'ek') + '&data=' + oItem.id, { content: data.content }).then(function(rsp) {

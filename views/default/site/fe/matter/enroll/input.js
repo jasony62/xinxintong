@@ -3,6 +3,9 @@ require('./input.css');
 
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
+require('../../../../../../asset/js/xxt.ui.editor.js');
+
+window.moduleAngularModules = ['editor.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -667,6 +670,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 if (oRecord.data_tag) {
                     $scope.tag = oRecord.data_tag;
                 }
+                if(oRecord.supplement) {
+                    $scope.supplement = oRecord.supplement;
+                }
                 /*设置页面分享信息*/
                 $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
                 /*根据加载的数据设置页面*/
@@ -695,15 +701,59 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     });
     $scope.removeItem = function(items, index) {
-        items.splice(index, 1);
+        noticebox.confirm('删除此项，确定？').then(function() {
+            items.splice(index, 1);
+        });
     };
     $scope.addItem = function(schemaId) {
-        var item = {
-            id: 0,
-            value: ''
-        }
-        $scope.data[schemaId].push(item);
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: '添加内容...'
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
+                };
+            }],
+            windowClass: 'model-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(data) {
+            var item = {id: 0, value: ''};
+            item.value = data.content;
+            $scope.data[schemaId].push(item);
+        });
     };
+    $scope.editItem = function(schema, index) {
+        var oItem = schema[index];
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: oItem.value
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
+                };
+            }],
+            windowClass: 'model-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(data) {
+            oItem.value = data.content;
+        });
+    }
     $scope.submit = function(event, nextAction, type) {
         var checkResult;
         /*多项填空题，如果值为空则删掉*/
@@ -801,6 +851,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() { $mi.close($scope2.data); };
                 http2.get('/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + app.siteid + '&app=' + app.id + '&schema=' + schemaId).then(function(result) {
+                    if(app._schemasById[schemaId].type=='multitext') {
+                        result.data.records.pop();
+                    }
                     $scope2.records = result.data.records;
                 });
             }],

@@ -21,7 +21,7 @@ class article_model extends article_base {
 		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter";
 		if ($siteId === 'platform') {
-			if ($oArticle = $this->byId($id)) {
+			if ($oArticle = $this->byId($id, ['notDecode' => true])) {
 				$url .= "?site={$oArticle->siteid}&id={$id}&type=article";
 			} else {
 				$url = APP_PROTOCOL . APP_HTTP_HOST;
@@ -37,13 +37,12 @@ class article_model extends article_base {
 	 */
 	public function &byId($id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-
 		$q = [
 			$fields,
 			$this->table(),
 			["id" => $id],
 		];
-		if ($oMatter = $this->query_obj_ss($q)) {
+		if (($oMatter = $this->query_obj_ss($q)) && empty($options['notDecode'])) {
 			!empty($oMatter->matter_cont_tag) && $oMatter->matter_cont_tag = json_decode($oMatter->matter_cont_tag);
 			!empty($oMatter->matter_mg_tag) && $oMatter->matter_mg_tag = json_decode($oMatter->matter_mg_tag);
 			$oMatter->type = $this->getTypeName();

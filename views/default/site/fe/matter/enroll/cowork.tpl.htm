@@ -275,9 +275,9 @@
     </div>
     <script type="text/ng-template" id="writeItem.html">
         <div class="modal-body">
-            <textarea class='form-control' rows=8 placeholder='请输入内容' autofocus ng-model="data.content"></textarea>
+            <div id='remarkEditor' content='data.content' tms-editor></div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" tms-hide-parent-height='400'>
             <div class='text-center'>
                 <button class="btn btn-default" ng-click="cancel()">取消</button>
                 <button class="btn btn-primary" ng-click="ok()">提交</button>

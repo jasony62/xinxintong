@@ -23,7 +23,6 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function index_action($schema) {
-		$schema = $this->escape($schema);
 		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'id,siteid,title,valid,is_wx_fan,is_yx_fan,is_qy_fan']);
 		if ($oMschema === false || $oMschema->valid === 'N') {
 			die('访问的对象不存在或已不可用');
@@ -109,10 +108,9 @@ class member extends \site\fe\base {
 	 * 获得用户在指定通讯录中的内容
 	 */
 	public function get_action($schema) {
-		$schema = $this->escape($schema);
 		$oMschema = $this->model('site\user\memberschema')->byId($schema);
 		if ($oMschema === false) {
-			return new \ResponseError('指定的自定义用户定义不存在');
+			return new \ObjectNotFoundError();
 		}
 		/* 已填写的用户信息 */
 		$modelMem = $this->model('site\user\member');
@@ -123,6 +121,21 @@ class member extends \site\fe\base {
 			$oUser->login = $oRegAccount;
 			$oUser->login->uname = $oUser->login->email;
 			unset($oUser->login->email);
+		} else {
+			/**
+			 * 利用微信公众号信息判断是否用户已经注册
+			 */
+			if ($oMschema->is_wx_fan === 'Y') {
+				if (!empty($oUser->sns->wx->openid)) {
+					$oSiteUserByOpenid = $this->model('site\user\account')->byPrimaryOpenid($oMschema->siteid, 'wx', $oUser->sns->wx->openid);
+					if ($oSiteUserByOpenid && !empty($oSiteUserByOpenid->unionid)) {
+						$oRegAccount = $this->model('account')->byId($oSiteUserByOpenid->unionid, ['fields' => 'nickname,email']);
+						$oUser->login = $oRegAccount;
+						$oUser->login->uname = $oUser->login->email;
+						$oUser->login->byWxOpenid = 'Y';
+					}
+				}
+			}
 		}
 		$oMember = $modelMem->byUser($oUser->uid, ['schemas' => $schema]);
 		if (count($oMember) > 1) {

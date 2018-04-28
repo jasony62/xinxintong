@@ -156,6 +156,15 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             });
         });
     };
+    $scope.wxLogin = function() {
+        http2.get('/rest/site/fe/user/login/wxopenid?site=' + LS.s().site).then(function(rsp) {
+            http2.get(LS.j('get', 'site', 'schema')).then(function(rsp) {
+                var user = rsp.data;
+                $scope.user = user;
+                setMember(user);
+            });
+        });
+    };
     $scope.logout = function() {
         http2.post('/rest/site/fe/user/logout/do?site=' + LS.s().site, $scope.loginUser).then(function(rsp) {
             location.reload(true);

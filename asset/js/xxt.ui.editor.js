@@ -1,5 +1,12 @@
 'use strict';
 var ngMod = angular.module('editor.ui.xxt', ['ui.bootstrap']);
+ngMod.controller('tmsEditorController', ['$scope', function($scope) {
+    /* 开启关闭设置样式 */
+    $scope.toggleDesignMode = function() {
+        $scope.designMode = !$scope.designMode;
+        $scope.iframeDoc.getSelection().removeAllRanges();
+    };
+}]);
 ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
     function _calcTextWidth(text) {
         var divMock, height, width;
@@ -58,11 +65,11 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
         oSelection = _iframeDoc.getSelection();
         oSelection.removeAllRanges();
         oSelection.addRange(oRange);
-        
+
         return oRange;
     }
 
-    var _iframeDoc, _divContent, _bDesignMode;
+    var _iframeDoc, _divContent;
     /**
      * 外部服务接口
      */
@@ -78,6 +85,7 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
         restrict: 'EA',
         scope: { id: '@', content: '=', cmds: '=' },
         replace: true,
+        controller: 'tmsEditorController',
         template: function(element, attrs) {
             var t;
             t = '<div>';
@@ -86,12 +94,12 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
             t += '<div class="btn-group">';
             //t += '<button class="btn btn-default btn-sm" command="remove">X</button>';
             if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-                t += '<button class="btn btn-default" action="ToggleDesign">设置样式</button>';
+                t += '<button class="btn btn-default" ng-click="toggleDesignMode()"><span ng-if="!designMode">设置样式</span><span ng-if="designMode" class="glyphicon glyphicon-menu-left"></span></button>';
             }
-            t += '<button class="btn btn-default" command="bold"><span style="font-weight:blod;">B</span></button>';
-            t += '<button class="btn btn-default" command="italic"><i>I</i></button>';
-            t += '<button class="btn btn-default" command="underline"><span style="text-decoration:underline;">U</span></button>';
-            t += '<button class="btn btn-default" command="BackColor"><i class="glyphicon glyphicon-text-background"></i></button>';
+            t += '<button ng-if="designMode" class="btn btn-default" command="bold"><span style="font-weight:blod;">B</span></button>';
+            t += '<button ng-if="designMode" class="btn btn-default" command="italic"><i>I</i></button>';
+            t += '<button ng-if="designMode" class="btn btn-default" command="underline"><span style="text-decoration:underline;">U</span></button>';
+            t += '<button ng-if="designMode" class="btn btn-default" command="BackColor"><i class="glyphicon glyphicon-text-background"></i></button>';
             t += '</div>'; // end style
             t += '<div class="btn-group">';
             t += '<button class="btn btn-default" action="InsertImage"><i class="glyphicon glyphicon-picture"></i></button>';
@@ -123,22 +131,27 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
             _iframeDoc.open();
             _iframeDoc.write(iframeHTML);
             _iframeDoc.close();
+            $scope.iframeDoc = _iframeDoc;
             _divContent = _iframeDoc.querySelector('body>div');
             /* 页面加载完成后进行初始化 */
             _iframeDoc.querySelector('body').onload = function() {
-                _bDesignMode = false;
                 _divContent.contentEditable = true;
             };
+            if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                $scope.designMode = false;
+            } else {
+                $scope.designMode = true;
+            }
             /* 触屏事件处理 */
             var oTouchTracks = {};
             _iframeDoc.oncontextmenu = function(e) {
-                if (_bDesignMode) {
+                if ($scope.designMode) {
                     e.preventDefault();
                 }
             };
             _iframeDoc.ontouchstart = function(event) {
                 var oTouch;
-                if (_bDesignMode) {
+                if ($scope.designMode) {
                     if (event.targetTouches.length === 1) {
                         oTouch = event.targetTouches[0];
                         oTouchTracks.start = { x: oTouch.pageX, y: oTouch.pageY };
@@ -150,7 +163,7 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
             };
             _iframeDoc.ontouchmove = function(event) {
                 var oTouch;
-                if (_bDesignMode) {
+                if ($scope.designMode) {
 
                     if (event.targetTouches.length === 1) {
                         oTouch = event.targetTouches[0];
@@ -160,7 +173,7 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
                 }
             };
             _iframeDoc.ontouchend = function(event) {
-                if (_bDesignMode) {
+                if ($scope.designMode) {
                     if (oTouchTracks.start && oTouchTracks.end) {
                         /* 是否进行了有效的移动 */
                         if (Math.abs(oTouchTracks.start.x - oTouchTracks.end.x) >= 16) {
@@ -184,14 +197,6 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
                     _iframeDoc.execCommand(cmd, false, args);
                 });
             });
-            /* 开启关闭设置样式 */
-            var eleBtnToggleDesign;
-            if (eleBtnToggleDesign = document.querySelector('#' + $scope.id + ' button[action=ToggleDesign]')) {
-                eleBtnToggleDesign.addEventListener('click', function() {
-                    _bDesignMode = !_bDesignMode;
-                    _iframeDoc.getSelection().removeAllRanges();
-                });
-            }
             /* 插入图片操作 */
             if (window.xxt && window.xxt.image) {
                 var eleBtnInsertImage;

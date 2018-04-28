@@ -19,7 +19,6 @@ require('../../../../../../asset/js/xxt.ui.siteuser.js');
 require('../../../../../../asset/js/xxt.ui.favor.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
 require('../../../../../../asset/js/xxt.ui.url.js');
-//require('../../../../../../asset/js/xxt.ui.editor.js');
 
 require('./directive.js');
 

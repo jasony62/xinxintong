@@ -91,48 +91,6 @@ ngMod.directive('tmsDate', ['$compile', function($compile) {
         }
     }
 }]);
-ngMod.directive('tmsCheckboxGroup', function() {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attrs) {
-            var groupName, model, options, upper;
-            if (attrs.tmsCheckboxGroup && attrs.tmsCheckboxGroup.length) {
-                groupName = attrs.tmsCheckboxGroup;
-                if (attrs.tmsCheckboxGroupModel && attrs.tmsCheckboxGroupModel.length) {
-                    model = attrs.tmsCheckboxGroupModel;
-                    if (attrs.tmsCheckboxGroupUpper && attrs.tmsCheckboxGroupUpper.length) {
-                        upper = attrs.tmsCheckboxGroupUpper;
-                        options = document.querySelectorAll('[name=' + groupName + ']');
-                        scope.$watch(model + '.' + groupName, function(data) {
-                            var cnt;
-                            cnt = 0;
-                            angular.forEach(data, function(v, p) {
-                                v && cnt++;
-                            });
-                            if (cnt >= upper) {
-                                [].forEach.call(options, function(el) {
-                                    if (el.checked === undefined) {
-                                        !el.classList.contains('checked') && el.setAttribute('disabled', true);
-                                    } else {
-                                        !el.checked && (el.disabled = true);
-                                    }
-                                });
-                            } else {
-                                [].forEach.call(options, function(el) {
-                                    if (el.checked === undefined) {
-                                        el.removeAttribute('disabled');
-                                    } else {
-                                        el.disabled = false;
-                                    }
-                                });
-                            }
-                        }, true);
-                    }
-                }
-            }
-        }
-    };
-});
 ngMod.directive('flexImg', function() {
     return {
         restrict: 'A',

@@ -190,3 +190,30 @@ p {
 	font-size: .8em;
 	color: #fff;
 }
+
+.tms-editor {
+	position: absolute;
+	top: 8px;
+	bottom: 8px;
+	left: 8px;
+	right: 8px;
+	display: flex;
+	flex-direction: column;
+
+	&>*:first-child {
+		position: relative;
+		flex-grow: 1;
+		margin-bottom: 8px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		overflow-y: auto;
+
+		iframe {
+			display: block;
+			width: 100%;
+			border: 0;
+		}
+
+	}
+
+}

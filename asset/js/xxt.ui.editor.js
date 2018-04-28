@@ -88,8 +88,8 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
         controller: 'tmsEditorController',
         template: function(element, attrs) {
             var t;
-            t = '<div>';
-            t += '<div class="form-group"><iframe src="javascript:void(0);" style="display:block;width:100%;height:320px;border:1px solid #ddd;"></iframe></div>';
+            t = '<div class="tms-editor">';
+            t += '<div><iframe src="javascript:void(0);" onload="this.height=this.parentElement.offsetHeight-2"></iframe></div>';
             t += '<div class="btn-toolbar">';
             t += '<div class="btn-group">';
             //t += '<button class="btn btn-default btn-sm" command="remove">X</button>';

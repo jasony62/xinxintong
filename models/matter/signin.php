@@ -21,7 +21,7 @@ class signin_model extends enroll_base {
 	 */
 	public function getEntryUrl($siteId, $id, $roundId = null) {
 		if ($siteId === 'platform') {
-			$oApp = $this->byId($id, ['cascaded' => 'N', 'fields' => 'id,siteid']);
+			$oApp = $this->byId($id, ['cascaded' => 'N', 'fields' => 'id,siteid', 'notDecode' => true]);
 			if (false === $oApp) {
 				return APP_PROTOCOL . APP_HTTP_HOST . '/404.html';
 			}
@@ -60,7 +60,7 @@ class signin_model extends enroll_base {
 			'xxt_signin',
 			["id" => $appId],
 		];
-		if ($oApp = $this->query_obj_ss($q)) {
+		if (($oApp = $this->query_obj_ss($q)) && empty($options['notDecode'])) {
 			$oApp->type = 'signin';
 			if (isset($oApp->siteid) && isset($oApp->id)) {
 				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);

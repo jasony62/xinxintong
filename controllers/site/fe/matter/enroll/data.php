@@ -45,12 +45,21 @@ class data extends base {
 			}
 		}
 
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
+		}
+
 		$oSchemas = new \stdClass;
 		foreach ($oApp->dataSchemas as $dataSchema) {
 			$oSchemas->{$dataSchema->id} = $dataSchema;
 		}
 
-		$fields = 'id,state,userid,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
+		$fields = 'id,state,userid,group_id,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
 		$modelRecDat = $this->model('matter\enroll\data');
 		if (empty($data)) {
 			$oRecData = $modelRecDat->byRecord($ek, ['schema' => $schema, 'fields' => $fields]);
@@ -116,6 +125,11 @@ class data extends base {
 						$oItem->like_log = empty($oItem->like_log) ? [] : json_decode($oItem->like_log);
 						if ($bAnonymous) {
 							unset($oItem->nickname);
+						} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+							/* 设置编辑统一昵称 */
+							if (!empty($oItem->group_id) && $oItem->group_id === $oEditor->group) {
+								$oItem->nickname = $oEditor->nickname;
+							}
 						}
 					}
 				}

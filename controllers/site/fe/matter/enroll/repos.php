@@ -241,6 +241,7 @@ class repos extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
 		$oUser = $this->getUser($oApp);
 
 		/* 非同组记录显示在共享页需要的赞同数 */
@@ -338,6 +339,15 @@ class repos extends base {
 			$modelData = $this->model('matter\enroll\data');
 			/* 是否限制了匿名规则 */
 			$bAnonymous = $this->_requireAnonymous($oApp);
+			/* 是否设置了编辑组统一名称 */
+			if (isset($oApp->actionRule->role->editor->group)) {
+				if (isset($oApp->actionRule->role->editor->nickname)) {
+					$oEditor = new \stdClass;
+					$oEditor->group = $oApp->actionRule->role->editor->group;
+					$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+				}
+			}
+
 			$aSchareableSchemas = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
@@ -398,6 +408,11 @@ class repos extends base {
 				/* 隐藏昵称 */
 				if ($bAnonymous) {
 					unset($oRecord->nickname);
+				} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+					/* 设置编辑统一昵称 */
+					if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+						$oRecord->nickname = $oEditor->nickname;
+					}
 				}
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
@@ -408,7 +423,7 @@ class repos extends base {
 				unset($oRecord->headimgurl);
 				/* 获得推荐的评论数据 */
 				$q = [
-					'id,agreed,like_num,like_log,nickname,content,create_at',
+					'id,group_id,agreed,like_num,like_log,nickname,content,create_at',
 					'xxt_enroll_record_remark',
 					"enroll_key='{$oRecord->enroll_key}' and state=1",
 				];
@@ -421,6 +436,14 @@ class repos extends base {
 					'o' => 'agreed desc,like_num desc,create_at desc',
 				];
 				$oRecord->agreedRemarks = $modelRec->query_objs_ss($q, $q2);
+				foreach ($oRecord->agreedRemarks as $oRemark) {
+					if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+						/* 设置编辑统一昵称 */
+						if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+							$oRemark->nickname = $oEditor->nickname;
+						}
+					}
+				}
 			}
 		}
 
@@ -433,9 +456,20 @@ class repos extends base {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,data_schemas,action_rule']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,data_schemas,action_rule,entry_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
 		}
 
 		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,rec_remark_num,agreed,data';
@@ -448,6 +482,11 @@ class repos extends base {
 		$bAnonymous = $this->_requireAnonymous($oApp);
 		if ($bAnonymous) {
 			unset($oRecord->nickname);
+		} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+			/* 设置编辑统一昵称 */
+			if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+				$oRecord->nickname = $oEditor->nickname;
+			}
 		}
 
 		if (isset($oRecord->verbose)) {

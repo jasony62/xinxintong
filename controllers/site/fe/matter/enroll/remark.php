@@ -141,6 +141,8 @@ class remark extends base {
 		$oNewRemark->create_at = $current;
 		$oNewRemark->modify_at = $current;
 		$oNewRemark->content = $modelRec->escape($oPosted->content);
+		$oNewRemark->as_cowork_id = '0';
+
 		/* 在记录中的序号 */
 		$seq = (int) $modelRec->query_val_ss([
 			'max(seq_in_record)',
@@ -157,10 +159,17 @@ class remark extends base {
 			]);
 			$oNewRemark->seq_in_data = $seq + 1;
 		}
-		/* 如果记录是讨论状态，留言也是讨论状态 */
-		if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
+		/* 默认表态 */
+		if (isset($oApp->actionRule->remark->default->agreed)) {
+			$agreed = $oApp->actionRule->remark->default->agreed;
+			if (in_array($agreed, ['A', 'D'])) {
+				$oNewRemark->agreed = $agreed;
+			}
+		} else if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
+			/* 如果记录是讨论状态，留言也是讨论状态 */
 			$oNewRemark->agreed = 'D';
 		}
+
 		$oNewRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oNewRemark, true);
 
 		/* 留言总数 */

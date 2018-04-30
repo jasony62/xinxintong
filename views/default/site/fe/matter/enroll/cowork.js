@@ -333,6 +333,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
         }
         $scope.gotoPage(event, page, $scope.record.enroll_key);
     };
+    $scope.shareRecord = function(oRecord) {
+        location.href = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
+    };
     $scope.likeItem = function(oItem) {
         http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
             oItem.like_log = rsp.data.like_log;

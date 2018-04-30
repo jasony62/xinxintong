@@ -35,7 +35,21 @@
     </nav>
     <div ng-cloak class='ng-cloak app'>
         <div class='container'>
-            <div ng-bind="message"></div>
+            <div class='alert alert-info' ng-if="userAgent">请点击右上方"三个点"，用如下邀请信息分享给指定用户或朋友圈。</div>
+            <div class='alert alert-info' ng-if="!userAgent">请在微信中打开本链接进行分享。</div>
+            <div class='list-group'>
+                <div class='list-group-item'>
+                    <div><span ng-bind-html="message"></span></div>
+                </div>
+            </div>
+            <div class='checkbox' ng-if="options.canEditorAsAuthor">
+                <label>
+                    <input type='checkbox' ng-model="options.editorAsAuthor" ng-change="shiftAuthor()"> 将编辑组内用户昵称替换为编辑组的统一昵称</label>
+            </div>
+            <div class='checkbox' ng-if="options.canEditorAsInviter">
+                <label>
+                    <input type='checkbox' ng-model="options.editorAsInviter" ng-change="shiftInviter()"> 以编辑组的统一昵称发出邀请</label>
+            </div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

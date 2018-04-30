@@ -11,9 +11,36 @@ class remark extends base {
 	 */
 	public function get_action($remark) {
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,data_id,remark_id,content,modify_at']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,group_id,nickname,state,aid,rid,enroll_key,data_id,remark_id,content,modify_at']);
 		if (false === $oRemark && $oRemark->state !== '1') {
 			return new \ObjectNotFoundError('（1）访问的资源不可用');
+		}
+		$oApp = $this->model('matter\enroll')->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp && $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
+		}
+
+		if (isset($oEditor)) {
+			if ($oRemark->group_id === $oEditor->group) {
+				$oRemark->is_editor = 'Y';
+			}
+			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				/* 设置编辑统一昵称 */
+				if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+					$oRemark->nickname = $oEditor->nickname;
+				}
+			}
 		}
 
 		return new \ResponseData($oRemark);

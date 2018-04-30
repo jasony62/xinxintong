@@ -146,6 +146,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
             });
         }
     };
+    $scope.shareRecord = function(oRecord) {
+        location.href = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
+    };
     $scope.value2Label = function(oSchema, value) {
         var val, aVal, aLab = [];
         if (val = value) {

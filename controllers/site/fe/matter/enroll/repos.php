@@ -456,7 +456,7 @@ class repos extends base {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,data_schemas,action_rule,entry_rule']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -482,10 +482,15 @@ class repos extends base {
 		$bAnonymous = $this->_requireAnonymous($oApp);
 		if ($bAnonymous) {
 			unset($oRecord->nickname);
-		} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
-			/* 设置编辑统一昵称 */
-			if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
-				$oRecord->nickname = $oEditor->nickname;
+		} else if (isset($oEditor)) {
+			if ($oRecord->group_id === $oEditor->group) {
+				$oRecord->is_editor = 'Y';
+			}
+			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				/* 设置编辑统一昵称 */
+				if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+					$oRecord->nickname = $oEditor->nickname;
+				}
 			}
 		}
 

@@ -211,7 +211,8 @@ class record extends base {
 				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
 				$oUpdatedEnrollRec['enroll_at'] = time();
 				$oUpdatedEnrollRec['userid'] = $oUser->uid;
-				$oUpdatedEnrollRec['nickname'] = $oUser->nickname;
+				$oUpdatedEnrollRec['group_id'] = empty($oUser->group_id) ? '' : $oUser->group_id;
+				$oUpdatedEnrollRec['nickname'] = $modelRec->escape($oUser->nickname);
 				$oUpdatedEnrollRec['verified'] = 'N';
 			}
 		}

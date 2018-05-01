@@ -453,6 +453,8 @@ class main extends main_base {
 				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'scenarioConfig') {
 				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'notifyConfig') {
+				$oUpdated->notify_config = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'roundCron') {
 				$rst = $this->checkCron($v);
 				if ($rst[0] === false) {

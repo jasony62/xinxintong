@@ -238,16 +238,24 @@
             </div>
             <div class='checkbox'>
                 <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">用户提交填写内容时通知</label>
+                    <input type='checkbox' ng-model="app.notifyConfig.submit.valid" ng-change="update('notifyConfig')">用户提交填写记录时通知接收人</label>
+            </div>
+            <div class='form-group' ng-if="app.notifyConfig.submit.valid">
+                <label class='radio-inline'>
+                    <input type='radio' name='notifySubmitPage' value="console" ng-model="app.notifyConfig.submit.page" ng-change="update('notifyConfig')">汇总结果分享链接</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='notifySubmitPage' value="cowork" ng-model="app.notifyConfig.submit.page" ng-change="update('notifyConfig')">讨论页</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='notifySubmitPage' value="repos" ng-model="app.notifyConfig.submit.page" ng-change="update('notifyConfig')">数据共享页</label>
             </div>
             <div>
                 <div class='checkbox'>
                     <label class='checkbox-inline'>
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timerTask.report.state" ng-change="shiftTimerTask('report')">定时向所有接收人发送活动提醒</label>
                 </div>
-                <div class='form-group'>
+                <div class='form-group' ng-if="timerTask.report.taskId">
                     <label class='radio-inline'>
-                        <input type='radio' name='reportPage' value="report" ng-model="timerTask.report.task.task_arguments.page" ng-change="saveTimerTask('report')">汇总结果分享链接</label>
+                        <input type='radio' name='reportPage' value="console" ng-model="timerTask.report.task.task_arguments.page" ng-change="saveTimerTask('report')">汇总结果分享链接</label>
                     <label class='radio-inline'>
                         <input type='radio' name='reportPage' value="repos" ng-model="timerTask.report.task.task_arguments.page" ng-change="saveTimerTask('report')">数据共享页</label>
                     <label class='radio-inline'>

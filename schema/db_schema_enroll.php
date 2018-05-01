@@ -43,6 +43,7 @@ $sql .= ",can_siteuser char(1) not null default 'N'"; // 是否可以进入用�
 $sql .= ",can_cowork char(1) not null default 'N'"; // 是否支持多人修改同一条登记记录
 $sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登记
 $sql .= ",remark_notice char(1) not null default 'N'"; // 支持留言提醒
+$sql .= ",notify_config text null"; // 通知提醒设置
 $sql .= ",assigned_nickname text null"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
 $sql .= ",tags text null"; // 登记记录标签
 $sql .= ",category_tags text null"; // 素材分类标签
@@ -67,7 +68,7 @@ $sql .= ",repos_config text null"; // 共享页页面设置信息
 $sql .= ",rank_config text null"; // 排行榜页面设置信息
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",absent_cause text null";
-$sql .= ",wxacode_url text null"; // 参与规则
+$sql .= ",wxacode_url text null"; // 微信小程序
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

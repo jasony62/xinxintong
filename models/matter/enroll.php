@@ -136,6 +136,14 @@ class enroll_model extends enroll_base {
 					$oApp->roundCron = [];
 				}
 			}
+			if ($fields === '*' || false !== strpos($fields, 'notify_config')) {
+				if (!empty($oApp->notify_config)) {
+					$oApp->notifyConfig = json_decode($oApp->notify_config);
+				} else {
+					$oApp->notifyConfig = new \stdClass;
+				}
+				unset($oApp->notify_config);
+			}
 			if ($fields === '*' || false !== strpos($fields, 'rp_config')) {
 				if (!empty($oApp->rp_config)) {
 					$oApp->rpConfig = json_decode($oApp->rp_config);

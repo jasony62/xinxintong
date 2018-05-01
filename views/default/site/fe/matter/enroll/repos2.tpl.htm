@@ -230,6 +230,7 @@
                                 <a ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
                                 <a ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
                                 <a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span></a>
+                                <button ng-if="rec.userid===user.uid" class='btn btn-default btn-xs' ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span></button>
                             </div>
                             <div class='remarks' ng-if="rec.agreedRemarks.length">
                                 <div class='remark' ng-repeat="remark in rec.agreedRemarks">

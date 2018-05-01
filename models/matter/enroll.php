@@ -90,6 +90,7 @@ class enroll_model extends enroll_base {
 				} else {
 					$oApp->entryRule = $oApp->entry_rule = json_decode($oApp->entry_rule);
 				}
+				unset($oApp->entry_rule);
 			}
 			if (property_exists($oApp, 'action_rule')) {
 				$oApp->actionRule = empty($oApp->action_rule) ? new \stdClass : json_decode($oApp->action_rule);
@@ -123,6 +124,7 @@ class enroll_model extends enroll_base {
 				} else {
 					$oApp->scenarioConfig = new \stdClass;
 				}
+				unset($oApp->scenario_config);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
 				if (!empty($oApp->round_cron)) {

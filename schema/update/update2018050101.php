@@ -1,5 +1,4 @@
 <?php
-require_once '../../db.php';
 //
 $sqls = [];
 $sqls[] = "ALTER TABLE xxt_enroll add notify_config text null after remark_notice";

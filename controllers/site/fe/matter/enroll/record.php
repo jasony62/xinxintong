@@ -260,7 +260,7 @@ class record extends base {
 		$this->_logUserOp($oEnrollApp, $oOperation, $oUser);
 
 		/* 通知登记活动事件接收人 */
-		if (isset($oEnrollApp->notifyConfig->submit->valid) && $oEnrollApp->notifyConfig->submit->valid === 'Y') {
+		if (isset($oEnrollApp->notifyConfig->submit->valid) && $oEnrollApp->notifyConfig->submit->valid === true) {
 			$this->_notifyReceivers($oEnrollApp, $ek);
 		}
 
@@ -491,7 +491,7 @@ class record extends base {
 			$noticeURL = $oApp->entryUrl . '&page=repos';
 			break;
 		default:
-			$noticeURL = $oApp->entryUrl . '$ek=' . $ek . '&page=repos';
+			$noticeURL = $oApp->entryUrl . '&ek=' . $ek . '&page=cowork';
 		}
 
 		foreach ($tmplConfig->tmplmsg->params as $param) {

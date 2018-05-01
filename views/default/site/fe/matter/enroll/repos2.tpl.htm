@@ -244,9 +244,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class='text-center' ng-if="page.total>repos.length" ng-cloak>
-                        <button class='btn btn-default' ng-click="recordList()">更多 【{{repos.length}}/{{page.total}}】</button>
+                        <div class='record text-center' ng-if="page.total>repos.length" ng-cloak>
+                            <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"> 更多 【{{repos.length}}/{{page.total}}】 </button>
+                        </div>
                     </div>
                 </div>
             </div>

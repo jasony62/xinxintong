@@ -1,6 +1,7 @@
 <?php
 require_once '../../db.php';
 //
+$sqls = [];
 $sqls[] = "ALTER TABLE xxt_enroll add notify_config text null after remark_notice";
 //
 foreach ($sqls as $sql) {
@@ -25,6 +26,7 @@ foreach ($apps as $oApp) {
 }
 
 //
+$sqls = [];
 $sqls[] = "ALTER TABLE xxt_enroll drop notify_submit";
 $sqls[] = "ALTER TABLE xxt_enroll drop remark_notice";
 //

@@ -111,7 +111,7 @@
                             <span ng-if="criteria.orderby==='earliest_first'">最早提交</span>
                             <span ng-if="criteria.orderby==='mostliked'">最多赞同</span>
                             <span ng-if="criteria.orderby==='agreed'">精选推荐</span>
-                            <span class="caret"></span>
+                            <span class="glyphicon glyphicon-sort"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
                             <li><a href ng-click="shiftOrderby('lastest')">最近修改</a></li>
@@ -128,7 +128,7 @@
                             <span ng-if="criteria.agreed==='Y'">推荐</span>
                             <span ng-if="criteria.agreed==='D'">讨论</span>
                             <span ng-if="criteria.agreed==='N'">屏蔽</span>
-                            <span class="caret"></span>
+                            <span class="glyphicon glyphicon-filter"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
                             <li><a href ng-click="shiftAgreed('all')">全部</a></li>

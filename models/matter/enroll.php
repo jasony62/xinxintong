@@ -294,9 +294,9 @@ class enroll_model extends enroll_base {
 		$modelRnd = $this->model('matter\enroll\round');
 
 		$mschemaIds = [];
-		if (!empty($oApp->entry_rule) && is_object($oApp->entry_rule)) {
-			if (!empty($oApp->entry_rule->member) && is_object($oApp->entry_rule->member)) {
-				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
+		if (!empty($oApp->entryRule) && is_object($oApp->entryRule)) {
+			if (!empty($oApp->entryRule->member) && is_object($oApp->entryRule->member)) {
+				foreach ($oApp->entryRule->member as $mschemaId => $rule) {
 					if (!empty($rule->entry)) {
 						$mschemaIds[] = $mschemaId;
 					}
@@ -423,7 +423,7 @@ class enroll_model extends enroll_base {
 			return '';
 		}
 		$nickname = '';
-		$oEntryRule = $oApp->entry_rule;
+		$oEntryRule = $oApp->entryRule;
 		if (isset($oEntryRule->anonymous) && $oEntryRule->anonymous === 'Y') {
 			/* 匿名访问 */
 			$nickname = '';

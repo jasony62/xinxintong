@@ -416,7 +416,7 @@ abstract class enroll_base extends app_base {
 		$aUpdatedPages = []; // 要更新的页面数据
 		$aDataSchemas = $oApp->dataSchemas;
 		$bDataSchemasModified = false;
-		$oEntryRule = $oApp->entry_rule;
+		$oEntryRule = $oApp->entryRule;
 		$bEntryRuleModified = false;
 
 		/* 移除和项目中其他活动的关联 */

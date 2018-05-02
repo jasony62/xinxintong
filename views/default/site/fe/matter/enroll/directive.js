@@ -216,15 +216,24 @@ ngMod.directive('tmsScrollSpy', function() {
     return {
         restrict: 'A',
         scope: {
-            selector: '@selector'
+            selector: '@selector',
+            offset: '@',
+            onbottom: '&',
+            toggleSpy: '='
         },
         link: function(scope, elems, attrs) {
-            console.log('sss', scope.selector);
             if (scope.selector === 'window') {
                 window.addEventListener('scroll', function(event) {
                     var eleScrolling;
                     if (eleScrolling = event.target.scrollingElement) {
-                        console.log('window scorlling...', eleScrolling.scrollHeight, eleScrolling.scrollTop, eleScrolling.clientHeight);
+                        if (scope.toggleSpy && scope.onbottom && angular.isFunction(scope.onbottom)) {
+                            if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
+                                scope.$apply(function() {
+                                    scope.toggleSpy = false;
+                                    scope.onbottom();
+                                });
+                            }
+                        }
                     }
                 });
             }

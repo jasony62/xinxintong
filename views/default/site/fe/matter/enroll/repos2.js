@@ -39,7 +39,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', 'tmsDynaPage', 'noticebox', function($scope, $sce, http2, LS, srvRound, $timeout, tmsDynaPage, noticebox) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', 'Round', '$timeout', 'tmsDynaPage', 'noticebox', function($scope, $sce, $q, http2, LS, srvRound, $timeout, tmsDynaPage, noticebox) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (oUser.is_leader) {
@@ -63,7 +63,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.recordList = function(pageAt) {
-        var url;
+        var url, deferred;
+        deferred = $q.defer();
         _oPage.total = 0;
         if (pageAt) {
             _oPage.at = pageAt;
@@ -109,7 +110,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                 });
             }
             tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
+
+            deferred.resolve(result);
         });
+
+        return deferred.promise;
     }
     $scope.likeRecord = function(oRecord) {
         var url;
@@ -207,6 +212,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     /* 关闭任务提示 */
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);
+    };
+    $scope.spyRecordsScroll = true; // 监控滚动事件
+    $scope.recordsScrollToBottom = function() {
+        $scope.recordList().then(function() {
+            $timeout(function() {
+                $scope.spyRecordsScroll = true;
+            });
+        });
     };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,

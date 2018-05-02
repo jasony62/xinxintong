@@ -143,7 +143,7 @@
                         </label>
                     </div>
                 </div>
-                <div id='repos' tms-scroll-spy selector='window' direction=''>
+                <div id='repos'>
                     <div class='records'>
                         <div class='record' ng-repeat="rec in repos" ng-cloak>
                             <div class='header'>
@@ -244,7 +244,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class='record text-center' ng-if="page.total>repos.length" ng-cloak>
+                        <div class='record text-center' ng-if="page.total>repos.length" ng-cloak tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
                             <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"> 更多 【{{repos.length}}/{{page.total}}】 </button>
                         </div>
                     </div>

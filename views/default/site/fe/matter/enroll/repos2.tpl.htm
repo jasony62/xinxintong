@@ -244,8 +244,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class='record text-center' ng-if="page.total>repos.length" ng-cloak tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
-                            <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"> 更多 【{{repos.length}}/{{page.total}}】 </button>
+                        <div class='record' ng-if="page.total>repos.length" ng-cloak>
+                            <div class='text-center' tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
+                                <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
+                            </div>
                         </div>
                     </div>
                 </div>

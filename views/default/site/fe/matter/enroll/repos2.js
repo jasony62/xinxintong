@@ -58,14 +58,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
     }
     var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
-    $scope.page = _oPage = { at: 1, size: 12 };
+    $scope.page = _oPage = { at: 1, size: 2, total: 0 };
     $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' };
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
+    $scope.reposLoading = false;
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
-        _oPage.total = 0;
         if (pageAt) {
             _oPage.at = pageAt;
         } else {
@@ -73,9 +73,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
         }
         if (_oPage.at == 1) {
             $scope.repos = [];
+            _oPage.total = 0;
         }
         url = LS.j('repos/recordList', 'site', 'app');
         url += '&page=' + _oPage.at + '&size=' + _oPage.size;
+        $scope.reposLoading = true;
         http2.post(url, _oCriteria).then(function(result) {
             _oPage.total = result.data.total;
             if (result.data.records) {
@@ -110,7 +112,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
                 });
             }
             tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
-
+            $scope.reposLoading = false;
             deferred.resolve(result);
         });
 

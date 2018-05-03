@@ -173,11 +173,22 @@ define([], function() {
     }
 
     function _htmlSupplement($dom, schema) {
-        var $supplement;
+        var $supplement, html;
         if (schema.supplement === 'Y') {
             $supplement = $dom.find('.supplement');
             if ($supplement.length === 0) {
-                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
+                html = '<div class="list-group-item">';
+                html += '<div class="top-bar tms-flex-row"><div class="tms-flex-grow supplement" dynamic-html="supplement.'+ schema.id+'">填写内容</div>';
+                html += '<div class="btn-group" uib-dropdown>';
+                html += '<button class="btn btn-default dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
+                html += '<li><a href ng-click="editSupplement(' + schema.id + ')"><span class="glyphicon glyphicon-edit"></span> 编辑</a></li>';
+                html += '</ul>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                //$dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
+                $dom.append(html);
             }
         } else {
             $supplement = $dom.find('.supplement');
@@ -413,7 +424,7 @@ define([], function() {
                 html += '</div>';
                 html += '<li>';
                 html += '<li class="list-group-item file-picker">';
-                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')">' + oSchema.title + '</button>';
+                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')">上传附件</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -430,7 +441,7 @@ define([], function() {
                 html += '</div>';
                 html += '<li>';
                 html += '<li class="list-group-item voice-picker">';
-                html += '<button class="btn btn-success" ng-click="startVoice(\'' + oSchema.id + '\')">' + oSchema.title + '</button>';
+                html += '<button class="btn btn-success" ng-click="startVoice(\'' + oSchema.id + '\')">开始录音</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;

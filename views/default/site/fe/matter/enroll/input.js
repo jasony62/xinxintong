@@ -844,6 +844,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     };
     $scope.editSupplement = function(schemaId) {
         var str = $scope.supplement[schemaId];
+        if(!str) {str = '请填写补充说明';}
         $uibModal.open({
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {

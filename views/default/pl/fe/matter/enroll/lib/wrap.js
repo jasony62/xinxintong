@@ -425,7 +425,7 @@ define([], function() {
                 html += '</div>';
                 html += '<li>';
                 html += '<li class="list-group-item file-picker">';
-                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')">上传附件</button>';
+                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')">上传文件</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;

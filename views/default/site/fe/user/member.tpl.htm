@@ -135,13 +135,13 @@
                             <label ng-bind="ea.title" ng-if="ea.type!=='html'"></label>
                             <input type='text' class='form-control' ng-model="member.extattr[ea.id]" ng-switch-when="shorttext">
                             <textarea class="form-control" ng-model="member.extattr[ea.id]" rows="3" ng-switch-when="longtext"></textarea>
-                            <ul ng-switch-when="single">
+                            <ul class='list-unstyled' ng-switch-when="single">
                                 <li class="radio" ng-repeat="op in ea.ops">
                                     <label>
                                         <input type="radio" name="{{action.id+'_'+ea.id}}" value="{{op.v}}" ng-model="member.extattr[ea.id]"><span>{{op.l}}</span></label>
                                 </li>
                             </ul>
-                            <ul ng-switch-when="multiple">
+                            <ul class='list-unstyled' ng-switch-when="multiple">
                                 <li class="checkbox" ng-repeat="op in ea.ops">
                                     <label>
                                         <input type="checkbox" ng-model="member.extattr[ea.id][op.v]"><span>{{op.l}}</span></label>
@@ -151,7 +151,7 @@
                                 <div ng-bind="member.extattr[ea.id]*1000|date:'yy-MM-dd HH:mm'" class="form-control"></div>
                             </div>
                             <div tms-image-input="Y" ng-switch-when="image">
-                                <ul class="img-tiles clearfix" name="{{ea.id}}">
+                                <ul class="img-tiles clearfix list-unstyled" name="{{ea.id}}">
                                     <li wrap="img" ng-repeat="img in member.extattr[ea.id]" class="img-thumbnail">
                                         <img flex-img>
                                         <button class="btn btn-default btn-xs" ng-click="removeImage(ea,$index)"><span class="glyphicon glyphicon-remove"></span></button>

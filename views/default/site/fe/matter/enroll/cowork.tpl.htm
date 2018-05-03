@@ -119,6 +119,7 @@
                         <div class='datetime tms-flex-grow'><span ng-if="record.enroll_at>0">{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</span></div>
                         <a href ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':record.like_log[user.uid]}"></span>&nbsp;<span ng-bind="record.like_num"></span></a>
                         <a href ng-if="params.entryRuleResult.passed==='Y'" ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="record.rec_remark_num"></span></a>
+                        <a href ng-click="shareRecord(record)"><span class='glyphicon glyphicon-share'></span></a>
                     </div>
                     <div class='bottom-bar tms-flex-row' ng-if="!bRemarkRecord">
                         <div class='datetime tms-flex-grow'><span ng-if="record.enroll_at>0">{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</span></div>
@@ -275,9 +276,9 @@
     </div>
     <script type="text/ng-template" id="writeItem.html">
         <div class="modal-body">
-            <textarea class='form-control' rows=8 placeholder='请输入内容' autofocus ng-model="data.content"></textarea>
+            <div id='remarkEditor' content='data.content' tms-editor></div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" tms-hide-parent-height='400'>
             <div class='text-center'>
                 <button class="btn btn-default" ng-click="cancel()">取消</button>
                 <button class="btn btn-primary" ng-click="ok()">提交</button>

@@ -615,7 +615,7 @@ class record_model extends record_base {
 			if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
 				if (!empty($oUser->uid)) {
 					$w .= " and (";
-					$w .= " r.agreed<>'D'";
+					$w .= " (r.agreed<>'D' and r.agreed<>'')";
 					$w .= " or r.userid='{$oUser->uid}'";
 					if (!empty($oUser->group_id)) {
 						$w .= " or r.group_id='{$oUser->group_id}'";
@@ -889,12 +889,11 @@ class record_model extends record_base {
 				}
 			}
 			$oResult->records = $records;
-
-			// 符合条件的数据总数
-			$q[0] = 'count(*)';
-			$total = (int) $this->query_val_ss($q);
-			$oResult->total = $total;
 		}
+		// 符合条件的数据总数
+		$q[0] = 'count(*)';
+		$total = (int) $this->query_val_ss($q);
+		$oResult->total = $total;
 
 		return $oResult;
 	}

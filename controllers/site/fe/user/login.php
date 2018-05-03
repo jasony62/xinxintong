@@ -80,13 +80,45 @@ class login extends \site\fe\base {
 
 		return new \ResponseData($cookieUser);
 	}
-	/*
-		* 获取验证码
-		* $codelen  验证码的个数
-		* $width  验证码的宽度
-		* $height  验证码的高度
-		* $fontsize  验证码的字体大小
-	*/
+	/**
+	 * 用微信openid进行登录
+	 */
+	public function wxopenid_action() {
+		$oUser = clone $this->who;
+		if (empty($oUser->sns->wx->openid)) {
+			return new \ResponseError("登录信息不完整（1）");
+		}
+
+		$oSiteUserByOpenid = $this->model('site\user\account')->byPrimaryOpenid($this->siteId, 'wx', $oUser->sns->wx->openid);
+		if (false === $oSiteUserByOpenid) {
+			return new \ResponseError("登录信息不完整（2）");
+		}
+		if (empty($oSiteUserByOpenid->unionid)) {
+			return new \ResponseError("登录信息不完整（3）");
+		}
+
+		$modelReg = $this->model('site\user\registration');
+		$oRegistration = $modelReg->byId($oSiteUserByOpenid->unionid);
+
+		/* 记录登录状态 */
+		$fromip = $this->client_ip();
+		$modelReg->updateLastLogin($oRegistration->unionid, $fromip);
+
+		$modelWay = $this->model('site\fe\way');
+		/* cookie中保留注册信息 */
+		$modelWay->shiftRegUser($oRegistration);
+
+		$cookieUser = $modelWay->who($this->siteId);
+
+		return new \ResponseData($cookieUser);
+	}
+	/**
+	 * 获取验证码
+	 * $codelen  验证码的个数
+	 * $width  验证码的宽度
+	 * $height  验证码的高度
+	 * $fontsize  验证码的字体大小
+	 */
 	public function getCaptcha_action($codelen = 4, $width = 130, $height = 50, $fontsize = 20) {
 		require_once TMS_APP_DIR . '/lib/validatecode.php';
 

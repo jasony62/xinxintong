@@ -169,7 +169,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                         afterValue = originalValue;
                 }
             }
-            aProcessing[0][aProcessing[1]] = afterValue || originalValue || (/image|multitext/.test(oSchema.type) ? '' : '[空]');
+            aProcessing[0][aProcessing[1]] = afterValue || originalValue || (/image|file|voice|multitext/.test(oSchema.type) ? '' : '[空]');
             afterValue = undefined;
         });
     }

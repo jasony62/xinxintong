@@ -105,9 +105,17 @@ class cowork extends base {
 		$oNewItem->schema_id = $oUpdatedSchema->id;
 		$oNewItem->value = $this->escape($oPosted->value);
 		$oNewItem->multitext_seq = count($oRecData->value) + 1;
-		if ($oRecord->agreed === 'D') {
+
+		/* 默认协作填写的表态 */
+		if (isset($oApp->actionRule->cowork->default->agreed)) {
+			$agreed = $oApp->actionRule->cowork->default->agreed;
+			if (in_array($agreed, ['A', 'D'])) {
+				$oNewItem->agreed = $agreed;
+			}
+		} else if ($oRecord->agreed === 'D') {
 			$oNewItem->agreed = 'D';
 		}
+
 		$oNewItem->id = $modelData->insert('xxt_enroll_record_data', $oNewItem, true);
 
 		/* 更新题目数据 */

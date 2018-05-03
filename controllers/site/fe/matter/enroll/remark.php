@@ -11,9 +11,36 @@ class remark extends base {
 	 */
 	public function get_action($remark) {
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,data_id,remark_id,content,modify_at']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,group_id,nickname,state,aid,rid,enroll_key,data_id,remark_id,content,modify_at']);
 		if (false === $oRemark && $oRemark->state !== '1') {
 			return new \ObjectNotFoundError('（1）访问的资源不可用');
+		}
+		$oApp = $this->model('matter\enroll')->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp && $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
+		}
+
+		if (isset($oEditor)) {
+			if ($oRemark->group_id === $oEditor->group) {
+				$oRemark->is_editor = 'Y';
+			}
+			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				/* 设置编辑统一昵称 */
+				if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+					$oRemark->nickname = $oEditor->nickname;
+				}
+			}
 		}
 
 		return new \ResponseData($oRemark);
@@ -33,11 +60,20 @@ class remark extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
+		}
+
 		$oUser = $this->getUser($oApp);
 
 		$modelRem = $this->model('matter\enroll\remark');
 		$aOptions = [
-			'fields' => 'id,seq_in_record,seq_in_data,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log,as_cowork_id',
+			'fields' => 'id,seq_in_record,seq_in_data,userid,group_id,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log,as_cowork_id',
 		];
 		if (!empty($data)) {
 			$aOptions['data_id'] = $data;
@@ -50,6 +86,12 @@ class remark extends base {
 				if (!empty($oRemark->data_id)) {
 					$oData = $modelRecData->byId($oRemark->data_id, ['fields' => 'id,schema_id,nickname,multitext_seq']);
 					$oRemark->data = $oData;
+				}
+				if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+					/* 设置编辑统一昵称 */
+					if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+						$oRemark->nickname = $oEditor->nickname;
+					}
 				}
 			}
 		}
@@ -126,6 +168,8 @@ class remark extends base {
 		$oNewRemark->create_at = $current;
 		$oNewRemark->modify_at = $current;
 		$oNewRemark->content = $modelRec->escape($oPosted->content);
+		$oNewRemark->as_cowork_id = '0';
+
 		/* 在记录中的序号 */
 		$seq = (int) $modelRec->query_val_ss([
 			'max(seq_in_record)',
@@ -142,10 +186,17 @@ class remark extends base {
 			]);
 			$oNewRemark->seq_in_data = $seq + 1;
 		}
-		/* 如果记录是讨论状态，留言也是讨论状态 */
-		if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
+		/* 默认表态 */
+		if (isset($oApp->actionRule->remark->default->agreed)) {
+			$agreed = $oApp->actionRule->remark->default->agreed;
+			if (in_array($agreed, ['A', 'D'])) {
+				$oNewRemark->agreed = $agreed;
+			}
+		} else if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
+			/* 如果记录是讨论状态，留言也是讨论状态 */
 			$oNewRemark->agreed = 'D';
 		}
+
 		$oNewRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oNewRemark, true);
 
 		/* 留言总数 */

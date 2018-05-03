@@ -679,46 +679,83 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             size: 'lg',
                             backdrop: 'static',
                             controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, $http2) {
-                                var cron;
+                                var aCronRules, byPeriods, byIntervals;
                                 $scope.mdays = [];
                                 while ($scope.mdays.length < 28) {
                                     $scope.mdays.push('' + ($scope.mdays.length + 1));
                                 }
-                                $scope.cron = cron = oApp.roundCron ? angular.copy(oApp.roundCron) : [];
+                                aCronRules = oApp.roundCron ? angular.copy(oApp.roundCron) : [];
+                                $scope.byPeriods = byPeriods = [];
+                                $scope.byIntervals = byIntervals = [];
+                                $scope.example = function(oRule) {
+                                    http2.post('/rest/pl/fe/matter/enroll/round/getcron', { roundCron: oRule }, function(rsp) {
+                                        oRule.case = rsp.data;
+                                    });
+                                };
+                                aCronRules.forEach(function(oRule) {
+                                    switch (oRule.pattern) {
+                                        case 'period':
+                                            byPeriods.push(oRule);
+                                            break;
+                                        case 'interval':
+                                            byIntervals.push(oRule);
+                                            break;
+                                    }
+                                    $scope.example(oRule);
+                                });
+                                $scope.changePeriod = function(oRule) {
+                                    if (oRule.period !== 'W') {
+                                        oRule.wday = '';
+                                    }
+                                    if (oRule.period !== 'M') {
+                                        oRule.mday = '';
+                                    }
+                                };
+                                $scope.addPeriod = function() {
+                                    var oNewRule;
+                                    oNewRule = {
+                                        pattern: 'period',
+                                        period: 'D',
+                                        hour: 8
+                                    };
+                                    byPeriods.push(oNewRule);
+                                    aCronRules.push(oNewRule);
+                                };
+                                $scope.removePeriod = function(rule) {
+                                    byPeriods.splice(byPeriods.indexOf(rule), 1);
+                                    aCronRules.splice(aCronRules.indexOf(rule), 1);
+                                };
+                                $scope.addInterval = function() {
+                                    var oNewRule;
+                                    oNewRule = {
+                                        pattern: 'interval',
+                                        start_at: parseInt(new Date * 1 / 1000),
+                                    };
+                                    byIntervals.push(oNewRule);
+                                    aCronRules.push(oNewRule);
+                                };
+                                $scope.removeInterval = function(rule) {
+                                    byIntervals.splice(byIntervals.indexOf(rule), 1);
+                                    aCronRules.splice(aCronRules.indexOf(rule), 1);
+                                };
+                                $scope.$on('xxt.tms-datepicker.change', function(event, oData) {
+                                    oData.obj[oData.state] = oData.value;
+                                    $scope.example(oData.obj);
+                                });
                                 $scope.cancel = function() {
                                     $mi.dismiss();
                                 };
-                                $scope.changePeriod = function(rule) {
-                                    if (rule.period !== 'W') {
-                                        rule.wday = '';
-                                    }
-                                    if (rule.period !== 'M') {
-                                        rule.mday = '';
-                                    }
-                                };
-                                $scope.blur = function(rule) {
-                                    var index = cron.indexOf(rule);
-                                    http2.post('/rest/pl/fe/matter/enroll/round/getcron', { roundCron: rule }, function(rsp) {
-                                        cron[index].case = rsp.data;
-                                    });
-                                };
-                                $scope.add = function() {
-                                    cron.push({
-                                        period: 'D',
-                                        hour: 8
-                                    });
-                                };
-                                $scope.remove = function(rule) {
-                                    cron.splice(cron.indexOf(rule), 1);
-                                };
                                 $scope.ok = function() {
-                                    $mi.close(cron);
+                                    $mi.close(aCronRules);
                                 };
                             }]
-                        }).result.then(function(cron) {
-                            oApp.roundCron = cron;
+                        }).result.then(function(aCronRules) {
+                            aCronRules.forEach(function(oRule) {
+                                delete oRule.case;
+                            });
+                            oApp.roundCron = aCronRules;
                             srvEnrollApp.update('roundCron').then(function() {
-                                defer.resolve(cron);
+                                defer.resolve(aCronRules);
                             });
                         });
                     });

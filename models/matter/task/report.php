@@ -40,7 +40,7 @@ class report_model extends \TMS_MODEL {
 			}
 
 			/* 获得活动的管理员链接 */
-			if (!empty($oArgs->page) && $oArgs->page !== 'report') {
+			if (!empty($oArgs->page) && $oArgs->page !== 'console') {
 				$noticeURL = $oMatter->entryUrl . '&page=' . $oArgs->page;
 			} else {
 				$appURL = $modelEnl->getOpUrl($oMatter->siteid, $oMatter->id);

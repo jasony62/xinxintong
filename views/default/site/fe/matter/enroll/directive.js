@@ -201,11 +201,41 @@ ngMod.directive('tmsHideParentHeight', function() {
                     elem = elems[i];
                     if (elem.parentElement) {
                         window.addEventListener('resize', function() {
-                            console.log('clientHeight2', elem.parentElement.clientHeight);
                             elem.classList.toggle('hidden', elem.parentElement.clientHeight < heightLimit);
                         });
                     }
                 }
+            }
+        }
+    }
+});
+/**
+ * 监听元素的滚动事件并做出相应
+ */
+ngMod.directive('tmsScrollSpy', function() {
+    return {
+        restrict: 'A',
+        scope: {
+            selector: '@selector',
+            offset: '@',
+            onbottom: '&',
+            toggleSpy: '='
+        },
+        link: function(scope, elems, attrs) {
+            if (scope.selector === 'window') {
+                window.addEventListener('scroll', function(event) {
+                    var eleScrolling;
+                    if (eleScrolling = event.target.scrollingElement) {
+                        if (scope.toggleSpy && scope.onbottom && angular.isFunction(scope.onbottom)) {
+                            if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
+                                scope.$apply(function() {
+                                    scope.toggleSpy = false;
+                                    scope.onbottom();
+                                });
+                            }
+                        }
+                    }
+                });
             }
         }
     }

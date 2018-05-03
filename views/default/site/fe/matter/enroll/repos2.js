@@ -39,7 +39,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round', '$timeout', 'tmsDynaPage', function($scope, $sce, http2, LS, srvRound, $timeout, tmsDynaPage) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', 'Round', '$timeout', 'tmsDynaPage', 'noticebox', function($scope, $sce, $q, http2, LS, srvRound, $timeout, tmsDynaPage, noticebox) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (oUser.is_leader) {
@@ -58,13 +58,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     }
     var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
-    $scope.page = _oPage = { at: 1, size: 12 };
+    $scope.page = _oPage = { at: 1, size: 12, total: 0 };
     $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' };
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
+    $scope.reposLoading = false;
     $scope.recordList = function(pageAt) {
-        var url;
-        _oPage.total = 0;
+        var url, deferred;
+        deferred = $q.defer();
         if (pageAt) {
             _oPage.at = pageAt;
         } else {
@@ -72,9 +73,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
         }
         if (_oPage.at == 1) {
             $scope.repos = [];
+            _oPage.total = 0;
         }
         url = LS.j('repos/recordList', 'site', 'app');
         url += '&page=' + _oPage.at + '&size=' + _oPage.size;
+        $scope.reposLoading = true;
         http2.post(url, _oCriteria).then(function(result) {
             _oPage.total = result.data.total;
             if (result.data.records) {
@@ -109,7 +112,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                 });
             }
             tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
+            $scope.reposLoading = false;
+            deferred.resolve(result);
         });
+
+        return deferred.promise;
     }
     $scope.likeRecord = function(oRecord) {
         var url;
@@ -145,6 +152,24 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
                 oRecord.agreed = value;
             });
         }
+    };
+    $scope.shareRecord = function(oRecord) {
+        location.href = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
+    };
+    $scope.editRecord = function(event, oRecord) {
+        if (oRecord.userid !== $scope.user.uid) {
+            noticebox.warn('不允许编辑其他用户提交的记录');
+            return;
+        }
+        var page;
+        for (var i in $scope.app.pages) {
+            var oPage = $scope.app.pages[i];
+            if (oPage.type === 'I') {
+                page = oPage.name;
+                break;
+            }
+        }
+        $scope.gotoPage(event, page, oRecord.enroll_key);
     };
     $scope.value2Label = function(oSchema, value) {
         var val, aVal, aLab = [];
@@ -189,6 +214,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', 'http2', 'tmsLocation', 'Round'
     /* 关闭任务提示 */
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);
+    };
+    $scope.spyRecordsScroll = true; // 监控滚动事件
+    $scope.recordsScrollToBottom = function() {
+        $scope.recordList().then(function() {
+            $timeout(function() {
+                $scope.spyRecordsScroll = true;
+            });
+        });
     };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,

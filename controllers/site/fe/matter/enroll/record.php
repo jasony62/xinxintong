@@ -211,7 +211,8 @@ class record extends base {
 				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
 				$oUpdatedEnrollRec['enroll_at'] = time();
 				$oUpdatedEnrollRec['userid'] = $oUser->uid;
-				$oUpdatedEnrollRec['nickname'] = $oUser->nickname;
+				$oUpdatedEnrollRec['group_id'] = empty($oUser->group_id) ? '' : $oUser->group_id;
+				$oUpdatedEnrollRec['nickname'] = $modelRec->escape($oUser->nickname);
 				$oUpdatedEnrollRec['verified'] = 'N';
 			}
 		}
@@ -259,7 +260,7 @@ class record extends base {
 		$this->_logUserOp($oEnrollApp, $oOperation, $oUser);
 
 		/* 通知登记活动事件接收人 */
-		if ($oEnrollApp->notify_submit === 'Y') {
+		if (isset($oEnrollApp->notifyConfig->submit->valid) && $oEnrollApp->notifyConfig->submit->valid === true) {
 			$this->_notifyReceivers($oEnrollApp, $ek);
 		}
 
@@ -461,25 +462,38 @@ class record extends base {
 	 * @param string $ek
 	 *
 	 */
-	private function _notifyReceivers(&$oApp, $ek) {
+	private function _notifyReceivers($oApp, $ek) {
 		$receivers = $this->model('matter\enroll\receiver')->byApp($oApp->siteid, $oApp->id);
 		if (count($receivers) === 0) {
 			return false;
 		}
-		/* 获得活动的管理员链接 */
-		$appURL = $this->model('matter\enroll')->getOpUrl($oApp->siteid, $oApp->id);
-		$modelQurl = $this->model('q\url');
-		$noticeURL = $modelQurl->urlByUrl($oApp->siteid, $appURL);
-		/* 模板消息参数 */
+		/* 指定的提醒模板消息参数 */
 		$params = new \stdClass;
-		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.submit', ['onlySite' => false]);
-		if ($notice === false) {
+		$oNotice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.submit', ['onlySite' => false]);
+		if ($oNotice === false) {
 			return false;
 		}
-		$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
+		$tmplConfig = $this->model('matter\tmplmsg\config')->byId($oNotice->tmplmsg_config_id, ['cascaded' => 'Y']);
 		if (!isset($tmplConfig->tmplmsg)) {
 			return false;
 		}
+
+		// 指定的提醒页名称，默认为讨论页
+		$page = empty($oApp->notifyConfig->submit->page) ? 'cowork' : $oApp->notifyConfig->submit->page;
+		switch ($page) {
+		case 'console':
+			/* 获得活动的管理员链接 */
+			$appURL = $this->model('matter\enroll')->getOpUrl($oApp->siteid, $oApp->id);
+			$modelQurl = $this->model('q\url');
+			$noticeURL = $modelQurl->urlByUrl($oApp->siteid, $appURL);
+			break;
+		case 'repos':
+			$noticeURL = $oApp->entryUrl . '&page=repos';
+			break;
+		default:
+			$noticeURL = $oApp->entryUrl . '&ek=' . $ek . '&page=cowork';
+		}
+
 		foreach ($tmplConfig->tmplmsg->params as $param) {
 			if (!isset($tmplConfig->mapping->{$param->pname})) {
 				continue;

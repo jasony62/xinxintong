@@ -102,7 +102,7 @@
                         </button>
                     </div>
                 </div>
-                <div id='filterQuick' class='form-inline' ng-cloak>
+                <div id='filterQuick' ng-cloak>
                     <div class="btn-group" uib-dropdown>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                             <span ng-if="criteria.orderby==='lastest'">最近修改</span>
@@ -111,7 +111,7 @@
                             <span ng-if="criteria.orderby==='earliest_first'">最早提交</span>
                             <span ng-if="criteria.orderby==='mostliked'">最多赞同</span>
                             <span ng-if="criteria.orderby==='agreed'">精选推荐</span>
-                            <span class="caret"></span>
+                            <span class="glyphicon glyphicon-sort"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
                             <li><a href ng-click="shiftOrderby('lastest')">最近修改</a></li>
@@ -128,7 +128,7 @@
                             <span ng-if="criteria.agreed==='Y'">推荐</span>
                             <span ng-if="criteria.agreed==='D'">讨论</span>
                             <span ng-if="criteria.agreed==='N'">屏蔽</span>
-                            <span class="caret"></span>
+                            <span class="glyphicon glyphicon-filter"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
                             <li><a href ng-click="shiftAgreed('all')">全部</a></li>
@@ -137,11 +137,8 @@
                             <li><a href ng-click="shiftAgreed('N')">屏蔽</a></li>
                         </ul>
                     </div>
-                    <div class="checkbox">
-                        <label>
-                            <input type='checkbox' ng-model="criteria.creator" ng-change="shiftOwner()"> 我的
-                        </label>
-                    </div>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="criteria.creator" ng-change="shiftOwner()"> 我的</label>
                 </div>
                 <div id='repos'>
                     <div class='records'>
@@ -203,7 +200,7 @@
                                         </div>
                                         <div ng-switch-when="multitext">
                                             <ul ng-if="rec.data[schema.id]" style='padding-left:20px'>
-                                                <li ng-repeat="item in rec.data[schema.id]"><span ng-bind="item.value"></span></li>
+                                                <li ng-repeat="item in rec.data[schema.id]"><span dynamic-html="item.value"></span></li>
                                             </ul>
                                         </div>
                                         <div ng-switch-when="single"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
@@ -229,6 +226,8 @@
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <a ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
                                 <a ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
+                                <a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span></a>
+                                <button ng-if="rec.userid===user.uid" class='btn btn-default btn-xs' ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span></button>
                             </div>
                             <div class='remarks' ng-if="rec.agreedRemarks.length">
                                 <div class='remark' ng-repeat="remark in rec.agreedRemarks">
@@ -242,9 +241,11 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class='text-center' ng-if="page.total>repos.length" ng-cloak>
-                        <button class='btn btn-default' ng-click="recordList()">更多 【{{repos.length}}/{{page.total}}】</button>
+                        <div class='record' ng-if="page.total>repos.length" ng-cloak>
+                            <div class='text-center' tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
+                                <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

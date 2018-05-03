@@ -102,7 +102,7 @@
                         </button>
                     </div>
                 </div>
-                <div id='filterQuick' class='form-inline' ng-cloak>
+                <div id='filterQuick' ng-cloak>
                     <div class="btn-group" uib-dropdown>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                             <span ng-if="criteria.orderby==='lastest'">最近修改</span>
@@ -137,11 +137,8 @@
                             <li><a href ng-click="shiftAgreed('N')">屏蔽</a></li>
                         </ul>
                     </div>
-                    <div class="checkbox">
-                        <label>
-                            <input type='checkbox' ng-model="criteria.creator" ng-change="shiftOwner()"> 我的
-                        </label>
-                    </div>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="criteria.creator" ng-change="shiftOwner()"> 我的</label>
                 </div>
                 <div id='repos'>
                     <div class='records'>

@@ -58,7 +58,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
     }
     var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
-    $scope.page = _oPage = { at: 1, size: 2, total: 0 };
+    $scope.page = _oPage = { at: 1, size: 12, total: 0 };
     $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' };
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录

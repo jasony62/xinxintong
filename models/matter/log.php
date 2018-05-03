@@ -1064,6 +1064,9 @@ class log_model extends \TMS_MODEL {
 		if (!empty($options['start'])) {
 			$q[2] .= " and read_at > {$options['start']}";
 		}
+		if (!empty($options['end'])) {
+			$q[2] .= " and read_at < {$options['end']}";
+		}
 
 		$p = ['g' => 'userid'];
 		$res = $this->query_objs_ss($q, $p);

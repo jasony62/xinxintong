@@ -486,7 +486,7 @@ define([], function() {
                 } else {
                     $dom.find('[class="description"]').remove();
                 }
-                if (/shorttext|longtext|multitext|member|date|location|url/.test(oSchema.type)) {
+                if (/shorttext|longtext|member|date|location|url/.test(oSchema.type)) {
                     $input = $dom.find('input,textarea');
                     if (oConfig.placeholder) {
                         $input.attr('placeholder', oSchema.title);
@@ -499,6 +499,16 @@ define([], function() {
                         $input.removeAttr('required');
                     }
                     _htmlTag($dom, oSchema);
+                } else if (/multitext/.test(oSchema.type)) {
+                    (function(lib) {
+                        var multitextEmbed;
+
+                        multitextEmbed = lib.embed(dataWrap);
+                        $dom.attr(multitextEmbed.attrs);
+                        $dom.html(multitextEmbed.html);
+
+                        _htmlTag($dom, oSchema);
+                    })(this);
                 } else if (/single/.test(oSchema.type)) {
                     (function(lib) {
                         var html;
@@ -544,30 +554,45 @@ define([], function() {
                 } else if (/image/.test(oSchema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.img-picker button'),
-                            sNgClick;
+                            sNgClick, imageEmbed;
 
                         sNgClick = 'chooseImage(' + "'" + oSchema.id + "'," + (oSchema.count || 1) + ')';
                         $button.attr('ng-click', sNgClick);
+
+                        imageEmbed = lib.embed(dataWrap);
+                        $dom.attr(imageEmbed.attrs);
+                        $dom.html(imageEmbed.html);
+
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
                     })(this);
                 } else if (/file/.test(oSchema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.file-picker button'),
-                            sNgClick;
+                            sNgClick, fileEmbed;
 
                         sNgClick = 'chooseFile(' + "'" + oSchema.id + "'," + (oSchema.count || 1) + ')';
                         $button.attr('ng-click', sNgClick).html(oSchema.title);
+
+                        fileEmbed = lib.embed(dataWrap);
+                        $dom.attr(fileEmbed.attrs);
+                        $dom.html(fileEmbed.html);
+
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
                     })(this);
                 } else if (/voice/.test(oSchema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.voice-picker button'),
-                            sNgClick;
+                            sNgClick, voiceEmbed;
 
                         sNgClick = 'startVoice(' + "'" + oSchema.id + "')";
                         $button.attr('ng-click', sNgClick).html(oSchema.title);
+
+                        voiceEmbed = lib.embed(dataWrap);
+                        $dom.attr(voiceEmbed.attrs);
+                        $dom.html(voiceEmbed.html);
+
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
                     })(this);

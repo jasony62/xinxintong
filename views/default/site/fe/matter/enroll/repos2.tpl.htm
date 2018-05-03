@@ -42,7 +42,7 @@
             </div>
         </div>
         <div class='row'>
-            <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened" ng-cloak>
+            <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened&&dirSchemas.length" ng-cloak>
                 <uib-accordion>
                     <div uib-accordion-group class="panel-default" ng-if="dirSchemas.length" is-open='advCriteriaStatus.dirOpen' ng-cloak>
                         <uib-accordion-heading>
@@ -64,46 +64,34 @@
                         </div>
                         <button class='btn btn-default btn-block' ng-click="shiftDir()">清除选择</button>
                     </div>
-                    <div uib-accordion-group class="panel-default" is-open='advCriteriaStatus.filterOpen' ng-cloak>
-                        <uib-accordion-heading>
-                            筛选
-                            <button class="close"><span>&times;</span></button>
-                        </uib-accordion-heading>
-                        <div class='form-group' ng-if='rounds.length'>
-                            <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
-                                <option value='all'>全部轮次</option>
-                                <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                            </select>
-                        </div>
-                        <div class='form-group' ng-if="userGroups.length">
-                            <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.round_id as grp.title for grp in userGroups">
-                                <option value>全部分组</option>
-                            </select>
-                        </div>
-                    </div>
                 </uib-accordion>
                 <div class='text-center'>
                     <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
                 </div>
             </div>
             <div class='records col-md-9 col-xs-12'>
-                <div ng-if="activeRound" class='active-round text-muted text-center'>
-                    <span ng-bind="activeRound.title"></span>
-                    <span ng-if="activeRound.start_at>0" ng-cloak> / <span ng-bind="activeRound.start_at*1000|date:'MM.dd HH:mm'"></span></span>
-                    <span ng-if="activeRound.end_at>0" ng-cloak> - <span ng-bind="activeRound.end_at*1000|date:'MM.dd HH:mm'"></span></span>
-                </div>
                 <div id='filterCriteria' class='input-group'>
                     <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
                     <div class='input-group-btn'>
                         <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                         <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
-                        <button id='advCriteriaSwitch' class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
+                        <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
                             <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
                         </button>
                     </div>
                 </div>
                 <div id='filterQuick' ng-cloak>
-                    <div class="btn-group" uib-dropdown>
+                    <div ng-if="rounds.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span>轮次</span>
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li><a href ng-click="shiftRound()">全部</a></li>
+                            <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+                        </ul>
+                    </div>
+                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                             <span ng-if="criteria.orderby==='lastest'">最近修改</span>
                             <span ng-if="criteria.orderby==='earliest'">最早修改</span>
@@ -122,7 +110,7 @@
                             <li><a href ng-click="shiftOrderby('agreed')">精选推荐</a></li>
                         </ul>
                     </div>
-                    <div class="btn-group" uib-dropdown>
+                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                             <span ng-if="criteria.agreed==='all'">表态</span>
                             <span ng-if="criteria.agreed==='Y'">推荐</span>
@@ -137,8 +125,30 @@
                             <li><a href ng-click="shiftAgreed('N')">屏蔽</a></li>
                         </ul>
                     </div>
-                    <label class='checkbox-inline'>
+                    <label class='checkbox-inline' style='font-size:14px;'>
                         <input type='checkbox' ng-model="criteria.creator" ng-change="shiftOwner()"> 我的</label>
+                    <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span ng-if="!filter.group">分组</span>
+                            <span ng-if="filter.group">{{filter.title}}</span>
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li><a href ng-click="shiftUserGroup()">全部</a></li>
+                            <li ng-repeat="ug in userGroups"><a href ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- end: filterQuick -->
+                <div id='filterTip'>
+                    <div class="bg-info small" ng-if="filter.round">
+                        <span>{{filter.round.title}}</span>
+                        <button class="close" ng-click="shiftRound()"><span>&times;</span></button>
+                    </div>
+                    <div class="bg-info small" ng-if="filter.group">
+                        <span>{{filter.group.title}}</span>
+                        <button class="close" ng-click="shiftUserGroup()"><span>&times;</span></button>
+                    </div>
                 </div>
                 <div id='repos'>
                     <div class='records'>
@@ -241,7 +251,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class='record' ng-if="page.total>repos.length" ng-cloak>
+                        <div class='record' ng-show="page.total>repos.length" ng-cloak>
                             <div class='text-center' tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
                                 <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
                             </div>

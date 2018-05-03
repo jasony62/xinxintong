@@ -92,6 +92,30 @@ img {
 #filterQuick {
     margin: 4px 8px;
     padding: 4px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+
+    &>* {
+        display: inline-block;
+    }
+
+}
+
+#filterTip {
+    margin: 4px 8px;
+    padding: 4px 0;
+
+    &>* {
+        display: inline-block;
+        padding: 4px 8px;
+
+        .close {
+            margin-left: 4px;
+        }
+
+    }
+
 }
 
 /* record */

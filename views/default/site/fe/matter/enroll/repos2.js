@@ -9,7 +9,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         this.oApp = oApp;
         this.oPage = {
             at: 1,
-            size: 10,
+            size: 12,
             j: function() {
                 return '&page=' + this.at + '&size=' + this.size;
             }
@@ -56,10 +56,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12, total: 0 };
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' };
+    $scope.filter = _oFilter = {}; // 过滤条件
+    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
@@ -186,10 +187,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
         }
         return $sce.trustAsHtml(val);
     };
-    $scope.shiftRound = function() {
+    $scope.shiftRound = function(oRound) {
+        _oFilter.round = oRound;
+        _oCriteria.rid = oRound ? oRound.rid : 'all';
         $scope.recordList(1);
     };
-    $scope.shiftUserGroup = function() {
+    $scope.shiftUserGroup = function(oUserGroup) {
+        _oFilter.group = oUserGroup;
+        _oCriteria.userGroup = oUserGroup ? oUserGroup.round_id : null;
         $scope.recordList(1);
     };
     $scope.shiftOwner = function() {
@@ -219,14 +224,15 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
     $scope.recordsScrollToBottom = function() {
         $scope.recordList().then(function() {
             $timeout(function() {
-                $scope.spyRecordsScroll = true;
+                if ($scope.repos.length < $scope.page.total) {
+                    $scope.spyRecordsScroll = true;
+                }
             });
         });
     };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,
-        dirOpen: false,
-        filterOpen: true
+        dirOpen: false
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
@@ -272,6 +278,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
                 if (result.active) {
                     for (var i = 0, ii = result.rounds.length; i < ii; i++) {
                         if (result.rounds[i].rid === result.active.rid) {
+                            _oFilter.round = result.active;
                             _oCriteria.rid = result.active.rid;
                             break;
                         }

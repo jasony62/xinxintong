@@ -842,6 +842,31 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             $scope.data[schemaId] = oData;
         });
     };
+    $scope.editSupplement = function(schemaId) {
+        var str = $scope.supplement[schemaId];
+        if(!str) {str = '请填写补充说明';}
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: str
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
+                };
+            }],
+            windowClass: 'model-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(data) {
+            $scope.supplement[schemaId] = data.content;
+        });
+    }
     $scope.dataBySchema = function(schemaId) {
         var app = $scope.app;
         $uibModal.open({

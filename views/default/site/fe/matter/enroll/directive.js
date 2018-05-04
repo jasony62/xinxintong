@@ -48,7 +48,9 @@ ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
 }]);
 ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
     var html;
-    html = "<div>";
+    html = "<div class='tms-act-popover-wrap'>";
+    html += "<div ng-if=\"acts.mockAsMember\"><button class='btn btn-default' ng-click=\"goto($event,'mockAsMember')\"><span ng-if=\"mocker.role!=='member'\">作为</span><span ng-if=\"mocker.role==='member'\">退出</span>成员</button></div>";
+    html += "<div ng-if=\"acts.mockAsVisitor\"><button class='btn btn-default' ng-click=\"goto($event,'mockAsVisitor')\"><span ng-if=\"mocker.role!=='visitor'\">作为</span><span ng-if=\"mocker.role==='visitor'\">退出</span>访客</button></div>";
     html += "<div ng-if=\"acts.addRecord\"><button class='btn btn-default' ng-click=\"goto($event,'addRecord')\">添加记录</button></div>";
     html += "<div ng-if=\"acts.save\"><button class='btn btn-default' ng-click=\"goto($event,'save')\">保存</button></div>";
     html += "</div>";
@@ -61,6 +63,20 @@ ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
         },
         template: "<button uib-popover-template=\"'appActTemplate.html'\" popover-placement=\"top-right\" popover-trigger=\"'outsideClick'\" popover-append-to-body=\"true\" class=\"tms-act-toggle\" popover-class=\"tms-act-popover\"><span class='glyphicon glyphicon-option-vertical'></span></button>",
         controller: ['$scope', function($scope) {
+            $scope.$watch('acts', function(oActs) {
+                var oMockAct;
+                if (oActs) {
+                    if (oMockAct = oActs.mockAsVisitor || oActs.mockAsMember) {
+                        if (oMockAct.mocker && angular.isString(oMockAct.mocker)) {
+                            if ($scope.mocker = $scope.$parent[oMockAct.mocker]) {
+                                $scope.$parent.$watch(oMockAct.mocker, function(nv) {
+                                    $scope.mocker = nv;
+                                }, true);
+                            }
+                        }
+                    }
+                }
+            });
             $scope.back = function() {
                 history.back();
             };
@@ -69,6 +85,12 @@ ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
             };
             $scope.goto = function(event, page) {
                 switch (page) {
+                    case 'mockAsVisitor':
+                        $scope.$parent.mockAsVisitor(event, $scope.mocker.role !== 'visitor');
+                        break;
+                    case 'mockAsMember':
+                        $scope.$parent.mockAsVisitor(event, $scope.mocker.role !== 'visitor');
+                        break;
                     case 'addRecord':
                         $scope.$parent.addRecord(event);
                         break;
@@ -226,12 +248,14 @@ ngMod.directive('tmsScrollSpy', function() {
                 window.addEventListener('scroll', function(event) {
                     var eleScrolling;
                     if (eleScrolling = event.target.scrollingElement) {
-                        if (scope.toggleSpy && scope.onbottom && angular.isFunction(scope.onbottom)) {
-                            if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
-                                scope.$apply(function() {
-                                    scope.toggleSpy = false;
-                                    scope.onbottom();
-                                });
+                        if (scope.toggleSpy) {
+                            if (scope.onbottom && angular.isFunction(scope.onbottom)) {
+                                if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
+                                    scope.$apply(function() {
+                                        scope.toggleSpy = false;
+                                        scope.onbottom();
+                                    });
+                                }
                             }
                         }
                     }

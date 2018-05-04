@@ -89,7 +89,7 @@ ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
                         $scope.$parent.mockAsVisitor(event, $scope.mocker.role !== 'visitor');
                         break;
                     case 'mockAsMember':
-                        $scope.$parent.mockAsVisitor(event, $scope.mocker.role !== 'member');
+                        $scope.$parent.mockAsMember(event, $scope.mocker.role !== 'member');
                         break;
                     case 'addRecord':
                         $scope.$parent.addRecord(event);

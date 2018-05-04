@@ -1128,7 +1128,7 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
         };
         _criteria = angular.copy(criteria);
         _criteria.shareby = uid;
-        url = '/rest/pl/fe/matter/'+ app.type +'/log/operateStat?site=' + app.siteid + '&appId=' + app.id + page._j();
+        url = '/rest/pl/fe/matter/'+ app.type +'/log/operateStat?site=' + app.siteid + '&appId=' + app.id;
         http2.post(url, _criteria, function(rsp) {
             var template, $template, persons=[];
             persons = rsp.data.logs;
@@ -1166,15 +1166,8 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
         if(user) {url += '&shareby='+user.userid;}
         window.open(url);
     };
-    $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-        criteria[data.state] = data.value;
-        if(criteria.start||criteria.end) {
-            $scope.list();
-        }
-    });
     $scope.$watch('editing', function(nv) {
         if(!nv) return;
         app = nv;
-        $scope.list();
     });
 }]);

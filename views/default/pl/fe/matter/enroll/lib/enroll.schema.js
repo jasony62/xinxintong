@@ -734,7 +734,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 });
             };
             $scope.setDefaultValue = function(oSchema) {
-                console.log(oSchema);
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/setDefaultValue.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {

@@ -23,7 +23,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                         oRemark.content = oRemark.content.replace(/\n/g, '<br/>');
                     }
                     if (oRemark.data) {
-                        oRemark.reply = '<a href="#item-' + oRemark.data.id + '">回复' + oRemark.nickname + '的' + ($scope.schemasById[oRemark.data.schema_id] ? $scope.schemasById[oRemark.data.schema_id].title : '数据') + ' #' + oRemark.data.multitext_seq + '</a>';
+                        oRemark.reply = '<a href="#item-' + oRemark.data.id + '">回复' + oRemark.nickname + '的' + ($scope.schemasById[oRemark.data.schema_id] ? $scope.schemasById[oRemark.data.schema_id].title : '数据') + (oRemark.data.multitext_seq > 0 ? (' #' + oRemark.data.multitext_seq) : '') + '</a>';
                     } else if (oRemark.remark_id !== '0') {
                         if (oUpperRemark = oRemarks[oRemark.remark_id]) {
                             oRemark.reply = '<a href="#remark-' + oRemark.remark_id + '">回复' + oUpperRemark.nickname + '的留言 #' + ($scope.bRemarkRecord ? oUpperRemark.seq_in_record : oUpperRemark.seq_in_data) + '</a>';

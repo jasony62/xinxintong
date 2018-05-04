@@ -120,7 +120,7 @@
                                     <div ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
                                         <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>
                                     </div>
-                                    <div ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement'>{{rec.supplement}}</div>
+                                    <div ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement' ng-bind-html="rec.supplement"></div>
                                 </blockquote>
                                 <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
                             </div>

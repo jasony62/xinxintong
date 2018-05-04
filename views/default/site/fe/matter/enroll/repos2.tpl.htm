@@ -69,7 +69,7 @@
                     <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
                 </div>
             </div>
-            <div class='records col-md-9 col-xs-12'>
+            <div class='records col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">
                 <div id='filterCriteria' class='input-group'>
                     <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
                     <div class='input-group-btn'>

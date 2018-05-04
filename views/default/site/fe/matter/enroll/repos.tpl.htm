@@ -106,7 +106,7 @@
                                     </ul>
                                     <ul ng-switch-when="multitext">
                                         <li ng-repeat="item in rec.items">
-                                            <span ng-bind="item.value"></span>
+                                            <span dynamic-html="item.value"></span>
                                             <div>
                                                 <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, item.id, $index)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>
                                                 <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoCowork(rec, item.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="item.remark_num"></span></button>

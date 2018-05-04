@@ -16,6 +16,8 @@ body{position:relative;font-size:16px;padding:0;}
 }
 .tms-flex-row{display:flex;align-items:center;}
 .tms-flex-row .tms-flex-grow{flex:1;}
+.dropdown-menu {min-width: auto;}
+
 /*picviewer*/
 #picViewer {position: absolute;left: 0px;right: 0px;top: 0px;bottom: 0px;z-index: 1051;display: none;margin: 0 auto;overflow: hidden;background: black}
 #picViewer>div {position: absolute;bottom: 6px;left: 8px;right: 8px;z-index: 1999;height: 36px}

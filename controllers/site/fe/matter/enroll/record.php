@@ -882,8 +882,9 @@ class record extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
 		if (empty($oApp->entryRule->group->id)) {
-			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
+			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长表态');
 		}
 		$oUser = $this->getUser($oApp);
 
@@ -891,13 +892,19 @@ class record extends base {
 		/* 当前用户所属分组及角色 */
 		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
-			return new \ParameterError('只允许组长进行推荐');
+			return new \ParameterError('只允许组长进行表态');
 		}
-		/* 填写记录用户所属分组 */
+		/* 组长只能表态本组用户的数据，或者不属于任何分组的数据 */
 		if ($oGrpLeader->is_leader === 'Y') {
 			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-			if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
-				return new \ParameterError('只允许组长推荐本组数据');
+			if ($oGrpMemb) {
+				if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
+					return new \ParameterError('只允许组长对本组成员的数据表态');
+				}
+			} else {
+				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+					return new \ParameterError('只允许编辑组的组长对不属于任何分组的成员的数据表态');
+				}
 			}
 		}
 
@@ -906,7 +913,7 @@ class record extends base {
 		}
 		$beforeValue = $oRecord->agreed;
 		if ($beforeValue === $value) {
-			return new \ParameterError('不能重复设置推荐状态');
+			return new \ParameterError('不能重复设置表态');
 		}
 
 		/* 检查推荐数量限制 */

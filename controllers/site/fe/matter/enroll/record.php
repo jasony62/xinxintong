@@ -635,7 +635,7 @@ class record extends base {
 					$oRecord = new \stdClass;
 				}
 			} else {
-				$oRecord = false;
+				$oRecord = new \stdClass;
 			}
 		} else {
 			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);

@@ -425,6 +425,11 @@ class repos extends base {
 					if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
 						$oRecord->nickname = $oEditor->nickname;
 					}
+				} else {
+					/* 修改默认访客昵称 */
+					if (preg_match('/用户[^\W_]{13}/', $oRecord->nickname)) {
+						$oRecord->nickname = '访客';
+					}
 				}
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
@@ -503,6 +508,10 @@ class repos extends base {
 				if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
 					$oRecord->nickname = $oEditor->nickname;
 				}
+			}
+			/* 修改默认访客昵称 */
+			if (preg_match('/用户[^\W_]{13}/', $oRecord->nickname)) {
+				$oRecord->nickname = '访客';
 			}
 		}
 

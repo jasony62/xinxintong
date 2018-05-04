@@ -420,10 +420,17 @@ class repos extends base {
 				/* 隐藏昵称 */
 				if ($bAnonymous) {
 					unset($oRecord->nickname);
-				} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
-					/* 设置编辑统一昵称 */
-					if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
-						$oRecord->nickname = $oEditor->nickname;
+				} else {
+					/* 修改默认访客昵称 */
+					if ($oRecord->userid === $oUser->uid) {
+						$oRecord->nickname = '我';
+					} else if (preg_match('/用户[^\W_]{13}/', $oRecord->nickname)) {
+						$oRecord->nickname = '访客';
+					} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+						/* 设置编辑统一昵称 */
+						if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+							$oRecord->nickname = $oEditor->nickname;
+						}
 					}
 				}
 				/* 清除不必要的内容 */
@@ -494,14 +501,21 @@ class repos extends base {
 		$bAnonymous = $this->_requireAnonymous($oApp);
 		if ($bAnonymous) {
 			unset($oRecord->nickname);
-		} else if (isset($oEditor)) {
-			if ($oRecord->group_id === $oEditor->group) {
-				$oRecord->is_editor = 'Y';
-			}
-			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
-				/* 设置编辑统一昵称 */
-				if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
-					$oRecord->nickname = $oEditor->nickname;
+		} else {
+			/* 修改默认访客昵称 */
+			if ($oRecord->userid === $oUser->uid) {
+				$oRecord->nickname = '我';
+			} else if (preg_match('/用户[^\W_]{13}/', $oRecord->nickname)) {
+				$oRecord->nickname = '访客';
+			} else if (isset($oEditor)) {
+				if ($oRecord->group_id === $oEditor->group) {
+					$oRecord->is_editor = 'Y';
+				}
+				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+					/* 设置编辑统一昵称 */
+					if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+						$oRecord->nickname = $oEditor->nickname;
+					}
 				}
 			}
 		}
@@ -550,49 +564,5 @@ class repos extends base {
 		}
 
 		return new \ResponseData($oRecord);
-	}
-	/**
-	 * 获得指定记录的留言
-	 */
-	public function remarkList_action($ek) {
-		$modelApp = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
-
-		$fields = 'id,aid,state,enroll_key';
-		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
-		if (false === $oRecord || $oRecord->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		$oApp = $modelApp->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,state,action_rule']);
-		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		/* 留言显示在共享页所需点赞数量 */
-		$remarkReposLikeNum = 0;
-		if (isset($oApp->actionRule->remark->repos->pre)) {
-			$oRule = $oApp->actionRule->remark->repos->pre;
-			if (!empty($oRule->remark->likeNum)) {
-				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
-			}
-		}
-
-		$q = [
-			'id,agreed,like_num,like_log,nickname,content,create_at',
-			'xxt_enroll_record_remark',
-			"enroll_key='{$oRecord->enroll_key}'",
-		];
-		if ($remarkReposLikeNum) {
-			$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";
-		} else {
-			$q[2] .= " and agreed='Y'";
-		}
-		$q2 = [
-			'o' => 'agreed desc,like_num desc,create_at desc',
-		];
-		$remarks = $modelRec->query_objs_ss($q, $q2);
-
-		return new \ResponseData($remarks);
 	}
 }

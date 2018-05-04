@@ -97,10 +97,12 @@ class base extends \site\fe\matter\base {
 		}
 
 		/* 当前用户是否为编辑 */
-		$oUser->is_editor = 'N';
-		if (!empty($oApp->actionRule->role->editor->group) && !empty($oUser->group_id)) {
-			if ($oUser->group_id === $oApp->actionRule->role->editor->group) {
-				$oUser->is_editor = 'Y';
+		if (!empty($oApp->actionRule->role->editor->group)) {
+			$oUser->is_editor = 'N';
+			if (!empty($oUser->group_id)) {
+				if ($oUser->group_id === $oApp->actionRule->role->editor->group) {
+					$oUser->is_editor = 'Y';
+				}
 			}
 		}
 

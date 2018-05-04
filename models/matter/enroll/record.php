@@ -144,7 +144,7 @@ class record_model extends record_base {
 	 * @param string $ek
 	 * @param array $submitTag 用户提交的填写项标签
 	 */
-	public function setTag($oUser, &$oApp, $ek, $submitTag) {
+	public function setTag($oUser, $oApp, $ek, $submitTag) {
 		$wholeTags = new \stdClass;
 		/*record data*/
 		foreach ($submitTag as $schemaId => $tags) {
@@ -206,7 +206,7 @@ class record_model extends record_base {
 	 * @param string $ek
 	 * @param array $submitSupp 用户提交的补充说明
 	 */
-	public function setSupplement($oUser, &$oApp, $ek, $submitSupp) {
+	public function setSupplement($oUser, $oApp, $ek, $submitSupp) {
 		/*record*/
 		$rst = $this->update(
 			'xxt_enroll_record',
@@ -226,7 +226,7 @@ class record_model extends record_base {
 		return $rst;
 	}
 	/**
-	 *
+	 * 处理从数据库中取出的数据
 	 */
 	private function _processRecord(&$oRecord, $fields, $verbose = 'Y') {
 		if (property_exists($oRecord, 'data')) {
@@ -616,7 +616,9 @@ class record_model extends record_base {
 				if (!empty($oUser->uid)) {
 					$w .= " and (";
 					$w .= " (r.agreed<>'D'";
-					// $w .= " and r.agreed<>''"; // 在什么情况下必须得有表态
+					if (isset($oUser->is_editor) && $oUser->is_editor !== 'Y') {
+						$w .= " and r.agreed<>''"; // 如果活动指定了编辑，未表态的数据默认不公开
+					}
 					$w .= ")";
 					$w .= " or r.userid='{$oUser->uid}'";
 					if (!empty($oUser->group_id)) {

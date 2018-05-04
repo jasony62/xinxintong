@@ -243,7 +243,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
         _oMocker.role = bMock ? 'visitor' : '';
         $scope.recordList(1);
     };
-    $scope.mockAsVisitor = function(event, bMock) {
+    $scope.mockAsMember = function(event, bMock) {
         _oMocker.role = bMock ? 'member' : '';
         $scope.recordList(1);
     };

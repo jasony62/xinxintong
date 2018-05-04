@@ -153,7 +153,7 @@
                                         <span class='tip' ng-if="rec.value.length>1"><i class='glyphicon glyphicon-picture'></i>
                                         {{rec.value.length}}图</span>
                                     </p>
-                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='text-left content'>{{rec.supplement}}</span>
+                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='text-left content' ng-bind-html="rec.supplement"></span>
                                 </div>
                                 <div ng-switch-when="file" class='f-box'>
                                     <p class='s-box' ng-init='file=rec.value[0]'>
@@ -169,10 +169,10 @@
                                         <a ng-href="{{file.url}}" target="_blank">{{file.name}}</a>
                                         <span ng-if="rec.value.length>1" class='pull-right'><i class='glyphicon glyphicon-file'></i>{{rec.value.length}}个文件</span>
                                     </p>
-                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='text-left content'>{{rec.supplement}}</span>
+                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='text-left content' ng-bind-html="rec.supplement"></span>
                                 </div>
                                 <div ng-switch-when="multitext">
-                                    <p ng-repeat="item in rec.value"><span ng-bind="item.value"></span></p>
+                                    <p ng-repeat="item in rec.value"><span ng-bind-html="item.value"></span></p>
                                 </div>
                                 <div ng-switch-when="date"><span class='content'>{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</span></div>
                                 <div ng-switch-default><span class='content'>{{rec.value}}</span></div>
@@ -224,7 +224,7 @@
                                         <span class='tip' ng-if="rec.value.length>1"><i class='glyphicon glyphicon-picture'></i>
                                         {{rec.value.length}}图</span>
                                     </p>
-                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='content text-left'>{{rec.supplement}}</span>
+                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='content text-left' ng-bind-html="rec.supplement"></span>
                                 </div>
                                 <div ng-switch-when="file" class='f-box'>
                                     <p class='s-box' ng-init='file=rec.value[0]'>
@@ -240,14 +240,14 @@
                                         <a ng-href="{{file.url}}" target="_blank">{{file.name}}</a>
                                         <span ng-if="rec.value.length>1" class='pull-right'><i class='glyphicon glyphicon-file'></i>{{rec.value.length}}个文件</span>
                                     </p>
-                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='content text-left'>{{rec.supplement}}</span>
+                                    <span ng-if="app._schemasById[rec.schema_id].supplement=='Y'" class='content text-left' ng-bind-html="rec.supplement"></span>
                                 </div>
                                 <div ng-switch-when="multitext">
                                     <div ng-if="rec.multitext_seq=='0'">
-                                        <p ng-repeat="item in rec.value"><span ng-bind="item.value"></span></p>
+                                        <p ng-repeat="item in rec.value"><span ng-bind-html="item.value"></span></p>
                                     </div>
                                     <div ng-if="rec.multitext_seq!='0'">
-                                        <span ng-bind="rec.value"></span>
+                                        <span ng-bind-html="rec.value"></span>
                                     </div>
                                 </div>
                                 <div ng-switch-when="date"><span class='content'></span>{{(rec.value*1000)|date:'yy-MM-dd HH:mm'}}</div>

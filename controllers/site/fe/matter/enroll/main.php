@@ -62,7 +62,7 @@ class main extends base {
 				// 按数据进行共享
 				\TPL::output('/site/fe/matter/enroll/repos');
 			}
-		} else if (in_array($page, ['cowork', 'share', 'action', 'rank', 'score'])) {
+		} else if (in_array($page, ['cowork', 'share', 'action', 'rank', 'score', 'favor', 'topic'])) {
 			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/' . $page);
 		} else {
@@ -82,7 +82,7 @@ class main extends base {
 					// 按数据进行共享
 					\TPL::output('/site/fe/matter/enroll/repos');
 				}
-			} else if (in_array($oOpenPage->name, ['action', 'rank', 'score'])) {
+			} else if (in_array($oOpenPage->name, ['action', 'rank', 'score', 'favor', 'topic'])) {
 				\TPL::output('/site/fe/matter/enroll/' . $oOpenPage->name);
 			} else if ($oOpenPage->type === 'I') {
 				\TPL::output('/site/fe/matter/enroll/input');
@@ -264,7 +264,7 @@ class main extends base {
 			}
 		}
 
-		if (!in_array($page, ['action', 'repos', 'cowork', 'share', 'rank', 'score'])) {
+		if (!in_array($page, ['action', 'repos', 'cowork', 'share', 'rank', 'score', 'favor', 'topic'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */
 			if (empty($page)) {

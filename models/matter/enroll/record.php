@@ -595,7 +595,6 @@ class record_model extends record_base {
 		if (!empty($oCriteria->record->userid)) {
 			$w .= " and r.userid='{$oCriteria->record->userid}'";
 		}
-
 		// 记录是否通过审核
 		if (!empty($oCriteria->record->verified)) {
 			$w .= " and r.verified='{$oCriteria->record->verified}'";
@@ -612,6 +611,11 @@ class record_model extends record_base {
 		}
 		// 讨论状态的记录仅提交人，同组用户或超级用户可见
 		if (isset($oUser)) {
+			// 当前用户收藏的
+			if (!empty($oUser->unionid) && !empty($oCriteria->record->favored)) {
+				$w .= " and exists(select 1 from xxt_enroll_record_favor f where r.id=f.record_id and f.favor_unionid='{$oUser->unionid}' and f.state=1)";
+			}
+			// 当前用户角色
 			if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
 				if (!empty($oUser->uid)) {
 					$w .= " and (";
@@ -630,6 +634,11 @@ class record_model extends record_base {
 					$w .= ")";
 				}
 			}
+		}
+
+		// 指定了专题的
+		if (!empty($oCriteria->record->topic)) {
+			$w .= " and exists(select 1 from xxt_enroll_topic_record t where r.id=t.record_id and t.topic_id='{$oCriteria->record->topic}')";
 		}
 
 		// 预制条件：指定分组或赞同数大于
@@ -703,14 +712,14 @@ class record_model extends record_base {
 
 		// 查询参数
 		$q = [
-			'r.enroll_key,r.rid,r.enroll_at,r.tags,r.userid,r.group_id,r.nickname,r.wx_openid,r.yx_openid,r.qy_openid,r.headimgurl,r.verified,r.comment,r.data,r.supplement,r.data_tag,r.agreed,r.like_num,r.like_log,remark_num',
+			'id,enroll_key,rid,enroll_at,tags,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,supplement,data_tag,agreed,like_num,like_log,remark_num,favor_num',
 			"xxt_enroll_record r",
 			$w,
 		];
 
 		//测验场景或数值填空题共用score字段
 		if (isset($oApp->scenario) && ($oApp->scenario === 'quiz' || $bRequireScore)) {
-			$q[0] .= ',r.score';
+			$q[0] .= ',score';
 		}
 
 		$q2 = [];

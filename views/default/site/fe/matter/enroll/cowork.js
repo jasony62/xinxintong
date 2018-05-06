@@ -241,7 +241,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                     }
                 };
             }],
-            windowClass: 'model-remark auto-height',
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             addRemark(data.content, oUpperRemark).then(function(rsp) {
@@ -287,7 +287,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                     }
                 };
             }],
-            windowClass: 'model-remark auto-height',
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             http2.post(LS.j('remark/update', 'site') + '&remark=' + oRemark.id, { content: data.content }).then(function(rsp) {
@@ -585,7 +585,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                     }
                 };
             }],
-            windowClass: 'model-remark auto-height',
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             var oRecData, oNewItem, url;
@@ -629,7 +629,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                     }
                 };
             }],
-            windowClass: 'model-remark auto-height',
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             var oNewItem;
@@ -688,7 +688,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                     }
                 };
             }],
-            windowClass: 'model-remark auto-height',
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             http2.post(LS.j('remark/add', 'site', 'ek') + '&data=' + oItem.id, { content: data.content }).then(function(rsp) {

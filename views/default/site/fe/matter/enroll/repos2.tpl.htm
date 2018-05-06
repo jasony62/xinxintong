@@ -19,7 +19,7 @@
         <div class='container' ng-cloak>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span class='page-title' tms-app-nav app-navs="appNavs" notice-count="noticeCount">数据共享</span></span>
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span class='page-title' tms-app-nav app-navs="appNavs" notice-count="noticeCount">共享</span></span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -125,12 +125,9 @@
                             <li><a href ng-click="shiftAgreed('N')">屏蔽</a></li>
                         </ul>
                     </div>
-                    <label class='checkbox-inline' style='font-size:14px;'>
-                        <input type='checkbox' ng-model="criteria.creator" ng-change="shiftOwner()"> 我的</label>
                     <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span ng-if="!filter.group">分组</span>
-                            <span ng-if="filter.group">{{filter.title}}</span>
+                            <span>分组</span>
                             <span class="glyphicon glyphicon-filter"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
@@ -138,9 +135,19 @@
                             <li ng-repeat="ug in userGroups"><a href ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>
                         </ul>
                     </div>
+                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span>更多</span>
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li><a href ng-click="shiftMine('我的记录')">我的记录</a></li>
+                            <li ng-if="user.unionid"><a href ng-click="shiftMine('我的收藏')">我的收藏</a></li>
+                        </ul>
+                    </div>
                 </div>
                 <!-- end: filterQuick -->
-                <div id='filterTip'>
+                <div id='filterTip' ng-if="filter.round||filter.group||filter.mine">
                     <div class="bg-info small" ng-if="filter.round">
                         <span>{{filter.round.title}}</span>
                         <button class="close" ng-click="shiftRound()"><span>&times;</span></button>
@@ -148,6 +155,10 @@
                     <div class="bg-info small" ng-if="filter.group">
                         <span>{{filter.group.title}}</span>
                         <button class="close" ng-click="shiftUserGroup()"><span>&times;</span></button>
+                    </div>
+                    <div class="bg-info small" ng-if="filter.mine">
+                        <span>{{filter.mine}}</span>
+                        <button class="close" ng-click="shiftMine('')"><span>&times;</span></button>
                     </div>
                 </div>
                 <div id='repos'>
@@ -236,8 +247,16 @@
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <a ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
                                 <a ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
-                                <a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span></a>
-                                <button ng-if="rec.userid===user.uid" class='btn btn-default btn-xs' ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span></button>
+                                <div class="btn-group" uib-dropdown>
+                                    <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
+                                        <span class="glyphicon glyphicon-option-vertical"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" uib-dropdown-menu>
+                                        <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
+                                        <li><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> <span ng-if="rec.favored">取消</span>收藏</a></li>
+                                        <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                                    </ul>
+                                </div>
                             </div>
                             <div class='remarks' ng-if="rec.agreedRemarks.length">
                                 <div class='remark' ng-repeat="remark in rec.agreedRemarks">

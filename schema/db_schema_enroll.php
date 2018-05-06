@@ -172,6 +172,7 @@ $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",like_data_num int not null default 0"; // 记录的数据点赞数
+$sql .= ",favor_num int not null default 0"; // 收藏数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -307,6 +308,57 @@ $sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮�
 $sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 填写记录的收藏记录
+ */
+$sql = "create table if not exists xxt_enroll_record_favor(";
+$sql .= "id bigint not null auto_increment";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",record_id int not null"; // 填写记录的ID
+$sql .= ",favor_unionid varchar(40) not null"; // 用户的注册账号ID
+$sql .= ",favor_at int not null"; // 收藏填写的时间
+$sql .= ",state tinyint not null default 1";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 活动登记记录主题
+ */
+$sql = "create table if not exists xxt_enroll_topic(";
+$sql .= "id int not null auto_increment";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",unionid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",create_at int not null"; // 创建时间
+$sql .= ",title varchar(255) not null default ''";
+$sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
+$sql .= ",state tinyint not null default 1"; //0:clean,1:normal;
+$sql .= ",rec_num int not null default 0";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 活动登记记录主题与记录
+ */
+$sql = "create table if not exists xxt_enroll_topic_record(";
+$sql .= "id bigint not null auto_increment";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",topic_id int not null";
+$sql .= ",record_id int not null";
+$sql .= ",assign_at int not null"; // 指定时间
+$sql .= ",seq int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

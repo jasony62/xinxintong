@@ -10,9 +10,14 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             }
             var sharelink;
             /* 设置活动的当前链接 */
-            sharelink = location.protocol + '//' + location.host + LS.j('', 'site', 'app', 'ek') + '&page=cowork';
-            if (anchor) {
-                sharelink += '#' + anchor;
+            sharelink = location.protocol + '//' + location.host
+            if (LS.s().topic) {
+                sharelink += LS.j('', 'site', 'app', 'topic') + '&page=topic';
+            } else {
+                sharelink += LS.j('', 'site', 'app', 'ek') + '&page=cowork';
+                if (anchor) {
+                    sharelink += '#' + anchor;
+                }
             }
             /* 分享次数计数器 */
             tmsSnsShare.config({
@@ -126,6 +131,18 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
                 _oMessage.author = _oUser.uid === oRecord.userid ? '他/她' : (oRecord.nickname);
                 _oMessage.object = ' 在活动【' + _oApp.title + '】中提交的记录。';
                 if (oEditor && oRecord.is_editor === 'Y' && _oUser.uid !== oRecord.userid) {
+                    _oOptions.canEditorAsAuthor = true;
+                }
+                _oDeferred.resolve(_oMessage);
+            });
+        } else if (LS.s().topic) {
+            http2.get(LS.j('topic/get', 'site', 'app', 'topic')).then(function(rsp) {
+                var oTopic;
+                oTopic = rsp.data;
+                _oMessage.inviter = _oUser.nickname;
+                _oMessage.author = _oUser.unionid === oTopic.unionid ? '他/她' : (oTopic.nickname);
+                _oMessage.object = ' 在活动【' + _oApp.title + '】中创建的专题。';
+                if (oEditor && oTopic.is_editor === 'Y' && _oUser.unionid !== oTopic.unionid) {
                     _oOptions.canEditorAsAuthor = true;
                 }
                 _oDeferred.resolve(_oMessage);

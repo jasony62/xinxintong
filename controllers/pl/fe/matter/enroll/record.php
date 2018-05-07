@@ -309,8 +309,17 @@ class record extends \pl\fe\matter\base {
 		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, $addUser->uid, true, isset($posted->quizScore) ? $posted->quizScore : null);
 
 		/* 记录操作日志 */
-		$oRecord = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
-		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'add', $oRecord);
+		$oRecord = $modelRec->byId($ek, ['fields' => 'id,enroll_key,data,rid']);
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecord->id;
+		$oTarget->type = 'record';
+		$oEvent = new \stdClass;
+		$oEvent->name = 'pl.matter.enroll.data.add';
+		$oEvent->op = 'New';
+		$oEvent->at = time();
+		$oEvent->user = $user;
+
+		$this->model('matter\enroll\event')->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent);
 
 		/* 返回完整的记录 */
 		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
@@ -523,16 +532,20 @@ class record extends \pl\fe\matter\base {
 		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
 
 		/* 记录操作日志 */
-		$oOperation = new \stdClass;
-		$oOperation->enroll_key = $ek;
-		isset($oPosted->data) && $oOperation->data = $oPosted->data;
-		isset($oPosted->quizScore) && $oOperation->quizScore = $oPosted->quizScore;
-		isset($oPosted->score) && $oOperation->score = $oPosted->score;
-		isset($oPosted->tags) && $oOperation->tags = $oPosted->tags;
-		isset($oPosted->comment) && $oOperation->comment = $oPosted->comment;
-		$oOperation->rid = $oNewRecord->rid;
-		isset($oNewRecord->round) && $oOperation->round = $oNewRecord->round;
-		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'updateData', $oOperation);
+		$oTarget = new \stdClass;
+		$oTarget->id = $oNewRecord->id;
+		$oTarget->type = 'record';
+		$oEvent = new \stdClass;
+		$oEvent->name = 'pl.matter.enroll.data.update';
+		$oEvent->op = 'Update';
+		$oEvent->at = time();
+		$oEvent->user = $oUser;
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = new \stdClass;
+		$oOwnerEvent->user->uid = $oNewRecord->userid;
+		$oOwnerEvent->user->nickname = $oNewRecord->nickname;
+
+		$log = $this->model('matter\enroll\event')->_logEvent($oApp, $oNewRecord->rid, $ek, $oTarget, $oEvent, $oOwnerEvent);
 
 		return new \ResponseData($oNewRecord);
 	}
@@ -586,7 +599,7 @@ class record extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 		$modelEnlRec = $this->model('matter\enroll\record');
-		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,state,enroll_key,data,rid']);
+		$oRecord = $modelEnlRec->byId($key, ['fields' => 'id,userid,nickname,state,enroll_key,data,rid']);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -602,9 +615,19 @@ class record extends \pl\fe\matter\base {
 		$rst = $modelEnlRec->remove($oApp, $oRecord);
 
 		// 记录操作日志
-		unset($oRecord->userid);
-		unset($oRecord->state);
-		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'removeData', $oRecord);
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecord->id;
+		$oTarget->type = 'record';
+		$oEvent = new \stdClass;
+		$oEvent->name = 'pl.matter.enroll.data.remove';
+		$oEvent->op = 'Del';
+		$oEvent->at = time();
+		$oEvent->user = $oUser;
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = new \stdClass;
+		$oOwnerEvent->user->uid = $oRecord->userid;
+		$oOwnerEvent->user->nickname = $oRecord->nickname;
+		$log = $this->model('matter\enroll\event')->_logEvent($oApp, $oRecord->rid, $key, $oTarget, $oEvent, $oOwnerEvent);
 
 		return new \ResponseData($rst);
 	}
@@ -620,7 +643,7 @@ class record extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 		$modelEnlRec = $this->model('matter\enroll\record');
-		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,enroll_key,data,rid']);
+		$oRecord = $modelEnlRec->byId($key, ['fields' => 'id,userid,nickname,enroll_key,data,rid']);
 		if (false === $oRecord) {
 			return new ObjectNotFoundError();
 		}
@@ -628,7 +651,19 @@ class record extends \pl\fe\matter\base {
 		$rst = $modelEnlRec->restore($oApp, $oRecord);
 
 		// 记录操作日志
-		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'restoreData', $oRecord);
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecord->id;
+		$oTarget->type = 'record';
+		$oEvent = new \stdClass;
+		$oEvent->name = 'pl.matter.enroll.data.restore';
+		$oEvent->op = 'Restore';
+		$oEvent->at = time();
+		$oEvent->user = $oUser;
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = new \stdClass;
+		$oOwnerEvent->user->uid = $oRecord->userid;
+		$oOwnerEvent->user->nickname = $oRecord->nickname;
+		$log = $this->model('matter\enroll\event')->_logEvent($oApp, $oRecord->rid, $key, $oTarget, $oEvent, $oOwnerEvent);
 
 		return new \ResponseData($rst);
 	}

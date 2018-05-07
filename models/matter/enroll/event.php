@@ -9,6 +9,10 @@ class event_model extends \TMS_MODEL {
 	 */
 	const SubmitEventName = 'site.matter.enroll.submit';
 	/**
+	 * 修改记录事件名称
+	 */
+	const UpdateEventName = 'site.matter.enroll.data.update';
+	/**
 	 * 用户A提交的填写记录获得新协作填写数据项
 	 */
 	const GetSubmitCoworkEventName = 'site.matter.enroll.cowork.get.submit';
@@ -76,9 +80,16 @@ class event_model extends \TMS_MODEL {
 		return $operatorId;
 	}
 	/**
+	 *
+	 */
+	private function _getOperatorName($oOperator) {
+		$operatorName = isset($oOperator->nickname) ? $oOperator->nickname : (isset($oOperator->name) ? $oOperator->name : '');
+		return $operatorName;
+	}
+	/**
 	 * 记录事件日志
 	 */
-	private function _logEvent($oApp, $rid, $ek, $oTarget, $oEvent, $oOwnerEvent = null) {
+	public function _logEvent($oApp, $rid, $ek, $oTarget, $oEvent, $oOwnerEvent = null) {
 		$oNewLog = new \stdClass;
 		/* 事件 */
 		$oNewLog->event_name = $oEvent->name;
@@ -97,7 +108,7 @@ class event_model extends \TMS_MODEL {
 		$oOperatorId = $this->_getOperatorId($oOperator);
 		$oNewLog->group_id = isset($oOperator->group_id) ? $oOperator->group_id : '';
 		$oNewLog->userid = $oOperatorId;
-		$oNewLog->nickname = isset($oOperator->nickname) ? $this->escape($oOperator->nickname) : '';
+		$oNewLog->nickname = $this->_getOperatorName($oOperator);
 
 		/* 事件操作的对象 */
 		$oNewLog->target_id = $oTarget->id;
@@ -282,8 +293,8 @@ class event_model extends \TMS_MODEL {
 		$oTarget->id = $oRecord->id;
 		$oTarget->type = 'record';
 		$oEvent = new \stdClass;
-		$oEvent->name = self::SubmitEventName;
-		$oEvent->op = 'New';
+		$oEvent->name = $bSubmitNewRecord ? self::SubmitEventName : self::UpdateEventName;
+		$oEvent->op = $bSubmitNewRecord ? 'New' : 'Update';
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oUser;
 		$oEvent->coin = isset($oUpdatedUsrData->user_total_coin) ? $oUpdatedUsrData->user_total_coin : 0;

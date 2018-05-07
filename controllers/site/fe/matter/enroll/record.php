@@ -891,7 +891,8 @@ class record extends base {
 		/* 组长只能表态本组用户的数据，或者不属于任何分组的数据 */
 		if ($oGrpLeader->is_leader === 'Y') {
 			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-			if ($oGrpMemb) {
+			if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
+				/* 填写记录的用户属于一个分组 */
 				if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
 					return new \ParameterError('只允许组长对本组成员的数据表态');
 				}

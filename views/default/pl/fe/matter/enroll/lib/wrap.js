@@ -177,7 +177,7 @@ define([], function() {
         if (schema.supplement === 'Y') {
             $supplement = $dom.find('.supplement');
             if ($supplement.length === 0) {
-                html = '<div class="list-group-item supplement">';
+                html = '<div class="list-group-item supplement text-muted">';
                 html += '<div class="top-bar tms-flex-row">';
                 html += '<div class="tms-flex-grow" ng-if="!supplement.'+schema.id+'">请填写补充说明</div>';
                 html += '<div class="tms-flex-grow" ng-if="supplement.'+schema.id+'" dynamic-html="supplement.'+ schema.id+'"></div>';
@@ -930,7 +930,7 @@ define([], function() {
         if (oSchema.supplement === 'Y') {
             $supplement = $dom.find('.supplement');
             if ($supplement.length === 0) {
-                $dom.append('<p class="supplement" ng-bind="Record.current.supplement.' + oSchema.id + '"></p>');
+                $dom.append('<p class="supplement" ng-bind-html="Record.current.supplement.' + oSchema.id + '"></p>');
             }
         } else {
             $supplement = $dom.find('.supplement');
@@ -1039,7 +1039,7 @@ define([], function() {
                 break;
         }
         if (oSchema.supplement && oSchema.supplement === 'Y') {
-            html += '<p class="supplement" ng-bind="r.supplement.' + oSchema.id + '"></p>';
+            html += '<p class="supplement" ng-bind-html="r.supplement.' + oSchema.id + '"></p>';
         }
         html += '</div>';
 

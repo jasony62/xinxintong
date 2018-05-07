@@ -15,6 +15,8 @@ module.exports = {
         '/site/fe/matter/enroll/share': ['./views/default/site/fe/matter/enroll/share.js'],
         '/site/fe/matter/enroll/repos': ['./views/default/site/fe/matter/enroll/repos.js'],
         '/site/fe/matter/enroll/repos2': ['./views/default/site/fe/matter/enroll/repos2.js'],
+        '/site/fe/matter/enroll/favor': ['./views/default/site/fe/matter/enroll/favor.js'],
+        '/site/fe/matter/enroll/topic': ['./views/default/site/fe/matter/enroll/topic.js'],
         '/site/fe/matter/enroll/rank': ['./views/default/site/fe/matter/enroll/rank.js'],
         '/site/fe/matter/enroll/score': ['./views/default/site/fe/matter/enroll/score.js'],
         '/site/fe/matter/enroll/preview': ['./views/default/site/fe/matter/enroll/preview.js'],

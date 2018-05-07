@@ -670,7 +670,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 if (oRecord.data_tag) {
                     $scope.tag = oRecord.data_tag;
                 }
-                if(oRecord.supplement) {
+                if (oRecord.supplement) {
                     $scope.supplement = oRecord.supplement;
                 }
                 /*设置页面分享信息*/
@@ -722,10 +722,10 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                     }
                 };
             }],
-            windowClass: 'model-remark auto-height',
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
-            var item = {id: 0, value: ''};
+            var item = { id: 0, value: '' };
             item.value = data.content;
             $scope.data[schemaId].push(item);
         });
@@ -748,7 +748,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                     }
                 };
             }],
-            windowClass: 'model-remark auto-height',
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             oItem.value = data.content;
@@ -844,7 +844,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     };
     $scope.editSupplement = function(schemaId) {
         var str = $scope.supplement[schemaId];
-        if(!str) {str = '请填写补充说明';}
+        if (!str) { str = '请填写补充说明'; }
         $uibModal.open({
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -861,7 +861,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                     }
                 };
             }],
-            windowClass: 'model-remark auto-height',
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             $scope.supplement[schemaId] = data.content;
@@ -876,7 +876,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() { $mi.close($scope2.data); };
                 http2.get('/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + app.siteid + '&app=' + app.id + '&schema=' + schemaId).then(function(result) {
-                    if(app._schemasById[schemaId].type=='multitext') {
+                    if (app._schemasById[schemaId].type == 'multitext') {
                         result.data.records.pop();
                     }
                     $scope2.records = result.data.records;

@@ -1522,17 +1522,38 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 value: 'read',
                 title: '阅读'
             }, {
-                value: 'saveData',
-                title: '保存'
-            }, {
-                value: 'submit',
+                value: 'site.matter.enroll.submit',
                 title: '提交'
             }, {
-                value: 'updateData',
-                title: '修改记录'
+                value: 'site.matter.enroll.data.do.like',
+                title: '赞同其他人的填写内容'
+            }, {
+                value: 'site.matter.enroll.cowork.do.submit',
+                title: '提交协作新内容'
+            }, {
+                value: 'site.matter.enroll.do.remark',
+                title: '评论'
+            }, {
+                value: 'site.matter.enroll.cowork.do.like',
+                title: '赞同其他人填写的协作内容'
+            }, {
+                value: 'site.matter.enroll.remark.do.like',
+                title: '赞同其他人的评论'
+            }, {
+                value: 'site.matter.enroll.data.get.agree',
+                title: '对记录表态'
+            }, {
+                value: 'site.matter.enroll.cowork.get.agree',
+                title: '对协作记录表态'
+            }, {
+                value: 'ite.matter.enroll.remark.get.agree',
+                title: '对评论表态'
             }, {
                 value: 'removeData',
                 title: '删除记录'
+            },{
+                value: 'site.matter.enroll.remark.as.cowork',
+                title: '将用户留言设置为协作记录'
             }];
         };
         this.$get = ['$q', 'http2', '$uibModal', function($q, http2, $uibModal) {

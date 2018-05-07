@@ -14,16 +14,23 @@
                     <tr>
                         <th style='width:120px;'>打开时间</th>
                         <th>用户</th>
-                        <th style='width:80px;'>操作</th>
-                        <th style='width:120px;'>累计操作次数</th>
+                        <th style='width:200px;'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat='log in read.logs'>
                         <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>{{log.nickname||'未知'}}</td>
-                        <td>{{operations[log.operation]}}</td>
-                        <td>{{log.user_op_num}}</td>
+                        <td>
+                            <span>{{operations[log.operation]}}</span>
+                            <span ng-if="log.event_op=='Update'&&log.opetation=='site.matter.enroll.submit'">修改</span>
+                            <span ng-if="log.event_op=='Y'&&log.opetation.indexOf('like')!==-1">点赞</span>
+                            <span ng-if="log.event_op=='N'&&log.opetation.indexOf('like')!==-1">取消点赞</span>
+                            <span ng-if="log.event_op=='Y'&&log.opetation.indexOf('agree')!==-1">推荐</span>
+                            <span ng-if="log.event_op=='N'&&log.opetation.indexOf('agree')!==-1">屏障</span>
+                            <span ng-if="log.event_op=='A'">接受</span>
+                            <span ng-if="log.event_op=='D'">讨论</span>
+                        </td>
                     </tr>
                 </tbody>
             </table>

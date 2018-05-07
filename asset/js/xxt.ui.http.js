@@ -54,63 +54,68 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         }
     }
 
-    this.get = function(url, options) {
+    this.get = function(url, oOptions) {
         var _alert, _timer, _defer = $q.defer();
-        options = angular.extend({
+        oOptions = angular.extend({
             'headers': {
                 'accept': 'application/json'
             },
+            'parseResponse': true,
             'autoBreak': true,
             'autoNotice': true,
             'showProgress': true,
             'showProgressDelay': 500,
             'showProgressText': '正在获取数据...',
-        }, options);
-        if (options.showProgress === true) {
+        }, oOptions);
+        if (oOptions.showProgress === true) {
             _timer = $timeout(function() {
                 _timer = null;
-                _alert = createAlert(options.showProgressText, 'info');
-            }, options.showProgressDelay);
+                _alert = createAlert(oOptions.showProgressText, 'info');
+            }, oOptions.showProgressDelay);
         }
-        $http.get(url, options).success(function(rsp) {
-            if (options.showProgress === true) {
+        $http.get(url, oOptions).success(function(rsp) {
+            if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
                     removeAlert(_alert);
                     _alert = null;
                 }
             }
-            if (angular.isString(rsp)) {
-                if (options.autoNotice) {
-                    createAlert(rsp, 'warning');
-                }
-                if (options.autoBreak) {
-                    return
-                } else {
-                    _defer.reject(rsp);
-                }
-            } else if (rsp.err_code != 0) {
-                if (options.autoNotice) {
-                    var errmsg;
-                    if (angular.isString(rsp.err_msg)) {
-                        errmsg = rsp.err_msg;
-                    } else if (angular.isArray(rsp.err_msg)) {
-                        errmsg = rsp.err_msg.join('<br>');
-                    } else {
-                        errmsg = JSON.stringify(rsp.err_msg);
-                    }
-                    createAlert(errmsg, 'warning');
-                }
-                if (options.autoBreak) {
-                    return
-                } else {
-                    _defer.reject(rsp);
-                }
-            } else {
+            if (!oOptions.parseResponse) {
                 _defer.resolve(rsp);
+            } else {
+                if (angular.isString(rsp)) {
+                    if (oOptions.autoNotice) {
+                        createAlert(rsp, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else if (rsp.err_code != 0) {
+                    if (oOptions.autoNotice) {
+                        var errmsg;
+                        if (angular.isString(rsp.err_msg)) {
+                            errmsg = rsp.err_msg;
+                        } else if (angular.isArray(rsp.err_msg)) {
+                            errmsg = rsp.err_msg.join('<br>');
+                        } else {
+                            errmsg = JSON.stringify(rsp.err_msg);
+                        }
+                        createAlert(errmsg, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else {
+                    _defer.resolve(rsp);
+                }
             }
         }).error(function(data, status) {
-            if (options.showProgress === true) {
+            if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
                     removeAlert(_alert);
@@ -122,64 +127,69 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
 
         return _defer.promise;
     };
-    this.post = function(url, posted, options) {
+    this.post = function(url, posted, oOptions) {
         var _alert, _timer, _defer = $q.defer();
-        options = angular.extend({
+        oOptions = angular.extend({
             'headers': {
                 'accept': 'application/json'
             },
+            'parseResponse': true,
             'autoBreak': true,
             'autoNotice': true,
             'showProgress': true,
             'showProgressDelay': 500,
             'showProgressText': '正在获取数据...',
-        }, options);
-        if (options.showProgress === true) {
+        }, oOptions);
+        if (oOptions.showProgress === true) {
             _timer = $timeout(function() {
                 _timer = null;
-                _alert = createAlert(options.showProgressText, 'info');
-            }, options.showProgressDelay);
+                _alert = createAlert(oOptions.showProgressText, 'info');
+            }, oOptions.showProgressDelay);
         }
-        $http.post(url, posted, options).success(function(rsp) {
-            if (options.showProgress === true) {
+        $http.post(url, posted, oOptions).success(function(rsp) {
+            if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
                     removeAlert(_alert);
                     _alert = null;
                 }
             }
-            if (angular.isString(rsp)) {
-                if (options.autoNotice) {
-                    createAlert(rsp, 'warning');
-                    _alert = null;
-                }
-                if (options.autoBreak) {
-                    return
-                } else {
-                    _defer.reject(rsp);
-                }
-            } else if (rsp.err_code != 0) {
-                if (options.autoNotice) {
-                    var errmsg;
-                    if (angular.isString(rsp.err_msg)) {
-                        errmsg = rsp.err_msg;
-                    } else if (angular.isArray(rsp.err_msg)) {
-                        errmsg = rsp.err_msg.join('<br>');
-                    } else {
-                        errmsg = JSON.stringify(rsp.err_msg);
-                    }
-                    createAlert(errmsg, 'warning');
-                }
-                if (options.autoBreak) {
-                    return
-                } else {
-                    _defer.reject(rsp);
-                }
-            } else {
+            if (!oOptions.parseResponse) {
                 _defer.resolve(rsp);
+            } else {
+                if (angular.isString(rsp)) {
+                    if (oOptions.autoNotice) {
+                        createAlert(rsp, 'warning');
+                        _alert = null;
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else if (rsp.err_code != 0) {
+                    if (oOptions.autoNotice) {
+                        var errmsg;
+                        if (angular.isString(rsp.err_msg)) {
+                            errmsg = rsp.err_msg;
+                        } else if (angular.isArray(rsp.err_msg)) {
+                            errmsg = rsp.err_msg.join('<br>');
+                        } else {
+                            errmsg = JSON.stringify(rsp.err_msg);
+                        }
+                        createAlert(errmsg, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else {
+                    _defer.resolve(rsp);
+                }
             }
         }).error(function(data, status) {
-            if (options.showProgress === true) {
+            if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
                     removeAlert(_alert);

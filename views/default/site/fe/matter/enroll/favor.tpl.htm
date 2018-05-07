@@ -32,7 +32,7 @@
     <div class='app container'>
         <div class='row' ng-include="subView"></div>
     </div>
-    <nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom">
+    <nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom small">
         <div class="container-fluid" style='display:flex;align-items:center;'>
             <ul class="nav navbar-nav">
                 <li ng-class="{'active':subView==='repos.html'}"><a href ng-click="subView='repos.html'"><i class='glyphicon glyphicon-bookmark'></i> 收藏</a></li>
@@ -117,7 +117,7 @@
                                         </div>
                                     </div>
                                     <div ng-switch-when="image">
-                                        <ul>
+                                        <ul class='list-unstyled'>
                                             <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
                                         </ul>
                                     </div>
@@ -188,15 +188,21 @@
                 <div class='alert alert-info'>用【专题】对收藏的记录进行分类，便于查找和分享，<a href class="alert-link" ng-click="addTopic()"> 创建专题</a></div>
             </div>
             <div ng-if="topics.length">
-                <div ng-repeat="topic in topics">
-                    <div ng-bind="topic.title"></div>
-                    <div ng-bind="topic.summary"></div>
-                    <div ng-if="topic.create_at"><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
-                    <div ng-bind="topic.rec_num"></div>
-                    <div>
-                        <button class='btn btn-default btn-xs' ng-click="removeTopic(topic)"><i class='glyphicon glyphicon-remove'></i></button>
-                        <button class='btn btn-default btn-xs' ng-click="editTopic(topic)"><i class='glyphicon glyphicon-edit'></i></button>
-                        <button class='btn btn-default btn-xs' ng-click="shareTopic(topic)"><i class='glyphicon glyphicon-share-alt'></i></button>
+                <div class='panel' ng-repeat="topic in topics">
+                    <div class='panel-body'>
+                        <div class='form-group'>
+                            <div ng-bind="topic.title"></div>
+                        </div>
+                        <div class='form-group' ng-if="topic.summary">
+                            <div class='text-muted small' ng-bind="topic.summary"></div>
+                        </div>
+                        <div class='bottom-bar'>
+                            <div ng-if="topic.create_at" class='datetime'><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
+                            <div ng-click="gotoTopic(topic)"><i class='glyphicon glyphicon-file'></i><span ng-bind="topic.rec_num"></span></div>
+                            <button class='btn btn-default btn-xs' ng-click="removeTopic(topic)"><i class='glyphicon glyphicon-remove'></i></button>
+                            <button class='btn btn-default btn-xs' ng-click="editTopic(topic)"><i class='glyphicon glyphicon-edit'></i></button>
+                            <button class='btn btn-default btn-xs' ng-click="shareTopic(topic)"><i class='glyphicon glyphicon-share-alt'></i></button>
+                        </div>
                     </div>
                 </div>
             </div>

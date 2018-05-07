@@ -5,10 +5,8 @@ var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.controller('ctrlTopic', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
     $scope.subView = 'repos.html';
-    $scope.addTopic = function() {
-        http2.get(LS.j('topic/add', 'site', 'app')).then(function(rsp) {
-            $scope.$broadcast('xxt.matter.enroll.favor.topic.add', rsp.data);
-        });
+    $scope.shareTopic = function() {
+        location.href = LS.j('', 'site', 'app') + '&topic=' + $scope.topic.id + '&page=share';
     };
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
@@ -29,6 +27,9 @@ ngApp.controller('ctrlTopic', ['$scope', 'http2', 'tmsLocation', function($scope
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
         }
+        http2.get(LS.j('topic/get', 'site', 'app', 'topic')).then(function(rsp) {
+            $scope.topic = rsp.data;
+        });
     });
 }]);
 /**

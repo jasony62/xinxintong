@@ -16,7 +16,7 @@ class topic extends base {
 		}
 
 		$modelTop = $this->model('matter\enroll\topic');
-		$oTopic = $modelTop->byId($topic);
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,nickname,create_at,title,summary,rec_num']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -38,6 +38,8 @@ class topic extends base {
 			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
 		}
 
+		$oPosted = $this->getPostJson();
+
 		$current = time();
 		$oNewTopic = new \stdClass;
 		$oNewTopic->aid = $oApp->id;
@@ -45,8 +47,8 @@ class topic extends base {
 		$oNewTopic->unionid = $oUser->unionid;
 		$oNewTopic->nickname = $modelEnl->escape($oUser->nickname);
 		$oNewTopic->create_at = $current;
-		$oNewTopic->title = $oNewTopic->nickname . '的专题（' . date('y年n月d日', $current) . '）';
-		$oNewTopic->summary = $oNewTopic->title;
+		$oNewTopic->title = empty($oPosted->title) ? $oNewTopic->nickname . '的专题（' . date('y年n月d日', $current) . '）' : $modelEnl->escape($oPosted->title);
+		$oNewTopic->summary = empty($oPosted->summary) ? $oNewTopic->title : $modelEnl->escape($oPosted->summary);
 		$oNewTopic->rec_num = 0;
 		$oNewTopic->id = $modelEnl->insert('xxt_enroll_topic', $oNewTopic, true);
 

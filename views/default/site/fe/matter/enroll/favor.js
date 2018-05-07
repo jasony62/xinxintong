@@ -3,11 +3,23 @@ require('./favor.css');
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
-ngApp.controller('ctrlFavor', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
+ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', function($scope, $uibModal, http2, LS) {
     $scope.subView = 'repos.html';
     $scope.addTopic = function() {
-        http2.get(LS.j('topic/add', 'site', 'app')).then(function(rsp) {
-            $scope.$broadcast('xxt.matter.enroll.favor.topic.add', rsp.data);
+        $uibModal.open({
+            templateUrl: 'editTopic.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                var _oCreated;
+                $scope2.topic = _oCreated = {};
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() { $mi.close(_oCreated); };
+            }],
+            backdrop: 'static',
+            windowClass: 'auto-height',
+        }).result.then(function(oCreated) {
+            http2.post(LS.j('topic/add', 'site', 'app'), oCreated).then(function(rsp) {
+                $scope.$broadcast('xxt.matter.enroll.favor.topic.add', rsp.data);
+            });
         });
     };
     $scope.$watch('app', function(oApp) {
@@ -286,7 +298,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
                 $scope2.ok = function() { $mi.close(_oUpdated); };
             }],
             backdrop: 'static',
-            windowClass: 'modal-edit-topic auto-height',
+            windowClass: 'auto-height',
         }).result.then(function(oUpdated) {
             http2.post(LS.j('topic/update', 'site') + '&topic=' + oTopic.id, oUpdated).then(function(rsp) {
                 angular.extend(oTopic, oUpdated);
@@ -302,6 +314,9 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
     };
     $scope.shareTopic = function(oTopic) {
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=share';
+    };
+    $scope.gotoTopic = function(oTopic) {
+        location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
     };
     $scope.$on('xxt.matter.enroll.favor.topic.add', function(event, oNewTopic) {
         _topics.splice(0, 0, oNewTopic);

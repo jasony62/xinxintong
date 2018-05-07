@@ -30,6 +30,23 @@
         </div>
     </nav>
     <div class='app container'>
+        <div class='panel'>
+            <div class='panel-body'>
+                <div class='form-group'>
+                    <div class='text-muted' ng-bind="topic.nickname"></div>
+                </div>
+                <div class='form-group'>
+                    <div ng-bind="topic.title"></div>
+                </div>
+                <div class='form-group' ng-if="topic.summary">
+                    <div class='text-muted small' ng-bind="topic.summary"></div>
+                </div>
+                <div class='bottom-bar'>
+                    <div ng-if="topic.create_at" class='datetime'><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
+                    <button class='btn btn-default btn-xs' ng-click="shareTopic(topic)"><i class='glyphicon glyphicon-share-alt'></i></button>
+                </div>
+            </div>
+        </div>
         <div class='row' ng-include="'repos.html'"></div>
     </div>
     <script type="text/ng-template" id="repos.html">
@@ -88,7 +105,7 @@
                                         </div>
                                     </div>
                                     <div ng-switch-when="image">
-                                        <ul>
+                                        <ul class='list-unstyled'>
                                             <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
                                         </ul>
                                     </div>

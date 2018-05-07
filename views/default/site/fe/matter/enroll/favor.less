@@ -37,6 +37,44 @@ img {
 
 }
 
+.bottom-bar {
+    display: flex;
+    font-size: .9em;
+    color: #777;
+
+    &>*+* {
+        margin-left: 16px;
+
+        .like {
+            color: @brand-primary;
+        }
+
+    }
+
+    .datetime {
+        flex: 1;
+    }
+
+    a {
+        text-decoration: none;
+        color: #777;
+    }
+
+    .dropdown {
+        button {
+            border: 0;
+        }
+
+        .dropdown-menu {
+            left: auto;
+            right: 0;
+            float: right;
+        }
+
+    }
+
+}
+
 .navbar-header {
     .page-title {
         display: inline-block;
@@ -146,44 +184,6 @@ img {
 
             .datetime {
                 font-size: .8em;
-            }
-
-        }
-
-        .bottom-bar {
-            display: flex;
-            font-size: .9em;
-            color: #777;
-
-            &>*+* {
-                margin-left: 16px;
-
-                .like {
-                    color: @brand-primary;
-                }
-
-            }
-
-            .datetime {
-                flex: 1;
-            }
-
-            a {
-                text-decoration: none;
-                color: #777;
-            }
-
-            .dropdown {
-                button {
-                    border: 0;
-                }
-
-                .dropdown-menu {
-                    left: auto;
-                    right: 0;
-                    float: right;
-                }
-
             }
 
         }

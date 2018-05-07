@@ -182,7 +182,11 @@ class event extends base {
 								$desc .= '，';
 							}
 						}
-						$oRule->desc = $desc . '还需【' . ((int) $oRule->min - (int) $oAppUser->do_like_num) . '条】。';
+						if (!empty($oAppUser->do_like_num)) {
+							$oRule->desc = $desc . '还需【' . ((int) $oRule->min - (int) $oAppUser->do_like_num) . '条】。';
+						} else {
+							$oRule->desc = $desc . '还需【' . $oRule->min . '条】。';
+						}
 					}
 					$oRule->id = 'record.like.end';
 					$tasks[] = $oRule;

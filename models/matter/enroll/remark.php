@@ -48,6 +48,9 @@ class remark_model extends \TMS_MODEL {
 		if (!empty($oOptions['ek'])) {
 			$q[2]['enroll_key'] = $oOptions['ek'];
 		}
+		if (!empty($oOptions['rid'])) {
+			$q[2]['rid'] = $oOptions['rid'];
+		}
 
 		$remarks = $this->query_objs_ss($q);
 

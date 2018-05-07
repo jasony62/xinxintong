@@ -94,8 +94,10 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
                 return;
             }
         }
-        facRecord.remove(facRecord.current).then(function(data) {
-            page && $scope.gotoPage(event, page);
+        noticebox.confirm('删除记录，确定？').then(function() {
+            facRecord.remove(facRecord.current).then(function(data) {
+                page && $scope.gotoPage(event, page);
+            });
         });
     };
     $scope.$watch('app', function(app) {

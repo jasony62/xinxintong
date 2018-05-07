@@ -9,10 +9,6 @@ class event_model extends \TMS_MODEL {
 	 */
 	const SubmitEventName = 'site.matter.enroll.submit';
 	/**
-	 * 修改记录事件名称
-	 */
-	const UpdateEventName = 'site.matter.enroll.data.update';
-	/**
 	 * 用户A提交的填写记录获得新协作填写数据项
 	 */
 	const GetSubmitCoworkEventName = 'site.matter.enroll.cowork.get.submit';
@@ -293,7 +289,7 @@ class event_model extends \TMS_MODEL {
 		$oTarget->id = $oRecord->id;
 		$oTarget->type = 'record';
 		$oEvent = new \stdClass;
-		$oEvent->name = $bSubmitNewRecord ? self::SubmitEventName : self::UpdateEventName;
+		$oEvent->name = self::SubmitEventName;
 		$oEvent->op = $bSubmitNewRecord ? 'New' : 'Update';
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oUser;

@@ -1008,7 +1008,7 @@ class record extends base {
 		$oTarget->id = $oRecord->id;
 		$oTarget->type = 'record';
 		$oEvent = new \stdClass;
-		$oEvent->name = 'site.matter.enroll.data.remove';
+		$oEvent->name = 'site.matter.enroll.remove';
 		$oEvent->op = 'Del';
 		$oEvent->at = time();
 		$oEvent->user = $oUser;

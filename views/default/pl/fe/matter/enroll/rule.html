@@ -181,6 +181,10 @@
                                         <label>每轮每条记录（问题）每个人需要提交的协作填写数据（答案）或留言的要求说明</label>
                                         <textarea type='text' class='form-control' ng-model="rule.cowork.submit.end.desc"></textarea>
                                     </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.cowork.submit.pre.editor">仅限活动编辑组用户提交协作填写数据（答案）</label>
+                                    </div>
                                     <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
                                 </div>
                             </div>

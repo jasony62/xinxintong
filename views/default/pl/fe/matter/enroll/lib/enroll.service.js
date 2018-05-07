@@ -1526,7 +1526,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 title: '提交'
             }, {
                 value: 'site.matter.enroll.data.do.like',
-                title: '赞同其他人的填写内容'
+                title: '表态其他人的填写内容'
             }, {
                 value: 'site.matter.enroll.cowork.do.submit',
                 title: '提交协作新内容'
@@ -1535,10 +1535,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 title: '评论'
             }, {
                 value: 'site.matter.enroll.cowork.do.like',
-                title: '赞同其他人填写的协作内容'
+                title: '表态其他人填写的协作内容'
             }, {
                 value: 'site.matter.enroll.remark.do.like',
-                title: '赞同其他人的评论'
+                title: '表态其他人的评论'
             }, {
                 value: 'site.matter.enroll.data.get.agree',
                 title: '对记录表态'
@@ -1549,7 +1549,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 value: 'ite.matter.enroll.remark.get.agree',
                 title: '对评论表态'
             }, {
-                value: 'removeData',
+                value: 'site.matter.enroll.data.remove',
                 title: '删除记录'
             },{
                 value: 'site.matter.enroll.remark.as.cowork',

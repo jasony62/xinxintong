@@ -1549,7 +1549,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 value: 'ite.matter.enroll.remark.get.agree',
                 title: '对评论表态'
             }, {
-                value: 'site.matter.enroll.data.remove',
+                value: 'site.matter.enroll.remove',
                 title: '删除记录'
             },{
                 value: 'site.matter.enroll.remark.as.cowork',

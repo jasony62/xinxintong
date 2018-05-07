@@ -18,7 +18,7 @@ define(['frame'], function(ngApp) {
             'site.matter.enroll.cowork.get.agree': '对协作记录表态',
             'site.matter.enroll.remark.get.agree': '对评论表态',
             'site.matter.enroll.remark.as.cowork': '将用户留言设置为协作记录',
-            'site.matter.enroll.data.remove': '删除记录',
+            'site.matter.enroll.remove': '删除记录',
             'add': '新增记录',
             'U': '修改活动',
             'C': '创建活动',

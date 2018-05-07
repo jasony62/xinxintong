@@ -68,9 +68,11 @@
                                     <div class='form-group'>
                                         <label>每轮提交记录（问题）的截止时间</label>
                                         <select class='form-control' ng-model="rule.record.submit.end.time.mode">
+                                            <option value=''>不设置</option>>
                                             <option value='after_round_start_at'>轮次开始时间后</option>
                                         </select>
                                         <select class='form-control' ng-model="rule.record.submit.end.time.unit">
+                                            <option value=''>不设置</option>>
                                             <option value='hour'>小时</option>
                                         </select>
                                         <input type='text' class='form-control' ng-model="rule.record.submit.end.time.value" placeholder="输入需要的时间">
@@ -116,9 +118,11 @@
                                     <div class='form-group'>
                                         <label>每轮记录点赞（投票）的截止时间</label>
                                         <select class='form-control' ng-model="rule.record.like.end.time.mode">
+                                            <option value=''>不设置</option>
                                             <option value='after_round_start_at'>轮次开始时间后</option>
                                         </select>
                                         <select class='form-control' ng-model="rule.record.like.end.time.unit">
+                                            <option value=''>不设置</option>
                                             <option value='hour'>小时</option>
                                         </select>
                                         <input type='text' class='form-control' ng-model="rule.record.like.end.time.value" placeholder="输入需要的时间">
@@ -210,9 +214,11 @@
                                     <div class='form-group'>
                                         <label>每轮对每协作填写数据（答案）点赞（投票）的截止时间</label>
                                         <select class='form-control' ng-model="rule.cowork.like.end.time.mode">
+                                            <option value=''>不设置</option>
                                             <option value='after_round_start_at'>轮次开始时间后</option>
                                         </select>
                                         <select class='form-control' ng-model="rule.cowork.like.end.time.unit">
+                                            <option value=''>不设置</option>
                                             <option value='hour'>小时</option>
                                         </select>
                                         <input type='text' class='form-control' ng-model="rule.cowork.like.end.time.value" placeholder="输入需要的时间">

@@ -63,6 +63,14 @@ class cowork extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		$oUser = $this->getUser($oApp);
+
+		if (!empty($oApp->actionRule->cowork->submit->pre->editor)) {
+			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				return new \ParameterError('仅限活动编辑组用户提交填写数据');
+			}
+		}
+
 		$oUpdatedSchema = null;
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if ($oSchema->id === $oRecData->schema_id) {
@@ -88,8 +96,6 @@ class cowork extends base {
 				}
 			}
 		}
-
-		$oUser = $this->getUser($oApp);
 
 		$oPosted = $this->getPostJson();
 		$current = time();

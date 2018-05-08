@@ -81,6 +81,10 @@
                                         <label>每轮提交记录（问题）的要求说明</label>
                                         <textarea class='form-control' ng-model="rule.record.submit.end.desc"></textarea>
                                     </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.record.submit.pre.editor">仅限活动编辑组用户提交记录（问题）</label>
+                                    </div>
                                     <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
                                 </div>
                             </div>

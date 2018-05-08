@@ -202,7 +202,7 @@
                     </div>
                     <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
                         <div class='top-bar tms-flex-row'>
-                            <div class='seq tms-flex-grow text-muted'>#<span ng-bind="bRemarkRecord?remark.seq_in_record:record.seq_in_data"></span> <span class='reply' ng-if="remark.reply" ng-bind-html="remark.reply"></span></div>
+                            <div class='seq tms-flex-grow text-muted'>#<span ng-bind="bRemarkRecord?remark.seq_in_record:record.seq_in_data"></span> <span class='reply small' ng-if="remark.reply" ng-bind-html="remark.reply"></span></div>
                             <div ng-if="record._canAgree">
                                 <div class="btn-group" uib-dropdown>
                                     <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
@@ -264,7 +264,7 @@
                 </div>
             </div>
         </div>
-        <div tms-app-act app-acts="appActs"></div>
+        <div ng-if="appActs.length" tms-app-act app-acts="appActs"></div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>

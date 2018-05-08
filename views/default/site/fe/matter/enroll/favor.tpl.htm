@@ -146,7 +146,7 @@
                             </blockquote>
                         </div>
                         <div class='bottom-bar small text-muted'>
-                            <div class='datetime'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                            <div ng-bind="rec.enroll_at*1000|date:'MM-dd HH:mm'"></div>
                             <a ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
                             <a ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
                             <div class="btn-group" uib-dropdown>
@@ -289,7 +289,7 @@
                         </blockquote>
                     </div>
                     <div class='bottom-bar small text-muted'>
-                        <div class='datetime' ng-bind="rec.enroll_at*1000|date:'MM-dd HH:mm'"></div>
+                        <div ng-bind="rec.enroll_at*1000|date:'MM-dd HH:mm'"></div>
                         <button ng-if="$index" class='btn btn-default btn-xs' ng-click="moveRec(rec,-1,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
                         <button ng-if="$index<repos.length-1" class='btn btn-default btn-xs' ng-click="moveRec(rec,1,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
                         <div><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></div>
@@ -312,14 +312,20 @@
     </script>
     <script type="text/ng-template" id="assignTopic.html">
         <div class="modal-body">
-            <div ng-repeat="topic in topics">
-                <div>
-                    <input type='checkbox' ng-model="topic.checked" ng-change="checkTopic(topic,$index)">
+            <div class='panel panel-default' ng-repeat="topic in topics">
+                <div class='panel-body'>
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-model="topic.checked" ng-change="checkTopic(topic,$index)"> <span ng-bind="topic.title"></span></label>
+                    </div>
+                    <div class='form-group'>
+                        <div class='small text-muted' ng-bind="topic.summary"></div>
+                    </div>
+                    <div class='bottom-bar small text-muted'>
+                        <div ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></div>
+                        <div><i class='glyphicon glyphicon-file'></i> <span ng-bind="topic.rec_num"></span></div>
+                    </div>
                 </div>
-                <div ng-bind="topic.title"></div>
-                <div ng-bind="topic.summary"></div>
-                <div ng-if="topic.create_at"><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
-                <div ng-bind="topic.rec_num"></div>
             </div>
         </div>
         <div class="modal-footer" tms-hide-parent-height='400'>

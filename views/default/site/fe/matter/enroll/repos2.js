@@ -171,11 +171,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
                 noticebox.info('收藏成功');
             });
         } else {
-            url = LS.j('favor/remove', 'site');
-            url += '&ek=' + oRecord.enroll_key;
-            http2.get(url).then(function(rsp) {
-                delete oRecord.favored;
-                noticebox.info('取消收藏');
+            noticebox.confirm('取消收藏，确定？').then(function() {
+                url = LS.j('favor/remove', 'site');
+                url += '&ek=' + oRecord.enroll_key;
+                http2.get(url).then(function(rsp) {
+                    delete oRecord.favored;
+                });
             });
         }
     };
@@ -357,7 +358,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
             $scope.appActs.mockAsMember = { mocker: 'mocker' };
         }
         /*设置页面导航*/
-        var oAppNavs = {};
+        var oAppNavs = {
+            favor: {}
+        };
         if (_oApp.can_rank === 'Y') {
             oAppNavs.rank = {};
         }

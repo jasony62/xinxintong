@@ -24,7 +24,7 @@ function replaceBodyPic($body, $image) {
 	$imgs = $imgs[0];
 	// 替换body中的图片，如果有多个图片随机获取新图片
 	foreach ($imgs as $img) {
-		$body = str_replace($img, "<img src=" . randPic($image) . " />", $body);
+		$body = str_replace($img, '<img src="' . randPic($image) . '" />', $body);
 	}
 
 	return $body;

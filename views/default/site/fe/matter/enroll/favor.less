@@ -17,6 +17,11 @@ img {
     min-width: auto;
 }
 
+.dropdown-menu-top {
+    bottom: 100%;
+    top: auto;
+}
+
 .navbar.site-navbar-tab {
     min-height: unset;
     border-bottom: 0;
@@ -50,12 +55,16 @@ img {
 
     }
 
-    .datetime {
-        flex: 1;
+    &>:first-child {
+        flex-grow: 1
     }
 
     a {
         text-decoration: none;
+        color: #777;
+    }
+
+    .btn-default {
         color: #777;
     }
 

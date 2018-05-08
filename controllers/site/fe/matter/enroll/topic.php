@@ -246,7 +246,7 @@ class topic extends base {
 		}
 
 		$modelTop = $this->model('matter\enroll\topic');
-		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,nickname,create_at,title,summary,rec_num']);
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,rec_num']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -281,6 +281,45 @@ class topic extends base {
 			'xxt_enroll_topic_record',
 			['seq' => $afterSeq],
 			['id' => $oRecInTop->id]
+		);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 将记录从专题中删除
+	 */
+	public function removeRec_action($topic) {
+		$oUser = $this->who;
+		if (empty($oUser->unionid)) {
+			return new \ResponseError('仅支持注册用户修改，请登录后再进行此操作');
+		}
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->record)) {
+			return new \ParameterError();
+		}
+		$modelTop = $this->model('matter\enroll\topic');
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state']);
+		if (false === $oTopic || $oTopic->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oRecInTop = $modelTop->query_obj_ss(['id,seq', 'xxt_enroll_topic_record', ['record_id' => $modelTop->escape($oPosted->record), 'topic_id' => $oTopic->id]]);
+		if (false === $oRecInTop) {
+			return new \ObjectNotFoundError();
+		}
+
+		$rst = $modelTop->delete('xxt_enroll_topic_record', ['id' => $oRecInTop->id]);
+
+		$modelTop->update(
+			'xxt_enroll_topic_record',
+			['seq' => (object) ['op' => '-=', 'pat' => 1]],
+			['topic_id' => $oTopic->id, 'seq' => (object) ['op' => '>', 'pat' => $oRecInTop->seq]]
+		);
+
+		$modelTop->update(
+			'xxt_enroll_topic',
+			['rec_num' => (object) ['op' => '-=', 'pat' => 1]],
+			['id' => $oTopic->id]
 		);
 
 		return new \ResponseData($rst);

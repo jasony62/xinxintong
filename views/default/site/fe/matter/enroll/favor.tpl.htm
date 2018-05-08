@@ -153,7 +153,7 @@
                                 <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                                     <span class="glyphicon glyphicon-option-vertical"></span>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
+                                <ul class="dropdown-menu dropdown-menu-right" ng-class="{'dropdown-menu-top':$index===repos.length-1}" uib-dropdown-menu>
                                     <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
                                     <li><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 取消收藏</a></li>
                                     <li><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 选取专题</a></li>
@@ -198,9 +198,9 @@
                         </div>
                         <div class='bottom-bar small text-muted'>
                             <div ng-if="topic.create_at" class='datetime'><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
-                            <div ng-click="gotoTopic(topic)"><i class='glyphicon glyphicon-file'></i><span ng-bind="topic.rec_num"></span></div>
                             <button class='btn btn-default btn-xs' ng-click="removeTopic(topic)"><i class='glyphicon glyphicon-remove'></i></button>
-                            <button class='btn btn-default btn-xs' ng-click="editTopic(topic)"><i class='glyphicon glyphicon-edit'></i></button>
+                            <button class='btn btn-default btn-xs' ng-click="editTopic(topic)"><i class='glyphicon glyphicon-file'></i> <span ng-bind="topic.rec_num"></span></button>
+                            <button class='btn btn-default btn-xs' ng-click="gotoTopic(topic)"><i class='glyphicon glyphicon-eye-open'></i></button>
                             <button class='btn btn-default btn-xs' ng-click="shareTopic(topic)"><i class='glyphicon glyphicon-share-alt'></i></button>
                         </div>
                     </div>
@@ -222,7 +222,7 @@
             <div class='records'>
                 <div class='record' ng-repeat="rec in repos" ng-cloak>
                     <div class='header'>
-                        <div class='seq label label-default' ng-bind="rec.seq_in_topic"></div>
+                        <div class='seq label label-default' ng-bind="$index+1"></div>
                         <div class='nickname text-muted' ng-bind="rec.nickname||'隐藏'"></div>
                         <div>
                             <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
@@ -234,7 +234,7 @@
                                 <span class="glyphicon glyphicon-option-vertical"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
-                                <li><a href ng-click="quitTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 移出</a></li>
+                                <li><a href ng-click="quitRec(rec,$index)"><span class='glyphicon glyphicon-inbox'></span> 移出</a></li>
                                 <li class="divider"></li>
                                 <li><a href ng-click="moveRec(rec,-1*$index,$index)"><span class='glyphicon glyphicon-arrow-up'></span> 到顶</a></li>
                                 <li><a href ng-click="moveRec(rec,repos.length-1-$index,$index)"><span class='glyphicon glyphicon-arrow-down'></span> 到底</a></li>

@@ -756,6 +756,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             });
         }
         $scope.chooseType = function() {
+            $scope.ep.$$modified = true;
             oActiveSchema.label = $scope.buttons[oActiveSchema.name].l;
             oActiveSchema.next = '';
             if (['addRecord', 'editRecord', 'removeRecord'].indexOf(oActiveSchema.name) !== -1) {
@@ -770,6 +771,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             editorProxy.modifyButton($scope.activeWrap);
         };
         $scope.updWrap = function() {
+            $scope.ep.$$modified = true;
             editorProxy.modifyButton($scope.activeWrap);
         };
     }]);

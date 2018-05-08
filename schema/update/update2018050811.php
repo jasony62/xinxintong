@@ -2,10 +2,12 @@
 require_once '../../db.php';
 // 默认图片
 $image = [
-	'/kcfinder/upload/7cf590b4b88039da85d998f885b2f3a7/pic/333.gif?_=1525760434734',
-	'/kcfinder/upload/7cf590b4b88039da85d998f885b2f3a7/pic/111.jpg?_=1525760642079',
-	'/kcfinder/upload/7cf590b4b88039da85d998f885b2f3a7/pic/222.jpg?_=1525760644446',
-	'/kcfinder/upload/7cf590b4b88039da85d998f885b2f3a7/pic/444.jpg?_=1525760646599',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/001.jpg',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/002.jpg',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/003.jpg',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/0004.jpg',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/005.jpg',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/006.jpg',
 ];
 //随机图片
 function randPic($image) {

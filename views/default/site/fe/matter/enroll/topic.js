@@ -114,7 +114,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
 
         return deferred.promise;
-    }
+    };
     $scope.likeRecord = function(oRecord) {
         var url;
         url = LS.j('record/like', 'site');

@@ -182,7 +182,7 @@ define([], function() {
                 html += '<div class="tms-flex-grow" ng-if="!supplement.'+schema.id+'">请填写补充说明</div>';
                 html += '<div class="tms-flex-grow" ng-if="supplement.'+schema.id+'" dynamic-html="supplement.'+ schema.id+'"></div>';
                 html += '<div class="btn-group" uib-dropdown>';
-                html += '<button class="btn btn-default dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
                 html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
                 html += '<li><a href ng-click="editSupplement(\'' + schema.id + '\')"><span class="glyphicon glyphicon-edit"></span> 编辑</a></li>';
                 html += '</ul>';
@@ -313,7 +313,7 @@ define([], function() {
                 forEdit && (html += ' readonly');
                 html += '></div>';
                 html += '<div class="btn-group" uib-dropdown>';
-                html += '<button class="btn btn-default dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
                 html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
                 html += '<li><a href ng-click="removeItem(data.' + oSchema.id + ', $index)"><span class="glyphicon glyphicon-trash"></span> 删除</a></li>';
                 html += '<li><a href ng-click="editItem(data.' + oSchema.id + ', $index)"><span class="glyphicon glyphicon-edit"></span> 编辑</a></li>';
@@ -418,7 +418,7 @@ define([], function() {
                 html += '<li ng-repeat="file in data.' + oSchema.id + '" class="list-group-item">';
                 html += '<div wrap="file" class="top-bar tms-flex-row">';
                 html += '<div class="tms-flex-grow" ng-bind="file.name"></div>';
-                html += '<div class="btn-group" uib-dropdown><button class="btn btn-default dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<div class="btn-group" uib-dropdown><button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
                 html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
                 html += '<li><a href ng-click="clickFile(\'' + oSchema.id + '\',$index)"><span class="glyphicon glyphicon-trash"></span> 删除</a></li>';
                 html += '</ul></div>';
@@ -435,7 +435,7 @@ define([], function() {
                 html += '<li ng-repeat="voice in data.' + oSchema.id + '" class="list-group-item">';
                 html += '<div wrap="voice" class="top-bar tms-flex-row">';
                 html += '<div class="tms-flex-grow voice-name" ng-bind="voice.name"></div>';
-                html += '<div class="btn-group" uib-dropdown><button class="btn btn-default dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<div class="btn-group" uib-dropdown><button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
                 html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
                 html += '<li><a href ng-click="clickFile(\'' + oSchema.id + '\',$index)"><span class="glyphicon glyphicon-trash"></span> 删除</a></li>';
                 html += '</ul></div>';

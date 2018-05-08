@@ -39,8 +39,7 @@ img {
 
 .bottom-bar {
     display: flex;
-    font-size: .9em;
-    color: #777;
+    align-items: center;
 
     &>*+* {
         margin-left: 16px;
@@ -63,12 +62,6 @@ img {
     .dropdown {
         button {
             border: 0;
-        }
-
-        .dropdown-menu {
-            left: auto;
-            right: 0;
-            float: right;
         }
 
     }
@@ -130,106 +123,111 @@ img {
 }
 
 /* record */
-#repos {
-    .record {
-        background: #fff;
-        border-bottom: 1px solid #ddd;
-        padding: 8px 16px;
+.record {
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 16px;
 
-        &>* {
-            margin: 8px 0;
+    &>* {
+        margin: 8px 0;
+    }
+
+    .header {
+        display: flex;
+
+        .seq {
+            margin-right: 8px;
         }
 
-        .header {
-            display: flex;
-
-            .seq {
-                margin-right: 8px;
-            }
-
-            .label {
-                padding-top: .3em
-            }
-
-            .nickname {
-                flex-grow: 1;
-                text-align: left;
-                font-size: .9em;
-            }
-
+        .label {
+            padding-top: .3em
         }
 
-        .data {
-            blockquote {
-                &>div+div {
-                    margin-top: 8px;
-                }
-
-                .schema>div+div {
-                    margin-top: 8px;
-                }
-
-            }
-
-            .data-title:before {
-                content: ' ';
-                display: inline-block;
-                width: 12px;
-                height: 12px;
-                border-top: 6px solid #fff;
-                border-right: 6px solid #fff;
-                border-bottom: 6px solid #fff;
-                border-left: 6px solid @brand-primary;
-            }
-
-            .datetime {
-                font-size: .8em;
-            }
-
-        }
-
-        .remarks {
+        .nickname {
+            flex-grow: 1;
+            text-align: left;
             font-size: .9em;
-            border-top: 1px dashed #ddd;
-            margin-top: 16px;
-            padding: 1rem 0 0 2rem;
-            position: relative;
-
-            &:before {
-                content: '推荐留言';
-                position: absolute;
-                left: 50%;
-                margin-left: -2em;
-                top: -0.7em;
-                color: #999;
-            }
-
-            .remark {
-                .top-bar {
-                    display: flex;
-                }
-
-                .top-bar>:first-child {
-                    flex: 1;
-                }
-
-            }
-
-            .remark+.remark {
-                margin-bottom: 1em;
-            }
-
         }
 
     }
 
-    .tag {
-        background: #3af;
-        padding: 4px 6px;
-        margin: 4px;
-        border-radius: 2px;
-        font-size: .8em;
-        color: #fff;
+    .data {
+        blockquote {
+            &>div+div {
+                margin-top: 8px;
+            }
+
+            .schema>div+div {
+                margin-top: 8px;
+            }
+
+        }
+
+        .data-title:before {
+            content: ' ';
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-top: 6px solid #fff;
+            border-right: 6px solid #fff;
+            border-bottom: 6px solid #fff;
+            border-left: 6px solid @brand-primary;
+        }
+
+        .datetime {
+            font-size: .8em;
+        }
+
+    }
+
+    .remarks {
+        font-size: .9em;
+        border-top: 1px dashed #ddd;
+        margin-top: 16px;
+        padding: 1rem 0 0 2rem;
+        position: relative;
+
+        &:before {
+            content: '推荐留言';
+            position: absolute;
+            left: 50%;
+            margin-left: -2em;
+            top: -0.7em;
+            color: #999;
+        }
+
+        .remark {
+            .top-bar {
+                display: flex;
+            }
+
+            .top-bar>:first-child {
+                flex: 1;
+            }
+
+        }
+
+        .remark+.remark {
+            margin-bottom: 1em;
+        }
+
+    }
+
+}
+
+.tag {
+    background: #3af;
+    padding: 4px 6px;
+    margin: 4px;
+    border-radius: 2px;
+    font-size: .8em;
+    color: #fff;
+}
+
+.modal-edit-topic {
+    .record {
+        padding-left: 0;
+        padding-right: 0;
     }
 
 }

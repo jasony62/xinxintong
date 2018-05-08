@@ -552,7 +552,10 @@ class repos extends base {
 			$oMockUser = $oUser;
 		}
 
-		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oMockUser);
+		$modelTop = $this->model('matter\enroll\topic');
+		$oTopic = $modelTop->byId($topic);
+
+		$oResult = $modelTop->records($oApp, $oTopic);
 		if (!empty($oResult->records)) {
 			$modelData = $this->model('matter\enroll\data');
 			/* 是否限制了匿名规则 */

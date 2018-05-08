@@ -488,16 +488,6 @@ define([], function() {
             } else {
                 $label = $dom.children('label');
                 $label.html(oSchema.title);
-                $label.toggleClass('hide', !!oConfig.hidename);
-                if (oSchema.description && oSchema.description.length) {
-                    if (!$dom.find('[class="description"]').length) {
-                        $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])
-                    } else {
-                        $dom.find('[class="description"]').html(oSchema.description);
-                    }
-                } else {
-                    $dom.find('[class="description"]').remove();
-                }
                 if (/shorttext|longtext|member|date|location|url/.test(oSchema.type)) {
                     $input = $dom.find('input,textarea');
                     if (oConfig.placeholder) {
@@ -608,6 +598,16 @@ define([], function() {
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
                     })(this);
+                }
+                $label.toggleClass('hide', !!oConfig.hidename);
+                if (oSchema.description && oSchema.description.length) {
+                    if (!$dom.find('[class="description"]').length) {
+                        $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])
+                    } else {
+                        $dom.find('[class="description"]').html(oSchema.description);
+                    }
+                } else {
+                    $dom.find('[class="description"]').remove();
                 }
             }
         } else if (/radio|checkbox/.test(dataWrap.type)) {

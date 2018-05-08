@@ -193,6 +193,26 @@ class event extends base {
 				}
 			}
 		}
+		/* 提交留言的要求 */
+		if (isset($oActionRule->remark)) {
+			$oRemarkRule = $oActionRule->remark;
+			/* 对提交数量有要求 */
+			if (!empty($oRemarkRule->submit->end->min)) {
+				$oRule = $oRemarkRule->submit->end;
+				$modelRem = $this->model('matter\enroll\remark');
+				$remarks = $modelRem->byUser($oApp, $oUser, ['rid' => empty($oActiveRnd) ? '' : $oActiveRnd->rid, 'fields' => 'id']);
+				$remarkNum = count($remarks);
+				if ($remarkNum < $oRule->min) {
+					$oRule->_no = [(int) $oRule->min - $remarkNum];
+					$desc = empty($oRule->desc) ? ('每轮次每人需要至少提交【' . $oRule->min . '条】留言') : $oRule->desc;
+					if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+						$desc .= '，';
+					}
+					$oRule->desc = $desc . '还需【' . $oRule->_no[0] . '条】。';
+					$tasks[] = $oRule;
+				}
+			}
+		}
 		/* 对组长的任务要求 */
 		if (!empty($oUser->group_id) && isset($oUser->is_leader) && $oUser->is_leader === 'Y') {
 			/* 对组长推荐记录的要求 */

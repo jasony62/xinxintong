@@ -563,6 +563,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
  * 协作题
  */
 ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $anchorScroll, $uibModal, LS, http2, noticebox) {
+    $scope.canSubmitCowork = true; // 是否允许提交协作数据
     $scope.addItem = function(oSchema) {
         var oCoworkRule;
         if (oCoworkRule = $scope.ruleCowork($scope.record)) {
@@ -720,6 +721,16 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
     $scope.$watch('record', function(oRecord) {
         if (oRecord) {
             $scope.constraint = $scope.ruleCowork(oRecord);
+        }
+        var oActionRule;
+        if ($scope.app) {
+            if (oActionRule = $scope.app.actionRule) {
+                if (oActionRule.cowork && oActionRule.cowork.submit && oActionRule.cowork.submit.pre && oActionRule.cowork.submit.pre.editor) {
+                    if (!$scope.user.is_editor || $scope.user.is_editor !== 'Y') {
+                        $scope.canSubmitCowork = false;
+                    }
+                }
+            }
         }
     }, true);
 }]);

@@ -184,6 +184,7 @@ class topic extends base {
 			$aDelTopicIds = array_diff($aBeforeTopicIds, $aAfterTopicIds);
 		}
 
+		$modelTop = $this->model('matter\enroll\topic');
 		/* 新指定的专题 */
 		if (count($aNewTopicIds)) {
 			$oProtoNewRel = new \stdClass;
@@ -193,8 +194,13 @@ class topic extends base {
 			$oProtoNewRel->assign_at = time();
 			foreach ($aNewTopicIds as $topicId) {
 				$oProtoNewRel->topic_id = $topicId;
-				$modelRec->insert('xxt_enroll_topic_record', $oProtoNewRel, false);
-				$modelRec->update(
+				$oTopic = $modelTop->byId($topicId, 'id,state,rec_num');
+				if (false === $oTopic || $oTopic->state !== '1') {
+					continue;
+				}
+				$oProtoNewRel->seq = (int) $oTopic->rec_num + 1;
+				$modelTop->insert('xxt_enroll_topic_record', $oProtoNewRel, false);
+				$modelTop->update(
 					'xxt_enroll_topic',
 					['rec_num' => (object) ['op' => '+=', 'pat' => 1]],
 					['id' => $topicId]
@@ -205,8 +211,18 @@ class topic extends base {
 		/* 删除不再保留的专题 */
 		if (count($aDelTopicIds)) {
 			foreach ($aDelTopicIds as $topicId) {
-				$modelRec->delete('xxt_enroll_topic_record', ['record_id' => $oRecord->id, 'topic_id' => $topicId]);
-				$modelRec->update(
+				$oRecInTop = $modelTop->query_obj_ss(['id,seq', 'xxt_enroll_topic_record', ['record_id' => $oRecord->id, 'topic_id' => $topicId]]);
+				if (false === $oRecInTop) {
+					continue;
+				}
+				$modelTop->delete('xxt_enroll_topic_record', ['id' => $oRecInTop->id]);
+				/* 修改其他记录的序号 */
+				$modelTop->update(
+					'xxt_enroll_topic_record',
+					['seq' => (object) ['op' => '-=', 'pat' => '1']],
+					['topic_id' => $topicId, 'seq' => (object) ['op' => '>', 'pat' => $oRecInTop->seq]]
+				);
+				$modelTop->update(
 					'xxt_enroll_topic',
 					['rec_num' => (object) ['op' => '-=', 'pat' => 1]],
 					['id' => $topicId]
@@ -215,5 +231,97 @@ class topic extends base {
 		}
 
 		return new \ResponseData(count($aNewTopicIds));
+	}
+	/**
+	 * 更新专题中记录的排序
+	 */
+	public function updateSeq_action($topic) {
+		$oUser = $this->who;
+		if (empty($oUser->unionid)) {
+			return new \ResponseError('仅支持注册用户修改，请登录后再进行此操作');
+		}
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->record) || empty($oPosted->step)) {
+			return new \ParameterError();
+		}
+
+		$modelTop = $this->model('matter\enroll\topic');
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,rec_num']);
+		if (false === $oTopic || $oTopic->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oRecInTop = $modelTop->query_obj_ss(['id,seq', 'xxt_enroll_topic_record', ['record_id' => $modelTop->escape($oPosted->record), 'topic_id' => $oTopic->id]]);
+		if (false === $oRecInTop) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oRecInTop->seq = (int) $oRecInTop->seq;
+		$moveStep = (int) $oPosted->step;
+		$afterSeq = $oRecInTop->seq + $moveStep;
+		if ($afterSeq <= 0 || $afterSeq > $oTopic->rec_num) {
+			return new \ParameterError('指定位置超出范围');
+		}
+
+		if ($moveStep < 0) {
+			$modelTop->update(
+				'xxt_enroll_topic_record',
+				['seq' => (object) ['op' => '+=', 'pat' => 1]],
+				['topic_id' => $oTopic->id, 'seq' => (object) ['op' => 'between', 'pat' => [$afterSeq, $oRecInTop->seq - 1]]]
+			);
+		} else {
+			$modelTop->update(
+				'xxt_enroll_topic_record',
+				['seq' => (object) ['op' => '-=', 'pat' => 1]],
+				['topic_id' => $oTopic->id, 'seq' => (object) ['op' => 'between', 'pat' => [$oRecInTop->seq + 1, $afterSeq]]]
+			);
+		}
+
+		$rst = $modelTop->update(
+			'xxt_enroll_topic_record',
+			['seq' => $afterSeq],
+			['id' => $oRecInTop->id]
+		);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 将记录从专题中删除
+	 */
+	public function removeRec_action($topic) {
+		$oUser = $this->who;
+		if (empty($oUser->unionid)) {
+			return new \ResponseError('仅支持注册用户修改，请登录后再进行此操作');
+		}
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->record)) {
+			return new \ParameterError();
+		}
+		$modelTop = $this->model('matter\enroll\topic');
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state']);
+		if (false === $oTopic || $oTopic->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oRecInTop = $modelTop->query_obj_ss(['id,seq', 'xxt_enroll_topic_record', ['record_id' => $modelTop->escape($oPosted->record), 'topic_id' => $oTopic->id]]);
+		if (false === $oRecInTop) {
+			return new \ObjectNotFoundError();
+		}
+
+		$rst = $modelTop->delete('xxt_enroll_topic_record', ['id' => $oRecInTop->id]);
+
+		$modelTop->update(
+			'xxt_enroll_topic_record',
+			['seq' => (object) ['op' => '-=', 'pat' => 1]],
+			['topic_id' => $oTopic->id, 'seq' => (object) ['op' => '>', 'pat' => $oRecInTop->seq]]
+		);
+
+		$modelTop->update(
+			'xxt_enroll_topic',
+			['rec_num' => (object) ['op' => '-=', 'pat' => 1]],
+			['id' => $oTopic->id]
+		);
+
+		return new \ResponseData($rst);
 	}
 }

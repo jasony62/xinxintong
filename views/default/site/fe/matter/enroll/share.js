@@ -84,6 +84,10 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
         $scope.message = _oMessage.toString();
         fnSetSnsShare(_oApp, $scope.message, _oMessage.anchor);
     };
+    /*不是用微信打开时，提供二维码*/
+    if (!$scope.userAgent) {
+        $scope.qrcode = LS.j('topic/qrcode', 'site') + '&url=' + encodeURIComponent(location.href);
+    }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oEditor;
         _oApp = params.app;

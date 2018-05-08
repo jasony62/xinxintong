@@ -3,6 +3,84 @@ require('./favor.css');
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
+ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http2, $q, $sce, LS) {
+    var TopicRepos, _ins;
+    TopicRepos = function(oApp, oTopic) {
+        var oShareableSchemas;
+        oShareableSchemas = {};
+        oApp.dataSchemas.forEach(function(oSchema) {
+            if (oSchema.shareable && oSchema.shareable === 'Y') {
+                oShareableSchemas[oSchema.id] = oSchema;
+            }
+        });
+        this.oApp = oApp;
+        this.oTopic = oTopic;
+        this.shareableSchemas = oShareableSchemas;
+        this.oPage = {
+            at: 1,
+            size: 12,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        };
+        this.repos = [];
+    };
+    TopicRepos.prototype.list = function(pageAt) {
+        var url, oDeferred, _this;
+        oDeferred = $q.defer();
+        _this = this;
+        if (pageAt) {
+            this.oPage.at = pageAt;
+        } else {
+            this.oPage.at++;
+        }
+        if (this.oPage.at == 1) {
+            this.repos.splice(0, this.repos.length);
+            this.oPage.total = 0;
+        }
+        url = LS.j('repos/recordByTopic', 'site', 'app') + '&topic=' + this.oTopic.id + this.oPage.j();
+
+        http2.post(url, {}).then(function(oResult) {
+            _this.oPage.total = oResult.data.total;
+            if (oResult.data.records) {
+                oResult.data.records.forEach(function(oRecord) {
+                    var oSchema, schemaData;
+                    for (var schemaId in _this.shareableSchemas) {
+                        oSchema = _this.shareableSchemas[schemaId];
+                        if (schemaData = oRecord.data[oSchema.id]) {
+                            switch (oSchema.type) {
+                                case 'longtext':
+                                    oRecord.data[oSchema.id] = ngApp.oUtilSchema.txtSubstitute(schemaData);
+                                    break;
+                                case 'url':
+                                    schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
+                                    break;
+                                case 'file':
+                                case 'voice':
+                                    schemaData.forEach(function(oFile) {
+                                        if (oFile.url) {
+                                            oFile.url = $sce.trustAsResourceUrl(oFile.url);
+                                        }
+                                    });
+                                    break;
+                            }
+                        }
+                    }
+                    _this.repos.push(oRecord);
+                });
+            }
+            oDeferred.resolve(oResult);
+        });
+
+        return oDeferred.promise;
+    };
+    return {
+        ins: function(oApp, oTopic) {
+            _ins = _ins ? _ins : new TopicRepos(oApp, oTopic);
+            return _ins;
+        }
+    };
+}]);
 ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', function($scope, $uibModal, http2, LS) {
     $scope.subView = 'repos.html';
     $scope.addTopic = function() {
@@ -287,18 +365,34 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
     $scope.editTopic = function(oTopic) {
         $uibModal.open({
             templateUrl: 'editTopic.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                var _oUpdated;
+            controller: ['$scope', '$uibModalInstance', 'TopicRepos', function($scope2, $mi, TopicRepos) {
+                var _oUpdated, _oTopicRepos;
                 _oUpdated = {
                     title: oTopic.title,
                     summary: oTopic.summary,
                 };
                 $scope2.topic = _oUpdated;
+                _oTopicRepos = TopicRepos.ins($scope.app, oTopic);
+                $scope2.page = _oTopicRepos.page;
+                $scope2.repos = _oTopicRepos.repos;
+                $scope2.schemas = _oTopicRepos.shareableSchemas;
+                _oTopicRepos.list(1).then(function() {});
+                $scope2.quitRec = function(oRecord, index) {
+                    http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + oTopic.id, { record: oRecord.id }).then(function(rsp) {
+                        $scope2.repos.splice(index, 1);
+                    });
+                };
+                $scope2.moveRec = function(oRecord, step, index) {
+                    http2.post(LS.j('topic/updateSeq', 'site') + '&topic=' + oTopic.id, { record: oRecord.id, step: step }).then(function(rsp) {
+                        $scope2.repos.splice(index, 1);
+                        $scope2.repos.splice(index + step, 0, oRecord);
+                    });
+                };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() { $mi.close(_oUpdated); };
             }],
             backdrop: 'static',
-            windowClass: 'auto-height',
+            windowClass: 'modal-edit-topic auto-height',
         }).result.then(function(oUpdated) {
             http2.post(LS.j('topic/update', 'site') + '&topic=' + oTopic.id, oUpdated).then(function(rsp) {
                 angular.extend(oTopic, oUpdated);

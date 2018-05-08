@@ -299,6 +299,11 @@ class cowork extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'id,state,rid']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
 		$oUser = $this->getUser($oApp);
 
 		$oStat = new \stdClass;
@@ -329,7 +334,7 @@ class cowork extends base {
 										$desc .= '，';
 									}
 								}
-								$oRule->desc .= $desc . '还需【' . ((int) $oRule->cowork->num - $oStat->itemNum) . '条】。';
+								$oRule->desc = $desc . '还需【' . ((int) $oRule->cowork->num - $oStat->itemNum) . '条】。';
 								/* 积分奖励 */
 								require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
 								$modelCoinRule = $this->model('matter\enroll\coin');
@@ -359,7 +364,7 @@ class cowork extends base {
 										$desc .= '，';
 									}
 								}
-								$oRule->desc .= $desc . '还需【' . ((int) $oRule->remark->num - $oStat->remarkNum) . '条】。';
+								$oRule->desc = $desc . '还需【' . ((int) $oRule->remark->num - $oStat->remarkNum) . '条】。';
 								/* 积分奖励 */
 								require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
 								$modelCoinRule = $this->model('matter\enroll\coin');
@@ -385,7 +390,7 @@ class cowork extends base {
 									$desc .= '，';
 								}
 							}
-							$oRule->desc .= $desc . '还需【' . ((int) $oRule->coworkOrRemark->num - ($oStat->itemNum + $oStat->remarkNum)) . '条】。';
+							$oRule->desc = $desc . '还需【' . ((int) $oRule->coworkOrRemark->num - ($oStat->itemNum + $oStat->remarkNum)) . '条】。';
 							/* 积分奖励 */
 							require_once TMS_APP_DIR . '/models/matter/enroll/event.php';
 							$modelCoinRule = $this->model('matter\enroll\coin');
@@ -436,7 +441,7 @@ class cowork extends base {
 								$desc .= '，';
 							}
 						}
-						$oRule->desc .= $desc . '还需【' . ((int) $oRule->cowork->num - $oStat->itemNum) . '条】。';
+						$oRule->desc = $desc . '还需【' . ((int) $oRule->cowork->num - $oStat->itemNum) . '条】。';
 						$tasks[] = $oRule;
 					}
 				}
@@ -466,10 +471,30 @@ class cowork extends base {
 						if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
 							$desc .= '，';
 						}
-						$oRule->desc .= $desc . '还需【' . $oRule->_no[0] . '条】。';
+						$oRule->desc = $desc . '还需【' . $oRule->_no[0] . '条】。';
 						$tasks[] = $oRule;
 					} else {
 						$oRule->_ok = [$likeNum];
+					}
+				}
+			}
+			/* 提交留言的要求 */
+			if (isset($oActionRule->remark)) {
+				$oRemarkRule = $oActionRule->remark;
+				/* 对提交数量有要求 */
+				if (!empty($oRemarkRule->submit->end->min)) {
+					$oRule = $oRemarkRule->submit->end;
+					$modelRem = $this->model('matter\enroll\remark');
+					$remarks = $modelRem->byUser($oApp, $oUser, ['rid' => $oRecord->rid, 'fields' => 'id']);
+					$remarkNum = count($remarks);
+					if ($remarkNum < $oRule->min) {
+						$oRule->_no = [(int) $oRule->min - $remarkNum];
+						$desc = empty($oRule->desc) ? ('每轮次每人需要至少提交【' . $oRule->min . '条】留言') : $oRule->desc;
+						if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
+							$desc .= '，';
+						}
+						$oRule->desc = $desc . '还需【' . $oRule->_no[0] . '条】。';
+						$tasks[] = $oRule;
 					}
 				}
 			}
@@ -490,7 +515,7 @@ class cowork extends base {
 							if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
 								$desc .= '，';
 							}
-							$oRule->desc .= $desc . '还需【' . $oRule->_no[0] . '条】。';
+							$oRule->desc = $desc . '还需【' . $oRule->_no[0] . '条】。';
 						}
 						$oRule->id = 'leader.cowork.agree.end';
 						$tasks[] = $oRule;

@@ -100,6 +100,9 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
             });
         });
     };
+    $scope.addTag = function() {
+        $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
+    };
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
         /* 设置页面分享信息 */
@@ -421,4 +424,11 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
     http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
         $scope.topics = _topics = rsp.data.topics;
     });
+}]);
+/**
+ * 标签
+ */
+ngApp.controller('ctrlTag', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'noticebox', function($scope, $uibModal, http2, LS, noticebox) {
+    var _tags;
+    $scope.tags = _tags = [];
 }]);

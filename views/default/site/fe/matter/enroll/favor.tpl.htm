@@ -36,10 +36,14 @@
         <div class="container-fluid" style='display:flex;align-items:center;'>
             <ul class="nav navbar-nav">
                 <li ng-class="{'active':subView==='repos.html'}"><a href ng-click="subView='repos.html'"><i class='glyphicon glyphicon-bookmark'></i> 收藏</a></li>
+                <li ng-class="{'active':subView==='tag.html'}"><a href ng-click="subView='tag.html'"><i class='glyphicon glyphicon-tag'></i> 标签</a></li>
                 <li ng-class="{'active':subView==='topic.html'}"><a href ng-click="subView='topic.html'"><i class='glyphicon glyphicon-inbox'></i> 专题</a></li>
             </ul>
             <div ng-if="subView==='topic.html'" style='margin-left:16px;'>
                 <button class="btn btn-default btn-sm navbar-btn" ng-click="addTopic()"><i class='glyphicon glyphicon-plus'></i>创建</button>
+            </div>
+            <div ng-if="subView==='tag.html'" style='margin-left:16px;'>
+                <button class="btn btn-default btn-sm navbar-btn" ng-click="addTag()"><i class='glyphicon glyphicon-plus'></i>创建</button>
             </div>
         </div>
     </nav>
@@ -179,6 +183,18 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="tag.html">
+        <div ng-controller='ctrlTag' class='tags col-xs-12'>
+            <div ng-if="tags.length===0">
+                <div class='alert alert-info'>用【标签】对收藏的记录进行分类，便于查找和分享，<a href class="alert-link" ng-click="addTag()"> 创建标签</a></div>
+            </div>
+            <div class='tag-editor' ng-if="newTag">
+                <input type='text' ng-model="newTag.label">
+                <button class='btn btn-default'>确定</button>
+                <button class='btn btn-default'>取消</button>
             </div>
         </div>
     </script>

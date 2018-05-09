@@ -385,6 +385,42 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
 }
+/**
+ * 登记活动标签
+ */
+$sql = 'create table if not exists xxt_enroll_tag(';
+$sql .= 'id bigint not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ',label varchar(255) not null';
+$sql .= ",assign_num int not null default 0";
+$sql .= ",user_num int not null default 0";
+$sql .= ",public char(1) not null default 'N'";
+$sql .= ",forbidden char(1) not null default 'N'";
+$sql .= ",state tinyint not null default 1"; //0:delete,1:normal;
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记活动标签对应
+ */
+$sql = 'create table if not exists xxt_enroll_tag_event(';
+$sql .= 'id bigint not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ',tag_id bigint not null';
+$sql .= ",userid varchar(40) not null";
+$sql .= ',event_at int not null';
+$sql .= ",event_type char(1) int not default 'C'"; //C:create,D:delete,A:assign
+$sql .= ',target_id int not null'; // 被打标签的填写记录
+$sql .= ",state tinyint not null default 1"; // 事件是否有效
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
 //
 $sql = "create table if not exists xxt_enroll_log(";
 $sql .= "id bigint not null auto_increment";

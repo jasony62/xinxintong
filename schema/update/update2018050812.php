@@ -40,8 +40,8 @@ foreach ($imgs as $key => $vals) {
 	echo "<br/>";
 }
 echo "<br/>";
-echo ">>>>>>>>>图文数" . $sum . ">>>>>>>>>>";
+echo ">>>>>>>>>图文数" . $sumT . ">>>>>>>>>>";
 echo "<br/>";
-echo ">>>>>>>>>>图片数" . $sum . ">>>>>>>>>>";
+echo ">>>>>>>>>图片数" . $sumP . ">>>>>>>>>>";
 echo "<br/>";
 echo "end update " . __FILE__ . PHP_EOL;

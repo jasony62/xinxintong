@@ -22,21 +22,26 @@ $objects = array();
 while ($obj = $db_result->fetch_object()) {
 	$objects[] = $obj;
 }
-$sum = 0;
+$sumT = 0;
+$sumP = 0;
 $imgs = [];
 foreach ($objects as $object) {
 	$imgs[$object->id] = getBodyPic($object->body);
-	$sum++;
+	$sumT++;
 }
 
 foreach ($imgs as $key => $vals) {
 	echo "<<<<<<<<<<<<<<<-ID-" . $key . "->>>>>>>>>>>>>>>";
 	echo "<br/>";
 	foreach ($vals as $img) {
+		$sumP++;
 		echo $img;
 	}
 	echo "<br/>";
 }
 echo "<br/>";
-echo ">>>>>>>>>>" . $sum . ">>>>>>>>>>";
+echo ">>>>>>>>>图文数" . $sum . ">>>>>>>>>>";
+echo "<br/>";
+echo ">>>>>>>>>>图片数" . $sum . ">>>>>>>>>>";
+echo "<br/>";
 echo "end update " . __FILE__ . PHP_EOL;

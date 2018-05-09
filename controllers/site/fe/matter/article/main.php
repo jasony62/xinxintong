@@ -140,8 +140,9 @@ class main extends \site\fe\matter\base {
 		 */
 		$modelArticle = $this->model('matter\article');
 		$oArticle = $modelArticle->byId($articleid);
-		
-		$this->checkEntryRule($oArticle, true);
+		if (isset($oArticle->entryRule->attachment) && $oArticle->entryRule->attachment === 'Y') {
+			$this->checkEntryRule($oArticle, true);
+		}
 		/**
 		 * 获取附件
 		 */

@@ -7,7 +7,7 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 缺省返回的列
 	 */
-	const DEFAULT_FIELDS = 'id,value,tag,supplement,rid,enroll_key,schema_id,userid,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq';
+	const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq';
 	/**
 	 * 按题目记录数据
 	 */
@@ -264,6 +264,7 @@ class data_model extends \TMS_MODEL {
 	}
 	/**
 	 * 处理提交的数据
+	 * 包括图片和文件的上传
 	 */
 	public function disposRecrdData($oApp, $schemasById, $submitData, $submitkey) {
 		$oDbData = new \stdClass; // 处理后的保存到数据库中的登记记录
@@ -304,37 +305,38 @@ class data_model extends \TMS_MODEL {
 				case 'file':
 					if (is_array($submitVal)) {
 						$treatedValue = [];
-						foreach ($submitVal as $file) {
-							if (isset($file->uniqueIdentifier)) {
+						foreach ($submitVal as $oFile) {
+							if (isset($oFile->uniqueIdentifier)) {
 								/* 新上传的文件 */
-								if (defined('SAE_TMP_PATH')) {
+								if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
 									$fsAli = $this->model('fs/alioss', $oApp->siteid);
-									$dest = '/' . $oApp->id . '/' . $submitkey . '_' . $file->name;
+									$dest = '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $oFile->name;
 									$fileUploaded2 = $fsAli->getBaseURL() . $dest;
 								} else {
-									$fsUser = $this->model('fs/local', $oApp->siteid, '_user');
 									$fsResum = $this->model('fs/local', $oApp->siteid, '_resumable');
-									$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
+									$fileUploaded = $fsResum->rootDir . '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $oFile->name;
+									$fsUser = $this->model('fs/local', $oApp->siteid, '_user');
 									$dirUploaded = $fsUser->rootDir . '/' . $submitkey;
 									if (!file_exists($dirUploaded)) {
 										if (false === mkdir($dirUploaded, 0777, true)) {
-											return array(false, '创建文件上传目录失败');
+											return [false, '创建文件上传目录失败'];
 										}
 									}
-									if (file_exists($fileUploaded)) {
-										/* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
-										$fileUploaded2 = $dirUploaded . '/' . $file->name;
-										if (false === @rename($fileUploaded, $fileUploaded2)) {
-											return array(false, '移动上传文件失败');
-										}
+									if (!file_exists($fileUploaded)) {
+										return [false, '上传文件没有被正确保存'];
+									}
+									/* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
+									$fileUploaded2 = $dirUploaded . '/' . $oFile->name;
+									if (false === @rename($fileUploaded, $fileUploaded2)) {
+										return [false, '移动上传文件失败'];
 									}
 								}
-								unset($file->uniqueIdentifier);
-								$file->url = $fileUploaded2;
-								$treatedValue[] = $file;
+								unset($oFile->uniqueIdentifier);
+								$oFile->url = $fileUploaded2;
+								$treatedValue[] = $oFile;
 							} else {
 								/* 已经上传过的文件 */
-								$treatedValue[] = $file;
+								$treatedValue[] = $oFile;
 							}
 						}
 						$oDbData->{$schemaId} = $treatedValue;
@@ -342,6 +344,24 @@ class data_model extends \TMS_MODEL {
 						$oDbData->{$schemaId} = $submitVal;
 					} else {
 						throw new \Exception('登记的数据类型和登记项【file】需要的类型不匹配');
+					}
+					break;
+				case 'voice':
+					if (is_array($submitVal)) {
+						$treatedValue = [];
+						$userFs = $this->model('fs/user', $oApp->siteid);
+						foreach ($submitVal as $oVoice) {
+							if (isset($oVoice->serverId)) {
+								$rst = $userFs->storeWxVoice($oVoice);
+								if (false === $rst[0]) {
+									return $rst;
+								}
+								$treatedValue[] = $oVoice;
+							} else {
+								$treatedValue[] = $oVoice;
+							}
+						}
+						$oDbData->{$schemaId} = $treatedValue;
 					}
 					break;
 				case 'multiple':
@@ -455,8 +475,8 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 获得指定登记记录登记数据的详细信息
 	 */
-	public function byRecord($ek, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS;
+	public function byRecord($ek, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : self::DEFAULT_FIELDS;
 
 		$q = [
 			$fields,
@@ -470,10 +490,10 @@ class data_model extends \TMS_MODEL {
 			$oData->agreed_log = empty($oData->agreed_log) ? new \stdClass : json_decode($oData->agreed_log);
 		};
 
-		if (isset($options['schema'])) {
-			if (is_array($options['schema'])) {
+		if (isset($aOptions['schema'])) {
+			if (is_array($aOptions['schema'])) {
 				$oResult = new \stdClass;
-				$q[2]['schema_id'] = $options['schema'];
+				$q[2]['schema_id'] = $aOptions['schema'];
 				$data = $this->query_objs_ss($q);
 				if (count($data)) {
 					foreach ($data as $schemaData) {
@@ -487,7 +507,7 @@ class data_model extends \TMS_MODEL {
 				}
 				return $oResult;
 			} else {
-				$q[2]['schema_id'] = $options['schema'];
+				$q[2]['schema_id'] = $aOptions['schema'];
 				if ($data = $this->query_obj_ss($q)) {
 					if (isset($fnHandler)) {
 						$fnHandler($data);
@@ -515,14 +535,14 @@ class data_model extends \TMS_MODEL {
 	/**
 	 * 返回指定活动，指定登记项的填写数据
 	 */
-	public function bySchema(&$oApp, $oSchema, $options = null) {
-		if ($options) {
-			is_array($options) && $options = (object) $options;
-			$page = isset($options->page) ? $options->page : null;
-			$size = isset($options->size) ? $options->size : null;
-			$rid = isset($options->rid) ? $this->escape($options->rid) : null;
+	public function bySchema(&$oApp, $oSchema, $oOptions = null) {
+		if ($oOptions) {
+			is_array($oOptions) && $oOptions = (object) $oOptions;
+			$page = isset($oOptions->page) ? $oOptions->page : null;
+			$size = isset($oOptions->size) ? $oOptions->size : null;
+			$rid = isset($oOptions->rid) ? $this->escape($oOptions->rid) : null;
 		}
-		$result = new \stdClass; // 返回的结果
+		$oResult = new \stdClass; // 返回的结果
 
 		// 查询参数
 		$schemaId = $this->escape($oSchema->id);
@@ -531,6 +551,10 @@ class data_model extends \TMS_MODEL {
 			"xxt_enroll_record_data",
 			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>''",
 		];
+		/* 是否排除协作填写数据 */
+		if (isset($oOptions->multitext_seq)) {
+			$q[2] .= ' and multitext_seq=' . $multitext_seq;
+		}
 		/* 限制填写轮次 */
 		if (!empty($rid)) {
 			if ($rid !== 'ALL') {
@@ -543,8 +567,8 @@ class data_model extends \TMS_MODEL {
 			}
 		}
 		/* 限制填写用户 */
-		if (!empty($options->userid)) {
-			$q[2] .= " and userid='{$options->userid}'";
+		if (!empty($oOptions->userid)) {
+			$q[2] .= " and userid='{$oOptions->userid}'";
 		}
 
 		$q2 = [];
@@ -554,14 +578,14 @@ class data_model extends \TMS_MODEL {
 		}
 
 		// 处理获得的数据
-		$result->records = $this->query_objs_ss($q, $q2);
+		$oResult->records = $this->query_objs_ss($q, $q2);
 
 		// 符合条件的数据总数
 		$q[0] = 'count(distinct value)';
 		$total = (int) $this->query_val_ss($q, $q2);
-		$result->total = $total;
+		$oResult->total = $total;
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 返回指定活动，填写的数据

@@ -3,6 +3,9 @@ require('./input.css');
 
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
+require('../../../../../../asset/js/xxt.ui.editor.js');
+
+window.moduleAngularModules = ['editor.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -218,6 +221,156 @@ ngApp.controller('ctrlWxUploadFileTip', ['$scope', '$interval', function($scope,
         evt.initEvent("hide", false, false);
         domTip.dispatchEvent(evt);
     };
+}]);
+ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
+    function doUpload2Wx(oPendingData) {
+        var defer;
+        defer = $q.defer();
+        wx.uploadVoice({
+            localId: oPendingData.localId,
+            isShowProgressTips: 1,
+            success: function(res) {
+                oPendingData.serverId = res.serverId;
+                delete oPendingData.localId;
+                defer.resolve();
+            },
+            fail: function(res) {
+                noticebox.error('录音文件上传失败：' + res.errMsg);
+                defer.reject();
+            }
+        });
+        return defer.promise;
+    }
+
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$uibModal', 'noticebox', function($scope, $uibModal, noticebox) {
+            $scope.clickFile = function(schemaId, index) {
+                var buttons, oSchemaData;
+                if ($scope.data[schemaId] && $scope.data[schemaId][index]) {
+                    buttons = [
+                        { label: '删除', value: 'delete' }, { label: '取消', value: 'cancel' }
+                    ];
+                    oSchemaData = $scope.data[schemaId];
+                    noticebox.confirm('操作录音文件【' + oSchemaData[index].name + '】', buttons).then(function(value) {
+                        switch (value) {
+                            case 'delete':
+                                oSchemaData.splice(index, 1);
+                                break;
+                        }
+                    });
+                }
+            };
+            $scope.startVoice = function(schemaId) {
+                var oSchema, oSchemaData;
+                if (!window.wx || !wx.startRecord) {
+                    noticebox.warn('请在微信中进行录音');
+                    return;
+                }
+                if ($scope.schemasById && $scope.schemasById[schemaId]) {
+                    oSchema = $scope.schemasById[schemaId];
+                } else if ($scope.app && $scope.app.dataSchemas && $scope.app.dataSchemas.length) {
+                    for (var i = $scope.app.dataSchemas.length - 1; i >= 0; i--) {
+                        if ($scope.app.dataSchemas[i].id = schemaId) {
+                            oSchema = $scope.app.dataSchemas[i];
+                            break;
+                        }
+                    }
+                }
+                if (!oSchema) {
+                    noticebox.warn('数据错误，未找到题目定义');
+                    return;
+                }
+                /* 检查限制条件 */
+                $scope.data[oSchema.id] === undefined && ($scope.data[oSchema.id] = []);
+                oSchemaData = $scope.data[oSchema.id];
+                if (oSchema.count && oSchemaData.length >= oSchema.count) {
+                    noticebox.warn('最多允许上传（' + oSchema.count + '）段录音');
+                    return;
+                }
+                $uibModal.open({
+                    templateUrl: 'recordVoice.html',
+                    controller: ['$scope', '$interval', '$uibModalInstance', function($scope2, $interval, $mi) {
+                        var _oData, _timer;
+                        $scope2.data = _oData = {
+                            name: '录音' + (oSchemaData.length + 1),
+                            time: 0,
+                            reset: function() {
+                                this.time = 0;
+                                delete this.localId;
+                            }
+                        };
+                        $scope2.startRecord = function() {
+                            wx.startRecord();
+                            _oData.reset();
+                            _timer = $interval(function() {
+                                _oData.time++;
+                            }, 1000);
+                            wx.onVoiceRecordEnd({
+                                // 录音时间超过一分钟没有停止的时候会执行 complete 回调
+                                complete: function(res) {
+                                    $scope.$apply(function() {
+                                        _oData.localId = res.localId;
+                                    });
+                                    $interval.cancel(_timer);
+                                }
+                            });
+                        };
+                        $scope2.stopRecord = function() {
+                            wx.stopRecord({
+                                success: function(res) {
+                                    $scope.$apply(function() {
+                                        _oData.localId = res.localId;
+                                    });
+                                }
+                            });
+                            $interval.cancel(_timer);
+                        };
+                        $scope2.play = function() {
+                            wx.playVoice({
+                                localId: _oData.localId
+                            });
+                            wx.onVoicePlayEnd({
+                                success: function(res) {
+                                    var localId = res.localId;
+                                }
+                            });
+                        };
+                        $scope2.pause = function() {
+                            wx.pauseVoice({
+                                localId: _oData.localId
+                            });
+                        };
+                        $scope2.stop = function() {
+                            wx.stopVoice({
+                                localId: _oData.localId
+                            });
+                        };
+                        $scope2.cancel = function() { $mi.dismiss(); };
+                        $scope2.ok = function() { $mi.close($scope2.data); };
+                    }],
+                    backdrop: 'static',
+                }).result.then(function(oResult) {
+                    var oNewVoice;
+                    oNewVoice = {
+                        localId: oResult.localId,
+                        name: oResult.name,
+                        time: oResult.time
+                    };
+                    if (oResult.localId) {
+                        $scope.data[oSchema.id].push(oNewVoice);
+                    }
+                    /* 记录整体提交时处理文件上传 */
+                    $scope.beforeSubmit(function() {
+                        return doUpload2Wx(oNewVoice);
+                    });
+                });
+            };
+            $scope.playVoice = function() {
+
+            };
+        }]
+    }
 }]);
 ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsUrl', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsUrl) {
     function fnDisableActions() {
@@ -517,6 +670,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 if (oRecord.data_tag) {
                     $scope.tag = oRecord.data_tag;
                 }
+                if (oRecord.supplement) {
+                    $scope.supplement = oRecord.supplement;
+                }
                 /*设置页面分享信息*/
                 $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
                 /*根据加载的数据设置页面*/
@@ -545,22 +701,66 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     });
     $scope.removeItem = function(items, index) {
-        items.splice(index, 1);
+        noticebox.confirm('删除此项，确定？').then(function() {
+            items.splice(index, 1);
+        });
     };
     $scope.addItem = function(schemaId) {
-        var item = {
-            id: 0,
-            value: ''
-        }
-        $scope.data[schemaId].push(item);
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: '添加内容...'
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
+                };
+            }],
+            windowClass: 'modal-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(data) {
+            var item = { id: 0, value: '' };
+            item.value = data.content;
+            $scope.data[schemaId].push(item);
+        });
     };
+    $scope.editItem = function(schema, index) {
+        var oItem = schema[index];
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: oItem.value
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
+                };
+            }],
+            windowClass: 'modal-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(data) {
+            oItem.value = data.content;
+        });
+    }
     $scope.submit = function(event, nextAction, type) {
         var checkResult;
         /*多项填空题，如果值为空则删掉*/
         for (var k in $scope.data) {
             if (k !== 'member' && $scope.app._schemasById[k] && $scope.app._schemasById[k].type == 'multitext') {
                 angular.forEach($scope.data[k], function(item, index) {
-                    if (item.value == '') {
+                    if (item.value === '') {
                         $scope.data[k].splice(index, 1);
                     }
                 });
@@ -642,6 +842,31 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             $scope.data[schemaId] = oData;
         });
     };
+    $scope.editSupplement = function(schemaId) {
+        var str = $scope.supplement[schemaId];
+        if (!str) { str = '请填写补充说明'; }
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: str
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
+                };
+            }],
+            windowClass: 'modal-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(data) {
+            $scope.supplement[schemaId] = data.content;
+        });
+    }
     $scope.dataBySchema = function(schemaId) {
         var app = $scope.app;
         $uibModal.open({
@@ -651,6 +876,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() { $mi.close($scope2.data); };
                 http2.get('/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + app.siteid + '&app=' + app.id + '&schema=' + schemaId).then(function(result) {
+                    if (app._schemasById[schemaId].type == 'multitext') {
+                        result.data.records.pop();
+                    }
                     $scope2.records = result.data.records;
                 });
             }],

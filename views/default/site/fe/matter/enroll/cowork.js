@@ -1,11 +1,20 @@
 'use strict';
 require('./cowork.css');
+require('../../../../../../asset/js/xxt.ui.image.js');
+require('../../../../../../asset/js/xxt.ui.editor.js');
+
+window.moduleAngularModules = ['editor.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
-ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', function($scope, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage) {
+ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', function($scope, $q, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage) {
     function listRemarks() {
-        http2.get(LS.j('remark/list', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
+        var url;
+        url = LS.j('remark/list', 'site', 'ek', 'schema', 'data');
+        if (_oMocker.role) {
+            url += '&role=' + _oMocker.role;
+        }
+        http2.get(url).then(function(rsp) {
             var remarks, oRemark, oUpperRemark, oRemarks;
             remarks = rsp.data.remarks;
             if (remarks && remarks.length) {
@@ -19,7 +28,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                         oRemark.content = oRemark.content.replace(/\n/g, '<br/>');
                     }
                     if (oRemark.data) {
-                        oRemark.reply = '<a href="#item-' + oRemark.data.id + '">回复' + oRemark.nickname + '的' + ($scope.schemasById[oRemark.data.schema_id] ? $scope.schemasById[oRemark.data.schema_id].title : '数据') + ' #' + oRemark.data.multitext_seq + '</a>';
+                        oRemark.reply = '<a href="#item-' + oRemark.data.id + '">回复' + oRemark.nickname + '的' + ($scope.schemasById[oRemark.data.schema_id] ? $scope.schemasById[oRemark.data.schema_id].title : '数据') + (oRemark.data.multitext_seq > 0 ? (' #' + oRemark.data.multitext_seq) : '') + '</a>';
                     } else if (oRemark.remark_id !== '0') {
                         if (oUpperRemark = oRemarks[oRemark.remark_id]) {
                             oRemark.reply = '<a href="#remark-' + oRemark.remark_id + '">回复' + oUpperRemark.nickname + '的留言 #' + ($scope.bRemarkRecord ? oUpperRemark.seq_in_record : oUpperRemark.seq_in_data) + '</a>';
@@ -36,12 +45,13 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
             } else if (/remark-.+/.test($location.hash())) {
                 $timeout(function() {
                     var elRemark;
-                    $anchorScroll();
-                    elRemark = document.querySelector('#' + $location.hash());
-                    elRemark.classList.toggle('blink', true);
-                    $timeout(function() {
-                        elRemark.classList.toggle('blink', false);
-                    }, 1000);
+                    if (elRemark = document.querySelector('#' + $location.hash())) {
+                        $anchorScroll();
+                        elRemark.classList.toggle('blink', true);
+                        $timeout(function() {
+                            elRemark.classList.toggle('blink', false);
+                        }, 1000);
+                    }
                 });
             }
         });
@@ -55,8 +65,167 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
         }
         return http2.post(url, { content: content });
     }
+    /**
+     * 加载整条记录
+     */
+    function fnLoadRecord(aCoworkSchemas, oUser) {
+        var oDeferred;
+        oDeferred = $q.defer();
+        http2.get(LS.j('repos/recordGet', 'site', 'app', 'ek')).then(function(rsp) {
+            var oRecord, aVisibleSchemas;
+            $scope.record = oRecord = rsp.data;
+            $scope.record._canAgree = fnCanAgreeRecord(oRecord, _oUser);
+            aVisibleSchemas = [];
+            aShareable.forEach(function(oSchema) {
+                if (aCoworkSchemas.indexOf(oSchema) === -1) {
+                    var oSchemaData;
+                    if (oSchemaData = oRecord.verbose[oSchema.id]) {
+                        if (!angular.isArray(oSchemaData) || oSchemaData.length) {
+                            switch (oSchema.type) {
+                                case 'longtext':
+                                    oRecord.verbose[oSchema.id].value = ngApp.oUtilSchema.txtSubstitute(oRecord.verbose[oSchema.id].value);
+                                    break;
+                                case 'file':
+                                case 'voice':
+                                case 'url':
+                                    oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
+                                    if ('url' === oSchema.type) {
+                                        oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
+                                    } else if (/file|voice/.test(oSchema.type)) {
+                                        oRecord.verbose[oSchema.id].value.forEach(function(oFile) {
+                                            if (oFile.url) {
+                                                oFile.url = $sce.trustAsResourceUrl(oFile.url);
+                                            }
+                                        });
+                                    }
+                                    break;
+                                case 'image':
+                                    oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
+                                    break;
+                                case 'single':
+                                case 'multiple':
+                                    oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
+                                    break;
+                            }
+                            aVisibleSchemas.push(oSchema);
+                        }
+                    }
+                }
+            });
+            /* 设置页面分享信息 */
+            $scope.setSnsShare(oRecord);
+            $scope.visibleSchemas = aVisibleSchemas;
+            /* 加载协作填写数据 */
+            fnLoadCowork(oRecord, aCoworkSchemas);
+            // 留言任务说明
+            http2.get(LS.j('remark/task', 'site', 'app') + '&ek=' + oRecord.enroll_key).then(function(rsp) {
+                if (rsp.data && rsp.data.length) {
+                    rsp.data.forEach(function(oRule) {
+                        $scope.remarkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
+                    });
+                }
+            });
+            //
+            listRemarks();
+            //
+            oDeferred.resolve(oRecord);
+        });
 
-    function fnAfterLoad(oRecord) {
+        return oDeferred.promise;
+    }
+    /**
+     * 加载协作填写数据
+     */
+    function fnLoadCowork(oRecord, aCoworkSchemas, bJumpTask) {
+        var url, anchorItemId;
+        if (/item-.+/.test($location.hash())) {
+            anchorItemId = $location.hash().substr(5);
+        }
+        $scope.coworkTasks.splice(0, $scope.coworkTasks.length);
+        aCoworkSchemas.forEach(function(oSchema) {
+            url = LS.j('cowork/task', 'site', 'app', 'ek') + '&schema=' + oSchema.id;
+            http2.get(url).then(function(rsp) {
+                if (rsp.data && rsp.data.length) {
+                    rsp.data.forEach(function(oRule) {
+                        $scope.coworkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
+                    });
+                }
+                url = LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y';
+                if (_oMocker.role) {
+                    url += '&role=' + _oMocker.role;
+                }
+                http2.get(url, { autoBreak: false, autoNotice: false }).then(function(rsp) {
+                    var oRecData, bRequireAnchorScroll;
+                    if (rsp.data.verbose && rsp.data.verbose[oSchema.id]) {
+                        oRecData = oRecord.verbose[oSchema.id];
+                        if (oRecData) {
+                            oRecData.value = rsp.data.verbose[oSchema.id].items;
+                            oRecData.value.forEach(function(oItem) {
+                                if (oItem.userid !== $scope.user.uid) {
+                                    oItem._others = true;
+                                }
+                                if (anchorItemId && oItem.id === anchorItemId) {
+                                    bRequireAnchorScroll = true;
+                                }
+                            });
+                            if (bRequireAnchorScroll) {
+                                $timeout(function() {
+                                    var elItem;
+                                    $anchorScroll();
+                                    elItem = document.querySelector('#item-' + anchorItemId);
+                                    elItem.classList.toggle('blink', true);
+                                    $timeout(function() {
+                                        elItem.classList.toggle('blink', false);
+                                    }, 1000);
+                                });
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    }
+    /**
+     * 加载单个题目
+     */
+    function fnLoadData(oAssignedSchema) {
+        var oDeferred;
+        oDeferred = $q.defer();
+        http2.get(LS.j('data/get', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
+            var oRecord, oRecData;
+            if (oRecord = rsp.data) {
+                if (oRecData = oRecord.verbose[LS.s().schema]) {
+                    if (/file|url/.test(oAssignedSchema.type)) {
+                        oRecData.value = angular.fromJson(oRecData.value);
+                        if ('url' === oAssignedSchema.type) {
+                            oRecData.value._text = ngApp.oUtilSchema.urlSubstitute(oRecData.value);
+                        }
+                    } else if (/image/.test(oAssignedSchema.type)) {
+                        oRecData.value = oRecData.value.split(',');
+                    }
+                    if (oRecData.tag) {
+                        oRecData.tag.forEach(function(index, tagId) {
+                            if (_oApp._tagsById[index]) {
+                                oRecData.tag[tagId] = _oApp._tagsById[index];
+                            }
+                        });
+                    }
+                }
+                $scope.record = oRecord;
+                $scope.record._canAgree = fnCanAgreeRecord(oRecord, _oUser);
+                $scope.data = oRecData;
+                listRemarks();
+                tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
+                /*设置页面分享信息*/
+                $scope.setSnsShare(oRecord, { 'schema': LS.s().schema, 'data': LS.s().data });
+                //
+                oDeferred.resolve(oRecord);
+            }
+        });
+        return oDeferred.promise;
+    }
+
+    function fnAfterLoad(oRecord, oUser) {
         /*设置任务提示*/
         if (_oApp.actionRule) {
             var oCoworkRule;
@@ -66,9 +235,25 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
             }
         }
         /*设置页面操作*/
-        $scope.appActs = {
-            addRecord: {}
-        };
+        $scope.appActs = {};
+        /* 允许添加记录 */
+        if (_oApp.actionRule && _oApp.actionRule.record && _oApp.actionRule.record.submit && _oApp.actionRule.record.submit.pre && _oApp.actionRule.record.submit.pre.editor) {
+            if (oUser.is_editor && oUser.is_editor === 'Y') {
+                $scope.appActs.addRecord = {};
+            }
+        } else {
+            $scope.appActs.addRecord = {};
+        }
+        /* 是否允许切换用户角色 */
+        if (oUser) {
+            if (oUser.is_editor && oUser.is_editor === 'Y') {
+                $scope.appActs.mockAsVisitor = { mocker: 'mocker' };
+            }
+            if (oUser.is_leader && /Y|S/.test(oUser.is_leader)) {
+                $scope.appActs.mockAsMember = { mocker: 'mocker' };
+            }
+        }
+        $scope.appActs.length = Object.keys($scope.appActs).length;
         /*设置页面导航*/
         var oAppNavs = {};
         if (_oApp.can_repos === 'Y') {
@@ -86,6 +271,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
     }
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
+        if (_oMocker.role && /visitor|member/.test(_oMocker.role)) {
+            return false;
+        }
         if (oUser.is_leader) {
             if (oUser.is_leader === 'S') {
                 return true;
@@ -105,13 +293,30 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
         noticebox.error('参数不完整');
         return;
     }
-    var _oApp, _oUser, aShareable, ek, _schemaId, _recDataId;
+    var _oApp, _oUser, aShareable, ek, _schemaId, _recDataId, _oMocker;
     ek = LS.s().ek;
     _schemaId = LS.s().schema;
     _recDataId = LS.s().data;
     $scope.coworkTasks = [];
     $scope.remarkTasks = [];
     $scope.newRemark = {};
+    $scope.mocker = _oMocker = {}; // 用户自己指定的角色
+    $scope.mockAsVisitor = function(event, bMock) {
+        if ($scope.bRemarkRecord) {
+            _oMocker.role = bMock ? 'visitor' : '';
+            $scope.record._canAgree = fnCanAgreeRecord($scope.record, $scope.user);
+            fnLoadCowork($scope.record, $scope.coworkSchemas);
+            listRemarks();
+        }
+    };
+    $scope.mockAsMember = function(event, bMock) {
+        if ($scope.bRemarkRecord) {
+            _oMocker.role = bMock ? 'member' : '';
+            $scope.record._canAgree = fnCanAgreeRecord($scope.record, $scope.user);
+            fnLoadCowork($scope.record, $scope.coworkSchemas);
+            listRemarks();
+        }
+    };
     $scope.ruleCowork = function(oRecord) {
         var desc, gap;
         if (_oApp.actionRule) {
@@ -175,35 +380,50 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
             oRemark.like_num = rsp.data.like_num;
         });
     };
-    $scope.writeRemark = function(oUpperRemark) {
-        var remarkRemarks;
-        if ($scope.remarks && $scope.remarks.length) {
-            remarkRemarks = [];
-            if (oUpperRemark) {
-                $scope.remarks.forEach(function(oRemark) {
-                    if (oRemark.remark_id && oRemark.remark_id === oUpperRemark.id) {
-                        remarkRemarks.push(oRemark);
-                    }
+    $scope.remarkAsCowork = function(oRemark) {
+        var url, oSchema;
+        url = LS.j('remark/asCowork', 'site');
+        url += '&remark=' + oRemark.id;
+        if ($scope.coworkSchemas.length === 1) {
+            oSchema = $scope.coworkSchemas[0];
+            url += '&schema=' + oSchema.id;
+            http2.get(url).then(function(rsp) {
+                var oItem;
+                oItem = rsp.data;
+                $scope.record.verbose[oSchema.id].value.push(oItem);
+                $location.hash('item-' + oItem.id);
+                $timeout(function() {
+                    var elItem;
+                    $anchorScroll();
+                    elItem = document.querySelector('#item-' + oItem.id);
+                    elItem.classList.toggle('blink', true);
+                    $timeout(function() {
+                        elItem.classList.toggle('blink', false);
+                    }, 1000);
                 });
-            } else {
-                $scope.remarks.forEach(function(oRemark) {
-                    if (oRemark.remark_id === '0' && oRemark.data_id === '0') {
-                        remarkRemarks.push(oRemark);
-                    }
-                });
-            }
+            });
+        } else {
+            alert('需要指定对应的题目！');
         }
+    };
+    $scope.writeRemark = function(oUpperRemark) {
         $uibModal.open({
             templateUrl: 'writeRemark.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.remarks = remarkRemarks;
-                $scope2.data = {};
+                $scope2.data = {
+                    content: '编写留言...'
+                };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
-                    $mi.close($scope2.data);
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
                 };
             }],
-            windowClass: 'model-remark',
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             addRemark(data.content, oUpperRemark).then(function(rsp) {
@@ -241,9 +461,15 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
-                    $mi.close($scope2.data);
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
                 };
             }],
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             http2.post(LS.j('remark/update', 'site') + '&remark=' + oRemark.id, { content: data.content }).then(function(rsp) {
@@ -288,6 +514,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
             }
         }
         $scope.gotoPage(event, page, $scope.record.enroll_key);
+    };
+    $scope.shareRecord = function(oRecord) {
+        location.href = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
     };
     $scope.likeItem = function(oItem) {
         http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
@@ -343,7 +572,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
         _oApp = params.app;
         _oUser = params.user;
         aShareable = [];
-        aCoworkSchemas = [];
+        $scope.coworkSchemas = aCoworkSchemas = [];
         oSchemasById = {};
         _oApp.dataSchemas.forEach(function(oSchema) {
             if (oSchema.shareable && oSchema.shareable === 'Y') {
@@ -371,134 +600,13 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
             $scope.groupOthers = groupOthersById;
         }
         if ($scope.bRemarkRecord) {
-            /**
-             * 整条记录的留言
-             */
-            http2.get(LS.j('repos/recordGet', 'site', 'app', 'ek')).then(function(rsp) {
-                var oRecord, aVisibleSchemas;
-                $scope.record = oRecord = rsp.data;
-                $scope.record._canAgree = fnCanAgreeRecord(oRecord, _oUser);
-                aVisibleSchemas = [];
-                aShareable.forEach(function(oSchema) {
-                    if (aCoworkSchemas.indexOf(oSchema) === -1) {
-                        var oSchemaData;
-                        if (oSchemaData = oRecord.verbose[oSchema.id]) {
-                            if (!angular.isArray(oSchemaData) || oSchemaData.length) {
-                                switch (oSchema.type) {
-                                    case 'longtext':
-                                        oRecord.verbose[oSchema.id].value = ngApp.oUtilSchema.txtSubstitute(oRecord.verbose[oSchema.id].value);
-                                        break;
-                                    case 'file':
-                                    case 'url':
-                                        oRecord.verbose[oSchema.id].value = angular.fromJson(oRecord.verbose[oSchema.id].value);
-                                        if ('url' === oSchema.type) {
-                                            oRecord.verbose[oSchema.id].value._text = ngApp.oUtilSchema.urlSubstitute(oRecord.verbose[oSchema.id].value);
-                                        }
-                                        break;
-                                    case 'image':
-                                        oRecord.verbose[oSchema.id].value = oRecord.verbose[oSchema.id].value.split(',');
-                                        break;
-                                    case 'single':
-                                    case 'multiple':
-                                        oRecord.verbose[oSchema.id].value = $scope.value2Label(oSchema);
-                                        break;
-                                }
-                                aVisibleSchemas.push(oSchema);
-                            }
-                        }
-                    }
-                });
-                /* 设置页面分享信息 */
-                $scope.setSnsShare(oRecord);
-                $scope.visibleSchemas = aVisibleSchemas;
-                /* 加载协作填写数据 */
-                var anchorItemId;
-                if (/item-.+/.test($location.hash())) {
-                    anchorItemId = $location.hash().substr(5);
-                }
-                $scope.coworkSchemas = aCoworkSchemas;
-                aCoworkSchemas.forEach(function(oSchema) {
-                    http2.get(LS.j('cowork/task', 'site', 'app', 'ek') + '&schema=' + oSchema.id).then(function(rsp) {
-                        if (rsp.data && rsp.data.length) {
-                            rsp.data.forEach(function(oRule) {
-                                $scope.coworkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
-                            });
-                        }
-                        http2.get(LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {
-                            var oRecData, bRequireAnchorScroll;
-                            if (rsp.data.verbose && rsp.data.verbose[oSchema.id]) {
-                                oRecData = oRecord.verbose[oSchema.id];
-                                if (oRecData) {
-                                    oRecData.value = rsp.data.verbose[oSchema.id].items;
-                                    oRecData.value.forEach(function(oItem) {
-                                        if (oItem.userid !== $scope.user.uid) {
-                                            oItem._others = true;
-                                        }
-                                        if (anchorItemId && oItem.id === anchorItemId) {
-                                            bRequireAnchorScroll = true;
-                                        }
-                                    });
-                                    if (bRequireAnchorScroll) {
-                                        $timeout(function() {
-                                            var elItem;
-                                            $anchorScroll();
-                                            elItem = document.querySelector('#item-' + anchorItemId);
-                                            elItem.classList.toggle('blink', true);
-                                            $timeout(function() {
-                                                elItem.classList.toggle('blink', false);
-                                            }, 1000);
-                                        });
-                                    }
-                                }
-                            }
-                        });
-                    });
-                });
-                http2.get(LS.j('remark/task', 'site', 'app') + '&ek=' + oRecord.enroll_key).then(function(rsp) {
-                    if (rsp.data && rsp.data.length) {
-                        rsp.data.forEach(function(oRule) {
-                            $scope.remarkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
-                        });
-                    }
-                });
-                //
-                listRemarks();
-                /* 结束数据加载后的处理 */
-                fnAfterLoad(oRecord);
+            /* 讨论整条记录 */
+            fnLoadRecord(aCoworkSchemas).then(function(oRecord) {
+                fnAfterLoad(oRecord, _oUser);
             });
         } else {
-            /**
-             * 单道题目的留言
-             */
-            http2.get(LS.j('data/get', 'site', 'ek', 'schema', 'data')).then(function(rsp) {
-                var oRecord, oRecData;
-                if (oRecord = rsp.data) {
-                    if (oRecData = oRecord.verbose[LS.s().schema]) {
-                        if (/file|url/.test(oAssignedSchema.type)) {
-                            oRecData.value = angular.fromJson(oRecData.value);
-                            if ('url' === oAssignedSchema.type) {
-                                oRecData.value._text = ngApp.oUtilSchema.urlSubstitute(oRecData.value);
-                            }
-                        }else if(/image/.test(oAssignedSchema.type)) {
-                            oRecData.value = oRecData.value.split(',');
-                        }
-                        if (oRecData.tag) {
-                            oRecData.tag.forEach(function(index, tagId) {
-                                if (_oApp._tagsById[index]) {
-                                    oRecData.tag[tagId] = _oApp._tagsById[index];
-                                }
-                            });
-                        }
-                    }
-                    $scope.record = oRecord;
-                    $scope.record._canAgree = fnCanAgreeRecord(oRecord, _oUser);
-                    $scope.data = oRecData;
-                    listRemarks();
-                    tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
-                    /*设置页面分享信息*/
-                    $scope.setSnsShare(oRecord, { 'schema': LS.s().schema, 'data': LS.s().data });
-                }
-                /* 结束数据加载后的处理 */
+            /* 单道题目的留言 */
+            fnLoadData(oAssignedSchema).then(function(oRecord) {
                 fnAfterLoad(oRecord);
             });
             $scope.visibleSchemas = [oAssignedSchema];
@@ -509,6 +617,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$timeout', '$location', '$anchorScrol
  * 协作题
  */
 ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $anchorScroll, $uibModal, LS, http2, noticebox) {
+    $scope.canSubmitCowork = true; // 是否允许提交协作数据
     $scope.addItem = function(oSchema) {
         var oCoworkRule;
         if (oCoworkRule = $scope.ruleCowork($scope.record)) {
@@ -518,12 +627,20 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         $uibModal.open({
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.data = {};
+                $scope2.data = {
+                    content: '编写答案...'
+                };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
-                    $mi.close($scope2.data);
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
                 };
             }],
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             var oRecData, oNewItem, url;
@@ -559,9 +676,15 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
-                    $mi.close($scope2.data);
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
                 };
             }],
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             var oNewItem;
@@ -607,13 +730,20 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             templateUrl: 'writeRemark.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.remarks = itemRemarks;
-                $scope2.data = {};
+                $scope2.data = {
+                    content: '编写留言...'
+                };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
-                    $mi.close($scope2.data);
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
                 };
             }],
-            windowClass: 'model-remark',
+            windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
             http2.post(LS.j('remark/add', 'site', 'ek') + '&data=' + oItem.id, { content: data.content }).then(function(rsp) {
@@ -645,6 +775,16 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
     $scope.$watch('record', function(oRecord) {
         if (oRecord) {
             $scope.constraint = $scope.ruleCowork(oRecord);
+        }
+        var oActionRule;
+        if ($scope.app) {
+            if (oActionRule = $scope.app.actionRule) {
+                if (oActionRule.cowork && oActionRule.cowork.submit && oActionRule.cowork.submit.pre && oActionRule.cowork.submit.pre.editor) {
+                    if (!$scope.user.is_editor || $scope.user.is_editor !== 'Y') {
+                        $scope.canSubmitCowork = false;
+                    }
+                }
+            }
         }
     }, true);
 }]);

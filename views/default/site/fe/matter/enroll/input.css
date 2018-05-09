@@ -34,3 +34,8 @@ div[schema-type=single] li[wrap].radio:last-child,div[schema-type=multiple] li[w
 div[schema-type=single] li[wrap].radio.option-hide,div[schema-type=multiple] li[wrap].checkbox.option-hide{height:0;margin:0;visibility:hidden;}
 div[schema-type=single] li[wrap].radio.option-hide>label,div[schema-type=multiple] li[wrap].checkbox.option-hide>label{height:0;min-height:0;}
 div[schema-type=single] li[wrap].radio.option-hide>label>*,div[schema-type=multiple] li[wrap].checkbox.option-hide>label>*{height:0;display:inline-block;overflow:hidden;}
+
+/* multitext modal */
+.tms-editor {position: absolute;top: 8px;bottom: 8px;left: 8px;right: 8px;display: flex;flex-direction: column;}
+.tms-editor>:first-child{position: relative;flex-grow: 1;margin-bottom: 8px;border: 1px solid #ddd;border-radius: 4px;overflow-y: auto;}
+.tms-editor>:first-child iframe{display: block;width: 100%;border: 0;}

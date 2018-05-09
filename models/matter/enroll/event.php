@@ -65,6 +65,10 @@ class event_model extends \TMS_MODEL {
 	 */
 	const GetAgreeRemarkEventName = 'site.matter.enroll.remark.get.agree';
 	/**
+	 * 将用户留言转换设置为协作数据
+	 */
+	const DoRemarkAsCoworkEventName = 'site.matter.enroll.remark.as.cowork';
+	/**
 	 *
 	 */
 	private function _getOperatorId($oOperator) {
@@ -72,9 +76,16 @@ class event_model extends \TMS_MODEL {
 		return $operatorId;
 	}
 	/**
+	 *
+	 */
+	private function _getOperatorName($oOperator) {
+		$operatorName = isset($oOperator->nickname) ? $oOperator->nickname : (isset($oOperator->name) ? $oOperator->name : '');
+		return $operatorName;
+	}
+	/**
 	 * 记录事件日志
 	 */
-	private function _logEvent($oApp, $rid, $ek, $oTarget, $oEvent, $oOwnerEvent = null) {
+	public function _logEvent($oApp, $rid, $ek, $oTarget, $oEvent, $oOwnerEvent = null) {
 		$oNewLog = new \stdClass;
 		/* 事件 */
 		$oNewLog->event_name = $oEvent->name;
@@ -93,7 +104,7 @@ class event_model extends \TMS_MODEL {
 		$oOperatorId = $this->_getOperatorId($oOperator);
 		$oNewLog->group_id = isset($oOperator->group_id) ? $oOperator->group_id : '';
 		$oNewLog->userid = $oOperatorId;
-		$oNewLog->nickname = isset($oOperator->nickname) ? $this->escape($oOperator->nickname) : '';
+		$oNewLog->nickname = $this->_getOperatorName($oOperator);
 
 		/* 事件操作的对象 */
 		$oNewLog->target_id = $oTarget->id;
@@ -279,7 +290,7 @@ class event_model extends \TMS_MODEL {
 		$oTarget->type = 'record';
 		$oEvent = new \stdClass;
 		$oEvent->name = self::SubmitEventName;
-		$oEvent->op = 'New';
+		$oEvent->op = $bSubmitNewRecord ? 'New' : 'Update';
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oUser;
 		$oEvent->coin = isset($oUpdatedUsrData->user_total_coin) ? $oUpdatedUsrData->user_total_coin : 0;
@@ -393,6 +404,33 @@ class event_model extends \TMS_MODEL {
 		}
 
 		return $oUpdatedUsrData;
+	}
+	/**
+	 * 评论转成协作数据
+	 */
+	public function remarkAsCowork($oApp, $oRecData, $oItem, $oRemark, $oOperator) {
+		//$oOperatorData = $this->_doSubmitCowork($oApp, $oItem, $oOperator, true);
+		//$oOwnerData = $this->_getSubmitCowork($oApp, $oRecData, $oItem, $oOperator, true);
+
+		$eventAt = isset($oItem->submit_at) ? $oItem->submit_at : time();
+
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oItem->id;
+		$oTarget->type = 'cowork';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoRemarkAsCoworkEventName;
+		$oEvent->op = 'New';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+		//$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
 	 * 撤销协作填写项

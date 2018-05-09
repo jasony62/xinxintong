@@ -453,6 +453,8 @@ class main extends main_base {
 				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'scenarioConfig') {
 				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'notifyConfig') {
+				$oUpdated->notify_config = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'roundCron') {
 				$rst = $this->checkCron($v);
 				if ($rst[0] === false) {
@@ -461,6 +463,8 @@ class main extends main_base {
 				$oUpdated->round_cron = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'rpConfig') {
 				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($v));
+			} else if ($n === 'reposConfig') {
+				$oUpdated->repos_config = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'rankConfig') {
 				$oUpdated->rank_config = $modelApp->escape($modelApp->toJson($v));
 			} else if ($n === 'absent_cause') {
@@ -835,9 +839,8 @@ class main extends main_base {
 			return new \ResponseError('not support');
 		}
 
-		$modelFs = $this->model('fs/local', $site, '_resumable');
 		$dest = '/enroll_' . $site . '_' . $_POST['resumableFilename'];
-		$resumable = $this->model('fs/resumable', $site, $dest, $modelFs);
+		$resumable = $this->model('fs/resumable', $site, $dest);
 
 		$resumable->handleRequest($_POST);
 
@@ -1139,24 +1142,28 @@ class main extends main_base {
 	 * @param object $rules
 	 */
 	protected function checkCron(&$rules) {
-		foreach ($rules as $k => $rule) {
-			switch ($rule->period) {
-			//1-28 日期
-			case 'M':
-				if (empty($rule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
-				if (empty($rule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
-				if ($rule->hour === '') {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
-				break;
-			// 0-6 周几
-			case 'W':
-				if ($rule->wday === '') {return [false, '请设置定时轮次每周几开始！'];}
-				if ($rule->end_wday === '') {return [false, '请设置定时轮次每周几结束！'];}
-				if ($rule->hour === '') {return [false, '请设置定时轮次每周几的几点开始！'];}
-				break;
-			// 0-23 几点
-			default:
-				if ($rule->hour === '') {return [false, '请设置定时轮次每天的几点开始！'];}
-				break;
+		foreach ($rules as $oRule) {
+			if ($oRule->pattern === 'period') {
+				switch ($oRule->period) {
+				//1-28 日期
+				case 'M':
+					if (empty($oRule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
+					if (empty($oRule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
+					if ($oRule->hour === '') {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
+					break;
+				// 0-6 周几
+				case 'W':
+					if ($oRule->wday === '') {return [false, '请设置定时轮次每周几开始！'];}
+					if ($oRule->end_wday === '') {return [false, '请设置定时轮次每周几结束！'];}
+					if ($oRule->hour === '') {return [false, '请设置定时轮次每周几的几点开始！'];}
+					break;
+				// 0-23 几点
+				default:
+					if ($oRule->hour === '') {return [false, '请设置定时轮次每天的几点开始！'];}
+					break;
+				}
+			} else if ($oRule->pattern === 'interval') {
+
 			}
 		}
 

@@ -26,6 +26,7 @@ ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
     var html;
     html = "<div class='tms-nav-target'>";
     html += "<div ng-if=\"navs.repos\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'repos')\">共享页</button></div>";
+    html += "<div ng-if=\"navs.favor\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'favor')\">收藏页</button></div>";
     html += "<div ng-if=\"navs.rank\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'rank')\">排行页</button></div>";
     html += "<div ng-if=\"navs.action\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'action')\">动态页<span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span></button></div>";
     html += "</div>";
@@ -48,7 +49,9 @@ ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
 }]);
 ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
     var html;
-    html = "<div>";
+    html = "<div class='tms-act-popover-wrap'>";
+    html += "<div ng-if=\"acts.mockAsMember\"><button class='btn btn-default' ng-click=\"goto($event,'mockAsMember')\"><span ng-if=\"mocker.role!=='member'\">作为</span><span ng-if=\"mocker.role==='member'\">退出</span>成员</button></div>";
+    html += "<div ng-if=\"acts.mockAsVisitor\"><button class='btn btn-default' ng-click=\"goto($event,'mockAsVisitor')\"><span ng-if=\"mocker.role!=='visitor'\">作为</span><span ng-if=\"mocker.role==='visitor'\">退出</span>访客</button></div>";
     html += "<div ng-if=\"acts.addRecord\"><button class='btn btn-default' ng-click=\"goto($event,'addRecord')\">添加记录</button></div>";
     html += "<div ng-if=\"acts.save\"><button class='btn btn-default' ng-click=\"goto($event,'save')\">保存</button></div>";
     html += "</div>";
@@ -61,6 +64,20 @@ ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
         },
         template: "<button uib-popover-template=\"'appActTemplate.html'\" popover-placement=\"top-right\" popover-trigger=\"'outsideClick'\" popover-append-to-body=\"true\" class=\"tms-act-toggle\" popover-class=\"tms-act-popover\"><span class='glyphicon glyphicon-option-vertical'></span></button>",
         controller: ['$scope', function($scope) {
+            $scope.$watch('acts', function(oActs) {
+                var oMockAct;
+                if (oActs) {
+                    if (oMockAct = oActs.mockAsVisitor || oActs.mockAsMember) {
+                        if (oMockAct.mocker && angular.isString(oMockAct.mocker)) {
+                            if ($scope.mocker = $scope.$parent[oMockAct.mocker]) {
+                                $scope.$parent.$watch(oMockAct.mocker, function(nv) {
+                                    $scope.mocker = nv;
+                                }, true);
+                            }
+                        }
+                    }
+                }
+            });
             $scope.back = function() {
                 history.back();
             };
@@ -69,6 +86,12 @@ ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
             };
             $scope.goto = function(event, page) {
                 switch (page) {
+                    case 'mockAsVisitor':
+                        $scope.$parent.mockAsVisitor(event, $scope.mocker.role !== 'visitor');
+                        break;
+                    case 'mockAsMember':
+                        $scope.$parent.mockAsMember(event, $scope.mocker.role !== 'member');
+                        break;
                     case 'addRecord':
                         $scope.$parent.addRecord(event);
                         break;
@@ -154,48 +177,6 @@ ngMod.directive('tmsDate', ['$compile', function($compile) {
         }
     }
 }]);
-ngMod.directive('tmsCheckboxGroup', function() {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attrs) {
-            var groupName, model, options, upper;
-            if (attrs.tmsCheckboxGroup && attrs.tmsCheckboxGroup.length) {
-                groupName = attrs.tmsCheckboxGroup;
-                if (attrs.tmsCheckboxGroupModel && attrs.tmsCheckboxGroupModel.length) {
-                    model = attrs.tmsCheckboxGroupModel;
-                    if (attrs.tmsCheckboxGroupUpper && attrs.tmsCheckboxGroupUpper.length) {
-                        upper = attrs.tmsCheckboxGroupUpper;
-                        options = document.querySelectorAll('[name=' + groupName + ']');
-                        scope.$watch(model + '.' + groupName, function(data) {
-                            var cnt;
-                            cnt = 0;
-                            angular.forEach(data, function(v, p) {
-                                v && cnt++;
-                            });
-                            if (cnt >= upper) {
-                                [].forEach.call(options, function(el) {
-                                    if (el.checked === undefined) {
-                                        !el.classList.contains('checked') && el.setAttribute('disabled', true);
-                                    } else {
-                                        !el.checked && (el.disabled = true);
-                                    }
-                                });
-                            } else {
-                                [].forEach.call(options, function(el) {
-                                    if (el.checked === undefined) {
-                                        el.removeAttribute('disabled');
-                                    } else {
-                                        el.disabled = false;
-                                    }
-                                });
-                            }
-                        }, true);
-                    }
-                }
-            }
-        }
-    };
-});
 ngMod.directive('flexImg', function() {
     return {
         restrict: 'A',
@@ -226,6 +207,61 @@ ngMod.directive('flexImg', function() {
                     });
                 }
             })
+        }
+    }
+});
+/**
+ * 根据父元素的高度决定是否隐藏
+ */
+ngMod.directive('tmsHideParentHeight', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elems, attrs) {
+            var heightLimit, elem;
+            if (attrs.tmsHideParentHeight) {
+                heightLimit = attrs.tmsHideParentHeight;
+                for (var i = 0, ii = elems.length; i < ii; i++) {
+                    elem = elems[i];
+                    if (elem.parentElement) {
+                        window.addEventListener('resize', function() {
+                            elem.classList.toggle('hidden', elem.parentElement.clientHeight < heightLimit);
+                        });
+                    }
+                }
+            }
+        }
+    }
+});
+/**
+ * 监听元素的滚动事件并做出相应
+ */
+ngMod.directive('tmsScrollSpy', function() {
+    return {
+        restrict: 'A',
+        scope: {
+            selector: '@selector',
+            offset: '@',
+            onbottom: '&',
+            toggleSpy: '='
+        },
+        link: function(scope, elems, attrs) {
+            if (scope.selector === 'window') {
+                window.addEventListener('scroll', function(event) {
+                    var eleScrolling;
+                    if (eleScrolling = event.target.scrollingElement) {
+                        if (scope.toggleSpy) {
+                            if (scope.onbottom && angular.isFunction(scope.onbottom)) {
+                                if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
+                                    scope.$apply(function() {
+                                        scope.toggleSpy = false;
+                                        scope.onbottom();
+                                    });
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         }
     }
 });

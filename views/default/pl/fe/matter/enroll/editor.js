@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEditor', ['$scope', '$q', 'noticebox', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvEnrollRound', 'tmsSchema', function($scope, $q, noticebox, $location, srvEnrollApp, srvEnrollRecord, srvEnlRnd, tmsSchema) {
+    ngApp.provider.controller('ctrlEditor', ['$scope', '$sce', '$q', 'noticebox', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvEnrollRound', 'tmsSchema', function($scope, $sce, $q, noticebox, $location, srvEnrollApp, srvEnrollRecord, srvEnlRnd, tmsSchema) {
         function _afterGetApp(app) {
             if (oRecord.data) {
                 app.dataSchemas.forEach(function(schema) {
@@ -8,6 +8,14 @@ define(['frame'], function(ngApp) {
                         tmsSchema.forEdit(schema, oRecord.data);
                         if (schema.type == 'multitext') {
                             _items(schema);
+                        } else if (schema.type === 'file') {
+                            if (oRecord.data[schema.id].length) {
+                                oRecord.data[schema.id].forEach(function(oFile) {
+                                    if (oFile.url) {
+                                        oFile.url = $sce.trustAsResourceUrl(oFile.url);
+                                    }
+                                });
+                            }
                         }
                     }
                 });

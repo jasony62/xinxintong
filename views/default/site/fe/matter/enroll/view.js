@@ -94,8 +94,10 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
                 return;
             }
         }
-        facRecord.remove(facRecord.current).then(function(data) {
-            page && $scope.gotoPage(event, page);
+        noticebox.confirm('删除记录，确定？').then(function() {
+            facRecord.remove(facRecord.current).then(function(data) {
+                page && $scope.gotoPage(event, page);
+            });
         });
     };
     $scope.$watch('app', function(app) {
@@ -169,7 +171,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                         afterValue = originalValue;
                 }
             }
-            aProcessing[0][aProcessing[1]] = afterValue || originalValue || (/image|multitext/.test(oSchema.type) ? '' : '[空]');
+            aProcessing[0][aProcessing[1]] = afterValue || originalValue || (/image|file|voice|multitext/.test(oSchema.type) ? '' : '[空]');
             afterValue = undefined;
         });
     }

@@ -173,11 +173,23 @@ define([], function() {
     }
 
     function _htmlSupplement($dom, schema) {
-        var $supplement;
+        var $supplement, html;
         if (schema.supplement === 'Y') {
             $supplement = $dom.find('.supplement');
             if ($supplement.length === 0) {
-                $dom.append('<textarea style="height: auto;" placeholder="补充说明" rows=3 class="form-control input-lg supplement" ng-model="supplement.' + schema.id + '"></textarea>');
+                html = '<div class="list-group-item supplement text-muted">';
+                html += '<div class="top-bar tms-flex-row">';
+                html += '<div class="tms-flex-grow" ng-if="!supplement.'+schema.id+'">请填写补充说明</div>';
+                html += '<div class="tms-flex-grow" ng-if="supplement.'+schema.id+'" dynamic-html="supplement.'+ schema.id+'"></div>';
+                html += '<div class="btn-group" uib-dropdown>';
+                html += '<button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
+                html += '<li><a href ng-click="editSupplement(\'' + schema.id + '\')"><span class="glyphicon glyphicon-edit"></span> 编辑</a></li>';
+                html += '</ul>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                $dom.append(html);
             }
         } else {
             $supplement = $dom.find('.supplement');
@@ -295,18 +307,22 @@ define([], function() {
             case 'multitext':
                 html += '<ul class="list-group multitext">';
                 html += '<li class="list-group-item" ng-repeat="item in data.' + oSchema.id + ' track by $index">';
-                html += '<div wrap="multitext-history" class="input-group input-group-lg">';
-                oSchema.history === 'Y' && (html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="' + 'dataBySchema(\'' + oSchema.id + '\')' + '">查找</button></span>');
-                html += '<input type="text" ng-model="data.' + oSchema.id + '[$index].value" title="' + oSchema.title + '"';
+                html += '<div wrap="multitext-history" class="top-bar tms-flex-row"><div class="tms-flex-grow" dynamic-html="item.value"';
                 oSchema.placeholder && (html += ' placeholder="' + oSchema.title + '"');
                 oSchema.required === 'Y' && (html += 'required=""');
-                html += ' class="form-control input-lg"';
                 forEdit && (html += ' readonly');
-                html += '>';
-                html += '<span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(data.' + oSchema.id + ', $index)"><i class="glyphicon glyphicon-trash"></i></button></span>';
+                html += '></div>';
+                html += '<div class="btn-group" uib-dropdown>';
+                html += '<button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
+                html += '<li><a href ng-click="removeItem(data.' + oSchema.id + ', $index)"><span class="glyphicon glyphicon-trash"></span> 删除</a></li>';
+                html += '<li><a href ng-click="editItem(data.' + oSchema.id + ', $index)"><span class="glyphicon glyphicon-edit"></span> 编辑</a></li>';
+                oSchema.history === 'Y' && (html += '<li><a href ng-click="' + 'dataBySchema(\'' + oSchema.id + '\', $index)' + '"><span class="glyphicon glyphicon-search"></span> 查找</a></li>');
+                html += '</ul>';
+                html += '</div>';
                 html += '</div>';
                 html += '</li>';
-                html += '<li class="list-group-item"><button class="btn btn-success"  ng-click="addItem(\'' + oSchema.id + '\')">添加内容</button></li>';
+                html += '<li class="list-group-item"><button class="btn btn-success"  ng-click="addItem(\'' + oSchema.id + '\')">添加</button></li>';
                 html += '</ul>';
                 break;
             case 'shorttext':
@@ -399,11 +415,34 @@ define([], function() {
                 inpAttrs['tms-file-input'] = 'Y';
                 html += '<ul class="list-group file" name="' + oSchema.id + '">';
                 html += '<li class="list-group-item" ng-show="progressOfUploadFile"><div class="progressOfUploadFile" ng-bind="progressOfUploadFile"></li>';
-                html += '<li wrap="file" ng-repeat="file in data.' + oSchema.id + '" class="list-group-item" ng-click="clickFile(\'' + oSchema.id + '\',$index)">';
-                html += '<span class="file-name" ng-bind="file.name"></span>';
-                html += '</li>';
+                html += '<li ng-repeat="file in data.' + oSchema.id + '" class="list-group-item">';
+                html += '<div wrap="file" class="top-bar tms-flex-row">';
+                html += '<div class="tms-flex-grow" ng-bind="file.name"></div>';
+                html += '<div class="btn-group" uib-dropdown><button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
+                html += '<li><a href ng-click="clickFile(\'' + oSchema.id + '\',$index)"><span class="glyphicon glyphicon-trash"></span> 删除</a></li>';
+                html += '</ul></div>';
+                html += '</div>';
+                html += '<li>';
                 html += '<li class="list-group-item file-picker">';
-                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')">' + oSchema.title + '</button>';
+                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')">上传文件</button>';
+                html += '</li>';
+                html += '</ul>';
+                break;
+            case 'voice':
+                inpAttrs['tms-voice-input'] = 'Y';
+                html += '<ul class="list-group voice" name="' + oSchema.id + '">';
+                html += '<li ng-repeat="voice in data.' + oSchema.id + '" class="list-group-item">';
+                html += '<div wrap="voice" class="top-bar tms-flex-row">';
+                html += '<div class="tms-flex-grow voice-name" ng-bind="voice.name"></div>';
+                html += '<div class="btn-group" uib-dropdown><button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
+                html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
+                html += '<li><a href ng-click="clickFile(\'' + oSchema.id + '\',$index)"><span class="glyphicon glyphicon-trash"></span> 删除</a></li>';
+                html += '</ul></div>';
+                html += '</div>';
+                html += '<li>';
+                html += '<li class="list-group-item voice-picker">';
+                html += '<button class="btn btn-success" ng-click="startVoice(\'' + oSchema.id + '\')">开始录音</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -449,17 +488,7 @@ define([], function() {
             } else {
                 $label = $dom.children('label');
                 $label.html(oSchema.title);
-                $label.toggleClass('hide', !!oConfig.hidename);
-                if (oSchema.description && oSchema.description.length) {
-                    if (!$dom.find('[class="description"]').length) {
-                        $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])
-                    } else {
-                        $dom.find('[class="description"]').html(oSchema.description);
-                    }
-                } else {
-                    $dom.find('[class="description"]').remove();
-                }
-                if (/shorttext|longtext|multitext|member|date|location|url/.test(oSchema.type)) {
+                if (/shorttext|longtext|member|date|location|url/.test(oSchema.type)) {
                     $input = $dom.find('input,textarea');
                     if (oConfig.placeholder) {
                         $input.attr('placeholder', oSchema.title);
@@ -472,6 +501,16 @@ define([], function() {
                         $input.removeAttr('required');
                     }
                     _htmlTag($dom, oSchema);
+                } else if (/multitext/.test(oSchema.type)) {
+                    (function(lib) {
+                        var multitextEmbed;
+
+                        multitextEmbed = lib.embed(dataWrap);
+                        $dom.attr(multitextEmbed.attrs);
+                        $dom.html(multitextEmbed.html);
+
+                        _htmlTag($dom, oSchema);
+                    })(this);
                 } else if (/single/.test(oSchema.type)) {
                     (function(lib) {
                         var html;
@@ -517,23 +556,58 @@ define([], function() {
                 } else if (/image/.test(oSchema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.img-picker button'),
-                            sNgClick;
+                            sNgClick, imageEmbed;
 
                         sNgClick = 'chooseImage(' + "'" + oSchema.id + "'," + (oSchema.count || 1) + ')';
                         $button.attr('ng-click', sNgClick);
+
+                        imageEmbed = lib.embed(dataWrap);
+                        $dom.attr(imageEmbed.attrs);
+                        $dom.html(imageEmbed.html);
+
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
                     })(this);
                 } else if (/file/.test(oSchema.type)) {
                     (function(lib) {
                         var $button = $dom.find('li.file-picker button'),
-                            sNgClick;
+                            sNgClick, fileEmbed;
 
                         sNgClick = 'chooseFile(' + "'" + oSchema.id + "'," + (oSchema.count || 1) + ')';
                         $button.attr('ng-click', sNgClick).html(oSchema.title);
+
+                        fileEmbed = lib.embed(dataWrap);
+                        $dom.attr(fileEmbed.attrs);
+                        $dom.html(fileEmbed.html);
+
                         _htmlSupplement($dom, oSchema);
                         _htmlTag($dom, oSchema);
                     })(this);
+                } else if (/voice/.test(oSchema.type)) {
+                    (function(lib) {
+                        var $button = $dom.find('li.voice-picker button'),
+                            sNgClick, voiceEmbed;
+
+                        sNgClick = 'startVoice(' + "'" + oSchema.id + "')";
+                        $button.attr('ng-click', sNgClick).html(oSchema.title);
+
+                        voiceEmbed = lib.embed(dataWrap);
+                        $dom.attr(voiceEmbed.attrs);
+                        $dom.html(voiceEmbed.html);
+
+                        _htmlSupplement($dom, oSchema);
+                        _htmlTag($dom, oSchema);
+                    })(this);
+                }
+                $label.toggleClass('hide', !!oConfig.hidename);
+                if (oSchema.description && oSchema.description.length) {
+                    if (!$dom.find('[class="description"]').length) {
+                        $('<div class="description">' + oSchema.description + '</div>').insertAfter($dom.find('label')[0])
+                    } else {
+                        $dom.find('[class="description"]').html(oSchema.description);
+                    }
+                } else {
+                    $dom.find('[class="description"]').remove();
                 }
             }
         } else if (/radio|checkbox/.test(dataWrap.type)) {
@@ -763,8 +837,11 @@ define([], function() {
             case 'file':
                 html = '<ul><li ng-repeat="file in Record.current.data.' + schema.id + '"><span ng-bind="file.name"></span></li></ul>';
                 break;
+            case 'voice':
+                html = '<ul><li ng-repeat="voice in Record.current.data.' + schema.id + '"><span ng-bind="voice.name"></span></li></ul>';
+                break;
             case 'multitext':
-                html = '<ul><li ng-repeat="item in Record.current.data.' + schema.id + '"><span ng-bind="item.value"></span></li></ul>';
+                html = '<ul><li ng-repeat="item in Record.current.data.' + schema.id + '"><span ng-bind-html="item.value"></span></li></ul>';
                 break;
             case '_enrollAt':
                 html = "<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
@@ -853,7 +930,7 @@ define([], function() {
         if (oSchema.supplement === 'Y') {
             $supplement = $dom.find('.supplement');
             if ($supplement.length === 0) {
-                $dom.append('<p class="supplement" ng-bind="Record.current.supplement.' + oSchema.id + '"></p>');
+                $dom.append('<p class="supplement" ng-bind-html="Record.current.supplement.' + oSchema.id + '"></p>');
             }
         } else {
             $supplement = $dom.find('.supplement');
@@ -921,11 +998,13 @@ define([], function() {
                 html += '<div><img ng-src="{{r.sns.oSchema.id}}"/></div>';
                 break;
             case 'shorttext':
-            case 'longtext':
             case 'location':
             case 'member':
             case 'sns':
                 html += '<div>{{r.data.' + oSchema.id + '}}</div>';
+                break;
+            case 'longtext':
+                html += '<div ng-bind-html="r.data.' + oSchema.id + '"></div>';
                 break;
             case 'url':
                 html += '<div ng-bind-html="r.data.' + oSchema.id + '.title"></div>';
@@ -946,8 +1025,11 @@ define([], function() {
             case 'file':
                 html += '<ul><li ng-repeat="file in r.data.' + oSchema.id + '"><span ng-bind="file.name"></span></li></ul>';
                 break;
+            case 'voice':
+                html += '<ul><li ng-repeat="voice in r.data.' + oSchema.id + '"><span ng-bind="voice.name"></span></li></ul>';
+                break;
             case 'multitext':
-                html += '<ul><li ng-repeat="item in r.data.' + oSchema.id + '"><span ng-bind="item.value"></span></li></ul>';
+                html += '<ul><li ng-repeat="item in r.data.' + oSchema.id + '"><span ng-bind-html="item.value"></span></li></ul>';
                 break;
             case '_enrollAt':
                 html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
@@ -957,7 +1039,7 @@ define([], function() {
                 break;
         }
         if (oSchema.supplement && oSchema.supplement === 'Y') {
-            html += '<p class="supplement" ng-bind="r.supplement.' + oSchema.id + '"></p>';
+            html += '<p class="supplement" ng-bind-html="r.supplement.' + oSchema.id + '"></p>';
         }
         html += '</div>';
 
@@ -1101,32 +1183,13 @@ define([], function() {
         if (prefab = PrefabActSchema[schema.name]) {
             action = prefab.act;
             angular.isFunction(action) && (action = action(schema));
-            if (schema.name === 'acceptInvite') {
-                attrs['ng-controller'] = 'ctrlInvite';
-            } else if (['editRecord', 'removeRecord', 'remarkRecord'].indexOf(schema.name) !== -1) {
+            if (['editRecord', 'removeRecord', 'remarkRecord'].indexOf(schema.name) !== -1) {
                 attrs['ng-controller'] = 'ctrlRecord';
             }
             return {
                 tag: 'div',
                 attrs: attrs,
                 html: tmplBtn(action, schema.label)
-            };
-        } else if (schema.name === 'sendInvite') {
-            var html;
-            action = "send($event,'" + schema.accept + "'";
-            schema.next && (action += ",'" + schema.next + "'");
-            action += ")";
-            html = '<input type="text" class="form-control" placeholder="自定义用户标识" ng-model="invitee">';
-            html += '<span class="input-group-btn">';
-            html += '<button class="btn btn-success" type="button" ng-click="' + action + '"><span>' + label + '</span></button>';
-            html += '</span>';
-            attrs.class += "  input-group input-group-lg";
-            attrs['ng-controller'] = 'ctrlInvite';
-
-            return {
-                tag: 'div',
-                attrs: attrs,
-                html: html
             };
         }
     };

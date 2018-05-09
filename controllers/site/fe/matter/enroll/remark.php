@@ -11,9 +11,36 @@ class remark extends base {
 	 */
 	public function get_action($remark) {
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,data_id,remark_id,content,modify_at']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,group_id,nickname,state,aid,rid,enroll_key,data_id,remark_id,content,modify_at']);
 		if (false === $oRemark && $oRemark->state !== '1') {
 			return new \ObjectNotFoundError('（1）访问的资源不可用');
+		}
+		$oApp = $this->model('matter\enroll')->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp && $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
+		}
+
+		if (isset($oEditor)) {
+			if ($oRemark->group_id === $oEditor->group) {
+				$oRemark->is_editor = 'Y';
+			}
+			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				/* 设置编辑统一昵称 */
+				if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+					$oRemark->nickname = $oEditor->nickname;
+				}
+			}
 		}
 
 		return new \ResponseData($oRemark);
@@ -21,7 +48,7 @@ class remark extends base {
 	/**
 	 * 返回一条登记记录的所有留言
 	 */
-	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99) {
+	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99, $role = null) {
 		$modelRec = $this->model('matter\enroll\record');
 		$oRecord = $modelRec->byId($ek, ['aid,state']);
 		if (false === $oRecord && $oRecord->state !== '1') {
@@ -33,23 +60,49 @@ class remark extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
+		}
+
 		$oUser = $this->getUser($oApp);
 
 		$modelRem = $this->model('matter\enroll\remark');
 		$aOptions = [
-			'fields' => 'id,seq_in_record,seq_in_data,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log',
+			'fields' => 'id,seq_in_record,seq_in_data,userid,group_id,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log,as_cowork_id',
 		];
 		if (!empty($data)) {
 			$aOptions['data_id'] = $data;
 		}
+		/* 指定的用户身份 */
+		if ($role === 'visitor') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+			$oMockUser->is_editor = 'N';
+		} else if ($role === 'member') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+		} else {
+			$oMockUser = $oUser;
+		}
 
-		$oResult = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
+		$oResult = $modelRem->listByRecord($oMockUser, $ek, $schema, $page, $size, $aOptions);
 		if (!empty($oResult->remarks)) {
 			$modelRecData = $this->model('matter\enroll\data');
 			foreach ($oResult->remarks as $oRemark) {
 				if (!empty($oRemark->data_id)) {
 					$oData = $modelRecData->byId($oRemark->data_id, ['fields' => 'id,schema_id,nickname,multitext_seq']);
 					$oRemark->data = $oData;
+				}
+				if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+					/* 设置编辑统一昵称 */
+					if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+						$oRemark->nickname = $oEditor->nickname;
+					}
 				}
 			}
 		}
@@ -126,6 +179,8 @@ class remark extends base {
 		$oNewRemark->create_at = $current;
 		$oNewRemark->modify_at = $current;
 		$oNewRemark->content = $modelRec->escape($oPosted->content);
+		$oNewRemark->as_cowork_id = '0';
+
 		/* 在记录中的序号 */
 		$seq = (int) $modelRec->query_val_ss([
 			'max(seq_in_record)',
@@ -142,10 +197,17 @@ class remark extends base {
 			]);
 			$oNewRemark->seq_in_data = $seq + 1;
 		}
-		/* 如果记录是讨论状态，留言也是讨论状态 */
-		if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
+		/* 默认表态 */
+		if (isset($oApp->actionRule->remark->default->agreed)) {
+			$agreed = $oApp->actionRule->remark->default->agreed;
+			if (in_array($agreed, ['A', 'D'])) {
+				$oNewRemark->agreed = $agreed;
+			}
+		} else if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
+			/* 如果记录是讨论状态，留言也是讨论状态 */
 			$oNewRemark->agreed = 'D';
 		}
+
 		$oNewRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oNewRemark, true);
 
 		/* 留言总数 */
@@ -242,7 +304,7 @@ class remark extends base {
 	 */
 	public function remove_action($remark) {
 		$modelRem = $this->model('matter\enroll\remark');
-		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,userid,state']);
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,userid,state,rid,enroll_key,data_id,remark_id']);
 		if (false === $oRemark && $oRemark->state !== '1') {
 			return new \ObjectNotFoundError('（1）访问的资源不可用');
 		}
@@ -267,6 +329,22 @@ class remark extends base {
 			],
 			['id' => $oRemark->id]
 		);
+
+		/* 留言总数 */
+		$rst = $modelEnl->update("update xxt_enroll_record set remark_num=remark_num-1 where enroll_key='{$oRemark->enroll_key}'");
+		if ($oRemark->remark_id !== '0') {
+			$modelRem->update("update xxt_enroll_record_remark set remark_num=remark_num-1 where id='{$oRemark->remark_id}'");
+		} else if ($oRemark->data_id !== '0') {
+			$modelRecData = $this->model('matter\enroll\data');
+			$oRecData = $modelRecData->byId($oRemark->data_id);
+			$modelRem->update("update xxt_enroll_record_data set remark_num=remark_num-1 where id=" . $oRemark->data_id);
+			if ($oRecData->multitext_seq > 0) {
+				$modelRem->update("update xxt_enroll_record_data set remark_num=remark_num-1 where multitext_seq=0 and enroll_key='{$oRecData->enroll_key}' and schema_id='{$oRecData->schema_id}'");
+			}
+		} else {
+			$modelEnl->update("update xxt_enroll_record set rec_remark_num=rec_remark_num-1 where enroll_key='{$oRemark->enroll_key}'");
+
+		}
 
 		/* 记录日志 */
 		$this->model('matter\enroll\event')->removeRemark($oApp, $oRemark, $oUser);
@@ -433,8 +511,15 @@ class remark extends base {
 		/* 填写记录用户所属分组 */
 		if ($oGrpLeader->is_leader === 'Y') {
 			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRemark->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-			if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
-				return new \ParameterError('只允许组长推荐本组数据');
+			if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
+				/* 填写记录的用户属于一个分组 */
+				if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
+					return new \ParameterError('只允许组长对本组成员的留言表态');
+				}
+			} else {
+				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+					return new \ParameterError('只允许编辑组的组长对不属于任何分组的成员的留言表态');
+				}
 			}
 		}
 
@@ -468,6 +553,82 @@ class remark extends base {
 		$this->model('matter\enroll\event')->agreeRemark($oApp, $oRemark, $oUser, $value);
 
 		return new \ResponseData($value);
+	}
+	/**
+	 * 将留言作为记录的协作填写内容
+	 *
+	 * @param string $remark remark'id
+	 *
+	 */
+	public function asCowork_action($remark, $schema) {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,enroll_key,userid,nickname,group_id,content']);
+		if (false === $oRemark) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $modelRec->byId($oRemark->enroll_key, ['fields' => 'id,state,data']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelData = $this->model('matter\enroll\data');
+		$oRecData = $modelData->byRecord($oRemark->enroll_key, ['schema' => $schema]);
+		if (false === $oRecData || $oRecData->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oRecData->value = empty($oRecData->value) ? [] : json_decode($oRecData->value);
+
+		$oUser = $this->getUser($oApp);
+
+		$current = time();
+		$oCowork = (object) [
+			'aid' => $oApp->id,
+			'rid' => $oRemark->rid,
+			'enroll_key' => $oRemark->enroll_key,
+			'submit_at' => $current,
+			'userid' => $oRemark->userid,
+			'nickname' => $this->escape($oRemark->nickname),
+			'group_id' => $oRemark->group_id,
+			'schema_id' => $oRecData->schema_id,
+			'multitext_seq' => count($oRecData->value) + 1,
+			'value' => $this->escape($oRemark->content),
+			'agreed' => 'A',
+		];
+		$oCowork->id = $modelData->insert('xxt_enroll_record_data', $oCowork, true);
+
+		$modelData->update(
+			'xxt_enroll_record_remark',
+			['as_cowork_id' => $oCowork->id],
+			['id' => $oRemark->id]
+		);
+
+		$oRecData->value[] = (object) ['id' => $oCowork->id, 'value' => $oRemark->content];
+		$modelData->update(
+			'xxt_enroll_record_data',
+			['value' => $this->escape($modelData->toJson($oRecData->value))],
+			['id' => $oRecData->id]
+		);
+
+		$oRecord->data->{$oRecData->schema_id} = $oRecData->value;
+		$modelRec->update(
+			'xxt_enroll_record',
+			['data' => $this->escape($modelRec->toJson($oRecord->data))],
+			['id' => $oRecord->id]
+		);
+
+		/* 记操作日志 */
+		$modelEvt = $this->model('matter\enroll\event');
+		$modelEvt->remarkAsCowork($oApp, $oRecData, $oCowork, $oRemark, $oUser);
+
+		return new \ResponseData($oCowork);
 	}
 	/**
 	 * 和留言相关的任务

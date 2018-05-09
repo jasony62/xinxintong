@@ -306,7 +306,7 @@ class user_model extends \TMS_MODEL {
 		}
 		/* 获取未登记人员 */
 		$aAbsentUsrs = [];
-		$oEntryRule = $oApp->entry_rule;
+		$oEntryRule = $oApp->entryRule;
 		if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
 			$oGrpApp = $oEntryRule->group;
 			$modelGrpUsr = $this->model('matter\group\player');

@@ -24,9 +24,6 @@
             </div>
             <ul class="nav navbar-nav navbar-right">
                 <li class="pull-left">
-                    <a href ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline">收藏</span></a>
-                </li>
-                <li class="pull-left">
                     <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
                 </li>
             </ul>
@@ -209,6 +206,9 @@
                                                 <span class='nickname'>{{log.owner_nickname}}</span> 的留言被修改了表态
                                             </div>
                                         </div>
+                                    </div>
+                                    <div ng-switch-when="site.matter.enroll.remark.as.cowork">
+                                        <span class='nickname'>{{log.nickname}}</span>将<span class='nickname'>{{log.owner_nickname}}</span> 的留言设置为协作数据（答案）
                                     </div>
                                     <div ng-switch-default>
                                         <div class='nickname'>{{log.nickname}}</div>

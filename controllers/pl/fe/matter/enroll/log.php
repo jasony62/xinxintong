@@ -40,7 +40,7 @@ class log extends \pl\fe\matter\base {
 		if ($logType === 'pl') {
 			$reads = $modelLog->listMatterOp($app, 'enroll', $options, $page, $size);
 		} else {
-			$reads = $modelLog->listUserMatterOp($app, 'enroll', $options, $page, $size);
+			$reads = $this->model('matter\enroll\log')->list($app, $options, $page, $size);
 		}
 
 		return new \ResponseData($reads);

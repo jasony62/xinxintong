@@ -20,18 +20,11 @@ class attachment extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		if (defined('SAE_TMP_PATH')) {
-			$dest = '/enroll/' . $oApp->id . '/' . $_POST['resumableFilename'];
-			$oResumable = $this->model('fs/resumableAliOss', $oApp->siteid, $dest, 'xxt-attachment');
-		} else {
-			$modelFs = $this->model('fs/local', $oApp->siteid, '_resumable');
-			$dest = '/enroll_' . $oApp->id . '_' . $_POST['resumableIdentifier'];
-			$oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, $modelFs);
-		}
-
+		$dest = '/enroll/' . $oApp->id . '/' . $_POST['resumableFilename'];
+		$oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, '_attachment');
 		$oResumable->handleRequest($_POST);
 
-		exit;
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 上传成功后将附件信息保存到数据库中
@@ -49,14 +42,14 @@ class attachment extends \pl\fe\matter\base {
 
 		$oFile = $this->getPostJson();
 
-		if (defined('SAE_TMP_PATH')) {
+		if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
 			/* 文件存储在阿里 */
-			$url = 'alioss://enroll/' . $oApp->id . '/' . $file->name;
+			$url = 'alioss://enroll/' . $oApp->id . '/' . $oFile->name;
 		} else {
 			/* 文件存储在本地 */
 			$modelRes = $this->model('fs/local', $oApp->siteid, '_resumable');
 			$modelAtt = $this->model('fs/local', $oApp->siteid, '附件');
-			$fileUploaded = $modelRes->rootDir . '/enroll_' . $oApp->id . '_' . $oFile->uniqueIdentifier;
+			$fileUploaded = $modelRes->rootDir . '/enroll/' . $oApp->id . '/' . $oFile->name;
 
 			$targetDir = $modelAtt->rootDir . '/enroll/' . date('Ym');
 			if (!file_exists($targetDir)) {
@@ -86,42 +79,6 @@ class attachment extends \pl\fe\matter\base {
 	 * 删除附件???
 	 */
 	public function del_action($id) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		// 附件对象
-		$q = ['matter_id,name,url',
-			'xxt_matter_attachment',
-			['id' => $id],
-		];
-		$oAtt = $modelApp->query_obj_ss($q);
-		if (false === $oAtt) {
-			return new \ObjectNotFoundError();
-		}
-
-		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($oAtt->matter_id);
-		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-		/**
-		 * remove from fs
-		 */
-		if (strpos($oAtt->url, 'alioss') === 0) {
-			$fs = $this->model('fs/alioss', $oApp->siteid, 'xxt-attachment');
-			$object = $oApp->siteid . '/article/' . $oAtt->matter_id . '/' . $oAtt->name;
-			$rsp = $fs->delete_object($object);
-		} else if (strpos($oAtt->url, 'local') === 0) {
-			$fs = $this->model('fs/local', $oApp->siteid, '附件');
-			$path = 'article_' . $oAtt->matter_id . '_' . $oAtt->name;
-			$rsp = $fs->delete($path);
-		} else {
-			$fs = $this->model('fs/saestore', $oApp->siteid);
-			$fs->delete($oAtt->url);
-		}
-		$rst = $modelApp->delete('xxt_matter_attachment', ['id' => $id]);
-
-		return new \ResponseData($rst);
+		return new \ResponseData('not support');
 	}
 }

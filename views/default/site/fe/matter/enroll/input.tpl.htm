@@ -26,9 +26,6 @@
             </div>
             <ul class="nav navbar-nav navbar-right">
                 <li class="pull-left">
-                    <a href="" ng-click="favor(user, app)" class="tms-switch-favor"><i class="glyphicon glyphicon-star-empty"></i><span class="visible-lg-inline"> 收藏</span></a>
-                </li>
-                <li class="pull-left">
                     <a href="" ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 我的</span></a>
                 </li>
             </ul>
@@ -108,6 +105,46 @@
         <div class="modal-footer">
             <button class="btn btn-default" ng-click="cancel()">关闭</button>
             <button class="btn btn-primary" ng-click="ok()">使用选择的内容填写</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="recordVoice.html">
+        <div class="modal-header">
+            <h5 class="modal-title">录音</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' ng-model="data.name">
+                    <div class='input-group-addon'>
+                        <span ng-bind="data.time"></span>秒
+                    </div>
+                </div>
+                <div class='help-block'><small class='text-danger'><span class='glyphicon glyphicon-exclamation-sign'></span> 时间超过1分钟自动停止录音</small></div>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-default" ng-click="startRecord()">开始录音</button>
+                <button class="btn btn-default" ng-click="stopRecord()">停止</button>
+            </div>
+            <div class='form-group' ng-if="data.localId">
+                <button class="btn btn-default" ng-click="play()">播放</button>
+                <button class="btn btn-default" ng-click="pause()">暂停</button>
+                <button class="btn btn-default" ng-click="stop()">停止</button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            <button class="btn btn-default" ng-click="ok()" ng-disabled="!data.localId">完成</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="writeItem.html">
+        <div class="modal-body">
+            <div id='remarkEditor' content='data.content' tms-editor></div>
+        </div>
+        <div class="modal-footer" tms-hide-parent-height='400'>
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">取消</button>
+                <button class="btn btn-primary" ng-click="ok()">提交</button>
+            </div>
         </div>
     </script>
     <script src="/static/js/xxt.ui.error.js"></script>

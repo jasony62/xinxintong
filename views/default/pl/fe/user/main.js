@@ -18,7 +18,11 @@ define(['frame'], function (ngApp) {
                 if (rsp.data.members) {
                     members = rsp.data.members;
                     angular.forEach(members, function (member) {
-                        member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
+                        if(JSON.stringify(member.extattr) !== "{}") {
+                            for(var i in member.extattr) {
+                                member.extattr = JSON.parse(decodeURIComponent(member.extattr[i].replace(/\+/g, '%20')));
+                            }
+                        }
                         mapMembers[member.schema_id] = member;
                     });
                     angular.forEach($scope.memberSchemas, function (memberSchema) {

@@ -13,7 +13,7 @@ class data extends base {
 	 * @param string $schema
 	 * @param string $data
 	 */
-	public function get_action($ek, $schema = '', $data = '', $cascaded = 'N') {
+	public function get_action($ek, $schema = '', $data = '', $cascaded = 'N', $role = null) {
 		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'aid,rid,enroll_key,userid,group_id,nickname,enroll_at']);
 		if (false === $oRecord) {
 			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
@@ -23,6 +23,19 @@ class data extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
 		}
+		$oUser = $this->getUser($oApp);
+		/* 指定的用户身份 */
+		if ($role === 'visitor') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+			$oMockUser->is_editor = 'N';
+		} else if ($role === 'member') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+		} else {
+			$oMockUser = $oUser;
+		}
+
 		/* 是否限制了匿名规则 */
 		$bAnonymous = false;
 		if (isset($oApp->actionRule->cowork->anonymous)) {
@@ -45,12 +58,20 @@ class data extends base {
 			}
 		}
 
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
+		}
 		$oSchemas = new \stdClass;
 		foreach ($oApp->dataSchemas as $dataSchema) {
 			$oSchemas->{$dataSchema->id} = $dataSchema;
 		}
 
-		$fields = 'id,state,userid,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
+		$fields = 'id,state,userid,group_id,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
 		$modelRecDat = $this->model('matter\enroll\data');
 		if (empty($data)) {
 			$oRecData = $modelRecDat->byRecord($ek, ['schema' => $schema, 'fields' => $fields]);
@@ -64,6 +85,7 @@ class data extends base {
 
 		if (isset($oSchemas->{$oRecData->schema_id}) && $oSchemas->{$oRecData->schema_id}->type === 'multitext') {
 			if ($oRecData->multitext_seq == 0) {
+				/* 获得填写的项目 */
 				$oRecData->value = empty($oRecData->value) ? [] : json_decode($oRecData->value);
 				if ($cascaded === 'Y') {
 					$q = [
@@ -71,7 +93,6 @@ class data extends base {
 						'xxt_enroll_record_data',
 						"state=1 and enroll_key='{$ek}' and schema_id='{$oRecData->schema_id}' and multitext_seq>0",
 					];
-					$oUser = $this->getUser($oApp);
 					/* 是否设置了对其他组用户在评论页可见条件 */
 					$coworkRemarkLikeNum = 0;
 					if (isset($oApp->actionRule->cowork->remark->pre)) {
@@ -80,20 +101,20 @@ class data extends base {
 							$coworkRemarkLikeNum = (int) $oRule->cowork->likeNum;
 						}
 						if ($coworkRemarkLikeNum) {
-							$q[2] .= " and (group_id='" . (empty($oUser->group_id) ? '' : $oUser->group_id) . "' or like_num>={$coworkRemarkLikeNum})";
+							$q[2] .= " and (group_id='" . (empty($oMockUser->group_id) ? '' : $oMockUser->group_id) . "' or like_num>={$coworkRemarkLikeNum})";
 						}
 					}
 					/* 根据状态和用户角色过滤答案 */
-					if ($oRecord->userid !== $oUser->uid) {
-						if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-							if (!empty($oUser->uid)) {
+					if ($oRecord->userid !== $oMockUser->uid) {
+						if (empty($oMockUser->is_leader) || $oMockUser->is_leader !== 'S') {
+							if (!empty($oMockUser->uid)) {
 								$w = " and (";
 								$w .= "(agreed<>'N' and agreed<>'D')";
-								$w .= " or userid='{$oUser->uid}'";
-								if (!empty($oUser->group_id)) {
-									$w .= " or group_id='{$oUser->group_id}'";
+								$w .= " or userid='{$oMockUser->uid}'";
+								if (!empty($oMockUser->group_id)) {
+									$w .= " or group_id='{$oMockUser->group_id}'";
 								}
-								if (isset($oUser->is_editor) && $oUser->is_editor === 'Y') {
+								if (isset($oMockUser->is_editor) && $oMockUser->is_editor === 'Y') {
 									$w .= " or group_id=''";
 								}
 								$w .= ")";
@@ -101,11 +122,11 @@ class data extends base {
 							}
 						}
 					} else {
-						if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-							if (!empty($oUser->uid)) {
+						if (empty($oMockUser->is_leader) || $oMockUser->is_leader !== 'S') {
+							if (!empty($oMockUser->uid)) {
 								$w = " and (";
 								$w .= "agreed<>'N'";
-								$w .= " or userid='{$oUser->uid}'";
+								$w .= " or userid='{$oMockUser->uid}'";
 								$w .= ")";
 								$q[2] .= $w;
 							}
@@ -116,6 +137,25 @@ class data extends base {
 						$oItem->like_log = empty($oItem->like_log) ? [] : json_decode($oItem->like_log);
 						if ($bAnonymous) {
 							unset($oItem->nickname);
+						} else if (isset($oEditor) && (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y')) {
+							/* 设置编辑统一昵称 */
+							if (!empty($oItem->group_id) && $oItem->group_id === $oEditor->group) {
+								$oItem->nickname = $oEditor->nickname;
+							}
+						}
+					}
+				}
+			} else {
+				if ($bAnonymous) {
+					unset($oRecData->nickname);
+				} else if (isset($oEditor)) {
+					if ($oRecData->group_id === $oEditor->group) {
+						$oRecData->is_editor = 'Y';
+					}
+					if (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y') {
+						/* 设置编辑统一昵称 */
+						if (!empty($oRecData->group_id) && $oRecData->group_id === $oEditor->group) {
+							$oRecData->nickname = $oEditor->nickname;
 						}
 					}
 				}
@@ -290,8 +330,15 @@ class data extends base {
 		/* 检查是否在同一分组内 */
 		if ($oGrpLeader->is_leader === 'Y') {
 			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecData->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-			if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
-				return new \ParameterError('只允许组长推荐本组数据');
+			if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
+				/* 填写记录的用户属于一个分组 */
+				if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
+					return new \ParameterError('只允许组长对本组成员的数据表态');
+				}
+			} else {
+				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+					return new \ParameterError('只允许编辑组的组长对不属于任何分组的成员的数据表态');
+				}
 			}
 		}
 

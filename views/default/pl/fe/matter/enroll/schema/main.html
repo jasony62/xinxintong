@@ -14,6 +14,8 @@
             <option value='score'>打分题</option>
             <option value='image'>上传图片</option>
             <option value='file'>上传文件</option>
+            <option value='url'>上传链接</option>
+            <option value='voice'>微信录音</option>
             <option value='html'>描述说明</option>
             <option value='date'>日期</option>
         </select>
@@ -93,11 +95,11 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.shareable' ng-change="updSchema(activeSchema,null,'shareable')">共享内容</label>
     </div>
-    <div class="checkbox" ng-show="['image','file','single','multiple'].indexOf(activeSchema.type)!==-1">
+    <div class="checkbox" ng-show="['image','file','voice','single','multiple'].indexOf(activeSchema.type)!==-1">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.supplement' ng-change="updSchema(activeSchema)">允许填写补充说明</label>
     </div>
-    <div class="checkbox" ng-show="['shorttext','longtext','multitext', 'image', 'file'].indexOf(activeSchema.type)!==-1">
+    <div class="checkbox" ng-show="['shorttext','longtext','multitext', 'image', 'file','voice'].indexOf(activeSchema.type)!==-1">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.cantag' ng-change="updSchema(activeSchema)">允许用户给填写内容打标签</label>
     </div>
@@ -105,7 +107,7 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.history' ng-change="updSchema(activeSchema,'history')">选择已填数据</label>
     </div>
-    <div class="form-group" ng-show="['image','file'].indexOf(activeSchema.type)!==-1">
+    <div class="form-group" ng-show="['image','file','voice'].indexOf(activeSchema.type)!==-1">
         <label>限制数量</label>
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema)">
     </div>
@@ -148,10 +150,10 @@
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.asdir' ng-change="updSchema(activeSchema)">在共享页作为内容分类目录</label>
     </div>
     <div class='form-group' ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1">
-        <button class='btn btn-default' ng-click="setOptGroup(activeSchema)">设置选项分组</button>
+        <button class='btn btn-default' ng-click="setDefaultValue(activeSchema)">设置默认选项</button>
     </div>
     <div class='form-group' ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1">
-        <button class='btn btn-default' ng-click="setDefaultValue(activeSchema)">设置默认选项</button>
+        <button class='btn btn-default' ng-click="setOptGroup(activeSchema)">设置选项可见条件</button>
     </div>
     <div class='form-group'>
         <button class='btn btn-default' ng-click="setVisibility(activeSchema)">设置题目可见条件({{activeSchema.visibility.rules.length||0}})</button>

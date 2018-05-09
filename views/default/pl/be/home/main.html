@@ -90,6 +90,31 @@
             </table>
             <button class='btn btn-default' ng-click="add()">添加主页轮播</button>
         </div>
+        <div ng-controller="ctrlHomeQrcode" class='form-group'>
+            <table class='table table-bordered'>
+                <tbody>
+                    <tr>
+                        <th style='width:4em'>序号</th>
+                        <th>图片</th>
+                        <th>说明</th>
+                        <th style='width:7em'>操作</th>
+                    </tr>
+                    <tr ng-repeat='q in qrcodes'>
+                        <td>{{$index+1}}</td>
+                        <td><img ng-src="{{q.picUrl}}" style='width:200px'></td>
+                        <td>
+                            <input type="text" ng-model="q.tip" class="form-control" ng-blur='doTip(q)'>
+                        </td>
+                        <td>
+                            <button class='btn btn-xs btn-danger' ng-click="remove(q,$index)"><i class='glyphicon glyphicon-remove'></i></button>
+                            <button class='btn btn-xs btn-default' ng-click="up(q,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
+                            <button class='btn btn-xs btn-default' ng-click="down(q,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class='btn btn-default' ng-click="add(q)">添加二维码</button>
+        </div>
     </div>
 </div>
 <script type="text/ng-template" id="navSites.html">

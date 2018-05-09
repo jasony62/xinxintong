@@ -21,7 +21,7 @@ class enroll_model extends enroll_base {
 	 */
 	public function getEntryUrl($siteId, $id, $oParams = null) {
 		if ($siteId === 'platform') {
-			$oApp = $this->byId($id, ['cascaded' => 'N']);
+			$oApp = $this->byId($id, ['cascaded' => 'N', 'notDecode' => true]);
 			if (false === $oApp) {
 				return APP_PROTOCOL . APP_HTTP_HOST . '/404.html';
 			} else {
@@ -77,7 +77,7 @@ class enroll_model extends enroll_base {
 			["id" => $aid],
 		];
 
-		if ($oApp = $this->query_obj_ss($q)) {
+		if (($oApp = $this->query_obj_ss($q)) && empty($options['notDecode'])) {
 			$oApp->type = 'enroll';
 			if (isset($oApp->siteid) && isset($oApp->id)) {
 				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
@@ -90,6 +90,7 @@ class enroll_model extends enroll_base {
 				} else {
 					$oApp->entryRule = $oApp->entry_rule = json_decode($oApp->entry_rule);
 				}
+				unset($oApp->entry_rule);
 			}
 			if (property_exists($oApp, 'action_rule')) {
 				$oApp->actionRule = empty($oApp->action_rule) ? new \stdClass : json_decode($oApp->action_rule);
@@ -123,6 +124,7 @@ class enroll_model extends enroll_base {
 				} else {
 					$oApp->scenarioConfig = new \stdClass;
 				}
+				unset($oApp->scenario_config);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
 				if (!empty($oApp->round_cron)) {
@@ -136,12 +138,28 @@ class enroll_model extends enroll_base {
 					$oApp->roundCron = [];
 				}
 			}
+			if ($fields === '*' || false !== strpos($fields, 'notify_config')) {
+				if (!empty($oApp->notify_config)) {
+					$oApp->notifyConfig = json_decode($oApp->notify_config);
+				} else {
+					$oApp->notifyConfig = new \stdClass;
+				}
+				unset($oApp->notify_config);
+			}
 			if ($fields === '*' || false !== strpos($fields, 'rp_config')) {
 				if (!empty($oApp->rp_config)) {
 					$oApp->rpConfig = json_decode($oApp->rp_config);
 				} else {
 					$oApp->rpConfig = new \stdClass;
 				}
+			}
+			if ($fields === '*' || false !== strpos($fields, 'repos_config')) {
+				if (!empty($oApp->repos_config)) {
+					$oApp->reposConfig = json_decode($oApp->repos_config);
+				} else {
+					$oApp->reposConfig = new \stdClass;
+				}
+				unset($oApp->repos_config);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'rank_config')) {
 				if (!empty($oApp->rank_config)) {
@@ -276,9 +294,9 @@ class enroll_model extends enroll_base {
 		$modelRnd = $this->model('matter\enroll\round');
 
 		$mschemaIds = [];
-		if (!empty($oApp->entry_rule) && is_object($oApp->entry_rule)) {
-			if (!empty($oApp->entry_rule->member) && is_object($oApp->entry_rule->member)) {
-				foreach ($oApp->entry_rule->member as $mschemaId => $rule) {
+		if (!empty($oApp->entryRule) && is_object($oApp->entryRule)) {
+			if (!empty($oApp->entryRule->member) && is_object($oApp->entryRule->member)) {
+				foreach ($oApp->entryRule->member as $mschemaId => $rule) {
 					if (!empty($rule->entry)) {
 						$mschemaIds[] = $mschemaId;
 					}
@@ -405,7 +423,7 @@ class enroll_model extends enroll_base {
 			return '';
 		}
 		$nickname = '';
-		$oEntryRule = $oApp->entry_rule;
+		$oEntryRule = $oApp->entryRule;
 		if (isset($oEntryRule->anonymous) && $oEntryRule->anonymous === 'Y') {
 			/* 匿名访问 */
 			$nickname = '';

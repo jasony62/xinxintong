@@ -2,7 +2,7 @@
 require('./share.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlShare', ['$scope', '$sce', 'tmsLocation', 'tmsSnsShare', 'http2', function($scope, $sce, LS, tmsSnsShare, http2) {
+ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsShare', 'http2', function($scope, $sce, $q, LS, tmsSnsShare, http2) {
     function fnSetSnsShare(oApp, message, anchor) {
         function fnReadySnsShare() {
             if (window.__wxjs_environment === 'miniprogram') {
@@ -10,7 +10,15 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', 'tmsLocation', 'tmsSnsShare', '
             }
             var sharelink;
             /* 设置活动的当前链接 */
-            sharelink = location.protocol + '//' + location.host + LS.j('', 'site', 'app', 'ek') + '&page=cowork' + '#' + anchor;
+            sharelink = location.protocol + '//' + location.host
+            if (LS.s().topic) {
+                sharelink += LS.j('', 'site', 'app', 'topic') + '&page=topic';
+            } else {
+                sharelink += LS.j('', 'site', 'app', 'ek') + '&page=cowork';
+                if (anchor) {
+                    sharelink += '#' + anchor;
+                }
+            }
             /* 分享次数计数器 */
             tmsSnsShare.config({
                 siteId: oApp.siteid,
@@ -28,33 +36,120 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', 'tmsLocation', 'tmsSnsShare', '
         }
     }
 
-    var _oApp, _oUser;
+    if (/MicroMessenger/i.test(navigator.userAgent)) {
+        $scope.userAgent = 'wx';
+    } else if (/Yixin/i.test(navigator.userAgent)) {
+        $scope.userAgent = 'yx';
+    }
+
+    var _oApp, _oUser, _oOptions, _oMessage, _oDeferred;
+    $scope.options = _oOptions = {
+        canEditorAsAuthor: false, // 被分享内容的作者是否为编辑
+        canEditorAsInviter: false,
+        shareByEditor: false
+    };
+    _oMessage = {
+        toString: function() {
+            var msg;
+            msg = this.inviter + ' 邀请你查看 ' + this.author + this.object;
+            if (!/(\.|,|;|\?|!|。|，|；|？|！)$/.test(this.object)) {
+                msg += '。';
+            }
+            return msg;
+        }
+    };
+    _oDeferred = $q.defer();
+    _oDeferred.promise.then(function(oMsg) {
+        var message;
+        $scope.message = message = oMsg.toString();
+        fnSetSnsShare(_oApp, message, oMsg.anchor);
+    });
+    $scope.shiftInviter = function() {
+        if (_oOptions.editorAsAuthor) {
+            _oMessage.defaultAuthor === undefined && (_oMessage.defaultAuthor = _oMessage.author);
+            _oMessage.author = _oApp.actionRule.role.editor.nickname;
+        } else {
+            _oMessage.author = _oMessage.defaultAuthor;
+        }
+        $scope.message = _oMessage.toString();
+        fnSetSnsShare(_oApp, $scope.message, _oMessage.anchor);
+    };
+    $scope.shiftInviter = function() {
+        if (_oOptions.editorAsInviter) {
+            _oMessage.defaultInviter === undefined && (_oMessage.defaultInviter = _oMessage.inviter);
+            _oMessage.inviter = _oApp.actionRule.role.editor.nickname;
+        } else {
+            _oMessage.inviter = _oMessage.defaultInviter;
+        }
+        $scope.message = _oMessage.toString();
+        fnSetSnsShare(_oApp, $scope.message, _oMessage.anchor);
+    };
+    /*不是用微信打开时，提供二维码*/
+    if (!$scope.userAgent) {
+        $scope.qrcode = LS.j('topic/qrcode', 'site') + '&url=' + encodeURIComponent(location.href);
+    }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var oEditor;
         _oApp = params.app;
         _oUser = params.user;
+        if (_oApp.actionRule && _oApp.actionRule.role && _oApp.actionRule.role.editor) {
+            if (_oApp.actionRule.role.editor.group && _oApp.actionRule.role.editor.nickname) {
+                oEditor = _oApp.actionRule.role.editor;
+            }
+        }
+        if (oEditor && _oUser.is_editor === 'Y') {
+            _oOptions.canEditorAsInviter = true;
+        }
         if (LS.s().data) {
             http2.get(LS.j('data/get', 'site', 'ek', 'data')).then(function(rsp) {
-                var message, oRecord;
+                var oRecord, oRecData;
                 oRecord = rsp.data;
-                message = '$' + _oUser.nickname;
-                message += ' 邀请你查看 ';
-                message += _oUser.uid === oRecord.userid ? '他/她' : ('$' + oRecord.nickname);
-                message += ' 填写的数据：';
-                message += oRecord.verbose[oRecord.schema_id].value;
-                $scope.message = message;
-                fnSetSnsShare(_oApp, message, 'item-' + LS.s().data);
+                oRecData = oRecord.verbose[oRecord.schema_id];
+                _oMessage.inviter = _oUser.nickname;
+                _oMessage.author = _oUser.uid === oRecData.userid ? '他/她' : (oRecData.nickname);
+                _oMessage.object = ' 在活动【' + _oApp.title + '】中填写的数据：' + oRecData.value;
+                _oMessage.anchor = 'item-' + LS.s().data;
+                if (oEditor && oRecData.is_editor === 'Y' && _oUser.uid !== oRecData.userid) {
+                    _oOptions.canEditorAsAuthor = true;
+                }
+                _oDeferred.resolve(_oMessage);
             });
         } else if (LS.s().remark) {
             http2.get(LS.j('remark/get', 'site', 'remark')).then(function(rsp) {
-                var message, oRemark;
+                var oRemark;
                 oRemark = rsp.data;
-                message = '$' + _oUser.nickname;
-                message += ' 邀请你查看 ';
-                message += _oUser.uid === oRemark.userid ? '他/她' : ('$' + oRemark.nickname);
-                message += ' 的留言：';
-                message += oRemark.content;
-                $scope.message = message;
-                fnSetSnsShare(_oApp, message, 'remark-' + oRemark.id);
+                _oMessage.inviter = _oUser.nickname;
+                _oMessage.author = _oUser.uid === oRemark.userid ? '他/她' : (oRemark.nickname);
+                _oMessage.object = ' 在活动【' + _oApp.title + '】中的留言：' + oRemark.content;
+                _oMessage.anchor = 'remark-' + oRemark.id;
+                if (oEditor && oRemark.is_editor === 'Y' && _oUser.uid !== oRemark.userid) {
+                    _oOptions.canEditorAsAuthor = true;
+                }
+                _oDeferred.resolve(_oMessage);
+            });
+        } else if (LS.s().ek) {
+            http2.get(LS.j('repos/recordGet', 'site', 'app', 'ek')).then(function(rsp) {
+                var oRecord;
+                oRecord = rsp.data;
+                _oMessage.inviter = _oUser.nickname;
+                _oMessage.author = _oUser.uid === oRecord.userid ? '他/她' : (oRecord.nickname);
+                _oMessage.object = ' 在活动【' + _oApp.title + '】中提交的记录。';
+                if (oEditor && oRecord.is_editor === 'Y' && _oUser.uid !== oRecord.userid) {
+                    _oOptions.canEditorAsAuthor = true;
+                }
+                _oDeferred.resolve(_oMessage);
+            });
+        } else if (LS.s().topic) {
+            http2.get(LS.j('topic/get', 'site', 'app', 'topic')).then(function(rsp) {
+                var oTopic;
+                oTopic = rsp.data;
+                _oMessage.inviter = _oUser.nickname;
+                _oMessage.author = _oUser.unionid === oTopic.unionid ? '他/她' : (oTopic.nickname);
+                _oMessage.object = ' 在活动【' + _oApp.title + '】中创建的专题。';
+                if (oEditor && oTopic.is_editor === 'Y' && _oUser.unionid !== oTopic.unionid) {
+                    _oOptions.canEditorAsAuthor = true;
+                }
+                _oDeferred.resolve(_oMessage);
             });
         }
     });

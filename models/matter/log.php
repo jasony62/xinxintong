@@ -945,4 +945,216 @@ class log_model extends \TMS_MODEL {
 
 		return $logs;
 	}
+	/**
+	 * 素材运营数据追踪
+	 */
+	public function operateStat($site, $matterId = '', $matterType = '', $options = []) {
+		$fields = 'r.id,r.userid,r.nickname,r.matter_shareby,r.openid,r.matter_id,r.matter_type,max(r.read_at) readAt';
+		$table = 'xxt_log_matter_read r';
+
+		// 查询用户转发数和分享数
+		$countRead = "select count(r2.id) from xxt_log_matter_read r2 where r2.matter_id = r.matter_id and r2.matter_type = r.matter_type and r2.siteid = '{$site}' and r2.userid = r.userid";
+		$countShareF = "select count(s1.id) from xxt_log_matter_share s1 where s1.matter_id = r.matter_id and s1.matter_type = r.matter_type and s1.siteid = '{$site}' and s1.userid = r.userid and s1.share_to = 'F'";
+		$countShareT = "select count(s2.id) from xxt_log_matter_share s2 where s2.matter_id = r.matter_id and s2.matter_type = r.matter_type and s2.siteid = '{$site}' and s2.userid = r.userid and s2.share_to = 'T'";
+
+		$where = "r.siteid = '{$site}'";
+		if (!empty($matterType) && !empty($matterId)) {
+			$where .= " and r.matter_type = '{$matterType}' and r.matter_id = '{$matterId}'";
+		} else if (!empty($matterType)) {
+			$where .= " and r.matter_type = '{$matterType}'";
+		}
+		if (!empty($options['shareby'])) {
+			if ($options['shareby'] !== 'N') {
+				$where .= " and r.userid <> '{$options['shareby']}' and r.matter_shareby like '" . $options['shareby'] . "_%'";
+				// $countRead .= " and r2.matter_shareby like '" . $options['shareby'] . "_%'";
+				// $countShareF .= " and s1.matter_shareby like '" . $options['shareby'] . "_%'";
+				// $countShareT .= " and s2.matter_shareby like '" . $options['shareby'] . "_%'";
+			}
+		} else {
+			$where .= " and r.matter_shareby in ('','undefined')";
+			// $countRead .= " and s1.matter_shareby in ('','undefined')";
+			// $countShareF .= " and s1.matter_shareby in ('','undefined')";
+			// $countShareT .= " and s2.matter_shareby in ('','undefined')";
+		}
+
+		if (!empty($options['start'])) {
+			$where .= " and r.read_at > {$options['start']}";
+			$countRead .= " and r2.read_at > {$options['start']}";
+			$countShareF .= " and s1.share_at > {$options['start']}";
+			$countShareT .= " and s2.share_at > {$options['start']}";
+		}
+		if (!empty($options['end'])) {
+			$where .= " and r.read_at < {$options['end']}";
+			$countRead .= " and r2.read_at < {$options['end']}";
+			$countShareF .= " and s1.share_at < {$options['end']}";
+			$countShareT .= " and s2.share_at < {$options['end']}";
+		}
+		if (!empty($options['byUser'])) {
+			$where .= " and r.nickname like '%" . $options['byUser'] . "%'";
+		}
+		if (!empty($options['byUserId'])) {
+			$where .= " and r.userid = '" . $options['byUserId'] . "'";
+		}
+
+		// 分组，排序
+		if (empty($options['groupby']) || $options['groupby'] === 'N') {
+			$groupby = " ";
+		} else {
+			$groupby = " group by " . $options['groupby'];
+		}
+
+		if (isset($options['orderby'])) {
+			$orderby = " order by " . $options['orderby'];
+		} else {
+			$orderby = " order by shareFNum desc,shareTNum desc,r.id desc";
+		}
+
+		// 拼装sql
+		$fields .= ",(" . $countRead . ") as readNum";
+		$fields .= ",(" . $countShareF . ") as shareFNum";
+		$fields .= ",(" . $countShareT . ") as shareTNum";
+		$sql = 'select ' . $fields;
+		$sql .= " from " . $table;
+		$sql .= " where " . $where;
+		$sql .= $groupby;
+		$sql .= $orderby;
+
+		if (isset($options['paging'])) {
+			$sql .= " limit " . ($options['paging']['page'] - 1) * $options['paging']['size'];
+			$sql .= " , " . $options['paging']['size'];
+		}
+
+		$q = [$sql, ''];
+		$logs = $this->query_objs_ss($q);
+		foreach ($logs as $log) {
+			// 带来的阅读数和阅读人数  
+			$ttractReads = $this->userTtractRead($site, $log->userid, $log->matter_id, $log->matter_type, $options);
+			$log->attractReaderNum = count($ttractReads);
+			$attractReadNum = 0;
+			foreach ($ttractReads as $re) {
+				$attractReadNum += $re->num;
+			}
+			$log->attractReadNum = $attractReadNum;
+		}
+
+		$data = new \stdClass;
+		$data->logs = $logs;
+		$q1 = [
+			"id",
+			'xxt_log_matter_read r',
+			$where
+		];
+		if (!empty($options['groupby']) && $options['groupby'] !== 'N') {
+			$p1 = ['g' => $options['groupby']];
+		}
+		$total = $this->query_objs_ss($q1, $p1);
+		$data->total = count($total);
+
+		return $data;
+	}
+	/**
+	 * 查询用户带来的下一级阅读数和阅读人数
+	*/
+	private function userTtractRead($site, $logUid, $matterId, $matterType, $options) {
+		$q = [
+			'count(id) as num',
+			'xxt_log_matter_read',
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and userid <> '{$logUid}' and siteid = '{$site}' and matter_shareby like '" . $logUid . "_%'"
+		];
+		if (!empty($options['start'])) {
+			$q[2] .= " and read_at > {$options['start']}";
+		}
+		if (!empty($options['end'])) {
+			$q[2] .= " and read_at < {$options['end']}";
+		}
+
+		$p = ['g' => 'userid'];
+		$res = $this->query_objs_ss($q, $p);
+
+		return $res;
+	}
+	/**
+	 * 
+	*/
+	public function userMatterAction($matterId, $matterType, $options, $page = '', $size = '') {
+		if ($options['byOp'] === 'read') {
+			$q = [
+				'id,userid,nickname,read_at time,matter_shareby',
+				'xxt_log_matter_read',
+				"matter_type='" . $matterType . "' and matter_id='" . $matterId . "'",
+			];
+
+			if (!empty($options['start'])) {
+				$q[2] .= " and read_at > {$options['start']}";
+			}
+			if (!empty($options['end'])) {
+				$q[2] .= " and read_at < {$options['end']}";
+			}
+
+			$p = ['o' => 'read_at desc'];
+		} else {
+			$q = [
+				'id,userid,nickname,share_at time,share_to,matter_shareby',
+				'xxt_log_matter_share',
+				"matter_type='" . $matterType . "' and matter_id='" . $matterId . "'",
+			];
+
+			if ($options['byOp'] === 'share.friend') {
+				$q[2] .= " and share_to = 'F'";
+			} else {
+				$q[2] .= " and share_to = 'T'";
+			}
+			if (!empty($options['start'])) {
+				$q[2] .= " and share_at > {$options['start']}";
+			}
+			if (!empty($options['end'])) {
+				$q[2] .= " and share_at < {$options['end']}";
+			}
+
+			$p = ['o' => 'share_at desc'];
+		}
+		
+		if (!empty($options['byUserId'])) {
+			$q[2] .= " and userid = '" . $options['byUserId'] . "'";
+		}
+		// if (!empty($options['shareby'])) {
+		// 	if ($key = strpos($options['shareby'], '_')) {
+		// 		$options['shareby'] = substr($options['shareby'], 0, $key);
+		// 	}
+		// 	$q[2] .= " and matter_shareby like '" . $options['shareby'] . "_%'";
+		// } else {
+		// 	$q[2] .= " and matter_shareby in ('','undefined')";
+		// }
+
+		if (!empty($page) && !empty($size)) {
+			$p['r'] = [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			];
+		}
+
+		$logs = $this->query_objs_ss($q, $p);
+		foreach ($logs as $log) {
+			$q1 = [
+				'nickname',
+				'xxt_log_matter_share',
+				['shareid' => $log->matter_shareby]
+			];
+			if (!empty($log->matter_shareby)) {
+				if ($res = $this->query_obj_ss($q1)) {
+					$log->origin = $res->nickname;
+				}
+			}
+			if (!isset($log->origin)) {
+				$log->origin = '';
+			}
+		}
+		
+		$result = new \stdClass;
+		$result->logs = $logs;
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
+	}
 }

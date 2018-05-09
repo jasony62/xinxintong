@@ -2,7 +2,7 @@
 require_once dirname(__FILE__) . '/local.php';
 require_once dirname(__FILE__) . '/alioss.php';
 /**
- *
+ * 用户存储
  */
 class user_model {
 
@@ -12,10 +12,10 @@ class user_model {
 	 */
 	private $service;
 
-	public function __construct($siteId, $bucket = 'xinxintong') {
+	public function __construct($siteId) {
 		$this->siteId = $siteId;
-		if (defined('SAE_TMP_PATH')) {
-			$this->service = new alioss_model($siteId, $bucket);
+		if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
+			$this->service = new alioss_model($siteId);
 		} else {
 			$this->service = new local_model($siteId, '_user');
 		}
@@ -41,14 +41,11 @@ class user_model {
 	/**
 	 * 存储指定url对应的文件
 	 */
-	public function storeUrl($url) {
-		/**
-		 * 下载文件
-		 */
-		$ext = 'jpg';
-		$response = file_get_contents($url);
-		$responseInfo = $http_response_header;
-		foreach ($responseInfo as $loop) {
+	private function _storeImageUrl($url, $ext = 'jpg') {
+		/* 下载文件 */
+		$imageContent = file_get_contents($url);
+		$aResponseInfo = $http_response_header;
+		foreach ($aResponseInfo as $loop) {
 			if (strpos($loop, "Content-disposition") !== false) {
 				$disposition = trim(substr($loop, 21));
 				$filename = explode(';', $disposition);
@@ -64,11 +61,11 @@ class user_model {
 		$dir = date("ymdH"); // 每个小时分一个目录
 		$storename = date("is") . rand(10000, 99999) . "." . $ext;
 		/**
-		 * 写到alioss
+		 * 写到指定位置
 		 */
-		$newUrl = $this->writeFile($dir, $storename, $response);
+		$newUrl = $this->writeFile($dir, $storename, $imageContent);
 
-		return array(true, $newUrl);
+		return [true, $newUrl];
 	}
 	/**
 	 * 存储base64的文件数据
@@ -117,14 +114,14 @@ class user_model {
 			}
 			$rst = $snsProxy->mediaGetUrl($img->serverId);
 			if ($rst[0] !== false) {
-				$rst = $this->storeUrl($rst[1]);
+				$rst = $this->_storeImageUrl($rst[1]);
 			}
 		} else if (isset($img->imgSrc)) {
 			if (0 === strpos($img->imgSrc, 'http')) {
 				/**
 				 * url
 				 */
-				$rst = $this->storeUrl($img->imgSrc);
+				$rst = $this->_storeImageUrl($img->imgSrc);
 			} else if (false !== strpos($img->imgSrc, TMS_UPLOAD_DIR)) {
 				/**
 				 * 已经上传本地的
@@ -143,5 +140,71 @@ class user_model {
 		} else {
 			return [false, '图片数据格式错误：' . json_encode($img)];
 		}
+	}
+	/**
+	 * 保存微信录音文件
+	 *
+	 * @param $oVoice
+	 */
+	public function storeWxVoice(&$oVoice) {
+		if (!isset($oVoice->serverId)) {
+			return [false, '录音数据为空'];
+		}
+
+		if (($snsConfig = TMS_APP::model('sns\wx')->bySite($this->siteId)) && $snsConfig->joined === 'Y') {
+			$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
+		} else if (($snsConfig = TMS_APP::model('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
+			$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
+		} else if ($snsConfig = TMS_APP::model('sns\qy')->bySite($this->siteId)) {
+			if ($snsConfig->joined === 'Y') {
+				$snsProxy = TMS_APP::model('sns\qy\proxy', $snsConfig);
+			}
+		}
+
+		$rst = $snsProxy->mediaGetUrl($oVoice->serverId);
+		if ($rst[0] !== false) {
+			$rst = $this->_storeWxVoiceUrl($rst[1], $oVoice);
+		}
+
+		$oVoice->url = $rst[1];
+		unset($oVoice->serverId);
+
+		return $rst;
+	}
+	/**
+	 * 从指定的url下载微信录音数据，并保存成文件
+	 */
+	private function _storeWxVoiceUrl($url, &$oVoice) {
+		/* 下载文件 */
+		$voiceContent = file_get_contents($url);
+
+		/* 文件保存到本地 */
+		$tempname = uniqid();
+		$localFs = new local_model($this->siteId, '_temp');
+		$amr = $localFs->writeFile('', $tempname . '.amr', $voiceContent);
+		if (false === $amr) {
+			return [false, '写入文件失败（1）'];
+		}
+		$mp3 = str_replace('amr', 'mp3', $amr);
+
+		/* 将amr转换成mp3格式 */
+		$command = "/usr/local/bin/ffmpeg -i $amr $mp3";
+		$error = [];
+		exec($command, $error);
+
+		$voiceContent = $localFs->read($tempname . '.mp3');
+		$oVoice->size = strlen($voiceContent);
+		$oVoice->type = 'audio/mpeg';
+
+		/* 写到指定位置 */
+		$dir = date("ymdH"); // 每个小时分一个目录
+		$storename = date("is") . rand(10000, 99999) . ".mp3";
+		$newUrl = $this->writeFile($dir, $storename, $voiceContent);
+
+		/* 删除临时文件 */
+		$localFs->delete($tempname . '.amr');
+		$localFs->delete($tempname . '.mp3');
+
+		return [true, $newUrl];
 	}
 }

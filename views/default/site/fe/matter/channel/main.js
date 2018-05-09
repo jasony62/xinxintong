@@ -1,41 +1,46 @@
 'use strict';
 require('../../../../../../asset/js/xxt.ui.page.js');
+require('../../../../../../asset/js/xxt.ui.share.js');
 
-if (/MicroMessenger/.test(navigator.userAgent)) {
-    //signPackage.debug = true;
-    signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
-    wx.config(signPackage);
-}
-angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt']).config(['$locationProvider', function($locationProvider) {
+angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt', 'snsshare.ui.xxt']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
-}]).controller('ctrl', ['$scope', '$location', '$http', '$q', 'tmsDynaPage', function($scope, $location, $http, $q, tmsDynaPage) {
+}]).controller('ctrl', ['$scope', '$location', '$http', '$q', 'tmsDynaPage', 'tmsSnsShare', function($scope, $location, $http, $q, tmsDynaPage, tmsSnsShare) {
     var siteId, channelId, invite_token, shareby;
     siteId = $location.search().site;
     channelId = $location.search().id;
     invite_token = $location.search().inviteToken;
     shareby = $location.search().shareby ? $location.search().shareby : '';
+    /* 设置分享 */
     var setShare = function() {
         var shareid, sharelink;
-        shareid = $scope.user.uid + '_' +(new Date()).getTime();
-        window.xxt.share.options.logger = function(shareto) {
-            var url = "/rest/site/fe/matter/logShare";
-            url += "?shareid=" + shareid;
-            url += "&site=" + siteId;
-            url += "&id=" + channelId;
-            url += "&type=channel";
-            url += "&title=" + $scope.channel.title;
-            url += "&shareto=" + shareto;
-            url += "&shareby=" + shareby;
-            $http.get(url);
-        };
-        sharelink = location.href;
-        if (/shareby=/.test(sharelink)) {
-            sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
-        } else {
-            sharelink += "&shareby=" + shareid;
+        shareid = $scope.user.uid + '_' + (new Date() * 1);
+        tmsSnsShare.config({
+            siteId: siteId,
+            logger: function(shareto) {
+                var url = "/rest/site/fe/matter/logShare";
+                url += "?shareid=" + shareid;
+                url += "&site=" + siteId;
+                url += "&id=" + channelId;
+                url += "&type=channel";
+                url += "&title=" + $scope.channel.title;
+                url += "&shareto=" + shareto;
+                url += "&shareby=" + shareby;
+                $http.get(url);
+            },
+            jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage']
+        });
+        if($scope.channel.invite) {
+            sharelink = location.protocol + '//' + location.host + '/i/'+ $scope.channel.invite.code;
+        }else {
+            sharelink = location.href;
+            if (/shareby=/.test(sharelink)) {
+                sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
+            } else {
+                sharelink += "&shareby=" + shareid;
+            }
         }
-        window.xxt.share.set($scope.channel.title, sharelink, $scope.channel.summary, $scope.channel.pic, '');
-    };
+        tmsSnsShare.set($scope.channel.title, sharelink, $scope.channel.summary, $scope.channel.pic);
+    }
     function dealImgSrc(item) {
         if (Object.keys(item).indexOf('pic') !== -1 && item.pic == null) {
             item.src = item.pic = '';

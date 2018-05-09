@@ -29,6 +29,11 @@ class timer_model extends base_model {
 		];
 
 		$tasks = $this->query_objs_ss($q);
+		foreach ($tasks as $oTask) {
+			if (property_exists($oTask, 'task_arguments')) {
+				$oTask->task_arguments = empty($oTask->task_arguments) ? new \stdClass : json_decode($oTask->task_arguments);
+			}
+		}
 
 		return $tasks;
 	}

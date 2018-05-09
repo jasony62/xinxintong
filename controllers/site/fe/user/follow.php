@@ -21,7 +21,6 @@ class follow extends \site\fe\base {
 	 *
 	 */
 	public function index_action($site, $sns) {
-		$site = $this->escape($site);
 		/* 如果用户已经绑定过公众号信息，清空后让用户重新绑定 */
 		if (isset($this->who->sns->{$sns})) {
 			unset($this->who->sns->{$sns});
@@ -42,7 +41,7 @@ class follow extends \site\fe\base {
 	 *
 	 */
 	public function pageGet_action($site, $sns, $matter = null, $sceneid = null) {
-		$matterSiteId = $snsSiteId = $this->escape($site);
+		$matterSiteId = $snsSiteId = $site;
 		$modelSns = $this->model('sns\\' . $sns);
 		/* 公众号配置信息 */
 		$snsConfig = $modelSns->bySite($snsSiteId, ['fields' => 'siteid,joined,qrcode,follow_page_id,follow_page_name']);

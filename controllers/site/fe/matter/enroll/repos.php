@@ -235,12 +235,13 @@ class repos extends base {
 	/**
 	 * 返回指定活动的登记记录的共享内容
 	 */
-	public function recordList_action($app, $page = 1, $size = 12) {
+	public function recordList_action($app, $page = 1, $size = 12, $role = null) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
 		$oUser = $this->getUser($oApp);
 
 		/* 非同组记录显示在共享页需要的赞同数 */
@@ -268,9 +269,6 @@ class repos extends base {
 			}
 		}
 
-		$modelRnd = $this->model('matter\enroll\round');
-		$oActiveRnd = $modelRnd->getActive($oApp);
-
 		// 登记数据过滤条件
 		$oPosted = $this->getPostJson();
 		// 登记记录过滤条件
@@ -284,9 +282,15 @@ class repos extends base {
 			case 'earliest':
 				$oOptions->orderby = ['enroll_at asc'];
 				break;
+			case 'earliest_first':
+				$oOptions->orderby = ['first_enroll_at asc'];
+				break;
+			case 'lastest_first':
+				$oOptions->orderby = ['first_enroll_at desc'];
+				break;
 			case 'mostliked':
 				$oOptions->orderby = ['like_num', 'enroll_at'];
-				break;;
+				break;
 			case 'agreed':
 				$oOptions->orderby = ['agreed', 'enroll_at'];
 				break;
@@ -321,17 +325,42 @@ class repos extends base {
 		if (!empty($oPosted->creator)) {
 			$oCriteria->record->userid = $oUser->uid;
 		}
+		/* 当前用户收藏 */
+		if (!empty($oPosted->favored)) {
+			$oCriteria->record->favored = true;
+		}
 		/* 记录的表态 */
 		if (!empty($oPosted->agreed) && $oPosted->agreed !== 'all') {
 			$oCriteria->record->agreed = $oPosted->agreed;
 		}
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
-		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oUser);
+		/* 指定的用户身份 */
+		if ($role === 'visitor') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+			$oMockUser->is_editor = 'N';
+		} else if ($role === 'member') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+		} else {
+			$oMockUser = $oUser;
+		}
+
+		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oMockUser);
 		if (!empty($oResult->records)) {
 			$modelData = $this->model('matter\enroll\data');
 			/* 是否限制了匿名规则 */
 			$bAnonymous = $this->_requireAnonymous($oApp);
+			/* 是否设置了编辑组统一名称 */
+			if (isset($oApp->actionRule->role->editor->group)) {
+				if (isset($oApp->actionRule->role->editor->nickname)) {
+					$oEditor = new \stdClass;
+					$oEditor->group = $oApp->actionRule->role->editor->group;
+					$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+				}
+			}
+
 			$aSchareableSchemas = [];
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
@@ -389,9 +418,28 @@ class repos extends base {
 						$oRecord->coworkState = (object) $aCoworkState;
 					}
 				}
+				/* 是否已经被当前用户收藏 */
+				if (!empty($oUser->unionid) && $oRecord->favor_num > 0) {
+					$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
+					if ($modelRec->query_obj_ss($q)) {
+						$oRecord->favored = true;
+					}
+				}
 				/* 隐藏昵称 */
 				if ($bAnonymous) {
 					unset($oRecord->nickname);
+				} else {
+					/* 修改默认访客昵称 */
+					if ($oRecord->userid === $oUser->uid) {
+						$oRecord->nickname = '我';
+					} else if (preg_match('/用户[^\W_]{13}/', $oRecord->nickname)) {
+						$oRecord->nickname = '访客';
+					} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+						/* 设置编辑统一昵称 */
+						if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+							$oRecord->nickname = $oEditor->nickname;
+						}
+					}
 				}
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
@@ -402,9 +450,9 @@ class repos extends base {
 				unset($oRecord->headimgurl);
 				/* 获得推荐的评论数据 */
 				$q = [
-					'id,agreed,like_num,like_log,nickname,content,create_at',
+					'id,group_id,agreed,like_num,like_log,nickname,content,create_at',
 					'xxt_enroll_record_remark',
-					"enroll_key='{$oRecord->enroll_key}'",
+					"enroll_key='{$oRecord->enroll_key}' and state=1",
 				];
 				if ($remarkReposLikeNum) {
 					$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";
@@ -415,8 +463,225 @@ class repos extends base {
 					'o' => 'agreed desc,like_num desc,create_at desc',
 				];
 				$oRecord->agreedRemarks = $modelRec->query_objs_ss($q, $q2);
+				foreach ($oRecord->agreedRemarks as $oRemark) {
+					if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+						/* 设置编辑统一昵称 */
+						if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+							$oRemark->nickname = $oEditor->nickname;
+						}
+					}
+				}
 			}
 		}
+
+		return new \ResponseData($oResult);
+	}
+	/**
+	 * 返回指定活动的登记记录的共享内容
+	 */
+	public function recordByTopic_action($app, $topic, $page = 1, $size = 12, $role = null) {
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		/* 非同组记录显示在共享页需要的赞同数 */
+		$recordReposLikeNum = 0;
+		if (isset($oApp->actionRule->record->repos->pre)) {
+			$oRule = $oApp->actionRule->record->repos->pre;
+			if (!empty($oRule->record->likeNum)) {
+				$recordReposLikeNum = (int) $oRule->record->likeNum;
+			}
+		}
+		/* 协作填写显示在共享页所需点赞数量 */
+		$coworkReposLikeNum = 0;
+		if (isset($oApp->actionRule->cowork->repos->pre)) {
+			$oRule = $oApp->actionRule->cowork->repos->pre;
+			if (!empty($oRule->cowork->likeNum)) {
+				$coworkReposLikeNum = (int) $oRule->cowork->likeNum;
+			}
+		}
+		/* 留言显示在共享页所需点赞数量 */
+		$remarkReposLikeNum = 0;
+		if (isset($oApp->actionRule->remark->repos->pre)) {
+			$oRule = $oApp->actionRule->remark->repos->pre;
+			if (!empty($oRule->remark->likeNum)) {
+				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
+			}
+		}
+
+		// 登记数据过滤条件
+		$oPosted = $this->getPostJson();
+
+		// 登记记录过滤条件
+		$oOptions = new \stdClass;
+		$oOptions->page = $page;
+		$oOptions->size = $size;
+
+		// 查询结果
+		$modelRec = $this->model('matter\enroll\record');
+		$oCriteria = new \stdClass;
+		$oCriteria->record = new \stdClass;
+		$oCriteria->record->topic = $topic;
+
+		/* 用户分组限制 */
+		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+			$bSameGroup = $this->_requireSameGroup($oApp);
+			if ($bSameGroup) {
+				$oCriteria->record->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+			} else if ($recordReposLikeNum) {
+				/* 限制同组数据或赞同数大于等于 */
+				$oCriteria->GroupOrLikeNum = new \stdClass;
+				$oCriteria->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+				$oCriteria->GroupOrLikeNum->like_num = $recordReposLikeNum;
+			}
+		}
+
+		/* 指定的用户身份 */
+		if ($role === 'visitor') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+			$oMockUser->is_editor = 'N';
+		} else if ($role === 'member') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+		} else {
+			$oMockUser = $oUser;
+		}
+
+		$modelTop = $this->model('matter\enroll\topic');
+		$oTopic = $modelTop->byId($topic);
+
+		$oResult = $modelTop->records($oApp, $oTopic);
+		if (!empty($oResult->records)) {
+			$modelData = $this->model('matter\enroll\data');
+			/* 是否限制了匿名规则 */
+			$bAnonymous = $this->_requireAnonymous($oApp);
+			/* 是否设置了编辑组统一名称 */
+			if (isset($oApp->actionRule->role->editor->group)) {
+				if (isset($oApp->actionRule->role->editor->nickname)) {
+					$oEditor = new \stdClass;
+					$oEditor->group = $oApp->actionRule->role->editor->group;
+					$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+				}
+			}
+
+			$aSchareableSchemas = [];
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
+					$aSchareableSchemas[] = $oSchema;
+				}
+			}
+			foreach ($oResult->records as $oRecord) {
+				$aCoworkState = [];
+				/* 清除非共享数据 */
+				if (isset($oRecord->data)) {
+					$oRecordData = new \stdClass;
+					foreach ($aSchareableSchemas as $oSchema) {
+						$schemaId = $oSchema->id;
+						if (strpos($schemaId, 'member.extattr.') === 0) {
+							$memberSchemaId = str_replace('member.extattr.', '', $schemaId);
+							if (!empty($oRecord->data->member->extattr->{$memberSchemaId})) {
+								if (!isset($oRecordData->member)) {
+									$oRecordData->member = new \stdClass;
+								}
+								if (!isset($oRecordData->member->extattr)) {
+									$oRecordData->member->extattr = new \stdClass;
+								}
+								$oRecordData->member->extattr->{$memberSchemaId} = $oRecord->data->member->extattr->{$memberSchemaId};
+							}
+						} else if (strpos($schemaId, 'member.') === 0) {
+							$memberSchemaId = str_replace('member.', '', $schemaId);
+							if (!empty($oRecord->data->member->{$memberSchemaId})) {
+								if (!isset($oRecordData->member)) {
+									$oRecordData->member = new \stdClass;
+								}
+								$oRecordData->member->{$memberSchemaId} = $oRecord->data->member->{$memberSchemaId};
+							}
+						} else if (!empty($oRecord->data->{$schemaId})) {
+							/* 协作填写题 */
+							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
+								$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+								if ($coworkReposLikeNum) {
+									$reposItems = [];
+									foreach ($items as $oItem) {
+										if ($oItem->like_num >= $coworkReposLikeNum || $oItem->agreed === 'Y') {
+											$reposItems[] = $oItem;
+										}
+									}
+									$items = $reposItems;
+								}
+								$oRecordData->{$schemaId} = $items;
+							} else {
+								$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
+							}
+						}
+					}
+					$oRecord->data = $oRecordData;
+					if (!empty($aCoworkState)) {
+						$oRecord->coworkState = (object) $aCoworkState;
+					}
+				}
+				/* 是否已经被当前用户收藏 */
+				if (!empty($oUser->unionid) && $oRecord->favor_num > 0) {
+					$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
+					if ($modelRec->query_obj_ss($q)) {
+						$oRecord->favored = true;
+					}
+				}
+				/* 隐藏昵称 */
+				if ($bAnonymous) {
+					unset($oRecord->nickname);
+				} else {
+					/* 修改默认访客昵称 */
+					if ($oRecord->userid === $oUser->uid) {
+						$oRecord->nickname = '我';
+					} else if (preg_match('/用户[^\W_]{13}/', $oRecord->nickname)) {
+						$oRecord->nickname = '访客';
+					} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+						/* 设置编辑统一昵称 */
+						if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+							$oRecord->nickname = $oEditor->nickname;
+						}
+					}
+				}
+				/* 清除不必要的内容 */
+				unset($oRecord->comment);
+				unset($oRecord->verified);
+				unset($oRecord->wx_openid);
+				unset($oRecord->yx_openid);
+				unset($oRecord->qy_openid);
+				unset($oRecord->headimgurl);
+				/* 获得推荐的评论数据 */
+				$q = [
+					'id,group_id,agreed,like_num,like_log,nickname,content,create_at',
+					'xxt_enroll_record_remark',
+					"enroll_key='{$oRecord->enroll_key}' and state=1",
+				];
+				if ($remarkReposLikeNum) {
+					$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";
+				} else {
+					$q[2] .= " and agreed='Y'";
+				}
+				$q2 = [
+					'o' => 'agreed desc,like_num desc,create_at desc',
+				];
+				$oRecord->agreedRemarks = $modelRec->query_objs_ss($q, $q2);
+				foreach ($oRecord->agreedRemarks as $oRemark) {
+					if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+						/* 设置编辑统一昵称 */
+						if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+							$oRemark->nickname = $oEditor->nickname;
+						}
+					}
+				}
+			}
+		}
+
 		return new \ResponseData($oResult);
 	}
 	/**
@@ -426,9 +691,20 @@ class repos extends base {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,state,data_schemas,action_rule']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
 		}
 
 		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,rec_remark_num,agreed,data';
@@ -441,6 +717,23 @@ class repos extends base {
 		$bAnonymous = $this->_requireAnonymous($oApp);
 		if ($bAnonymous) {
 			unset($oRecord->nickname);
+		} else {
+			/* 修改默认访客昵称 */
+			if ($oRecord->userid === $oUser->uid) {
+				$oRecord->nickname = '我';
+			} else if (preg_match('/用户[^\W_]{13}/', $oRecord->nickname)) {
+				$oRecord->nickname = '访客';
+			} else if (isset($oEditor)) {
+				if ($oRecord->group_id === $oEditor->group) {
+					$oRecord->is_editor = 'Y';
+				}
+				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+					/* 设置编辑统一昵称 */
+					if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+						$oRecord->nickname = $oEditor->nickname;
+					}
+				}
+			}
 		}
 
 		if (isset($oRecord->verbose)) {
@@ -487,49 +780,5 @@ class repos extends base {
 		}
 
 		return new \ResponseData($oRecord);
-	}
-	/**
-	 * 获得指定记录的留言
-	 */
-	public function remarkList_action($ek) {
-		$modelApp = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
-
-		$fields = 'id,aid,state,enroll_key';
-		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
-		if (false === $oRecord || $oRecord->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		$oApp = $modelApp->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,state,action_rule']);
-		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		/* 留言显示在共享页所需点赞数量 */
-		$remarkReposLikeNum = 0;
-		if (isset($oApp->actionRule->remark->repos->pre)) {
-			$oRule = $oApp->actionRule->remark->repos->pre;
-			if (!empty($oRule->remark->likeNum)) {
-				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
-			}
-		}
-
-		$q = [
-			'id,agreed,like_num,like_log,nickname,content,create_at',
-			'xxt_enroll_record_remark',
-			"enroll_key='{$oRecord->enroll_key}'",
-		];
-		if ($remarkReposLikeNum) {
-			$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";
-		} else {
-			$q[2] .= " and agreed='Y'";
-		}
-		$q2 = [
-			'o' => 'agreed desc,like_num desc,create_at desc',
-		];
-		$remarks = $modelRec->query_objs_ss($q, $q2);
-
-		return new \ResponseData($remarks);
 	}
 }

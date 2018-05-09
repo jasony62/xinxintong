@@ -2,26 +2,29 @@ html,body{font-family:Microsoft Yahei,Arial;width:100%;height:auto;}
 body{position:relative;font-size:16px;padding:0;}
 .ng-cloak{display:none;}
 .container{position:relative;}
-.navbar-default .navbar-nav > li > a,.navbar-default .navbar-brand{color:#fff;}
-.navbar-brand{padding:17.5px 15px;}
+.site-navbar-default .navbar-default .navbar-nav>li>a,.navbar-default .navbar-brand{color:#fff;}
+.site-navbar-default .navbar-brand{padding:15px 15px;}
 .main-navbar .navbar-brand:hover{color:#fff;}
 @media screen and (min-width:768px){
-	.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1;}
+	.site-navbar-default .navbar-nav>li>a{padding:15px 15px;line-height:1;}
 }
 @media screen and (max-width:768px){
-	.navbar-brand{width:100%;text-align:center;}
-	.navbar-brand > .icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
-	.navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}
-	.nav > li > a{padding:10px 10px;}
+	.site-navbar-default .navbar-brand{width:100%;text-align:center;}
+	.site-navbar-default .navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+	.site-navbar-default .navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}
+	.site-navbar-default .nav>li>a{padding:10px 10px;}
 }
 .tms-flex-row{display:flex;align-items:center;}
 .tms-flex-row .tms-flex-grow{flex:1;}
+.dropdown-menu{min-width:auto;}
+.dropdown-menu-top{bottom:100%;top:auto;}
+
 /*picviewer*/
-#picViewer {position: absolute;left: 0px;right: 0px;top: 0px;bottom: 0px;z-index: 1051;display: none;margin: 0 auto;overflow: hidden;background: black}
-#picViewer>div {position: absolute;bottom: 6px;left: 8px;right: 8px;z-index: 1999;height: 36px}
-#picViewer span {display: inline-block;width: 36px;height: 36px;line-height: 25px;border-radius: 18px;font-size: 25px;text-align: center}
-#picViewer span.page {position: absolute;left: 50%;margin-left: -18px;font-size: 18px}
-#picViewer span.prev {position: absolute;left: 50%;margin-left: -72px}
-#picViewer span.next {position: absolute;left: 50%;margin-left: 36px}
-#picViewer span.exit {position: absolute;right: 0}
-#picViewer span.exit > i {text-shadow: 0 0 0.1em #fff, -0 -0 0.1em #fff;}
+#picViewer{position:absolute;left:0px;right:0px;top:0px;bottom:0px;z-index:1051;display:none;margin:0 auto;overflow:hidden;background:black}
+#picViewer>div{position:absolute;bottom:6px;left:8px;right:8px;z-index:1999;height:36px}
+#picViewer span{display:inline-block;width:36px;height:36px;line-height:25px;border-radius:18px;font-size:25px;text-align:center}
+#picViewer span.page{position:absolute;left:50%;margin-left:-18px;font-size:18px}
+#picViewer span.prev{position:absolute;left:50%;margin-left:-72px}
+#picViewer span.next{position:absolute;left:50%;margin-left:36px}
+#picViewer span.exit{position:absolute;right:0}
+#picViewer span.exit>i{text-shadow:0 0 0.1em #fff,-0 -0 0.1em #fff;}

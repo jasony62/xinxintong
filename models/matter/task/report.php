@@ -9,7 +9,7 @@ class report_model extends \TMS_MODEL {
 	 *
 	 * @param
 	 */
-	public function exec($oMatter, $arguments = null) {
+	public function exec($oMatter, $oArgs = null) {
 		if ($oMatter->type === 'mission') {
 			$modelMission = $this->model('matter\mission');
 			$oMission = $modelMission->byId($oMatter->id);
@@ -40,9 +40,13 @@ class report_model extends \TMS_MODEL {
 			}
 
 			/* 获得活动的管理员链接 */
-			$appURL = $modelEnl->getOpUrl($oMatter->siteid, $oMatter->id);
-			$modelQurl = $this->model('q\url');
-			$noticeURL = $modelQurl->urlByUrl($oMatter->siteid, $appURL);
+			if (!empty($oArgs->page) && $oArgs->page !== 'console') {
+				$noticeURL = $oMatter->entryUrl . '&page=' . $oArgs->page;
+			} else {
+				$appURL = $modelEnl->getOpUrl($oMatter->siteid, $oMatter->id);
+				$modelQurl = $this->model('q\url');
+				$noticeURL = $modelQurl->urlByUrl($oMatter->siteid, $appURL);
+			}
 
 			$model = $this->model('matter\enroll\receiver');
 			$rst = $model->notify($oMatter, 'timer.enroll.report', ['noticeURL' => $noticeURL]);

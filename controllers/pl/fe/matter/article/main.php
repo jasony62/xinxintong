@@ -32,7 +32,7 @@ class main extends \pl\fe\matter\main_base {
 	 * --$order
 	 *
 	 */
-	public function list_action($site = null, $mission = null, $page = 1, $size = 30) {
+	public function list_action($site = null, $mission = null, $platform = 'N', $page = 1, $size = 30) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -63,6 +63,8 @@ class main extends \pl\fe\matter\main_base {
 		/* 按项目过滤 */
 		if (!empty($mission)) {
 			$w .= " and a.mission_id=$mission";
+		} else if ($platform === 'Y') {
+			$w .= " and exists(select 1 from xxt_home_matter where as_global='Y' and matter_type='article' and matter_id=a.id)";
 		} else {
 			$w .= " and a.siteid='$site'";
 		}
@@ -398,22 +400,6 @@ class main extends \pl\fe\matter\main_base {
 		);
 
 		return new \ResponseData($data);
-	}
-	/**
-	 * 上传附件
-	 */
-	public function upload_action($site, $articleid) {
-		if (defined('SAE_TMP_PATH')) {
-			$dest = '/article/' . $articleid . '/' . $_POST['resumableFilename'];
-			$resumable = $this->model('fs/resumableAliOss', $site, $dest);
-			$resumable->handleRequest();
-		} else {
-			$modelFs = $this->model('fs/local', $site, '_resumable');
-			$dest = '/article_' . $articleid . '_' . $_POST['resumableIdentifier'];
-			$resumable = $this->model('fs/resumable', $site, $dest, $modelFs);
-			$resumable->handleRequest($_POST);
-		}
-		exit;
 	}
 	/**
 	 * 将文件生成的图片转为正文

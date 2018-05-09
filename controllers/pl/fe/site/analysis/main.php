@@ -24,7 +24,12 @@ class main extends \pl\fe\base {
 		$q[] = $s;
 		$q[] = 'xxt_log_matter_action l';
 		$w = "l.siteid='$site' and l.matter_type='$type' ";
-		$w .= " and l.action_at>=$startAt and l.action_at<=$endAt";
+		if (!empty($startAt)) {
+			$w .= " and l.action_at>=$startAt";
+		}
+		if (!empty($endAt)) {
+			$w .= " and l.action_at<=$endAt";
+		}
 		$q[] = $w;
 		$q2 = array(
 			'g' => 'matter_type,matter_id',
@@ -64,8 +69,14 @@ class main extends \pl\fe\base {
 			$q = array(
 				'count(distinct matter_type,matter_id)',
 				'xxt_log_matter_action',
-				"siteid='$site' and matter_type='$type' and action_at>=$startAt and action_at<=$endAt",
+				"siteid='$site' and matter_type='$type'",
 			);
+			if (!empty($startAt)) {
+				$q[2] .= " and action_at>=$startAt";
+			}
+			if (!empty($endAt)) {
+				$q[2] .= " and action_at<=$endAt";
+			}
 			$cnt = $model->query_val_ss($q);
 		} else {
 			$cnt = 0;
@@ -79,14 +90,19 @@ class main extends \pl\fe\base {
 	public function userActions_action($site, $orderby, $startAt, $endAt, $page = 1, $size = 30) {
 		$q = array();
 
-		$s = 'l.openid,l.nickname,l.userid';
+		$s = 'l.nickname,l.userid';
 		$s .= ',sum(l.act_read) read_num';
 		$s .= ',sum(l.act_share_friend) share_friend_num';
 		$s .= ',sum(l.act_share_timeline) share_timeline_num';
 		$q[] = $s;
 		$q[] = 'xxt_log_user_action l';
 		$w = "l.siteid='$site'";
-		$w .= " and l.action_at>=$startAt and l.action_at<=$endAt";
+		if (!empty($startAt)) {
+			$w .= " and l.action_at>=$startAt";
+		}
+		if (!empty($endAt)) {
+			$w .= "  and l.action_at<=$endAt";
+		}
 		$q[] = $w;
 		$q2 = array(
 			'g' => 'userid',
@@ -97,8 +113,14 @@ class main extends \pl\fe\base {
 			$q = array(
 				'count(distinct userid)',
 				'xxt_log_user_action',
-				"siteid='$site' and action_at>=$startAt and action_at<=$endAt",
+				"siteid='$site'",
 			);
+			if (!empty($startAt)) {
+				$q[2] .= " and action_at>=$startAt";
+			}
+			if (!empty($endAt)) {
+				$q[2] .= "  and action_at<=$endAt";
+			}
 			$cnt = $this->model()->query_val_ss($q);
 		} else {
 			$cnt = 0;

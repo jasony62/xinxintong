@@ -19,7 +19,7 @@ class mission_model extends app_base {
 		$url = APP_PROTOCOL . APP_HTTP_HOST;
 		$url .= "/rest/site/fe/matter/mission";
 		if ($siteId === 'platform') {
-			if ($oMission = $this->byId($id, ['cascaded' => 'N'])) {
+			if ($oMission = $this->byId($id, ['cascaded' => 'N', 'notDecode' => true])) {
 				$url .= "?site={$oMission->siteid}&mission=" . $id;
 			} else {
 				$url = APP_PROTOCOL . APP_HTTP_HOST;
@@ -51,7 +51,7 @@ class mission_model extends app_base {
 			$this->table(),
 			["id" => $id],
 		];
-		if (($oMission = $this->query_obj_ss($q))) {
+		if (($oMission = $this->query_obj_ss($q)) && empty($options['notDecode'])) {
 			$oMission->type = 'mission';
 			if (!empty($oMission->matter_mg_tag)) {
 				$oMission->matter_mg_tag = json_decode($oMission->matter_mg_tag);

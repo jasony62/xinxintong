@@ -13,10 +13,6 @@ img {
     max-width: 100%
 }
 
-.dropdown-menu {
-    min-width: auto;
-}
-
 .navbar-header {
     .page-title {
         display: inline-block;
@@ -58,6 +54,38 @@ img {
 
 }
 
+.bottom-bar {
+    display: flex;
+    font-size: .9em;
+    color: #777;
+
+    &>*+* {
+        margin-left: 16px;
+
+        .like {
+            color: @brand-primary;
+        }
+
+    }
+
+    &>:first-child {
+        flex: 1;
+    }
+
+    a {
+        text-decoration: none;
+        color: #777;
+    }
+
+    .dropdown {
+        button {
+            border: 0;
+        }
+
+    }
+
+}
+
 #advCriteria {
     .panel-group {
         margin-bottom: 8px;
@@ -91,9 +119,29 @@ img {
 
 #filterQuick {
     margin: 4px 8px;
+    padding: 4px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
 
-    .checkbox {
+    &>* {
         display: inline-block;
+    }
+
+}
+
+#filterTip {
+    margin: 4px 8px;
+    padding: 4px 0;
+
+    &>* {
+        display: inline-block;
+        padding: 4px 8px;
+
+        .close {
+            margin-left: 4px;
+        }
+
     }
 
 }
@@ -126,6 +174,10 @@ img {
                 font-size: .9em;
             }
 
+            &>*+* {
+                padding-left: 8px;
+            }
+
         }
 
         .data {
@@ -153,31 +205,6 @@ img {
 
             .datetime {
                 font-size: .8em;
-            }
-
-        }
-
-        .bottom-bar {
-            display: flex;
-            font-size: .9em;
-            color: #777;
-
-            &>*+* {
-                margin-left: 16px;
-
-                .like {
-                    color: @brand-primary;
-                }
-
-            }
-
-            .datetime {
-                flex: 1;
-            }
-
-            a {
-                text-decoration: none;
-                color: #777;
             }
 
         }

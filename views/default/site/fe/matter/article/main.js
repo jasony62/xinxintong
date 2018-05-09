@@ -143,7 +143,8 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             var site = rsp.data.site,
                 mission = rsp.data.mission,
                 oArticle = rsp.data.article,
-                channels = oArticle.channels;
+                channels = oArticle.channels,
+                shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
 
             if (oArticle.use_site_header === 'Y' && site && site.header_page) {
                 tmsDynaPage.loadCode(ngApp, site.header_page);
@@ -171,8 +172,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
             $scope.user = rsp.data.user;
             /* 设置分享 */
             if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
-                var shareid, sharelink, shareby;
-                shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+                var shareid, sharelink;
                 shareid = $scope.user.uid + '_' + (new Date() * 1);
                 sharelink = location.protocol + '//' + location.hostname + '/rest/site/fe/matter';
                 sharelink += '?site=' + siteId;

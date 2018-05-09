@@ -443,7 +443,7 @@ class proxy_model extends \sns\proxybase {
 		$url .= "?access_token={$rst[1]}";
 		$url .= "&media_id=$mediaId";
 
-		return array(true, $url);
+		return [true, $url];
 	}
 	/**
 	 * 将图文消息上传到微信公众号平台

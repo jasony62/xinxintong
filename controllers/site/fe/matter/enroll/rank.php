@@ -9,7 +9,7 @@ class rank extends base {
 	/**
 	 * 用户排行榜
 	 */
-	public function userByApp_action($app, $page = 1, $size = 10) {
+	public function userByApp_action($app, $page = 1, $size = 100) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false) {
 			return new \ObjectNotFoundError();
@@ -207,7 +207,7 @@ class rank extends base {
 	/**
 	 * 登记内容排行榜
 	 */
-	public function dataByApp_action($app, $page = 1, $size = 10) {
+	public function dataByApp_action($app, $page = 1, $size = 20) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
@@ -306,7 +306,7 @@ class rank extends base {
 	/**
 	 *
 	 */
-	public function remarkByApp_action($app, $page = 1, $size = 10) {
+	public function remarkByApp_action($app, $page = 1, $size = 20) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false) {
 			return new \ObjectNotFoundError();

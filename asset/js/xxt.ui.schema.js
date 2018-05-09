@@ -60,7 +60,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
         return true;
     };
     this.checkCount = function(oSchema, value) {
-        if (oSchema.count !== undefined && value.length > oSchema.count) {
+        if (oSchema.count != 0 && oSchema.count !== undefined && value.length > oSchema.count) {
             return '［' + oSchema.title + '］超出上传数量（' + oSchema.count + '）限制';
         }
         return true;

@@ -636,13 +636,15 @@ class record_model extends record_base {
 		}
 
 		// 指定了记录标签
-		// if (!empty($oCriteria->tags)) {
-		// 	$whereByTag = '';
-		// 	foreach ($oCriteria->tags as $tag) {
-		// 		$whereByTag .= " and concat(',',r.tags,',') like '%,$tag,%'";
-		// 	}
-		// 	$w .= $whereByTag;
-		// }
+		if (!empty($oCriteria->record->tags)) {
+			if (is_array($oCriteria->record->tags)) {
+				foreach ($oCriteria->record->tags as $tagId) {
+					$w .= " and exists(select 1 from xxt_enroll_tag_target tt where tt.target_id=r.id and tt.target_type=1 and tt.tag_id=" . $tagId . ")";
+				}
+			} else {
+				$w .= " and exists(select 1 from xxt_enroll_tag_target tt where tt.target_id=r.id and tt.target_type=1 and tt.tag_id=" . $oCriteria->record->tags . ")";
+			}
+		}
 
 		// 指定了登记数据过滤条件
 		if (isset($oCriteria->data)) {
@@ -699,7 +701,7 @@ class record_model extends record_base {
 
 		// 查询参数
 		$q = [
-			'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,data_tag,agreed,like_num,like_log,remark_num,favor_num',
+			'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num',
 			"xxt_enroll_record r",
 			$w,
 		];

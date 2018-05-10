@@ -342,6 +342,10 @@ class repos extends base {
 		if (!empty($oPosted->agreed) && $oPosted->agreed !== 'all') {
 			$oCriteria->record->agreed = $oPosted->agreed;
 		}
+		/* 记录的标签 */
+		if (!empty($oPosted->tags)) {
+			$oCriteria->record->tags = $oPosted->tags;
+		}
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
 		/* 指定的用户身份 */

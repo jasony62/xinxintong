@@ -1134,6 +1134,7 @@ class record extends \pl\fe\matter\base {
 						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
 					}
 					$cellValue = str_replace(['<br>', '</br>', '<div>', '</div>'], ["\n", "", "", ""], $cellValue);
+					$cellValue = strip_tags($cellValue);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -1153,6 +1154,7 @@ class record extends \pl\fe\matter\base {
 						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
 					}
 					$cellValue = str_replace(['<br>', '</br>', '<div>', '</div>'], ["\n", "", "", ""], $cellValue);
+					$cellValue = strip_tags($cellValue);
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -1171,6 +1173,7 @@ class record extends \pl\fe\matter\base {
 						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
 					}
 					$v0 = str_replace(['<br>', '</br>', '<div>', '</div>'], ["\n", "", "", ""], $v0);
+					$v0 = strip_tags($v0);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -1180,6 +1183,7 @@ class record extends \pl\fe\matter\base {
 						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
 					}
 					$v0 = str_replace(['<br>', '</br>', '<div>', '</div>'], ["\n", "", "", ""], $v0);
+					$v0 = strip_tags($v0);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -1198,11 +1202,10 @@ class record extends \pl\fe\matter\base {
 					if (is_array($v)) {
 						$values = [];
 						foreach ($v as $val) {
-							$values[] = $val->value;
+							$values[] = strip_tags($val->value);
 						}
-						$v = implode(',', $values);
+						$v = implode("\n", $values);
 					}
-					$v = str_replace(['<br>', '</br>', '<div>', '</div>'], ["\n", "", "", ""], $v);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -1249,7 +1252,7 @@ class record extends \pl\fe\matter\base {
 			// 备注
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);
 			// 标签
-			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->tags);
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, '');
 			// 记录投票分数
 			if ($oApp->scenario === 'voting') {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->_score);

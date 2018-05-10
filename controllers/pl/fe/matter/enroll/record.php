@@ -1135,6 +1135,7 @@ class record extends \pl\fe\matter\base {
 					}
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
+					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -1155,6 +1156,7 @@ class record extends \pl\fe\matter\base {
 					}
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
+					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -1174,6 +1176,7 @@ class record extends \pl\fe\matter\base {
 					}
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
+					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -1184,6 +1187,7 @@ class record extends \pl\fe\matter\base {
 					}
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
+					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -1206,6 +1210,7 @@ class record extends \pl\fe\matter\base {
 						}
 						$v = implode("\n", $values);
 					}
+					$v = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;

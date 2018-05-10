@@ -377,13 +377,13 @@ class base extends \site\fe\base {
 		$oEntryRule = $oApp->entryRule;
 		$oScope = $oEntryRule->scope;
 		// 必须检查的行为
-		$chackAction = false;
-		if (!empty($action) && !empty($oScope->chackaction->{$action}) && $oScope->chackaction->{$action} === 'Y') {
-			$chackAction = true;
+		$interval = false;
+		if (!empty($action) && !empty($oScope->interval->{$action}) && $oScope->interval->{$action} === 'Y') {
+			$interval = true;
 		}
 
 		if (isset($oScope->member) && $oScope->member === 'Y') {
-			if (empty($oScope->optional->member) || $oScope->optional->member !== 'Y' || $chackAction) {
+			if (empty($oScope->optional->member) || $oScope->optional->member !== 'Y' || $interval) {
 				if (!isset($oEntryRule->member)) {
 					$msg = '需要填写通讯录信息，请联系活动的组织者解决。';
 					if (true === $bRedirect) {
@@ -431,7 +431,7 @@ class base extends \site\fe\base {
 			}
 		}
 		if (isset($oScope->group) && $oScope->group === 'Y') {
-			if (empty($oScope->optional->group) || $oScope->optional->group !== 'Y' || $chackAction) {
+			if (empty($oScope->optional->group) || $oScope->optional->group !== 'Y' || $interval) {
 				$bMatched = false;
 				/* 限分组用户访问 */
 				if (isset($oEntryRule->group->id)) {

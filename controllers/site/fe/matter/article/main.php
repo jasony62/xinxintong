@@ -140,7 +140,7 @@ class main extends \site\fe\matter\base {
 		 */
 		$modelArticle = $this->model('matter\article');
 		$oArticle = $modelArticle->byId($articleid);
-		$this->checkEntryRule($oArticle, true, 'attachment');
+		$this->checkEntryRule($oArticle, true, 'download');
 		/**
 		 * 获取附件
 		 */

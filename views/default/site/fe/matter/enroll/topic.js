@@ -11,7 +11,7 @@ ngApp.controller('ctrlTopic', ['$scope', 'http2', 'tmsLocation', function($scope
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
         /* 设置页面分享信息 */
-        $scope.setSnsShare(); // 应该禁止分享
+        $scope.setSnsShare(null, { topic: LS.s().topic }); // 应该禁止分享
         /*设置页面导航*/
         var oAppNavs = {};
         if (oApp.can_rank === 'Y') {

@@ -144,7 +144,7 @@
                     </div>
                 </div>
                 <!-- end: filterQuick -->
-                <div id='filterTip' ng-if="filter.round||filter.group||filter.mine">
+                <div id='filterTip' ng-if="filter.round||filter.group||filter.mine||filter.tags.length">
                     <div class="bg-info small" ng-if="filter.round">
                         <span>{{filter.round.title}}</span>
                         <button class="close" ng-click="shiftRound()"><span>&times;</span></button>
@@ -156,6 +156,10 @@
                     <div class="bg-info small" ng-if="filter.mine">
                         <span>{{filter.mine}}</span>
                         <button class="close" ng-click="shiftMine('')"><span>&times;</span></button>
+                    </div>
+                    <div class="bg-info small" ng-repeat="tag in filter.tags">
+                        <span ng-bind="tag.label"></span>
+                        <button class="close" ng-click="shiftTag(tag,false)"><span>&times;</span></button>
                     </div>
                 </div>
                 <div id='repos'>
@@ -255,6 +259,9 @@
                                         <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
                                     </ul>
                                 </div>
+                            </div>
+                            <div class='tags' ng-if="rec.tags">
+                                <span class='label label-default' ng-repeat="tag in rec.tags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></span>
                             </div>
                             <div class='remarks' ng-if="rec.agreedRemarks.length">
                                 <div class='remark' ng-repeat="remark in rec.agreedRemarks">

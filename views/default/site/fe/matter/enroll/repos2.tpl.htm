@@ -256,6 +256,9 @@
                                     </ul>
                                 </div>
                             </div>
+                            <div class='tags' ng-if="rec.tags">
+                                <span class='label label-default' ng-repeat="tag in rec.tags" ng-bind="tag.label"></span>
+                            </div>
                             <div class='remarks' ng-if="rec.agreedRemarks.length">
                                 <div class='remark' ng-repeat="remark in rec.agreedRemarks">
                                     <div class='top-bar text-muted'>

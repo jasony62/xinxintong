@@ -636,13 +636,13 @@ class record_model extends record_base {
 		}
 
 		// 指定了记录标签
-		if (!empty($oCriteria->tags)) {
-			$whereByTag = '';
-			foreach ($oCriteria->tags as $tag) {
-				$whereByTag .= " and concat(',',r.tags,',') like '%,$tag,%'";
-			}
-			$w .= $whereByTag;
-		}
+		// if (!empty($oCriteria->tags)) {
+		// 	$whereByTag = '';
+		// 	foreach ($oCriteria->tags as $tag) {
+		// 		$whereByTag .= " and concat(',',r.tags,',') like '%,$tag,%'";
+		// 	}
+		// 	$w .= $whereByTag;
+		// }
 
 		// 指定了登记数据过滤条件
 		if (isset($oCriteria->data)) {
@@ -699,7 +699,7 @@ class record_model extends record_base {
 
 		// 查询参数
 		$q = [
-			'id,enroll_key,rid,enroll_at,tags,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,data_tag,agreed,like_num,like_log,remark_num,favor_num',
+			'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,data_tag,agreed,like_num,like_log,remark_num,favor_num',
 			"xxt_enroll_record r",
 			$w,
 		];
@@ -804,9 +804,9 @@ class record_model extends record_base {
 			if (property_exists($oRec, 'like_log')) {
 				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
 			}
-			if (property_exists($oRec, 'data_tag')) {
-				$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
-			}
+			//if (property_exists($oRec, 'data_tag')) {
+			//	$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
+			//}
 			//测验场景或数值填空题共用score字段
 			if (isset($oApp->scenario)) {
 				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($oRec->score)) {

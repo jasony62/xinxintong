@@ -161,9 +161,13 @@
                                     <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
                                     <li><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 取消收藏</a></li>
                                     <li><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 选取专题</a></li>
+                                    <li><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 选取标签</a></li>
                                     <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
                                 </ul>
                             </div>
+                        </div>
+                        <div class='tags' ng-if="rec.tags">
+                            <span class='label label-default' ng-repeat="tag in rec.tags" ng-bind="tag.label"></span>
                         </div>
                         <div class='remarks' ng-if="rec.agreedRemarks.length">
                             <div class='remark' ng-repeat="remark in rec.agreedRemarks">
@@ -193,8 +197,19 @@
             </div>
             <div class='tag-editor' ng-if="newTag">
                 <input type='text' ng-model="newTag.label">
-                <button class='btn btn-default'>确定</button>
-                <button class='btn btn-default'>取消</button>
+                <button class='btn btn-default' ng-click="submitNewTag()">确定</button>
+                <button class='btn btn-default' ng-click="cancelNewTag()">取消</button>
+            </div>
+            <div class='list-group'>
+                <div class='list-group-item' ng-repeat="tag in tags">
+                    <div ng-class="{'form-group':canSetPublic}">
+                        <div ng-bind="tag.label"></div>
+                    </div>
+                    <div class='checkbox' ng-if="canSetPublic">
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="tag.public" ng-change="update(tag,'public')">对所有人可见</label>
+                    </div>
+                </div>
             </div>
         </div>
     </script>
@@ -332,7 +347,7 @@
                 <div class='panel-body'>
                     <div class='checkbox'>
                         <label>
-                            <input type='checkbox' ng-model="topic.checked" ng-change="checkTopic(topic,$index)"> <span ng-bind="topic.title"></span></label>
+                            <input type='checkbox' ng-model="topic.checked" ng-change="checkTopic(topic)"> <span ng-bind="topic.title"></span></label>
                     </div>
                     <div class='form-group'>
                         <div class='small text-muted' ng-bind="topic.summary"></div>
@@ -341,6 +356,22 @@
                         <div ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></div>
                         <div><i class='glyphicon glyphicon-file'></i> <span ng-bind="topic.rec_num"></span></div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" tms-hide-parent-height='400'>
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">取消</button>
+                <button class="btn btn-primary" ng-click="ok()">确定</button>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="assignTag.html">
+        <div class="modal-body">
+            <div class='list-group'>
+                <div class='list-group-item' ng-repeat="tag in tags">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="tag.checked" ng-change="checkTag(tag)"> <span ng-bind="tag.label"></span></label>
                 </div>
             </div>
         </div>

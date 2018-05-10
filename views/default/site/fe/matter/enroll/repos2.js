@@ -223,6 +223,28 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', 'http2', 'tmsLocation', '
         _oCriteria.userGroup = oUserGroup ? oUserGroup.round_id : null;
         $scope.recordList(1);
     };
+    $scope.shiftTag = function(oTag, bToggle) {
+        if (bToggle) {
+            if (!_oFilter.tags) {
+                _oFilter.tags = [oTag];
+            } else {
+                if (_oFilter.tags.indexOf(oTag) === -1) {
+                    _oFilter.tags.push(oTag);
+                }
+            }
+            if (!_oCriteria.tags) {
+                _oCriteria.tags = [oTag.tag_id];
+            } else {
+                if (_oCriteria.tags.indexOf(oTag.tag_id) === -1) {
+                    _oCriteria.tags.push(oTag.tag_id);
+                }
+            }
+        } else {
+            _oFilter.tags.splice(_oFilter.tags.indexOf(oTag), 1);
+            _oCriteria.tags.splice(_oFilter.tags.indexOf(oTag.tag_id), 1);
+        }
+        $scope.recordList(1);
+    };
     $scope.shiftMine = function(filterBy) {
         delete _oCriteria.creator;
         delete _oCriteria.favored;

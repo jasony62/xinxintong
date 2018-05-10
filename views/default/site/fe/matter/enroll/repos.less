@@ -144,6 +144,10 @@ img {
 
     }
 
+    &>*+* {
+        margin-left: 4px;
+    }
+
 }
 
 /* record */
@@ -205,6 +209,14 @@ img {
 
             .datetime {
                 font-size: .8em;
+            }
+
+        }
+
+        .tags {
+            &>span+span {
+                display: inline-block;
+                margin-left: 4px;
             }
 
         }

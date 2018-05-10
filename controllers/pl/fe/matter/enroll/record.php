@@ -1131,9 +1131,11 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$cellValue .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
+						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
 					}
+					$cellValue = str_replace(['<br>', '</br>', '<div>', '</div>'], ["\n", "", "", ""], $cellValue);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'multiple':
 					$labels = [];
@@ -1148,9 +1150,11 @@ class record extends \pl\fe\matter\base {
 					}
 					$cellValue = implode(',', $labels);
 					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$cellValue .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
+						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
 					}
+					$cellValue = str_replace(['<br>', '</br>', '<div>', '</div>'], ["\n", "", "", ""], $cellValue);
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
+					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'score':
 					$labels = [];
@@ -1164,16 +1168,20 @@ class record extends \pl\fe\matter\base {
 				case 'image':
 					$v0 = '';
 					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$v0 .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
+						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
 					}
+					$v0 = str_replace(['<br>', '</br>', '<div>', '</div>'], ["\n", "", "", ""], $v0);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'file':
 					$v0 = '';
 					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$v0 .= ' (补充说明：' . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ')';
+						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
 					}
+					$v0 = str_replace(['<br>', '</br>', '<div>', '</div>'], ["\n", "", "", ""], $v0);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'date':
 					!empty($v) && $v = date('y-m-j H:i', $v);
@@ -1194,7 +1202,9 @@ class record extends \pl\fe\matter\base {
 						}
 						$v = implode(',', $values);
 					}
+					$v = str_replace(['<br>', '</br>', '<div>', '</div>'], ["\n", "", "", ""], $v);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'url':
 					$v0 = '';

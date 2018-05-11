@@ -284,7 +284,7 @@
                                 <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
                             </div>
                             <div class='col-md-6 col-xs-12 text-left'>
-                                <div><span class='content'>{{rem.content}}</span></div>
+                                <div><span class='content' ng-bind-html="rem.content"></span></div>
                                 <div class='col-xs-12 text-right text-color visible-xs hidden' ng-click='showStr($event)'>展开&nbsp;&or;</div>
                             </div>
                             <div class='col-md-3 hidden-xs'>
@@ -320,7 +320,7 @@
                                 <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
                             </div>
                             <div class='col-md-6 col-xs-12 text-left'>
-                                <div><span class='content'>{{rem.content}}</span></div>
+                                <div><span class='content' ng-bind-html="rem.content"></span></div>
                                 <div class='col-xs-12 text-right text-color visible-xs hidden' ng-click='showStr($event)'>展开&nbsp;&or;</div>
                             </div>
                             <div class='col-md-3 hidden-xs'>

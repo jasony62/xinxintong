@@ -2,12 +2,12 @@
 require_once '../../db.php';
 // 默认图片
 $image = [
-	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/001.jpg',
-	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/002.jpg',
-	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/003.jpg',
-	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/0004.jpg',
-	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/005.jpg',
-	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/006.jpg',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/001.jpg?_=1526022864951',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/002.jpg?_=1526022864952',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/003.jpg?_=1526022864953',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/0004.jpg?_=1526022864954',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/005.jpg?_=1526022864955',
+	'/kcfinder/upload/57dc4f6c25eca6c77cef54bc65c0d61b/%E5%9B%BE%E7%89%87/006.jpg?_=1526022864956',
 ];
 //随机图片
 function randPic($image) {
@@ -40,13 +40,15 @@ while ($obj = $db_result->fetch_object()) {
 $sum = 0;
 foreach ($objects as $object) {
 	$update = [];
+	// 替换头图
 	if (!empty($object->pic)) {
 		$update[] = "pic = '" . randPic($image) . "'";
 	}
-	if (!empty($object->body)) {
-		$body = replaceBodyPic($object->body, $image);
-		$update[] = "body = '" . $mysqli->real_escape_string($body) . "'";
-	}
+	// 替换内容中的图片
+	// if (!empty($object->body)) {
+	// 	$body = replaceBodyPic($object->body, $image);
+	// 	$update[] = "body = '" . $mysqli->real_escape_string($body) . "'";
+	// }
 	if (!empty($update)) {
 		$sum++;
 		$set = implode(', ', $update);

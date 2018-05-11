@@ -166,8 +166,8 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class='tags' ng-if="rec.tags">
-                            <button class='btn btn-default btn-xs' ng-repeat="tag in rec.tags" ng-bind="tag.label"></button>
+                        <div class='tags' ng-if="rec.userTags">
+                            <button class='btn btn-default btn-xs' ng-repeat="tag in rec.userTags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
                         </div>
                         <div class='remarks' ng-if="rec.agreedRemarks.length">
                             <div class='remark' ng-repeat="remark in rec.agreedRemarks">

@@ -235,7 +235,7 @@ class repos extends base {
 	/**
 	 * 返回指定活动的登记记录的共享内容
 	 */
-	public function recordList_action($app, $page = 1, $size = 12, $role = null, $withTag = null) {
+	public function recordList_action($app, $page = 1, $size = 12, $role = null) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -437,38 +437,31 @@ class repos extends base {
 					$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
 					if ($modelRec->query_obj_ss($q)) {
 						$oRecord->favored = true;
-						/* 关联标签数据 */
-						if (!empty($withTag) && $withTag === 'user') {
-							$tags = $modelTag->byRecord($oRecord, $oUser);
-							if (!empty($tags)) {
-								$oRecord->tags = $tags;
-							}
-						}
 					}
 				}
 				/* 公共标签 */
-				//if ($bRequirePublicTag) {
-				$tags = $modelTag->byRecord($oRecord);
 				$userTags = $modelTag->byRecord($oRecord, $oUser);
 				if (!empty($userTags)) {
 					$oRecord->userTags = $userTags;
 				}
-				if (count($userTags) && count($tags)) {
-					foreach ($userTags as $oUserTag) {
-						if ($oUserTag->public === 'Y') {
-							foreach ($tags as $index => $oTag) {
-								if ($oUserTag->tag_id === $oTag->tag_id) {
-									array_splice($tags, $index, 1);
-									break;
+				if (empty($oPosted->favored)) {
+					$tags = $modelTag->byRecord($oRecord);
+					if (count($userTags) && count($tags)) {
+						foreach ($userTags as $oUserTag) {
+							if ($oUserTag->public === 'Y') {
+								foreach ($tags as $index => $oTag) {
+									if ($oUserTag->tag_id === $oTag->tag_id) {
+										array_splice($tags, $index, 1);
+										break;
+									}
 								}
 							}
 						}
 					}
+					if (!empty($tags)) {
+						$oRecord->tags = $tags;
+					}
 				}
-				if (!empty($tags)) {
-					$oRecord->tags = $tags;
-				}
-				//}
 				/* 隐藏昵称 */
 				if ($bAnonymous) {
 					unset($oRecord->nickname);

@@ -206,7 +206,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 _aCheckedTagIds = [];
                 $scope2.newTag = {};
                 $scope2.checkTag = function(oTag) {
-                    oTag.checked ? _aCheckedTagIds.push(oTag.user_tag_id) : _aCheckedTagIds.splice(_aCheckedTagIds.indexOf(oTag.user_tag_id), 1);
+                    oTag.checked ? _aCheckedTagIds.push(oTag.tag_id) : _aCheckedTagIds.splice(_aCheckedTagIds.indexOf(oTag.tag_id), 1);
                 };
                 $scope2.addTag = function() {
                     http2.post(LS.j('tag/submit', 'site', 'app'), $scope2.newTag).then(function(rsp) {
@@ -222,11 +222,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 $scope2.ok = function() { $mi.close(_aCheckedTagIds); };
                 http2.get(LS.j('tag/byRecord', 'site') + '&record=' + oRecord.id).then(function(rsp) {
                     rsp.data.forEach(function(oTag) {
-                        _aCheckedTagIds.push(oTag.user_tag_id);
+                        _aCheckedTagIds.push(oTag.tag_id);
                     });
-                    http2.get(LS.j('tag/list', 'site', 'app')).then(function(rsp) {
+                    http2.get(LS.j('tag/list', 'site', 'app') + '&public=Y').then(function(rsp) {
                         rsp.data.forEach(function(oTag) {
-                            oTag.checked = _aCheckedTagIds.indexOf(oTag.user_tag_id) !== -1;
+                            oTag.checked = _aCheckedTagIds.indexOf(oTag.tag_id) !== -1;
                         });
                         $scope2.tags = rsp.data;
                     });

@@ -235,7 +235,7 @@ class repos extends base {
 	/**
 	 * 返回指定活动的登记记录的共享内容
 	 */
-	public function recordList_action($app, $page = 1, $size = 12, $role = null) {
+	public function recordList_action($app, $page = 1, $size = 12, $role = null, $withTag = null) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -244,28 +244,36 @@ class repos extends base {
 
 		$oUser = $this->getUser($oApp);
 
+		$oActionRule = $oApp->actionRule;
 		/* 非同组记录显示在共享页需要的赞同数 */
 		$recordReposLikeNum = 0;
-		if (isset($oApp->actionRule->record->repos->pre)) {
-			$oRule = $oApp->actionRule->record->repos->pre;
+		if (isset($oActionRule->record->repos->pre)) {
+			$oRule = $oActionRule->record->repos->pre;
 			if (!empty($oRule->record->likeNum)) {
 				$recordReposLikeNum = (int) $oRule->record->likeNum;
 			}
 		}
 		/* 协作填写显示在共享页所需点赞数量 */
 		$coworkReposLikeNum = 0;
-		if (isset($oApp->actionRule->cowork->repos->pre)) {
-			$oRule = $oApp->actionRule->cowork->repos->pre;
+		if (isset($oActionRule->cowork->repos->pre)) {
+			$oRule = $oActionRule->cowork->repos->pre;
 			if (!empty($oRule->cowork->likeNum)) {
 				$coworkReposLikeNum = (int) $oRule->cowork->likeNum;
 			}
 		}
 		/* 留言显示在共享页所需点赞数量 */
 		$remarkReposLikeNum = 0;
-		if (isset($oApp->actionRule->remark->repos->pre)) {
-			$oRule = $oApp->actionRule->remark->repos->pre;
+		if (isset($oActionRule->remark->repos->pre)) {
+			$oRule = $oActionRule->remark->repos->pre;
 			if (!empty($oRule->remark->likeNum)) {
 				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
+			}
+		}
+		/* 是否需要显示标签 */
+		$bRequirePublicTag = false;
+		if (empty($withTag)) {
+			if (!empty($oActionRule->tag->public->pre->editor) || !empty($oActionRule->tag->public->pre->assign_num)) {
+				$bRequirePublicTag = true;
 			}
 		}
 
@@ -275,6 +283,7 @@ class repos extends base {
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
+
 		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
 
 		if (!empty($oPosted->orderby)) {
@@ -333,6 +342,10 @@ class repos extends base {
 		if (!empty($oPosted->agreed) && $oPosted->agreed !== 'all') {
 			$oCriteria->record->agreed = $oPosted->agreed;
 		}
+		/* 记录的标签 */
+		if (!empty($oPosted->tags)) {
+			$oCriteria->record->tags = $oPosted->tags;
+		}
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
 		/* 指定的用户身份 */
@@ -350,14 +363,15 @@ class repos extends base {
 		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oMockUser);
 		if (!empty($oResult->records)) {
 			$modelData = $this->model('matter\enroll\data');
+			$modelTag = $this->model('matter\enroll\tag2');
 			/* 是否限制了匿名规则 */
 			$bAnonymous = $this->_requireAnonymous($oApp);
 			/* 是否设置了编辑组统一名称 */
-			if (isset($oApp->actionRule->role->editor->group)) {
-				if (isset($oApp->actionRule->role->editor->nickname)) {
+			if (isset($oActionRule->role->editor->group)) {
+				if (isset($oActionRule->role->editor->nickname)) {
 					$oEditor = new \stdClass;
-					$oEditor->group = $oApp->actionRule->role->editor->group;
-					$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+					$oEditor->group = $oActionRule->role->editor->group;
+					$oEditor->nickname = $oActionRule->role->editor->nickname;
 				}
 			}
 
@@ -423,8 +437,38 @@ class repos extends base {
 					$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
 					if ($modelRec->query_obj_ss($q)) {
 						$oRecord->favored = true;
+						/* 关联标签数据 */
+						if (!empty($withTag) && $withTag === 'user') {
+							$tags = $modelTag->byRecord($oRecord, $oUser);
+							if (!empty($tags)) {
+								$oRecord->tags = $tags;
+							}
+						}
 					}
 				}
+				/* 公共标签 */
+				//if ($bRequirePublicTag) {
+				$tags = $modelTag->byRecord($oRecord);
+				$userTags = $modelTag->byRecord($oRecord, $oUser);
+				if (!empty($userTags)) {
+					$oRecord->userTags = $userTags;
+				}
+				if (count($userTags) && count($tags)) {
+					foreach ($userTags as $oUserTag) {
+						if ($oUserTag->public === 'Y') {
+							foreach ($tags as $index => $oTag) {
+								if ($oUserTag->tag_id === $oTag->tag_id) {
+									array_splice($tags, $index, 1);
+									break;
+								}
+							}
+						}
+					}
+				}
+				if (!empty($tags)) {
+					$oRecord->tags = $tags;
+				}
+				//}
 				/* 隐藏昵称 */
 				if ($bAnonymous) {
 					unset($oRecord->nickname);

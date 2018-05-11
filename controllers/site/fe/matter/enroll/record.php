@@ -376,6 +376,12 @@ class record extends base {
 			return [false, ['活动提交时间已经结束，不允许修改数据']];
 		}
 
+		if (!empty($oApp->actionRule->record->submit->pre->editor)) {
+			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				return [false, '仅限活动编辑组用户提交填写记录'];
+			}
+		}
+
 		$modelRec = $this->model('matter\enroll\record');
 		if (empty($ek)) {
 			/**

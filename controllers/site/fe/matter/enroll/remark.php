@@ -48,7 +48,7 @@ class remark extends base {
 	/**
 	 * 返回一条登记记录的所有留言
 	 */
-	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99) {
+	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99, $role = null) {
 		$modelRec = $this->model('matter\enroll\record');
 		$oRecord = $modelRec->byId($ek, ['aid,state']);
 		if (false === $oRecord && $oRecord->state !== '1') {
@@ -78,8 +78,19 @@ class remark extends base {
 		if (!empty($data)) {
 			$aOptions['data_id'] = $data;
 		}
+		/* 指定的用户身份 */
+		if ($role === 'visitor') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+			$oMockUser->is_editor = 'N';
+		} else if ($role === 'member') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+		} else {
+			$oMockUser = $oUser;
+		}
 
-		$oResult = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
+		$oResult = $modelRem->listByRecord($oMockUser, $ek, $schema, $page, $size, $aOptions);
 		if (!empty($oResult->remarks)) {
 			$modelRecData = $this->model('matter\enroll\data');
 			foreach ($oResult->remarks as $oRemark) {
@@ -500,8 +511,15 @@ class remark extends base {
 		/* 填写记录用户所属分组 */
 		if ($oGrpLeader->is_leader === 'Y') {
 			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRemark->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-			if (false === $oGrpMemb || $oGrpMemb->round_id !== $oGrpLeader->round_id) {
-				return new \ParameterError('只允许组长推荐本组数据');
+			if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
+				/* 填写记录的用户属于一个分组 */
+				if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
+					return new \ParameterError('只允许组长对本组成员的留言表态');
+				}
+			} else {
+				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+					return new \ParameterError('只允许编辑组的组长对不属于任何分组的成员的留言表态');
+				}
 			}
 		}
 

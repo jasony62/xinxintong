@@ -13,10 +13,6 @@ img {
     max-width: 100%
 }
 
-.dropdown-menu {
-    min-width: auto;
-}
-
 .navbar-header {
     .page-title {
         display: inline-block;
@@ -72,7 +68,7 @@ img {
 
     }
 
-    .datetime {
+    &>:first-child {
         flex: 1;
     }
 
@@ -84,12 +80,6 @@ img {
     .dropdown {
         button {
             border: 0;
-        }
-
-        .dropdown-menu {
-            left: auto;
-            right: 0;
-            float: right;
         }
 
     }
@@ -154,6 +144,10 @@ img {
 
     }
 
+    &>*+* {
+        margin-left: 4px;
+    }
+
 }
 
 /* record */
@@ -184,6 +178,10 @@ img {
                 font-size: .9em;
             }
 
+            &>*+* {
+                padding-left: 8px;
+            }
+
         }
 
         .data {
@@ -211,6 +209,13 @@ img {
 
             .datetime {
                 font-size: .8em;
+            }
+
+        }
+
+        .tags {
+            &>button+button {
+                margin-left: 4px;
             }
 
         }
@@ -261,6 +266,28 @@ img {
 
 }
 
+#favorGuide {
+    position: fixed;
+    align-items: center;
+    z-index: 1051;
+    width: 100%;
+    bottom: 0;
+    display: flex;
+    border: 1px solid #bce8f1;
+    background: #d9edf7;
+    padding: 8px 16px;
+    color: #31708f;
+
+    &>:first-child {
+        flex-grow: 1;
+    }
+
+    &>:last-child {
+        margin-left: 4px;
+    }
+
+}
+
 @media screen and (max-width:768px) {
     .site-navbar-default {
         margin-bottom: 0;
@@ -282,7 +309,7 @@ img {
 
     #advCriteria {
         position: absolute;
-        top: 0;
+        top: 34px;
         right: 0;
         margin-top: 1px;
         width: 300px;

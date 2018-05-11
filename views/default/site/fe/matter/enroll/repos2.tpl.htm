@@ -144,7 +144,7 @@
                     </div>
                 </div>
                 <!-- end: filterQuick -->
-                <div id='filterTip' ng-if="filter.round||filter.group||filter.mine">
+                <div id='filterTip' ng-if="filter.round||filter.group||filter.mine||filter.tags.length">
                     <div class="bg-info small" ng-if="filter.round">
                         <span>{{filter.round.title}}</span>
                         <button class="close" ng-click="shiftRound()"><span>&times;</span></button>
@@ -157,6 +157,10 @@
                         <span>{{filter.mine}}</span>
                         <button class="close" ng-click="shiftMine('')"><span>&times;</span></button>
                     </div>
+                    <div class="bg-info small" ng-repeat="tag in filter.tags">
+                        <span ng-bind="tag.label"></span>
+                        <button class="close" ng-click="shiftTag(tag,false)"><span>&times;</span></button>
+                    </div>
                 </div>
                 <div id='repos'>
                     <div class='records'>
@@ -164,6 +168,7 @@
                             <div class='header'>
                                 <div class='seq label label-default'>{{$index+1}}</div>
                                 <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
+                                <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>
                                 <div ng-if="!rec._canAgree">
                                     <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
                                     <button ng-if="rec.agreed==='Y'" class="btn btn-success btn-xs">推荐</button>
@@ -248,12 +253,17 @@
                                     <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                                         <span class="glyphicon glyphicon-option-vertical"></span>
                                     </button>
-                                    <ul class="dropdown-menu" uib-dropdown-menu>
+                                    <ul class="dropdown-menu dropdown-menu-right" ng-class="{'dropdown-menu-top':$index===repos.length-1}" uib-dropdown-menu>
                                         <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
-                                        <li><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> <span ng-if="rec.favored">取消</span>收藏</a></li>
+                                        <li ng-if="!rec.favored"><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
+                                        <li ng-if="rec.favored"><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
                                         <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
                                     </ul>
                                 </div>
+                            </div>
+                            <div class='tags' ng-if="rec.tags||rec.userTags">
+                                <button class='btn btn-info btn-xs' ng-repeat="tag in rec.tags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
+                                <button class='btn btn-default btn-xs' ng-repeat="tag in rec.userTags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
                             </div>
                             <div class='remarks' ng-if="rec.agreedRemarks.length">
                                 <div class='remark' ng-repeat="remark in rec.agreedRemarks">
@@ -273,11 +283,40 @@
                             </div>
                         </div>
                     </div>
+                    <!--end records-->
                 </div>
             </div>
         </div>
     </div>
-    <div tms-app-act app-acts="appActs"></div>
+    <div ng-if="appActs.length" tms-app-act app-acts="appActs"></div>
+    <div id='favorGuide' ng-if="favorStack.guiding">
+        <span>已收藏</span>
+        <button class='btn btn-default' ng-click="assignTag()">添加标签</button>
+    </div>
+    <script type="text/ng-template" id="assignTag.html">
+        <div class="modal-body">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input type='text' class='form-control' ng-model="newTag.label">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="addTag()" ng-disabled="!newTag.label">创建标签</button>
+                    </div>
+                </div>
+            </div>
+            <div class='list-group'>
+                <div class='list-group-item' ng-repeat="tag in tags">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="tag.checked" ng-change="checkTag(tag)"> <span ng-bind="tag.label"></span></label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">取消</button>
+                <button class="btn btn-primary" ng-click="ok()">保存</button>
+            </div>
+        </div>
+    </script>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">

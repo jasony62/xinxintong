@@ -11,9 +11,12 @@ ngApp.controller('ctrlTopic', ['$scope', 'http2', 'tmsLocation', function($scope
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
         /* 设置页面分享信息 */
-        $scope.setSnsShare(); // 应该禁止分享
+        $scope.setSnsShare(null, { topic: LS.s().topic }); // 应该禁止分享
         /*设置页面导航*/
         var oAppNavs = {};
+        if (oApp.can_repos === 'Y') {
+            oAppNavs.repos = {};
+        }
         if (oApp.can_rank === 'Y') {
             oAppNavs.rank = {};
         }
@@ -153,16 +156,19 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.favorRecord = function(oRecord) {
         var url;
         if (!oRecord.favored) {
-            url = LS.j('record/favor', 'site');
+            url = LS.j('favor/add', 'site');
             url += '&ek=' + oRecord.enroll_key;
             http2.get(url).then(function(rsp) {
                 oRecord.favored = true;
+                noticebox.info('收藏成功');
             });
         } else {
-            url = LS.j('record/unfavor', 'site');
-            url += '&ek=' + oRecord.enroll_key;
-            http2.get(url).then(function(rsp) {
-                delete oRecord.favored;
+            noticebox.confirm('取消收藏，确定？').then(function() {
+                url = LS.j('favor/remove', 'site');
+                url += '&ek=' + oRecord.enroll_key;
+                http2.get(url).then(function(rsp) {
+                    delete oRecord.favored;
+                });
             });
         }
     };

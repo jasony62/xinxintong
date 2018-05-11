@@ -100,12 +100,18 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
             });
         });
     };
+    $scope.addTag = function() {
+        $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
+    };
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
         /* 设置页面分享信息 */
         $scope.setSnsShare(); // 应该禁止分享
         /*设置页面导航*/
         var oAppNavs = {};
+        if (oApp.can_repos === 'Y') {
+            oAppNavs.repos = {};
+        }
         if (oApp.can_rank === 'Y') {
             oAppNavs.rank = {};
         }
@@ -163,6 +169,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         url = LS.j('repos/recordList', 'site', 'app');
         url += '&page=' + _oPage.at + '&size=' + _oPage.size;
+        url += '&withTag=user';
         $scope.reposLoading = true;
         http2.post(url, _oCriteria).then(function(result) {
             _oPage.total = result.data.total;
@@ -242,16 +249,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.favorRecord = function(oRecord) {
         var url;
         if (!oRecord.favored) {
-            url = LS.j('record/favor', 'site');
+            url = LS.j('favor/add', 'site');
             url += '&ek=' + oRecord.enroll_key;
             http2.get(url).then(function(rsp) {
                 oRecord.favored = true;
             });
         } else {
-            url = LS.j('record/unfavor', 'site');
+            url = LS.j('favor/remove', 'site');
             url += '&ek=' + oRecord.enroll_key;
             http2.get(url).then(function(rsp) {
                 delete oRecord.favored;
+                $scope.repos.splice($scope.repos.indexOf(oRecord), 1);
             });
         }
     };
@@ -302,8 +310,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 var _aCheckedTopicIds;
                 _aCheckedTopicIds = [];
-                $scope2.checkTopic = function(oTopic, index) {
-                    oTopic.checked ? _aCheckedTopicIds.push(oTopic.id) : _aCheckedTopicIds.splice(index, 1);
+                $scope2.checkTopic = function(oTopic) {
+                    oTopic.checked ? _aCheckedTopicIds.push(oTopic.id) : _aCheckedTopicIds.splice(_aCheckedTopicIds.indexOf(oTopic.id), 1);
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() { $mi.close(_aCheckedTopicIds); };
@@ -323,6 +331,55 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             windowClass: 'modal-opt-topic auto-height',
         }).result.then(function(aCheckedTopicIds) {
             http2.post(LS.j('topic/assign', 'site') + '&record=' + oRecord.id, { topic: aCheckedTopicIds }).then(function(rsp) {});
+        });
+    };
+    /**
+     * 选取标签
+     */
+    $scope.assignTag = function(oRecord) {
+        $uibModal.open({
+            templateUrl: 'assignTag.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                var _aCheckedTagIds;
+                _aCheckedTagIds = [];
+                $scope2.newTag = {};
+                $scope2.checkTag = function(oTag) {
+                    oTag.checked ? _aCheckedTagIds.push(oTag.user_tag_id) : _aCheckedTagIds.splice(_aCheckedTagIds.indexOf(oTag.user_tag_id), 1);
+                };
+                $scope2.addTag = function() {
+                    http2.post(LS.j('tag/submit', 'site', 'app'), $scope2.newTag).then(function(rsp) {
+                        var oNewTag;
+                        $scope2.newTag = {};
+                        oNewTag = rsp.data;
+                        $scope2.tags.splice(0, 0, rsp.data);
+                        oNewTag.checked = true;
+                        $scope2.checkTag(oNewTag);
+                    });
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() { $mi.close(_aCheckedTagIds); };
+                http2.get(LS.j('tag/byRecord', 'site') + '&record=' + oRecord.id).then(function(rsp) {
+                    rsp.data.forEach(function(oTag) {
+                        _aCheckedTagIds.push(oTag.user_tag_id);
+                    });
+                    http2.get(LS.j('tag/list', 'site', 'app')).then(function(rsp) {
+                        rsp.data.forEach(function(oTag) {
+                            oTag.checked = _aCheckedTagIds.indexOf(oTag.user_tag_id) !== -1;
+                        });
+                        $scope2.tags = rsp.data;
+                    });
+                });
+            }],
+            backdrop: 'static',
+            windowClass: 'modal-opt-topic auto-height',
+        }).result.then(function(aCheckedTagIds) {
+            http2.post(LS.j('tag/assign', 'site'), { record: oRecord.id, tag: aCheckedTagIds }).then(function(rsp) {
+                if (rsp.data && rsp.data.length) {
+                    oRecord.tags = rsp.data;
+                } else {
+                    delete oRecord.tags;
+                }
+            });
         });
     };
     $scope.spyRecordsScroll = true; // 监控滚动事件
@@ -417,5 +474,50 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
     });
     http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
         $scope.topics = _topics = rsp.data.topics;
+    });
+}]);
+/**
+ * 标签
+ */
+ngApp.controller('ctrlTag', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
+    var _tags;
+    $scope.$on('xxt.matter.enroll.favor.tag.add', function(event) {
+        $scope.addTag();
+    });
+    $scope.addTag = function() {
+        $scope.newTag = {};
+    };
+    $scope.update = function(oTag, prop) {
+        var oUpdated;
+        oUpdated = {};
+        oUpdated[prop] = oTag[prop];
+        http2.post(LS.j('tag/update', 'site', 'app') + '&tag=' + oTag.tag_id, oUpdated).then(function(rsp) {});
+    };
+    $scope.submitNewTag = function() {
+        http2.post(LS.j('tag/submit', 'site', 'app'), $scope.newTag).then(function(rsp) {
+            delete $scope.newTag;
+            _tags.splice(0, 0, rsp.data);
+        });
+    };
+    $scope.cancelNewTag = function() {
+        delete $scope.newTag;
+    };
+    if ($scope.app && $scope.user) {
+        var oActionRule;
+        if ($scope.user.is_leader && $scope.user.is_leader === 'S') {
+            $scope.canSetPublic = true;
+        }
+        if (false === $scope.canSetPublic) {
+            if (oActionRule = $scope.app.actionRule) {
+                if (oActionRule.tag && oActionRule.tag.public && oActionRule.tag.public.pre && oActionRule.tag.public.pre.editor) {
+                    if ($scope.user.is_editor && $scope.user.is_editor === 'Y') {
+                        $scope.canSetPublic = true;
+                    }
+                }
+            }
+        }
+    }
+    http2.get(LS.j('tag/list', 'site', 'app')).then(function(rsp) {
+        $scope.tags = _tags = rsp.data;
     });
 }]);

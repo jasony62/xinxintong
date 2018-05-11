@@ -235,11 +235,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             backdrop: 'static',
             windowClass: 'modal-opt-topic auto-height',
         }).result.then(function(aCheckedTagIds) {
-            http2.post(LS.j('tag/assign', 'site') + '&tagScope=publicAndUser', { record: oRecord.id, tag: aCheckedTagIds }).then(function(rsp) {
+            http2.post(LS.j('tag/assign', 'site'), { record: oRecord.id, tag: aCheckedTagIds }).then(function(rsp) {
                 if (rsp.data && rsp.data.length) {
-                    oRecord.tags = rsp.data;
+                    oRecord.userTags = rsp.data;
                 } else {
-                    delete oRecord.tags;
+                    delete oRecord.userTags;
                 }
             });
         });

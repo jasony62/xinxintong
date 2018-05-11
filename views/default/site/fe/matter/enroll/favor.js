@@ -342,8 +342,19 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 var _aCheckedTagIds;
                 _aCheckedTagIds = [];
+                $scope2.newTag = {};
                 $scope2.checkTag = function(oTag) {
                     oTag.checked ? _aCheckedTagIds.push(oTag.user_tag_id) : _aCheckedTagIds.splice(_aCheckedTagIds.indexOf(oTag.user_tag_id), 1);
+                };
+                $scope2.addTag = function() {
+                    http2.post(LS.j('tag/submit', 'site', 'app'), $scope2.newTag).then(function(rsp) {
+                        var oNewTag;
+                        $scope2.newTag = {};
+                        oNewTag = rsp.data;
+                        $scope2.tags.splice(0, 0, rsp.data);
+                        oNewTag.checked = true;
+                        $scope2.checkTag(oNewTag);
+                    });
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() { $mi.close(_aCheckedTagIds); };

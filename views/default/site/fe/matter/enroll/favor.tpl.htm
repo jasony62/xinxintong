@@ -73,7 +73,8 @@
                         <div class='header'>
                             <div class='seq label label-default'>{{$index+1}}</div>
                             <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
-                            <div ng-if="!rec._canAgree">
+                            <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">取消收藏</button>
+                            <div ng-if="!rec._canAgree&&rec.agreed&&rec.agreed!=='A'">
                                 <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
                                 <button ng-if="rec.agreed==='Y'" class="btn btn-success btn-xs">推荐</button>
                                 <button ng-if="rec.agreed==='N'" class="btn btn-danger btn-xs">屏蔽</button>
@@ -159,9 +160,8 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right" ng-class="{'dropdown-menu-top':$index===repos.length-1}" uib-dropdown-menu>
                                     <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
-                                    <li><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 取消收藏</a></li>
-                                    <li><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 选取专题</a></li>
-                                    <li><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 选取标签</a></li>
+                                    <li><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
+                                    <li><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
                                     <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
                                 </ul>
                             </div>

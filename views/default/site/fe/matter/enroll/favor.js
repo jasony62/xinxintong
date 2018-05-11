@@ -82,7 +82,12 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
     };
 }]);
 ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', function($scope, $uibModal, http2, LS) {
-    $scope.subView = 'repos.html';
+    if (location.hash && /repos|tag|topic/.test(location.hash)) {
+        $scope.subView = location.hash.substr(1) + '.html';
+    } else {
+        $scope.subView = 'repos.html';
+    }
+    console.log('sss', $scope.subView);
     $scope.addTopic = function() {
         $uibModal.open({
             templateUrl: 'editTopic.html',
@@ -254,11 +259,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 oRecord.favored = true;
             });
         } else {
-            url = LS.j('favor/remove', 'site');
-            url += '&ek=' + oRecord.enroll_key;
-            http2.get(url).then(function(rsp) {
-                delete oRecord.favored;
-                $scope.repos.splice($scope.repos.indexOf(oRecord), 1);
+            noticebox.confirm('取消收藏，确定？').then(function() {
+                url = LS.j('favor/remove', 'site');
+                url += '&ek=' + oRecord.enroll_key;
+                http2.get(url).then(function(rsp) {
+                    delete oRecord.favored;
+                    $scope.repos.splice($scope.repos.indexOf(oRecord), 1);
+                    _oPage.total--;
+                });
             });
         }
     };

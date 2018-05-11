@@ -255,9 +255,51 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             $scope.favorStack.end();
         }
     };
+
+    function fnAssignTopic(oRecord) {
+        http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
+            var topics;
+            if (rsp.data.total === 0) {
+                location.href = LS.j('', 'site', 'app') + '&page=favor#topic';
+            } else {
+                topics = rsp.data.topics;
+                $uibModal.open({
+                    templateUrl: 'assignTopic.html',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var _aCheckedTopicIds;
+                        _aCheckedTopicIds = [];
+                        $scope2.checkTopic = function(oTopic) {
+                            oTopic.checked ? _aCheckedTopicIds.push(oTopic.id) : _aCheckedTopicIds.splice(_aCheckedTopicIds.indexOf(oTopic.id), 1);
+                        };
+                        $scope2.cancel = function() { $mi.dismiss(); };
+                        $scope2.ok = function() { $mi.close(_aCheckedTopicIds); };
+                        http2.get(LS.j('topic/byRecord', 'site') + '&record=' + oRecord.id).then(function(rsp) {
+                            rsp.data.forEach(function(oTopic) {
+                                _aCheckedTopicIds.push(oTopic.topic_id);
+                            });
+                            topics.forEach(function(oTopic) {
+                                oTopic.checked = _aCheckedTopicIds.indexOf(oTopic.id) !== -1;
+                            });
+                            $scope2.topics = topics;
+                        });
+                    }],
+                    backdrop: 'static',
+                    windowClass: 'modal-opt-topic auto-height',
+                }).result.then(function(aCheckedTopicIds) {
+                    http2.post(LS.j('topic/assign', 'site') + '&record=' + oRecord.id, { topic: aCheckedTopicIds }).then(function(rsp) {});
+                });
+            }
+        });
+    };
     $scope.assignTopic = function(oRecord) {
-        if ($scope.favorStack.timer) {
-            $timeout.cancel($scope.favorStack.timer);
+        if (oRecord) {
+            fnAssignTopic(oRecord);
+        } else {
+            $scope.favorStack.timer && $timeout.cancel($scope.favorStack.timer);
+            if (oRecord = $scope.favorStack.record) {
+                fnAssignTopic(oRecord);
+            }
+            $scope.favorStack.end();
         }
     };
     $scope.shareRecord = function(oRecord) {

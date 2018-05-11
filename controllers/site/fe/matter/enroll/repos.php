@@ -262,21 +262,17 @@ class repos extends base {
 			}
 		}
 		/* 留言显示在共享页所需点赞数量 */
+		$remarkReposAgreed = 'Y';
 		$remarkReposLikeNum = 0;
 		if (isset($oActionRule->remark->repos->pre)) {
 			$oRule = $oActionRule->remark->repos->pre;
 			if (!empty($oRule->remark->likeNum)) {
 				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
 			}
-		}
-		/* 是否需要显示标签 */
-		$bRequirePublicTag = false;
-		if (empty($withTag)) {
-			if (!empty($oActionRule->tag->public->pre->editor) || !empty($oActionRule->tag->public->pre->assign_num)) {
-				$bRequirePublicTag = true;
+			if (!empty($oRule->remark->agreed)) {
+				$remarkReposAgreed = $oRule->remark->agreed;
 			}
 		}
-
 		// 登记数据过滤条件
 		$oPosted = $this->getPostJson();
 		// 登记记录过滤条件
@@ -492,9 +488,9 @@ class repos extends base {
 					"enroll_key='{$oRecord->enroll_key}' and state=1",
 				];
 				if ($remarkReposLikeNum) {
-					$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";
+					$q[2] .= " and (agreed='{$remarkReposAgreed}' or like_num>={$remarkReposLikeNum})";
 				} else {
-					$q[2] .= " and agreed='Y'";
+					$q[2] .= " and agreed='{$remarkReposAgreed}'";
 				}
 				$q2 = [
 					'o' => 'agreed desc,like_num desc,create_at desc',

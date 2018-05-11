@@ -214,8 +214,7 @@ img {
         }
 
         .tags {
-            &>span+span {
-                display: inline-block;
+            &>button+button {
                 margin-left: 4px;
             }
 
@@ -263,6 +262,28 @@ img {
         border-radius: 2px;
         font-size: .8em;
         color: #fff;
+    }
+
+}
+
+#favorGuide {
+    position: fixed;
+    align-items: center;
+    z-index: 1051;
+    width: 100%;
+    bottom: 0;
+    display: flex;
+    border: 1px solid #bce8f1;
+    background: #d9edf7;
+    padding: 8px 16px;
+    color: #31708f;
+
+    &>:first-child {
+        flex-grow: 1;
+    }
+
+    &>:last-child {
+        margin-left: 4px;
     }
 
 }

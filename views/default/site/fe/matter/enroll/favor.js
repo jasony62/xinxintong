@@ -249,16 +249,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.favorRecord = function(oRecord) {
         var url;
         if (!oRecord.favored) {
-            url = LS.j('record/favor', 'site');
+            url = LS.j('favor/add', 'site');
             url += '&ek=' + oRecord.enroll_key;
             http2.get(url).then(function(rsp) {
                 oRecord.favored = true;
             });
         } else {
-            url = LS.j('record/unfavor', 'site');
+            url = LS.j('favor/remove', 'site');
             url += '&ek=' + oRecord.enroll_key;
             http2.get(url).then(function(rsp) {
                 delete oRecord.favored;
+                $scope.repos.splice($scope.repos.indexOf(oRecord), 1);
             });
         }
     };
@@ -333,7 +334,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
     };
     /**
-     * 选取专题
+     * 选取标签
      */
     $scope.assignTag = function(oRecord) {
         $uibModal.open({
@@ -492,10 +493,15 @@ ngApp.controller('ctrlTag', ['$scope', 'http2', 'tmsLocation', function($scope, 
     };
     if ($scope.app && $scope.user) {
         var oActionRule;
-        if (oActionRule = $scope.app.actionRule) {
-            if (oActionRule.tag && oActionRule.tag.public && oActionRule.tag.public.pre && oActionRule.tag.public.pre.editor) {
-                if ($scope.user.is_editor && $scope.user.is_editor === 'Y') {
-                    $scope.canSetPublic = true;
+        if ($scope.user.is_leader && $scope.user.is_leader === 'S') {
+            $scope.canSetPublic = true;
+        }
+        if (false === $scope.canSetPublic) {
+            if (oActionRule = $scope.app.actionRule) {
+                if (oActionRule.tag && oActionRule.tag.public && oActionRule.tag.public.pre && oActionRule.tag.public.pre.editor) {
+                    if ($scope.user.is_editor && $scope.user.is_editor === 'Y') {
+                        $scope.canSetPublic = true;
+                    }
                 }
             }
         }

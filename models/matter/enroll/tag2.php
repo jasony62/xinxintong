@@ -25,7 +25,7 @@ class tag2_model extends \TMS_MODEL {
 	public function byRecord($oRecord, $oUser = null) {
 		if (isset($oUser->uid)) {
 			$q = [
-				'a.tag_id,a.user_tag_id,u.assign_num,t.label',
+				'a.tag_id,a.user_tag_id,u.assign_num,t.label,t.public',
 				'(xxt_enroll_tag_assign a inner join xxt_enroll_tag t on a.tag_id=t.id) inner join xxt_enroll_user_tag u on a.user_tag_id=u.id',
 				['a.target_id' => $oRecord->id, 'a.target_type' => 1, 'a.userid' => $oUser->uid],
 			];

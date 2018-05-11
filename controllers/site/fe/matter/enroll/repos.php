@@ -447,12 +447,28 @@ class repos extends base {
 					}
 				}
 				/* 公共标签 */
-				if ($bRequirePublicTag) {
-					$tags = $modelTag->byRecord($oRecord);
-					if (!empty($tags)) {
-						$oRecord->tags = $tags;
+				//if ($bRequirePublicTag) {
+				$tags = $modelTag->byRecord($oRecord);
+				$userTags = $modelTag->byRecord($oRecord, $oUser);
+				if (!empty($userTags)) {
+					$oRecord->userTags = $userTags;
+				}
+				if (count($userTags) && count($tags)) {
+					foreach ($userTags as $oUserTag) {
+						if ($oUserTag->public === 'Y') {
+							foreach ($tags as $index => $oTag) {
+								if ($oUserTag->tag_id === $oTag->tag_id) {
+									array_splice($tags, $index, 1);
+									break;
+								}
+							}
+						}
 					}
 				}
+				if (!empty($tags)) {
+					$oRecord->tags = $tags;
+				}
+				//}
 				/* 隐藏昵称 */
 				if ($bAnonymous) {
 					unset($oRecord->nickname);

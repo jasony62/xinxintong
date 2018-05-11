@@ -119,9 +119,9 @@
                                     </div>
                                     <div ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement' ng-bind-html="rec.supplement"></div>
                                 </blockquote>
-                                <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
                             </div>
-                            <div class='bottom-bar text-right'>
+                            <div class='bottom-bar'>
+                                <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, rec.id)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
                                 <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoCowork(rec, rec.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
                                 <span ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">

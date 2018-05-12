@@ -7,24 +7,6 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class tag extends base {
 	/**
-	 *
-	 */
-	public function create_action($site, $app) {
-		/* 登记活动定义 */
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		$oPosted = $this->getPostJson();
-
-		$oUser = $this->getUser($oApp);
-		$oUser->creater_src = 'S';
-		$newTags = $this->model('matter\enroll\tag')->add($oApp, $oUser, $oPosted);
-
-		return new \ResponseData($newTags);
-	}
-	/**
 	 * 获得用户创建的标签
 	 */
 	public function list_action($app, $public = 'N') {

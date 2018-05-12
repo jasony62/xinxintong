@@ -667,9 +667,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 oRecord = rsp.data;
                 ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
                 $scope.record = oRecord;
-                if (oRecord.data_tag) {
-                    $scope.tag = oRecord.data_tag;
-                }
                 if (oRecord.supplement) {
                     $scope.supplement = oRecord.supplement;
                 }
@@ -774,59 +771,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 submitState.finish();
                 noticebox.warn(checkResult);
             }
-        }
-    };
-    $scope.tagRecordData = function(schemaId) {
-        var oApp, oSchema, tagsOfData;
-        oApp = $scope.app;
-        oSchema = oApp._schemasById[schemaId];
-        if (oSchema) {
-            tagsOfData = $scope.tag[schemaId];
-            $uibModal.open({
-                templateUrl: 'tagRecordData.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var model;
-                    $scope2.schema = oSchema;
-                    $scope2.apptags = oApp.dataTags;
-                    $scope2.model = model = {
-                        selected: []
-                    };
-                    if (tagsOfData) {
-                        tagsOfData.forEach(function(oTag) {
-                            var index;
-                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
-                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
-                            }
-                        });
-                    }
-                    $scope2.createTag = function() {
-                        var newTags;
-                        if ($scope2.model.newtag) {
-                            newTags = $scope2.model.newtag.replace(/\s/, ',');
-                            newTags = newTags.split(',');
-                            http2.post('/rest/site/fe/matter/enroll/tag/create?site=' + $scope.app.siteid + '&app=' + $scope.app.id, newTags).then(function(rsp) {
-                                rsp.data.forEach(function(oNewTag) {
-                                    $scope2.apptags.push(oNewTag);
-                                });
-                            });
-                            $scope2.model.newtag = '';
-                        }
-                    };
-                    $scope2.cancel = function() { $mi.dismiss(); };
-                    $scope2.ok = function() {
-                        var tags = [];
-                        model.selected.forEach(function(selected, index) {
-                            if (selected) {
-                                tags.push($scope2.apptags[index]);
-                            }
-                        });
-                        $mi.close(tags);
-                    };
-                }],
-                backdrop: 'static',
-            }).result.then(function(tags) {
-                $scope.tag[schemaId] = tags;
-            });
         }
     };
     $scope.getMyLocation = function(prop) {

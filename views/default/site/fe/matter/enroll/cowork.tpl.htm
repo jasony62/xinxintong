@@ -103,9 +103,6 @@
                                 <div ng-switch-default>
                                     <span>{{record.verbose[schema.id].value}}</span>
                                 </div>
-                                <div ng-if="schema.cantag==='Y'">
-                                    <span class="tag" ng-repeat="t in record.verbose[schema.id].tag" ng-bind="t.label"></span>
-                                </div>
                                 <div ng-if="schema.supplement==='Y'" class='supplement' ng-bind-html="record.verbose[schema.id].supplement"></div>
                             </div>
                         </blockquote>

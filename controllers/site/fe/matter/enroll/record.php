@@ -221,12 +221,6 @@ class record extends base {
 		}
 		$oSubmitedEnrollRec = $rst[1]; // 包含data和score
 		/**
-		 * 提交填写项数据标签
-		 */
-		if (isset($oPosted->tag) && count(get_object_vars($oPosted->tag))) {
-			$rst = $modelRec->setTag($oUser, $oEnrollApp, $ek, $oPosted->tag);
-		}
-		/**
 		 * 提交补充说明
 		 */
 		if (isset($oPosted->supplement) && count(get_object_vars($oPosted->supplement))) {
@@ -308,17 +302,6 @@ class record extends base {
 		$dbData = $dbData[1];
 
 		$oPosted->data = $dbData;
-		$data_tag = new \stdClass;
-		if (isset($oPosted->tag) && count(get_object_vars($oPosted->tag))) {
-			foreach ($oPosted->tag as $schId => $saveTags) {
-				$data_tag->{$schId} = [];
-				foreach ($saveTags as $saveTag) {
-					$data_tag->{$schId}[] = $saveTag->id;
-				}
-			}
-			unset($oPosted->tag);
-		}
-		$oPosted->data_tag = $data_tag;
 		!empty($rid) && $oPosted->rid = $rid;
 
 		/* 插入到用户对素材的行为日志中 */
@@ -576,7 +559,6 @@ class record extends base {
 					if (isset($oLogData)) {
 						$oRecord->data = $oLogData->data;
 						$oRecord->supplement = $oLogData->supplement;
-						$oRecord->data_tag = $oLogData->data_tag;
 
 						return true;
 					}
@@ -625,7 +607,7 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,data_tag,score,like_num,like_log,remark_num';
+		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,score,like_num,like_log,remark_num';
 
 		if (empty($ek)) {
 			$oUser = $this->getUser($oApp);

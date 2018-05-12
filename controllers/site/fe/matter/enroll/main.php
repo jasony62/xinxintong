@@ -9,7 +9,7 @@ class main extends base {
 	/**
 	 *
 	 */
-	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,multi_rounds,read_num,repos_unit,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config';
+	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,multi_rounds,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config';
 	/**
 	 *
 	 */
@@ -53,16 +53,7 @@ class main extends base {
 		}
 
 		/* 返回登记活动页面 */
-		if ($page === 'repos') {
-			\TPL::assign('title', $oApp->title);
-			if ($oApp->repos_unit === 'R') {
-				// 按记录进行共享
-				\TPL::output('/site/fe/matter/enroll/repos2');
-			} else {
-				// 按数据进行共享
-				\TPL::output('/site/fe/matter/enroll/repos');
-			}
-		} else if (in_array($page, ['cowork', 'share', 'action', 'rank', 'score', 'favor', 'topic'])) {
+		if (in_array($page, ['cowork', 'share', 'action', 'rank', 'score', 'repos', 'favor', 'topic'])) {
 			\TPL::assign('title', $oApp->title);
 			\TPL::output('/site/fe/matter/enroll/' . $page);
 		} else {
@@ -74,15 +65,7 @@ class main extends base {
 			}
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
 			\TPL::assign('title', $oApp->title);
-			if ($oOpenPage->name === 'repos') {
-				if ($oApp->repos_unit === 'R') {
-					// 按记录进行共享
-					\TPL::output('/site/fe/matter/enroll/repos2');
-				} else {
-					// 按数据进行共享
-					\TPL::output('/site/fe/matter/enroll/repos');
-				}
-			} else if (in_array($oOpenPage->name, ['action', 'rank', 'score', 'favor', 'topic'])) {
+			if (in_array($oOpenPage->name, ['action', 'rank', 'score', 'repos', 'favor', 'topic'])) {
 				\TPL::output('/site/fe/matter/enroll/' . $oOpenPage->name);
 			} else if ($oOpenPage->type === 'I') {
 				\TPL::output('/site/fe/matter/enroll/input');

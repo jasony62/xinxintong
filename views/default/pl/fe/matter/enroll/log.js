@@ -41,16 +41,12 @@ define(['frame'], function(ngApp) {
                 var _this = this;
                 srvEnrollLog.list(this.page, 'site', $scope.criteria).then(function(logs) {
                     _this.logs = logs;
-                    angular.forEach(logs, function(log) {
-                        console.log(log.operation);
-                    console.log(log.operation.indexOf('agree'));
-                    });
                 });
             }
         };
         $scope.record = {
             page: {},
-            list: function(){
+            list: function() {
                 var _this = this;
                 srvEnrollLog.list(this.page, 'pl', $scope.criteria).then(function(logs) {
                     _this.logs = logs;

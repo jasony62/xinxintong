@@ -252,17 +252,12 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             oPage = params.page,
             oUser = params.user,
             schemasById = {},
-            tagsById = {},
             activeRid = '';
 
         oApp.dataSchemas.forEach(function(schema) {
             schemasById[schema.id] = schema;
         });
         oApp._schemasById = schemasById;
-        oApp.dataTags.forEach(function(oTag) {
-            tagsById[oTag.id] = oTag;
-        });
-        oApp._tagsById = tagsById;
         $scope.params = params;
         $scope.site = oSite;
         $scope.mission = oMission;
@@ -272,18 +267,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             $scope.activeRound = params.activeRound;
             activeRid = params.activeRound.rid;
         }
-        // if (params.record) {
-        //     if (params.record.data_tag) {
-        //         for (var schemaId in params.record.data_tag) {
-        //             var dataTags = params.record.data_tag[schemaId],
-        //                 converted = [];
-        //             dataTags.forEach(function(tagId) {
-        //                 tagsById[tagId] && converted.push(tagsById[tagId]);
-        //             });
-        //             params.record.data_tag[schemaId] = converted;
-        //         }
-        //     }
-        // }
         if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
             tmsDynaPage.loadCode(ngApp, oSite.header_page);
         }

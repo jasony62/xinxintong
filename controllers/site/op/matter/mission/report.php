@@ -40,7 +40,6 @@ class report extends \site\op\base {
 				unset($oMatter->pages);
 				unset($oMatter->create_at);
 				unset($oMatter->creater_name);
-				unset($oMatter->dataTags);
 				unset($oMatter->opUrl);
 				unset($oMatter->op_short_url_code);
 				unset($oMatter->rpUrl);
@@ -146,7 +145,6 @@ class report extends \site\op\base {
 				unset($oMatter->pages);
 				unset($oMatter->create_at);
 				unset($oMatter->creater_name);
-				unset($oMatter->dataTags);
 				unset($oMatter->opUrl);
 				unset($oMatter->op_short_url_code);
 				unset($oMatter->rpUrl);

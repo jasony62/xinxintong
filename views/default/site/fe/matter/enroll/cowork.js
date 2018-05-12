@@ -205,13 +205,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                     } else if (/image/.test(oAssignedSchema.type)) {
                         oRecData.value = oRecData.value.split(',');
                     }
-                    if (oRecData.tag) {
-                        oRecData.tag.forEach(function(index, tagId) {
-                            if (_oApp._tagsById[index]) {
-                                oRecData.tag[tagId] = _oApp._tagsById[index];
-                            }
-                        });
-                    }
                 }
                 $scope.record = oRecord;
                 $scope.record._canAgree = fnCanAgreeRecord(oRecord, _oUser);

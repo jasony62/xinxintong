@@ -65,49 +65,10 @@
                     <hr>
                     <div class='data'>
                         <blockquote>
-                            <div ng-repeat="schema in visibleSchemas" ng-switch on="schema.type">
-                                <div class='text-muted data-title'>{{schema.title}}</div>
-                                <ul ng-switch-when="image" class='list-unstyled'>
-                                    <li ng-repeat="img in record.verbose[schema.id].value"><img ng-src="{{img}}" /></li>
-                                </ul>
-                                <div ng-switch-when="file">
-                                    <div ng-repeat="file in record.verbose[schema.id].value">
-                                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls" preload="none">
-                                            <source src="{{file.url}}" type="{{file.type}}" />
-                                        </video>
-                                        <audio ng-if="file.type.indexOf('audio')===0" controls="controls" preload="none">
-                                            <source src="{{file.url}}" type="{{file.type}}" />
-                                        </audio>
-                                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
-                                    </div>
-                                </div>
-                                <div ng-switch-when="voice">
-                                    <div ng-repeat="voice in record.verbose[schema.id].value">
-                                        <audio controls="controls" preload="none">
-                                            <source src="{{voice.url}}" type="{{voice.type}}" />
-                                        </audio>
-                                    </div>
-                                </div>
-                                <div ng-switch-when="multitext">
-                                    <ul ng-if="record.verbose[schema.id].multitext_seq == 0">
-                                        <li ng-repeat="item in record.verbose[schema.id].value"><span ng-bind-html="item.value"></span></li>
-                                    </ul>
-                                    <span ng-if="record.verbose[schema.id].multitext_seq > 0" ng-bind-html="record.verbose[schema.id].value"></span>
-                                </div>
-                                <div ng-switch-when="longtext">
-                                    <span ng-bind-html="record.verbose[schema.id].value"></span>
-                                </div>
-                                <div ng-switch-when="url">
-                                    <span ng-bind-html="record.verbose[schema.id].value._text"></span>
-                                </div>
-                                <div ng-switch-default>
-                                    <span>{{record.verbose[schema.id].value}}</span>
-                                </div>
-                                <div ng-if="schema.supplement==='Y'" class='supplement' ng-bind-html="record.verbose[schema.id].supplement"></div>
-                            </div>
+                            <div tms-repos-record-data schemas="visibleSchemas" record="record"></div>
                         </blockquote>
                     </div>
-                    <div class='bottom-bar small text-muted' ng-if="bRemarkRecord">
+                    <div class='bottom-bar small text-muted'>
                         <div><span ng-if="record.enroll_at>0">{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</span></div>
                         <a href ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':record.like_log[user.uid]}"></span>&nbsp;<span ng-bind="record.like_num"></span></a>
                         <a href ng-if="params.entryRuleResult.passed==='Y'" ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="record.rec_remark_num"></span></a>
@@ -123,11 +84,6 @@
                                 <li ng-if="record.userid===user.uid"><a href ng-click="editRecord($event)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
                             </ul>
                         </div>
-                    </div>
-                    <div class='bottom-bar small text-muted' ng-if="!bRemarkRecord">
-                        <div><span ng-if="record.enroll_at>0">{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</span></div>
-                        <a href ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':data.like_log[user.uid]}"></span>&nbsp;<span ng-bind="data.like_num"></span></a>
-                        <a href ng-if="params.entryRuleResult.passed==='Y'" ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span></a>
                     </div>
                     <div class='tags' ng-if="record.userTags">
                         <button class='btn btn-default btn-xs' ng-repeat="tag in record.userTags" ng-bind="tag.label"></button>
@@ -188,7 +144,7 @@
                                     <p dynamic-html="item.value"></p>
                                     <footer>{{item.nickname||'隐藏'}}</footer>
                                 </blockquote>
-                                <div class='bottom-bar small text-muted' ng-if="bRemarkRecord">
+                                <div class='bottom-bar small text-muted'>
                                     <div>{{item.submit_at*1000|date:'MM-dd HH:mm'}}</div>
                                     <a href ng-click="likeItem(item)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></a>
                                     <a href ng-if="params.entryRuleResult.passed==='Y'" ng-click="writeItemRemark(item)"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="item.remark_num"></span></a>
@@ -211,7 +167,7 @@
                     </div>
                     <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
                         <div class='top-bar tms-flex-row'>
-                            <div class='seq tms-flex-grow text-muted'>#<span ng-bind="bRemarkRecord?remark.seq_in_record:record.seq_in_data"></span> <span class='reply small' ng-if="remark.reply" ng-bind-html="remark.reply"></span></div>
+                            <div class='seq tms-flex-grow text-muted'>#<span ng-bind="remark.seq_in_record"></span> <span class='reply small' ng-if="remark.reply" ng-bind-html="remark.reply"></span></div>
                             <div ng-if="record._canAgree">
                                 <div class="btn-group" uib-dropdown>
                                     <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>

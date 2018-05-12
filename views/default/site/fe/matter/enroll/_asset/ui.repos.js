@@ -5,16 +5,25 @@ var oUtilSchema = require('../../_module/schema.util.js');
 ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache) {
     return {
         restrict: 'A',
-        replace: true,
         template: require('./repos-record-data.html'),
         scope: {
             schemas: '=',
             rec: '=record'
         },
-        controller: ['$scope', '$sce', function($scope, $sce) {
-            var oRecord, oSchema, schemaData;
-            if (oRecord = $scope.rec) {
-                if ($scope.schemas) {
+        controller: ['$scope', '$sce', 'tmsLocation', function($scope, $sce, LS) {
+            $scope.coworkRecord = function(oRecord) {
+                var url;
+                url = LS.j('', 'site', 'app');
+                url += '&ek=' + oRecord.enroll_key;
+                url += '&page=cowork';
+                url += '#cowork';
+                location.href = url;
+            };
+            $scope.$watch('rec', function(oRecord) {
+                if (!oRecord) { return; }
+                $scope.$watch('schemas', function(schemas) {
+                    if (!schemas) { return; }
+                    var oSchema, schemaData;
                     for (var schemaId in $scope.schemas) {
                         oSchema = $scope.schemas[schemaId];
                         if (schemaData = oRecord.data[oSchema.id]) {
@@ -41,8 +50,8 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                         }
 
                     }
-                }
-            }
+                });
+            });
         }]
     };
 }]);

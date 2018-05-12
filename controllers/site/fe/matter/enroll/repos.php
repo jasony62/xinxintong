@@ -726,7 +726,7 @@ class repos extends base {
 		}
 
 		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,score,like_num,like_log,remark_num,rec_remark_num,favor_num,agreed,data';
-		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
+		$oRecord = $modelRec->byId($ek, ['fields' => $fields]);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -767,7 +767,7 @@ class repos extends base {
 			}
 		}
 
-		if (isset($oRecord->verbose)) {
+		if (isset($oRecord->data)) {
 			$fnCheckSchemaVisibility = function ($oSchema, $oRecordData) {
 				if (!empty($oSchema->visibility->rules)) {
 					foreach ($oSchema->visibility->rules as $oRule) {
@@ -790,22 +790,17 @@ class repos extends base {
 					$oShareableSchemas->{$oSchema->id} = $oSchema;
 				}
 			}
-			foreach ($oRecord->verbose as $schemaId => $value) {
+			foreach ($oRecord->data as $schemaId => $value) {
 				/* 清除空值 */
 				if (!isset($oShareableSchemas->{$schemaId})) {
-					unset($oRecord->verbose->{$schemaId});
+					unset($oRecord->data->{$schemaId});
 					continue;
 				}
 				/* 清除不可见的题 */
 				$oSchema = $oShareableSchemas->{$schemaId};
 				if (!$fnCheckSchemaVisibility($oSchema, $oRecord->data)) {
-					unset($oRecord->verbose->{$schemaId});
+					unset($oRecord->data->{$schemaId});
 					continue;
-				}
-				if ($oShareableSchemas->{$schemaId}->type === 'multitext') {
-					if (!empty($oRecord->verbose->{$schemaId}->value)) {
-						$oRecord->verbose->{$schemaId}->value = json_decode($oRecord->verbose->{$schemaId}->value);
-					}
 				}
 			}
 		}

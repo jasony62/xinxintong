@@ -120,14 +120,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         url += '&page=cowork#remarks';
         location.href = url;
     };
-    $scope.coworkRecord = function(oRecord) {
-        var url;
-        url = LS.j('', 'site', 'app');
-        url += '&ek=' + oRecord.enroll_key;
-        url += '&page=cowork';
-        url += '#cowork';
-        location.href = url;
-    };
     $scope.setAgreed = function(oRecord, value) {
         var url;
         if (oRecord.agreed !== value) {

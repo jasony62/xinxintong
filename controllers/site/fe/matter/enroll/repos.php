@@ -435,28 +435,13 @@ class repos extends base {
 						$oRecord->favored = true;
 					}
 				}
-				/* 公共标签 */
-				$userTags = $modelTag->byRecord($oRecord, $oUser);
-				if (!empty($userTags)) {
-					$oRecord->userTags = $userTags;
+				/* 记录的标签 */
+				$oRecordTags = $modelTag->byRecord($oRecord, $oUser, ['UserAndPublic' => empty($oPosted->favored)]);
+				if (!empty($oRecordTags->user)) {
+					$oRecord->userTags = $oRecordTags->user;
 				}
-				if (empty($oPosted->favored)) {
-					$tags = $modelTag->byRecord($oRecord);
-					if (count($userTags) && count($tags)) {
-						foreach ($userTags as $oUserTag) {
-							if ($oUserTag->public === 'Y') {
-								foreach ($tags as $index => $oTag) {
-									if ($oUserTag->tag_id === $oTag->tag_id) {
-										array_splice($tags, $index, 1);
-										break;
-									}
-								}
-							}
-						}
-					}
-					if (!empty($tags)) {
-						$oRecord->tags = $tags;
-					}
+				if (!empty($oRecordTags->public)) {
+					$oRecord->tag = $oRecordTags->public;
 				}
 				/* 隐藏昵称 */
 				if ($bAnonymous) {
@@ -740,10 +725,23 @@ class repos extends base {
 			}
 		}
 
-		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,rec_remark_num,agreed,data';
+		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,score,like_num,like_log,remark_num,rec_remark_num,favor_num,agreed,data';
 		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
+		}
+		if (!empty($oUser->unionid) && $oRecord->favor_num > 0) {
+			$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
+			if ($modelRec->query_obj_ss($q)) {
+				$oRecord->favored = true;
+			}
+		}
+
+		/* 记录的标签 */
+		$modelTag = $this->model('matter\enroll\tag2');
+		$oRecordTags = $modelTag->byRecord($oRecord, $oUser);
+		if (!empty($oRecordTags->user)) {
+			$oRecord->userTags = $oRecordTags->user;
 		}
 
 		/* 是否限制了匿名规则 */

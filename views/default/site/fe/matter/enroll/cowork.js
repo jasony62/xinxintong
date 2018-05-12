@@ -2,12 +2,14 @@
 require('./cowork.css');
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
+require('./_asset/ui.tag.js');
+require('./_asset/ui.topic.js');
 
-window.moduleAngularModules = ['editor.ui.xxt'];
+window.moduleAngularModules = ['editor.ui.xxt', 'tag.ui.enroll', 'topic.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
-ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', function($scope, $q, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage) {
+ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', 'enlTag', 'enlTopic', function($scope, $q, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage, enlTag, enlTopic) {
     function listRemarks() {
         var url;
         url = LS.j('remark/list', 'site', 'ek', 'schema', 'data');
@@ -255,7 +257,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
         $scope.appActs.length = Object.keys($scope.appActs).length;
         /*设置页面导航*/
-        var oAppNavs = {};
+        var oAppNavs = {
+            favor: {}
+        };
         if (_oApp.can_repos === 'Y') {
             oAppNavs.repos = {};
         }
@@ -301,6 +305,84 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     $scope.remarkTasks = [];
     $scope.newRemark = {};
     $scope.mocker = _oMocker = {}; // 用户自己指定的角色
+    $scope.favorStack = {
+        guiding: false,
+        start: function(record, timer) {
+            this.guiding = true;
+            this.record = record;
+            this.timer = timer;
+        },
+        end: function() {
+            this.guiding = false;
+            delete this.record;
+            delete this.timer;
+        }
+    };
+    $scope.favorRecord = function(oRecord) {
+        var url;
+        if (!oRecord.favored) {
+            url = LS.j('favor/add', 'site');
+            url += '&ek=' + oRecord.enroll_key;
+            http2.get(url).then(function(rsp) {
+                oRecord.favored = true;
+                $scope.favorStack.start(oRecord, $timeout(function() {
+                    $scope.favorStack.end();
+                }, 3000));
+            });
+        } else {
+            noticebox.confirm('取消收藏，确定？').then(function() {
+                url = LS.j('favor/remove', 'site');
+                url += '&ek=' + oRecord.enroll_key;
+                http2.get(url).then(function(rsp) {
+                    delete oRecord.favored;
+                });
+            });
+        }
+    };
+
+    function fnAssignTag(oRecord) {
+        enlTag.assignTag(oRecord).then(function(rsp) {
+            if (rsp.data.user && rsp.data.user.length) {
+                oRecord.userTags = rsp.data.user;
+            } else {
+                delete oRecord.userTags;
+            }
+        });
+    }
+    $scope.assignTag = function(oRecord) {
+        if (oRecord) {
+            fnAssignTag(oRecord);
+        } else {
+            $scope.favorStack.timer && $timeout.cancel($scope.favorStack.timer);
+            if (oRecord = $scope.favorStack.record) {
+                fnAssignTag(oRecord);
+            }
+            $scope.favorStack.end();
+        }
+    };
+
+    function fnAssignTopic(oRecord) {
+        http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
+            var topics;
+            if (rsp.data.total === 0) {
+                location.href = LS.j('', 'site', 'app') + '&page=favor#topic';
+            } else {
+                topics = rsp.data.topics;
+                enlTopic.assignTopic(oRecord);
+            }
+        });
+    }
+    $scope.assignTopic = function(oRecord) {
+        if (oRecord) {
+            fnAssignTopic(oRecord);
+        } else {
+            $scope.favorStack.timer && $timeout.cancel($scope.favorStack.timer);
+            if (oRecord = $scope.favorStack.record) {
+                fnAssignTopic(oRecord);
+            }
+            $scope.favorStack.end();
+        }
+    };
     $scope.mockAsVisitor = function(event, bMock) {
         if ($scope.bRemarkRecord) {
             _oMocker.role = bMock ? 'visitor' : '';

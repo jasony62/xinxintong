@@ -57,7 +57,8 @@
                         <div class='header'>
                             <div class='seq label label-default'>{{$index+1}}</div>
                             <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
-                            <div ng-if="!rec._canAgree">
+                            <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>
+                            <div ng-if="!rec._canAgree&&rec.agreed&&rec.agreed!=='A'">
                                 <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
                                 <button ng-if="rec.agreed==='Y'" class="btn btn-success btn-xs">推荐</button>
                                 <button ng-if="rec.agreed==='N'" class="btn btn-danger btn-xs">屏蔽</button>
@@ -84,53 +85,7 @@
                         </div>
                         <div class='data'>
                             <blockquote>
-                                <div class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]||schema.cowork==='Y'" ng-repeat="schema in schemas" ng-switch on="schema.type">
-                                    <div class='text-muted data-title'>{{schema.title}}</div>
-                                    <div ng-switch-when="file">
-                                        <div ng-repeat="file in rec.data[schema.id]">
-                                            <video ng-if="file.type.indexOf('video')===0" controls="controls" preload="none">
-                                                <source src="{{file.url}}" type="{{file.type}}" />
-                                            </video>
-                                            <audio ng-if="file.type.indexOf('audio')===0" controls="controls" preload="none">
-                                                <source src="{{file.url}}" type="{{file.type}}" />
-                                            </audio>
-                                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:40%" />
-                                        </div>
-                                    </div>
-                                    <div ng-switch-when="voice">
-                                        <div ng-repeat="voice in rec.data[schema.id]">
-                                            <audio controls="controls" preload="none">
-                                                <source src="{{voice.url}}" type="{{voice.type}}" />
-                                            </audio>
-                                        </div>
-                                    </div>
-                                    <div ng-switch-when="image">
-                                        <ul class='list-unstyled'>
-                                            <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
-                                        </ul>
-                                    </div>
-                                    <div ng-switch-when="multitext">
-                                        <ul ng-if="rec.data[schema.id]" style='padding-left:20px'>
-                                            <li ng-repeat="item in rec.data[schema.id]"><span dynamic-html="item.value"></span></li>
-                                        </ul>
-                                    </div>
-                                    <div ng-switch-when="single"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
-                                    <div ng-switch-when="multiple"><span>{{value2Label(schema,rec.data[schema.id])}}</span></div>
-                                    <div ng-switch-when="longtext">
-                                        <span ng-bind-html="rec.data[schema.id]"></span>
-                                    </div>
-                                    <div ng-switch-when="url">
-                                        <span ng-bind-html="rec.data[schema.id]._text"></span>
-                                    </div>
-                                    <div ng-switch-default>
-                                        <span>{{rec.data[schema.id]}}</span>
-                                    </div>
-                                    <div ng-if="schema.cowork==='Y'">
-                                        <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)"><span ng-if="rec.coworkState[schema.id].length">查看全部（<span ng-bind="rec.coworkState[schema.id].length"></span>）或</span>添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
-                                        </button>
-                                    </div>
-                                    <div ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]" class='supplement' ng-bind-html="rec.supplement[schema.id]"></div>
-                                </div>
+                                <div tms-repos-record-data schemas="schemas" record="rec"></div>
                             </blockquote>
                         </div>
                         <div class='bottom-bar'>
@@ -141,11 +96,9 @@
                                 <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                                     <span class="glyphicon glyphicon-option-vertical"></span>
                                 </button>
-                                <ul class="dropdown-menu" uib-dropdown-menu>
+                                <ul class="dropdown-menu dropdown-menu-right dropdown-menu-top" uib-dropdown-menu>
                                     <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
-                                    <li><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> <span ng-if="rec.favored">取消</span>收藏</a></li>
-                                    <li><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 选取专题</a></li>
-                                    <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                                    <li ng-if="!rec.favored"><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
                                 </ul>
                             </div>
                         </div>

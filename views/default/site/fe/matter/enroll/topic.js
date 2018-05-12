@@ -1,6 +1,12 @@
 'use strict';
 require('./repos.css');
 
+require('./_asset/ui.repos.js');
+require('./_asset/ui.tag.js');
+require('./_asset/ui.topic.js');
+
+window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll'];
+
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.controller('ctrlTopic', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
@@ -13,7 +19,9 @@ ngApp.controller('ctrlTopic', ['$scope', 'http2', 'tmsLocation', function($scope
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, { topic: LS.s().topic }); // 应该禁止分享
         /*设置页面导航*/
-        var oAppNavs = {};
+        var oAppNavs = {
+            favor: {}
+        };
         if (oApp.can_repos === 'Y') {
             oAppNavs.repos = {};
         }
@@ -82,28 +90,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             _oPage.total = result.data.total;
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
-                    var oSchema, schemaData;
-                    for (var schemaId in _oShareableSchemas) {
-                        oSchema = _oShareableSchemas[schemaId];
-                        if (schemaData = oRecord.data[oSchema.id]) {
-                            switch (oSchema.type) {
-                                case 'longtext':
-                                    oRecord.data[oSchema.id] = ngApp.oUtilSchema.txtSubstitute(schemaData);
-                                    break;
-                                case 'url':
-                                    schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
-                                    break;
-                                case 'file':
-                                case 'voice':
-                                    schemaData.forEach(function(oFile) {
-                                        if (oFile.url) {
-                                            oFile.url = $sce.trustAsResourceUrl(oFile.url);
-                                        }
-                                    });
-                                    break;
-                            }
-                        }
-                    }
                     if (_coworkRequireLikeNum > oRecord.like_num) {
                         oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
                     }
@@ -190,57 +176,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         $scope.gotoPage(event, page, oRecord.enroll_key);
     };
-    /* 为什么没有干掉 */
-    $scope.value2Label = function(oSchema, value) {
-        var val, aVal, aLab = [];
-        if (val = value) {
-            if (oSchema.ops && oSchema.ops.length) {
-                aVal = val.split(',');
-                oSchema.ops.forEach(function(op) {
-                    aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                });
-                val = aLab.join(',');
-            }
-        } else {
-            val = '';
-        }
-        return $sce.trustAsHtml(val);
-    };
     $scope.shiftAgreed = function(agreed) {
         _oCriteria.agreed = agreed;
         $scope.recordList(1);
-    };
-    /**
-     * 选取专题
-     */
-    $scope.assignTopic = function(oRecord) {
-        $uibModal.open({
-            templateUrl: 'assignTopic.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                var _aCheckedTopicIds;
-                _aCheckedTopicIds = [];
-                $scope2.checkTopic = function(oTopic, index) {
-                    oTopic.checked ? _aCheckedTopicIds.push(oTopic.id) : _aCheckedTopicIds.splice(index, 1);
-                };
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() { $mi.close(_aCheckedTopicIds); };
-                http2.get(LS.j('topic/byRecord', 'site') + '&record=' + oRecord.id).then(function(rsp) {
-                    rsp.data.forEach(function(oTopic) {
-                        _aCheckedTopicIds.push(oTopic.topic_id);
-                    });
-                    http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
-                        rsp.data.topics.forEach(function(oTopic) {
-                            oTopic.checked = _aCheckedTopicIds.indexOf(oTopic.id) !== -1;
-                        });
-                        $scope2.topics = rsp.data.topics;
-                    });
-                });
-            }],
-            backdrop: 'static',
-            windowClass: 'modal-opt-topic auto-height',
-        }).result.then(function(aCheckedTopicIds) {
-            http2.post(LS.j('topic/assign', 'site') + '&record=' + oRecord.id, { topic: aCheckedTopicIds }).then(function(rsp) {});
-        });
     };
     $scope.spyRecordsScroll = true; // 监控滚动事件
     $scope.recordsScrollToBottom = function() {

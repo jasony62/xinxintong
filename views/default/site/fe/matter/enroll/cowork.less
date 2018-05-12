@@ -39,16 +39,36 @@ p {
 }
 
 .bottom-bar {
-	font-size: 14px;
-	color: #777;
+	display: flex;
+	align-items: center;
 
 	&>*+* {
 		margin-left: 16px;
+
+		.like {
+			color: @brand-primary;
+		}
+
+	}
+
+	&>:first-child {
+		flex-grow: 1
 	}
 
 	a {
-		color: #777;
 		text-decoration: none;
+		color: #777;
+	}
+
+	.btn-default {
+		color: #777;
+	}
+
+	.dropdown {
+		button {
+			border: 0;
+		}
+
 	}
 
 }
@@ -100,23 +120,46 @@ p {
 	border-left: 6px solid @brand-primary;
 }
 
-/*remark*/
-#cowork, #remarks {
-	position: relative;
-	margin-top: 3rem;
+.tags {
+	margin-top: 8px;
+
+	&>button+button {
+		margin-left: 4px;
+	}
+
 }
 
-#cowork:before {
-	content: '协作';
-	position: absolute;
-	left: 50%;
-	margin-left: -1em;
-	top: -2em;
-	font-size: .7em;
-	color: #eee;
-	padding: .2em 1em;
-	background: #666;
-	border-radius: 1em;
+#favorGuide {
+	position: fixed;
+	align-items: center;
+	z-index: 1051;
+	width: 100%;
+	bottom: 0;
+	display: flex;
+	border: 1px solid #bce8f1;
+	background: #d9edf7;
+	padding: 8px 16px;
+	color: #31708f;
+
+	&>:first-child {
+		flex-grow: 1;
+	}
+
+	&>:last-child {
+		margin-left: 4px;
+	}
+
+}
+
+/*remark*/
+#cowork {
+	position: relative;
+	margin-top: 1rem;
+}
+
+#remarks {
+	position: relative;
+	margin-top: 3rem;
 }
 
 #cowork {

@@ -169,29 +169,9 @@ class tag extends base {
 		$oUser = $this->who;
 
 		$modelTag = $this->model('matter\enroll\tag2');
-		$userTags = $modelTag->byRecord($oRecord, $oUser);
+		$oRecTags = $modelTag->byRecord($oRecord, $oUser, ['UserAndPublic' => $public === 'Y']);
 
-		if ($public === 'Y') {
-			$publicTags = $modelTag->byRecord($oRecord);
-			/* 合并用户标签和公共标签 */
-			if (count($userTags) && count($publicTags)) {
-				foreach ($userTags as $oUserTag) {
-					if ($oUserTag->public === 'Y') {
-						foreach ($publicTags as $index => $oTag) {
-							if ($oUserTag->tag_id === $oTag->tag_id) {
-								array_splice($publicTags, $index, 1);
-								break;
-							}
-						}
-					}
-				}
-			}
-			$recordTags = empty($publicTags) ? $userTags : array_merge($userTags, $publicTags);
-		} else {
-			$recordTags = $userTags;
-		}
-
-		return new \ResponseData($recordTags);
+		return new \ResponseData($oRecTags);
 	}
 	/**
 	 * 打标签

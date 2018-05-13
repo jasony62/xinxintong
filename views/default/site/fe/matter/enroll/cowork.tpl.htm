@@ -186,7 +186,6 @@
                                         <li><a href ng-click="agreeRemark(remark,'N')">屏蔽</a></li>
                                     </ul>
                                 </div>
-                                <button class='btn btn-xs btn-default' ng-if="coworkSchemas.length&&remark.as_cowork_id==='0'" ng-click="remarkAsCowork(remark)">作为答案</button>
                             </div>
                             <div ng-if="!record._canAgree&&(remark.agreed==='Y'||(remark.agreed==='D')||user.uid===remark.userid||user.is_editor==='Y')" ng-switch on="remark.agreed">
                                 <button ng-switch-when="D" class='btn btn-xs btn-danger'>讨论</button>
@@ -200,8 +199,10 @@
                                         <span class="glyphicon glyphicon-option-vertical"></span>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
-                                        <li><a href ng-click="removeRemark(remark)"><span class='glyphicon glyphicon-trash'></span> 删除</a></li>
                                         <li><a href ng-click="editRemark(remark)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                                        <li><a href ng-if="record._canAgree&&coworkSchemas.length&&remark.as_cowork_id==='0'" ng-click="remarkAsCowork(remark)"><span class='glyphicon glyphicon-ok-circle'></span> 作为答案</a></li>
+                                        <li class='divider'></li>
+                                        <li><a href ng-click="removeRemark(remark)"><span class='glyphicon glyphicon-trash'></span> 删除</a></li>
                                     </ul>
                                 </div>
                             </div>

@@ -7,9 +7,30 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class remark extends base {
 	/**
+	 *
+	 */
+	private function _setNickname(&$oTarget, $oUser, $oEditor = null) {
+		if ($oTarget->userid === $oUser->uid) {
+			$oTarget->nickname = '我';
+		} else if (preg_match('/用户[^\W_]{13}/', $oTarget->nickname)) {
+			$oTarget->nickname = '访客';
+		} else if (isset($oEditor) && !empty($oTarget->group_id)) {
+			/* 设置编辑统一昵称 */
+			if ($oTarget->group_id === $oEditor->group) {
+				$oTarget->is_editor = 'Y';
+			}
+			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				/* 设置编辑统一昵称 */
+				if (!empty($oTarget->group_id) && $oTarget->group_id === $oEditor->group) {
+					$oTarget->nickname = $oEditor->nickname;
+				}
+			}
+		}
+	}
+	/**
 	 * 返回指定留言
 	 */
-	public function get_action($remark) {
+	public function get_action($remark, $cascaded = null) {
 		$modelRem = $this->model('matter\enroll\remark');
 		$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,group_id,nickname,state,aid,rid,enroll_key,data_id,remark_id,content,modify_at']);
 		if (false === $oRemark && $oRemark->state !== '1') {
@@ -19,7 +40,6 @@ class remark extends base {
 		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
 		$oUser = $this->getUser($oApp);
 
 		/* 是否设置了编辑组统一名称 */
@@ -31,15 +51,17 @@ class remark extends base {
 			}
 		}
 
-		if (isset($oEditor)) {
-			if ($oRemark->group_id === $oEditor->group) {
-				$oRemark->is_editor = 'Y';
-			}
-			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
-				/* 设置编辑统一昵称 */
-				if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
-					$oRemark->nickname = $oEditor->nickname;
-				}
+		/* 修改昵称 */
+		$this->_setNickname($oRemark, $oUser, $oEditor);
+		/* 关联数据 */
+		if (!empty($cascaded)) {
+			$oRecord = $this->model('matter\enroll\record')->byId($oRemark->enroll_key, ['fields' => 'userid,group_id,nickname']);
+			$this->_setNickname($oRecord, $oUser, $oEditor);
+			$oRemark->record = $oRecord;
+			if (!empty($oRemark->data_id)) {
+				$oRecData = $this->model('matter\enroll\data')->byId($oRemark->data_id, ['fields' => 'userid,group_id,nickname']);
+				$this->_setNickname($oRecData, $oUser, $oEditor);
+				$oRemark->data = $oRecData;
 			}
 		}
 
@@ -98,7 +120,12 @@ class remark extends base {
 					$oData = $modelRecData->byId($oRemark->data_id, ['fields' => 'id,schema_id,nickname,multitext_seq']);
 					$oRemark->data = $oData;
 				}
-				if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+				/* 修改昵称 */
+				if ($oRemark->userid === $oUser->uid) {
+					$oRemark->nickname = '我';
+				} else if (preg_match('/用户[^\W_]{13}/', $oRemark->nickname)) {
+					$oRemark->nickname = '访客';
+				} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
 					/* 设置编辑统一昵称 */
 					if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
 						$oRemark->nickname = $oEditor->nickname;

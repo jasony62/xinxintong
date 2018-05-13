@@ -589,11 +589,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                 value: data.content
             };
             url = LS.j('cowork/add', 'site');
-            if (oRecData) {
-                url += '&data=' + oRecData.id;
-            } else {
-                url += '&ek=' + $scope.record.enroll_key + '&schema=' + oSchema.id;
-            }
+            url += '&ek=' + $scope.record.enroll_key + '&schema=' + oSchema.id;
             http2.post(url, oNewItem).then(function(rsp) {
                 if (oRecData) {
                     oRecData.value.push(rsp.data[0]);

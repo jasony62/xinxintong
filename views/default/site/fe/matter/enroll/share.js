@@ -51,7 +51,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
     _oMessage = {
         toString: function() {
             var msg;
-            msg = this.inviter + ' 邀请你查看 ' + this.author + this.object;
+            msg = this.inviter + '邀请你查看' + this.author + (this.relevent || '') + this.object;
             if (!/(\.|,|;|\?|!|。|，|；|？|！)$/.test(this.object)) {
                 msg += '。';
             }
@@ -106,23 +106,45 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
                 oRecord = rsp.data;
                 oRecData = oRecord.verbose[oRecord.schema_id];
                 _oMessage.inviter = _oUser.nickname;
-                _oMessage.author = _oUser.uid === oRecData.userid ? '他/她' : (oRecData.nickname);
-                _oMessage.object = ' 在活动【' + _oApp.title + '】中填写的数据：' + oRecData.value;
+                _oMessage.author = _oUser.uid === oRecData.userid ? 'ta' : (oRecData.nickname);
+                _oMessage.relevent = '给';
+                if (oRecord.userid !== oRecData.userid) {
+                    _oMessage.relevent += oRecord.nickname;
+                } else {
+                    _oMessage.relevent += '自己';
+                }
+                _oMessage.object = '填写的回答：' + oRecData.value;
                 _oMessage.anchor = 'item-' + LS.s().data;
-                if (oEditor && oRecData.is_editor === 'Y' && _oUser.uid !== oRecData.userid) {
+                if (_oUser.is_editor === 'Y' && oEditor && oRecData.is_editor === 'Y' && _oUser.uid !== oRecData.userid) {
                     _oOptions.canEditorAsAuthor = true;
                 }
                 _oDeferred.resolve(_oMessage);
             });
         } else if (LS.s().remark) {
-            http2.get(LS.j('remark/get', 'site', 'remark')).then(function(rsp) {
+            http2.get(LS.j('remark/get', 'site', 'remark') + '&cascaded=Y').then(function(rsp) {
                 var oRemark;
                 oRemark = rsp.data;
                 _oMessage.inviter = _oUser.nickname;
-                _oMessage.author = _oUser.uid === oRemark.userid ? '他/她' : (oRemark.nickname);
-                _oMessage.object = ' 在活动【' + _oApp.title + '】中的留言：' + oRemark.content;
+                _oMessage.author = _oUser.uid === oRemark.userid ? 'ta' : (oRemark.nickname);
+                if (oRemark.record) {
+                    _oMessage.relevent = '给';
+                    if (oRemark.record.userid !== oRemark.userid) {
+                        _oMessage.relevent += oRemark.record.nickname;
+                    } else {
+                        _oMessage.relevent += '自己';
+                    }
+                    if (oRemark.data && oRemark.data.userid !== oRemark.record.userid) {
+                        _oMessage.relevent += '和';
+                        if (oRemark.data.userid !== oRemark.userid) {
+                            _oMessage.relevent += $oRemark.data.nickname;
+                        } else {
+                            _oMessage.relevent += '自己';
+                        }
+                    }
+                }
+                _oMessage.object = '的留言：' + oRemark.content;
                 _oMessage.anchor = 'remark-' + oRemark.id;
-                if (oEditor && oRemark.is_editor === 'Y' && _oUser.uid !== oRemark.userid) {
+                if (_oUser.is_editor === 'Y' && oEditor && oRemark.is_editor === 'Y' && _oUser.uid !== oRemark.userid) {
                     _oOptions.canEditorAsAuthor = true;
                 }
                 _oDeferred.resolve(_oMessage);
@@ -132,9 +154,9 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
                 var oRecord;
                 oRecord = rsp.data;
                 _oMessage.inviter = _oUser.nickname;
-                _oMessage.author = _oUser.uid === oRecord.userid ? '他/她' : (oRecord.nickname);
-                _oMessage.object = ' 在活动【' + _oApp.title + '】中提交的记录。';
-                if (oEditor && oRecord.is_editor === 'Y' && _oUser.uid !== oRecord.userid) {
+                _oMessage.author = _oUser.uid === oRecord.userid ? 'ta' : (oRecord.nickname);
+                _oMessage.object = '的记录。';
+                if (_oUser.is_editor === 'Y' && oEditor && oRecord.is_editor === 'Y' && _oUser.uid !== oRecord.userid) {
                     _oOptions.canEditorAsAuthor = true;
                 }
                 _oDeferred.resolve(_oMessage);
@@ -144,9 +166,9 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
                 var oTopic;
                 oTopic = rsp.data;
                 _oMessage.inviter = _oUser.nickname;
-                _oMessage.author = _oUser.unionid === oTopic.unionid ? '他/她' : (oTopic.nickname);
-                _oMessage.object = ' 在活动【' + _oApp.title + '】中创建的专题。';
-                if (oEditor && oTopic.is_editor === 'Y' && _oUser.unionid !== oTopic.unionid) {
+                _oMessage.author = _oUser.unionid === oTopic.unionid ? 'ta' : (oTopic.nickname);
+                _oMessage.object = '的专题。';
+                if (_oUser.is_editor === 'Y' && oEditor && oTopic.is_editor === 'Y' && _oUser.unionid !== oTopic.unionid) {
                     _oOptions.canEditorAsAuthor = true;
                 }
                 _oDeferred.resolve(_oMessage);

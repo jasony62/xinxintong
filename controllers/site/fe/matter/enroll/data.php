@@ -66,6 +66,22 @@ class data extends base {
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 			}
 		}
+		/* 修改默认访客昵称 */
+		if ($oRecord->userid === $oUser->uid) {
+			$oRecord->nickname = '我';
+		} else if (preg_match('/用户[^\W_]{13}/', $oRecord->nickname)) {
+			$oRecord->nickname = '访客';
+		} else if (isset($oEditor)) {
+			if ($oRecord->group_id === $oEditor->group) {
+				$oRecord->is_editor = 'Y';
+			}
+			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				/* 设置编辑统一昵称 */
+				if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+					$oRecord->nickname = $oEditor->nickname;
+				}
+			}
+		}
 		$oSchemas = new \stdClass;
 		foreach ($oApp->dataSchemas as $dataSchema) {
 			$oSchemas->{$dataSchema->id} = $dataSchema;
@@ -137,6 +153,10 @@ class data extends base {
 						$oItem->like_log = empty($oItem->like_log) ? [] : json_decode($oItem->like_log);
 						if ($bAnonymous) {
 							unset($oItem->nickname);
+						} else if ($oItem->userid === $oUser->uid) {
+							$oItem->nickname = '我';
+						} else if (preg_match('/用户[^\W_]{13}/', $oItem->nickname)) {
+							$oItem->nickname = '访客';
 						} else if (isset($oEditor) && (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y')) {
 							/* 设置编辑统一昵称 */
 							if (!empty($oItem->group_id) && $oItem->group_id === $oEditor->group) {

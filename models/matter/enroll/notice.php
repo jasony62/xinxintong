@@ -101,7 +101,7 @@ class notice_model extends \TMS_MODEL {
 			$q = [
 				'userid,nickname',
 				'xxt_group_player',
-				['round_id' => $targetGroupId, 'state' => 1, 'userid' => (object) ['op' => '<>', 'pat' => $oUser->uid]],
+				['round_id' => $oRecData->group_id, 'state' => 1, 'userid' => (object) ['op' => '<>', 'pat' => $oUser->uid]],
 			];
 			$grpUsers = $modelGrpUsr->query_objs_ss($q);
 			foreach ($grpUsers as $oGrpUser) {

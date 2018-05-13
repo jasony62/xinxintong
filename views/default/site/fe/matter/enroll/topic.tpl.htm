@@ -61,7 +61,7 @@
                             <div ng-if="!rec._canAgree&&rec.agreed&&rec.agreed!=='A'">
                                 <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
                                 <button ng-if="rec.agreed==='Y'" class="btn btn-success btn-xs">推荐</button>
-                                <button ng-if="rec.agreed==='N'" class="btn btn-danger btn-xs">屏蔽</button>
+                                <button ng-if="rec.agreed==='N'" class="btn btn-danger btn-xs">关闭</button>
                             </div>
                             <div ng-if="rec._canAgree">
                                 <div class="btn-group btn-group-xs" uib-dropdown>
@@ -70,7 +70,7 @@
                                         <span ng-if="rec.agreed==='D'">讨论</span>
                                         <span ng-if="rec.agreed==='A'">接受</span>
                                         <span ng-if="rec.agreed==='Y'">推荐</span>
-                                        <span ng-if="rec.agreed==='N'">屏蔽</span>
+                                        <span ng-if="rec.agreed==='N'">关闭</span>
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
@@ -78,7 +78,7 @@
                                         <li><a href ng-click="setAgreed(rec,'D')">讨论</a></li>
                                         <li><a href ng-click="setAgreed(rec,'A')">接受</a></li>
                                         <li><a href ng-click="setAgreed(rec,'Y')">推荐</a></li>
-                                        <li><a href ng-click="setAgreed(rec,'N')">屏蔽</a></li>
+                                        <li><a href ng-click="setAgreed(rec,'N')">关闭</a></li>
                                     </ul>
                                 </div>
                             </div>

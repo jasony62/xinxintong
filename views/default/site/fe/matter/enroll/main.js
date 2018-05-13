@@ -18,12 +18,11 @@ require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');
 require('../../../../../../asset/js/xxt.ui.favor.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
-require('../../../../../../asset/js/xxt.ui.url.js');
 
 require('./directive.js');
 
 /* 公共加载的模块 */
-var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'url.ui.xxt', 'directive.enroll'];
+var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'directive.enroll'];
 /* 加载指定的模块 */
 if (window.moduleAngularModules) {
     window.moduleAngularModules.forEach(function(m) {

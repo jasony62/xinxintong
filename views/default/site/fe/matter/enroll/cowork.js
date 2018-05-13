@@ -125,10 +125,8 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 }
                 http2.get(url, { autoBreak: false, autoNotice: false }).then(function(rsp) {
                     var bRequireAnchorScroll;
-                    oRecord.verbose[oSchema.id] = {
-                        value: rsp.data.verbose[oSchema.id].items
-                    };
-                    oRecord.verbose[oSchema.id].value.forEach(function(oItem) {
+                    oRecord.verbose[oSchema.id] = rsp.data.verbose[oSchema.id];
+                    oRecord.verbose[oSchema.id].items.forEach(function(oItem) {
                         if (oItem.userid !== $scope.user.uid) {
                             oItem._others = true;
                         }
@@ -380,7 +378,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             http2.get(url).then(function(rsp) {
                 var oItem;
                 oItem = rsp.data;
-                $scope.record.verbose[oSchema.id].value.push(oItem);
+                $scope.record.verbose[oSchema.id].items.push(oItem);
                 $location.hash('item-' + oItem.id);
                 $timeout(function() {
                     var elItem;
@@ -591,11 +589,14 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             url = LS.j('cowork/add', 'site');
             url += '&ek=' + $scope.record.enroll_key + '&schema=' + oSchema.id;
             http2.post(url, oNewItem).then(function(rsp) {
+                var oNewItem;
+                oNewItem = rsp.data[0];
+                oNewItem.nickname = '我';
                 if (oRecData) {
-                    oRecData.value.push(rsp.data[0]);
-                } else {
+                    oRecData.items.push(oNewItem);
+                } else if (rsp.data[1]) {
                     oRecData = $scope.record.verbose[oSchema.id] = rsp.data[1];
-                    oRecData.value = [rsp.data[0]];
+                    oRecData.items = [oNewItem];
                 }
             });
         });
@@ -603,7 +604,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
     $scope.editItem = function(oSchema, index) {
         var oRecData, oItem;
         oRecData = $scope.record.verbose[oSchema.id];
-        oItem = oRecData.value[index];
+        oItem = oRecData.items[index];
         $uibModal.open({
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -635,10 +636,10 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
     $scope.removeItem = function(oSchema, index) {
         var oRecData, oItem;
         oRecData = $scope.record.verbose[oSchema.id];
-        oItem = oRecData.value[index];
+        oItem = oRecData.items[index];
         noticebox.confirm('删除填写项，确定？').then(function() {
             http2.get(LS.j('cowork/remove', 'site') + '&data=' + oRecData.id + '&item=' + oItem.id).then(function(rsp) {
-                oRecData.value.splice(index, 1);
+                oRecData.items.splice(index, 1);
             });
         });
     };

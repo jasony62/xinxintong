@@ -3,9 +3,10 @@ require('./input.css');
 
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
+require('../../../../../../asset/js/xxt.ui.url.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
 
-window.moduleAngularModules = ['editor.ui.xxt'];
+window.moduleAngularModules = ['editor.ui.xxt', 'url.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -779,10 +780,10 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         });
     };
     $scope.pasteUrl = function(schemaId) {
-        tmsUrl.fetch($scope.data[schemaId]).then(function(result) {
+        tmsUrl.fetch($scope.data[schemaId], { description: true, text: true }).then(function(oResult) {
             var oData;
-            oData = angular.copy(result.summary);
-            oData._text = result.text;
+            oData = angular.copy(oResult.summary);
+            oData._text = oResult.text;
             $scope.data[schemaId] = oData;
         });
     };

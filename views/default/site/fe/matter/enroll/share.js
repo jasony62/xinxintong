@@ -113,7 +113,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
                 } else {
                     _oMessage.relevent += '自己';
                 }
-                _oMessage.object = '填写的回答：' + oRecData.value;
+                _oMessage.object = '的回答：' + oRecData.value;
                 _oMessage.anchor = 'item-' + LS.s().data;
                 if (_oUser.is_editor === 'Y' && oEditor && oRecData.is_editor === 'Y' && _oUser.uid !== oRecData.userid) {
                     _oOptions.canEditorAsAuthor = true;

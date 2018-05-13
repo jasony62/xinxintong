@@ -28,7 +28,7 @@ class main extends base {
 	 * @param string $page 要进入活动的哪一页，页面的名称
 	 *
 	 */
-	public function index_action($app, $rid = '', $page = '', $ignoretime = 'N') {
+	public function index_action($app, $rid = '', $page = '', $ek = null, $topic = null, $ignoretime = 'N') {
 		empty($app) && $this->outputError('登记活动ID为空');
 
 		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
@@ -54,7 +54,21 @@ class main extends base {
 
 		/* 返回登记活动页面 */
 		if (in_array($page, ['cowork', 'share', 'action', 'rank', 'score', 'repos', 'favor', 'topic'])) {
-			\TPL::assign('title', $oApp->title);
+			/* 设置页面标题 */
+			if (in_array($page, ['topic', 'share']) && !empty($topic)) {
+				$modelTop = $this->model('matter\enroll\topic');
+				$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,title']);
+				if ($oTopic && $oTopic->state === '1') {
+					$title = $oTopic->title . '|';
+				}
+			} else if (in_array($page, ['cowork', 'share']) && !empty($ek)) {
+				$modelRec = $this->model('matter\enroll\record');
+				$oRecord = $modelRec->byId($ek, ['fields' => 'id,state']);
+				if ($oRecord && $oRecord->state === '1') {
+					$title = '记录' . $oRecord->id . '|';
+				}
+			}
+			\TPL::assign('title', empty($title) ? $oApp->title : ($title . $oApp->title));
 			\TPL::output('/site/fe/matter/enroll/' . $page);
 		} else {
 			if (empty($page)) {

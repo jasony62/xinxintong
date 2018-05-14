@@ -1117,11 +1117,14 @@ class record_model extends record_base {
 				$marks = $oApp->rpConfig->marks;
 			}
 			foreach ($records as &$record) {
-				$rec = $this->byId($record->enroll_key, ['fields' => 'rid,nickname,data,enroll_at']);
-				$rec->enroll_key = $record->enroll_key;
-				$rec->like_log = empty($record->like_log) ? new \stdClass : json_decode($record->like_log);
-				$rec->like_num = $record->like_num;
-				$oResult->records[] = $rec;
+				$record->data = new \stdClass;
+				if ($oDataSchema->type === 'multitext' || $oDataSchema->type === 'file') {
+					$record->data->{$schemaId} = empty($record->value) ?  new \stdClass : json_decode($record->value);
+				} else {
+					$record->data->{$schemaId} = $record->value;
+				}
+				$record->like_log = empty($record->like_log) ? new \stdClass : json_decode($record->like_log);
+				$oResult->records[] = $record;
 			}
 		}
 
@@ -1472,12 +1475,9 @@ class record_model extends record_base {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
 			}
-		} elseif ($rid !== 'ALL') {
-			$rid = $rid;
 		}
 
 		$current = time();
-		$rid = $this->escape($rid);
 		if ($renewCache === 'Y') {
 			/* 上一次保留统计结果的时间，每条记录的时间都一样 */
 			$q = [
@@ -1496,7 +1496,7 @@ class record_model extends record_base {
 					'xxt_enroll_record',
 					"aid='$oApp->id' and state=1 and enroll_at>={$last->create_at}",
 				];
-				if ($rid !== 'ALL' && !empty($rid)) {
+				if (!empty($rid) && $rid !== 'ALL') {
 					$q[2] .= " and rid = '$rid'";
 				}
 
@@ -1591,7 +1591,7 @@ class record_model extends record_base {
 						'xxt_enroll_record_data',
 						['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oSchema->id, 'value' => $op->v],
 					];
-					if (isset($rid)) {
+					if (!empty($rid) && $rid !== 'ALL') {
 						$q[2]['rid'] = $rid;
 					}
 					$op->c = (int) $this->query_val_ss($q);
@@ -1608,8 +1608,7 @@ class record_model extends record_base {
 						'xxt_enroll_record_data',
 						"aid='$oApp->id' and state=1 and schema_id='{$oSchema->id}' and FIND_IN_SET('{$op->v}', value)",
 					];
-					if (isset($rid)) {
-						$rid = $this->escape($rid);
+					if (!empty($rid) && $rid !== 'ALL') {
 						$q[2] .= " and rid = '$rid'";
 					}
 					$op->c = (int) $this->query_val_ss($q);
@@ -1629,7 +1628,7 @@ class record_model extends record_base {
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oSchema->id],
 				];
-				if (isset($rid)) {
+				if (!empty($rid) && $rid !== 'ALL') {
 					$q[2]['rid'] = $rid;
 				}
 

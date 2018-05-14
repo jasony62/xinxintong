@@ -23,12 +23,12 @@ class url extends base {
 			return new \ParameterError('指定的URL不合规无法解析');
 		}
 		$html = file_get_contents($oPosted->url);
+		$html = $this->_iconvConvert($html);
 
 		/* 获得页面的标题 */
 		if (preg_match('/<title.*?>(.*?)<\/title>/is', $html, $aTitle)) {
 			if (count($aTitle) === 2) {
 				$title = trim($aTitle[1]);
-				$title = $this->_iconvConvert($title);
 				$oSummary->title = $title;
 			}
 		}
@@ -36,7 +36,6 @@ class url extends base {
 		if (preg_match('/<meta[^<]*?name="description".*?content="([^"]*?)">/is', $html, $aDescription)) {
 			if (count($aTitle) === 2) {
 				$description = trim($aDescription[1]);
-				$description = $this->_iconvConvert($description);
 				$oSummary->description = $aDescription[1];
 			}
 		}

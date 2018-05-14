@@ -22,8 +22,7 @@ class url extends base {
 		if (empty($aTargetUrl['host'])) {
 			return new \ParameterError('指定的URL不合规无法解析');
 		}
-		$html = file_get_contents($oPosted->url);
-		$html = $this->_iconvConvert($html);
+		$html = $this->_iconvConvert(file_get_contents($oPosted->url));
 
 		/* 获得页面的标题 */
 		if (preg_match('/<title.*?>(.*?)<\/title>/is', $html, $aTitle)) {

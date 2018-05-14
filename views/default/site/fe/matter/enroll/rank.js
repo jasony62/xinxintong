@@ -93,7 +93,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         return defer.promise;
     }
     var oApp, oAppState, oAgreedLabel;
-    oAgreedLabel = { 'Y': '推荐', 'N': '屏蔽', 'A': '' };
+    oAgreedLabel = { 'Y': '推荐', 'N': '关闭', 'A': '' };
     $scope.gotoCowork = function(ek, schemaId, id, remarkId) {
         var url = LS.j('', 'site', 'app');
         url += '&ek=' + ek;

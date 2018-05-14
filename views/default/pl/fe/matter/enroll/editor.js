@@ -36,17 +36,6 @@ define(['frame'], function(ngApp) {
             $scope.app = oApp = app;
             $scope.enrollDataSchemas = app._schemasByEnrollApp;
             $scope.groupDataSchemas = app._schemasByGroupApp;
-            $scope.aTags = app.tags;
-            if (oRecord.data_tag) {
-                for (var schemaId in oRecord.data_tag) {
-                    var dataTags = oRecord.data_tag[schemaId],
-                        converted = [];
-                    dataTags.forEach(function(tagId) {
-                        $scope.app._tagsById[tagId] && converted.push(app._tagsById[tagId]);
-                    });
-                    oRecord.data_tag[schemaId] = converted;
-                }
-            }
             if (oApp.scenario === 'quiz') {
                 oQuizScore = {};
                 _quizScore(oRecord);

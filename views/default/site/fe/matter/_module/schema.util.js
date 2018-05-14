@@ -29,7 +29,7 @@ utilSchema.checkFormat = function(oSchema, value) {
             return '题目［' + oSchema.title + '］请输入数值';
         }
     } else if (oSchema.format === 'name') {
-        if(/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+        if (/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
             return '题目［' + oSchema.title + '］请输入字母或者汉字，并不少于2个字符';
         }
         if (value.length < 2) {
@@ -180,5 +180,20 @@ utilSchema.urlSubstitute = function(oUrlData) {
     text += '<a href="' + oUrlData.url + '">网页链接</a>';
 
     return text;
+};
+utilSchema.optionsSubstitute = function(oSchema, value) {
+    var val, aVal, aLab = [];
+    if (val = value) {
+        if (oSchema.ops && oSchema.ops.length) {
+            aVal = val.split(',');
+            oSchema.ops.forEach(function(op) {
+                aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+            });
+            val = aLab.join(',');
+        }
+    } else {
+        val = '';
+    }
+    return val;
 };
 module.exports = utilSchema;

@@ -14,7 +14,6 @@ module.exports = {
         '/site/fe/matter/enroll/cowork': ['./views/default/site/fe/matter/enroll/cowork.js'],
         '/site/fe/matter/enroll/share': ['./views/default/site/fe/matter/enroll/share.js'],
         '/site/fe/matter/enroll/repos': ['./views/default/site/fe/matter/enroll/repos.js'],
-        '/site/fe/matter/enroll/repos2': ['./views/default/site/fe/matter/enroll/repos2.js'],
         '/site/fe/matter/enroll/favor': ['./views/default/site/fe/matter/enroll/favor.js'],
         '/site/fe/matter/enroll/topic': ['./views/default/site/fe/matter/enroll/topic.js'],
         '/site/fe/matter/enroll/rank': ['./views/default/site/fe/matter/enroll/rank.js'],
@@ -33,6 +32,9 @@ module.exports = {
     },
     module: {
         loaders: [{
+            test: /\.html$/,
+            loader: 'raw-loader'
+        }, {
             test: /\.css$/,
             loader: 'style-loader!css-loader'
         }, {

@@ -518,15 +518,7 @@ define(['wrap'], function(SchemaWrap) {
             $html = $('<div>' + this.html + '</div>');
             $wrap = $html.find("[schema='" + oSchema.id + "']");
             $wrap.find('label').html(oSchema.title);
-
-            if (oSchema.cantag === 'Y') {
-                $tags = $wrap.find('.tags');
-                if ($tags.length === 0) {
-                    $wrap.append('<p class="tags"><span ne-repeat="r in Record.current"><span class="tag" ng-repeat="t in r.tag.' + oSchema.id + '" ng-bind="t.label"></span></span></p>');
-                }
-            } else {
-                $wrap.find('.tags').remove();
-            }
+            $wrap.find('.tags').remove(); // 处理老版本的数据
             if (oSchema.supplement === 'Y') {
                 $supplement = $wrap.find('.supplement');
                 if ($supplement.length === 0) {

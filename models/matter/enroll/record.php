@@ -142,68 +142,6 @@ class record_model extends record_base {
 	 * @param object $oUser [uid]
 	 * @param object $oApp
 	 * @param string $ek
-	 * @param array $submitTag 用户提交的填写项标签
-	 */
-	public function setTag($oUser, $oApp, $ek, $submitTag) {
-		$wholeTags = new \stdClass;
-		/*record data*/
-		foreach ($submitTag as $schemaId => $tags) {
-			/*题目中对应的标签*/
-			$tagOlds = [];
-			$q = [
-				'id,tag',
-				'xxt_enroll_record_data',
-				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1, 'multitext_seq' => 0],
-			];
-			if ($recordData = $this->query_obj_ss($q)) {
-				!empty($recordData->tag) && $tagOlds = json_decode($recordData->tag);
-			}
-
-			/* 保证以字符串的格式存储标签id，便于以后检索 */
-			$jsonTags = [];
-			$tagAdd = []; //对比上一次新增的标签
-			foreach ($tags as $oTag) {
-				if (($key = array_search($oTag->id, $tagOlds)) === false) {
-					$tagAdd[] = $oTag->id;
-				} else {
-					/*如果有剩余的标签说明是对比上一次本次不使用的标签，其使用数量应该减 1*/
-					unset($tagOlds[$key]);
-				}
-
-				$jsonTags[] = (string) $oTag->id;
-			}
-			if (!empty($tagAdd)) {
-				$updateAddWhere = "(" . implode(',', $tagAdd) . ")";
-				$this->update("update xxt_enroll_record_tag set use_num = use_num +1 where id in $updateAddWhere");
-			}
-			if (!empty($tagOlds)) {
-				$updateDelWhere = "(" . implode(',', $tagOlds) . ")";
-				$this->update("update xxt_enroll_record_tag set use_num = use_num -1 where id in $updateDelWhere");
-			}
-
-			$wholeTags->{$schemaId} = $jsonTags;
-			$jsonTags = json_encode($jsonTags);
-			$rst = $this->update(
-				'xxt_enroll_record_data',
-				['tag' => $this->escape($jsonTags)],
-				['id' => $recordData->id]
-			);
-		}
-
-		$rst = $this->update(
-			'xxt_enroll_record',
-			['data_tag' => $this->escape(json_encode($wholeTags))],
-			['enroll_key' => $ek, 'state' => 1]
-		);
-
-		return $rst;
-	}
-	/**
-	 * 保存登记的数据
-	 *
-	 * @param object $oUser [uid]
-	 * @param object $oApp
-	 * @param string $ek
 	 * @param array $submitSupp 用户提交的补充说明
 	 */
 	public function setSupplement($oUser, $oApp, $ek, $submitSupp) {
@@ -231,9 +169,6 @@ class record_model extends record_base {
 	private function _processRecord(&$oRecord, $fields, $verbose = 'Y') {
 		if (property_exists($oRecord, 'data')) {
 			$oRecord->data = empty($oRecord->data) ? new \stdClass : json_decode($oRecord->data);
-		}
-		if (property_exists($oRecord, 'data_tag')) {
-			$oRecord->data_tag = empty($oRecord->data_tag) ? new \stdClass : json_decode($oRecord->data_tag);
 		}
 		if ($fields === '*' || false !== strpos($fields, 'supplement')) {
 			$oRecord->supplement = empty($oRecord->supplement) ? new \stdClass : json_decode($oRecord->supplement);
@@ -806,9 +741,6 @@ class record_model extends record_base {
 			if (property_exists($oRec, 'like_log')) {
 				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
 			}
-			//if (property_exists($oRec, 'data_tag')) {
-			//	$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
-			//}
 			//测验场景或数值填空题共用score字段
 			if (isset($oApp->scenario)) {
 				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($oRec->score)) {
@@ -1477,11 +1409,6 @@ class record_model extends record_base {
 				'user_total_coin' => 0,
 			],
 			['aid' => $oApp->id]
-		);
-		$this->update(
-			'xxt_enroll_record_tag',
-			['state' => 0],
-			['aid' => $oApp->id, 'state' => 1]
 		);
 		$this->update(
 			'xxt_enroll_record_remark',

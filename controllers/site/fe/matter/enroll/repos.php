@@ -235,7 +235,7 @@ class repos extends base {
 	/**
 	 * 返回指定活动的登记记录的共享内容
 	 */
-	public function recordList_action($app, $page = 1, $size = 12, $role = null, $withTag = null) {
+	public function recordList_action($app, $page = 1, $size = 12, $role = null) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -262,21 +262,17 @@ class repos extends base {
 			}
 		}
 		/* 留言显示在共享页所需点赞数量 */
+		$remarkReposAgreed = 'Y';
 		$remarkReposLikeNum = 0;
 		if (isset($oActionRule->remark->repos->pre)) {
 			$oRule = $oActionRule->remark->repos->pre;
 			if (!empty($oRule->remark->likeNum)) {
 				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
 			}
-		}
-		/* 是否需要显示标签 */
-		$bRequirePublicTag = false;
-		if (empty($withTag)) {
-			if (!empty($oActionRule->tag->public->pre->editor) || !empty($oActionRule->tag->public->pre->assign_num)) {
-				$bRequirePublicTag = true;
+			if (!empty($oRule->remark->agreed)) {
+				$remarkReposAgreed = $oRule->remark->agreed;
 			}
 		}
-
 		// 登记数据过滤条件
 		$oPosted = $this->getPostJson();
 		// 登记记录过滤条件
@@ -437,21 +433,15 @@ class repos extends base {
 					$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
 					if ($modelRec->query_obj_ss($q)) {
 						$oRecord->favored = true;
-						/* 关联标签数据 */
-						if (!empty($withTag) && $withTag === 'user') {
-							$tags = $modelTag->byRecord($oRecord, $oUser);
-							if (!empty($tags)) {
-								$oRecord->tags = $tags;
-							}
-						}
 					}
 				}
-				/* 公共标签 */
-				if ($bRequirePublicTag) {
-					$tags = $modelTag->byRecord($oRecord);
-					if (!empty($tags)) {
-						$oRecord->tags = $tags;
-					}
+				/* 记录的标签 */
+				$oRecordTags = $modelTag->byRecord($oRecord, $oUser, ['UserAndPublic' => empty($oPosted->favored)]);
+				if (!empty($oRecordTags->user)) {
+					$oRecord->userTags = $oRecordTags->user;
+				}
+				if (!empty($oRecordTags->public)) {
+					$oRecord->tag = $oRecordTags->public;
 				}
 				/* 隐藏昵称 */
 				if ($bAnonymous) {
@@ -483,9 +473,9 @@ class repos extends base {
 					"enroll_key='{$oRecord->enroll_key}' and state=1",
 				];
 				if ($remarkReposLikeNum) {
-					$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";
+					$q[2] .= " and (agreed='{$remarkReposAgreed}' or like_num>={$remarkReposLikeNum})";
 				} else {
-					$q[2] .= " and agreed='Y'";
+					$q[2] .= " and agreed='{$remarkReposAgreed}'";
 				}
 				$q2 = [
 					'o' => 'agreed desc,like_num desc,create_at desc',
@@ -735,10 +725,23 @@ class repos extends base {
 			}
 		}
 
-		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,data_tag,score,like_num,like_log,remark_num,rec_remark_num,agreed,data';
-		$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
+		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,score,like_num,like_log,remark_num,rec_remark_num,favor_num,agreed,data';
+		$oRecord = $modelRec->byId($ek, ['fields' => $fields]);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
+		}
+		if (!empty($oUser->unionid) && $oRecord->favor_num > 0) {
+			$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
+			if ($modelRec->query_obj_ss($q)) {
+				$oRecord->favored = true;
+			}
+		}
+
+		/* 记录的标签 */
+		$modelTag = $this->model('matter\enroll\tag2');
+		$oRecordTags = $modelTag->byRecord($oRecord, $oUser);
+		if (!empty($oRecordTags->user)) {
+			$oRecord->userTags = $oRecordTags->user;
 		}
 
 		/* 是否限制了匿名规则 */
@@ -764,7 +767,7 @@ class repos extends base {
 			}
 		}
 
-		if (isset($oRecord->verbose)) {
+		if (isset($oRecord->data)) {
 			$fnCheckSchemaVisibility = function ($oSchema, $oRecordData) {
 				if (!empty($oSchema->visibility->rules)) {
 					foreach ($oSchema->visibility->rules as $oRule) {
@@ -787,22 +790,19 @@ class repos extends base {
 					$oShareableSchemas->{$oSchema->id} = $oSchema;
 				}
 			}
-			foreach ($oRecord->verbose as $schemaId => $value) {
+			/* 避免因为清除数据导致影响数据的可见关系 */
+			$oFullRecData = clone $oRecord->data;
+			foreach ($oRecord->data as $schemaId => $value) {
 				/* 清除空值 */
 				if (!isset($oShareableSchemas->{$schemaId})) {
-					unset($oRecord->verbose->{$schemaId});
+					unset($oRecord->data->{$schemaId});
 					continue;
 				}
 				/* 清除不可见的题 */
 				$oSchema = $oShareableSchemas->{$schemaId};
-				if (!$fnCheckSchemaVisibility($oSchema, $oRecord->data)) {
-					unset($oRecord->verbose->{$schemaId});
+				if (!$fnCheckSchemaVisibility($oSchema, $oFullRecData)) {
+					unset($oRecord->data->{$schemaId});
 					continue;
-				}
-				if ($oShareableSchemas->{$schemaId}->type === 'multitext') {
-					if (!empty($oRecord->verbose->{$schemaId}->value)) {
-						$oRecord->verbose->{$schemaId}->value = json_decode($oRecord->verbose->{$schemaId}->value);
-					}
 				}
 			}
 		}

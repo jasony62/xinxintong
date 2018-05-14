@@ -790,6 +790,8 @@ class repos extends base {
 					$oShareableSchemas->{$oSchema->id} = $oSchema;
 				}
 			}
+			/* 避免因为清除数据导致影响数据的可见关系 */
+			$oFullRecData = clone $oRecord->data;
 			foreach ($oRecord->data as $schemaId => $value) {
 				/* 清除空值 */
 				if (!isset($oShareableSchemas->{$schemaId})) {
@@ -798,7 +800,7 @@ class repos extends base {
 				}
 				/* 清除不可见的题 */
 				$oSchema = $oShareableSchemas->{$schemaId};
-				if (!$fnCheckSchemaVisibility($oSchema, $oRecord->data)) {
+				if (!$fnCheckSchemaVisibility($oSchema, $oFullRecData)) {
 					unset($oRecord->data->{$schemaId});
 					continue;
 				}

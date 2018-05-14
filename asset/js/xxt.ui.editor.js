@@ -1,6 +1,18 @@
 'use strict';
-var ngMod = angular.module('editor.ui.xxt', ['ui.bootstrap']);
-ngMod.controller('tmsEditorController', ['$scope', function($scope) {
+
+require('./xxt.ui.url.js');
+
+var ngMod = angular.module('editor.ui.xxt', ['ui.bootstrap', 'url.ui.xxt']);
+ngMod.controller('tmsEditorController', ['$scope', 'tmsUrl', function($scope, tmsUrl) {
+    /* 插入链接 */
+    $scope.insertLink = function() {
+        tmsUrl.fetch().then(function(oResult) {
+            var oUrl;
+            if (oUrl = oResult.summary) {
+                $scope.iframeDoc.execCommand('insertHTML', false, '<a href="' + oUrl.url + '" target="_blank">' + (oUrl.title || '链接') + '</a>');
+            }
+        });
+    };
     /* 开启关闭设置样式 */
     $scope.toggleDesignMode = function() {
         $scope.designMode = !$scope.designMode;
@@ -86,31 +98,7 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
         scope: { id: '@', content: '=', cmds: '=' },
         replace: true,
         controller: 'tmsEditorController',
-        template: function(element, attrs) {
-            var t;
-            t = '<div class="tms-editor">';
-            t += '<div><iframe src="javascript:void(0);" onload="this.height=this.parentElement.offsetHeight-2"></iframe></div>';
-            t += '<div class="btn-toolbar">';
-            t += '<div class="btn-group">';
-            //t += '<button class="btn btn-default btn-sm" command="remove">X</button>';
-            if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-                t += '<button class="btn btn-default" ng-click="toggleDesignMode()"><span ng-if="!designMode">设置样式</span><span ng-if="designMode" class="glyphicon glyphicon-menu-left"></span></button>';
-            }
-            t += '<button ng-if="designMode" class="btn btn-default" command="bold"><span style="font-weight:blod;">B</span></button>';
-            t += '<button ng-if="designMode" class="btn btn-default" command="italic"><i>I</i></button>';
-            t += '<button ng-if="designMode" class="btn btn-default" command="underline"><span style="text-decoration:underline;">U</span></button>';
-            t += '<button ng-if="designMode" class="btn btn-default" command="BackColor"><i class="glyphicon glyphicon-text-background"></i></button>';
-            t += '</div>'; // end style
-            t += '<div class="btn-group">';
-            t += '<button class="btn btn-default" action="InsertImage"><i class="glyphicon glyphicon-picture"></i></button>';
-            t += '</div>'; // end image
-            t += '<div class="btn-group">';
-            t += '<button class="btn btn-default" command="undo"><i class="glyphicon glyphicon-backward"></i></button>';
-            t += '</div>'; // end other
-            t += '</div>'; // end toolbar
-            t += '</div>';
-            return t;
-        },
+        template: require('../html/ui-editor.html'),
         link: function($scope, elem, attrs) {
             var iframeHTML, iframeNode;
             /* 初始化 */
@@ -137,11 +125,8 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
             _iframeDoc.querySelector('body').onload = function() {
                 _divContent.contentEditable = true;
             };
-            if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-                $scope.designMode = false;
-            } else {
-                $scope.designMode = true;
-            }
+            $scope.mobileAgent = /Android|iPhone|iPad/i.test(navigator.userAgent);
+            $scope.designMode = !$scope.mobileAgent;
             /* 触屏事件处理 */
             var oTouchTracks = {};
             _iframeDoc.oncontextmenu = function(e) {

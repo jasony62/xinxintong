@@ -1,9 +1,9 @@
 <?php
 require_once '../../db.php';
-
-$sqls = array();
 //
-$sqls[] = "ALTER TABLE xxt_enroll_user add score float default 0 COMMENT '得分'";
+$sqls[] = "ALTER TABLE xxt_enroll drop repos_unit";
+$sqls[] = "ALTER TABLE xxt_enroll_record drop data_tag";
+$sqls[] = "DROP TABLE xxt_enroll_record_tag";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

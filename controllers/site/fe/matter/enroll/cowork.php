@@ -13,49 +13,32 @@ class cowork extends base {
 	 *
 	 * @param int $data 填写记录数据id
 	 */
-	public function add_action($data, $ek = '', $schema = '') {
+	public function add_action($ek, $schema = '') {
 		$modelData = $this->model('matter\enroll\data')->setOnlyWriteDbConn(true);
 		$modelRec = $this->model('matter\enroll\record');
-		if (empty($data)) {
-			/* 要更新的记录 */
-			$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,nickname,group_id,like_num,agreed']);
-			if (false === $oRecord || $oRecord->state !== '1') {
-				return new \ObjectNotFoundError();
-			}
-			$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schema, 'fields' => '*']);
-			if ($oRecData) {
-				$oRecData->value = empty($oRecData->value) ? [] : json_decode($oRecData->value);
-			} else {
-				/* 补充创建新的题目数据 */
-				$oRecData = new \stdClass;
-				$oRecData->aid = $oRecord->aid;
-				$oRecData->rid = $oRecord->rid;
-				$oRecData->enroll_key = $oRecord->enroll_key;
-				$oRecData->submit_at = time();
-				$oRecData->userid = $oRecord->userid;
-				$oRecData->nickname = $oRecord->nickname;
-				$oRecData->group_id = $oRecord->group_id;
-				$oRecData->schema_id = $schema;
-				$oRecData->multitext_seq = 0;
-				$oRecData->value = '[]';
-				$oRecData->id = $modelData->insert('xxt_enroll_record_data', $oRecData, true);
-				$oRecData->value = [];
-			}
-		} else {
-			/* 要更新的题目 */
-			$oRecData = $modelData->byId($data, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,schema_id,multitext_seq,value']);
-			if (false === $oRecData || $oRecData->state !== '1') {
-				return new \ObjectNotFoundError();
-			}
-			/* 要更新的记录 */
-			$oRecord = $modelRec->byId($oRecData->enroll_key, ['fields' => 'id,state,data,like_num,agreed']);
-			if (false === $oRecord || $oRecord->state !== '1') {
-				return new \ObjectNotFoundError();
-			}
-			if ($oRecData->multitext_seq !== '0') {
-				return new \ParameterError();
-			}
+		/* 要更新的记录 */
+		$oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,nickname,group_id,like_num,agreed']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schema, 'fields' => '*']);
+		if ($oRecData) {
 			$oRecData->value = empty($oRecData->value) ? [] : json_decode($oRecData->value);
+		} else {
+			/* 补充创建新的题目数据 */
+			$oRecData = new \stdClass;
+			$oRecData->aid = $oRecord->aid;
+			$oRecData->rid = $oRecord->rid;
+			$oRecData->enroll_key = $oRecord->enroll_key;
+			$oRecData->submit_at = time();
+			$oRecData->userid = $oRecord->userid;
+			$oRecData->nickname = $oRecord->nickname;
+			$oRecData->group_id = $oRecord->group_id;
+			$oRecData->schema_id = $schema;
+			$oRecData->multitext_seq = 0;
+			$oRecData->value = '[]';
+			$oRecData->id = $modelData->insert('xxt_enroll_record_data', $oRecData, true);
+			$oRecData->value = [];
 		}
 
 		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N']);

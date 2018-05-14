@@ -157,7 +157,6 @@ class main extends \site\fe\matter\base {
 				unset($oMatter->pages);
 				unset($oMatter->create_at);
 				unset($oMatter->creater_name);
-				unset($oMatter->dataTags);
 				unset($oMatter->opUrl);
 				unset($oMatter->op_short_url_code);
 				unset($oMatter->rpUrl);

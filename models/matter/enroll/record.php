@@ -1027,7 +1027,6 @@ class record_model extends record_base {
 	 *
 	 */
 	public function list4Schema(&$oApp, $schemaId, $options = null) {
-		$schemaId = $this->escape($schemaId);
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if ($oSchema->id === $schemaId) {
 				$oDataSchema = $oSchema;
@@ -1055,26 +1054,26 @@ class record_model extends record_base {
 
 		// 查询参数
 		$q = [
-			'enroll_key,value,like_log,like_num',
-			"xxt_enroll_record_data",
-			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>'' and multitext_seq = 0",
+			'd.enroll_key,d.value,d.like_log,d.like_num,r.nickname,r.rid,r.enroll_at',
+			"xxt_enroll_record_data d,xxt_enroll_record r",
+			"d.state=1 and d.aid='{$oApp->id}' and d.schema_id='{$schemaId}' and d.value<>'' and d.multitext_seq = 0 and r.aid = d.aid and r.enroll_key = d.enroll_key",
 		];
 		if ($oDataSchema->type === 'date') {
 
 		}
 		/* 指定用户 */
 		if (!empty($options->owner)) {
-			$q[2] .= " and userid='" . $options->owner . "'";
+			$q[2] .= " and d.userid='" . $options->owner . "'";
 		}
 		/* 指定登记轮次 */
 		if (!empty($rid)) {
 			if ($rid !== 'ALL') {
-				$q[2] .= " and rid='{$rid}'";
+				$q[2] .= " and d.rid='{$rid}'";
 			}
 		} else {
 			/* 没有指定轮次，就使用当前轮次 */
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$q[2] .= " and rid='{$activeRound->rid}'";
+				$q[2] .= " and d.rid='{$activeRound->rid}'";
 			}
 		}
 
@@ -1118,7 +1117,7 @@ class record_model extends record_base {
 			}
 			foreach ($records as &$record) {
 				$record->data = new \stdClass;
-				if ($oDataSchema->type === 'multitext' || $oDataSchema->type === 'file') {
+				if (in_array($oDataSchema->type, ['multitext', 'file']) || $schemaId === 'member') {
 					$record->data->{$schemaId} = empty($record->value) ?  new \stdClass : json_decode($record->value);
 				} else {
 					$record->data->{$schemaId} = $record->value;

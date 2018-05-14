@@ -174,11 +174,6 @@ class remark extends base {
 		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		/* 操作规则 */
-		$oEntryRuleResult = $this->checkEntryRule2($oApp);
-		if (isset($oEntryRuleResult->passed) && $oEntryRuleResult->passed === 'N') {
-			return new \ComplianceError('用户身份不符合进入规则，无法发表留言');
-		}
 
 		$oPosted = $this->getPostJson();
 		if (empty($oPosted->content)) {
@@ -225,14 +220,21 @@ class remark extends base {
 			$oNewRemark->seq_in_data = $seq + 1;
 		}
 		/* 默认表态 */
-		if (isset($oApp->actionRule->remark->default->agreed)) {
-			$agreed = $oApp->actionRule->remark->default->agreed;
-			if (in_array($agreed, ['A', 'D'])) {
-				$oNewRemark->agreed = $agreed;
-			}
-		} else if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
-			/* 如果记录是讨论状态，留言也是讨论状态 */
+		$oEntryRuleResult = $this->checkEntryRule2($oApp);
+		if (isset($oEntryRuleResult->passed) && $oEntryRuleResult->passed === 'N') {
+			/* 如果当前用户不满足进入活动规则，留言设置为讨论状态 */
 			$oNewRemark->agreed = 'D';
+		} else {
+			if (isset($oApp->actionRule->remark->default->agreed)) {
+				/* 活动设置的默认规则 */
+				$agreed = $oApp->actionRule->remark->default->agreed;
+				if (in_array($agreed, ['A', 'D'])) {
+					$oNewRemark->agreed = $agreed;
+				}
+			} else if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
+				/* 如果记录是讨论状态，留言也是讨论状态 */
+				$oNewRemark->agreed = 'D';
+			}
 		}
 
 		$oNewRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oNewRemark, true);

@@ -219,11 +219,7 @@
                         </div>
                     </div>
                     <div class='remark'>
-                        <div ng-if="params.entryRuleResult.passed==='N'" ng-switch on="params.entryRuleResult.scope">
-                            <div class='alert alert-info' ng-switch-when="sns">需要<a href='' class='alert-link' ng-click="askFollowSns()">关注公众号</a>后才能发表留言</div>
-                            <div class='alert alert-info' ng-switch-when="member">需要<a href='' class='alert-link' ng-click="askBecomeMember()">填写联系人信息</a>后才能发表留言</div>
-                        </div>
-                        <div class='text-center' ng-if="params.entryRuleResult.passed==='Y'">
+                        <div class='text-center'>
                             <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-plus'></span> 添加留言</button>
                         </div>
                     </div>

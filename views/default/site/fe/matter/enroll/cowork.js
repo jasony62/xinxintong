@@ -545,7 +545,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         $scope.schemasById = oSchemasById;
         $scope.visibleSchemas = aVisibleSchemas;
         $scope.coworkSchemas = aCoworkSchemas;
-        /* 讨论整条记录 */
         fnLoadRecord(aCoworkSchemas).then(function(oRecord) {
             fnAfterLoad(oRecord, _oUser);
         });

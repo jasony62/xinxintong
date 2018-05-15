@@ -399,7 +399,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             templateUrl: 'writeRemark.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.data = {
-                    content: '编写留言...'
+                    content: ''
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
@@ -565,7 +565,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.data = {
-                    content: '编写答案...'
+                    content: ''
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
@@ -667,7 +667,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.remarks = itemRemarks;
                 $scope2.data = {
-                    content: '编写留言...'
+                    content: ''
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {

@@ -365,7 +365,11 @@ class stat extends \pl\fe\matter\base {
 							if ($schema->type === 'multitext' && is_array($record->data->$schemaId)) {
 								$mulVals = [];
 								foreach ($record->data->$schemaId as $mv) {
-									$mulVals[] = $mv->value;
+									$value = $mv->value;
+									$value = str_replace(['<br>', '</br>', '<div>', '</div>'], ["  ", "", "  ", ""], $value);
+									$value = strip_tags($value);
+									$value = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $value);
+									$mulVals[] = $value;
 								}
 								$record->data->$schemaId = implode(',', $mulVals);
 							}

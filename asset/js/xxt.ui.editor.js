@@ -105,10 +105,10 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
             iframeHTML = '<!DOCTYPE html><html><head>';
             iframeHTML += '<meta charset="utf-8"></head>';
             iframeHTML += '<style>';
-            iframeHTML += 'html,body,body>div{width:100%;height:100%;}body{font-size:16px;margin:0}.tms-editor-content img{max-width:100%;}';
+            iframeHTML += 'html,body,body>div{width:100%;height:100%;}body{font-size:16px;margin:0}.tms-editor-content:empty::before{color:lightgrey;content:attr(placeholder);}.tms-editor-content img{max-width:100%;}';
             iframeHTML += '</style>';
             iframeHTML += '<body>';
-            iframeHTML += '<div class="tms-editor-content" contentEditable="true">' + $scope.content + '</div>';
+            iframeHTML += '<div class="tms-editor-content " contentEditable="true" placeholder="添加内容...">' + $scope.content + '</div>';
             iframeHTML += '</body></html>';
             iframeNode = document.querySelector('#' + $scope.id + ' iframe');
             if (iframeNode.contentDocument) {

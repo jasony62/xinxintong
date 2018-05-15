@@ -12,7 +12,7 @@ class topic extends base {
 	public function get_action($topic) {
 		$oUser = $this->who;
 		if (empty($oUser->unionid)) {
-			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
+			return new \ResponseError('');
 		}
 
 		$modelTop = $this->model('matter\enroll\topic');

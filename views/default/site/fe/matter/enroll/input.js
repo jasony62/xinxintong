@@ -85,12 +85,25 @@ ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $
     }
 }]);
 ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
-    var aModifiedImgFields;
+    var aModifiedImgFields, pasteContains, createHiddenEditable;
     aModifiedImgFields = [];
+    pasteContains = document.querySelectorAll('.img-edit button'); 
+    for(var i=0; i<pasteContains.length; i++) {
+        createHiddenEditable = function() {
+            return $(document.createElement('div')).attr('contenteditable', true).attr('tabindex', -1).css({
+                  width: 1,
+                  height: 1,
+                  position: 'fixed',
+                  left: -100,
+                  overflow: 'hidden'
+            });
+        };
+        createHiddenEditable().appendTo(pasteContains[i]);
+    }
     return {
         restrict: 'A',
         controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
-            $scope.chooseImage = function(schemaId, count, from) {
+            function imgCount(schemaId, count, from) {
                 if (schemaId !== null) {
                     aModifiedImgFields.indexOf(schemaId) === -1 && aModifiedImgFields.push(schemaId);
                     $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
@@ -99,29 +112,43 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                         return;
                     }
                 }
-                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
-                    var phase;
-                    phase = $scope.$root.$$phase;
-                    if (phase === '$digest' || phase === '$apply') {
+            }
+            function imgBind(schemaId, imgs) {
+                var phase;
+                phase = $scope.$root.$$phase;
+                if (phase === '$digest' || phase === '$apply') {
+                    $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
+                } else {
+                    $scope.$apply(function() {
                         $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
-                    } else {
-                        $scope.$apply(function() {
-                            $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
-                        });
-                    }
-                    $timeout(function() {
-                        var i, j, img, eleImg;
-                        for (i = 0, j = imgs.length; i < j; i++) {
-                            img = imgs[i];
-                            eleImg = document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(2) img');
-                            if (eleImg) {
-                                eleImg.setAttribute('src', img.imgSrc);
-                            }
-                        }
-                        $scope.$broadcast('xxt.enroll.image.choose.done', schemaId);
                     });
+                }
+                $timeout(function() {
+                    var i, j, img, eleImg;
+                    for (i = 0, j = imgs.length; i < j; i++) {
+                        img = imgs[i];
+                        eleImg = document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(3) img');
+                        if (eleImg) {
+                            eleImg.setAttribute('src', img.imgSrc);
+                        }
+                    }
+                    $scope.$broadcast('xxt.enroll.image.choose.done', schemaId);
+                });
+            }
+            $scope.chooseImage = function(schemaId, count, from) {
+                imgCount(schemaId, count, from);
+                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
+                    imgBind(schemaId, imgs);
                 });
             };
+            $scope.pasteImage = function(schemaId, event, count, from) {
+                imgCount(schemaId, count, from);
+                var targetDiv;
+                targetDiv = event.currentTarget.children[event.currentTarget.children.length - 1];
+                window.xxt.image.paste($(targetDiv), $q.defer(), from).then(function(imgs) {
+                    imgBind(schemaId, imgs);
+                }); 
+            }; 
             $scope.removeImage = function(imgField, index) {
                 imgField.splice(index, 1);
             };
@@ -708,7 +735,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.data = {
-                    content: '添加内容...'
+                    content: ''
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
@@ -789,7 +816,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     };
     $scope.editSupplement = function(schemaId) {
         var str = $scope.supplement[schemaId];
-        if (!str) { str = '请填写补充说明'; }
+        if (!str) { str = ''; }
         $uibModal.open({
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {

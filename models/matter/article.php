@@ -64,7 +64,7 @@ class article_model extends article_base {
 				if (empty($oMatter->download_rule)) {
 					$oMatter->downloadRule = $oMatter->download_rule = new \stdClass;
 				} else {
-					$oMatter->downloadRule = $oMatter->download_rule = json_decode($oMatter->entry_rule);
+					$oMatter->downloadRule = $oMatter->download_rule = json_decode($oMatter->download_rule);
 				}
 			}
 		}

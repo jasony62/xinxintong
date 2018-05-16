@@ -140,7 +140,7 @@ class main extends \site\fe\matter\base {
 		 */
 		$modelArticle = $this->model('matter\article');
 		$oArticle = $modelArticle->byId($articleid);
-		$this->checkDownRule($oArticle, true);
+		$this->checkDownloadRule($oArticle, true);
 		/**
 		 * 获取附件
 		 */
@@ -197,17 +197,17 @@ class main extends \site\fe\matter\base {
 	 * @param boolean $redirect
 	 *
 	 */
-	private function checkDownRule($oApp, $bRedirect = false) {
-		if (!isset($oApp->entryRule->scope)) {
+	private function checkDownloadRule($oApp, $bRedirect = false) {
+		if (!isset($oApp->downloadRule->scope)) {
 			return [true];
 		}
 		$oUser = $this->who;
-		$oDownRule = $oApp->downloadRule;
-		$oScope = $oDownRule->scope;
+		$oDownloadRule = $oApp->downloadRule;
+		$oScope = $oDownloadRule->scope;
 
 		if (isset($oScope->member) && $oScope->member === 'Y') {
-			if (empty($oDownRule->optional->member) || $oDownRule->optional->member !== 'Y') {
-				if (!isset($oDownRule->member)) {
+			if (empty($oDownloadRule->optional->member) || $oDownloadRule->optional->member !== 'Y') {
+				if (!isset($oDownloadRule->member)) {
 					$msg = '需要填写通讯录信息，请联系活动的组织者解决。';
 					if (true === $bRedirect) {
 						$this->outputInfo($msg);
@@ -215,7 +215,7 @@ class main extends \site\fe\matter\base {
 						return [false, $msg];
 					}
 				}
-				$aResult = $this->enterAsMember($oApp);
+				$aResult = $this->enterAsMember2($oApp);
 				/**
 				 * 限通讯录用户访问
 				 * 如果指定的任何一个通讯录要求用户关注公众号，但是用户还没有关注，那么就要求用户先关注公众号，再填写通讯录
@@ -224,14 +224,14 @@ class main extends \site\fe\matter\base {
 					if (true === $bRedirect) {
 						$aMemberSchemaIds = [];
 						$modelMs = $this->model('site\user\memberschema');
-						foreach ($oDownRule->member as $mschemaId => $oRule) {
+						foreach ($oDownloadRule->member as $mschemaId => $oRule) {
 							$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
 							if ($oMschema) {
 								if ($oMschema->is_wx_fan === 'Y') {
 									$oApp2 = clone $oApp;
-									$oApp2->entryRule = new \stdClass;
-									$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
-									$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
+									$oApp2->downloadRule = new \stdClass;
+									$oApp2->downloadRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
+									$aResult = $this->checkSnsEntryRule2($oApp2, $bRedirect);
 									if (false === $aResult[0]) {
 										return $aResult;
 									}
@@ -248,23 +248,23 @@ class main extends \site\fe\matter\base {
 			}
 		}
 		if (isset($oScope->sns) && $oScope->sns === 'Y') {
-			$aResult = $this->checkSnsEntryRule($oApp, $bRedirect);
+			$aResult = $this->checkSnsEntryRule2($oApp, $bRedirect);
 			if (false === $aResult[0]) {
 				return $aResult;
 			}
 		}
 		if (isset($oScope->group) && $oScope->group === 'Y') {
-			if (empty($oDownRule->optional->group) || $oDownRule->optional->group !== 'Y') {
+			if (empty($oDownloadRule->optional->group) || $oDownloadRule->optional->group !== 'Y') {
 				$bMatched = false;
 				/* 限分组用户访问 */
-				if (isset($oDownRule->group->id)) {
-					$oGroupApp = $this->model('matter\group')->byId($oDownRule->group->id, ['fields' => 'id,state,title']);
+				if (isset($oDownloadRule->group->id)) {
+					$oGroupApp = $this->model('matter\group')->byId($oDownloadRule->group->id, ['fields' => 'id,state,title']);
 					if ($oGroupApp && $oGroupApp->state === '1') {
 						$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
 						if (count($oGroupUsr)) {
 							$oGroupUsr = $oGroupUsr[0];
-							if (isset($oDownRule->group->round->id)) {
-								if ($oGroupUsr->round_id === $oDownRule->group->round->id) {
+							if (isset($oDownloadRule->group->round->id)) {
+								if ($oGroupUsr->round_id === $oDownloadRule->group->round->id) {
 									$bMatched = true;
 								}
 							} else {
@@ -281,6 +281,184 @@ class main extends \site\fe\matter\base {
 						return [false, $msg];
 					}
 				}
+			}
+		}
+
+		return [true];
+	}
+	/*
+	 *
+	 */
+	private function enterAsMember2($oApp) {
+		if (!isset($oApp->downloadRule->member)) {
+			return [false];
+		}
+
+		$oDownloadRule = $oApp->downloadRule;
+		$oUser = $this->who;
+		$bMatched = false;
+		$bMatchedRule = null;
+
+		/* 检查用户是否已经关注公众号 */
+		$fnCheckSnsFollow = function ($mschemaId, $oOriginalMatter) {
+			$bPassed = true;
+			$modelMs = $this->model('site\user\memberschema');
+			$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+			if ($oMschema->is_wx_fan === 'Y') {
+				$oApp2 = clone $oOriginalMatter;
+				$oApp2->downloadRule = new \stdClass;
+				$oApp2->downloadRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
+				$aResult = $this->enterAsSns2($oApp2);
+				if (false === $aResult[0]) {
+					$bPassed = false;
+				}
+			}
+
+			return $bPassed;
+		};
+
+		foreach ($oDownloadRule->member as $schemaId => $rule) {
+			/* 检查用户的信息是否完整，是否已经通过审核 */
+			$modelMem = $this->model('site\user\member');
+			$modelAcnt = $this->model('site\user\account');
+			if (empty($oUser->unionid)) {
+				$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => 'unionid']);
+				if ($oSiteUser && !empty($oSiteUser->unionid)) {
+					$unionid = $oSiteUser->unionid;
+				}
+			} else {
+				$unionid = $oUser->unionid;
+			}
+			if (empty($unionid)) {
+				$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
+				if (count($aMembers) === 1) {
+					$oMember = $aMembers[0];
+					if ($oMember->verified === 'Y') {
+						if ($fnCheckSnsFollow($schemaId, $oApp)) {
+							$bMatched = true;
+							$bMatchedRule = $rule;
+							break;
+						}
+					}
+				}
+			} else {
+				$aUnionUsers = $modelAcnt->byUnionid($unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+				foreach ($aUnionUsers as $oUnionUser) {
+					$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+					if (count($aMembers) === 1) {
+						$oMember = $aMembers[0];
+						if ($oMember->verified === 'Y') {
+							if ($fnCheckSnsFollow($schemaId, $oApp)) {
+								$bMatched = true;
+								$bMatchedRule = $rule;
+								break;
+							}
+						}
+					}
+				}
+				if ($bMatched) {
+					break;
+				}
+			}
+		}
+
+		return [$bMatched, $bMatchedRule];
+	}
+	/**
+	 * 限社交网站用户参与
+	 */
+	private function enterAsSns2($oMatter) {
+		$oDownloadRule = $oMatter->downloadRule;
+		$oUser = $this->who;
+		$bFollowed = false;
+		$oFollowedRule = null;
+
+		/* 检查用户是否已经关注公众号 */
+		$fnCheckSnsFollow = function ($snsName, $matterSiteId, $openid) {
+			if ($snsName === 'wx') {
+				$modelWx = $this->model('sns\wx');
+				if (($wxConfig = $modelWx->bySite($matterSiteId)) && $wxConfig->joined === 'Y') {
+					$snsSiteId = $matterSiteId;
+				} else {
+					$snsSiteId = 'platform';
+				}
+			} else {
+				$snsSiteId = $matterSiteId;
+			}
+			// 检查用户是否已经关注
+			$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+			if ($modelSnsUser->isFollow($snsSiteId, $openid)) {
+				return true;
+			}
+
+			return false;
+		};
+
+		foreach ($oDownloadRule->sns as $snsName => $rule) {
+			if (isset($oUser->sns->{$snsName})) {
+				/* 缓存的信息 */
+				$snsUser = $oUser->sns->{$snsName};
+				if ($fnCheckSnsFollow($snsName, $oMatter->siteid, $snsUser->openid)) {
+					$bFollowed = true;
+					$oFollowedRule = $rule;
+					break;
+				}
+			} else {
+				$modelAcnt = $this->model('site\user\account');
+				$propSnsOpenid = $snsName . '_openid';
+				if (empty($oUser->unionid)) {
+					/* 当前站点用户绑定的信息 */
+					$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
+					if ($oSiteUser && $fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid})) {
+						$bFollowed = true;
+						$oFollowedRule = $rule;
+						break;
+					}
+				} else {
+					/* 当前注册用户绑定的信息 */
+					$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oMatter->siteid, 'fields' => $propSnsOpenid]);
+					foreach ($aSiteUsers as $oSiteUser) {
+						$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
+						if ($oSiteUser && $fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid})) {
+							$bFollowed = true;
+							$oFollowedRule = $rule;
+							break;
+						}
+					}
+					if ($bFollowed) {
+						break;
+					}
+				}
+			}
+		}
+
+		return [$bFollowed, $oFollowedRule];
+	}
+	/**
+	 * 检查是否已经关注公众号
+	 */
+	private function checkSnsEntryRule22($oMatter, $bRedirect) {
+		$aResult = $this->enterAsSns2($oMatter);
+		if (false === $aResult[0]) {
+			$msg = '您没有关注公众号，不满足【' . $oMatter->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+			if (true === $bRedirect) {
+				$oDownloadRule = $oMatter->downloadRule;
+				if (!empty($oDownloadRule->sns->wx->entry)) {
+					/* 通过邀请链接访问 */
+					if (!empty($_GET['inviteToken'])) {
+						$oMatter->params = new \stdClass;
+						$oMatter->params->inviteToken = $_GET['inviteToken'];
+					}
+					$this->snsWxQrcodeFollow($oMatter);
+				} else if (!empty($oDownloadRule->sns->qy->entry)) {
+					$this->snsFollow($oMatter->siteid, 'qy', $oMatter);
+				} else if (!empty($oDownloadRule->sns->yx->entry)) {
+					$this->snsFollow($oMatter->siteid, 'yx', $oMatter);
+				} else {
+					$this->outputInfo($msg);
+				}
+			} else {
+				return [false, $msg];
 			}
 		}
 

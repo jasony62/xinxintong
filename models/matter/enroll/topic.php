@@ -23,7 +23,7 @@ class topic_model extends \TMS_MODEL {
 		$q = [
 			'r.*,tr.assign_at,tr.seq seq_in_topic',
 			'xxt_enroll_record r inner join xxt_enroll_topic_record tr on r.id=tr.record_id',
-			['tr.topic_id' => $oTopic->id],
+			['tr.topic_id' => $oTopic->id, 'r.state' => 1],
 		];
 		$q2 = ['o' => 'tr.seq'];
 

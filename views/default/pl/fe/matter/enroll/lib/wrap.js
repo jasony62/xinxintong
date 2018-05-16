@@ -394,9 +394,6 @@ define([], function() {
                 html += '<li class="img-picker">';
                 html += '<button class="btn btn-default" ng-click="chooseImage(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
                 html += '</li>';
-                html += '<li class="img-picker img-edit" ng-hide="isSmallLayout">';
-                html += '<button class="btn btn-default" ng-click="pasteImage(\'' + oSchema.id + '\',$event,' + (oSchema.count || 1) + ')"><span class="glyphicon glyphicon-picture"></span><br>粘贴截图</button>';
-                html += '</li>';
                 html += '</ul>';
                 break;
             case 'file':

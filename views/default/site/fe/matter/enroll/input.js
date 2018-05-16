@@ -85,21 +85,8 @@ ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $
     }
 }]);
 ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
-    var aModifiedImgFields, pasteContains, createHiddenEditable;
+    var aModifiedImgFields;
     aModifiedImgFields = [];
-    pasteContains = document.querySelectorAll('.img-edit button'); 
-    for(var i=0; i<pasteContains.length; i++) {
-        createHiddenEditable = function() {
-            return $(document.createElement('div')).attr('contenteditable', true).attr('tabindex', -1).css({
-                  width: 1,
-                  height: 1,
-                  position: 'fixed',
-                  left: -100,
-                  overflow: 'hidden'
-            });
-        };
-        createHiddenEditable().appendTo(pasteContains[i]);
-    }
     return {
         restrict: 'A',
         controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
@@ -141,6 +128,9 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                     imgBind(schemaId, imgs);
                 });
             };
+            $scope.removeImage = function(imgField, index) {
+                imgField.splice(index, 1);
+            };
             $scope.pasteImage = function(schemaId, event, count, from) {
                 imgCount(schemaId, count, from);
                 var targetDiv;
@@ -149,9 +139,6 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                     imgBind(schemaId, imgs);
                 }); 
             }; 
-            $scope.removeImage = function(imgField, index) {
-                imgField.splice(index, 1);
-            };
         }]
     }
 }]);
@@ -400,7 +387,7 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsUrl', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsUrl) {
+ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsUrl', '$compile',function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsUrl, $compile) {
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
@@ -655,7 +642,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         $scope.submit(event, '', 'save');
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var schemasById, dataOfRecord, p, value;
+        var schemasById, dataOfRecord, p, value, pasteContains;
         StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = params.app._schemasById;
         _oApp = params.app;
@@ -723,6 +710,21 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                     }
                 }
             }
+        }
+        /*动态添加粘贴图片*/
+        if(!$scope.isSmallLayout) {
+            pasteContains = document.querySelectorAll('ul.img-tiles');
+            angular.forEach(pasteContains, function(pastecontain) {
+                var oSchema, html, $html;
+                oSchema = schemasById[pastecontain.getAttribute('name')];
+                html = '<li class="img-picker img-edit">';
+                html += '<button class="btn btn-default" ng-click="pasteImage(\'' + oSchema.id + '\',$event,' + (oSchema.count || 1) + ')">点击按钮<br>Ctrl+V<br>粘贴截图';
+                html += '<div contenteditable="true" tabindex="-1" style="width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;"></div>';
+                html += '</button>';
+                html += '</li>';
+                $html = $compile(html)($scope);
+                $(pastecontain).append($html);
+            });
         }
     });
     $scope.removeItem = function(items, index) {

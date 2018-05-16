@@ -277,6 +277,11 @@ class remark extends base {
 		/* 生成提醒 */
 		$this->model('matter\enroll\notice')->addRemark($oApp, $oRecord, $oNewRemark, $oUser, isset($oRecData) ? $oRecData : null, isset($oRemark) ? $oRemark : null);
 
+		/* 修改昵称 */
+		if ($oNewRemark->userid === $oUser->uid) {
+			$oNewRemark->nickname = '我';
+		}
+
 		//$this->_notifyHasRemark($oApp, $oRecord, $oNewRemark);
 
 		return new \ResponseData($oNewRemark);

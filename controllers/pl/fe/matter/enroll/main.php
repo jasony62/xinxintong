@@ -290,7 +290,7 @@ class main extends main_base {
 		$oNewApp->pic = $oCopied->pic;
 		$oNewApp->summary = $modelApp->escape($oCopied->summary);
 		$oNewApp->scenario = $oCopied->scenario;
-		$oNewApp->scenario_config = $oCopied->scenario_config;
+		$oNewApp->scenario_config = isset($oCopied->scenario_config) ? $oCopied->scenario_config : '{}';
 		$oNewApp->count_limit = $oCopied->count_limit;
 		$oNewApp->multi_rounds = $oCopied->multi_rounds;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;

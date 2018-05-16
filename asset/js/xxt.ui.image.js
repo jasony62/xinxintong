@@ -81,7 +81,7 @@ window.xxt.image = {
                 deferred.resolve(imgs);
             };
             reader.readAsDataURL(blob);
-        }; 
+        };
         oDiv.on('paste', function(event) {
             // 通过事件对象访问系统剪贴板
             var clipboardData = event.originalEvent.clipboardData, items, item;

@@ -144,6 +144,10 @@ img {
 
     }
 
+    &>*+* {
+        margin-left: 4px;
+    }
+
 }
 
 /* record */
@@ -209,6 +213,13 @@ img {
 
         }
 
+        .tags {
+            &>button+button {
+                margin-left: 4px;
+            }
+
+        }
+
         .remarks {
             font-size: .9em;
             border-top: 1px dashed #ddd;
@@ -255,6 +266,28 @@ img {
 
 }
 
+#favorGuide {
+    position: fixed;
+    align-items: center;
+    z-index: 1051;
+    width: 100%;
+    bottom: 0;
+    display: flex;
+    border: 1px solid #bce8f1;
+    background: #d9edf7;
+    padding: 8px 16px;
+    color: #31708f;
+
+    &>:first-child {
+        flex-grow: 1;
+    }
+
+    &>:last-child {
+        margin-left: 4px;
+    }
+
+}
+
 @media screen and (max-width:768px) {
     .site-navbar-default {
         margin-bottom: 0;
@@ -276,7 +309,7 @@ img {
 
     #advCriteria {
         position: absolute;
-        top: 0;
+        top: 34px;
         right: 0;
         margin-top: 1px;
         width: 300px;

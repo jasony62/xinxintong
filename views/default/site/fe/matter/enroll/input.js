@@ -3,9 +3,10 @@ require('./input.css');
 
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
+require('../../../../../../asset/js/xxt.ui.url.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
 
-window.moduleAngularModules = ['editor.ui.xxt'];
+window.moduleAngularModules = ['editor.ui.xxt', 'url.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -84,12 +85,25 @@ ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $
     }
 }]);
 ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
-    var aModifiedImgFields;
+    var aModifiedImgFields, pasteContains, createHiddenEditable;
     aModifiedImgFields = [];
+    pasteContains = document.querySelectorAll('.img-edit button'); 
+    for(var i=0; i<pasteContains.length; i++) {
+        createHiddenEditable = function() {
+            return $(document.createElement('div')).attr('contenteditable', true).attr('tabindex', -1).css({
+                  width: 1,
+                  height: 1,
+                  position: 'fixed',
+                  left: -100,
+                  overflow: 'hidden'
+            });
+        };
+        createHiddenEditable().appendTo(pasteContains[i]);
+    }
     return {
         restrict: 'A',
         controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
-            $scope.chooseImage = function(schemaId, count, from) {
+            function imgCount(schemaId, count, from) {
                 if (schemaId !== null) {
                     aModifiedImgFields.indexOf(schemaId) === -1 && aModifiedImgFields.push(schemaId);
                     $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
@@ -98,29 +112,43 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                         return;
                     }
                 }
-                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
-                    var phase;
-                    phase = $scope.$root.$$phase;
-                    if (phase === '$digest' || phase === '$apply') {
+            }
+            function imgBind(schemaId, imgs) {
+                var phase;
+                phase = $scope.$root.$$phase;
+                if (phase === '$digest' || phase === '$apply') {
+                    $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
+                } else {
+                    $scope.$apply(function() {
                         $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
-                    } else {
-                        $scope.$apply(function() {
-                            $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
-                        });
-                    }
-                    $timeout(function() {
-                        var i, j, img, eleImg;
-                        for (i = 0, j = imgs.length; i < j; i++) {
-                            img = imgs[i];
-                            eleImg = document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(2) img');
-                            if (eleImg) {
-                                eleImg.setAttribute('src', img.imgSrc);
-                            }
-                        }
-                        $scope.$broadcast('xxt.enroll.image.choose.done', schemaId);
                     });
+                }
+                $timeout(function() {
+                    var i, j, img, eleImg;
+                    for (i = 0, j = imgs.length; i < j; i++) {
+                        img = imgs[i];
+                        eleImg = document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(3) img');
+                        if (eleImg) {
+                            eleImg.setAttribute('src', img.imgSrc);
+                        }
+                    }
+                    $scope.$broadcast('xxt.enroll.image.choose.done', schemaId);
+                });
+            }
+            $scope.chooseImage = function(schemaId, count, from) {
+                imgCount(schemaId, count, from);
+                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
+                    imgBind(schemaId, imgs);
                 });
             };
+            $scope.pasteImage = function(schemaId, event, count, from) {
+                imgCount(schemaId, count, from);
+                var targetDiv;
+                targetDiv = event.currentTarget.children[event.currentTarget.children.length - 1];
+                window.xxt.image.paste($(targetDiv), $q.defer(), from).then(function(imgs) {
+                    imgBind(schemaId, imgs);
+                }); 
+            }; 
             $scope.removeImage = function(imgField, index) {
                 imgField.splice(index, 1);
             };
@@ -667,9 +695,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 oRecord = rsp.data;
                 ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
                 $scope.record = oRecord;
-                if (oRecord.data_tag) {
-                    $scope.tag = oRecord.data_tag;
-                }
                 if (oRecord.supplement) {
                     $scope.supplement = oRecord.supplement;
                 }
@@ -710,7 +735,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.data = {
-                    content: '添加内容...'
+                    content: ''
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
@@ -776,75 +801,22 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         }
     };
-    $scope.tagRecordData = function(schemaId) {
-        var oApp, oSchema, tagsOfData;
-        oApp = $scope.app;
-        oSchema = oApp._schemasById[schemaId];
-        if (oSchema) {
-            tagsOfData = $scope.tag[schemaId];
-            $uibModal.open({
-                templateUrl: 'tagRecordData.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var model;
-                    $scope2.schema = oSchema;
-                    $scope2.apptags = oApp.dataTags;
-                    $scope2.model = model = {
-                        selected: []
-                    };
-                    if (tagsOfData) {
-                        tagsOfData.forEach(function(oTag) {
-                            var index;
-                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
-                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
-                            }
-                        });
-                    }
-                    $scope2.createTag = function() {
-                        var newTags;
-                        if ($scope2.model.newtag) {
-                            newTags = $scope2.model.newtag.replace(/\s/, ',');
-                            newTags = newTags.split(',');
-                            http2.post('/rest/site/fe/matter/enroll/tag/create?site=' + $scope.app.siteid + '&app=' + $scope.app.id, newTags).then(function(rsp) {
-                                rsp.data.forEach(function(oNewTag) {
-                                    $scope2.apptags.push(oNewTag);
-                                });
-                            });
-                            $scope2.model.newtag = '';
-                        }
-                    };
-                    $scope2.cancel = function() { $mi.dismiss(); };
-                    $scope2.ok = function() {
-                        var tags = [];
-                        model.selected.forEach(function(selected, index) {
-                            if (selected) {
-                                tags.push($scope2.apptags[index]);
-                            }
-                        });
-                        $mi.close(tags);
-                    };
-                }],
-                backdrop: 'static',
-            }).result.then(function(tags) {
-                $scope.tag[schemaId] = tags;
-            });
-        }
-    };
     $scope.getMyLocation = function(prop) {
         window.xxt.geo.getAddress(http2, $q.defer(), LS.p.site).then(function(data) {
             $scope.data[prop] = data.address;
         });
     };
     $scope.pasteUrl = function(schemaId) {
-        tmsUrl.fetch($scope.data[schemaId]).then(function(result) {
+        tmsUrl.fetch($scope.data[schemaId], { description: true, text: true }).then(function(oResult) {
             var oData;
-            oData = angular.copy(result.summary);
-            oData._text = result.text;
+            oData = angular.copy(oResult.summary);
+            oData._text = oResult.text;
             $scope.data[schemaId] = oData;
         });
     };
     $scope.editSupplement = function(schemaId) {
         var str = $scope.supplement[schemaId];
-        if (!str) { str = '请填写补充说明'; }
+        if (!str) { str = ''; }
         $uibModal.open({
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {

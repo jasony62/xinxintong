@@ -38,7 +38,6 @@ class matter extends \site\fe\matter\base {
 			$oMatter = $this->_modelEnlApp->byId($oMisAgreed->matter_id, ['cascaded' => 'N', 'fields' => 'id,title,data_schemas']);
 			unset($oMatter->data_schemas);
 			unset($oMatter->pages);
-			unset($oMatter->dataTags);
 			if (count($oMatter->dataSchemas)) {
 				$oShareableSchemas = new \stdClass;
 				foreach ($oMatter->dataSchemas as $oSchema) {

@@ -1,0 +1,23 @@
+<div class="modal-body">
+    <div class='panel panel-default' ng-repeat="topic in topics">
+        <div class='panel-body'>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-model="topic.checked" ng-change="checkTopic(topic)"> <span ng-bind="topic.title"></span></label>
+            </div>
+            <div class='form-group'>
+                <div class='small text-muted' ng-bind="topic.summary"></div>
+            </div>
+            <div class='bottom-bar small text-muted'>
+                <div ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></div>
+                <div><i class='glyphicon glyphicon-file'></i> <span ng-bind="topic.rec_num"></span></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <div class='text-center'>
+        <button class="btn btn-default" ng-click="cancel()">取消</button>
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</div>

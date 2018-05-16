@@ -22,19 +22,19 @@ class url extends base {
 		if (empty($aTargetUrl['host'])) {
 			return new \ParameterError('指定的URL不合规无法解析');
 		}
-		$html = file_get_contents($oPosted->url);
+		$html = $this->_iconvConvert(file_get_contents($oPosted->url));
 
 		/* 获得页面的标题 */
-		if (preg_match('/<title.*?>(.*?)<\/title>/i', $html, $aTitle)) {
+		if (preg_match('/<title.*?>(.*?)<\/title>/is', $html, $aTitle)) {
 			if (count($aTitle) === 2) {
-				$aTitle[1] = $this->iconvConvert($aTitle[1]);
-				$oSummary->title = $aTitle[1];
+				$title = trim($aTitle[1]);
+				$oSummary->title = $title;
 			}
 		}
 		/* 获得页面的描述 */
-		if (preg_match('/<meta[^<]*?name="description".*?content="([^"]*?)">/i', $html, $aDescription)) {
+		if (preg_match('/<meta[^<]*?name="description".*?content="([^"]*?)">/is', $html, $aDescription)) {
 			if (count($aTitle) === 2) {
-				$aDescription[1] = $this->iconvConvert($aDescription[1]);
+				$description = trim($aDescription[1]);
 				$oSummary->description = $aDescription[1];
 			}
 		}
@@ -46,8 +46,8 @@ class url extends base {
 	/**
 	 *
 	 */
-	private function iconvConvert($str) {
-		$encode = mb_detect_encoding($str, array('ASCII','UTF-8','GB2312','GBK','BIG5'));
+	private function _iconvConvert($str) {
+		$encode = mb_detect_encoding($str, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
 
 		if ($encode && $encode != 'UTF-8') {
 			$str = iconv($encode, 'UTF-8//IGNORE', $str);

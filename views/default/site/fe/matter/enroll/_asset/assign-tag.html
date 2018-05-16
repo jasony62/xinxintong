@@ -1,0 +1,22 @@
+<div class="modal-body">
+    <div class='form-group'>
+        <div class='input-group'>
+            <input type='text' class='form-control' ng-model="newTag.label">
+            <div class='input-group-btn'>
+                <button class='btn btn-default' ng-click="addTag()" ng-disabled="!newTag.label">创建标签</button>
+            </div>
+        </div>
+    </div>
+    <div class='list-group'>
+        <div class='list-group-item' ng-repeat="tag in tags">
+            <label class='checkbox-inline'>
+                <input type='checkbox' ng-model="tag.checked" ng-change="checkTag(tag)"> <span ng-bind="tag.label"></span></label>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <div class='text-center'>
+        <button class="btn btn-default" ng-click="cancel()">取消</button>
+        <button class="btn btn-primary" ng-click="ok()">保存</button>
+    </div>
+</div>

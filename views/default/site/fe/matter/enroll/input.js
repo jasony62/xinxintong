@@ -135,7 +135,6 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                 imgCount(schemaId, count, from);
                 var targetDiv;
                 targetDiv = event.currentTarget.children[event.currentTarget.children.length - 1];
-                $(event.currentTarget).parent().after(tip);
                 window.xxt.image.paste($(targetDiv), $q.defer(), from).then(function(imgs) {
                     imgBind(schemaId, imgs);
                 }); 

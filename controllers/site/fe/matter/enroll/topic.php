@@ -11,9 +11,6 @@ class topic extends base {
 	 */
 	public function get_action($topic) {
 		$oUser = $this->who;
-		if (empty($oUser->unionid)) {
-			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
-		}
 
 		$modelTop = $this->model('matter\enroll\topic');
 		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,nickname,create_at,title,summary,rec_num']);

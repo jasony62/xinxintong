@@ -7,43 +7,38 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class tag extends base {
 	/**
-	 *
-	 */
-	public function create_action($site, $app) {
-		/* 登记活动定义 */
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		$oPosted = $this->getPostJson();
-
-		$oUser = $this->getUser($oApp);
-		$oUser->creater_src = 'S';
-		$newTags = $this->model('matter\enroll\tag')->add($oApp, $oUser, $oPosted);
-
-		return new \ResponseData($newTags);
-	}
-	/**
 	 * 获得用户创建的标签
 	 */
-	public function list_action($app) {
+	public function list_action($app, $public = 'N') {
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$oUser = $this->who;
-		if (empty($oUser->unionid)) {
-			return new \ResponseError('仅支持注册用户创建标签，请登录后再进行此操作');
+
+		$modelTag = $this->model('matter\enroll\tag2');
+		$userTags = $modelTag->byUser($oApp, $oUser);
+
+		if ($public === 'Y') {
+			$tags = $modelTag->byApp($oApp);
+			/* 合并用户标签和公共标签 */
+			if (count($userTags) && count($tags)) {
+				foreach ($userTags as $oUserTag) {
+					if ($oUserTag->public === 'Y') {
+						foreach ($tags as $index => $oTag) {
+							if ($oUserTag->tag_id === $oTag->tag_id) {
+								array_splice($tags, $index, 1);
+								break;
+							}
+						}
+					}
+				}
+			}
+			if (count($tags)) {
+				$userTags = array_merge($userTags, $tags);
+			}
 		}
-		$q = [
-			't.id tag_id,t.label,t.public,t.forbidden,e.create_at,e.id user_tag_id',
-			'xxt_enroll_tag t inner join xxt_enroll_user_tag e on t.id=e.tag_id',
-			['t.aid' => $oApp->id, 'e.userid' => $oUser->uid, 'e.state' => 1],
-		];
-		$q2 = ['o' => 'e.create_at desc'];
-		$userTags = $modelEnl->query_objs_ss($q, $q2);
 
 		return new \ResponseData($userTags);
 	}
@@ -92,7 +87,7 @@ class tag extends base {
 			$oEnlTag->user_num = 1;
 			$oEnlTag->public = 'N';
 			$oEnlTag->forbidden = 'N';
-			$oEnlTag->id = $modelEnl->insert('xxt_enroll_tag', $oEnlTag, true);
+			$oEnlTag->id = $oEnlTag->tag_id = $modelEnl->insert('xxt_enroll_tag', $oEnlTag, true);
 			$bNewEnlTag = true;
 		}
 		/* 用户数据 */
@@ -143,9 +138,9 @@ class tag extends base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 *
+	 * 获得记录的用户标签和公共标签
 	 */
-	public function byRecord_action($record) {
+	public function byRecord_action($record, $public = 'N') {
 		$modelRec = $this->model('matter\enroll\record');
 		$q = ['id,aid,siteid,state', 'xxt_enroll_record', ['id' => $record]];
 		$oRecord = $modelRec->query_obj_ss($q);
@@ -153,16 +148,12 @@ class tag extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$q = [
-			't.id tag_id,t.label,t.public,t.forbidden,a.assign_at,a.user_tag_id',
-			'xxt_enroll_tag t inner join xxt_enroll_tag_assign a on t.id=a.tag_id',
-			['t.aid' => $oRecord->aid, 'a.target_id' => $oRecord->id, 'a.target_type' => 1],
-		];
-		$q2 = ['o' => 'a.assign_at desc'];
+		$oUser = $this->who;
 
-		$recordTags = $modelRec->query_objs_ss($q, $q2);
+		$modelTag = $this->model('matter\enroll\tag2');
+		$oRecTags = $modelTag->byRecord($oRecord, $oUser, ['UserAndPublic' => $public === 'Y']);
 
-		return new \ResponseData($recordTags);
+		return new \ResponseData($oRecTags);
 	}
 	/**
 	 * 打标签
@@ -192,9 +183,8 @@ class tag extends base {
 		}
 
 		$modelTag = $this->model('matter\enroll\tag2');
-		$q = ['user_tag_id', 'xxt_enroll_tag_assign', ['target_id' => $oRecord->id, 'target_type' => 1]];
+		$q = ['tag_id', 'xxt_enroll_tag_assign', ['target_id' => $oRecord->id, 'target_type' => 1, 'userid' => $oUser->uid]];
 		$aBeforeTagIds = $modelTag->query_vals_ss($q);
-
 		$countOfNew = 0;
 
 		if (empty($aAfterTagIds) || empty($aBeforeTagIds)) {
@@ -217,24 +207,21 @@ class tag extends base {
 			$oProtoNewRel->target_type = 1;
 			$oProtoNewRel->userid = $oUser->uid;
 			$oProtoNewRel->assign_at = $current;
-			foreach ($aNewTagIds as $userTagId) {
-				$oUserTag = $modelTag->byId($userTagId, $oUser, ['fields' => 'id,tag_id,state']);
-				if (false === $oUserTag || $oUserTag->state !== '1') {
-					continue;
-				}
-				$oProtoNewRel->tag_id = $oUserTag->tag_id;
-				$oProtoNewRel->user_tag_id = $oUserTag->id;
+			foreach ($aNewTagIds as $tagId) {
+				$oUserTag = $modelTag->userTagbyTagId($tagId, $oUser, ['fields' => 'id,tag_id']);
+				$oProtoNewRel->tag_id = $tagId;
+				$oProtoNewRel->user_tag_id = $oUserTag ? $oUserTag->id : 0;
 
 				$modelTag->insert('xxt_enroll_tag_assign', $oProtoNewRel, false);
 				/**
 				 * 记录汇总数据
 				 */
-				$oTargetLog = $modelTag->logByTarget($oUserTag->tag_id, (object) ['id' => $oRecord->id, 'type' => 1], ['fields' => 'id']);
+				$oTargetLog = $modelTag->logByTarget($tagId, (object) ['id' => $oRecord->id, 'type' => 1], ['fields' => 'id']);
 				if (false === $oTargetLog) {
 					$oTargetLog = new \stdClass;
 					$oTargetLog->aid = $oRecord->aid;
 					$oTargetLog->siteid = $oRecord->siteid;
-					$oTargetLog->tag_id = $oUserTag->tag_id;
+					$oTargetLog->tag_id = $tagId;
 					$oTargetLog->target_id = $oRecord->id;
 					$oTargetLog->target_type = 1;
 					$oTargetLog->last_assign_at = $oTargetLog->first_assign_at = $current;
@@ -247,23 +234,25 @@ class tag extends base {
 						['id' => $oTargetLog->id]
 					);
 				}
-				$modelTag->update(
-					'xxt_enroll_user_tag',
-					['assign_num' => (object) ['op' => '+=', 'pat' => 1]],
-					['id' => $oUserTag->id]
-				);
+				if ($oUserTag) {
+					$modelTag->update(
+						'xxt_enroll_user_tag',
+						['assign_num' => (object) ['op' => '+=', 'pat' => 1]],
+						['id' => $oUserTag->id]
+					);
+				}
 				$modelTag->update(
 					'xxt_enroll_tag',
 					['assign_num' => (object) ['op' => '+=', 'pat' => 1]],
-					['id' => $oUserTag->tag_id]
+					['id' => $tagId]
 				);
 			}
 		}
 
 		/* 删除不再保留的标签 */
 		if (count($aDelTagIds)) {
-			foreach ($aDelTagIds as $userTagId) {
-				$oAssignLog = $modelTag->query_obj_ss(['id,tag_id,user_tag_id,assign_at', 'xxt_enroll_tag_assign', ['target_id' => $oRecord->id, 'target_type' => 1, 'user_tag_id' => $userTagId]]);
+			foreach ($aDelTagIds as $tagId) {
+				$oAssignLog = $modelTag->query_obj_ss(['id,tag_id,user_tag_id,assign_at', 'xxt_enroll_tag_assign', ['target_id' => $oRecord->id, 'target_type' => 1, 'tag_id' => $tagId, 'userid' => $oUser->uid]]);
 				if (false === $oAssignLog) {
 					continue;
 				}
@@ -293,12 +282,13 @@ class tag extends base {
 						);
 					}
 				}
-				/* 修改其他记录的序号 */
-				$modelTag->update(
-					'xxt_enroll_user_tag',
-					['assign_num' => (object) ['op' => '-=', 'pat' => '1']],
-					['id' => $oAssignLog->user_tag_id]
-				);
+				if (!empty($oAssignLog->user_tag_id)) {
+					$modelTag->update(
+						'xxt_enroll_user_tag',
+						['assign_num' => (object) ['op' => '-=', 'pat' => '1']],
+						['id' => $oAssignLog->user_tag_id]
+					);
+				}
 				$modelTag->update(
 					'xxt_enroll_tag',
 					['assign_num' => (object) ['op' => '-=', 'pat' => '1']],
@@ -307,7 +297,7 @@ class tag extends base {
 			}
 		}
 
-		/* 更新后的所有标签 */
+		/* 更新后的所有用户标签 */
 		$oAfterTags = $modelTag->byRecord($oRecord, $oUser);
 
 		return new \ResponseData($oAfterTags);

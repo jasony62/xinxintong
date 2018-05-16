@@ -18,6 +18,9 @@ class data_model extends \TMS_MODEL {
 
 		$schemasById = []; // 方便获取登记项定义
 		foreach ($oApp->dataSchemas as $schema) {
+			if (strpos($schema->id, 'member.') === 0) {
+				$schema->id = 'member';
+			}
 			$schemasById[$schema->id] = $schema;
 		}
 		$dbData = $this->disposRecrdData($oApp, $schemasById, $submitData, $submitkey, $oRecord);

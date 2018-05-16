@@ -142,68 +142,6 @@ class record_model extends record_base {
 	 * @param object $oUser [uid]
 	 * @param object $oApp
 	 * @param string $ek
-	 * @param array $submitTag 用户提交的填写项标签
-	 */
-	public function setTag($oUser, $oApp, $ek, $submitTag) {
-		$wholeTags = new \stdClass;
-		/*record data*/
-		foreach ($submitTag as $schemaId => $tags) {
-			/*题目中对应的标签*/
-			$tagOlds = [];
-			$q = [
-				'id,tag',
-				'xxt_enroll_record_data',
-				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1, 'multitext_seq' => 0],
-			];
-			if ($recordData = $this->query_obj_ss($q)) {
-				!empty($recordData->tag) && $tagOlds = json_decode($recordData->tag);
-			}
-
-			/* 保证以字符串的格式存储标签id，便于以后检索 */
-			$jsonTags = [];
-			$tagAdd = []; //对比上一次新增的标签
-			foreach ($tags as $oTag) {
-				if (($key = array_search($oTag->id, $tagOlds)) === false) {
-					$tagAdd[] = $oTag->id;
-				} else {
-					/*如果有剩余的标签说明是对比上一次本次不使用的标签，其使用数量应该减 1*/
-					unset($tagOlds[$key]);
-				}
-
-				$jsonTags[] = (string) $oTag->id;
-			}
-			if (!empty($tagAdd)) {
-				$updateAddWhere = "(" . implode(',', $tagAdd) . ")";
-				$this->update("update xxt_enroll_record_tag set use_num = use_num +1 where id in $updateAddWhere");
-			}
-			if (!empty($tagOlds)) {
-				$updateDelWhere = "(" . implode(',', $tagOlds) . ")";
-				$this->update("update xxt_enroll_record_tag set use_num = use_num -1 where id in $updateDelWhere");
-			}
-
-			$wholeTags->{$schemaId} = $jsonTags;
-			$jsonTags = json_encode($jsonTags);
-			$rst = $this->update(
-				'xxt_enroll_record_data',
-				['tag' => $this->escape($jsonTags)],
-				['id' => $recordData->id]
-			);
-		}
-
-		$rst = $this->update(
-			'xxt_enroll_record',
-			['data_tag' => $this->escape(json_encode($wholeTags))],
-			['enroll_key' => $ek, 'state' => 1]
-		);
-
-		return $rst;
-	}
-	/**
-	 * 保存登记的数据
-	 *
-	 * @param object $oUser [uid]
-	 * @param object $oApp
-	 * @param string $ek
 	 * @param array $submitSupp 用户提交的补充说明
 	 */
 	public function setSupplement($oUser, $oApp, $ek, $submitSupp) {
@@ -231,9 +169,6 @@ class record_model extends record_base {
 	private function _processRecord(&$oRecord, $fields, $verbose = 'Y') {
 		if (property_exists($oRecord, 'data')) {
 			$oRecord->data = empty($oRecord->data) ? new \stdClass : json_decode($oRecord->data);
-		}
-		if (property_exists($oRecord, 'data_tag')) {
-			$oRecord->data_tag = empty($oRecord->data_tag) ? new \stdClass : json_decode($oRecord->data_tag);
 		}
 		if ($fields === '*' || false !== strpos($fields, 'supplement')) {
 			$oRecord->supplement = empty($oRecord->supplement) ? new \stdClass : json_decode($oRecord->supplement);
@@ -806,9 +741,6 @@ class record_model extends record_base {
 			if (property_exists($oRec, 'like_log')) {
 				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
 			}
-			//if (property_exists($oRec, 'data_tag')) {
-			//	$oRec->data_tag = empty($oRec->data_tag) ? new \stdClass : json_decode($oRec->data_tag);
-			//}
 			//测验场景或数值填空题共用score字段
 			if (isset($oApp->scenario)) {
 				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($oRec->score)) {
@@ -1095,7 +1027,6 @@ class record_model extends record_base {
 	 *
 	 */
 	public function list4Schema(&$oApp, $schemaId, $options = null) {
-		$schemaId = $this->escape($schemaId);
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if ($oSchema->id === $schemaId) {
 				$oDataSchema = $oSchema;
@@ -1123,26 +1054,26 @@ class record_model extends record_base {
 
 		// 查询参数
 		$q = [
-			'enroll_key,value,like_log,like_num',
-			"xxt_enroll_record_data",
-			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>'' and multitext_seq = 0",
+			'd.enroll_key,d.value,d.like_log,d.like_num,r.nickname,r.rid,r.enroll_at',
+			"xxt_enroll_record_data d,xxt_enroll_record r",
+			"d.state=1 and d.aid='{$oApp->id}' and d.schema_id='{$schemaId}' and d.value<>'' and d.multitext_seq = 0 and r.aid = d.aid and r.enroll_key = d.enroll_key",
 		];
 		if ($oDataSchema->type === 'date') {
 
 		}
 		/* 指定用户 */
 		if (!empty($options->owner)) {
-			$q[2] .= " and userid='" . $options->owner . "'";
+			$q[2] .= " and d.userid='" . $options->owner . "'";
 		}
 		/* 指定登记轮次 */
 		if (!empty($rid)) {
 			if ($rid !== 'ALL') {
-				$q[2] .= " and rid='{$rid}'";
+				$q[2] .= " and d.rid='{$rid}'";
 			}
 		} else {
 			/* 没有指定轮次，就使用当前轮次 */
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$q[2] .= " and rid='{$activeRound->rid}'";
+				$q[2] .= " and d.rid='{$activeRound->rid}'";
 			}
 		}
 
@@ -1185,11 +1116,14 @@ class record_model extends record_base {
 				$marks = $oApp->rpConfig->marks;
 			}
 			foreach ($records as &$record) {
-				$rec = $this->byId($record->enroll_key, ['fields' => 'rid,nickname,data,enroll_at']);
-				$rec->enroll_key = $record->enroll_key;
-				$rec->like_log = empty($record->like_log) ? new \stdClass : json_decode($record->like_log);
-				$rec->like_num = $record->like_num;
-				$oResult->records[] = $rec;
+				$record->data = new \stdClass;
+				if (in_array($oDataSchema->type, ['multitext', 'file']) || $schemaId === 'member') {
+					$record->data->{$schemaId} = empty($record->value) ?  new \stdClass : json_decode($record->value);
+				} else {
+					$record->data->{$schemaId} = $record->value;
+				}
+				$record->like_log = empty($record->like_log) ? new \stdClass : json_decode($record->like_log);
+				$oResult->records[] = $record;
 			}
 		}
 
@@ -1479,11 +1413,6 @@ class record_model extends record_base {
 			['aid' => $oApp->id]
 		);
 		$this->update(
-			'xxt_enroll_record_tag',
-			['state' => 0],
-			['aid' => $oApp->id, 'state' => 1]
-		);
-		$this->update(
 			'xxt_enroll_record_remark',
 			['state' => 0],
 			['aid' => $oApp->id, 'state' => 1]
@@ -1545,12 +1474,9 @@ class record_model extends record_base {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
 			}
-		} elseif ($rid !== 'ALL') {
-			$rid = $rid;
 		}
 
 		$current = time();
-		$rid = $this->escape($rid);
 		if ($renewCache === 'Y') {
 			/* 上一次保留统计结果的时间，每条记录的时间都一样 */
 			$q = [
@@ -1569,7 +1495,7 @@ class record_model extends record_base {
 					'xxt_enroll_record',
 					"aid='$oApp->id' and state=1 and enroll_at>={$last->create_at}",
 				];
-				if ($rid !== 'ALL' && !empty($rid)) {
+				if (!empty($rid) && $rid !== 'ALL') {
 					$q[2] .= " and rid = '$rid'";
 				}
 
@@ -1664,7 +1590,7 @@ class record_model extends record_base {
 						'xxt_enroll_record_data',
 						['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oSchema->id, 'value' => $op->v],
 					];
-					if (isset($rid)) {
+					if (!empty($rid) && $rid !== 'ALL') {
 						$q[2]['rid'] = $rid;
 					}
 					$op->c = (int) $this->query_val_ss($q);
@@ -1681,8 +1607,7 @@ class record_model extends record_base {
 						'xxt_enroll_record_data',
 						"aid='$oApp->id' and state=1 and schema_id='{$oSchema->id}' and FIND_IN_SET('{$op->v}', value)",
 					];
-					if (isset($rid)) {
-						$rid = $this->escape($rid);
+					if (!empty($rid) && $rid !== 'ALL') {
 						$q[2] .= " and rid = '$rid'";
 					}
 					$op->c = (int) $this->query_val_ss($q);
@@ -1702,7 +1627,7 @@ class record_model extends record_base {
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oSchema->id],
 				];
-				if (isset($rid)) {
+				if (!empty($rid) && $rid !== 'ALL') {
 					$q[2]['rid'] = $rid;
 				}
 

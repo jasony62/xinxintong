@@ -179,8 +179,8 @@ define([], function() {
             if ($supplement.length === 0) {
                 html = '<div class="list-group-item supplement text-muted">';
                 html += '<div class="top-bar tms-flex-row">';
-                html += '<div class="tms-flex-grow" ng-if="!supplement.'+schema.id+'">请填写补充说明</div>';
-                html += '<div class="tms-flex-grow" ng-if="supplement.'+schema.id+'" dynamic-html="supplement.'+ schema.id+'"></div>';
+                html += '<div class="tms-flex-grow" ng-if="!supplement.' + schema.id + '">请填写补充说明</div>';
+                html += '<div class="tms-flex-grow" ng-if="supplement.' + schema.id + '" dynamic-html="supplement.' + schema.id + '"></div>';
                 html += '<div class="btn-group" uib-dropdown>';
                 html += '<button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
                 html += '<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>';
@@ -195,21 +195,6 @@ define([], function() {
             $supplement = $dom.find('.supplement');
             if ($supplement.length) {
                 $supplement.remove();
-            }
-        }
-    }
-
-    function _htmlTag($dom, schema) {
-        var $tags;
-        if (schema.cantag === 'Y') {
-            $tags = $dom.find('.tags');
-            if ($tags.length === 0) {
-                $dom.append('<p class="form-control tags" ng-click="tagRecordData(\'' + schema.id + '\')"><span class="tag" ng-repeat="t in tag[\'' + schema.id + '\']" ng-bind="t.label"></span></p>');
-            }
-        } else {
-            $tags = $dom.find('.tags');
-            if ($tags.length) {
-                $tags.remove();
             }
         }
     }
@@ -409,6 +394,9 @@ define([], function() {
                 html += '<li class="img-picker">';
                 html += '<button class="btn btn-default" ng-click="chooseImage(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
                 html += '</li>';
+                html += '<li class="img-picker img-edit" ng-hide="isSmallLayout">';
+                html += '<button class="btn btn-default" ng-click="pasteImage(\'' + oSchema.id + '\',$event,' + (oSchema.count || 1) + ')"><span class="glyphicon glyphicon-picture"></span><br>粘贴截图</button>';
+                html += '</li>';
                 html += '</ul>';
                 break;
             case 'file':
@@ -500,16 +488,12 @@ define([], function() {
                     } else {
                         $input.removeAttr('required');
                     }
-                    _htmlTag($dom, oSchema);
                 } else if (/multitext/.test(oSchema.type)) {
                     (function(lib) {
                         var multitextEmbed;
-
                         multitextEmbed = lib.embed(dataWrap);
                         $dom.attr(multitextEmbed.attrs);
                         $dom.html(multitextEmbed.html);
-
-                        _htmlTag($dom, oSchema);
                     })(this);
                 } else if (/single/.test(oSchema.type)) {
                     (function(lib) {
@@ -566,7 +550,6 @@ define([], function() {
                         $dom.html(imageEmbed.html);
 
                         _htmlSupplement($dom, oSchema);
-                        _htmlTag($dom, oSchema);
                     })(this);
                 } else if (/file/.test(oSchema.type)) {
                     (function(lib) {
@@ -581,7 +564,6 @@ define([], function() {
                         $dom.html(fileEmbed.html);
 
                         _htmlSupplement($dom, oSchema);
-                        _htmlTag($dom, oSchema);
                     })(this);
                 } else if (/voice/.test(oSchema.type)) {
                     (function(lib) {
@@ -596,7 +578,6 @@ define([], function() {
                         $dom.html(voiceEmbed.html);
 
                         _htmlSupplement($dom, oSchema);
-                        _htmlTag($dom, oSchema);
                     })(this);
                 }
                 $label.toggleClass('hide', !!oConfig.hidename);
@@ -916,17 +897,9 @@ define([], function() {
         } else {
             $dom.find('[class="description"]').remove();
         }
-        if (oSchema.cantag === 'Y') {
-            $tags = $dom.find('.tags');
-            if ($tags.length === 0) {
-                $dom.append('<p class="tags"><span class="tag" ng-repeat="t in Record.current.tag.' + oSchema.id + '" ng-bind="t.label"></span></p>');
-            }
-        } else {
-            $tags = $dom.find('.tags');
-            if ($tags.length) {
-                $tags.remove();
-            }
-        }
+        /* 为了清除老版本的数据 */
+        $tags = $dom.find('.tags');
+        $tags.length && $tags.remove();
         if (oSchema.supplement === 'Y') {
             $supplement = $dom.find('.supplement');
             if ($supplement.length === 0) {

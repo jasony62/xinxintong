@@ -87,7 +87,7 @@ class tag extends base {
 			$oEnlTag->user_num = 1;
 			$oEnlTag->public = 'N';
 			$oEnlTag->forbidden = 'N';
-			$oEnlTag->id = $modelEnl->insert('xxt_enroll_tag', $oEnlTag, true);
+			$oEnlTag->id = $oEnlTag->tag_id = $modelEnl->insert('xxt_enroll_tag', $oEnlTag, true);
 			$bNewEnlTag = true;
 		}
 		/* 用户数据 */

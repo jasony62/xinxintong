@@ -191,7 +191,7 @@ class main extends \site\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 检查参与规则
+	 * 检查附件下载规则
 	 *
 	 * @param object $oApp
 	 * @param boolean $redirect

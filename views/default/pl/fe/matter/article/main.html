@@ -100,33 +100,65 @@
     <div id='main-access' class="panel panel-default" ng-controller='ctrlAccess'>
         <div class="panel-body">
             <div class='form-group'>
-                <label>设置参与规则</label>
+                <label>设置进入规则</label>
                 <div class='checkbox'>
                     <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label>
-                    <span ng-if="rule.scope.member==='Y'">
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.member" ng-change="changeUserScope('member', 'entryRule')">用户参与活动前需填写通讯录联系人信息</label>
+                    <span ng-if="entryRule.scope.member==='Y'">
                             <span class='badge' ng-repeat="(msid,entry) in editing.entryRule.member">
                                     <a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a>
-                                    <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid)"></a>
+                                    <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid, 'entryRule')"></a>
                                 </span>
-                    <a href ng-click="chooseMschema()">添加</a>
+                    <a href ng-click="chooseMschema('entryRule')">添加</a>
                     </span>
                 </div>
                 <div class='checkbox' ng-if="snsCount===1">
                     <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号【{{sns[snsNames[0]].title}}】，以便获取用户的昵称和头像，向用户发送活动通知</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope('sns', 'entryRule')">邀请用户关注公众号【{{sns[snsNames[0]].title}}】，以便获取用户的昵称和头像，向用户发送活动通知</label>
                 </div>
                 <div class='checkbox' ng-if="snsCount>1">
                     <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号，以便获取用户的昵称和头像，向用户发送活动通知</label>
-                    <div ng-if="rule.scope.sns==='Y'" style='margin-left:20px'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope('sns', 'entryRule')">邀请用户关注公众号，以便获取用户的昵称和头像，向用户发送活动通知</label>
+                    <div ng-if="entryRule.scope.sns==='Y'" style='margin-left:20px'>
                         <label class='checkbox-inline' ng-repeat="snsName in snsNames">
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="app.entryRule.sns[snsName].entry" ng-change="update('entryRule')"> {{sns[snsName].title}}</label>
                     </div>
                 </div>
                 <div class='checkbox'>
                     <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="rule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{editing.siteid}}&id={{editing.entryRule.group.id}}' target='_self'>{{editing.entryRule.group.title}} - {{editing.entryRule.group.round.title}}</a></span>中分组 <a ng-if="rule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope('group', 'entryRule')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="entryRule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{editing.siteid}}&id={{editing.entryRule.group.id}}' target='_self'>{{editing.entryRule.group.title}} - {{editing.entryRule.group.round.title}}</a></span>中分组 <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp('entryRule')">指定</a>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class='form-group'>
+                <label>设置附件下载规则</label>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="downloadRule.scope.member" ng-change="changeUserScope('member', 'downloadRule')">用户参与活动前需填写通讯录联系人信息</label>
+                    <span ng-if="rule.scope.member==='Y'">
+                            <span class='badge' ng-repeat="(msid,entry) in editing.downloadRule.member">
+                                    <a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a>
+                                    <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid, 'downloadRule')"></a>
+                                </span>
+                    <a href ng-click="chooseMschema('downloadRule')">添加</a>
+                    </span>
+                </div>
+                <div class='checkbox' ng-if="snsCount===1">
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="downloadRule.scope.sns" ng-change="changeUserScope('sns', 'downloadRule')">邀请用户关注公众号【{{sns[snsNames[0]].title}}】，以便获取用户的昵称和头像，向用户发送活动通知</label>
+                </div>
+                <div class='checkbox' ng-if="snsCount>1">
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="downloadRule.scope.sns" ng-change="changeUserScope('sns', 'downloadRule')">邀请用户关注公众号，以便获取用户的昵称和头像，向用户发送活动通知</label>
+                    <div ng-if="downloadRule.scope.sns==='Y'" style='margin-left:20px'>
+                        <label class='checkbox-inline' ng-repeat="snsName in snsNames">
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="app.downloadRule.sns[snsName].entry" ng-change="update('downloadRule')"> {{sns[snsName].title}}</label>
+                    </div>
+                </div>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="downloadRule.scope.group" ng-change="changeUserScope('group', 'downloadRule')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="downloadRule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{editing.siteid}}&id={{editing.downloadRule.group.id}}' target='_self'>{{editing.downloadRule.group.title}} - {{editing.downloadRule.group.round.title}}</a></span>中分组 <a ng-if="downloadRule.scope.group==='Y'" href ng-click="chooseGroupApp('downloadRule')">指定</a>
                 </div>
             </div>
         </div>

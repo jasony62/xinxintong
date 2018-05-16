@@ -369,7 +369,7 @@ class base extends \site\fe\base {
 	 * @param boolean $redirect
 	 *
 	 */
-	protected function checkEntryRule($oApp, $bRedirect = false, $action = null) {
+	protected function checkEntryRule($oApp, $bRedirect = false) {
 		if (!isset($oApp->entryRule->scope)) {
 			return [true];
 		}

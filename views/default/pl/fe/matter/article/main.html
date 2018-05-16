@@ -136,7 +136,7 @@
                 <div class='checkbox'>
                     <label>
                         <input type='checkbox' ng-true-value="'Y'" ng-model="downloadRule.scope.member" ng-change="changeUserScope('member', 'downloadRule')">用户参与活动前需填写通讯录联系人信息</label>
-                    <span ng-if="rule.scope.member==='Y'">
+                    <span ng-if="downloadRule.scope.member==='Y'">
                             <span class='badge' ng-repeat="(msid,entry) in editing.downloadRule.member">
                                     <a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a>
                                     <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid, 'downloadRule')"></a>

@@ -134,10 +134,10 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                     return defer.promise;
                 }
             },
-            changeUserScope: function(ruleScope, oSiteSns, oDefaultInputPage) {
-                var oEntryRule = edit.entryRule;
-                oEntryRule.scope = ruleScope;
-                return this.update('entryRule');
+            changeUserScope: function(ruleScope, oSiteSns, oDefaultInputPage, type) {
+                var oRule = edit[type];
+                oRule.scope = ruleScope;
+                return this.update(type);
             }
         };
     }];

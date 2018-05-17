@@ -441,7 +441,7 @@ class repos extends base {
 					$oRecord->userTags = $oRecordTags->user;
 				}
 				if (!empty($oRecordTags->public)) {
-					$oRecord->tag = $oRecordTags->public;
+					$oRecord->tags = $oRecordTags->public;
 				}
 				/* 隐藏昵称 */
 				if ($bAnonymous) {

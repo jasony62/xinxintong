@@ -140,6 +140,7 @@ class main extends \site\fe\matter\base {
 		 */
 		$modelArticle = $this->model('matter\article');
 		$oArticle = $modelArticle->byId($articleid);
+		$this->checkDownloadRule($oArticle, true);
 		/**
 		 * 获取附件
 		 */
@@ -188,5 +189,21 @@ class main extends \site\fe\matter\base {
 		}
 
 		exit;
+	}
+	/**
+	 * 检查附件下载规则
+	 *
+	 * @param object $oApp
+	 * @param boolean $redirect
+	 *
+	 */
+	private function checkDownloadRule($oApp, $bRedirect = false) {
+		$oApp2 = clone $oApp;
+		$oApp2->entryRule = $oApp->downloadRule;
+		$oApp2->entry_rule = $oApp->download_rule;
+
+		$results = $this->checkEntryRule($oApp2, $bRedirect);
+
+		return $results;
 	}
 }

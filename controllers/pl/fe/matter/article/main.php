@@ -345,6 +345,10 @@ class main extends \pl\fe\matter\main_base {
 		} else if (isset($oPosted->config)) {
 			$oPosted->config = $modelArt->escape($modelArt->toJson($oPosted->config));
 		}
+		if (isset($oPosted->downloadRule)) {
+			$oPosted->download_rule = $modelArt->escape($modelArt->toJson($oPosted->downloadRule));
+			unset($oPosted->downloadRule);
+		}
 		/* 如果是引用关系，不修改正文 */
 		if ($oArticle->from_mode === 'C') {
 			if (isset($oPosted->body)) {

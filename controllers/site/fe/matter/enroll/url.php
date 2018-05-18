@@ -14,9 +14,6 @@ class url extends base {
 		$oSummary = new \stdClass;
 
 		$oPosted = $this->getPostJson();
-		if (empty($oPosted->url)) {
-			return new \ParameterError('未获取到指定的URL，请点击刷新按钮');
-		}
 		$targetUrl = $oPosted->url;
 
 		if (false === ($aTargetUrl = parse_url($targetUrl))) {

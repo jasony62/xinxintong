@@ -135,7 +135,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                 imgCount(schemaId, count, from);
                 var targetDiv;
                 targetDiv = event.currentTarget.children[event.currentTarget.children.length - 1];
-                window.xxt.image.paste($(targetDiv), $q.defer(), from).then(function(imgs) {
+                window.xxt.image.paste(angular.element(targetDiv)[0], $q.defer(), from).then(function(imgs) {
                     imgBind(schemaId, imgs);
                 }); 
             }; 
@@ -723,7 +723,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 html += '</button>';
                 html += '</li>';
                 $html = $compile(html)($scope);
-                $(pastecontain).append($html);
+                angular.element(pastecontain).append($html);
             });
         }
     });

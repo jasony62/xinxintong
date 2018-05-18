@@ -1,1 +1,4281 @@
-!function(e){function t(i){if(n[i])return n[i].exports;var o=n[i]={i:i,l:!1,exports:{}};return e[i].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var n={};t.m=e,t.c=n,t.i=function(e){return e},t.d=function(e,n,i){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:i})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=106)}([function(e,t){function n(e,t){var n=e[1]||"",o=e[3];if(!o)return n;if(t&&"function"==typeof btoa){var r=i(o);return[n].concat(o.sources.map(function(e){return"/*# sourceURL="+o.sourceRoot+e+" */"})).concat([r]).join("\n")}return[n].join("\n")}function i(e){return"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(e))))+" */"}e.exports=function(e){var t=[];return t.toString=function(){return this.map(function(t){var i=n(t,e);return t[2]?"@media "+t[2]+"{"+i+"}":i}).join("")},t.i=function(e,n){"string"==typeof e&&(e=[[null,e,""]]);for(var i={},o=0;o<this.length;o++){var r=this[o][0];"number"==typeof r&&(i[r]=!0)}for(o=0;o<e.length;o++){var a=e[o];"number"==typeof a[0]&&i[a[0]]||(n&&!a[2]?a[2]=n:n&&(a[2]="("+a[2]+") and ("+n+")"),t.push(a))}},t}},function(e,t,n){function i(e,t){for(var n=0;n<e.length;n++){var i=e[n],o=m[i.id];if(o){o.refs++;for(var r=0;r<o.parts.length;r++)o.parts[r](i.parts[r]);for(;r<i.parts.length;r++)o.parts.push(d(i.parts[r],t))}else{for(var a=[],r=0;r<i.parts.length;r++)a.push(d(i.parts[r],t));m[i.id]={id:i.id,refs:1,parts:a}}}}function o(e,t){for(var n=[],i={},o=0;o<e.length;o++){var r=e[o],a=t.base?r[0]+t.base:r[0],s=r[1],c=r[2],l=r[3],d={css:s,media:c,sourceMap:l};i[a]?i[a].parts.push(d):n.push(i[a]={id:a,parts:[d]})}return n}function r(e,t){var n=v(e.insertInto);if(!n)throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");var i=y[y.length-1];if("top"===e.insertAt)i?i.nextSibling?n.insertBefore(t,i.nextSibling):n.appendChild(t):n.insertBefore(t,n.firstChild),y.push(t);else if("bottom"===e.insertAt)n.appendChild(t);else{if("object"!=typeof e.insertAt||!e.insertAt.before)throw new Error("[Style Loader]\n\n Invalid value for parameter 'insertAt' ('options.insertAt') found.\n Must be 'top', 'bottom', or Object.\n (https://github.com/webpack-contrib/style-loader#insertat)\n");var o=v(e.insertInto+" "+e.insertAt.before);n.insertBefore(t,o)}}function a(e){if(null===e.parentNode)return!1;e.parentNode.removeChild(e);var t=y.indexOf(e);t>=0&&y.splice(t,1)}function s(e){var t=document.createElement("style");return void 0===e.attrs.type&&(e.attrs.type="text/css"),l(t,e.attrs),r(e,t),t}function c(e){var t=document.createElement("link");return void 0===e.attrs.type&&(e.attrs.type="text/css"),e.attrs.rel="stylesheet",l(t,e.attrs),r(e,t),t}function l(e,t){Object.keys(t).forEach(function(n){e.setAttribute(n,t[n])})}function d(e,t){var n,i,o,r;if(t.transform&&e.css){if(!(r=t.transform(e.css)))return function(){};e.css=r}if(t.singleton){var l=x++;n=b||(b=s(t)),i=u.bind(null,n,l,!1),o=u.bind(null,n,l,!0)}else e.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(n=c(t),i=f.bind(null,n,t),o=function(){a(n),n.href&&URL.revokeObjectURL(n.href)}):(n=s(t),i=p.bind(null,n),o=function(){a(n)});return i(e),function(t){if(t){if(t.css===e.css&&t.media===e.media&&t.sourceMap===e.sourceMap)return;i(e=t)}else o()}}function u(e,t,n,i){var o=n?"":i.css;if(e.styleSheet)e.styleSheet.cssText=k(t,o);else{var r=document.createTextNode(o),a=e.childNodes;a[t]&&e.removeChild(a[t]),a.length?e.insertBefore(r,a[t]):e.appendChild(r)}}function p(e,t){var n=t.css,i=t.media;if(i&&e.setAttribute("media",i),e.styleSheet)e.styleSheet.cssText=n;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(n))}}function f(e,t,n){var i=n.css,o=n.sourceMap,r=void 0===t.convertToAbsoluteUrls&&o;(t.convertToAbsoluteUrls||r)&&(i=w(i)),o&&(i+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))+" */");var a=new Blob([i],{type:"text/css"}),s=e.href;e.href=URL.createObjectURL(a),s&&URL.revokeObjectURL(s)}var m={},g=function(e){var t;return function(){return void 0===t&&(t=e.apply(this,arguments)),t}}(function(){return window&&document&&document.all&&!window.atob}),h=function(e){return document.querySelector(e)},v=function(e){var t={};return function(e){if("function"==typeof e)return e();if(void 0===t[e]){var n=h.call(this,e);if(window.HTMLIFrameElement&&n instanceof window.HTMLIFrameElement)try{n=n.contentDocument.head}catch(e){n=null}t[e]=n}return t[e]}}(),b=null,x=0,y=[],w=n(3);e.exports=function(e,t){if("undefined"!=typeof DEBUG&&DEBUG&&"object"!=typeof document)throw new Error("The style-loader cannot be used in a non-browser environment");t=t||{},t.attrs="object"==typeof t.attrs?t.attrs:{},t.singleton||"boolean"==typeof t.singleton||(t.singleton=g()),t.insertInto||(t.insertInto="head"),t.insertAt||(t.insertAt="bottom");var n=o(e,t);return i(n,t),function(e){for(var r=[],a=0;a<n.length;a++){var s=n[a],c=m[s.id];c.refs--,r.push(c)}if(e){i(o(e,t),t)}for(var a=0;a<r.length;a++){var c=r[a];if(0===c.refs){for(var l=0;l<c.parts.length;l++)c.parts[l]();delete m[c.id]}}}};var k=function(){var e=[];return function(t,n){return e[t]=n,e.filter(Boolean).join("\n")}}()},function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("page.ui.xxt",[]);ngMod.directive("dynamicHtml",["$compile",function(e){return{restrict:"EA",replace:!0,link:function(t,n,i){t.$watch(i.dynamicHtml,function(i){i&&i.length&&(n.html(i),e(n.contents())(t))})}}}]),ngMod.service("tmsDynaPage",["$q",function($q){this.loadCss=function(e){var t,n;t=document.createElement("style"),t.innerHTML=e,n=document.querySelector("head"),n.appendChild(t)},this.loadExtCss=function(e){var t,n;t=document.createElement("link"),t.href=e,t.rel="stylesheet",n=document.querySelector("head"),n.appendChild(t)},this.loadJs=function(ngApp,js){!function(ngApp){eval(js)}(ngApp)},this.loadScript=function(e){var t,n,i=$q.defer();return n=function(){var o;o=document.createElement("script"),o.src=e[t],o.onload=function(){t++,t<e.length?n():i.resolve()},document.body.appendChild(o)},e&&(angular.isString(e)&&(e=[e]),e.length&&(t=0,n())),i.promise},this.loadExtJs=function(e,t){var n,i=this,o=$q.defer(),r=t.ext_js.length;return n=function(n){var a;a=document.createElement("script"),a.src=n.url,a.onload=function(){0===--r&&(t.js&&t.js.length&&i.loadJs(e,t.js),o.resolve())},document.body.appendChild(a)},t.ext_js&&t.ext_js.length&&t.ext_js.forEach(n),o.promise},this.loadCode=function(e,t){var n=this,i=$q.defer();return t.ext_css&&t.ext_css.length&&t.ext_css.forEach(function(e){n.loadExtCss(e.url)}),t.css&&t.css.length&&this.loadCss(t.css),t.ext_js&&t.ext_js.length?n.loadExtJs(e,t).then(function(){i.resolve()}):(t.js&&t.js.length&&n.loadJs(e,t.js),i.resolve()),i.promise},this.openPlugin=function(e){var t,n,i,o,r=$q.defer();return document.documentElement.clientWidth>768?document.documentElement.scrollTop=0:document.body.scrollTop=0,o=document.getElementsByTagName("body")[0],o.style.cssText="overflow-y:hidden",t=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),i=document.createElement("iframe"),n.appendChild(i),n.onclick=function(){n.parentNode.removeChild(n),o.style.cssText="overflow-y:auto"},t.appendChild(n),document.body.appendChild(t),0===e.indexOf("http")?(window.onClosePlugin=function(e){n.parentNode.removeChild(n),o.style.cssText="overflow-y:auto",r.resolve(e)},i.setAttribute("src",e)):i.contentDocument&&i.contentDocument.body&&(i.contentDocument.body.innerHTML=e),r.promise}}])},function(e,t){e.exports=function(e){var t="undefined"!=typeof window&&window.location;if(!t)throw new Error("fixUrls requires window.location");if(!e||"string"!=typeof e)return e;var n=t.protocol+"//"+t.host,i=n+t.pathname.replace(/\/[^\/]*$/,"/");return e.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi,function(e,t){var o=t.trim().replace(/^"(.*)"$/,function(e,t){return t}).replace(/^'(.*)'$/,function(e,t){return t});if(/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/|\s*$)/i.test(o))return e;var r;return r=0===o.indexOf("//")?o:0===o.indexOf("/")?n+o:i+o.replace(/^\.\//,""),"url("+JSON.stringify(r)+")"})}},function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("snsshare.ui.xxt",[]);ngMod.service("tmsSnsShare",["$http",function($http){function setWxShare(e,t,n,i,o){window.wx.onMenuShareTimeline({title:o.descAsTitle?n:e,link:t,imgUrl:i,success:function(){try{o.logger&&o.logger("T")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareT: fail")}}),window.wx.onMenuShareAppMessage({title:e,desc:n,link:t,imgUrl:i,success:function(){try{o.logger&&o.logger("F")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareF: fail")}})}function setYxShare(e,t,n,i,o){var r={img_url:i,link:t,title:e,desc:n};window.YixinJSBridge.on("menu:share:appmessage",function(e){try{o.logger&&o.logger("F")}catch(e){alert("share failed:"+e.message)}window.YixinJSBridge.invoke("sendAppMessage",r,function(e){})}),window.YixinJSBridge.on("menu:share:timeline",function(e){try{o.logger&&o.logger("T")}catch(e){alert("share failed:"+e.message)}window.YixinJSBridge.invoke("shareTimeline",r,function(e){})})}var _isReady=!1;this.config=function(e){this.options=e},this.set=function(title,link,desc,img,fnOther){var _this=this;if(img&&-1===img.indexOf(location.protocol)&&(img=location.protocol+"//"+location.host+img),_isReady)/MicroMessenger/i.test(navigator.userAgent)?setWxShare(title,link,desc,img,_this.options):/Yixin/i.test(navigator.userAgent)?setYxShare(title,link,desc,img,_this.options):fnOther&&"function"==typeof fnOther&&fnOther(title,link,desc,img);else if(/MicroMessenger/i.test(navigator.userAgent)){var script;script=document.createElement("script"),script.src=location.protocol+"//res.wx.qq.com/open/js/jweixin-1.0.0.js",script.onload=function(){var xhr,url;xhr=new XMLHttpRequest,url="/rest/site/fe/wxjssdksignpackage?site="+_this.options.siteId+"&url="+encodeURIComponent(location.href.split("#")[0]),xhr.open("GET",url,!0),xhr.onreadystatechange=function(){if(4==xhr.readyState)if(xhr.status>=200&&xhr.status<400){var signPackage;try{eval("("+xhr.responseText+")"),signPackage&&(signPackage.debug=!1,signPackage.jsApiList=_this.options.jsApiList,wx.config(signPackage),wx.ready(function(){setWxShare(title,link,desc,img,_this.options),_isReady=!0}),wx.error(function(e){alert(JSON.stringify(e))}))}catch(e){alert("local error:"+e.toString())}}else alert("http error:"+xhr.statusText)},xhr.send()},document.body.appendChild(script)}else/Yixin/i.test(navigator.userAgent)?void 0===window.YixinJSBridge?document.addEventListener("YixinJSBridgeReady",function(){setYxShare(title,link,desc,img,_this.options),_isReady=!0},!1):(setYxShare(title,link,desc,img,_this.options),_isReady=!0):fnOther&&"function"==typeof fnOther&&(fnOther(title,link,desc,img),_isReady=!0)}}])},function(e,t,n){"use strict";angular.module("modal.ui.xxt",[]).service("tmsModal",["$rootScope","$compile","$q","$controller",function(e,t,n,i){this.open=function(o){var r,a=n.defer(),s=n.defer(),c={result:a.promise,closed:s.promise,close:function(e){document.body.removeChild(p[0]),a.resolve(e)},dismiss:function(e){document.body.removeChild(p[0]),s.resolve(e)}};r=e.$new(!0),o.controller&&i(o.controller,{$scope:r,$tmsModalInstance:c});var l,d,u,p;return l=angular.element("<div></div>"),l.attr({class:"modal-content","ng-style":"{'z-index':1060}"}).append(o.template),d=angular.element("<div></div>"),d.attr({class:"modal-dialog"}).append(l),u=angular.element("<div></div>"),u.attr({class:"modal-backdrop","ng-style":"{'z-index':1040}"}),p=angular.element("<div></div>"),p.attr({class:"modal","ng-style":"{'z-index':1050}",tabindex:-1}).append(d).append(u),t(p)(r),document.body.appendChild(p[0]),c}}])},function(e,t,n){var i=n(10);"string"==typeof i&&(i=[[e.i,i,""]]);var o={hmr:!0};o.transform=void 0,o.insertInto=void 0;n(1)(i,o);i.locals&&(e.exports=i.locals)},function(e,t,n){"use strict";var i=angular.module("http.ui.xxt",[]);i.provider("tmsLocation",function(){var e;this.config=function(t){e=t||location.pathname},this.$get=["$location",function(t){return e||(e=location.pathname),{s:function(){return t.search()},j:function(n){var i=e,o=[];n&&n.length&&(i+="/"+n);for(var r=1,a=arguments.length;r<a;r++)o.push(arguments[r]+"="+(t.search()[arguments[r]]||""));return o.length&&(i+="?"+o.join("&")),i}}}]}),i.service("http2",["$rootScope","$http","$timeout","$q","$sce","$compile",function(e,t,n,i,o,r){function a(t,n,i){var a;return a=angular.element("<div></div>"),a.attr({class:"tms-notice alert alert-"+(n||"info"),"ng-style":"{'z-index':1099}"}).html(o.trustAsHtml(t)),i||a[0].addEventListener("click",function(){document.body.removeChild(a[0])},!0),r(a)(e),document.body.appendChild(a[0]),a[0]}function s(e){e&&document.body.removeChild(e)}this.get=function(e,o){var r,c,l=i.defer();return o=angular.extend({headers:{accept:"application/json"},parseResponse:!0,autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},o),!0===o.showProgress&&(c=n(function(){c=null,r=a(o.showProgressText,"info")},o.showProgressDelay)),t.get(e,o).success(function(e){if(!0===o.showProgress&&(c&&n.cancel(c),r&&(s(r),r=null)),o.parseResponse)if(angular.isString(e)){if(o.autoNotice&&a(e,"warning"),o.autoBreak)return;l.reject(e)}else if(0!=e.err_code){if(o.autoNotice){var t;t=angular.isString(e.err_msg)?e.err_msg:angular.isArray(e.err_msg)?e.err_msg.join("<br>"):JSON.stringify(e.err_msg),a(t,"warning")}if(o.autoBreak)return;l.reject(e)}else l.resolve(e);else l.resolve(e)}).error(function(e,t){!0===o.showProgress&&(c&&n.cancel(c),r&&(s(r),r=null)),a(null===e?"网络不可用":e,"danger")}),l.promise},this.post=function(e,o,r){var c,l,d=i.defer();return r=angular.extend({headers:{accept:"application/json"},parseResponse:!0,autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},r),!0===r.showProgress&&(l=n(function(){l=null,c=a(r.showProgressText,"info")},r.showProgressDelay)),t.post(e,o,r).success(function(e){if(!0===r.showProgress&&(l&&n.cancel(l),c&&(s(c),c=null)),r.parseResponse)if(angular.isString(e)){if(r.autoNotice&&(a(e,"warning"),c=null),r.autoBreak)return;d.reject(e)}else if(0!=e.err_code){if(r.autoNotice){var t;t=angular.isString(e.err_msg)?e.err_msg:angular.isArray(e.err_msg)?e.err_msg.join("<br>"):JSON.stringify(e.err_msg),a(t,"warning")}if(r.autoBreak)return;d.reject(e)}else d.resolve(e);else d.resolve(e)}).error(function(e,t){!0===r.showProgress&&(l&&n.cancel(l),c&&(s(c),c=null)),a(null===e?"网络不可用":e,"danger")}),d.promise}}])},function(e,t,n){"use strict";angular.module("notice.ui.xxt",["ngSanitize"]).service("noticebox",["$timeout","$q",function(e,t){var n="tmsbox"+1*new Date,i={type:"",timer:null},o=function(e,t){var o;return o=document.querySelector("#"+n),null===o?(o=document.createElement("div"),o.setAttribute("id",n),o.classList.add("notice-box"),o.classList.add("alert"),o.classList.add("alert-"+e),o.innerHTML="<div>"+t+"</div>",document.body.appendChild(o),i.type=e):(i.type!==e&&(o.classList.remove("alert-"+e),i.type=e),o.childNodes[0].innerHTML=t),o};this.close=function(){var e;(e=document.querySelector("#"+n))&&document.body.removeChild(e)},this.error=function(t){var n,r;i.timer&&(e.cancel(i.timer),i.timer=null),n=o("danger",t),r=document.createElement("button"),r.classList.add("close"),r.innerHTML="<span>&times;</span>",n.insertBefore(r,n.childNodes[0]),r.addEventListener("click",function(){document.body.removeChild(n)})},this.warn=function(t){var n,r;i.timer&&(e.cancel(i.timer),i.timer=null),n=o("warning",t),r=document.createElement("button"),r.classList.add("close"),r.innerHTML="<span>&times;</span>",n.insertBefore(r,n.childNodes[0]),r.addEventListener("click",function(){document.body.removeChild(n)})},this.success=function(t){var n;i.timer&&e.cancel(i.timer),n=o("success",t),i.timer=e(function(){n.parentNode&&n.parentNode===document.body&&document.body.removeChild(n),i.timer=null},2e3)},this.info=function(t){var n;i.timer&&e.cancel(i.timer),n=o("info",t),i.timer=e(function(){n.parentNode&&n.parentNode===document.body&&document.body.removeChild(n),i.timer=null},2e3)},this.progress=function(e){o("progress",e)},this.confirm=function(n,r){var a,s,c;return a=t.defer(),i.timer&&(e.cancel(i.timer),i.timer=null),s=o("warning",n),r&&r.length?r.forEach(function(e){c=document.createElement("button"),c.classList.add("btn","btn-default","btn-sm"),c.innerHTML=e.label,s.appendChild(c,s.childNodes[0]),c.addEventListener("click",function(){document.body.removeChild(s),a.resolve(e.value)})}):(c=document.createElement("button"),c.classList.add("btn","btn-default","btn-sm"),c.innerHTML="是",s.appendChild(c,s.childNodes[0]),c.addEventListener("click",function(){document.body.removeChild(s),a.resolve()}),c=document.createElement("button"),c.classList.add("btn","btn-default","btn-sm"),c.innerHTML="否",s.appendChild(c,s.childNodes[0]),c.addEventListener("click",function(){document.body.removeChild(s),a.reject()})),a.promise}}])},function(e,t,n){"use strict";n(6),n(2),n(5),angular.module("favor.ui.xxt",["page.ui.xxt","modal.ui.xxt"]).service("tmsFavor",["$rootScope","$http","$q","tmsDynaPage","tmsModal",function(e,t,n,i,o){function r(e){var i,o;return o=n.defer(),i="/rest/site/fe/user/favor/byUser",i+="?site="+e.siteid,i+="&id="+e.id,i+="&type="+e.type,t.get(i).success(function(e){o.resolve(e.data)}),o.promise}function a(e){var i,o;return o=n.defer(),i="/rest/site/fe/user/favor/add",i+="?site="+e.siteid,i+="&id="+e.id,i+="&type="+e.type,t.get(i).success(function(e){o.resolve(e.data)}),o.promise}function s(e){var i,o;return o=n.defer(),i="/rest/site/fe/user/favor/remove",i+="?site="+e.siteid,i+="&id="+e.id,i+="&type="+e.type,t.get(i).success(function(e){o.resolve(e.data)}),o.promise}function c(e){var i,o;return o=n.defer(),i="/rest/pl/fe/site/favor/sitesByUser?site="+e.siteid+"&id="+e.id+"&type="+e.type+"&_="+1*new Date,t.get(i).success(function(e){0==e.err_code&&o.resolve(e.data)}),o.promise}function l(e,i){var o,r;return r=n.defer(),o="/rest/pl/fe/site/favor/add?id="+e.id+"&type="+e.type,t.post(o,i).success(function(e){r.resolve(e.data)}),r.promise}function d(e,i){var o,r;return r=n.defer(),o="/rest/pl/fe/site/favor/remove?id="+e.id+"&type="+e.type,t.post(o,i).success(function(e){r.resolve(e.data)}),r.promise}this.open=function(e){var n;n='<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>',n+='<div class="modal-body">',n+='<div class="checkbox">',n+="<label>",n+="<input type='checkbox' ng-true-value=\"'Y'\" ng-false-value=\"'N'\" ng-model='person._selected'>",n+="<span>个人账户</span>",n+="<span ng-if=\"person._favored==='Y'\">（已收藏）</span>",n+="</label>",n+="</div>",n+='<div class="checkbox" ng-repeat="site in mySites">',n+="<label>",n+="<input type='checkbox' ng-true-value=\"'Y'\" ng-false-value=\"'N'\" ng-model='site._selected'>",n+="<span>{{site.name}}</span>",n+="<span ng-if=\"site._favored==='Y'\">（已收藏）</span>",n+="</label>",n+="</div>",n+='<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>',n+="</div>",n+='<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>',o.open({template:n,controller:["$scope","$tmsModalInstance",function(n,i){r(e).then(function(e){n.person={_favored:e?"Y":"N"},n.person._selected=n.person._favored}),c(e).then(function(e){var t=e;t.forEach(function(e){e._selected=e._favored}),n.mySites=t}),n.createSite=function(){t.get("/rest/pl/fe/site/create").success(function(e){var t=e.data;t._favored=t._selected="N",n.mySites=[t]})},n.ok=function(){var e;e={person:n.person,mySites:n.mySites},i.close(e)},n.cancel=function(){i.dismiss()}}]}).result.then(function(t){var n,i;if(n=t.person,n&&n._selected!==n._favored&&("Y"===n._selected?a(e):s(e)),i=t.mySites){var o=[],r=[];i.forEach(function(e){e._selected!==e._favored&&("Y"===e._selected?o.push(e.id):r.push(e.id))}),o.length&&l(e,o),r.length&&d(e,r)}})},this.showSwitch=function(t,n){var o,r=this;o=document.createElement("div"),o.classList.add("tms-switch","tms-switch-favor"),o.addEventListener("click",function(o){o.preventDefault(),o.stopPropagation(),e.$apply(function(){t.loginExpire?r.open(n):i.openPlugin(location.protocol+"//"+location.host+"/rest/site/fe/user/access?site=platform#login").then(function(e){t.loginExpire=e.loginExpire,r.open(n)})})},!0),document.body.appendChild(o)}}])},function(e,t,n){t=e.exports=n(0)(!1),t.push([e.i,".modal{display:block;overflow:hidden;outline:0;overflow-x:hidden;overflow-y:auto;opacity:1}.modal,.modal-backdrop{position:fixed;top:0;right:0;bottom:0;left:0}.modal-backdrop{background-color:#000;opacity:.5}.modal-dialog{z-index:1055;margin:0;position:relative;width:auto;margin:10px}.modal-content{position:relative;background-color:#fff;-webkit-background-clip:padding-box;background-clip:padding-box;border:1px solid #999;border:1px solid rgba(0,0,0,.2);border-radius:6px;outline:0;-webkit-box-shadow:0 3px 9px rgba(0,0,0,.5);box-shadow:0 3px 9px rgba(0,0,0,.5)}.modal-header{padding:15px;border-bottom:1px solid #e5e5e5}.modal-header .close{margin-top:-2px}.modal-title{margin:0;line-height:1.42857143}.modal-body{position:relative;padding:15px}.modal-footer{padding:15px;text-align:right;border-top:1px solid #e5e5e5}button.close{-webkit-appearance:none;padding:0;cursor:pointer;background:0 0;border:0}.close{float:right;font-size:21px;font-weight:700;line-height:1;color:#000;text-shadow:0 1px 0 #fff;filter:alpha(opacity=20);opacity:.2}@media (min-width:768px){.modal-dialog{width:600px;margin:30px auto}.modal-content{-webkit-box-shadow:0 5px 15px rgba(0,0,0,.5);box-shadow:0 5px 15px rgba(0,0,0,.5)}}",""])},function(e,t,n){t=e.exports=n(0)(!1),t.push([e.i,'.dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-body,.dialog .dlg-header{padding:15px 15px 0}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-act-toggle{position:fixed;right:15px;bottom:8px;width:48px;height:48px;line-height:48px;box-shadow:0 2px 6px rgba(18,27,32,.425);color:#fff;background:#ff8018;border:1px solid #ff8018;border-radius:24px;font-size:20px;text-align:center;cursor:pointer;z-index:1050}.tms-nav-target>*+*{margin-top:.5em}.tms-act-popover-wrap>div+div{margin-top:8px}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:"\\5173\\95ED";position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}',""])},function(e,t,n){var i=n(11);"string"==typeof i&&(i=[[e.i,i,""]]);var o={hmr:!0};o.transform=void 0,o.insertInto=void 0;n(1)(i,o);i.locals&&(e.exports=i.locals)},function(e,t,n){"use strict";window.__util={},window.__util.makeDialog=function(e,t){var n,i;return i=document.createElement("div"),i.setAttribute("id",e),i.classList.add("dialog","mask"),n="<div class='dialog dlg'>",t.header&&t.header.length&&(n+="<div class='dlg-header'>"+t.header+"</div>"),n+="<div class='dlg-body'>"+t.body+"</div>",t.footer&&t.footer.length&&(n+="<div class='dlg-footer'>"+t.footer+"</div>"),n+="</div>",i.innerHTML=n,document.body.appendChild(i),i.children};var i=angular.module("directive.enroll",[]);i.directive("tmsAppNav",["$templateCache",function(e){var t;return t="<div class='tms-nav-target'>",t+="<div ng-if=\"navs.repos\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'repos')\">共享页</button></div>",t+="<div ng-if=\"navs.favor\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'favor')\">收藏页</button></div>",t+="<div ng-if=\"navs.rank\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'rank')\">排行页</button></div>",t+='<div ng-if="navs.action"><button class=\'btn btn-default btn-block\' ng-click="goto($event,\'action\')">动态页<span class=\'notice-count\' ng-if="noticeCount" ng-bind="noticeCount"></span></button></div>',t+="</div>",e.put("appNavTemplate.html",t),{restrict:"A",replace:!0,transclude:!0,scope:{navs:"=appNavs",noticeCount:"=noticeCount"},template:'<span><span ng-if="!navs"><span ng-transclude></span></span><span ng-if="navs" uib-popover-template="\'appNavTemplate.html\'" popover-placement="bottom" popover-trigger="\'outsideClick\'"><span ng-transclude></span><span class=\'notice-count\' ng-if="noticeCount" ng-bind="noticeCount"></span><span class="caret"></span></span></span>',controller:["$scope",function(e){e.goto=function(t,n){e.$parent.gotoPage(t,n)}}]}}]),i.directive("tmsAppAct",["$templateCache",function(e){var t;return t="<div class='tms-act-popover-wrap'>",t+="<div ng-if=\"acts.mockAsMember\"><button class='btn btn-default' ng-click=\"goto($event,'mockAsMember')\"><span ng-if=\"mocker.role!=='member'\">作为</span><span ng-if=\"mocker.role==='member'\">退出</span>成员</button></div>",t+="<div ng-if=\"acts.mockAsVisitor\"><button class='btn btn-default' ng-click=\"goto($event,'mockAsVisitor')\"><span ng-if=\"mocker.role!=='visitor'\">作为</span><span ng-if=\"mocker.role==='visitor'\">退出</span>访客</button></div>",t+="<div ng-if=\"acts.addRecord\"><button class='btn btn-default' ng-click=\"goto($event,'addRecord')\">添加记录</button></div>",t+="<div ng-if=\"acts.save\"><button class='btn btn-default' ng-click=\"goto($event,'save')\">保存</button></div>",t+="</div>",e.put("appActTemplate.html",t),{restrict:"A",replace:!0,scope:{acts:"=appActs"},template:'<button uib-popover-template="\'appActTemplate.html\'" popover-placement="top-right" popover-trigger="\'outsideClick\'" popover-append-to-body="true" class="tms-act-toggle" popover-class="tms-act-popover"><span class=\'glyphicon glyphicon-option-vertical\'></span></button>',controller:["$scope",function(e){e.$watch("acts",function(t){var n;t&&(n=t.mockAsVisitor||t.mockAsMember)&&n.mocker&&angular.isString(n.mocker)&&(e.mocker=e.$parent[n.mocker])&&e.$parent.$watch(n.mocker,function(t){e.mocker=t},!0)}),e.back=function(){history.back()},e.historyLen=function(){return history.length},e.goto=function(t,n){switch(n){case"mockAsVisitor":e.$parent.mockAsVisitor(t,"visitor"!==e.mocker.role);break;case"mockAsMember":e.$parent.mockAsMember(t,"member"!==e.mocker.role);break;case"addRecord":e.$parent.addRecord(t);break;case"save":e.$parent.save();break;default:e.$parent.gotoPage(t,n)}}}]}}]),i.directive("tmsDate",["$compile",function(e){return{restrict:"A",scope:{value:"=tmsDateValue"},controller:["$scope",function(e){e.close=function(){var t;t=document.querySelector("#"+e.dialogID),document.body.removeChild(t),e.opened=!1},e.ok=function(){var t;t=new Date,t.setTime(0),t.setFullYear(e.data.year),t.setMonth(e.data.month-1),t.setDate(e.data.date),t.setHours(e.data.hour),t.setMinutes(e.data.minute),e.value=parseInt(t.getTime()/1e3),e.close()}}],link:function(t,n,i){var o,r,a,s;void 0===t.value&&(t.value=1*new Date/1e3),r=new Date,r.setTime(1e3*t.value),t.options={years:[2014,2015,2016,2017,2018,2019,2020],months:[1,2,3,4,5,6,7,8,9,10,11,12],dates:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],hours:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],minutes:[0,5,10,15,20,25,30,35,40,45,50,55]},a=5*Math.round(r.getMinutes()/5),t.data={year:r.getFullYear(),month:r.getMonth()+1,date:r.getDate(),hour:r.getHours(),minute:a},-1===t.options.minutes.indexOf(a)&&t.options.minutes.push(a),s='<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>',o=function(n){if(n.preventDefault(),n.stopPropagation(),!t.opened){var i,o;o="_dlg-"+1*new Date,i={header:"",body:s,footer:'<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'},i=__util.makeDialog(o,i),t.opened=!0,t.dialogID=o,e(i)(t)}},n[0].querySelector("[ng-bind]").addEventListener("click",o)}}}]),i.directive("flexImg",function(){return{restrict:"A",replace:!0,template:"<img ng-src='{{img.imgSrc}}'>",link:function(e,t,n){angular.element(t).on("load",function(){var e,t,n=this.clientWidth,i=this.clientHeight;n>i?(e=n/i*80,angular.element(this).css({height:"100%",width:e+"px",top:"0",left:"50%","margin-left":-1*e/2+"px"})):(t=i/n*80,angular.element(this).css({width:"100%",height:t+"px",left:"0",top:"50%","margin-top":-1*t/2+"px"}))})}}}),i.directive("tmsHideParentHeight",function(){return{restrict:"A",link:function(e,t,n){var i,o;if(n.tmsHideParentHeight){i=n.tmsHideParentHeight;for(var r=0,a=t.length;r<a;r++)o=t[r],o.parentElement&&window.addEventListener("resize",function(){o.classList.toggle("hidden",o.parentElement.clientHeight<i)})}}}}),i.directive("tmsScrollSpy",function(){return{restrict:"A",scope:{selector:"@selector",offset:"@",onbottom:"&",toggleSpy:"="},link:function(e,t,n){"window"===e.selector&&window.addEventListener("scroll",function(t){var n;(n=t.target.scrollingElement)&&e.toggleSpy&&e.onbottom&&angular.isFunction(e.onbottom)&&n.clientHeight+n.scrollTop+parseInt(e.offset)>=n.scrollHeight&&e.$apply(function(){e.toggleSpy=!1,e.onbottom()})})}}})},function(e,t,n){"use strict";function i(e,t){var n,i,o;n=document.createDocumentFragment(),i=document.createElement("div"),i.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),i.appendChild(o),i.onclick=function(){i.parentNode.removeChild(i)},n.appendChild(i),document.body.appendChild(n),0===e.indexOf("http")?(window.onClosePlugin=function(){i.parentNode.removeChild(i),t&&t()},o.setAttribute("src",e)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=e)}angular.module("coinpay.ui.xxt",[]).service("tmsCoinPay",function(){this.showSwitch=function(e,t){var n;n=document.createElement("div"),n.classList.add("tms-switch","tms-switch-coinpay"),n.addEventListener("click",function(n){n.preventDefault(),n.stopPropagation();var o=location.protocol+"//"+location.host;o+="/rest/site/fe/coin/pay",o+="?site="+e,o+="&matter="+t,i(o)},!0),document.body.appendChild(n)}})},function(e,t,n){"use strict";function i(e,t){var n,i,o;n=document.createDocumentFragment(),i=document.createElement("div"),i.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),i.appendChild(o),i.onclick=function(){i.parentNode.removeChild(i)},n.appendChild(i),document.body.appendChild(n),0===e.indexOf("http")?(window.onClosePlugin=function(){i.parentNode.removeChild(i),t&&t()},o.setAttribute("src",e)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=e)}angular.module("siteuser.ui.xxt",[]).service("tmsSiteUser",function(){this.showSwitch=function(e,t){var n;n=document.createElement("div"),n.classList.add("tms-switch","tms-switch-siteuser"),n.addEventListener("click",function(n){n.preventDefault(),n.stopPropagation();var o=location.protocol+"//"+location.host;o+="/rest/site/fe/user",o+="?site="+e,t?location.href=o:i(o)},!0),document.body.appendChild(n)}})},function(e,t,n){t=e.exports=n(0)(!1),t.push([e.i,"body,html{font-family:Microsoft Yahei,Arial;width:100%;height:auto}body{position:relative;font-size:16px;padding:0}.ng-cloak{display:none}.container{position:relative}.navbar-default .navbar-brand,.site-navbar-default .navbar-default .navbar-nav>li>a{color:#fff}.site-navbar-default .navbar-brand{padding:15px}.main-navbar .navbar-brand:hover{color:#fff}@media screen and (min-width:768px){.site-navbar-default .navbar-nav>li>a{padding:15px;line-height:1}}@media screen and (max-width:768px){.site-navbar-default .navbar-brand{width:100%;text-align:center}.site-navbar-default .navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.site-navbar-default .navbar-nav{margin:8px 0;position:absolute;top:0;right:0}.site-navbar-default .nav>li>a{padding:10px}}.tms-flex-row{display:flex;align-items:center}.tms-flex-row .tms-flex-grow{flex:1}.dropdown-menu{min-width:auto}.dropdown-menu-top{bottom:100%;top:auto}#picViewer{position:absolute;left:0;right:0;top:0;bottom:0;z-index:1051;display:none;margin:0 auto;overflow:hidden;background:#000}#picViewer>div{position:absolute;bottom:6px;left:8px;right:8px;z-index:1999;height:36px}#picViewer span{display:inline-block;width:36px;height:36px;line-height:25px;border-radius:18px;font-size:25px;text-align:center;color:#bbb}#picViewer span.page{position:absolute;left:50%;margin-left:-18px;font-size:18px}#picViewer span.prev{position:absolute;left:50%;margin-left:-72px}#picViewer span.next{position:absolute;left:50%;margin-left:36px}#picViewer span.exit{position:absolute;right:0}#picViewer span.exit>i{text-shadow:0 0 .1em #fff,0 0 .1em #fff}",""])},function(e,t,n){var i=n(16);"string"==typeof i&&(i=[[e.i,i,""]]);var o={hmr:!0};o.transform=void 0,o.insertInto=void 0;n(1)(i,o);i.locals&&(e.exports=i.locals)},function(e,t,n){"use strict";n(4),/MicroMessenger/i.test(navigator.userAgent)&&window.signPackage&&window.wx?window.wx.ready(function(){window.wx.showOptionMenu()}):/YiXin/i.test(navigator.userAgent)&&document.addEventListener("YixinJSBridgeReady",function(){YixinJSBridge.call("showOptionMenu")},!1),n(12),n(17),n(8),n(7),n(2),n(15),n(9),n(14),n(13);var i=["ngSanitize","ui.bootstrap","notice.ui.xxt","http.ui.xxt","page.ui.xxt","snsshare.ui.xxt","siteuser.ui.xxt","favor.ui.xxt","directive.enroll"];window.moduleAngularModules&&window.moduleAngularModules.forEach(function(e){i.push(e)});var o=angular.module("app",i);o.config(["$controllerProvider","$uibTooltipProvider","$locationProvider",function(e,t,n){o.provider={controller:e.register},t.setTriggers({show:"hide"}),n.html5Mode(!0)}]),o.controller("ctrlMain",["$scope","$q","http2","$timeout","tmsLocation","tmsDynaPage","tmsSnsShare","tmsSiteUser","tmsFavor",function(e,t,n,i,r,a,s,c,l){function d(){var i,o;return o=t.defer(),i=r.j("entryRule","site","app"),n.get(i).then(function(t){e.params.entryRuleResult=t.data,o.resolve(t.data)})}function u(e,t){var n,i,o;n=document.body,i=document.createElement("div"),i.setAttribute("id","frmPlugin"),i.height=n.clientHeight,o=document.createElement("iframe"),i.appendChild(o),n.scrollTop=0,n.appendChild(i),window.onClosePlugin=function(){t?t().then(function(e){i.parentNode.removeChild(i)}):i.parentNode.removeChild(i)},i.onclick=function(){onClosePlugin()},e&&o.setAttribute("src",e),i.style.display="block"}function p(t){var n,i,o,r;r=!0,n=e,o=t.match(/\((.*?)\)/)[1].replace(/'|"/g,"").split(","),angular.forEach(t.replace(/\(.*?\)/,"").split("."),function(e){if(i&&(n=i),!n[e])return void(r=!1);i=n[e]}),r&&i.apply(n,o)}var f=[];e.closeWindow=function(){/MicroMessenger/i.test(navigator.userAgent)?window.wx.closeWindow():/YiXin/i.test(navigator.userAgent)&&window.YixinJSBridge.call("closeWebView")},e.askFollowSns=function(){var t;e.app.entryRule&&"Y"===e.app.entryRule.scope.sns&&(t=r.j("askFollow","site"),t+="&sns="+Object.keys(e.app.entryRule.sns).join(","),u(t,d))},e.askBecomeMember=function(){var t,n;e.app.entry_rule&&"Y"===e.app.entryRule.scope.member&&(n=Object.keys(e.app.entryRule.member),1===n.length?(t="/rest/site/fe/user/member?site="+e.app.siteid,t+="&schema="+n[0]):n.length>1&&(t="/rest/site/fe/user/memberschema?site="+e.app.siteid,t+="&schema="+n.join(",")),u(t,d))},e.addRecord=function(t,n){if(n)e.gotoPage(t,n,null,null,"Y");else for(var i in e.app.pages){var o=e.app.pages[i];if("I"===o.type){e.gotoPage(t,o.name,null,null,"Y");break}}},e.gotoApp=function(t){location.replace(e.app.entryUrl)},e.gotoPage=function(e,t,n,i,o){e&&(e.preventDefault(),e.stopPropagation());var a=r.j("","site","app");n?a+="&ek="+n:"cowork"===t&&(a+="&ek="+r.s().ek),i&&(a+="&rid="+i),t&&(a+="&page="+t),o&&"Y"===o&&(a+="&newRecord=Y"),location=a},e.openMatter=function(e,t,n,i){var o="/rest/site/fe/matter?site="+r.s().site+"&id="+e+"&type="+t;n?location.replace(o):!1===i?location.href=o:window.open(o)},e.onReady=function(t){e.params?p(t):f.push(t)},e.setSnsShare=function(t,i){function o(){if("miniprogram"!==window.__wxjs_environment){var o,a,c,l,d,u;o=e.app,a=e.page,c=e.user,l=location.protocol+"//"+location.host+r.j("","site","app","rid"),a&&a.share_page&&"Y"===a.share_page?l+="&page="+a.name:r.s().page&&(l+="&page="+r.s().page),t&&t.enroll_key&&(l+="&ek="+t.enroll_key),i&&angular.forEach(i,function(e,t){void 0!==e&&(l+="&"+t+"="+e)}),d=c.uid+"_"+1*new Date,l+="&shareby="+d,u=o.summary,a&&a.share_summary&&a.share_summary.length&&t&&(u=t.data[a.share_summary]),window.shareCounter=0,s.config({siteId:o.siteid,logger:function(e){var t;t="/rest/site/fe/matter/logShare",t+="?shareid="+d,t+="&site="+o.siteid,t+="&id="+o.id,t+="&type=enroll",t+="&title="+o.title,t+="&shareby="+d,t+="&shareto="+e,n.get(t),window.shareCounter++,window.onshare&&window.onshare(window.shareCounter)},jsApiList:["hideOptionMenu","onMenuShareTimeline","onMenuShareAppMessage","chooseImage","uploadImage","getLocation","startRecord","stopRecord","onVoiceRecordEnd","playVoice","pauseVoice","stopVoice","onVoicePlayEnd","uploadVoice","downloadVoice"]}),s.set(o.title,l,u,o.pic)}}/MicroMessenger|Yixin/i.test(navigator.userAgent)&&(window.WeixinJSBridge&&WeixinJSBridge.invoke?o():document.addEventListener("WeixinJSBridgeReady",o,!1))},e.isSmallLayout=!1,window.screen&&window.screen.width<992&&(e.isSmallLayout=!0),n.get(r.j("get","site","app","rid","page","ek","newRecord")).then(function(t){var r=t.data,s=r.site,c=r.app,d=r.mission,u=(r.page,r.user),m={},g="";c.dataSchemas.forEach(function(e){m[e.id]=e}),c._schemasById=m,e.params=r,e.site=s,e.mission=d,e.app=c,e.user=u,"Y"===c.multi_rounds&&r.activeRound&&(e.activeRound=r.activeRound,g=r.activeRound.rid),"Y"===c.use_site_header&&s&&s.header_page&&a.loadCode(o,s.header_page),"Y"===c.use_mission_header&&d&&d.header_page&&a.loadCode(o,d.header_page),"Y"===c.use_mission_footer&&d&&d.footer_page&&a.loadCode(o,d.footer_page),"Y"===c.use_site_footer&&s&&s.footer_page&&a.loadCode(o,s.footer_page),r.page&&a.loadCode(o,r.page).then(function(){e.page=r.page}),e.favor=function(e,t){e.loginExpire?l.open(t):a.openPlugin(location.protocol+"//"+location.host+"/rest/site/fe/user/access?site=platform#login").then(function(n){e.loginExpire=n.loginExpire,l.open(t)})},"Y"===c.can_siteuser&&(e.siteUser=function(e){var t=location.protocol+"//"+location.host;t+="/rest/site/fe/user",t+="?site="+e,location.href=t}),f.length&&angular.forEach(f,p);var h;(h=document.querySelector(".loading"))&&h.parentNode.removeChild(h),i(function(){e.$broadcast("xxt.app.enroll.ready",r)}),n.post("/rest/site/fe/matter/logAccess?site="+c.siteid+"&id="+c.id+"&type=enroll&title="+c.title,{search:location.search.replace("?",""),referer:document.referrer,rid:g,assignedNickname:u.nickname})})}]),e.exports=o},function(e,t,n){"use strict";var i={};i.isEmpty=function(e,t){if(void 0===t)return!0;switch(e.type){case"multiple":for(var n in t)if(!0===t[n])return!1;return!0;default:return 0===t.length}},i.checkRequire=function(e,t){return void 0!==t&&!this.isEmpty(e,t)||"请填写必填题目［"+e.title+"］"},i.checkFormat=function(e,t){if("number"===e.format){if(!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(t))return"题目［"+e.title+"］请输入数值"}else if("name"===e.format){if(/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(t))return"题目［"+e.title+"］请输入字母或者汉字，并不少于2个字符";if(t.length<2)return"题目［"+e.title+"］请输入正确的姓名（不少于2个字符）"}else if("mobile"===e.format){if(!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(t))return"题目［"+e.title+"］请输入正确的手机号（11位数字）"}else if("email"===e.format&&!/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(t))return"题目［"+e.title+"］请输入正确的邮箱";return!0},i.checkCount=function(e,t){return!(0!=e.count&&void 0!==e.count&&t.length>e.count)||"［"+e.title+"］超出上传数量（"+e.count+"）限制"},i.checkValue=function(e,t){var n;if(e.required&&"Y"===e.required&&!0!==(n=this.checkRequire(e,t)))return n;if(t){if("shorttext"===e.type&&e.format&&!0!==(n=this.checkFormat(e,t)))return n;if("multiple"===e.type&&"Y"===e.limitChoice&&e.range){var i=0;for(var o in t)t[o]&&i++;if(i<e.range[0]||i>e.range[1])return"【"+e.title+"】中最多只能选择("+e.range[1]+")项，最少需要选择("+e.range[0]+")项"}if(/image|file/.test(e.type)&&e.count&&!0!==(n=this.checkCount(e,t)))return n}return!0},i.loadRecord=function(e,t,n){if(!n)return!1;var o,r,a;for(o in n)if("member"===o)t.member=angular.extend(t.member,n.member);else if(r=e[o])if(/score|url/.test(r.type))t[o]=n[o],"url"===r.type&&(t[o]._text=i.urlSubstitute(t[o]));else if(n[o].length)if("image"===r.type){a=n[o].split(","),t[o]=[];for(var s in a)t[o].push({imgSrc:a[s]})}else if("multiple"===r.type){a=n[o].split(","),t[o]={};for(var s in a)t[o][a[s]]=!0}else t[o]=n[o];return!0},i.autoFillDefault=function(e,t){angular.forEach(e,function(e){e.defaultValue&&void 0===t[e.id]&&(t[e.id]=e.defaultValue)})},i.autoFillMember=function(e,t,n){t.members&&angular.forEach(e,function(e){if(e.schema_id&&t.members[e.schema_id]){var i,o,r;if(i=t.members[e.schema_id],o=e.id.split("."),2===o.length)n[o[1]]=i[o[1]];else if(3===o.length&&i.extattr)switch(n.extattr||(n.extattr={}),e.type){case"multiple":if(r=i.extattr[o[2]],angular.isObject(r)){n.extattr[o[2]]={};for(var a in r)r[a]&&(n.extattr[o[2]][a]=!0)}break;default:n.extattr[o[2]]=i.extattr[o[2]]}}})},i.txtSubstitute=function(e){return e.replace(/\n/g,"<br>")},i.urlSubstitute=function(e){var t;return t="",e&&(e.title&&(t+="【"+e.title+"】"),e.description&&(t+=e.description)),t+='<a href="'+e.url+'">网页链接</a>'},i.optionsSubstitute=function(e,t){var n,i,o=[];return(n=t)?e.ops&&e.ops.length&&(i=n.split(","),e.ops.forEach(function(e){-1!==i.indexOf(e.v)&&o.push(e.l)}),n=o.join(",")):n="",n},e.exports=i},function(e,t,n){"use strict";void 0===window.xxt&&(window.xxt={}),window.xxt.image={options:{},choose:function(e,t){var n,i=[];if(n=e.promise,window.YixinJSBridge)window.YixinJSBridge.invoke("pickImage",{type:t,quality:100},function(t){var n;t.data&&t.data.length&&(n={imgSrc:"data:"+t.mime+";base64,"+t.data},i.push(n)),e.resolve(i)});else{var o=document.createElement("input");o.setAttribute("type","file"),o.addEventListener("change",function(t){var n,r,a,s;for(r=t.target.files.length,n=0;n<r;n++){a=t.target.files[n],s={".jp":"image/jpeg",".pn":"image/png",".gi":"image/gif"}[a.name.match(/\.(\w){2}/g)[0]||".jp"],a.type2=a.type||s;var c=new FileReader;c.onload=function(t){return function(n){var r={};r.imgSrc=n.target.result.replace(/^.+(,)/,"data:"+t.type2+";base64,"),i.push(r),document.body.removeChild(o),e.resolve(i)}}(a),c.readAsDataURL(a)}},!1),o.style.opacity=0,document.body.appendChild(o),o.click()}return n},paste:function(e,t,n){function i(e){var n=e.getAsFile(),i=new FileReader;i.onload=function(e){var n={};n.imgSrc=e.target.result,r.push(n),t.resolve(r)},i.readAsDataURL(n)}var o,r=[];return o=t.promise,e.focus(),e.on("paste",function(e){var t,n,o=e.originalEvent.clipboardData;if(o&&(t=o.items)&&t.length){for(var r=0;r<o.types.length;r++)if("Files"===o.types[r]){n=t[r];break}n&&"file"===n.kind&&n.type.match(/^image\//i)&&i(n)}}),o},wxUpload:function(e,t){var n;return n=e.promise,0===t.imgSrc.indexOf("weixin://")||0===t.imgSrc.indexOf("wxLocalResource://")?window.wx.uploadImage({localId:t.imgSrc,isShowProgressTips:1,success:function(n){t.serverId=n.serverId,e.resolve(t)}}):e.resolve(t),n}}},function(e,t,n){"use strict";void 0===window.xxt&&(window.xxt={}),window.xxt.geo={options:{},getAddress:function(e,t,n){var i;if(i=t.promise,window.wx)window.wx.getLocation({success:function(i){var o="/rest/site/fe/matter/enroll/locationGet";o+="?site="+n,o+="&lat="+i.latitude,o+="&lng="+i.longitude,e.get(o).then(function(e){t.resolve({errmsg:"ok",lat:i.latitude,lng:i.longitude,address:e.data.address})})}});else try{var o=window.navigator;if(null!==o){var r=o.geolocation;null!==r?r.getCurrentPosition(function(i){var o="/rest/site/fe/matter/enroll/locationGet";o+="?site="+n,o+="&lat="+i.coords.latitude,o+="&lng="+i.coords.longitude,e.get(o).then(function(e){t.resolve({errmsg:"ok",lat:i.coords.latitude,lng:i.coords.longitude,address:e.data.address})})},function(){t.resolve({errmsg:"获取地理位置失败"})}):t.resolve({errmsg:"无法获取地理位置"})}else t.resolve({errmsg:"无法获取地理位置"})}catch(e){alert("exception:"+e.message)}return i}}},,,,,,,,,,,function(e,t,n){"use strict";var i={};i.state={modified:!1,state:"waiting",_cacheKey:!1,start:function(e,t,n){var i;if(e&&(i=e.target,("BUTTON"===i.tagName||(i=i.parentNode)&&"BUTTON"===i.tagName)&&/submit\(.*\)/.test(i.getAttribute("ng-click")))){var o;this.button=i,o=i.querySelector("span"),o.setAttribute("data-label",o.innerHTML),o.innerHTML="正在提交数据...",this.button.classList.add("submit-running")}this.state="save"==n?"waiting":"running",this._cacheKey=t||1*new Date},finish:function(e){if(this.state="waiting",this.modified=!1,this.button){var t;t=this.button.querySelector("span"),t.innerHTML=t.getAttribute("data-label"),t.removeAttribute("data-label"),this.button.classList.remove("submit-running"),this.button=null}window.localStorage&&!e&&window.localStorage.removeItem(this._cacheKey)},isRunning:function(){return"running"===this.state},cache:function(e){if(window.localStorage){var t,n;t=this._cacheKey,n=angular.copy(e),n._cacheAt=1*new Date,n=JSON.stringify(n),window.localStorage.setItem(t,n)}},fromCache:function(e){if(window.localStorage){var t,n;t=this._cacheKey,n=window.localStorage.getItem(t),e||window.localStorage.removeItem(t),n&&(n=JSON.parse(n))}return n}},e.exports=i},,,function(e,t,n){"use strict";angular.module("url.ui.xxt",["http.ui.xxt"]).service("tmsUrl",["$q","$uibModal",function(e,t){this.fetch=function(i,o){var r;return r=e.defer(),t.open({template:n(39),controller:["$scope","$uibModalInstance","http2",function(e,t,n){var r;e.data=r={text:"结果预览"},i&&(r.summary={title:i.title,description:i.description,url:i.url},r.url=i.url),e.options=o,e.cancel=function(){t.dismiss()},e.ok=function(){t.close(r)},e.crawlUrl=function(e){var t;t=e&&e.clipboardData?e.clipboardData.getData("Text"):r.url,n.post("/rest/site/fe/matter/enroll/url",{url:t}).then(function(e){r.summary=e.data})},e.$watch("data.summary",function(e){if(e){var t;t="",e.title&&(t+="【"+e.title+"】"),e.description&&(t+=e.description),t+='<a href="'+r.url+'">网页链接</a>',r.text=t}},!0)}],backdrop:"static"}).result.then(function(e){r.resolve(e)}),r.promise}}])},function(e,t,n){"use strict";n(35);var i=angular.module("editor.ui.xxt",["ui.bootstrap","url.ui.xxt"]);i.controller("tmsEditorController",["$scope","tmsUrl",function(e,t){e.insertLink=function(){t.fetch().then(function(t){var n;(n=t.summary)&&e.iframeDoc.execCommand("insertHTML",!1,'<a href="'+n.url+'" target="_blank">'+(n.title||"链接")+"</a>")})},e.toggleDesignMode=function(){e.designMode=!e.designMode,e.iframeDoc.getSelection().removeAllRanges()}}]),i.directive("tmsEditor",["$q","http2",function(e,t){function i(e){var t,n,i;return t=document.createElement("DIV"),t.style.position="absolute",t.style.visibility="hidden",t.style.height="auto",t.style.width="auto",t.style.whiteSpace="nowrap",t.innerHTML=e,r.querySelector("body").appendChild(t),n=t.clientHeight,i=t.clientWidth,r.querySelector("body").removeChild(t),{height:n,width:i,charWidth:parseInt(i/e.length)}}function o(e,t){var n,o,a,s;if(n={start:{touch:t.start},end:{touch:t.end}},e.childNodes.length)for(var c=0,l=e.childNodes.length;c<l;c++)if(e.childNodes[c].nodeType===Node.TEXT_NODE){s=e.childNodes[c];break}return s?(n.start.element={top:s.parentElement.offsetTop,left:s.parentElement.offsetLeft,width:s.parentElement.offsetWidth,height:s.parentElement.offsetHeight},n.text=i(s.nodeValue),n.startCharAt=parseInt((t.start.x-s.parentElement.offsetLeft)/n.text.charWidth),n.endCharAt=parseInt((t.end.x-s.parentElement.offsetLeft)/n.text.charWidth),a=document.createRange(),a.setStart(s,n.startCharAt),a.setEnd(s,n.endCharAt)):(a=document.createRange(),a.selectNodeContents(e)),o=r.getSelection(),o.removeAllRanges(),o.addRange(a),a}var r,a;return window.tmsEditor=function(){return{finish:function(){return a.blur(),a.innerHTML}}}(),{restrict:"EA",scope:{id:"@",content:"=",cmds:"="},replace:!0,controller:"tmsEditorController",template:n(38),link:function(n,i,s){var c,l;c="<!DOCTYPE html><html><head>",c+='<meta charset="utf-8"></head>',c+="<style>",c+="html,body,body>div{width:100%;height:100%;}body{font-size:16px;margin:0}.tms-editor-content:empty::before{color:lightgrey;content:attr(placeholder);}.tms-editor-content img{max-width:100%;}",c+="</style>",c+="<body>",c+='<div class="tms-editor-content " contentEditable="true" placeholder="添加内容...">'+n.content+"</div>",c+="</body></html>",l=document.querySelector("#"+n.id+" iframe"),l.contentDocument?r=l.contentDocument:l.contentWindow&&(r=l.contentWindow.iframeDocument),r.open(),r.write(c),r.close(),n.iframeDoc=r,a=r.querySelector("body>div"),r.querySelector("body").onload=function(){a.contentEditable=!0},n.mobileAgent=/Android|iPhone|iPad/i.test(navigator.userAgent),n.designMode=!n.mobileAgent;var d={};if(r.oncontextmenu=function(e){n.designMode&&e.preventDefault()},r.ontouchstart=function(e){var t;n.designMode&&1===e.targetTouches.length&&(t=e.targetTouches[0],d.start={x:t.pageX,y:t.pageY},e.preventDefault(),r.getSelection().removeAllRanges(),a.contentEditable=!1)},r.ontouchmove=function(e){var t;n.designMode&&1===e.targetTouches.length&&(t=e.targetTouches[0],d.end={x:t.pageX,y:t.pageY},e.preventDefault())},r.ontouchend=function(e){n.designMode&&d.start&&d.end&&(Math.abs(d.start.x-d.end.x)>=16&&o(e.target,d),a.contentEditable=!0,e.preventDefault())},document.querySelectorAll("#"+n.id+" button[command]").forEach(function(e){e.addEventListener("click",function(){var e,t;switch(e=this.getAttribute("command").toLowerCase()){case"backcolor":t="yellow"}r.execCommand(e,!1,t)})}),window.xxt&&window.xxt.image){var u;(u=document.querySelector("#"+n.id+" button[action=InsertImage]"))&&u.addEventListener("click",function(){window.xxt.image.choose(e.defer()).then(function(e){e.forEach(function(e){t.post("/rest/site/fe/matter/upload/image?site=platform",e).then(function(e){r.execCommand("InsertImage",!1,e.data.url)})})})})}}}}])},,function(e,t){e.exports='<div class="tms-editor">\r\n    <div>\r\n        <iframe src="javascript:void(0);" onload="this.height=this.parentElement.offsetHeight-2"></iframe>\r\n    </div>\r\n    <div class="btn-toolbar btn-sm">\r\n        <div class="btn-group">\r\n            <button ng-if="mobileAgent" class="btn btn-default" ng-click="toggleDesignMode()"><span ng-if="!designMode">设置样式</span><span ng-if="designMode" class="glyphicon glyphicon-menu-left"></span></button>\r\n            <button ng-if="designMode" class="btn btn-default" command="bold"><span style="font-weight:blod;">B</span></button>\r\n            <button ng-if="designMode" class="btn btn-default" command="italic"><i>I</i></button>\r\n            <button ng-if="designMode" class="btn btn-default" command="underline"><span style="text-decoration:underline;">U</span></button>\r\n            <button ng-if="designMode" class="btn btn-default" command="BackColor"><i class="glyphicon glyphicon-text-background"></i></button>\r\n        </div>\r\n        <div class="btn-group">\r\n            <button class="btn btn-default" action="InsertImage"><i class="glyphicon glyphicon-picture"></i></button>\r\n            <button class="btn btn-default" ng-click="insertLink()"><i class="glyphicon glyphicon-link"></i></button>\r\n        </div>\r\n        <div class="btn-group">\r\n            <button class="btn btn-default" command="undo"><i class="glyphicon glyphicon-backward"></i></button>\r\n        </div>\r\n    </div>\r\n</div>'},function(e,t){e.exports='<div class="modal-header">\r\n    <h5 class="modal-title">上传链接</h5>\r\n</div>\r\n<div class="modal-body">\r\n    <form>\r\n        <div class="form-group">\r\n            <div class="input-group">\r\n                <input type="text" ng-paste="crawlUrl($event)" class="form-control" placeholder="1、请将链接粘贴到这里或输入" ng-model="data.url">\r\n                <div class="input-group-btn">\r\n                    <button class="btn btn-default" ng-click="crawlUrl()">刷新</button>\r\n                </div>\r\n            </div>\r\n        </div>\r\n        <div class="form-group">\r\n            <input type="text" class="form-control" placeholder="2、复制链接后这里将显示页面的标题，可进行修改" ng-model="data.summary.title">\r\n        </div>\r\n        <div class="form-group" ng-if="options.description">\r\n            <textarea class="form-control" placeholder="3、复制链接后这里将显示页面的摘要描述（如果提供），可进行修改" ng-model="data.summary.description" rows="4"></textarea>\r\n        </div>\r\n        <div class="form-group" ng-if="options.text">\r\n            <div class="form-control" ng-bind-html="data.text" style="height:auto;min-height:34px;"></div>\r\n        </div>\r\n    </form>\r\n</div>\r\n<div class="modal-footer">\r\n    <button class="btn btn-default" ng-click="cancel()">关闭</button>\r\n    <button class="btn btn-default" ng-click="ok()">完成</button>\r\n</div>'},,,,,,,,,function(e,t,n){"use strict";n(86),n(20),n(21),n(35),n(36),window.moduleAngularModules=["editor.ui.xxt","url.ui.xxt"];var i=n(18);i.oUtilSchema=n(19),i.oUtilSubmit=n(32),i.config(["$compileProvider",function(e){e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/)}]),i.factory("Input",["$q","$timeout","tmsLocation","http2",function(e,t,n,o){var r,a;return r=function(){},r.prototype.check=function(e,t,n){var o,r,a,s,c;if(n.dataSchemas&&n.dataSchemas.length){o=n.dataSchemas;for(var l=o.length-1;l>=0;l--){if(r=o[l],a=r.schema,0===a.id.indexOf("member.")){var d=a.id.substr(7);-1===d.indexOf(".")?s=e.member[d]:(d=d.split("."),s=e.member.extattr[d[1]])}else s=e[a.id];if((!a.visibility||a.visibility.visible)&&"Y"!==a.cowork&&a.type&&"html"!==a.type&&!0!==(c=i.oUtilSchema.checkValue(a,s)))return c}}return!0},r.prototype.submit=function(e,t,i,r,a){var s,c,l,d;l=angular.copy(t),Object.keys&&0===Object.keys(l.member).length&&delete l.member,s=n.j("record/submit","site","app","rid"),e&&(s+="&ek="+e),s+="save"==a?"&subType=save":"&subType=submit";for(var u in l)c=l[u],angular.isArray(c)&&c.length&&void 0!==c[0].imgSrc&&void 0!==c[0].serverId&&c.forEach(function(e){delete e.imgSrc});if(d={},Object.keys&&Object.keys(i).length>0)for(var p in i)d[p]=[],i[p].forEach(function(e){d[p].push(e.id)});return o.post(s,{data:l,tag:i,supplement:r},{autoBreak:!1})},{ins:function(){return a||(a=new r),a}}}]),i.directive("tmsImageInput",["$compile","$q",function(e,t){var n;return n=[],{restrict:"A",controller:["$scope","$timeout","noticebox",function(e,i,o){function r(t,i,r){if(null!==t&&(-1===n.indexOf(t)&&n.push(t),void 0===e.data[t]&&(e.data[t]=[]),null!==i&&e.data[t].length===i&&0!=i))return void o.warn("最多允许上传（"+i+"）张图片")}function a(t,n){var o;o=e.$root.$$phase,"$digest"===o||"$apply"===o?e.data[t]=e.data[t].concat(n):e.$apply(function(){e.data[t]=e.data[t].concat(n)}),i(function(){var i,o,r,a;for(i=0,o=n.length;i<o;i++)r=n[i],(a=document.querySelector('ul[name="'+t+'"] li:nth-last-child(3) img'))&&a.setAttribute("src",r.imgSrc);e.$broadcast("xxt.enroll.image.choose.done",t)})}e.chooseImage=function(e,n,i){r(e,n,i),window.xxt.image.choose(t.defer(),i).then(function(t){a(e,t)})},e.removeImage=function(e,t){e.splice(t,1)},e.pasteImage=function(e,n,i,o){r(e,i,o);var s;s=n.currentTarget.children[n.currentTarget.children.length-1],window.xxt.image.paste($(s),t.defer(),o).then(function(t){a(e,t)})}}]}}]),i.directive("tmsFileInput",["$q","tmsLocation","tmsDynaPage",function(e,t,n){function i(t){var n;return n=e.defer(),o.files&&0!==o.files.length||n.resolve("empty"),o.on("progress",function(){var e,n;n=o.progress();var e=t.$root.$$phase;"$digest"===e||"$apply"===e?t.progressOfUploadFile=Math.ceil(100*n):t.$apply(function(){t.progressOfUploadFile=Math.ceil(100*n)})}),o.on("complete",function(){var e=t.$root.$$phase;"$digest"===e||"$apply"===e?t.progressOfUploadFile="完成":t.$apply(function(){t.progressOfUploadFile="完成"}),o.cancel(),n.resolve("ok")}),o.upload(),n.promise}var o;return n.loadScript(["/static/js/resumable.js"]).then(function(){o=new Resumable({target:t.j("record/uploadFile","site","app"),testChunks:!1,chunkSize:524288})}),{restrict:"A",controller:["$scope","noticebox",function(e,t){e.progressOfUploadFile=0,e.beforeSubmit(function(){return i(e)}),e.clickFile=function(n,i){e.data[n]&&e.data[n][i]&&t.confirm("删除文件【"+e.data[n][i].name+"】，确定？").then(function(){e.data[n].splice(i,1)})},e.chooseFile=function(t,n,i){var r=document.createElement("input");r.setAttribute("type","file"),void 0!==i&&r.setAttribute("accept",i),r.addEventListener("change",function(n){var i,a,s;for(a=n.target.files.length,i=0;i<a;i++)s=n.target.files[i],o.addFile(s),e.$apply(function(){void 0===e.data[t]&&(e.data[t]=[]),e.data[t].push({uniqueIdentifier:o.files[o.files.length-1].uniqueIdentifier,name:s.name,size:s.size,type:s.type,url:""}),e.$broadcast("xxt.enroll.file.choose.done",t)});r=null},!0),r.click()}}]}}]),i.controller("ctrlWxUploadFileTip",["$scope","$interval",function(e,t){e.domId="",e.isIos=/iphone|ipad/i.test(navigator.userAgent),e.closeTip=function(){var t=document.querySelector(e.domId),n=document.createEvent("HTMLEvents");n.initEvent("hide",!1,!1),t.dispatchEvent(n)}}]),i.directive("tmsVoiceInput",["$q","noticebox",function(e,t){function n(n){var i;return i=e.defer(),wx.uploadVoice({localId:n.localId,isShowProgressTips:1,success:function(e){n.serverId=e.serverId,delete n.localId,i.resolve()},fail:function(e){t.error("录音文件上传失败："+e.errMsg),i.reject()}}),i.promise}return{restrict:"A",controller:["$scope","$uibModal","noticebox",function(e,t,i){e.clickFile=function(t,n){var o,r;e.data[t]&&e.data[t][n]&&(o=[{label:"删除",value:"delete"},{label:"取消",value:"cancel"}],r=e.data[t],i.confirm("操作录音文件【"+r[n].name+"】",o).then(function(e){switch(e){case"delete":r.splice(n,1)}}))},e.startVoice=function(o){var r,a;if(!window.wx||!wx.startRecord)return void i.warn("请在微信中进行录音");if(e.schemasById&&e.schemasById[o])r=e.schemasById[o];else if(e.app&&e.app.dataSchemas&&e.app.dataSchemas.length)for(var s=e.app.dataSchemas.length-1;s>=0;s--)if(e.app.dataSchemas[s].id=o){r=e.app.dataSchemas[s];break}return r?(void 0===e.data[r.id]&&(e.data[r.id]=[]),a=e.data[r.id],r.count&&a.length>=r.count?void i.warn("最多允许上传（"+r.count+"）段录音"):void t.open({templateUrl:"recordVoice.html",controller:["$scope","$interval","$uibModalInstance",function(t,n,i){var o,r;t.data=o={name:"录音"+(a.length+1),time:0,reset:function(){this.time=0,delete this.localId}},t.startRecord=function(){wx.startRecord(),o.reset(),r=n(function(){o.time++},1e3),wx.onVoiceRecordEnd({complete:function(t){e.$apply(function(){o.localId=t.localId}),n.cancel(r)}})},t.stopRecord=function(){wx.stopRecord({success:function(t){e.$apply(function(){o.localId=t.localId})}}),n.cancel(r)},t.play=function(){wx.playVoice({localId:o.localId}),wx.onVoicePlayEnd({success:function(e){e.localId}})},t.pause=function(){wx.pauseVoice({localId:o.localId})},t.stop=function(){wx.stopVoice({localId:o.localId})},t.cancel=function(){i.dismiss()},t.ok=function(){i.close(t.data)}}],backdrop:"static"}).result.then(function(t){var i;i={localId:t.localId,name:t.name,time:t.time},t.localId&&e.data[r.id].push(i),e.beforeSubmit(function(){return n(i)})})):void i.warn("数据错误，未找到题目定义")},e.playVoice=function(){}}]}}]),i.controller("ctrlInput",["$scope","$q","$uibModal","$timeout","Input","tmsLocation","http2","noticebox","tmsUrl","$compile",function(e,t,n,o,r,a,s,c,l,d){function u(){var e;(e=document.querySelectorAll("button[ng-click]"))&&e.forEach(function(e){0===e.getAttribute("ng-click").indexOf("submit")&&(e.style.display="none")})}function p(e,t){e.forEach(function(e){var n,i;if((n=e.schema)&&(i=document.querySelector('[wrap=input][schema="'+n.id+'"]')))if(n.visibility&&n.visibility.rules&&n.visibility.rules.length){var o,r;o=!0;for(var a=0,s=n.visibility.rules.length;a<s;a++)if(r=n.visibility.rules[a],0===r.schema.indexOf("member.extattr")){var c=r.schema.substr(15);if(!t.member.extattr[c]||t.member.extattr[c]!==r.op&&!t.member.extattr[c][r.op]){o=!1;break}}else if(!t[r.schema]||t[r.schema]!==r.op&&!t[r.schema][r.op]){o=!1;break}i.classList.toggle("hide",!o),n.visibility.visible=o}else"multitext"===n.type&&"Y"===n.cowork&&i.classList.toggle("hide",!o)})}function f(e,t){e.forEach(function(e){var n,i;(i=e.config)&&(n=e.schema)&&n.ops&&n.ops.length&&n.optGroups&&n.optGroups.length&&n.optGroups.forEach(function(e){e.assocOp&&e.assocOp.schemaId&&e.assocOp.v&&(t[e.assocOp.schemaId]!==e.assocOp.v?n.ops.forEach(function(o){var r;o.g&&o.g===e.i&&("single"===n.type&&"S"===i.component?(r=document.querySelector('option[name="data.'+n.id+'"][value='+o.v+"]"))&&r.parentNode&&r.parentNode.removeChild(r):("single"===n.type?r=document.querySelector("input[name="+n.id+"][value="+o.v+"]"):"multiple"===n.type&&(r=document.querySelector('input[ng-model="data.'+n.id+"."+o.v+'"]')),r&&(r=r.parentNode)&&(r=r.parentNode)&&r.classList.add("option-hide")),"single"===n.type?t[n.id]===o.v&&(t[n.id]=""):t[n.id]&&t[n.id][o.v]&&delete t[n.id][o.v])}):n.ops.forEach(function(t){var o,r;t.g&&t.g===e.i&&("single"===n.type&&"S"===i.component?(r=document.querySelector('select[ng-model="data.'+n.id+'"]'))&&((o=r.querySelector('option[name="data.'+n.id+'"][value='+t.v+"]"))||(o=document.createElement("option"),o.setAttribute("value",t.v),o.setAttribute("name","data."+n.id),o.innerHTML=t.l,r.appendChild(o))):("single"===n.type?o=document.querySelector("input[name="+n.id+"][value="+t.v+"]"):"multiple"===n.type&&(o=document.querySelector('input[ng-model="data.'+n.id+"."+t.v+'"]')),o&&(o=o.parentNode)&&(o=o.parentNode)&&o.classList.remove("option-hide")))}))})})}function m(e,t,n){(0,b[e])().then(function(i){e++,e<b.length?m(e,t,n):g(t,n)})}function g(t,n){var i;i=e.record?e.record.enroll_key:void 0,v.submit(i,e.data,e.tag,e.supplement,n).then(function(o){var r;"save"==n?c.success("保存成功，关闭页面后，再次打开时自动恢复当前数据。确认数据填写完成后，请继续【提交】数据。"):(x.finish(),"closeWindow"===t?e.closeWindow():"_autoForward"===t?(r=a.j("","site","app"),location.replace(r)):t&&t.length?(r=a.j("","site","app"),r+="&page="+t,r+="&ek="+o.data,location.replace(r)):(void 0===i&&(e.record={enroll_key:o.data}),e.$broadcast("xxt.app.enroll.submit.done",o.data)))},function(e){x.finish()})}function h(t,n){var o;if(o=t.dataSchemas,i.oUtilSchema.autoFillDefault(w._schemasById,e.data),p(o,n),f(o,n),e.$watch("data",function(e,t){e!==t&&(x.modified=!0,p(o,n),f(o,n))},!0),t.act_schemas)for(var r=!1,a=JSON.parse(t.act_schemas),s=a.length-1;s>=0;s--)if("save"===a[s].name){r=!0;break}r||(e.appActs={save:{}});var c={};"Y"===w.can_repos&&(c.repos={}),"Y"===w.can_rank&&(c.rank={}),w.scenarioConfig&&"Y"===w.scenarioConfig.can_action&&(c.action={}),Object.keys(c).length&&(e.appNavs=c)}window.onbeforeunload=function(e){var t;if(x.modified)return t="已经修改的内容还没有保存，确定离开？",e=e||window.event,e&&(e.returnValue=t),t};var v,b,x,y,w;b=[],v=r.ins(),e.data={member:{}},e.tag={},e.supplement={},e.submitState=x=i.oUtilSubmit.state,e.beforeSubmit=function(e){-1===b.indexOf(e)&&b.push(e)},e.save=function(t){e.submit(t,"","save")},e.$on("xxt.app.enroll.ready",function(t,n){var o,r;if(y="xxt.app.enroll:"+n.app.id+".user:"+n.user.uid+".cacheKey",e.schemasById=o=n.app._schemasById,w=n.app,n.page.data_schemas&&(n.page.dataSchemas=JSON.parse(n.page.data_schemas)),w.end_submit_at>0&&parseInt(w.end_submit_at)<1*new Date/1e3&&(u(),c.warn("活动提交数据时间已经结束，不能提交数据")),w.dataSchemas.length&&angular.forEach(w.dataSchemas,function(t){"multitext"==t.type&&void 0===e.data[t.id]&&(e.data[t.id]=[])}),i.oUtilSchema.autoFillMember(w._schemasById,e.user,e.data.member),"Y"!==a.s().newRecord?s.get(a.j("record/get","site","app","ek","rid")+"&loadLast="+w.open_lastroll+"&withSaved=Y",{autoBreak:!1,autoNotice:!1}).then(function(t){var o;o=t.data,i.oUtilSchema.loadRecord(w._schemasById,e.data,o.data),e.record=o,o.supplement&&(e.supplement=o.supplement),e.setSnsShare(o,{newRecord:a.s().newRecord}),h(n.page,e.data)}):(e.setSnsShare(!1,{newRecord:a.s().newRecord}),h(n.page,e.data)),/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)&&w.entryRule&&w.entryRule.scope&&"Y"===w.entryRule.scope.member)for(var l=0,p=n.page.dataSchemas.length;l<p;l++)if("file"===n.page.dataSchemas[l].schema.type){var f,m;f=document.querySelector("#wxUploadFileTip"),m=document.createEvent("HTMLEvents"),m.initEvent("show",!1,!1),f.dispatchEvent(m);break}e.isSmallLayout||(r=document.querySelectorAll("ul.img-tiles"),angular.forEach(r,function(t){var n,i,r;n=o[t.getAttribute("name")],i='<li class="img-picker img-edit">',i+='<button class="btn btn-default" ng-click="pasteImage(\''+n.id+"',$event,"+(n.count||1)+')">点击按钮<br>Ctrl+V<br>粘贴截图',i+='<div contenteditable="true" tabindex="-1" style="width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;"></div>',i+="</button>",i+="</li>",r=d(i)(e),$(t).append(r)}))}),e.removeItem=function(e,t){c.confirm("删除此项，确定？").then(function(){e.splice(t,1)})},e.addItem=function(t){n.open({templateUrl:"writeItem.html",controller:["$scope","$uibModalInstance",function(e,t){e.data={content:""},e.cancel=function(){t.dismiss()},e.ok=function(){var n;window.tmsEditor&&window.tmsEditor.finish&&(n=window.tmsEditor.finish(),e.data.content=n,t.close({content:n}))}}],windowClass:"modal-remark auto-height",backdrop:"static"}).result.then(function(n){var i={id:0,value:""};i.value=n.content,e.data[t].push(i)})},e.editItem=function(e,t){var i=e[t];n.open({templateUrl:"writeItem.html",controller:["$scope","$uibModalInstance",function(e,t){e.data={content:i.value},e.cancel=function(){t.dismiss()},e.ok=function(){var n;window.tmsEditor&&window.tmsEditor.finish&&(n=window.tmsEditor.finish(),e.data.content=n,t.close({content:n}))}}],windowClass:"modal-remark auto-height",backdrop:"static"}).result.then(function(e){i.value=e.content})},e.submit=function(t,n,i){var o;for(var r in e.data)"member"!==r&&e.app._schemasById[r]&&"multitext"==e.app._schemasById[r].type&&angular.forEach(e.data[r],function(t,n){""===t.value&&e.data[r].splice(n,1)});x.isRunning()||(x.start(t,y,i),!0===(o=v.check(e.data,e.app,e.page))?b.length?m(0,n,i):g(n,i):(x.finish(),c.warn(o)))},e.getMyLocation=function(n){window.xxt.geo.getAddress(s,t.defer(),a.p.site).then(function(t){e.data[n]=t.address})},e.pasteUrl=function(t){l.fetch(e.data[t],{description:!0,text:!0}).then(function(n){var i;i=angular.copy(n.summary),i._text=n.text,e.data[t]=i})},e.editSupplement=function(t){var i=e.supplement[t];i||(i=""),n.open({templateUrl:"writeItem.html",controller:["$scope","$uibModalInstance",function(e,t){e.data={content:i},e.cancel=function(){t.dismiss()},e.ok=function(){var n;window.tmsEditor&&window.tmsEditor.finish&&(n=window.tmsEditor.finish(),e.data.content=n,t.close({content:n}))}}],windowClass:"modal-remark auto-height",backdrop:"static"}).result.then(function(n){e.supplement[t]=n.content})},e.dataBySchema=function(t){var i=e.app;n.open({templateUrl:"dataBySchema.html",controller:["$scope","$uibModalInstance",function(e,n){e.data={},e.cancel=function(){n.dismiss()},e.ok=function(){n.close(e.data)},s.get("/rest/site/fe/matter/enroll/repos/dataBySchema?site="+i.siteid+"&app="+i.id+"&schema="+t).then(function(n){"multitext"==i._schemasById[t].type&&n.data.records.pop(),e.records=n.data.records})}],backdrop:"static"}).result.then(function(n){e.data[t]=n.selected.value})},e.score=function(t,n,i){var o=e.schemasById[t],r=o.ops[n];void 0===e.data[t]&&(e.data[t]={},o.ops.forEach(function(t){e.data[o.id][t.v]=0})),e.data[t][r.v]=i},e.lessScore=function(t,n,i){if(!e.schemasById)return!1;var o=e.schemasById[t],r=o.ops[n];return void 0!==e.data[t]&&e.data[t][r.v]>=i}}])},,,,,,,,,,,,,,,,,,,,,,function(e,t,n){t=e.exports=n(0)(!1),t.push([e.i,"img{max-width:100%}ul{list-style:none}li,ul{margin:0;padding:0}.list-group{margin-bottom:0}#notice{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}#notice.active{opacity:1;height:auto;z-index:999}li[wrap=score]{padding:4px 4px 4px 0}li[wrap=score] label{padding:3px;font-weight:400}li[wrap=score]>.number{display:inline-block;margin-top:6px;border:1px solid #ccc}li[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px;margin:4px;text-align:center;border-bottom:1px dotted #ddd}li[wrap=score]>.number>.in{background:#3b9}ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0;padding:0;float:left}ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}ul.img-tiles li.img-picker.img-edit{margin-left:10px}ul.img-tiles li.img-picker.img-edit>div,ul.img-tiles li.img-picker button{position:relative;width:100%;height:100%}ul.img-tiles li.img-picker.img-edit>div>span,ul.img-tiles li.img-picker button span{font-size:36px}div[wrap=url]>.form-control{height:auto;min-height:46px}div[wrap].wrap-splitline{padding-bottom:.5em;border-bottom:1px solid #fff}div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0}div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}div[wrap=matter]>span{cursor:pointer;text-decoration:underline}.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff}div[schema-type=multiple] li[wrap].checkbox,div[schema-type=single] li[wrap].radio{margin-top:5px}div[schema-type=multiple] li[wrap].checkbox:last-child,div[schema-type=single] li[wrap].radio:last-child{margin-bottom:25px}div[schema-type=multiple] li[wrap].checkbox.option-hide,div[schema-type=single] li[wrap].radio.option-hide{height:0;margin:0;visibility:hidden}div[schema-type=multiple] li[wrap].checkbox.option-hide>label,div[schema-type=single] li[wrap].radio.option-hide>label{height:0;min-height:0}div[schema-type=multiple] li[wrap].checkbox.option-hide>label>*,div[schema-type=single] li[wrap].radio.option-hide>label>*{height:0;display:inline-block;overflow:hidden}.tms-editor{position:absolute;top:8px;bottom:8px;left:8px;right:8px;display:flex;flex-direction:column}.tms-editor>:first-child{position:relative;flex-grow:1;margin-bottom:8px;border:1px solid #ddd;border-radius:4px;overflow-y:auto}.tms-editor>:first-child iframe{display:block;width:100%;border:0}.pasteClass{width:1px;height:1px;position:fixed;left:-100px;overflow:hidden}",""])},,,,,,,,,,,,,,,,function(e,t,n){var i=n(70);"string"==typeof i&&(i=[[e.i,i,""]]);var o={hmr:!0};o.transform=void 0,o.insertInto=void 0;n(1)(i,o);i.locals&&(e.exports=i.locals)},,,,,,,,,,,,,,,,,,,,function(e,t,n){e.exports=n(48)}]);
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 106);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getTarget = function (target) {
+  return document.querySelector(target);
+};
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(target) {
+                // If passing function in options, then use it for resolve "head" element.
+                // Useful for Shadow Root style i.e
+                // {
+                //   insertInto: function () { return document.querySelector("#foo").shadowRoot }
+                // }
+                if (typeof target === 'function') {
+                        return target();
+                }
+                if (typeof memo[target] === "undefined") {
+			var styleTarget = getTarget.call(this, target);
+			// Special case to return head of iframe instead of iframe itself
+			if (window.HTMLIFrameElement && styleTarget instanceof window.HTMLIFrameElement) {
+				try {
+					// This will throw an exception if access to iframe is blocked
+					// due to cross-origin restrictions
+					styleTarget = styleTarget.contentDocument.head;
+				} catch(e) {
+					styleTarget = null;
+				}
+			}
+			memo[target] = styleTarget;
+		}
+		return memo[target]
+	};
+})();
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(3);
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton && typeof options.singleton !== "boolean") options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+        if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else if (typeof options.insertAt === "object" && options.insertAt.before) {
+		var nextSibling = getElement(options.insertInto + " " + options.insertAt.before);
+		target.insertBefore(style, nextSibling);
+	} else {
+		throw new Error("[Style Loader]\n\n Invalid value for parameter 'insertAt' ('options.insertAt') found.\n Must be 'top', 'bottom', or Object.\n (https://github.com/webpack-contrib/style-loader#insertat)\n");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	if(options.attrs.type === undefined) {
+		options.attrs.type = "text/css";
+	}
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	if(options.attrs.type === undefined) {
+		options.attrs.type = "text/css";
+	}
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = options.transform(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('page.ui.xxt', []);
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}]);
+ngMod.service('tmsDynaPage', ['$q', function($q) {
+    this.loadCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
+    this.loadExtCss = function(url) {
+        var link, head;
+        link = document.createElement('link');
+        link.href = url;
+        link.rel = 'stylesheet';
+        head = document.querySelector('head');
+        head.appendChild(link);
+    };
+    this.loadJs = function(ngApp, js) {
+        (function(ngApp) {
+            eval(js);
+        })(ngApp);
+    };
+    this.loadScript = function(urls) {
+        var index, fnLoad, deferred = $q.defer();
+        fnLoad = function() {
+            var script;
+            script = document.createElement('script');
+            script.src = urls[index];
+            script.onload = function() {
+                index++;
+                if (index < urls.length) {
+                    fnLoad();
+                } else {
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (urls) {
+            angular.isString(urls) && (urls = [urls]);
+            if (urls.length) {
+                index = 0;
+                fnLoad();
+            }
+        }
+
+        return deferred.promise;
+    };
+    this.loadExtJs = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer(),
+            jslength = code.ext_js.length,
+            loadScript2;
+        loadScript2 = function(js) {
+            var script;
+            script = document.createElement('script');
+            script.src = js.url;
+            script.onload = function() {
+                jslength--;
+                if (jslength === 0) {
+                    if (code.js && code.js.length) {
+                        _self.loadJs(ngApp, code.js);
+                    }
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (code.ext_js && code.ext_js.length) {
+            code.ext_js.forEach(loadScript2);
+        }
+        return deferred.promise;
+    };
+    this.loadCode = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer();
+        if (code.ext_css && code.ext_css.length) {
+            code.ext_css.forEach(function(css) {
+                _self.loadExtCss(css.url);
+            });
+        }
+        if (code.css && code.css.length) {
+            this.loadCss(code.css);
+        }
+        if (code.ext_js && code.ext_js.length) {
+            _self.loadExtJs(ngApp, code).then(function() {
+                deferred.resolve();
+            });
+        } else {
+            if (code.js && code.js.length) {
+                _self.loadJs(ngApp, code.js);
+            }
+            deferred.resolve();
+        }
+        return deferred.promise;
+    };
+    this.openPlugin = function(content) {
+        var frag, wrap, frm, body, deferred = $q.defer();
+        if(document.documentElement.clientWidth > 768) {
+            document.documentElement.scrollTop  = 0;
+        } else {
+            document.body.scrollTop  = 0;
+        }
+        body = document.getElementsByTagName('body')[0];
+        body.style.cssText="overflow-y:hidden";
+        frag = document.createDocumentFragment();
+        wrap = document.createElement('div');
+        wrap.setAttribute('id', 'frmPlugin');
+        frm = document.createElement('iframe');
+        wrap.appendChild(frm);
+        wrap.onclick = function() {
+            wrap.parentNode.removeChild(wrap);
+            body.style.cssText="overflow-y:auto";
+        };
+        frag.appendChild(wrap);
+        document.body.appendChild(frag);
+        if (content.indexOf('http') === 0) {
+            window.onClosePlugin = function(result) {
+                wrap.parentNode.removeChild(wrap);
+                body.style.cssText="overflow-y:auto";
+                deferred.resolve(result);
+            };
+            frm.setAttribute('src', content);
+        } else {
+            if (frm.contentDocument && frm.contentDocument.body) {
+                frm.contentDocument.body.innerHTML = content;
+            }
+        }
+        return deferred.promise;
+    };
+}]);
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/|\s*$)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ 
+ var ngMod = angular.module('snsshare.ui.xxt', []);
+ ngMod.service('tmsSnsShare', ['$http', function($http) {
+     function setWxShare(title, link, desc, img, options) {
+         var _this = this;
+         window.wx.onMenuShareTimeline({
+             title: options.descAsTitle ? desc : title,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('T');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareT: fail');
+             }
+         });
+         window.wx.onMenuShareAppMessage({
+             title: title,
+             desc: desc,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('F');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareF: fail');
+             }
+         });
+     }
+
+     function setYxShare(title, link, desc, img, options) {
+         var _this = this,
+             shareData = {
+                 'img_url': img,
+                 'link': link,
+                 'title': title,
+                 'desc': desc
+             };
+
+         window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
+             try {
+                 options.logger && options.logger('F');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
+         });
+         window.YixinJSBridge.on('menu:share:timeline', function(argv) {
+             try {
+                 options.logger && options.logger('T');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
+         });
+     }
+     var _isReady = false;
+     this.config = function(options) {
+         this.options = options;
+     };
+     this.set = function(title, link, desc, img, fnOther) {
+         var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf(location.protocol) === -1 && (img = location.protocol + '//' + location.host + img);
+         if (_isReady) {
+             if (/MicroMessenger/i.test(navigator.userAgent)) {
+                 setWxShare(title, link, desc, img, _this.options);
+             } else if (/Yixin/i.test(navigator.userAgent)) {
+                 setYxShare(title, link, desc, img, _this.options);
+             } else if (fnOther && typeof fnOther === 'function') {
+                 fnOther(title, link, desc, img);
+             }
+         } else {
+             if (/MicroMessenger/i.test(navigator.userAgent)) {
+                 var script;
+                 script = document.createElement('script');
+                 script.src = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.0.0.js';
+                 script.onload = function() {
+                     var xhr, url;
+                     xhr = new XMLHttpRequest();
+                     url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                     xhr.open('GET', url, true);
+                     xhr.onreadystatechange = function() {
+                         if (xhr.readyState == 4) {
+                             if (xhr.status >= 200 && xhr.status < 400) {
+                                 var signPackage;
+                                 try {
+                                     eval("(" + xhr.responseText + ')');
+                                     if (signPackage) {
+                                         signPackage.debug = false;
+                                         signPackage.jsApiList = _this.options.jsApiList;
+                                         wx.config(signPackage);
+                                         wx.ready(function() {
+                                             setWxShare(title, link, desc, img, _this.options);
+                                             _isReady = true;
+                                         });
+                                         wx.error(function(res) {
+                                             alert(JSON.stringify(res));
+                                         });
+                                     }
+                                 } catch (e) {
+                                     alert('local error:' + e.toString());
+                                 }
+                             } else {
+                                 alert('http error:' + xhr.statusText);
+                             }
+                         };
+                     }
+                     xhr.send();
+                 };
+                 document.body.appendChild(script);
+             } else if (/Yixin/i.test(navigator.userAgent)) {
+                 if (window.YixinJSBridge === undefined) {
+                     document.addEventListener('YixinJSBridgeReady', function() {
+                         setYxShare(title, link, desc, img, _this.options);
+                         _isReady = true;
+                     }, false);
+                 } else {
+                     setYxShare(title, link, desc, img, _this.options);
+                     _isReady = true;
+                 }
+             } else if (fnOther && typeof fnOther === 'function') {
+                 fnOther(title, link, desc, img);
+                 _isReady = true;
+             }
+         }
+     };
+ }]);
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('modal.ui.xxt', []);
+ngMod.service('tmsModal', ['$rootScope', '$compile', '$q', '$controller', function($rootScope, $compile, $q, $controller) {
+    this.open = function(modalOptions) {
+        var modalResultDeferred = $q.defer(),
+            modalClosedDeferred = $q.defer();
+
+        var modalInstance = {
+            result: modalResultDeferred.promise,
+            closed: modalClosedDeferred.promise,
+            close: function(result) {
+                document.body.removeChild(modalDomEl[0]);
+                modalResultDeferred.resolve(result);
+            },
+            dismiss: function(reason) {
+                document.body.removeChild(modalDomEl[0]);
+                modalClosedDeferred.resolve(reason);
+            }
+        };
+
+        var modalScope;
+        modalScope = $rootScope.$new(true);
+        if (modalOptions.controller) {
+            $controller(modalOptions.controller, { $scope: modalScope, $tmsModalInstance: modalInstance });
+        }
+
+        var contentDomEl, dialogDomEl, backdropDomEl, modalDomEl;
+        /* content */
+        contentDomEl = angular.element('<div></div>');
+        contentDomEl.attr({
+            'class': 'modal-content',
+            'ng-style': '{\'z-index\':1060}'
+        }).append(modalOptions.template);
+
+        /* dialog */
+        dialogDomEl = angular.element('<div></div>');
+        dialogDomEl.attr({
+            'class': 'modal-dialog'
+        }).append(contentDomEl);
+
+        /* backdrop */
+        backdropDomEl = angular.element('<div></div>');
+        backdropDomEl.attr({
+            'class': 'modal-backdrop',
+            'ng-style': '{\'z-index\':1040}'
+        });
+
+        /* modal */
+        modalDomEl = angular.element('<div></div>');
+        modalDomEl.attr({
+            'class': 'modal',
+            'ng-style': '{\'z-index\':1050}',
+            'tabindex': -1
+        }).append(dialogDomEl).append(backdropDomEl);
+
+        $compile(modalDomEl)(modalScope);
+        document.body.appendChild(modalDomEl[0]);
+
+        return modalInstance;
+    };
+}]);
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(10);
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(1)(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {
+	module.hot.accept("!!../../node_modules/css-loader/index.js!./xxt.ui.modal.css", function() {
+		var newContent = require("!!../../node_modules/css-loader/index.js!./xxt.ui.modal.css");
+
+		if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+
+		var locals = (function(a, b) {
+			var key, idx = 0;
+
+			for(key in a) {
+				if(!b || a[key] !== b[key]) return false;
+				idx++;
+			}
+
+			for(key in b) idx--;
+
+			return idx === 0;
+		}(content.locals, newContent.locals));
+
+		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
+
+		update(newContent);
+	});
+
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('http.ui.xxt', []);
+ngMod.provider('tmsLocation', function() {
+    var _baseUrl;
+
+    this.config = function(baseUrl) {
+        _baseUrl = baseUrl || location.pathname;
+    };
+
+    this.$get = ['$location', function($location) {
+        if (!_baseUrl) {
+            _baseUrl = location.pathname;
+        }
+        return {
+            s: function() {
+                return $location.search();
+            },
+            j: function(method) {
+                var url = _baseUrl,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (var i = 1, l = arguments.length; i < l; i++) {
+                    search.push(arguments[i] + '=' + ($location.search()[arguments[i]] || ''));
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            }
+        };
+    }];
+});
+ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
+    function createAlert(msg, type, keep) {
+        var alertDomEl;
+        /* backdrop */
+        alertDomEl = angular.element('<div></div>');
+        alertDomEl.attr({
+            'class': 'tms-notice alert alert-' + (type ? type : 'info'),
+            'ng-style': '{\'z-index\':1099}'
+        }).html($sce.trustAsHtml(msg));
+        if (!keep) {
+            alertDomEl[0].addEventListener('click', function() {
+                document.body.removeChild(alertDomEl[0]);
+            }, true);
+        }
+        $compile(alertDomEl)($rootScope);
+        document.body.appendChild(alertDomEl[0]);
+
+        return alertDomEl[0];
+    }
+
+    function removeAlert(alertDomEl) {
+        if (alertDomEl) {
+            document.body.removeChild(alertDomEl);
+        }
+    }
+
+    this.get = function(url, oOptions) {
+        var _alert, _timer, _defer = $q.defer();
+        oOptions = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'parseResponse': true,
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, oOptions);
+        if (oOptions.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(oOptions.showProgressText, 'info');
+            }, oOptions.showProgressDelay);
+        }
+        $http.get(url, oOptions).success(function(rsp) {
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (!oOptions.parseResponse) {
+                _defer.resolve(rsp);
+            } else {
+                if (angular.isString(rsp)) {
+                    if (oOptions.autoNotice) {
+                        createAlert(rsp, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else if (rsp.err_code != 0) {
+                    if (oOptions.autoNotice) {
+                        var errmsg;
+                        if (angular.isString(rsp.err_msg)) {
+                            errmsg = rsp.err_msg;
+                        } else if (angular.isArray(rsp.err_msg)) {
+                            errmsg = rsp.err_msg.join('<br>');
+                        } else {
+                            errmsg = JSON.stringify(rsp.err_msg);
+                        }
+                        createAlert(errmsg, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else {
+                    _defer.resolve(rsp);
+                }
+            }
+        }).error(function(data, status) {
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+    this.post = function(url, posted, oOptions) {
+        var _alert, _timer, _defer = $q.defer();
+        oOptions = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'parseResponse': true,
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, oOptions);
+        if (oOptions.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = createAlert(oOptions.showProgressText, 'info');
+            }, oOptions.showProgressDelay);
+        }
+        $http.post(url, posted, oOptions).success(function(rsp) {
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (!oOptions.parseResponse) {
+                _defer.resolve(rsp);
+            } else {
+                if (angular.isString(rsp)) {
+                    if (oOptions.autoNotice) {
+                        createAlert(rsp, 'warning');
+                        _alert = null;
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else if (rsp.err_code != 0) {
+                    if (oOptions.autoNotice) {
+                        var errmsg;
+                        if (angular.isString(rsp.err_msg)) {
+                            errmsg = rsp.err_msg;
+                        } else if (angular.isArray(rsp.err_msg)) {
+                            errmsg = rsp.err_msg.join('<br>');
+                        } else {
+                            errmsg = JSON.stringify(rsp.err_msg);
+                        }
+                        createAlert(errmsg, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else {
+                    _defer.resolve(rsp);
+                }
+            }
+        }).error(function(data, status) {
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    removeAlert(_alert);
+                    _alert = null;
+                }
+            }
+            createAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+}]);
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('notice.ui.xxt', ['ngSanitize']);
+ngMod.service('noticebox', ['$timeout', '$q', function($timeout, $q) {
+    var _boxId = 'tmsbox' + (new Date * 1),
+        _last = {
+            type: '',
+            timer: null
+        },
+        _getBox = function(type, msg) {
+            var box;
+            box = document.querySelector('#' + _boxId);
+            if (box === null) {
+                box = document.createElement('div');
+                box.setAttribute('id', _boxId);
+                box.classList.add('notice-box');
+                box.classList.add('alert');
+                box.classList.add('alert-' + type);
+                box.innerHTML = '<div>' + msg + '</div>';
+                document.body.appendChild(box);
+                _last.type = type;
+            } else {
+                if (_last.type !== type) {
+                    box.classList.remove('alert-' + type);
+                    _last.type = type;
+                }
+                box.childNodes[0].innerHTML = msg;
+            }
+
+            return box;
+        };
+
+    this.close = function() {
+        var box;
+        box = document.querySelector('#' + _boxId);
+        if (box) {
+            document.body.removeChild(box);
+        }
+    };
+    this.error = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('danger', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.warn = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.success = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('success', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.info = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('info', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.progress = function(msg) {
+        /*显示消息框*/
+        _getBox('progress', msg);
+    };
+    this.confirm = function(msg, buttons) {
+        var defer, box, btn;
+        defer = $q.defer();
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*添加操作*/
+        if (buttons && buttons.length) {
+            buttons.forEach(function(oButton) {
+                btn = document.createElement('button');
+                btn.classList.add('btn', 'btn-default', 'btn-sm');
+                btn.innerHTML = oButton.label;
+                box.appendChild(btn, box.childNodes[0]);
+                btn.addEventListener('click', function() {
+                    document.body.removeChild(box);
+                    defer.resolve(oButton.value);
+                });
+            });
+        } else {
+            btn = document.createElement('button');
+            btn.classList.add('btn', 'btn-default', 'btn-sm');
+            btn.innerHTML = '是';
+            box.appendChild(btn, box.childNodes[0]);
+            btn.addEventListener('click', function() {
+                document.body.removeChild(box);
+                defer.resolve();
+            });
+            btn = document.createElement('button');
+            btn.classList.add('btn', 'btn-default', 'btn-sm');
+            btn.innerHTML = '否';
+            box.appendChild(btn, box.childNodes[0]);
+            btn.addEventListener('click', function() {
+                document.body.removeChild(box);
+                defer.reject();
+            });
+        }
+
+        return defer.promise;
+    };
+}]);
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(6);
+
+__webpack_require__(2);
+__webpack_require__(5);
+
+var ngMod = angular.module('favor.ui.xxt', ['page.ui.xxt', 'modal.ui.xxt']);
+ngMod.service('tmsFavor', ['$rootScope', '$http', '$q', 'tmsDynaPage', 'tmsModal', function($rootScope, $http, $q, tmsDynaPage, tmsModal) {
+    function byPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/byUser';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function favorByPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/add';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function unfavorByPerson(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/site/fe/user/favor/remove';
+        url += "?site=" + oMatter.siteid;
+        url += "&id=" + oMatter.id;
+        url += "&type=" + oMatter.type;
+        $http.get(url).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function bySite(oMatter) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/sitesByUser?site=' + oMatter.siteid + '&id=' + oMatter.id + '&type=' + oMatter.type + '&_=' + (new Date() * 1);
+        $http.get(url).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                return;
+            }
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function favorBySite(oMatter, $aTargetSiteIds) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/add?id=' + oMatter.id + '&type=' + oMatter.type;
+        $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function unfavorBySite(oMatter, $aTargetSiteIds) {
+        var url, defer;
+        defer = $q.defer();
+        url = '/rest/pl/fe/site/favor/remove?id=' + oMatter.id + '&type=' + oMatter.type;
+        $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    this.open = function(oMatter) {
+        var template;
+        template = '<div class="modal-header"><span class="modal-title">指定收藏位置</span></div>';
+        template += '<div class="modal-body">';
+        template += '<div class="checkbox">';
+        template += '<label>';
+        template += '<input type=\'checkbox\' ng-true-value="\'Y\'" ng-false-value="\'N\'" ng-model=\'person._selected\'>';
+        template += '<span>个人账户</span>';
+        template += '<span ng-if="person._favored===\'Y\'">（已收藏）</span>';
+        template += '</label>';
+        template += '</div>';
+        template += '<div class="checkbox" ng-repeat="site in mySites">';
+        template += '<label>';
+        template += '<input type=\'checkbox\' ng-true-value="\'Y\'" ng-false-value="\'N\'" ng-model=\'site._selected\'>';
+        template += '<span>{{site.name}}</span>';
+        template += '<span ng-if="site._favored===\'Y\'">（已收藏）</span>';
+        template += '</label>';
+        template += '</div>'
+        template += '<div ng-if="mySites.length===0"><a href="" ng-click="createSite()">创建</a>团队进行收藏，方便团队内共享信息</div>';
+        template += '</div>';
+        template += '<div class="modal-footer"><button class="btn btn-default" ng-click="cancel()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button></div>';
+        tmsModal.open({
+            template: template,
+            controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {
+                byPerson(oMatter).then(function(log) {
+                    $scope2.person = {
+                        _favored: log ? 'Y' : 'N'
+                    };
+                    $scope2.person._selected = $scope2.person._favored;
+                });
+                bySite(oMatter).then(function(sites) {
+                    var mySites = sites;
+                    mySites.forEach(function(site) {
+                        site._selected = site._favored;
+                    });
+                    $scope2.mySites = mySites;
+                });
+                $scope2.createSite = function() {
+                    $http.get('/rest/pl/fe/site/create').success(function(rsp) {
+                        var site = rsp.data;
+                        site._favored = site._selected = 'N';
+                        $scope2.mySites = [site];
+                    })
+                };
+                $scope2.ok = function() {
+                    var result;
+                    result = {
+                        person: $scope2.person,
+                        mySites: $scope2.mySites
+                    }
+                    $mi.close(result);
+                };
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+            }]
+        }).result.then(function(result) {
+            var url, oPerson, mySites;
+            oPerson = result.person;
+            if (oPerson && oPerson._selected !== oPerson._favored) {
+                if (oPerson._selected === 'Y') {
+                    favorByPerson(oMatter);
+                } else {
+                    unfavorByPerson(oMatter);
+                }
+            }
+            mySites = result.mySites;
+            if (mySites) {
+                var favored = [],
+                    unfavored = [];
+                mySites.forEach(function(site) {
+                    if (site._selected !== site._favored) {
+                        if (site._selected === 'Y') {
+                            favored.push(site.id);
+                        } else {
+                            unfavored.push(site.id);
+                        }
+                    }
+                });
+                if (favored.length) {
+                    favorBySite(oMatter, favored);
+                }
+                if (unfavored.length) {
+                    unfavorBySite(oMatter, unfavored);
+                }
+            }
+        });
+    };
+    this.showSwitch = function(oUser, oMatter) {
+        var _this = this,
+            eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-favor');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $rootScope.$apply(function() {
+                if (!oUser.loginExpire) {
+                    tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                        oUser.loginExpire = data.loginExpire;
+                        _this.open(oMatter);
+                    });
+                } else {
+                    _this.open(oMatter);
+                }
+            })
+        }, true);
+        document.body.appendChild(eSwitch);
+    };
+}]);
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(false);
+// imports
+
+
+// module
+exports.push([module.i, ".modal {\r\n    display: block;\r\n    overflow: hidden;\r\n    position: fixed;\r\n    top: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    left: 0;\r\n    outline: 0;\r\n    opacity: 1;\r\n    overflow-x: hidden;\r\n    overflow-y: auto;\r\n    opacity: 1;\r\n}\r\n\r\n.modal-backdrop {\r\n    position: fixed;\r\n    top: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    left: 0;\r\n    background-color: #000;\r\n    opacity: .5;\r\n}\r\n\r\n.modal-dialog {\r\n    position: relative;\r\n    z-index: 1055;\r\n    margin: 0;\r\n    position: relative;\r\n    width: auto;\r\n    margin: 10px;\r\n}\r\n\r\n.modal-content {\r\n    position: relative;\r\n    background-color: #fff;\r\n    -webkit-background-clip: padding-box;\r\n    background-clip: padding-box;\r\n    border: 1px solid #999;\r\n    border: 1px solid rgba(0, 0, 0, .2);\r\n    border-radius: 6px;\r\n    outline: 0;\r\n    -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);\r\n    box-shadow: 0 3px 9px rgba(0, 0, 0, .5);\r\n}\r\n\r\n.modal-header {\r\n    padding: 15px;\r\n    border-bottom: 1px solid #e5e5e5;\r\n}\r\n\r\n.modal-header .close {\r\n    margin-top: -2px;\r\n}\r\n\r\n.modal-title {\r\n    margin: 0;\r\n    line-height: 1.42857143;\r\n}\r\n\r\n.modal-body {\r\n    position: relative;\r\n    padding: 15px;\r\n}\r\n\r\n.modal-footer {\r\n    padding: 15px;\r\n    text-align: right;\r\n    border-top: 1px solid #e5e5e5;\r\n}\r\n\r\nbutton.close {\r\n    -webkit-appearance: none;\r\n    padding: 0;\r\n    cursor: pointer;\r\n    background: 0 0;\r\n    border: 0;\r\n}\r\n\r\n.close {\r\n    float: right;\r\n    font-size: 21px;\r\n    font-weight: 700;\r\n    line-height: 1;\r\n    color: #000;\r\n    text-shadow: 0 1px 0 #fff;\r\n    filter: alpha(opacity=20);\r\n    opacity: .2;\r\n}\r\n\r\n@media (min-width:768px) {\r\n    .modal-dialog {\r\n        width: 600px;\r\n        margin: 30px auto;\r\n    }\r\n    .modal-content {\r\n        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);\r\n        box-shadow: 0 5px 15px rgba(0, 0, 0, .5);\r\n    }\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(false);
+// imports
+
+
+// module
+exports.push([module.i, ".dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-header{padding:15px 15px 0 15px}.dialog .dlg-body{padding:15px 15px 0 15px}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-act-toggle{position:fixed;right:15px;bottom:8px;width:48px;height:48px;line-height:48px;box-shadow:0 2px 6px rgba(18,27,32,.425);color:#fff;background:#ff8018;border:1px solid #ff8018;border-radius:24px;font-size:20px;text-align:center;cursor:pointer;z-index:1050}.tms-nav-target>*+*{margin-top:.5em}.tms-act-popover-wrap>div+div{margin-top:8px}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:'\\5173\\95ED';position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}", ""]);
+
+// exports
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(11);
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(1)(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {
+	module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./directive.css", function() {
+		var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./directive.css");
+
+		if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+
+		var locals = (function(a, b) {
+			var key, idx = 0;
+
+			for(key in a) {
+				if(!b || a[key] !== b[key]) return false;
+				idx++;
+			}
+
+			for(key in b) idx--;
+
+			return idx === 0;
+		}(content.locals, newContent.locals));
+
+		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
+
+		update(newContent);
+	});
+
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+window.__util = {};
+window.__util.makeDialog = function(id, html) {
+    var dlg, mask;
+
+    mask = document.createElement('div');
+    mask.setAttribute('id', id);
+    mask.classList.add('dialog', 'mask');
+
+    dlg = "<div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div>";
+
+    mask.innerHTML = dlg;
+
+    document.body.appendChild(mask);
+
+    return mask.children;
+};
+
+var ngMod = angular.module('directive.enroll', []);
+ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
+    var html;
+    html = "<div class='tms-nav-target'>";
+    html += "<div ng-if=\"navs.repos\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'repos')\">共享页</button></div>";
+    html += "<div ng-if=\"navs.favor\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'favor')\">收藏页</button></div>";
+    html += "<div ng-if=\"navs.rank\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'rank')\">排行页</button></div>";
+    html += "<div ng-if=\"navs.action\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'action')\">动态页<span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span></button></div>";
+    html += "</div>";
+    $templateCache.put('appNavTemplate.html', html);
+    return {
+        restrict: 'A',
+        replace: true,
+        transclude: true,
+        scope: {
+            navs: '=appNavs',
+            noticeCount: '=noticeCount'
+        },
+        template: "<span><span ng-if=\"!navs\"><span ng-transclude></span></span><span ng-if=\"navs\" uib-popover-template=\"'appNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'outsideClick'\"><span ng-transclude></span><span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span><span class=\"caret\"></span></span></span>",
+        controller: ['$scope', function($scope) {
+            $scope.goto = function(event, page) {
+                $scope.$parent.gotoPage(event, page);
+            };
+        }]
+    };
+}]);
+ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
+    var html;
+    html = "<div class='tms-act-popover-wrap'>";
+    html += "<div ng-if=\"acts.mockAsMember\"><button class='btn btn-default' ng-click=\"goto($event,'mockAsMember')\"><span ng-if=\"mocker.role!=='member'\">作为</span><span ng-if=\"mocker.role==='member'\">退出</span>成员</button></div>";
+    html += "<div ng-if=\"acts.mockAsVisitor\"><button class='btn btn-default' ng-click=\"goto($event,'mockAsVisitor')\"><span ng-if=\"mocker.role!=='visitor'\">作为</span><span ng-if=\"mocker.role==='visitor'\">退出</span>访客</button></div>";
+    html += "<div ng-if=\"acts.addRecord\"><button class='btn btn-default' ng-click=\"goto($event,'addRecord')\">添加记录</button></div>";
+    html += "<div ng-if=\"acts.save\"><button class='btn btn-default' ng-click=\"goto($event,'save')\">保存</button></div>";
+    html += "</div>";
+    $templateCache.put('appActTemplate.html', html);
+    return {
+        restrict: 'A',
+        replace: true,
+        scope: {
+            acts: '=appActs'
+        },
+        template: "<button uib-popover-template=\"'appActTemplate.html'\" popover-placement=\"top-right\" popover-trigger=\"'outsideClick'\" popover-append-to-body=\"true\" class=\"tms-act-toggle\" popover-class=\"tms-act-popover\"><span class='glyphicon glyphicon-option-vertical'></span></button>",
+        controller: ['$scope', function($scope) {
+            $scope.$watch('acts', function(oActs) {
+                var oMockAct;
+                if (oActs) {
+                    if (oMockAct = oActs.mockAsVisitor || oActs.mockAsMember) {
+                        if (oMockAct.mocker && angular.isString(oMockAct.mocker)) {
+                            if ($scope.mocker = $scope.$parent[oMockAct.mocker]) {
+                                $scope.$parent.$watch(oMockAct.mocker, function(nv) {
+                                    $scope.mocker = nv;
+                                }, true);
+                            }
+                        }
+                    }
+                }
+            });
+            $scope.back = function() {
+                history.back();
+            };
+            $scope.historyLen = function() {
+                return history.length;
+            };
+            $scope.goto = function(event, page) {
+                switch (page) {
+                    case 'mockAsVisitor':
+                        $scope.$parent.mockAsVisitor(event, $scope.mocker.role !== 'visitor');
+                        break;
+                    case 'mockAsMember':
+                        $scope.$parent.mockAsMember(event, $scope.mocker.role !== 'member');
+                        break;
+                    case 'addRecord':
+                        $scope.$parent.addRecord(event);
+                        break;
+                    case 'save':
+                        $scope.$parent.save();
+                        break;
+                    default:
+                        $scope.$parent.gotoPage(event, page);
+                }
+            };
+        }]
+    };
+}]);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsDateValue'
+        },
+        controller: ['$scope', function($scope) {
+            $scope.close = function() {
+                var mask;
+                mask = document.querySelector('#' + $scope.dialogID);
+                document.body.removeChild(mask);
+                $scope.opened = false;
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = parseInt(dtObject.getTime() / 1000);
+                $scope.close();
+            };
+        }],
+        link: function(scope, elem, attrs) {
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
+            dtObject = new Date();
+            dtObject.setTime(scope.value * 1000);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017, 2018, 2019, 2020],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date() * 1);
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
+        }
+    }
+}]);
+ngMod.directive('flexImg', function() {
+    return {
+        restrict: 'A',
+        replace: true,
+        template: "<img ng-src='{{img.imgSrc}}'>",
+        link: function(scope, elem, attrs) {
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
+                    sw, sh;
+                if (w > h) {
+                    sw = w / h * 80;
+                    angular.element(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
+                } else {
+                    sh = h / w * 80;
+                    angular.element(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
+                }
+            })
+        }
+    }
+});
+/**
+ * 根据父元素的高度决定是否隐藏
+ */
+ngMod.directive('tmsHideParentHeight', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elems, attrs) {
+            var heightLimit, elem;
+            if (attrs.tmsHideParentHeight) {
+                heightLimit = attrs.tmsHideParentHeight;
+                for (var i = 0, ii = elems.length; i < ii; i++) {
+                    elem = elems[i];
+                    if (elem.parentElement) {
+                        window.addEventListener('resize', function() {
+                            elem.classList.toggle('hidden', elem.parentElement.clientHeight < heightLimit);
+                        });
+                    }
+                }
+            }
+        }
+    }
+});
+/**
+ * 监听元素的滚动事件并做出相应
+ */
+ngMod.directive('tmsScrollSpy', function() {
+    return {
+        restrict: 'A',
+        scope: {
+            selector: '@selector',
+            offset: '@',
+            onbottom: '&',
+            toggleSpy: '='
+        },
+        link: function(scope, elems, attrs) {
+            if (scope.selector === 'window') {
+                window.addEventListener('scroll', function(event) {
+                    var eleScrolling;
+                    if (eleScrolling = event.target.scrollingElement) {
+                        if (scope.toggleSpy) {
+                            if (scope.onbottom && angular.isFunction(scope.onbottom)) {
+                                if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
+                                    scope.$apply(function() {
+                                        scope.toggleSpy = false;
+                                        scope.onbottom();
+                                    });
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+});
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('coinpay.ui.xxt', []);
+ngMod.service('tmsCoinPay', function() {
+    this.showSwitch = function(siteId, matter) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-coinpay');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = location.protocol + '//' + location.host;
+            url += '/rest/site/fe/coin/pay';
+            url += "?site=" + siteId;
+            url += "&matter=" + matter;
+            openPlugin(url);
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('siteuser.ui.xxt', []);
+ngMod.service('tmsSiteUser', function() {
+    this.showSwitch = function(siteId, redirect) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-siteuser');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = location.protocol + '//' + location.host;
+            url += '/rest/site/fe/user';
+            url += "?site=" + siteId;
+            if (redirect) {
+                location.href = url;
+            } else {
+                openPlugin(url);
+            }
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(false);
+// imports
+
+
+// module
+exports.push([module.i, "html,body{font-family:Microsoft Yahei,Arial;width:100%;height:auto;}\r\nbody{position:relative;font-size:16px;padding:0;}\r\n.ng-cloak{display:none;}\r\n.container{position:relative;}\r\n.site-navbar-default .navbar-default .navbar-nav>li>a,.navbar-default .navbar-brand{color:#fff;}\r\n.site-navbar-default .navbar-brand{padding:15px 15px;}\r\n.main-navbar .navbar-brand:hover{color:#fff;}\r\n@media screen and (min-width:768px){\r\n\t.site-navbar-default .navbar-nav>li>a{padding:15px 15px;line-height:1;}\r\n}\r\n@media screen and (max-width:768px){\r\n\t.site-navbar-default .navbar-brand{width:100%;text-align:center;}\r\n\t.site-navbar-default .navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}\r\n\t.site-navbar-default .navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}\r\n\t.site-navbar-default .nav>li>a{padding:10px 10px;}\r\n}\r\n.tms-flex-row{display:flex;align-items:center;}\r\n.tms-flex-row .tms-flex-grow{flex:1;}\r\n.dropdown-menu{min-width:auto;}\r\n.dropdown-menu-top{bottom:100%;top:auto;}\r\n\r\n/*picviewer*/\r\n#picViewer{position:absolute;left:0px;right:0px;top:0px;bottom:0px;z-index:1051;display:none;margin:0 auto;overflow:hidden;background:black}\r\n#picViewer>div{position:absolute;bottom:6px;left:8px;right:8px;z-index:1999;height:36px}\r\n#picViewer span{display:inline-block;width:36px;height:36px;line-height:25px;border-radius:18px;font-size:25px;text-align:center;color:#bbb;}\r\n#picViewer span.page{position:absolute;left:50%;margin-left:-18px;font-size:18px}\r\n#picViewer span.prev{position:absolute;left:50%;margin-left:-72px}\r\n#picViewer span.next{position:absolute;left:50%;margin-left:36px}\r\n#picViewer span.exit{position:absolute;right:0}\r\n#picViewer span.exit>i{text-shadow:0 0 0.1em #fff,-0 -0 0.1em #fff;}", ""]);
+
+// exports
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(16);
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(1)(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {
+	module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./main.css", function() {
+		var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./main.css");
+
+		if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+
+		var locals = (function(a, b) {
+			var key, idx = 0;
+
+			for(key in a) {
+				if(!b || a[key] !== b[key]) return false;
+				idx++;
+			}
+
+			for(key in b) idx--;
+
+			return idx === 0;
+		}(content.locals, newContent.locals));
+
+		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
+
+		update(newContent);
+	});
+
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(4);
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
+    window.wx.ready(function() {
+        window.wx.showOptionMenu();
+    });
+} else if (/YiXin/i.test(navigator.userAgent)) {
+    document.addEventListener('YixinJSBridgeReady', function() {
+        YixinJSBridge.call('showOptionMenu');
+    }, false);
+}
+
+__webpack_require__(12);
+__webpack_require__(17);
+__webpack_require__(8);
+__webpack_require__(7);
+__webpack_require__(2);
+__webpack_require__(15);
+__webpack_require__(9);
+__webpack_require__(14);
+
+__webpack_require__(13);
+
+/* 公共加载的模块 */
+var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'directive.enroll'];
+/* 加载指定的模块 */
+if (window.moduleAngularModules) {
+    window.moduleAngularModules.forEach(function(m) {
+        angularModules.push(m);
+    });
+}
+
+var ngApp = angular.module('app', angularModules);
+ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider', function($cp, $uibTooltipProvider, $locationProvider) {
+    ngApp.provider = {
+        controller: $cp.register
+    };
+    $uibTooltipProvider.setTriggers({ 'show': 'hide' });
+    $locationProvider.html5Mode(true);
+}]);
+ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
+    function refreshEntryRuleResult() {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('entryRule', 'site', 'app');
+        return http2.get(url).then(function(rsp) {
+            $scope.params.entryRuleResult = rsp.data;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function openPlugin(url, fnCallback) {
+        var body, elWrap, elIframe;
+        body = document.body;
+        elWrap = document.createElement('div');
+        elWrap.setAttribute('id', 'frmPlugin');
+        elWrap.height = body.clientHeight;
+        elIframe = document.createElement('iframe');
+        elWrap.appendChild(elIframe);
+        body.scrollTop = 0;
+        body.appendChild(elWrap);
+        window.onClosePlugin = function() {
+            if (fnCallback) {
+                fnCallback().then(function(data) {
+                    elWrap.parentNode.removeChild(elWrap);
+                });
+            } else {
+                elWrap.parentNode.removeChild(elWrap);
+            }
+        };
+        elWrap.onclick = function() {
+            onClosePlugin();
+        };
+        if (url) {
+            elIframe.setAttribute('src', url);
+        }
+        elWrap.style.display = 'block';
+    }
+
+    function execTask(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    }
+    var tasksOfOnReady = [];
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            window.YixinJSBridge.call('closeWebView');
+        }
+    };
+    $scope.askFollowSns = function() {
+        var url;
+        if ($scope.app.entryRule && $scope.app.entryRule.scope.sns === 'Y') {
+            url = LS.j('askFollow', 'site');
+            url += '&sns=' + Object.keys($scope.app.entryRule.sns).join(',');
+            openPlugin(url, refreshEntryRuleResult);
+        }
+    };
+    $scope.askBecomeMember = function() {
+        var url, mschemaIds;
+        if ($scope.app.entry_rule && $scope.app.entryRule.scope.member === 'Y') {
+            mschemaIds = Object.keys($scope.app.entryRule.member);
+            if (mschemaIds.length === 1) {
+                url = '/rest/site/fe/user/member?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds[0];
+            } else if (mschemaIds.length > 1) {
+                url = '/rest/site/fe/user/memberschema?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds.join(',');
+            }
+            openPlugin(url, refreshEntryRuleResult);
+        }
+    };
+    $scope.addRecord = function(event, page) {
+        if (page) {
+            $scope.gotoPage(event, page, null, null, 'Y');
+        } else {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    $scope.gotoPage(event, oPage.name, null, null, 'Y');
+                    break;
+                }
+            }
+        }
+    };
+    $scope.gotoApp = function(event) {
+        location.replace($scope.app.entryUrl);
+    };
+    $scope.gotoPage = function(event, page, ek, rid, newRecord) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        var url = LS.j('', 'site', 'app');
+        if (ek) {
+            url += '&ek=' + ek;
+        } else if (page === 'cowork') {
+            url += '&ek=' + LS.s().ek;
+        }
+        rid && (url += '&rid=' + rid);
+        page && (url += '&page=' + page);
+        newRecord && newRecord === 'Y' && (url += '&newRecord=Y');
+        location = url;
+        //location.replace(url);
+    };
+    $scope.openMatter = function(id, type, replace, newWindow) {
+        var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;
+        if (replace) {
+            location.replace(url);
+        } else {
+            if (newWindow === false) {
+                location.href = url;
+            } else {
+                window.open(url);
+            }
+        }
+    };
+    $scope.onReady = function(task) {
+        if ($scope.params) {
+            execTask(task);
+        } else {
+            tasksOfOnReady.push(task);
+        }
+    };
+    /* 设置公众号分享信息 */
+    $scope.setSnsShare = function(oRecord, oParams) {
+        function fnReadySnsShare() {
+            if (window.__wxjs_environment === 'miniprogram') {
+                return;
+            }
+            var oApp, oPage, oUser, sharelink, shareid, shareby, summary;
+            oApp = $scope.app;
+            oPage = $scope.page;
+            oUser = $scope.user;
+            /* 设置活动的当前链接 */
+            sharelink = location.protocol + '//' + location.host + LS.j('', 'site', 'app', 'rid');
+            if (oPage && oPage.share_page && oPage.share_page === 'Y') {
+                sharelink += '&page=' + oPage.name;
+            } else if (LS.s().page) {
+                sharelink += '&page=' + LS.s().page;
+            }
+            oRecord && oRecord.enroll_key && (sharelink += '&ek=' + oRecord.enroll_key);
+            if (oParams) {
+                angular.forEach(oParams, function(v, k) {
+                    if (v !== undefined) {
+                        sharelink += '&' + k + '=' + v;
+                    }
+                });
+            }
+            shareid = oUser.uid + '_' + (new Date * 1);
+            sharelink += "&shareby=" + shareid;
+            /* 设置分享 */
+            summary = oApp.summary;
+            if (oPage && oPage.share_summary && oPage.share_summary.length && oRecord) {
+                summary = oRecord.data[oPage.share_summary];
+            }
+            /* 分享次数计数器 */
+            window.shareCounter = 0;
+            tmsSnsShare.config({
+                siteId: oApp.siteid,
+                logger: function(shareto) {
+                    var url;
+                    url = "/rest/site/fe/matter/logShare";
+                    url += "?shareid=" + shareid;
+                    url += "&site=" + oApp.siteid;
+                    url += "&id=" + oApp.id;
+                    url += "&type=enroll";
+                    url += "&title=" + oApp.title;
+                    url += "&shareby=" + shareid;
+                    url += "&shareto=" + shareto;
+                    http2.get(url);
+                    window.shareCounter++;
+                    window.onshare && window.onshare(window.shareCounter);
+                },
+                jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation', 'startRecord', 'stopRecord', 'onVoiceRecordEnd', 'playVoice', 'pauseVoice', 'stopVoice', 'onVoicePlayEnd', 'uploadVoice', 'downloadVoice']
+            });
+            tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
+        }
+        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+            if (!window.WeixinJSBridge || !WeixinJSBridge.invoke) {
+                document.addEventListener('WeixinJSBridgeReady', fnReadySnsShare, false);
+            } else {
+                fnReadySnsShare();
+            }
+        }
+    };
+    $scope.isSmallLayout = false;
+    if (window.screen && window.screen.width < 992) {
+        $scope.isSmallLayout = true;
+    }
+    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function success(rsp) {
+        var params = rsp.data,
+            oSite = params.site,
+            oApp = params.app,
+            oMission = params.mission,
+            oPage = params.page,
+            oUser = params.user,
+            schemasById = {},
+            activeRid = '';
+
+        oApp.dataSchemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        oApp._schemasById = schemasById;
+        $scope.params = params;
+        $scope.site = oSite;
+        $scope.mission = oMission;
+        $scope.app = oApp;
+        $scope.user = oUser;
+        if (oApp.multi_rounds === 'Y' && params.activeRound) {
+            $scope.activeRound = params.activeRound;
+            activeRid = params.activeRound.rid;
+        }
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
+        }
+
+        $scope.favor = function(user, article) {
+            if (!user.loginExpire) {
+                tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                    user.loginExpire = data.loginExpire;
+                    tmsFavor.open(article);
+                });
+            } else {
+                tmsFavor.open(article);
+            }
+        };
+        if (oApp.can_siteuser === 'Y') {
+            $scope.siteUser = function(id) {
+                var url = location.protocol + '//' + location.host;
+                url += '/rest/site/fe/user';
+                url += "?site=" + id;
+                location.href = url;
+            };
+        }
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, execTask);
+        }
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.enroll.ready', params);
+        });
+        http2.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid + '&id=' + oApp.id + '&type=enroll&title=' + oApp.title, {
+            search: location.search.replace('?', ''),
+            referer: document.referrer,
+            rid: activeRid,
+            assignedNickname: oUser.nickname
+        });
+    });
+}]);
+module.exports = ngApp;
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var utilSchema = {};
+utilSchema.isEmpty = function(oSchema, value) {
+    if (value === undefined) {
+        return true;
+    }
+    switch (oSchema.type) {
+        case 'multiple':
+            for (var p in value) {
+                //至少有一个选项
+                if (value[p] === true) {
+                    return false;
+                }
+            }
+            return true;
+        default:
+            return value.length === 0;
+    }
+};
+utilSchema.checkRequire = function(oSchema, value) {
+    if (value === undefined || this.isEmpty(oSchema, value)) {
+        return '请填写必填题目［' + oSchema.title + '］';
+    }
+    return true;
+};
+utilSchema.checkFormat = function(oSchema, value) {
+    if (oSchema.format === 'number') {
+        if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入数值';
+        }
+    } else if (oSchema.format === 'name') {
+        if (/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入字母或者汉字，并不少于2个字符';
+        }
+        if (value.length < 2) {
+            return '题目［' + oSchema.title + '］请输入正确的姓名（不少于2个字符）';
+        }
+    } else if (oSchema.format === 'mobile') {
+        if (!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入正确的手机号（11位数字）';
+        }
+    } else if (oSchema.format === 'email') {
+        if (!/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(value)) {
+            return '题目［' + oSchema.title + '］请输入正确的邮箱';
+        }
+    }
+    return true;
+};
+utilSchema.checkCount = function(oSchema, value) {
+    if (oSchema.count != 0 && oSchema.count !== undefined && value.length > oSchema.count) {
+        return '［' + oSchema.title + '］超出上传数量（' + oSchema.count + '）限制';
+    }
+    return true;
+};
+utilSchema.checkValue = function(oSchema, value) {
+    var sCheckResult;
+    if (oSchema.required && oSchema.required === 'Y') {
+        if (true !== (sCheckResult = this.checkRequire(oSchema, value))) {
+            return sCheckResult;
+        }
+    }
+    if (value) {
+        if (oSchema.type === 'shorttext' && oSchema.format) {
+            if (true !== (sCheckResult = this.checkFormat(oSchema, value))) {
+                return sCheckResult;
+            }
+        }
+        if (oSchema.type === 'multiple' && oSchema.limitChoice === 'Y' && oSchema.range) {
+            var opCount = 0;
+            for (var i in value) {
+                if (value[i]) {
+                    opCount++;
+                }
+            }
+            if (opCount < oSchema.range[0] || opCount > oSchema.range[1]) {
+                return '【' + oSchema.title + '】中最多只能选择(' + oSchema.range[1] + ')项，最少需要选择(' + oSchema.range[0] + ')项';
+            }
+        }
+        if (/image|file/.test(oSchema.type) && oSchema.count) {
+            if (true !== (sCheckResult = this.checkCount(oSchema, value))) {
+                return sCheckResult;
+            }
+        }
+    }
+    return true;
+};
+utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
+    if (!dataOfRecord) return false;
+    var schemaId, oSchema, value;
+    for (schemaId in dataOfRecord) {
+        if (schemaId === 'member') {
+            dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
+        } else if (oSchema = schemasById[schemaId]) {
+            if (/score|url/.test(oSchema.type)) {
+                dataOfPage[schemaId] = dataOfRecord[schemaId];
+                if ('url' === oSchema.type) {
+                    dataOfPage[schemaId]._text = utilSchema.urlSubstitute(dataOfPage[schemaId]);
+                }
+            } else if (dataOfRecord[schemaId].length) {
+                if (oSchema.type === 'image') {
+                    value = dataOfRecord[schemaId].split(',');
+                    dataOfPage[schemaId] = [];
+                    for (var i in value) {
+                        dataOfPage[schemaId].push({
+                            imgSrc: value[i]
+                        });
+                    }
+                } else if (oSchema.type === 'multiple') {
+                    value = dataOfRecord[schemaId].split(',');
+                    dataOfPage[schemaId] = {};
+                    for (var i in value) dataOfPage[schemaId][value[i]] = true;
+                } else {
+                    dataOfPage[schemaId] = dataOfRecord[schemaId];
+                }
+            }
+        }
+    }
+    return true;
+};
+/**
+ * 给页面中的提交数据填充题目默认值
+ */
+utilSchema.autoFillDefault = function(schemasById, oPageData) {
+    angular.forEach(schemasById, function(oSchema) {
+        if (oSchema.defaultValue && oPageData[oSchema.id] === undefined) {
+            oPageData[oSchema.id] = oSchema.defaultValue;
+        }
+    });
+};
+/**
+ * 给页面中的提交数据填充用户通讯录数据
+ */
+utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {
+    if (oUser.members) {
+        angular.forEach(schemasById, function(oSchema) {
+            if (oSchema.schema_id && oUser.members[oSchema.schema_id]) {
+                var oMember, attr, val;
+                oMember = oUser.members[oSchema.schema_id];
+                attr = oSchema.id.split('.');
+                if (attr.length === 2) {
+                    oPageDataMember[attr[1]] = oMember[attr[1]];
+                } else if (attr.length === 3 && oMember.extattr) {
+                    if (!oPageDataMember.extattr) {
+                        oPageDataMember.extattr = {};
+                    }
+                    switch (oSchema.type) {
+                        case 'multiple':
+                            val = oMember.extattr[attr[2]];
+                            if (angular.isObject(val)) {
+                                oPageDataMember.extattr[attr[2]] = {};
+                                for (var p in val) {
+                                    if (val[p]) {
+                                        oPageDataMember.extattr[attr[2]][p] = true;
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            oPageDataMember.extattr[attr[2]] = oMember.extattr[attr[2]];
+                    }
+                }
+            }
+        });
+    }
+};
+utilSchema.txtSubstitute = function(oTxtData) {
+    return oTxtData.replace(/\n/g, '<br>');
+};
+utilSchema.urlSubstitute = function(oUrlData) {
+    var text;
+    text = '';
+    if (oUrlData) {
+        if (oUrlData.title) {
+            text += '【' + oUrlData.title + '】';
+        }
+        if (oUrlData.description) {
+            text += oUrlData.description;
+        }
+    }
+    text += '<a href="' + oUrlData.url + '">网页链接</a>';
+
+    return text;
+};
+utilSchema.optionsSubstitute = function(oSchema, value) {
+    var val, aVal, aLab = [];
+    if (val = value) {
+        if (oSchema.ops && oSchema.ops.length) {
+            aVal = val.split(',');
+            oSchema.ops.forEach(function(op) {
+                aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+            });
+            val = aLab.join(',');
+        }
+    } else {
+        val = '';
+    }
+    return val;
+};
+module.exports = utilSchema;
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.image = {
+    options: {},
+    choose: function(deferred, from) {
+        var promise, imgs = [];
+        promise = deferred.promise;
+        // if (window.wx !== undefined) {
+        //     window.wx.chooseImage({
+        //         success: function(res) {
+        //             var i, img;
+        //             for (i in res.localIds) {
+        //                 img = {
+        //                     imgSrc: res.localIds[i]
+        //                 };
+        //                 imgs.push(img);
+        //             }
+        //             deferred.resolve(imgs);
+        //         }
+        //     });
+        // } else
+        if (window.YixinJSBridge) {
+            window.YixinJSBridge.invoke(
+                'pickImage', {
+                    type: from,
+                    quality: 100
+                },
+                function(result) {
+                    var img;
+                    if (result.data && result.data.length) {
+                        img = {
+                            imgSrc: 'data:' + result.mime + ';base64,' + result.data
+                        };
+                        imgs.push(img);
+                    }
+                    deferred.resolve(imgs);
+                });
+        } else {
+            var ele = document.createElement('input');
+            ele.setAttribute('type', 'file');
+            ele.addEventListener('change', function(evt) {
+                var i, cnt, f, type;
+                cnt = evt.target.files.length;
+                for (i = 0; i < cnt; i++) {
+                    f = evt.target.files[i];
+                    type = {
+                        ".jp": "image/jpeg",
+                        ".pn": "image/png",
+                        ".gi": "image/gif"
+                    }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                    f.type2 = f.type || type;
+                    var reader = new FileReader();
+                    reader.onload = (function(theFile) {
+                        return function(e) {
+                            var img = {};
+                            img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                            imgs.push(img);
+                            document.body.removeChild(ele);
+                            deferred.resolve(imgs);
+                        };
+                    })(f);
+                    reader.readAsDataURL(f);
+                }
+            }, false);
+            ele.style.opacity = 0;
+            document.body.appendChild(ele);
+            ele.click();
+        }
+        return promise;
+    },
+    paste: function(oDiv, deferred, from) {
+        var promise, imgs=[];
+        promise = deferred.promise;
+        oDiv.focus();
+        function imgReader(item) {
+            var blob = item.getAsFile(), reader = new FileReader();
+            reader.onload = function(e){
+                var img = {};
+                img.imgSrc = e.target.result;
+                imgs.push(img);
+                deferred.resolve(imgs);
+            };
+            reader.readAsDataURL(blob);
+        };
+        oDiv.addEventListener('paste', function(event) {
+            // 通过事件对象访问系统剪贴板
+            var clipboardData = event.clipboardData, items, item;
+            if (clipboardData) {
+                items = clipboardData.items;
+                if(items && items.length) {
+                    for(var i=0; i<clipboardData.types.length; i++) {
+                        if(clipboardData.types[i] === 'Files') {
+                            item = items[i];
+                            break;
+                        }
+                    }
+                    if( item && item.kind === 'file' && item.type.match(/^image\//i) ){ 
+                        imgReader(item); 
+                    } 
+                }
+            }
+        });
+        return promise;
+    },
+    wxUpload: function(deferred, img) {
+        var promise;
+        promise = deferred.promise;
+        if (0 === img.imgSrc.indexOf('weixin://') || 0 === img.imgSrc.indexOf('wxLocalResource://')) {
+            window.wx.uploadImage({
+                localId: img.imgSrc,
+                isShowProgressTips: 1,
+                success: function(res) {
+                    img.serverId = res.serverId;
+                    deferred.resolve(img);
+                }
+            });
+        } else {
+            deferred.resolve(img);
+        }
+        return promise;
+    }
+};
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.geo = {
+    options: {},
+    getAddress: function(http2, deferred, siteId) {
+        var promise;
+        promise = deferred.promise;
+        if (window.wx) {
+            window.wx.getLocation({
+                success: function(res) {
+                    var url = '/rest/site/fe/matter/enroll/locationGet';
+                    url += '?site=' + siteId;
+                    url += '&lat=' + res.latitude;
+                    url += '&lng=' + res.longitude;
+                    http2.get(url).then(function(rsp) {
+                        deferred.resolve({
+                            errmsg: 'ok',
+                            lat: res.latitude,
+                            lng: res.longitude,
+                            address: rsp.data.address
+                        });
+                    });
+                }
+            });
+        } else {
+            try {
+                var nav = window.navigator;
+                if (nav !== null) {
+                    var geoloc = nav.geolocation;
+                    if (geoloc !== null) {
+                        geoloc.getCurrentPosition(function(position) {
+                            var url = '/rest/site/fe/matter/enroll/locationGet';
+                            url += '?site=' + siteId;
+                            url += '&lat=' + position.coords.latitude;
+                            url += '&lng=' + position.coords.longitude;
+                            http2.get(url).then(function(rsp) {
+                                deferred.resolve({
+                                    errmsg: 'ok',
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude,
+                                    address: rsp.data.address
+                                });
+                            });
+                        }, function() {
+                            deferred.resolve({
+                                errmsg: '获取地理位置失败'
+                            })
+                        });
+                    } else {
+                        deferred.resolve({
+                            errmsg: "无法获取地理位置"
+                        });
+                    }
+                } else {
+                    deferred.resolve({
+                        errmsg: "无法获取地理位置"
+                    });
+                }
+            } catch (e) {
+                alert('exception:' + e.message);
+            }
+        }
+        return promise;
+    },
+};
+
+
+/***/ }),
+/* 22 */,
+/* 23 */,
+/* 24 */,
+/* 25 */,
+/* 26 */,
+/* 27 */,
+/* 28 */,
+/* 29 */,
+/* 30 */,
+/* 31 */,
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var utilSubmit = {};
+utilSubmit.state = {
+    modified: false,
+    state: 'waiting',
+    _cacheKey: false,
+    start: function(event, cacheKey, type) {
+        var submitButton;
+        if (event) {
+            submitButton = event.target;
+            if (submitButton.tagName === 'BUTTON' || ((submitButton = submitButton.parentNode) && submitButton.tagName === 'BUTTON')) {
+                if (/submit\(.*\)/.test(submitButton.getAttribute('ng-click'))) {
+                    var span;
+                    this.button = submitButton;
+                    span = submitButton.querySelector('span');
+                    span.setAttribute('data-label', span.innerHTML);
+                    span.innerHTML = '正在提交数据...';
+                    this.button.classList.add('submit-running');
+                }
+            }
+        }
+        this.state = type == 'save' ? 'waiting' : 'running';
+        this._cacheKey = cacheKey ? cacheKey : (new Date * 1);
+    },
+    finish: function(keep) {
+        this.state = 'waiting';
+        this.modified = false;
+        if (this.button) {
+            var span;
+            span = this.button.querySelector('span');
+            span.innerHTML = span.getAttribute('data-label');
+            span.removeAttribute('data-label');
+            this.button.classList.remove('submit-running');
+            this.button = null;
+        }
+        if (window.localStorage && !keep) {
+            window.localStorage.removeItem(this._cacheKey);
+        }
+    },
+    isRunning: function() {
+        return this.state === 'running';
+    },
+    cache: function(cachedData) {
+        if (window.localStorage) {
+            var key, val;
+            key = this._cacheKey;
+            val = angular.copy(cachedData);
+            val._cacheAt = (new Date * 1);
+            val = JSON.stringify(val);
+            window.localStorage.setItem(key, val);
+        }
+    },
+    fromCache: function(keep) {
+        if (window.localStorage) {
+            var key, val;
+            key = this._cacheKey;
+            val = window.localStorage.getItem(key);
+            if (!keep) window.localStorage.removeItem(key);
+            if (val) {
+                val = JSON.parse(val);
+                /*if (val._cacheAt && (val._cacheAt + 1800000) < (new Date * 1)) {
+                    val = false;
+                }
+                delete val._cacheAt;*/
+            }
+        }
+        return val;
+    }
+};
+module.exports = utilSubmit;
+
+/***/ }),
+/* 33 */,
+/* 34 */,
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('url.ui.xxt', ['http.ui.xxt']);
+ngMod.service('tmsUrl', ['$q', '$uibModal', function($q, $uibModal) {
+    function validateUrl(url) {
+        return true;
+    }
+    this.fetch = function(oBeforeUrlData, oOptions) {
+        var defer;
+        defer = $q.defer();
+        $uibModal.open({
+            template: __webpack_require__(39),
+            controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, http2) {
+                var _oData;
+                $scope.data = _oData = {
+                    text: '结果预览'
+                };
+                if (oBeforeUrlData) {
+                    _oData.summary = {
+                        title: oBeforeUrlData.title,
+                        description: oBeforeUrlData.description,
+                        url: oBeforeUrlData.url
+                    };
+                    _oData.url = oBeforeUrlData.url;
+                }
+                $scope.options = oOptions;
+                $scope.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope.ok = function() {
+                    $mi.close(_oData);
+                };
+                $scope.crawlUrl = function(event) {
+                    var url;
+                    if (event && event.clipboardData) {
+                        url = event.clipboardData.getData('Text');
+                    } else {
+                        url = _oData.url;
+                    }
+                    if (validateUrl(url)) {
+                        http2.post('/rest/site/fe/matter/enroll/url', { url: url }).then(function(rsp) {
+                            _oData.summary = rsp.data;
+                        });
+                    }
+                };
+                $scope.$watch('data.summary', function(nv) {
+                    if (nv) {
+                        var text;
+                        text = '';
+                        if (nv.title) {
+                            text += '【' + nv.title + '】';
+                        }
+                        if (nv.description) {
+                            text += nv.description;
+                        }
+                        text += '<a href="' + _oData.url + '">网页链接</a>';
+                        _oData.text = text;
+                    }
+                }, true);
+            }],
+            backdrop: 'static'
+        }).result.then(function(data) {
+            defer.resolve(data);
+        });
+
+        return defer.promise;
+    };
+}]);
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+__webpack_require__(35);
+
+var ngMod = angular.module('editor.ui.xxt', ['ui.bootstrap', 'url.ui.xxt']);
+ngMod.controller('tmsEditorController', ['$scope', 'tmsUrl', function($scope, tmsUrl) {
+    /* 插入链接 */
+    $scope.insertLink = function() {
+        tmsUrl.fetch().then(function(oResult) {
+            var oUrl;
+            if (oUrl = oResult.summary) {
+                $scope.iframeDoc.execCommand('insertHTML', false, '<a href="' + oUrl.url + '" target="_blank">' + (oUrl.title || '链接') + '</a>');
+            }
+        });
+    };
+    /* 开启关闭设置样式 */
+    $scope.toggleDesignMode = function() {
+        $scope.designMode = !$scope.designMode;
+        $scope.iframeDoc.getSelection().removeAllRanges();
+    };
+}]);
+ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
+    function _calcTextWidth(text) {
+        var divMock, height, width;
+        divMock = document.createElement('DIV');
+        divMock.style.position = 'absolute';
+        divMock.style.visibility = 'hidden';
+        divMock.style.height = 'auto';
+        divMock.style.width = 'auto';
+        divMock.style.whiteSpace = 'nowrap';
+        divMock.innerHTML = text;
+        _iframeDoc.querySelector('body').appendChild(divMock);
+        height = divMock.clientHeight;
+        width = divMock.clientWidth;
+        _iframeDoc.querySelector('body').removeChild(divMock);
+
+        return { height: height, width: width, charWidth: parseInt(width / text.length) };
+    }
+    /**
+     * 根据触屏事件，设置选中的内容
+     */
+    function _setSelectionByTouch(oTarget, oTouchTracks) {
+        var oParam, oSelection, oRange, oStartNode;
+        oParam = {
+            start: {
+                touch: oTouchTracks.start
+            },
+            end: {
+                touch: oTouchTracks.end
+            }
+        };
+        if (oTarget.childNodes.length) {
+            for (var i = 0, ii = oTarget.childNodes.length; i < ii; i++) {
+                if (oTarget.childNodes[i].nodeType === Node.TEXT_NODE) {
+                    oStartNode = oTarget.childNodes[i];
+                    break;
+                }
+            }
+        }
+        if (oStartNode) {
+            oParam.start.element = {
+                top: oStartNode.parentElement.offsetTop,
+                left: oStartNode.parentElement.offsetLeft,
+                width: oStartNode.parentElement.offsetWidth,
+                height: oStartNode.parentElement.offsetHeight,
+            }
+            oParam.text = _calcTextWidth(oStartNode.nodeValue);
+            oParam.startCharAt = parseInt((oTouchTracks.start.x - oStartNode.parentElement.offsetLeft) / oParam.text.charWidth);
+            oParam.endCharAt = parseInt((oTouchTracks.end.x - oStartNode.parentElement.offsetLeft) / oParam.text.charWidth);
+            oRange = document.createRange();
+            oRange.setStart(oStartNode, oParam.startCharAt);
+            oRange.setEnd(oStartNode, oParam.endCharAt);
+        } else {
+            oRange = document.createRange();
+            oRange.selectNodeContents(oTarget);
+        }
+        oSelection = _iframeDoc.getSelection();
+        oSelection.removeAllRanges();
+        oSelection.addRange(oRange);
+
+        return oRange;
+    }
+
+    var _iframeDoc, _divContent;
+    /**
+     * 外部服务接口
+     */
+    window.tmsEditor = (function() {
+        return {
+            finish: function() {
+                _divContent.blur();
+                return _divContent.innerHTML;
+            }
+        }
+    })();
+    return {
+        restrict: 'EA',
+        scope: { id: '@', content: '=', cmds: '=' },
+        replace: true,
+        controller: 'tmsEditorController',
+        template: __webpack_require__(38),
+        link: function($scope, elem, attrs) {
+            var iframeHTML, iframeNode;
+            /* 初始化 */
+            iframeHTML = '<!DOCTYPE html><html><head>';
+            iframeHTML += '<meta charset="utf-8"></head>';
+            iframeHTML += '<style>';
+            iframeHTML += 'html,body,body>div{width:100%;height:100%;}body{font-size:16px;margin:0}.tms-editor-content:empty::before{color:lightgrey;content:attr(placeholder);}.tms-editor-content img{max-width:100%;}';
+            iframeHTML += '</style>';
+            iframeHTML += '<body>';
+            iframeHTML += '<div class="tms-editor-content " contentEditable="true" placeholder="添加内容...">' + $scope.content + '</div>';
+            iframeHTML += '</body></html>';
+            iframeNode = document.querySelector('#' + $scope.id + ' iframe');
+            if (iframeNode.contentDocument) {
+                _iframeDoc = iframeNode.contentDocument
+            } else if (iframeNode.contentWindow) {
+                _iframeDoc = iframeNode.contentWindow.iframeDocument;
+            }
+            _iframeDoc.open();
+            _iframeDoc.write(iframeHTML);
+            _iframeDoc.close();
+            $scope.iframeDoc = _iframeDoc;
+            _divContent = _iframeDoc.querySelector('body>div');
+            /* 页面加载完成后进行初始化 */
+            _iframeDoc.querySelector('body').onload = function() {
+                _divContent.contentEditable = true;
+            };
+            $scope.mobileAgent = /Android|iPhone|iPad/i.test(navigator.userAgent);
+            $scope.designMode = !$scope.mobileAgent;
+            /* 触屏事件处理 */
+            var oTouchTracks = {};
+            _iframeDoc.oncontextmenu = function(e) {
+                if ($scope.designMode) {
+                    e.preventDefault();
+                }
+            };
+            _iframeDoc.ontouchstart = function(event) {
+                var oTouch;
+                if ($scope.designMode) {
+                    if (event.targetTouches.length === 1) {
+                        oTouch = event.targetTouches[0];
+                        oTouchTracks.start = { x: oTouch.pageX, y: oTouch.pageY };
+                        event.preventDefault();
+                        _iframeDoc.getSelection().removeAllRanges();
+                        _divContent.contentEditable = false;
+                    }
+                }
+            };
+            _iframeDoc.ontouchmove = function(event) {
+                var oTouch;
+                if ($scope.designMode) {
+
+                    if (event.targetTouches.length === 1) {
+                        oTouch = event.targetTouches[0];
+                        oTouchTracks.end = { x: oTouch.pageX, y: oTouch.pageY };
+                        event.preventDefault();
+                    }
+                }
+            };
+            _iframeDoc.ontouchend = function(event) {
+                if ($scope.designMode) {
+                    if (oTouchTracks.start && oTouchTracks.end) {
+                        /* 是否进行了有效的移动 */
+                        if (Math.abs(oTouchTracks.start.x - oTouchTracks.end.x) >= 16) {
+                            _setSelectionByTouch(event.target, oTouchTracks);
+                        }　
+                        _divContent.contentEditable = true;
+                        event.preventDefault();
+                    }
+                }
+            };
+            /* 设置基本样式 */
+            document.querySelectorAll('#' + $scope.id + ' button[command]').forEach(function(eleBtn) {
+                eleBtn.addEventListener('click', function() {
+                    var cmd, args;
+                    cmd = this.getAttribute('command').toLowerCase();
+                    switch (cmd) {
+                        case 'backcolor':
+                            args = 'yellow';
+                            break;
+                    }
+                    _iframeDoc.execCommand(cmd, false, args);
+                });
+            });
+            /* 插入图片操作 */
+            if (window.xxt && window.xxt.image) {
+                var eleBtnInsertImage;
+                if (eleBtnInsertImage = document.querySelector('#' + $scope.id + ' button[action=InsertImage]')) {
+                    eleBtnInsertImage.addEventListener('click', function() {
+                        window.xxt.image.choose($q.defer()).then(function(imgs) {
+                            imgs.forEach(function(oImg) {
+                                http2.post('/rest/site/fe/matter/upload/image?site=platform', oImg).then(function(rsp) {
+                                    _iframeDoc.execCommand('InsertImage', false, rsp.data.url);
+                                });
+                            });
+                        });
+                    });
+                }
+            }
+        }
+    }
+}]);
+
+/***/ }),
+/* 37 */,
+/* 38 */
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"tms-editor\">\r\n    <div>\r\n        <iframe src=\"javascript:void(0);\" onload=\"this.height=this.parentElement.offsetHeight-2\"></iframe>\r\n    </div>\r\n    <div class=\"btn-toolbar btn-sm\">\r\n        <div class=\"btn-group\">\r\n            <button ng-if=\"mobileAgent\" class=\"btn btn-default\" ng-click=\"toggleDesignMode()\"><span ng-if=\"!designMode\">设置样式</span><span ng-if=\"designMode\" class=\"glyphicon glyphicon-menu-left\"></span></button>\r\n            <button ng-if=\"designMode\" class=\"btn btn-default\" command=\"bold\"><span style=\"font-weight:blod;\">B</span></button>\r\n            <button ng-if=\"designMode\" class=\"btn btn-default\" command=\"italic\"><i>I</i></button>\r\n            <button ng-if=\"designMode\" class=\"btn btn-default\" command=\"underline\"><span style=\"text-decoration:underline;\">U</span></button>\r\n            <button ng-if=\"designMode\" class=\"btn btn-default\" command=\"BackColor\"><i class=\"glyphicon glyphicon-text-background\"></i></button>\r\n        </div>\r\n        <div class=\"btn-group\">\r\n            <button class=\"btn btn-default\" action=\"InsertImage\"><i class=\"glyphicon glyphicon-picture\"></i></button>\r\n            <button class=\"btn btn-default\" ng-click=\"insertLink()\"><i class=\"glyphicon glyphicon-link\"></i></button>\r\n        </div>\r\n        <div class=\"btn-group\">\r\n            <button class=\"btn btn-default\" command=\"undo\"><i class=\"glyphicon glyphicon-backward\"></i></button>\r\n        </div>\r\n    </div>\r\n</div>"
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"modal-header\">\r\n    <h5 class=\"modal-title\">上传链接</h5>\r\n</div>\r\n<div class=\"modal-body\">\r\n    <form>\r\n        <div class=\"form-group\">\r\n            <div class=\"input-group\">\r\n                <input type=\"text\" ng-paste=\"crawlUrl($event)\" class=\"form-control\" placeholder=\"1、请将链接粘贴到这里或输入\" ng-model=\"data.url\">\r\n                <div class=\"input-group-btn\">\r\n                    <button class=\"btn btn-default\" ng-click=\"crawlUrl()\">刷新</button>\r\n                </div>\r\n            </div>\r\n        </div>\r\n        <div class=\"form-group\">\r\n            <input type=\"text\" class=\"form-control\" placeholder=\"2、复制链接后这里将显示页面的标题，可进行修改\" ng-model=\"data.summary.title\">\r\n        </div>\r\n        <div class=\"form-group\" ng-if=\"options.description\">\r\n            <textarea class=\"form-control\" placeholder=\"3、复制链接后这里将显示页面的摘要描述（如果提供），可进行修改\" ng-model=\"data.summary.description\" rows=\"4\"></textarea>\r\n        </div>\r\n        <div class=\"form-group\" ng-if=\"options.text\">\r\n            <div class=\"form-control\" ng-bind-html=\"data.text\" style=\"height:auto;min-height:34px;\"></div>\r\n        </div>\r\n    </form>\r\n</div>\r\n<div class=\"modal-footer\">\r\n    <button class=\"btn btn-default\" ng-click=\"cancel()\">关闭</button>\r\n    <button class=\"btn btn-default\" ng-click=\"ok()\">完成</button>\r\n</div>"
+
+/***/ }),
+/* 40 */,
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(86);
+
+__webpack_require__(20);
+__webpack_require__(21);
+__webpack_require__(35);
+__webpack_require__(36);
+
+window.moduleAngularModules = ['editor.ui.xxt', 'url.ui.xxt'];
+
+var ngApp = __webpack_require__(18);
+ngApp.oUtilSchema = __webpack_require__(19);
+ngApp.oUtilSubmit = __webpack_require__(32);
+ngApp.config(['$compileProvider', function($compileProvider) {
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
+}]);
+ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $timeout, LS, http2) {
+    var Input, _ins;
+    Input = function() {};
+    Input.prototype.check = function(data, app, page) {
+        var dataSchemas, item, oSchema, value, sCheckResult;
+        if (page.dataSchemas && page.dataSchemas.length) {
+            dataSchemas = page.dataSchemas;
+            for (var i = dataSchemas.length - 1; i >= 0; i--) {
+                item = dataSchemas[i];
+                oSchema = item.schema;
+                if (oSchema.id.indexOf('member.') === 0) {
+                    var memberSchema = oSchema.id.substr(7);
+                    if (memberSchema.indexOf('.') === -1) {
+                        value = data.member[memberSchema];
+                    } else {
+                        memberSchema = memberSchema.split('.');
+                        value = data.member.extattr[memberSchema[1]];
+                    }
+                } else {
+                    value = data[oSchema.id];
+                }
+                /* 隐藏题和协作题不做检查 */
+                if ((!oSchema.visibility || oSchema.visibility.visible) && oSchema.cowork !== 'Y') {
+                    if (oSchema.type && oSchema.type !== 'html') {
+                        if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                            return sCheckResult;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    };
+    Input.prototype.submit = function(ek, data, tags, oSupplement, type) {
+        var url, d, posted, tagsByScchema;
+        posted = angular.copy(data);
+        if (Object.keys && Object.keys(posted.member).length === 0) {
+            delete posted.member;
+        }
+        url = LS.j('record/submit', 'site', 'app', 'rid');
+        ek && (url += '&ek=' + ek);
+        url += type == 'save' ? '&subType=save' : '&subType=submit';
+        for (var i in posted) {
+            d = posted[i];
+            if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
+                d.forEach(function(d2) {
+                    delete d2.imgSrc;
+                });
+            }
+        }
+        tagsByScchema = {};
+        if (Object.keys && Object.keys(tags).length > 0) {
+            for (var schemaId in tags) {
+                tagsByScchema[schemaId] = [];
+                tags[schemaId].forEach(function(oTag) {
+                    tagsByScchema[schemaId].push(oTag.id);
+                });
+            }
+        }
+        return http2.post(url, { data: posted, tag: tags, supplement: oSupplement }, { autoBreak: false });
+    };
+    return {
+        ins: function() {
+            if (!_ins) {
+                _ins = new Input();
+            }
+            return _ins;
+        }
+    }
+}]);
+ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
+    var aModifiedImgFields;
+    aModifiedImgFields = [];
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
+            function imgCount(schemaId, count, from) {
+                if (schemaId !== null) {
+                    aModifiedImgFields.indexOf(schemaId) === -1 && aModifiedImgFields.push(schemaId);
+                    $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
+                    if (count !== null && $scope.data[schemaId].length === count && count != 0) {
+                        noticebox.warn('最多允许上传（' + count + '）张图片');
+                        return;
+                    }
+                }
+            }
+            function imgBind(schemaId, imgs) {
+                var phase;
+                phase = $scope.$root.$$phase;
+                if (phase === '$digest' || phase === '$apply') {
+                    $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
+                } else {
+                    $scope.$apply(function() {
+                        $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
+                    });
+                }
+                $timeout(function() {
+                    var i, j, img, eleImg;
+                    for (i = 0, j = imgs.length; i < j; i++) {
+                        img = imgs[i];
+                        eleImg = document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(3) img');
+                        if (eleImg) {
+                            eleImg.setAttribute('src', img.imgSrc);
+                        }
+                    }
+                    $scope.$broadcast('xxt.enroll.image.choose.done', schemaId);
+                });
+            }
+            $scope.chooseImage = function(schemaId, count, from) {
+                imgCount(schemaId, count, from);
+                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
+                    imgBind(schemaId, imgs);
+                });
+            };
+            $scope.removeImage = function(imgField, index) {
+                imgField.splice(index, 1);
+            };
+            $scope.pasteImage = function(schemaId, event, count, from) {
+                imgCount(schemaId, count, from);
+                var targetDiv;
+                targetDiv = event.currentTarget.children[event.currentTarget.children.length - 1];
+                window.xxt.image.paste(angular.element(targetDiv)[0], $q.defer(), from).then(function(imgs) {
+                    imgBind(schemaId, imgs);
+                }); 
+            }; 
+        }]
+    }
+}]);
+ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q, LS, tmsDynaPage) {
+    function onSubmit($scope) {
+        var defer;
+        defer = $q.defer();
+        if (!oResumable.files || oResumable.files.length === 0) {
+            defer.resolve('empty');
+        }
+        oResumable.on('progress', function() {
+            var phase, p;
+            p = oResumable.progress();
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = Math.ceil(p * 100);
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = Math.ceil(p * 100);
+                });
+            }
+        });
+        oResumable.on('complete', function() {
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = '完成';
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = '完成';
+                });
+            }
+            oResumable.cancel();
+            defer.resolve('ok');
+        });
+        oResumable.upload();
+        return defer.promise;
+    }
+    var oResumable;
+    tmsDynaPage.loadScript(['/static/js/resumable.js']).then(function() {
+        oResumable = new Resumable({
+            target: LS.j('record/uploadFile', 'site', 'app'),
+            testChunks: false,
+            chunkSize: 512 * 1024
+        });
+    });
+    return {
+        restrict: 'A',
+        controller: ['$scope', 'noticebox', function($scope, noticebox) {
+            $scope.progressOfUploadFile = 0;
+            $scope.beforeSubmit(function() {
+                return onSubmit($scope);
+            });
+            $scope.clickFile = function(schemaId, index) {
+                if ($scope.data[schemaId] && $scope.data[schemaId][index]) {
+                    noticebox.confirm('删除文件【' + $scope.data[schemaId][index].name + '】，确定？').then(function() {
+                        $scope.data[schemaId].splice(index, 1);
+                    });
+                }
+            };
+            $scope.chooseFile = function(schemaId, count, accept) {
+                var ele = document.createElement('input');
+                ele.setAttribute('type', 'file');
+                accept !== undefined && ele.setAttribute('accept', accept);
+                ele.addEventListener('change', function(evt) {
+                    var i, cnt, f;
+                    cnt = evt.target.files.length;
+                    for (i = 0; i < cnt; i++) {
+                        f = evt.target.files[i];
+                        oResumable.addFile(f);
+                        $scope.$apply(function() {
+                            $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
+                            $scope.data[schemaId].push({
+                                uniqueIdentifier: oResumable.files[oResumable.files.length - 1].uniqueIdentifier,
+                                name: f.name,
+                                size: f.size,
+                                type: f.type,
+                                url: ''
+                            });
+                            $scope.$broadcast('xxt.enroll.file.choose.done', schemaId);
+                        });
+                    }
+                    ele = null;
+                }, true);
+                ele.click();
+            };
+        }]
+    }
+}]);
+ngApp.controller('ctrlWxUploadFileTip', ['$scope', '$interval', function($scope, $interval) {
+    $scope.domId = '';
+    $scope.isIos = /iphone|ipad/i.test(navigator.userAgent);
+    $scope.closeTip = function() {
+        var domTip = document.querySelector($scope.domId);
+        var evt = document.createEvent("HTMLEvents");
+        evt.initEvent("hide", false, false);
+        domTip.dispatchEvent(evt);
+    };
+}]);
+ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
+    function doUpload2Wx(oPendingData) {
+        var defer;
+        defer = $q.defer();
+        wx.uploadVoice({
+            localId: oPendingData.localId,
+            isShowProgressTips: 1,
+            success: function(res) {
+                oPendingData.serverId = res.serverId;
+                delete oPendingData.localId;
+                defer.resolve();
+            },
+            fail: function(res) {
+                noticebox.error('录音文件上传失败：' + res.errMsg);
+                defer.reject();
+            }
+        });
+        return defer.promise;
+    }
+
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$uibModal', 'noticebox', function($scope, $uibModal, noticebox) {
+            $scope.clickFile = function(schemaId, index) {
+                var buttons, oSchemaData;
+                if ($scope.data[schemaId] && $scope.data[schemaId][index]) {
+                    buttons = [
+                        { label: '删除', value: 'delete' }, { label: '取消', value: 'cancel' }
+                    ];
+                    oSchemaData = $scope.data[schemaId];
+                    noticebox.confirm('操作录音文件【' + oSchemaData[index].name + '】', buttons).then(function(value) {
+                        switch (value) {
+                            case 'delete':
+                                oSchemaData.splice(index, 1);
+                                break;
+                        }
+                    });
+                }
+            };
+            $scope.startVoice = function(schemaId) {
+                var oSchema, oSchemaData;
+                if (!window.wx || !wx.startRecord) {
+                    noticebox.warn('请在微信中进行录音');
+                    return;
+                }
+                if ($scope.schemasById && $scope.schemasById[schemaId]) {
+                    oSchema = $scope.schemasById[schemaId];
+                } else if ($scope.app && $scope.app.dataSchemas && $scope.app.dataSchemas.length) {
+                    for (var i = $scope.app.dataSchemas.length - 1; i >= 0; i--) {
+                        if ($scope.app.dataSchemas[i].id = schemaId) {
+                            oSchema = $scope.app.dataSchemas[i];
+                            break;
+                        }
+                    }
+                }
+                if (!oSchema) {
+                    noticebox.warn('数据错误，未找到题目定义');
+                    return;
+                }
+                /* 检查限制条件 */
+                $scope.data[oSchema.id] === undefined && ($scope.data[oSchema.id] = []);
+                oSchemaData = $scope.data[oSchema.id];
+                if (oSchema.count && oSchemaData.length >= oSchema.count) {
+                    noticebox.warn('最多允许上传（' + oSchema.count + '）段录音');
+                    return;
+                }
+                $uibModal.open({
+                    templateUrl: 'recordVoice.html',
+                    controller: ['$scope', '$interval', '$uibModalInstance', function($scope2, $interval, $mi) {
+                        var _oData, _timer;
+                        $scope2.data = _oData = {
+                            name: '录音' + (oSchemaData.length + 1),
+                            time: 0,
+                            reset: function() {
+                                this.time = 0;
+                                delete this.localId;
+                            }
+                        };
+                        $scope2.startRecord = function() {
+                            wx.startRecord();
+                            _oData.reset();
+                            _timer = $interval(function() {
+                                _oData.time++;
+                            }, 1000);
+                            wx.onVoiceRecordEnd({
+                                // 录音时间超过一分钟没有停止的时候会执行 complete 回调
+                                complete: function(res) {
+                                    $scope.$apply(function() {
+                                        _oData.localId = res.localId;
+                                    });
+                                    $interval.cancel(_timer);
+                                }
+                            });
+                        };
+                        $scope2.stopRecord = function() {
+                            wx.stopRecord({
+                                success: function(res) {
+                                    $scope.$apply(function() {
+                                        _oData.localId = res.localId;
+                                    });
+                                }
+                            });
+                            $interval.cancel(_timer);
+                        };
+                        $scope2.play = function() {
+                            wx.playVoice({
+                                localId: _oData.localId
+                            });
+                            wx.onVoicePlayEnd({
+                                success: function(res) {
+                                    var localId = res.localId;
+                                }
+                            });
+                        };
+                        $scope2.pause = function() {
+                            wx.pauseVoice({
+                                localId: _oData.localId
+                            });
+                        };
+                        $scope2.stop = function() {
+                            wx.stopVoice({
+                                localId: _oData.localId
+                            });
+                        };
+                        $scope2.cancel = function() { $mi.dismiss(); };
+                        $scope2.ok = function() { $mi.close($scope2.data); };
+                    }],
+                    backdrop: 'static',
+                }).result.then(function(oResult) {
+                    var oNewVoice;
+                    oNewVoice = {
+                        localId: oResult.localId,
+                        name: oResult.name,
+                        time: oResult.time
+                    };
+                    if (oResult.localId) {
+                        $scope.data[oSchema.id].push(oNewVoice);
+                    }
+                    /* 记录整体提交时处理文件上传 */
+                    $scope.beforeSubmit(function() {
+                        return doUpload2Wx(oNewVoice);
+                    });
+                });
+            };
+            $scope.playVoice = function() {
+
+            };
+        }]
+    }
+}]);
+ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsUrl', '$compile',function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsUrl, $compile) {
+    function fnDisableActions() {
+        var domActs, domAct;
+        if (domActs = document.querySelectorAll('button[ng-click]')) {
+            domActs.forEach(function(domAct) {
+                var ngClick = domAct.getAttribute('ng-click');
+                if (ngClick.indexOf('submit') === 0) {
+                    domAct.style.display = 'none';
+                }
+            });
+        }
+    }
+    /**
+     * 控制关联题目的可见性
+     */
+    function fnToggleAssocSchemas(dataSchemas, oRecordData) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                if (domSchema) {
+                    if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
+                        var bVisible, oRule;
+                        bVisible = true;
+                        for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                            oRule = oSchema.visibility.rules[i];
+                            if (oRule.schema.indexOf('member.extattr') === 0) {
+                                var memberSchemaId = oRule.schema.substr(15);
+                                if (!oRecordData.member.extattr[memberSchemaId] || (oRecordData.member.extattr[memberSchemaId] !== oRule.op && !oRecordData.member.extattr[memberSchemaId][oRule.op])) {
+                                    bVisible = false;
+                                    break;
+                                }
+                            } else if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
+                                bVisible = false;
+                                break;
+                            }
+                        }
+                        domSchema.classList.toggle('hide', !bVisible);
+                        oSchema.visibility.visible = bVisible;
+                    } else if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
+                        domSchema.classList.toggle('hide', !bVisible);
+                    }
+                }
+            }
+        });
+    }
+    /**
+     * 控制题目关联选项的显示
+     */
+    function fnToggleAssocOptions(dataSchemas, oRecordData) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, oConfig;
+            if ((oConfig = oSchemaWrap.config) && (oSchema = oSchemaWrap.schema)) {
+                if (oSchema.ops && oSchema.ops.length && oSchema.optGroups && oSchema.optGroups.length) {
+                    oSchema.optGroups.forEach(function(oOptGroup) {
+                        if (oOptGroup.assocOp && oOptGroup.assocOp.schemaId && oOptGroup.assocOp.v) {
+                            if (oRecordData[oOptGroup.assocOp.schemaId] !== oOptGroup.assocOp.v) {
+                                oSchema.ops.forEach(function(oOption) {
+                                    var domOption;
+                                    if (oOption.g && oOption.g === oOptGroup.i) {
+                                        if (oSchema.type === 'single' && oConfig.component === 'S') {
+                                            domOption = document.querySelector('option[name="data.' + oSchema.id + '"][value=' + oOption.v + ']');
+                                            if (domOption && domOption.parentNode) {
+                                                domOption.parentNode.removeChild(domOption);
+                                            }
+                                        } else {
+                                            if (oSchema.type === 'single') {
+                                                domOption = document.querySelector('input[name=' + oSchema.id + '][value=' + oOption.v + ']');
+                                            } else if (oSchema.type === 'multiple') {
+                                                domOption = document.querySelector('input[ng-model="data.' + oSchema.id + '.' + oOption.v + '"]');
+                                            }
+                                            if (domOption && (domOption = domOption.parentNode) && (domOption = domOption.parentNode)) {
+                                                domOption.classList.add('option-hide');
+                                            }
+                                        }
+                                        if (oSchema.type === 'single') {
+                                            if (oRecordData[oSchema.id] === oOption.v) {
+                                                oRecordData[oSchema.id] = '';
+                                            }
+                                        } else {
+                                            if (oRecordData[oSchema.id] && oRecordData[oSchema.id][oOption.v]) {
+                                                delete oRecordData[oSchema.id][oOption.v];
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {
+                                oSchema.ops.forEach(function(oOption) {
+                                    var domOption, domSelect;
+                                    if (oOption.g && oOption.g === oOptGroup.i) {
+                                        if (oSchema.type === 'single' && oConfig.component === 'S') {
+                                            domSelect = document.querySelector('select[ng-model="data.' + oSchema.id + '"]');
+                                            if (domSelect) {
+                                                domOption = domSelect.querySelector('option[name="data.' + oSchema.id + '"][value=' + oOption.v + ']');
+                                                if (!domOption) {
+                                                    domOption = document.createElement('option');
+                                                    domOption.setAttribute('value', oOption.v);
+                                                    domOption.setAttribute('name', 'data.' + oSchema.id);
+                                                    domOption.innerHTML = oOption.l;
+                                                    domSelect.appendChild(domOption);
+                                                }
+                                            }
+                                        } else {
+                                            if (oSchema.type === 'single') {
+                                                domOption = document.querySelector('input[name=' + oSchema.id + '][value=' + oOption.v + ']');
+                                            } else if (oSchema.type === 'multiple') {
+                                                domOption = document.querySelector('input[ng-model="data.' + oSchema.id + '.' + oOption.v + '"]');
+                                            }
+                                            if (domOption && (domOption = domOption.parentNode) && (domOption = domOption.parentNode)) {
+                                                domOption.classList.remove('option-hide');
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    function doTask(seq, nextAction, type) {
+        var task = tasksOfBeforeSubmit[seq];
+        task().then(function(rsp) {
+            seq++;
+            seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction, type) : doSubmit(nextAction, type);
+        });
+    }
+
+    function doSubmit(nextAction, type) {
+        var ek, submitData;
+        ek = $scope.record ? $scope.record.enroll_key : undefined;
+        facInput.submit(ek, $scope.data, $scope.tag, $scope.supplement, type).then(function(rsp) {
+            var url;
+            if (type == 'save') {
+                noticebox.success('保存成功，关闭页面后，再次打开时自动恢复当前数据。确认数据填写完成后，请继续【提交】数据。');
+            } else {
+                submitState.finish();
+                if (nextAction === 'closeWindow') {
+                    $scope.closeWindow();
+                } else if (nextAction === '_autoForward') {
+                    // 根据指定的进入规则自动跳转到对应页面
+                    url = LS.j('', 'site', 'app');
+                    location.replace(url);
+                } else if (nextAction && nextAction.length) {
+                    url = LS.j('', 'site', 'app');
+                    url += '&page=' + nextAction;
+                    url += '&ek=' + rsp.data;
+                    location.replace(url);
+                } else {
+                    if (ek === undefined) {
+                        $scope.record = {
+                            enroll_key: rsp.data
+                        }
+                    }
+                    $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
+                }
+            }
+
+        }, function(rsp) {
+            // reject
+            submitState.finish();
+        });
+    }
+
+    function _localSave(type) {
+        submitState.start(null, StateCacheKey, type);
+        submitState.cache($scope.data);
+        submitState.finish(true);
+    }
+    /* 页面和记录数据加载完成 */
+    function fnAfterLoad(oPage, oRecordData) {
+        var dataSchemas;
+        dataSchemas = oPage.dataSchemas;
+        // 设置题目的默认值
+        ngApp.oUtilSchema.autoFillDefault(_oApp._schemasById, $scope.data);
+        // 控制关联题目的可见性
+        fnToggleAssocSchemas(dataSchemas, oRecordData);
+        // 控制题目关联选项的可见性
+        fnToggleAssocOptions(dataSchemas, oRecordData);
+        // 跟踪数据变化
+        $scope.$watch('data', function(nv, ov) {
+            if (nv !== ov) {
+                submitState.modified = true;
+                // 控制关联题目的可见性
+                fnToggleAssocSchemas(dataSchemas, oRecordData);
+                // 控制题目关联选项的可见性
+                fnToggleAssocOptions(dataSchemas, oRecordData);
+            }
+        }, true);
+        /*设置页面操作*/
+        // 如果页面上有保存按钮，隐藏内置的保存按钮
+        if (oPage.act_schemas) {
+            var bHasSaveButton = false,
+                actSchemas = JSON.parse(oPage.act_schemas);
+            for (var i = actSchemas.length - 1; i >= 0; i--) {
+                if (actSchemas[i].name === 'save') {
+                    bHasSaveButton = true;
+                    break;
+                }
+            }
+        }
+        if (!bHasSaveButton) {
+            $scope.appActs = {
+                save: {}
+            };
+        }
+        /*设置页面导航*/
+        var oAppNavs = {};
+        if (_oApp.can_repos === 'Y') {
+            oAppNavs.repos = {};
+        }
+        if (_oApp.can_rank === 'Y') {
+            oAppNavs.rank = {};
+        }
+        if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
+            oAppNavs.action = {};
+        }
+        if (Object.keys(oAppNavs).length) {
+            $scope.appNavs = oAppNavs;
+        }
+    }
+
+    window.onbeforeunload = function(e) {
+        var message;
+        if (submitState.modified) {
+            message = '已经修改的内容还没有保存，确定离开？';
+            e = e || window.event;
+            if (e) {
+                e.returnValue = message;
+            }
+            return message;
+        }
+    };
+
+    var facInput, tasksOfBeforeSubmit, submitState, StateCacheKey, _oApp;
+    tasksOfBeforeSubmit = [];
+    facInput = Input.ins();
+    $scope.data = {
+        member: {},
+    };
+    $scope.tag = {};
+    $scope.supplement = {};
+    $scope.submitState = submitState = ngApp.oUtilSubmit.state;
+    $scope.beforeSubmit = function(fn) {
+        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
+            tasksOfBeforeSubmit.push(fn);
+        }
+    };
+    $scope.save = function(event) {
+        //_localSave('save');
+        $scope.submit(event, '', 'save');
+    };
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var schemasById, dataOfRecord, p, value, pasteContains;
+        StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
+        $scope.schemasById = schemasById = params.app._schemasById;
+        _oApp = params.app;
+        if (params.page.data_schemas) {
+            params.page.dataSchemas = JSON.parse(params.page.data_schemas);
+        }
+        if (_oApp.end_submit_at > 0 && parseInt(_oApp.end_submit_at) < (new Date * 1) / 1000) {
+            fnDisableActions();
+            noticebox.warn('活动提交数据时间已经结束，不能提交数据');
+        }
+        /* 判断多项类型 */
+        if (_oApp.dataSchemas.length) {
+            angular.forEach(_oApp.dataSchemas, function(dataSchema) {
+                if (dataSchema.type == 'multitext') {
+                    $scope.data[dataSchema.id] === undefined && ($scope.data[dataSchema.id] = []);
+                }
+            });
+        }
+        /* 恢复用户未提交的数据 */
+        // if (window.localStorage) {
+        //     submitState._cacheKey = StateCacheKey;
+        //     var cached = submitState.fromCache(StateCacheKey);
+        //     if (cached) {
+        //         if (cached.member) {
+        //             delete cached.member;
+        //         }
+        //         angular.extend($scope.data, cached);
+        //         submitState.modified = true;
+        //     }
+        // }
+        /* 自动填充用户通信录数据 */
+        ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
+        /* 用户已经登记过或保存过，恢复之前的数据 */
+        if (LS.s().newRecord !== 'Y') {
+            http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {
+                var oRecord;
+                oRecord = rsp.data;
+                ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
+                $scope.record = oRecord;
+                if (oRecord.supplement) {
+                    $scope.supplement = oRecord.supplement;
+                }
+                /*设置页面分享信息*/
+                $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
+                /*根据加载的数据设置页面*/
+                fnAfterLoad(params.page, $scope.data);
+            });
+        } else {
+            /*设置页面分享信息*/
+            $scope.setSnsShare(false, { 'newRecord': LS.s().newRecord });
+            /*根据加载的数据设置页面*/
+            fnAfterLoad(params.page, $scope.data);
+        }
+        /* 微信不支持上传文件，指导用户进行处理 */
+        if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {
+            if (_oApp.entryRule && _oApp.entryRule.scope && _oApp.entryRule.scope.member === 'Y') {
+                for (var i = 0, ii = params.page.dataSchemas.length; i < ii; i++) {
+                    if (params.page.dataSchemas[i].schema.type === 'file') {
+                        var domTip, evt;
+                        domTip = document.querySelector('#wxUploadFileTip');
+                        evt = document.createEvent("HTMLEvents");
+                        evt.initEvent("show", false, false);
+                        domTip.dispatchEvent(evt);
+                        break;
+                    }
+                }
+            }
+        }
+        /*动态添加粘贴图片*/
+        if(!$scope.isSmallLayout) {
+            pasteContains = document.querySelectorAll('ul.img-tiles');
+            angular.forEach(pasteContains, function(pastecontain) {
+                var oSchema, html, $html;
+                oSchema = schemasById[pastecontain.getAttribute('name')];
+                html = '<li class="img-picker img-edit">';
+                html += '<button class="btn btn-default" ng-click="pasteImage(\'' + oSchema.id + '\',$event,' + (oSchema.count || 1) + ')">点击按钮<br>Ctrl+V<br>粘贴截图';
+                html += '<div contenteditable="true" tabindex="-1" style="width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;"></div>';
+                html += '</button>';
+                html += '</li>';
+                $html = $compile(html)($scope);
+                angular.element(pastecontain).append($html);
+            });
+        }
+    });
+    $scope.removeItem = function(items, index) {
+        noticebox.confirm('删除此项，确定？').then(function() {
+            items.splice(index, 1);
+        });
+    };
+    $scope.addItem = function(schemaId) {
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: ''
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
+                };
+            }],
+            windowClass: 'modal-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(data) {
+            var item = { id: 0, value: '' };
+            item.value = data.content;
+            $scope.data[schemaId].push(item);
+        });
+    };
+    $scope.editItem = function(schema, index) {
+        var oItem = schema[index];
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: oItem.value
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
+                };
+            }],
+            windowClass: 'modal-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(data) {
+            oItem.value = data.content;
+        });
+    }
+    $scope.submit = function(event, nextAction, type) {
+        var checkResult;
+        /*多项填空题，如果值为空则删掉*/
+        for (var k in $scope.data) {
+            if (k !== 'member' && $scope.app._schemasById[k] && $scope.app._schemasById[k].type == 'multitext') {
+                angular.forEach($scope.data[k], function(item, index) {
+                    if (item.value === '') {
+                        $scope.data[k].splice(index, 1);
+                    }
+                });
+            }
+        }
+        if (!submitState.isRunning()) {
+            submitState.start(event, StateCacheKey, type);
+            if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
+                tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
+            } else {
+                submitState.finish();
+                noticebox.warn(checkResult);
+            }
+        }
+    };
+    $scope.getMyLocation = function(prop) {
+        window.xxt.geo.getAddress(http2, $q.defer(), LS.p.site).then(function(data) {
+            $scope.data[prop] = data.address;
+        });
+    };
+    $scope.pasteUrl = function(schemaId) {
+        tmsUrl.fetch($scope.data[schemaId], { description: true, text: true }).then(function(oResult) {
+            var oData;
+            oData = angular.copy(oResult.summary);
+            oData._text = oResult.text;
+            $scope.data[schemaId] = oData;
+        });
+    };
+    $scope.editSupplement = function(schemaId) {
+        var str = $scope.supplement[schemaId];
+        if (!str) { str = ''; }
+        $uibModal.open({
+            templateUrl: 'writeItem.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: str
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
+                };
+            }],
+            windowClass: 'modal-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(data) {
+            $scope.supplement[schemaId] = data.content;
+        });
+    }
+    $scope.dataBySchema = function(schemaId) {
+        var app = $scope.app;
+        $uibModal.open({
+            templateUrl: 'dataBySchema.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {};
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() { $mi.close($scope2.data); };
+                http2.get('/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + app.siteid + '&app=' + app.id + '&schema=' + schemaId).then(function(result) {
+                    if (app._schemasById[schemaId].type == 'multitext') {
+                        result.data.records.pop();
+                    }
+                    $scope2.records = result.data.records;
+                });
+            }],
+            backdrop: 'static',
+        }).result.then(function(result) {
+            $scope.data[schemaId] = result.selected.value;
+        });
+    };
+    $scope.score = function(schemaId, opIndex, number) {
+        var schema = $scope.schemasById[schemaId],
+            op = schema.ops[opIndex];
+
+        if ($scope.data[schemaId] === undefined) {
+            $scope.data[schemaId] = {};
+            schema.ops.forEach(function(op) {
+                $scope.data[schema.id][op.v] = 0;
+            });
+        }
+
+        $scope.data[schemaId][op.v] = number;
+    };
+    $scope.lessScore = function(schemaId, opIndex, number) {
+        if (!$scope.schemasById) return false;
+
+        var schema = $scope.schemasById[schemaId],
+            op = schema.ops[opIndex];
+
+        if ($scope.data[schemaId] === undefined) {
+            return false;
+        }
+
+        return $scope.data[schemaId][op.v] >= number;
+    };
+}]);
+
+/***/ }),
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */,
+/* 61 */,
+/* 62 */,
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(false);
+// imports
+
+
+// module
+exports.push([module.i, "img{max-width:100%}\r\nul{margin:0;padding:0;list-style:none}\r\nli{margin:0;padding:0}\r\n.list-group{margin-bottom:0px;}\r\n#notice{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}\r\n#notice.active{opacity:1;height:auto;z-index:999}\r\n\r\n/* score schema */\r\nli[wrap=score]{padding:4px 4px 4px 0;}\r\nli[wrap=score] label{padding:3px;font-weight:400;}\r\nli[wrap=score]>.number{display:inline-block;margin-top:6px;border:1px solid #CCC;}\r\nli[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px 4px;margin:4px 4px;text-align:center;border-bottom:1px dotted #ddd}\r\nli[wrap=score]>.number>.in{background:#33bb99;}\r\n\r\n/* img tiles */\r\nul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}\r\nul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}\r\nul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}\r\nul.img-tiles li.img-picker.img-edit{margin-left:10px;}\r\nul.img-tiles li.img-picker button,ul.img-tiles li.img-picker.img-edit > div{position:relative;width:100%;height:100%}\r\nul.img-tiles li.img-picker button span,ul.img-tiles li.img-picker.img-edit > div >span{font-size:36px}\r\n/* url schema */\r\ndiv[wrap=url]>.form-control{height:auto;min-height:46px;}\r\n\r\n/* default form style*/\r\ndiv[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}\r\ndiv[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}\r\ndiv[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}\r\ndiv[wrap=matter]>span{cursor:pointer;text-decoration:underline;}\r\n.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}\r\n\r\n/* 关联选项可见性控制 */\r\ndiv[schema-type=single] li[wrap].radio,div[schema-type=multiple] li[wrap].checkbox{margin-top:5px;}\r\ndiv[schema-type=single] li[wrap].radio:last-child,div[schema-type=multiple] li[wrap].checkbox:last-child{margin-bottom:25px;}\r\ndiv[schema-type=single] li[wrap].radio.option-hide,div[schema-type=multiple] li[wrap].checkbox.option-hide{height:0;margin:0;visibility:hidden;}\r\ndiv[schema-type=single] li[wrap].radio.option-hide>label,div[schema-type=multiple] li[wrap].checkbox.option-hide>label{height:0;min-height:0;}\r\ndiv[schema-type=single] li[wrap].radio.option-hide>label>*,div[schema-type=multiple] li[wrap].checkbox.option-hide>label>*{height:0;display:inline-block;overflow:hidden;}\r\n\r\n/* multitext modal */\r\n.tms-editor {position: absolute;top: 8px;bottom: 8px;left: 8px;right: 8px;display: flex;flex-direction: column;}\r\n.tms-editor>:first-child{position: relative;flex-grow: 1;margin-bottom: 8px;border: 1px solid #ddd;border-radius: 4px;overflow-y: auto;}\r\n.tms-editor>:first-child iframe{display: block;width: 100%;border: 0;}\r\n\r\n/*粘贴图片隐藏div样式 */\r\n.pasteClass{width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;}", ""]);
+
+// exports
+
+
+/***/ }),
+/* 71 */,
+/* 72 */,
+/* 73 */,
+/* 74 */,
+/* 75 */,
+/* 76 */,
+/* 77 */,
+/* 78 */,
+/* 79 */,
+/* 80 */,
+/* 81 */,
+/* 82 */,
+/* 83 */,
+/* 84 */,
+/* 85 */,
+/* 86 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(70);
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(1)(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {
+	module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./input.css", function() {
+		var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./input.css");
+
+		if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+
+		var locals = (function(a, b) {
+			var key, idx = 0;
+
+			for(key in a) {
+				if(!b || a[key] !== b[key]) return false;
+				idx++;
+			}
+
+			for(key in b) idx--;
+
+			return idx === 0;
+		}(content.locals, newContent.locals));
+
+		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
+
+		update(newContent);
+	});
+
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 87 */,
+/* 88 */,
+/* 89 */,
+/* 90 */,
+/* 91 */,
+/* 92 */,
+/* 93 */,
+/* 94 */,
+/* 95 */,
+/* 96 */,
+/* 97 */,
+/* 98 */,
+/* 99 */,
+/* 100 */,
+/* 101 */,
+/* 102 */,
+/* 103 */,
+/* 104 */,
+/* 105 */,
+/* 106 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(48);
+
+
+/***/ })
+/******/ ]);

@@ -10,12 +10,64 @@ class topic extends base {
 	 *
 	 */
 	public function get_action($topic) {
-		$oUser = $this->who;
-
 		$modelTop = $this->model('matter\enroll\topic');
-		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,nickname,create_at,title,summary,rec_num']);
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,nickname,create_at,title,summary,rec_num']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($oTopic->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		/* 修改默认访客昵称 */
+		if (isset($oUser->unionid) && $oTopic->unionid === $oUser->unionid) {
+			$oTopic->nickname = '我';
+		} else if (isset($oEditor)) {
+			/*查看创建者是否在编辑组中*/
+			// 查看创建者的userid
+			$modelAcnt = $this->model('site\user\account');
+			$oTPCreateUids = $modelAcnt->byUnionid($oTopic->unionid, ['fields' => 'uid', 'siteid' => $oTopic->siteid]);
+
+			// 查询活动编辑组
+			if (!empty($oApp->group_app_id)) {
+				$assocGroupId = $oApp->group_app_id;
+			} else if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && isset($oApp->entryRule->group->id)) {
+				$assocGroupId = $oApp->entryRule->group->id;
+			}
+			// 获取编辑中中的所有成员
+			if (isset($assocGroupId)) {
+				$modelGrpUsr = $this->model('matter\group\player');
+				$assocGroupUsers = $modelGrpUsr->byRound($assocGroupId, $oEditor->group, ['fields' => 'userid']);
+				$assocGroupUsers2 = [];
+				foreach ($assocGroupUsers as $assocGroupUser) {
+					$assocGroupUsers2[] = $assocGroupUser->userid;
+				}
+				// 查询创建者是否在编辑组中
+				foreach ($oTPCreateUids as $oTPCreateUid) {
+					if (in_array($oTPCreateUid->uid, $assocGroupUsers2)) {
+						$oTopic->is_editor = 'Y';
+					}
+				}
+				/* 设置编辑统一昵称 */
+				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+					if (!empty($oTopic->is_editor) && $oTopic->is_editor === 'Y') {
+						$oTopic->nickname = $oEditor->nickname;
+					}
+				}
+			}
 		}
 
 		return new \ResponseData($oTopic);

@@ -32,7 +32,7 @@ class token_model extends \TMS_MODEL {
 			$agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 			$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 			$this->model('log')->log('error', $method, 'access_token数据异常存在多条数据', $agent, $referer);
-		} else if ($count === 0)) {
+		} else if ($count === 0) {
 			//没有就创建
 			$invToken = $this->createToken($secret, $invoke);
 		} else {

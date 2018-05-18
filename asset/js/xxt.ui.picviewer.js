@@ -135,6 +135,8 @@ var PicViewer = function(selector, options) {
                 if(viewWidth > 992) {
                     if(aImgs.length == 1 || currentIndex == aImgs.length - 1) {
                         options.close && options.close();
+                    }else {
+                        options.next && options.next();
                     }
                 }else{
                     options.close && options.close();

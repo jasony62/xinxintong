@@ -314,7 +314,7 @@ class player_model extends \TMS_MODEL {
 		if (!empty($oOptions->tags)) {
 			$aTags = explode(',', $oOptions->tags);
 			foreach ($aTags as $tag) {
-				$w .= "and concat(',',tags,',') like '%,$tag,%'";
+				$w .= " and concat(',',tags,',') like '%,$tag,%'";
 			}
 		}
 		$q = [

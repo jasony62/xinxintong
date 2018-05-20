@@ -379,14 +379,17 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_topic(";
 $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",unionid varchar(40) not null default ''";
+$sql .= ",userid varchar(40) not null";
+$sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int not null"; // 创建时间
 $sql .= ",title varchar(255) not null default ''";
 $sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal;
 $sql .= ",rec_num int not null default 0";
+$sql .= ",share_in_group char(1) not null default 'N'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

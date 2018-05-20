@@ -199,6 +199,27 @@ class record_model extends record_base {
 	/**
 	 * 根据ID返回登记记录
 	 */
+	public function byPlainId($id, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
+
+		$q = [
+			$fields,
+			'xxt_enroll_record',
+			['id' => $id],
+		];
+		if (isset($aOptions['state'])) {
+			$q[2]['state'] = $aOptions['state'];
+		}
+		if ($oRecord = $this->query_obj_ss($q)) {
+			$this->_processRecord($oRecord, $fields, $verbose);
+		}
+
+		return $oRecord;
+	}
+	/**
+	 * 根据ek返回登记记录
+	 */
 	public function &byId($ek, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
@@ -1118,7 +1139,7 @@ class record_model extends record_base {
 			foreach ($records as &$record) {
 				$record->data = new \stdClass;
 				if (in_array($oDataSchema->type, ['multitext', 'file']) || $schemaId === 'member') {
-					$record->data->{$schemaId} = empty($record->value) ?  new \stdClass : json_decode($record->value);
+					$record->data->{$schemaId} = empty($record->value) ? new \stdClass : json_decode($record->value);
 				} else {
 					$record->data->{$schemaId} = $record->value;
 				}

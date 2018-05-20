@@ -1,9 +1,12 @@
 <?php
 namespace matter\enroll;
+
+require_once dirname(__FILE__) . '/entity.php';
+
 /**
  * 登记活动记录
  */
-abstract class record_base extends \TMS_MODEL {
+abstract class record_base extends entity_model {
 	/**
 	 * 根据题目获得在记录中的值
 	 */

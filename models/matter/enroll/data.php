@@ -1,9 +1,12 @@
 <?php
 namespace matter\enroll;
+
+require_once dirname(__FILE__) . '/entity.php';
+
 /**
  * 登记的数据项
  */
-class data_model extends \TMS_MODEL {
+class data_model extends entity_model {
 	/**
 	 * 缺省返回的列
 	 */

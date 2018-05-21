@@ -126,7 +126,8 @@ class topic extends base {
 	 * 创建记录专题
 	 */
 	public function update_action($topic) {
-		$oTopic = $this->model('matter\enroll\topic')->byId($topic, ['fields' => 'id,unionid,state,aid,group_id,title']);
+		$modelTop = $this->model('matter\enroll\topic');
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,unionid,state,aid,group_id,title']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -155,7 +156,6 @@ class topic extends base {
 			}
 		}
 
-		$modelTop = $this->model('matter\enroll\topic');
 		$aUpdated = [];
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {

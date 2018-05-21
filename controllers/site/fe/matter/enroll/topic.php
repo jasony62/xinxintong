@@ -126,7 +126,19 @@ class topic extends base {
 	 * 创建记录专题
 	 */
 	public function update_action($topic) {
-		$oUser = $this->who;
+		$oTopic = $this->model('matter\enroll\topic')->byId($topic, ['fields' => 'id,unionid,state,aid,group_id,title']);
+		if (false === $oTopic || $oTopic->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oApp = $this->model('matter\enroll')->byId($oTopic->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+		if (!isset($oUser->group_id)) {
+			$oUser->group_id = '';
+		}
 		if (empty($oUser->unionid)) {
 			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
 		}
@@ -136,12 +148,20 @@ class topic extends base {
 			return new \ResponseError('没有指定要更新的数据（1）');
 		}
 
+		if ($oUser->unionid === $oTopic->unionid && $oUser->group_id !== $oTopic->group_id) {
+			$oPosted->group_id = $oUser->group_id;
+			if (empty($oUser->group_id)) {
+				$oPosted->share_in_group = 'N';
+			}
+		}
+
 		$modelTop = $this->model('matter\enroll\topic');
 		$aUpdated = [];
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {
 			case 'title':
 			case 'summary':
+			case 'group_id':
 				$aUpdated[$prop] = $modelTop->escape($val);
 				break;
 			case 'share_in_group':
@@ -188,7 +208,9 @@ class topic extends base {
 		$w = "state=1 and aid='{$oApp->id}'";
 		$w .= " and (";
 		$w .= "unionid='$oUser->unionid'";
-		$w .= " or (share_in_group='Y' and group_id='{$oUser->group_id}')";
+		if (isset($oUser->group_id)) {
+			$w .= " or (share_in_group='Y' and group_id='{$oUser->group_id}')";
+		}
 		$w .= ")";
 		$q = [
 			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group',

@@ -10,7 +10,6 @@ window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enr
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.controller('ctrlTopic', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
-    $scope.subView = 'repos.html';
     $scope.shareTopic = function() {
         location.href = LS.j('', 'site', 'app') + '&topic=' + $scope.topic.id + '&page=share';
     };

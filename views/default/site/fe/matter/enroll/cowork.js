@@ -580,6 +580,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                     url = LS.j('', 'site', 'app', 'page') + '&ek=' + oEntity.enroll_key;
                 }
                 break;
+            case 'topic':
+                url = LS.j('', 'site', 'app') + '&page=topic' + '&topic=' + oEntity.id;
+                break;
         }
         if (url) {
             location.href = url;

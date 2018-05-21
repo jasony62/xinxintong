@@ -73,6 +73,23 @@ class topic extends base {
 		return new \ResponseData($oTopic);
 	}
 	/**
+	 * 专题的概要信息
+	 */
+	public function sketch_action($topic) {
+		$modelTop = $this->model('matter\enroll\topic');
+
+		$oSketch = new \stdClass;
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,aid,userid,group_id,nickname,title,summary,rec_num']);
+		if ($oTopic) {
+			$modelApp = $this->model('matter\enroll');
+			$oApp = $modelApp->byId($oTopic->aid, ['fields' => 'title', 'cascaded' => 'N']);
+			$oSketch->raw = $oTopic;
+			$oSketch->title = $oTopic->title . '|' . $oApp->title;
+		}
+
+		return new \ResponseData($oSketch);
+	}
+	/**
 	 * 创建记录专题
 	 */
 	public function add_action($app) {

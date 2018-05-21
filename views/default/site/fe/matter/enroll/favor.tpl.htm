@@ -188,6 +188,7 @@
                         </div>
                         <div class='bottom-bar small text-muted'>
                             <div><span ng-if="topic.share_in_group==='Y'"><i class='glyphicon glyphicon-check'></i> 组内共享</span></div>
+                            <button class='btn btn-default btn-xs' ng-click="copyTopic(topic)"><i class='glyphicon glyphicon-copy'></i></button>
                             <button class='btn btn-default btn-xs' ng-click="removeTopic(topic)"><i class='glyphicon glyphicon-remove'></i></button>
                             <button class='btn btn-default btn-xs' ng-click="editTopic(topic)"><i class='glyphicon glyphicon-edit'></i> <span ng-bind="topic.rec_num"></span></button>
                             <button class='btn btn-default btn-xs' ng-click="gotoTopic(topic)"><i class='glyphicon glyphicon-eye-open'></i></button>

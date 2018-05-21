@@ -4,8 +4,9 @@ require('./favor.css');
 require('./_asset/ui.repos.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
+require('./_asset/ui.assoc.js');
 
-window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll'];
+window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -298,7 +299,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
 /**
  * 专题
  */
-ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'noticebox', function($scope, $uibModal, http2, LS, noticebox) {
+ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'noticebox', 'enlAssoc', function($scope, $uibModal, http2, LS, noticebox, enlAssoc) {
     var _topics;
     $scope.editTopic = function(oTopic) {
         $uibModal.open({
@@ -351,6 +352,9 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
     };
     $scope.shareTopic = function(oTopic) {
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=share';
+    };
+    $scope.copyTopic = function(oTopic) {
+        enlAssoc.copy($scope.app, { id: oTopic.id, type: 'topic' });
     };
     $scope.gotoTopic = function(oTopic) {
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';

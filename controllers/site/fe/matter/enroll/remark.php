@@ -52,7 +52,7 @@ class remark extends base {
 		}
 
 		/* 修改昵称 */
-		$this->_setNickname($oRemark, $oUser, $oEditor);
+		$this->_setNickname($oRemark, $oUser, isset($oEditor) ? $oEditor : null);
 		/* 关联数据 */
 		if (!empty($cascaded)) {
 			$oRecord = $this->model('matter\enroll\record')->byId($oRemark->enroll_key, ['fields' => 'userid,group_id,nickname']);

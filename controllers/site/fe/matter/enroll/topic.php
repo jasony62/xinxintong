@@ -11,7 +11,7 @@ class topic extends base {
 	 */
 	public function get_action($topic) {
 		$modelTop = $this->model('matter\enroll\topic');
-		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,nickname,create_at,title,summary,rec_num']);
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -94,6 +94,8 @@ class topic extends base {
 		$oNewTopic->aid = $oApp->id;
 		$oNewTopic->siteid = $oApp->siteid;
 		$oNewTopic->unionid = $oUser->unionid;
+		$oNewTopic->userid = $oUser->uid;
+		$oNewTopic->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
 		$oNewTopic->nickname = $modelEnl->escape($oUser->nickname);
 		$oNewTopic->create_at = $current;
 		$oNewTopic->title = empty($oPosted->title) ? $oNewTopic->nickname . '的专题（' . date('y年n月d日', $current) . '）' : $modelEnl->escape($oPosted->title);
@@ -114,21 +116,27 @@ class topic extends base {
 
 		$oPosted = $this->getPostJson();
 		if (empty((array) $oPosted)) {
-			return new \ResponseError('没有指定要更新的数据');
+			return new \ResponseError('没有指定要更新的数据（1）');
 		}
 
 		$modelTop = $this->model('matter\enroll\topic');
-		$oUpdated = new \stdClass;
+		$aUpdated = [];
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {
 			case 'title':
 			case 'summary':
-				$oUpdated->{$prop} = $modelTop->escape($val);
+				$aUpdated[$prop] = $modelTop->escape($val);
+				break;
+			case 'share_in_group':
+				$aUpdated['share_in_group'] = in_array($val, ['Y', 'N']) ? $val : 'N';
 				break;
 			}
 		}
+		if (empty($aUpdated)) {
+			return new \ResponseError('没有指定要更新的数据（2）');
+		}
 
-		$rst = $modelTop->update('xxt_enroll_topic', $oUpdated, ['id' => $topic]);
+		$rst = $modelTop->update('xxt_enroll_topic', $aUpdated, ['id' => $topic]);
 
 		return new \ResponseData($rst);
 	}
@@ -160,15 +168,23 @@ class topic extends base {
 		if (empty($oUser->unionid)) {
 			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
 		}
-
+		$w = "state=1 and aid='{$oApp->id}'";
+		$w .= " and (";
+		$w .= "unionid='$oUser->unionid'";
+		$w .= " or (share_in_group='Y' and group_id='{$oUser->group_id}')";
+		$w .= ")";
 		$q = [
-			'id,create_at,title,summary,rec_num',
+			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group',
 			'xxt_enroll_topic',
-			['aid' => $oApp->id, 'unionid' => $oUser->unionid, 'state' => 1],
+			$w,
 		];
 		$q2 = ['o' => 'create_at desc'];
 		$topics = $modelEnl->query_objs_ss($q, $q2);
-
+		foreach ($topics as $oTopic) {
+			if ($oTopic->userid === $oUser->uid) {
+				$oTopic->nickname = '我';
+			}
+		}
 		$oResult = new \stdClass;
 		$oResult->topics = $topics;
 		$oResult->total = count($topics);

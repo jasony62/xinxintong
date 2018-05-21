@@ -1,0 +1,27 @@
+<div class="modal-body">
+    <div class='help-block'>内容来源：<span ng-bind="cache.app.title"></span></div>
+    <div class='form-group'>
+        <label>关联对象</label>
+        <input type='input' class='form-control' ng-model="assoc.text">
+    </div>
+    <div class='form-group'>
+        <label>关联理由</label>
+        <input type='input' class='form-control' ng-model="assoc.reason">
+    </div>
+    <div class='form-group' ng-if="user.is_editor==='Y'||user.is_leader==='Y'||user.is_leader==='S'">
+        <label class='radio-inline'>
+            <input type='radio' name='public' value='N' ng-model="assoc.public">仅自己可见</label>
+        <label class='radio-inline'>
+            <input type='radio' name='public' value='Y' ng-model="assoc.public">所有人可见</label>
+    </div>
+    <div class='checkbox'>
+        <label>
+            <input type='checkbox' ng-model="assoc.retainCopied">粘贴后不清除复制内容</label>
+    </div>
+</div>
+<div class="modal-footer">
+    <div class='text-center'>
+        <button class="btn btn-default" ng-click="cancel()">取消</button>
+        <button class="btn btn-primary" ng-click="ok()">保存</button>
+    </div>
+</div>

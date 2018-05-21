@@ -39,6 +39,7 @@ ngApp.directive('tmsScroll', [function() {
             }
         }
         target.__lastScrollTop = scrollTop;
+        
     }
 
     function _domReady($scope, elems) {

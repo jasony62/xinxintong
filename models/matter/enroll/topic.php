@@ -1,9 +1,11 @@
 <?php
 namespace matter\enroll;
+
+require_once dirname(__FILE__) . '/entity.php';
 /**
  * 专题
  */
-class topic_model extends \TMS_MODEL {
+class topic_model extends entity_model {
 	/**
 	 *
 	 */

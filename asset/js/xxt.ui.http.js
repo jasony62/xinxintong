@@ -32,11 +32,12 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
     function createAlert(msg, type, keep) {
         var alertDomEl;
         /* backdrop */
+        $sce.trustAsHtml(msg);
         alertDomEl = angular.element('<div></div>');
         alertDomEl.attr({
             'class': 'tms-notice alert alert-' + (type ? type : 'info'),
             'ng-style': '{\'z-index\':1099}'
-        }).html($sce.trustAsHtml(msg));
+        }).html(msg);
         if (!keep) {
             alertDomEl[0].addEventListener('click', function() {
                 document.body.removeChild(alertDomEl[0]);

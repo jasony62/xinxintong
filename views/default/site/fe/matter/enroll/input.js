@@ -4,9 +4,10 @@ require('./input.css');
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
 require('../../../../../../asset/js/xxt.ui.url.js');
+require('../../../../../../asset/js/xxt.ui.paste.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
 
-window.moduleAngularModules = ['editor.ui.xxt', 'url.ui.xxt'];
+window.moduleAngularModules = ['paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -100,6 +101,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                     }
                 }
             }
+
             function imgBind(schemaId, imgs) {
                 var phase;
                 phase = $scope.$root.$$phase;
@@ -137,8 +139,8 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                 targetDiv = event.currentTarget.children[event.currentTarget.children.length - 1];
                 window.xxt.image.paste($(targetDiv), $q.defer(), from).then(function(imgs) {
                     imgBind(schemaId, imgs);
-                }); 
-            }; 
+                });
+            };
         }]
     }
 }]);
@@ -387,7 +389,7 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsUrl', '$compile',function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsUrl, $compile) {
+ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile) {
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
@@ -508,6 +510,32 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         });
     }
+    /**
+     * 添加辅助功能
+     */
+    function fnAssistant(dataSchemas) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema, domRequireAssist;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                if (domSchema) {
+                    switch (oSchema.type) {
+                        case 'longtext':
+                            domRequireAssist = document.querySelector('textarea[ng-model="data.' + oSchema.id + '"]');
+                            if (domRequireAssist) {
+                                domRequireAssist.addEventListener('paste', function(e) {
+                                    var text;
+                                    e.preventDefault();
+                                    text = e.clipboardData.getData('text/plain');
+                                    tmsPaste.onpaste(text, domRequireAssist);
+                                });
+                            }
+                            break;
+                    }
+                }
+            }
+        });
+    }
 
     function doTask(seq, nextAction, type) {
         var task = tasksOfBeforeSubmit[seq];
@@ -568,6 +596,8 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         fnToggleAssocSchemas(dataSchemas, oRecordData);
         // 控制题目关联选项的可见性
         fnToggleAssocOptions(dataSchemas, oRecordData);
+        // 添加辅助功能
+        fnAssistant(dataSchemas);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
@@ -712,7 +742,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         }
         /*动态添加粘贴图片*/
-        if(!$scope.isSmallLayout) {
+        if (!$scope.isSmallLayout) {
             pasteContains = document.querySelectorAll('ul.img-tiles');
             angular.forEach(pasteContains, function(pastecontain) {
                 var oSchema, html, $html;

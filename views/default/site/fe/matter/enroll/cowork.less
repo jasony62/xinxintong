@@ -79,34 +79,65 @@ p {
 	background: #fff;
 }
 
-#record .title {
-	margin: 0 -1rem .5rem -1rem;
-	background: #ddd;
-	padding: .5rem 1rem;
-	border-bottom: 1px solid #ccc;
-}
+#record {
+	.title {
+		margin: 0 -1rem .5rem -1rem;
+		background: #ddd;
+		padding: .5rem 1rem;
+		border-bottom: 1px solid #ccc;
 
-#record .title .dropdown-menu {
-	right: 0;
-	left: auto;
-	min-width: auto;
-}
+		.dropdown-menu {
+			right: 0;
+			left: auto;
+			min-width: auto;
+		}
 
-#record .top-bar {
-	display: flex;
-
-	.nickname {
-		flex-grow: 1;
 	}
 
-	.label {
-		padding: .3em .6em;
+	.top-bar {
+		display: flex;
+
+		.nickname {
+			flex-grow: 1;
+		}
+
+		.label {
+			padding: .3em .6em;
+		}
+
 	}
 
-}
+	.data blockquote>div+div {
+		margin-top: 8px;
+	}
 
-#record .data blockquote>div+div {
-	margin-top: 8px;
+	.tags, .assocs {
+		margin-top: 8px;
+	}
+
+	.tags {
+		&>button+button {
+			margin-left: 4px;
+		}
+
+	}
+
+	.assocs>div {
+		padding: 4px 0;
+
+		.assoc-reason {
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			margin-right: 8px;
+			padding: 0 4px;
+		}
+
+		.assoc-text {
+			cursor: pointer;
+		}
+
+	}
+
 }
 
 #record .data .data-title:before, #cowork .data-title:before {
@@ -118,15 +149,6 @@ p {
 	border-right: 6px solid #fff;
 	border-bottom: 6px solid #fff;
 	border-left: 6px solid @brand-primary;
-}
-
-.tags {
-	margin-top: 8px;
-
-	&>button+button {
-		margin-left: 4px;
-	}
-
 }
 
 #favorGuide {

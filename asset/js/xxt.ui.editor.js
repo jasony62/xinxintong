@@ -171,15 +171,12 @@ ngMod.directive('tmsEditor', ['$q', 'http2', 'tmsPaste', function($q, http2, tms
                 }
             };
             /* 粘贴时处理格式 */
-            // var domContent;
-            // if (domContent = _iframeDoc.querySelector('div.tms-editor-content')) {
-            //     domContent.addEventListener('paste', function(e) {
-            //         var text;
-            //         e.preventDefault();
-            //         text = e.clipboardData.getData('text/plain');
-            //         tmsPaste.onpaste(text, domContent);
-            //     });
-            // }
+            _divContent.addEventListener('paste', function(e) {
+                var text;
+                e.preventDefault();
+                text = e.clipboardData.getData('text/plain');
+                tmsPaste.onpaste(text, { doc: _iframeDoc });
+            });
             /* 设置基本样式 */
             document.querySelectorAll('#' + $scope.id + ' button[command]').forEach(function(eleBtn) {
                 eleBtn.addEventListener('click', function() {

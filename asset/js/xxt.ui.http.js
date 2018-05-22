@@ -35,7 +35,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         $sce.trustAsHtml(msg);
         alertDomEl = angular.element('<div></div>');
         alertDomEl.attr({
-            'class': 'tms-notice alert alert-' + (type ? type : 'info'),
+            'class': 'tms-notice-box alert alert-' + (type ? type : 'info'),
             'ng-style': '{\'z-index\':1099}'
         }).html(msg);
         if (!keep) {

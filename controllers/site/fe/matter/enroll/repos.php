@@ -656,11 +656,11 @@ class repos extends base {
 					unset($oRecord->nickname);
 				} else {
 					/* 修改默认访客昵称 */
-					if ($oRecord->userid === $oUser->uid) {
+					if ($oRecord->userid === $oMockUser->uid) {
 						$oRecord->nickname = '我';
 					} else if (preg_match('/用户[^\W_]{13}/', $oRecord->nickname)) {
 						$oRecord->nickname = '访客';
-					} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+					} else if (isset($oEditor) && (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y')) {
 						/* 设置编辑统一昵称 */
 						if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
 							$oRecord->nickname = $oEditor->nickname;
@@ -690,7 +690,7 @@ class repos extends base {
 				];
 				$oRecord->agreedRemarks = $modelRec->query_objs_ss($q, $q2);
 				foreach ($oRecord->agreedRemarks as $oRemark) {
-					if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+					if (isset($oEditor) && (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y')) {
 						/* 设置编辑统一昵称 */
 						if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
 							$oRemark->nickname = $oEditor->nickname;

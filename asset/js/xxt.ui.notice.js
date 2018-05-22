@@ -1,6 +1,6 @@
 'use strict';
 var ngMod = angular.module('notice.ui.xxt', ['ngSanitize']);
-ngMod.service('noticebox', ['$timeout', '$q', function($timeout, $q) {
+ngMod.service('noticebox', ['$timeout', '$interval', '$q', function($timeout, $interval, $q) {
     var _boxId = 'tmsbox' + (new Date * 1),
         _last = {
             type: '',
@@ -12,9 +12,7 @@ ngMod.service('noticebox', ['$timeout', '$q', function($timeout, $q) {
             if (box === null) {
                 box = document.createElement('div');
                 box.setAttribute('id', _boxId);
-                box.classList.add('notice-box');
-                box.classList.add('alert');
-                box.classList.add('alert-' + type);
+                box.classList.add('tms-notice-box', 'alert', 'alert-' + type);
                 box.innerHTML = '<div>' + msg + '</div>';
                 document.body.appendChild(box);
                 _last.type = type;
@@ -127,6 +125,24 @@ ngMod.service('noticebox', ['$timeout', '$q', function($timeout, $q) {
                     document.body.removeChild(box);
                     defer.resolve(oButton.value);
                 });
+                if (oButton.execWait) {
+                    var counter = Math.ceil(oButton.execWait / 500);
+                    var countdown = document.createElement('span');
+                    countdown.classList.add('countdown');
+                    countdown.innerHTML = counter;
+                    btn.appendChild(countdown);
+                    $interval(function() {
+                        countdown.innerHTML = --counter;
+                    }, 500);
+                    /* 自动关闭 */
+                    _last.timer = $timeout(function() {
+                        if (box.parentNode && box.parentNode === document.body) {
+                            document.body.removeChild(box);
+                        }
+                        _last.timer = null;
+                        defer.resolve(oButton.value);
+                    }, oButton.execWait);
+                }
             });
         } else {
             btn = document.createElement('button');

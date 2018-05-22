@@ -527,7 +527,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                                     var text;
                                     e.preventDefault();
                                     text = e.clipboardData.getData('text/plain');
-                                    tmsPaste.onpaste(text, domRequireAssist);
+                                    tmsPaste.onpaste(text);
                                 });
                             }
                             break;

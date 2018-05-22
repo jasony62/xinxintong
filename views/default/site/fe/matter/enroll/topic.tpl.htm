@@ -31,7 +31,7 @@
     </nav>
     <div class='app container'>
         <div class='panel'>
-            <div class='panel-body'>
+            <div class='panel-body ng-cloak' ng-if="topic" ng-cloak>
                 <div class='form-group'>
                     <div class='text-muted' ng-bind="topic.nickname"></div>
                 </div>
@@ -42,17 +42,14 @@
                     <div class='text-muted small' ng-bind="topic.summary"></div>
                 </div>
                 <div class='bottom-bar'>
-                    <div ng-if="topic.create_at" class='datetime'><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
+                    <div class='datetime'><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
                     <button class='btn btn-default btn-xs' ng-click="shareTopic(topic)"><i class='glyphicon glyphicon-share-alt'></i></button>
                 </div>
             </div>
         </div>
-        <div class='row' ng-include="'repos.html'"></div>
-    </div>
-    <script type="text/ng-template" id="repos.html">
-        <div ng-controller="ctrlRepos" class='records col-xs-12'>
-            <div id='repos'>
-                <div class='records'>
+        <div class='row'>
+            <div class='records col-xs-12'>
+                <div id='repos'>
                     <div class='record' ng-repeat="rec in repos" ng-cloak>
                         <div class='header'>
                             <div class='seq label label-default'>{{$index+1}}</div>
@@ -122,7 +119,8 @@
                 </div>
             </div>
         </div>
-    </script>
+    </div>
+    <div ng-if="appActs.length" tms-app-act app-acts="appActs"></div>
     <script type="text/ng-template" id="assignTopic.html">
         <div class="modal-body">
             <div ng-repeat="topic in topics">

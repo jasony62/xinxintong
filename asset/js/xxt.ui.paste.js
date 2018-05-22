@@ -1,11 +1,20 @@
 'use strict';
 var ngMod = angular.module('paste.ui.xxt', ['ngSanitize', 'notice.ui.xxt']);
 ngMod.service('tmsPaste', ['$timeout', '$q', 'noticebox', function($timeout, $q, noticebox) {
-    this.onpaste = function(originalText, dom) {
+    this.onpaste = function(originalText, oOptions) {
+        function fnDoPaste(text) {
+            if (oOptions.doc) {
+                oOptions.doc.execCommand("insertHTML", false, text);
+            } else {
+                document.execCommand("insertHTML", false, text);
+            }
+            defer.resolve(text);
+        }
+
         var defer, actions, cleanEmptyText, cleanHtmlText, newText;
         defer = $q.defer();
         actions = [
-            { label: '跳过', value: 'cancel' }
+            { label: '跳过', value: 'cancel', execWait: 3000 }
         ];
         /* 是否存在空字符 */
         cleanEmptyText = originalText.replace(/\s/gm, '');
@@ -28,12 +37,13 @@ ngMod.service('tmsPaste', ['$timeout', '$q', 'noticebox', function($timeout, $q,
                     default:
                         newText = originalText;
                 }
-                document.execCommand("insertHTML", false, newText);
+                fnDoPaste(newText);
                 defer.resolve(newText);
+            }, function() {
+                fnDoPaste(originalText);
             });
         } else {
-            document.execCommand("insertHTML", false, originalText);
-            defer.resolve(originalText);
+            fnDoPaste(originalText);
         }
         return defer.promise;
     }

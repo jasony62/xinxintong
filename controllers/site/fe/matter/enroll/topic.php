@@ -9,7 +9,7 @@ class topic extends base {
 	/**
 	 *
 	 */
-	public function get_action($topic) {
+	public function get_action($topic, $role) {
 		$modelTop = $this->model('matter\enroll\topic');
 		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group']);
 		if (false === $oTopic || $oTopic->state !== '1') {
@@ -31,9 +31,20 @@ class topic extends base {
 		}
 
 		$oUser = $this->getUser($oApp);
+		/* 指定的用户身份 */
+		if ($role === 'visitor') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+			$oMockUser->is_editor = 'N';
+		} else if ($role === 'member') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+		} else {
+			$oMockUser = $oUser;
+		}
 
 		/* 修改默认访客昵称 */
-		if (isset($oUser->unionid) && $oTopic->unionid === $oUser->unionid) {
+		if (isset($oMockUser->unionid) && $oTopic->unionid === $oMockUser->unionid) {
 			$oTopic->nickname = '我';
 		} else if (isset($oEditor)) {
 			/*查看创建者是否在编辑组中*/
@@ -62,7 +73,7 @@ class topic extends base {
 					}
 				}
 				/* 设置编辑统一昵称 */
-				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				if (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y') {
 					if (!empty($oTopic->is_editor) && $oTopic->is_editor === 'Y') {
 						$oTopic->nickname = $oEditor->nickname;
 					}

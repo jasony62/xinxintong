@@ -48,6 +48,8 @@
                             <input type='radio' name='scope' value='M' ng-model="filter.scope">我的</label>
                         <label class='radio-inline'>
                             <input type='radio' name='scope' value='A' ng-model="filter.scope">全部</label>
+                        <label class='radio-inline'>
+                            <input type='radio' name='scope' value='kanban' ng-model="filter.scope">看板</label>
                     </div>
                     <!--notice list-->
                     <div ng-if="filter.scope==='N'">
@@ -236,6 +238,108 @@
                         </div>
                     </div>
                     <!--end log list-->
+                    <!--kanban-->
+                    <div ng-if="filter.scope==='kanban'">
+                        <div id='filterQuick' ng-cloak>
+                            <div ng-if="rounds.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                                    <span>轮次</span>
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                </button>
+                                <ul class="dropdown-menu" uib-dropdown-menu>
+                                    <li><a href ng-click="shiftRound()">全部</a></li>
+                                    <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class='table-responsive'>
+                            <table class='table table-bordered'>
+                                <thead>
+                                    <tr>
+                                        <th style='width:48px'>序号</th>
+                                        <th>姓名</th>
+                                        <th ng-if="app.group_app_id">分组</th>
+                                        <th>填写记录</th>
+                                        <th>协作填写</th>
+                                        <th>发表留言</th>
+                                        <th>发表点赞</th>
+                                        <th>获得推荐</th>
+                                        <th>获得协作</th>
+                                        <th>获得留言</th>
+                                        <th>获得赞同</th>
+                                        <th>积分</th>
+                                        <th>得分</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat='m in kanban.users'>
+                                        <td>{{$index+1}}</td>
+                                        <td>{{m.nickname}}</td>
+                                        <td ng-if='app.group_app_id'>
+                                            <div ng-if='m.group'>{{m.group.l}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-if='m.user.enroll_num'>{{m.user.enroll_num}}</div>
+                                            <div ng-if='m.enroll_num'>{{m.enroll_num}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-if='m.user.do_cowork_num'>{{m.user.do_cowork_num}}</div>
+                                            <div ng-if='m.do_cowork_num'>{{m.do_cowork_num}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-if='m.user.do_remark_num'>{{m.user.do_remark_num}}</div>
+                                            <div ng-if='m.do_remark_num'>{{m.do_remark_num}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-if='m.user.do_like_num'>{{m.user.do_like_num}}</div>
+                                            <div ng-if='m.do_like_num'>{{m.do_like_num}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-if='m.user.agree_num'>{{m.user.agree_num}}</div>
+                                            <div ng-if='m.agree_num'>{{m.agree_num}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-if='m.user.cowork_num'>{{m.user.cowork_num}}</div>
+                                            <div ng-if='m.cowork_num'>{{m.cowork_num}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-if='m.user.remark_num'>{{m.user.remark_num}}</div>
+                                            <div ng-if='m.remark_num'>{{m.remark_num}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-if='m.user.like_num'>{{m.user.like_num}}</div>
+                                            <div ng-if='m.like_num'>{{m.like_num}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
+                                            <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-if='m.score'>{{m.score}}</div>
+                                        </td>
+                                    </tr>
+                                    <tr ng-repeat='m in kanban.absent'>
+                                        <td>{{$index+1}}</td>
+                                        <td>{{m.nickname}}</td>
+                                        <td ng-if='app.group_app_id'>
+                                            <div ng-if='m.group'>{{m.group.l}}</div>
+                                        </td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!--end kanban-->
                 </div>
             </div>
         </div>

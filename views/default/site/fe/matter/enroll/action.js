@@ -2,7 +2,28 @@
 require('./action.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', function($scope, $q, LS, http2) {
+ngApp.service('EnlRound', ['http2', '$q', 'tmsLocation', function(http2, $q, LS) {
+    var oPage;
+    oPage = {
+        at: 1,
+        size: 12,
+        j: function() {
+            return '&page=' + this.at + '&size=' + this.size;
+        }
+    };
+    this.list = function() {
+        var deferred = $q.defer(),
+            url;
+        url = LS.j('round/list', 'site', 'app');
+        url += oPage.j();
+        http2.get(url).then(function(rsp) {
+            oPage.total = rsp.data.total;
+            deferred.resolve(rsp.data);
+        });
+        return deferred.promise;
+    };
+}]);
+ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRound', function($scope, $q, LS, http2, EnlRound) {
     function fnCloseNotice(oNotice) {
         var url, defer;
         defer = $q.defer();
@@ -15,6 +36,16 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', function
         return defer.promise;
     }
 
+    function fnGetKanban(rid) {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('user/kanban', 'site', 'app');
+        if (rid) url += '&rid=' + rid;
+        http2.get(url).then(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
     var _oApp, _aLogs, _oPage, _oFilter;
     $scope.page = _oPage = {
         at: 1,
@@ -67,10 +98,22 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', function
             location.href = url;
         }
     };
+    $scope.shiftRound = function(oRound) {
+        fnGetKanban(oRound.rid).then(function(result) {
+            $scope.kanban.users = result.users;
+            $scope.kanban.absent = result.absent;
+        });
+    };
+    $scope.kanban = {};
     $scope.$watch('filter', function(nv, ov) {
         if (nv && nv !== ov) {
             if (/N/.test(nv.scope)) {
                 $scope.searchNotice(1);
+            } else if (/kanban/.test(nv.scope)) {
+                fnGetKanban().then(function(result) {
+                    $scope.kanban.users = result.users;
+                    $scope.kanban.absent = result.absent;
+                });
             } else {
                 $scope.searchEvent(1);
             }
@@ -103,6 +146,11 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', function
         }
         if (Object.keys(oAppNavs)) {
             $scope.appNavs = oAppNavs;
+        }
+        if (_oApp.multi_rounds === 'Y') {
+            EnlRound.list().then(function(result) {
+                $scope.rounds = result.rounds;
+            });
         }
         $scope.searchNotice(1).then(function(data) {
             if (data.total === 0) {

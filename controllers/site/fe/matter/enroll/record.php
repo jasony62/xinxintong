@@ -684,6 +684,23 @@ class record extends base {
 		return new \ResponseData($oRecord);
 	}
 	/**
+	 * 记录的概要信息
+	 */
+	public function sketch_action($record) {
+		$modelRec = $this->model('matter\enroll\record');
+
+		$oSketch = new \stdClass;
+		$oRecord = $modelRec->byPlainId($record, ['fields' => 'id,aid,state,enroll_key,agreed,remark_num,like_num,favor_num']);
+		if ($oRecord) {
+			$modelApp = $this->model('matter\enroll');
+			$oApp = $modelApp->byId($oRecord->aid, ['fields' => 'title', 'cascaded' => 'N']);
+			$oSketch->raw = $oRecord;
+			$oSketch->title = '记录' . $oRecord->id . '|' . $oApp->title;
+		}
+
+		return new \ResponseData($oSketch);
+	}
+	/**
 	 * 列出所有的登记记录
 	 *
 	 * $site

@@ -1,9 +1,11 @@
 <?php
 namespace matter\enroll;
+
+require_once dirname(__FILE__) . '/entity.php';
 /**
  *
  */
-class tag2_model extends \TMS_MODEL {
+class tag2_model extends entity_model {
 	/**
 	 *
 	 */

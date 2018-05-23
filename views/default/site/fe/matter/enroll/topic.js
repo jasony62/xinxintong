@@ -225,7 +225,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
                 $scope.noticeCount = rsp.data;
             });
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
 
         /* 活动任务 */

@@ -214,7 +214,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             oAppNavs.rank = {};
         }
         if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;

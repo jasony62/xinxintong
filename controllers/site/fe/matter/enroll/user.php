@@ -108,11 +108,56 @@ class user extends base {
 			}
 		}
 
-		$result = new \stdClass;
-		$result->records = $users;
+		$oResult = new \stdClass;
+		$oResult->records = $users;
 		$q1[0] = 'count(*)';
-		$result->total = $modelEnl->query_val_ss($q1);
+		$oResult->total = $modelEnl->query_val_ss($q1);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
+	}
+	/**
+	 * 活动中用户的摘要信息
+	 * 1、必须是在活动分组中的用户，或者是超级用户，或者是组长
+	 * 2、支持按照轮次过滤
+	 * 2、如果指定了轮次，支持看看缺席情况
+	 */
+	public function kanban_action($app, $rid = '', $page = 1, $size = 100) {
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		$oUser = $this->getUser($oApp);
+		if (empty($oUser->group_id) && (empty($oUser->is_leader) || in_array($oUser->is_leader, ['Y', 'S']))) {
+			return new \ParameterError('没有获取数据的权限');
+		}
+
+		$modelUsr = $this->model('matter\enroll\user');
+		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid]);
+		if (count($oResult->users)) {
+			if (!empty($oApp->group_app_id)) {
+				foreach ($oApp->dataSchemas as $schema) {
+					if ($schema->id == '_round_id') {
+						$aUserRounds = $schema->ops;
+						break;
+					}
+				}
+			}
+			foreach ($oResult->users as &$user) {
+				if (isset($aUserRounds) && $user->group_id) {
+					foreach ($aUserRounds as $v) {
+						if ($v->v == $user->group_id) {
+							$user->group = $v;
+						}
+					}
+				}
+			}
+		}
+		if ($rid) {
+			$oResultAbsent = $modelUsr->absentByApp($oApp, $oResult->users, $rid);
+			$oResult->absent = $oResultAbsent->users;
+		}
+
+		return new \ResponseData($oResult);
 	}
 }

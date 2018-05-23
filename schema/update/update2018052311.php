@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "ALTER TABLE xxt_log_matter_share add share_url text";
+$sqls[] = "ALTER TABLE xxt_log_matter_share add share_url text NULL";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

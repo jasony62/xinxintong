@@ -158,8 +158,8 @@ $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20) not null";
 $sql .= ",matter_title varchar(70) not null";
 $sql .= ",matter_shareby varchar(45)"; // 素材是通过谁分享获得的
-$sql .= ",user_agent text";
-$sql .= ",share_url text";
+$sql .= ",user_agent text NULL";
+$sql .= ",share_url text NULL";
 $sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

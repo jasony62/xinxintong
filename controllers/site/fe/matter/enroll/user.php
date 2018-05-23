@@ -117,23 +117,23 @@ class user extends base {
 	}
 	/**
 	 * 活动中用户的摘要信息
-	 * 1、必须是在活动分组中的用户才能查看
+	 * 1、必须是在活动分组中的用户，或者是超级用户，或者是组长
 	 * 2、支持按照轮次过滤
 	 * 2、如果指定了轮次，支持看看缺席情况
 	 */
-	public function kanban_action($app, $rid = '') {
+	public function kanban_action($app, $rid = '', $page = 1, $size = 100) {
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
 		$oUser = $this->getUser($oApp);
-		if (empty($oUser->group_id)) {
+		if (empty($oUser->group_id) && (empty($oUser->is_leader) || in_array($oUser->is_leader, ['Y', 'S']))) {
 			return new \ParameterError('没有获取数据的权限');
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-		$oResult = $modelUsr->enrolleeByApp($oApp, '', '', ['rid' => $rid]);
+		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid]);
 		if (count($oResult->users)) {
 			if (!empty($oApp->group_app_id)) {
 				foreach ($oApp->dataSchemas as $schema) {

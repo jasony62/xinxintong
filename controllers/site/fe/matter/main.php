@@ -221,9 +221,10 @@ class main extends \site\fe\matter\base {
 			!empty($assignedNickname) && $user->nickname = $assignedNickname;
 			$options = [];
 			isset($userRid) && $options['rid'] = $userRid;
-			!empty($post->search) && $options['search'] = $post->search;
-			!empty($post->referer) && $options['referer'] = $post->referer;
-			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $options);
+			
+			$search = !empty($post->search) ? $post->search : (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '');
+			$referer = !empty($post->referer) ? $post->referer : (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $search, $referer, $options);
 		}
 
 		return new \ResponseData('ok');
@@ -231,7 +232,7 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 记录访问日志
 	 */
-	protected function logRead($siteId, $user, $id, $type, $title, $shareby = '', $options = []) {
+	protected function logRead($siteId, $user, $id, $type, $title, $shareby = '', $search, $referer, $options = []) {
 		$logUser = new \stdClass;
 		$logUser->userid = $user->uid;
 		$logUser->nickname = $user->nickname;
@@ -244,9 +245,6 @@ class main extends \site\fe\matter\base {
 		$logClient = new \stdClass;
 		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
 		$logClient->ip = $this->client_ip();
-
-		$search = isset($options['search']) ? $options['search'] : (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '');
-		$referer = isset($options['referer']) ? $options['referer'] : (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
 
 		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer, $options);
 		/**

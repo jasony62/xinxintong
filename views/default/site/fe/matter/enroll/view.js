@@ -251,7 +251,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                 oAppNavs.rank = {};
             }
             if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.action = {};
+                oAppNavs.event = {};
             }
             if (Object.keys(oAppNavs).length) {
                 $scope.appNavs = oAppNavs;

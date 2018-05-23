@@ -230,7 +230,7 @@ ngApp.controller('ctrlList', ['$scope', function($scope) {
             oAppNavs.rank = {};
         }
         if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs)) {
             $scope.appNavs = oAppNavs;

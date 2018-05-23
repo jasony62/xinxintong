@@ -1,5 +1,5 @@
 'use strict';
-require('./action.css');
+require('./event.css');
 
 var ngApp = require('./main.js');
 ngApp.service('EnlRound', ['http2', '$q', 'tmsLocation', function(http2, $q, LS) {
@@ -54,6 +54,7 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
             return 'page=' + this.at + '&size=' + this.size;
         }
     };
+    $scope.subView = 'timeline.html';
     $scope.filter = _oFilter = { scope: 'N' };
     $scope.searchEvent = function(pageAt) {
         var url, defer;
@@ -108,13 +109,16 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
     $scope.$watch('filter', function(nv, ov) {
         if (nv && nv !== ov) {
             if (/N/.test(nv.scope)) {
+                $scope.subView = 'timeline.html';
                 $scope.searchNotice(1);
             } else if (/kanban/.test(nv.scope)) {
+                $scope.subView = 'kanban.html';
                 fnGetKanban().then(function(result) {
                     $scope.kanban.users = result.users;
                     $scope.kanban.absent = result.absent;
                 });
             } else {
+                $scope.subView = 'timeline.html';
                 $scope.searchEvent(1);
             }
         }

@@ -5,12 +5,13 @@ require('../../../../../../asset/js/xxt.ui.editor.js');
 require('./_asset/ui.repos.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
+require('./_asset/ui.assoc.js');
 
-window.moduleAngularModules = ['editor.ui.xxt', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll'];
+window.moduleAngularModules = ['editor.ui.xxt', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
-ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', 'enlTag', 'enlTopic', function($scope, $q, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage, enlTag, enlTopic) {
+ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $q, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage, enlTag, enlTopic, enlAssoc) {
     function listRemarks() {
         var url;
         url = LS.j('remark/list', 'site', 'ek', 'schema', 'data');
@@ -103,6 +104,29 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         return oDeferred.promise;
     }
     /**
+     * 加载关联数据
+     */
+    function fnLoadAssoc(oRecord) {
+        var oDeferred;
+        oDeferred = $q.defer();
+        http2.get(LS.j('assoc/byRecord', 'site', 'ek')).then(function(rsp) {
+            if (rsp.data.length) {
+                oRecord.assocs = [];
+                rsp.data.forEach(function(oAssoc) {
+                    if (oAssoc.entity_a_type === 'record' && oAssoc.entity_a_id == oRecord.id) {
+                        if (oAssoc.log && oAssoc.log.assoc_text) {
+                            oAssoc.assoc_text = oAssoc.log.assoc_text;
+                        }
+                        oRecord.assocs.push(oAssoc);
+                    }
+                });
+            }
+            oDeferred.resolve();
+        });
+
+        return oDeferred.promise;
+    }
+    /**
      * 加载协作填写数据
      */
     function fnLoadCowork(oRecord, aCoworkSchemas, bJumpTask) {
@@ -150,7 +174,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         });
     }
 
-    function fnAfterLoad(oRecord, oUser) {
+    function fnAfterRecordLoad(oRecord, oUser) {
         /*设置任务提示*/
         if (_oApp.actionRule) {
             var oCoworkRule;
@@ -190,7 +214,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             oAppNavs.rank = {};
         }
         if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
@@ -238,6 +262,27 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             delete this.record;
             delete this.timer;
         }
+    };
+    $scope.copyRecord = function(oRecord) {
+        enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
+    };
+    $scope.pasteRecord = function(oRecord) {
+        enlAssoc.paste($scope.user, oRecord, { id: oRecord.id, type: 'record' }).then(function(oNewAssoc) {
+            if (!oRecord.assocs) oRecord.assocs = [];
+            if (oNewAssoc.log) oNewAssoc.assoc_text = oNewAssoc.log.assoc_text;
+            oRecord.assocs.push(oNewAssoc);
+        });
+
+    };
+    $scope.removeAssoc = function(oAssoc) {
+        noticebox.confirm('取消关联，确定？').then(function() {
+            http2.get(LS.j('assoc/unlink', 'site') + '&assoc=' + oAssoc.id).then(function() {
+                $scope.record.assocs.splice($scope.record.assocs.indexOf(oAssoc), 1);
+            });
+        });
+    };
+    $scope.editAssoc = function(oAssoc) {
+        enlAssoc.update($scope.user, oAssoc);
     };
     $scope.favorRecord = function(oRecord) {
         var url;
@@ -527,6 +572,22 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     $scope.shareRemark = function(oRemark) {
         location.href = LS.j('', 'site', 'app', 'ek') + '&remark=' + oRemark.id + '&page=share';
     };
+    $scope.gotoAssoc = function(oEntity) {
+        var url;
+        switch (oEntity.type) {
+            case 'record':
+                if (oEntity.enroll_key) {
+                    url = LS.j('', 'site', 'app', 'page') + '&ek=' + oEntity.enroll_key;
+                }
+                break;
+            case 'topic':
+                url = LS.j('', 'site', 'app') + '&page=topic' + '&topic=' + oEntity.id;
+                break;
+        }
+        if (url) {
+            location.href = url;
+        }
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oSchemasById, aCoworkSchemas, aVisibleSchemas;
         _oApp = params.app;
@@ -546,7 +607,13 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         $scope.visibleSchemas = aVisibleSchemas;
         $scope.coworkSchemas = aCoworkSchemas;
         fnLoadRecord(aCoworkSchemas).then(function(oRecord) {
-            fnAfterLoad(oRecord, _oUser);
+            if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_assoc === 'Y') {
+                fnLoadAssoc(oRecord).then(function() {
+                    fnAfterRecordLoad(oRecord, _oUser);
+                });
+            } else {
+                fnAfterRecordLoad(oRecord, _oUser);
+            }
         });
     });
 }]);

@@ -4,9 +4,10 @@ require('./input.css');
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
 require('../../../../../../asset/js/xxt.ui.url.js');
+require('../../../../../../asset/js/xxt.ui.paste.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
 
-window.moduleAngularModules = ['editor.ui.xxt', 'url.ui.xxt'];
+window.moduleAngularModules = ['paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -85,21 +86,8 @@ ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $
     }
 }]);
 ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
-    var aModifiedImgFields, pasteContains, createHiddenEditable;
+    var aModifiedImgFields;
     aModifiedImgFields = [];
-    pasteContains = document.querySelectorAll('.img-edit button'); 
-    for(var i=0; i<pasteContains.length; i++) {
-        createHiddenEditable = function() {
-            return $(document.createElement('div')).attr('contenteditable', true).attr('tabindex', -1).css({
-                  width: 1,
-                  height: 1,
-                  position: 'fixed',
-                  left: -100,
-                  overflow: 'hidden'
-            });
-        };
-        createHiddenEditable().appendTo(pasteContains[i]);
-    }
     return {
         restrict: 'A',
         controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
@@ -113,6 +101,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                     }
                 }
             }
+
             function imgBind(schemaId, imgs) {
                 var phase;
                 phase = $scope.$root.$$phase;
@@ -141,16 +130,16 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                     imgBind(schemaId, imgs);
                 });
             };
+            $scope.removeImage = function(imgField, index) {
+                imgField.splice(index, 1);
+            };
             $scope.pasteImage = function(schemaId, event, count, from) {
                 imgCount(schemaId, count, from);
                 var targetDiv;
                 targetDiv = event.currentTarget.children[event.currentTarget.children.length - 1];
                 window.xxt.image.paste($(targetDiv), $q.defer(), from).then(function(imgs) {
                     imgBind(schemaId, imgs);
-                }); 
-            }; 
-            $scope.removeImage = function(imgField, index) {
-                imgField.splice(index, 1);
+                });
             };
         }]
     }
@@ -400,7 +389,7 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsUrl', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsUrl) {
+ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile) {
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
@@ -521,6 +510,32 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         });
     }
+    /**
+     * 添加辅助功能
+     */
+    function fnAssistant(dataSchemas) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema, domRequireAssist;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                if (domSchema) {
+                    switch (oSchema.type) {
+                        case 'longtext':
+                            domRequireAssist = document.querySelector('textarea[ng-model="data.' + oSchema.id + '"]');
+                            if (domRequireAssist) {
+                                domRequireAssist.addEventListener('paste', function(e) {
+                                    var text;
+                                    e.preventDefault();
+                                    text = e.clipboardData.getData('text/plain');
+                                    tmsPaste.onpaste(text);
+                                });
+                            }
+                            break;
+                    }
+                }
+            }
+        });
+    }
 
     function doTask(seq, nextAction, type) {
         var task = tasksOfBeforeSubmit[seq];
@@ -581,6 +596,8 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         fnToggleAssocSchemas(dataSchemas, oRecordData);
         // 控制题目关联选项的可见性
         fnToggleAssocOptions(dataSchemas, oRecordData);
+        // 添加辅助功能
+        fnAssistant(dataSchemas);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
@@ -617,7 +634,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             oAppNavs.rank = {};
         }
         if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
@@ -655,7 +672,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         $scope.submit(event, '', 'save');
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var schemasById, dataOfRecord, p, value;
+        var schemasById, dataOfRecord, p, value, pasteContains;
         StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = params.app._schemasById;
         _oApp = params.app;
@@ -723,6 +740,21 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                     }
                 }
             }
+        }
+        /*动态添加粘贴图片*/
+        if (!$scope.isSmallLayout) {
+            pasteContains = document.querySelectorAll('ul.img-tiles');
+            angular.forEach(pasteContains, function(pastecontain) {
+                var oSchema, html, $html;
+                oSchema = schemasById[pastecontain.getAttribute('name')];
+                html = '<li class="img-picker img-edit">';
+                html += '<button class="btn btn-default" ng-click="pasteImage(\'' + oSchema.id + '\',$event,' + (oSchema.count || 1) + ')">点击按钮<br>Ctrl+V<br>粘贴截图';
+                html += '<div contenteditable="true" tabindex="-1" style="width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;"></div>';
+                html += '</button>';
+                html += '</li>';
+                $html = $compile(html)($scope);
+                $(pastecontain).append($html);
+            });
         }
     });
     $scope.removeItem = function(items, index) {

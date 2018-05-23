@@ -55,7 +55,7 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', functio
                 oAppNavs.rank = {};
             }
             if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.action = {};
+                oAppNavs.event = {};
             }
             if (Object.keys(oAppNavs)) {
                 $scope.appNavs = oAppNavs;

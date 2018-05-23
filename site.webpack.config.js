@@ -10,7 +10,7 @@ module.exports = {
         '/site/fe/matter/enroll/input': ['./views/default/site/fe/matter/enroll/input.js'],
         '/site/fe/matter/enroll/view': ['./views/default/site/fe/matter/enroll/view.js'],
         '/site/fe/matter/enroll/list': ['./views/default/site/fe/matter/enroll/list.js'],
-        '/site/fe/matter/enroll/action': ['./views/default/site/fe/matter/enroll/action.js'],
+        '/site/fe/matter/enroll/event': ['./views/default/site/fe/matter/enroll/event.js'],
         '/site/fe/matter/enroll/cowork': ['./views/default/site/fe/matter/enroll/cowork.js'],
         '/site/fe/matter/enroll/share': ['./views/default/site/fe/matter/enroll/share.js'],
         '/site/fe/matter/enroll/repos': ['./views/default/site/fe/matter/enroll/repos.js'],

@@ -53,7 +53,7 @@ class main extends base {
 		}
 
 		/* 返回登记活动页面 */
-		if (in_array($page, ['cowork', 'share', 'action', 'rank', 'score', 'repos', 'favor', 'topic'])) {
+		if (in_array($page, ['cowork', 'share', 'event', 'rank', 'score', 'repos', 'favor', 'topic'])) {
 			/* 设置页面标题 */
 			if (in_array($page, ['topic', 'share']) && !empty($topic)) {
 				$modelTop = $this->model('matter\enroll\topic');
@@ -79,7 +79,7 @@ class main extends base {
 			}
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
 			\TPL::assign('title', $oApp->title);
-			if (in_array($oOpenPage->name, ['action', 'rank', 'score', 'repos', 'favor', 'topic'])) {
+			if (in_array($oOpenPage->name, ['event', 'rank', 'score', 'repos', 'favor', 'topic'])) {
 				\TPL::output('/site/fe/matter/enroll/' . $oOpenPage->name);
 			} else if ($oOpenPage->type === 'I') {
 				\TPL::output('/site/fe/matter/enroll/input');
@@ -261,7 +261,7 @@ class main extends base {
 			}
 		}
 
-		if (!in_array($page, ['action', 'repos', 'cowork', 'share', 'rank', 'score', 'favor', 'topic'])) {
+		if (!in_array($page, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'favor', 'topic'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */
 			if (empty($page)) {

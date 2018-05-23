@@ -1,8 +1,9 @@
 'use strict';
 
+require('./xxt.ui.paste.js');
 require('./xxt.ui.url.js');
 
-var ngMod = angular.module('editor.ui.xxt', ['ui.bootstrap', 'url.ui.xxt']);
+var ngMod = angular.module('editor.ui.xxt', ['ui.bootstrap', 'url.ui.xxt', 'paste.ui.xxt']);
 ngMod.controller('tmsEditorController', ['$scope', 'tmsUrl', function($scope, tmsUrl) {
     /* 插入链接 */
     $scope.insertLink = function() {
@@ -19,7 +20,7 @@ ngMod.controller('tmsEditorController', ['$scope', 'tmsUrl', function($scope, tm
         $scope.iframeDoc.getSelection().removeAllRanges();
     };
 }]);
-ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
+ngMod.directive('tmsEditor', ['$q', 'http2', 'tmsPaste', function($q, http2, tmsPaste) {
     function _calcTextWidth(text) {
         var divMock, height, width;
         divMock = document.createElement('DIV');
@@ -169,6 +170,13 @@ ngMod.directive('tmsEditor', ['$q', 'http2', function($q, http2) {
                     }
                 }
             };
+            /* 粘贴时处理格式 */
+            _divContent.addEventListener('paste', function(e) {
+                var text;
+                e.preventDefault();
+                text = e.clipboardData.getData('text/plain');
+                tmsPaste.onpaste(text, { doc: _iframeDoc });
+            });
             /* 设置基本样式 */
             document.querySelectorAll('#' + $scope.id + ' button[command]').forEach(function(eleBtn) {
                 eleBtn.addEventListener('click', function() {

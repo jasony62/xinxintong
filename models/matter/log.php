@@ -81,7 +81,7 @@ class log_model extends \TMS_MODEL {
 	 * $mshareid 素材的分享ID
 	 *
 	 */
-	public function addShareAction($siteId, $shareid, $shareto, $shareby, &$user, &$matter, &$client, $referer = '') {
+	public function addShareAction($siteId, $shareid, $shareto, $shareby, &$user, &$matter, &$client, $referer = '', $shareUrl = '') {
 		$mopenid = '';
 		$mshareid = '';
 		$current = time();
@@ -99,6 +99,7 @@ class log_model extends \TMS_MODEL {
 		$log['matter_shareby'] = $shareby;
 		$log['user_agent'] = $client->agent;
 		$log['client_ip'] = $client->ip;
+		$log['share_url'] = !empty($shareUrl) ? urldecode($shareUrl) : $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
 		$logid = $this->insert('xxt_log_matter_share', $log, true);
 

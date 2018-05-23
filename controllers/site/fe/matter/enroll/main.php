@@ -68,6 +68,9 @@ class main extends base {
 					$title = '记录' . $oRecord->id . '|';
 				}
 			}
+			if (in_array($page, ['topic', 'repos', 'cowork'])) {
+				$this->pageReadlog($oApp, $page, $rid);
+			}
 			\TPL::assign('title', empty($title) ? $oApp->title : ($title . $oApp->title));
 			\TPL::output('/site/fe/matter/enroll/' . $page);
 		} else {
@@ -90,6 +93,43 @@ class main extends base {
 			}
 		}
 		exit;
+	}
+	private function pageReadlog($oApp, $page, $rid) {
+		$roundModel = $this->model('matter\enroll\round');
+		// 获得当前获得所属轮次
+		if (empty($rid)) {
+			if ($activeRound = $roundModel->getActive($oApp)) {
+				$rid = $activeRound->rid;
+			}
+		}
+		$oUser = $this->getUser($oApp);
+
+		// 修改阅读数'topic', 'repos', 'cowork'
+		switch ($page) {
+			case 'topic':
+				$column = 'topic_read_num';
+				break;
+			case 'cowork':
+				$column = 'cowork_read_num';
+				break;
+			default:
+				$column = 'repos_read_num';
+				break;
+		}
+		$set = new \stdClass;
+		$set->op = '+=';
+		$set->pat = 1;
+		$roundModel->update(
+			'xxt_enroll_user',
+			[$column => $set],
+			['aid' => $oApp->id, 'rid' => $rid, 'userid' => $oUser->uid]
+		);
+		// 修改中数据
+		$roundModel->update(
+			'xxt_enroll_user',
+			[$column => $set],
+			['aid' => $oApp->id, 'rid' => 'ALL', 'userid' => $oUser->uid]
+		);
 	}
 	/**
 	 * 登记活动是否可用

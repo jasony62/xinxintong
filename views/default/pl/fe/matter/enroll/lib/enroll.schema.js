@@ -791,6 +791,69 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     backdrop: 'static',
                 });
             };
+            $scope.setDataSource = function(oSchema) {
+                var _oApp;
+                _oApp = $scope.app;
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setDataSource.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oFilter;
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 12,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.result = oResult = {};
+                        $scope2.filter = oFilter = {};
+                        $scope2.selectApp = function() {
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                            }
+                            oResult.selected = null;
+                        };
+                        $scope2.ok = function() {
+                            var fromApp;
+                            if ((fromApp = oResult.fromApp) && oResult.selected !== undefined) {
+                                $mi.close({ app: { id: fromApp.id, title: fromApp.title }, schema: fromApp.dataSchemas[parseInt(oResult.selected)] });
+                            } else {
+                                $mi.dismiss();
+                            }
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.doFilter = function() {
+                            oPage.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            http2.post(url, {
+                                byTitle: oFilter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    oResult.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                oPage.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                }).result.then(function(oResult) {
+                    if (oResult.app && oResult.schema) {
+                        oSchema.ds = {
+                            app: { id: oResult.app.id, title: oResult.app.title },
+                            schema: { id: oResult.schema.id, title: oResult.schema.title },
+                        }
+                        $scope.updSchema(oSchema);
+                    }
+                });;
+            };
             /**
              * oAfterSchema: false - first, undefined - after active schema
              */

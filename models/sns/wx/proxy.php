@@ -278,6 +278,10 @@ class proxy_model extends \sns\proxybase {
 						$v = str_replace('"', '', $pv[1]);
 						$user->{$p} = $v;
 					}
+					
+					if (isset($user->nickname)) {
+						$user->nickname = $this->model()->cleanEmoji($user->nickname, true);
+					}
 					$userRst[0] = true;
 					$userRst[1] = $user;
 					return $userRst;
@@ -292,6 +296,10 @@ class proxy_model extends \sns\proxybase {
 		} else {
 			$user = new \stdClass;
 			$user->openid = $openid;
+		}
+
+		if (isset($user->nickname)) {
+			$user->nickname = $this->model()->cleanEmoji($user->nickname, true);
 		}
 
 		return array(true, $user);

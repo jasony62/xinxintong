@@ -268,7 +268,7 @@ class proxy_model extends \sns\proxybase {
 			$userRst = $this->httpGet($cmd, $params, false, false);
 			if ($userRst[0] === false) {
 				if (strpos($userRst[1], 'json failed:') === 0) {
-					$this->model('log')->log($this->config->siteid, 'getOAuthUser', 'userinfo json failed: ' . $userRst[1], null, $_SERVER['REQUEST_URI']);
+					\TMS_APP::model('log')->log($this->config->siteid, 'getOAuthUser', 'userinfo json failed: ' . $userRst[1], null, $_SERVER['REQUEST_URI']);
 					$user = new \stdClass;
 					$json = str_replace(array('json failed:', '{', '}'), '', $userRst[1]);
 					$data = explode(',', $json);
@@ -280,7 +280,7 @@ class proxy_model extends \sns\proxybase {
 					}
 					
 					if (isset($user->nickname)) {
-						$user->nickname = $this->model()->cleanEmoji($user->nickname, true);
+						$user->nickname = \TMS_APP::model()->cleanEmoji($user->nickname, true);
 					}
 					$userRst[0] = true;
 					$userRst[1] = $user;
@@ -299,7 +299,7 @@ class proxy_model extends \sns\proxybase {
 		}
 
 		if (isset($user->nickname)) {
-			$user->nickname = $this->model()->cleanEmoji($user->nickname, true);
+			$user->nickname = \TMS_APP::model()->cleanEmoji($user->nickname, true);
 		}
 
 		return array(true, $user);

@@ -280,7 +280,7 @@ class proxy_model extends \sns\proxybase {
 					}
 					
 					if (isset($user->nickname)) {
-						$user->nickname = $this->model()->cleanEmoji($user->nickname, true);
+						$user->nickname = $this->cleanEmoji($user->nickname, true);
 					}
 					$userRst[0] = true;
 					$userRst[1] = $user;
@@ -299,7 +299,7 @@ class proxy_model extends \sns\proxybase {
 		}
 
 		if (isset($user->nickname)) {
-			$user->nickname = $this->model()->cleanEmoji($user->nickname, true);
+			$user->nickname = $this->cleanEmoji($user->nickname, true);
 		}
 
 		return array(true, $user);

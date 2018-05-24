@@ -5,6 +5,24 @@
  */
 var ngMod = angular.module('assoc.ui.enroll', []);
 ngMod.service('enlAssoc', ['$q', '$uibModal', 'noticebox', 'http2', 'tmsLocation', function($q, $uibModal, noticebox, http2, LS) {
+    function fnGetEntitySketch(oEntity) {
+        var defer, url;
+        defer = $q.defer();
+        if (oEntity.type === 'record') {
+            url = LS.j('record/sketch', 'site') + '&record=' + oEntity.id;
+        } else if (oEntity.type === 'topic') {
+            url = LS.j('topic/sketch', 'site') + '&topic=' + oEntity.id
+        }
+        if (url) {
+            http2.get(url).then(function(rsp) {
+                defer.resolve(rsp.data)
+            });
+        } else {
+            defer.reject();
+        }
+        return defer.promise;
+    }
+
     var _self, _cacheKey;
     _self = this;
     _cacheKey = '/xxt/site/app/enroll/assoc';
@@ -61,13 +79,9 @@ ngMod.service('enlAssoc', ['$q', '$uibModal', 'noticebox', 'http2', 'tmsLocation
                                 $mi.close(rsp.data);
                             });
                         };
-                        if (oCache.entity.type === 'record') {
-                            http2.get(LS.j('record/sketch', 'site') + '&record=' + oCache.entity.id).then(function(rsp) {
-                                var oSketch;
-                                oSketch = rsp.data;
-                                _oAssoc.text = oSketch.title;
-                            });
-                        }
+                        fnGetEntitySketch(oCache.entity).then(function(oSketch) {
+                            _oAssoc.text = oSketch.title;
+                        });
                     }],
                     backdrop: 'static',
                     windowClass: 'auto-height',

@@ -214,7 +214,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             oAppNavs.rank = {};
         }
         if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
@@ -579,6 +579,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 if (oEntity.enroll_key) {
                     url = LS.j('', 'site', 'app', 'page') + '&ek=' + oEntity.enroll_key;
                 }
+                break;
+            case 'topic':
+                url = LS.j('', 'site', 'app') + '&page=topic' + '&topic=' + oEntity.id;
                 break;
         }
         if (url) {

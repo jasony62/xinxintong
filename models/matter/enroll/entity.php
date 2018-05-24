@@ -20,10 +20,10 @@ class entity_model extends \TMS_MODEL {
 		case 'data':
 		case 'remark':
 		case 'topic':
-			$oEntity = $this->model('matter\enroll\\' . $type)->byId($id, $aOption);
+			$oEntity = $this->model('matter\enroll\\' . $type)->byId($id, $aOptions);
 			break;
 		case 'tag':
-			$oEntity = $this->model('matter\enroll\tag2')->byId($id, $aOption);
+			$oEntity = $this->model('matter\enroll\tag2')->byId($id, $aOptions);
 			break;
 		default:
 			$oEntity = false;

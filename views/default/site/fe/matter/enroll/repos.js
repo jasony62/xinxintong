@@ -392,10 +392,16 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
         /* 设置页面分享信息 */
         $scope.setSnsShare();
-        /* 设置页面操作 */
-        $scope.appActs = {
-            addRecord: {}
-        };
+        /*设置页面操作*/
+        $scope.appActs = {};
+        /* 允许添加记录 */
+        if (_oApp.actionRule && _oApp.actionRule.record && _oApp.actionRule.record.submit && _oApp.actionRule.record.submit.pre && _oApp.actionRule.record.submit.pre.editor) {
+            if ($scope.user.is_editor && $scope.user.is_editor === 'Y') {
+                $scope.appActs.addRecord = {};
+            }
+        } else {
+            $scope.appActs.addRecord = {};
+        }
         /* 是否允许切换用户角色 */
         if (params.user.is_editor && params.user.is_editor === 'Y') {
             $scope.appActs.mockAsVisitor = { mocker: 'mocker' };
@@ -416,7 +422,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
                 $scope.noticeCount = rsp.data;
             });
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;

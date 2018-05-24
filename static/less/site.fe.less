@@ -86,23 +86,6 @@ body {
 
 }
 
-.tms-notice {
-	display: block;
-	overflow-x: hidden;
-	overflow-y: auto;
-	width: 360px;
-	max-height: 100%;
-	position: fixed;
-	top: 0;
-	left: 50%;
-	margin: 0 0 0 -180px;
-	text-align: center;
-	word-break: break-all;
-	opacity: 1;
-	height: auto;
-	z-index: 1099;
-}
-
 .site_fe_home {
 	width: 100%;
 	height: 100%;
@@ -291,22 +274,24 @@ body {
 
 .attr {
 	margin-top: 2.5em;
-}
 
-.attr div {
-	margin-left: 20px;
-	color: #999;
-	font-size: 12px;
-}
+	div {
+		margin-left: 20px;
+		color: #999;
+		font-size: 12px;
+	}
 
-.attr a {
-	position: relative;
-	padding-left: 30px;
-	color: #999;
-}
+	a {
+		position: relative;
+		padding-left: 30px;
+		color: #999;
 
-.attr a:hover {
-	text-decoration: none;
+		&:hover {
+			text-decoration: none;
+		}
+
+	}
+
 }
 
 .creater_name>a>.xxt_team {
@@ -690,7 +675,7 @@ body {
 
 }
 
-.notice-box {
+.tms-notice-box {
 	position: fixed;
 	width: 50%;
 	top: 0px;
@@ -699,16 +684,45 @@ body {
 	overflow: hidden;
 	z-index: 3999;
 	text-align: center;
-	word-break: break-all
+	word-break: break-all;
+
+	pre {
+		background: rgba(0, 0, 0, 0);
+		max-height: 300px;
+		overflow-y: auto;
+		overflow-x: hidden;
+		border: 0;
+		padding: 0;
+		margin: 0;
+		white-space: pre-wrap;
+	}
+
+	.btn {
+		min-width: 6em;
+		margin: 1em 1em 0;
+	}
+
+	.btn-sm {
+		.countdown {
+			display: inline-block;
+			margin-left: 4px;
+			height: 1em;
+			border-radius: 2px;
+			line-height: 1em;
+			color: #777;
+		}
+
+	}
+
 }
 
-.notice-box.alert-progress {
+.tms-notice-box.alert-progress {
 	color: #31708f;
 	background-color: #d9edf7;
 	border-color: #bce8f1;
 }
 
-.notice-box.alert-progress:after {
+.tms-notice-box.alert-progress:after {
 	animation: noticeprogress 2s infinite;
 	animation-timing-function: linear;
 	-webkit-animation: noticeprogress 3s infinite;
@@ -724,31 +738,15 @@ body {
 	border-radius: 3px;
 }
 
-.notice-box pre {
-	background: rgba(0, 0, 0, 0);
-	max-height: 300px;
-	overflow-y: auto;
-	overflow-x: hidden;
-	border: 0;
-	padding: 0;
-	margin: 0;
-	white-space: pre-wrap;
-}
-
-.notice-box .btn {
-	min-width: 6em;
-	margin: 1em 1em 0;
-}
-
 @media screen and (min-device-height:768px) {
-	.notice-box pre {
+	.tms-notice-box pre {
 		max-height: 600px;
 	}
 
 }
 
 @media screen and (max-width:768px) {
-	.notice-box {
+	.tms-notice-box {
 		width: 90%;
 		margin-left: -45%;
 	}

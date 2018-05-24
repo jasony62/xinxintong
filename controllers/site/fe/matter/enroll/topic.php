@@ -9,7 +9,7 @@ class topic extends base {
 	/**
 	 *
 	 */
-	public function get_action($topic) {
+	public function get_action($topic, $role) {
 		$modelTop = $this->model('matter\enroll\topic');
 		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group']);
 		if (false === $oTopic || $oTopic->state !== '1') {
@@ -31,9 +31,20 @@ class topic extends base {
 		}
 
 		$oUser = $this->getUser($oApp);
+		/* 指定的用户身份 */
+		if ($role === 'visitor') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+			$oMockUser->is_editor = 'N';
+		} else if ($role === 'member') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+		} else {
+			$oMockUser = $oUser;
+		}
 
 		/* 修改默认访客昵称 */
-		if (isset($oUser->unionid) && $oTopic->unionid === $oUser->unionid) {
+		if (isset($oMockUser->unionid) && $oTopic->unionid === $oMockUser->unionid) {
 			$oTopic->nickname = '我';
 		} else if (isset($oEditor)) {
 			/*查看创建者是否在编辑组中*/
@@ -62,7 +73,7 @@ class topic extends base {
 					}
 				}
 				/* 设置编辑统一昵称 */
-				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				if (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y') {
 					if (!empty($oTopic->is_editor) && $oTopic->is_editor === 'Y') {
 						$oTopic->nickname = $oEditor->nickname;
 					}
@@ -71,6 +82,23 @@ class topic extends base {
 		}
 
 		return new \ResponseData($oTopic);
+	}
+	/**
+	 * 专题的概要信息
+	 */
+	public function sketch_action($topic) {
+		$modelTop = $this->model('matter\enroll\topic');
+
+		$oSketch = new \stdClass;
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,aid,userid,group_id,nickname,title,summary,rec_num']);
+		if ($oTopic) {
+			$modelApp = $this->model('matter\enroll');
+			$oApp = $modelApp->byId($oTopic->aid, ['fields' => 'title', 'cascaded' => 'N']);
+			$oSketch->raw = $oTopic;
+			$oSketch->title = $oTopic->title . '|' . $oApp->title;
+		}
+
+		return new \ResponseData($oSketch);
 	}
 	/**
 	 * 创建记录专题
@@ -109,7 +137,20 @@ class topic extends base {
 	 * 创建记录专题
 	 */
 	public function update_action($topic) {
-		$oUser = $this->who;
+		$modelTop = $this->model('matter\enroll\topic');
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,unionid,state,aid,group_id,title']);
+		if (false === $oTopic || $oTopic->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oApp = $this->model('matter\enroll')->byId($oTopic->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+		if (!isset($oUser->group_id)) {
+			$oUser->group_id = '';
+		}
 		if (empty($oUser->unionid)) {
 			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
 		}
@@ -119,12 +160,19 @@ class topic extends base {
 			return new \ResponseError('没有指定要更新的数据（1）');
 		}
 
-		$modelTop = $this->model('matter\enroll\topic');
+		if ($oUser->unionid === $oTopic->unionid && $oUser->group_id !== $oTopic->group_id) {
+			$oPosted->group_id = $oUser->group_id;
+			if (empty($oUser->group_id)) {
+				$oPosted->share_in_group = 'N';
+			}
+		}
+
 		$aUpdated = [];
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {
 			case 'title':
 			case 'summary':
+			case 'group_id':
 				$aUpdated[$prop] = $modelTop->escape($val);
 				break;
 			case 'share_in_group':
@@ -171,7 +219,9 @@ class topic extends base {
 		$w = "state=1 and aid='{$oApp->id}'";
 		$w .= " and (";
 		$w .= "unionid='$oUser->unionid'";
-		$w .= " or (share_in_group='Y' and group_id='{$oUser->group_id}')";
+		if (isset($oUser->group_id)) {
+			$w .= " or (share_in_group='Y' and group_id='{$oUser->group_id}')";
+		}
 		$w .= ")";
 		$q = [
 			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group',

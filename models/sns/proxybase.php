@@ -163,21 +163,4 @@ class proxybase {
 
 		return $tmpfname2;
 	}
-	/**
-	 * 过滤掉字符串中的emoji字符
-	 */
-	protected function cleanEmoji($str, $bKeepEmoji = false) {
-		$str = json_encode($str);
-		$str = preg_replace_callback("/(\\\u[ed][0-9a-f]{3})/i", function ($matches) use ($bKeepEmoji) {
-			if (true === $bKeepEmoji) {
-				return str_replace('%5C', '\\\\', urlencode($matches[0]));
-			} else {
-				return '';
-			}
-		}, $str);
-
-		$str = json_decode($str);
-
-		return $str;
-	}
 }

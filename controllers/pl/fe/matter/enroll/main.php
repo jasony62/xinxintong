@@ -389,7 +389,7 @@ class main extends main_base {
 						$oEnrolledData = $record->data;
 						$rst = $modelRec->setData($cpUser, $oNewApp, $ek, $oEnrolledData, '', false);
 						if (!empty($record->supplement) && count(get_object_vars($record->supplement))) {
-							$rst = $modelRec->setSupplement($cpUser, $oEnrollApp, $ek, $record->supplement);
+							$rst = $modelRec->setSupplement($cpUser, $oNewApp, $ek, $record->supplement);
 						}
 						$upDate = [];
 						$upDate['verified'] = $record->verified;
@@ -606,6 +606,8 @@ class main extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
+		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
+
 		$config = $this->getPostJson();
 		$current = time();
 		$oNewApp = new \stdClass;
@@ -635,7 +637,7 @@ class main extends main_base {
 		}
 
 		if (!empty($config->pages) && !empty($config->entryRule)) {
-			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $oCustomConfig);
+			$modelApp->addPageByTemplate($user, $site, $mission, $appId, $config, $oCustomConfig);
 			/*进入规则*/
 			$entryRule = $config->entryRule;
 			if (!empty($entryRule)) {
@@ -672,7 +674,6 @@ class main extends main_base {
 		$oNewApp->can_siteuser = 'Y';
 		isset($config) && $oNewApp->data_schemas = \TMS_MODEL::toJson($config->schema);
 
-		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
 
 		/* 保存数据 */
@@ -704,78 +705,90 @@ class main extends main_base {
 			return new \ObjectNotFoundError();
 		}
 		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
-		$modelRec = $this->model('matter\enroll\record');
+		if (false === ($oApp = $modelApp->byId($app))) {
+			return new \ObjectNotFoundError();
+		}
 
 		$oCustomConfig = $this->getPostJson();
-		/* 获得指定记录的数据 */
-		$records = [];
-		$eks = $oCustomConfig->record->eks;
-		foreach ($eks as $index => $ek) {
-			$records[] = $modelRec->byId($ek);
+
+		/* 获得全部记录或指定记录的数据 */
+		$modelRec = $this->model('matter\enroll\record');
+		if (empty($oCustomConfig->record->eks)) {
+			$oResult = $modelRec->byApp($oApp->id);
+			$records = $oResult->records;
+		} else {
+			$records = [];
+			$eks = $oCustomConfig->record->eks;
+			foreach ($eks as $index => $ek) {
+				$records[] = $modelRec->byId($ek);
+			}
 		}
+
 		/* 生成活动的schema */
-		$protoSchema = $oCustomConfig->proto->schema;
+		$oProtoSchema = $oCustomConfig->proto->schema;
 		$newSchemas = [];
-		foreach ($oCustomConfig->record->schemas as $recordSchema) {
-			$newSchema = clone $protoSchema;
-			$newSchema->id = $recordSchema->id;
-			$newSchema->title = $recordSchema->title;
-			$newSchema->required = 'Y';
-			$newSchema->ops = [];
-			foreach ($records as $index => $record) {
-				if (empty($record->data->{$recordSchema->id})) {
+		foreach ($oCustomConfig->record->schemas as $oRecSchema) {
+			$oNewSchema = clone $oProtoSchema;
+			$oNewSchema->id = $oRecSchema->id;
+			$oNewSchema->title = $oRecSchema->title;
+			$oNewSchema->required = 'Y';
+			$oNewSchema->link = (object) ['app' => (object) ['id' => $oApp->id, 'title' => $oApp->title]];
+			$oNewSchema->ops = [];
+			foreach ($records as $index => $oRecord) {
+				if (empty($oRecord->data->{$oRecSchema->id})) {
 					continue;
 				}
 				$op = new \stdClass;
 				$op->v = 'v' . ($index + 1);
-				$op->l = $record->data->{$recordSchema->id};
-				$newSchema->ops[] = $op;
+				$op->l = $oRecord->data->{$oRecSchema->id};
+				$op->link = (object) ['record' => $oRecord->id, 'user' => $oRecord->userid, 'schema' => $oRecSchema->id, 'nickname' => $oRecord->nickname]; // 记录关联关系
+				$oNewSchema->ops[] = $op;
 			}
-			$newSchemas[] = $newSchema;
+			$newSchemas[] = $oNewSchema;
 		}
 		/* 使用缺省模板 */
-		$config = $this->_getSysTemplate('common', 'simple');
-
-		/* 修改模板的配置 */
-		$config->schema = [];
-		foreach ($config->pages as &$page) {
-			if ($page->type === 'I') {
-				$page->data_schemas = [];
-			} else if ($page->type === 'V') {
-				$page->data_schemas = [];
-			} else if ($page->type === 'L') {
-				$page->data_schemas = [];
-			}
-		}
-		foreach ($newSchemas as $newSchema) {
-			$config->schema[] = $newSchema;
-			foreach ($config->pages as &$page) {
-				if ($page->type === 'I') {
-					$newWrap = new \stdClass;
-					$newWrap->schema = $newSchema;
-					$wrapConfig = new \stdClass;
-					$newWrap->config = $wrapConfig;
-					$page->data_schemas[] = $newWrap;
-				} else if ($page->type === 'V') {
-					$newWrap = new \stdClass;
-					$newWrap->schema = $newSchema;
-					$wrapConfig = new \stdClass;
-					$newWrap->config = $wrapConfig;
-					$wrapConfig->id = "V1";
-					$wrapConfig->pattern = "record";
-					$wrapConfig->inline = "N";
-					$wrapConfig->splitLine = "Y";
-					$page->data_schemas[] = $newWrap;
-				}
-			}
-		}
+		$oDefaultConfig = $this->_getSysTemplate('common', 'simple');
 		/* 进入规则 */
-		$entryRule = $config->entryRule;
+		$entryRule = $oDefaultConfig->entryRule;
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
 		if (!isset($entryRule->scope)) {
 			$entryRule->scope = new \stdClass;
+		}
+
+		/* 修改模板的配置 */
+		$oDefaultConfig->schema = [];
+		foreach ($oDefaultConfig->pages as $oPage) {
+			if ($oPage->type === 'I') {
+				$oPage->data_schemas = [];
+			} else if ($oPage->type === 'V') {
+				$oPage->data_schemas = [];
+			} else if ($oPage->type === 'L') {
+				$oPage->data_schemas = [];
+			}
+		}
+		foreach ($newSchemas as $oNewSchema) {
+			$oDefaultConfig->schema[] = $oNewSchema;
+			foreach ($oDefaultConfig->pages as $oPage) {
+				if ($oPage->type === 'I') {
+					$oNewWrap = new \stdClass;
+					$oNewWrap->schema = $oNewSchema;
+					$wrapConfig = new \stdClass;
+					$oNewWrap->config = $wrapConfig;
+					$oPage->data_schemas[] = $oNewWrap;
+				} else if ($oPage->type === 'V') {
+					$oNewWrap = new \stdClass;
+					$oNewWrap->schema = $oNewSchema;
+					$wrapConfig = new \stdClass;
+					$oNewWrap->config = $wrapConfig;
+					$wrapConfig->id = "V1";
+					$wrapConfig->pattern = "record";
+					$wrapConfig->inline = "N";
+					$wrapConfig->splitLine = "Y";
+					$oPage->data_schemas[] = $oNewWrap;
+				}
+			}
 		}
 
 		$current = time();
@@ -789,25 +802,25 @@ class main extends main_base {
 			$oNewApp->use_mission_footer = 'N';
 		} else {
 			$modelMis = $this->model('matter\mission');
-			$mission = $modelMis->byId($mission);
-			$oNewApp->pic = $mission->pic;
-			$oNewApp->summary = $mission->summary;
-			$oNewApp->mission_id = $mission->id;
+			$oMission = $modelMis->byId($mission);
+			$oNewApp->pic = $oMission->pic;
+			$oNewApp->summary = $oMission->summary;
+			$oNewApp->mission_id = $oMission->id;
 			$oNewApp->use_mission_header = 'Y';
 			$oNewApp->use_mission_footer = 'Y';
 		}
 		/* 添加页面 */
-		$this->_addPageByTemplate($oUser, $oSite, $mission, $appId, $config, null);
+		$modelApp->addPageByTemplate($oUser, $oSite, $oMission, $appId, $oDefaultConfig, null);
 		/* 登记数量限制 */
-		if (isset($config->count_limit)) {
-			$oNewApp->count_limit = $config->count_limit;
+		if (isset($oDefaultConfig->count_limit)) {
+			$oNewApp->count_limit = $oDefaultConfig->count_limit;
 		}
-		if (isset($config->enrolled_entry_page)) {
-			$oNewApp->enrolled_entry_page = $config->enrolled_entry_page;
+		if (isset($oDefaultConfig->enrolled_entry_page)) {
+			$oNewApp->enrolled_entry_page = $oDefaultConfig->enrolled_entry_page;
 		}
 		/* 场景设置 */
-		if (isset($config->scenarioConfig)) {
-			$scenarioConfig = $config->scenarioConfig;
+		if (isset($oDefaultConfig->scenarioConfig)) {
+			$scenarioConfig = $oDefaultConfig->scenarioConfig;
 			$oNewApp->scenario_config = json_encode($scenarioConfig);
 		}
 		$oNewApp->scenario = $oCustomConfig->proto->scenario;
@@ -818,12 +831,113 @@ class main extends main_base {
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
 		$oNewApp->can_siteuser = 'Y';
-		$oNewApp->data_schemas = \TMS_MODEL::toJson($config->schema);
+		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($newSchemas));
 
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
 
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
+
+		return new \ResponseData($oNewApp);
+	}
+	/**
+	 * 创建一个活动，并给项目中的每一个用户生成1条空记录
+	 *
+	 * @param string $mission mission's id
+	 *
+	 */
+	public function createByMissionUser_action($mission) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$modelMis = $this->model('matter\mission');
+		$oMission = $modelMis->byId($mission);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+		$oSite = $this->model('site')->byId($oMission->siteid, ['fields' => 'id,heading_pic']);
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
+
+		/* 生成活动的schema */
+		$newSchemas = [];
+		/* 使用缺省模板 */
+		$oConfig = $this->_getSysTemplate('common', 'simple');
+		/* 进入规则 */
+		$entryRule = $oConfig->entryRule;
+		if (empty($entryRule)) {
+			return new \ResponseError('没有获得页面进入规则');
+		}
+		if (!isset($entryRule->scope)) {
+			$entryRule->scope = new \stdClass;
+		}
+
+		/* 修改模板的配置 */
+		$oConfig->schema = [];
+		foreach ($oConfig->pages as $oPage) {
+			if ($oPage->type === 'I') {
+				$oPage->data_schemas = [];
+			} else if ($oPage->type === 'V') {
+				$oPage->data_schemas = [];
+			} else if ($oPage->type === 'L') {
+				$oPage->data_schemas = [];
+			}
+		}
+
+		$current = time();
+		$appId = uniqid();
+		$oNewApp = new \stdClass;
+		/*从站点或任务获得的信息*/
+		$oNewApp->pic = $oMission->pic;
+		$oNewApp->summary = $oMission->summary;
+		$oNewApp->mission_id = $oMission->id;
+		$oNewApp->use_mission_header = 'Y';
+		$oNewApp->use_mission_footer = 'Y';
+		$oNewApp->scenario = 'common';
+
+		/* 添加页面 */
+		$modelApp->addPageByTemplate($oUser, $oSite, $oMission, $appId, $oConfig, null);
+		/* 登记数量限制 */
+		if (isset($oConfig->count_limit)) {
+			$oNewApp->count_limit = $oConfig->count_limit;
+		}
+		if (isset($oConfig->enrolled_entry_page)) {
+			$oNewApp->enrolled_entry_page = $oConfig->enrolled_entry_page;
+		}
+		/* 场景设置 */
+		if (isset($oConfig->scenarioConfig)) {
+			$scenarioConfig = $oConfig->scenarioConfig;
+			$oNewApp->scenario_config = json_encode($scenarioConfig);
+		}
+		/* create app */
+		$oNewApp->id = $appId;
+		$oNewApp->siteid = $oSite->id;
+		$oNewApp->title = $modelApp->escape($oMission->title) . '-新登记活动';
+		$oNewApp->start_at = $current;
+		$oNewApp->entry_rule = json_encode($entryRule);
+		$oNewApp->can_siteuser = 'Y';
+		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($newSchemas));
+
+		$oNewApp = $modelApp->create($oUser, $oNewApp);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
+
+		/* 添加空记录 */
+		$modelMisUsr = $this->model('matter\mission\user');
+		$enrollees = $modelMisUsr->enrolleeByMission($oMission);
+		if (count($enrollees)) {
+			$modelRec = $this->model('matter\enroll\record');
+			foreach ($enrollees as $oEnrollee) {
+				$oMockUser = new \stdClass;
+				$oMockUser->uid = $oEnrollee->userid;
+				$oMockUser->nickname = $oEnrollee->nickname;
+				$modelRec->enroll($oNewApp, $oMockUser, ['nickname' => $oMockUser->nickname]);
+			}
+		}
 
 		return new \ResponseData($oNewApp);
 	}
@@ -941,11 +1055,11 @@ class main extends main_base {
 			}
 		}
 		/* 使用缺省模板 */
-		$config = $this->_getSysTemplate('common', 'simple');
+		$oConfig = $this->_getSysTemplate('common', 'simple');
 
 		/* 修改模板的配置 */
-		$config->schema = [];
-		foreach ($config->pages as &$page) {
+		$oConfig->schema = [];
+		foreach ($oConfig->pages as &$page) {
 			if ($page->type === 'I') {
 				$page->data_schemas = [];
 			} else if ($page->type === 'V') {
@@ -955,8 +1069,8 @@ class main extends main_base {
 			}
 		}
 		foreach ($record as $newSchema) {
-			$config->schema[] = $newSchema;
-			foreach ($config->pages as &$page) {
+			$oConfig->schema[] = $newSchema;
+			foreach ($oConfig->pages as &$page) {
 				if ($page->type === 'I') {
 					$newWrap = new \stdClass;
 					$newWrap->schema = $newSchema;
@@ -977,7 +1091,7 @@ class main extends main_base {
 			}
 		}
 		/* 进入规则 */
-		$entryRule = $config->entryRule;
+		$entryRule = $oConfig->entryRule;
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
@@ -1006,17 +1120,17 @@ class main extends main_base {
 			$oNewApp->use_mission_footer = 'Y';
 		}
 		/* 添加页面 */
-		$this->_addPageByTemplate($oUser, $oSite, $mission, $appId, $config, null);
+		$modelApp->addPageByTemplate($oUser, $oSite, $mission, $appId, $oConfig, null);
 		/* 登记数量限制 */
-		if (isset($config->count_limit)) {
-			$oNewApp->count_limit = $config->count_limit;
+		if (isset($oConfig->count_limit)) {
+			$oNewApp->count_limit = $oConfig->count_limit;
 		}
-		if (isset($config->enrolled_entry_page)) {
-			$oNewApp->enrolled_entry_page = $config->enrolled_entry_page;
+		if (isset($oConfig->enrolled_entry_page)) {
+			$oNewApp->enrolled_entry_page = $oConfig->enrolled_entry_page;
 		}
 		/* 场景设置 */
-		if (isset($config->scenarioConfig)) {
-			$scenarioConfig = $config->scenarioConfig;
+		if (isset($oConfig->scenarioConfig)) {
+			$scenarioConfig = $oConfig->scenarioConfig;
 			$oNewApp->scenario_config = json_encode($scenarioConfig);
 		}
 		$oNewApp->scenario = 'common';
@@ -1210,14 +1324,14 @@ class main extends main_base {
 			$template = 'simple';
 		}
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
-		$config = file_get_contents($templateDir . '/config.json');
-		$config = preg_replace('/\t|\r|\n/', '', $config);
-		$config = json_decode($config);
+		$oConfig = file_get_contents($templateDir . '/config.json');
+		$oConfig = preg_replace('/\t|\r|\n/', '', $oConfig);
+		$oConfig = json_decode($oConfig);
 		/**
 		 * 处理页面
 		 */
-		if (!empty($config->pages)) {
-			foreach ($config->pages as &$oPage) {
+		if (!empty($oConfig->pages)) {
+			foreach ($oConfig->pages as &$oPage) {
 				$templateFile = $templateDir . '/' . $oPage->name;
 				/* 填充代码 */
 				$code = [
@@ -1229,71 +1343,7 @@ class main extends main_base {
 			}
 		}
 
-		return $config;
-	}
-	/**
-	 * 根据模板生成页面
-	 *
-	 * @param string $appId
-	 * @param string $scenario scenario's name
-	 * @param string $template template's name
-	 */
-	private function &_addPageByTemplate(&$oUser, &$site, $oMission, &$appId, &$oTemplateConfig, $oCustomConfig) {
-		$pages = $oTemplateConfig->pages;
-		if (empty($pages)) {
-			return false;
-		}
-
-		$modelPage = $this->model('matter\enroll\page');
-		$modelCode = $this->model('code\page');
-		/* 简单schema定义，目前用于投票场景 */
-		if (isset($oCustomConfig->simpleSchema)) {
-			$oTemplateConfig->schema = $modelPage->schemaByText($oCustomConfig->simpleSchema);
-		}
-		/**
-		 * 处理页面
-		 */
-		foreach ($pages as $page) {
-			$ap = $modelPage->add($oUser, $site->id, $appId, (array) $page);
-			/**
-			 * 处理页面数据定义
-			 */
-			if (empty($page->data_schemas) && !empty($oTemplateConfig->schema) && !empty($page->simpleConfig)) {
-				/* 页面使用应用的所有数据定义 */
-				$page->data_schemas = [];
-				foreach ($oTemplateConfig->schema as $schema) {
-					$newPageSchema = new \stdClass;
-					$newPageSchema->schema = $schema;
-					$newPageSchema->config = clone $page->simpleConfig;
-					if ($page->type === 'V') {
-						$newPageSchema->config->id = 'V_' . $schema->id;
-					}
-					$page->data_schemas[] = $newPageSchema;
-				}
-			}
-			$pageSchemas = [];
-			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? \TMS_MODEL::toJson($page->data_schemas) : '[]';
-			$pageSchemas['act_schemas'] = isset($page->act_schemas) ? \TMS_MODEL::toJson($page->act_schemas) : '[]';
-			$rst = $modelPage->update(
-				'xxt_enroll_page',
-				$pageSchemas,
-				"aid='$appId' and id={$ap->id}"
-			);
-			/* 填充页面 */
-			if (!empty($page->code)) {
-				$code = (array) $page->code;
-				/* 页面存在动态信息 */
-				$matched = [];
-				$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
-				if (preg_match($pattern, $code['html'], $matched)) {
-					$html = $modelPage->htmlBySchema($page->data_schemas, $matched[0]);
-					$code['html'] = preg_replace($pattern, $html, $code['html']);
-				}
-				$modelCode->modify($ap->code_id, $code);
-			}
-		}
-
-		return $oTemplateConfig;
+		return $oConfig;
 	}
 	/**
 	 * 应用的微信二维码

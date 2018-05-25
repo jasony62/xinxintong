@@ -198,19 +198,21 @@ class record extends \pl\fe\matter\base {
 		$q = ['id,enroll_key,data,score', 'xxt_enroll_record', ['aid' => $oApp->id]];
 		$records = $modelApp->query_objs_ss($q);
 		foreach ($records as $oRecord) {
-			$dbData = json_decode($oRecord->data);
-			/* 题目的得分 */
-			$oRecordScore = $modelRecData->socreRecordData($oApp, $oRecord, $schemasById, $dbData);
-			if ($modelApp->update('xxt_enroll_record', ['score' => json_encode($oRecordScore)], ['id' => $oRecord->id])) {
-				unset($oRecordScore->sum);
-				foreach ($oRecordScore as $schemaId => $dataScore) {
-					$modelApp->update(
-						'xxt_enroll_record_data',
-						['score' => $dataScore],
-						['enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId]
-					);
+			if (!empty($oRecord->data)) {
+				$dbData = json_decode($oRecord->data);
+				/* 题目的得分 */
+				$oRecordScore = $modelRecData->socreRecordData($oApp, $oRecord, $schemasById, $dbData);
+				if ($modelApp->update('xxt_enroll_record', ['score' => json_encode($oRecordScore)], ['id' => $oRecord->id])) {
+					unset($oRecordScore->sum);
+					foreach ($oRecordScore as $schemaId => $dataScore) {
+						$modelApp->update(
+							'xxt_enroll_record_data',
+							['score' => $dataScore],
+							['enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId]
+						);
+					}
+					$renewCount++;
 				}
-				$renewCount++;
 			}
 		}
 
@@ -1530,6 +1532,116 @@ class record extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($countOfImport);
+	}
+	/**
+	 * 从指定的数据源同步数据
+	 */
+	public function syncWithDataSource_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas,scenario', 'cascaded' => 'N']))) {
+			return new \ObjectNotFoundError();
+		}
+		if (!empty($oApp->dataSchemas)) {
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if (!empty($oSchema->ds->app->id) && !empty($oSchema->ds->schema->id)) {
+					$oDsApp = $modelApp->byId($oSchema->ds->app->id, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
+					if (!empty($oDsApp->dataSchemas)) {
+						foreach ($oDsApp->dataSchemas as $oDsSchema) {
+							if ($oSchema->ds->schema->id !== $oDsSchema->id) {
+								continue;
+							}
+
+							switch ($oDsSchema->type) {
+							case 'single':
+							case 'multiple':
+								if (!empty($oDsSchema->link->app->id) && !empty($oDsSchema->ops)) {
+									$aDsOpDataByUser = [];
+									foreach ($oDsSchema->ops as $oDsOp) {
+										/* 获得数据源的值 */
+										if (!empty($oDsOp->link->user)) {
+											if ('single' === $oDsSchema->type) {
+												$q = [
+													'count(*)',
+													'xxt_enroll_record_data',
+													"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and value='{$oDsOp->v}'",
+												];
+											} else {
+												$q = [
+													'count(*)',
+													'xxt_enroll_record_data',
+													"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and FIND_IN_SET('{$oDsOp->v}', value)",
+												];
+											}
+											$count = (int) $modelRec->query_val_ss($q);
+											if (isset($aDsOpDataByUser[$oDsOp->link->user])) {
+												$aDsOpDataByUser[$oDsOp->link->user] += $count;
+											} else {
+												$aDsOpDataByUser[$oDsOp->link->user] = $count;
+											}
+										}
+										/* 更新获得记录的数值 */
+										$q = [
+											'id,enroll_key,data,userid,group_id',
+											'xxt_enroll_record',
+											['aid' => $oApp->id, 'state' => 1],
+										];
+										$oUserRecords = $modelRec->query_objs_ss($q);
+										if (!empty($oUserRecords)) {
+											$oRecUser = new \stdClass;
+											foreach ($oUserRecords as $oUserRec) {
+												$oRecUser->uid = $oUserRec->userid;
+												$oRecUser->group_id = $oUserRec->group_id;
+												$oRecData = empty($oUserRec->data) ? new \stdClass : json_decode($oUserRec->data);
+												if (isset($aDsOpDataByUser[$oUserRec->userid])) {
+													$oRecData->{$oSchema->id} = (string) $aDsOpDataByUser[$oUserRec->userid];
+												} else {
+													unset($oRecData->{$oSchema->id});
+												}
+												$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
+											}
+										}
+									}
+								}
+								break;
+							case 'shorttext':
+								if (isset($oDsSchema->format) && $oDsSchema->format === 'number') {
+									$q = [
+										'id,enroll_key,data,userid,group_id',
+										'xxt_enroll_record',
+										['aid' => $oApp->id, 'state' => 1],
+									];
+									$oUserRecords = $modelRec->query_objs_ss($q);
+									if (!empty($oUserRecords)) {
+										$oRecUser = new \stdClass;
+										foreach ($oUserRecords as $oUserRec) {
+											$oRecUser->uid = $oUserRec->userid;
+											$oRecUser->group_id = $oUserRec->group_id;
+											$oRecData = empty($oUserRec->data) ? new \stdClass : json_decode($oUserRec->data);
+											$q = [
+												'sum(value)',
+												'xxt_enroll_record_data',
+												"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and userid='{$oUserRec->userid}'",
+											];
+											$sum = $modelRec->query_val_ss($q);
+											$oRecData->{$oSchema->id} = $sum;
+											$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
+										}
+									}
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 返回一条登记记录的所有留言

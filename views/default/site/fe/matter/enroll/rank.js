@@ -422,7 +422,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
             oAppNavs.repos = {};
         }
         if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;

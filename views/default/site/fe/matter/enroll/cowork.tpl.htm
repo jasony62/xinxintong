@@ -12,7 +12,7 @@
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
 </head>
 
-<body ng-controller="ctrlCowork" class='matter_enroll'>
+<body ng-controller="ctrlCowork" class='matter_enroll' tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=cowork&record={{record.id}}' ready-sign="record">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
@@ -79,14 +79,32 @@
                             <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
                                 <li><a href ng-click="shareRecord(record)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
                                 <li ng-if="!record.favored"><a href ng-click="favorRecord(record)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
-                                <li ng-if="record.favored"><a href ng-click="assignTag(record)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
+                                <li><a href ng-click="assignTag(record)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
                                 <li ng-if="record.favored"><a href ng-click="assignTopic(record)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
                                 <li ng-if="record.userid===user.uid"><a href ng-click="editRecord($event)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                                <li class='divider'></li>
+                                <li><a href ng-click="copyRecord(record)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
+                                <li><a href ng-click="pasteRecord(record)"><span class='glyphicon glyphicon-paste'></span> 粘贴</a></li>
                             </ul>
                         </div>
                     </div>
                     <div class='tags' ng-if="record.userTags">
                         <button class='btn btn-default btn-xs' ng-repeat="tag in record.userTags" ng-bind="tag.label"></button>
+                    </div>
+                    <div class='assocs' ng-if="record.assocs.length">
+                        <div ng-repeat="assoc in record.assocs" ng-if="assoc.entityB" class='tms-flex-row small'>
+                            <div ng-if="assoc.assoc_reason" class='assoc-reason'><span ng-bind="assoc.assoc_reason"></span></div>
+                            <div ng-click="gotoAssoc(assoc.entityB)" class='tms-flex-grow assoc-text'><i class='glyphicon glyphicon-link text-muted'></i> <span ng-bind="assoc.assoc_text"></span></div>
+                            <div class="btn-group" uib-dropdown>
+                                <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
+                                    <span class="glyphicon glyphicon-option-vertical"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right  dropdown-menu-top" uib-dropdown-menu>
+                                    <li ng-if="assoc.log"><a href ng-click="removeAssoc(assoc)"><span class='glyphicon glyphicon-remove'></span> 取消</a></li>
+                                    <li><a href ng-click="editAssoc(assoc)"><span class='glyphicon glyphicon-edit'></span> 修改</a></li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div id='cowork' ng-if="coworkSchemas.length">
@@ -200,7 +218,6 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
                                         <li><a href ng-click="editRemark(remark)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
-                                        <li><a href ng-if="record._canAgree&&coworkSchemas.length&&remark.as_cowork_id==='0'" ng-click="remarkAsCowork(remark)"><span class='glyphicon glyphicon-ok-circle'></span> 作为答案</a></li>
                                         <li class='divider'></li>
                                         <li><a href ng-click="removeRemark(remark)"><span class='glyphicon glyphicon-trash'></span> 删除</a></li>
                                     </ul>

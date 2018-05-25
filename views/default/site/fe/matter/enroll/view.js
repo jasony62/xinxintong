@@ -102,7 +102,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
         $scope.Record = facRecord = Record.ins(app);
     });
 }]);
-ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticebox', 'Record', 'tmsDynaPage', function($scope, $sce, LS, http2, noticebox, Record, tmsDynaPage) {
+ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', function($scope, $sce, LS, http2, noticebox, Record, picviewer, $timeout) {
     function fnGetRecord() {
         return http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid'));
     }
@@ -239,7 +239,11 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                     fnDisableActions();
                 }
             }
-            tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
+            $timeout(function() {
+                if(document.querySelectorAll('.data img')) {
+                    picviewer.init(document.querySelectorAll('.data img'));
+                }
+            });
             /*设置页面分享信息*/
             $scope.setSnsShare(oRecord);
             /*设置页面导航*/
@@ -251,7 +255,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                 oAppNavs.rank = {};
             }
             if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.action = {};
+                oAppNavs.event = {};
             }
             if (Object.keys(oAppNavs).length) {
                 $scope.appNavs = oAppNavs;

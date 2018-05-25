@@ -209,6 +209,51 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
+ * 活动登记记录间的关联
+ */
+$sql = "create table if not exists xxt_enroll_assoc(";
+$sql .= "id bigint not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",record_id int not null";
+$sql .= ",entity_a_id int not null";
+$sql .= ',entity_a_type tinyint not null';
+$sql .= ",entity_b_id int not null";
+$sql .= ',entity_b_type tinyint not null';
+$sql .= ",assoc_mode tinyint not null default 0";
+$sql .= ",assoc_num int not null default 0";
+$sql .= ",public char(1) not null default 'Y'";
+$sql .= ",first_assoc_at int not null";
+$sql .= ",last_assoc_at int not null";
+$sql .= ",assoc_text text null"; // 关联描述
+$sql .= ",assoc_reason varchar(255) not null default ''"; // 关联理由
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记活动标签指定记录
+ */
+$sql = 'create table if not exists xxt_enroll_assoc_log(';
+$sql .= 'id bigint not null auto_increment';
+$sql .= ',siteid varchar(32) not null';
+$sql .= ',aid varchar(40) not null';
+$sql .= ',record_id int not null';
+$sql .= ',assoc_id bigint not null';
+$sql .= ",assoc_text text null";
+$sql .= ",assoc_reason varchar(255) not null default ''"; // 关联理由
+$sql .= ',userid varchar(40) not null';
+$sql .= ',link_at int not null default 0';
+$sql .= ',unlink_at int not null default 0';
+$sql .= ',undo_log_id bigint not null default 0';
+$sql .= ",state tinyint not null default 1";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
  * 自定义登记数据统计
  */
 $sql = "create table if not exists xxt_enroll_record_stat(";
@@ -334,14 +379,17 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_topic(";
 $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",unionid varchar(40) not null default ''";
+$sql .= ",userid varchar(40) not null";
+$sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int not null"; // 创建时间
 $sql .= ",title varchar(255) not null default ''";
 $sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal;
 $sql .= ",rec_num int not null default 0";
+$sql .= ",share_in_group char(1) not null default 'N'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

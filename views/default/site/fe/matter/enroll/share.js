@@ -136,7 +136,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
                     if (oRemark.data && oRemark.data.userid !== oRemark.record.userid) {
                         _oMessage.relevent += '和';
                         if (oRemark.data.userid !== oRemark.userid) {
-                            _oMessage.relevent += $oRemark.data.nickname;
+                            _oMessage.relevent += oRemark.data.nickname;
                         } else {
                             _oMessage.relevent += '自己';
                         }

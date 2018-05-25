@@ -158,4 +158,11 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.cowork' ng-change="updSchema(activeSchema)">多人协作填写</label>
     </div>
+    <div class="checkbox" ng-show="activeSchema.link">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.showOpNickname' ng-change="updSchema(activeSchema)">填写时显示选项用户昵称</label>
+    </div>
+    <div class='form-group' ng-if="'shorttext'===activeSchema.type&&activeSchema.format==='number'">
+        <button class='btn btn-default' ng-click="setDataSource(activeSchema)">设置数据来源</button>
+    </div>
 </div>

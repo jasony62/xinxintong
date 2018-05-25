@@ -13,10 +13,14 @@ define(['wrap'], function(SchemaWrap) {
                 userSchemas = this.user_schemas;
 
             try {
-                this.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
+                if (dataSchemas && dataSchemas.length) {
+                    this.data_schemas = JSON.parse(dataSchemas.replace(/\s/g));
+                } else {
+                    this.data_schemas = [];
+                }
             } catch (e) {
                 alert('应用程序错误！');
-                console.error(e);
+                console.error(e, dataSchemas);
                 return;
             }
             try {

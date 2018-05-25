@@ -37,9 +37,12 @@ div[schema-type=single] li[wrap].radio.option-hide>label,div[schema-type=multipl
 div[schema-type=single] li[wrap].radio.option-hide>label>*,div[schema-type=multiple] li[wrap].checkbox.option-hide>label>*{height:0;display:inline-block;overflow:hidden;}
 
 /* multitext modal */
-.tms-editor {position: absolute;top: 8px;bottom: 8px;left: 8px;right: 8px;display: flex;flex-direction: column;}
-.tms-editor>:first-child{position: relative;flex-grow: 1;margin-bottom: 8px;border: 1px solid #ddd;border-radius: 4px;overflow-y: auto;}
-.tms-editor>:first-child iframe{display: block;width: 100%;border: 0;}
+.tms-editor{position:absolute;top:8px;bottom:8px;left:8px;right:8px;display:flex;flex-direction:column;}
+.tms-editor>:first-child{position:relative;flex-grow:1;margin-bottom:8px;border:1px solid #ddd;border-radius:4px;overflow-y:auto;}
+.tms-editor>:first-child iframe{display:block;width:100%;border:0;}
 
 /*粘贴图片隐藏div样式 */
 .pasteClass{width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;}
+
+/*选项的nickname*/
+.option-nickname{display:inline-block;margin-left:8px;}

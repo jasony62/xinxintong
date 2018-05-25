@@ -175,6 +175,11 @@
             <div ng-if="topics.length">
                 <div class='panel' ng-repeat="topic in topics">
                     <div class='panel-body'>
+                        <div class='tms-flex-row smaill text-muted'>
+                            <div class='tms-flex-grow' ng-bind-html="topic.nickname"></div>
+                            <div ng-bind="topic.create_at*1000|date:'MM-dd HH:mm'"></div>
+                        </div>
+                        <hr>
                         <div class='form-group'>
                             <div ng-bind="topic.title"></div>
                         </div>
@@ -182,7 +187,8 @@
                             <div class='text-muted small' ng-bind="topic.summary"></div>
                         </div>
                         <div class='bottom-bar small text-muted'>
-                            <div ng-if="topic.create_at" class='datetime'><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
+                            <div><span ng-if="topic.share_in_group==='Y'"><i class='glyphicon glyphicon-check'></i> 组内共享</span></div>
+                            <button class='btn btn-default btn-xs' ng-click="copyTopic(topic)"><i class='glyphicon glyphicon-copy'></i></button>
                             <button class='btn btn-default btn-xs' ng-click="removeTopic(topic)"><i class='glyphicon glyphicon-remove'></i></button>
                             <button class='btn btn-default btn-xs' ng-click="editTopic(topic)"><i class='glyphicon glyphicon-edit'></i> <span ng-bind="topic.rec_num"></span></button>
                             <button class='btn btn-default btn-xs' ng-click="gotoTopic(topic)"><i class='glyphicon glyphicon-eye-open'></i></button>
@@ -197,11 +203,15 @@
         <div class="modal-body">
             <div class='form-group'>
                 <label>标题</label>
-                <input type='text' class='form-control' ng-model="topic.title">
+                <input type='text' class='form-control' ng-model="topic.title" ng-change="update('title')">
             </div>
             <div class='form-group'>
                 <label>描述</label>
-                <textarea class='form-control' ng-model="topic.summary"></textarea>
+                <textarea class='form-control' ng-model="topic.summary" ng-change="update('summary')"></textarea>
+            </div>
+            <div class='checkbox' ng-if="topic.group_id">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="topic.share_in_group" ng-change="update('share_in_group')"> 组内共享</label>
             </div>
             <hr>
             <div class='records'>

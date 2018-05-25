@@ -4,8 +4,9 @@ require('./repos.css');
 require('./_asset/ui.repos.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
+require('./_asset/ui.assoc.js');
 
-window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll'];
+window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -45,7 +46,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'Round', '$timeout', 'tmsDynaPage', 'noticebox', 'enlTag', 'enlTopic', function($scope, $sce, $q, $uibModal, http2, LS, srvRound, $timeout, tmsDynaPage, noticebox, enlTag, enlTopic) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'Round', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $sce, $q, $uibModal, http2, LS, srvRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (_oMocker.role && /visitor|member/.test(_oMocker.role)) {
@@ -103,7 +104,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     $scope.repos.push(oRecord);
                 });
             }
-            tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
+            $timeout(function() {
+                if(document.querySelectorAll('.data img')) {
+                    picviewer.init(document.querySelectorAll('.data img'));
+                }
+            });
             $scope.reposLoading = false;
             deferred.resolve(result);
         });
@@ -232,6 +237,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
         }
         $scope.gotoPage(event, page, oRecord.enroll_key);
+    };
+    $scope.copyRecord = function(event, oRecord) {
+        enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
     };
     $scope.shiftRound = function(oRound) {
         _oFilter.round = oRound;
@@ -388,10 +396,16 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
         /* 设置页面分享信息 */
         $scope.setSnsShare();
-        /* 设置页面操作 */
-        $scope.appActs = {
-            addRecord: {}
-        };
+        /*设置页面操作*/
+        $scope.appActs = {};
+        /* 允许添加记录 */
+        if (_oApp.actionRule && _oApp.actionRule.record && _oApp.actionRule.record.submit && _oApp.actionRule.record.submit.pre && _oApp.actionRule.record.submit.pre.editor) {
+            if ($scope.user.is_editor && $scope.user.is_editor === 'Y') {
+                $scope.appActs.addRecord = {};
+            }
+        } else {
+            $scope.appActs.addRecord = {};
+        }
         /* 是否允许切换用户角色 */
         if (params.user.is_editor && params.user.is_editor === 'Y') {
             $scope.appActs.mockAsVisitor = { mocker: 'mocker' };
@@ -412,7 +426,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
                 $scope.noticeCount = rsp.data;
             });
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;

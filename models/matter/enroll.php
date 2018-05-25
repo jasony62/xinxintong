@@ -567,7 +567,7 @@ class enroll_model extends enroll_base {
 		isset($oTemplateConfig->schema) && $oNewApp->data_schemas = $this->toJson($oTemplateConfig->schema);
 
 		/* 添加页面 */
-		$this->_addPageByTemplate($oUser, $oSite, $oMission, $appId, $oTemplateConfig, $oCustomConfig);
+		$this->addPageByTemplate($oUser, $oSite, $oMission, $appId, $oTemplateConfig, $oCustomConfig);
 
 		/* 登记数量限制 */
 		if (isset($oTemplateConfig->count_limit)) {
@@ -659,7 +659,7 @@ class enroll_model extends enroll_base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	private function &_addPageByTemplate(&$user, &$site, $oMission, &$appId, &$oTemplateConfig) {
+	public function &addPageByTemplate(&$user, &$site, $oMission, &$appId, &$oTemplateConfig) {
 		$pages = $oTemplateConfig->pages;
 		if (empty($pages)) {
 			return false;

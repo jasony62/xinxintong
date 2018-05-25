@@ -282,7 +282,18 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                             data[oSchema.id] = files;
                             break;
                         case 'multitext':
-                            var multitexts = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : [];
+                            var multitexts;
+                            if (multitexts = oRecord.data[oSchema.id]) {
+                                /* 为什么需要进行两次转换？ */
+                                if (angular.isString(multitexts)) {
+                                    multitexts = JSON.parse(multitexts);
+                                    if (angular.isString(multitexts)) {
+                                        multitexts = JSON.parse(multitexts);
+                                    }
+                                }
+                            } else {
+                                multitexts = [];
+                            }
                             data[oSchema.id] = multitexts;
                             break;
                         case 'date':

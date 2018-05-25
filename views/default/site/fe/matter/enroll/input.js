@@ -536,6 +536,38 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         });
     }
+    /**
+     * 给关联选项添加选项nickname
+     */
+    function fnAppendOpNickname(dataSchemas) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                if (domSchema && oSchema.link && oSchema.showOpNickname === 'Y') {
+                    switch (oSchema.type) {
+                        case 'multiple':
+                            if (oSchema.ops && oSchema.ops.length) {
+                                oSchema.ops.forEach(function(oOp) {
+                                    var domOption, spanNickname;
+                                    if (oOp.link && oOp.link.nickname) {
+                                        domOption = document.querySelector('input[ng-model="data.' + oSchema.id + '.' + oOp.v + '"]');
+                                        if (domOption) {
+                                            domOption = domOption.parentNode;
+                                            spanNickname = document.createElement('span');
+                                            spanNickname.classList.add('option-nickname');
+                                            spanNickname.innerHTML = '[' + oOp.link.nickname + ']';
+                                            domOption.appendChild(spanNickname);
+                                        }
+                                    }
+                                });
+                            }
+                            break;
+                    }
+                }
+            }
+        });
+    }
 
     function doTask(seq, nextAction, type) {
         var task = tasksOfBeforeSubmit[seq];
@@ -598,6 +630,8 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         fnToggleAssocOptions(dataSchemas, oRecordData);
         // 添加辅助功能
         fnAssistant(dataSchemas);
+        // 从其他活动生成的选项的昵称
+        fnAppendOpNickname(dataSchemas);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {

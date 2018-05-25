@@ -119,12 +119,16 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             }
             fnCallback(oEnrollApp);
-            oEnrollApp.dataSchemas.forEach(function(oSchema) {
-                schemaLib._upgrade(oSchema, oEnrollApp);
-            });
-            oEnrollApp.pages.forEach(function(oPage) {
-                pageLib.enhance(oPage, oEnrollApp._schemasById);
-            });
+            if (oEnrollApp.dataSchemas) {
+                oEnrollApp.dataSchemas.forEach(function(oSchema) {
+                    schemaLib._upgrade(oSchema, oEnrollApp);
+                });
+            }
+            if (oEnrollApp.pages) {
+                oEnrollApp.pages.forEach(function(oPage) {
+                    pageLib.enhance(oPage, oEnrollApp._schemasById);
+                });
+            }
         };
         this._bFilter = function(srvEnlRnd) {
             var defer = $q.defer(),
@@ -206,18 +210,20 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 inputSchemas = [],
                 canFilteredSchemas = [];
 
-            oApp.dataSchemas.forEach(function(schema) {
-                mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
-                mapOfSchemaByType[schema.type].push(schema.id);
-                mapOfSchemaById[schema.id] = schema;
-                mapOfUnionSchemaById[schema.id] = schema;
-                if (schema.type !== 'html') {
-                    inputSchemas.push(schema);
-                }
-                if (false === /image|file|html/.test(schema.type)) {
-                    canFilteredSchemas.push(schema);
-                }
-            });
+            if (oApp.dataSchemas) {
+                oApp.dataSchemas.forEach(function(schema) {
+                    mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
+                    mapOfSchemaByType[schema.type].push(schema.id);
+                    mapOfSchemaById[schema.id] = schema;
+                    mapOfUnionSchemaById[schema.id] = schema;
+                    if (schema.type !== 'html') {
+                        inputSchemas.push(schema);
+                    }
+                    if (false === /image|file|html/.test(schema.type)) {
+                        canFilteredSchemas.push(schema);
+                    }
+                });
+            }
             oApp._schemasByType = mapOfSchemaByType;
             oApp._schemasById = mapOfSchemaById;
             oApp._schemasForInput = inputSchemas;
@@ -1162,6 +1168,19 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.createAppByRecords = function(rows) {
                 var defer = $q.defer();
+                var eks;
+                if (rows) {
+                    eks = [];
+                    for (var p in rows.selected) {
+                        if (rows.selected[p] === true) {
+                            eks.push(_ins._aRecords[p].enroll_key);
+                        }
+                    }
+                    if (eks.length === 0) {
+                        defer.reject();
+                        return defer.promise;
+                    }
+                }
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/createAppByRecords.html?_=5',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -1202,36 +1221,28 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }],
                     backdrop: 'static',
                 }).result.then(function(config) {
-                    var eks = [];
                     if (config.schemas.length) {
-                        for (var p in rows.selected) {
-                            if (rows.selected[p] === true) {
-                                eks.push(_ins._aRecords[p].enroll_key);
-                            }
+                        var url = '/rest/pl/fe/matter/enroll/createByRecords?site=' + _siteId + '&app=' + _appId;
+                        if (_ins._oApp.mission_id) {
+                            url += '&mission=' + _ins._oApp.mission_id;
                         }
-                        if (eks.length) {
-                            var url = '/rest/pl/fe/matter/enroll/createByRecords?site=' + _siteId + '&app=' + _appId;
-                            if (_ins._oApp.mission_id) {
-                                url += '&mission=' + _ins._oApp.mission_id;
-                            }
-                            http2.post(url, {
-                                proto: {
-                                    scenario: 'voting',
-                                    schema: {
-                                        type: config.protoSchema.type,
-                                        range: config.protoSchema.range,
-                                        unique: 'N',
-                                        _ver: 1
-                                    }
-                                },
-                                record: {
-                                    schemas: config.schemas,
-                                    eks: eks
+                        http2.post(url, {
+                            proto: {
+                                scenario: 'voting',
+                                schema: {
+                                    type: config.protoSchema.type,
+                                    range: config.protoSchema.range,
+                                    unique: 'N',
+                                    _ver: 1
                                 }
-                            }, function(rsp) {
-                                defer.resolve(rsp.data);
-                            });
-                        }
+                            },
+                            record: {
+                                schemas: config.schemas,
+                                eks: eks
+                            }
+                        }, function(rsp) {
+                            defer.resolve(rsp.data);
+                        });
                     }
                 });
                 return defer.promise;
@@ -1551,7 +1562,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             }, {
                 value: 'site.matter.enroll.remove',
                 title: '删除记录'
-            },{
+            }, {
                 value: 'site.matter.enroll.remark.as.cowork',
                 title: '将用户留言设置为协作记录'
             }];

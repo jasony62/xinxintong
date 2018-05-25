@@ -10,7 +10,7 @@ ngMod.service('tmsUrl', ['$q', '$uibModal', function($q, $uibModal) {
         defer = $q.defer();
         $uibModal.open({
             template: require('../html/ui-url.html'),
-            controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, http2) {
+            controller: ['$scope', '$uibModalInstance', 'http2', 'noticebox', function($scope, $mi, http2, noticebox) {
                 var _oData;
                 $scope.data = _oData = {
                     text: '结果预览'
@@ -39,6 +39,10 @@ ngMod.service('tmsUrl', ['$q', '$uibModal', function($q, $uibModal) {
                     }
                     if (validateUrl(url)) {
                         http2.post('/rest/site/fe/matter/enroll/url', { url: url }).then(function(rsp) {
+                            if(Object.keys(rsp.data).indexOf('url')===-1||!rsp.data.url) {
+                                noticebox.error('请点击“刷新”按钮，重新获取解析值');
+                                return false;
+                            }
                             _oData.summary = rsp.data;
                         });
                     }

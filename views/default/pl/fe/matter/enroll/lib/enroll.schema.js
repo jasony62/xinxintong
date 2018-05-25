@@ -807,9 +807,18 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         };
                         $scope2.result = oResult = {};
                         $scope2.filter = oFilter = {};
+                        $scope2.schemas = [];
                         $scope2.selectApp = function() {
+                            $scope2.schemas = [];
                             if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
                                 oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                    if (/single|multiple/.test(oSchema.type)) {
+                                        $scope2.schemas.push(oSchema);
+                                    } else if ('shorttext' === oSchema.type && oSchema.format === 'number') {
+                                        $scope2.schemas.push(oSchema);
+                                    }
+                                });
                             }
                             oResult.selected = null;
                         };

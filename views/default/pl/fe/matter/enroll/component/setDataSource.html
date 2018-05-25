@@ -19,7 +19,7 @@
         <div class='col-md-6'>
             <label>题目</label>
             <div class='list-group' style='height:300px;overflow-y:auto'>
-                <div class='list-group-item' ng-repeat="schema in result.fromApp.dataSchemas">
+                <div class='list-group-item' ng-repeat="schema in schemas">
                     <label class="radio-inline">
                         <input type='radio' name='dsSchema' value="{{$index}}" ng-model="result.selected">{{schema.title}}</label>
                 </div>

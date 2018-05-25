@@ -1,8 +1,10 @@
 <?php
-namespace matter\enroll;
+namespace matter\mission;
 
 require_once dirname(dirname(__FILE__)) . '/round_base.php';
-
+/**
+ * 项目轮次
+ */
 class round_model extends \TMS_MODEL {
 	use \matter\Round;
 	/**
@@ -12,39 +14,39 @@ class round_model extends \TMS_MODEL {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = [
 			$fields,
-			'xxt_enroll_round',
+			'xxt_mission_round',
 			['rid' => $roundId],
 		];
-		$round = $this->query_obj_ss($q);
+		$oRound = $this->query_obj_ss($q);
 
-		return $round;
+		return $oRound;
 	}
 	/**
-	 * 返回登记活动下的轮次
+	 * 返回项目下的轮次
 	 *
-	 * @param object $oApp
+	 * @param object $oMission
 	 *
 	 */
-	public function &byApp($oApp, $options = []) {
+	public function byMission($oMission, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$state = isset($options['state']) ? $options['state'] : false;
-		$page = isset($options['page']) ? $options['page'] : null;
+		$oPage = isset($options['page']) ? $options['page'] : null;
 
 		$oResult = new \stdClass; // 返回的结果
 
-		$oResult->active = $this->getActive($oApp, ['fields' => $fields]);
+		$oResult->active = $this->getActive($oMission, ['fields' => $fields]);
 
 		$q = [
 			$fields,
-			'xxt_enroll_round',
-			['aid' => $oApp->id],
+			'xxt_mission_round',
+			['mission_id' => $oMission->id],
 		];
 		$state && $q[2]['state'] = $state;
 		$q2 = ['o' => 'create_at desc'];
-		!empty($page) && $q2['r'] = ['o' => ($page->num - 1) * $page->size, 'l' => $page->size];
+		!empty($oPage) && $q2['r'] = ['o' => ($oPage->num - 1) * $oPage->size, 'l' => $oPage->size];
 		$oResult->rounds = $this->query_objs_ss($q, $q2);
 
-		if (!empty($page)) {
+		if (!empty($oPage)) {
 			$q[0] = 'count(*)';
 			$oResult->total = $this->query_val_ss($q);
 		}
@@ -58,20 +60,20 @@ class round_model extends \TMS_MODEL {
 	 * @param object $props
 	 * @param object $oCreator
 	 */
-	public function create($oApp, $oProps, $oCreator = null) {
+	public function create($oMission, $oProps, $oCreator = null) {
 		// 结束数据库读写分离带来的问题
 		$this->setOnlyWriteDbConn(true);
 
 		/* 只允许有一个指定启动轮次 */
 		if (isset($oProps->state) && (int) $oProps->state === 1 && isset($oProps->start_at) && (int) $oProps->start_at === 0) {
-			if ($lastRound = $this->getAssignedActive($oApp)) {
+			if ($lastRound = $this->getAssignedActive($oMission)) {
 				return [false, '请先停止轮次【' . $lastRound->title . '】'];
 			}
 		}
 		$roundId = uniqid();
-		$round = [
-			'siteid' => $oApp->siteid,
-			'aid' => $oApp->id,
+		$oRound = [
+			'siteid' => $oMission->siteid,
+			'mission_id' => $oMission->id,
 			'rid' => $roundId,
 			'creator' => isset($oCreator->id) ? $oCreator->id : '',
 			'create_at' => time(),
@@ -80,37 +82,29 @@ class round_model extends \TMS_MODEL {
 			'start_at' => empty($oProps->start_at) ? 0 : $oProps->start_at,
 			'end_at' => empty($oProps->end_at) ? 0 : $oProps->end_at,
 		];
-		$this->insert('xxt_enroll_round', $round, false);
+		$this->insert('xxt_mission_round', $oRound, false);
 
-		if (empty($oApp->multi_rounds) || $oApp->multi_rounds !== 'Y') {
-			$this->update(
-				'xxt_enroll',
-				['multi_rounds' => 'Y'],
-				['id' => $oApp->id]
-			);
-		}
+		$oRound = $this->byId($roundId);
 
-		$round = $this->byId($roundId);
-
-		return [true, $round];
+		return [true, $oRound];
 	}
 	/**
 	 * 获得指定登记活动的当前轮次
 	 *
-	 * @param object $oApp
+	 * @param object $oMission
 	 *
 	 */
-	public function getAssignedActive($oApp, $options = []) {
+	public function getAssignedActive($oMission, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$q = [
 			$fields,
-			'xxt_enroll_round',
-			['aid' => $oApp->id, 'start_at' => 0, 'end_at' => 0, 'state' => 1],
+			'xxt_mission_round',
+			['mission_id' => $oMission->id, 'start_at' => 0, 'end_at' => 0, 'state' => 1],
 		];
-		$round = $this->query_obj_ss($q);
+		$oRound = $this->query_obj_ss($q);
 
-		return $round;
+		return $oRound;
 	}
 	/**
 	 * 获得指定登记活动中启用状态的轮次
@@ -121,17 +115,17 @@ class round_model extends \TMS_MODEL {
 	 * @param object $app
 	 *
 	 */
-	public function getActive($oApp, $aOptions = []) {
+	public function getActive($oMission, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
-		if ($oRound = $this->getAssignedActive($oApp, $aOptions)) {
+		if ($oRound = $this->getAssignedActive($oMission, $aOptions)) {
 			return $oRound;
 		}
 
-		if (!empty($oApp->roundCron)) {
+		if (!empty($oMission->roundCron)) {
 			/* 有效的定时规则 */
 			$enabledRules = [];
-			foreach ($oApp->roundCron as $rule) {
+			foreach ($oMission->roundCron as $rule) {
 				if (isset($rule->enabled) && $rule->enabled === 'Y') {
 					$enabledRules[] = $rule;
 				}
@@ -142,8 +136,8 @@ class round_model extends \TMS_MODEL {
 			$current = time();
 			$q = [
 				$fields,
-				'xxt_enroll_round',
-				"aid='{$oApp->id}' and state=1 and start_at<={$current}",
+				'xxt_mission_round',
+				['mission_id' => $oMission->id, 'state' => 1, 'start_at' => (object) ['op' => '<=', 'pat' => $current]],
 			];
 			$q2 = [
 				'o' => 'start_at desc',
@@ -153,7 +147,7 @@ class round_model extends \TMS_MODEL {
 			$oRound = count($rounds) === 1 ? $rounds[0] : false;
 		} else {
 			/* 根据定时规则获得轮次 */
-			$rst = $this->_getRoundByCron($oApp, $enabledRules, $aOptions);
+			$rst = $this->_getRoundByCron($oMission, $enabledRules, $aOptions);
 			if (false === $rst[0]) {
 				return false;
 			}
@@ -168,7 +162,7 @@ class round_model extends \TMS_MODEL {
 	 * @param array $rules 定时生成轮次规则
 	 *
 	 */
-	private function _getRoundByCron($oApp, $rules, $aOptions) {
+	private function _getRoundByCron($oMission, $rules, $aOptions) {
 		if (false === ($oCronRound = $this->_lastRoundByCron($rules))) {
 			return [false, '无法生成定时轮次'];
 		}
@@ -179,15 +173,15 @@ class round_model extends \TMS_MODEL {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
-			'xxt_enroll_round',
-			['aid' => $oApp->id, 'state' => 1, 'start_at' => $oCronRound->start_at],
+			'xxt_mission_round',
+			['mission_id' => $oMission->id, 'state' => 1, 'start_at' => $oCronRound->start_at],
 		];
 		if ($oRound = $this->query_obj_ss($q)) {
 			return [true, $oRound];
 		}
 		/* 创建新论次 */
 		if (false === $oRound) {
-			$rst = $this->create($oApp, $oCronRound);
+			$rst = $this->create($oMission, $oCronRound);
 			if (false === $rst[0]) {
 				return $rst;
 			}
@@ -196,5 +190,4 @@ class round_model extends \TMS_MODEL {
 
 		return [true, $oRound];
 	}
-
 }

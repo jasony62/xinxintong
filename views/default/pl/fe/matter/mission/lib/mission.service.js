@@ -206,8 +206,261 @@ define(['require'], function(require) {
             }
             return _self;
         }];
-    }).
-    provider('srvOpMission', function() {
+    }).provider('srvMissionRound', function() {
+        var _siteId, _missionId, _rounds, _oPage,
+            _RestURL = '/rest/pl/fe/matter/mission/round/',
+            RoundState = ['新建', '启用', '结束'];
+
+        this.config = function(siteId, missionId) {
+            _siteId = siteId;
+            _missionId = missionId;
+        };
+        this.$get = ['$q', '$uibModal', 'http2', 'srvMission', function($q, $uibModal, http2, srvMission) {
+            return {
+                RoundState: RoundState,
+                init: function(rounds, page) {
+                    _rounds = rounds;
+                    _oPage = page;
+                    if (page.j === undefined) {
+                        page.at = 1;
+                        page.size = 10;
+                        page.j = function() {
+                            return 'page=' + this.at + '&size=' + this.size;
+                        }
+                    }
+                },
+                list: function(checkRid) {
+                    var defer = $q.defer(),
+                        url;
+                    if (_rounds === undefined) {
+                        _rounds = [];
+                    }
+                    if (_oPage === undefined) {
+                        _oPage = {
+                            at: 1,
+                            size: 10,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                    }
+                    url = _RestURL + 'list?site=' + _siteId + '&mission=' + _missionId + '&' + _oPage.j();
+                    if (checkRid) {
+                        url += '&checked=' + checkRid;
+                    }
+                    http2.get(url, function(rsp) {
+                        var _checked;
+                        _rounds.splice(0, _rounds.length);
+                        rsp.data.rounds.forEach(function(rnd) {
+                            rsp.data.active && (rnd._isActive = rnd.rid === rsp.data.active.rid);
+                            _rounds.push(rnd);
+                        });
+                        _oPage.total = parseInt(rsp.data.total);
+                        _checked = (rsp.data.checked ? rsp.data.checked : '');
+                        defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active, checked: _checked });
+                    });
+
+                    return defer.promise;
+                },
+                add: function() {
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
+                        backdrop: 'static',
+                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                            $scope.round = {
+                                state: '0',
+                                start_at: '0'
+                            };
+                            $scope.roundState = RoundState;
+                            $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+                                if (data.state === 'start_at') {
+                                    if (data.obj[data.state] == 0 && data.value > 0) {
+                                        $scope.round.state = '1';
+                                    } else if (data.obj[data.state] > 0 && data.value == 0) {
+                                        $scope.round.state = '0';
+                                    }
+                                }
+                                data.obj[data.state] = data.value;
+                            });
+                            $scope.close = function() {
+                                $mi.dismiss();
+                            };
+                            $scope.ok = function() {
+                                $mi.close($scope.round);
+                            };
+                            $scope.start = function() {
+                                $scope.round.state = 1;
+                                $mi.close($scope.round);
+                            };
+                        }]
+                    }).result.then(function(newRound) {
+                        http2.post(_RestURL + 'add?site=' + _siteId + '&mission=' + _missionId, newRound, function(rsp) {
+                            if (_rounds.length > 0 && rsp.data.state == 1) {
+                                _rounds[0].state = 2;
+                            }
+                            _rounds.splice(0, 0, rsp.data);
+                            _oPage.total++;
+                        });
+                    });
+                },
+                edit: function(round) {
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
+                        backdrop: 'static',
+                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                            $scope.round = { rid: round.rid, title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
+                            $scope.roundState = RoundState;
+                            $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+                                if (data.state === 'start_at') {
+                                    if (data.obj[data.state] == 0 && data.value > 0) {
+                                        $scope.round.state = '1';
+                                    } else if (data.obj[data.state] > 0 && data.value == 0) {
+                                        $scope.round.state = '0';
+                                    }
+                                }
+                                data.obj[data.state] = data.value;
+                            });
+                            $scope.close = function() {
+                                $mi.dismiss();
+                            };
+                            $scope.ok = function() {
+                                $mi.close({
+                                    action: 'update',
+                                    data: $scope.round
+                                });
+                            };
+                            $scope.remove = function() {
+                                $mi.close({
+                                    action: 'remove'
+                                });
+                            };
+                            $scope.stop = function() {
+                                $scope.round.state = '2';
+                                $mi.close({
+                                    action: 'update',
+                                    data: $scope.round
+                                });
+                            };
+                            $scope.start = function() {
+                                $scope.round.state = '1';
+                                $mi.close({
+                                    action: 'update',
+                                    data: $scope.round
+                                });
+                            };
+                        }]
+                    }).result.then(function(rst) {
+                        var url = _RestURL;
+                        if (rst.action === 'update') {
+                            url += 'update?site=' + _siteId + '&mission=' + _missionId + '&rid=' + round.rid;
+                            http2.post(url, rst.data, function(rsp) {
+                                if (_rounds.length > 1 && rst.data.state === '1') {
+                                    _rounds[1].state = '2';
+                                }
+                                angular.extend(round, rsp.data);
+                            });
+                        } else if (rst.action === 'remove') {
+                            url += 'remove?site=' + _siteId + '&mission=' + _missionId + '&rid=' + round.rid;
+                            http2.get(url, function(rsp) {
+                                _rounds.splice(_rounds.indexOf(round), 1);
+                                _oPage.total--;
+                            });
+                        }
+                    });
+                },
+                cron: function() {
+                    var defer = $q.defer();
+                    srvMission.get().then(function(oApp) {
+                        $uibModal.open({
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/roundCron.html?_=2',
+                            size: 'lg',
+                            backdrop: 'static',
+                            controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, $http2) {
+                                var aCronRules, byPeriods, byIntervals;
+                                $scope.mdays = [];
+                                while ($scope.mdays.length < 28) {
+                                    $scope.mdays.push('' + ($scope.mdays.length + 1));
+                                }
+                                aCronRules = oApp.roundCron ? angular.copy(oApp.roundCron) : [];
+                                $scope.byPeriods = byPeriods = [];
+                                $scope.byIntervals = byIntervals = [];
+                                $scope.example = function(oRule) {
+                                    http2.post('/rest/pl/fe/matter/mission/round/getcron', { roundCron: oRule }, function(rsp) {
+                                        oRule.case = rsp.data;
+                                    });
+                                };
+                                aCronRules.forEach(function(oRule) {
+                                    switch (oRule.pattern) {
+                                        case 'period':
+                                            byPeriods.push(oRule);
+                                            break;
+                                        case 'interval':
+                                            byIntervals.push(oRule);
+                                            break;
+                                    }
+                                    $scope.example(oRule);
+                                });
+                                $scope.changePeriod = function(oRule) {
+                                    if (oRule.period !== 'W') {
+                                        oRule.wday = '';
+                                    }
+                                    if (oRule.period !== 'M') {
+                                        oRule.mday = '';
+                                    }
+                                };
+                                $scope.addPeriod = function() {
+                                    var oNewRule;
+                                    oNewRule = {
+                                        pattern: 'period',
+                                        period: 'D',
+                                        hour: 8
+                                    };
+                                    byPeriods.push(oNewRule);
+                                    aCronRules.push(oNewRule);
+                                };
+                                $scope.removePeriod = function(rule) {
+                                    byPeriods.splice(byPeriods.indexOf(rule), 1);
+                                    aCronRules.splice(aCronRules.indexOf(rule), 1);
+                                };
+                                $scope.addInterval = function() {
+                                    var oNewRule;
+                                    oNewRule = {
+                                        pattern: 'interval',
+                                        start_at: parseInt(new Date * 1 / 1000),
+                                    };
+                                    byIntervals.push(oNewRule);
+                                    aCronRules.push(oNewRule);
+                                };
+                                $scope.removeInterval = function(rule) {
+                                    byIntervals.splice(byIntervals.indexOf(rule), 1);
+                                    aCronRules.splice(aCronRules.indexOf(rule), 1);
+                                };
+                                $scope.$on('xxt.tms-datepicker.change', function(event, oData) {
+                                    oData.obj[oData.state] = oData.value;
+                                    $scope.example(oData.obj);
+                                });
+                                $scope.cancel = function() {
+                                    $mi.dismiss();
+                                };
+                                $scope.ok = function() {
+                                    $mi.close(aCronRules);
+                                };
+                            }]
+                        }).result.then(function(aCronRules) {
+                            aCronRules.forEach(function(oRule) {
+                                delete oRule.case;
+                            });
+                            oApp.roundCron = aCronRules;
+                            srvMission.update('roundCron').then(function() {
+                                defer.resolve(aCronRules);
+                            });
+                        });
+                    });
+                    return defer.promise;
+                }
+            };
+        }];
+    }).provider('srvOpMission', function() {
         var _siteId, _missionId, _accessId, _oMission, _getMissionDeferred;
         this.config = function(siteId, missionId, accessId) {
             _siteId = siteId;

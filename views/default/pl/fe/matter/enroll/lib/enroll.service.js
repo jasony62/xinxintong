@@ -601,12 +601,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         });
                     });
                 },
-                edit: function(round) {
+                edit: function(oRound) {
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = { rid: round.rid, title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
+                            $scope.round = { rid: oRound.id, mission_rid: oRound.mission_rid, title: oRound.title, start_at: oRound.start_at, end_at: oRound.end_at, state: oRound.state };
                             $scope.roundState = RoundState;
                             $scope.$on('xxt.tms-datepicker.change', function(event, data) {
                                 if (data.state === 'start_at') {
@@ -651,27 +651,32 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                             srvEnrollApp.get().then(function(oApp) {
                                 var rndEntryUrl;
-                                rndEntryUrl = oApp.entryUrl + '&rid=' + round.rid;
+                                rndEntryUrl = oApp.entryUrl + '&rid=' + oRound.rid;
                                 $scope.entry = {
                                     url: rndEntryUrl,
                                     qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + oApp.siteid + '&url=' + encodeURIComponent(rndEntryUrl),
+                                }
+                                if (oApp.mission) {
+                                    http2.get('/rest/pl/fe/matter/mission/round/list?mission=' + oApp.mission.id, function(rsp) {
+                                        $scope.missionRounds = rsp.data.rounds;
+                                    });
                                 }
                             });
                         }]
                     }).result.then(function(rst) {
                         var url = _RestURL;
                         if (rst.action === 'update') {
-                            url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
+                            url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.rid;
                             http2.post(url, rst.data, function(rsp) {
                                 if (_rounds.length > 1 && rst.data.state === '1') {
                                     _rounds[1].state = '2';
                                 }
-                                angular.extend(round, rsp.data);
+                                angular.extend(oRound, rsp.data);
                             });
                         } else if (rst.action === 'remove') {
-                            url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
+                            url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.rid;
                             http2.get(url, function(rsp) {
-                                _rounds.splice(_rounds.indexOf(round), 1);
+                                _rounds.splice(_rounds.indexOf(oRound), 1);
                                 _oPage.total--;
                             });
                         }

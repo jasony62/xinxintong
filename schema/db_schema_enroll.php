@@ -113,6 +113,7 @@ $sql .= ",end_at int not null"; // 轮次结束时间
 $sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的标题
 $sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用
+$sql .= ",mission_rid varchar(13) not null default ''"; // 关联的项目轮次
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

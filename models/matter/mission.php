@@ -64,6 +64,17 @@ class mission_model extends app_base {
 					$oMission->entry_rule = json_decode($oMission->entry_rule);
 				}
 			}
+			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
+				if (!empty($oMission->round_cron)) {
+					$oMission->roundCron = json_decode($oMission->round_cron);
+					$modelRnd = $this->model('matter\mission\round');
+					foreach ($oMission->roundCron as $oRule) {
+						$oRule->case = $modelRnd->byCron([$oRule]);
+					}
+				} else {
+					$oMission->roundCron = [];
+				}
+			}
 			if (isset($oMission->siteid) && isset($oMission->id)) {
 				$oMission->entryUrl = $this->getEntryUrl($oMission->siteid, $oMission->id);
 				$oMission->opUrl = $this->getOpUrl($oMission->siteid, $oMission->id);

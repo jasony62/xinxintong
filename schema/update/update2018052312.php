@@ -3,7 +3,10 @@ require_once '../../db.php';
 
 $sqls = array();
 //
-$sqls[] = "ALTER TABLE xxt_enroll_user add do_repos_read_num int not null default 0 after agree_remark_num";
+$sqls[] = "ALTER TABLE xxt_enroll_user add last_topic_at int not null default 0 after agree_remark_num";
+$sqls[] = "ALTER TABLE xxt_enroll_user add topic_num int not null default 0 after last_topic_at";
+//
+$sqls[] = "ALTER TABLE xxt_enroll_user add do_repos_read_num int not null default 0 after topic_num";
 $sqls[] = "ALTER TABLE xxt_enroll_user add do_repos_read_elapse int not null default 0 after do_repos_read_num";
 //
 $sqls[] = "ALTER TABLE xxt_enroll_user add do_topic_read_num int not null default 0 after do_repos_read_elapse";

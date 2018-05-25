@@ -69,7 +69,7 @@ class main extends base {
 				}
 			}
 			if (in_array($page, ['topic', 'repos', 'cowork'])) {
-				$this->pageReadlog($oApp, $page, $rid);
+				$this->pageReadlog($oApp, $page, $rid, $ek, $topic);
 			}
 			\TPL::assign('title', empty($title) ? $oApp->title : ($title . $oApp->title));
 			\TPL::output('/site/fe/matter/enroll/' . $page);
@@ -94,42 +94,85 @@ class main extends base {
 		}
 		exit;
 	}
-	private function pageReadlog($oApp, $page, $rid) {
-		$roundModel = $this->model('matter\enroll\round');
+	/*
+	 *
+	 */
+	private function pageReadlog($oApp, $page, $rid = '', $ek = null, $topic = null) {
 		// 获得当前获得所属轮次
+		if ($rid === 'ALL') {
+			$rid = '';
+		}
 		if (empty($rid)) {
-			if ($activeRound = $roundModel->getActive($oApp)) {
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
 			}
 		}
 		$oUser = $this->getUser($oApp);
 
 		// 修改阅读数'topic', 'repos', 'cowork'
-		switch ($page) {
-			case 'topic':
-				$column = 'topic_read_num';
-				break;
-			case 'cowork':
-				$column = 'cowork_read_num';
-				break;
-			default:
-				$column = 'repos_read_num';
-				break;
+		if ($page === 'topic') {
+			$column_user = 'do_topic_read_num';
+			// 更新用户轮次数据
+			$this->upEnrUser($oApp, $rid, $oUser, $column_user);
+			// 查询专题页创建者
+			$creater = $this->model('matter\enroll\topic')->byId($topic, ['fields' => 'userid uid,nickname,group_id']);
+			$column_creater = 'topic_read_num';
+			// 更新创建者轮次数据
+			$this->upEnrUser($oApp, $rid, $creater, $column_creater);
+		} else if ($page === 'cowork') {
+			$column_user = 'do_cowork_read_num';
+			// 更新用户轮次数据
+			$this->upEnrUser($oApp, $rid, $oUser, $column_user);
+			// 查询记录提交者
+			$creater = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'userid uid,rid,nickname,group_id', 'verbose' => 'N']);
+			$column_creater = 'cowork_read_num';
+			// 更新创建者轮次数据
+			$this->upEnrUser($oApp, $creater->rid, $creater, $column_creater);
+		} else {
+			$column_user = 'do_repos_read_num';
+			// 更新用户轮次数据
+			$this->upEnrUser($oApp, $rid, $oUser, $column_user);
 		}
-		$set = new \stdClass;
-		$set->op = '+=';
-		$set->pat = 1;
-		$roundModel->update(
-			'xxt_enroll_user',
-			[$column => $set],
-			['aid' => $oApp->id, 'rid' => $rid, 'userid' => $oUser->uid]
-		);
-		// 修改中数据
-		$roundModel->update(
-			'xxt_enroll_user',
-			[$column => $set],
-			['aid' => $oApp->id, 'rid' => 'ALL', 'userid' => $oUser->uid]
-		);
+
+		return [true];
+	}
+	/*
+	 * 
+	 */
+	private function upEnrUser($oApp, $rid, $oUser, $column) {
+		// 更新用户当前轮次数据
+		$modelEnrUser = $this->model('matter\enroll\user');
+		$oEnrUser = $modelEnrUser->byId($oApp, $oUser->uid, ['rid' => $rid, 'fields' => 'id,do_topic_read_num,topic_read_num,do_cowork_read_num,cowork_read_num,do_repos_read_num']);
+		if ($oEnrUser === false) {
+			$data = [
+				'rid' => $rid,
+				$column => 1,
+			];
+			$modelEnrUser->add($oApp, $oUser, $data);
+		} else {
+			$modelEnrUser->update(
+				'xxt_enroll_user',
+				[$column => $oEnrUser->{$column} + 1],
+				['id' => $oEnrUser->id]
+			);
+		}
+		// 更新用户总轮次数据
+		$oEnrUserAll = $modelEnrUser->byId($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'id,do_topic_read_num,topic_read_num,do_cowork_read_num,cowork_read_num,do_repos_read_num']);
+		if ($oEnrUserAll === false) {
+			$data = [
+				'rid' => 'ALL',
+				$column => 1,
+			];
+			$modelEnrUser->add($oApp, $oUser, $data);
+		} else {
+			$modelEnrUser->update(
+				'xxt_enroll_user',
+				[$column => $oEnrUserAll->{$column} + 1],
+				['id' => $oEnrUserAll->id]
+			);
+		}
+
+		return [true];
 	}
 	/**
 	 * 登记活动是否可用

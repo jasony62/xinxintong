@@ -696,16 +696,16 @@ class main extends main_base {
 	 * @param string $mission mission's id
 	 *
 	 */
-	public function createByRecords_action($site, $app, $mission = null) {
+	public function createByRecords_action($app, $mission = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
-		if (false === $oSite) {
-			return new \ObjectNotFoundError();
-		}
 		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
 		if (false === ($oApp = $modelApp->byId($app))) {
+			return new \ObjectNotFoundError();
+		}
+		$oSite = $this->model('site')->byId($oApp->siteid, ['fields' => 'id,heading_pic']);
+		if (false === $oSite) {
 			return new \ObjectNotFoundError();
 		}
 
@@ -732,7 +732,10 @@ class main extends main_base {
 			$oNewSchema->id = $oRecSchema->id;
 			$oNewSchema->title = $oRecSchema->title;
 			$oNewSchema->required = 'Y';
-			$oNewSchema->link = (object) ['app' => (object) ['id' => $oApp->id, 'title' => $oApp->title]];
+			$oNewSchema->dsOps = (object) [
+				'app' => (object) ['id' => $oApp->id, 'title' => $oApp->title],
+				'schema' => (object) ['id' => $oRecSchema->id, 'title' => $oRecSchema->title],
+			];
 			$oNewSchema->ops = [];
 			foreach ($records as $index => $oRecord) {
 				if (empty($oRecord->data->{$oRecSchema->id})) {
@@ -741,7 +744,7 @@ class main extends main_base {
 				$op = new \stdClass;
 				$op->v = 'v' . ($index + 1);
 				$op->l = $oRecord->data->{$oRecSchema->id};
-				$op->link = (object) ['record' => $oRecord->id, 'user' => $oRecord->userid, 'schema' => $oRecSchema->id, 'nickname' => $oRecord->nickname]; // 记录关联关系
+				$op->ds = (object) ['record' => $oRecord->id, 'user' => $oRecord->userid, 'nickname' => $oRecord->nickname]; // 记录关联关系
 				$oNewSchema->ops[] = $op;
 			}
 			$newSchemas[] = $oNewSchema;

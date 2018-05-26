@@ -1568,11 +1568,11 @@ class record extends \pl\fe\matter\base {
 							switch ($oDsSchema->type) {
 							case 'single':
 							case 'multiple':
-								if (!empty($oDsSchema->link->app->id) && !empty($oDsSchema->ops)) {
+								if (!empty($oDsSchema->dsOps->app->id) && !empty($oDsSchema->ops)) {
 									$aDsOpDataByUser = [];
 									foreach ($oDsSchema->ops as $oDsOp) {
 										/* 获得数据源的值 */
-										if (!empty($oDsOp->link->user)) {
+										if (!empty($oDsOp->ds->user)) {
 											if ('single' === $oDsSchema->type) {
 												$q = [
 													'count(*)',
@@ -1591,10 +1591,10 @@ class record extends \pl\fe\matter\base {
 												$q[2] .= " and rid='{$oDsAssignedRnd->rid}'";
 											}
 											$count = (int) $modelRec->query_val_ss($q);
-											if (isset($aDsOpDataByUser[$oDsOp->link->user])) {
-												$aDsOpDataByUser[$oDsOp->link->user] += $count;
+											if (isset($aDsOpDataByUser[$oDsOp->ds->user])) {
+												$aDsOpDataByUser[$oDsOp->ds->user] += $count;
 											} else {
-												$aDsOpDataByUser[$oDsOp->link->user] = $count;
+												$aDsOpDataByUser[$oDsOp->ds->user] = $count;
 											}
 										}
 										/* 更新获得记录的数值 */

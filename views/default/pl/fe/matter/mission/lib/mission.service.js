@@ -198,7 +198,6 @@ define(['require'], function(require) {
                 submit: function(modifiedData) {
                     var defer = $q.defer();
                     http2.post('/rest/pl/fe/matter/mission/update?id=' + _missionId, modifiedData, function(rsp) {
-                        //noticebox.success('完成保存');
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -450,8 +449,8 @@ define(['require'], function(require) {
                             aCronRules.forEach(function(oRule) {
                                 delete oRule.case;
                             });
-                            oApp.roundCron = aCronRules;
-                            srvMission.update('roundCron').then(function() {
+                            srvMission.submit({ round_cron: aCronRules }).then(function() {
+                                oApp.roundCron = aCronRules;
                                 defer.resolve(aCronRules);
                             });
                         });

@@ -890,10 +890,11 @@ class main extends main_base {
 		$current = time();
 		$appId = uniqid();
 		$oNewApp = new \stdClass;
-		/*从站点或任务获得的信息*/
+		/* 项目获得的信息 */
 		$oNewApp->pic = $oMission->pic;
 		$oNewApp->summary = $oMission->summary;
 		$oNewApp->mission_id = $oMission->id;
+		$oNewApp->sync_mission_round = 'Y';
 		$oNewApp->use_mission_header = 'Y';
 		$oNewApp->use_mission_footer = 'Y';
 		$oNewApp->scenario = 'common';

@@ -22,6 +22,7 @@ $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
 $sql .= ",scenario_config text null"; // 登记活动场景的配置参数
 $sql .= ",round_cron text null"; // 定时创建轮次规则
+$sql .= ",sync_mission_round char(1) not null default 'N'"; // 和项目轮次同步
 $sql .= ",count_limit int not null default 0"; // 限制登记次数，0不限制
 $sql .= ",start_at int not null default 0"; // 开始时间
 $sql .= ",before_start_page varchar(20) not null default ''";

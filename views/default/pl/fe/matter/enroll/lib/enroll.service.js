@@ -398,6 +398,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     http2.get(_fnMakeApiUrl('quitMission'), function(rsp) {
                         delete _oApp.mission;
                         _oApp.mission_id = 0;
+                        _oApp.sync_mission_round = 'N';
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -2101,21 +2102,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             $mi.dismiss('cancel');
         };
         $scope.doSearchRound = function() {
-            srvEnlRnd.list().then(function(result) {
+            srvEnlRnd.list().then(function(oResult) {
                 var oCriteria = $scope.criteria;
-                $scope.activeRound = result.active;
+                $scope.activeRound = oResult.active;
                 if ($scope.activeRound) {
                     var otherRounds = [];
-                    result.rounds.forEach(function(oRound) {
+                    oResult.rounds.forEach(function(oRound) {
                         if (oRound.rid !== $scope.activeRound.rid) {
                             otherRounds.push(oRound);
                         }
                     });
                     $scope.rounds = otherRounds;
                 } else {
-                    $scope.rounds = result.rounds;
+                    $scope.rounds = oResult.rounds;
                 }
-                $scope.pageOfRound = result.page;
+                $scope.pageOfRound = oResult.page;
                 if (!oCriteria.record) {
                     oCriteria.record = { rid: [] };
                 }

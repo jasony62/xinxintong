@@ -1536,20 +1536,29 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 从指定的数据源同步数据
 	 */
-	public function syncWithDataSource_action($app) {
+	public function syncWithDataSource_action($app, $round = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
-		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas,scenario', 'cascaded' => 'N']))) {
+		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']))) {
 			return new \ObjectNotFoundError();
 		}
+		$modelRnd = $this->model('matter\enroll\round');
+		if (empty($round)) {
+			$oAssignedRnd = $modelRnd->getActive($oApp, ['id,rid,mission_rid']);
+		} else {
+			$oAssignedRnd = $modelRnd->byId($round, ['id,rid,mission_rid']);
+		}
+		$modelRec = $this->model('matter\enroll\record');
 		if (!empty($oApp->dataSchemas)) {
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (!empty($oSchema->ds->app->id) && !empty($oSchema->ds->schema->id)) {
 					$oDsApp = $modelApp->byId($oSchema->ds->app->id, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
+					if ($oAssignedRnd) {
+						$oDsAssignedRnd = $modelRnd->byMissionRid($oDsApp, $oAssignedRnd->mission_rid, ['fields' => 'rid']);
+					}
 					if (!empty($oDsApp->dataSchemas)) {
 						foreach ($oDsApp->dataSchemas as $oDsSchema) {
 							if ($oSchema->ds->schema->id !== $oDsSchema->id) {
@@ -1577,6 +1586,10 @@ class record extends \pl\fe\matter\base {
 													"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and FIND_IN_SET('{$oDsOp->v}', value)",
 												];
 											}
+											/* 限制数据源的轮次 */
+											if (!empty($oDsAssignedRnd->rid)) {
+												$q[2] .= " and rid='{$oDsAssignedRnd->rid}'";
+											}
 											$count = (int) $modelRec->query_val_ss($q);
 											if (isset($aDsOpDataByUser[$oDsOp->link->user])) {
 												$aDsOpDataByUser[$oDsOp->link->user] += $count;
@@ -1590,6 +1603,10 @@ class record extends \pl\fe\matter\base {
 											'xxt_enroll_record',
 											['aid' => $oApp->id, 'state' => 1],
 										];
+										/* 限制汇总数据的轮次 */
+										if (!empty($oAssignedRnd->rid)) {
+											$q[2]['rid'] = $oAssignedRnd;
+										}
 										$oUserRecords = $modelRec->query_objs_ss($q);
 										if (!empty($oUserRecords)) {
 											$oRecUser = new \stdClass;
@@ -1615,6 +1632,10 @@ class record extends \pl\fe\matter\base {
 										'xxt_enroll_record',
 										['aid' => $oApp->id, 'state' => 1],
 									];
+									/* 限制汇总数据的轮次 */
+									if (!empty($oAssignedRnd->rid)) {
+										$q[2]['rid'] = $oAssignedRnd;
+									}
 									$oUserRecords = $modelRec->query_objs_ss($q);
 									if (!empty($oUserRecords)) {
 										$oRecUser = new \stdClass;
@@ -1627,6 +1648,10 @@ class record extends \pl\fe\matter\base {
 												'xxt_enroll_record_data',
 												"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and userid='{$oUserRec->userid}'",
 											];
+											/* 限制数据源的轮次 */
+											if (!empty($oDsAssignedRnd->rid)) {
+												$q[2] .= " and rid='{$oDsAssignedRnd->rid}'";
+											}
 											$sum = $modelRec->query_val_ss($q);
 											$oRecData->{$oSchema->id} = $sum;
 											$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);

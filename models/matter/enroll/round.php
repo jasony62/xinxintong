@@ -8,16 +8,33 @@ class round_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byId($roundId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function byId($roundId, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_enroll_round',
 			['rid' => $roundId],
 		];
-		$round = $this->query_obj_ss($q);
+		$oRound = $this->query_obj_ss($q);
 
-		return $round;
+		return $oRound;
+	}
+	/**
+	 * 和指定项目轮次绑定的轮次
+	 */
+	public function byMissionRid($oApp, $roundId, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$state = isset($aOptions['state']) ? $aOptions['state'] : false;
+		$q = [
+			$fields,
+			'xxt_enroll_round',
+			['aid' => $oApp->id, 'mission_rid' => $roundId],
+		];
+		$state && $q[2]['state'] = $state;
+
+		$oRound = $this->query_obj_ss($q);
+
+		return $oRound;
 	}
 	/**
 	 * 返回登记活动下的轮次
@@ -25,14 +42,14 @@ class round_model extends \TMS_MODEL {
 	 * @param object $oApp
 	 *
 	 */
-	public function byApp($oApp, $options = []) {
+	public function byApp($oApp, $aOptions = []) {
 		if (!isset($oApp->sync_mission_round)) {
 			throw new \ParameterError('没有提供活动轮次设置的完整信息（1）');
 		}
 
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$state = isset($options['state']) ? $options['state'] : false;
-		$page = isset($options['page']) ? $options['page'] : null;
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$state = isset($aOptions['state']) ? $aOptions['state'] : false;
+		$page = isset($aOptions['page']) ? $aOptions['page'] : null;
 
 		$oResult = new \stdClass; // 返回的结果
 
@@ -106,8 +123,8 @@ class round_model extends \TMS_MODEL {
 	 * @param object $oApp
 	 *
 	 */
-	public function getAssignedActive($oApp, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function getAssignedActive($oApp, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
 		$q = [
 			$fields,
@@ -139,32 +156,27 @@ class round_model extends \TMS_MODEL {
 			return $oAppRound;
 		}
 
-		/* 根据项目的轮次规则生成轮次 */
 		if ($oApp->sync_mission_round === 'Y') {
+			/* 根据项目的轮次规则生成轮次 */
 			if (empty($oApp->mission_id)) {
 				throw new \ParameterError('没有提供活动所属项目的信息');
 			}
 			$oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'id,round_cron']);
 			$oMisRound = $this->model('matter\mission\round')->getActive($oMission, ['fields' => 'id,rid,title,start_at,end_at']);
 			if ($oMisRound) {
-				$q = [
-					$fields,
-					'xxt_enroll_round',
-					["aid" => $oApp->id, "state" => 1, "mission_rid" => $oMisRound->rid],
-				];
-				if ($oAppRound = $this->query_obj_ss($q)) {
-					return $oAppRound;
+				$oAppRound = $this->byMissionRid($oApp, $oMisRound->rid, ['state' => 1, 'fields' => $fields]);
+				if (false === $oAppRound) {
+					/* 创建和项目轮次绑定的轮次 */
+					$oNewRound = new \stdClass;
+					$oNewRound->title = $oMisRound->title;
+					$oNewRound->start_at = $oMisRound->start_at;
+					$oNewRound->end_at = $oMisRound->end_at;
+					$oNewRound->state = 1;
+					$oNewRound->mission_rid = $oMisRound->rid;
+					$oResult = $this->create($oApp, $oNewRound);
+					$oAppRound = $oResult[1];
 				}
-				/* 创建和项目轮次绑定的轮次 */
-				$oNewRound = new \stdClass;
-				$oNewRound->title = $oMisRound->title;
-				$oNewRound->start_at = $oMisRound->start_at;
-				$oNewRound->end_at = $oMisRound->end_at;
-				$oNewRound->state = 1;
-				$oNewRound->mission_rid = $oMisRound->rid;
-				$oResult = $this->create($oApp, $oNewRound);
-
-				return $oResult[1];
+				return $oAppRound;
 			}
 			return false;
 		} else {

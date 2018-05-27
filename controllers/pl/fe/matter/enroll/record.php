@@ -19,9 +19,9 @@ class record extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action($id) {
-		$access = $this->accessControlUser('enroll', $id);
-		if ($access[0] === false) {
-			die($access[1]);
+		$aAccess = $this->accessControlUser('enroll', $id);
+		if ($aAccess[0] === false) {
+			die($aAccess[1]);
 		}
 
 		\TPL::output('/pl/fe/matter/enroll/frame');
@@ -1669,6 +1669,69 @@ class record extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 从活动所属项目同步用户记录
+	 */
+	public function syncMissionUser_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		if ('mis_user_score' !== $oApp->scenario) {
+			return new \ParameterError('活动类型不正确，无法执行次操作');
+		}
+		$modelMis = $this->model('matter\mission');
+		$oMission = $modelMis->byId($oApp->mission_id);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+		/* 项目用户 */
+		$modelMisUsr = $this->model('matter\mission\user');
+		$misUsers = $modelMisUsr->enrolleeByMission($oMission);
+		if (empty($misUsers)) {
+			return new \ParameterError('项目用户数据为空');
+		}
+
+		$oPosted = $this->getPostJson();
+
+		$oAssignedRnds = [];
+		$modelRnd = $this->model('matter\enroll\round');
+		if (empty($oPosted->rid)) {
+			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
+			if ($oAssignedRnd) {
+				$oAssignedRnds[] = $oAssignedRnd;
+			}
+		} else {
+			foreach ($oPosted->rid as $rid) {
+				$oAssignedRnd = $modelRnd->byId($rid, ['fields' => 'id,rid,mission_rid']);
+				if ($oAssignedRnd) {
+					$oAssignedRnds[] = $oAssignedRnd;
+				}
+			}
+		}
+
+		$newRecordCount = 0; // 新生成的记录数
+		$modelRec = $this->model('matter\enroll\record');
+		foreach ($oAssignedRnds as $oAssignedRnd) {
+			foreach ($misUsers as $oMisUser) {
+				$oMockUser = new \stdClass;
+				$oMockUser->uid = $oMisUser->userid;
+				$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
+				if (empty($records)) {
+					$oMockUser->nickname = $oMisUser->nickname;
+					$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignRid' => $oAssignedRnd->rid]);
+					$newRecordCount++;
+				}
+			}
+		}
+
+		return new \ResponseData($newRecordCount);
 	}
 	/**
 	 * 返回一条登记记录的所有留言

@@ -80,14 +80,18 @@ class round_model extends \TMS_MODEL {
 	 * @param object $props
 	 * @param object $oCreator
 	 */
-	public function create($oApp, $oProps, $oCreator = null) {
+	public function create($oApp, $oProps, $oCreator = null, $bForceStopActive = false) {
 		// 结束数据库读写分离带来的问题
 		$this->setOnlyWriteDbConn(true);
 
 		/* 只允许有一个指定启动轮次 */
 		if (isset($oProps->state) && (int) $oProps->state === 1 && isset($oProps->start_at) && (int) $oProps->start_at === 0) {
-			if ($lastRound = $this->getAssignedActive($oApp)) {
-				return [false, '请先停止轮次【' . $lastRound->title . '】'];
+			if ($oLastRound = $this->getAssignedActive($oApp)) {
+				if ($bForceStopActive) {
+					$this->update('xxt_enroll_round', ['state' => 2], ['rid' => $oLastRound->rid]);
+				} else {
+					return [false, '请先停止轮次【' . $oLastRound->title . '】'];
+				}
 			}
 		}
 		$roundId = uniqid();
@@ -151,11 +155,6 @@ class round_model extends \TMS_MODEL {
 
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
-		/* 已经存在的，用户指定的当前轮次 */
-		if ($oAppRound = $this->getAssignedActive($oApp, $aOptions)) {
-			return $oAppRound;
-		}
-
 		if ($oApp->sync_mission_round === 'Y') {
 			/* 根据项目的轮次规则生成轮次 */
 			if (empty($oApp->mission_id)) {
@@ -173,13 +172,20 @@ class round_model extends \TMS_MODEL {
 					$oNewRound->end_at = $oMisRound->end_at;
 					$oNewRound->state = 1;
 					$oNewRound->mission_rid = $oMisRound->rid;
-					$oResult = $this->create($oApp, $oNewRound);
+					$oResult = $this->create($oApp, $oNewRound, null, true);
+					if (false === $oResult[0]) {
+						throw new \Exception($oResult[1]);
+					}
 					$oAppRound = $oResult[1];
 				}
 				return $oAppRound;
 			}
 			return false;
 		} else {
+			/* 已经存在的，用户指定的当前轮次 */
+			if ($oAppRound = $this->getAssignedActive($oApp, $aOptions)) {
+				return $oAppRound;
+			}
 			/* 根据活动的轮次规则生成轮次 */
 			if (!empty($oApp->roundCron)) {
 				/* 有效的定时规则 */

@@ -129,6 +129,17 @@ define(['frame'], function(ngApp) {
                 $scope.rows.reset();
             });
         };
+        $scope.syncMissionUser = function() {
+            var oPosted = {};
+            if ($scope.criteria.record && $scope.criteria.record.rid) {
+                oPosted.rid = $scope.criteria.record.ri;
+            }
+            http2.post('/rest/pl/fe/matter/enroll/record/syncMissionUser?app=' + $scope.app.id, oPosted, function(rsp) {
+                if (rsp.data > 0) {
+                    $scope.doSearch(1);
+                }
+            });
+        };
         $scope.syncWithDataSource = function() {
             http2.get('/rest/pl/fe/matter/enroll/record/syncWithDataSource?app=' + $scope.app.id, function(rsp) {
                 $scope.doSearch(1);

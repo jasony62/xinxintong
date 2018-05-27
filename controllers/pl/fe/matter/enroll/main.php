@@ -743,7 +743,7 @@ class main extends main_base {
 		$oNewApp->sync_mission_round = 'Y';
 		$oNewApp->use_mission_header = 'Y';
 		$oNewApp->use_mission_footer = 'Y';
-		$oNewApp->scenario = 'common';
+		$oNewApp->scenario = 'mis_user_score'; // 项目用户计分表
 
 		/* 添加页面 */
 		$modelApp->addPageByTemplate($oUser, $oSite, $oMission, $appId, $oConfig, null);

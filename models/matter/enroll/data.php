@@ -596,7 +596,7 @@ class data_model extends entity_model {
 	/**
 	 * 返回指定活动，填写的数据
 	 */
-	public function byApp(&$oApp, $oUser, $oOptions = null) {
+	public function byApp($oApp, $oUser, $oOptions = null) {
 		if ($oOptions && is_array($oOptions)) {
 			$oOptions = (object) $oOptions;
 		}

@@ -22,13 +22,13 @@ class round_model extends \TMS_MODEL {
 	/**
 	 * 和指定项目轮次绑定的轮次
 	 */
-	public function byMissionRid($oApp, $roundId, $aOptions = []) {
+	public function byMissionRid($oApp, $missionRoundId, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$state = isset($aOptions['state']) ? $aOptions['state'] : false;
 		$q = [
 			$fields,
 			'xxt_enroll_round',
-			['aid' => $oApp->id, 'mission_rid' => $roundId],
+			['aid' => $oApp->id, 'mission_rid' => $missionRoundId],
 		];
 		$state && $q[2]['state'] = $state;
 
@@ -161,7 +161,7 @@ class round_model extends \TMS_MODEL {
 			if (empty($oApp->mission_id)) {
 				throw new \ParameterError('没有提供活动所属项目的信息');
 			}
-			$oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'id,round_cron']);
+			$oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'id,siteid,round_cron']);
 			$oMisRound = $this->model('matter\mission\round')->getActive($oMission, ['fields' => 'id,rid,title,start_at,end_at']);
 			if ($oMisRound) {
 				$oAppRound = $this->byMissionRid($oApp, $oMisRound->rid, ['state' => 1, 'fields' => $fields]);

@@ -129,11 +129,6 @@ define(['frame'], function(ngApp) {
                 $scope.rows.reset();
             });
         };
-        $scope.createAppByRecords = function(rows) {
-            srvEnrollRecord.createAppByRecords(rows).then(function(newApp) {
-                location.href = '/rest/pl/fe/matter/enroll?site=' + newApp.siteid + '&id=' + newApp.id;
-            });
-        };
         $scope.syncWithDataSource = function() {
             http2.get('/rest/pl/fe/matter/enroll/record/syncWithDataSource?app=' + $scope.app.id, function(rsp) {
                 $scope.doSearch(1);

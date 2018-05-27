@@ -27,10 +27,10 @@ class round_model extends \TMS_MODEL {
 	 * @param object $oMission
 	 *
 	 */
-	public function byMission($oMission, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$state = isset($options['state']) ? $options['state'] : false;
-		$oPage = isset($options['page']) ? $options['page'] : null;
+	public function byMission($oMission, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$state = isset($aOptions['state']) ? $aOptions['state'] : false;
+		$oPage = isset($aOptions['page']) ? $aOptions['page'] : null;
 
 		$oResult = new \stdClass; // 返回的结果
 
@@ -52,6 +52,23 @@ class round_model extends \TMS_MODEL {
 		}
 
 		return $oResult;
+	}
+	/**
+	 * 返回指定项目的轮次数量
+	 */
+	public function countByMission($oMission, $aOptions = []) {
+		$state = isset($aOptions['state']) ? $aOptions['state'] : false;
+
+		$q = [
+			'count(*)',
+			'xxt_mission_round',
+			['mission_id' => $oMission->id],
+		];
+		$state && $q[2]['state'] = $state;
+
+		$count = (int) $this->query_val_ss($q);
+
+		return $count;
 	}
 	/**
 	 * 添加轮次
@@ -94,8 +111,8 @@ class round_model extends \TMS_MODEL {
 	 * @param object $oMission
 	 *
 	 */
-	public function getAssignedActive($oMission, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function getAssignedActive($oMission, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
 		$q = [
 			$fields,

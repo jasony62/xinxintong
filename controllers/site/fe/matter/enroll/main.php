@@ -248,19 +248,25 @@ class main extends base {
 			if (isset($oOpenedRecord)) {
 				if (!empty($oOpenedRecord->rid)) {
 					$rid = $oOpenedRecord->rid;
-					$params['activeRound'] = $modelRnd->byId($oOpenedRecord->rid);
+					$oAppRnd = $modelRnd->byId($oOpenedRecord->rid, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
 				}
 			} else if (empty($rid)) {
-				$oActiveRnd = $modelRnd->getActive($oApp);
-				if ($oActiveRnd) {
-					$rid = $oActiveRnd->rid;
+				$oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+				if ($oAppRnd) {
+					$rid = $oAppRnd->rid;
 				}
-				$params['activeRound'] = $oActiveRnd;
 			} else {
-				$params['activeRound'] = $modelRnd->byId($rid);
+				$oAppRnd = $modelRnd->byId($rid, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+			}
+			if (isset($oAppRnd)) {
+				$params['activeRound'] = $oAppRnd;
 			}
 		}
 
+		/* 需要动态选项 */
+		$this->modelApp->setDynaOptions($oApp, isset($oAppRnd) ? $oAppRnd : null);
+
+		/* 要打开的页面 */
 		if (!in_array($page, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'favor', 'topic'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */

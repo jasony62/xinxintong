@@ -1547,9 +1547,9 @@ class record extends \pl\fe\matter\base {
 		}
 		$modelRnd = $this->model('matter\enroll\round');
 		if (empty($round)) {
-			$oAssignedRnd = $modelRnd->getActive($oApp, ['id,rid,mission_rid']);
+			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
 		} else {
-			$oAssignedRnd = $modelRnd->byId($round, ['id,rid,mission_rid']);
+			$oAssignedRnd = $modelRnd->byId($round, ['fields' => 'id,rid,mission_rid']);
 		}
 		$modelRec = $this->model('matter\enroll\record');
 		if (!empty($oApp->dataSchemas)) {
@@ -1557,14 +1557,16 @@ class record extends \pl\fe\matter\base {
 				if (!empty($oSchema->ds->app->id) && !empty($oSchema->ds->schema->id)) {
 					$oDsApp = $modelApp->byId($oSchema->ds->app->id, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
 					if ($oAssignedRnd) {
-						$oDsAssignedRnd = $modelRnd->byMissionRid($oDsApp, $oAssignedRnd->mission_rid, ['fields' => 'rid']);
+						$oDsAssignedRnd = $modelRnd->byMissionRid($oDsApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
 					}
 					if (!empty($oDsApp->dataSchemas)) {
+						/* 设置动态选项 */
+						$modelApp->setDynaOptions($oDsApp, isset($oDsAssignedRnd) ? $oDsAssignedRnd : null);
+
 						foreach ($oDsApp->dataSchemas as $oDsSchema) {
 							if ($oSchema->ds->schema->id !== $oDsSchema->id) {
 								continue;
 							}
-
 							switch ($oDsSchema->type) {
 							case 'single':
 							case 'multiple':

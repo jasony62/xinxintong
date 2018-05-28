@@ -133,7 +133,7 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 更新用户汇总数据
 	 */
-	private function _updateUsrData($oApp, $rid, $bJumpCreate, $oUser, $oUsrEventData, $fnUsrRndData = null, $fnUsrAppData = null, $fnUsrMisData = null) {
+	public function _updateUsrData($oApp, $rid, $bJumpCreate, $oUser, $oUsrEventData, $fnUsrRndData = null, $fnUsrAppData = null, $fnUsrMisData = null) {
 		$userid = $this->_getOperatorId($oUser);
 
 		/* 登记活动中需要额外更新的数据 */

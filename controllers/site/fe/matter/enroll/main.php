@@ -97,7 +97,7 @@ class main extends base {
 	/*
 	 *
 	 */
-	private function pageReadlog($oApp, $page, $rid = '', $ek = null, $topic = null) {
+	public function pageReadlog($oApp, $page, $rid = '', $ek = null, $topic = null) {
 		// 获得当前获得所属轮次
 		if ($rid === 'ALL') {
 			$rid = '';
@@ -108,68 +108,37 @@ class main extends base {
 			}
 		}
 		$oUser = $this->getUser($oApp);
-
 		// 修改阅读数'topic', 'repos', 'cowork'
 		if ($page === 'topic') {
-			$column_user = 'do_topic_read_num';
-			// 更新用户轮次数据
-			$this->upEnrUser($oApp, $rid, $oUser, $column_user);
+			$upUserData = new \stdClass;
+			$upUserData->do_topic_read_num = 1;
 			// 查询专题页创建者
-			$creater = $this->model('matter\enroll\topic')->byId($topic, ['fields' => 'userid uid,nickname,group_id']);
-			$column_creater = 'topic_read_num';
-			// 更新创建者轮次数据
-			$this->upEnrUser($oApp, $rid, $creater, $column_creater);
+			$creater = $this->model('matter\enroll\topic')->byId($topic, ['fields' => 'userid uid,nickname']);
+			if ($creater) {
+				$upCreaterData = new \stdClass;
+				$upCreaterData->topic_read_num = 1;
+			}
 		} else if ($page === 'cowork') {
-			$column_user = 'do_cowork_read_num';
-			// 更新用户轮次数据
-			$this->upEnrUser($oApp, $rid, $oUser, $column_user);
+			$upUserData = new \stdClass;
+			$upUserData->do_cowork_read_num = 1;
 			// 查询记录提交者
-			$creater = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'userid uid,rid,nickname,group_id', 'verbose' => 'N']);
-			$column_creater = 'cowork_read_num';
-			// 更新创建者轮次数据
-			$this->upEnrUser($oApp, $creater->rid, $creater, $column_creater);
+			$creater = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'userid uid,rid,nickname', 'verbose' => 'N']);
+			if ($creater) {
+				$upCreaterData = new \stdClass;
+				$upCreaterData->cowork_read_num = 1;
+				$rid = $creater->rid;
+			}
 		} else {
-			$column_user = 'do_repos_read_num';
-			// 更新用户轮次数据
-			$this->upEnrUser($oApp, $rid, $oUser, $column_user);
+			$upUserData = new \stdClass;
+			$upUserData->do_repos_read_num = 1;
 		}
 
-		return [true];
-	}
-	/*
-	 * 
-	 */
-	private function upEnrUser($oApp, $rid, $oUser, $column) {
-		// 更新用户当前轮次数据
-		$modelEnrUser = $this->model('matter\enroll\user');
-		$oEnrUser = $modelEnrUser->byId($oApp, $oUser->uid, ['rid' => $rid, 'fields' => 'id,do_topic_read_num,topic_read_num,do_cowork_read_num,cowork_read_num,do_repos_read_num']);
-		if ($oEnrUser === false) {
-			$data = [
-				'rid' => $rid,
-				$column => 1,
-			];
-			$modelEnrUser->add($oApp, $oUser, $data);
-		} else {
-			$modelEnrUser->update(
-				'xxt_enroll_user',
-				[$column => $oEnrUser->{$column} + 1],
-				['id' => $oEnrUser->id]
-			);
-		}
-		// 更新用户总轮次数据
-		$oEnrUserAll = $modelEnrUser->byId($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'id,do_topic_read_num,topic_read_num,do_cowork_read_num,cowork_read_num,do_repos_read_num']);
-		if ($oEnrUserAll === false) {
-			$data = [
-				'rid' => 'ALL',
-				$column => 1,
-			];
-			$modelEnrUser->add($oApp, $oUser, $data);
-		} else {
-			$modelEnrUser->update(
-				'xxt_enroll_user',
-				[$column => $oEnrUserAll->{$column} + 1],
-				['id' => $oEnrUserAll->id]
-			);
+		// 更新用户轮次数据
+		$modelEvent = $this->model('matter\enroll\event');
+		$modelEvent->_updateUsrData($oApp, $rid, false, $oUser, $upUserData);
+		// 更新被阅读者轮次数据
+		if (!empty($upCreaterData)) {
+			$modelEvent->_updateUsrData($oApp, $rid, false, $creater, $upCreaterData);
 		}
 
 		return [true];

@@ -301,6 +301,7 @@ class main extends main_base {
 		$oNewApp->group_app_id = $oCopied->group_app_id;
 		$oNewApp->enroll_app_id = $oCopied->enroll_app_id;
 		$oNewApp->tags = $modelApp->escape($oCopied->tags);
+		$oNewApp->count_limit = $modelApp->escape($oCopied->count_limit);
 
 		/* 所属项目 */
 		if (!empty($mission)) {

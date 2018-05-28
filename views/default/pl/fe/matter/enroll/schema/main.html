@@ -77,31 +77,31 @@
     </div>
     <div class="checkbox" ng-if="'html'!==activeSchema.type">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.required' ng-change="updSchema(activeSchema)">必填</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.required' ng-change="updSchema(activeSchema)"> 必填</label>
     </div>
     <div class="checkbox" ng-show="['shorttext'].indexOf(activeSchema.type)!==-1">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema(activeSchema)">唯一</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema(activeSchema)"> 唯一</label>
     </div>
     <div class="checkbox" ng-show="app.scenario==='quiz'">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.requireScore' ng-change="updSchema(activeSchema)">作为考题</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.requireScore' ng-change="updSchema(activeSchema)"> 作为考题</label>
     </div>
     <div class="checkbox" ng-if="activeSchema.id.indexOf('member.')!==0">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.remarkable' ng-change="updSchema(activeSchema)">允许进行留言</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.remarkable' ng-change="updSchema(activeSchema)"> 允许进行留言</label>
     </div>
     <div class="checkbox" ng-if="activeSchema.id.indexOf('member.')!==0">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.shareable' ng-change="updSchema(activeSchema,null,'shareable')">共享内容</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.shareable' ng-change="updSchema(activeSchema,null,'shareable')"> 共享内容</label>
     </div>
     <div class="checkbox" ng-show="['image','file','voice','single','multiple'].indexOf(activeSchema.type)!==-1">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.supplement' ng-change="updSchema(activeSchema)">允许填写补充说明</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.supplement' ng-change="updSchema(activeSchema)"> 允许填写补充说明</label>
     </div>
     <div class="checkbox" ng-show="['shorttext','multitext'].indexOf(activeSchema.type)!==-1">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.history' ng-change="updSchema(activeSchema,'history')">选择已填数据</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.history' ng-change="updSchema(activeSchema,'history')"> 选择已填数据</label>
     </div>
     <div class="form-group" ng-show="['image','file','voice'].indexOf(activeSchema.type)!==-1">
         <label>限制数量</label>
@@ -143,7 +143,7 @@
     </div>
     <div class="checkbox" ng-show="'single'===activeSchema.type">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.asdir' ng-change="updSchema(activeSchema)">在共享页作为内容分类目录</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.asdir' ng-change="updSchema(activeSchema)"> 在共享页作为内容分类目录</label>
     </div>
     <div class='form-group' ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1">
         <button class='btn btn-default' ng-click="setDefaultValue(activeSchema)">设置默认选项</button>
@@ -156,11 +156,15 @@
     </div>
     <div class="checkbox" ng-show="'multitext'===activeSchema.type">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.cowork' ng-change="updSchema(activeSchema)">多人协作填写</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.cowork' ng-change="updSchema(activeSchema)"> 多人协作填写</label>
     </div>
-    <div class="checkbox" ng-show="activeSchema.link">
+    <div class="checkbox" ng-show="'longtext'===activeSchema.type">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.showOpNickname' ng-change="updSchema(activeSchema)">填写时显示选项用户昵称</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.filterWhiteSpace' ng-change="updSchema(activeSchema)"> 提示过滤空白字符</label>
+    </div>
+    <div class="checkbox" ng-show="activeSchema.dsOps">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.showOpNickname' ng-change="updSchema(activeSchema)"> 填写时显示选项用户昵称</label>
     </div>
     <div class='form-group' ng-if="'shorttext'===activeSchema.type&&activeSchema.format==='number'">
         <button class='btn btn-default' ng-click="setDataSource(activeSchema)">设置数据来源</button>

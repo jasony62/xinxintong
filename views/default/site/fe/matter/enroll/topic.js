@@ -244,7 +244,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         fnGetTopic().then(function(rsp) {
             $scope.topic = rsp.data;
-            console.log($scope.topic);
             $scope.recordList(1);
         });
     });

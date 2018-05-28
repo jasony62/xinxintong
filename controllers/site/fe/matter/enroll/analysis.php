@@ -9,8 +9,8 @@ class analysis extends base {
 	/**
 	 *
 	 */
-	public function submit_action($site, $app, $rid = '', $page, $record = null, $topic = null) {
-		if (empty($app) || empty($page) || (empty($record) && empty($topic))) {
+	public function submit_action($site, $app, $page, $record = '', $topic = '', $rid = '') {
+		if (empty($site) || empty($app) || empty($page) || ($page !== 'repos' && empty($record) && empty($topic))) {
 			return new \ParameterError();
 		}
 
@@ -30,7 +30,6 @@ class analysis extends base {
 				$rid = $activeRound->rid;
 			}
 		}
-
 		$results = $this->model('matter\enroll\analysis')->submit($site, $oApp, $rid, $oUser, $oPosted, $page, $record, $topic);
 
 		return new \ResponseData($results);

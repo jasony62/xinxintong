@@ -58,7 +58,7 @@ class analysis_model extends \TMS_MODEL {
 			$upUserData = new \stdClass;
 			$upUserData->do_topic_read_elapse = $eventElapse;
 			// 查询专题页创建者
-			$creater = $this->model('matter\enroll\topic')->byId($topic, ['fields' => 'userid uid,nickname']);
+			$creater = $this->model('matter\enroll\topic')->byId($topicId, ['fields' => 'userid uid,nickname']);
 			if ($creater) {
 				$upCreaterData = new \stdClass;
 				$upCreaterData->topic_read_elapse = $eventElapse;

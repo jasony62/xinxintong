@@ -1,34 +1,34 @@
 <?php
-namespace pl\fe\matter\enroll;
+namespace pl\fe\matter\mission;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
- * 登记活动主控制器
+ * 项目轮次控制器
  */
 class round extends \pl\fe\matter\base {
 	/**
-	 * 返回指定登记活动下的轮次
+	 * 返回指定项目下的轮次
 	 *
-	 * @param string $app app's id
+	 * @param string $mission app's id
 	 *
 	 */
-	public function list_action($app, $checked = null, $page = 1, $size = 10) {
+	public function list_action($mission, $checked = null, $page = 1, $size = 10) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp || $oApp->state !== '1') {
+		$oMission = $this->model('matter\mission')->byId($mission, ['cascaded' => 'N']);
+		if (false === $oMission || $oMission->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		$modelRnd = $this->model('matter\enroll\round');
+		$modelRnd = $this->model('matter\mission\round');
 
 		$oPage = new \stdClass;
 		$oPage->num = $page;
 		$oPage->size = $size;
 
-		$oResult = $modelRnd->byApp($oApp, ['page' => $oPage, 'fields' => 'id,state,rid,title,start_at,end_at,mission_rid']);
+		$oResult = $modelRnd->byMission($oMission, ['page' => $oPage, 'state' => [1, 2], 'fields' => 'id,state,rid,title,start_at,end_at']);
 		if (!empty($checked)) {
 			if ($checked = $modelRnd->byId($checked)) {
 				$oResult->checked = $checked;
@@ -40,7 +40,7 @@ class round extends \pl\fe\matter\base {
 	/**
 	 * 获取设置定时轮次的时间
 	 *
-	 * @param string $app
+	 * @param string $mission
 	 *
 	 */
 	public function getCron_action() {
@@ -48,7 +48,7 @@ class round extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelRnd = $this->model('matter\enroll\round');
+		$modelRnd = $this->model('matter\mission\round');
 
 		$oPosted = $this->getPostJson();
 
@@ -64,27 +64,27 @@ class round extends \pl\fe\matter\base {
 	/**
 	 * 添加轮次
 	 *
-	 * @param string $app
+	 * @param string $mission
 	 *
 	 */
-	public function add_action($app) {
+	public function add_action($mission) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		$oMission = $this->model('matter\mission')->byId($mission, ['cascaded' => 'N']);
+		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
 
-		$modelRnd = $this->model('matter\enroll\round');
+		$modelRnd = $this->model('matter\mission\round');
 		$oPosted = $this->getPostJson();
 
 		if (isset($oPosted->start_at) && isset($oPosted->end_at) && $oPosted->start_at > $oPosted->end_at) {
 			return new \ResponseError('添加失败，本轮次的开始时间不能晚于结束时间！');
 		}
 
-		$rst = $modelRnd->create($oApp, $oPosted, $oUser);
+		$rst = $modelRnd->create($oMission, $oPosted, $oUser);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -94,20 +94,20 @@ class round extends \pl\fe\matter\base {
 	/**
 	 * 更新轮次
 	 *
-	 * @param string $app
+	 * @param string $mission
 	 * @param string $rid
 	 */
-	public function update_action($app, $rid) {
+	public function update_action($mission, $rid) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		$oMission = $this->model('matter\mission')->byId($mission, ['cascaded' => 'N']);
+		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
 
-		$modelRnd = $this->model('matter\enroll\round');
+		$modelRnd = $this->model('matter\mission\round');
 		$oRound = $modelRnd->byId($rid);
 		if (false === $oRound) {
 			return new \ObjectNotFoundError();
@@ -127,15 +127,15 @@ class round extends \pl\fe\matter\base {
 
 		/* 更改轮次的状态 */
 		if (isset($oPosted->state) && (int) $oPosted->state !== (int) $oRound->state && (int) $oPosted->state === 1 && (int) $oPosted->start_at === 0) {
-			if ($lastRound = $modelRnd->getAssignedActive($oApp)) {
+			if ($lastRound = $modelRnd->getAssignedActive($oMission)) {
 				return new \ResponseError('请先停止轮次【' . $lastRound->title . '】');
 			}
 		}
 
 		$rst = $modelRnd->update(
-			'xxt_enroll_round',
+			'xxt_mission_round',
 			$oPosted,
-			['aid' => $app, 'rid' => $rid]
+			['mission_id' => $oMission->id, 'rid' => $rid]
 		);
 
 		$oRound = $modelRnd->byId($rid);
@@ -145,48 +145,32 @@ class round extends \pl\fe\matter\base {
 	/**
 	 * 删除轮次
 	 *
-	 * @param string $app
+	 * @param string $mission
 	 * @param string $rid
 	 */
-	public function remove_action($app, $rid) {
+	public function remove_action($mission, $rid) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp) {
+		$oMission = $this->model('matter\mission')->byId($mission, ['cascaded' => 'N']);
+		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
 
-		$modelRnd = $this->model('matter\enroll\round');
+		$modelRnd = $this->model('matter\mission\round');
 		$oRound = $modelRnd->byId($rid);
 		if (false === $oRound) {
 			return new \ObjectNotFoundError();
 		}
-
-		$modelRec = $this->model('matter\enroll\record');
-		$countOfRecords = $modelRec->byRound($rid, ['fields' => 'count(*)']);
-		if ($countOfRecords > 0) {
-			return new \ResponseError('【' . $oRound->title . '】已有登记数据不能删除');
-		}
 		/**
 		 * 删除轮次
 		 */
-		$rst = $modelRnd->delete(
-			'xxt_enroll_round',
-			['aid' => $oApp->id, 'rid' => $rid]
+		$rst = $modelRnd->update(
+			'xxt_mission_round',
+			['state' => 0],
+			['mission_id' => $oMission->id, 'rid' => $rid]
 		);
-
-		if (0 === (int) $modelRnd->query_val_ss(['count(*)', 'xxt_enroll_round', ['aid' => $oApp->id]])) {
-			/**
-			 * 如果不存在轮次了修改登记活动的状态标记
-			 */
-			$modelRnd->update(
-				'xxt_enroll',
-				['multi_rounds' => 'N'],
-				['id' => $oApp->id]
-			);
-		}
 
 		return new \ResponseData($rst);
 	}

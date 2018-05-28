@@ -473,6 +473,7 @@ abstract class enroll_base extends app_base {
 
 		/* 设置更新的属性 */
 		$oUpdatedApp->mission_id = $oApp->mission_id = 0;
+		$oUpdatedApp->sync_mission_round = $oApp->sync_mission_round = 'N';
 		if ($bDataSchemasModified) {
 			$oUpdatedApp->data_schemas = $this->escape($this->toJson($aDataSchemas));
 		}if ($bEntryRuleModified) {

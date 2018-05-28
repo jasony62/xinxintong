@@ -240,25 +240,27 @@ class member_model extends \TMS_MODEL {
 			foreach ($oMschema->extAttrs as $oExtAttr) {
 				switch ($oExtAttr->type) {
 				case 'image':
-					$submitVal = $oMember->extattr->{$oExtAttr->id};
-					if (is_array($submitVal)) {
-						/* 上传图片 */
-						$treatedValue = [];
-						$fsuser = $this->model('fs/user', $oMschema->siteid);
-						foreach ($submitVal as $oImg) {
-							if (isset($oImg->local) && $oImg->local === 'Y') {
-								$treatedValue[] = $oImg;
-							} else if (isset($oImg->serverId) || isset($oImg->imgSrc)) {
-								$rst = $fsuser->storeImg($oImg);
-								if (false === $rst[0]) {
-									return [false, $rst[1]];
+					if (isset($oMember->extattr->{$oExtAttr->id})) {
+						$submitVal = $oMember->extattr->{$oExtAttr->id};
+						if (is_array($submitVal)) {
+							/* 上传图片 */
+							$treatedValue = [];
+							$fsuser = $this->model('fs/user', $oMschema->siteid);
+							foreach ($submitVal as $oImg) {
+								if (isset($oImg->local) && $oImg->local === 'Y') {
+									$treatedValue[] = $oImg;
+								} else if (isset($oImg->serverId) || isset($oImg->imgSrc)) {
+									$rst = $fsuser->storeImg($oImg);
+									if (false === $rst[0]) {
+										return [false, $rst[1]];
+									}
+									$treatedValue[] = (object) ['imgSrc' => $rst[1], 'local' => 'Y'];
 								}
-								$treatedValue[] = (object) ['imgSrc' => $rst[1], 'local' => 'Y'];
 							}
+							$oMember->extattr->{$oExtAttr->id} = $treatedValue;
+						} else {
+							$oMember->extattr->{$oExtAttr->id} = [];
 						}
-						$oMember->extattr->{$oExtAttr->id} = $treatedValue;
-					} else {
-						$oMember->extattr->{$oExtAttr->id} = [];
 					}
 					break;
 				}
@@ -376,8 +378,8 @@ class member_model extends \TMS_MODEL {
 		return $members;
 	}
 	/*
-	 * 如果通讯录被分组活动绑定进行需要自动同步
-	 */
+		 * 如果通讯录被分组活动绑定进行需要自动同步
+	*/
 	public function syncToGroupPlayer($schemaId, $oNewMember) {
 		$user = new \stdClass;
 		$user->enroll_key = $oNewMember->id;

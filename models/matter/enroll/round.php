@@ -150,7 +150,7 @@ class round_model extends \TMS_MODEL {
 	 */
 	public function getActive($oApp, $aOptions = []) {
 		if (!isset($oApp->sync_mission_round)) {
-			throw new \ParameterError('没有提供活动轮次设置的完整信息（1）');
+			throw new \Exception('没有提供活动轮次设置的完整信息（1）');
 		}
 
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
@@ -158,7 +158,7 @@ class round_model extends \TMS_MODEL {
 		if ($oApp->sync_mission_round === 'Y') {
 			/* 根据项目的轮次规则生成轮次 */
 			if (empty($oApp->mission_id)) {
-				throw new \ParameterError('没有提供活动所属项目的信息');
+				throw new \Exception('没有提供活动所属项目的信息');
 			}
 			$oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'id,siteid,round_cron']);
 			$oMisRound = $this->model('matter\mission\round')->getActive($oMission, ['fields' => 'id,rid,title,start_at,end_at']);

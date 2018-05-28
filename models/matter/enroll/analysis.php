@@ -15,11 +15,11 @@ class analysis_model extends \TMS_MODEL {
 		$length = count($events);
 		$eventEnd = $events[$length-1];
 		// 事件总时长
-		$eventElapse = $eventEnd->elapse;
+		$eventElapse = round($eventEnd->elapse / 1000);
 		// 事件开始时间
-		$eventStartAt = $eventData->start;
+		$eventStartAt = round($eventData->start / 1000);
 		// 事件结束时间
-		$eventEndAt = (int) $eventData->start + (int) $eventEnd->elapse;
+		$eventEndAt = $eventStartAt + $eventElapse;
 
 		$inData = [];
 		$inData['siteid'] = $site;
@@ -33,12 +33,12 @@ class analysis_model extends \TMS_MODEL {
 		}
 		$inData['userid'] = $user->uid;
 		$inData['nickname'] = $user->nickname;
-		$inData['event_first_at'] = $eventStartAt;
 		$inData['event_first'] = $eventFirst->type;
+		$inData['event_first_at'] = $eventStartAt;
 		$inData['event_end'] = $eventEnd->type;
 		$inData['event_end_at'] = $eventEndAt;
 		$inData['event_elapse'] = $eventElapse;
-		$inData['events'] = json_encode($events);
+		$inData['events'] = json_encode($eventData);
 		
 		$inData['id'] = $this->insert('xxt_enroll_trace', $inData, true);
 
@@ -52,6 +52,7 @@ class analysis_model extends \TMS_MODEL {
 				$upCreaterData = new \stdClass;
 				$upCreaterData->cowork_read_elapse = $eventElapse;
 				$rid = $creater->rid;
+				unset($creater->rid);
 			}
 		} else if ($page === 'topic') {
 			$upUserData = new \stdClass;

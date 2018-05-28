@@ -26,12 +26,33 @@ $sql .= ",extattrs text null"; //扩展属性
 $sql .= ",user_app_id varchar(40) not null default ''"; // 项目的用户名单。项目中的登记活动，例如：报名活动。
 $sql .= ",user_app_type varchar(10) not null default ''"; // 项目的用户名单应用的类型，例如：enroll，signin
 $sql .= ",entry_rule text null"; // 参与规则
+$sql .= ",round_cron text null"; // 定时创建轮次规则
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",wxacode_url text null"; // 参与规则
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_mission): ' . $mysqli->error;
+}
+/**
+ * 项目的轮次
+ */
+$sql = "create table if not exists xxt_mission_round(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",rid varchar(13) not null";
+$sql .= ",mission_id int not null";
+$sql .= ",creator varchar(40) not null default ''";
+$sql .= ",create_at int not null";
+$sql .= ",start_at int not null"; // 轮次开始时间
+$sql .= ",end_at int not null"; // 轮次结束时间
+$sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的标题
+$sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
+$sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /**
  * 运营任务访问控制列表，记录任务的所有访问关系

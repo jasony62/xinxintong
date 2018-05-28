@@ -128,6 +128,22 @@ define([], function() {
         return html;
     }
 
+    function _htmlDynaRadio(oSchema) {
+        var html;
+
+        html = '<li ng-repeat="op in schemasById[\'' + oSchema.id + '\'].ops" class="radio" wrap="radio"';
+        oSchema.required === 'Y' && (html += 'required');
+        html += '><label><input type="radio" name="' + oSchema.id + '"';
+        html += ' value="{{op.v}}"';
+        html += ' ng-model="data.' + oSchema.id + '"';
+        oSchema.attrs && oSchema.attrs.forEach(function(attr) {
+            html += 'data-' + attr.name + '="' + attr.value + '"';
+        });
+        html += '><span ng-bind-html="op.l"></span></label></li>';
+
+        return html;
+    }
+
     function _htmlCheckbox(schema, op, config, forEdit) {
         var html, cls;
 
@@ -146,6 +162,19 @@ define([], function() {
         forEdit && (html += 'contenteditable="true"');
         html += '>' + op.l + '</span></label>';
         if (op.desc && op.desc.length) html += '<div class="desc">' + op.desc + '</div>';
+        html += '</li>';
+
+        return html;
+    }
+
+    function _htmlDynaCheckbox(oSchema) {
+        var html;
+
+        html = '<li ng-repeat="op in schemasById[\'' + oSchema.id + '\'].ops" class="checkbox" wrap="checkbox"';
+        oSchema.required === 'Y' && (html += 'required');
+        html += '><label><input type="checkbox" name="' + oSchema.id + '"';
+        html += ' ng-model="data.' + oSchema.id + '[op.v]"';
+        html += '><span ng-bind-html="op.l"></span></label>';
         html += '</li>';
 
         return html;
@@ -222,6 +251,9 @@ define([], function() {
 
         return html;
     };
+    InputWrap.prototype._htmlDynaRadio = function(oWrap) {
+        return _htmlDynaRadio(oWrap.schema);
+    };
     InputWrap.prototype._htmlSingleSelect = function(oWrap, onlyChildren) {
         var config = oWrap.config,
             schema = oWrap.schema,
@@ -241,20 +273,20 @@ define([], function() {
 
         return html;
     };
-    InputWrap.prototype._htmlMultiple = function(oWrap, forEdit, onlyChildren) {
-        var config = oWrap.config,
-            schema = oWrap.schema,
+    InputWrap.prototype._htmlMultiple = function(oWrap, bForEdit, onlyChildren) {
+        var oConfig = oWrap.config,
+            oSchema = oWrap.schema,
             html = '',
             html2;
 
-        schema.ops.forEach(function(op) {
-            html += _htmlCheckbox(schema, op, config, forEdit);
+        oSchema.ops.forEach(function(oOp) {
+            html += _htmlCheckbox(oSchema, oOp, oConfig, bForEdit);
         });
 
         if (!onlyChildren) {
             html2 = '<ul';
-            if (config.setUpper === 'Y') {
-                html2 += ' tms-checkbox-group="' + schema.id + '" tms-checkbox-group-model="data" tms-checkbox-group-upper="' + config.upper + '"';
+            if (oConfig.setUpper === 'Y') {
+                html2 += ' tms-checkbox-group="' + oSchema.id + '" tms-checkbox-group-model="data" tms-checkbox-group-upper="' + oConfig.upper + '"';
             }
             html2 += '>';
             html = html2 + html + '</ul>';
@@ -262,20 +294,23 @@ define([], function() {
 
         return html;
     };
-    InputWrap.prototype._htmlScoreItem = function(oWrap, forEdit) {
+    InputWrap.prototype._htmlDynaCheckbox = function(oWrap) {
+        return _htmlDynaCheckbox(oWrap.schema);
+    };
+    InputWrap.prototype._htmlScoreItem = function(oWrap, bForEdit) {
         var config = oWrap.config,
             schema = oWrap.schema,
             html;
 
         html = '<ul>';
         schema.ops.forEach(function(op) {
-            html += _htmlNumber(schema, op, config, forEdit);
+            html += _htmlNumber(schema, op, config, bForEdit);
         });
         html += '</ul>';
 
         return html;
     };
-    InputWrap.prototype.embed = function(oWrap, forEdit) {
+    InputWrap.prototype.embed = function(oWrap, bForEdit) {
         var oSchema = oWrap.schema,
             oConfig = oWrap.config,
             inpAttrs = {
@@ -284,9 +319,9 @@ define([], function() {
                 schema: oSchema.id,
                 'schema-type': oSchema.type,
             },
-            html = '<label' + (oConfig.hidename ? ' class="hide"' : '') + (forEdit ? ' contenteditable="true">' : '>') + oSchema.title + '</label>';
+            html = '<label' + (oConfig.hidename ? ' class="hide"' : '') + (bForEdit ? ' contenteditable="true">' : '>') + oSchema.title + '</label>';
 
-        forEdit && (inpAttrs.contenteditable = 'false');
+        bForEdit && (inpAttrs.contenteditable = 'false');
 
         switch (oSchema.type) {
             case 'multitext':
@@ -295,7 +330,7 @@ define([], function() {
                 html += '<div wrap="multitext-history" class="top-bar tms-flex-row"><div class="tms-flex-grow" dynamic-html="item.value"';
                 oSchema.placeholder && (html += ' placeholder="' + oSchema.title + '"');
                 oSchema.required === 'Y' && (html += 'required=""');
-                forEdit && (html += ' readonly');
+                bForEdit && (html += ' readonly');
                 html += '></div>';
                 html += '<div class="btn-group" uib-dropdown>';
                 html += '<button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle><span class="glyphicon glyphicon-option-vertical"></span></button>';
@@ -328,7 +363,7 @@ define([], function() {
                     oSchema.required === 'Y' && (html += 'required=""');
                     oSchema.type === 'member' && (html += 'ng-init="data.member.schema_id=' + oSchema.schema_id + '"');
                     html += ' class="form-control input-lg"';
-                    forEdit && (html += ' readonly');
+                    bForEdit && (html += ' readonly');
                     html += '>';
                 }
                 break;
@@ -367,21 +402,21 @@ define([], function() {
                 oSchema.placeholder && (html += ' placeholder="' + oSchema.title + '"');
                 oSchema.required === 'Y' && (html += 'required=""');
                 html += ' class="form-control" rows="3"';
-                forEdit && (html += ' readonly');
+                bForEdit && (html += ' readonly');
                 html += '></textarea>';
                 break;
             case 'single':
                 if (oSchema.ops && oSchema.ops.length > 0) {
                     if (oSchema.component === 'S') {
-                        html += this._htmlSingleSelect(oWrap, forEdit);
+                        html += this._htmlSingleSelect(oWrap, bForEdit);
                     } else {
-                        html += this._htmlSingleRadio(oWrap, forEdit);
+                        html += this._htmlSingleRadio(oWrap, bForEdit);
                     }
                 }
                 break;
             case 'multiple':
                 if (oSchema.ops && oSchema.ops.length > 0) {
-                    html += this._htmlMultiple(oWrap, forEdit);
+                    html += this._htmlMultiple(oWrap, bForEdit);
                 }
                 break;
             case 'image':
@@ -433,7 +468,7 @@ define([], function() {
                 break;
             case 'score':
                 if (oSchema.ops && oSchema.ops.length > 0) {
-                    html += this._htmlScoreItem(oWrap, forEdit);
+                    html += this._htmlScoreItem(oWrap, bForEdit);
                 }
                 break;
             case 'html':
@@ -495,7 +530,12 @@ define([], function() {
                 } else if (/single/.test(oSchema.type)) {
                     (function(lib) {
                         var html;
-                        if (oSchema.ops) {
+                        if (oSchema.dsOps) {
+                            /* 选项需要从其他活动中动态获得 */
+                            html = lib._htmlDynaRadio(dataWrap);
+                            $dom.children('ul').html(html);
+                        } else if (oSchema.ops) {
+                            /* 直接在页面上生成选项 */
                             if (oConfig.component === 'R') {
                                 if ($dom.children('ul').length) {
                                     html = lib._htmlSingleRadio(dataWrap, false, true);
@@ -519,7 +559,11 @@ define([], function() {
                 } else if ('multiple' === oSchema.type) {
                     (function(lib) {
                         var html;
-                        if (oSchema.ops) {
+                        if (oSchema.dsOps) {
+                            /* 选项需要从其他活动中动态获得 */
+                            html = lib._htmlDynaCheckbox(dataWrap);
+                            $dom.children('ul').html(html);
+                        } else if (oSchema.ops) {
                             html = lib._htmlMultiple(dataWrap, false, true);
                             $dom.children('ul').html(html);
                         }

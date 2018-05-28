@@ -130,16 +130,16 @@ class data_model extends entity_model {
 					} else {
 						$valueModifyLogs = [];
 					}
-					$newModifyLog = new \stdClass;
-					$newModifyLog->submitAt = $oLastSchemaValues[0]->submit_at;
-					$newModifyLog->value = $this->escape($oLastSchemaValues[0]->value);
-					$valueModifyLogs[] = $newModifyLog;
+					$oNewModifyLog = new \stdClass;
+					$oNewModifyLog->submitAt = $oLastSchemaValues[0]->submit_at;
+					$oNewModifyLog->value = $oLastSchemaValues[0]->value;
+					$valueModifyLogs[] = $oNewModifyLog;
 					$aSchemaValue = [
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
 						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'value' => $this->escape($treatedValue),
-						'modify_log' => $this->toJson($valueModifyLogs),
+						'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 						'score' => isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0,
 					];
 				} else {
@@ -196,16 +196,16 @@ class data_model extends entity_model {
 										} else {
 											$valueModifyLogs = [];
 										}
-										$newModifyLog = new \stdClass;
-										$newModifyLog->submitAt = $beforeSchemaItems[$newSchemaValue->id]->submit_at;
-										$newModifyLog->value = $this->escape($beforeSchemaItems[$newSchemaValue->id]->value);
-										$valueModifyLogs[] = $newModifyLog;
+										$oNewModifyLog = new \stdClass;
+										$oNewModifyLog->submitAt = $beforeSchemaItems[$newSchemaValue->id]->submit_at;
+										$oNewModifyLog->value = $beforeSchemaItems[$newSchemaValue->id]->value;
+										$valueModifyLogs[] = $oNewModifyLog;
 										$aSchemaValue = [
 											'submit_at' => $oRecord->enroll_at,
 											'userid' => isset($oUser->uid) ? $oUser->uid : '',
 											'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 											'value' => $this->escape($newSchemaValue->value),
-											'modify_log' => $this->toJson($valueModifyLogs),
+											'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 											'multitext_seq' => (int) $k + 1,
 										];
 
@@ -242,16 +242,16 @@ class data_model extends entity_model {
 							} else {
 								$valueModifyLogs = [];
 							}
-							$newModifyLog = new \stdClass;
-							$newModifyLog->submitAt = $oBeforeSchemaVal->submit_at;
-							$newModifyLog->value = $this->escape($oBeforeSchemaVal->value);
-							$valueModifyLogs[] = $newModifyLog;
+							$oNewModifyLog = new \stdClass;
+							$oNewModifyLog->submitAt = $oBeforeSchemaVal->submit_at;
+							$oNewModifyLog->value = $oBeforeSchemaVal->value;
+							$valueModifyLogs[] = $oNewModifyLog;
 							$aSchemaValue = [
 								'submit_at' => $oRecord->enroll_at,
 								'userid' => isset($oUser->uid) ? $oUser->uid : '',
 								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 								'value' => $this->escape($treatedValue),
-								'modify_log' => $this->toJson($valueModifyLogs),
+								'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 								'multitext_seq' => 0,
 							];
 
@@ -596,7 +596,7 @@ class data_model extends entity_model {
 	/**
 	 * 返回指定活动，填写的数据
 	 */
-	public function byApp(&$oApp, $oUser, $oOptions = null) {
+	public function byApp($oApp, $oUser, $oOptions = null) {
 		if ($oOptions && is_array($oOptions)) {
 			$oOptions = (object) $oOptions;
 		}

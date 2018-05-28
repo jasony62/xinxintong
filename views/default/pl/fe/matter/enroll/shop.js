@@ -125,6 +125,13 @@ define(['require'], function(require) {
                 location.href = '/rest/pl/fe/matter/enroll/schema?site=' + _siteId + '&id=' + rsp.data.id;
             });
         };
+        $scope.doCreateUserScore = function() {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/createByMissionUser?mission=' + _missionId;
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/enroll/schema?site=' + _siteId + '&id=' + rsp.data.id;
+            });
+        };
         $scope.chooseScenario = function() {
             var oTemplates, keys;
 

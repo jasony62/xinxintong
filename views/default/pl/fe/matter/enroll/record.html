@@ -23,11 +23,9 @@
                     <li class="divider"></li>
                     <li><a href ng-click="renewScore()">更新全部记录得分</a></li>
                     <li><a href ng-click="importByOther()">从其他活动导入记录</a></li>
-                    <li class="divider"></li>
-                    <li><a href ng-click="createAppByRecords()">根据所有记录创建活动</a></li>
-                    <li><a href ng-click="createAppByRecords(rows)">根据选中记录创建活动<span>（{{rows.count}}）</span></a></li>
-                    <li class="divider"></li>
-                    <li><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>
+                    <li ng-if="app.scenario==='mis_user_score'" class="divider"></li>
+                    <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncMissionUser()">从项目同步用户数据</a></li>
+                    <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>
                 </ul>
             </div>
             <div class='form-group pull-right'>

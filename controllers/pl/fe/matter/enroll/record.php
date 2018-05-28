@@ -19,9 +19,9 @@ class record extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action($id) {
-		$access = $this->accessControlUser('enroll', $id);
-		if ($access[0] === false) {
-			die($access[1]);
+		$aAccess = $this->accessControlUser('enroll', $id);
+		if ($aAccess[0] === false) {
+			die($aAccess[1]);
 		}
 
 		\TPL::output('/pl/fe/matter/enroll/frame');
@@ -1536,34 +1536,45 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 从指定的数据源同步数据
 	 */
-	public function syncWithDataSource_action($app) {
+	public function syncWithDataSource_action($app, $round = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
-		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas,scenario', 'cascaded' => 'N']))) {
+		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']))) {
 			return new \ObjectNotFoundError();
 		}
+		$modelRnd = $this->model('matter\enroll\round');
+		if (empty($round)) {
+			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
+		} else {
+			$oAssignedRnd = $modelRnd->byId($round, ['fields' => 'id,rid,mission_rid']);
+		}
+		$modelRec = $this->model('matter\enroll\record');
 		if (!empty($oApp->dataSchemas)) {
 			foreach ($oApp->dataSchemas as $oSchema) {
 				if (!empty($oSchema->ds->app->id) && !empty($oSchema->ds->schema->id)) {
 					$oDsApp = $modelApp->byId($oSchema->ds->app->id, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
+					if ($oAssignedRnd) {
+						$oDsAssignedRnd = $modelRnd->byMissionRid($oDsApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
+					}
 					if (!empty($oDsApp->dataSchemas)) {
+						/* 设置动态选项 */
+						$modelApp->setDynaOptions($oDsApp, isset($oDsAssignedRnd) ? $oDsAssignedRnd : null);
+
 						foreach ($oDsApp->dataSchemas as $oDsSchema) {
 							if ($oSchema->ds->schema->id !== $oDsSchema->id) {
 								continue;
 							}
-
 							switch ($oDsSchema->type) {
 							case 'single':
 							case 'multiple':
-								if (!empty($oDsSchema->link->app->id) && !empty($oDsSchema->ops)) {
+								if (!empty($oDsSchema->dsOps->app->id) && !empty($oDsSchema->ops)) {
 									$aDsOpDataByUser = [];
 									foreach ($oDsSchema->ops as $oDsOp) {
 										/* 获得数据源的值 */
-										if (!empty($oDsOp->link->user)) {
+										if (!empty($oDsOp->ds->user)) {
 											if ('single' === $oDsSchema->type) {
 												$q = [
 													'count(*)',
@@ -1577,11 +1588,15 @@ class record extends \pl\fe\matter\base {
 													"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and FIND_IN_SET('{$oDsOp->v}', value)",
 												];
 											}
+											/* 限制数据源的轮次 */
+											if (!empty($oDsAssignedRnd->rid)) {
+												$q[2] .= " and rid='{$oDsAssignedRnd->rid}'";
+											}
 											$count = (int) $modelRec->query_val_ss($q);
-											if (isset($aDsOpDataByUser[$oDsOp->link->user])) {
-												$aDsOpDataByUser[$oDsOp->link->user] += $count;
+											if (isset($aDsOpDataByUser[$oDsOp->ds->user])) {
+												$aDsOpDataByUser[$oDsOp->ds->user] += $count;
 											} else {
-												$aDsOpDataByUser[$oDsOp->link->user] = $count;
+												$aDsOpDataByUser[$oDsOp->ds->user] = $count;
 											}
 										}
 										/* 更新获得记录的数值 */
@@ -1590,6 +1605,10 @@ class record extends \pl\fe\matter\base {
 											'xxt_enroll_record',
 											['aid' => $oApp->id, 'state' => 1],
 										];
+										/* 限制汇总数据的轮次 */
+										if (!empty($oAssignedRnd->rid)) {
+											$q[2]['rid'] = $oAssignedRnd;
+										}
 										$oUserRecords = $modelRec->query_objs_ss($q);
 										if (!empty($oUserRecords)) {
 											$oRecUser = new \stdClass;
@@ -1615,6 +1634,10 @@ class record extends \pl\fe\matter\base {
 										'xxt_enroll_record',
 										['aid' => $oApp->id, 'state' => 1],
 									];
+									/* 限制汇总数据的轮次 */
+									if (!empty($oAssignedRnd->rid)) {
+										$q[2]['rid'] = $oAssignedRnd;
+									}
 									$oUserRecords = $modelRec->query_objs_ss($q);
 									if (!empty($oUserRecords)) {
 										$oRecUser = new \stdClass;
@@ -1627,6 +1650,10 @@ class record extends \pl\fe\matter\base {
 												'xxt_enroll_record_data',
 												"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and userid='{$oUserRec->userid}'",
 											];
+											/* 限制数据源的轮次 */
+											if (!empty($oDsAssignedRnd->rid)) {
+												$q[2] .= " and rid='{$oDsAssignedRnd->rid}'";
+											}
 											$sum = $modelRec->query_val_ss($q);
 											$oRecData->{$oSchema->id} = $sum;
 											$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
@@ -1642,6 +1669,69 @@ class record extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 从活动所属项目同步用户记录
+	 */
+	public function syncMissionUser_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+		if ('mis_user_score' !== $oApp->scenario) {
+			return new \ParameterError('活动类型不正确，无法执行次操作');
+		}
+		$modelMis = $this->model('matter\mission');
+		$oMission = $modelMis->byId($oApp->mission_id);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+		/* 项目用户 */
+		$modelMisUsr = $this->model('matter\mission\user');
+		$misUsers = $modelMisUsr->enrolleeByMission($oMission);
+		if (empty($misUsers)) {
+			return new \ParameterError('项目用户数据为空');
+		}
+
+		$oPosted = $this->getPostJson();
+
+		$oAssignedRnds = [];
+		$modelRnd = $this->model('matter\enroll\round');
+		if (empty($oPosted->rid)) {
+			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
+			if ($oAssignedRnd) {
+				$oAssignedRnds[] = $oAssignedRnd;
+			}
+		} else {
+			foreach ($oPosted->rid as $rid) {
+				$oAssignedRnd = $modelRnd->byId($rid, ['fields' => 'id,rid,mission_rid']);
+				if ($oAssignedRnd) {
+					$oAssignedRnds[] = $oAssignedRnd;
+				}
+			}
+		}
+
+		$newRecordCount = 0; // 新生成的记录数
+		$modelRec = $this->model('matter\enroll\record');
+		foreach ($oAssignedRnds as $oAssignedRnd) {
+			foreach ($misUsers as $oMisUser) {
+				$oMockUser = new \stdClass;
+				$oMockUser->uid = $oMisUser->userid;
+				$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
+				if (empty($records)) {
+					$oMockUser->nickname = $oMisUser->nickname;
+					$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignRid' => $oAssignedRnd->rid]);
+					$newRecordCount++;
+				}
+			}
+		}
+
+		return new \ResponseData($newRecordCount);
 	}
 	/**
 	 * 返回一条登记记录的所有留言

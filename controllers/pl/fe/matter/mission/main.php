@@ -304,32 +304,35 @@ class main extends \pl\fe\matter\base {
 		$modelMis->setOnlyWriteDbConn(true);
 
 		/* data */
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
-		if (isset($posted->title)) {
-			$posted->title = $modelMis->escape($posted->title);
+		if (isset($oPosted->title)) {
+			$oPosted->title = $modelMis->escape($oPosted->title);
 		}
-		if (isset($posted->summary)) {
-			$posted->summary = $modelMis->escape($posted->summary);
+		if (isset($oPosted->summary)) {
+			$oPosted->summary = $modelMis->escape($oPosted->summary);
 		}
-		if (isset($posted->entry_rule)) {
-			$posted->entry_rule = $modelMis->escape($modelMis->toJson($posted->entry_rule));
+		if (isset($oPosted->entry_rule)) {
+			$oPosted->entry_rule = $modelMis->escape($modelMis->toJson($oPosted->entry_rule));
 		}
-		if (isset($posted->extattrs)) {
-			$posted->extattrs = $modelMis->escape($modelMis->toJson($posted->extattrs));
+		if (isset($oPosted->round_cron)) {
+			$oPosted->round_cron = $modelMis->escape($modelMis->toJson($oPosted->round_cron));
+		}
+		if (isset($oPosted->extattrs)) {
+			$oPosted->extattrs = $modelMis->escape($modelMis->toJson($oPosted->extattrs));
 		}
 		/* modifier */
-		$posted->modifier = $oUser->id;
-		$posted->modifier_src = $oUser->src;
-		$posted->modifier_name = $modelMis->escape($oUser->name);
-		$posted->modify_at = time();
+		$oPosted->modifier = $oUser->id;
+		$oPosted->modifier_src = $oUser->src;
+		$oPosted->modifier_name = $modelMis->escape($oUser->name);
+		$oPosted->modify_at = time();
 
 		/* update */
-		$rst = $modelMis->update('xxt_mission', $posted, ["id" => $id]);
+		$rst = $modelMis->update('xxt_mission', $oPosted, ["id" => $id]);
 		if ($rst) {
 			$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic');
 			/*记录操作日志*/
-			$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'U', $posted);
+			$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'U', $oPosted);
 			/*更新acl*/
 			$mission = $this->model('matter\mission\acl')->updateMission($mission);
 		}

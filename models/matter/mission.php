@@ -80,7 +80,9 @@ class mission_model extends app_base {
 				$oMission->entryUrl = $this->getEntryUrl($oMission->siteid, $oMission->id);
 				$oMission->opUrl = $this->getOpUrl($oMission->siteid, $oMission->id);
 			}
-			$oMission->roundNum = $modelRnd->countByMission($oMission, ['state' => 1]);
+			if (!empty($oMission->id)) {
+				$oMission->roundNum = $modelRnd->countByMission($oMission, ['state' => 1]);
+			}
 
 			if (!empty($cascaded)) {
 				$cascaded = explode(',', $cascaded);

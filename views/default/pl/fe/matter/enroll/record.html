@@ -87,7 +87,7 @@
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </div>
                             <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
                             </div>
                             <div ng-switch-when="multitext">
                                 <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
@@ -105,7 +105,7 @@
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </div>
                             <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
                             </div>
                             <div ng-switch-when="multitext">
                                 <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
@@ -118,7 +118,7 @@
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </div>
                             <span ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
                             </span>
                             <div ng-switch-when="multitext">
                                 <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>

@@ -541,7 +541,7 @@ class data_model extends entity_model {
 	/**
 	 * 返回指定活动，指定登记项的填写数据
 	 */
-	public function bySchema(&$oApp, $oSchema, $oOptions = null) {
+	public function bySchema($oApp, $oSchema, $oOptions = null) {
 		if ($oOptions) {
 			is_array($oOptions) && $oOptions = (object) $oOptions;
 			$page = isset($oOptions->page) ? $oOptions->page : null;
@@ -551,12 +551,21 @@ class data_model extends entity_model {
 		$oResult = new \stdClass; // 返回的结果
 
 		// 查询参数
-		$schemaId = $this->escape($oSchema->id);
 		$q = [
 			'distinct value',
-			"xxt_enroll_record_data",
-			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>''",
+			"xxt_enroll_record_data d",
+			"state=1 and aid='{$oApp->id}' and schema_id='{$oSchema->id}' and value<>''",
 		];
+		/* 限制关联数据 */
+		if (isset($oOptions->assocData) && is_object($oOptions->assocData)) {
+			$oAssocData = $oOptions->assocData;
+			foreach ($oAssocData as $schemaId => $value) {
+				if (!empty($value) && is_string($value)) {
+					$alias = 'd' . $schemaId;
+					$q[2] .= " and exists(select 1 from xxt_enroll_record_data {$alias} where d.enroll_key={$alias}.enroll_key and state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value='{$value}')";
+				}
+			}
+		}
 		/* 是否排除协作填写数据 */
 		if (isset($oOptions->multitext_seq)) {
 			$q[2] .= ' and multitext_seq=' . $multitext_seq;

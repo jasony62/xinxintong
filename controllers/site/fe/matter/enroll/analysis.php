@@ -9,9 +9,29 @@ class analysis extends base {
 	/**
 	 *
 	 */
-	public function submit_action($app, $page, $record = null) {
-		$oPosted = $this->getPostJson();
+	public function submit_action($site, $app, $page, $record = '', $topic = '', $rid = '') {
+		if (empty($site) || empty($app) || empty($page) || ($page !== 'repos' && empty($record) && empty($topic))) {
+			return new \ParameterError();
+		}
 
-		return new \ResponseData('ok');
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false || $oApp->state !== '1') {
+			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
+		}
+		$oUser = $this->getUser($oApp);
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted)) {
+			return new \ParameterError();
+		}
+
+		if (empty($rid)) {
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $activeRound->rid;
+			}
+		}
+		$results = $this->model('matter\enroll\analysis')->submit($site, $oApp, $rid, $oUser, $oPosted, $page, $record, $topic);
+
+		return new \ResponseData($results);
 	}
 }

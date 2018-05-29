@@ -68,6 +68,9 @@ class main extends base {
 					$title = '记录' . $oRecord->id . '|';
 				}
 			}
+			if (in_array($page, ['topic', 'repos', 'cowork'])) {
+				$this->pageReadlog($oApp, $page, $rid, $ek, $topic);
+			}
 			\TPL::assign('title', empty($title) ? $oApp->title : ($title . $oApp->title));
 			\TPL::output('/site/fe/matter/enroll/' . $page);
 		} else {
@@ -90,6 +93,55 @@ class main extends base {
 			}
 		}
 		exit;
+	}
+	/*
+	 *
+	 */
+	public function pageReadlog($oApp, $page, $rid = '', $ek = null, $topic = null) {
+		// 获得当前获得所属轮次
+		if ($rid === 'ALL') {
+			$rid = '';
+		}
+		if (empty($rid)) {
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $activeRound->rid;
+			}
+		}
+		$oUser = $this->getUser($oApp);
+		// 修改阅读数'topic', 'repos', 'cowork'
+		if ($page === 'topic') {
+			$upUserData = new \stdClass;
+			$upUserData->do_topic_read_num = 1;
+			// 查询专题页创建者
+			$creater = $this->model('matter\enroll\topic')->byId($topic, ['fields' => 'userid uid,nickname']);
+			if ($creater) {
+				$upCreaterData = new \stdClass;
+				$upCreaterData->topic_read_num = 1;
+			}
+		} else if ($page === 'cowork') {
+			$upUserData = new \stdClass;
+			$upUserData->do_cowork_read_num = 1;
+			// 查询记录提交者
+			$creater = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'userid uid,rid,nickname', 'verbose' => 'N']);
+			if ($creater) {
+				$upCreaterData = new \stdClass;
+				$upCreaterData->cowork_read_num = 1;
+				$rid = $creater->rid;
+			}
+		} else {
+			$upUserData = new \stdClass;
+			$upUserData->do_repos_read_num = 1;
+		}
+
+		// 更新用户轮次数据
+		$modelEvent = $this->model('matter\enroll\event');
+		$modelEvent->_updateUsrData($oApp, $rid, false, $oUser, $upUserData);
+		// 更新被阅读者轮次数据
+		if (!empty($upCreaterData)) {
+			$modelEvent->_updateUsrData($oApp, $rid, false, $creater, $upCreaterData);
+		}
+
+		return [true];
 	}
 	/**
 	 * 登记活动是否可用

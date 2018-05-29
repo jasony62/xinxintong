@@ -131,6 +131,17 @@ class topic extends base {
 		$oNewTopic->rec_num = 0;
 		$oNewTopic->id = $modelEnl->insert('xxt_enroll_topic', $oNewTopic, true);
 
+		// 处理用户数据
+		if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+			$rid = $activeRound->rid;
+		} else {
+			$rid = '';
+		}
+		$oUsrEventData = new \stdClass;
+		$oUsrEventData->topic_num = 1;
+		$oUsrEventData->last_topic_at = $current;
+		$this->model('matter\enroll\event')->_updateUsrData($oApp, $rid, false, $oUser, $oUsrEventData);
+
 		return new \ResponseData($oNewTopic);
 	}
 	/**

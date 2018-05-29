@@ -20,10 +20,16 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                 location.href = url;
             };
             $scope.open = function(file) {
-                var url, appID;
+                var url, appID, data;
                 appID = $location.search().app;
+                data = {
+                    name: file.name,
+                    size: file.size,
+                    url: file.oUrl,
+                    type: file.type
+                }
                 url = '/rest/site/fe/matter/enroll/attachment/download?app=' + appID;
-                url += '&file=' + JSON.stringify(file);
+                url += '&file=' + JSON.stringify(data);
                 window.open(url);
             }
             $scope.$watch('rec', function(oRecord) {
@@ -45,6 +51,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                                 case 'voice':
                                     schemaData.forEach(function(oFile) {
                                         if (oFile.url) {
+                                            oFile.oUrl = oFile.url;
                                             oFile.url = $sce.trustAsResourceUrl(oFile.url);
                                         }
                                     });

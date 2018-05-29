@@ -22,6 +22,7 @@ define(['frame'], function(ngApp) {
             rid: '',
             turn_title: '全部轮次',
         };
+        $scope.tmsTableWrapReady = 'N';
         $scope.rows = _oRows = {
             allSelected: 'N',
             selected: {},
@@ -152,6 +153,7 @@ define(['frame'], function(ngApp) {
         $scope.$watch('app.entryRule', function(oRule) {
             if (!oRule) return;
             $scope.rule = oRule;
+            $scope.tmsTableWrapReady = 'Y';
             $scope.searchEnrollee(1);
             _absent();
         });
@@ -167,4 +169,13 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
+    ngApp.filter('filterTime', function() {
+        return  function(e) {
+            var result, h, m, s, time = e*1;
+            h = Math.floor(time / 3600);
+            m = Math.floor((time / 60 % 6));
+            s = Math.floor((time % 60));
+            return result = h + ":" + m + ":" + s;
+        }
+    });
 });

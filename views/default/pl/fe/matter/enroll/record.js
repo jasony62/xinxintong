@@ -129,6 +129,12 @@ define(['frame'], function(ngApp) {
                 $scope.rows.reset();
             });
         };
+        $scope.openFileUrl = function(file) {
+            var url;
+            url = '/rest/site/fe/matter/enroll/attachment/download?app=' + $scope.app.id;
+            url += '&file=' + JSON.stringify(file);
+            window.open(url); 
+        }
         $scope.syncMissionUser = function() {
             var oPosted = {};
             if ($scope.criteria.record && $scope.criteria.record.rid) {

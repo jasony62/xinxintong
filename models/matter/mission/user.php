@@ -72,6 +72,7 @@ class user_model extends \TMS_MODEL {
 			case 'last_agree_at':
 			case 'last_agree_cowork_at':
 			case 'last_agree_remark_at':
+			case 'last_topic_at':
 				$aDbData[$field] = $value;
 				break;
 			case 'enroll_num':
@@ -90,6 +91,17 @@ class user_model extends \TMS_MODEL {
 			case 'agree_cowork_num':
 			case 'agree_remark_num':
 			case 'user_total_coin':
+			case 'topic_num':
+			case 'do_repos_read_num':
+			case 'do_topic_read_num':
+			case 'topic_read_num':
+			case 'do_cowork_read_num':
+			case 'cowork_read_num':
+			case 'do_cowork_read_elapse':
+			case 'cowork_read_elapse':
+			case 'do_topic_read_elapse':
+			case 'topic_read_elapse':
+			case 'do_repos_read_elapse':
 				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;
 				break;
 			case 'group_id':

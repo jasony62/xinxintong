@@ -15,14 +15,12 @@ body {
             font-weight: 400;
             border-radius: .5em;
         }
-
     }
 
     .event {
         &>*+* {
             margin-top: .5em;
         }
-
     }
 
     .footer {
@@ -33,9 +31,7 @@ body {
         .datetime {
             flex: 1;
         }
-
     }
-
 }
 
 .notice {
@@ -51,7 +47,6 @@ body {
             font-weight: 400;
             border-radius: .5em;
         }
-
     }
 
     .event {
@@ -59,7 +54,8 @@ body {
             margin-top: .5em;
         }
 
-        .event-user, .event-action {
+        .event-user,
+        .event-action {
             font-size: .9em;
         }
 
@@ -72,16 +68,62 @@ body {
             &>*+* {
                 margin-left: 1em;
             }
-
         }
-
     }
-
 }
 
 .site-pagination {
     ul {
         margin: 0;
     }
+}
 
+.table-responsive {
+    overflow-x: auto;
+    min-height: 0.01%;
+    width: 100%;
+    margin-bottom: 15px;
+    overflow-y: hidden;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border: 1px solid #ddd;
+    >.table {
+        margin-bottom: 0;
+        >thead,
+        >tbody,
+        >tfoot {
+            >tr {
+                >th,
+                >td {
+                    white-space: nowrap;
+                }
+            }
+        }
+    }
+    >.table-bordered {
+        border: 0;
+
+        >thead,
+        >tbody,
+        >tfoot {
+            >tr {
+                >th:first-child,
+                >td:first-child {
+                    border-left: 0;
+                }
+                >th:last-child,
+                >td:last-child {
+                    border-right: 0;
+                }
+            }
+        }
+        >tbody,
+        >tfoot {
+            >tr:last-child {
+                >th,
+                >td {
+                    border-bottom: 0;
+                }
+            }
+        }
+    }
 }

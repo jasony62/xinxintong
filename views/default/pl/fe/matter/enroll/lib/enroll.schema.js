@@ -791,6 +791,44 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     backdrop: 'static',
                 });
             };
+            $scope.setHistoryAssoc = function(oSchema) {
+                var _oApp;
+                _oApp = $scope.app;
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setHistoryAssoc.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var options = [];
+                        $scope2.schemas = [];
+                        _oApp.dataSchemas.forEach(function(oOther) {
+                            if (oOther.id !== oSchema.id && 'shorttext' === oOther.type && oOther.history === 'Y') {
+                                $scope2.schemas.push(oOther);
+                                options.push(oOther.id);
+                            }
+                        });
+                        $scope2.result = {};
+                        if (oSchema.historyAssoc && oSchema.historyAssoc.length) {
+                            oSchema.historyAssoc.forEach(function(schemaId) {
+                                if (options.indexOf(schemaId) !== -1) {
+                                    $scope2.result[schemaId] = true;
+                                }
+                            });
+                        }
+                        $scope2.ok = function() {
+                            $mi.close($scope2.result);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                    }],
+                    backdrop: 'static',
+                }).result.then(function(oResult) {
+                    oSchema.historyAssoc = [];
+                    for (var schemaId in oResult) {
+                        if (oResult[schemaId]) oSchema.historyAssoc.push(schemaId);
+                    }
+                    $scope.updSchema(oSchema);
+                });
+            };
             $scope.setDataSource = function(oSchema) {
                 var _oApp;
                 _oApp = $scope.app;

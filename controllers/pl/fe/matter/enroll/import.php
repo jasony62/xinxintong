@@ -244,9 +244,9 @@ class import extends \pl\fe\matter\base {
                 $statInfo = $zip->statIndex($i);
                 if($statInfo['crc'] == 0) {
                     //新建目录
-                    mkdir($toDir.'/'.$statInfo['name'], 0777, true);
+                    mkdir($toDir . '/' . $this->_iconvConvert($statInfo['name']), 0777, true);
                 } else {
-                	$copy = copy('zip://'.$zipName.'#'.$statInfo['name'], $toDir.'/'.$statInfo['name']);
+                	$copy = copy('zip://' . $zipName . '#' . $statInfo['name'], $toDir . '/' . $this->_iconvConvert($statInfo['name']));
                     if($copy == false) {
                         return [false, '文件移动失败'];
                     }
@@ -259,6 +259,18 @@ class import extends \pl\fe\matter\base {
 
 
 var_dump('ok');die;
+	}
+	/**
+	 *
+	 */
+	private function _iconvConvert($str) {
+		$encode = mb_detect_encoding($str, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
+
+		if ($encode && $encode != 'UTF-8') {
+			$str = iconv($encode, 'UTF-8//IGNORE', $str);
+		}
+
+		return $str;
 	}
 	/**
 	 * 保存数据

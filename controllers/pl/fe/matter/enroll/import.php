@@ -73,7 +73,7 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 上传文件结束
 	 */
-	public function endUpload_action($app) {
+	public function endUpload_action($app, $type = 'ZIP') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -86,7 +86,14 @@ class import extends \pl\fe\matter\base {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelFs = $this->model('fs/local', $oApp->siteid, '_resumable');
 		$fileUploaded = 'enroll_' . $oApp->id . '_' . $file->name;
-		$records = $this->_extract($oApp, $modelFs->rootDir . '/' . $fileUploaded);
+		if ($type === 'ZIP') {
+			$records = $this->_extractZIP($oApp, $modelFs->rootDir . '/' . $fileUploaded, $modelFs, $file);
+			if ($records[0] === false) {
+				return new \ResponseError($records[1]);
+			}
+		} else {
+			$records = $this->_extract($oApp, $modelFs->rootDir . '/' . $fileUploaded);
+		}
 		$modelFs->delete($fileUploaded);
 
 		$eks = $this->_persist($oApp, $records);
@@ -222,6 +229,36 @@ class import extends \pl\fe\matter\base {
 		}
 
 		return $records;
+	}
+	/**
+	 * 从文件中提取数据
+	 */
+	private function &_extractZIP($oApp, $zipName, $modelFs, $file) {
+		$zip = new \ZipArchive;
+		$res = $zip->open($zipName);
+        if ($res === TRUE){
+        	$toDir = $modelFs->rootDir . '/enroll_' . $oApp->id . '_importZIP_' . $file->uniqueIdentifier;
+            mkdir($toDir, 0777, true);
+            $docnum = $zip->numFiles;
+            for($i = 0; $i < $docnum; $i++) {
+                $statInfo = $zip->statIndex($i);
+                if($statInfo['crc'] == 0) {
+                    //新建目录
+                    mkdir($toDir.'/'.$statInfo['name'], 0777, true);
+                } else {
+                	$copy = copy('zip://'.$zipName.'#'.$statInfo['name'], $toDir.'/'.$statInfo['name']);
+                    if($copy == false) {
+                        return [false, '文件移动失败'];
+                    }
+                }
+            }
+            $zip->close();//关闭处理的zip文件
+        } else {
+        	return [false, '压缩文件打开失败'];
+        }
+
+
+var_dump('ok');die;
 	}
 	/**
 	 * 保存数据

@@ -73,7 +73,7 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 上传文件结束
 	 */
-	public function endUpload_action($app, $type = 'ZIP') {
+	public function endUpload_action($app, $type = 'ZIP', $oneRecordImgNum = 1) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -91,15 +91,109 @@ class import extends \pl\fe\matter\base {
 			if ($records[0] === false) {
 				return new \ResponseError($records[1]);
 			}
+			$records = $this->_extractImg($oApp, $records[1], $oneRecordImgNum);
+			// 删除解压后的文件包
+			var_dump($records);die;
+			$this->deldir($records[1]['toDir']);
 		} else {
 			$records = $this->_extract($oApp, $modelFs->rootDir . '/' . $fileUploaded);
+			$modelFs->delete($fileUploaded);
 		}
-		$modelFs->delete($fileUploaded);
 
 		$eks = $this->_persist($oApp, $records);
 
 		return new \ResponseData($eks);
 	}
+	/**
+	 * 从文件中提取数据
+	 */
+	private function &_extractImg($oApp, $imgs, $oneRecordImgNum = 1) {
+		$schemas = $oApp->dataSchemas;
+		$schemasByTitle = [];
+		foreach ($schemas as $schema) {
+			$schemasByTitle[$schema->title] = $schema;
+		}
+
+		// 数据条数
+		$imgNum = 0;
+		foreach ($imgs as $img) {
+			$count = count($img);
+			if ($count > $imgNum) {
+				$imgNum = $count;
+			}
+		}
+		if ($imgNum < $oneRecordImgNum) {
+			$oneRecordImgNum = 1;
+		}
+		$recordNum = ceil($imgNum / $oneRecordImgNum);
+		/**
+		 * 提取数据
+		 */
+		$modelRec = $this->model('matter\enroll\record');
+		$records = [];
+		$fsuser = $this->model('fs/user', $oApp->siteid);
+		for ($row = 1; $row <= $recordNum; $row++) {
+			$oRecord = new \stdClass;
+			$oRecData = new \stdClass;
+			foreach ($imgs as $key => &$imgArray) {
+				if ($key === 'toDir') {
+					continue;
+				}
+				if (isset($schemasByTitle[$key]) && $schemasByTitle[$key]->type === 'image') {
+					$oSchema = $schemasByTitle[$key];
+					// 转存指定数量的图片
+					$base64Imgs = [];
+					for ($i = 1; $i <= $oneRecordImgNum; $i++) {
+						$img = array_shift($imgArray);
+						//将图片转成base64位储存
+						$mime_type = getimagesize($img->oUrl)['mime']; 
+				        $base64_data = base64_encode(file_get_contents($img->oUrl));
+				        $base64_img = 'data:'.$mime_type.';base64,'.$base64_data;
+				        $newImg = new \stdClass;
+				        $newImg->imgSrc = $base64_img;
+
+						$base64Imgs[] = $newImg;
+					}
+					$treatedValue = [];
+					foreach ($base64Imgs as $base64Img) {
+						$rst = $fsuser->storeImg($base64Img);
+						if (false === $rst[0]) {
+							return $rst;
+						}
+						$treatedValue[] = $rst[1];
+					}
+
+					$treatedValue = implode(',', $treatedValue);
+					$oRecData->{$oSchema->id} = $treatedValue;
+				}
+			}
+			$oRecord->data = $oRecData;
+
+			$records[] = $oRecord;
+		}
+
+		return $records;
+	}
+	/**
+	 * 删除文件夹
+	 */
+	private function deldir($path){ 
+        $path .= '/';
+        $imgs = scandir($path);
+        foreach($imgs as $img){
+            if($img !="." && $img !=".."){
+                if(is_dir($path . $img)){
+                    deldir($path . $img . '/');
+                    @rmdir($path . $img . '/');
+                }else{
+                    unlink($path . $img);
+                }
+            }
+        }
+        @rmdir($path);
+
+        return 'ok';
+    }
 	/**
 	 * 从文件中提取数据
 	 */
@@ -234,40 +328,76 @@ class import extends \pl\fe\matter\base {
 	 * 从文件中提取数据
 	 */
 	private function &_extractZIP($oApp, $zipName, $modelFs, $file) {
-		$zip = new \ZipArchive;
-		$res = $zip->open($zipName);
-        if ($res === TRUE){
-        	$toDir = $modelFs->rootDir . '/enroll_' . $oApp->id . '_importZIP_' . $file->uniqueIdentifier;
-            mkdir($toDir, 0777, true);
-            $docnum = $zip->numFiles;
-            for($i = 0; $i < $docnum; $i++) {
-                $statInfo = $zip->statIndex($i);
-                if($statInfo['crc'] == 0) {
-                    //新建目录
-                    mkdir($toDir . '/' . $this->_iconvConvert($statInfo['name']), 0777, true);
-                } else {
-                	$copy = copy('zip://' . $zipName . '#' . $statInfo['name'], $toDir . '/' . $this->_iconvConvert($statInfo['name']));
-                    if($copy == false) {
-                        return [false, '文件移动失败'];
-                    }
-                }
-            }
-            $zip->close();//关闭处理的zip文件
-        } else {
-        	return [false, '压缩文件打开失败'];
-        }
+		$toDir = $modelFs->rootDir . '/enroll_' . $oApp->id . '_importZIP_' . $file->uniqueIdentifier;
+	    // 文件目录
+	    $fileDirectory = [];
+        $fileDirectory['toDir'] = $toDir;
+		
+		if(!is_dir($toDir)) {  
+        	mkdir($toDir, 0777, true);//创建目录保存解压内容  
+	    }
+	    if(file_exists($zipName)) {
+	        $resource = zip_open($zipName);  
+	        while($zip_file = zip_read($resource)) {
+	            if(zip_entry_open($resource, $zip_file)) {
+	                $file_name1 = zip_entry_name($zip_file);
+	                //如果是目录需要创建目录
+	                if (substr($file_name1, -1) === '/') {
+	                	if(!is_dir($toDir . '/' . $file_name1)) {
+				        	mkdir($toDir . '/' . $this->_iconvConvert($file_name1), 0777, true);
+					    }
 
+	                	$fileDirectory[$this->_iconvConvert(substr($file_name1, 0, -1))] = [];
+	                } else if (strpos($file_name1, '/') !== false) { // 二级目录
+	                	$file_names = explode('/', $file_name1);
+            			if(!is_dir($toDir . '/' . $file_names[0] . '/')) {
+            				mkdir($toDir . '/' . $this->_iconvConvert($file_names[0]) . '/', 0777, true);
+					    }
+					    $save_path = $toDir .'/'. $this->_iconvConvert($file_names[0]) . '/' . $this->_iconvConvert($file_names[1]);
+	                	$file_size = zip_entry_filesize($zip_file);
+	                	$file = zip_entry_read($zip_file, $file_size);  
+                        file_put_contents($save_path, $file);  
+                        zip_entry_close($zip_file);
 
-var_dump('ok');die;
+                        $img = new \stdClass;
+                        $img->name = $this->_iconvConvert($file_names[1]);
+                        $img->oUrl = $save_path;
+                        $fileDirectory[$this->_iconvConvert($file_names[0])][] = $img;
+	                } else {
+	                	$save_path = $toDir .'/'. $this->_iconvConvert($file_name1);
+	                	$file_size = zip_entry_filesize($zip_file);
+	                	$file = zip_entry_read($zip_file, $file_size);  
+                        file_put_contents($save_path, $file);  
+                        zip_entry_close($zip_file);
+
+                        if (strpos($file_name1, '.xlsx') !== false) {
+	                        $img = new \stdClass;
+	                        $img->name = $this->_iconvConvert($file_name1);
+	                        $img->oUrl = $save_path;
+	                        $name = substr($file_name1, 0, strrpos($file_name1, '.'));
+	                        $fileDirectory[$this->_iconvConvert($name)] = $img;
+	                    }
+	                }
+	            }  
+	        }  
+	        zip_close($resource);
+	    	unlink($zipName);
+	    	
+	    	$res = [true, $fileDirectory];
+	    	return $res;
+	    } else {
+	    	unlink($zipName);
+	    	return [false, '未找到压缩文件'];
+	    }
 	}
 	/**
 	 *
 	 */
-	private function _iconvConvert($str) {
+	private function _iconvConvert($str, $encoding = 'UTF-8//IGNORE') {
 		$encode = mb_detect_encoding($str, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
 
 		if ($encode && $encode != 'UTF-8') {
-			$str = iconv($encode, 'UTF-8//IGNORE', $str);
+			$str = iconv($encode, $encoding, $str);
 		}
 
 		return $str;

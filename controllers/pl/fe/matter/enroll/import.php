@@ -87,14 +87,13 @@ class import extends \pl\fe\matter\base {
 		$modelFs = $this->model('fs/local', $oApp->siteid, '_resumable');
 		$fileUploaded = 'enroll_' . $oApp->id . '_' . $file->name;
 		if ($type === 'ZIP') {
-			$records = $this->_extractZIP($oApp, $modelFs->rootDir . '/' . $fileUploaded, $modelFs, $file);
-			if ($records[0] === false) {
-				return new \ResponseError($records[1]);
+			$recordImgs = $this->_extractZIP($oApp, $modelFs->rootDir . '/' . $fileUploaded, $modelFs, $file);
+			if ($recordImgs[0] === false) {
+				return new \ResponseError($recordImgs[1]);
 			}
-			$records = $this->_extractImg($oApp, $records[1], $oneRecordImgNum);
+			$records = $this->_extractImg($oApp, $recordImgs[1], $oneRecordImgNum);
 			// 删除解压后的文件包
-			var_dump($records);die;
-			$this->deldir($records[1]['toDir']);
+			$this->deldir($recordImgs[1]['toDir']);
 		} else {
 			$records = $this->_extract($oApp, $modelFs->rootDir . '/' . $fileUploaded);
 			$modelFs->delete($fileUploaded);
@@ -177,16 +176,15 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 删除文件夹
 	 */
-	private function deldir($path){ 
+	private function deldir($path) {
         $path .= '/';
-        $imgs = scandir($path);
-        foreach($imgs as $img){
-            if($img !="." && $img !=".."){
-                if(is_dir($path . $img)){
-                    deldir($path . $img . '/');
-                    @rmdir($path . $img . '/');
+        $files = scandir($path);
+        foreach($files as $file){
+            if($file !="." && $file !=".."){
+                if(is_dir($path . $file)){
+                    $this->deldir($path . $file . '/');
                 }else{
-                    unlink($path . $img);
+                    unlink($path . $file);
                 }
             }
         }

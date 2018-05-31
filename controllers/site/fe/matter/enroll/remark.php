@@ -202,6 +202,9 @@ class remark extends base {
 		$oNewRemark->modify_at = $current;
 		$oNewRemark->content = $modelRec->escape($oPosted->content);
 		$oNewRemark->as_cowork_id = '0';
+		$oNewRemark->like_num = 0;
+		$oNewRemark->like_log = '{}';
+		$oNewRemark->remark_num = 0;
 
 		/* 在记录中的序号 */
 		$seq = (int) $modelRec->query_val_ss([

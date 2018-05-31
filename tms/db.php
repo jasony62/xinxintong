@@ -303,7 +303,9 @@ class TMS_DB {
 	 */
 	public function escape($str) {
 		if ($mysqli = $this->_getDbConn()) {
-			$str = empty($str) ? '' : $mysqli->real_escape_string($str);
+			if (is_string($str) && strlen($str)) {
+				$str = $mysqli->real_escape_string($str);
+			}
 		}
 
 		return $str;

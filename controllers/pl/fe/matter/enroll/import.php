@@ -420,6 +420,7 @@ class import extends \pl\fe\matter\base {
 			$r['siteid'] = $oApp->siteid;
 			$r['enroll_key'] = $ek;
 			$r['enroll_at'] = $current;
+			$r['first_enroll_at'] = $current;
 			$r['nickname'] = isset($oRecord->nickname) ? $oRecord->nickname : '';
 			$r['verified'] = isset($oRecord->verified) ? $oRecord->verified : 'N';
 			$r['comment'] = isset($oRecord->comment) ? $oRecord->comment : '';

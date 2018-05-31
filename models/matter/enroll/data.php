@@ -130,16 +130,16 @@ class data_model extends entity_model {
 					} else {
 						$valueModifyLogs = [];
 					}
-					$newModifyLog = new \stdClass;
-					$newModifyLog->submitAt = $oLastSchemaValues[0]->submit_at;
-					$newModifyLog->value = $this->escape($oLastSchemaValues[0]->value);
-					$valueModifyLogs[] = $newModifyLog;
+					$oNewModifyLog = new \stdClass;
+					$oNewModifyLog->submitAt = $oLastSchemaValues[0]->submit_at;
+					$oNewModifyLog->value = $oLastSchemaValues[0]->value;
+					$valueModifyLogs[] = $oNewModifyLog;
 					$aSchemaValue = [
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
 						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'value' => $this->escape($treatedValue),
-						'modify_log' => $this->toJson($valueModifyLogs),
+						'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 						'score' => isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0,
 					];
 				} else {
@@ -196,16 +196,16 @@ class data_model extends entity_model {
 										} else {
 											$valueModifyLogs = [];
 										}
-										$newModifyLog = new \stdClass;
-										$newModifyLog->submitAt = $beforeSchemaItems[$newSchemaValue->id]->submit_at;
-										$newModifyLog->value = $this->escape($beforeSchemaItems[$newSchemaValue->id]->value);
-										$valueModifyLogs[] = $newModifyLog;
+										$oNewModifyLog = new \stdClass;
+										$oNewModifyLog->submitAt = $beforeSchemaItems[$newSchemaValue->id]->submit_at;
+										$oNewModifyLog->value = $beforeSchemaItems[$newSchemaValue->id]->value;
+										$valueModifyLogs[] = $oNewModifyLog;
 										$aSchemaValue = [
 											'submit_at' => $oRecord->enroll_at,
 											'userid' => isset($oUser->uid) ? $oUser->uid : '',
 											'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 											'value' => $this->escape($newSchemaValue->value),
-											'modify_log' => $this->toJson($valueModifyLogs),
+											'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 											'multitext_seq' => (int) $k + 1,
 										];
 
@@ -242,16 +242,16 @@ class data_model extends entity_model {
 							} else {
 								$valueModifyLogs = [];
 							}
-							$newModifyLog = new \stdClass;
-							$newModifyLog->submitAt = $oBeforeSchemaVal->submit_at;
-							$newModifyLog->value = $this->escape($oBeforeSchemaVal->value);
-							$valueModifyLogs[] = $newModifyLog;
+							$oNewModifyLog = new \stdClass;
+							$oNewModifyLog->submitAt = $oBeforeSchemaVal->submit_at;
+							$oNewModifyLog->value = $oBeforeSchemaVal->value;
+							$valueModifyLogs[] = $oNewModifyLog;
 							$aSchemaValue = [
 								'submit_at' => $oRecord->enroll_at,
 								'userid' => isset($oUser->uid) ? $oUser->uid : '',
 								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 								'value' => $this->escape($treatedValue),
-								'modify_log' => $this->toJson($valueModifyLogs),
+								'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 								'multitext_seq' => 0,
 							];
 
@@ -541,7 +541,7 @@ class data_model extends entity_model {
 	/**
 	 * 返回指定活动，指定登记项的填写数据
 	 */
-	public function bySchema(&$oApp, $oSchema, $oOptions = null) {
+	public function bySchema($oApp, $oSchema, $oOptions = null) {
 		if ($oOptions) {
 			is_array($oOptions) && $oOptions = (object) $oOptions;
 			$page = isset($oOptions->page) ? $oOptions->page : null;
@@ -551,12 +551,21 @@ class data_model extends entity_model {
 		$oResult = new \stdClass; // 返回的结果
 
 		// 查询参数
-		$schemaId = $this->escape($oSchema->id);
 		$q = [
 			'distinct value',
-			"xxt_enroll_record_data",
-			"state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value<>''",
+			"xxt_enroll_record_data d",
+			"state=1 and aid='{$oApp->id}' and schema_id='{$oSchema->id}' and value<>''",
 		];
+		/* 限制关联数据 */
+		if (isset($oOptions->assocData) && is_object($oOptions->assocData)) {
+			$oAssocData = $oOptions->assocData;
+			foreach ($oAssocData as $schemaId => $value) {
+				if (!empty($value) && is_string($value)) {
+					$alias = 'd' . $schemaId;
+					$q[2] .= " and exists(select 1 from xxt_enroll_record_data {$alias} where d.enroll_key={$alias}.enroll_key and state=1 and aid='{$oApp->id}' and schema_id='{$schemaId}' and value='{$value}')";
+				}
+			}
+		}
 		/* 是否排除协作填写数据 */
 		if (isset($oOptions->multitext_seq)) {
 			$q[2] .= ' and multitext_seq=' . $multitext_seq;
@@ -596,7 +605,7 @@ class data_model extends entity_model {
 	/**
 	 * 返回指定活动，填写的数据
 	 */
-	public function byApp(&$oApp, $oUser, $oOptions = null) {
+	public function byApp($oApp, $oUser, $oOptions = null) {
 		if ($oOptions && is_array($oOptions)) {
 			$oOptions = (object) $oOptions;
 		}

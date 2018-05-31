@@ -14,8 +14,10 @@ class url extends base {
 		$oSummary = new \stdClass;
 
 		$oPosted = $this->getPostJson();
+		if (empty($oPosted->url)) {
+			return new \ParameterError('没有指定有效参数');
+		}
 		$targetUrl = $oPosted->url;
-
 		if (false === ($aTargetUrl = parse_url($targetUrl))) {
 			return new \ParameterError('指定的URL不合规无法解析');
 		}

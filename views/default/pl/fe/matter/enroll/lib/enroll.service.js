@@ -119,12 +119,16 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             }
             fnCallback(oEnrollApp);
-            oEnrollApp.dataSchemas.forEach(function(oSchema) {
-                schemaLib._upgrade(oSchema, oEnrollApp);
-            });
-            oEnrollApp.pages.forEach(function(oPage) {
-                pageLib.enhance(oPage, oEnrollApp._schemasById);
-            });
+            if (oEnrollApp.dataSchemas) {
+                oEnrollApp.dataSchemas.forEach(function(oSchema) {
+                    schemaLib._upgrade(oSchema, oEnrollApp);
+                });
+            }
+            if (oEnrollApp.pages) {
+                oEnrollApp.pages.forEach(function(oPage) {
+                    pageLib.enhance(oPage, oEnrollApp._schemasById);
+                });
+            }
         };
         this._bFilter = function(srvEnlRnd) {
             var defer = $q.defer(),
@@ -206,18 +210,20 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 inputSchemas = [],
                 canFilteredSchemas = [];
 
-            oApp.dataSchemas.forEach(function(schema) {
-                mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
-                mapOfSchemaByType[schema.type].push(schema.id);
-                mapOfSchemaById[schema.id] = schema;
-                mapOfUnionSchemaById[schema.id] = schema;
-                if (schema.type !== 'html') {
-                    inputSchemas.push(schema);
-                }
-                if (false === /image|file|html/.test(schema.type)) {
-                    canFilteredSchemas.push(schema);
-                }
-            });
+            if (oApp.dataSchemas) {
+                oApp.dataSchemas.forEach(function(schema) {
+                    mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
+                    mapOfSchemaByType[schema.type].push(schema.id);
+                    mapOfSchemaById[schema.id] = schema;
+                    mapOfUnionSchemaById[schema.id] = schema;
+                    if (schema.type !== 'html') {
+                        inputSchemas.push(schema);
+                    }
+                    if (false === /image|file|html/.test(schema.type)) {
+                        canFilteredSchemas.push(schema);
+                    }
+                });
+            }
             oApp._schemasByType = mapOfSchemaByType;
             oApp._schemasById = mapOfSchemaById;
             oApp._schemasForInput = inputSchemas;
@@ -392,6 +398,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     http2.get(_fnMakeApiUrl('quitMission'), function(rsp) {
                         delete _oApp.mission;
                         _oApp.mission_id = 0;
+                        _oApp.sync_mission_round = 'N';
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -595,12 +602,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         });
                     });
                 },
-                edit: function(round) {
+                edit: function(oRound) {
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = { rid: round.rid, title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
+                            $scope.round = { rid: oRound.id, mission_rid: oRound.mission_rid, title: oRound.title, start_at: oRound.start_at, end_at: oRound.end_at, state: oRound.state };
                             $scope.roundState = RoundState;
                             $scope.$on('xxt.tms-datepicker.change', function(event, data) {
                                 if (data.state === 'start_at') {
@@ -645,27 +652,32 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                             srvEnrollApp.get().then(function(oApp) {
                                 var rndEntryUrl;
-                                rndEntryUrl = oApp.entryUrl + '&rid=' + round.rid;
+                                rndEntryUrl = oApp.entryUrl + '&rid=' + oRound.rid;
                                 $scope.entry = {
                                     url: rndEntryUrl,
                                     qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + oApp.siteid + '&url=' + encodeURIComponent(rndEntryUrl),
+                                }
+                                if (oApp.mission) {
+                                    http2.get('/rest/pl/fe/matter/mission/round/list?mission=' + oApp.mission.id, function(rsp) {
+                                        $scope.missionRounds = rsp.data.rounds;
+                                    });
                                 }
                             });
                         }]
                     }).result.then(function(rst) {
                         var url = _RestURL;
                         if (rst.action === 'update') {
-                            url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
+                            url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.rid;
                             http2.post(url, rst.data, function(rsp) {
                                 if (_rounds.length > 1 && rst.data.state === '1') {
                                     _rounds[1].state = '2';
                                 }
-                                angular.extend(round, rsp.data);
+                                angular.extend(oRound, rsp.data);
                             });
                         } else if (rst.action === 'remove') {
-                            url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + round.rid;
+                            url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.rid;
                             http2.get(url, function(rsp) {
-                                _rounds.splice(_rounds.indexOf(round), 1);
+                                _rounds.splice(_rounds.indexOf(oRound), 1);
                                 _oPage.total--;
                             });
                         }
@@ -1160,82 +1172,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
-            _ins.createAppByRecords = function(rows) {
-                var defer = $q.defer();
-                $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/createAppByRecords.html?_=5',
-                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                        var canUseSchemas = {},
-                            config;
-                        _ins._oApp.dataSchemas.forEach(function(schema) {
-                            if (/shorttext|longtext/.test(schema.type)) {
-                                canUseSchemas[schema.id] = schema;
-                            }
-                        });
-                        $scope2.schemas = canUseSchemas;
-                        $scope2.config = config = { protoSchema: { type: 'score', range: [1, 5] } };
-                        $scope2.ok = function() {
-                            var schemas = [];
-                            for (var id in config.schemas) {
-                                if (config.schemas[id]) {
-                                    schemas.push(canUseSchemas[id]);
-                                }
-                            }
-                            $mi.close({ schemas: schemas, protoSchema: config.protoSchema });
-                        };
-                        $scope2.cancel = function() {
-                            $mi.dismiss('cancel');
-                        };
-                        $scope2.changeSchemaType = function() {
-                            switch (config.protoSchema.type) {
-                                case 'score':
-                                    config.protoSchema = { type: 'score', range: [1, 5] };
-                                    break;
-                                case 'single':
-                                    config.protoSchema = { type: 'single' };
-                                    break;
-                                case 'multiple':
-                                    config.protoSchema = { type: 'multiple' };
-                                    break;
-                            }
-                        };
-                    }],
-                    backdrop: 'static',
-                }).result.then(function(config) {
-                    var eks = [];
-                    if (config.schemas.length) {
-                        for (var p in rows.selected) {
-                            if (rows.selected[p] === true) {
-                                eks.push(_ins._aRecords[p].enroll_key);
-                            }
-                        }
-                        if (eks.length) {
-                            var url = '/rest/pl/fe/matter/enroll/createByRecords?site=' + _siteId + '&app=' + _appId;
-                            if (_ins._oApp.mission_id) {
-                                url += '&mission=' + _ins._oApp.mission_id;
-                            }
-                            http2.post(url, {
-                                proto: {
-                                    scenario: 'voting',
-                                    schema: {
-                                        type: config.protoSchema.type,
-                                        range: config.protoSchema.range,
-                                        unique: 'N',
-                                        _ver: 1
-                                    }
-                                },
-                                record: {
-                                    schemas: config.schemas,
-                                    eks: eks
-                                }
-                            }, function(rsp) {
-                                defer.resolve(rsp.data);
-                            });
-                        }
-                    }
-                });
-                return defer.promise;
-            };
             _ins.sum4Schema = function() {
                 var url,
                     defer = $q.defer();
@@ -1551,7 +1487,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             }, {
                 value: 'site.matter.enroll.remove',
                 title: '删除记录'
-            },{
+            }, {
                 value: 'site.matter.enroll.remark.as.cowork',
                 title: '将用户留言设置为协作记录'
             }];
@@ -2085,21 +2021,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             $mi.dismiss('cancel');
         };
         $scope.doSearchRound = function() {
-            srvEnlRnd.list().then(function(result) {
+            srvEnlRnd.list().then(function(oResult) {
                 var oCriteria = $scope.criteria;
-                $scope.activeRound = result.active;
+                $scope.activeRound = oResult.active;
                 if ($scope.activeRound) {
                     var otherRounds = [];
-                    result.rounds.forEach(function(oRound) {
+                    oResult.rounds.forEach(function(oRound) {
                         if (oRound.rid !== $scope.activeRound.rid) {
                             otherRounds.push(oRound);
                         }
                     });
                     $scope.rounds = otherRounds;
                 } else {
-                    $scope.rounds = result.rounds;
+                    $scope.rounds = oResult.rounds;
                 }
-                $scope.pageOfRound = result.page;
+                $scope.pageOfRound = oResult.page;
                 if (!oCriteria.record) {
                     oCriteria.record = { rid: [] };
                 }

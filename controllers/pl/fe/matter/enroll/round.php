@@ -13,7 +13,7 @@ class round extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($app, $checked = null, $page = 1, $size = 10) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -28,14 +28,14 @@ class round extends \pl\fe\matter\base {
 		$oPage->num = $page;
 		$oPage->size = $size;
 
-		$result = $modelRnd->byApp($oApp, ['page' => $oPage]);
+		$oResult = $modelRnd->byApp($oApp, ['page' => $oPage, 'fields' => 'id,state,rid,title,start_at,end_at,mission_rid']);
 		if (!empty($checked)) {
 			if ($checked = $modelRnd->byId($checked)) {
-				$result->checked = $checked;
+				$oResult->checked = $checked;
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 获取设置定时轮次的时间
@@ -44,19 +44,19 @@ class round extends \pl\fe\matter\base {
 	 *
 	 */
 	public function getCron_action() {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelRnd = $this->model('matter\enroll\round');
 
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
-		if (empty($posted->roundCron)) {
+		if (empty($oPosted->roundCron)) {
 			return new \ResponseError('请先设置定时规则！');
 		}
 
-		$rules[] = $posted->roundCron;
+		$rules[] = $oPosted->roundCron;
 		$rst = $modelRnd->byCron($rules);
 
 		return new \ResponseData($rst);
@@ -68,7 +68,7 @@ class round extends \pl\fe\matter\base {
 	 *
 	 */
 	public function add_action($app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -78,13 +78,13 @@ class round extends \pl\fe\matter\base {
 		}
 
 		$modelRnd = $this->model('matter\enroll\round');
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
-		if (isset($posted->start_at) && isset($posted->end_at) && $posted->start_at > $posted->end_at) {
+		if (isset($oPosted->start_at) && isset($oPosted->end_at) && $oPosted->start_at > $oPosted->end_at) {
 			return new \ResponseError('添加失败，本轮次的开始时间不能晚于结束时间！');
 		}
 
-		$rst = $modelRnd->create($oApp, $posted, $user);
+		$rst = $modelRnd->create($oApp, $oPosted, $oUser);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -97,8 +97,8 @@ class round extends \pl\fe\matter\base {
 	 * @param string $app
 	 * @param string $rid
 	 */
-	public function update_action($site, $app, $rid) {
-		if (false === ($user = $this->accountUser())) {
+	public function update_action($app, $rid) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -149,7 +149,7 @@ class round extends \pl\fe\matter\base {
 	 * @param string $rid
 	 */
 	public function remove_action($app, $rid) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

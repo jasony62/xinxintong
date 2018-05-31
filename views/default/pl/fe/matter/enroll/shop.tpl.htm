@@ -91,6 +91,14 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class='checkbox'>
+                                                <label>
+                                                    <input type='checkbox' ng-model='proto.schema.default.empty'> 不包含模板中的默认题目</label>
+                                            </div>
+                                            <div class='checkbox' ng-if="mission.roundNum>0||mission.roundCron.length">
+                                                <label>
+                                                    <input type='checkbox' ng-true-value="'Y'" ng-model='proto.sync_mission_round'> 和项目轮次保持一致</label>
+                                            </div>
                                             <hr>
                                             <div class='form-group'>
                                                 <label>参与用户</label>
@@ -153,6 +161,9 @@
                                     <hr>
                                     <div class='form-group'>
                                         <button class="btn btn-success btn-block" ng-click="doCreate()"><span class='glyphicon glyphicon-plus'></span> 确定创建活动</button>
+                                    </div>
+                                    <div class='form-group' ng-if="proto.mission">
+                                        <button class="btn btn-default btn-block" ng-click="doCreateUserScore()"><span class='glyphicon glyphicon-plus'></span> 创建项目用户计分活动 <span class='glyphicon glyphicon-question-sign' uib-tooltip='创建活动，给项目中的每个用户生成1条记录，用于收集该用户在项目中其他活动中填写的数据或获得的数据，并打分。'></span></button>
                                     </div>
                                 </div>
                                 <!--end:prop-->

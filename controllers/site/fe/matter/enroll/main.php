@@ -9,7 +9,7 @@ class main extends base {
 	/**
 	 *
 	 */
-	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,multi_rounds,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config';
+	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,multi_rounds,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config,round_cron,mission_id,sync_mission_round';
 	/**
 	 *
 	 */
@@ -68,6 +68,9 @@ class main extends base {
 					$title = '记录' . $oRecord->id . '|';
 				}
 			}
+			if (in_array($page, ['topic', 'repos', 'cowork'])) {
+				$this->pageReadlog($oApp, $page, $rid, $ek, $topic);
+			}
 			\TPL::assign('title', empty($title) ? $oApp->title : ($title . $oApp->title));
 			\TPL::output('/site/fe/matter/enroll/' . $page);
 		} else {
@@ -90,6 +93,55 @@ class main extends base {
 			}
 		}
 		exit;
+	}
+	/*
+	 *
+	 */
+	public function pageReadlog($oApp, $page, $rid = '', $ek = null, $topic = null) {
+		// 获得当前获得所属轮次
+		if ($rid === 'ALL') {
+			$rid = '';
+		}
+		if (empty($rid)) {
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $activeRound->rid;
+			}
+		}
+		$oUser = $this->getUser($oApp);
+		// 修改阅读数'topic', 'repos', 'cowork'
+		if ($page === 'topic') {
+			$upUserData = new \stdClass;
+			$upUserData->do_topic_read_num = 1;
+			// 查询专题页创建者
+			$creater = $this->model('matter\enroll\topic')->byId($topic, ['fields' => 'userid uid,nickname']);
+			if ($creater) {
+				$upCreaterData = new \stdClass;
+				$upCreaterData->topic_read_num = 1;
+			}
+		} else if ($page === 'cowork') {
+			$upUserData = new \stdClass;
+			$upUserData->do_cowork_read_num = 1;
+			// 查询记录提交者
+			$creater = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'userid uid,rid,nickname', 'verbose' => 'N']);
+			if ($creater) {
+				$upCreaterData = new \stdClass;
+				$upCreaterData->cowork_read_num = 1;
+				$rid = $creater->rid;
+			}
+		} else {
+			$upUserData = new \stdClass;
+			$upUserData->do_repos_read_num = 1;
+		}
+
+		// 更新用户轮次数据
+		$modelEvent = $this->model('matter\enroll\event');
+		$modelEvent->_updateUsrData($oApp, $rid, false, $oUser, $upUserData);
+		// 更新被阅读者轮次数据
+		if (!empty($upCreaterData)) {
+			$modelEvent->_updateUsrData($oApp, $rid, false, $creater, $upCreaterData);
+		}
+
+		return [true];
 	}
 	/**
 	 * 登记活动是否可用
@@ -248,19 +300,25 @@ class main extends base {
 			if (isset($oOpenedRecord)) {
 				if (!empty($oOpenedRecord->rid)) {
 					$rid = $oOpenedRecord->rid;
-					$params['activeRound'] = $modelRnd->byId($oOpenedRecord->rid);
+					$oAppRnd = $modelRnd->byId($oOpenedRecord->rid, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
 				}
 			} else if (empty($rid)) {
-				$oActiveRnd = $modelRnd->getActive($oApp);
-				if ($oActiveRnd) {
-					$rid = $oActiveRnd->rid;
+				$oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+				if ($oAppRnd) {
+					$rid = $oAppRnd->rid;
 				}
-				$params['activeRound'] = $oActiveRnd;
 			} else {
-				$params['activeRound'] = $modelRnd->byId($rid);
+				$oAppRnd = $modelRnd->byId($rid, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+			}
+			if (isset($oAppRnd)) {
+				$params['activeRound'] = $oAppRnd;
 			}
 		}
 
+		/* 需要动态选项 */
+		$this->modelApp->setDynaOptions($oApp, isset($oAppRnd) ? $oAppRnd : null);
+
+		/* 要打开的页面 */
 		if (!in_array($page, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'favor', 'topic'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */

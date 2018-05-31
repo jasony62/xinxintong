@@ -17,8 +17,8 @@ ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80p
 ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}
 ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
 ul.img-tiles li.img-picker.img-edit{margin-left:10px;}
-ul.img-tiles li.img-picker button,ul.img-tiles li.img-picker.img-edit > div{position:relative;width:100%;height:100%}
-ul.img-tiles li.img-picker button span,ul.img-tiles li.img-picker.img-edit > div >span{font-size:36px}
+ul.img-tiles li.img-picker button{position:relative;width:100%;height:100%}
+ul.img-tiles li.img-picker button span{font-size:36px}
 /* url schema */
 div[wrap=url]>.form-control{height:auto;min-height:46px;}
 
@@ -37,9 +37,12 @@ div[schema-type=single] li[wrap].radio.option-hide>label,div[schema-type=multipl
 div[schema-type=single] li[wrap].radio.option-hide>label>*,div[schema-type=multiple] li[wrap].checkbox.option-hide>label>*{height:0;display:inline-block;overflow:hidden;}
 
 /* multitext modal */
-.tms-editor {position: absolute;top: 8px;bottom: 8px;left: 8px;right: 8px;display: flex;flex-direction: column;}
-.tms-editor>:first-child{position: relative;flex-grow: 1;margin-bottom: 8px;border: 1px solid #ddd;border-radius: 4px;overflow-y: auto;}
-.tms-editor>:first-child iframe{display: block;width: 100%;border: 0;}
+.tms-editor{position:absolute;top:8px;bottom:8px;left:8px;right:8px;display:flex;flex-direction:column;}
+.tms-editor>:first-child{position:relative;flex-grow:1;margin-bottom:8px;border:1px solid #ddd;border-radius:4px;overflow-y:auto;}
+.tms-editor>:first-child iframe{display:block;width:100%;border:0;}
 
 /*粘贴图片隐藏div样式 */
 .pasteClass{width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;}
+
+/*选项的nickname*/
+.option-nickname{display:inline-block;margin-left:8px;}

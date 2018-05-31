@@ -107,6 +107,10 @@
                 <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_assoc" ng-change="update('scenarioConfig')">支持建立记录关联</label>
             </div>
+            <div class='checkbox' ng-if="app.mission">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.sync_mission_round" ng-change="update('sync_mission_round')">活动轮次和项目轮次保持一致</label>
+            </div>
         </div>
     </div>
     <div id='main-access' class='panel panel-default' ng-controller='ctrlAccess'>

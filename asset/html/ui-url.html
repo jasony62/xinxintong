@@ -12,10 +12,10 @@
             </div>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" placeholder="2、复制链接后这里将显示页面的标题，可进行修改" ng-model="data.summary.title">
+            <input type="text" class="form-control" placeholder="2、复制链接或手动输入后这里将显示页面的标题，可进行修改" ng-model="data.summary.title">
         </div>
         <div class="form-group" ng-if="options.description">
-            <textarea class="form-control" placeholder="3、复制链接后这里将显示页面的摘要描述（如果提供），可进行修改" ng-model="data.summary.description" rows="4"></textarea>
+            <textarea class="form-control" placeholder="3、复制链接或手动输入后这里将显示页面的摘要描述（如果提供），可进行修改" ng-model="data.summary.description" rows="4"></textarea>
         </div>
         <div class="form-group" ng-if="options.text">
             <div class="form-control" ng-bind-html="data.text" style="height:auto;min-height:34px;"></div>
@@ -23,6 +23,8 @@
     </form>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" ng-click="cancel()">关闭</button>
-    <button class="btn btn-default" ng-click="ok()">完成</button>
+    <div class="text-center">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        <button class="btn btn-default" ng-click="ok()">完成</button>
+    </div>
 </div>

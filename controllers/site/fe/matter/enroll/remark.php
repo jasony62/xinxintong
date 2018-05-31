@@ -56,11 +56,11 @@ class remark extends base {
 		/* 关联数据 */
 		if (!empty($cascaded)) {
 			$oRecord = $this->model('matter\enroll\record')->byId($oRemark->enroll_key, ['fields' => 'userid,group_id,nickname']);
-			$this->_setNickname($oRecord, $oUser, $oEditor);
+			$this->_setNickname($oRecord, $oUser, isset($oEditor) ? $oEditor : null);
 			$oRemark->record = $oRecord;
 			if (!empty($oRemark->data_id)) {
 				$oRecData = $this->model('matter\enroll\data')->byId($oRemark->data_id, ['fields' => 'userid,group_id,nickname']);
-				$this->_setNickname($oRecData, $oUser, $oEditor);
+				$this->_setNickname($oRecData, $oUser, isset($oEditor) ? $oEditor : null);
 				$oRemark->data = $oRecData;
 			}
 		}
@@ -202,6 +202,9 @@ class remark extends base {
 		$oNewRemark->modify_at = $current;
 		$oNewRemark->content = $modelRec->escape($oPosted->content);
 		$oNewRemark->as_cowork_id = '0';
+		$oNewRemark->like_num = 0;
+		$oNewRemark->like_log = '{}';
+		$oNewRemark->remark_num = 0;
 
 		/* 在记录中的序号 */
 		$seq = (int) $modelRec->query_val_ss([

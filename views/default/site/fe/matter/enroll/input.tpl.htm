@@ -71,15 +71,18 @@
             <h5 class="modal-title">已填写过的内容</h5>
         </div>
         <div class="modal-body">
-            <form>
-                <div class='form-group'>
-                    <select class="form-control" ng-model="data.selected" ng-options="rec.value for rec in records" size='5'></select>
-                </div>
-            </form>
+            <div class='form-group'>
+                <select class="form-control" ng-model="data.selected" ng-options="rec.value for rec in records" size='5'></select>
+            </div>
+            <div class='text-center'>
+                <ul style='margin:0' uib-pagination ng-if="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" class='pagination-sm' ng-change="search()"></ul>
+            </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-default" ng-click="cancel()">关闭</button>
-            <button class="btn btn-primary" ng-click="ok()">使用选择的内容填写</button>
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">关闭</button>
+                <button class="btn btn-primary" ng-click="ok()">使用选择的内容填写</button>
+            </div>
         </div>
     </script>
     <script type="text/ng-template" id="recordVoice.html">
@@ -107,8 +110,10 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-default" ng-click="cancel()">关闭</button>
-            <button class="btn btn-default" ng-click="ok()" ng-disabled="!data.localId">完成</button>
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">关闭</button>
+                <button class="btn btn-default" ng-click="ok()" ng-disabled="!data.localId">完成</button>
+            </div>
         </div>
     </script>
     <script type="text/ng-template" id="writeItem.html">
@@ -122,7 +127,6 @@
             </div>
         </div>
     </script>
-    <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>

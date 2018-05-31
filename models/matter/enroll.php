@@ -64,17 +64,18 @@ class enroll_model extends enroll_base {
 		return $url;
 	}
 	/**
+	 * 返回指定活动的数据
 	 *
 	 * @param string $aid
 	 * @param array $options
 	 */
-	public function &byId($aid, $options = []) {
+	public function &byId($appId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 		$q = [
 			$fields,
 			'xxt_enroll',
-			["id" => $aid],
+			["id" => $appId],
 		];
 
 		if (($oApp = $this->query_obj_ss($q)) && empty($options['notDecode'])) {
@@ -182,9 +183,50 @@ class enroll_model extends enroll_base {
 
 			$modelPage = $this->model('matter\enroll\page');
 			if ($cascaded === 'Y') {
-				$oApp->pages = $modelPage->byApp($aid);
+				$oApp->pages = $modelPage->byApp($oApp->id);
 			} else {
-				$oApp->pages = $modelPage->byApp($aid, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
+				$oApp->pages = $modelPage->byApp($oApp->id, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
+			}
+		}
+
+		return $oApp;
+	}
+	/**
+	 * 设置活动题目的动态选项
+	 *
+	 * @param object $oApp
+	 * @param object $oAppRound
+	 *
+	 * @return object $oApp
+	 */
+	public function setDynaOptions(&$oApp, $oAppRound = null) {
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (in_array($oSchema->type, ['single', 'multiple'])) {
+				if (!empty($oSchema->dsOps->app->id) && !empty($oSchema->dsOps->schema->id)) {
+					if (!empty($oAppRound->mission_rid)) {
+						if (!isset($modelRnd)) {
+							$modelRnd = $this->model('matter\enroll\round');
+						}
+						$oDsAppRnd = $modelRnd->byMissionRid($oSchema->dsOps->app, $oAppRound->mission_rid, ['fields' => 'rid']);
+					}
+					$oSchema->ops = [];
+					$q = [
+						'enroll_key,value,userid,nickname',
+						"xxt_enroll_record_data",
+						['state' => 1, 'aid' => $oSchema->dsOps->app->id, 'schema_id' => $oSchema->dsOps->schema->id],
+					];
+					if (!empty($oDsAppRnd)) {
+						$q[2]['rid'] = $oDsAppRnd->rid;
+					}
+					$datas = $this->query_objs_ss($q);
+					foreach ($datas as $index => $oRecData) {
+						$oNewOp = new \stdClass;
+						$oNewOp->v = 'v' . ($index + 1);
+						$oNewOp->l = $oRecData->value;
+						$oNewOp->ds = (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname];
+						$oSchema->ops[] = $oNewOp;
+					}
+				}
 			}
 		}
 
@@ -508,9 +550,6 @@ class enroll_model extends enroll_base {
 	 */
 	public function createByTemplate($oUser, $oSite, $oCustomConfig, $oMission = null, $scenario = 'common', $template = 'simple') {
 		$oTemplateConfig = $this->_getSysTemplate($scenario, $template);
-		if (empty($oTemplateConfig->entryRule)) {
-			//return new \ResponseError('没有获得页面进入规则');
-		}
 
 		$oNewApp = new \stdClass;
 		/* 从站点或项目获得的信息 */
@@ -541,43 +580,43 @@ class enroll_model extends enroll_base {
 		}
 		$oNewApp->entry_rule = json_encode($oEntryRule);
 
-		/* 关联了通讯录，替换匹配的题目 */
-		if (!empty($oTemplateConfig->schema)) {
-			/* 通讯录关联题目 */
-			if (!empty($oEntryRule->scope) && $oEntryRule->scope === 'member') {
-				$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
-				if (!empty($mschemaIds)) {
-					$this->setSchemaByMschema($mschemaIds[0], $oTemplateConfig);
+		if (empty($oCustomConfig->proto->schema->default->empty)) {
+			/* 关联了通讯录，替换匹配的题目 */
+			if (!empty($oTemplateConfig->schema)) {
+				/* 通讯录关联题目 */
+				if (!empty($oEntryRule->scope) && $oEntryRule->scope === 'member') {
+					$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
+					if (!empty($mschemaIds)) {
+						$this->setSchemaByMschema($mschemaIds[0], $oTemplateConfig);
+					}
 				}
 			}
-		}
 
-		/* 关联了分组活动，添加分组名称，替换匹配的题目 */
-		if (!empty($oCustomConfig->proto->groupApp->id)) {
-			$oNewApp->group_app_id = $this->escape($oCustomConfig->proto->groupApp->id);
-			$this->setSchemaByGroupApp($oNewApp->group_app_id, $oTemplateConfig);
-		}
+			/* 关联了分组活动，添加分组名称，替换匹配的题目 */
+			if (!empty($oCustomConfig->proto->groupApp->id)) {
+				$oNewApp->group_app_id = $this->escape($oCustomConfig->proto->groupApp->id);
+				$this->setSchemaByGroupApp($oNewApp->group_app_id, $oTemplateConfig);
+			}
 
-		/* 作为昵称的题目 */
-		$oNicknameSchema = $this->findAssignedNicknameSchema($oTemplateConfig->schema);
-		if (!empty($oNicknameSchema)) {
-			$oNewApp->assigned_nickname = json_encode(['valid' => 'Y', 'schema' => ['id' => $oNicknameSchema->id]]);
-		}
+			/* 作为昵称的题目 */
+			$oNicknameSchema = $this->findAssignedNicknameSchema($oTemplateConfig->schema);
+			if (!empty($oNicknameSchema)) {
+				$oNewApp->assigned_nickname = json_encode(['valid' => 'Y', 'schema' => ['id' => $oNicknameSchema->id]]);
+			}
 
-		isset($oTemplateConfig->schema) && $oNewApp->data_schemas = $this->toJson($oTemplateConfig->schema);
+			isset($oTemplateConfig->schema) && $oNewApp->data_schemas = $this->toJson($oTemplateConfig->schema);
+		} else {
+			/* 不使用默认题目 */
+			$oTemplateConfig->schema = [];
+			$oNewApp->data_schemas = '[]';
+		}
 
 		/* 添加页面 */
-		$this->_addPageByTemplate($oUser, $oSite, $oMission, $appId, $oTemplateConfig, $oCustomConfig);
+		$this->addPageByTemplate($oUser, $oSite, $oMission, $appId, $oTemplateConfig, $oCustomConfig);
 
 		/* 登记数量限制 */
 		if (isset($oTemplateConfig->count_limit)) {
 			$oNewApp->count_limit = $oTemplateConfig->count_limit;
-		}
-		if (isset($oTemplateConfig->can_repos)) {
-			$oNewApp->can_repos = $oTemplateConfig->repos;
-		}
-		if (isset($oTemplateConfig->can_rank)) {
-			$oNewApp->can_rank = $oTemplateConfig->can_rank;
 		}
 		if (isset($oTemplateConfig->enrolled_entry_page)) {
 			$oNewApp->enrolled_entry_page = $oTemplateConfig->enrolled_entry_page;
@@ -593,17 +632,34 @@ class enroll_model extends enroll_base {
 			$oNewApp->scenario_config = json_encode($oScenarioConfig);
 		}
 		$oNewApp->scenario = $scenario;
+
 		/* create app */
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
-		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新登记活动' : $this->escape($oCustomConfig->proto->title);
-		$oNewApp->summary = empty($oCustomConfig->proto->summary) ? '' : $this->escape($oCustomConfig->proto->summary);
-		$oNewApp->can_repos = empty($oCustomConfig->proto->can_repos) ? 'N' : $this->escape($oCustomConfig->proto->can_repos);
-		$oNewApp->can_rank = empty($oCustomConfig->proto->can_rank) ? 'N' : $this->escape($oCustomConfig->proto->can_rank);
-		$oNewApp->enroll_app_id = empty($oCustomConfig->proto->enrollApp->id) ? '' : $this->escape($oCustomConfig->proto->enrollApp->id);
-		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;
-		$oNewApp->end_at = isset($oCustomConfig->proto->end_at) ? $oCustomConfig->proto->end_at : 0;
+		$oProto = isset($oCustomConfig->proto) ? $oCustomConfig->proto : null;
+		$oNewApp->title = empty($oProto->title) ? '新登记活动' : $this->escape($oProto->title);
+		$oNewApp->summary = empty($oProto->summary) ? '' : $this->escape($oProto->summary);
+		$oNewApp->sync_mission_round = empty($oProto->sync_mission_round) ? 'N' : (in_array($oProto->sync_mission_round, ['Y', 'N']) ? $oProto->sync_mission_round : 'N');
+		$oNewApp->enroll_app_id = empty($oProto->enrollApp->id) ? '' : $this->escape($oProto->enrollApp->id);
+		$oNewApp->start_at = isset($oProto->start_at) ? $oProto->start_at : 0;
+		$oNewApp->end_at = isset($oProto->end_at) ? $oProto->end_at : 0;
 		$oNewApp->can_siteuser = 'Y';
+		/* 是否开放共享页 */
+		if (isset($oProto->can_repos) && in_array($oProto->can_repos, ['Y', 'N'])) {
+			$oNewApp->can_repos = $oProto->can_repos;
+		} else if (isset($oTemplateConfig->can_repos)) {
+			$oNewApp->can_repos = $oTemplateConfig->can_repos;
+		} else {
+			$oNewApp->can_repos = 'N';
+		}
+		/* 是否开放排行榜 */
+		if (isset($oProto->can_rank) && in_array($oProto->can_rank, ['Y', 'N'])) {
+			$oNewApp->can_rank = $oProto->can_rank;
+		} else if (isset($oTemplateConfig->can_rank)) {
+			$oNewApp->can_rank = $oTemplateConfig->can_rank;
+		} else {
+			$oNewApp->can_rank = 'N';
+		}
 
 		/*任务码*/
 		$entryUrl = $this->getOpUrl($oSite->id, $appId);
@@ -659,7 +715,7 @@ class enroll_model extends enroll_base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	private function &_addPageByTemplate(&$user, &$site, $oMission, &$appId, &$oTemplateConfig) {
+	public function &addPageByTemplate(&$user, &$site, $oMission, &$appId, &$oTemplateConfig) {
 		$pages = $oTemplateConfig->pages;
 		if (empty($pages)) {
 			return false;

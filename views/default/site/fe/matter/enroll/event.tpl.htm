@@ -278,6 +278,15 @@
                         <th>获得协作</th>
                         <th>获得留言</th>
                         <th>获得赞同</th>
+                        <th>浏览共享页次数</th>
+                        <th>浏览专题页次数</th>
+                        <th>专题页被浏览次数</th>
+                        <th>浏览讨论页次数</th>
+                        <th>讨论页被浏览次数</th>
+                        <th>共享页浏览累计时间</th>
+                        <th>专题页浏览累计时间</th>
+                        <th>专题页被浏览累计时间</th>
+                        <th>讨论页被浏览累计时间</th>
                         <th>积分</th>
                         <th>得分</th>
                     </tr>
@@ -321,6 +330,15 @@
                             <div ng-if='m.user.like_num'>{{m.user.like_num}}</div>
                             <div ng-if='m.like_num'>{{m.like_num}}</div>
                         </td>
+                        <td>{{m.do_repos_read_num}}</td>
+                        <td>{{m.do_topic_read_num}}</td>
+                        <td>{{m.topic_read_num}}</td>
+                        <td>{{m.do_cowork_read_num}}</td>
+                        <td>{{m.cowork_read_num}}</td>
+                        <td>{{m.do_topic_read_elapse | filterTime}}</td>
+                        <td>{{m.topic_read_elapse | filterTime}}</td>
+                        <td>{{m.do_cowork_read_elapse | filterTime}}</td>
+                        <td>{{m.cowork_read_elapse | filterTime}}</td>
                         <td>
                             <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
                             <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
@@ -349,7 +367,7 @@
                 </tbody>
             </table>
         </div>
-    </script>>
+    </script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>

@@ -22,6 +22,7 @@ $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
 $sql .= ",scenario_config text null"; // 登记活动场景的配置参数
 $sql .= ",round_cron text null"; // 定时创建轮次规则
+$sql .= ",sync_mission_round char(1) not null default 'N'"; // 和项目轮次同步
 $sql .= ",count_limit int not null default 0"; // 限制登记次数，0不限制
 $sql .= ",start_at int not null default 0"; // 开始时间
 $sql .= ",before_start_page varchar(20) not null default ''";
@@ -113,6 +114,7 @@ $sql .= ",end_at int not null"; // 轮次结束时间
 $sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的标题
 $sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用
+$sql .= ",mission_rid varchar(13) not null default ''"; // 关联的项目轮次
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -348,10 +350,48 @@ $sql .= ",last_agree_cowork_at int not null default 0"; // 最后一次协作获
 $sql .= ",agree_cowork_num int not null default 0"; // 协作获得推荐的次数
 $sql .= ",last_agree_remark_at int not null default 0"; // 最后一次留言获得推荐的时间
 $sql .= ",agree_remark_num int not null default 0"; // 留言获得推荐的次数
+$sql .= ",last_topic_at int not null default 0"; // 最后一次创建专题页的时间
+$sql .= ",topic_num int not null default 0"; // 创建专题页的次数
+$sql .= ",do_repos_read_num int not null default 0"; // 阅读共享页的次数
+$sql .= ",do_repos_read_elapse int not null default 0"; // 阅读共享页的总时长
+$sql .= ",do_topic_read_num int not null default 0"; // 阅读专题页的次数
+$sql .= ",topic_read_num int not null default 0"; // 专题页被阅读的次数
+$sql .= ",do_topic_read_elapse int not null default 0"; // 阅读专题页的时长
+$sql .= ",topic_read_elapse int not null default 0"; // 专题页被阅读的总时长
+$sql .= ",do_cowork_read_num int not null default 0"; // 阅读谈论页的次数
+$sql .= ",cowork_read_num int not null default 0"; // 谈论页被阅读的次数
+$sql .= ",do_cowork_read_elapse int not null default 0"; // 阅读谈论页的时长
+$sql .= ",cowork_read_elapse int not null default 0"; // 
 $sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
 $sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记活动页面记录追踪 
+ */
+$sql = "create table if not exists xxt_enroll_trace(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null default ''"; // 
+$sql .= ",page varchar(13) not null default ''"; // 
+$sql .= ",record_id int not null default 0"; // 
+$sql .= ",topic_id int not null default 0"; // 
+$sql .= ",userid varchar(40) not null";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",event_first varchar(255) not null default ''";
+$sql .= ",event_first_at int not null default 0";
+$sql .= ",event_end varchar(255) not null default ''";
+$sql .= ",event_end_at int not null default 0";
+$sql .= ",event_elapse int not null default 0";// 事件总时长
+$sql .= ",events text null"; // 事件
+$sql .= ",user_agent text null";
+$sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

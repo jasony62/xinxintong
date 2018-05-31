@@ -106,8 +106,8 @@
                         </div>
                         <div class='bottom-bar small text-muted'>
                             <div ng-bind="rec.enroll_at*1000|date:'MM-dd HH:mm'"></div>
-                            <a ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
-                            <a ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
+                            <a href ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
+                            <a href ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
                             <div class="btn-group" uib-dropdown>
                                 <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                                     <span class="glyphicon glyphicon-option-vertical"></span>

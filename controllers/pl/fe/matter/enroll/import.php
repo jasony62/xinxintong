@@ -144,6 +144,9 @@ class import extends \pl\fe\matter\base {
 					$base64Imgs = [];
 					for ($i = 1; $i <= $oneRecordImgNum; $i++) {
 						$img = array_shift($imgArray);
+						if (empty($img)) {
+							continue;
+						}
 						//将图片转成base64位储存
 						$mime_type = getimagesize($img->oUrl)['mime']; 
 				        $base64_data = base64_encode(file_get_contents($img->oUrl));

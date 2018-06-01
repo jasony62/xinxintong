@@ -91,7 +91,11 @@ class import extends \pl\fe\matter\base {
 			if ($recordImgs[0] === false) {
 				return new \ResponseError($recordImgs[1]);
 			}
-			$records = $this->_extractImg($oApp, $recordImgs[1], $oneRecordImgNum);
+			$data = $this->_extractImg($oApp, $recordImgs[1], $oneRecordImgNum);
+			if ($data[0] === false) {
+				return new \ResponseError($data[1]);
+			}
+			$records = $data[1];
 			// 删除解压后的文件包
 			$this->deldir($recordImgs[1]->toDir);
 		} else {
@@ -114,7 +118,12 @@ class import extends \pl\fe\matter\base {
 			$schemasByTitle[$schema->title] = $schema;
 		}
 
-		// 去除excel中的数据
+		// 取出excel中的数据
+		if (!isset($imgs->{$oApp->title})) {
+			$this->deldir($imgs->toDir);
+			$rst = [false, '未找到excel文件'];
+			return $rst;
+		}
 		$data = $this->_extractExcel($oApp, $imgs->{$oApp->title}['oUrl']);
 		$records = $data->records;
 		$clumnNames = $data->clumnNames;
@@ -194,7 +203,8 @@ class import extends \pl\fe\matter\base {
 		}
 
 		unset($records);
-		return $newRecords;
+		$rst = [true, $newRecords];
+		return $rst;
 	}
 	/**
 	 * 从文件中提取数据
@@ -386,11 +396,6 @@ class import extends \pl\fe\matter\base {
 	                        $excel->name = $file_name1;
 	                        $excel->oUrl = $save_path;
 	                        $fileDirectory->{$oApp->title} = (array) $excel;
-	                    } else {
-	                    	$this->deldir($toDir);
-
-	                    	$res = [false, '未找到excel文件'];
-	                    	return $res;
 	                    }
 	                }
 	            }  

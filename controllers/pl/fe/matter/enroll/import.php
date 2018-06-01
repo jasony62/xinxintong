@@ -197,25 +197,6 @@ class import extends \pl\fe\matter\base {
 		return $records;
 	}
 	/**
-	 * 删除文件夹
-	 */
-	private function deldir($path) {
-        $path .= '/';
-        $files = scandir($path);
-        foreach($files as $file){
-            if($file !="." && $file !=".."){
-                if(is_dir($path . $file)){
-                    $this->deldir($path . $file . '/');
-                }else{
-                    unlink($path . $file);
-                }
-            }
-        }
-        @rmdir($path);
-
-        return 'ok';
-    }
-	/**
 	 * 从文件中提取数据
 	 */
 	private function &_extractExcel($oApp, $filename) {
@@ -412,18 +393,6 @@ class import extends \pl\fe\matter\base {
 	    }
 	}
 	/**
-	 *
-	 */
-	private function _iconvConvert($str, $encoding = 'UTF-8//IGNORE') {
-		$encode = mb_detect_encoding($str, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
-
-		if ($encode && $encode != 'UTF-8') {
-			$str = iconv($encode, $encoding, $str);
-		}
-
-		return $str;
-	}
-	/**
 	 * 保存数据
 	 */
 	private function _persist($oApp, $records, $rid = '') {
@@ -485,4 +454,35 @@ class import extends \pl\fe\matter\base {
 
 		return $enrollKeys;
 	}
+	/**
+	 *
+	 */
+	private function _iconvConvert($str, $encoding = 'UTF-8//IGNORE') {
+		$encode = mb_detect_encoding($str, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
+
+		if ($encode && $encode != 'UTF-8') {
+			$str = iconv($encode, $encoding, $str);
+		}
+
+		return $str;
+	}
+	/**
+	 * 删除文件夹
+	 */
+	private function deldir($path) {
+        $path .= '/';
+        $files = scandir($path);
+        foreach($files as $file){
+            if($file !="." && $file !=".."){
+                if(is_dir($path . $file)){
+                    $this->deldir($path . $file . '/');
+                }else{
+                    unlink($path . $file);
+                }
+            }
+        }
+        @rmdir($path);
+
+        return 'ok';
+    }
 }

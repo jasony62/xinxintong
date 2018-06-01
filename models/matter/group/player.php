@@ -132,7 +132,7 @@ class player_model extends \TMS_MODEL {
 			}
 		}
 		// 记录数据
-		$dbData = $this->toJson($dbData);
+		$dbData = $this->escape($this->toJson($dbData));
 		$this->update(
 			'xxt_group_player',
 			['enroll_at' => time(), 'data' => $dbData],

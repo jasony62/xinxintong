@@ -34,7 +34,7 @@ class import extends \pl\fe\matter\base {
 		$countOfCols = 0;
 		for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
 			$schema = $schemas[$i];
-			if (!in_array($schema->type, ['image', 'file'])) {
+			if (!in_array($schema->type, ['file'])) {
 				$objActiveSheet->setCellValueByColumnAndRow($countOfCols, 1, $schema->title);
 				$countOfCols++;
 			}
@@ -93,9 +93,9 @@ class import extends \pl\fe\matter\base {
 			}
 			$records = $this->_extractImg($oApp, $recordImgs[1], $oneRecordImgNum);
 			// 删除解压后的文件包
-			$this->deldir($recordImgs[1]['toDir']);
+			$this->deldir($recordImgs[1]->toDir);
 		} else {
-			$records = $this->_extractExcel($oApp, $modelFs->rootDir . '/' . $fileUploaded);
+			$records = $this->_extractExcel($oApp, $modelFs->rootDir . '/' . $fileUploaded)->records;
 			$modelFs->delete($fileUploaded);
 		}
 
@@ -105,6 +105,7 @@ class import extends \pl\fe\matter\base {
 	}
 	/**
 	 * 从文件中提取数据
+	 * int $oneRecordImgNum 每条数据抽取多少个图片
 	 */
 	private function &_extractImg($oApp, $imgs, $oneRecordImgNum = 1) {
 		$schemas = $oApp->dataSchemas;
@@ -113,17 +114,16 @@ class import extends \pl\fe\matter\base {
 			$schemasByTitle[$schema->title] = $schema;
 		}
 
-		$records = [];
-		// 是否有excel记录
-		if (isset($imgs[$oApp->title])) {
-			$records = $this->_extractExcel($oApp, $imgs[$oApp->title]->oUrl);
-		}
+		// 去除excel中的数据
+		$data = $this->_extractExcel($oApp, $imgs->{$oApp->title}['oUrl']);
+		$records = $data->records;
+		$clumnNames = $data->clumnNames;
 
 		// 如果有excel，excel决定的数据条数
 		$recordNumExcel = count($records);
 		// 图片决定的数据条数
 		$imgNum = 0;
-		foreach ($imgs as $img) {
+		foreach ($imgs->data as $img) {
 			$count = count($img);
 			if ($count > $imgNum) {
 				$imgNum = $count;
@@ -141,23 +141,24 @@ class import extends \pl\fe\matter\base {
 		}
 		/**
 		 * 提取数据
+		 * 将图片转换成base64位后再转存
 		 */
+		$newRecords = [];
 		$modelRec = $this->model('matter\enroll\record');
 		$fsuser = $this->model('fs/user', $oApp->siteid);
 		for ($row = 0; $row < $recordNum; $row++) {
 			if (isset($records[$row])) {
-				$oRecord = &$records[$row];
-				$oRecData = clone $records[$row]->data;
+				$oRecord = $records[$row];
+				$oRecData = $records[$row]->data;
 			} else {
 				$oRecord = new \stdClass;
 				$oRecData = new \stdClass;	
 			}
-			foreach ($imgs as $key => &$imgArray) {
-				if ($key === 'toDir') {
-					continue;
-				}
-				if (isset($schemasByTitle[$key]) && $schemasByTitle[$key]->type === 'image') {
-					$oSchema = $schemasByTitle[$key];
+			foreach ($imgs->data as $key => &$imgArray) {
+				// 从excle表中取出对应列的名称
+				$clumnName = $clumnNames[(int)$key -1];
+				if (isset($schemasByTitle[$clumnName]) && $schemasByTitle[$clumnName]->type === 'image') {
+					$oSchema = $schemasByTitle[$clumnName];
 					// 转存指定数量的图片
 					$base64Imgs = [];
 					for ($i = 1; $i <= $oneRecordImgNum; $i++) {
@@ -166,8 +167,8 @@ class import extends \pl\fe\matter\base {
 							continue;
 						}
 						//将图片转成base64位储存
-						$mime_type = getimagesize($img->oUrl)['mime']; 
-				        $base64_data = base64_encode(file_get_contents($img->oUrl));
+						$mime_type = getimagesize($img['oUrl'])['mime']; 
+				        $base64_data = base64_encode(file_get_contents($img['oUrl']));
 				        $base64_img = 'data:'.$mime_type.';base64,'.$base64_data;
 				        $newImg = new \stdClass;
 				        $newImg->imgSrc = $base64_img;
@@ -187,14 +188,12 @@ class import extends \pl\fe\matter\base {
 					$oRecData->{$oSchema->id} = $treatedValue;
 				}
 			}
-			$oRecord->data = $oRecData;
 
-			if (!isset($records[$row])) {
-				$records[] = $oRecord;
-			}
+			$oRecord->data = $oRecData;
+			$newRecords[] = $oRecord;
 		}
-		
-		return $records;
+
+		return $newRecords;
 	}
 	/**
 	 * 从文件中提取数据
@@ -226,8 +225,11 @@ class import extends \pl\fe\matter\base {
 		 * 提取数据定义信息
 		 */
 		$schemasByCol = [];
+		// 每列名称
+		$clumnNames = [];
 		for ($col = 0; $col < $highestColumnIndex; $col++) {
 			$colTitle = (string) $objWorksheet->getCellByColumnAndRow($col, 1)->getValue();
+			$clumnNames[$col] = $colTitle;
 			if ($colTitle === '备注') {
 				$schemasByCol[$col] = 'comment';
 			} else if ($colTitle === '标签') {
@@ -324,20 +326,23 @@ class import extends \pl\fe\matter\base {
 			$records[] = $oRecord;
 		}
 
-		return $records;
+		$data = new \stdClass;
+		$data->records = $records;
+		$data->clumnNames = $clumnNames;
+		return $data;
 	}
 	/**
 	 * 从文件中提取数据
 	 */
 	private function &_extractZIP($oApp, $zipName, $modelFs, $file) {
 		$toDir = $modelFs->rootDir . '/enroll_' . $oApp->id . '_importZIP_' . $file->uniqueIdentifier;
-	    // 文件目录
-	    $fileDirectory = [];
-        $fileDirectory['toDir'] = $toDir;
-		
 		if(!is_dir($toDir)) {  
         	mkdir($toDir, 0777, true);//创建目录保存解压内容  
 	    }
+	    // 文件目录
+	    $fileDirectory = new \stdClass;
+        $fileDirectory->toDir = $toDir;
+        $fileDirectory->data = [];
 	    if(file_exists($zipName)) {
 	        $resource = zip_open($zipName);  
 	        while($zip_file = zip_read($resource)) {
@@ -346,50 +351,57 @@ class import extends \pl\fe\matter\base {
 	                //如果是目录需要创建目录
 	                if (substr($file_name1, -1) === '/') {
 	                	if(!is_dir($toDir . '/' . $file_name1)) {
-				        	mkdir($toDir . '/' . $this->_iconvConvert($file_name1), 0777, true);
+				        	mkdir($toDir . '/' . $file_name1, 0777, true);
 					    }
 
-	                	$fileDirectory[$this->_iconvConvert(substr($file_name1, 0, -1))] = [];
+	                	$fileDirectory->data[substr($file_name1, 0, -1)] = [];
 	                } else if (strpos($file_name1, '/') !== false) { // 二级目录
 	                	$file_names = explode('/', $file_name1);
             			if(!is_dir($toDir . '/' . $file_names[0] . '/')) {
-            				mkdir($toDir . '/' . $this->_iconvConvert($file_names[0]) . '/', 0777, true);
+            				mkdir($toDir . '/' . $file_names[0] . '/', 0777, true);
 					    }
-					    $save_path = $toDir .'/'. $this->_iconvConvert($file_names[0]) . '/' . $this->_iconvConvert($file_names[1]);
+
+					    $save_path = $toDir .'/'. $file_names[0] . '/' . $file_names[1];
 	                	$file_size = zip_entry_filesize($zip_file);
 	                	$file = zip_entry_read($zip_file, $file_size);  
                         file_put_contents($save_path, $file);  
                         zip_entry_close($zip_file);
 
                         $img = new \stdClass;
-                        $img->name = $this->_iconvConvert($file_names[1]);
+                        $img->name = $file_names[1];
                         $img->oUrl = $save_path;
-                        $fileDirectory[$this->_iconvConvert($file_names[0])][] = $img;
+                        $fileDirectory->data[$file_names[0]][] = (array) $img;
 	                } else {
-	                	$save_path = $toDir .'/'. $this->_iconvConvert($file_name1);
-	                	$file_size = zip_entry_filesize($zip_file);
-	                	$file = zip_entry_read($zip_file, $file_size);  
-                        file_put_contents($save_path, $file);  
-                        zip_entry_close($zip_file);
-
                         if (strpos($file_name1, '.xlsx') !== false) {
-	                        $img = new \stdClass;
-	                        $img->name = $this->_iconvConvert($file_name1);
-	                        $img->oUrl = $save_path;
-	                        $name = substr($file_name1, 0, strrpos($file_name1, '.'));
-	                        $fileDirectory[$this->_iconvConvert($name)] = $img;
+                        	$file_name1 = $oApp->title . '.xlsx';
+		                	$save_path = $toDir .'/'. $file_name1;
+
+		                	$file_size = zip_entry_filesize($zip_file);
+		                	$file = zip_entry_read($zip_file, $file_size);  
+	                        file_put_contents($save_path, $file);  
+	                        zip_entry_close($zip_file);
+	                        
+	                        $excel = new \stdClass;
+	                        $excel->name = $file_name1;
+	                        $excel->oUrl = $save_path;
+	                        $fileDirectory->{$oApp->title} = (array) $excel;
+	                    } else {
+	                    	$this->deldir($toDir);
+
+	                    	$res = [false, '未找到excel文件'];
+	                    	return $res;
 	                    }
 	                }
 	            }  
-	        }  
+	        }
 	        zip_close($resource);
 	    	unlink($zipName);
-	    	
+
 	    	$res = [true, $fileDirectory];
 	    	return $res;
 	    } else {
-	    	unlink($zipName);
-	    	return [false, '未找到压缩文件'];
+	    	$res = [false, '压缩文件上传失败'];
+	    	return $res;
 	    }
 	}
 	/**

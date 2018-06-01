@@ -95,7 +95,7 @@ class import extends \pl\fe\matter\base {
 			// 删除解压后的文件包
 			$this->deldir($recordImgs[1]['toDir']);
 		} else {
-			$records = $this->_extract($oApp, $modelFs->rootDir . '/' . $fileUploaded);
+			$records = $this->_extractExcel($oApp, $modelFs->rootDir . '/' . $fileUploaded);
 			$modelFs->delete($fileUploaded);
 		}
 
@@ -113,7 +113,15 @@ class import extends \pl\fe\matter\base {
 			$schemasByTitle[$schema->title] = $schema;
 		}
 
-		// 数据条数
+		$records = [];
+		// 是否有excel记录
+		if (isset($imgs[$oApp->title])) {
+			$records = $this->_extractExcel($oApp, $imgs[$oApp->title]->oUrl);
+		}
+
+		// 如果有excel，excel决定的数据条数
+		$recordNumExcel = count($records);
+		// 图片决定的数据条数
 		$imgNum = 0;
 		foreach ($imgs as $img) {
 			$count = count($img);
@@ -124,16 +132,26 @@ class import extends \pl\fe\matter\base {
 		if ($imgNum < $oneRecordImgNum) {
 			$oneRecordImgNum = 1;
 		}
-		$recordNum = ceil($imgNum / $oneRecordImgNum);
+		$recordNumImg = ceil($imgNum / $oneRecordImgNum);
+		// 决定数据条数
+		if ($recordNumExcel > $recordNumImg) {
+			$recordNum = $recordNumExcel;
+		} else {
+			$recordNum = $recordNumImg;
+		}
 		/**
 		 * 提取数据
 		 */
 		$modelRec = $this->model('matter\enroll\record');
-		$records = [];
 		$fsuser = $this->model('fs/user', $oApp->siteid);
-		for ($row = 1; $row <= $recordNum; $row++) {
-			$oRecord = new \stdClass;
-			$oRecData = new \stdClass;
+		for ($row = 0; $row < $recordNum; $row++) {
+			if (isset($records[$row])) {
+				$oRecord = &$records[$row];
+				$oRecData = clone $records[$row]->data;
+			} else {
+				$oRecord = new \stdClass;
+				$oRecData = new \stdClass;	
+			}
 			foreach ($imgs as $key => &$imgArray) {
 				if ($key === 'toDir') {
 					continue;
@@ -171,9 +189,11 @@ class import extends \pl\fe\matter\base {
 			}
 			$oRecord->data = $oRecData;
 
-			$records[] = $oRecord;
+			if (!isset($records[$row])) {
+				$records[] = $oRecord;
+			}
 		}
-
+		
 		return $records;
 	}
 	/**
@@ -198,7 +218,7 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 从文件中提取数据
 	 */
-	private function &_extract($oApp, $filename) {
+	private function &_extractExcel($oApp, $filename) {
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		/**
@@ -406,17 +426,23 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 保存数据
 	 */
-	private function _persist($oApp, $records) {
+	private function _persist($oApp, $records, $rid = '') {
 		$current = time();
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 		$enrollKeys = [];
-
+		if (empty($rid)) {
+			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $activeRound->rid;
+			}
+		}
+		
 		foreach ($records as $oRecord) {
 			$ek = $modelRec->genKey($oApp->siteid, $oApp->id);
 
 			$r = array();
 			$r['aid'] = $oApp->id;
+			$r['rid'] = $rid;
 			$r['siteid'] = $oApp->siteid;
 			$r['enroll_key'] = $ek;
 			$r['enroll_at'] = $current;
@@ -446,6 +472,7 @@ class import extends \pl\fe\matter\base {
 					if (count($v)) {
 						$cd = [
 							'aid' => $oApp->id,
+							'rid' => $rid,
 							'enroll_key' => $ek,
 							'schema_id' => $n,
 							'value' => $v,

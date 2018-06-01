@@ -132,7 +132,7 @@ class player_model extends \TMS_MODEL {
 			}
 		}
 		// 记录数据
-		$dbData = $this->toJson($dbData);
+		$dbData = $this->escape($this->toJson($dbData));
 		$this->update(
 			'xxt_group_player',
 			['enroll_at' => time(), 'data' => $dbData],
@@ -641,7 +641,7 @@ class player_model extends \TMS_MODEL {
 	public function assocWithEnroll($oGrpApp, $byApp) {
 		$modelEnl = $this->model('matter\enroll');
 
-		$oSourceApp = $modelEnl->byId($byApp, ['fields' => 'data_schemas,assigned_nickname', 'cascaded' => 'N']);
+		$oSourceApp = $modelEnl->byId($byApp, ['fields' => 'id,data_schemas,assigned_nickname', 'cascaded' => 'N']);
 		$aDataSchemas = $oSourceApp->dataSchemas;
 
 		/* 移除题目中和其他活动、通讯录的关联信息 */

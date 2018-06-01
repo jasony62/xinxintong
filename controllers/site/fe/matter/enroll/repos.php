@@ -119,6 +119,11 @@ class repos extends base {
 	 *
 	 */
 	public function dataBySchema_action($app, $schema, $rid = '', $onlyMine = 'N', $page = 1, $size = 10) {
+		$schemaIds = explode(',', $schema);
+		if (empty($schemaIds)) {
+			return new \ParameterError('没有指定有效参数');
+		}
+
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
@@ -126,23 +131,31 @@ class repos extends base {
 		if (empty($oApp->dataSchemas)) {
 			return new \ResponseError('活动【' . $oApp->title . '】没有定义登记项');
 		}
+		$oSchemas = [];
 		foreach ($oApp->dataSchemas as $dataSchema) {
-			if ($dataSchema->id === $schema) {
-				$oSchema = $dataSchema;
-				break;
+			if (in_array($dataSchema->id, $schemaIds)) {
+				$oSchemas[] = $dataSchema;
 			}
 		}
-		if (!isset($oSchema)) {
+		if (empty($oSchemas)) {
 			return new \ObjectNotFoundError();
 		}
 
+		$oRecData = $this->getPostJson();
 		$modelData = $this->model('matter\enroll\data');
+		$oResult = new \stdClass;
+
 		$oOptions = new \stdClass;
 		$oOptions->rid = $rid;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
+		if (count((array) $oRecData)) {
+			$oOptions->assocData = $oRecData;
+		}
 
-		$oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
+		foreach ($oSchemas as $oSchema) {
+			$oResult->{$oSchema->id} = $modelData->bySchema($oApp, $oSchema, $oOptions);
+		}
 
 		return new \ResponseData($oResult);
 	}

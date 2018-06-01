@@ -123,7 +123,7 @@ class user extends base {
 	 */
 	public function kanban_action($app, $rid = '', $page = 1, $size = 100) {
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause,data_schemas']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}

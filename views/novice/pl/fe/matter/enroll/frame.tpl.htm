@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>登记活动</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-switch.min.css" rel="stylesheet">
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/pl/fe/matter/enroll/frame.css');?>" rel="stylesheet">
+</head>
+
+<body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
+    <div class='pl-layout'>
+        <!--logo+侧边栏-->
+        <div class='pl-layout-leftnav'>
+            <!--logo-->
+            <div class='pl-layout-leftnav-header'>
+                <a href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+            <!--侧边栏-->
+            <ul class="nav nav-tabs nav-stacked">
+            </ul>
+        </div>
+        <!--导航+主体内容-->
+        <div id='pl-layout-main' class='pl-layout-main pl-layout-main-topnav'>
+            <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
+                <div class='container-fluid'>
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" ng-click="isNavCollapsed=!isNavCollapsed">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <div uib-collapse="isNavCollapsed">
+                        <nav class='nav navbar-nav tms-breadcrumb'>
+                            <li><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>工作台</a></li>
+                            <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=enroll&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
+                            <li ng-if="!site.yourRole"><a href="javascript:void(0)">{{site.name}}</a></li>
+                            <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                            <li>
+                                <a href='' ng-click="switchTo('preview')">{{app.title}}</a>
+                            </li>
+                        </nav>
+                    </div>
+                </div>
+            </nav>
+            <div class='container-fluid'>
+                <div class="row" ng-view></div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-switch.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/angular-bootstrap-switch.min.js"></script>
+    <script src="/static/js/tinymce/tinymce.min.js"></script>
+    <script src="/static/js/resumable.js"></script>
+    <script src="/static/js/FileSaver.min.js "></script>
+    <script src="/static/js/ZeroClipboard.min.js"></script>
+    <script src="/static/js/highcharts.js"></script>
+    <script src="/static/js/highcharts/exporting.js"></script>
+    <script src="/static/js/ui-tms.js?_=5"></script>
+    <script src="/static/js/xxt.ui.js?_=4"></script>
+    <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.schema.js');?>"></script>
+    <script src="<?php echo custom_version('/pl/fe/_module/const.js');?>"></script>
+    <script src="<?php echo auto_version('/views/default/pl/fe/_module/matter.service.js');?>"></script>
+    <script src="/views/default/pl/fe/_module/sys.chart.js?_=1"></script>
+    <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
+    <script src="/static/js/require.js" data-main="<?php echo auto_version('/views/default/pl/fe/matter/enroll/frame-loader.js');?>"></script>
+</body>
+
+</html>

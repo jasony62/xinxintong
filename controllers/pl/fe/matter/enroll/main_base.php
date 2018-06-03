@@ -7,6 +7,25 @@ require_once dirname(dirname(__FILE__)) . '/main_base.php';
  */
 abstract class main_base extends \pl\fe\matter\main_base {
 	/**
+	 * 返回视图
+	 */
+	public function index_action($site, $id) {
+		$aAccess = $this->accessControlUser('enroll', $id);
+		if ($aAccess[0] === false) {
+			die($aAccess[1]);
+		}
+
+		$oAccount = $aAccess[1];
+		$oAccount = $this->model('account')->byId($oAccount->id, ['cascaded' => ['group']]);
+
+		if (isset($oAccount->group->view_name) && $oAccount->group->view_name !== TMS_APP_VIEW_NAME) {
+			\TPL::output('/pl/fe/matter/enroll/frame', ['customViewName' => $oAccount->group->view_name]);
+		} else {
+			\TPL::output('/pl/fe/matter/enroll/frame');
+		}
+		exit;
+	}
+	/**
 	 * 解除和项目的关联
 	 */
 	public function quitMission_action($app) {

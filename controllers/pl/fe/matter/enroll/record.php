@@ -1,11 +1,11 @@
 <?php
 namespace pl\fe\matter\enroll;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(__FILE__) . '/main_base.php';
 /*
  * 登记记录
  */
-class record extends \pl\fe\matter\base {
+class record extends main_base {
 	/**
 	 *
 	 */
@@ -14,18 +14,6 @@ class record extends \pl\fe\matter\base {
 		$rule_action['actions'][] = 'get';
 
 		return $rule_action;
-	}
-	/**
-	 * 返回视图
-	 */
-	public function index_action($id) {
-		$aAccess = $this->accessControlUser('enroll', $id);
-		if ($aAccess[0] === false) {
-			die($aAccess[1]);
-		}
-
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
 	}
 	/**
 	 * 活动登记名单

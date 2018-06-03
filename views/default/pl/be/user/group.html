@@ -11,6 +11,7 @@
         <tr>
             <th>组名称</th>
             <th>缺省组</th>
+            <th>视图名称</th>
             <th>可以创建公众号群</th>
             <th>可以创建公众号</th>
             <th>可以设置公众号权限</th>
@@ -27,6 +28,9 @@
             </td>
             <td>
                 <input type='radio' ng-value='g' ng-model='defaultGroup'>
+            </td>
+            <td>
+                <input type='input' ng-model='g.view_name' ng-change="update(g,'view_name')">
             </td>
             <td>
                 <input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_mpgroup_create' ng-change="update(g,'p_mpgroup_create')">

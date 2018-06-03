@@ -7,18 +7,6 @@ require_once dirname(__FILE__) . '/main_base.php';
  */
 class main extends main_base {
 	/**
-	 * 返回视图
-	 */
-	public function index_action($site, $id) {
-		$aAccess = $this->accessControlUser('enroll', $id);
-		if ($aAccess[0] === false) {
-			die($aAccess[1]);
-		}
-
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
-	}
-	/**
 	 * 返回指定的登记活动
 	 */
 	public function get_action($app) {

@@ -27,15 +27,16 @@ class log extends \pl\fe\matter\base {
 
 		$filter = $this->getPostJson();
 		$options = [];
-		if (empty($filter->byUserId)) {
-			return new \ResponseError('未指定用户');
+		// if (empty($filter->byUserId)) {
+		// 	return new \ResponseError('未指定用户');
+		// }
+		// if (empty($filter->byOp)) {
+		// 	return new \ResponseError('未指定用户行为');
+		// }
+		// $options['byUserId'] = $modelLog->escape($filter->byUserId);
+		if (!empty($filter->byEvent)) {
+			$options['byEvent'] = $modelLog->escape($filter->byEvent);
 		}
-		if (empty($filter->byOp)) {
-			return new \ResponseError('未指定用户行为');
-		}
-		$options['byUserId'] = $modelLog->escape($filter->byUserId);
-		$options['byOp'] = $modelLog->escape($filter->byOp);
-		
 		if (!empty($filter->start)) {
 			$options['start'] = $modelLog->escape($filter->start);
 		}
@@ -49,6 +50,15 @@ class log extends \pl\fe\matter\base {
 		$logs = $modelLog->userMatterAction($appId, 'article', $options, $page, $size);
 
 		return new \ResponseData($logs);
+	}
+	/**
+	 * 查询日志
+	 *
+	 */
+	public function list_action($id, $page = 1, $size = 30) {
+		$modelLog = $this->model('matter\log');
+		$reads = $modelLog->listUserMatterOp($id, 'article', [], $page, $size);
+		return new \ResponseData($reads);
 	}
 	/**
 	 * 运营传播统计

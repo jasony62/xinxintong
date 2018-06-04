@@ -33,9 +33,11 @@ class log extends \pl\fe\matter\base {
 		// if (empty($filter->byOp)) {
 		// 	return new \ResponseError('未指定用户行为');
 		// }
-		// $options['byUserId'] = $modelLog->escape($filter->byUserId);
+		if (!empty($filter->byUserId)) {
+			$options['byUserId'] = $modelLog->escape($filter->byUserId);
+		}
 		if (!empty($filter->byEvent)) {
-			$options['byEvent'] = $modelLog->escape($filter->byEvent);
+			$options['byOp'] = $modelLog->escape($filter->byEvent);
 		}
 		if (!empty($filter->start)) {
 			$options['start'] = $modelLog->escape($filter->start);

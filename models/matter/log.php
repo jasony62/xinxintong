@@ -1077,7 +1077,7 @@ class log_model extends \TMS_MODEL {
 	 * 
 	*/
 	public function userMatterAction($matterId, $matterType, $options, $page = '', $size = '') {
-		if ($options['byOp'] === 'read') {
+		if (empty($options['byOp']) || $options['byOp'] === 'read') {
 			$q = [
 				'id,userid,nickname,read_at time,matter_shareby',
 				'xxt_log_matter_read',

@@ -81,7 +81,7 @@ class log_model extends \TMS_MODEL {
 	 * $mshareid 素材的分享ID
 	 *
 	 */
-	public function addShareAction($siteId, $shareid, $shareto, $shareby, &$user, &$matter, &$client, $referer = '') {
+	public function addShareAction($siteId, $shareid, $shareto, $shareby, &$user, &$matter, &$client, $referer = '', $shareUrl = '') {
 		$mopenid = '';
 		$mshareid = '';
 		$current = time();
@@ -99,6 +99,7 @@ class log_model extends \TMS_MODEL {
 		$log['matter_shareby'] = $shareby;
 		$log['user_agent'] = $client->agent;
 		$log['client_ip'] = $client->ip;
+		$log['share_url'] = !empty($shareUrl) ? urldecode($shareUrl) : $referer;
 
 		$logid = $this->insert('xxt_log_matter_share', $log, true);
 
@@ -1027,7 +1028,7 @@ class log_model extends \TMS_MODEL {
 		$q = [$sql, ''];
 		$logs = $this->query_objs_ss($q);
 		foreach ($logs as $log) {
-			// 带来的阅读数和阅读人数  
+			// 带来的阅读数和阅读人数
 			$ttractReads = $this->userTtractRead($site, $log->userid, $log->matter_id, $log->matter_type, $options);
 			$log->attractReaderNum = count($ttractReads);
 			$attractReadNum = 0;
@@ -1042,7 +1043,7 @@ class log_model extends \TMS_MODEL {
 		$q1 = [
 			"id",
 			'xxt_log_matter_read r',
-			$where
+			$where,
 		];
 		if (!empty($options['groupby']) && $options['groupby'] !== 'N') {
 			$p1 = ['g' => $options['groupby']];
@@ -1054,12 +1055,12 @@ class log_model extends \TMS_MODEL {
 	}
 	/**
 	 * 查询用户带来的下一级阅读数和阅读人数
-	*/
+	 */
 	private function userTtractRead($site, $logUid, $matterId, $matterType, $options) {
 		$q = [
 			'count(id) as num',
 			'xxt_log_matter_read',
-			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and userid <> '{$logUid}' and siteid = '{$site}' and matter_shareby like '" . $logUid . "_%'"
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}' and userid <> '{$logUid}' and siteid = '{$site}' and matter_shareby like '" . $logUid . "_%'",
 		];
 		if (!empty($options['start'])) {
 			$q[2] .= " and read_at > {$options['start']}";
@@ -1074,8 +1075,8 @@ class log_model extends \TMS_MODEL {
 		return $res;
 	}
 	/**
-	 * 
-	*/
+	 *
+	 */
 	public function userMatterAction($matterId, $matterType, $options, $page = '', $size = '') {
 		if ($options['byOp'] === 'read') {
 			$q = [
@@ -1113,7 +1114,7 @@ class log_model extends \TMS_MODEL {
 
 			$p = ['o' => 'share_at desc'];
 		}
-		
+
 		if (!empty($options['byUserId'])) {
 			$q[2] .= " and userid = '" . $options['byUserId'] . "'";
 		}
@@ -1138,7 +1139,7 @@ class log_model extends \TMS_MODEL {
 			$q1 = [
 				'nickname',
 				'xxt_log_matter_share',
-				['shareid' => $log->matter_shareby]
+				['shareid' => $log->matter_shareby],
 			];
 			if (!empty($log->matter_shareby)) {
 				if ($res = $this->query_obj_ss($q1)) {
@@ -1149,7 +1150,7 @@ class log_model extends \TMS_MODEL {
 				$log->origin = '';
 			}
 		}
-		
+
 		$result = new \stdClass;
 		$result->logs = $logs;
 		$q[0] = 'count(*)';

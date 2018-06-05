@@ -111,7 +111,7 @@ class report_model extends \TMS_MODEL {
 				if (!isset($modelEnl)) {
 					$modelEnl = $this->model('matter\enroll');
 				}
-				$oEnlApp = $modelEnl->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,title,create_at,start_at,data_schemas']);
+				$oEnlApp = $modelEnl->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,title,create_at,start_at,data_schemas,mission_id,sync_mission_round,round_cron']);
 				if ($oEnlApp) {
 					unset($oEnlApp->data_schemas);
 					unset($oEnlApp->pages);

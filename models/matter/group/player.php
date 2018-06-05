@@ -12,18 +12,18 @@ class player_model extends \TMS_MODEL {
 	 * @param array $options
 	 *
 	 */
-	public function enroll($oApp, $oUser, $options = []) {
-		if (is_object($options)) {
-			$options = (array) $options;
+	public function enroll($oApp, $oUser, $aOptions = []) {
+		if (is_object($aOptions)) {
+			$aOptions = (array) $aOptions;
 		}
 
-		if (isset($options['enroll_key'])) {
-			$ek = $options['enroll_key'];
+		if (isset($aOptions['enroll_key'])) {
+			$ek = $aOptions['enroll_key'];
 		} else {
 			$ek = $this->genKey($oApp->siteid, $oApp->id);
 		}
-
-		$player = [
+		$current = time();
+		$aNewPlayer = [
 			'aid' => $oApp->id,
 			'siteid' => $oApp->siteid,
 			'enroll_key' => $ek,
@@ -34,14 +34,15 @@ class player_model extends \TMS_MODEL {
 			'qy_openid' => $oUser->qy_openid,
 			'headimgurl' => $oUser->headimgurl,
 		];
-		$player['enroll_at'] = isset($options['enroll_at']) ? $options['enroll_at'] : time();
-		isset($options['round_id']) && $player['round_id'] = $options['round_id'];
-		isset($options['round_title']) && $player['round_title'] = $this->escape($options['round_title']);
-		isset($options['comment']) && $player['comment'] = $this->escape($options['comment']);
-		isset($options['tags']) && $player['tags'] = $this->escape($options['tags']);
-		isset($options['referrer']) && $player['referrer'] = $options['referrer'];
+		$aNewPlayer['enroll_at'] = isset($aOptions['enroll_at']) ? $aOptions['enroll_at'] : $current;
+		$aNewPlayer['draw_at'] = isset($aOptions['draw_at']) ? $aOptions['draw_at'] : $current;
+		isset($aOptions['round_id']) && $aNewPlayer['round_id'] = $aOptions['round_id'];
+		isset($aOptions['round_title']) && $aNewPlayer['round_title'] = $this->escape($aOptions['round_title']);
+		isset($aOptions['comment']) && $aNewPlayer['comment'] = $this->escape($aOptions['comment']);
+		isset($aOptions['tags']) && $aNewPlayer['tags'] = $this->escape($aOptions['tags']);
+		isset($aOptions['referrer']) && $aNewPlayer['referrer'] = $aOptions['referrer'];
 
-		$this->insert('xxt_group_player', $player, false);
+		$this->insert('xxt_group_player', $aNewPlayer, false);
 
 		return $ek;
 	}
@@ -132,7 +133,7 @@ class player_model extends \TMS_MODEL {
 			}
 		}
 		// 记录数据
-		$dbData = $this->toJson($dbData);
+		$dbData = $this->escape($this->toJson($dbData));
 		$this->update(
 			'xxt_group_player',
 			['enroll_at' => time(), 'data' => $dbData],
@@ -144,9 +145,9 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 根据ID返回登记记录
 	 */
-	public function &byId($aid, $ek, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+	public function &byId($aid, $ek, $aOptions = array()) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 
 		$q = [
 			$fields,
@@ -168,9 +169,9 @@ class player_model extends \TMS_MODEL {
 	 * @param string $aid 分组活动的id。如果指定只返回单条记录，如果不指定返回数据
 	 *
 	 */
-	public function byEnrollKey($ek, $aid = null, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+	public function byEnrollKey($ek, $aid = null, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 
 		$q = [
 			$fields,
@@ -203,8 +204,8 @@ class player_model extends \TMS_MODEL {
 	 *
 	 * @param int $missionId
 	 */
-	public function &byMission($missionId, $options) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function &byMission($missionId, $aOptions) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_group_player r',
@@ -212,8 +213,8 @@ class player_model extends \TMS_MODEL {
 		$missionId = $this->escape($missionId);
 		$where = "state=1 and exists(select 1 from xxt_group g where r.aid=g.id and g.mission_id={$missionId})";
 
-		if (isset($options['userid'])) {
-			$where .= " and userid='" . $this->escape($options['userid']) . "'";
+		if (isset($aOptions['userid'])) {
+			$where .= " and userid='" . $this->escape($aOptions['userid']) . "'";
 		}
 		$q[2] = $where;
 
@@ -231,8 +232,8 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 根据指定的数据查找匹配的记录
 	 */
-	public function byData($oApp, $data, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function byData($oApp, $data, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$records = false;
 
 		// 查找条件
@@ -314,7 +315,7 @@ class player_model extends \TMS_MODEL {
 		if (!empty($oOptions->tags)) {
 			$aTags = explode(',', $oOptions->tags);
 			foreach ($aTags as $tag) {
-				$w .= "and concat(',',tags,',') like '%,$tag,%'";
+				$w .= " and concat(',',tags,',') like '%,$tag,%'";
 			}
 		}
 		$q = [
@@ -351,12 +352,12 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记
 	 */
-	public function byUser($oApp, $userid, $options = []) {
+	public function byUser($oApp, $userid, $aOptions = []) {
 		if (empty($userid)) {
 			return false;
 		}
 
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_group_player',
@@ -365,7 +366,7 @@ class player_model extends \TMS_MODEL {
 		$q2 = ['o' => 'enroll_at desc'];
 
 		$list = $this->query_objs_ss($q, $q2);
-		if (isset($options['onlyOne']) && $options['onlyOne'] === true) {
+		if (isset($aOptions['onlyOne']) && $aOptions['onlyOne'] === true) {
 			if (count($list)) {
 				return $list[0];
 			} else {
@@ -506,8 +507,8 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 指定分组内的用户
 	 */
-	public function &byRound($appId, $rid = null, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function &byRound($appId, $rid = null, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_group_player',
@@ -607,7 +608,7 @@ class player_model extends \TMS_MODEL {
 		// if (count($members)) {
 		// 	$modelGrp = $this->model('matter\group');
 		// 	$objGrp = $modelGrp->byId($oGrpApp->id, ['cascaded' => 'N']);
-		// 	$options = ['cascaded' => 'Y'];
+		// 	$aOptions = ['cascaded' => 'Y'];
 		// 	$modelUsr = $this->model('site\user\account');
 		// 	foreach ($members as $oMember) {
 		// 		$oSiteUser = $modelUsr->byId($oMember->userid);
@@ -641,7 +642,7 @@ class player_model extends \TMS_MODEL {
 	public function assocWithEnroll($oGrpApp, $byApp) {
 		$modelEnl = $this->model('matter\enroll');
 
-		$oSourceApp = $modelEnl->byId($byApp, ['fields' => 'data_schemas,assigned_nickname', 'cascaded' => 'N']);
+		$oSourceApp = $modelEnl->byId($byApp, ['fields' => 'id,data_schemas,assigned_nickname', 'cascaded' => 'N']);
 		$aDataSchemas = $oSourceApp->dataSchemas;
 
 		/* 移除题目中和其他活动、通讯录的关联信息 */
@@ -673,9 +674,9 @@ class player_model extends \TMS_MODEL {
 		// /* 导入数据 */
 		// if (!empty($eks)) {
 		// 	$modelRec = $this->model('matter\enroll\record');
-		// 	$options = ['cascaded' => 'Y'];
+		// 	$aOptions = ['cascaded' => 'Y'];
 		// 	foreach ($eks as $ek) {
-		// 		$oRecord = $modelRec->byId($ek, $options);
+		// 		$oRecord = $modelRec->byId($ek, $aOptions);
 		// 		$oUser = new \stdClass;
 		// 		$oUser->uid = $oRecord->userid;
 		// 		$oUser->nickname = $oRecord->nickname;
@@ -740,9 +741,9 @@ class player_model extends \TMS_MODEL {
 		// /* 导入数据 */
 		// if (!empty($eks)) {
 		// 	$modelRec = $this->model('matter\signin\record');
-		// 	$options = array('cascaded' => 'Y');
+		// 	$aOptions = array('cascaded' => 'Y');
 		// 	foreach ($eks as $ek) {
-		// 		$oRecord = $modelRec->byId($ek, $options);
+		// 		$oRecord = $modelRec->byId($ek, $aOptions);
 		// 		$oUser = new \stdClass;
 		// 		$oUser->uid = $oRecord->userid;
 		// 		$oUser->nickname = $oRecord->nickname;
@@ -826,13 +827,13 @@ class player_model extends \TMS_MODEL {
 		$this->setOnlyWriteDbConn(true);
 		$cnt = 0;
 		if (!empty($records)) {
-			$options = ['cascaded' => 'Y'];
+			$aOptions = ['cascaded' => 'Y'];
 			foreach ($records as $record) {
 				if ($record->state === '1' || $record->state === 'N') {
 					if ($type === 'mschema') {
 						$record = $this->_getMschData($objGrp, $record->enroll_key);
 					} else {
-						$record = $modelRec->byId($record->enroll_key, $options);
+						$record = $modelRec->byId($record->enroll_key, $aOptions);
 					}
 					$user = new \stdClass;
 					$user->uid = $record->userid;
@@ -869,12 +870,12 @@ class player_model extends \TMS_MODEL {
 						$this->setData($objGrp, $record->enroll_key, $record->data);
 					} else {
 						// 新用户
-						$options2 = ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at];
+						$aOptions2 = ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at];
 						if (!empty($assignRound) && is_object($assignRound)) {
-							$options2['round_id'] = $assignRound->round_id;
-							$options2['round_title'] = $assignRound->title;
+							$aOptions2['round_id'] = $assignRound->round_id;
+							$aOptions2['round_title'] = $assignRound->title;
 						}
-						$this->enroll($objGrp, $user, $options2);
+						$this->enroll($objGrp, $user, $aOptions2);
 						$this->setData($objGrp, $record->enroll_key, $record->data);
 					}
 					$cnt++;

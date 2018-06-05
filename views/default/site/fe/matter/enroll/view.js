@@ -84,9 +84,6 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
         }
         $scope.gotoPage(event, page, facRecord.current.enroll_key);
     };
-    $scope.remarkRecord = function(event) {
-        $scope.gotoPage(event, 'cowork', facRecord.current.enroll_key);
-    };
     $scope.removeRecord = function(event, page) {
         if ($scope.app.can_cowork && $scope.app.can_cowork !== 'Y') {
             if ($scope.user.uid !== facRecord.current.userid) {
@@ -105,7 +102,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
         $scope.Record = facRecord = Record.ins(app);
     });
 }]);
-ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticebox', 'Record', 'tmsDynaPage', function($scope, $sce, LS, http2, noticebox, Record, tmsDynaPage) {
+ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', function($scope, $sce, LS, http2, noticebox, Record, picviewer, $timeout) {
     function fnGetRecord() {
         return http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid'));
     }
@@ -227,45 +224,13 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
         facRecord = Record.ins(oApp);
 
         fnGetRecord().then(function(rsp) {
-            var schemaId, domWrap, aRemarkableSchemas, oRecord, oOriginalData;
+            var schemaId, domWrap, oRecord, oOriginalData;
             oOriginalData = angular.copy(rsp.data.data);
             /* 设置题目的可见性 */
             fnToggleAssocSchemas(dataSchemas, oOriginalData);
             /* 将数据转换为可直接显示的形式 */
             fnProcessData(rsp.data.data);
             facRecord.current = oRecord = rsp.data;
-            facRecord.current.tag = facRecord.current.data_tag ? facRecord.current.data_tag : {};
-            aRemarkableSchemas = [];
-            if (oApp.repos_unit === 'D') {
-                dataSchemas.forEach(function(oSchema) {
-                    if (oSchema.remarkable && oSchema.remarkable === 'Y') {
-                        if (oRecord.verbose[oSchema.id]) {
-                            aRemarkableSchemas.push(oSchema);
-                            var domWrap = document.querySelector('[schema=' + oSchema.id + ']');
-                            if (domWrap) {
-                                domWrap.classList.add('remarkable');
-                                domWrap.addEventListener('click', function() {
-                                    var url = LS.j('', 'site', 'app');
-                                    url += '&page=cowork';
-                                    url += '&ek=' + oRecord.enroll_key;
-                                    url += '&schema=' + oSchema.id;
-                                    url += '&data=' + oRecord.verbose[oSchema.id].id;
-                                    location.href = url;
-                                }, true);
-                            }
-                        }
-                    }
-                });
-                if (oRecord.verbose) {
-                    aRemarkableSchemas.forEach(function(oSchema) {
-                        var num;
-                        if (domWrap = document.querySelector('[schema=' + oSchema.id + ']')) {
-                            num = oRecord.verbose[oSchema.id] ? oRecord.verbose[oSchema.id].remark_num : 0;
-                            domWrap.setAttribute('data-remark', num);
-                        }
-                    });
-                }
-            }
             /* disable actions */
             if (oApp.end_submit_at > 0 && parseInt(oApp.end_submit_at) < (new Date * 1) / 1000) {
                 fnDisableActions();
@@ -274,7 +239,11 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                     fnDisableActions();
                 }
             }
-            tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
+            $timeout(function() {
+                if(document.querySelectorAll('.data img')) {
+                    picviewer.init(document.querySelectorAll('.data img'));
+                }
+            });
             /*设置页面分享信息*/
             $scope.setSnsShare(oRecord);
             /*设置页面导航*/
@@ -286,7 +255,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                 oAppNavs.rank = {};
             }
             if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.action = {};
+                oAppNavs.event = {};
             }
             if (Object.keys(oAppNavs).length) {
                 $scope.appNavs = oAppNavs;

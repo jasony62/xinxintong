@@ -49,7 +49,7 @@
                 </li>
                 <li ng-class="{'opened':opened==='data'}">
                     <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('record')">数据 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'246px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'205px':'0'}">
                         <li ng-class="{'active':subView==='record'}">
                             <a href='' ng-click="switchTo('record')">填写记录</a>
                         </li>
@@ -64,9 +64,6 @@
                         </li>
                         <li ng-class="{'active':subView==='log'}">
                             <a href='' ng-click="switchTo('log')">行为日志</a>
-                        </li>
-                        <li ng-class="{'active':subView==='tag'}">
-                            <a href='' ng-click="switchTo('tag')">内容标签</a>
                         </li>
                     </ul>
                 </li>

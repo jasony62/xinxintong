@@ -68,13 +68,11 @@ define('TMS_COOKIE_SITE_USER_EXPIRE', 3650);
 define('TMS_COOKIE_SITE_LOGIN_EXPIRE', 7);
 /* 重新绑定公众号未关注用户信息的间隔 */
 define('TMS_COOKIE_SITE_USER_BIND_INTERVAL', 600);
-/**
- * app's local position.
- */
 /* 应用程序起始目录 */
 define('TMS_APP_DIR', dirname(__FILE__));
 /* 应用程序视图名称，起始路径为：TMS_APP_DIR.'/views/'.TMS_APP_VIEW_NAME */
 !defined('TMS_APP_VIEW_NAME_DEFAULT') && define('TMS_APP_VIEW_NAME_DEFAULT', 'default');
+!defined('TMS_APP_VIEW_NAME_NOVICE') && define('TMS_APP_VIEW_NAME_NOVICE', 'novice');
 !defined('TMS_APP_VIEW_NAME') && define('TMS_APP_VIEW_NAME', TMS_APP_VIEW_NAME_DEFAULT);
 /* 应用程序模版起始目录 */
 define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');

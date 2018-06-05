@@ -93,10 +93,6 @@
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'R'" ng-false-value="'D'" ng-model="app.repos_unit" ng-change="update('repos_unit')">共享页中记录整体显示（默认按题目显示）</label>
-            </div>
-            <div class='checkbox'>
-                <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_rank" ng-change="update('can_rank')">开放排行页</label>
             </div>
             <div class='checkbox'>
@@ -106,6 +102,14 @@
             <div class='checkbox'>
                 <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_coin" ng-change="update('can_coin')">支持用户积分</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_assoc" ng-change="update('scenarioConfig')">支持建立记录关联</label>
+            </div>
+            <div class='checkbox' ng-if="app.mission">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.sync_mission_round" ng-change="update('sync_mission_round')">活动轮次和项目轮次保持一致</label>
             </div>
         </div>
     </div>

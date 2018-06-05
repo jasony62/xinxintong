@@ -93,7 +93,7 @@
                                         <span ng-repeat='file in record._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                                     </span>
                                     <div ng-switch-when="multitext">
-                                        <p ng-repeat='item in record._data[schema.id]'><span ng-bind="item.value"></span></p>
+                                        <p ng-repeat='item in record._data[schema.id]'><span ng-bind-html="item.value"></span></p>
                                     </div>
                                     <span ng-switch-when="date">{{(record._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                                     <span ng-switch-default ng-bind-html="record._data[schema.id]"></span>

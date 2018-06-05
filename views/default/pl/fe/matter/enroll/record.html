@@ -23,7 +23,9 @@
                     <li class="divider"></li>
                     <li><a href ng-click="renewScore()">更新全部记录得分</a></li>
                     <li><a href ng-click="importByOther()">从其他活动导入记录</a></li>
-                    <li><a href ng-click="createAppByRecords()">根据选中记录创建活动<span>（{{rows.count}}）</span></a></li>
+                    <li ng-if="app.scenario==='mis_user_score'" class="divider"></li>
+                    <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncMissionUser()">从项目同步用户数据</a></li>
+                    <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>
                 </ul>
             </div>
             <div class='form-group pull-right'>
@@ -85,17 +87,17 @@
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </div>
                             <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
                             </div>
                             <div ng-switch-when="multitext">
-                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
                             </div>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
                             <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
                             <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                            <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：{{r.supplement[schema.id]}})</p>
+                            <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：<span ng-bind-html="r.supplement[schema.id]"></span>)</p>
                         </td>
                         <td ng-if="bRequireScore" ng-bind="r.score.sum"></td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
@@ -103,10 +105,10 @@
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </div>
                             <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
                             </div>
                             <div ng-switch-when="multitext">
-                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
                             </div>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
@@ -116,10 +118,10 @@
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </div>
                             <span ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
                             </span>
                             <div ng-switch-when="multitext">
-                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
                             </div>
                             <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>

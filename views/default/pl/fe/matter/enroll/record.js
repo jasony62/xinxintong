@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', function($scope, $timeout, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', function($scope, $timeout, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter, http2) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
@@ -62,7 +62,7 @@ define(['frame'], function(ngApp) {
             if ($scope.criteria.order.orderby == 'sum') {
                 $scope.criteria.order.schemaId = ''
             }
-            $scope.doSearch(1);
+            ç
         }
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
@@ -129,9 +129,26 @@ define(['frame'], function(ngApp) {
                 $scope.rows.reset();
             });
         };
-        $scope.createAppByRecords = function() {
-            srvEnrollRecord.createAppByRecords($scope.rows).then(function(newApp) {
-                location.href = '/rest/pl/fe/matter/enroll?site=' + newApp.siteid + '&id=' + newApp.id;
+        $scope.openFileUrl = function(file) {
+            var url;
+            url = '/rest/site/fe/matter/enroll/attachment/download?app=' + $scope.app.id;
+            url += '&file=' + JSON.stringify(file);
+            window.open(url); 
+        }
+        $scope.syncMissionUser = function() {
+            var oPosted = {};
+            if ($scope.criteria.record && $scope.criteria.record.rid) {
+                oPosted.rid = $scope.criteria.record.ri;
+            }
+            http2.post('/rest/pl/fe/matter/enroll/record/syncMissionUser?app=' + $scope.app.id, oPosted, function(rsp) {
+                if (rsp.data > 0) {
+                    $scope.doSearch(1);
+                }
+            });
+        };
+        $scope.syncWithDataSource = function() {
+            http2.get('/rest/pl/fe/matter/enroll/record/syncWithDataSource?app=' + $scope.app.id, function(rsp) {
+                $scope.doSearch(1);
             });
         };
         // 选中的记录

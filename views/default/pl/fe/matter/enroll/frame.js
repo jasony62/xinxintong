@@ -179,11 +179,6 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             $scope.snsNames = Object.keys(oSns);
             $scope.snsCount = Object.keys(oSns).length;
             srvEnrollApp.get().then(function(oApp) {
-                var tagById = {};
-                oApp.dataTags.forEach(function(tag) {
-                    tagById[tag.id] = tag;
-                });
-                oApp._tagsById = tagById;
                 if (oApp.matter_mg_tag !== '') {
                     oApp.matter_mg_tag.forEach(function(cTag, index) {
                         $scope.oTag.forEach(function(oTag) {
@@ -204,6 +199,15 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             });
         });
     }]);
+    ngApp.filter('filterTime', function() {
+        return  function(e) {
+            var result, h, m, s, time = e*1;
+            h = Math.floor(time / 3600);
+            m = Math.floor((time / 60 % 6));
+            s = Math.floor((time % 60));
+            return result = h + ":" + m + ":" + s;
+        }
+    });
     /***/
     require(['domReady!'], function(document) {
         angular.bootstrap(document, ["app"]);

@@ -9,17 +9,17 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
 </head>
 
-<body ng-controller="ctrlRepos" class='matter_enroll'>
+<body ng-controller="ctrlRepos" class='matter_enroll' tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=repos' ready-sign="app">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
-        <div class='container'>
+        <div class='container' ng-cloak>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">数据共享</span>
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span class='page-title' tms-app-nav app-navs="appNavs" notice-count="noticeCount">共享页</span></span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -29,126 +29,227 @@
             </ul>
         </div>
     </nav>
-    <div class='app container' ng-cloak>
-        <div class='row'>
-            <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened">
-                <form ng-click="clickAdvCriteria($event)">
-                    <div class='form-group' ng-if='rounds.length'>
-                        <select class='form-control' ng-model='criteria.rid' ng-change="shiftRound()" size='6'>
-                            <option value='all'>全部轮次</option>
-                            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                        </select>
-                    </div>
-                    <div class='form-group' ng-if="userGroups.length">
-                        <select class='form-control' ng-model="criteria.userGroup" ng-change="shiftUserGroup()" size=5 ng-options="grp.round_id as grp.title for grp in userGroups">
-                            <option value>全部分组</option>
-                        </select>
-                    </div>
-                    <div class='form-group'>
-                        <select class='form-control' ng-model="criteria.owner" ng-change="shiftOwner()" size=2>
-                            <option value='all'>全部用户</option>
-                            <option value='{{params.user.uid}}'>我的</option>
-                        </select>
-                    </div>
-                    <div class='form-group' ng-if="schemaCount>1">
-                        <select class='form-control' ng-model="criteria.schema" ng-options="schema.id as schema.title for schema in schemas" ng-change="shiftSchema()" size='6'>
-                            <option value>全部题目</option>
-                        </select>
-                    </div>
-                    <div class='form-group' ng-if="dataTags&&dataTags.length">
-                        <select class='form-control' ng-model="criteria.tag" ng-options="tag.id as tag.label for tag in dataTags" ng-change="shiftTag()" size='6'>
-                            <option value>全部标签</option>
-                        </select>
-                    </div>
-                </form>
+    <div class='app container'>
+        <div ng-if="tasks.length" ng-cloak>
+            <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
+                <span ng-bind="task.msg"></span>
+                <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class="alert-link" ng-click="addRecord($event)"> 去添加</a></span>
+                <span ng-switch-when="record.like.pre"></span>
+                <span ng-switch-when="record.like.end"></span>
             </div>
-            <div class='col-md-9 col-xs-12'>
-                <div class='form-group'>
-                    <div id='filterCriteria' class='input-group'>
-                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
-                        <div class='input-group-btn'>
-                            <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';list4Schema(1)"><span class='glyphicon glyphicon-remove'></span></button>
-                            <button class='btn btn-default' ng-click="list4Schema(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button id='advCriteriaSwitch' class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
-                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div id='repos'>
-                    <div class='records'>
-                        <div class='record' ng-repeat="rec in repos">
-                            <div class='header'>
-                                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
-                                <span ng-if="rec.agreed==='Y'" class="label label-success">推荐</span>
-                                <span ng-if="rec.agreed==='N'" class="label label-danger">屏蔽</span>
-                                <span class='text-muted nickname'>{{rec.nickname}}</span>
-                            </div>
-                            <div class='data'>
-                                <blockquote ng-switch on="schemas[rec.schema_id].type">
-                                    <div class='text-muted data-title'>{{schemas[rec.schema_id].title}}</div>
-                                    <div ng-switch-when="file">
-                                        <div ng-repeat="file in rec.value">
-                                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                                                <source src="{{file.url}}" type="{{file.type}}" />
-                                            </video>
-                                            <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
-                                                <source src="{{file.url}}" type="{{file.type}}" />
-                                            </audio>
-                                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
-                                        </div>
-                                    </div>
-                                    <ul ng-switch-when="image">
-                                        <li ng-repeat="img in rec.value.split(',')"><img ng-src="{{img}}" /></li>
-                                    </ul>
-                                    <ul ng-switch-when="multitext">
-                                        <li ng-repeat="item in rec.items">
-                                            <span dynamic-html="item.value"></span>
-                                            <div>
-                                                <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, item.id, $index)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></button>
-                                                <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoCowork(rec, item.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="item.remark_num"></span></button>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                    <div ng-switch-when="multiple"><span>{{value2Label(schemas[rec.schema_id],rec.value)}}</span></div>
-                                    <div ng-switch-when="single"><span>{{value2Label(schemas[rec.schema_id],rec.value)}}</span></div>
-                                    <div ng-switch-when="url"><span ng-bind-html="rec.value._text"></span></div>
-                                    <div ng-switch-default>{{rec.value}}</div>
-                                    <div ng-if="schemas[rec.schema_id].cantag==='Y'" class='tags'>
-                                        <span class="tag" ng-repeat="t in rec.tag">{{t.label}}</span>
-                                    </div>
-                                    <div ng-if="schemas[rec.schema_id].supplement==='Y'" class='supplement' ng-bind-html="rec.supplement"></div>
-                                </blockquote>
-                                <div class='datetime text-muted'>{{rec.submit_at*1000|date:'MM-dd HH:mm'}}</div>
-                            </div>
-                            <div class='bottom-bar text-right'>
-                                <button class='btn btn-default btn-sm' ng-click="likeRecordData(rec, rec.id)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></button>
-                                <button ng-if="schemas[rec.schema_id].remarkable==='Y'" class='btn btn-default btn-sm' ng-click="gotoCowork(rec, rec.id)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></button>
-                                <span ng-if="groupUser.is_leader==='S'||(groupUser.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid]))">
-                                    <button ng-if="rec.agreed!=='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'Y')">推荐</button>
-                                    <button ng-if="rec.agreed==='Y'" class='btn btn-default btn-sm' ng-click="recommend(rec,'')">取消推荐</button>
-                                </span>
-                            </div>
-                            <div class='remarks' ng-if="schemas[rec.schema_id].remarkable==='Y'&&rec.agreedRemarks.remarks.length">
-                                <div class='remark' ng-repeat="remark in rec.agreedRemarks.remarks">
-                                    <p ng-bind-html="remark.content"></p>
-                                    <div class='bottom-bar text-muted'>
-                                        <div ng-bind-html="remark.nickname"></div>
-                                        <div>
-                                            <button class='btn btn-default btn-sm' ng-click="likeRemark(remark)"><span class='glyphicon' ng-class="{'glyphicon-heart':remark.like_log[user.uid],'glyphicon-heart-empty':!remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></button>
+        </div>
+        <div class='row'>
+            <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened&&dirSchemas.length" ng-cloak>
+                <uib-accordion>
+                    <div uib-accordion-group class="panel-default" ng-if="dirSchemas.length" is-open='advCriteriaStatus.dirOpen' ng-cloak>
+                        <uib-accordion-heading>
+                            目录
+                            <button class="close"><span>&times;</span></button>
+                        </uib-accordion-heading>
+                        <div class='dir-level-1' ng-repeat="dir1 in dirSchemas">
+                            <div class='dir' ng-click="shiftDir(dir1)" ng-class="{active:dir1===activeDir}" ng-bind="dir1.op.l"></div>
+                            <div ng-if="dir1.op.childrenDir.length">
+                                <div class='dir-level-2' ng-repeat="dir2 in dir1.op.childrenDir">
+                                    <div class='dir' ng-click="shiftDir(dir2)" ng-class="{active:dir2===activeDir}" ng-bind="dir2.op.l"></div>
+                                    <div ng-if="dir2.op.childrenDir.length">
+                                        <div class='dir-level-3' ng-repeat="dir3 in dir2.op.childrenDir">
+                                            <div class='dir' ng-click="shiftDir(dir3)" ng-class="{active:dir3===activeDir}" ng-bind="dir3.op.l"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <button class='btn btn-default btn-block' ng-click="shiftDir()">清除选择</button>
                     </div>
-                    <div class='text-center' ng-if="page.total>repos.length">
-                        <button class='btn btn-default' ng-click="list4Schema()">更多 【{{repos.length}}/{{page.total}}】</button>
+                </uib-accordion>
+                <div class='text-center'>
+                    <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
+                </div>
+            </div>
+            <div class='records col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">
+                <div id='filterCriteria' class='input-group'>
+                    <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字'>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
+                        <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
+                        <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
+                            <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
+                        </button>
                     </div>
+                </div>
+                <div id='filterQuick' ng-cloak>
+                    <div ng-if="rounds.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span>轮次</span>
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li><a href ng-click="shiftRound()">全部</a></li>
+                            <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+                        </ul>
+                    </div>
+                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span ng-if="criteria.orderby==='lastest'">最近修改</span>
+                            <span ng-if="criteria.orderby==='earliest'">最早修改</span>
+                            <span ng-if="criteria.orderby==='lastest_first'">最近提交</span>
+                            <span ng-if="criteria.orderby==='earliest_first'">最早提交</span>
+                            <span ng-if="criteria.orderby==='mostliked'">最多赞同</span>
+                            <span ng-if="criteria.orderby==='agreed'">精选推荐</span>
+                            <span class="glyphicon glyphicon-sort"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li><a href ng-click="shiftOrderby('lastest')">最近修改</a></li>
+                            <li><a href ng-click="shiftOrderby('earliest')">最早修改</a></li>
+                            <li><a href ng-click="shiftOrderby('lastest_first')">最近提交</a></li>
+                            <li><a href ng-click="shiftOrderby('earliest_first')">最早提交</a></li>
+                            <li><a href ng-click="shiftOrderby('mostliked')">最多赞同</a></li>
+                            <li><a href ng-click="shiftOrderby('agreed')">精选推荐</a></li>
+                        </ul>
+                    </div>
+                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span ng-if="criteria.agreed==='all'">表态</span>
+                            <span ng-if="criteria.agreed==='Y'">推荐</span>
+                            <span ng-if="criteria.agreed==='D'">讨论</span>
+                            <span ng-if="criteria.agreed==='N'">关闭</span>
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li><a href ng-click="shiftAgreed('all')">全部</a></li>
+                            <li><a href ng-click="shiftAgreed('Y')">推荐</a></li>
+                            <li><a href ng-click="shiftAgreed('D')">讨论</a></li>
+                            <li><a href ng-click="shiftAgreed('N')">关闭</a></li>
+                        </ul>
+                    </div>
+                    <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span>分组</span>
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li><a href ng-click="shiftUserGroup()">全部</a></li>
+                            <li ng-repeat="ug in userGroups"><a href ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>
+                        </ul>
+                    </div>
+                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span>更多</span>
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li><a href ng-click="shiftMine('我的记录')">我的记录</a></li>
+                            <li ng-if="user.unionid"><a href ng-click="shiftMine('我的收藏')">我的收藏</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- end: filterQuick -->
+                <div id='filterTip' ng-if="filter.round||filter.group||filter.mine||filter.tags.length">
+                    <div class="bg-info small" ng-if="filter.round">
+                        <span>{{filter.round.title}}</span>
+                        <button class="close" ng-click="shiftRound()"><span>&times;</span></button>
+                    </div>
+                    <div class="bg-info small" ng-if="filter.group">
+                        <span>{{filter.group.title}}</span>
+                        <button class="close" ng-click="shiftUserGroup()"><span>&times;</span></button>
+                    </div>
+                    <div class="bg-info small" ng-if="filter.mine">
+                        <span>{{filter.mine}}</span>
+                        <button class="close" ng-click="shiftMine('')"><span>&times;</span></button>
+                    </div>
+                    <div class="bg-info small" ng-repeat="tag in filter.tags">
+                        <span ng-bind="tag.label"></span>
+                        <button class="close" ng-click="shiftTag(tag,false)"><span>&times;</span></button>
+                    </div>
+                </div>
+                <div id='repos'>
+                    <div class='records'>
+                        <div class='record' ng-repeat="rec in repos" ng-cloak>
+                            <div class='header'>
+                                <div class='seq label label-default'>{{$index+1}}</div>
+                                <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
+                                <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>
+                                <div ng-if="!rec._canAgree&&rec.agreed&&rec.agreed!=='A'">
+                                    <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
+                                    <button ng-if="rec.agreed==='Y'" class="btn btn-success btn-xs">推荐</button>
+                                    <button ng-if="rec.agreed==='N'" class="btn btn-danger btn-xs">关闭</button>
+                                </div>
+                                <div ng-if="rec._canAgree">
+                                    <div class="btn-group btn-group-xs" uib-dropdown>
+                                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                                            <span ng-if="rec.agreed===''">未表态</span>
+                                            <span ng-if="rec.agreed==='D'">讨论</span>
+                                            <span ng-if="rec.agreed==='A'">接受</span>
+                                            <span ng-if="rec.agreed==='Y'">推荐</span>
+                                            <span ng-if="rec.agreed==='N'">关闭</span>
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
+                                            <li><a href ng-click="setAgreed(rec,'')">不表态</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'D')">讨论</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'A')">接受</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'Y')">推荐</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'N')">关闭</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='data'>
+                                <blockquote>
+                                    <div tms-repos-record-data schemas="schemas" record="rec"></div>
+                                </blockquote>
+                            </div>
+                            <div class='bottom-bar'>
+                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                                <a href ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
+                                <a href ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
+                                <div class="btn-group" uib-dropdown>
+                                    <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
+                                        <span class="glyphicon glyphicon-option-vertical"></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right dropdown-menu-top" uib-dropdown-menu>
+                                        <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
+                                        <li ng-if="!rec.favored"><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
+                                        <li><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
+                                        <li ng-if="rec.favored"><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
+                                        <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                                        <li class='divider'></li>
+                                        <li><a href ng-click="copyRecord($event,rec)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class='tags' ng-if="rec.tags||rec.userTags">
+                                <button class='btn btn-info btn-xs' ng-repeat="tag in rec.tags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
+                                <button class='btn btn-default btn-xs' ng-repeat="tag in rec.userTags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
+                            </div>
+                            <div class='remarks' ng-if="rec.agreedRemarks.length">
+                                <div class='remark' ng-repeat="remark in rec.agreedRemarks">
+                                    <div class='top-bar text-muted'>
+                                        <div ng-bind="remark.create_at*1000|date:'MM-dd HH:mm'"></div>
+                                        <div ng-bind-html="remark.nickname"></div>
+                                    </div>
+                                    <blockquote>
+                                        <div ng-bind-html="remark.content"></div>
+                                    </blockquote>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='record' ng-show="page.total>repos.length" ng-cloak>
+                            <div class='text-center' tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
+                                <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end records-->
                 </div>
             </div>
         </div>
-        <div tms-app-act app-acts="appActs"></div>
+    </div>
+    <div ng-if="appActs.length" tms-app-act app-acts="appActs"></div>
+    <div id='favorGuide' ng-if="favorStack.guiding">
+        <span>已收藏</span>
+        <button class='btn btn-default' ng-click="assignTopic()">选择专题</button>
+        <button class='btn btn-default' ng-click="assignTag()">添加标签</button>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>

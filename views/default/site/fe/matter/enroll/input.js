@@ -3,9 +3,11 @@ require('./input.css');
 
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
+require('../../../../../../asset/js/xxt.ui.url.js');
+require('../../../../../../asset/js/xxt.ui.paste.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
 
-window.moduleAngularModules = ['editor.ui.xxt'];
+window.moduleAngularModules = ['paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -89,7 +91,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
     return {
         restrict: 'A',
         controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
-            $scope.chooseImage = function(schemaId, count, from) {
+            function imgCount(schemaId, count, from) {
                 if (schemaId !== null) {
                     aModifiedImgFields.indexOf(schemaId) === -1 && aModifiedImgFields.push(schemaId);
                     $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
@@ -98,31 +100,46 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                         return;
                     }
                 }
-                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
-                    var phase;
-                    phase = $scope.$root.$$phase;
-                    if (phase === '$digest' || phase === '$apply') {
+            }
+
+            function imgBind(schemaId, imgs) {
+                var phase;
+                phase = $scope.$root.$$phase;
+                if (phase === '$digest' || phase === '$apply') {
+                    $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
+                } else {
+                    $scope.$apply(function() {
                         $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
-                    } else {
-                        $scope.$apply(function() {
-                            $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
-                        });
-                    }
-                    $timeout(function() {
-                        var i, j, img, eleImg;
-                        for (i = 0, j = imgs.length; i < j; i++) {
-                            img = imgs[i];
-                            eleImg = document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(2) img');
-                            if (eleImg) {
-                                eleImg.setAttribute('src', img.imgSrc);
-                            }
-                        }
-                        $scope.$broadcast('xxt.enroll.image.choose.done', schemaId);
                     });
+                }
+                $timeout(function() {
+                    var i, j, img, eleImg;
+                    for (i = 0, j = imgs.length; i < j; i++) {
+                        img = imgs[i];
+                        eleImg = document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(3) img');
+                        if (eleImg) {
+                            eleImg.setAttribute('src', img.imgSrc);
+                        }
+                    }
+                    $scope.$broadcast('xxt.enroll.image.choose.done', schemaId);
+                });
+            }
+            $scope.chooseImage = function(schemaId, count, from) {
+                imgCount(schemaId, count, from);
+                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
+                    imgBind(schemaId, imgs);
                 });
             };
             $scope.removeImage = function(imgField, index) {
                 imgField.splice(index, 1);
+            };
+            $scope.pasteImage = function(schemaId, event, count, from) {
+                imgCount(schemaId, count, from);
+                var targetDiv;
+                targetDiv = event.currentTarget.children[event.currentTarget.children.length - 1];
+                window.xxt.image.paste(angular.element(targetDiv)[0], $q.defer(), from).then(function(imgs) {
+                    imgBind(schemaId, imgs);
+                });
             };
         }]
     }
@@ -372,7 +389,7 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsUrl', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsUrl) {
+ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile) {
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
@@ -493,6 +510,64 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         });
     }
+    /**
+     * 添加辅助功能
+     */
+    function fnAssistant(dataSchemas) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema, domRequireAssist;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                if (domSchema) {
+                    switch (oSchema.type) {
+                        case 'longtext':
+                            domRequireAssist = document.querySelector('textarea[ng-model="data.' + oSchema.id + '"]');
+                            if (domRequireAssist) {
+                                domRequireAssist.addEventListener('paste', function(e) {
+                                    var text;
+                                    e.preventDefault();
+                                    text = e.clipboardData.getData('text/plain');
+                                    tmsPaste.onpaste(text, { filter: { whiteSpace: oSchema.filterWhiteSpace === 'Y' } });
+                                });
+                            }
+                            break;
+                    }
+                }
+            }
+        });
+    }
+    /**
+     * 给关联选项添加选项nickname
+     */
+    function fnAppendOpNickname(dataSchemas) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                if (domSchema && oSchema.dsOps && oSchema.showOpNickname === 'Y') {
+                    switch (oSchema.type) {
+                        case 'multiple':
+                            if (oSchema.ops && oSchema.ops.length) {
+                                oSchema.ops.forEach(function(oOp) {
+                                    var domOption, spanNickname;
+                                    if (oOp.ds && oOp.ds.nickname) {
+                                        domOption = document.querySelector('input[ng-model="data.' + oSchema.id + '.' + oOp.v + '"]');
+                                        if (domOption) {
+                                            domOption = domOption.parentNode;
+                                            spanNickname = document.createElement('span');
+                                            spanNickname.classList.add('option-nickname');
+                                            spanNickname.innerHTML = '[' + oOp.ds.nickname + ']';
+                                            domOption.appendChild(spanNickname);
+                                        }
+                                    }
+                                });
+                            }
+                            break;
+                    }
+                }
+            }
+        });
+    }
 
     function doTask(seq, nextAction, type) {
         var task = tasksOfBeforeSubmit[seq];
@@ -553,6 +628,10 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         fnToggleAssocSchemas(dataSchemas, oRecordData);
         // 控制题目关联选项的可见性
         fnToggleAssocOptions(dataSchemas, oRecordData);
+        // 添加辅助功能
+        fnAssistant(dataSchemas);
+        // 从其他活动生成的选项的昵称
+        fnAppendOpNickname(dataSchemas);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
@@ -589,7 +668,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             oAppNavs.rank = {};
         }
         if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
@@ -627,7 +706,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         $scope.submit(event, '', 'save');
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var schemasById, dataOfRecord, p, value;
+        var schemasById, dataOfRecord, p, value, pasteContains;
         StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = params.app._schemasById;
         _oApp = params.app;
@@ -667,9 +746,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 oRecord = rsp.data;
                 ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
                 $scope.record = oRecord;
-                if (oRecord.data_tag) {
-                    $scope.tag = oRecord.data_tag;
-                }
                 if (oRecord.supplement) {
                     $scope.supplement = oRecord.supplement;
                 }
@@ -699,6 +775,21 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 }
             }
         }
+        /*动态添加粘贴图片*/
+        if (!$scope.isSmallLayout) {
+            pasteContains = document.querySelectorAll('ul.img-tiles');
+            angular.forEach(pasteContains, function(pastecontain) {
+                var oSchema, html, $html;
+                oSchema = schemasById[pastecontain.getAttribute('name')];
+                html = '<li class="img-picker img-edit">';
+                html += '<button class="btn btn-default" ng-click="pasteImage(\'' + oSchema.id + '\',$event,' + (oSchema.count || 1) + ')">点击按钮<br>Ctrl+V<br>粘贴截图';
+                html += '<div contenteditable="true" tabindex="-1" style="width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;"></div>';
+                html += '</button>';
+                html += '</li>';
+                $html = $compile(html)($scope);
+                angular.element(pastecontain).append($html);
+            });
+        }
     });
     $scope.removeItem = function(items, index) {
         noticebox.confirm('删除此项，确定？').then(function() {
@@ -710,7 +801,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.data = {
-                    content: '添加内容...'
+                    content: ''
                 };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
@@ -776,75 +867,22 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             }
         }
     };
-    $scope.tagRecordData = function(schemaId) {
-        var oApp, oSchema, tagsOfData;
-        oApp = $scope.app;
-        oSchema = oApp._schemasById[schemaId];
-        if (oSchema) {
-            tagsOfData = $scope.tag[schemaId];
-            $uibModal.open({
-                templateUrl: 'tagRecordData.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var model;
-                    $scope2.schema = oSchema;
-                    $scope2.apptags = oApp.dataTags;
-                    $scope2.model = model = {
-                        selected: []
-                    };
-                    if (tagsOfData) {
-                        tagsOfData.forEach(function(oTag) {
-                            var index;
-                            if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
-                                model.selected[$scope2.apptags.indexOf(oTag)] = true;
-                            }
-                        });
-                    }
-                    $scope2.createTag = function() {
-                        var newTags;
-                        if ($scope2.model.newtag) {
-                            newTags = $scope2.model.newtag.replace(/\s/, ',');
-                            newTags = newTags.split(',');
-                            http2.post('/rest/site/fe/matter/enroll/tag/create?site=' + $scope.app.siteid + '&app=' + $scope.app.id, newTags).then(function(rsp) {
-                                rsp.data.forEach(function(oNewTag) {
-                                    $scope2.apptags.push(oNewTag);
-                                });
-                            });
-                            $scope2.model.newtag = '';
-                        }
-                    };
-                    $scope2.cancel = function() { $mi.dismiss(); };
-                    $scope2.ok = function() {
-                        var tags = [];
-                        model.selected.forEach(function(selected, index) {
-                            if (selected) {
-                                tags.push($scope2.apptags[index]);
-                            }
-                        });
-                        $mi.close(tags);
-                    };
-                }],
-                backdrop: 'static',
-            }).result.then(function(tags) {
-                $scope.tag[schemaId] = tags;
-            });
-        }
-    };
     $scope.getMyLocation = function(prop) {
         window.xxt.geo.getAddress(http2, $q.defer(), LS.p.site).then(function(data) {
             $scope.data[prop] = data.address;
         });
     };
     $scope.pasteUrl = function(schemaId) {
-        tmsUrl.fetch($scope.data[schemaId]).then(function(result) {
+        tmsUrl.fetch($scope.data[schemaId], { description: true, text: true }).then(function(oResult) {
             var oData;
-            oData = angular.copy(result.summary);
-            oData._text = result.text;
+            oData = angular.copy(oResult.summary);
+            oData._text = oResult.text;
             $scope.data[schemaId] = oData;
         });
     };
     $scope.editSupplement = function(schemaId) {
         var str = $scope.supplement[schemaId];
-        if (!str) { str = '请填写补充说明'; }
+        if (!str) { str = ''; }
         $uibModal.open({
             templateUrl: 'writeItem.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -867,25 +905,74 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             $scope.supplement[schemaId] = data.content;
         });
     }
+    /**
+     * 填写历史数据
+     */
     $scope.dataBySchema = function(schemaId) {
-        var app = $scope.app;
-        $uibModal.open({
-            templateUrl: 'dataBySchema.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.data = {};
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() { $mi.close($scope2.data); };
-                http2.get('/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + app.siteid + '&app=' + app.id + '&schema=' + schemaId).then(function(result) {
-                    if (app._schemasById[schemaId].type == 'multitext') {
-                        result.data.records.pop();
+        var oRecordData, oHandleSchema, url;
+        url = '/rest/site/fe/matter/enroll/repos/dataBySchema?site=' + _oApp.siteid + '&app=' + _oApp.id;
+        if (oHandleSchema = $scope.schemasById[schemaId]) {
+            oRecordData = $scope.data;
+            $uibModal.open({
+                templateUrl: 'dataBySchema.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var oAssocData = {};
+                    var oPage;
+                    oPage = {
+                        at: 1,
+                        size: 10,
+                        j: function() {
+                            return '&page=' + this.at + '&size=' + this.size;
+                        }
+                    };
+                    $scope2.page = oPage;
+                    $scope2.data = {};
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() { $mi.close($scope2.data); };
+                    $scope2.search = function() {
+                        http2.post(url + '&page=' + oPage.j() + '&schema=' + oHandleSchema.id, oAssocData).then(function(oResult) {
+                            var oData = oResult.data[oHandleSchema.id];
+                            if (oHandleSchema.type == 'multitext') {
+                                oData.records.pop();
+                            }
+                            $scope2.records = oData.records;
+                            oPage.total = oData.total;
+                        });
+                    };
+                    if (oHandleSchema.history === 'Y' && oHandleSchema.historyAssoc && oHandleSchema.historyAssoc.length) {
+                        oHandleSchema.historyAssoc.forEach(function(assocSchemaId) {
+                            if (oRecordData[assocSchemaId]) {
+                                oAssocData[assocSchemaId] = oRecordData[assocSchemaId];
+                            }
+                        });
                     }
-                    $scope2.records = result.data.records;
-                });
-            }],
-            backdrop: 'static',
-        }).result.then(function(result) {
-            $scope.data[schemaId] = result.selected.value;
-        });
+                    $scope2.search();
+                }],
+                backdrop: 'static',
+            }).result.then(function(oResult) {
+                var assocSchemaIds = [];
+                if (oResult.selected.value) {
+                    $scope.data[oHandleSchema.id] = oResult.selected.value;
+                    /* 检查是否存在关联题目，自动完成数据填写 */
+                    _oApp.dataSchemas.forEach(function(oOther) {
+                        if (oOther.id !== oHandleSchema.id && oOther.history === 'Y' && oOther.historyAssoc && oOther.historyAssoc.indexOf(oHandleSchema.id) !== -1) {
+                            assocSchemaIds.push(oOther.id);
+                        }
+                    });
+                    if (assocSchemaIds.length) {
+                        var oPosted = {};
+                        oPosted[oHandleSchema.id] = $scope.data[oHandleSchema.id];
+                        http2.post(url + '&schema=' + assocSchemaIds.join(','), oPosted).then(function(rsp) {
+                            for (var schemaId in rsp.data) {
+                                if (rsp.data[schemaId].records && rsp.data[schemaId].records.length) {
+                                    $scope.data[schemaId] = rsp.data[schemaId].records[0].value;
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
     };
     $scope.score = function(schemaId, opIndex, number) {
         var schema = $scope.schemasById[schemaId],

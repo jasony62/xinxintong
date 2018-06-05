@@ -39,16 +39,36 @@ p {
 }
 
 .bottom-bar {
-	font-size: 14px;
-	color: #777;
+	display: flex;
+	align-items: center;
 
 	&>*+* {
 		margin-left: 16px;
+
+		.like {
+			color: @brand-primary;
+		}
+
+	}
+
+	&>:first-child {
+		flex-grow: 1
 	}
 
 	a {
-		color: #777;
 		text-decoration: none;
+		color: #777;
+	}
+
+	.btn-default {
+		color: #777;
+	}
+
+	.dropdown {
+		button {
+			border: 0;
+		}
+
 	}
 
 }
@@ -59,34 +79,65 @@ p {
 	background: #fff;
 }
 
-#record .title {
-	margin: 0 -1rem .5rem -1rem;
-	background: #ddd;
-	padding: .5rem 1rem;
-	border-bottom: 1px solid #ccc;
-}
+#record {
+	.title {
+		margin: 0 -1rem .5rem -1rem;
+		background: #ddd;
+		padding: .5rem 1rem;
+		border-bottom: 1px solid #ccc;
 
-#record .title .dropdown-menu {
-	right: 0;
-	left: auto;
-	min-width: auto;
-}
+		.dropdown-menu {
+			right: 0;
+			left: auto;
+			min-width: auto;
+		}
 
-#record .top-bar {
-	display: flex;
-
-	.nickname {
-		flex-grow: 1;
 	}
 
-	.label {
-		padding: .3em .6em;
+	.top-bar {
+		display: flex;
+
+		.nickname {
+			flex-grow: 1;
+		}
+
+		.label {
+			padding: .3em .6em;
+		}
+
 	}
 
-}
+	.data blockquote>div+div {
+		margin-top: 8px;
+	}
 
-#record .data blockquote>div+div {
-	margin-top: 8px;
+	.tags, .assocs {
+		margin-top: 8px;
+	}
+
+	.tags {
+		&>button+button {
+			margin-left: 4px;
+		}
+
+	}
+
+	.assocs>div {
+		padding: 4px 0;
+
+		.assoc-reason {
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			margin-right: 8px;
+			padding: 0 4px;
+		}
+
+		.assoc-text {
+			cursor: pointer;
+		}
+
+	}
+
 }
 
 #record .data .data-title:before, #cowork .data-title:before {
@@ -100,23 +151,37 @@ p {
 	border-left: 6px solid @brand-primary;
 }
 
-/*remark*/
-#cowork, #remarks {
-	position: relative;
-	margin-top: 3rem;
+#favorGuide {
+	position: fixed;
+	align-items: center;
+	z-index: 1051;
+	width: 100%;
+	bottom: 0;
+	display: flex;
+	border: 1px solid #bce8f1;
+	background: #d9edf7;
+	padding: 8px 16px;
+	color: #31708f;
+
+	&>:first-child {
+		flex-grow: 1;
+	}
+
+	&>:last-child {
+		margin-left: 4px;
+	}
+
 }
 
-#cowork:before {
-	content: '协作';
-	position: absolute;
-	left: 50%;
-	margin-left: -1em;
-	top: -2em;
-	font-size: .7em;
-	color: #eee;
-	padding: .2em 1em;
-	background: #666;
-	border-radius: 1em;
+/*remark*/
+#cowork {
+	position: relative;
+	margin-top: 1rem;
+}
+
+#remarks {
+	position: relative;
+	margin-top: 3rem;
 }
 
 #cowork {

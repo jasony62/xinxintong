@@ -30,6 +30,13 @@ define(['frame'], function(ngApp) {
             _oCriteria.orderBy = orderBy;
             enrolleeList();
         };
+        $scope.createEnlAppByUser = function() {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/createByMissionUser?mission=' + _oMission.id;
+            http2.get(url, function(rsp) {
+                location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+            });
+        };
         $scope.filter = facListFilter.init(function() {
             enrolleeList();
         }, _oCriteria.filter);

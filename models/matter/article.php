@@ -60,6 +60,13 @@ class article_model extends article_base {
 					$oMatter->entryRule = $oMatter->entry_rule = json_decode($oMatter->entry_rule);
 				}
 			}
+			if ($fields === '*' || false !== strpos($fields, 'download_rule')) {
+				if (empty($oMatter->download_rule)) {
+					$oMatter->downloadRule = $oMatter->download_rule = new \stdClass;
+				} else {
+					$oMatter->downloadRule = $oMatter->download_rule = json_decode($oMatter->download_rule);
+				}
+			}
 		}
 
 		return $oMatter;

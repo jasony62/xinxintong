@@ -28,7 +28,7 @@ ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
     html += "<div ng-if=\"navs.repos\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'repos')\">共享页</button></div>";
     html += "<div ng-if=\"navs.favor\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'favor')\">收藏页</button></div>";
     html += "<div ng-if=\"navs.rank\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'rank')\">排行页</button></div>";
-    html += "<div ng-if=\"navs.action\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'action')\">动态页<span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span></button></div>";
+    html += "<div ng-if=\"navs.event\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'event')\">动态页<span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span></button></div>";
     html += "</div>";
     $templateCache.put('appNavTemplate.html', html);
     return {

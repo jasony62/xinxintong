@@ -7,9 +7,30 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class remark extends base {
 	/**
+	 *
+	 */
+	private function _setNickname(&$oTarget, $oUser, $oEditor = null) {
+		if ($oTarget->userid === $oUser->uid) {
+			$oTarget->nickname = '我';
+		} else if (preg_match('/用户[^\W_]{13}/', $oTarget->nickname)) {
+			$oTarget->nickname = '访客';
+		} else if (isset($oEditor) && !empty($oTarget->group_id)) {
+			/* 设置编辑统一昵称 */
+			if ($oTarget->group_id === $oEditor->group) {
+				$oTarget->is_editor = 'Y';
+			}
+			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+				/* 设置编辑统一昵称 */
+				if (!empty($oTarget->group_id) && $oTarget->group_id === $oEditor->group) {
+					$oTarget->nickname = $oEditor->nickname;
+				}
+			}
+		}
+	}
+	/**
 	 * 返回指定留言
 	 */
-	public function get_action($remark) {
+	public function get_action($remark, $cascaded = null) {
 		$modelRem = $this->model('matter\enroll\remark');
 		$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,group_id,nickname,state,aid,rid,enroll_key,data_id,remark_id,content,modify_at']);
 		if (false === $oRemark && $oRemark->state !== '1') {
@@ -19,7 +40,6 @@ class remark extends base {
 		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
 		$oUser = $this->getUser($oApp);
 
 		/* 是否设置了编辑组统一名称 */
@@ -31,15 +51,17 @@ class remark extends base {
 			}
 		}
 
-		if (isset($oEditor)) {
-			if ($oRemark->group_id === $oEditor->group) {
-				$oRemark->is_editor = 'Y';
-			}
-			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
-				/* 设置编辑统一昵称 */
-				if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
-					$oRemark->nickname = $oEditor->nickname;
-				}
+		/* 修改昵称 */
+		$this->_setNickname($oRemark, $oUser, isset($oEditor) ? $oEditor : null);
+		/* 关联数据 */
+		if (!empty($cascaded)) {
+			$oRecord = $this->model('matter\enroll\record')->byId($oRemark->enroll_key, ['fields' => 'userid,group_id,nickname']);
+			$this->_setNickname($oRecord, $oUser, isset($oEditor) ? $oEditor : null);
+			$oRemark->record = $oRecord;
+			if (!empty($oRemark->data_id)) {
+				$oRecData = $this->model('matter\enroll\data')->byId($oRemark->data_id, ['fields' => 'userid,group_id,nickname']);
+				$this->_setNickname($oRecData, $oUser, isset($oEditor) ? $oEditor : null);
+				$oRemark->data = $oRecData;
 			}
 		}
 
@@ -98,7 +120,12 @@ class remark extends base {
 					$oData = $modelRecData->byId($oRemark->data_id, ['fields' => 'id,schema_id,nickname,multitext_seq']);
 					$oRemark->data = $oData;
 				}
-				if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+				/* 修改昵称 */
+				if ($oRemark->userid === $oUser->uid) {
+					$oRemark->nickname = '我';
+				} else if (preg_match('/用户[^\W_]{13}/', $oRemark->nickname)) {
+					$oRemark->nickname = '访客';
+				} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
 					/* 设置编辑统一昵称 */
 					if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
 						$oRemark->nickname = $oEditor->nickname;
@@ -147,11 +174,6 @@ class remark extends base {
 		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		/* 操作规则 */
-		$oEntryRuleResult = $this->checkEntryRule2($oApp);
-		if (isset($oEntryRuleResult->passed) && $oEntryRuleResult->passed === 'N') {
-			return new \ComplianceError('用户身份不符合进入规则，无法发表留言');
-		}
 
 		$oPosted = $this->getPostJson();
 		if (empty($oPosted->content)) {
@@ -180,6 +202,9 @@ class remark extends base {
 		$oNewRemark->modify_at = $current;
 		$oNewRemark->content = $modelRec->escape($oPosted->content);
 		$oNewRemark->as_cowork_id = '0';
+		$oNewRemark->like_num = 0;
+		$oNewRemark->like_log = '{}';
+		$oNewRemark->remark_num = 0;
 
 		/* 在记录中的序号 */
 		$seq = (int) $modelRec->query_val_ss([
@@ -198,14 +223,21 @@ class remark extends base {
 			$oNewRemark->seq_in_data = $seq + 1;
 		}
 		/* 默认表态 */
-		if (isset($oApp->actionRule->remark->default->agreed)) {
-			$agreed = $oApp->actionRule->remark->default->agreed;
-			if (in_array($agreed, ['A', 'D'])) {
-				$oNewRemark->agreed = $agreed;
-			}
-		} else if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
-			/* 如果记录是讨论状态，留言也是讨论状态 */
+		$oEntryRuleResult = $this->checkEntryRule2($oApp);
+		if (isset($oEntryRuleResult->passed) && $oEntryRuleResult->passed === 'N') {
+			/* 如果当前用户不满足进入活动规则，留言设置为讨论状态 */
 			$oNewRemark->agreed = 'D';
+		} else {
+			if (isset($oApp->actionRule->remark->default->agreed)) {
+				/* 活动设置的默认规则 */
+				$agreed = $oApp->actionRule->remark->default->agreed;
+				if (in_array($agreed, ['A', 'D'])) {
+					$oNewRemark->agreed = $agreed;
+				}
+			} else if (isset($oRecord->agreed) && $oRecord->agreed === 'D') {
+				/* 如果记录是讨论状态，留言也是讨论状态 */
+				$oNewRemark->agreed = 'D';
+			}
 		}
 
 		$oNewRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oNewRemark, true);
@@ -247,6 +279,11 @@ class remark extends base {
 
 		/* 生成提醒 */
 		$this->model('matter\enroll\notice')->addRemark($oApp, $oRecord, $oNewRemark, $oUser, isset($oRecData) ? $oRecData : null, isset($oRemark) ? $oRemark : null);
+
+		/* 修改昵称 */
+		if ($oNewRemark->userid === $oUser->uid) {
+			$oNewRemark->nickname = '我';
+		}
 
 		//$this->_notifyHasRemark($oApp, $oRecord, $oNewRemark);
 

@@ -9,19 +9,96 @@ class topic extends base {
 	/**
 	 *
 	 */
-	public function get_action($topic) {
-		$oUser = $this->who;
-		if (empty($oUser->unionid)) {
-			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
-		}
-
+	public function get_action($topic, $role) {
 		$modelTop = $this->model('matter\enroll\topic');
-		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,nickname,create_at,title,summary,rec_num']);
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
+		$oApp = $this->model('matter\enroll')->byId($oTopic->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 是否设置了编辑组统一名称 */
+		if (isset($oApp->actionRule->role->editor->group)) {
+			if (isset($oApp->actionRule->role->editor->nickname)) {
+				$oEditor = new \stdClass;
+				$oEditor->group = $oApp->actionRule->role->editor->group;
+				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+			}
+		}
+
+		$oUser = $this->getUser($oApp);
+		/* 指定的用户身份 */
+		if ($role === 'visitor') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+			$oMockUser->is_editor = 'N';
+		} else if ($role === 'member') {
+			$oMockUser = clone $oUser;
+			$oMockUser->is_leader = 'N';
+		} else {
+			$oMockUser = $oUser;
+		}
+
+		/* 修改默认访客昵称 */
+		if (isset($oMockUser->unionid) && $oTopic->unionid === $oMockUser->unionid) {
+			$oTopic->nickname = '我';
+		} else if (isset($oEditor)) {
+			/*查看创建者是否在编辑组中*/
+			// 查看创建者的userid
+			$modelAcnt = $this->model('site\user\account');
+			$oTPCreateUids = $modelAcnt->byUnionid($oTopic->unionid, ['fields' => 'uid', 'siteid' => $oTopic->siteid]);
+
+			// 查询活动编辑组
+			if (!empty($oApp->group_app_id)) {
+				$assocGroupId = $oApp->group_app_id;
+			} else if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && isset($oApp->entryRule->group->id)) {
+				$assocGroupId = $oApp->entryRule->group->id;
+			}
+			// 获取编辑中中的所有成员
+			if (isset($assocGroupId)) {
+				$modelGrpUsr = $this->model('matter\group\player');
+				$assocGroupUsers = $modelGrpUsr->byRound($assocGroupId, $oEditor->group, ['fields' => 'userid']);
+				$assocGroupUsers2 = [];
+				foreach ($assocGroupUsers as $assocGroupUser) {
+					$assocGroupUsers2[] = $assocGroupUser->userid;
+				}
+				// 查询创建者是否在编辑组中
+				foreach ($oTPCreateUids as $oTPCreateUid) {
+					if (in_array($oTPCreateUid->uid, $assocGroupUsers2)) {
+						$oTopic->is_editor = 'Y';
+					}
+				}
+				/* 设置编辑统一昵称 */
+				if (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y') {
+					if (!empty($oTopic->is_editor) && $oTopic->is_editor === 'Y') {
+						$oTopic->nickname = $oEditor->nickname;
+					}
+				}
+			}
+		}
+
 		return new \ResponseData($oTopic);
+	}
+	/**
+	 * 专题的概要信息
+	 */
+	public function sketch_action($topic) {
+		$modelTop = $this->model('matter\enroll\topic');
+
+		$oSketch = new \stdClass;
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,aid,userid,group_id,nickname,title,summary,rec_num']);
+		if ($oTopic) {
+			$modelApp = $this->model('matter\enroll');
+			$oApp = $modelApp->byId($oTopic->aid, ['fields' => 'title', 'cascaded' => 'N']);
+			$oSketch->raw = $oTopic;
+			$oSketch->title = $oTopic->title . '|' . $oApp->title;
+		}
+
+		return new \ResponseData($oSketch);
 	}
 	/**
 	 * 创建记录专题
@@ -45,6 +122,8 @@ class topic extends base {
 		$oNewTopic->aid = $oApp->id;
 		$oNewTopic->siteid = $oApp->siteid;
 		$oNewTopic->unionid = $oUser->unionid;
+		$oNewTopic->userid = $oUser->uid;
+		$oNewTopic->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
 		$oNewTopic->nickname = $modelEnl->escape($oUser->nickname);
 		$oNewTopic->create_at = $current;
 		$oNewTopic->title = empty($oPosted->title) ? $oNewTopic->nickname . '的专题（' . date('y年n月d日', $current) . '）' : $modelEnl->escape($oPosted->title);
@@ -52,34 +131,71 @@ class topic extends base {
 		$oNewTopic->rec_num = 0;
 		$oNewTopic->id = $modelEnl->insert('xxt_enroll_topic', $oNewTopic, true);
 
+		// 处理用户数据
+		if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+			$rid = $activeRound->rid;
+		} else {
+			$rid = '';
+		}
+		$oUsrEventData = new \stdClass;
+		$oUsrEventData->topic_num = 1;
+		$oUsrEventData->last_topic_at = $current;
+		$this->model('matter\enroll\event')->_updateUsrData($oApp, $rid, false, $oUser, $oUsrEventData);
+
 		return new \ResponseData($oNewTopic);
 	}
 	/**
 	 * 创建记录专题
 	 */
 	public function update_action($topic) {
-		$oUser = $this->who;
+		$modelTop = $this->model('matter\enroll\topic');
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,unionid,state,aid,group_id,title']);
+		if (false === $oTopic || $oTopic->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oApp = $this->model('matter\enroll')->byId($oTopic->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+		if (!isset($oUser->group_id)) {
+			$oUser->group_id = '';
+		}
 		if (empty($oUser->unionid)) {
 			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
 		}
 
 		$oPosted = $this->getPostJson();
 		if (empty((array) $oPosted)) {
-			return new \ResponseError('没有指定要更新的数据');
+			return new \ResponseError('没有指定要更新的数据（1）');
 		}
 
-		$modelTop = $this->model('matter\enroll\topic');
-		$oUpdated = new \stdClass;
+		if ($oUser->unionid === $oTopic->unionid && $oUser->group_id !== $oTopic->group_id) {
+			$oPosted->group_id = $oUser->group_id;
+			if (empty($oUser->group_id)) {
+				$oPosted->share_in_group = 'N';
+			}
+		}
+
+		$aUpdated = [];
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {
 			case 'title':
 			case 'summary':
-				$oUpdated->{$prop} = $modelTop->escape($val);
+			case 'group_id':
+				$aUpdated[$prop] = $modelTop->escape($val);
+				break;
+			case 'share_in_group':
+				$aUpdated['share_in_group'] = in_array($val, ['Y', 'N']) ? $val : 'N';
 				break;
 			}
 		}
+		if (empty($aUpdated)) {
+			return new \ResponseError('没有指定要更新的数据（2）');
+		}
 
-		$rst = $modelTop->update('xxt_enroll_topic', $oUpdated, ['id' => $topic]);
+		$rst = $modelTop->update('xxt_enroll_topic', $aUpdated, ['id' => $topic]);
 
 		return new \ResponseData($rst);
 	}
@@ -111,15 +227,25 @@ class topic extends base {
 		if (empty($oUser->unionid)) {
 			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
 		}
-
+		$w = "state=1 and aid='{$oApp->id}'";
+		$w .= " and (";
+		$w .= "unionid='$oUser->unionid'";
+		if (isset($oUser->group_id)) {
+			$w .= " or (share_in_group='Y' and group_id='{$oUser->group_id}')";
+		}
+		$w .= ")";
 		$q = [
-			'id,create_at,title,summary,rec_num',
+			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group',
 			'xxt_enroll_topic',
-			['aid' => $oApp->id, 'unionid' => $oUser->unionid, 'state' => 1],
+			$w,
 		];
 		$q2 = ['o' => 'create_at desc'];
 		$topics = $modelEnl->query_objs_ss($q, $q2);
-
+		foreach ($topics as $oTopic) {
+			if ($oTopic->userid === $oUser->uid) {
+				$oTopic->nickname = '我';
+			}
+		}
 		$oResult = new \stdClass;
 		$oResult->topics = $topics;
 		$oResult->total = count($topics);

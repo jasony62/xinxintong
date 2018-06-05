@@ -791,6 +791,188 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     backdrop: 'static',
                 });
             };
+            $scope.setHistoryAssoc = function(oSchema) {
+                var _oApp;
+                _oApp = $scope.app;
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setHistoryAssoc.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var options = [];
+                        $scope2.schemas = [];
+                        _oApp.dataSchemas.forEach(function(oOther) {
+                            if (oOther.id !== oSchema.id && 'shorttext' === oOther.type && oOther.history === 'Y') {
+                                $scope2.schemas.push(oOther);
+                                options.push(oOther.id);
+                            }
+                        });
+                        $scope2.result = {};
+                        if (oSchema.historyAssoc && oSchema.historyAssoc.length) {
+                            oSchema.historyAssoc.forEach(function(schemaId) {
+                                if (options.indexOf(schemaId) !== -1) {
+                                    $scope2.result[schemaId] = true;
+                                }
+                            });
+                        }
+                        $scope2.ok = function() {
+                            $mi.close($scope2.result);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                    }],
+                    backdrop: 'static',
+                }).result.then(function(oResult) {
+                    oSchema.historyAssoc = [];
+                    for (var schemaId in oResult) {
+                        if (oResult[schemaId]) oSchema.historyAssoc.push(schemaId);
+                    }
+                    $scope.updSchema(oSchema);
+                });
+            };
+            $scope.setDataSource = function(oSchema) {
+                var _oApp;
+                _oApp = $scope.app;
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setDataSource.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oFilter;
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 12,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.result = oResult = {};
+                        $scope2.filter = oFilter = {};
+                        $scope2.schemas = [];
+                        $scope2.selectApp = function() {
+                            $scope2.schemas = [];
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                    if (/single|multiple/.test(oSchema.type)) {
+                                        $scope2.schemas.push(oSchema);
+                                    } else if ('shorttext' === oSchema.type && oSchema.format === 'number') {
+                                        $scope2.schemas.push(oSchema);
+                                    }
+                                });
+                            }
+                            oResult.selected = null;
+                        };
+                        $scope2.ok = function() {
+                            var fromApp;
+                            if ((fromApp = oResult.fromApp) && oResult.selected !== undefined) {
+                                $mi.close({ app: { id: fromApp.id, title: fromApp.title }, schema: $scope2.schemas[parseInt(oResult.selected)] });
+                            } else {
+                                $mi.dismiss();
+                            }
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.doFilter = function() {
+                            oPage.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            http2.post(url, {
+                                byTitle: oFilter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    oResult.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                oPage.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                }).result.then(function(oResult) {
+                    if (oResult.app && oResult.schema) {
+                        oSchema.ds = {
+                            app: { id: oResult.app.id, title: oResult.app.title },
+                            schema: { id: oResult.schema.id, title: oResult.schema.title },
+                        }
+                        $scope.updSchema(oSchema);
+                    }
+                });;
+            };
+            $scope.setOptionsSource = function(oSchema) {
+                var _oApp;
+                _oApp = $scope.app;
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setOptionsSource.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oFilter;
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 12,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.result = oResult = {};
+                        $scope2.filter = oFilter = {};
+                        $scope2.schemas = [];
+                        $scope2.selectApp = function() {
+                            $scope2.schemas = [];
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                    if (/longtext|url/.test(oSchema.type)) {
+                                        $scope2.schemas.push(oSchema);
+                                    } else if (/shorttext/.test(oSchema.type) && !oSchema.format) {
+                                        $scope2.schemas.push(oSchema);
+                                    }
+                                });
+                            }
+                            oResult.selected = null;
+                        };
+                        $scope2.ok = function() {
+                            var fromApp;
+                            if ((fromApp = oResult.fromApp) && oResult.selected !== undefined) {
+                                $mi.close({ app: { id: fromApp.id, title: fromApp.title }, schema: $scope2.schemas[parseInt(oResult.selected)] });
+                            } else {
+                                $mi.dismiss();
+                            }
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.doFilter = function() {
+                            oPage.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            http2.post(url, {
+                                byTitle: oFilter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    oResult.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                oPage.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                }).result.then(function(oResult) {
+                    if (oResult.app && oResult.schema) {
+                        oSchema.dsOps = {
+                            app: { id: oResult.app.id, title: oResult.app.title },
+                            schema: { id: oResult.schema.id, title: oResult.schema.title },
+                        }
+                        $scope.updSchema(oSchema);
+                    }
+                });;
+            };
             /**
              * oAfterSchema: false - first, undefined - after active schema
              */

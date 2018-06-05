@@ -379,7 +379,7 @@ class main extends \pl\fe\matter\main_base {
 			if (!$this->model('site')->isAdmin($oApp->siteid, $oUser->id)) {
 				return new \ResponseError('没有删除数据的权限');
 			}
-			$rst = $modelApp->remove($oUser, $oApp, 'Recycle');
+			$rst = $modelSig->remove($oUser, $oApp, 'Recycle');
 		} else {
 
 			$q = [

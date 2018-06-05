@@ -73,7 +73,7 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 上传文件结束
 	 */
-	public function endUpload_action($app, $type = '', $oneRecordImgNum = 1) {
+	public function endUpload_action($app, $type = 'ZIP', $oneRecordImgNum = 1) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -119,14 +119,12 @@ class import extends \pl\fe\matter\base {
 		}
 
 		// 取出excel中的数据
-		if (!isset($imgs->{$oApp->title})) {
-			$this->deldir($imgs->toDir);
-			$rst = [false, '未找到excel文件'];
-			return $rst;
+		if (isset($imgs->{$oApp->title})) {
+			$data = $this->_extractExcel($oApp, $imgs->{$oApp->title}['oUrl']);
+			$records = $data->records;
+		} else {
+			$records = [];
 		}
-		$data = $this->_extractExcel($oApp, $imgs->{$oApp->title}['oUrl']);
-		$records = $data->records;
-		$clumnNames = $data->clumnNames;
 
 		// 如果有excel，excel决定的数据条数
 		$recordNumExcel = count($records);
@@ -165,9 +163,8 @@ class import extends \pl\fe\matter\base {
 			}
 			foreach ($imgs->data as $key => &$imgArray) {
 				// 从excle表中取出对应列的名称
-				$clumnName = $clumnNames[(int)$key -1];
-				if (isset($schemasByTitle[$clumnName]) && $schemasByTitle[$clumnName]->type === 'image') {
-					$oSchema = $schemasByTitle[$clumnName];
+				if (isset($schemasByTitle[$key]) && $schemasByTitle[$key]->type === 'image') {
+					$oSchema = $schemasByTitle[$key];
 					// 转存指定数量的图片
 					$base64Imgs = [];
 					for ($i = 1; $i <= $oneRecordImgNum; $i++) {
@@ -345,64 +342,57 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 从文件中提取数据
 	 */
-	private function &_extractZIP($oApp, $zipName, $modelFs, $file) {
-		$toDir = $modelFs->rootDir . '/enroll_' . $oApp->id . '_importZIP_' . $file->uniqueIdentifier;
-		if(!is_dir($toDir)) {  
-        	mkdir($toDir, 0777, true);//创建目录保存解压内容  
+	private function &_extractZIP($oApp, $zipfile, $modelFs, $file) {
+		require_once TMS_APP_DIR . '/lib/PHPZip.php';
+
+		$savepath = $modelFs->rootDir . '/enroll_' . $oApp->id . '_importZIP_' . $file->uniqueIdentifier;
+		if(!is_dir($savepath)) {  
+        	mkdir($savepath, 0777, true);//创建目录保存解压内容  
 	    }
 	    // 文件目录
 	    $fileDirectory = new \stdClass;
-        $fileDirectory->toDir = $toDir;
-        $fileDirectory->data = [];
-	    if(file_exists($zipName)) {
-	        $resource = zip_open($zipName);  
-	        while($zip_file = zip_read($resource)) {
-	            if(zip_entry_open($resource, $zip_file)) {
-	                $file_name1 = zip_entry_name($zip_file);
-	                //如果是目录需要创建目录
-	                if (substr($file_name1, -1) === '/') {
-	                	if(!is_dir($toDir . '/' . $file_name1)) {
-				        	mkdir($toDir . '/' . $file_name1, 0777, true);
-					    }
-
-	                	$fileDirectory->data[substr($file_name1, 0, -1)] = [];
-	                } else if (strpos($file_name1, '/') !== false) { // 二级目录
-	                	$file_names = explode('/', $file_name1);
-            			if(!is_dir($toDir . '/' . $file_names[0] . '/')) {
-            				mkdir($toDir . '/' . $file_names[0] . '/', 0777, true);
-					    }
-
-					    $save_path = $toDir .'/'. $file_names[0] . '/' . $file_names[1];
-	                	$file_size = zip_entry_filesize($zip_file);
-	                	$file = zip_entry_read($zip_file, $file_size);  
-                        file_put_contents($save_path, $file);  
-                        zip_entry_close($zip_file);
-
-                        $img = new \stdClass;
-                        $img->name = $file_names[1];
-                        $img->oUrl = $save_path;
-                        $fileDirectory->data[$file_names[0]][] = (array) $img;
-	                } else {
-                        if (strpos($file_name1, '.xlsx') !== false) {
-                        	$file_name1 = $oApp->title . '.xlsx';
-		                	$save_path = $toDir .'/'. $file_name1;
-
-		                	$file_size = zip_entry_filesize($zip_file);
-		                	$file = zip_entry_read($zip_file, $file_size);  
-	                        file_put_contents($save_path, $file);  
-	                        zip_entry_close($zip_file);
-	                        
-	                        $excel = new \stdClass;
-	                        $excel->name = $file_name1;
-	                        $excel->oUrl = $save_path;
-	                        $fileDirectory->{$oApp->title} = (array) $excel;
-	                    }
-	                }
+        $fileDirectory->toDir = $savepath;
+	    if(file_exists($zipfile)) {
+	        $archive   = new \PHPZip();
+	        $FileInfos  = $archive->GetZipInnerFilesInfo($zipfile);
+	        $failFiles = [];  
+	        $pssFiles = [];
+	        for($i=0; $i<count($FileInfos); $i++) {  
+	        	$fileInfo = $FileInfos[$i];
+	            if($fileInfo['folder'] == 0){  
+	            	$rst = $archive->unZip($zipfile, $savepath, $i, $fileInfo);
+	                if($rst['state'] === true){  
+	                	if ((strpos($fileInfo['filename'], '/')) !== false) {
+	                		$oUrl = $savepath . '/' . $fileInfo['filename'];
+	                		$names = explode('/', $fileInfo['filename']);
+	                		$newFile = [];
+	                		$newFile['title'] = $names[1];
+	                		$newFile['size'] = $fileInfo['size'];
+	                		$newFile['oUrl'] = $oUrl;
+	                		$pssFiles[$names[0]][] = $newFile;
+	                	} else {
+	                		$newFile = [];
+	                		$fileName = $fileInfo['filename'];
+	                		$newFile['title'] = substr($fileName, 0, strrpos($fileName, '.'));
+	                		$newFile['size'] = $fileInfo['size'];
+	                		$newFile['oUrl'] = $savepath . '/' . $fileInfo['filename'];
+	                		$fileDirectory->{$newFile['title']} = $newFile;
+	                	}
+	                }else{  
+	                    $failFiles[] = $fileInfo['filename'];  
+	                }  
+	            }else{
+	            	if(!@is_dir($savepath . '/' . $fileInfo['filename'])){ 
+	            	 	@mkdir($savepath . '/' . $fileInfo['filename'], 0777, true); 
+	            	}   
+	            	$fileName = $this->_iconvConvert($fileInfo['filename']);;
+	            	$pssFiles[substr($fileName, 0, -1)] = [];
 	            }  
 	        }
-	        zip_close($resource);
-	    	unlink($zipName);
+	        unlink($zipfile);
 
+        	$fileDirectory->data = $pssFiles;
+        	$fileDirectory->failData = $failFiles;
 	    	$res = [true, $fileDirectory];
 	    	return $res;
 	    } else {

@@ -80,7 +80,9 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
             $timeout(function() {
                 if(document.querySelectorAll('.data img')) {
-                    picviewer.init(document.querySelectorAll('.data img'));
+                    var imgs = document.querySelectorAll('.data img');
+                    console.log(imgs);
+                    picviewer.init(imgs);
                 }
             });
             $scope.reposLoading = false;

@@ -134,31 +134,42 @@ class TPL {
 	}
 	/**
 	 * 输出页面
+	 *
+	 * @param string $template_filename 页面模版名称
+	 * @param array $aOptons
+	 * 		returnOutput default true 输出到前端还是返回内容
+	 * 		customViewName default default 定制的视图名称
+	 *
 	 */
-	public static function output($template_filename, $display = true) {
+	public static function output($template_filename, $aOptions = []) {
 		self::init();
 
 		if (!strstr($template_filename, self::$template_ext)) {
 			$template_filename .= self::$template_ext;
 		}
 
-		$display_template_filename = TMS_APP_VIEW_NAME;
+		/* 页面模版所属试图名称 */
+		if (!empty($aOptions['customViewName'])) {
+			$display_template_filename = $aOptions['customViewName'];
+		} else {
+			$display_template_filename = TMS_APP_VIEW_NAME;
+		}
 		0 !== strpos($template_filename, '/') && $display_template_filename .= '/';
 		$display_template_filename .= $template_filename;
 
+		/* 如果定制的视图不存在，使用系统默认视图 */
 		if (!file_exists(self::$template_path . '/' . $display_template_filename)) {
 			$display_template_filename = TMS_APP_VIEW_NAME_DEFAULT;
 			0 !== strpos($template_filename, '/') && $display_template_filename .= '/';
 			$display_template_filename .= $template_filename;
 		}
 
-		self::assign('template_name', TMS_APP_VIEW_NAME);
-
 		$output = self::$view->getOutput($display_template_filename);
-		if ($display) {
-			echo $output;
-		} else {
+
+		if (isset($aOptions['returnOutput']) && true === $aOptions['returnOutput']) {
 			return $output;
+		} else {
+			echo $output;
 		}
 	}
 

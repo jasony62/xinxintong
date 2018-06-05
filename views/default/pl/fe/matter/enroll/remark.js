@@ -59,7 +59,7 @@ define(['frame'], function(ngApp) {
                     tmsSchema.forTable(result.records[ek], $scope.app._schemasById);
                 }
                 $scope.records = result.records;
-
+                
                 oPage.total = result.total;
             });
         };

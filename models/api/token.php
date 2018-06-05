@@ -19,11 +19,25 @@ class token_model extends \TMS_MODEL {
 			'xxt_site_invoke_token',
 			['siteid' => $invoke->siteid, 'secret' => $secret, 'state' => 1],
 		];
-		$invToken = $this->query_obj_ss($q);
-		if ($invToken === false) {
+		$invTokens = $this->query_objs_ss($q);
+		$count = count($invTokens);
+		if ($count > 1) { // access_token数据异常存在多条数据，需要清理，并重新生成
+			foreach ($invTokens as $invToken) {
+				$this->update('xxt_site_invoke_token', ['state' => 0], ['id' => $invToken->id]);
+			}
+			$invToken = $this->createToken($secret, $invoke);
+
+			/* 记录日志 */
+			$method = 'access_token数据异常存在多条数据';
+			$messge = json_encode($invTokens);
+			$agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+			$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+			$this->model('log')->log('error', $method, $messge, $agent, $referer);
+		} else if ($count === 0) {
 			//没有就创建
 			$invToken = $this->createToken($secret, $invoke);
 		} else {
+			$invToken = $invTokens[0];
 			// 如果token过期，需要重新创建
 			if ($invToken->expire_at < time()) {
 				$this->update('xxt_site_invoke_token', ['state' => 0], ['id' => $invToken->id]);

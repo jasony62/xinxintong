@@ -7,8 +7,9 @@ require('../../../../../../asset/js/xxt.ui.favor.js');
 require('../../../../../../asset/js/xxt.ui.forward.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
+require('../../../../../../asset/js/xxt.ui.picviewer.js');
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
@@ -39,6 +40,7 @@ ngApp.directive('tmsScroll', [function() {
             }
         }
         target.__lastScrollTop = scrollTop;
+        
     }
 
     function _domReady($scope, elems) {
@@ -106,7 +108,7 @@ ngApp.filter('filesize', function() {
         return length + unit;
     };
 });
-ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSubscribe', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsForward', 'tmsSiteUser', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSubscribe, tmsSnsShare, tmsCoinPay, tmsFavor, tmsForward, tmsSiteUser) {
+ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSubscribe', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsForward', 'tmsSiteUser', 'picviewer', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSubscribe, tmsSnsShare, tmsCoinPay, tmsFavor, tmsForward, tmsSiteUser, picviewer) {
     var width = document.body.clientWidth;
     $scope.width = width;
 
@@ -120,9 +122,13 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
     function articleLoaded() {
         finish();
         $timeout(function() {
-            var audios;
+            var audios, elems;
             audios = document.querySelectorAll('audio');
             audios.length > 0 && audios[0].play();
+            if ($scope.article.can_picviewer === 'Y') {
+                elems = document.querySelectorAll('.wrap img');
+                picviewer.init(elems);
+            }
         });
         $scope.code = '/rest/site/fe/matter/article/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
         if (window.sessionStorage) {
@@ -197,9 +203,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 tmsSnsShare.set(oArticle.title, sharelink, oArticle.summary, oArticle.pic);
             }
 
-            if (oArticle.can_picviewer === 'Y') {
-                tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
-            }
+            
             //if (!document.querySelector('.tms-switch-favor')) {
             //tmsFavor.showSwitch($scope.user, oArticle);
             //} else {

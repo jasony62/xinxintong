@@ -73,17 +73,6 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation',
             }
             if ($scope.records) {
                 $scope.records.forEach(function(record) {
-                    if (record.data_tag) {
-                        for (var schemaId in record.data_tag) {
-                            var dataTags = record.data_tag[schemaId],
-                                converted = [];
-                            dataTags.forEach(function(tagId) {
-                                oApp._tagsById[tagId] && converted.push(oApp._tagsById[tagId]);
-                            });
-                            record.data_tag[schemaId] = converted;
-                        }
-                    }
-                    record.tag = record.data_tag ? record.data_tag : {};
                     _records.push(record);
                 });
                 facRecord.current = _records;
@@ -241,7 +230,7 @@ ngApp.controller('ctrlList', ['$scope', function($scope) {
             oAppNavs.rank = {};
         }
         if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs)) {
             $scope.appNavs = oAppNavs;

@@ -22,6 +22,7 @@ $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
 $sql .= ",scenario_config text null"; // 登记活动场景的配置参数
 $sql .= ",round_cron text null"; // 定时创建轮次规则
+$sql .= ",sync_mission_round char(1) not null default 'N'"; // 和项目轮次同步
 $sql .= ",count_limit int not null default 0"; // 限制登记次数，0不限制
 $sql .= ",start_at int not null default 0"; // 开始时间
 $sql .= ",before_start_page varchar(20) not null default ''";
@@ -34,7 +35,6 @@ $sql .= ",enrolled_entry_page varchar(20) not null default ''";
 $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登记记录，还是编辑新的
 $sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
 $sql .= ",can_repos char(1) not null default 'N'"; // 打开共享页
-$sql .= ",repos_unit char(1) not null default 'R'"; // 共享页按数据（D）还是按记录（R）显示
 $sql .= ",can_rank char(1) not null default 'N'"; // 打开排行页
 $sql .= ",can_coin char(1) not null default 'N'"; // 是否支持积分
 $sql .= ",can_coinpay char(1) not null default 'N'"; // 是否可以进行打赏
@@ -114,6 +114,7 @@ $sql .= ",end_at int not null"; // 轮次结束时间
 $sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的标题
 $sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用
+$sql .= ",mission_rid varchar(13) not null default ''"; // 关联的项目轮次
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -204,6 +205,51 @@ $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",agreed_log text null"; // 推荐日志
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 活动登记记录间的关联
+ */
+$sql = "create table if not exists xxt_enroll_assoc(";
+$sql .= "id bigint not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",record_id int not null";
+$sql .= ",entity_a_id int not null";
+$sql .= ',entity_a_type tinyint not null';
+$sql .= ",entity_b_id int not null";
+$sql .= ',entity_b_type tinyint not null';
+$sql .= ",assoc_mode tinyint not null default 0";
+$sql .= ",assoc_num int not null default 0";
+$sql .= ",public char(1) not null default 'Y'";
+$sql .= ",first_assoc_at int not null";
+$sql .= ",last_assoc_at int not null";
+$sql .= ",assoc_text text null"; // 关联描述
+$sql .= ",assoc_reason varchar(255) not null default ''"; // 关联理由
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记活动标签指定记录
+ */
+$sql = 'create table if not exists xxt_enroll_assoc_log(';
+$sql .= 'id bigint not null auto_increment';
+$sql .= ',siteid varchar(32) not null';
+$sql .= ',aid varchar(40) not null';
+$sql .= ',record_id int not null';
+$sql .= ',assoc_id bigint not null';
+$sql .= ",assoc_text text null";
+$sql .= ",assoc_reason varchar(255) not null default ''"; // 关联理由
+$sql .= ',userid varchar(40) not null';
+$sql .= ',link_at int not null default 0';
+$sql .= ',unlink_at int not null default 0';
+$sql .= ',undo_log_id bigint not null default 0';
+$sql .= ",state tinyint not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -304,10 +350,48 @@ $sql .= ",last_agree_cowork_at int not null default 0"; // 最后一次协作获
 $sql .= ",agree_cowork_num int not null default 0"; // 协作获得推荐的次数
 $sql .= ",last_agree_remark_at int not null default 0"; // 最后一次留言获得推荐的时间
 $sql .= ",agree_remark_num int not null default 0"; // 留言获得推荐的次数
+$sql .= ",last_topic_at int not null default 0"; // 最后一次创建专题页的时间
+$sql .= ",topic_num int not null default 0"; // 创建专题页的次数
+$sql .= ",do_repos_read_num int not null default 0"; // 阅读共享页的次数
+$sql .= ",do_repos_read_elapse int not null default 0"; // 阅读共享页的总时长
+$sql .= ",do_topic_read_num int not null default 0"; // 阅读专题页的次数
+$sql .= ",topic_read_num int not null default 0"; // 专题页被阅读的次数
+$sql .= ",do_topic_read_elapse int not null default 0"; // 阅读专题页的时长
+$sql .= ",topic_read_elapse int not null default 0"; // 专题页被阅读的总时长
+$sql .= ",do_cowork_read_num int not null default 0"; // 阅读谈论页的次数
+$sql .= ",cowork_read_num int not null default 0"; // 谈论页被阅读的次数
+$sql .= ",do_cowork_read_elapse int not null default 0"; // 阅读谈论页的时长
+$sql .= ",cowork_read_elapse int not null default 0"; //
 $sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
 $sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记活动页面记录追踪
+ */
+$sql = "create table if not exists xxt_enroll_trace(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null default ''"; //
+$sql .= ",page varchar(13) not null default ''"; //
+$sql .= ",record_id int not null default 0"; //
+$sql .= ",topic_id int not null default 0"; //
+$sql .= ",userid varchar(40) not null";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",event_first varchar(255) not null default ''";
+$sql .= ",event_first_at int not null default 0";
+$sql .= ",event_end varchar(255) not null default ''";
+$sql .= ",event_end_at int not null default 0";
+$sql .= ",event_elapse int not null default 0"; // 事件总时长
+$sql .= ",events text null"; // 事件
+$sql .= ",user_agent text null";
+$sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -335,14 +419,17 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_topic(";
 $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",unionid varchar(40) not null default ''";
+$sql .= ",userid varchar(40) not null";
+$sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int not null"; // 创建时间
 $sql .= ",title varchar(255) not null default ''";
 $sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal;
 $sql .= ",rec_num int not null default 0";
+$sql .= ",share_in_group char(1) not null default 'N'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -364,22 +451,71 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
 }
-/*
+/**
  * 登记活动标签
  */
-$sql = 'create table if not exists xxt_enroll_record_tag(';
-$sql .= 'id int not null auto_increment';
-$sql .= ",siteid varchar(32) not null default ''";
+$sql = 'create table if not exists xxt_enroll_tag(';
+$sql .= 'id bigint not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",create_at int not null default 0"; //
-$sql .= ",creater varchar(40) not null default ''"; // 如果是参与人标签，为userid；如果是发起人标签，为uid
-$sql .= ",creater_src char(1) not null default 'S'"; // S:填写端用户；P:发起方用户；O:管理方用户
 $sql .= ',label varchar(255) not null';
-$sql .= ',level int not null default 0'; // 标签的层级
-$sql .= ",seq int not null default 0"; // 标签的顺序
-$sql .= ",use_num int not null default 0"; // 使用次数
-$sql .= ",scope char(1) not null default 'U'"; // 使用范围，U：参与人，I：发起人
-$sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
+$sql .= ",assign_num int not null default 0";
+$sql .= ",user_num int not null default 0";
+$sql .= ",public char(1) not null default 'N'";
+$sql .= ",forbidden char(1) not null default 'N'";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记活动用户标签
+ */
+$sql = 'create table if not exists xxt_enroll_user_tag(';
+$sql .= 'id bigint not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ',tag_id bigint not null';
+$sql .= ",userid varchar(40) not null";
+$sql .= ',create_at int not null';
+$sql .= ",state tinyint not null default 1"; // 事件是否有效
+$sql .= ",assign_num int not null default 0";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记活动标签指定记录
+ */
+$sql = 'create table if not exists xxt_enroll_tag_assign(';
+$sql .= 'id bigint not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ',tag_id bigint not null';
+$sql .= ',user_tag_id bigint not null';
+$sql .= ",userid varchar(40) not null";
+$sql .= ',assign_at int not null';
+$sql .= ',target_id int not null'; // 被打标签的填写记录
+$sql .= ',target_type tinyint not null default 1'; // 1:record
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记活动标签指定记录
+ */
+$sql = 'create table if not exists xxt_enroll_tag_target(';
+$sql .= 'id bigint not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ',tag_id bigint not null';
+$sql .= ',first_assign_at int not null';
+$sql .= ',last_assign_at int not null';
+$sql .= ',target_id int not null'; // 被打标签的对象
+$sql .= ',target_type tinyint not null default 1'; // 1:record
+$sql .= ',assign_num int not null';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -683,14 +819,14 @@ $sql .= ",headimgurl varchar(255) not null default ''";
 $sql .= ",is_leader char(1) not null default 'N'"; // 用户角色，N：组员，Y：组长，S：超级用户
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
-$sql .= ",tags text";
-$sql .= ",comment text";
+$sql .= ",tags text null";
+$sql .= ",comment text null";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log
-$sql .= ",referrer text"; //
+$sql .= ",referrer text null"; //
 $sql .= ",round_id varchar(32) not null default ''";
 $sql .= ",round_title varchar(40) not null default ''";
 $sql .= ",draw_at int not null";
-$sql .= ",data text"; // 登记的数据项
+$sql .= ",data text null"; // 登记的数据项
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

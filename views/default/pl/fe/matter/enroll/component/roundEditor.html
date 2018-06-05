@@ -28,7 +28,21 @@
                 <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-obj="round" tms-date="round.end_at" tms-state="end_at"></tms-datepicker>
             </div>
         </div>
-        <div class='form-group' ng-if="round.rid">
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>结束时间</label>
+            <div class="col-md-9">
+                <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-obj="round" tms-date="round.end_at" tms-state="end_at"></tms-datepicker>
+            </div>
+        </div>
+        <div class='form-group' ng-if="missionRounds&&missionRounds.length">
+            <label class='col-md-3 control-label'>关联项目轮次</label>
+            <div class="col-md-9">
+                <select class='form-control' ng-model="round.mission_rid" ng-options="rnd.rid as rnd.title for rnd in missionRounds">
+                    <option value=''>未指定</option>
+                </select>
+            </div>
+        </div>
+        <div class='form-group' ng-if="round.rid&&entry">
             <label class='col-md-3 control-label'>轮次填写链接</label>
             <div class="col-md-9">
                 <div class='input-group'>
@@ -39,7 +53,7 @@
                 </div>
             </div>
         </div>
-        <div class='form-group' ng-if="round.rid">
+        <div class='form-group' ng-if="round.rid&&entry">
             <label class='col-md-3 control-label'>轮次填写二维码</label>
             <div class='col-md-9'>
                 <div>

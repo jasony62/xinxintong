@@ -45,19 +45,31 @@
     </div>
     <div ng-switch on='category'>
         <div ng-switch-when="enrollee">
-            <table class='table table-bordered'>
+            <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
+                <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
+                    <table class='table table-bordered' >
                 <thead>
                     <tr>
                         <th style='width:28px'>
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
                         <th style='width:48px'>序号</th>
-                        <th>姓名</th>
-                        <th ng-if="app.group_app_id">分组</th>
-                        <th>填写记录</th>
-                        <th>发表留言</th>
-                        <th>发表点赞</th>
-                        <th>获得推荐</th>
+                        <th style='width:48px'>姓名</th>
+                        <th style='width:48px' ng-if="app.group_app_id">分组</th>
+                        <th style='width:75px'>填写记录</th>
+                        <th style='width:75px'>发表留言</th>
+                        <th style='width:75px'>发表点赞</th>
+                        <th style='width:75px'>获得推荐</th>
+                        <th style='width:120px'>浏览共享页次数</th>
+                        <th style='width:120px'>浏览专题页次数</th>
+                        <th style='width:130px'>专题页被浏览次数</th>
+                        <th style='width:120px'>浏览讨论页次数</th>
+                        <th style='width:130px'>讨论页被浏览次数</th>
+                        <th style='width:150px'>共享页浏览累计时间</th>
+                        <th style='width:150px'>专题页浏览累计时间</th>
+                        <th style='width:160px'>专题页被浏览累计时间</th>
+                        <th style='width:150px'>讨论页浏览累计时间</th>
+                        <th style='width:160px'>讨论页被浏览累计时间</th>
                         <th>积分</th>
                         <th>得分</th>
                         <th ng-if="sns.wx.joined=='Y'">微信昵称</th>
@@ -92,6 +104,16 @@
                             <div ng-if='m.user.agree_num'>{{m.user.agree_num}}</div>
                             <div ng-if='m.agree_num'>{{m.agree_num}}</div>
                         </td>
+                        <td>{{m.do_repos_read_num}}</td>
+                        <td>{{m.do_topic_read_num}}</td>
+                        <td>{{m.topic_read_num}}</td>
+                        <td>{{m.do_cowork_read_num}}</td>
+                        <td>{{m.cowork_read_num}}</td>
+                        <td>{{m.do_repos_read_elapse | filterTime}}</td>
+                        <td>{{m.do_topic_read_elapse | filterTime}}</td>
+                        <td>{{m.topic_read_elapse | filterTime}}</td>
+                        <td>{{m.do_cowork_read_elapse | filterTime}}</td>
+                        <td>{{m.cowork_read_elapse | filterTime}}</td>
                         <td>
                             <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
                             <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
@@ -114,6 +136,9 @@
                     </tr>
                 </tbody>
             </table>
+                </div>
+            </div>
+            
             <div class='form-group'>
                 <div class='pl-pagination'>
                     <span>总数：{{page.total}}</span>

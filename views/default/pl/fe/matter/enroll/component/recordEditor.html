@@ -258,10 +258,6 @@
                     <div class='form-group'>
                         <div class='col-md-9 col-md-offset-3'>
                             <div class='bottom-bar'>
-                                <div ng-if="schema.cantag==='Y'&&record.data_tag[schema.id]!=''">
-                                    <label>标签：</label>
-                                    <span class="tag" ng-repeat="t in record.data_tag[schema.id]" ng-bind="t.label"></span>
-                                </div>
                                 <div ng-if="schema.requireScore==='Y'">
                                     <label>分数：</label>
                                     <input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='width:64px'>

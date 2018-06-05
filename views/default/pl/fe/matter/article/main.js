@@ -93,7 +93,7 @@ define(['frame'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvApp', function($scope, $uibModal, http2, srvSite, srvApp) {
-        var _oEditing, _oRule;
+        var _oEditing, _oRule, _oRule2;
 
         function chooseGroupApp() {
             return $uibModal.open({
@@ -121,12 +121,12 @@ define(['frame'], function(ngApp) {
             }).result;
         }
 
-        function setMschemaEntry(mschemaId) {
-            if (!_oRule.member) {
-                _oRule.member = {};
+        function setMschemaEntry(mschemaId, type) {
+            if (!$scope[type].member) {
+                $scope[type].member = {};
             }
-            if (!_oRule.member[mschemaId]) {
-                _oRule.member[mschemaId] = {
+            if (!$scope[type].member[mschemaId]) {
+                $scope[type].member[mschemaId] = {
                     entry: 'Y'
                 };
                 return true;
@@ -134,60 +134,61 @@ define(['frame'], function(ngApp) {
             return false;
         }
 
-        function setGroupEntry(oResult) {
+        function setGroupEntry(oResult, type) {
             if (oResult.app) {
-                _oRule.group = { id: oResult.app.id, title: oResult.app.title };
+                $scope[type].group = { id: oResult.app.id, title: oResult.app.title };
                 if (oResult.round) {
-                    _oRule.group.round = { id: oResult.round.round_id, title: oResult.round.title };
+                    $scope[type].group.round = { id: oResult.round.round_id, title: oResult.round.title };
                 }
                 return true;
             }
             return false;
         }
 
-        $scope.changeUserScope = function(scopeProp) {
+        $scope.changeUserScope = function(scopeProp, type) {
             switch (scopeProp) {
                 case 'sns':
-                    if ($scope.rule.scope[scopeProp] === 'Y') {
-                        if (!$scope.rule.sns) {
-                            $scope.rule.sns = {};
+                    if ($scope[type].scope[scopeProp] === 'Y') {
+                        if (!$scope[type].sns) {
+                            $scope[type].sns = {};
                         }
                         if ($scope.snsCount === 1) {
-                            $scope.rule.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
+                            $scope[type].sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
                         }
                     }
                     break;
             }
-            srvApp.changeUserScope($scope.rule.scope, $scope.sns);
+            srvApp.changeUserScope($scope[type].scope, $scope.sns, '', type);
         };
-        $scope.chooseMschema = function() {
+        $scope.chooseMschema = function(type) {
             srvSite.chooseMschema(_oEditing).then(function(result) {
-                if (setMschemaEntry(result.chosen.id)) {
-                    srvApp.update('entryRule');
+                if (setMschemaEntry(result.chosen.id, type)) {
+                    srvApp.update(type);
                 }
             });
         };
-        $scope.chooseGroupApp = function() {
+        $scope.chooseGroupApp = function(type) {
             chooseGroupApp().then(function(result) {
-                if (setGroupEntry(result)) {
-                    srvApp.update('entryRule');
+                if (setGroupEntry(result, type)) {
+                    srvApp.update(type);
                 }
             });
         };
-        $scope.removeGroupApp = function() {
-            delete _oRule.group;
-            srvApp.update('entryRule');
+        $scope.removeGroupApp = function(type) {
+            delete $scope[type].group;
+            srvApp.update(type);
         };
-        $scope.removeMschema = function(mschemaId) {
-            if (_oRule.member[mschemaId]) {
-                delete _oRule.member[mschemaId];
-                srvApp.update('entryRule');
+        $scope.removeMschema = function(mschemaId, type) {
+            if ($scope[type].member[mschemaId]) {
+                delete $scope[type].member[mschemaId];
+                srvApp.update(type);
             }
         };
         $scope.$watch('editing', function(nv) {
             if (!nv) return;
             _oEditing = nv;
-            $scope.rule = _oRule = nv.entryRule;
+            $scope.entryRule = _oRule = nv.entryRule;
+            $scope.downloadRule = _oRule2 = nv.downloadRule;
         });
     }]);
 });

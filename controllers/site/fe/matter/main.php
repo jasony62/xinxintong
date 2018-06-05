@@ -194,8 +194,8 @@ class main extends \site\fe\matter\base {
 				'user_nickname' => (!empty($assignedNickname)) ? $assignedNickname : $user->nickname,
 				'clientIp' => $this->client_ip(),
 				'HTTP_USER_AGENT' => $_SERVER['HTTP_USER_AGENT'],
-				'QUERY_STRING' => isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '',
-				'HTTP_REFERER' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '',
+				'QUERY_STRING' => isset($post->search) ? $post->search : (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''),
+				'HTTP_REFERER' => isset($post->referer) ? $post->referer : (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''),
 			];
 			isset($userRid) && $args['rid'] = $userRid;
 			\Resque::enqueue('default', 'job\log\site\fe\matter\access', $args);
@@ -217,7 +217,10 @@ class main extends \site\fe\matter\base {
 			!empty($assignedNickname) && $user->nickname = $assignedNickname;
 			$options = [];
 			isset($userRid) && $options['rid'] = $userRid;
-			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $options);
+			
+			$search = !empty($post->search) ? $post->search : (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '');
+			$referer = !empty($post->referer) ? $post->referer : (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $search, $referer, $options);
 		}
 
 		return new \ResponseData('ok');
@@ -225,7 +228,7 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 记录访问日志
 	 */
-	protected function logRead($siteId, $user, $id, $type, $title, $shareby = '', $options = []) {
+	protected function logRead($siteId, $user, $id, $type, $title, $shareby = '', $search, $referer, $options = []) {
 		$logUser = new \stdClass;
 		$logUser->userid = $user->uid;
 		$logUser->nickname = $user->nickname;
@@ -238,9 +241,6 @@ class main extends \site\fe\matter\base {
 		$logClient = new \stdClass;
 		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
 		$logClient->ip = $this->client_ip();
-
-		$search = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
-		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
 		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer, $options);
 		/**
@@ -265,7 +265,7 @@ class main extends \site\fe\matter\base {
 	 * $shareby 谁分享的当前素材ID
 	 *
 	 */
-	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '') {
+	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '', $shareUrl = '') {
 		//header('Access-Control-Allow-Origin:*');
 
 		$model = $this->model();
@@ -319,7 +319,7 @@ class main extends \site\fe\matter\base {
 
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-		$this->model('matter\log')->addShareAction($site, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient, $referer);
+		$this->model('matter\log')->addShareAction($site, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient, $referer, $shareUrl);
 
 		/**
 		 * coin log

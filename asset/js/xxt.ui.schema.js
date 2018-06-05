@@ -60,7 +60,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
         return true;
     };
     this.checkCount = function(oSchema, value) {
-        if (oSchema.count !== undefined && value.length > oSchema.count) {
+        if (oSchema.count != 0 && oSchema.count !== undefined && value.length > oSchema.count) {
             return '［' + oSchema.title + '］超出上传数量（' + oSchema.count + '）限制';
         }
         return true;
@@ -282,7 +282,18 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                             data[oSchema.id] = files;
                             break;
                         case 'multitext':
-                            var multitexts = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : [];
+                            var multitexts;
+                            if (multitexts = oRecord.data[oSchema.id]) {
+                                /* 为什么需要进行两次转换？ */
+                                if (angular.isString(multitexts)) {
+                                    multitexts = JSON.parse(multitexts);
+                                    if (angular.isString(multitexts)) {
+                                        multitexts = JSON.parse(multitexts);
+                                    }
+                                }
+                            } else {
+                                multitexts = [];
+                            }
                             data[oSchema.id] = multitexts;
                             break;
                         case 'date':

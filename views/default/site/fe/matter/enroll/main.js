@@ -16,14 +16,13 @@ require('../../../../../../asset/js/xxt.ui.notice.js');
 require('../../../../../../asset/js/xxt.ui.http.js');
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');
-require('../../../../../../asset/js/xxt.ui.favor.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
-require('../../../../../../asset/js/xxt.ui.url.js');
+require('../../../../../../asset/js/xxt.ui.picviewer.js');
 
 require('./directive.js');
 
 /* 公共加载的模块 */
-var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'favor.ui.xxt', 'url.ui.xxt', 'directive.enroll'];
+var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'directive.enroll', 'picviewer.ui.xxt'];
 /* 加载指定的模块 */
 if (window.moduleAngularModules) {
     window.moduleAngularModules.forEach(function(m) {
@@ -39,7 +38,7 @@ ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider',
     $uibTooltipProvider.setTriggers({ 'show': 'hide' });
     $locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'tmsFavor', function($scope, $q, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, tmsFavor) {
+ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', function($scope, $q, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser) {
     function refreshEntryRuleResult() {
         var url, defer;
         defer = $q.defer();
@@ -252,17 +251,12 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             oPage = params.page,
             oUser = params.user,
             schemasById = {},
-            tagsById = {},
             activeRid = '';
 
         oApp.dataSchemas.forEach(function(schema) {
             schemasById[schema.id] = schema;
         });
         oApp._schemasById = schemasById;
-        oApp.dataTags.forEach(function(oTag) {
-            tagsById[oTag.id] = oTag;
-        });
-        oApp._tagsById = tagsById;
         $scope.params = params;
         $scope.site = oSite;
         $scope.mission = oMission;
@@ -272,18 +266,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             $scope.activeRound = params.activeRound;
             activeRid = params.activeRound.rid;
         }
-        // if (params.record) {
-        //     if (params.record.data_tag) {
-        //         for (var schemaId in params.record.data_tag) {
-        //             var dataTags = params.record.data_tag[schemaId],
-        //                 converted = [];
-        //             dataTags.forEach(function(tagId) {
-        //                 tagsById[tagId] && converted.push(tagsById[tagId]);
-        //             });
-        //             params.record.data_tag[schemaId] = converted;
-        //         }
-        //     }
-        // }
         if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
             tmsDynaPage.loadCode(ngApp, oSite.header_page);
         }
@@ -302,16 +284,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             });
         }
 
-        $scope.favor = function(user, article) {
-            if (!user.loginExpire) {
-                tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
-                    user.loginExpire = data.loginExpire;
-                    tmsFavor.open(article);
-                });
-            } else {
-                tmsFavor.open(article);
-            }
-        };
         if (oApp.can_siteuser === 'Y') {
             $scope.siteUser = function(id) {
                 var url = location.protocol + '//' + location.host;

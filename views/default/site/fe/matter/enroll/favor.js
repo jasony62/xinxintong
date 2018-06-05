@@ -1,6 +1,13 @@
 'use strict';
 require('./favor.css');
 
+require('./_asset/ui.repos.js');
+require('./_asset/ui.tag.js');
+require('./_asset/ui.topic.js');
+require('./_asset/ui.assoc.js');
+
+window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
+
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http2, $q, $sce, LS) {
@@ -44,28 +51,6 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
             _this.oPage.total = oResult.data.total;
             if (oResult.data.records) {
                 oResult.data.records.forEach(function(oRecord) {
-                    var oSchema, schemaData;
-                    for (var schemaId in _this.shareableSchemas) {
-                        oSchema = _this.shareableSchemas[schemaId];
-                        if (schemaData = oRecord.data[oSchema.id]) {
-                            switch (oSchema.type) {
-                                case 'longtext':
-                                    oRecord.data[oSchema.id] = ngApp.oUtilSchema.txtSubstitute(schemaData);
-                                    break;
-                                case 'url':
-                                    schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
-                                    break;
-                                case 'file':
-                                case 'voice':
-                                    schemaData.forEach(function(oFile) {
-                                        if (oFile.url) {
-                                            oFile.url = $sce.trustAsResourceUrl(oFile.url);
-                                        }
-                                    });
-                                    break;
-                            }
-                        }
-                    }
                     _this.repos.push(oRecord);
                 });
             }
@@ -82,7 +67,11 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
     };
 }]);
 ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', function($scope, $uibModal, http2, LS) {
-    $scope.subView = 'repos.html';
+    if (location.hash && /repos|tag|topic/.test(location.hash)) {
+        $scope.subView = location.hash.substr(1) + '.html';
+    } else {
+        $scope.subView = 'repos.html';
+    }
     $scope.addTopic = function() {
         $uibModal.open({
             templateUrl: 'editTopic.html',
@@ -99,6 +88,9 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
                 $scope.$broadcast('xxt.matter.enroll.favor.topic.add', rsp.data);
             });
         });
+    };
+    $scope.addTag = function() {
+        $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
     };
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
@@ -117,7 +109,7 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
             http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
                 $scope.noticeCount = rsp.data;
             });
-            oAppNavs.action = {};
+            oAppNavs.event = {};
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
@@ -127,7 +119,7 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
 /**
  * 记录
  */
-ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', '$timeout', 'tmsDynaPage', 'noticebox', function($scope, $sce, $q, $uibModal, http2, LS, $timeout, tmsDynaPage, noticebox) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', function($scope, $sce, $q, $uibModal, http2, LS, $timeout, picviewer, noticebox, enlTag, enlTopic) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (oUser.is_leader) {
@@ -171,28 +163,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             _oPage.total = result.data.total;
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
-                    var oSchema, schemaData;
-                    for (var schemaId in _oShareableSchemas) {
-                        oSchema = _oShareableSchemas[schemaId];
-                        if (schemaData = oRecord.data[oSchema.id]) {
-                            switch (oSchema.type) {
-                                case 'longtext':
-                                    oRecord.data[oSchema.id] = ngApp.oUtilSchema.txtSubstitute(schemaData);
-                                    break;
-                                case 'url':
-                                    schemaData._text = ngApp.oUtilSchema.urlSubstitute(schemaData);
-                                    break;
-                                case 'file':
-                                case 'voice':
-                                    schemaData.forEach(function(oFile) {
-                                        if (oFile.url) {
-                                            oFile.url = $sce.trustAsResourceUrl(oFile.url);
-                                        }
-                                    });
-                                    break;
-                            }
-                        }
-                    }
                     if (_coworkRequireLikeNum > oRecord.like_num) {
                         oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
                     }
@@ -200,7 +170,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     $scope.repos.push(oRecord);
                 });
             }
-            tmsDynaPage.loadScript(['/static/js/hammer.min.js', '/asset/js/xxt.ui.picviewer.js']);
+            $timeout(function() {
+                var imgs;
+                if(imgs = document.querySelectorAll('.data img')) {
+                    picviewer.init(imgs);
+                }
+            });
             $scope.reposLoading = false;
             deferred.resolve(result);
         });
@@ -223,14 +198,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         url += '&page=cowork#remarks';
         location.href = url;
     };
-    $scope.coworkRecord = function(oRecord) {
-        var url;
-        url = LS.j('', 'site', 'app');
-        url += '&ek=' + oRecord.enroll_key;
-        url += '&page=cowork';
-        url += '#cowork';
-        location.href = url;
-    };
     $scope.setAgreed = function(oRecord, value) {
         var url;
         if (oRecord.agreed !== value) {
@@ -245,16 +212,20 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.favorRecord = function(oRecord) {
         var url;
         if (!oRecord.favored) {
-            url = LS.j('record/favor', 'site');
+            url = LS.j('favor/add', 'site');
             url += '&ek=' + oRecord.enroll_key;
             http2.get(url).then(function(rsp) {
                 oRecord.favored = true;
             });
         } else {
-            url = LS.j('record/unfavor', 'site');
-            url += '&ek=' + oRecord.enroll_key;
-            http2.get(url).then(function(rsp) {
-                delete oRecord.favored;
+            noticebox.confirm('取消收藏，确定？').then(function() {
+                url = LS.j('favor/remove', 'site');
+                url += '&ek=' + oRecord.enroll_key;
+                http2.get(url).then(function(rsp) {
+                    delete oRecord.favored;
+                    $scope.repos.splice($scope.repos.indexOf(oRecord), 1);
+                    _oPage.total--;
+                });
             });
         }
     };
@@ -276,22 +247,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         $scope.gotoPage(event, page, oRecord.enroll_key);
     };
-    /* 为什么没有干掉 */
-    $scope.value2Label = function(oSchema, value) {
-        var val, aVal, aLab = [];
-        if (val = value) {
-            if (oSchema.ops && oSchema.ops.length) {
-                aVal = val.split(',');
-                oSchema.ops.forEach(function(op) {
-                    aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                });
-                val = aLab.join(',');
-            }
-        } else {
-            val = '';
-        }
-        return $sce.trustAsHtml(val);
-    };
     $scope.shiftAgreed = function(agreed) {
         _oCriteria.agreed = agreed;
         $scope.recordList(1);
@@ -300,32 +255,18 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
      * 选取专题
      */
     $scope.assignTopic = function(oRecord) {
-        $uibModal.open({
-            templateUrl: 'assignTopic.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                var _aCheckedTopicIds;
-                _aCheckedTopicIds = [];
-                $scope2.checkTopic = function(oTopic, index) {
-                    oTopic.checked ? _aCheckedTopicIds.push(oTopic.id) : _aCheckedTopicIds.splice(index, 1);
-                };
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() { $mi.close(_aCheckedTopicIds); };
-                http2.get(LS.j('topic/byRecord', 'site') + '&record=' + oRecord.id).then(function(rsp) {
-                    rsp.data.forEach(function(oTopic) {
-                        _aCheckedTopicIds.push(oTopic.topic_id);
-                    });
-                    http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
-                        rsp.data.topics.forEach(function(oTopic) {
-                            oTopic.checked = _aCheckedTopicIds.indexOf(oTopic.id) !== -1;
-                        });
-                        $scope2.topics = rsp.data.topics;
-                    });
-                });
-            }],
-            backdrop: 'static',
-            windowClass: 'modal-opt-topic auto-height',
-        }).result.then(function(aCheckedTopicIds) {
-            http2.post(LS.j('topic/assign', 'site') + '&record=' + oRecord.id, { topic: aCheckedTopicIds }).then(function(rsp) {});
+        enlTopic.assignTopic(oRecord);
+    };
+    /**
+     * 选取标签
+     */
+    $scope.assignTag = function(oRecord) {
+        enlTag.assignTag(oRecord).then(function(rsp) {
+            if (rsp.data.user && rsp.data.user.length) {
+                oRecord.userTags = rsp.data.user;
+            } else {
+                delete oRecord.userTags;
+            }
         });
     };
     $scope.spyRecordsScroll = true; // 监控滚动事件
@@ -363,18 +304,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
 /**
  * 专题
  */
-ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'noticebox', function($scope, $uibModal, http2, LS, noticebox) {
+ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'noticebox', 'enlAssoc', function($scope, $uibModal, http2, LS, noticebox, enlAssoc) {
     var _topics;
     $scope.editTopic = function(oTopic) {
         $uibModal.open({
             templateUrl: 'editTopic.html',
             controller: ['$scope', '$uibModalInstance', 'TopicRepos', function($scope2, $mi, TopicRepos) {
-                var _oUpdated, _oTopicRepos;
-                _oUpdated = {
-                    title: oTopic.title,
-                    summary: oTopic.summary,
-                };
-                $scope2.topic = _oUpdated;
+                var _oCached, _oTopicRepos, _oUpdated;
+                _oCached = angular.copy(oTopic);
+                _oUpdated = {};
+                $scope2.topic = _oCached;
+                $scope2.countUpdated = 0;
                 _oTopicRepos = TopicRepos.ins($scope.app, oTopic);
                 $scope2.page = _oTopicRepos.page;
                 $scope2.repos = _oTopicRepos.repos;
@@ -391,15 +331,21 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
                         $scope2.repos.splice(index + step, 0, oRecord);
                     });
                 };
+                $scope2.update = function(prop) {
+                    if (!_oUpdated[prop]) $scope2.countUpdated++;
+                    _oUpdated[prop] = _oCached[prop];
+                };
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() { $mi.close(_oUpdated); };
             }],
             backdrop: 'static',
             windowClass: 'modal-edit-topic auto-height',
         }).result.then(function(oUpdated) {
-            http2.post(LS.j('topic/update', 'site') + '&topic=' + oTopic.id, oUpdated).then(function(rsp) {
-                angular.extend(oTopic, oUpdated);
-            });
+            if (oUpdated && Object.keys(oUpdated).length) {
+                http2.post(LS.j('topic/update', 'site') + '&topic=' + oTopic.id, oUpdated).then(function(rsp) {
+                    angular.extend(oTopic, oUpdated);
+                });
+            }
         });
     };
     $scope.removeTopic = function(oTopic, index) {
@@ -412,6 +358,9 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
     $scope.shareTopic = function(oTopic) {
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=share';
     };
+    $scope.copyTopic = function(oTopic) {
+        enlAssoc.copy($scope.app, { id: oTopic.id, type: 'topic' });
+    };
     $scope.gotoTopic = function(oTopic) {
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
     };
@@ -420,5 +369,50 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
     });
     http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
         $scope.topics = _topics = rsp.data.topics;
+    });
+}]);
+/**
+ * 标签
+ */
+ngApp.controller('ctrlTag', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
+    var _tags;
+    $scope.$on('xxt.matter.enroll.favor.tag.add', function(event) {
+        $scope.addTag();
+    });
+    $scope.addTag = function() {
+        $scope.newTag = {};
+    };
+    $scope.update = function(oTag, prop) {
+        var oUpdated;
+        oUpdated = {};
+        oUpdated[prop] = oTag[prop];
+        http2.post(LS.j('tag/update', 'site', 'app') + '&tag=' + oTag.tag_id, oUpdated).then(function(rsp) {});
+    };
+    $scope.submitNewTag = function() {
+        http2.post(LS.j('tag/submit', 'site', 'app'), $scope.newTag).then(function(rsp) {
+            delete $scope.newTag;
+            _tags.splice(0, 0, rsp.data);
+        });
+    };
+    $scope.cancelNewTag = function() {
+        delete $scope.newTag;
+    };
+    if ($scope.app && $scope.user) {
+        var oActionRule;
+        if ($scope.user.is_leader && /S|Y/.test($scope.user.is_leader)) {
+            $scope.canSetPublic = true;
+        }
+        if (false === $scope.canSetPublic) {
+            if (oActionRule = $scope.app.actionRule) {
+                if (oActionRule.tag && oActionRule.tag.public && oActionRule.tag.public.pre && oActionRule.tag.public.pre.editor) {
+                    if ($scope.user.is_editor && $scope.user.is_editor === 'Y') {
+                        $scope.canSetPublic = true;
+                    }
+                }
+            }
+        }
+    }
+    http2.get(LS.j('tag/list', 'site', 'app')).then(function(rsp) {
+        $scope.tags = _tags = rsp.data;
     });
 }]);

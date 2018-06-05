@@ -30,18 +30,18 @@
         <table class='table table-bordered table-striped pl-workspace'>
             <thead>
                 <tr>
-                    <th style='width:200px;'>打开时间</th>
-                    <th>用户名</th>
+                    <th style='width:120px;'>打开时间</th>
+                    <th style='width:200px;'>用户名</th>
                     <th>操作</th>
                     <th>来源</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat='log in logs'>
-                    <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                    <td>{{log.time*1000|date:'yy-MM-dd HH:mm'}}</td>
                     <td>{{log.nickname||'未知'}}</td>
-                    <td>{{log.operation}}</td>
-                    <td>{{log.user_op_num}}</td>
+                    <td>{{events[log.operation]}}</td>
+                    <td>{{log.origin}}</td>
                 </tr>
             </tbody>
         </table>

@@ -7,9 +7,14 @@ class analysis_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function submit($site, $oApp, $rid, $user, $eventData, $page, $recordId = 0, $topicId = 0) {
-		// 获取第一次事件
+	public function submit($site, $oApp, $rid, $user, $eventData, $page, $recordId = 0, $topicId = 0, $client) {
 		$events = $eventData->events;
+		if (empty($events)) {
+			$data = [false, '没有获取到任何事件'];
+			return $data;
+		}
+		
+		// 获取第一次事件
 		$eventFirst = $events[0];
 		// 获取最后一次事件
 		$length = count($events);
@@ -39,6 +44,8 @@ class analysis_model extends \TMS_MODEL {
 		$inData['event_end_at'] = $eventEndAt;
 		$inData['event_elapse'] = $eventElapse;
 		$inData['events'] = json_encode($eventData);
+		$inData['user_agent'] = $client->agent;
+		$inData['client_ip'] = $client->ip;
 		
 		$inData['id'] = $this->insert('xxt_enroll_trace', $inData, true);
 
@@ -75,6 +82,7 @@ class analysis_model extends \TMS_MODEL {
 			$modelEvent->_updateUsrData($oApp, $rid, false, $creater, $upCreaterData);
 		}
 
-		return $inData;
+		$data = [true, $inData];
+		return $data;
 	}
 }

@@ -294,7 +294,9 @@ class TMS_DB {
 
 		return $values;
 	}
-
+	/**
+	 *
+	 */
 	public function found_rows() {
 		return $this->query_value('SELECT FOUND_ROWS()');
 	}
@@ -449,17 +451,18 @@ class TMS_DB {
 		return $where;
 	}
 	/**
-	 *
+	 * 记录数据库执行错误
 	 */
 	private function _throwError($msg) {
-		$log = [];
-		$log['mpid'] = 'empty';
-		$log['method'] = 'db error';
-		$log['create_at'] = time();
-		$log['data'] = $this->escape($msg);
-		$log['user_agent'] = '';
-		$log['referer'] = '';
-		$this->insert('xxt_log', $log);
+		$aNewLog = [];
+		$aNewLog['mpid'] = 'empty';
+		$aNewLog['method'] = 'db error';
+		$aNewLog['create_at'] = time();
+		$aNewLog['data'] = $this->escape($msg);
+		$aNewLog['user_agent'] = '';
+		$aNewLog['referer'] = '';
+
+		$this->insert('xxt_log', $aNewLog);
 
 		throw new Exception($msg);
 	}

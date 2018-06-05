@@ -73,7 +73,7 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 上传文件结束
 	 */
-	public function endUpload_action($app, $type = '', $oneRecordImgNum = 1) {
+	public function endUpload_action($app, $oneRecordImgNum = 1) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -82,11 +82,12 @@ class import extends \pl\fe\matter\base {
 		}
 
 		$file = $this->getPostJson();
+		$type = $file->type;
 
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelFs = $this->model('fs/local', $oApp->siteid, '_resumable');
 		$fileUploaded = 'enroll_' . $oApp->id . '_' . $file->name;
-		if ($type === 'ZIP') {
+		if ($type === 'application/x-zip-compressed') {
 			$recordImgs = $this->_extractZIP($oApp, $modelFs->rootDir . '/' . $fileUploaded, $modelFs, $file);
 			if ($recordImgs[0] === false) {
 				return new \ResponseError($recordImgs[1]);
@@ -98,9 +99,11 @@ class import extends \pl\fe\matter\base {
 			$records = $data[1];
 			// 删除解压后的文件包
 			$this->deldir($recordImgs[1]->toDir);
-		} else {
+		} else if ($type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
 			$records = $this->_extractExcel($oApp, $modelFs->rootDir . '/' . $fileUploaded)->records;
 			$modelFs->delete($fileUploaded);
+		} else {
+			return new \ResponseError('暂不支持此格式文件');
 		}
 
 		$eks = $this->_persist($oApp, $records);

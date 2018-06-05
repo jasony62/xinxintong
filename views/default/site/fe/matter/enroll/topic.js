@@ -77,10 +77,11 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
                     $scope.repos.push(oRecord);
                 });
-            }
+            } 
             $timeout(function() {
-                if(document.querySelectorAll('.data img')) {
-                    var imgs = document.querySelectorAll('.data img');
+                var imgs;
+                if(imgs = document.querySelectorAll('.data img')) {
+                    console.log(NodeList.prototype);
                     console.log(imgs);
                     picviewer.init(imgs);
                 }

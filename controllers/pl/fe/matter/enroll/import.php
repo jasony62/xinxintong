@@ -73,7 +73,7 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 上传文件结束
 	 */
-	public function endUpload_action($app, $type = 'ZIP', $oneRecordImgNum = 1) {
+	public function endUpload_action($app, $type = '', $oneRecordImgNum = 1) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

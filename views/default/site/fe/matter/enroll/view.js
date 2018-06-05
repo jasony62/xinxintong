@@ -240,8 +240,9 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                 }
             }
             $timeout(function() {
-                if(document.querySelectorAll('.data img')) {
-                    picviewer.init(document.querySelectorAll('.data img'));
+                var imgs;
+                if(imgs = document.querySelectorAll('.data img')) {
+                    picviewer.init(imgs);
                 }
             });
             /*设置页面分享信息*/

@@ -160,10 +160,6 @@ class main extends \site\fe\matter\base {
 
 		$user = $this->who;
 		$model = $this->model();
-		$site = $model->escape($site);
-		$id = $model->escape($id);
-		$type = $model->escape($type);
-		$shareby = $model->escape($shareby);
 
 		$post = $this->getPostJson();
 		if ($type === 'enroll') {
@@ -273,12 +269,6 @@ class main extends \site\fe\matter\base {
 		//header('Access-Control-Allow-Origin:*');
 
 		$model = $this->model();
-		$shareid = $model->escape($shareid);
-		$site = $model->escape($site);
-		$id = $model->escape($id);
-		$type = $model->escape($type);
-		$shareto = $model->escape($shareto);
-		$shareby = $model->escape($shareby);
 		/* 检查请求是否由客户端发起 */
 		if ($type === 'lottery') {
 			if (!$this->_isAgentEnter($id)) {

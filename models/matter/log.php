@@ -1077,7 +1077,7 @@ class log_model extends \TMS_MODEL {
 	 * 
 	*/
 	public function userMatterAction($matterId, $matterType, $options, $page = '', $size = '') {
-		if (empty($options['byOp']) || $options['byOp'] === 'read') {
+		if ($options['byOp'] === 'read') {
 			$q = [
 				'id,userid,nickname,read_at time,matter_shareby',
 				'xxt_log_matter_read',
@@ -1156,5 +1156,101 @@ class log_model extends \TMS_MODEL {
 		$result->total = $this->query_val_ss($q);
 
 		return $result;
+	}
+	/**
+	 * 操作素材行为列表
+	 */
+	public function listMatterAction($site, $matterType, $matterId, $options = []) {
+		$fields = !empty($options['fields'])? $options['fields'] : 'id,action_at,act_read,act_share_timeline,act_share_friend,original_logid';
+
+		$q = [
+			$fields,
+			'xxt_log_matter_action',
+			['matter_id' => $matterId, 'matter_type' => $matterType]
+		];
+
+		if (!empty($options['startAt'])) {
+			$where = new \stdClass;
+			$where->op = '>';
+			$where->pat = $options['startAt'];
+			$q[2]['action_at'] = $where;
+		}
+		if (!empty($options['endAt'])) {
+			$where = new \stdClass;
+			$where->op = '<';
+			$where->pat = $options['endAt'];
+			$q[2]['action_at'] = $where;
+		}
+		if (!empty($options['byEvent'])) {
+			$where = new \stdClass;
+			$where->op = '>';
+			$where->pat = 0;
+			switch ($options['byEvent']) {
+				case 'shareT':
+					$q[2]['act_share_timeline'] = $where;
+					break;
+				case 'shareF':
+					$q[2]['act_share_friend'] = $where;
+					break;
+				default:
+					$q[2]['act_read'] = $where;
+					break;
+			}
+		}
+
+		$p = ['o' => 'action_at desc'];
+		if (!empty($options['paging'])) {
+			$page = $options['paging']['page'];
+			$size = $options['paging']['size'];
+			$p['r'] = [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			];
+		}
+
+		$logs = $this->query_objs_ss($q, $p);
+		foreach ($logs as $log) {
+			$table = 'xxt_log_matter_read';
+			if ($log->act_share_timeline > 0 || $log->act_share_friend > 0) {
+				$table = 'xxt_log_matter_share';
+			}
+			// 查询记录详细信息
+			$q2 = [
+				'userid,nickname,matter_shareby',
+				$table,
+				['id' => $log->original_logid]
+			];
+			$logInfo = $this->query_obj_ss($q2);
+			$log->userid = $logInfo->userid;
+			$log->nickname = $logInfo->nickname;
+			$log->matter_shareby = $logInfo->matter_shareby;
+			// 查询来源用户
+			if (strpos($logInfo->matter_shareby, '_') !== false) {
+				$shareby = explode('_', $logInfo->matter_shareby);
+				$originUserid = $shareby[0];
+				$q3 = [
+					'nickname',
+					'xxt_site_account',
+					['siteid' => $site, ['uid'] => $originUserid]
+				];
+				$originUser = $this->query_obj_ss($q3);
+				if ($originUser) {
+					$log->originUserid = $originUserid;
+					$log->originNickname = $originUser->nickname;
+				} else {
+					$log->originUserid = '';
+					$log->originNickname = '未获取';
+				}
+			}
+		}
+		
+		$result = new \stdClass;
+		$result->logs = $logs;
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
+
+
 	}
 }

@@ -160,10 +160,12 @@ class main extends \site\fe\matter\base {
 
 		$user = $this->who;
 		$model = $this->model();
-		$site = $model->escape($site);
-		$id = $model->escape($id);
-		$type = $model->escape($type);
-		$shareby = $model->escape($shareby);
+		if (!empty($title)) {
+			$encode = mb_detect_encoding($title, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
+			if ($encode && $encode != 'UTF-8') {
+				$title = iconv($encode, 'UTF-8//IGNORE', $title);
+			}
+		}
 
 		$post = $this->getPostJson();
 		if ($type === 'enroll') {
@@ -192,7 +194,7 @@ class main extends \site\fe\matter\base {
 			$args = [
 				'site' => $site,
 				'id' => $id,
-				'title' => $model->escape($title),
+				'title' => $title,
 				'type' => $type,
 				'user_uid' => $user->uid,
 				'user_nickname' => (!empty($assignedNickname)) ? $assignedNickname : $user->nickname,
@@ -273,12 +275,6 @@ class main extends \site\fe\matter\base {
 		//header('Access-Control-Allow-Origin:*');
 
 		$model = $this->model();
-		$shareid = $model->escape($shareid);
-		$site = $model->escape($site);
-		$id = $model->escape($id);
-		$type = $model->escape($type);
-		$shareto = $model->escape($shareto);
-		$shareby = $model->escape($shareby);
 		/* 检查请求是否由客户端发起 */
 		if ($type === 'lottery') {
 			if (!$this->_isAgentEnter($id)) {
@@ -321,7 +317,7 @@ class main extends \site\fe\matter\base {
 		$logMatter = new \stdClass;
 		$logMatter->id = $id;
 		$logMatter->type = $type;
-		$logMatter->title = $model->escape($title);
+		$logMatter->title = $title;
 
 		$logClient = new \stdClass;
 		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];

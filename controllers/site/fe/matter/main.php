@@ -149,7 +149,7 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 记录访问日志
 	 */
-	public function logAccess_action($site, $id, $type, $title = '', $shareby = '') {
+	public function logAccess_action($site, $id, $type, $shareby = '') {
 		/* support CORS */
 		//header('Access-Control-Allow-Origin:*');
 		//header('Access-Control-Allow-Methods:POST');
@@ -160,14 +160,9 @@ class main extends \site\fe\matter\base {
 
 		$user = $this->who;
 		$model = $this->model();
-		if (!empty($title)) {
-			$encode = mb_detect_encoding($title, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
-			if ($encode && $encode != 'UTF-8') {
-				$title = iconv($encode, 'UTF-8//IGNORE', $title);
-			}
-		}
-
 		$post = $this->getPostJson();
+		$title = isset($post->title)? $post->title : '';
+
 		if ($type === 'enroll') {
 			$userRid = !empty($post->rid) ? $post->rid : '';
 			if (empty($post->assignedNickname)) {

@@ -53,7 +53,11 @@ angular.module('xxt', []).config(['$locationProvider', function($locationProvide
                     setShare();
                 }
                 deferred.resolve();
-                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + newsId + '&title=' + news.title + '&type=news' + '&shareby=' + shareby, {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
+                    id: newsId,
+                    title: news.title,
+                    type: 'news',
+                    shareby: shareby,
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });

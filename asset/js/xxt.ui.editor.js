@@ -178,7 +178,8 @@ ngMod.directive('tmsEditor', ['$q', 'http2', 'tmsPaste', function($q, http2, tms
                 tmsPaste.onpaste(text, { doc: _iframeDoc, filter: { whiteSpace: true } });
             });
             /* 设置基本样式 */
-            document.querySelectorAll('#' + $scope.id + ' button[command]').forEach(function(eleBtn) {
+            var btns = document.querySelectorAll('#' + $scope.id + ' button[command]');
+            angular.forEach(btns, function(eleBtn) {
                 eleBtn.addEventListener('click', function() {
                     var cmd, args;
                     cmd = this.getAttribute('command').toLowerCase();

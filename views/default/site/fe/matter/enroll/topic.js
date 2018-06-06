@@ -81,8 +81,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             $timeout(function() {
                 var imgs;
                 if(imgs = document.querySelectorAll('.data img')) {
-                    console.log(NodeList.prototype);
-                    console.log(imgs);
                     picviewer.init(imgs);
                 }
             });

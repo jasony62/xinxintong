@@ -164,10 +164,10 @@ class main extends \site\fe\matter\base {
 		if (!$post || !isset($post->id) || !isset($post->type)) {
 			return new \ResponseError('参数不完整');
 		}
-		$id = $post->id;
-		$type = $post->type;
-		$title = isset($post->title)? $post->title : '';
-		$shareby = isset($post->shareby)? $post->shareby : '';
+		$id = $model->escape($post->id);
+		$type = $model->escape($post->type);
+		$title = isset($post->title)? $model->escape($post->title) : '';
+		$shareby = isset($post->shareby)? $model->escape($post->shareby) : '';
 
 		if ($type === 'enroll') {
 			$userRid = !empty($post->rid) ? $post->rid : '';

@@ -149,7 +149,7 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 记录访问日志
 	 */
-	public function logAccess_action($site, $id, $type, $shareby = '') {
+	public function logAccess_action($site) {
 		/* support CORS */
 		//header('Access-Control-Allow-Origin:*');
 		//header('Access-Control-Allow-Methods:POST');
@@ -161,7 +161,13 @@ class main extends \site\fe\matter\base {
 		$user = $this->who;
 		$model = $this->model();
 		$post = $this->getPostJson();
+		if (!$post || !isset($post->id) || !isset($post->type)) {
+			return new \ResponseError('参数不完整');
+		}
+		$id = $post->id;
+		$type = $post->type;
 		$title = isset($post->title)? $post->title : '';
+		$shareby = isset($post->shareby)? $post->shareby : '';
 
 		if ($type === 'enroll') {
 			$userRid = !empty($post->rid) ? $post->rid : '';

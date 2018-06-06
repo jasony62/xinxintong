@@ -30,8 +30,15 @@ class analysis extends base {
 				$rid = $activeRound->rid;
 			}
 		}
-		$results = $this->model('matter\enroll\analysis')->submit($site, $oApp, $rid, $oUser, $oPosted, $page, $record, $topic);
 
-		return new \ResponseData($results);
+		$client = new \stdClass;
+		$client->agent = $_SERVER['HTTP_USER_AGENT'];
+		$client->ip = $this->client_ip();
+		$results = $this->model('matter\enroll\analysis')->submit($site, $oApp, $rid, $oUser, $oPosted, $page, $record, $topic, $client);
+		if ($results[0] === false) {
+			return new \ResponseError($results[1]);
+		}
+
+		return new \ResponseData($results[1]);
 	}
 }

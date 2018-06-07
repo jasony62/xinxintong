@@ -361,7 +361,7 @@ $sql .= ",topic_read_elapse int not null default 0"; // 专题页被阅读的总
 $sql .= ",do_cowork_read_num int not null default 0"; // 阅读谈论页的次数
 $sql .= ",cowork_read_num int not null default 0"; // 谈论页被阅读的次数
 $sql .= ",do_cowork_read_elapse int not null default 0"; // 阅读谈论页的时长
-$sql .= ",cowork_read_elapse int not null default 0"; // 
+$sql .= ",cowork_read_elapse int not null default 0"; //
 $sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
 $sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
@@ -372,23 +372,23 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动页面记录追踪 
+ * 登记活动页面记录追踪
  */
 $sql = "create table if not exists xxt_enroll_trace(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",rid varchar(13) not null default ''"; // 
-$sql .= ",page varchar(13) not null default ''"; // 
-$sql .= ",record_id int not null default 0"; // 
-$sql .= ",topic_id int not null default 0"; // 
+$sql .= ",rid varchar(13) not null default ''"; //
+$sql .= ",page varchar(13) not null default ''"; //
+$sql .= ",record_id int not null default 0"; //
+$sql .= ",topic_id int not null default 0"; //
 $sql .= ",userid varchar(40) not null";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",event_first varchar(255) not null default ''";
 $sql .= ",event_first_at int not null default 0";
 $sql .= ",event_end varchar(255) not null default ''";
 $sql .= ",event_end_at int not null default 0";
-$sql .= ",event_elapse int not null default 0";// 事件总时长
+$sql .= ",event_elapse int not null default 0"; // 事件总时长
 $sql .= ",events text null"; // 事件
 $sql .= ",user_agent text null";
 $sql .= ",client_ip varchar(40) not null default ''";
@@ -819,14 +819,14 @@ $sql .= ",headimgurl varchar(255) not null default ''";
 $sql .= ",is_leader char(1) not null default 'N'"; // 用户角色，N：组员，Y：组长，S：超级用户
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
-$sql .= ",tags text";
-$sql .= ",comment text";
+$sql .= ",tags text null";
+$sql .= ",comment text null";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log
-$sql .= ",referrer text"; //
+$sql .= ",referrer text null"; //
 $sql .= ",round_id varchar(32) not null default ''";
 $sql .= ",round_title varchar(40) not null default ''";
 $sql .= ",draw_at int not null";
-$sql .= ",data text"; // 登记的数据项
+$sql .= ",data text null"; // 登记的数据项
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

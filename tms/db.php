@@ -142,7 +142,7 @@ class TMS_DB {
 		}
 
 		$mysqli = $this->_getDbWriteConn();
-		($mysqli->query($sql)) || $this->show_error('database error:' . $sql . ';' . $mysqli->error);
+		($mysqli->query($sql)) || $this->_throwError('database error:' . $sql . ';' . $mysqli->error);
 
 		if ($autoid) {
 			$last_insert_id = $mysqli->insert_id;
@@ -158,7 +158,7 @@ class TMS_DB {
 		if (stripos($tableOrSql, 'update') === 0) {
 			$sql = $tableOrSql;
 		} else {
-			$where || $this->show_error('DB Update no where string.');
+			$where || $this->_throwError('DB Update no where string.');
 			$sql = 'UPDATE ' . $tableOrSql;
 			$sql .= ' SET ' . $this->_assemble_set($data);
 			$sql .= ' WHERE ' . $this->_assemble_where($where);
@@ -213,10 +213,10 @@ class TMS_DB {
 		} else {
 			$mysqli = $this->_getDbConn();
 		}
-		($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql . ';' . $mysqli->error);
+		($db_result = $mysqli->query($sql)) || $this->_throwError("database error:" . $sql . ';' . $mysqli->error);
 
 		if ($db_result->num_rows > 1) {
-			$this->show_error("database error:数据不唯一，无法返回唯一的记录");
+			$this->_throwError("database error:数据不唯一，无法返回唯一的记录");
 		} else if ($db_result->num_rows === 1) {
 			$row = $db_result->fetch_object();
 		} else {
@@ -238,7 +238,7 @@ class TMS_DB {
 		} else {
 			$mysqli = $this->_getDbConn();
 		}
-		($db_result = $mysqli->query($sql)) || $this->show_error("database error:$sql;" . $mysqli->error);
+		($db_result = $mysqli->query($sql)) || $this->_throwError("database error:$sql;" . $mysqli->error);
 
 		$objects = array();
 		while ($obj = $db_result->fetch_object()) {
@@ -262,7 +262,7 @@ class TMS_DB {
 		} else {
 			$mysqli = $this->_getDbConn();
 		}
-		($db_result = $mysqli->query($sql)) || $this->show_error("database error:$sql;" . $mysqli->error);
+		($db_result = $mysqli->query($sql)) || $this->_throwError("database error:$sql;" . $mysqli->error);
 
 		$row = $db_result->fetch_row();
 
@@ -283,7 +283,7 @@ class TMS_DB {
 		} else {
 			$mysqli = $this->_getDbConn();
 		}
-		($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql . ';' . $mysqli->error);
+		($db_result = $mysqli->query($sql)) || $this->_throwError("database error:" . $sql . ';' . $mysqli->error);
 
 		$values = array();
 		while ($row = $db_result->fetch_row()) {
@@ -294,7 +294,9 @@ class TMS_DB {
 
 		return $values;
 	}
-
+	/**
+	 *
+	 */
 	public function found_rows() {
 		return $this->query_value('SELECT FOUND_ROWS()');
 	}
@@ -322,7 +324,7 @@ class TMS_DB {
 	 * assemble a whole sql.
 	 */
 	private function _assemble_query($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = 0) {
-		$select || $this->show_error('Query was empty.');
+		$select || $this->_throwError('Query was empty.');
 
 		is_array($select) && $select = implode(',', $select);
 		if (stripos($select, 'select') === false) {
@@ -396,7 +398,7 @@ class TMS_DB {
 	 * assemble a where sql.
 	 */
 	private function _assemble_where($where) {
-		$where || $this->show_error('where is empty.');
+		$where || $this->_throwError('where is empty.');
 
 		if (is_array($where)) {
 			$clauses = [];
@@ -449,9 +451,9 @@ class TMS_DB {
 		return $where;
 	}
 	/**
-	 *
+	 * 记录数据库执行错误
 	 */
-	private function show_error($msg) {
+	private function _throwError($msg) {
 		throw new Exception($msg);
 	}
 }

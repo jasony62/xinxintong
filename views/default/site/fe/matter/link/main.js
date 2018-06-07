@@ -100,9 +100,12 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
                     setShare();
                 }
                 document.querySelector('#link>iframe').setAttribute('src', $scope.link.fullUrl);
-                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + linkId + '&type=link&title=' + $scope.link.title, {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
                     search: location.search.replace('?', ''),
-                    referer: document.referrer
+                    referer: document.referrer,
+                    id: linkId,
+                    type: 'link',
+                    title: $scope.link.title
                 });
             }
         }).error(function(content, httpCode) {});

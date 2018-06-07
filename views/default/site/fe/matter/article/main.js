@@ -250,7 +250,11 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 //}
             }
             if (!_bPreview) {
-                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + oArticle.title + '&shareby=' + shareby, {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
+                    id: id,
+                    type: 'article',
+                    title: oArticle.title,
+                    shareby: shareby,
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });

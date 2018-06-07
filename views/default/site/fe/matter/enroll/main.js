@@ -302,11 +302,14 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         $timeout(function() {
             $scope.$broadcast('xxt.app.enroll.ready', params);
         });
-        http2.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid + '&id=' + oApp.id + '&type=enroll&title=' + oApp.title, {
+        http2.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid, {
             search: location.search.replace('?', ''),
             referer: document.referrer,
             rid: activeRid,
-            assignedNickname: oUser.nickname
+            assignedNickname: oUser.nickname,
+            id: oApp.id,
+            type: 'enroll',
+            title: oApp.title
         });
     });
 }]);

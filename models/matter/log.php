@@ -1242,7 +1242,7 @@ class log_model extends \TMS_MODEL {
 				$q3 = [
 					'nickname',
 					'xxt_site_account',
-					['siteid' => $site, ['uid'] => $originUserid]
+					['uid' => $originUserid]
 				];
 				$originUser = $this->query_obj_ss($q3);
 				if ($originUser) {

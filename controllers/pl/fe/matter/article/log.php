@@ -132,7 +132,8 @@ class log extends \pl\fe\matter\base {
 				$event = '未知';
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $event);
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->origin_nickname);
+			$originNickname = isset($log->origin_nickname)? $log->origin_nickname : '';
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $originNickname);
 		}
 		// 输出
 		header('Content-Type: application/vnd.ms-excel');

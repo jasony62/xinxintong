@@ -1211,6 +1211,16 @@ class log_model extends \TMS_MODEL {
 
 		$logs = $this->query_objs_ss($q, $p);
 		foreach ($logs as $log) {
+			if ($log->act_share_timeline > 0) {
+				$log->event = 'shareT';
+			} else if ($log->act_share_friend > 0) {
+				$log->event = 'shareF';
+			} else if ($log->act_read > 0) {
+				$log->event = 'read';
+			} else {
+				$log->event = '未知';
+			}
+			
 			$table = 'xxt_log_matter_read';
 			if ($log->act_share_timeline > 0 || $log->act_share_friend > 0) {
 				$table = 'xxt_log_matter_share';
@@ -1236,11 +1246,11 @@ class log_model extends \TMS_MODEL {
 				];
 				$originUser = $this->query_obj_ss($q3);
 				if ($originUser) {
-					$log->originUserid = $originUserid;
-					$log->originNickname = $originUser->nickname;
+					$log->origin_userid = $originUserid;
+					$log->origin_nickname = $originUser->nickname;
 				} else {
-					$log->originUserid = '';
-					$log->originNickname = '未获取';
+					$log->origin_userid = '';
+					$log->origin_nickname = '未获取';
 				}
 			}
 		}

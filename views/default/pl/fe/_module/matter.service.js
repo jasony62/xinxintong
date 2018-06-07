@@ -1100,6 +1100,11 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
         id:'shareF',
         value: '转发'
     }];
+    $scope.operation = {
+        'read': '阅读',
+        'shareT': '分享',
+        'shareF': '转发'
+    };
     $scope.list = function() {
         var url;
         url = '/rest/pl/fe/matter/'+ app.type +'/log/userMatterAction?appId=' + app.id + page._j();
@@ -1111,8 +1116,7 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
     $scope.export = function(user) {
         var url;
         url = '/rest/pl/fe/matter/'+ app.type +'/log/exportOperateStat?site='+ app.siteid +'&appId='+ app.id;
-        url += '&start='+ criteria.start +'&end='+ criteria.end;
-        if(user) {url += '&shareby='+user.userid;}
+        url += '&startAt='+ criteria.start +'&endAt='+ criteria.end + '&byEvent=' + criteria.byEvent;
         window.open(url);
     };
 

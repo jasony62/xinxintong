@@ -17,7 +17,7 @@
                 <label>事件筛选</label>
                 <select ng-model="criteria.byEvent" class="form-control">
                     <option value="">全部类型</option>
-                    <option ng-value="{{event.id}}" ng-repeat="event in events">{{event.value}}</option>
+                    <option value="{{event.id}}" ng-repeat="event in events">{{event.value}}</option>
                 </select>
             </div>
         </div>
@@ -31,17 +31,17 @@
             <thead>
                 <tr>
                     <th style='width:120px;'>打开时间</th>
-                    <th style='width:200px;'>用户名</th>
-                    <th>操作</th>
+                    <th>用户名</th>
+                    <th style='width:120px;'>操作</th>
                     <th>来源</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat='log in logs'>
-                    <td>{{log.time*1000|date:'yy-MM-dd HH:mm'}}</td>
+                    <td>{{log.action_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                     <td>{{log.nickname||'未知'}}</td>
-                    <td>{{events[log.operation]}}</td>
-                    <td>{{log.origin}}</td>
+                    <td>{{operation[log.event]}}</td>
+                    <td>{{log.origin_nickname}}</td>
                 </tr>
             </tbody>
         </table>

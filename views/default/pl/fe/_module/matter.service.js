@@ -1107,7 +1107,7 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
     };
     $scope.list = function() {
         var url;
-        url = '/rest/pl/fe/matter/'+ app.type +'/log/userMatterAction?appId=' + app.id + page._j();
+        url = '/rest/pl/fe/matter/'+ app.type +'/log/userMatterAction?site='+ app.siteid +'&appId=' + app.id + page._j();
         http2.post(url, criteria, function(rsp) {
             $scope.logs = rsp.data.logs;
             page.total = rsp.data.total;

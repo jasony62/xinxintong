@@ -120,7 +120,8 @@ class log extends \pl\fe\matter\base {
 			$log = $logs[$j];
 			$rowIndex = $j + 2;
 			$columnNum2 = 0; //列号
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->action_at);
+			$actionAt = date('Y-m-d H:i:s', $log->action_at);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $actionAt);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->nickname);
 			if ($log->act_read > 0) {
 				$event = '阅读';

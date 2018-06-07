@@ -149,7 +149,7 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 记录访问日志
 	 */
-	public function logAccess_action($site, $id, $type, $title = '', $shareby = '') {
+	public function logAccess_action($site) {
 		/* support CORS */
 		//header('Access-Control-Allow-Origin:*');
 		//header('Access-Control-Allow-Methods:POST');
@@ -160,8 +160,15 @@ class main extends \site\fe\matter\base {
 
 		$user = $this->who;
 		$model = $this->model();
-
 		$post = $this->getPostJson();
+		if (!$post || !isset($post->id) || !isset($post->type)) {
+			return new \ResponseError('参数不完整');
+		}
+		$id = $model->escape($post->id);
+		$type = $model->escape($post->type);
+		$title = isset($post->title)? $model->escape($post->title) : '';
+		$shareby = isset($post->shareby)? $model->escape($post->shareby) : '';
+
 		if ($type === 'enroll') {
 			$userRid = !empty($post->rid) ? $post->rid : '';
 			if (empty($post->assignedNickname)) {
@@ -188,7 +195,7 @@ class main extends \site\fe\matter\base {
 			$args = [
 				'site' => $site,
 				'id' => $id,
-				'title' => $model->escape($title),
+				'title' => $title,
 				'type' => $type,
 				'user_uid' => $user->uid,
 				'user_nickname' => (!empty($assignedNickname)) ? $assignedNickname : $user->nickname,
@@ -311,7 +318,7 @@ class main extends \site\fe\matter\base {
 		$logMatter = new \stdClass;
 		$logMatter->id = $id;
 		$logMatter->type = $type;
-		$logMatter->title = $model->escape($title);
+		$logMatter->title = $title;
 
 		$logClient = new \stdClass;
 		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];

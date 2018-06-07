@@ -176,14 +176,12 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
-            if (domActs.forEach) {
-                domActs.forEach(function(domAct) {
-                    var ngClick = domAct.getAttribute('ng-click');
-                    if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
-                        domAct.style.display = 'none';
-                    }
-                });
-            }
+            angular.forEach(domActs, function(domAct) {
+                var ngClick = domAct.getAttribute('ng-click');
+                if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
+                    domAct.style.display = 'none';
+                }
+            });
         }
     }
 

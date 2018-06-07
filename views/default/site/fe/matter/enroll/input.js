@@ -393,7 +393,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
-            domActs.forEach(function(domAct) {
+            angular.forEach(domActs, function(domAct) {
                 var ngClick = domAct.getAttribute('ng-click');
                 if (ngClick.indexOf('submit') === 0) {
                     domAct.style.display = 'none';

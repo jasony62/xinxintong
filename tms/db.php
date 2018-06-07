@@ -454,16 +454,6 @@ class TMS_DB {
 	 * 记录数据库执行错误
 	 */
 	private function _throwError($msg) {
-		$aNewLog = [];
-		$aNewLog['mpid'] = 'empty';
-		$aNewLog['method'] = 'db error';
-		$aNewLog['create_at'] = time();
-		$aNewLog['data'] = $this->escape($msg);
-		$aNewLog['user_agent'] = '';
-		$aNewLog['referer'] = '';
-
-		$this->insert('xxt_log', $aNewLog);
-
 		throw new Exception($msg);
 	}
 }

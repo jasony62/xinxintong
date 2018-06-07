@@ -116,7 +116,10 @@ require(['matterService'], function() {
                     $scope.groupUsers = groupUsers;
                     _oCriteria.groupUser = groupUsers[0];
                 }
-                http2.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + missionId + '&type=mission&title=' + _oMission.title, {
+                http2.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
+                    id: missionId,
+                    type: 'mission',
+                    title: _oMission.title
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });

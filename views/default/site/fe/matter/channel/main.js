@@ -139,7 +139,11 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt', 'snssha
                 setShare();
             }
             deferred.resolve();
-            $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + channelId + '&type=channel&title=' + $scope.channel.title + '&shareby=' + shareby, {
+            $http.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
+                id: channelId,
+                type: 'channel',
+                title: $scope.channel.title,
+                shareby: shareby,
                 search: location.search.replace('?', ''),
                 referer: document.referrer
             });

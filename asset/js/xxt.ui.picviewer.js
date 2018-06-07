@@ -701,7 +701,7 @@ ngMod.factory('picviewer', ['$q', function($q) {
     };
     _picviewer.prototype.init = function(selectorAll){
         var urls = [], _this = this;
-        selectorAll.forEach(function(selector, index) {
+        angular.forEach(selectorAll, function(selector, index) {
             urls.push(selector.src);
             selector.addEventListener('click', function() {
                 var obj = {

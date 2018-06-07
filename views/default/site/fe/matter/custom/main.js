@@ -65,7 +65,11 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                 }
                 $scope.user = rsp.data.user;
                 $scope.site = site;
-                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
+                    id: id,
+                    type: 'article',
+                    title: article.title,
+                    shareby: shareby,
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });

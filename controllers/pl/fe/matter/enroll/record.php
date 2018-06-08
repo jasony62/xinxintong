@@ -1325,7 +1325,7 @@ class record extends \pl\fe\matter\base {
 		$imageSchemas = [];
 
 		// 登记活动
-		$enrollApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
+		$enrollApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id,sync_mission_round', 'cascaded' => 'N']);
 		$schemas = json_decode($enrollApp->data_schemas);
 
 		// 关联的登记活动
@@ -1407,8 +1407,8 @@ class record extends \pl\fe\matter\base {
 				 */
 				if (isset($nameSchema)) {
 					$data = $image['data'];
-					$recordName = $data->{$nameSchema->id};
-					if (!empty($recordName)) {
+					if (!empty($data->{$nameSchema->id})) {
+						$recordName = $data->{$nameSchema->id};
 						if (isset($usedRecordName[$recordName])) {
 							$usedRecordName[$recordName]++;
 							$recordName = $recordName . '_' . $usedRecordName[$recordName];

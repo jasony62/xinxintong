@@ -14,6 +14,7 @@ define(['frame'], function(ngApp) {
                 testChunks: false,
             });
             r.assignBrowse(document.getElementById('btnImportRecords'));
+            r.assignBrowse(document.getElementById('btnImportImg'));
             r.on('fileAdded', function(file, event) {
                 $scope.$apply(function() {
                     noticebox.progress('开始上传文件');

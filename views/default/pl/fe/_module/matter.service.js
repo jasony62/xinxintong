@@ -1086,8 +1086,8 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
         }
     };
     $scope.criteria = criteria = {
-        start: '',
-        end: '',
+        startAt: '',
+        endAt: '',
         byEvent: ''
     };
     $scope.events = [{
@@ -1123,8 +1123,8 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
     $scope.$watch('editing', function(nv) {
         if(!nv) return;
         app = nv;
-        criteria.start = time1;
-        criteria.end = time2;
+        criteria.startAt = time1;
+        criteria.endAt = time2;
         $scope.list();
     });
 }]);

@@ -1116,7 +1116,7 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
     $scope.export = function(user) {
         var url;
         url = '/rest/pl/fe/matter/'+ app.type +'/log/exportOperateStat?site='+ app.siteid +'&appId='+ app.id;
-        url += '&startAt='+ criteria.start +'&endAt='+ criteria.end + '&byEvent=' + criteria.byEvent;
+        url += '&startAt='+ criteria.startAt +'&endAt='+ criteria.endAt + '&byEvent=' + criteria.byEvent;
         window.open(url);
     };
 

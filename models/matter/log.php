@@ -1167,34 +1167,25 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_log_matter_action',
-			['matter_id' => $matterId, 'matter_type' => $matterType]
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}'"
 		];
 
 		if (!empty($options['startAt'])) {
-			$where = new \stdClass;
-			$where->op = '>';
-			$where->pat = $options['startAt'];
-			$q[2]['action_at'] = $where;
+			$q[2] .= " and action_at > {$options['startAt']}";
 		}
 		if (!empty($options['endAt'])) {
-			$where = new \stdClass;
-			$where->op = '<';
-			$where->pat = $options['endAt'];
-			$q[2]['action_at'] = $where;
+			$q[2] .= " and action_at < {$options['endAt']}";
 		}
 		if (!empty($options['byEvent'])) {
-			$where = new \stdClass;
-			$where->op = '>';
-			$where->pat = 0;
 			switch ($options['byEvent']) {
 				case 'shareT':
-					$q[2]['act_share_timeline'] = $where;
+					$q[2] .= " and act_share_timeline > 0";
 					break;
 				case 'shareF':
-					$q[2]['act_share_friend'] = $where;
+					$q[2] .= " and act_share_friend > 0";
 					break;
 				default:
-					$q[2]['act_read'] = $where;
+					$q[2] .= " and act_read > 0";
 					break;
 			}
 		}

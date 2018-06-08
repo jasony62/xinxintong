@@ -1158,4 +1158,101 @@ class log_model extends \TMS_MODEL {
 
 		return $result;
 	}
+	/**
+	 * 操作素材行为列表
+	 */
+	public function listMatterAction($site, $matterType, $matterId, $options = []) {
+		$fields = !empty($options['fields'])? $options['fields'] : 'id,action_at,act_read,act_share_timeline,act_share_friend,original_logid';
+
+		$q = [
+			$fields,
+			'xxt_log_matter_action',
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}'"
+		];
+
+		if (!empty($options['startAt'])) {
+			$q[2] .= " and action_at > {$options['startAt']}";
+		}
+		if (!empty($options['endAt'])) {
+			$q[2] .= " and action_at < {$options['endAt']}";
+		}
+		if (!empty($options['byEvent'])) {
+			switch ($options['byEvent']) {
+				case 'shareT':
+					$q[2] .= " and act_share_timeline > 0";
+					break;
+				case 'shareF':
+					$q[2] .= " and act_share_friend > 0";
+					break;
+				default:
+					$q[2] .= " and act_read > 0";
+					break;
+			}
+		}
+
+		$p = ['o' => 'action_at desc'];
+		if (!empty($options['paging'])) {
+			$page = $options['paging']['page'];
+			$size = $options['paging']['size'];
+			$p['r'] = [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			];
+		}
+
+		$logs = $this->query_objs_ss($q, $p);
+		foreach ($logs as $log) {
+			if ($log->act_share_timeline > 0) {
+				$log->event = 'shareT';
+			} else if ($log->act_share_friend > 0) {
+				$log->event = 'shareF';
+			} else if ($log->act_read > 0) {
+				$log->event = 'read';
+			} else {
+				$log->event = '未知';
+			}
+			
+			$table = 'xxt_log_matter_read';
+			if ($log->act_share_timeline > 0 || $log->act_share_friend > 0) {
+				$table = 'xxt_log_matter_share';
+			}
+			// 查询记录详细信息
+			$q2 = [
+				'userid,nickname,matter_shareby',
+				$table,
+				['id' => $log->original_logid]
+			];
+			$logInfo = $this->query_obj_ss($q2);
+			$log->userid = $logInfo->userid;
+			$log->nickname = $logInfo->nickname;
+			$log->matter_shareby = $logInfo->matter_shareby;
+			// 查询来源用户
+			if (strpos($logInfo->matter_shareby, '_') !== false) {
+				$shareby = explode('_', $logInfo->matter_shareby);
+				$originUserid = $shareby[0];
+				$q3 = [
+					'nickname',
+					'xxt_site_account',
+					['uid' => $originUserid]
+				];
+				$originUser = $this->query_obj_ss($q3);
+				if ($originUser) {
+					$log->origin_userid = $originUserid;
+					$log->origin_nickname = $originUser->nickname;
+				} else {
+					$log->origin_userid = '';
+					$log->origin_nickname = '未获取';
+				}
+			}
+		}
+		
+		$result = new \stdClass;
+		$result->logs = $logs;
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
+
+
+	}
 }

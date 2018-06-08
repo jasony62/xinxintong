@@ -119,7 +119,7 @@ require(['matterService'], function() {
                 http2.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
                     id: missionId,
                     type: 'mission',
-                    title: _oMission.title
+                    title: _oMission.title,
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });

@@ -37,13 +37,56 @@ class user_model extends \TMS_MODEL {
 
 		foreach ($data as $k => $v) {
 			switch ($k) {
-			case 'modify_log':
-				if (!is_string($v)) {
-					$oNewUsr->{$k} = json_encode([$v]);
-				}
-				break;
-			default:
-				$oNewUsr->{$k} = $v;
+				case 'last_enroll_at':
+				case 'last_cowork_at':
+				case 'last_do_cowork_at':
+				case 'last_like_at':
+				case 'last_like_cowork_at':
+				case 'last_do_like_at':
+				case 'last_remark_at':
+				case 'last_remark_cowork_at':
+				case 'last_do_remark_at':
+				case 'last_like_remark_at':
+				case 'last_do_like_cowork_at':
+				case 'last_do_like_remark_at':
+				case 'last_agree_at':
+				case 'last_agree_cowork_at':
+				case 'last_agree_remark_at':
+				case 'last_topic_at':
+				case 'enroll_num':
+				case 'cowork_num':
+				case 'do_cowork_num':
+				case 'do_like_num':
+				case 'do_like_cowork_num':
+				case 'do_like_remark_num':
+				case 'like_num':
+				case 'like_cowork_num':
+				case 'like_remark_num':
+				case 'do_remark_num':
+				case 'remark_num':
+				case 'remark_cowork_num':
+				case 'agree_num':
+				case 'agree_cowork_num':
+				case 'agree_remark_num':
+				case 'user_total_coin':
+				case 'topic_num':
+				case 'do_repos_read_num':
+				case 'do_topic_read_num':
+				case 'topic_read_num':
+				case 'do_cowork_read_num':
+				case 'cowork_read_num':
+				case 'do_cowork_read_elapse':
+				case 'cowork_read_elapse':
+				case 'do_topic_read_elapse':
+				case 'topic_read_elapse':
+				case 'do_repos_read_elapse':
+					$oNewUsr->{$k} = $v;
+					break;
+				case 'modify_log':
+					if (!is_string($v)) {
+						$oNewUsr->{$k} = json_encode([$v]);
+					}
+					break;
 			}
 		}
 		$oNewUsr->id = $this->insert('xxt_mission_user', $oNewUsr, true);

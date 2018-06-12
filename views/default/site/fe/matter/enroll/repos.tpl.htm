@@ -213,8 +213,8 @@
                                         <li><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
                                         <li ng-if="rec.favored"><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
                                         <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
-                                        <li class='divider'></li>
-                                        <li><a href ng-click="copyRecord($event,rec)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
+                                        <li ng-if="app.scenarioConfig.can_assoc === 'Y'" class='divider'></li>
+                                        <li ng-if="app.scenarioConfig.can_assoc === 'Y'"><a href ng-click="copyRecord($event,rec)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
                                     </ul>
                                 </div>
                             </div>

@@ -305,8 +305,8 @@
                             <div ng-if='m.enroll_num'>{{m.enroll_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.last_enroll_at>0'>{{m.user.last_enroll_at|date:'MM-dd HH:mm'}}</div>
-                            <div ng-if='m.last_enroll_at>0'>{{m.last_enroll_at|date:'MM-dd HH:mm'}}</div>
+                            <div ng-if='m.user.last_enroll_at>0'>{{m.user.last_enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                            <div ng-if='m.last_enroll_at>0'>{{m.last_enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                         </td>
                         <td>
                             <div ng-if='m.user.do_cowork_num'>{{m.user.do_cowork_num}}</div>

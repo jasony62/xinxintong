@@ -548,16 +548,59 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                     switch (oSchema.type) {
                         case 'multiple':
                             if (oSchema.ops && oSchema.ops.length) {
-                                oSchema.ops.forEach(function(oOp) {
+                                var domOptions;
+                                domOptions = document.querySelectorAll('[wrap=input][schema="' + oSchema.id + '"] input[type=checkbox][ng-model]');
+                                oSchema.ops.forEach(function(oOp, index) {
                                     var domOption, spanNickname;
-                                    if (oOp.ds && oOp.ds.nickname) {
-                                        domOption = document.querySelector('input[ng-model="data.' + oSchema.id + '.' + oOp.v + '"]');
-                                        if (domOption) {
+                                    if (domOption = domOptions[index]) {
+                                        if (oOp.ds && oOp.ds.nickname) {
                                             domOption = domOption.parentNode;
                                             spanNickname = document.createElement('span');
                                             spanNickname.classList.add('option-nickname');
                                             spanNickname.innerHTML = '[' + oOp.ds.nickname + ']';
                                             domOption.appendChild(spanNickname);
+                                        }
+                                    }
+                                });
+                            }
+                            break;
+                    }
+                }
+            }
+        });
+    }
+    /**
+     * 给关联选项添加选项nickname
+     */
+    function fnAppendOpDsLink(dataSchemas) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                if (domSchema && oSchema.dsOps && oSchema.dsOps.app && oSchema.dsOps.app.id && oSchema.showOpDsLink === 'Y') {
+                    switch (oSchema.type) {
+                        case 'multiple':
+                            if (oSchema.ops && oSchema.ops.length) {
+                                var domOptions;
+                                domOptions = document.querySelectorAll('[wrap=input][schema="' + oSchema.id + '"] input[type=checkbox][ng-model]');
+                                oSchema.ops.forEach(function(oOp, index) {
+                                    var domOption, spanLink;
+                                    if (domOption = domOptions[index]) {
+                                        if (oOp.ds && oOp.ds.ek) {
+                                            domOption = domOption.parentNode;
+                                            spanLink = document.createElement('span');
+                                            spanLink.classList.add('option-link');
+                                            spanLink.innerHTML = '[详情]';
+                                            spanLink.addEventListener('click', function(e) {
+                                                e.preventDefault();
+                                                var url
+                                                url = LS.j('', 'site');
+                                                url += '&app=' + oSchema.dsOps.app.id;
+                                                url += '&page=cowork';
+                                                url += '&ek=' + oOp.ds.ek;
+                                                location.href = url;
+                                            });
+                                            domOption.appendChild(spanLink);
                                         }
                                     }
                                 });
@@ -632,6 +675,8 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         fnAssistant(dataSchemas);
         // 从其他活动生成的选项的昵称
         fnAppendOpNickname(dataSchemas);
+        // 从其他活动生成的选项的详情链接
+        fnAppendOpDsLink(dataSchemas);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {

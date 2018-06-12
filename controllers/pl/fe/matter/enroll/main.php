@@ -784,25 +784,28 @@ class main extends main_base {
 			case 'group':
 				$oGrpApp = $this->model('matter\group')->byId($oUserSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
 				$users = $this->model('matter\group\player')->byApp($oUserSource, (object) ['fields' => 'userid,nickname']);
-				$users = isset($users->players) ? $users->players : [];
+				$misUsers = isset($users->players) ? $users->players : [];
 				break;
 			case 'enroll':
-				$users = $this->model('matter\enroll\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all', 'userid' => 'all']);
+				$misUsers = $this->model('matter\enroll\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all', 'userid' => 'all']);
 				break;
 			case 'signin':
-				$users = $this->model('matter\signin\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname']);
+				$misUsers = $this->model('matter\signin\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname']);
 				break;
 			case 'mschema':
-				$users = $this->model('site\user\member')->byMschema($oUserSource->id, ['fields' => 'userid,name nickname']);
+				$misUsers = $this->model('site\user\member')->byMschema($oUserSource->id, ['fields' => 'userid,name nickname']);
 				break;
 			}
 			/* 添加空记录 */
-			if (count($users)) {
+			if (count($misUsers)) {
 				$modelRec = $this->model('matter\enroll\record');
-				foreach ($users as $oEnrollee) {
+				foreach ($misUsers as $oMisUser) {
+					if (empty($oMisUser->userid)) {
+						continue;
+					}
 					$oMockUser = new \stdClass;
-					$oMockUser->uid = $oEnrollee->userid;
-					$oMockUser->nickname = $oEnrollee->nickname;
+					$oMockUser->uid = $oMisUser->userid;
+					$oMockUser->nickname = $oMisUser->nickname;
 					$modelRec->enroll($oNewApp, $oMockUser, ['nickname' => $oMockUser->nickname]);
 				}
 			}

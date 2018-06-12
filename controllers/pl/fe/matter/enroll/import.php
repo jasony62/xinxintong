@@ -98,11 +98,12 @@ class import extends \pl\fe\matter\base {
 			}
 			$records = $data[1];
 			// 删除解压后的文件包
-			$this->deldir($recordImgs[1]->toDir);
+			$this->_deldir($recordImgs[1]->toDir);
 		} else if ($type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
 			$records = $this->_extractExcel($oApp, $modelFs->rootDir . '/' . $fileUploaded)->records;
 			$modelFs->delete($fileUploaded);
 		} else {
+			unlink($modelFs->rootDir . '/' . $fileUploaded);
 			return new \ResponseError('暂不支持此格式文件');
 		}
 
@@ -480,13 +481,13 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 删除文件夹
 	 */
-	private function deldir($path) {
+	private function _deldir($path) {
         $path .= '/';
         $files = scandir($path);
         foreach($files as $file){
             if($file !="." && $file !=".."){
                 if(is_dir($path . $file)){
-                    $this->deldir($path . $file . '/');
+                    $this->_deldir($path . $file . '/');
                 }else{
                     unlink($path . $file);
                 }

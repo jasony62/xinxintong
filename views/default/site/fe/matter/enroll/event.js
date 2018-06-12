@@ -164,12 +164,3 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         });
     });
 }]);
-ngApp.filter('filterTime', function() {
-    return  function(e) {
-        var result, h, m, s, time = e*1;
-        h = Math.floor(time / 3600);
-        m = Math.floor((time / 60 % 6));
-        s = Math.floor((time % 60));
-        return result = h + ":" + m + ":" + s;
-    }
-});

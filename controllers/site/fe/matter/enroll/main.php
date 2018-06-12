@@ -69,7 +69,7 @@ class main extends base {
 				}
 			}
 			if (in_array($page, ['topic', 'repos', 'cowork'])) {
-				$this->pageReadlog($oApp, $page, $rid, $ek, $topic);
+				$this->_pageReadlog($oApp, $page, $rid, $ek, $topic);
 			}
 			\TPL::assign('title', empty($title) ? $oApp->title : ($title . $oApp->title));
 			\TPL::output('/site/fe/matter/enroll/' . $page);
@@ -94,10 +94,10 @@ class main extends base {
 		}
 		exit;
 	}
-	/*
+	/**
 	 *
 	 */
-	public function pageReadlog($oApp, $page, $rid = '', $ek = null, $topic = null) {
+	private function _pageReadlog($oApp, $page, $rid = '', $ek = null, $topic = null) {
 		// 获得当前获得所属轮次
 		if ($rid === 'ALL') {
 			$rid = '';

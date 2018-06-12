@@ -6,7 +6,7 @@
     <div class='form-group' ng-switch-when="single">
         <label ng-bind="schema.title"></label>
         <select class='form-control' ng-model="data.defaultValue" ng-options="op.v as op.l for op in schema.ops">
-            <option>无</option>
+            <option value>无</option>
         </select>
     </div>
     <div class='form-group' ng-switch-when="multiple">

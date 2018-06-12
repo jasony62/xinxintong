@@ -21,7 +21,7 @@
             <tr>
                 <th style='width:40px'></th>
                 <th>昵称</th>
-                <th style='width:100px'>关注日期</th>
+                <th style='width:160px'>关注日期</th>
                 <th style='width:48px'>性别</th>
                 <th>城市</th>
             </tr>
@@ -30,7 +30,7 @@
             <tr ng-repeat='f in users'>
                 <td ng-bind="$index+1"></td>
                 <td>{{f.nickname||'未知'}}</td>
-                <td>{{f.subscribe_at*1000|date:'yyyy-MM-dd'}}</td>
+                <td>{{f.subscribe_at*1000|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                 <td>{{SexMap[f.sex]}}</td>
                 <td>{{f.city}}</td>
             </tr>

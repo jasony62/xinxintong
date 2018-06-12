@@ -877,6 +877,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         };
                         $scope2.doSearch = function() {
                             var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            if (_oApp.mission) {
+                                url += '&mission=' + _oApp.mission.id;
+                            }
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
                             }, function(rsp) {
@@ -949,6 +952,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         };
                         $scope2.doSearch = function() {
                             var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            if (_oApp.mission) {
+                                url += '&mission=' + _oApp.mission.id;
+                            }
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
                             }, function(rsp) {

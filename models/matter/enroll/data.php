@@ -418,7 +418,7 @@ class data_model extends entity_model {
 			if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
 				$weight = isset($oSchema->weight) ? $oSchema->weight : 1;
 				$oRecordScore->{$schemaId} = $treatedValue * $weight;
-				$oRecordScore->sum += $oRecordScore->{$schemaId};
+				$oRecordScore->sum += round((float) $oRecordScore->{$schemaId}, 2);
 			}
 			/* 计算题目的分数。只支持对单选题和多选题自动打分 */
 			if ($oApp->scenario === 'quiz') {
@@ -467,10 +467,10 @@ class data_model extends entity_model {
 							break;
 						}
 					}
-					//记录分数
+					// 记录分数
 					if (isset($quizScore)) {
-						$oRecordScore->{$schemaId} = $quizScore;
-						$oRecordScore->sum += (int) $quizScore;
+						$oRecordScore->{$schemaId} = round((float) $quizScore, 2);
+						$oRecordScore->sum += round((float) $quizScore, 2);
 					}
 				}
 			}

@@ -221,7 +221,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$modelApp = $this->model('matter\plan');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,title,summary,pic,mission_id', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'siteid,id,title,summary,pic,mission_id', 'cascaded' => 'N']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}

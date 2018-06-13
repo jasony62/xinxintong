@@ -76,7 +76,8 @@ class main extends main_base {
 		}
 
 		/* 设置活动的动态选项 */
-		$modelEnl->setDynaOptions($oApp);
+		$oAppRnd = $this->model('matter\enroll\round')->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+		$modelEnl->setDynaOptions($oApp, $oAppRnd);
 
 		return new \ResponseData($oApp);
 	}
@@ -763,7 +764,7 @@ class main extends main_base {
 		/* create app */
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
-		$oNewApp->title = $modelApp->escape($oMission->title) . '-新登记活动';
+		$oNewApp->title = $modelApp->escape($oMission->title) . '-计分活动';
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
 		$oNewApp->can_siteuser = 'Y';
@@ -774,16 +775,39 @@ class main extends main_base {
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
-		/* 添加空记录 */
-		$modelMisUsr = $this->model('matter\mission\user');
-		$enrollees = $modelMisUsr->enrolleeByMission($oMission);
-		if (count($enrollees)) {
-			$modelRec = $this->model('matter\enroll\record');
-			foreach ($enrollees as $oEnrollee) {
-				$oMockUser = new \stdClass;
-				$oMockUser->uid = $oEnrollee->userid;
-				$oMockUser->nickname = $oEnrollee->nickname;
-				$modelRec->enroll($oNewApp, $oMockUser, ['nickname' => $oMockUser->nickname]);
+		/* 获得项目用户 */
+		if (isset($oMission->user_app_id) && isset($oMission->user_app_type)) {
+			$oUserSource = new \stdClass;
+			$oUserSource->id = $oMission->user_app_id;
+			$oUserSource->type = $oMission->user_app_type;
+			switch ($oUserSource->type) {
+			case 'group':
+				$oGrpApp = $this->model('matter\group')->byId($oUserSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
+				$users = $this->model('matter\group\player')->byApp($oUserSource, (object) ['fields' => 'userid,nickname']);
+				$misUsers = isset($users->players) ? $users->players : [];
+				break;
+			case 'enroll':
+				$misUsers = $this->model('matter\enroll\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all', 'userid' => 'all']);
+				break;
+			case 'signin':
+				$misUsers = $this->model('matter\signin\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname']);
+				break;
+			case 'mschema':
+				$misUsers = $this->model('site\user\member')->byMschema($oUserSource->id, ['fields' => 'userid,name nickname']);
+				break;
+			}
+			/* 添加空记录 */
+			if (count($misUsers)) {
+				$modelRec = $this->model('matter\enroll\record');
+				foreach ($misUsers as $oMisUser) {
+					if (empty($oMisUser->userid)) {
+						continue;
+					}
+					$oMockUser = new \stdClass;
+					$oMockUser->uid = $oMisUser->userid;
+					$oMockUser->nickname = $oMisUser->nickname;
+					$modelRec->enroll($oNewApp, $oMockUser, ['nickname' => $oMockUser->nickname]);
+				}
 			}
 		}
 

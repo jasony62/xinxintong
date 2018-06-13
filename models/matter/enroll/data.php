@@ -400,14 +400,16 @@ class data_model extends entity_model {
 	/**
 	 * 计算题目的分数
 	 */
-	public function socreRecordData($oApp, $oRecord, $schemasById, $dbData, $oAssignScore = null) {
-		$oRecordScore = new \stdClass;
-		$oRecordScore->sum = 0; //记录总分
+	public function socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore = null) {
+		$oRecordScore = new \stdClass; // 记录的得分数据
+		$oRecordScore->sum = 0; // 记录总分
+		$quizSchemaNum = 0; // 测验题目的数量
+		$quizCorrectSchemaNum = 0; // 答对测验题目的数量
 		foreach ($dbData as $schemaId => $treatedValue) {
-			if (!isset($schemasById[$schemaId])) {
+			if (!isset($aSchemasById[$schemaId])) {
 				continue;
 			}
-			$oSchema = $schemasById[$schemaId];
+			$oSchema = $aSchemasById[$schemaId];
 
 			if (is_object($treatedValue) || is_array($treatedValue)) {
 				$treatedValue = $this->toJson($treatedValue);
@@ -424,10 +426,16 @@ class data_model extends entity_model {
 			if ($oApp->scenario === 'quiz') {
 				$quizScore = null;
 				if (isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') {
+					$quizSchemaNum++;
 					if (!empty($oSchema->answer)) {
 						switch ($oSchema->type) {
 						case 'single':
-							$quizScore = $treatedValue === $oSchema->answer ? ($oSchema->score ? $oSchema->score : 0) : 0;
+							if ($treatedValue === $oSchema->answer) {
+								$quizScore = empty($oSchema->score) ? 0 : $oSchema->score;
+								$quizCorrectSchemaNum++;
+							} else {
+								$quizScore = 0;
+							}
 							break;
 						case 'multiple':
 							$correct = 0;
@@ -441,7 +449,10 @@ class data_model extends entity_model {
 									break;
 								}
 							}
-							$quizScore = ($oSchema->score ? $oSchema->score : 0) / count($oSchema->answer) * $correct;
+							$quizScore = (empty($oSchema->score) ? 0 : $oSchema->score) / count($oSchema->answer) * $correct;
+							if (count($oSchema->answer) === $correct) {
+								$quizCorrectSchemaNum++;
+							}
 							break;
 						default: // 主观题
 							if (!empty($oAssignScore) && isset($oAssignScore->{$schemaId})) {
@@ -464,6 +475,9 @@ class data_model extends entity_model {
 									$quizScore = 0;
 								}
 							}
+							if ($quizScore == $oSchema->score) {
+								$quizCorrectSchemaNum++;
+							}
 							break;
 						}
 					}
@@ -473,6 +487,13 @@ class data_model extends entity_model {
 						$oRecordScore->sum += round((float) $quizScore, 2);
 					}
 				}
+			}
+		}
+
+		/* 如果测验题目全对，且指定了总分，那么总得分为指定的总分 */
+		if ($oApp->scenario === 'quiz' && !empty($oApp->scenarioConfig->quizSum)) {
+			if ($quizSchemaNum === $quizCorrectSchemaNum) {
+				$oRecordScore->sum = $oApp->scenarioConfig->quizSum;
 			}
 		}
 

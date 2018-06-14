@@ -203,6 +203,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                 });
             }
             shareid = oUser.uid + '_' + (new Date * 1);
+            shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
             sharelink += "&shareby=" + shareid;
             /* 设置分享 */
             summary = oApp.summary;
@@ -221,7 +222,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                     url += "&id=" + oApp.id;
                     url += "&type=enroll";
                     url += "&title=" + oApp.title;
-                    url += "&shareby=" + shareid;
+                    url += "&shareby=" + shareby;
                     url += "&shareto=" + shareto;
                     http2.get(url);
                     window.shareCounter++;

@@ -64,7 +64,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
         $scope.message = message = oMsg.toString();
         fnSetSnsShare(_oApp, message, oMsg.anchor);
     });
-    $scope.shiftInviter = function() {
+    $scope.shiftAuthor = function() {
         if (_oOptions.editorAsAuthor) {
             _oMessage.defaultAuthor === undefined && (_oMessage.defaultAuthor = _oMessage.author);
             _oMessage.author = _oApp.actionRule.role.editor.nickname;

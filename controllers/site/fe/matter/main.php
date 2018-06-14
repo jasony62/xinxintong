@@ -294,6 +294,9 @@ class main extends \site\fe\matter\base {
 			$table = 'xxt_channel';
 			break;
 		case 'enroll':
+		case 'enroll.topic':
+		case 'enroll.cowork':
+		case 'enroll.repos':
 			$table = 'xxt_enroll';
 			break;
 		case 'lottery':

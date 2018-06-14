@@ -28,8 +28,8 @@ class access extends \TMS_MODEL {
 		//
 		$clientIp = $this->args['clientIp'];
 		$HTTP_USER_AGENT = isset($this->args['HTTP_USER_AGENT']) ? $this->args['HTTP_USER_AGENT'] : '';
-		$QUERY_STRING = isset($this->args['QUERY_STRING']) ? $this->args['QUERY_STRING'] : '';
-		$HTTP_REFERER = isset($this->args['HTTP_REFERER']) ? $this->args['HTTP_REFERER'] : '';
+		$QUERY_STRING = $this->args['search'];
+		$HTTP_REFERER = $this->args['referer'];
 
 		$model = $this->model();
 		switch ($type) {
@@ -44,6 +44,15 @@ class access extends \TMS_MODEL {
 			break;
 		case 'enroll':
 			$model->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
+		}
+
+		// 登记活动的专题页和讨论页和共享页需要单独记录
+		if ($type === 'enroll') {
+			$targets = ['topic', 'repos', 'cowork'];
+			if (!empty($this->args['target_type']) && in_array($this->args['target_type'], $targets) && !empty($this->args['target_id'])) {
+				$id = $this->args['target_id'];
+				$type = $this->args['target_type'];
+			}
 		}
 
 		$logUser = new \stdClass;

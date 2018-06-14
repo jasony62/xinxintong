@@ -21,7 +21,7 @@ class log_model extends \TMS_MODEL {
 		];
 
 		if (!empty($options['byUser'])) {
-			$q[2] .= " and u.nickname like '%" . $this->escape($options['byUser']) . "%'";
+			$q[2] .= " and u.nickname like '%" . $options['byUser'] . "%'";
 		}
 		if (!empty($options['byOp'])) {
 			if ($options['byOp'] === 'read') {
@@ -29,14 +29,14 @@ class log_model extends \TMS_MODEL {
 				$q[1] = 'xxt_log_user_matter l,xxt_enroll_user u';
 				$q[2] = "l.matter_type='enroll' and l.matter_id='{$app}' and u.userid = l.userid and u.aid = l.matter_id and l.operation = 'read'";
 			} else {
-				$q[2] .= " and l.event_name = '" . $this->escape($options['byOp']) . "'";
+				$q[2] .= " and l.event_name = '" . $options['byOp'] . "'";
 			}
 		}
 		if (!empty($options['byRid'])) {
 			if (!empty($options['byOp']) && $options['byOp'] === 'read') {
-				$q[2] .= " and l.operate_data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%' and u.rid = '" . $this->escape($options['byRid']) . "'";
+				$q[2] .= " and l.operate_data like '%" . '"rid":"' . $options['byRid'] . '"' . "%' and u.rid = '" . $options['byRid'] . "'";
 			} else {
-				$q[2] .= " and l.rid = '" . $this->escape($options['byRid']) . "' and u.rid = l.rid";
+				$q[2] .= " and l.rid = '" . $options['byRid'] . "' and u.rid = l.rid";
 			}
 		} else {
 				$q[2] .= " and u.rid = 'ALL'";

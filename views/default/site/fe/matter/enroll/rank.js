@@ -412,6 +412,8 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         $scope.changeCriteria();
         /*设置页面分享信息*/
         $scope.setSnsShare();
+        /*页面阅读日志*/
+        $scope.logAccess();
         /*设置页面操作*/
         $scope.appActs = {
             addRecord: {}

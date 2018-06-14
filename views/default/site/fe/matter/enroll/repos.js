@@ -397,7 +397,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
         });
         /* 设置页面分享信息 */
-        $scope.setSnsShare();
+        $scope.setSnsShare(null, null, {target_type: 'repos', target_id: _oApp.id});
+        /*页面阅读日志*/
+        $scope.logAccess({target_type: 'repos', target_id: _oApp.id});
         /*设置页面操作*/
         $scope.appActs = {};
         /* 允许添加记录 */

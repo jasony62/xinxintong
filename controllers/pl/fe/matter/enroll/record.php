@@ -1,32 +1,11 @@
 <?php
 namespace pl\fe\matter\enroll;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(__FILE__) . '/main_base.php';
 /*
  * 登记记录
  */
-class record extends \pl\fe\matter\base {
-	/**
-	 *
-	 */
-	public function get_access_rule() {
-		$rule_action['rule_type'] = 'white';
-		$rule_action['actions'][] = 'get';
-
-		return $rule_action;
-	}
-	/**
-	 * 返回视图
-	 */
-	public function index_action($id) {
-		$aAccess = $this->accessControlUser('enroll', $id);
-		if ($aAccess[0] === false) {
-			die($aAccess[1]);
-		}
-
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
-	}
+class record extends main_base {
 	/**
 	 * 活动登记名单
 	 *
@@ -318,6 +297,68 @@ class record extends \pl\fe\matter\base {
 		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
 
 		return new \ResponseData($oNewRecord);
+	}
+	/**
+	 * 将记录导入到其他活动
+	 *
+	 * @param string $app
+	 * @param string $targetApp
+	 */
+	public function exportToOther_action($app, $targetApp) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->eks)) {
+			return new \ParameterError('没有指定要导出的记录');
+		}
+		if (empty($oPosted->mappings)) {
+			return new \ParameterError('没有指定题目映射关系');
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+		$modelUsr = $this->model('matter\enroll\user');
+
+		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => '*']);
+		if (false === $oTargetApp || $oTargetApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		foreach ($oPosted->eks as $ek) {
+			$oRecord = $modelRec->byId($ek, ['fields' => 'userid,nickname,data']);
+			if (!$oRecord) {
+				continue;
+			}
+
+			/* 传递的数据 */
+			$oNewRecData = new \stdClass;
+			foreach ($oPosted->mappings as $targetSchemaId => $oMapping) {
+				if (isset($oMapping->value)) {
+					$oNewRecData->{$targetSchemaId} = $oMapping->value;
+				} else if (!empty($oMapping->from) && !empty($oRecord->data->{$oMapping->from})) {
+					$oNewRecData->{$targetSchemaId} = $oRecord->data->{$oMapping->from};
+				}
+			}
+
+			/* 模拟用户 */
+			$oMockUser = $modelUsr->byId($oTargetApp, $oRecord->userid, ['fields' => 'id,userid,group_id,nickname']);
+			if (false === $oMockUser) {
+				$oMockUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oRecord->userid], $oNewRecData);
+			}
+
+			/* 在目标活动中创建新记录 */
+			$newek = $modelRec->enroll($oTargetApp, $oMockUser);
+			$result = $modelRec->setData($oMockUser, $oTargetApp, $newek, $oNewRecData, '', true);
+		}
+
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 更新登记记录

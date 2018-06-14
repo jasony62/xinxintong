@@ -1172,6 +1172,78 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
+            _ins.exportToOther = function(oApp, rows) {
+                var defer, eks;
+                if (rows) {
+                    eks = [];
+                    Object.keys(rows.selected).forEach(function(key) {
+                        if (rows.selected[key] === true) {
+                            var oRec = _ins._aRecords[key];
+                            if (Object.keys(oRec).indexOf('enroll_key') !== -1) {
+                                eks.push(oRec.enroll_key);
+                            }
+                        }
+                    });
+                }
+                defer = $q.defer();
+                if (!eks || eks.length === 0) {
+                    defer.reject();
+                } else {
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/exportToOther.html?_=1',
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            var page, data, filter;
+                            $scope2.sourceApp = oApp;
+                            $scope2.page = page = {
+                                at: 1,
+                                size: 10,
+                                j: function() {
+                                    return 'page=' + this.at + '&size=' + this.size;
+                                }
+                            };
+                            $scope2.data = data = { mappings: {} };
+                            $scope2.filter = filter = {};
+                            $scope2.ok = function() {
+                                $mi.close(data);
+                            };
+                            $scope2.cancel = function() {
+                                $mi.dismiss('cancel');
+                            };
+                            $scope2.doFilter = function() {
+                                page.at = 1;
+                                $scope2.doSearch();
+                            };
+                            $scope2.doSearch = function() {
+                                var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&' + page.j();
+                                http2.post(url, {
+                                    byTitle: filter.byTitle
+                                }, function(rsp) {
+                                    $scope2.apps = rsp.data.apps;
+                                    if ($scope2.apps.length) {
+                                        data.fromApp = $scope2.apps[0];
+                                    }
+                                    $scope2.apps.forEach(function(oApp) {
+                                        oApp.dataSchemas = JSON.parse(oApp.data_schemas);
+                                    });
+                                    page.total = rsp.data.total;
+                                });
+                            };
+                            $scope2.doSearch();
+                        }],
+                        backdrop: 'static',
+                        size: 'lg'
+                    }).result.then(function(data) {
+                        var url;
+                        if (data.fromApp && data.fromApp.id && data.mappings) {
+                            url = '/rest/pl/fe/matter/enroll/record/exportToOther';
+                            url += '?app=' + oApp.id;
+                            url += '&targetApp=' + data.fromApp.id;
+                            http2.post(url, { mappings: data.mappings, eks, eks }, function() {});
+                        }
+                    });
+                }
+                return defer.promise;
+            };
             _ins.sum4Schema = function() {
                 var url,
                     defer = $q.defer();

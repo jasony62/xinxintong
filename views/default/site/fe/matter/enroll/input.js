@@ -582,11 +582,14 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                         case 'multiple':
                             if (oSchema.ops && oSchema.ops.length) {
                                 var domOptions;
-                                domOptions = document.querySelectorAll('[wrap=input][schema="' + oSchema.id + '"] input[type=checkbox][ng-model]');
+                                domOptions = document.querySelectorAll('[wrap=input][schema=' + oSchema.id + '] input[type=checkbox][name=' + oSchema.id + '][ng-model]');
                                 oSchema.ops.forEach(function(oOp, index) {
+                                    console.log('1111', oOp, index);
                                     var domOption, spanLink;
                                     if (domOption = domOptions[index]) {
+                                        console.log('2222', oOp, index);
                                         if (oOp.ds && oOp.ds.ek) {
+                                            console.log('3333', oOp, index);
                                             domOption = domOption.parentNode;
                                             spanLink = document.createElement('span');
                                             spanLink.classList.add('option-link');

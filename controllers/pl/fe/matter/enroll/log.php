@@ -49,7 +49,7 @@ class log extends \pl\fe\matter\base {
 		
 		if ($target_type === 'pl') {
 			$reads = $modelLog->listMatterOp($oApp->id, 'enroll', $options, $page, $size);
-		} else if (in_array($target_type, ['enroll.topic', 'enroll.repos', 'enroll.cowork'])) {
+		} else if (in_array($target_type, ['topic', 'repos', 'cowork'])) {
 			if (empty($target_id)) {
 				return new \ResponseError('参数不完整，缺失目标日志ID');
 			}
@@ -60,7 +60,7 @@ class log extends \pl\fe\matter\base {
 				$options['paging'] = ['page' => $page, 'size' => $size];
 			}
 
-			$reads = $modelLog->listMatterAction($oApp->siteid, $target_type, $target_id, $options);
+			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $options);
 		} else {
 			$reads = $this->model('matter\enroll\log')->list($oApp->id, $options, $page, $size);
 		}

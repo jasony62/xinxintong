@@ -46,15 +46,6 @@ class access extends \TMS_MODEL {
 			$model->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
 		}
 
-		// 登记活动的专题页和讨论页和共享页需要单独记录
-		if ($type === 'enroll') {
-			$targets = ['topic', 'repos', 'cowork'];
-			if (!empty($this->args['target_type']) && in_array($this->args['target_type'], $targets) && !empty($this->args['target_id'])) {
-				$id = $this->args['target_id'];
-				$type = $this->args['target_type'];
-			}
-		}
-
 		$logUser = new \stdClass;
 		$logUser->userid = $oUser->uid;
 		$logUser->nickname = $oUser->nickname;
@@ -67,6 +58,15 @@ class access extends \TMS_MODEL {
 		$logClient = new \stdClass;
 		$logClient->ip = $clientIp;
 		$logClient->agent = $HTTP_USER_AGENT;
+
+		// 登记活动的专题页和讨论页和共享页需要单独记录
+		if ($type === 'enroll') {
+			$targets = ['topic', 'repos', 'cowork'];
+			if (!empty($this->args['target_type']) && in_array($this->args['target_type'], $targets) && !empty($this->args['target_id'])) {
+				$logMatter->id = $this->args['target_id'];
+				$logMatter->type = 'enroll.' . $this->args['target_type'];
+			}
+		}
 
 		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $QUERY_STRING, $HTTP_REFERER, $options);
 		/**

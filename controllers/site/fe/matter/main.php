@@ -262,7 +262,7 @@ class main extends \site\fe\matter\base {
 			$targets = ['topic', 'repos', 'cowork'];
 			if (!empty($options['target_type']) && in_array($options['target_type'], $targets) && !empty($options['target_id'])) {
 				$logMatter->id = $options['target_id'];
-				$logMatter->type = $options['target_type'];
+				$logMatter->type = 'enroll.' . $options['target_type'];
 			}
 		}
 
@@ -359,7 +359,7 @@ class main extends \site\fe\matter\base {
 			$targets = ['topic', 'repos', 'cowork'];
 			if (!empty($target_type) && in_array($target_type, $targets) && !empty($target_id)) {
 				$logMatter->id = $target_id;
-				$logMatter->type = $target_type;
+				$logMatter->type = 'enroll.' . $target_type;
 			}
 		}
 

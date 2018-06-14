@@ -11,6 +11,10 @@
                     <option value='{{scenario}}' ng-repeat="scenario in scenarioes.index">{{scenarioes.names[scenario]}}</option>
                 </select>
             </div>
+            <div class='form-group' ng-if="app.scenario==='quiz'">
+                <label>测验总分</label>
+                <input type='text' class='form-control' ng-model='app.scenarioConfig.quizSum' tms-auto-update tms-wait=1000 tms-update="update('scenarioConfig')">
+            </div>
             <div class='form-group'>
                 <label>活动说明</label>
                 <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
@@ -81,35 +85,39 @@
         <div class='panel-body'>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'D'" ng-model="app.scenarioConfig.can_rounds" ng-change="update('scenarioConfig')">按轮次登记</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'D'" ng-model="app.scenarioConfig.can_rounds" ng-change="update('scenarioConfig')"> 按轮次登记</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_cowork" ng-change="update('can_cowork')"> 允许其他用户修改填写记录</label>
             </div>
             <div class='checkbox hide'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_siteuser" ng-change="update('can_siteuser')">开放用户主页</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_siteuser" ng-change="update('can_siteuser')"> 开放用户主页</label>
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_repos" ng-change="update('can_repos')">开放共享页</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_repos" ng-change="update('can_repos')"> 开放共享页</label>
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_rank" ng-change="update('can_rank')">开放排行页</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_rank" ng-change="update('can_rank')"> 开放排行页</label>
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_action" ng-change="update('scenarioConfig')">开放活动动态页</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_action" ng-change="update('scenarioConfig')"> 开放活动动态页</label>
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_coin" ng-change="update('can_coin')">支持用户积分</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_coin" ng-change="update('can_coin')"> 支持用户积分</label>
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_assoc" ng-change="update('scenarioConfig')">支持建立记录关联</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_assoc" ng-change="update('scenarioConfig')"> 支持建立记录关联</label>
             </div>
             <div class='checkbox' ng-if="app.mission">
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.sync_mission_round" ng-change="update('sync_mission_round')">活动轮次和项目轮次保持一致</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.sync_mission_round" ng-change="update('sync_mission_round')"> 活动轮次和项目轮次保持一致</label>
             </div>
         </div>
     </div>

@@ -182,10 +182,16 @@ class enroll_model extends enroll_base {
 			}
 
 			$modelPage = $this->model('matter\enroll\page');
-			if ($cascaded === 'Y') {
-				$oApp->pages = $modelPage->byApp($oApp->id);
-			} else {
-				$oApp->pages = $modelPage->byApp($oApp->id, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
+			if (!empty($oApp->id)) {
+				if ($cascaded === 'Y') {
+					$oApp->pages = $modelPage->byApp($oApp->id);
+				} else {
+					$oApp->pages = $modelPage->byApp($oApp->id, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
+				}
+			}
+			/* 自动补充信息 */
+			if (!property_exists($oApp, 'id')) {
+				$oApp->id = $appId;
 			}
 		}
 
@@ -726,36 +732,36 @@ class enroll_model extends enroll_base {
 		/**
 		 * 处理页面
 		 */
-		foreach ($pages as $page) {
-			$ap = $modelPage->add($user, $site->id, $appId, (array) $page);
+		foreach ($pages as $oPage) {
+			$ap = $modelPage->add($user, $site->id, $appId, (array) $oPage);
 			/**
 			 * 处理页面数据定义
 			 */
-			if (empty($page->data_schemas) && !empty($oTemplateConfig->schema) && !empty($page->simpleConfig)) {
+			$oPage->data_schemas = [];
+			if (empty($oPage->data_schemas) && !empty($oTemplateConfig->schema) && !empty($oPage->simpleConfig)) {
 				/* 页面使用应用的所有数据定义 */
-				$page->data_schemas = [];
-				foreach ($oTemplateConfig->schema as $schema) {
-					$newPageSchema = new \stdClass;
-					$newPageSchema->schema = $schema;
-					$newPageSchema->config = clone $page->simpleConfig;
-					if ($page->type === 'V') {
-						$newPageSchema->config->id = 'V_' . $schema->id;
+				foreach ($oTemplateConfig->schema as $oSchema) {
+					$oNewPageSchema = new \stdClass;
+					$oNewPageSchema->schema = $oSchema;
+					$oNewPageSchema->config = clone $oPage->simpleConfig;
+					if ($oPage->type === 'V') {
+						$oNewPageSchema->config->id = 'V_' . $oSchema->id;
 					}
-					$page->data_schemas[] = $newPageSchema;
+					$oPage->data_schemas[] = $oNewPageSchema;
 				}
 			}
 			$pageSchemas = [];
-			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? $this->toJson($page->data_schemas) : '[]';
-			$pageSchemas['act_schemas'] = isset($page->act_schemas) ? $this->toJson($page->act_schemas) : '[]';
+			$pageSchemas['data_schemas'] = isset($oPage->data_schemas) ? $this->toJson($oPage->data_schemas) : '[]';
+			$pageSchemas['act_schemas'] = isset($oPage->act_schemas) ? $this->toJson($oPage->act_schemas) : '[]';
 			$rst = $modelPage->update(
 				'xxt_enroll_page',
 				$pageSchemas,
 				"aid='$appId' and id={$ap->id}"
 			);
 			/* 填充页面 */
-			if (!empty($page->code)) {
-				$code = (array) $page->code;
-				$code['html'] = $modelPage->compileHtml($page->type, $code['html'], $page->data_schemas);
+			if (!empty($oPage->code)) {
+				$code = (array) $oPage->code;
+				$code['html'] = $modelPage->compileHtml($oPage->type, $code['html'], $oPage->data_schemas);
 				$modelCode->modify($ap->code_id, $code);
 			}
 		}

@@ -1691,9 +1691,29 @@ class record extends \pl\fe\matter\base {
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
-		/* 项目用户 */
-		$modelMisUsr = $this->model('matter\mission\user');
-		$misUsers = $modelMisUsr->enrolleeByMission($oMission);
+
+		/* 获得项目用户 */
+		if (isset($oMission->user_app_id) && isset($oMission->user_app_type)) {
+			$oUserSource = new \stdClass;
+			$oUserSource->id = $oMission->user_app_id;
+			$oUserSource->type = $oMission->user_app_type;
+			switch ($oUserSource->type) {
+			case 'group':
+				$oGrpApp = $this->model('matter\group')->byId($oUserSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
+				$users = $this->model('matter\group\player')->byApp($oUserSource, (object) ['fields' => 'userid,nickname']);
+				$misUsers = isset($users->players) ? $users->players : [];
+				break;
+			case 'enroll':
+				$misUsers = $this->model('matter\enroll\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all', 'userid' => 'all']);
+				break;
+			case 'signin':
+				$misUsers = $this->model('matter\signin\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname']);
+				break;
+			case 'mschema':
+				$misUsers = $this->model('site\user\member')->byMschema($oUserSource->id, ['fields' => 'userid,name nickname']);
+				break;
+			}
+		}
 		if (empty($misUsers)) {
 			return new \ParameterError('项目用户数据为空');
 		}
@@ -1720,6 +1740,9 @@ class record extends \pl\fe\matter\base {
 		$modelRec = $this->model('matter\enroll\record');
 		foreach ($oAssignedRnds as $oAssignedRnd) {
 			foreach ($misUsers as $oMisUser) {
+				if (empty($oMisUser->userid)) {
+					continue;
+				}
 				$oMockUser = new \stdClass;
 				$oMockUser->uid = $oMisUser->userid;
 				$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);

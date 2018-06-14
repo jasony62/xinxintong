@@ -795,7 +795,7 @@ $sql .= ",round_id varchar(32) not null";
 $sql .= ",create_at int not null";
 $sql .= ",title varchar(40) not null";
 $sql .= ",autoplay char(1) not null default 'N'"; // 自动抽取直到达到抽取次数
-$sql .= ",times int not null"; // 抽取次数
+$sql .= ",times int not null default 1"; // 抽取次数
 $sql .= ",targets text null";
 $sql .= ",extattrs text null"; //扩展属性
 $sql .= ",primary key(aid,round_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

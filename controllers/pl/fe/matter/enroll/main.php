@@ -2,22 +2,10 @@
 namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
-/*
+/**
  * 登记活动主控制器
  */
 class main extends main_base {
-	/**
-	 * 返回视图
-	 */
-	public function index_action($site, $id) {
-		$aAccess = $this->accessControlUser('enroll', $id);
-		if ($aAccess[0] === false) {
-			die($aAccess[1]);
-		}
-
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
-	}
 	/**
 	 * 返回指定的登记活动
 	 */

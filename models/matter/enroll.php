@@ -182,10 +182,16 @@ class enroll_model extends enroll_base {
 			}
 
 			$modelPage = $this->model('matter\enroll\page');
-			if ($cascaded === 'Y') {
-				$oApp->pages = $modelPage->byApp($oApp->id);
-			} else {
-				$oApp->pages = $modelPage->byApp($oApp->id, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
+			if (!empty($oApp->id)) {
+				if ($cascaded === 'Y') {
+					$oApp->pages = $modelPage->byApp($oApp->id);
+				} else {
+					$oApp->pages = $modelPage->byApp($oApp->id, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
+				}
+			}
+			/* 自动补充信息 */
+			if (!property_exists($oApp, 'id')) {
+				$oApp->id = $appId;
 			}
 		}
 

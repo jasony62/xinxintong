@@ -36,6 +36,7 @@
         </div>
         <div class='form-group list-group-item'>
             <button class='btn btn-default btn-block' ng-click="importByOther()">从其他活动中复制题目</button>
+            <button class='btn btn-default btn-block' ng-click="createByRecord()">从其他活动的记录生成题目</button>
         </div>
         <div class='form-group list-group-item'>
             <div class='form-group' ng-if="!app.enroll_app_id">
@@ -99,7 +100,7 @@
                     <p>* 如需在指定题目(支持多题目)中导入图片,需将图片放入与对应题目同名的文件夹中,并打包成zip格式的文件上传</p>
                     * 如需同时导入图片和记录,需先下载导入模板(xlsx格式),而后与图片文件夹并列打包成zip格式的文件上传
                 </div>
-            </div>      
+            </div>
         </div>
         <!-- end actions -->
     </div>

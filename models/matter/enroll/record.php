@@ -1526,13 +1526,13 @@ class record_model extends record_base {
 			}
 			// 如果更新的登记数据，重新计算统计结果
 			if ($newCnt > 0) {
-				$oResult = $this->_calcStat($oApp, $rid);
+				$aResult = $this->_calcStat($oApp, $rid);
 				// 保存统计结果
 				$this->delete(
 					'xxt_enroll_record_stat',
 					['aid' => $oApp->id, 'rid' => $rid]
 				);
-				foreach ($oResult as $id => $oDataBySchema) {
+				foreach ($aResult as $id => $oDataBySchema) {
 					foreach ($oDataBySchema->ops as $op) {
 						$r = [
 							'siteid' => $oApp->siteid,
@@ -1550,7 +1550,7 @@ class record_model extends record_base {
 				}
 			} else {
 				/* 从缓存中获取统计数据 */
-				$oResult = [];
+				$aResult = [];
 				$q = [
 					'id,title,v,l,c',
 					'xxt_enroll_record_stat',
@@ -1558,16 +1558,16 @@ class record_model extends record_base {
 				];
 				$aCached = $this->query_objs_ss($q);
 				foreach ($aCached as $oDataByOp) {
-					if (empty($oResult[$oDataByOp->id])) {
+					if (empty($aResult[$oDataByOp->id])) {
 						$oDataBySchema = (object) [
 							'id' => $oDataByOp->id,
 							'title' => $oDataByOp->title,
 							'ops' => [],
 							'sum' => 0,
 						];
-						$oResult[$oDataByOp->id] = $oDataBySchema;
+						$aResult[$oDataByOp->id] = $oDataBySchema;
 					} else {
-						$oDataBySchema = $oResult[$oDataByOp->id];
+						$oDataBySchema = $aResult[$oDataByOp->id];
 					}
 					$op = (object) [
 						'v' => $oDataByOp->v,
@@ -1579,23 +1579,23 @@ class record_model extends record_base {
 				}
 			}
 		} else {
-			$oResult = $this->_calcStat($oApp, $rid);
+			$aResult = $this->_calcStat($oApp, $rid);
 		}
 
-		return $oResult;
+		return $aResult;
 	}
 	/**
 	 * 统计选择题、记分题汇总信息
 	 */
 	private function &_calcStat($oApp, $rid) {
-		$oResult = [];
+		$aResult = [];
 
 		$dataSchemas = $oApp->dataSchemas;
 		foreach ($dataSchemas as $oSchema) {
 			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score', 'multitext'])) {
 				continue;
 			}
-			$oResult[$oSchema->id] = $oDataBySchema = (object) [
+			$aResult[$oSchema->id] = $oDataBySchema = (object) [
 				'title' => isset($oSchema->title) ? $oSchema->title : '',
 				'id' => $oSchema->id,
 				'ops' => [],
@@ -1677,7 +1677,7 @@ class record_model extends record_base {
 			}
 		}
 
-		return $oResult;
+		return $aResult;
 	}
 	/**
 	 * 获得schemasB中和schemasA兼容的登记项定义及对应关系
@@ -1718,7 +1718,7 @@ class record_model extends record_base {
 			$mapAByType[$compatibleType][] = $schemaA;
 		}
 
-		$oResult = [];
+		$aResult = [];
 		foreach ($schemasB as $schemaB) {
 			if (!isset($mapOfCompatibleType[$schemaB->type])) {
 				continue;
@@ -1746,10 +1746,10 @@ class record_model extends record_base {
 						continue;
 					}
 				}
-				$oResult[] = [$schemaB, $schemaA];
+				$aResult[] = [$schemaB, $schemaA];
 			}
 		}
 
-		return $oResult;
+		return $aResult;
 	}
 }

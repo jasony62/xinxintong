@@ -7,6 +7,21 @@ require_once dirname(dirname(__FILE__)) . '/main_base.php';
  */
 abstract class main_base extends \pl\fe\matter\main_base {
 	/**
+	 * 返回视图
+	 */
+	public function index_action($id) {
+		if (empty($id)) {
+			die('无效参数');
+		}
+		$aAccess = $this->accessControlUser('enroll', $id);
+		if ($aAccess[0] === false) {
+			die($aAccess[1]);
+		}
+
+		\TPL::output('/pl/fe/matter/enroll/frame');
+		exit;
+	}
+	/**
 	 * 解除和项目的关联
 	 */
 	public function quitMission_action($app) {

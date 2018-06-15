@@ -43,7 +43,7 @@ class record extends main_base {
 	 * 活动登记名单
 	 *
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30) {
+	public function list_action($app, $page = 1, $size = 30) {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -91,7 +91,7 @@ class record extends main_base {
 					$one = $modelRec->query_obj_ss([
 						'id,score',
 						'xxt_enroll_record',
-						['siteid' => $site, 'enroll_key' => $oRec->enroll_key],
+						['siteid' => $oEnrollApp->siteid, 'enroll_key' => $oRec->enroll_key],
 					]);
 					if (count($one)) {
 						$oRec->score = json_decode($one->score);
@@ -355,10 +355,125 @@ class record extends main_base {
 
 			/* 在目标活动中创建新记录 */
 			$newek = $modelRec->enroll($oTargetApp, $oMockUser);
-			$result = $modelRec->setData($oMockUser, $oTargetApp, $newek, $oNewRecData, '', true);
+			$modelRec->setData($oMockUser, $oTargetApp, $newek, $oNewRecData, '', true);
 		}
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 投票结果导出到其他活动作为记录
+	 */
+	public function transferVotingToOther_action($app, $targetApp) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+
+		if (empty($oPosted->targetSchema)) {
+			return new \ParameterError('没有指定目标题目');
+		}
+		if (empty($oPosted->votingSchemas)) {
+			return new \ParameterError('没有指定投票题目');
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+		$modelUsr = $this->model('matter\enroll\user');
+
+		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,data_schemas']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		/* 指定的投票题目 */
+		$aVotingSchemas = [];
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (in_array($oSchema->id, $oPosted->votingSchemas)) {
+				if (in_array($oSchema->type, ['single', 'multiple'])) {
+					$aVotingSchemas[] = $oSchema;
+				}
+			}
+		}
+		if (empty($aVotingSchemas)) {
+			return new \ParameterError('没有指定有效的题目');
+		}
+
+		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => '*']);
+		if (false === $oTargetApp || $oTargetApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 匹配的轮次 */
+		$modelRnd = $this->model('matter\enroll\round');
+		if (empty($round)) {
+			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
+		} else {
+			$oAssignedRnd = $modelRnd->byId($round, ['fields' => 'id,rid,mission_rid']);
+		}
+		if ($oAssignedRnd) {
+			$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
+		}
+
+		/* 目标活动的投票结果 */
+		$aVotingData = $modelRec->getStat($oApp, $oAssignedRnd ? $oAssignedRnd->rid : '', 'Y');
+		$newRecordNum = 0;
+		/* 根据投票结果创建记录 */
+		foreach ($aVotingSchemas as $oVotingSchema) {
+			if (empty($aVotingData[$oVotingSchema->id]->ops)) {
+				continue;
+			}
+			$allOps = $aVotingData[$oVotingSchema->id]->ops;
+			usort($allOps, function ($a, $b) {
+				return $a->c < $b->c;
+			});
+			$qualifiedOps = []; // 满足条件的选项
+			if (!empty($oPosted->limit->scope) && !empty($oPosted->limit->num) && (int) $oPosted->limit->num) {
+				if ($oPosted->limit->scope === 'top') {
+					$limitNum = (int) $oPosted->limit->num;
+					if ($limitNum > count($allOps)) {
+						$limitNum = count($allOps);
+					}
+					for ($i = 0; $i < $limitNum; $i++) {
+						$qualifiedOps[] = $allOps[$i];
+					}
+				} else if ($oPosted->limit->scope === 'checked') {
+					for ($i = 0, $ii = count($allOps); $i < $ii; $i++) {
+						$oOption = $allOps[$i];
+						$checkedNum = (int) $oPosted->limit->num;
+						if ($oOption->c < $checkedNum) {
+							break;
+						}
+						$qualifiedOps[] = $oOption;
+					}
+				}
+			}
+			foreach ($qualifiedOps as $oQualifiedOp) {
+				$oNewRecData = new \stdClass;
+				$oNewRecData->{$oPosted->targetSchema} = $oQualifiedOp->l;
+				/* 模拟用户 */
+				$oVotingOpDs = null;
+				foreach ($oVotingSchema->ops as $oOption) {
+					if ($oOption->v === $oQualifiedOp->v && !empty($oOption->ds->user)) {
+						$oVotingOpDs = $oOption->ds;
+						break;
+					}
+				}
+				if (isset($oVotingOpDs)) {
+					$oMockUser = $modelUsr->byId($oTargetApp, $oVotingOpDs->user, ['fields' => 'id,userid,group_id,nickname']);
+					if (false === $oMockUser) {
+						$oMockUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingOpDs->user], $oNewRecData);
+					}
+				} else {
+					$oMockUser = null;
+				}
+				/* 在目标活动中创建新记录 */
+				$newek = $modelRec->enroll($oTargetApp, $oMockUser);
+				$modelRec->setData($oMockUser, $oTargetApp, $newek, $oNewRecData, '', true);
+				$newRecordNum++;
+			}
+		}
+
+		return new \ResponseData($newRecordNum);
 	}
 	/**
 	 * 更新登记记录

@@ -42,6 +42,21 @@ class log_model extends \TMS_MODEL {
 				$q[2] .= " and u.rid = 'ALL'";
 		}
 
+		if (!empty($options['startAt'])) {
+			if (!empty($options['byOp']) && $options['byOp'] === 'read') {
+				$q[2] .= " and l.operate_at > {$options['startAt']}";
+			} else {
+				$q[2] .= " and l.event_at > {$options['startAt']}";
+			}
+		}
+		if (!empty($options['endAt'])) {
+			if (!empty($options['byOp']) && $options['byOp'] === 'read') {
+				$q[2] .= " and l.operate_at < {$options['endAt']}";
+			} else {
+				$q[2] .= " and l.event_at < {$options['endAt']}";
+			}
+		}
+
 		/**
 		 * 分页数据
 		 */

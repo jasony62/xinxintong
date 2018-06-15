@@ -385,6 +385,12 @@ class log_model extends \TMS_MODEL {
 		if (!empty($options['byRid'])) {
 			$q[2] .= " and l.data like '%" . '"rid":"' . $options['byRid'] . '"' . "%'";
 		}
+		if (!empty($options['startAt'])) {
+			$q[2] .= " and l.operate_at > {$options['startAt']}";
+		}
+		if (!empty($options['endAt'])) {
+			$q[2] .= " and l.operate_at < {$options['endAt']}";
+		}
 
 		/**
 		 * 分页数据

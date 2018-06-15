@@ -455,6 +455,7 @@ class record extends main_base {
 				}
 				if (isset($oVotingOpDs)) {
 					$oMockUser = $modelUsr->byId($oTargetApp, $oVotingOpDs->user, ['fields' => 'id,userid,group_id,nickname']);
+					$oMockUser->uid = $oMockUser->userid;
 					if (false === $oMockUser) {
 						$oMockUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingOpDs->user], $oNewRecData);
 					}

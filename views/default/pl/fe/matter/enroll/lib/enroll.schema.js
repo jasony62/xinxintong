@@ -980,6 +980,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    size: 'lg'
                 }).result.then(function(oResult) {
                     if (oResult.app && oResult.schema) {
                         oSchema.ds = {

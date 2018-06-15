@@ -68,18 +68,34 @@ class enroll_model extends enroll_base {
 	 *
 	 * @param string $aid
 	 * @param array $options
+	 *
 	 */
-	public function &byId($appId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+	public function &byId($appId, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
+		$appRid = isset($aOptions['appRid']) ? $aOptions['appRid'] : '';
+
 		$q = [
 			$fields,
 			'xxt_enroll',
 			["id" => $appId],
 		];
 
-		if (($oApp = $this->query_obj_ss($q)) && empty($options['notDecode'])) {
+		if (($oApp = $this->query_obj_ss($q)) && empty($aOptions['notDecode'])) {
 			$oApp->type = 'enroll';
+			/* 自动补充信息 */
+			if (!property_exists($oApp, 'id')) {
+				$oApp->id = $appId;
+			}
+			/* 活动轮次 */
+			$modelRnd = $this->model('matter\enroll\round');
+			if (empty($appRid)) {
+				$oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+			} else {
+				$oAppRnd = $modelRnd->byId($appRid, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+			}
+			$oApp->appRound = $oAppRnd;
+
 			if (isset($oApp->siteid) && isset($oApp->id)) {
 				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
 				$oApp->opUrl = $this->getOpUrl($oApp->siteid, $oApp->id);
@@ -103,6 +119,10 @@ class enroll_model extends enroll_base {
 				} else {
 					$oApp->dataSchemas = [];
 				}
+				unset($oApp->data_schemas);
+
+				/* 设置活动的动态选项 */
+				$this->setDynaOptions($oApp, $oAppRnd);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'recycle_schemas')) {
 				if (!empty($oApp->recycle_schemas)) {
@@ -189,10 +209,6 @@ class enroll_model extends enroll_base {
 					$oApp->pages = $modelPage->byApp($oApp->id, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
 				}
 			}
-			/* 自动补充信息 */
-			if (!property_exists($oApp, 'id')) {
-				$oApp->id = $appId;
-			}
 		}
 
 		return $oApp;
@@ -206,6 +222,9 @@ class enroll_model extends enroll_base {
 	 * @return object $oApp
 	 */
 	public function setDynaOptions(&$oApp, $oAppRound = null) {
+		if (empty($oAppRound)) {
+			$oAppRnd = $this->model('matter\enroll\round')->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+		}
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if (in_array($oSchema->type, ['single', 'multiple'])) {
 				if (!empty($oSchema->dsOps->app->id) && !empty($oSchema->dsOps->schema->id)) {
@@ -307,8 +326,8 @@ class enroll_model extends enroll_base {
 			$tags = implode(',', $tags);
 		}
 
-		$options = array('fields' => 'id,tags', 'cascaded' => 'N');
-		$oApp = $this->byId($aid, $options);
+		$aOptions = ['fields' => 'id,tags', 'cascaded' => 'N'];
+		$oApp = $this->byId($aid, $aOptions);
 		if (empty($oApp->tags)) {
 			$this->update('xxt_enroll', ['tags' => $tags], ["id" => $aid]);
 		} else {

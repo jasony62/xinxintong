@@ -363,7 +363,7 @@ class record extends main_base {
 	/**
 	 * 投票结果导出到其他活动作为记录
 	 */
-	public function transferVotingToOther_action($app, $targetApp) {
+	public function transferVotingToOther_action($app, $targetApp, $round = '') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -381,7 +381,7 @@ class record extends main_base {
 		$modelRec = $this->model('matter\enroll\record');
 		$modelUsr = $this->model('matter\enroll\user');
 
-		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,data_schemas']);
+		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,round_cron,data_schemas', 'appRid' => $round]);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -404,16 +404,11 @@ class record extends main_base {
 		}
 
 		/* 匹配的轮次 */
+		$oAssignedRnd = $oApp->appRound;
 		$modelRnd = $this->model('matter\enroll\round');
-		if (empty($round)) {
-			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
-		} else {
-			$oAssignedRnd = $modelRnd->byId($round, ['fields' => 'id,rid,mission_rid']);
-		}
 		if ($oAssignedRnd) {
 			$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
 		}
-
 		/* 目标活动的投票结果 */
 		$aVotingData = $modelRec->getStat($oApp, $oAssignedRnd ? $oAssignedRnd->rid : '', 'Y');
 		$newRecordNum = 0;

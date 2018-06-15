@@ -202,7 +202,7 @@ ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', '$timeout', '$q'
             $scope.params = params;
             $scope.page = params.page;
             $scope.User = params.user;
-            $scope.ActiveRound = params.activeRound;
+            $scope.ActiveRound = params.app.appRound;
             (function setPage(page) {
                 if (page.ext_css && page.ext_css.length) {
                     angular.forEach(page.ext_css, function(css) {

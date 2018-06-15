@@ -437,8 +437,7 @@ class record_model extends record_base {
 	private function _mapOfScoreSchema(&$oApp) {
 		$scoreSchemas = new \stdClass;
 
-		$schemas = is_object($oApp->data_schemas) ? $oApp->data_schemas : json_decode($oApp->data_schemas);
-		foreach ($schemas as $schema) {
+		foreach ($oApp->dataSchemas as $schema) {
 			if ($schema->type === 'single' && isset($schema->score) && $schema->score === 'Y') {
 				$scoreSchemas->{$schema->id} = new \stdClass;
 				$scoreSchemas->{$schema->id}->ops = new \stdClass;

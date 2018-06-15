@@ -1,21 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlLog', ['$scope', 'srvEnrollLog', function($scope, srvEnrollLog) {
-        var _oApp, criteria, pageCriteria;
-        criteria = {
-            byOp: 'ALL',
-            byUser: '',
-            byRid: '',
-            startAt: '',
-            endAt: ''
-        };
-        pageCriteria = {
-            byOp: 'ALL',
-            target_type: 'repos',
-            target_id: '',
-            startAt: '',
-            endAt: ''
-        };
+        var _oApp;
         $scope.operations = {
             'read': '阅读',
             'site.matter.enroll.submit': '提交',
@@ -60,23 +46,47 @@ define(['frame'], function(ngApp) {
         };
         $scope.clean = function() {
             switch($scope.active) {
-                case 0:
-                    $scope.plLog.criteria = criteria;
+                case 1:
+                    $scope.plLog.criteria = {
+                        byOp: 'ALL',
+                        byUser: '',
+                        byRid: '',
+                        startAt: '',
+                        endAt: ''
+                    };
                     $scope.plLog.list();
                 break;
-                case 1:
-                    $scope.siteLog.criteria = criteria;
+                case 2:
+                    $scope.siteLog.criteria = {
+                        byOp: 'ALL',
+                        byUser: '',
+                        byRid: '',
+                        startAt: '',
+                        endAt: ''
+                    };
                     $scope.siteLog.list();
                 break;
-                case 2:
-                    $scope.pageLog.criteria = pageCriteria;
+                case 3:
+                    $scope.pageLog.criteria = {
+                        byOp: 'ALL',
+                        target_type: 'repos',
+                        target_id: '',
+                        startAt: '',
+                        endAt: ''
+                    };
                     $scope.pageLog.list();
                 break;
             }
         };
         $scope.plLog = {
             page: {},
-            criteria: criteria,
+            criteria: {
+                byOp: 'ALL',
+                byUser: '',
+                byRid: '',
+                startAt: '',
+                endAt: ''
+            },
             list: function() {
                 var _this = this;
                 srvEnrollLog.list(this.page, 'pl', this.criteria).then(function(logs) {
@@ -86,7 +96,13 @@ define(['frame'], function(ngApp) {
         };
         $scope.siteLog = {
             page: {},
-            criteria: criteria,
+            criteria: {
+                byOp: 'ALL',
+                byUser: '',
+                byRid: '',
+                startAt: '',
+                endAt: ''
+            },
             list: function() {
                 var _this = this;
                 srvEnrollLog.list(this.page, 'site', this.criteria).then(function(logs) {
@@ -96,7 +112,13 @@ define(['frame'], function(ngApp) {
         };
         $scope.pageLog = {
             page: {},
-            criteria: pageCriteria,
+            criteria: {
+                byOp: 'ALL',
+                target_type: 'repos',
+                target_id: '',
+                startAt: '',
+                endAt: ''
+            },
             list: function() {
                 var _this = this;
                 if(this.criteria.target_type=='repos') { this.criteria.target_id = _oApp.id; };

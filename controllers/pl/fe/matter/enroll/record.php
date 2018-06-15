@@ -410,7 +410,7 @@ class record extends main_base {
 			$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
 		}
 		/* 目标活动的投票结果 */
-		$aVotingData = $modelRec->getStat($oApp, $oAssignedRnd ? $oAssignedRnd->rid : '', 'Y');
+		$aVotingData = $modelRec->getStat($oApp, $oAssignedRnd ? $oAssignedRnd->rid : '', 'N');
 		$newRecordNum = 0;
 		/* 根据投票结果创建记录 */
 		foreach ($aVotingSchemas as $oVotingSchema) {

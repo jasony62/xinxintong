@@ -1487,7 +1487,7 @@ class record_model extends record_base {
 	 */
 	public function &getStat($appIdOrObj, $rid = '', $renewCache = 'Y') {
 		if (is_string($appIdOrObj)) {
-			$oApp = $this->model('matter\enroll')->byId($appIdOrObj, ['fields' => 'id,data_schemas,round_cron', 'cascaded' => 'N']);
+			$oApp = $this->model('matter\enroll')->byId($appIdOrObj, ['fields' => 'id,data_schemas,round_cron,sync_mission_round', 'cascaded' => 'N']);
 		} else {
 			$oApp = $appIdOrObj;
 		}

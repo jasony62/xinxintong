@@ -1,8 +1,21 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlLog', ['$scope', 'srvEnrollLog', function($scope, srvEnrollLog) {
-        var _oApp;
-        $scope.criteria = {};
+        var _oApp, criteria, pageCriteria;
+        criteria = {
+            byOp: 'ALL',
+            byUser: '',
+            byRid: '',
+            startAt: '',
+            endAt: ''
+        };
+        pageCriteria = {
+            byOp: 'ALL',
+            target_type: 'repos',
+            target_id: '',
+            startAt: '',
+            endAt: ''
+        };
         $scope.operations = {
             'read': '阅读',
             'site.matter.enroll.submit': '提交',
@@ -27,59 +40,67 @@ define(['frame'], function(ngApp) {
             'shareT': '分享',
             'shareF': '转发'
         };
-        $scope.filter = function(type) {
-            srvEnrollLog.filter(type).then(function(data) {
-                $scope.criteria = data;
+        $scope.filter = function(type, criteria) {
+            srvEnrollLog.filter(type, criteria).then(function(data) {
                 switch(type) {
                     case 'pl':
+                        $scope.plLog.criteria = data;
                         $scope.plLog.list();
                     break;
                     case 'site':
+                        $scope.siteLog.criteria = data;
                         $scope.siteLog.list();
                     break;
                     case 'page':
+                        $scope.pageLog.criteria = data;
                         $scope.pageLog.list();
                     break;
                 }
             });
         };
         $scope.clean = function() {
-            $scope.criteria = {};
             switch($scope.active) {
                 case 0:
+                    $scope.plLog.criteria = criteria;
                     $scope.plLog.list();
                 break;
                 case 1:
+                    $scope.siteLog.criteria = criteria;
                     $scope.siteLog.list();
                 break;
                 case 2:
+                    $scope.pageLog.criteria = pageCriteria;
                     $scope.pageLog.list();
                 break;
             }
         };
         $scope.plLog = {
             page: {},
+            criteria: criteria,
             list: function() {
                 var _this = this;
-                srvEnrollLog.list(this.page, 'pl', $scope.criteria).then(function(logs) {
+                srvEnrollLog.list(this.page, 'pl', this.criteria).then(function(logs) {
                     _this.logs = logs;
                 });
             }
         };
         $scope.siteLog = {
             page: {},
+            criteria: criteria,
             list: function() {
                 var _this = this;
-                srvEnrollLog.list(this.page, 'site', $scope.criteria).then(function(logs) {
+                srvEnrollLog.list(this.page, 'site', this.criteria).then(function(logs) {
                     _this.logs = logs;
                 });
             }
         };
         $scope.pageLog = {
             page: {},
+            criteria: pageCriteria,
             list: function() {
                 var _this = this;
-                srvEnrollLog.list(this.page, 'page', $scope.criteria).then(function(logs) {
+                if(this.criteria.target_type=='repos') { this.criteria.target_id = _oApp.id; };
+                srvEnrollLog.list(this.page, 'page', this.criteria).then(function(logs) {
                     _this.logs = logs;
                 });
             }

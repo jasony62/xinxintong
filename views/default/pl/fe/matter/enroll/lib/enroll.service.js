@@ -1510,10 +1510,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }
                         });
                     }
-                    if (type=='page'&&(!criteria.target_type||criteria.target_type=='repos')) {
-                        criteria.target_type = 'repos';
-                        criteria.target_id = _appId;
-                    }
                     url = '/rest/pl/fe/matter/enroll/log/list?logType=' + type + '&app=' + _appId + page._j();
                     http2.post(url, criteria, function(rsp) {
                         rsp.data.total && (page.total = rsp.data.total);
@@ -1522,13 +1518,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     return defer.promise;
                 },
-                filter: function(type) {
+                filter: function(type, criteria) {
                     var defer = $q.defer();
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/enroll/component/logFilter.html?_=1',
                         controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
                             var oCriteria;
                             $scope2.type = type;
+                            $scope2.criteria = oCriteria = criteria;
                             $scope2.siteOperations = _siteOperations;
                             $scope2.plOperations = _plOperations;
                             $scope2.pageOfRound = {
@@ -1538,17 +1535,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     return '&page=' + this.at + '&size=' + this.size;
                                 }
                             };
-                            $scope2.criteria = oCriteria = {
-                                byUser: '',
-                                byRid: '',
-                                byOp: 'ALL',
-                                startAt: '',
-                                endAt: ''
-                            };
-                            if (type=='page') {
-                                oCriteria.target_type = 'repos';
-                                oCriteria.target_id = '';
-                            }
                             $scope2.doSearchRound = function() {
                                 var url = '/rest/pl/fe/matter/enroll/round/list?site=' + _siteId + '&app=' + _appId + $scope2.pageOfRound.j();
                                 http2.get(url, function(rsp) {
@@ -1565,7 +1551,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 defer.resolve(oCriteria);
                                 $mi.close();
                             };
-                            $scope2.doSearchRound();
+                            if(type!=='page') {$scope2.doSearchRound();}
                         }],
                         backdrop: 'static',
                     });

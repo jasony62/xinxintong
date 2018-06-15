@@ -1510,6 +1510,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }
                         });
                     }
+                    if (type=='page'&&!criteria.target_type) {
+                        criteria.target_type = 'repos';
+                        criteria.target_id = _appId;
+                    }
                     url = '/rest/pl/fe/matter/enroll/log/list?logType=' + type + '&app=' + _appId + page._j();
                     http2.post(url, criteria, function(rsp) {
                         rsp.data.total && (page.total = rsp.data.total);
@@ -1529,7 +1533,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             $scope2.plOperations = _plOperations;
                             $scope2.pageOfRound = {
                                 at: 1,
-                                size: 5,
+                                size: 30,
                                 j: function() {
                                     return '&page=' + this.at + '&size=' + this.size;
                                 }
@@ -1537,8 +1541,15 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             $scope2.criteria = oCriteria = {
                                 byUser: '',
                                 byRid: '',
-                                byOp: 'ALL'
+                                byOp: 'ALL',
+                                startAt: '',
+                                endAt: ''
                             };
+                            if (type=='page') {
+                                oCriteria.target_type = 'repos';
+                                oCriteria.target_id = '';
+                                delete oCriteria.byUser;
+                            }
                             $scope2.doSearchRound = function() {
                                 var url = '/rest/pl/fe/matter/enroll/round/list?site=' + _siteId + '&app=' + _appId + $scope2.pageOfRound.j();
                                 http2.get(url, function(rsp) {

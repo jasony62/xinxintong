@@ -2,13 +2,13 @@
 	<div class="form-group">
 		<div class="form-inline">
 			<button class='btn btn-default' ng-if="active=='1'" ng-click="filter('pl')"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
-			<button class='btn btn-default' ng-if="active=='0'" ng-click="filter('site')"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
-			<button class='btn btn-default' ng-if="active=='2'" ng-click="filter('page')"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+			<button class='btn btn-default' ng-if="active=='2'" ng-click="filter('site')"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+			<button class='btn btn-default' ng-if="active=='3'" ng-click="filter('page')"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
 			<button class="btn btn-default" ng-click="clean()"><i class="glyphicon glyphicon-erase"></i> <span>清除条件</span></button>
 		</div>
 	</div>
 	<uib-tabset active="active">
-		<uib-tab index="0">
+		<uib-tab index="1">
 			<uib-tab-heading>管理端</uib-tab-heading>
 			<table class='table table-bordered table-striped pl-workspace'>
 				<thead>
@@ -19,7 +19,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat='log in record.logs'>
+					<tr ng-repeat='log in plLog.logs'>
 						<td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
 						<td>{{log.nickname||'未知'}}</td>
 						<td>{{operations[log.operation]}}</td>
@@ -28,12 +28,12 @@
 			</table>
 			<div class='form-group form-inline'>
 				<div class='pl-pagination'>
-					<span>总数：{{record.page.total}}</span>
-					<ul uib-pagination ng-show="record.page.total>record.page.size" class="pull-right" boundary-links="true" total-items="record.page.total" max-size="7" items-per-page="record.page.size" rotate="false" ng-model="record.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="record.list()"></ul>
+					<span>总数：{{plLog.page.total}}</span>
+					<ul uib-pagination ng-show="plLog.page.total>plLog.page.size" class="pull-right" boundary-links="true" total-items="plLog.page.total" max-size="7" items-per-page="plLog.page.size" rotate="false" ng-model="plLog.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="plLog.list()"></ul>
 				</div>
 			</div>
 		</uib-tab>
-		<uib-tab index="1">
+		<uib-tab index="2">
 			<uib-tab-heading>用户端</uib-tab-heading>
 			<table class='table table-bordered table-striped pl-workspace'>
 				<thead>
@@ -44,7 +44,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat='log in read.logs'>
+					<tr ng-repeat='log in siteLog.logs'>
 						<td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
 						<td>{{log.nickname||'未知'}}</td>
 						<td>
@@ -62,12 +62,12 @@
 			</table>
 			<div class='form-group form-inline'>
 				<div class='pl-pagination'>
-					<span>总数：{{read.page.total}}</span>
-					<ul uib-pagination ng-show="read.page.total>read.page.size" class="pull-right"  boundary-links="true" total-items="read.page.total" max-size="7" items-per-page="read.page.size" rotate="false" ng-model="read.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="read.list()"></ul>
+					<span>总数：{{siteLog.page.total}}</span>
+					<ul uib-pagination ng-show="siteLog.page.total>siteLog.page.size" class="pull-right"  boundary-links="true" total-items="siteLog.page.total" max-size="7" items-per-page="siteLog.page.size" rotate="false" ng-model="siteLog.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="siteLog.list()"></ul>
 				</div>
 			</div>
 		</uib-tab>
-		<uib-tab index="2">
+		<uib-tab index="3">
 			<uib-tab-heading>传播页行为记录</uib-tab-heading>
 			<table class='table table-bordered table-striped pl-workspace'>
 				<thead>
@@ -79,18 +79,18 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat='log in log.logs'>
-						<td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+					<tr ng-repeat='log in pageLog.logs'>
+						<td>{{log.action_at*1000|date:'yy-MM-dd HH:mm'}}</td>
 						<td>{{log.nickname||'未知'}}</td>
-						<td><span>{{operations[log.operation]}}</span></td>
-						<td></td>
+						<td><span>{{operations[log.event]}}</span></td>
+						<td>{{log.original_logid}}</td>
 					</tr>
 				</tbody>
 			</table>
 			<div class='form-group form-inline'>
 				<div class='pl-pagination'>
-					<span>总数：{{log.page.total}}</span>
-					<ul uib-pagination ng-show="log.page.total>log.page.size" class="pull-right" boundary-links="true" total-items="log.page.total" max-size="7" items-per-page="log.page.size" rotate="false" ng-model="log.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="log.list()"></ul>
+					<span>总数：{{pageLog.page.total}}</span>
+					<ul uib-pagination ng-show="pageLog.page.total>pageLog.page.size" class="pull-right" boundary-links="true" total-items="pageLog.page.total" max-size="7" items-per-page="pageLog.page.size" rotate="false" ng-model="pageLog.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="pageLog.list()"></ul>
 				</div>
 			</div>
 		</uib-tab>

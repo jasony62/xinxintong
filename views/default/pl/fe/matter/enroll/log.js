@@ -30,33 +30,34 @@ define(['frame'], function(ngApp) {
         $scope.filter = function(type) {
             srvEnrollLog.filter(type).then(function(data) {
                 $scope.criteria = data;
-                type == 'site' ? $scope.read.list() : $scope.record.list();
+                switch(type) {
+                    case 'pl':
+                        $scope.plLog.list();
+                    break;
+                    case 'site':
+                        $scope.siteLog.list();
+                    break;
+                    case 'page':
+                        $scope.pageLog.list();
+                    break;
+                }
             });
         };
         $scope.clean = function() {
             $scope.criteria = {};
             switch($scope.active) {
                 case 0:
-                    $scope.record.list();
+                    $scope.plLog.list();
                 break;
                 case 1:
-                    $scope.read.list();
+                    $scope.siteLog.list();
                 break;
                 case 2:
-                    $scope.log.list();
+                    $scope.pageLog.list();
                 break;
             }
-        }
-        $scope.read = {
-            page: {},
-            list: function() {
-                var _this = this;
-                srvEnrollLog.list(this.page, 'site', $scope.criteria).then(function(logs) {
-                    _this.logs = logs;
-                });
-            }
         };
-        $scope.record = {
+        $scope.plLog = {
             page: {},
             list: function() {
                 var _this = this;
@@ -65,7 +66,16 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.log = {
+        $scope.siteLog = {
+            page: {},
+            list: function() {
+                var _this = this;
+                srvEnrollLog.list(this.page, 'site', $scope.criteria).then(function(logs) {
+                    _this.logs = logs;
+                });
+            }
+        };
+        $scope.pageLog = {
             page: {},
             list: function() {
                 var _this = this;
@@ -77,10 +87,21 @@ define(['frame'], function(ngApp) {
         $scope.$watch('app', function(oApp) {
             if (!oApp) return;
             _oApp = oApp;
-            $scope.active = 0;
-            $scope.record.list();
-            $scope.read.list(); 
-            $scope.log.list();
+            $scope.active = 1;
+            $scope.$watch('active', function(nv) {
+                if(!nv) return;
+                switch(nv) {
+                    case 1:
+                        $scope.plLog.list();
+                    break;
+                    case 2:
+                        $scope.siteLog.list();
+                    break;
+                    case 3:
+                        $scope.pageLog.list();
+                    break;
+                }
+            });
         });
     }]);
 });

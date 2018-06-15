@@ -1510,7 +1510,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }
                         });
                     }
-                    if (type=='page'&&!criteria.target_type) {
+                    if (type=='page'&&(!criteria.target_type||criteria.target_type=='repos')) {
                         criteria.target_type = 'repos';
                         criteria.target_id = _appId;
                     }
@@ -1548,7 +1548,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             if (type=='page') {
                                 oCriteria.target_type = 'repos';
                                 oCriteria.target_id = '';
-                                delete oCriteria.byUser;
                             }
                             $scope2.doSearchRound = function() {
                                 var url = '/rest/pl/fe/matter/enroll/round/list?site=' + _siteId + '&app=' + _appId + $scope2.pageOfRound.j();

@@ -206,6 +206,7 @@ class enroll_model extends enroll_base {
 	 * @return object $oApp
 	 */
 	public function setDynaOptions(&$oApp, $oAppRound = null) {
+		$oldDataSchemas = $this->toJson($oApp->dataSchemas);
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if (in_array($oSchema->type, ['single', 'multiple'])) {
 				if (!empty($oSchema->dsOps->app->id) && !empty($oSchema->dsOps->schema->id)) {
@@ -234,6 +235,16 @@ class enroll_model extends enroll_base {
 					}
 				}
 			}
+		}
+		// 如果多选题和单选题的来源题目记录有更新，需同步数据
+		$newDataSchemas = $this->toJson($oApp->dataSchemas);
+		if ($oldDataSchemas !== $newDataSchemas) {
+			$newDataSchemas = $this->escape($newDataSchemas);
+			$this->update(
+				'xxt_enroll', 
+				['data_schemas' => $newDataSchemas], 
+				['id' => $oApp->id]
+			);
 		}
 
 		return $oApp;

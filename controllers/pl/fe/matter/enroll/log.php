@@ -22,7 +22,7 @@ class log extends \pl\fe\matter\base {
 	 * 查询日志
 	 *
 	 */
-	public function list_action($app, $target_type = 'site', $target_id = '', $page = 1, $size = 30) {
+	public function list_action($app, $logType = 'site', $page = 1, $size = 30) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N', 'notDecode' => true]);
 		if (false === $oApp || $oApp->state != 1) {
 			return new \ObjectNotFountError();
@@ -47,12 +47,14 @@ class log extends \pl\fe\matter\base {
 			$options['endAt'] = $modelLog->escape($criteria->endAt);
 		}
 		
-		if ($target_type === 'pl') {
+		if ($logType === 'pl') {
 			$reads = $modelLog->listMatterOp($oApp->id, 'enroll', $options, $page, $size);
-		} else if (in_array($target_type, ['topic', 'repos', 'cowork'])) {
-			if (empty($target_id)) {
-				return new \ResponseError('参数不完整，缺失目标日志ID');
+		} else if ($logType === 'page') {
+			if (empty($criteria->target_type) || empty($criteria->target_id) || !in_array($criteria->target_type, ['topic', 'repos', 'cowork'])) {
+				return new \ResponseError('参数不完整或暂不支持此页面');
 			}
+			$target_id = $modelLog->escape($criteria->target_id);
+			$target_type = $modelLog->escape($criteria->target_type);
 			if (isset($options['byOp'])) {
 				$options['byEvent'] = $options['byOp'];
 			}

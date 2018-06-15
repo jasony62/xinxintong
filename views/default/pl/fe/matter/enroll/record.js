@@ -129,11 +129,17 @@ define(['frame'], function(ngApp) {
                 $scope.rows.reset();
             });
         };
+        $scope.exportToOther = function() {
+            srvEnrollRecord.exportToOther($scope.app, $scope.rows).then(function() {});
+        };
+        $scope.transferVotingToOther = function() {
+            srvEnrollRecord.transferVotingToOther($scope.app).then(function() {});
+        };
         $scope.openFileUrl = function(file) {
             var url;
             url = '/rest/site/fe/matter/enroll/attachment/download?app=' + $scope.app.id;
             url += '&file=' + JSON.stringify(file);
-            window.open(url); 
+            window.open(url);
         }
         $scope.syncMissionUser = function() {
             var oPosted = {};

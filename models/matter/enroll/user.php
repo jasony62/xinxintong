@@ -7,16 +7,16 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 获得指定活动下的指定用户
 	 */
-	public function byId($oApp, $userid, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function byId($oApp, $userid, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_enroll_user',
 			['aid' => $oApp->id, 'userid' => $userid],
 		];
 
-		if (isset($options['rid'])) {
-			$q[2]['rid'] = $options['rid'];
+		if (isset($aOptions['rid'])) {
+			$q[2]['rid'] = $aOptions['rid'];
 		} else {
 			$q[2]['rid'] = 'ALL';
 		}
@@ -25,6 +25,99 @@ class user_model extends \TMS_MODEL {
 		if ($oUser) {
 			if (property_exists($oUser, 'modify_log')) {
 				$oUser->modify_log = empty($oUser->modify_log) ? [] : json_decode($oUser->modify_log);
+			}
+		}
+
+		return $oUser;
+	}
+	/**
+	 * 用户的详细信息
+	 */
+	public function detail($oApp, $who, $oEnrolledData) {
+		$oUser = clone $who;
+		$oUser->members = new \stdClass;
+		$oEntryRule = $oApp->entryRule;
+
+		/* 用户通讯录数据 */
+		if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
+			$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
+			if (count($mschemaIds)) {
+				$modelMem = $this->model('site\user\member');
+				$modelAcnt = $this->model('site\user\account');
+				$oUser->members = new \stdClass;
+				if (empty($oUser->unionid)) {
+					$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => 'unionid']);
+					if ($oSiteUser && !empty($oSiteUser->unionid)) {
+						$unionid = $oSiteUser->unionid;
+					}
+				} else {
+					$unionid = $oUser->unionid;
+				}
+				if (empty($unionid)) {
+					$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => implode(',', $mschemaIds)]);
+					foreach ($aMembers as $oMember) {
+						$oUser->members->{$oMember->schema_id} = $oMember;
+					}
+				} else {
+					$aUnionUsers = $modelAcnt->byUnionid($unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+					foreach ($aUnionUsers as $oUnionUser) {
+						$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => implode(',', $mschemaIds)]);
+						foreach ($aMembers as $oMember) {
+							$oUser->members->{$oMember->schema_id} = $oMember;
+						}
+					}
+					/* 站点用户替换成和注册账号绑定的站点用户 */
+					$oRegUser = $modelAcnt->byPrimaryUnionid($oApp->siteid, $unionid);
+					if ($oRegUser && $oRegUser->uid !== $oUser->uid) {
+						$oUser->uid = $oRegUser->uid;
+						$oUser->nickname = $oRegUser->nickname;
+					}
+				}
+			}
+		}
+		/*获得用户昵称*/
+		if (isset($oEnrolledData) && (isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
+			/* 指定的用户昵称 */
+			if (isset($oEnrolledData)) {
+				$modelEnlRec = $this->model('matter\enroll\record');
+				$oUser->nickname = $modelEnlRec->getValueBySchema($oApp->assignedNickname->schema, $oEnrolledData);
+			}
+		} else {
+			/* 曾经用过的昵称 */
+			$modelEnlUsr = $this->model('matter\enroll\user');
+			$oEnlUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['fields' => 'nickname']);
+			if ($oEnlUser) {
+				$oUser->nickname = $oEnlUser->nickname;
+			} else {
+				$modelEnl = $this->model('matter\enroll');
+				$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
+				$oUser->nickname = $userNickname;
+			}
+		}
+
+		/* 获得用户所属分组 */
+		if (!empty($oApp->group_app_id)) {
+			$assocGroupId = $oApp->group_app_id;
+		} else if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && isset($oApp->entryRule->group->id)) {
+			$assocGroupId = $oApp->entryRule->group->id;
+		}
+		if (isset($assocGroupId)) {
+			$modelGrpUsr = $this->model('matter\group\player');
+			$oAssocGrpApp = (object) ['id' => $assocGroupId];
+			$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oUser->uid, ['fields' => 'round_id,is_leader', 'onlyOne' => true]);
+			if ($oGrpMemb) {
+				$oUser->group_id = $oGrpMemb->round_id;
+				$oUser->is_leader = $oGrpMemb->is_leader;
+			}
+		}
+
+		/* 当前用户是否为编辑 */
+		if (!empty($oApp->actionRule->role->editor->group)) {
+			$oUser->is_editor = 'N';
+			if (!empty($oUser->group_id)) {
+				if ($oUser->group_id === $oApp->actionRule->role->editor->group) {
+					$oUser->is_editor = 'Y';
+				}
 			}
 		}
 
@@ -267,8 +360,8 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 活动中提交过数据的用户
 	 */
-	public function enrolleeByMschema($oApp, $oMschema, $page = '', $size = '', $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'm.userid,m.email,m.mobile,m.name,m.extattr';
+	public function enrolleeByMschema($oApp, $oMschema, $page = '', $size = '', $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'm.userid,m.email,m.mobile,m.name,m.extattr';
 
 		$result = new \stdClass;
 		$q = [
@@ -285,7 +378,7 @@ class user_model extends \TMS_MODEL {
 		$members = $this->query_objs_ss($q, $q2);
 		if (count($members)) {
 			$sel = ['fields' => 'nickname,last_enroll_at,enroll_num,last_remark_at,remark_num,last_like_at,like_num,last_like_remark_at,like_remark_num,last_do_remark_at,do_remark_num,last_do_like_at,do_like_num,last_do_like_remark_at,do_like_remark_num,last_agree_at,agree_num,user_total_coin,score,group_id'];
-			!empty($options['rid']) && $sel['rid'] = $this->escape($options['rid']);
+			!empty($aOptions['rid']) && $sel['rid'] = $this->escape($aOptions['rid']);
 			foreach ($members as &$oMember) {
 				$oMember->extattr = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
 				//$oEnrollee = new \stdClass;
@@ -437,8 +530,8 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 发表过留言的用户
 	 */
-	public function remarkerByApp($oApp, $page = 1, $size = 30, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function remarkerByApp($oApp, $page = 1, $size = 30, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
 		$result = new \stdClass;
 		$q = [

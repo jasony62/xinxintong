@@ -121,9 +121,9 @@ class round extends \pl\fe\matter\base {
 		}
 		/* 指定了开始时间的轮次，自动指定为启用状态 */
 		if ((int) $oRound->start_at > 0 && (int) $oPosted->start_at === 0) {
-			$oUpdate->state = 0;
+			$oPosted->state = 0;
 		} else if ((int) $oRound->start_at === 0 && (int) $oPosted->start_at > 0) {
-			$oUpdate->state = 1;
+			$oPosted->state = 1;
 		}
 
 		/* 更改轮次的状态 */
@@ -137,6 +137,9 @@ class round extends \pl\fe\matter\base {
 			switch ($prop) {
 			case 'title':
 				$oUpdate->title = $modelRnd->escape($value);
+				break;
+			case 'state':
+				$oUpdate->state = (int) $value;
 				break;
 			case 'start_at':
 			case 'end_at':

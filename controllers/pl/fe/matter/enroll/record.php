@@ -479,6 +479,15 @@ class record extends main_base {
 		}
 
 		$oPosted = $this->getPostJson();
+		if (empty($oPosted->answerSchema)) {
+			return new \ParameterError('没有在源活动中指定题目');
+		}
+		if (empty($oPosted->questionSchema)) {
+			return new \ParameterError('目标活动中没有指定作为问题的题目');
+		}
+		if (empty($oPosted->answerSchema)) {
+			return new \ParameterError('目标活动中没有指定作为答案的题目');
+		}
 
 		$modelEnl = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
@@ -552,13 +561,11 @@ class record extends main_base {
 			} else {
 				$oMockRecUser = new \stdClass;
 			}
-			$newek = $modelRec->enroll($oTargetApp, $oMockUser);
+			$newek = $modelRec->enroll($oTargetApp, $oMockRecUser);
 
 			/* 写入问题 */
 			$oNewRecData = new \stdClass;
 			$oNewRecData->{$oPosted->questionSchema} = $oVotingSchema->title;
-			$modelRec->setData($oMockRecUser, $oTargetApp, $newek, $oNewRecData, '', true);
-			$newRecordNum++;
 
 			/* 写入答案 */
 			$current = time();
@@ -568,12 +575,10 @@ class record extends main_base {
 			$oRecData->enroll_key = $newek;
 			$oRecData->submit_at = $current;
 			$oRecData->userid = isset($oMockRecUser->uid) ? $oMockRecUser->uid : '';
-			$oRecData->nickname = $oMockRecUser->nickname;
-			$oRecData->group_id = $oMockRecUser->group_id;
+			$oRecData->nickname = isset($oMockRecUser->nickname) ? $modelData->escape($oMockRecUser->nickname) : '';
+			$oRecData->group_id = isset($oMockRecUser->group_id) ? $oMockRecUser->group_id : '';
 			$oRecData->schema_id = $oPosted->answerSchema;
 			$oRecData->multitext_seq = 0;
-			$oRecData->value = '[]';
-			$oRecData->id = $modelData->insert('xxt_enroll_record_data', $oRecData, true);
 			$oRecData->value = [];
 
 			foreach ($qualifiedOps as $oQualifiedOp) {
@@ -597,18 +602,30 @@ class record extends main_base {
 				}
 
 				$oNewItem = new \stdClass;
-				$oNewItem->aid = $oApp->id;
+				$oNewItem->aid = $oRecData->aid;
 				$oNewItem->rid = $oRecData->rid;
 				$oNewItem->enroll_key = $oRecData->enroll_key;
 				$oNewItem->submit_at = $current;
 				$oNewItem->userid = isset($oMockAnswerUser->uid) ? $oMockAnswerUser->uid : '';
-				$oNewItem->nickname = isset($oMockAnswerUser->nickname) ? $oMockAnswerUser->nickname : '';
+				$oNewItem->nickname = isset($oMockAnswerUser->nickname) ? $modelData->escape($oMockAnswerUser->nickname) : '';
 				$oNewItem->group_id = isset($oMockAnswerUser->group_id) ? $oMockAnswerUser->group_id : '';
-				$oNewItem->schema_id = $oUpdatedSchema->id;
+				$oNewItem->schema_id = $oPosted->answerSchema;
 				$oNewItem->value = $this->escape($oQualifiedOp->l);
 				$oNewItem->multitext_seq = count($oRecData->value) + 1;
+				$oNewItem->id = $modelData->insert('xxt_enroll_record_data', $oNewItem, true);
+
+				$oRecData->value[] = (object) ['id' => $oNewItem->id, 'value' => $oNewItem->value];
 			}
+			/* 记录的数据 */
+			$oNewRecData->{$oPosted->answerSchema} = $oRecData->value;
+			$modelRec->setData($oMockRecUser, $oTargetApp, $newek, $oNewRecData, '', true);
+			$newRecordNum++;
+			/* 答案的根数据 */
+			$oRecData->value = $modelData->escape($modelData->toJson($oRecData->value));
+			$oRecData->id = $modelData->insert('xxt_enroll_record_data', $oRecData, true);
 		}
+
+		return new \ResponseData($newRecordNum);
 	}
 	/**
 	 * 更新登记记录

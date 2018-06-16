@@ -43,8 +43,8 @@ class record_model extends record_base {
 			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $aOptions);
 			$aRecord['nickname'] = $this->escape($nickname);
 		}
-		/* 登记用户的社交账号信息 */
-		if (!empty($oUser)) {
+		/* 登记用户的社交账号信息，还需要吗？ */
+		if (!empty($oUser->uid)) {
 			$oUserOpenids = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid']);
 			if ($oUserOpenids) {
 				$aRecord['wx_openid'] = $oUserOpenids->wx_openid;

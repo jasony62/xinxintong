@@ -130,10 +130,13 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.exportToOther = function() {
-            srvEnrollRecord.exportToOther($scope.app, $scope.rows).then(function() {});
+            srvEnrollRecord.exportToOther($scope.app, $scope.rows);
         };
         $scope.transferVoting = function() {
-            srvEnrollRecord.transferVoting($scope.app).then(function() {});
+            srvEnrollRecord.transferVoting($scope.app);
+        };
+        $scope.transferSchemaAndVoting = function() {
+            srvEnrollRecord.transferSchemaAndVoting($scope.app);
         };
         $scope.openFileUrl = function(file) {
             var url;

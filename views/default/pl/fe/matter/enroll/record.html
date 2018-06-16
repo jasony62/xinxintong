@@ -25,6 +25,7 @@
                     <li><a href ng-click="importByOther()">从其他活动导入记录</a></li>
                     <li><a href ng-click="exportToOther()">将记录导入其他活动<span>（{{rows.count}}）</span></a></li>
                     <li><a href ng-click="transferVoting()">将投票结果作为其他活动的记录</a></li>
+                    <li><a href ng-click="transferSchemaAndVoting()">将题目和投票结果作为其他活动的记录</a></li>
                     <li ng-if="app.scenario==='mis_user_score'" class="divider"></li>
                     <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncMissionUser()">从项目同步用户数据</a></li>
                     <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>

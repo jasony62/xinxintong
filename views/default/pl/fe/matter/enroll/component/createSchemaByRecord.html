@@ -15,28 +15,25 @@
                 </div>
                 <select class="form-control" ng-model="result.fromApp" ng-options="app as app.title for app in apps" size="12" ng-change="selectApp()" style='overflow-x:auto'></select>
             </div>
-        </div>
-        <div class='col-md-6'>
-            <label>题目</label>
-            <div class='list-group' style='height:300px;overflow-y:auto'>
-                <div class='list-group-item' ng-repeat="schema in result.fromApp.dataSchemas">
-                    <label class="checkbox-inline">
-                        <input type='checkbox' ng-model="schema._selected" ng-change="selectSchema(schema)">{{schema.title}}</label>
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <ul uib-pagination ng-show="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
                 </div>
             </div>
         </div>
-    </div>
-    <div class='row'>
-        <div class='col-md-12'>
-            <div class='pl-pagination'>
-                <span>总数：{{page.total}}</span>
-                <ul uib-pagination ng-show="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
+        <div class='col-md-6'>
+            <div class='form-group'>
+                <label>题目</label>
+                <div class='list-group' style='height:300px;overflow-y:auto'>
+                    <div class='list-group-item' ng-repeat="schema in result.fromApp.dataSchemas">
+                        <label class="checkbox-inline">
+                            <input type='checkbox' ng-model="schema._selected" ng-change="selectSchema(schema)">{{schema.title}}</label>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class='row'>
         <div class='col-md-12'>
-            <div class='form-inline'>
+            <div class='form-inline text-right'>
                 <div class='form-group'>
                     <input type='number' class='form-control' ng-model="result.limit.num" placeholder="数量" style='width:6em'>
                 </div>

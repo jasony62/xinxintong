@@ -114,15 +114,16 @@ class round extends \pl\fe\matter\base {
 		}
 
 		$oPosted = $this->getPostJson();
+		$oUpdate = new \stdClass;
 
 		if (!empty($oPosted->start_at) && !empty($oPosted->end_at) && $oPosted->start_at > $oPosted->end_at) {
 			return new \ResponseError('更新失败，本轮次的开始时间不能晚于结束时间！');
 		}
 		/* 指定了开始时间的轮次，自动指定为启用状态 */
 		if ((int) $oRound->start_at > 0 && (int) $oPosted->start_at === 0) {
-			$oPosted->state = 0;
+			$oUpdate->state = 0;
 		} else if ((int) $oRound->start_at === 0 && (int) $oPosted->start_at > 0) {
-			$oPosted->state = 1;
+			$oUpdate->state = 1;
 		}
 
 		/* 更改轮次的状态 */
@@ -132,9 +133,21 @@ class round extends \pl\fe\matter\base {
 			}
 		}
 
+		foreach ($oPosted as $prop => $value) {
+			switch ($prop) {
+			case 'title':
+				$oUpdate->title = $modelRnd->escape($value);
+				break;
+			case 'start_at':
+			case 'end_at':
+				$oUpdate->{$prop} = (int) $value;
+				break;
+			}
+		}
+
 		$rst = $modelRnd->update(
 			'xxt_enroll_round',
-			$oPosted,
+			$oUpdate,
 			['aid' => $app, 'rid' => $rid]
 		);
 

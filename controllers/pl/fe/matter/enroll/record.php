@@ -16,28 +16,28 @@ class record extends main_base {
 		}
 
 		$mdoelRec = $this->model('matter\enroll\record');
-		$record = $mdoelRec->byId($ek, ['verbose' => 'Y']);
-		if ($record) {
+		$oRecord = $mdoelRec->byId($ek, ['verbose' => 'Y']);
+		if ($oRecord) {
 			$modelApp = $this->model('matter\enroll');
-			$oApp = $modelApp->byId($record->aid);
+			$oApp = $modelApp->byId($oRecord->aid);
 			$dataSchemas = new \stdClass;
 			foreach ($oApp->dataSchemas as $schema) {
 				$dataSchemas->{$schema->id} = $schema;
 			}
-			foreach ($record->data as $k => $data) {
+			foreach ($oRecord->data as $k => $data) {
 				if (isset($dataSchemas->{$k}) && $dataSchemas->{$k}->type === 'multitext') {
-					$verboseVals = json_decode($record->verbose->{$k}->value);
+					$verboseVals = json_decode($oRecord->verbose->{$k}->value);
 					$items = [];
 					foreach ($verboseVals as $verboseVal) {
 						$res = $this->model('matter\enroll\data')->byId($verboseVal->id);
 						$items[] = $res;
 					}
-					$record->verbose->{$k}->items = $items;
+					$oRecord->verbose->{$k}->items = $items;
 				}
 			}
 		}
 
-		return new \ResponseData($record);
+		return new \ResponseData($oRecord);
 	}
 	/**
 	 * 活动登记名单
@@ -205,19 +205,18 @@ class record extends main_base {
 	}
 	/**
 	 * 已删除的活动登记名单
-	 *
 	 */
-	public function recycle_action($site, $app, $page = 1, $size = 30, $rid = null) {
+	public function recycle_action($app, $page = 1, $size = 30, $rid = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		// 登记记录过滤条件
-		$aOptions = array(
+		$aOptions = [
 			'page' => $page,
 			'size' => $size,
 			'rid' => $rid,
-		);
+		];
 
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
@@ -225,13 +224,12 @@ class record extends main_base {
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
-		$result = $modelRec->recycle($site, $enrollApp, $aOptions);
+		$result = $modelRec->recycle($enrollApp, $aOptions);
 
 		return new \ResponseData($result);
 	}
 	/**
 	 * 返回指定登记项的活动登记名单
-	 *
 	 */
 	public function list4Schema_action($site, $app, $rid = null, $schema, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
@@ -363,7 +361,7 @@ class record extends main_base {
 	/**
 	 * 投票结果导出到其他活动作为记录
 	 */
-	public function transferVotingToOther_action($app, $targetApp, $round = '') {
+	public function transferVoting_action($app, $targetApp, $round = '') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -471,6 +469,146 @@ class record extends main_base {
 		}
 
 		return new \ResponseData($newRecordNum);
+	}
+	/**
+	 * 投票题目和结果导出到其他活动作为记录
+	 */
+	public function transferSchemaAndVoting_action($app, $targetApp, $round = '') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+
+		$modelEnl = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+		$modelData = $this->model('matter\enroll\data');
+		$modelUsr = $this->model('matter\enroll\user');
+
+		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,round_cron,data_schemas', 'appRid' => $round]);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		/* 指定的投票题目 */
+		$aVotingSchemas = [];
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (in_array($oSchema->id, $oPosted->votingSchemas)) {
+				if (in_array($oSchema->type, ['single', 'multiple'])) {
+					$aVotingSchemas[] = $oSchema;
+				}
+			}
+		}
+		if (empty($aVotingSchemas)) {
+			return new \ParameterError('没有指定有效的题目');
+		}
+
+		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => '*']);
+		if (false === $oTargetApp || $oTargetApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		/* 匹配的轮次 */
+		$oAssignedRnd = $oApp->appRound;
+		$modelRnd = $this->model('matter\enroll\round');
+		if ($oAssignedRnd) {
+			$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
+		}
+		/* 目标活动的投票结果 */
+		$aVotingData = $modelRec->getStat($oApp, $oAssignedRnd ? $oAssignedRnd->rid : '', 'N');
+		$newRecordNum = 0;
+		/* 根据投票结果创建记录，每道题生成一条记录 */
+		foreach ($aVotingSchemas as $oVotingSchema) {
+			if (empty($aVotingData[$oVotingSchema->id]->ops)) {
+				continue;
+			}
+			$allOps = $aVotingData[$oVotingSchema->id]->ops;
+			usort($allOps, function ($a, $b) {
+				return $a->c < $b->c;
+			});
+			$qualifiedOps = []; // 满足条件的选项
+			if (!empty($oPosted->limit->scope) && !empty($oPosted->limit->num) && (int) $oPosted->limit->num) {
+				if ($oPosted->limit->scope === 'top') {
+					$limitNum = (int) $oPosted->limit->num;
+					if ($limitNum > count($allOps)) {
+						$limitNum = count($allOps);
+					}
+					for ($i = 0; $i < $limitNum; $i++) {
+						$qualifiedOps[] = $allOps[$i];
+					}
+				} else if ($oPosted->limit->scope === 'checked') {
+					for ($i = 0, $ii = count($allOps); $i < $ii; $i++) {
+						$oOption = $allOps[$i];
+						$checkedNum = (int) $oPosted->limit->num;
+						if ($oOption->c < $checkedNum) {
+							break;
+						}
+						$qualifiedOps[] = $oOption;
+					}
+				}
+			}
+
+			/* 生成记录 */
+			if (isset($oVotingSchema->ds->userid)) {
+				$oMockRecUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingSchema->ds->userid]);
+			} else {
+				$oMockRecUser = new \stdClass;
+			}
+			$newek = $modelRec->enroll($oTargetApp, $oMockUser);
+
+			/* 写入问题 */
+			$oNewRecData = new \stdClass;
+			$oNewRecData->{$oPosted->questionSchema} = $oVotingSchema->title;
+			$modelRec->setData($oMockRecUser, $oTargetApp, $newek, $oNewRecData, '', true);
+			$newRecordNum++;
+
+			/* 写入答案 */
+			$current = time();
+			$oRecData = new \stdClass;
+			$oRecData->aid = $oTargetApp->id;
+			$oRecData->rid = isset($oTargetAppRnd) ? $oTargetAppRnd->rid : '';
+			$oRecData->enroll_key = $newek;
+			$oRecData->submit_at = $current;
+			$oRecData->userid = isset($oMockRecUser->uid) ? $oMockRecUser->uid : '';
+			$oRecData->nickname = $oMockRecUser->nickname;
+			$oRecData->group_id = $oMockRecUser->group_id;
+			$oRecData->schema_id = $oPosted->answerSchema;
+			$oRecData->multitext_seq = 0;
+			$oRecData->value = '[]';
+			$oRecData->id = $modelData->insert('xxt_enroll_record_data', $oRecData, true);
+			$oRecData->value = [];
+
+			foreach ($qualifiedOps as $oQualifiedOp) {
+				/* 模拟用户 */
+				$oVotingOpDs = null;
+				foreach ($oVotingSchema->ops as $oOption) {
+					if ($oOption->v === $oQualifiedOp->v && !empty($oOption->ds->user)) {
+						$oVotingOpDs = $oOption->ds;
+						break;
+					}
+				}
+				if (isset($oVotingOpDs)) {
+					$oMockAnswerUser = $modelUsr->byId($oTargetApp, $oVotingOpDs->user, ['fields' => 'id,userid,group_id,nickname']);
+					if (false === $oMockAnswerUser) {
+						$oMockAnswerUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingOpDs->user], $oNewRecData);
+					} else {
+						$oMockAnswerUser->uid = $oMockAnswerUser->userid;
+					}
+				} else {
+					$oMockAnswerUser = null;
+				}
+
+				$oNewItem = new \stdClass;
+				$oNewItem->aid = $oApp->id;
+				$oNewItem->rid = $oRecData->rid;
+				$oNewItem->enroll_key = $oRecData->enroll_key;
+				$oNewItem->submit_at = $current;
+				$oNewItem->userid = isset($oMockAnswerUser->uid) ? $oMockAnswerUser->uid : '';
+				$oNewItem->nickname = isset($oMockAnswerUser->nickname) ? $oMockAnswerUser->nickname : '';
+				$oNewItem->group_id = isset($oMockAnswerUser->group_id) ? $oMockAnswerUser->group_id : '';
+				$oNewItem->schema_id = $oUpdatedSchema->id;
+				$oNewItem->value = $this->escape($oQualifiedOp->l);
+				$oNewItem->multitext_seq = count($oRecData->value) + 1;
+			}
+		}
 	}
 	/**
 	 * 更新登记记录
@@ -1908,58 +2046,5 @@ class record extends main_base {
 		}
 
 		return new \ResponseData($newRecordCount);
-	}
-	/**
-	 * 返回一条登记记录的所有留言
-	 */
-	public function listRemark_action($ek, $page = 1, $size = 10) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-		$result = $this->model('matter\enroll\remark')->listByRecord($ek, $page, $size);
-
-		return new \ResponseData($result);
-	}
-	/**
-	 * 给指定的登记记录的添加留言
-	 */
-	public function addRemark_action($ek) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-		$data = $this->getPostJson();
-		if (empty($data->content)) {
-			return new \ResponseError('留言内容不允许为空');
-		}
-
-		$modelRec = $this->model('matter\enroll\record');
-		$oRecord = $modelRec->byId($ek);
-		if (false === $oRecord) {
-			return new \ObjectNotFoundError();
-		}
-		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($oRecord->siteid, ['cascaded' => 'N']);
-		/**
-		 * 发表留言的用户
-		 */
-		$oRemark = new \stdClass;
-		$oRemark->siteid = $oRecord->siteid;
-		$oRemark->aid = $oRecord->aid;
-		$oRemark->rid = $oRecord->rid;
-		$oRemark->userid = $user->id;
-		$oRemark->user_src = 'P';
-		$oRemark->nickname = $user->name;
-		$oRemark->enroll_key = $ek;
-		$oRemark->enroll_userid = $oRecord->userid;
-		$oRemark->create_at = time();
-		$oRemark->content = $modelRec->escape($data->content);
-
-		$oRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oRemark, true);
-
-		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
-
-		//$this->_notifyHasRemark();
-
-		return new \ResponseData($oRemark);
 	}
 }

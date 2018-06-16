@@ -132,8 +132,8 @@ define(['frame'], function(ngApp) {
         $scope.exportToOther = function() {
             srvEnrollRecord.exportToOther($scope.app, $scope.rows).then(function() {});
         };
-        $scope.transferVotingToOther = function() {
-            srvEnrollRecord.transferVotingToOther($scope.app).then(function() {});
+        $scope.transferVoting = function() {
+            srvEnrollRecord.transferVoting($scope.app).then(function() {});
         };
         $scope.openFileUrl = function(file) {
             var url;

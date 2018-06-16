@@ -1244,11 +1244,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
                 return defer.promise;
             };
-            _ins.transferVotingToOther = function(oApp) {
+            _ins.transferVoting = function(oApp) {
                 var defer;
                 defer = $q.defer();
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/transferVotingToOther.html?_=1',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/transferVoting.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
                         $scope2.page = oPage = {
@@ -1313,7 +1313,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }).result.then(function(oResult) {
                     var url;
                     if (oResult.fromApp && oResult.targetSchema && oResult.votingSchemas.length) {
-                        url = '/rest/pl/fe/matter/enroll/record/transferVotingToOther';
+                        url = '/rest/pl/fe/matter/enroll/record/transferVoting';
                         url += '?app=' + oApp.id;
                         url += '&targetApp=' + oResult.fromApp.id;
                         http2.post(url, { targetSchema: oResult.targetSchema, votingSchemas: oResult.votingSchemas, limit: oResult.limit }, function(rsp) {

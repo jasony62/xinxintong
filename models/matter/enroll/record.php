@@ -948,24 +948,8 @@ class record_model extends record_base {
 	}
 	/**
 	 * 已删除的登记清单
-	 *
-	 * 1、如果活动仅限会员报名，那么要叠加会员信息
-	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
-	 *
-	 * $siteId
-	 * $aid
-	 * $options
-	 * --page
-	 * --size
-	 * --rid 轮次id
-	 *
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
 	 */
-	public function recycle($siteId, &$app, $options = null) {
+	public function recycle($oApp, $options = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
@@ -977,7 +961,7 @@ class record_model extends record_base {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($app)) {
+			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
 			}
 		}
@@ -985,7 +969,7 @@ class record_model extends record_base {
 		$oResult->total = 0;
 
 		// 指定登记活动下的登记记录
-		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$app->id}'";
+		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$oApp->id}'";
 
 		// 指定了轮次
 		!empty($rid) && $w .= " and e.rid='$rid'";
@@ -1023,9 +1007,9 @@ class record_model extends record_base {
 					$r->data = $data;
 				}
 				// 记录的分数
-				if ($app->scenario === 'voting') {
+				if ($oApp->scenario === 'voting') {
 					if (!isset($scoreSchemas)) {
-						$scoreSchemas = $this->_mapOfScoreSchema($app);
+						$scoreSchemas = $this->_mapOfScoreSchema($oApp);
 						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
 					$r->_score = $this->_calcVotingScore($scoreSchemas, $data);
@@ -1568,13 +1552,13 @@ class record_model extends record_base {
 					} else {
 						$oDataBySchema = $aResult[$oDataByOp->id];
 					}
-					$op = (object) [
+					$oOp = (object) [
 						'v' => $oDataByOp->v,
 						'l' => $oDataByOp->l,
 						'c' => $oDataByOp->c,
 					];
-					$oDataBySchema->ops[] = $op;
-					$oDataBySchema->sum += $op->c;
+					$oDataBySchema->ops[] = $oOp;
+					$oDataBySchema->sum += $oOp->c;
 				}
 			}
 		} else {

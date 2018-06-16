@@ -361,7 +361,7 @@ class record extends main_base {
 	/**
 	 * 投票结果导出到其他活动作为记录
 	 */
-	public function transferVoting_action($app, $targetApp, $round = '') {
+	public function transferVotes_action($app, $targetApp, $round = '') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -473,7 +473,7 @@ class record extends main_base {
 	/**
 	 * 投票题目和结果导出到其他活动作为记录
 	 */
-	public function transferSchemaAndVoting_action($app, $targetApp, $round = '') {
+	public function transferSchemaAndVotes_action($app, $targetApp, $round = '') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}

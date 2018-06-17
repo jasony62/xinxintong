@@ -259,7 +259,7 @@ class main extends base {
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
-		if (isset($oApp->appRound)) {
+		if (isset($oApp->appRound->rid)) {
 			$rid = $oApp->appRound->rid;
 		}
 		unset($oApp->round_cron);

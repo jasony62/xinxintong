@@ -38,7 +38,7 @@ ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
                     if (oSchema.ops && oSchema.ops.length) {
                         oSchema.ops.forEach(function(oOption) {
                             var oOriginalOption;
-                            oOption.p = (oOption.c / oSchema.sum * 100).toFixed(2);
+                            oOption.p = oSchema.sum > 0 ? (oOption.c / oSchema.sum * 100).toFixed(2) : '';
                             /* 从数据来源活动，查看详情 */
                             if (oOriginalSchema.dsOps && oOriginalSchema.showOpDsLink === 'Y') {
                                 oSchema.dsOps = oOriginalSchema.dsOps;

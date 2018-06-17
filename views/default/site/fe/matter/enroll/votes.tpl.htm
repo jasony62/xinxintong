@@ -36,7 +36,9 @@
                 <div class='option' ng-repeat="op in schema.ops">
                     <div><span ng-bind="op.l"></span><small class='option-link' ng-if="op.ds" ng-click="gotoOptionLink(schema,op)">[详情]</small></div>
                     <div ng-bind="op.c"></div>
-                    <div class='text-muted'><span ng-bind="op.p"></span>%</div>
+                    <div class='text-muted'>
+                        <span ng-if="op.p"><span ng-bind="op.p"></span>%</span>
+                    </div>
                 </div>
             </div>
         </div>

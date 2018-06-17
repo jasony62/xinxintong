@@ -237,12 +237,30 @@ class enroll_model extends enroll_base {
 					$oSchema->ops = [];
 					$q = [
 						'enroll_key,value,userid,nickname',
-						"xxt_enroll_record_data",
+						"xxt_enroll_record_data t0",
 						['state' => 1, 'aid' => $oSchema->dsOps->app->id, 'schema_id' => $oSchema->dsOps->schema->id],
 					];
+					/* 设置轮次条件 */
 					if (!empty($oDsAppRnd)) {
 						$q[2]['rid'] = $oDsAppRnd->rid;
 					}
+					/* 设置顾虑条件 */
+					if (!empty($oSchema->dsOps->filters)) {
+						foreach ($oSchema->dsOps->filters as $index => $oFilter) {
+							if (!empty($oFilter->schema->id) && !empty($oFilter->schema->type)) {
+								switch ($oFilter->schema->type) {
+								case 'single':
+									if (!empty($oFilter->schema->op->v)) {
+										$tbl = 't' . ($index + 1);
+										$sql = "select 1 from xxt_enroll_record_data {$tbl} where state=1 and aid='{$oSchema->dsOps->app->id}'and schema_id='{$oFilter->schema->id}' and value='{$oFilter->schema->op->v}' and t0.enroll_key={$tbl}.enroll_key";
+										$q[2]['enroll_key'] = (object) ['op' => 'exists', 'pat' => $sql];
+									}
+									break;
+								}
+							}
+						}
+					}
+					/* 处理数据 */
 					$datas = $this->query_objs_ss($q);
 					foreach ($datas as $index => $oRecData) {
 						$oNewOp = new \stdClass;

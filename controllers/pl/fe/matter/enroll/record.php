@@ -1593,7 +1593,7 @@ class record extends main_base {
 			$oScore4Schema = $modelRec->score4Schema($oApp, $rid, $gid);
 			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
 			foreach ($aScoreSum as $key => $val) {
-				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $oScore4Schema->$val);
+				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, isset($oScore4Schema->$val) ? $oScore4Schema->$val : '');
 			}
 		}
 		// 输出

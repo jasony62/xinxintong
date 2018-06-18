@@ -16,35 +16,55 @@ class repos extends base {
 			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
 		}
 
-		$dirSchemas = [];
+		$dirSchemas = []; // 作为分类的题目
 		$oSchemasById = new \stdClass;
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if (isset($oSchema->asdir) && $oSchema->asdir === 'Y') {
-				$oSchemasById->{$oSchema->id} = $oSchema;
-				if (empty($oSchema->optGroups)) {
-					/* 根分类 */
-					foreach ($oSchema->ops as $oOp) {
-						$oRootDir = new \stdClass;
-						$oRootDir->schema_id = $oSchema->id;
-						$oRootDir->op = $oOp;
-						$dirSchemas[] = $oRootDir;
-					}
-				} else {
-					foreach ($oSchema->optGroups as $oOptGroup) {
-						if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && $oSchemasById->{$oOptGroup->assocOp->schemaId}) {
-							$oParentSchema = $oSchemasById->{$oOptGroup->assocOp->schemaId};
-							foreach ($oParentSchema->ops as $oAssocOp) {
-								if ($oAssocOp->v === $oOptGroup->assocOp->v) {
-									$oAssocOp->childrenDir = [];
-									foreach ($oSchema->ops as $oOp) {
-										if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
-											$oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
+				switch ($oSchema->type) {
+				case 'single':
+					$oSchemasById->{$oSchema->id} = $oSchema;
+					if (empty($oSchema->optGroups)) {
+						/* 根分类 */
+						foreach ($oSchema->ops as $oOp) {
+							$oRootDir = new \stdClass;
+							$oRootDir->schema_id = $oSchema->id;
+							$oRootDir->schema_type = 'single';
+							$oRootDir->op = $oOp;
+							$dirSchemas[] = $oRootDir;
+						}
+					} else {
+						foreach ($oSchema->optGroups as $oOptGroup) {
+							if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && $oSchemasById->{$oOptGroup->assocOp->schemaId}) {
+								$oParentSchema = $oSchemasById->{$oOptGroup->assocOp->schemaId};
+								foreach ($oParentSchema->ops as $oAssocOp) {
+									if ($oAssocOp->v === $oOptGroup->assocOp->v) {
+										$oAssocOp->childrenDir = [];
+										foreach ($oSchema->ops as $oOp) {
+											if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
+												$oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
+											}
 										}
 									}
 								}
 							}
 						}
 					}
+					break;
+				case 'shorttext':
+					$modelData = $this->model('matter\enroll\data');
+					$oOptions = new \stdClass;
+					$oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
+					$oOptions->page = 1;
+					$oOptions->size = 99;
+					$oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
+					foreach ($oResult->records as $oRecData) {
+						$oRootDir = new \stdClass;
+						$oRootDir->schema_id = $oSchema->id;
+						$oRootDir->schema_type = 'shorttext';
+						$oRootDir->op = (object) ['v' => $oRecData->value, 'l' => $oRecData->value];
+						$dirSchemas[] = $oRootDir;
+					}
+					break;
 				}
 			}
 		}

@@ -79,11 +79,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
-        if (pageAt) {
-            _oPage.at = pageAt;
-        } else {
-            _oPage.at++;
-        }
+        pageAt ? _oPage.at = pageAt : _oPage.at++;
         if (_oPage.at == 1) {
             $scope.repos = [];
             _oPage.total = 0;
@@ -107,7 +103,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
             $timeout(function() {
                 var imgs;
-                if(imgs = document.querySelectorAll('.data img')) {
+                if (imgs = document.querySelectorAll('.data img')) {
                     picviewer.init(imgs);
                 }
             });

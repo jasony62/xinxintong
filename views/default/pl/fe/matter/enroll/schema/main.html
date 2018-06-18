@@ -138,13 +138,16 @@
         </ul>
         <!--多选设置答案-->
         <ul class="form-group list-unstyled" ng-if="activeSchema.type==='multiple'">
+            <li>
+                <label>设置答案</label>
+            </li>
             <li class="checkbox" wrap="checkbox" ng-repeat="op in activeSchema.ops">
                 <label>
                     <input type="checkbox" ng-model="data[op.v]" ng-change="updSchemaMultiple(activeSchema)" /><span>{{op.l}}</span></label>
             </li>
         </ul>
     </div>
-    <div class="checkbox" ng-show="'single'===activeSchema.type">
+    <div class="checkbox" ng-show="'single'===activeSchema.type||'Y'===activeSchema.history">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.asdir' ng-change="updSchema(activeSchema)"> 在共享页作为内容分类目录</label>
     </div>

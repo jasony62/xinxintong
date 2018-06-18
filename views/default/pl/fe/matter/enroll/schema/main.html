@@ -95,7 +95,7 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.shareable' ng-change="updSchema(activeSchema,null,'shareable')"> 共享内容</label>
     </div>
-    <div class="checkbox" ng-show="['image','file','voice','single','multiple'].indexOf(activeSchema.type)!==-1">
+    <div class="checkbox">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.supplement' ng-change="updSchema(activeSchema)"> 允许填写补充说明</label>
     </div>
@@ -163,7 +163,7 @@
     </div>
     <div class="checkbox" ng-show="'longtext'===activeSchema.type">
         <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.filterWhiteSpace' ng-change="updSchema(activeSchema)"> 提示过滤空白字符</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.filterWhiteSpace' ng-change="updSchema(activeSchema)"> 粘贴时提示过滤空白字符</label>
     </div>
     <div class='form-group' ng-if="'shorttext'===activeSchema.type&&activeSchema.format==='number'">
         <button class='btn btn-default' ng-click="setDataSource(activeSchema)">设置数据来源</button>

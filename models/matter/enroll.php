@@ -758,7 +758,7 @@ class enroll_model extends enroll_base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	public function &addPageByTemplate(&$user, &$site, $oMission, &$appId, &$oTemplateConfig) {
+	public function &addPageByTemplate(&$user, $oSite, $oMission, &$appId, &$oTemplateConfig) {
 		$pages = $oTemplateConfig->pages;
 		if (empty($pages)) {
 			return false;
@@ -770,12 +770,13 @@ class enroll_model extends enroll_base {
 		 * 处理页面
 		 */
 		foreach ($pages as $oPage) {
-			$ap = $modelPage->add($user, $site->id, $appId, (array) $oPage);
+			$ap = $modelPage->add($user, $oSite->id, $appId, (array) $oPage);
 			/**
 			 * 处理页面数据定义
 			 */
-			$oPage->data_schemas = [];
-			if (empty($oPage->data_schemas) && !empty($oTemplateConfig->schema) && !empty($oPage->simpleConfig)) {
+			if (empty($oTemplateConfig->schema)) {
+				$oPage->data_schemas = [];
+			} else if (empty($oPage->data_schemas) && !empty($oPage->simpleConfig)) {
 				/* 页面使用应用的所有数据定义 */
 				foreach ($oTemplateConfig->schema as $oSchema) {
 					$oNewPageSchema = new \stdClass;

@@ -295,10 +295,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.recordList(1);
     };
     $scope.shiftDir = function(oDir) {
-        _oCriteria.data = {};
-        if (oDir) {
+        var fnSetDirFilter = function(oDir) {
+            if (oDir.parentDir) {
+                fnSetDirFilter(oDir.parentDir);
+            }
             _oCriteria.data[oDir.schema_id] = oDir.op.v;
-        }
+        };
+        _oCriteria.data = {};
+        oDir && fnSetDirFilter(oDir);
         $scope.activeDir = oDir;
         $scope.recordList(1);
     };
@@ -386,10 +390,22 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
             _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
         }
+        /* 作为分类目录的题目 */
         http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
             $scope.dirSchemas = rsp.data;
             if ($scope.dirSchemas && $scope.dirSchemas.length) {
                 $scope.advCriteriaStatus.dirOpen = true;
+                var fnSetParentDir = function(oDir) {
+                    if (oDir.op && oDir.op.childrenDir && oDir.op.childrenDir.length) {
+                        oDir.op.childrenDir.forEach(function(oChildDir) {
+                            oChildDir.parentDir = oDir;
+                            fnSetParentDir(oChildDir);
+                        });
+                    }
+                };
+                $scope.dirSchemas.forEach(function(oDir) {
+                    fnSetParentDir(oDir);
+                });
             }
         });
         /* 设置页面分享信息 */

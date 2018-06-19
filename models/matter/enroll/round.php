@@ -74,6 +74,22 @@ class round_model extends \TMS_MODEL {
 		return $oResult;
 	}
 	/**
+	 * 活动下填写时段的数量
+	 */
+	public function countByApp($oApp, $aOptions = []) {
+		$state = isset($aOptions['state']) ? $aOptions['state'] : false;
+		$q = [
+			'count(*)',
+			'xxt_enroll_round',
+			['aid' => $oApp->id],
+		];
+		$state && $q[2]['state'] = $state;
+
+		$count = (int) $this->query_val_ss($q);
+
+		return $count;
+	}
+	/**
 	 * 添加轮次
 	 *
 	 * @param object $oApp

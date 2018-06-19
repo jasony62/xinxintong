@@ -74,10 +74,15 @@ class enroll_model extends enroll_base {
 
 		/* 创建活动默认填写轮次 */
 		$modelRnd = $this->model('matter\enroll\round');
-		$oRoundProto = new \stdClass;
-		$oRoundProto->title = '填写时段';
-		$oRoundProto->state = 1;
-		$modelRnd->create($oNewApp, $oRoundProto, $oUser);
+		if (!empty($oNewApp->sync_mission_round) && $oNewApp->sync_mission_round === 'Y') {
+			$oAppRnd = $modelRnd->getActive($oNewApp);
+		}
+		if (empty($oAppRnd)) {
+			$oRoundProto = new \stdClass;
+			$oRoundProto->title = '填写时段';
+			$oRoundProto->state = 1;
+			$modelRnd->create($oNewApp, $oRoundProto, $oUser);
+		}
 
 		return $oNewApp;
 	}

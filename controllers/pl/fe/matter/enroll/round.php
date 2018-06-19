@@ -92,6 +92,35 @@ class round extends \pl\fe\matter\base {
 		return new \ResponseData($rst[1]);
 	}
 	/**
+	 * 根据填写时段规则，将指定的时段设置为启用时段
+	 */
+	public function activeByCron_action($app, $rid) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$oRound = $modelRnd->byId($rid);
+		if (false === $oRound) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oSampleRnd = $modelRnd->byCron($oApp->roundCron);
+
+		$modelRnd->update(
+			'xxt_enroll_round',
+			$oSampleRnd,
+			['rid' => $oRound->rid]
+		);
+
+		return new \ResponseData($oSampleRnd);
+	}
+	/**
 	 * 更新轮次
 	 *
 	 * @param string $app
@@ -184,6 +213,10 @@ class round extends \pl\fe\matter\base {
 		$countOfRecords = $modelRec->byRound($rid, ['fields' => 'count(*)']);
 		if ($countOfRecords > 0) {
 			return new \ResponseError('【' . $oRound->title . '】已有登记数据不能删除');
+		}
+
+		if (1 === $modelRnd->countByApp($oApp)) {
+			return new \ResponseError('每个活动至少要保留一个填写时段');
 		}
 		/**
 		 * 删除轮次

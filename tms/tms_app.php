@@ -193,7 +193,7 @@ class TMS_APP {
 					if ($p->isOptional()) {
 						$args[] = $p->getDefaultValue();
 					} else {
-						$args[] = null;
+						die('Request parameters are incompleted.');
 					}
 
 				}

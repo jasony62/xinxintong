@@ -110,7 +110,6 @@ $sql .= ",aid varchar(40) not null";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",start_at int not null"; // 轮次开始时间
-$sql .= ",end_submit_at int not null default 0"; // 结束提交时间
 $sql .= ",end_at int not null"; // 轮次结束时间
 $sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的标题
 $sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要

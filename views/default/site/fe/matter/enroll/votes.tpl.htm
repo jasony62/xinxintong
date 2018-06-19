@@ -31,6 +31,23 @@
     </nav>
     <div ng-cloak class='container ng-cloak'>
         <div class='row'>
+            <div id='filterQuick' ng-cloak>
+                <div ng-if="rounds.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                    <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                        <span>轮次</span>
+                        <span class="glyphicon glyphicon-filter"></span>
+                    </button>
+                    <ul class="dropdown-menu" uib-dropdown-menu>
+                        <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- end: filterQuick -->
+            <div id='filterTip' ng-if="filter.round">
+                <div class="bg-info small" ng-if="filter.round">
+                    <span>{{filter.round.title}}</span>
+                </div>
+            </div>
             <div class='schema' ng-repeat="schema in votes">
                 <div ng-bind="schema.title"></div>
                 <div class='option' ng-repeat="op in schema.ops">

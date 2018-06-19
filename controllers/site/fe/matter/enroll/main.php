@@ -339,6 +339,22 @@ class main extends base {
 		return new \ResponseData($params);
 	}
 	/**
+	 * 返回登记活动定义
+	 *
+	 * @param string $app
+	 * @param string $rid
+	 *
+	 */
+	public function appGet_action($app, $rid = '', $cascaded = 'N') {
+		/* 要打开的应用 */
+		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields, 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
+		if ($oApp === false || $oApp->state !== '1') {
+			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+		}
+
+		return new \ResponseData($oApp);
+	}
+	/**
 	 * 获得用户执行操作规则的状态
 	 */
 	public function entryRule_action($app) {

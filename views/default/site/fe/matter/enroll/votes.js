@@ -69,44 +69,50 @@ ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
     };
     /* 获得投票结果 */
     $scope.getVotes = function() {
-        var defer = $q.defer(),
-            url;
-
-        url = LS.j('votes/get', 'site', 'app');
-        if (_oCriteria.rid) {
-            url += '&rid=' + _oCriteria.rid;
-        }
-        http2.get(url).then(function(rsp) {
-            angular.forEach(rsp.data, function(oSchema) {
-                var oOriginalSchema;
-                if (oOriginalSchema = _oApp._schemasById[oSchema.id]) {
-                    if (oSchema.ops && oSchema.ops.length) {
-                        oSchema.ops.forEach(function(oOption) {
-                            var oOriginalOption;
-                            oOption.p = oSchema.sum > 0 ? (oOption.c / oSchema.sum * 100).toFixed(2) : '';
-                            /* 从数据来源活动，查看详情 */
-                            if (oOriginalSchema.dsOps && oOriginalSchema.showOpDsLink === 'Y') {
-                                oSchema.dsOps = oOriginalSchema.dsOps;
-                                for (var i = 0, ii = oOriginalSchema.ops.length; i < ii; i++) {
-                                    oOriginalOption = oOriginalSchema.ops[i];
-                                    if (oOption.v === oOriginalOption.v) {
-                                        if (oOriginalOption.ds) {
-                                            oOption.ds = oOriginalOption.ds;
+        var defer = $q.defer();
+        /* 每个轮次的动态选项不一样，需要根据轮次获取动态选项 */
+        http2.get(LS.j('appGet', 'site', 'app') + '&rid=' + _oCriteria.rid).then(function(rsp) {
+            var url, oSchemasById;
+            oSchemasById = {};
+            rsp.data.dataSchemas.forEach(function(oSchema) {
+                oSchemasById[oSchema.id] = oSchema;
+            });
+            url = LS.j('votes/get', 'site', 'app');
+            if (_oCriteria.rid) {
+                url += '&rid=' + _oCriteria.rid;
+            }
+            http2.get(url).then(function(rsp) {
+                angular.forEach(rsp.data, function(oSchema) {
+                    var oOriginalSchema;
+                    if (oOriginalSchema = oSchemasById[oSchema.id]) {
+                        if (oSchema.ops && oSchema.ops.length) {
+                            oSchema.ops.forEach(function(oOption) {
+                                var oOriginalOption;
+                                oOption.p = oSchema.sum > 0 ? (oOption.c / oSchema.sum * 100).toFixed(2) : '';
+                                /* 从数据来源活动，查看详情 */
+                                if (oOriginalSchema.dsOps && oOriginalSchema.showOpDsLink === 'Y') {
+                                    oSchema.dsOps = oOriginalSchema.dsOps;
+                                    for (var i = 0, ii = oOriginalSchema.ops.length; i < ii; i++) {
+                                        oOriginalOption = oOriginalSchema.ops[i];
+                                        if (oOption.v === oOriginalOption.v) {
+                                            if (oOriginalOption.ds) {
+                                                oOption.ds = oOriginalOption.ds;
+                                            }
+                                            break;
                                         }
-                                        break;
                                     }
                                 }
-                            }
+                            });
+                        }
+                        /* 按获得的投票数量进行排序 */
+                        oSchema.ops = oSchema.ops.sort(function(a, b) {
+                            return b.c - a.c;
                         });
                     }
-                    /* 按获得的投票数量进行排序 */
-                    oSchema.ops = oSchema.ops.sort(function(a, b) {
-                        return b.c - a.c;
-                    });
-                }
+                });
+                $scope.votes = rsp.data;
+                defer.resolve($scope.votes);
             });
-            $scope.votes = rsp.data;
-            defer.resolve($scope.votes);
         });
 
         return defer.promise;

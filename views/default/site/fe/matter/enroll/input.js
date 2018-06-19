@@ -708,6 +708,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         if (_oApp.can_rank === 'Y') {
             oAppNavs.rank = {};
         }
+        if (_oApp.scenario === 'voting') {
+            oAppNavs.votes = {};
+        }
         if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
             oAppNavs.event = {};
         }

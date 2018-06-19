@@ -1,9 +1,9 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
+$sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_enroll_record_data add agreed_log text after agreed";
+$sqls[] = "ALTER TABLE xxt_enroll_round add end_submit_at int not null default 0 after start_at";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

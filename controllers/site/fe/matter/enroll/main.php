@@ -9,10 +9,6 @@ class main extends base {
 	/**
 	 *
 	 */
-	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,multi_rounds,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config,round_cron,mission_id,sync_mission_round';
-	/**
-	 *
-	 */
 	private $modelApp;
 	/**
 	 *
@@ -337,22 +333,6 @@ class main extends base {
 		}
 
 		return new \ResponseData($params);
-	}
-	/**
-	 * 返回登记活动定义
-	 *
-	 * @param string $app
-	 * @param string $rid
-	 *
-	 */
-	public function appGet_action($app, $rid = '', $cascaded = 'N') {
-		/* 要打开的应用 */
-		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields, 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
-		if ($oApp === false || $oApp->state !== '1') {
-			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
-		}
-
-		return new \ResponseData($oApp);
 	}
 	/**
 	 * 获得用户执行操作规则的状态

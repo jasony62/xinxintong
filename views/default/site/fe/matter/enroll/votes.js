@@ -71,10 +71,10 @@ ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
     $scope.getVotes = function() {
         var defer = $q.defer();
         /* 每个轮次的动态选项不一样，需要根据轮次获取动态选项 */
-        http2.get(LS.j('appGet', 'site', 'app') + '&rid=' + _oCriteria.rid).then(function(rsp) {
+        http2.get(LS.j('schema/get', 'site', 'app') + '&rid=' + _oCriteria.rid).then(function(rsp) {
             var url, oSchemasById;
             oSchemasById = {};
-            rsp.data.dataSchemas.forEach(function(oSchema) {
+            rsp.data.forEach(function(oSchema) {
                 oSchemasById[oSchema.id] = oSchema;
             });
             url = LS.j('votes/get', 'site', 'app');

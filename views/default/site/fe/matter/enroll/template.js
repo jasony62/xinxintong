@@ -136,11 +136,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'tmsLocation', 'Record', function($sco
 }]);
 ngApp.controller('ctrlRecords', ['$scope', 'tmsLocation', 'Record', function($scope, LS, Record) {
     var facRecord, options, fnFetch, rid;
-    if (LS.s().rid === '' && $scope.$parent.ActiveRound) {
-        rid = $scope.$parent.ActiveRound.rid;
-    } else {
-        rid = LS.s().rid;
-    }
+    rid = LS.s().rid;
     facRecord = Record.ins(LS.s().scenario, LS.s().template);
     options = {
         owner: 'A',
@@ -202,7 +198,6 @@ ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', '$timeout', '$q'
             $scope.params = params;
             $scope.page = params.page;
             $scope.User = params.user;
-            $scope.ActiveRound = params.app.appRound;
             (function setPage(page) {
                 if (page.ext_css && page.ext_css.length) {
                     angular.forEach(page.ext_css, function(css) {

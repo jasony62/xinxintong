@@ -331,14 +331,17 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     all.push({ name: 'action', 'title': '活动动态页' });
                     all.push({ name: 'repos', 'title': '共享数据页' });
                     all.push({ name: 'rank', 'title': '排行榜' });
+                    all.push({ name: 'votes', 'title': '投票榜' });
                     all.push({ name: 'score', 'title': '测验结果' });
                     otherwise.push({ name: 'action', 'title': '活动动态页' });
                     otherwise.push({ name: 'repos', 'title': '共享数据页' });
                     otherwise.push({ name: 'rank', 'title': '排行榜' });
+                    otherwise.push({ name: 'votes', 'title': '投票榜' });
                     exclude.push({ name: 'action', 'title': '活动动态页' });
                     exclude.push({ name: 'repos', 'title': '共享数据页' });
                     exclude.push({ name: 'cowork', 'title': '讨论页' });
                     exclude.push({ name: 'rank', 'title': '排行榜' });
+                    exclude.push({ name: 'votes', 'title': '投票榜' });
                     exclude.push({ name: 'score', 'title': '测验结果' });
 
                     return {
@@ -1169,6 +1172,245 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             defer.resolve();
                         });
                     });
+                });
+                return defer.promise;
+            };
+            _ins.exportToOther = function(oApp, rows) {
+                var defer, eks;
+                if (rows) {
+                    eks = [];
+                    Object.keys(rows.selected).forEach(function(key) {
+                        if (rows.selected[key] === true) {
+                            var oRec = _ins._aRecords[key];
+                            if (Object.keys(oRec).indexOf('enroll_key') !== -1) {
+                                eks.push(oRec.enroll_key);
+                            }
+                        }
+                    });
+                }
+                defer = $q.defer();
+                if (!eks || eks.length === 0) {
+                    defer.reject();
+                } else {
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/exportToOther.html?_=1',
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                            var page, data, filter;
+                            $scope2.sourceApp = oApp;
+                            $scope2.page = page = {
+                                at: 1,
+                                size: 10,
+                                j: function() {
+                                    return 'page=' + this.at + '&size=' + this.size;
+                                }
+                            };
+                            $scope2.data = data = { mappings: {} };
+                            $scope2.filter = filter = {};
+                            $scope2.ok = function() {
+                                $mi.close(data);
+                            };
+                            $scope2.cancel = function() {
+                                $mi.dismiss('cancel');
+                            };
+                            $scope2.doFilter = function() {
+                                page.at = 1;
+                                $scope2.doSearch();
+                            };
+                            $scope2.doSearch = function() {
+                                var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&' + page.j();
+                                http2.post(url, {
+                                    byTitle: filter.byTitle
+                                }, function(rsp) {
+                                    $scope2.apps = rsp.data.apps;
+                                    if ($scope2.apps.length) {
+                                        data.fromApp = $scope2.apps[0];
+                                    }
+                                    $scope2.apps.forEach(function(oApp) {
+                                        oApp.dataSchemas = JSON.parse(oApp.data_schemas);
+                                    });
+                                    page.total = rsp.data.total;
+                                });
+                            };
+                            $scope2.doSearch();
+                        }],
+                        backdrop: 'static',
+                        size: 'lg'
+                    }).result.then(function(data) {
+                        var url;
+                        if (data.fromApp && data.fromApp.id && data.mappings) {
+                            url = '/rest/pl/fe/matter/enroll/record/exportToOther';
+                            url += '?app=' + oApp.id;
+                            url += '&targetApp=' + data.fromApp.id;
+                            http2.post(url, { mappings: data.mappings, eks, eks }, function() {});
+                        }
+                    });
+                }
+                return defer.promise;
+            };
+            _ins.transferVotes = function(oApp) {
+                var defer;
+                defer = $q.defer();
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/transferVotes.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oFilter;
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 12,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.result = oResult = {
+                            limit: { scope: 'top', num: 3 },
+                            targetSchema: null,
+                            votingSchemas: []
+                        };
+                        $scope2.votingSchemas = [];
+                        oApp.dataSchemas.forEach(function(oSchema) {
+                            if (/single|multiple/.test(oSchema.type)) {
+                                $scope2.votingSchemas.push(angular.copy(oSchema));
+                            }
+                        });
+                        $scope2.filter = oFilter = {};
+                        $scope2.selectApp = function() {
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                            }
+                            oResult.schemas = [];
+                        };
+                        $scope2.selectSchema = function(oSchema) {
+                            if (oSchema._selected) {
+                                oResult.votingSchemas.push(oSchema.id);
+                            } else {
+                                oResult.votingSchemas.splice(oResult.votingSchemas.indexOf(oSchema.id), 1);
+                            }
+                        };
+                        $scope2.ok = function() {
+                            $mi.close(oResult);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.doFilter = function() {
+                            oPage.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
+                            http2.post(url, {
+                                byTitle: oFilter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    oResult.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                oPage.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                    size: 'lg'
+                }).result.then(function(oResult) {
+                    var url;
+                    if (oResult.fromApp && oResult.targetSchema && oResult.votingSchemas.length) {
+                        url = '/rest/pl/fe/matter/enroll/record/transferVotes';
+                        url += '?app=' + oApp.id;
+                        url += '&targetApp=' + oResult.fromApp.id;
+                        http2.post(url, { targetSchema: oResult.targetSchema, votingSchemas: oResult.votingSchemas, limit: oResult.limit }, function(rsp) {
+                            noticebox.info('创建（' + rsp.data + '）条记录');
+                            defer.resolve(rsp);
+                        });
+                    }
+                });
+                return defer.promise;
+            };
+            _ins.transferSchemaAndVotes = function(oApp) {
+                var defer;
+                defer = $q.defer();
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/transferSchemaAndVotes.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oFilter;
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 12,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.result = oResult = {
+                            limit: { scope: 'top', num: 3 }
+                        };
+                        $scope2.votingSchemas = [];
+                        oApp.dataSchemas.forEach(function(oSchema) {
+                            if (/single|multiple/.test(oSchema.type)) {
+                                $scope2.votingSchemas.push(angular.copy(oSchema));
+                            }
+                        });
+                        $scope2.filter = oFilter = {};
+                        $scope2.selectApp = function() {
+                            oResult.questionSchemas = [];
+                            oResult.answerSchemas = [];
+                            oResult.votingSchemas = [];
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                    if (/shorttext|longtext/.test(oSchema.type)) {
+                                        oResult.questionSchemas.push(oSchema);
+                                    } else if ('multitext' === oSchema.type) {
+                                        oResult.answerSchemas.push(oSchema);
+                                    }
+                                });
+                            }
+                        };
+                        $scope2.selectSchema = function(oSchema) {
+                            if (oSchema._selected) {
+                                oResult.votingSchemas.push(oSchema.id);
+                            } else {
+                                oResult.votingSchemas.splice(oResult.votingSchemas.indexOf(oSchema.id), 1);
+                            }
+                        };
+                        $scope2.ok = function() {
+                            $mi.close(oResult);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.doFilter = function() {
+                            oPage.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
+                            http2.post(url, {
+                                byTitle: oFilter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    oResult.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                oPage.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                    size: 'lg'
+                }).result.then(function(oResult) {
+                    var url;
+                    if (oResult.fromApp && oResult.questionSchema && oResult.answerSchema && oResult.votingSchemas.length) {
+                        url = '/rest/pl/fe/matter/enroll/record/transferSchemaAndVotes';
+                        url += '?app=' + oApp.id;
+                        url += '&targetApp=' + oResult.fromApp.id;
+                        http2.post(url, { questionSchema: oResult.questionSchema, answerSchema: oResult.answerSchema, votingSchemas: oResult.votingSchemas, limit: oResult.limit }, function(rsp) {
+                            noticebox.info('创建（' + rsp.data + '）条记录');
+                            defer.resolve(rsp);
+                        });
+                    }
                 });
                 return defer.promise;
             };

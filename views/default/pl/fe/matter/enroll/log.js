@@ -44,6 +44,18 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
+        $scope.export = function(type, criteria) {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/log/exportLog?app=' + _oApp.id + '&logType=' + type;
+            url += '&startAt=' + criteria.startAt + '&endAt=' + criteria.endAt + '&byOp=' + criteria.byOp;
+            if (type=='page') {
+                url += '&target_type=' + criteria.target_type + '&target_id=' + criteria.target_id;
+            } else {
+                url += '&byUser=' + criteria.byUser + '&byRid=' + criteria.byRid;
+            }
+           
+            window.open(url);
+        }
         $scope.clean = function() {
             switch($scope.active) {
                 case 1:

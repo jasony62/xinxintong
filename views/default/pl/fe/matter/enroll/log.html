@@ -5,6 +5,9 @@
 			<button class='btn btn-default' ng-if="active=='2'" ng-click="filter('site', siteLog.criteria)"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
 			<button class='btn btn-default' ng-if="active=='3'" ng-click="filter('page', pageLog.criteria)"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
 			<button class="btn btn-default" ng-click="clean()"><i class="glyphicon glyphicon-erase"></i> <span>清除条件</span></button>
+			<button class='btn btn-default pull-right' ng-if="active=='1'" ng-click="export('pl', plLog.criteria)"><i class='glyphicon glyphicon-export'></i> <span>导出记录</span></button>
+			<button class='btn btn-default pull-right' ng-if="active=='2'" ng-click="export('site', siteLog.criteria)"><i class='glyphicon glyphicon-export'></i> <span>导出记录</span></button>
+			<button class='btn btn-default pull-right' ng-if="active=='3'" ng-click="export('page', pageLog.criteria)"><i class='glyphicon glyphicon-export'></i> <span>导出记录</span></button>
 		</div>
 	</div>
 	<uib-tabset active="active">

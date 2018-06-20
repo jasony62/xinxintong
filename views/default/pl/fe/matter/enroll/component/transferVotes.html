@@ -1,10 +1,10 @@
 <div class="modal-header">
     <button class="close" ng-click="cancel()">×</button>
-    <h5 class="modal-title">从其他活动的记录创建题目</h5>
+    <h5 class="modal-title">根据投票结果将题目的选项作为其他活动的记录</h5>
 </div>
 <div class="modal-body">
     <div class='row'>
-        <div class='col-md-6'>
+        <div class='col-md-4'>
             <div class='form-group'>
                 <label>活动</label>
                 <div class='input-group'>
@@ -21,17 +21,26 @@
                 </div>
             </div>
         </div>
-        <div class='col-md-6'>
-            <div class='form-group'>
-                <label>题目</label>
-                <div class='list-group' style='height:300px;overflow-y:auto'>
-                    <div class='list-group-item' ng-repeat="schema in result.fromApp.dataSchemas">
-                        <label class="checkbox-inline">
-                            <input type='checkbox' ng-model="schema._selected" ng-change="selectSchema(schema)">{{schema.title}}</label>
-                    </div>
+        <div class='col-md-4'>
+            <label>投票题目</label>
+            <div class='list-group' style='height:300px;overflow-y:auto'>
+                <div class='list-group-item' ng-repeat="schema in votingSchemas">
+                    <label class="checkbox-inline">
+                        <input type='checkbox' ng-model="schema._selected" ng-change="selectSchema(schema)">{{schema.title}}</label>
                 </div>
             </div>
         </div>
+        <div class='col-md-4'>
+            <label>目标题目</label>
+            <div class='list-group' style='height:300px;overflow-y:auto'>
+                <div class='list-group-item' ng-repeat="schema in result.fromApp.dataSchemas">
+                    <label class="radio-inline">
+                        <input type='radio' name='targetSchema' value="{{schema.id}}" ng-model="result.targetSchema">{{schema.title}}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='row'>
         <div class='col-md-12'>
             <div class='form-inline text-right'>
                 <div class='form-group'>

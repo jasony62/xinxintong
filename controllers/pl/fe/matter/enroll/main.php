@@ -63,10 +63,6 @@ class main extends main_base {
 			$oApp->groups = $groups;
 		}
 
-		/* 设置活动的动态选项 */
-		$oAppRnd = $this->model('matter\enroll\round')->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
-		$modelEnl->setDynaOptions($oApp, $oAppRnd);
-
 		return new \ResponseData($oApp);
 	}
 	/**
@@ -202,7 +198,7 @@ class main extends main_base {
 		$modelCode = $this->model('code\page');
 
 		$oCopied = $modelApp->byId($app);
-		if (false === $oCopied) {
+		if (false === $oCopied || $oCopied->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$oEntryRule = clone $oCopied->entryRule;

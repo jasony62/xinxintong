@@ -13,7 +13,7 @@ class schema extends main_base {
 	 * @param string $targetApp 数据来源的登记活动
 	 *
 	 */
-	public function createByRecord_action($app, $targetApp) {
+	public function createByRecord_action($app, $targetApp, $round = '') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -22,37 +22,45 @@ class schema extends main_base {
 		if (empty($oPosted->schemas)) {
 			return new \ParameterError('没有指定题目');
 		}
-		$targetSchemas = $oPosted->schemas;
 
 		$modelEnl = $this->model('matter\enroll');
 
-		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round']);
+		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round', 'appRid' => $round]);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => 'siteid,state,mission_id,data_schemas']);
+		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => 'siteid,state,mission_id,data_schemas,sync_mission_round']);
 		if (false === $oTargetApp || $oTargetApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
 		if ($oApp->mission_id !== $oTargetApp->mission_id) {
 			return new \ParameterError('仅支持在同一个项目的活动间通过记录生成题目');
 		}
 
-		/* 匹配的轮次 */
-		$modelRnd = $this->model('matter\enroll\round');
-		if (empty($round)) {
-			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
-		} else {
-			$oAssignedRnd = $modelRnd->byId($round, ['fields' => 'id,rid,mission_rid']);
+		$targetSchemas = []; // 目标应用中选择的题目
+		foreach ($oPosted->schemas as $oSchema) {
+			foreach ($oTargetApp->dataSchemas as $oSchema2) {
+				if ($oSchema->id === $oSchema2->id) {
+					$targetSchemas[] = $oSchema2;
+					break;
+				}
+			}
 		}
+		if (empty($targetSchemas)) {
+			return new \ParameterError('指定的题目无效');
+		}
+
+		/* 匹配的轮次 */
+		$oAssignedRnd = $oApp->appRound;
 		if ($oAssignedRnd) {
+			$modelRnd = $this->model('matter\enroll\round');
 			$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
 		}
 
 		/* 目标活动的统计结果 */
-		$aTargetData = $this->model('matter\enroll\record')->getStat($oTargetApp, $oTargetAppRnd ? $oTargetAppRnd->rid : '', 'Y');
+		$modelRec = $this->model('matter\enroll\record');
+		$aTargetData = $modelRec->getStat($oTargetApp, !empty($oTargetAppRnd) ? $oTargetAppRnd->rid : '', 'N');
 		$newSchemas = []; // 根据记录创建的题目
 		$modelDat = $this->model('matter\enroll\data');
 		foreach ($targetSchemas as $oTargetSchema) {
@@ -98,33 +106,55 @@ class schema extends main_base {
 	/**
 	 * 根据指定的数量，从选项生成题目
 	 */
-	private function _genSchemaByTopOptions($oTargetSchema, $options, $limitNum, &$newSchemas) {
-		if ($limitNum > count($options)) {
-			$limitNum = count($options);
+	private function _genSchemaByTopOptions($oTargetSchema, $votingOptions, $limitNum, &$newSchemas) {
+		if ($limitNum > count($votingOptions)) {
+			$limitNum = count($votingOptions);
 		}
+
+		$originalOptionsByValue = [];
+		foreach ($oTargetSchema->ops as $oOption) {
+			$originalOptionsByValue[$oOption->v] = $oOption;
+		}
+
 		for ($i = 0; $i < $limitNum; $i++) {
-			$oOption = $options[$i];
-			$oNewSchema = new \stdClass;
-			$oNewSchema->id = $oTargetSchema->id . $oOption->v;
-			$oNewSchema->title = $oOption->l;
-			$oNewSchema->type = 'longtext';
-			$newSchemas[] = $oNewSchema;
+			$oOption = $votingOptions[$i];
+			if (isset($originalOptionsByValue[$oOption->v])) {
+				$oNewSchema = new \stdClass;
+				$oNewSchema->id = $oTargetSchema->id . $oOption->v;
+				$oNewSchema->title = $oOption->l;
+				$oNewSchema->type = 'longtext';
+				if (isset($originalOptionsByValue[$oOption->v]->ds)) {
+					$oNewSchema->ds = $originalOptionsByValue[$oOption->v]->ds;
+				}
+				$newSchemas[] = $oNewSchema;
+			}
 		}
 	}
 	/**
 	 * 根据选项获得的选择数量生成题目
 	 */
-	private function _genSchemaByCheckedOptions($oTargetSchema, $options, $checkedNum, &$newSchemas) {
-		for ($i = 0, $ii = count($options); $i < $ii; $i++) {
-			$oOption = $options[$i];
-			if ($oOption->c < $checkedNum) {
-				break;
+	private function _genSchemaByCheckedOptions($oTargetSchema, $votingOptions, $checkedNum, &$newSchemas) {
+		for ($i = 0, $ii = count($votingOptions); $i < $ii; $i++) {
+			$oOption = $votingOptions[$i];
+
+			$originalOptionsByValue = [];
+			foreach ($oTargetSchema->ops as $oOption) {
+				$originalOptionsByValue[$oOption->v] = $oOption;
 			}
-			$oNewSchema = new \stdClass;
-			$oNewSchema->id = $oTargetSchema->id . $oOption->v;
-			$oNewSchema->title = $oOption->l;
-			$oNewSchema->type = 'longtext';
-			$newSchemas[] = $oNewSchema;
+
+			if (isset($originalOptionsByValue[$oOption->v])) {
+				if ($oOption->c < $checkedNum) {
+					break;
+				}
+				$oNewSchema = new \stdClass;
+				$oNewSchema->id = $oTargetSchema->id . $oOption->v;
+				$oNewSchema->title = $oOption->l;
+				$oNewSchema->type = 'longtext';
+				if (isset($originalOptionsByValue[$oOption->v]->ds)) {
+					$oNewSchema->ds = $originalOptionsByValue[$oOption->v]->ds;
+				}
+				$newSchemas[] = $oNewSchema;
+			}
 		}
 	}
 }

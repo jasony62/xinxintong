@@ -200,8 +200,8 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation',
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
-        if (params.activeRound) {
-            oActiveRound = params.activeRound;
+        if (oApp.appRound) {
+            oActiveRound = oApp.appRound;
             oCurrentCriteria = { record: { rid: oActiveRound.rid } };
         }
         $scope.$watch('options.owner', function(nv) {

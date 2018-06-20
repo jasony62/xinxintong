@@ -107,69 +107,72 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
         return http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid'));
     }
 
-    function fnProcessData(oData) {
-        var originalValue, afterValue, aProcessing;
-        $scope.app.dataSchemas.forEach(function(oSchema) {
-            if (oSchema.schema_id && oData.member) {
-                var attr;
-                attr = oSchema.id.split('.');
-                if (attr.length === 2) {
-                    originalValue = oData.member[attr[1]];
-                    aProcessing = [oData.member, attr[1]];
-                } else if (attr.length === 3) {
-                    originalValue = oData.member.extattr[attr[2]];
-                    if (originalValue && oSchema.type === 'multiple') {
-                        var originalValue2 = [];
-                        angular.forEach(originalValue, function(v, k) {
-                            if (v) originalValue2.push(k);
-                        });
-                        originalValue = originalValue2;
+    function fnProcessData(oRecord) {
+        var oData, originalValue, afterValue, aProcessing;
+        oData = oRecord.data;
+        http2.get(LS.j('schema/get', 'site', 'app') + '&rid=' + oRecord.rid).then(function(rsp) {
+            rsp.data.forEach(function(oSchema) {
+                if (oSchema.schema_id && oData.member) {
+                    var attr;
+                    attr = oSchema.id.split('.');
+                    if (attr.length === 2) {
+                        originalValue = oData.member[attr[1]];
+                        aProcessing = [oData.member, attr[1]];
+                    } else if (attr.length === 3) {
+                        originalValue = oData.member.extattr[attr[2]];
+                        if (originalValue && oSchema.type === 'multiple') {
+                            var originalValue2 = [];
+                            angular.forEach(originalValue, function(v, k) {
+                                if (v) originalValue2.push(k);
+                            });
+                            originalValue = originalValue2;
+                        }
+                        aProcessing = [oData.member.extattr, attr[2]];
                     }
-                    aProcessing = [oData.member.extattr, attr[2]];
+                } else {
+                    originalValue = oData[oSchema.id];
+                    if (originalValue) {
+                        switch (oSchema.type) {
+                            case 'multiple':
+                                originalValue = originalValue.split(',');
+                                break;
+                            case 'url':
+                                originalValue._text = ngApp.oUtilSchema.urlSubstitute(originalValue);
+                                break;
+                        }
+                    }
+                    aProcessing = [oData, oSchema.id];
                 }
-            } else {
-                originalValue = oData[oSchema.id];
                 if (originalValue) {
                     switch (oSchema.type) {
-                        case 'multiple':
-                            originalValue = originalValue.split(',');
+                        case 'longtext':
+                            afterValue = ngApp.oUtilSchema.txtSubstitute(originalValue);
                             break;
-                        case 'url':
-                            originalValue._text = ngApp.oUtilSchema.urlSubstitute(originalValue);
-                            break;
-                    }
-                }
-                aProcessing = [oData, oSchema.id];
-            }
-            if (originalValue) {
-                switch (oSchema.type) {
-                    case 'longtext':
-                        afterValue = ngApp.oUtilSchema.txtSubstitute(originalValue);
-                        break;
-                    case 'single':
-                        if (oSchema.ops && oSchema.ops.length) {
-                            for (var i = oSchema.ops.length - 1; i >= 0; i--) {
-                                if (originalValue === oSchema.ops[i].v) {
-                                    afterValue = oSchema.ops[i].l;
+                        case 'single':
+                            if (oSchema.ops && oSchema.ops.length) {
+                                for (var i = oSchema.ops.length - 1; i >= 0; i--) {
+                                    if (originalValue === oSchema.ops[i].v) {
+                                        afterValue = oSchema.ops[i].l;
+                                    }
                                 }
                             }
-                        }
-                        break;
-                    case 'multiple':
-                        if (oSchema.ops && oSchema.ops.length) {
-                            afterValue = [];
-                            oSchema.ops.forEach(function(op) {
-                                originalValue.indexOf(op.v) !== -1 && afterValue.push(op.l);
-                            });
-                            afterValue = afterValue.join(',');
-                        }
-                        break;
-                    default:
-                        afterValue = originalValue;
+                            break;
+                        case 'multiple':
+                            if (oSchema.ops && oSchema.ops.length) {
+                                afterValue = [];
+                                oSchema.ops.forEach(function(op) {
+                                    originalValue.indexOf(op.v) !== -1 && afterValue.push(op.l);
+                                });
+                                afterValue = afterValue.length ? afterValue.join(',') : '[空]';
+                            }
+                            break;
+                        default:
+                            afterValue = originalValue;
+                    }
                 }
-            }
-            aProcessing[0][aProcessing[1]] = afterValue || originalValue || (/image|file|voice|multitext/.test(oSchema.type) ? '' : '[空]');
-            afterValue = undefined;
+                aProcessing[0][aProcessing[1]] = afterValue || originalValue || (/image|file|voice|multitext/.test(oSchema.type) ? '' : '[空]');
+                afterValue = undefined;
+            });
         });
     }
 
@@ -227,7 +230,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
             /* 设置题目的可见性 */
             fnToggleAssocSchemas(dataSchemas, oOriginalData);
             /* 将数据转换为可直接显示的形式 */
-            fnProcessData(rsp.data.data);
+            fnProcessData(rsp.data);
             facRecord.current = oRecord = rsp.data;
             /* disable actions */
             if (oApp.end_submit_at > 0 && parseInt(oApp.end_submit_at) < (new Date * 1) / 1000) {
@@ -239,7 +242,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
             }
             $timeout(function() {
                 var imgs;
-                if(imgs = document.querySelectorAll('.data img')) {
+                if (imgs = document.querySelectorAll('.data img')) {
                     picviewer.init(imgs);
                 }
             });
@@ -254,6 +257,9 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
             }
             if (oApp.can_rank === 'Y') {
                 oAppNavs.rank = {};
+            }
+            if (oApp.scenario === 'voting') {
+                oAppNavs.votes = {};
             }
             if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
                 oAppNavs.event = {};

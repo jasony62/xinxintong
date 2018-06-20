@@ -77,6 +77,10 @@ class main extends base {
 				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp->id, $page);
 			}
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
+			// 访问专题页和共享页和讨论页需要记录数据
+			if (in_array($oOpenPage->name, ['repos'])) {
+				$this->_pageReadlog($oApp, $oOpenPage->name, $rid, $ek, $topic);
+			}
 			\TPL::assign('title', $oApp->title);
 			if (in_array($oOpenPage->name, ['event', 'rank', 'score', 'votes', 'repos', 'favor', 'topic'])) {
 				\TPL::output('/site/fe/matter/enroll/' . $oOpenPage->name);

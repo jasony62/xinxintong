@@ -93,6 +93,12 @@ foreach ($notRoundApps as $notRoundApp) {
             header('HTTP/1.0 500 Internal Server Error');
             echo 'database error: ' . $mysqli->error;
         }
+        // 更新统计缓存表
+        $sql12 = "update xxt_enroll_record_stat set rid = '{$roundId}' where aid = '{$notRoundApp->id}' and rid = ''";
+        if (!$mysqli->query($sql12)) {
+            header('HTTP/1.0 500 Internal Server Error');
+            echo 'database error: ' . $mysqli->error;
+        }
 }
 
 echo "end update " . __FILE__ . PHP_EOL;

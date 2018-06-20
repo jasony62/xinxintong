@@ -130,23 +130,58 @@ class log extends \pl\fe\matter\base {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '来源');
 		}
 		
+		// 事件转换表
+		$operations = [];
+		$operations['read'] = '阅读';
+        $operations['site.matter.enroll.submit'] = '提交';
+        $operations['updateData'] = '修改记录';
+        $operations['removeData'] = '删除记录';
+        $operations['restoreData'] = '恢复记录';
+        $operations['site.matter.enroll.data.do.like'] = '表态其他人的填写内容';
+        $operations['site.matter.enroll.cowork.do.submit'] = '提交协作新内容';
+        $operations['site.matter.enroll.do.remark'] = '评论';
+        $operations['site.matter.enroll.cowork.do.like'] = '表态其他人填写的协作内容';
+        $operations['site.matter.enroll.remark.do.like'] = '表态其他人的评论';
+        $operations['site.matter.enroll.data.get.agree'] = '对记录表态';
+        $operations['site.matter.enroll.cowork.get.agree'] = '对协作记录表态';
+        $operations['site.matter.enroll.remark.get.agree'] = '对评论表态';
+        $operations['site.matter.enroll.remark.as.cowork'] = '将用户留言设置为协作记录';
+        $operations['site.matter.enroll.remove'] = '删除记录';
+        $operations['add'] = '新增记录';
+        $operations['U'] = '修改活动';
+        $operations['C'] = '创建活动';
+        $operations['verify.batch'] = '审核通过指定记录';
+        $operations['verify.all'] = '审核通过全部记录';
+        $operations['shareT'] = '分享';
+        $operations['shareF'] = '转发';
+
 		// 转换数据
 		for ($j = 0, $jj = count($logs); $j < $jj; $j++) {
 			$log = $logs[$j];
 			$rowIndex = $j + 2;
 			$columnNum2 = 0; //列号
-			$actionAt = date('Y-m-d H:i:s', $log->action_at);
+			switch ($logType) {
+				case 'pl':
+				case 'site':
+					$action_at = $log->operate_at;
+					$event = $operations[$log->operation];
+					break;
+				default:
+					$action_at = $log->action_at;
+					if ($log->act_read > 0) {
+						$event = '阅读';
+					} else if ($log->act_share_timeline > 0) {
+						$event = '分享至朋友圈';
+					} else if ($log->act_share_friend > 0) {
+						$event = '转发给朋友';
+					} else {
+						$event = '未知';
+					}
+					break;
+			}
+			$actionAt = date('Y-m-d H:i:s', $action_at);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $actionAt);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->nickname);
-			if ($log->act_read > 0) {
-				$event = '阅读';
-			} else if ($log->act_share_timeline > 0) {
-				$event = '分享至朋友圈';
-			} else if ($log->act_share_friend > 0) {
-				$event = '转发给朋友';
-			} else {
-				$event = '未知';
-			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $event);
 			if ($logType === 'page') {
 				$originNickname = isset($log->origin_nickname)? $log->origin_nickname : '';

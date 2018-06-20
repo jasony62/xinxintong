@@ -118,9 +118,9 @@ class log extends \pl\fe\matter\base {
 		// Set properties
 		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
 			->setLastModifiedBy(APP_TITLE)
-			->setTitle($oArticle->title)
-			->setSubject($oArticle->title)
-			->setDescription($oArticle->title);
+			->setTitle($oApp->title)
+			->setSubject($oApp->title)
+			->setDescription($oApp->title);
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '时间');
@@ -157,7 +157,7 @@ class log extends \pl\fe\matter\base {
 		header('Content-Type: application/vnd.ms-excel');
 		header('Cache-Control: max-age=0');
 
-		$filename = $oArticle->title . '.xlsx';
+		$filename = $oApp->title . '.xlsx';
 		$ua = $_SERVER["HTTP_USER_AGENT"];
 		//if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
 		if (preg_match("/MSIE/", $ua)) {

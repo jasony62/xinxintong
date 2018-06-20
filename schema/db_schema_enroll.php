@@ -266,7 +266,7 @@ $sql .= ",create_at int not null";
 $sql .= ",id varchar(40) not null";
 $sql .= ",title varchar(255) not null";
 $sql .= ",v varchar(40) not null";
-$sql .= ",l varchar(255) not null";
+$sql .= ",l text null";
 $sql .= ",c double not null";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

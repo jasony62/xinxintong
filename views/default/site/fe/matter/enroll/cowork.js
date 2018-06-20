@@ -465,7 +465,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 oNewRemark = rsp.data;
                 oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
                 if (oUpperRemark) {
-                    oNewRemark.content = '<a href="" ng-click="gotoUpper(' + oUpperRemark.id + ')">回复 ' + oUpperRemark.nickname + ' 的留言：</a><br/>' + oNewRemark.content;
+                    oNewRemark.reply = '<a href="#remark-' + oUpperRemark.id + '">回复' + oUpperRemark.nickname + '的留言 #' + oUpperRemark.seq_in_record + '</a>';
                 }
                 $scope.remarks.push(oNewRemark);
                 if (!oUpperRemark) {
@@ -711,9 +711,10 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         });
     };
     $scope.agreeItem = function(oItem, value) {
+        console.log(oItem);
         var url;
         if (oItem.agreed !== value) {
-            url = LS.j('data/agree', 'site', 'ek') + '&data=' + oItem.id;
+            url = LS.j('data/agree', 'site', 'ek') + '&data=' + oItem.id + '&schema=' + oItem.schema_id;
             url += '&value=' + value;
             http2.get(url).then(function(rsp) {
                 oItem.agreed = value;

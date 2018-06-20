@@ -2,22 +2,10 @@
 namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
-/*
+/**
  * 登记活动主控制器
  */
 class main extends main_base {
-	/**
-	 * 返回视图
-	 */
-	public function index_action($site, $id) {
-		$aAccess = $this->accessControlUser('enroll', $id);
-		if ($aAccess[0] === false) {
-			die($aAccess[1]);
-		}
-
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
-	}
 	/**
 	 * 返回指定的登记活动
 	 */
@@ -74,10 +62,6 @@ class main extends main_base {
 			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
 			$oApp->groups = $groups;
 		}
-
-		/* 设置活动的动态选项 */
-		$oAppRnd = $this->model('matter\enroll\round')->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
-		$modelEnl->setDynaOptions($oApp, $oAppRnd);
 
 		return new \ResponseData($oApp);
 	}
@@ -214,7 +198,7 @@ class main extends main_base {
 		$modelCode = $this->model('code\page');
 
 		$oCopied = $modelApp->byId($app);
-		if (false === $oCopied) {
+		if (false === $oCopied || $oCopied->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$oEntryRule = clone $oCopied->entryRule;

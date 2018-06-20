@@ -43,8 +43,8 @@ class record_model extends record_base {
 			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $aOptions);
 			$aRecord['nickname'] = $this->escape($nickname);
 		}
-		/* 登记用户的社交账号信息 */
-		if (!empty($oUser)) {
+		/* 登记用户的社交账号信息，还需要吗？ */
+		if (!empty($oUser->uid)) {
 			$oUserOpenids = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid']);
 			if ($oUserOpenids) {
 				$aRecord['wx_openid'] = $oUserOpenids->wx_openid;
@@ -437,8 +437,7 @@ class record_model extends record_base {
 	private function _mapOfScoreSchema(&$oApp) {
 		$scoreSchemas = new \stdClass;
 
-		$schemas = is_object($oApp->data_schemas) ? $oApp->data_schemas : json_decode($oApp->data_schemas);
-		foreach ($schemas as $schema) {
+		foreach ($oApp->dataSchemas as $schema) {
 			if ($schema->type === 'single' && isset($schema->score) && $schema->score === 'Y') {
 				$scoreSchemas->{$schema->id} = new \stdClass;
 				$scoreSchemas->{$schema->id}->ops = new \stdClass;
@@ -949,24 +948,8 @@ class record_model extends record_base {
 	}
 	/**
 	 * 已删除的登记清单
-	 *
-	 * 1、如果活动仅限会员报名，那么要叠加会员信息
-	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
-	 *
-	 * $siteId
-	 * $aid
-	 * $options
-	 * --page
-	 * --size
-	 * --rid 轮次id
-	 *
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
 	 */
-	public function recycle($siteId, &$app, $options = null) {
+	public function recycle($oApp, $options = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
@@ -978,7 +961,7 @@ class record_model extends record_base {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($app)) {
+			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
 			}
 		}
@@ -986,7 +969,7 @@ class record_model extends record_base {
 		$oResult->total = 0;
 
 		// 指定登记活动下的登记记录
-		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$app->id}'";
+		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$oApp->id}'";
 
 		// 指定了轮次
 		!empty($rid) && $w .= " and e.rid='$rid'";
@@ -1024,9 +1007,9 @@ class record_model extends record_base {
 					$r->data = $data;
 				}
 				// 记录的分数
-				if ($app->scenario === 'voting') {
+				if ($oApp->scenario === 'voting') {
 					if (!isset($scoreSchemas)) {
-						$scoreSchemas = $this->_mapOfScoreSchema($app);
+						$scoreSchemas = $this->_mapOfScoreSchema($oApp);
 						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
 					$r->_score = $this->_calcVotingScore($scoreSchemas, $data);
@@ -1487,7 +1470,7 @@ class record_model extends record_base {
 	 */
 	public function &getStat($appIdOrObj, $rid = '', $renewCache = 'Y') {
 		if (is_string($appIdOrObj)) {
-			$oApp = $this->model('matter\enroll')->byId($appIdOrObj, ['fields' => 'id,data_schemas,round_cron', 'cascaded' => 'N']);
+			$oApp = $this->model('matter\enroll')->byId($appIdOrObj, ['fields' => 'id,data_schemas,round_cron,sync_mission_round', 'cascaded' => 'N']);
 		} else {
 			$oApp = $appIdOrObj;
 		}
@@ -1526,13 +1509,13 @@ class record_model extends record_base {
 			}
 			// 如果更新的登记数据，重新计算统计结果
 			if ($newCnt > 0) {
-				$oResult = $this->_calcStat($oApp, $rid);
+				$aResult = $this->_calcStat($oApp, $rid);
 				// 保存统计结果
 				$this->delete(
 					'xxt_enroll_record_stat',
 					['aid' => $oApp->id, 'rid' => $rid]
 				);
-				foreach ($oResult as $id => $oDataBySchema) {
+				foreach ($aResult as $id => $oDataBySchema) {
 					foreach ($oDataBySchema->ops as $op) {
 						$r = [
 							'siteid' => $oApp->siteid,
@@ -1550,7 +1533,7 @@ class record_model extends record_base {
 				}
 			} else {
 				/* 从缓存中获取统计数据 */
-				$oResult = [];
+				$aResult = [];
 				$q = [
 					'id,title,v,l,c',
 					'xxt_enroll_record_stat',
@@ -1558,44 +1541,44 @@ class record_model extends record_base {
 				];
 				$aCached = $this->query_objs_ss($q);
 				foreach ($aCached as $oDataByOp) {
-					if (empty($oResult[$oDataByOp->id])) {
+					if (empty($aResult[$oDataByOp->id])) {
 						$oDataBySchema = (object) [
 							'id' => $oDataByOp->id,
 							'title' => $oDataByOp->title,
 							'ops' => [],
 							'sum' => 0,
 						];
-						$oResult[$oDataByOp->id] = $oDataBySchema;
+						$aResult[$oDataByOp->id] = $oDataBySchema;
 					} else {
-						$oDataBySchema = $oResult[$oDataByOp->id];
+						$oDataBySchema = $aResult[$oDataByOp->id];
 					}
-					$op = (object) [
+					$oOp = (object) [
 						'v' => $oDataByOp->v,
 						'l' => $oDataByOp->l,
 						'c' => $oDataByOp->c,
 					];
-					$oDataBySchema->ops[] = $op;
-					$oDataBySchema->sum += $op->c;
+					$oDataBySchema->ops[] = $oOp;
+					$oDataBySchema->sum += $oOp->c;
 				}
 			}
 		} else {
-			$oResult = $this->_calcStat($oApp, $rid);
+			$aResult = $this->_calcStat($oApp, $rid);
 		}
 
-		return $oResult;
+		return $aResult;
 	}
 	/**
 	 * 统计选择题、记分题汇总信息
 	 */
 	private function &_calcStat($oApp, $rid) {
-		$oResult = [];
+		$aResult = [];
 
 		$dataSchemas = $oApp->dataSchemas;
 		foreach ($dataSchemas as $oSchema) {
 			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score', 'multitext'])) {
 				continue;
 			}
-			$oResult[$oSchema->id] = $oDataBySchema = (object) [
+			$aResult[$oSchema->id] = $oDataBySchema = (object) [
 				'title' => isset($oSchema->title) ? $oSchema->title : '',
 				'id' => $oSchema->id,
 				'ops' => [],
@@ -1677,7 +1660,7 @@ class record_model extends record_base {
 			}
 		}
 
-		return $oResult;
+		return $aResult;
 	}
 	/**
 	 * 获得schemasB中和schemasA兼容的登记项定义及对应关系
@@ -1718,7 +1701,7 @@ class record_model extends record_base {
 			$mapAByType[$compatibleType][] = $schemaA;
 		}
 
-		$oResult = [];
+		$aResult = [];
 		foreach ($schemasB as $schemaB) {
 			if (!isset($mapOfCompatibleType[$schemaB->type])) {
 				continue;
@@ -1746,10 +1729,10 @@ class record_model extends record_base {
 						continue;
 					}
 				}
-				$oResult[] = [$schemaB, $schemaA];
+				$aResult[] = [$schemaB, $schemaA];
 			}
 		}
 
-		return $oResult;
+		return $aResult;
 	}
 }

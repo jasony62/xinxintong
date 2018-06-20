@@ -13,7 +13,7 @@
                         <button class='btn btn-default' ng-click="doFilter()"><i class='glyphicon glyphicon-refresh'></i></button>
                     </span>
                 </div>
-                <select class="form-control" ng-model="result.fromApp" ng-options="app as app.title for app in apps" size="12" ng-change="selectApp()"></select>
+                <select class="form-control" ng-model="result.fromApp" ng-options="app as app.title for app in apps" size="12" ng-change="selectApp()" style='overflow-x:auto'></select>
             </div>
         </div>
         <div class='col-md-6'>

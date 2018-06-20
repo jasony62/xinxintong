@@ -16,7 +16,7 @@ class data_model extends entity_model {
 	 */
 	public function setData($oUser, $oApp, $oRecord, $submitData, $submitkey = '', $oAssignScore = null) {
 		if (empty($submitkey)) {
-			$submitkey = empty($oUser) ? '' : $oUser->uid;
+			$submitkey = empty($oUser->uid) ? '' : $oUser->uid;
 		}
 
 		$schemasById = []; // 方便获取登记项定义
@@ -160,7 +160,7 @@ class data_model extends entity_model {
 					);
 				}
 			} else {
-				// 处理可多项填写题型
+				/* 获得一道题目的多条数据，多项填写题型 */
 				$aSchemaValue = [];
 				if ($oSchema->type === 'multitext') {
 					$newSchemaValues = json_decode($treatedValue);
@@ -170,12 +170,15 @@ class data_model extends entity_model {
 						if ((int) $v->multitext_seq > 0) {
 							$beforeSchemaItems[$v->id] = $v;
 						} else if ((int) $v->multitext_seq === 0) {
+							/* 题目的根数据 */
 							$oBeforeSchemaVal = $v;
 						}
 					}
 					if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-						$treatedValue = $oBeforeSchemaVal->value;
-						$dbData->{$schemaId} = json_encode($treatedValue);
+						if (isset($oBeforeSchemaVal->value)) {
+							$treatedValue = $oBeforeSchemaVal->value;
+							$dbData->{$schemaId} = json_encode($treatedValue);
+						}
 					} else {
 						foreach ($newSchemaValues as $k => $newSchemaValue) {
 							if ($newSchemaValue->id == 0) {

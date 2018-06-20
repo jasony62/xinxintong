@@ -554,7 +554,6 @@ define([], function() {
                                 }
                             }
                         }
-                        _htmlSupplement($dom, oSchema);
                     })(this);
                 } else if ('multiple' === oSchema.type) {
                     (function(lib) {
@@ -567,7 +566,6 @@ define([], function() {
                             html = lib._htmlMultiple(dataWrap, false, true);
                             $dom.children('ul').html(html);
                         }
-                        _htmlSupplement($dom, oSchema);
                     })(this);
                 } else if ('score' === oSchema.type) {
                     (function(lib) {
@@ -589,8 +587,6 @@ define([], function() {
                         imageEmbed = lib.embed(dataWrap);
                         $dom.attr(imageEmbed.attrs);
                         $dom.html(imageEmbed.html);
-
-                        _htmlSupplement($dom, oSchema);
                     })(this);
                 } else if (/file/.test(oSchema.type)) {
                     (function(lib) {
@@ -603,8 +599,6 @@ define([], function() {
                         fileEmbed = lib.embed(dataWrap);
                         $dom.attr(fileEmbed.attrs);
                         $dom.html(fileEmbed.html);
-
-                        _htmlSupplement($dom, oSchema);
                     })(this);
                 } else if (/voice/.test(oSchema.type)) {
                     (function(lib) {
@@ -617,10 +611,9 @@ define([], function() {
                         voiceEmbed = lib.embed(dataWrap);
                         $dom.attr(voiceEmbed.attrs);
                         $dom.html(voiceEmbed.html);
-
-                        _htmlSupplement($dom, oSchema);
                     })(this);
                 }
+                _htmlSupplement($dom, oSchema);
                 $label.toggleClass('hide', !!oConfig.hidename);
                 if (oSchema.description && oSchema.description.length) {
                     if (!$dom.find('[class="description"]').length) {

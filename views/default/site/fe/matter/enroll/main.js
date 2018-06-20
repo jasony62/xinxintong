@@ -262,9 +262,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         $scope.mission = oMission;
         $scope.app = oApp;
         $scope.user = oUser;
-        if (oApp.multi_rounds === 'Y' && params.activeRound) {
-            $scope.activeRound = params.activeRound;
-            activeRid = params.activeRound.rid;
+        if (oApp.multi_rounds === 'Y' && oApp.appRound) {
+            $scope.activeRound = oApp.appRound;
+            activeRid = oApp.appRound.rid;
         }
         if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
             tmsDynaPage.loadCode(ngApp, oSite.header_page);

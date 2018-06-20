@@ -74,7 +74,7 @@
 					<span>总数：{{siteLog.page.total}}</span>
 					<div class="input-group pull-right">
 						<span class="input-group-addon">每页条数</span>
-						<input type="text" class="form-control text-center" style="width:64px;" ng-model="plLog.page.size">
+						<input type="text" class="form-control text-center" style="width:64px;" ng-model="siteLog.page.size">
 						<div class='input-group-btn'>
 	                        <button class='btn btn-default' ng-click='siteLog.list(1)'>
 	                            <span class='glyphicon glyphicon-refresh'></span>
@@ -101,7 +101,7 @@
 						<td>{{log.action_at*1000|date:'yy-MM-dd HH:mm'}}</td>
 						<td>{{log.nickname||'未知'}}</td>
 						<td><span>{{operations[log.event]}}</span></td>
-						<td>{{log.original_logid}}</td>
+						<td>{{log.origin_nickname}}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -110,7 +110,7 @@
 					<span>总数：{{pageLog.page.total}}</span>
 					<div class="input-group pull-right">
 						<span class="input-group-addon">每页条数</span>
-						<input type="text" class="form-control text-center" style="width:64px;" ng-model="plLog.page.size">
+						<input type="text" class="form-control text-center" style="width:64px;" ng-model="pageLog.page.size">
 						<div class='input-group-btn'>
 	                        <button class='btn btn-default' ng-click='pageLog.list(1)'>
 	                            <span class='glyphicon glyphicon-refresh'></span>

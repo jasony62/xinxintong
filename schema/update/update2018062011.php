@@ -2,22 +2,13 @@
 require_once '../../db.php';
 
 set_time_limit(0);
+
 //
-$sql = "select * from xxt_enroll where sync_mission_round <> 'Y'";
+$sql = "select e.siteid,e.id from xxt_enroll e where not exists (select 1 from xxt_enroll_round r where r.aid=e.id) ";
 $db_result = $mysqli->query($sql);
-$oApps = array();
+$notRoundApps = array();
 while ($obj = $db_result->fetch_object()) {
-	$oApps[] = $obj;
-}
-// 获取没有轮次的活动
-$notRoundApps = [];
-foreach ($oApps as $oApp) {
-	$sql2 = "select id from xxt_enroll_round where aid = '{$oApp->id}' limit 1";
-	$db_result2 = $mysqli->query($sql2);
-	$obj2 = $db_result2->fetch_object();
-	if (!$obj2) {
-		$notRoundApps[] = $oApp;
-	}
+	$notRoundApps[] = $obj;
 }
 
 foreach ($notRoundApps as $notRoundApp) {

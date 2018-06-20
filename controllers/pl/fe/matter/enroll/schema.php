@@ -30,7 +30,7 @@ class schema extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => 'siteid,state,mission_id,data_schemas']);
+		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => 'siteid,state,mission_id,data_schemas,sync_mission_round']);
 		if (false === $oTargetApp || $oTargetApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -60,7 +60,7 @@ class schema extends main_base {
 
 		/* 目标活动的统计结果 */
 		$modelRec = $this->model('matter\enroll\record');
-		$aTargetData = $modelRec->getStat($oTargetApp, $oTargetAppRnd ? $oTargetAppRnd->rid : '', 'N');
+		$aTargetData = $modelRec->getStat($oTargetApp, !empty($oTargetAppRnd) ? $oTargetAppRnd->rid : '', 'N');
 		$newSchemas = []; // 根据记录创建的题目
 		$modelDat = $this->model('matter\enroll\data');
 		foreach ($targetSchemas as $oTargetSchema) {

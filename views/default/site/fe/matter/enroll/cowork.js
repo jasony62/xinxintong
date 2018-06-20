@@ -711,9 +711,10 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         });
     };
     $scope.agreeItem = function(oItem, value) {
+        console.log(oItem);
         var url;
         if (oItem.agreed !== value) {
-            url = LS.j('data/agree', 'site', 'ek') + '&data=' + oItem.id;
+            url = LS.j('data/agree', 'site', 'ek') + '&data=' + oItem.id + '&schema=' + oItem.schema_id;
             url += '&value=' + value;
             http2.get(url).then(function(rsp) {
                 oItem.agreed = value;

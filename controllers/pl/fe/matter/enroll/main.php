@@ -198,7 +198,7 @@ class main extends main_base {
 		$modelCode = $this->model('code\page');
 
 		$oCopied = $modelApp->byId($app);
-		if (false === $oCopied) {
+		if (false === $oCopied || $oCopied->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$oEntryRule = clone $oCopied->entryRule;

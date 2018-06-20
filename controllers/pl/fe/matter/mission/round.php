@@ -92,6 +92,35 @@ class round extends \pl\fe\matter\base {
 		return new \ResponseData($rst[1]);
 	}
 	/**
+	 * 根据填写时段规则，将指定的时段设置为启用时段
+	 */
+	public function activeByCron_action($mission, $rid) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oMission = $this->model('matter\mission')->byId($mission, ['cascaded' => 'N']);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRnd = $this->model('matter\mission\round');
+		$oRound = $modelRnd->byId($rid);
+		if (false === $oRound) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oSampleRnd = $modelRnd->byCron($oMission->roundCron);
+
+		$modelRnd->update(
+			'xxt_mission_round',
+			$oSampleRnd,
+			['rid' => $oRound->rid]
+		);
+
+		return new \ResponseData($oSampleRnd);
+	}
+	/**
 	 * 更新轮次
 	 *
 	 * @param string $mission

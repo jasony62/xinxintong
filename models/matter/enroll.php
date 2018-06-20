@@ -64,6 +64,29 @@ class enroll_model extends enroll_base {
 		return $url;
 	}
 	/**
+	 * 新建记录活动
+	 */
+	public function create($oUser, $oNewApp) {
+		if (empty($oNewApp->multi_rounds)) {
+			$oNewApp->multi_rounds = 'Y';
+		}
+		$oNewApp = parent::create($oUser, $oNewApp);
+
+		/* 创建活动默认填写轮次 */
+		$modelRnd = $this->model('matter\enroll\round');
+		if (!empty($oNewApp->sync_mission_round) && $oNewApp->sync_mission_round === 'Y') {
+			$oAppRnd = $modelRnd->getActive($oNewApp);
+		}
+		if (empty($oAppRnd)) {
+			$oRoundProto = new \stdClass;
+			$oRoundProto->title = '填写时段';
+			$oRoundProto->state = 1;
+			$modelRnd->create($oNewApp, $oRoundProto, $oUser);
+		}
+
+		return $oNewApp;
+	}
+	/**
 	 * 返回指定活动的数据
 	 *
 	 * @param string $aid

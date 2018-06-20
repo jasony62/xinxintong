@@ -4,7 +4,7 @@ require_once '../../db.php';
 set_time_limit(0);
 
 //
-$sql = "select e.siteid,e.id from xxt_enroll e where not exists (select 1 from xxt_enroll_round r where r.aid=e.id limit 1) ";
+$sql = "select e.siteid,e.id from xxt_enroll e where not exists (select 1 from xxt_enroll_round r where r.aid=e.id limit 1) limit 50";
 $db_result = $mysqli->query($sql);
 $notRoundApps = array();
 while ($obj = $db_result->fetch_object()) {
@@ -92,4 +92,11 @@ foreach ($notRoundApps as $notRoundApp) {
         }
 }
 
-echo "end update " . __FILE__ . PHP_EOL;
+$sqlEnd = "select count(*) sum from xxt_enroll e where not exists (select 1 from xxt_enroll_round r where r.aid=e.id limit 1)";
+$db_resultEnd = $mysqli->query($sqlEnd);
+$objEnd = $db_resultEnd->fetch_object();
+if ($objEnd->sum) {
+    echo '还有' . $objEnd->sum . '条数据未更新，需要再次执行此脚本';
+} else {
+    echo "end update " . __FILE__ . PHP_EOL;
+}

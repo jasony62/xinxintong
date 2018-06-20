@@ -6,6 +6,10 @@ include_once dirname(dirname(__FILE__)) . '/base.php';
  * 登记活动
  */
 class base extends \site\fe\matter\base {
+	/**
+	 *
+	 */
+	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,multi_rounds,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config,round_cron,mission_id,sync_mission_round';
 
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';

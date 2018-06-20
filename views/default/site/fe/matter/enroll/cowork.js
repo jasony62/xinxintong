@@ -465,7 +465,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 oNewRemark = rsp.data;
                 oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
                 if (oUpperRemark) {
-                    oNewRemark.content = '<a href="" ng-click="gotoUpper(' + oUpperRemark.id + ')">回复 ' + oUpperRemark.nickname + ' 的留言：</a><br/>' + oNewRemark.content;
+                    oNewRemark.reply = '<a href="#remark-' + oUpperRemark.id + '">回复' + oUpperRemark.nickname + '的留言 #' + oUpperRemark.seq_in_record + '</a>';
                 }
                 $scope.remarks.push(oNewRemark);
                 if (!oUpperRemark) {

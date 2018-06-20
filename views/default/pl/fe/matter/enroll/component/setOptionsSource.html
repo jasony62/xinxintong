@@ -4,34 +4,42 @@
 </div>
 <div class="modal-body">
     <div class='row'>
-        <div class='col-md-6'>
+        <div class='col-md-4'>
             <div class='form-group'>
                 <label>活动</label>
                 <div class='input-group'>
-                    <input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
+                    <input type='text' class='form-control' ng-model="appFilter.byTitle" placeholder="输入活动标题筛选">
                     <span class='input-group-btn'>
-                        <button class='btn btn-default' ng-click="doFilter()"><i class='glyphicon glyphicon-refresh'></i></button>
+                        <button class='btn btn-default' ng-click="doSearch(1)"><i class='glyphicon glyphicon-refresh'></i></button>
                     </span>
                 </div>
-                <select class="form-control" ng-model="result.fromApp" ng-options="app as app.title for app in apps" size="12" ng-change="selectApp()"></select>
+                <select class="form-control" ng-model="result.fromApp" ng-options="app as app.title for app in apps" size="12" ng-change="selectApp()" style="overflow-x:auto"></select>
+            </div>
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <ul uib-pagination ng-show="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
+                </div>
             </div>
         </div>
-        <div class='col-md-6'>
-            <label>题目</label>
+        <div class='col-md-4'>
+            <label>选项来源</label>
             <div class='list-group' style='height:300px;overflow-y:auto'>
-                <div class='list-group-item' ng-repeat="schema in schemas">
+                <div class='list-group-item' ng-repeat="schema in dsSchemas">
                     <label class="radio-inline">
                         <input type='radio' name='dsSchema' value="{{$index}}" ng-model="result.selected">{{schema.title}}</label>
                 </div>
             </div>
         </div>
-    </div>
-    <div class='row'>
-        <div class='col-md-12'>
-            <div class='pl-pagination'>
-                <span>总数：{{page.total}}</span>
-                <ul uib-pagination ng-show="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
+        <div class='col-md-4'>
+            <label>过滤条件</label>
+            <div class='list-group'>
+                <div class='list-group-item' ng-repeat="filter in result.filters">
+                    <select class='form-control' ng-model="filter.schema" ng-options="schema.title for schema in filterSchemas"></select>
+                    <select class='form-control' ng-model="filter.op" ng-options="op.l for op in filter.schema.ops"></select>
+                    <button class='btn btn-default' ng-click="removeFilter(filter)">删除</button>
+                </div>
             </div>
+            <button class='btn btn-default' ng-click="addFilter()">添加</button>
         </div>
     </div>
 </div>

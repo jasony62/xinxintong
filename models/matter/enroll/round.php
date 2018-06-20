@@ -74,6 +74,22 @@ class round_model extends \TMS_MODEL {
 		return $oResult;
 	}
 	/**
+	 * 活动下填写时段的数量
+	 */
+	public function countByApp($oApp, $aOptions = []) {
+		$state = isset($aOptions['state']) ? $aOptions['state'] : false;
+		$q = [
+			'count(*)',
+			'xxt_enroll_round',
+			['aid' => $oApp->id],
+		];
+		$state && $q[2]['state'] = $state;
+
+		$count = (int) $this->query_val_ss($q);
+
+		return $count;
+	}
+	/**
 	 * 添加轮次
 	 *
 	 * @param object $oApp
@@ -149,11 +165,21 @@ class round_model extends \TMS_MODEL {
 	 *
 	 */
 	public function getActive($oApp, $aOptions = []) {
-		if (!isset($oApp->sync_mission_round)) {
-			throw new \Exception('没有提供活动轮次设置的完整信息（1）');
-		}
-
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+
+		$aRequireAppFields = []; // 应用必须包含的字段
+		if (!isset($oApp->sync_mission_round)) {
+			$aRequireAppFields[] = 'sync_mission_round';
+		}
+		if (!isset($oApp->mission_id)) {
+			$aRequireAppFields[] = 'mission_id';
+		}
+		if (!empty($aRequireAppFields)) {
+			$oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['fields' => implode(',', $aRequireAppFields), 'notDecode' => true]);
+			foreach ($oApp2 as $k => $v) {
+				$oApp->{$k} = $v;
+			}
+		}
 
 		if ($oApp->sync_mission_round === 'Y') {
 			/* 根据项目的轮次规则生成轮次 */

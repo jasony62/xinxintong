@@ -4,7 +4,7 @@ require_once '../../db.php';
 set_time_limit(0);
 
 //
-$sql = "select e.siteid,e.id from xxt_enroll e where not exists (select 1 from xxt_enroll_round r where r.aid=e.id) ";
+$sql = "select e.siteid,e.id from xxt_enroll e where not exists (select 1 from xxt_enroll_round r where r.aid=e.id limit 1) ";
 $db_result = $mysqli->query($sql);
 $notRoundApps = array();
 while ($obj = $db_result->fetch_object()) {

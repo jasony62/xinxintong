@@ -1249,6 +1249,9 @@ class log_model extends \TMS_MODEL {
 					$log->origin_userid = '';
 					$log->origin_nickname = '未获取';
 				}
+			} else {
+				$log->origin_userid = '';
+				$log->origin_nickname = '';
 			}
 		}
 		

@@ -69,4 +69,110 @@ class log extends \pl\fe\matter\base {
 
 		return new \ResponseData($reads);
 	}
+	/**
+	 * 导出日志
+	 */
+	public function exportLog_action($app, $logType = 'site', $target_type = '', $target_id = '', $startAt = '', $endAt = '', $byOp = '', $byRid = '', $byUser = '') {
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N', 'notDecode' => true]);
+		if (false === $oApp || $oApp->state != 1) {
+			die('指定的活动不存在');
+		}
+
+		$modelLog = $this->model('matter\log');
+		$options = [];
+		if (!empty($byUser)) {
+			$options['byUser'] = $byUser;
+		}
+		if (!empty($byOp) && (strcasecmp('all', $byOp) != 0)) {
+			$options['byOp'] = $byOp;
+		}
+		if (!empty($byRid) && (strcasecmp('all', $byRid) != 0)) {
+			$options['byRid'] = $byRid;
+		}
+		if (!empty($startAt)) {
+			$options['startAt'] = $startAt;
+		}
+		if (!empty($endAt)) {
+			$options['endAt'] = $endAt;
+		}
+		
+		if ($logType === 'pl') {
+			$reads = $modelLog->listMatterOp($oApp->id, 'enroll', $options, '', '');
+		} else if ($logType === 'page') {
+			if (empty($target_type) || empty($target_id) || !in_array($target_type, ['topic', 'repos', 'cowork'])) {
+				die('参数不完整或暂不支持此页面');
+			}
+			if (isset($options['byOp'])) {
+				$options['byEvent'] = $options['byOp'];
+			}
+
+			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $options);
+		} else {
+			$reads = $this->model('matter\enroll\log')->list($oApp->id, $options, '', '');
+		}
+
+		$logs = $reads->logs;
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
+			->setLastModifiedBy(APP_TITLE)
+			->setTitle($oArticle->title)
+			->setSubject($oArticle->title)
+			->setDescription($oArticle->title);
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+		$columnNum1 = 0; //列号
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '时间');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '用户名');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '操作');
+		if ($logType === 'page') {
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '来源');
+		}
+		
+		// 转换数据
+		for ($j = 0, $jj = count($logs); $j < $jj; $j++) {
+			$log = $logs[$j];
+			$rowIndex = $j + 2;
+			$columnNum2 = 0; //列号
+			$actionAt = date('Y-m-d H:i:s', $log->action_at);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $actionAt);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->nickname);
+			if ($log->act_read > 0) {
+				$event = '阅读';
+			} else if ($log->act_share_timeline > 0) {
+				$event = '分享至朋友圈';
+			} else if ($log->act_share_friend > 0) {
+				$event = '转发给朋友';
+			} else {
+				$event = '未知';
+			}
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $event);
+			if ($logType === 'page') {
+				$originNickname = isset($log->origin_nickname)? $log->origin_nickname : '';
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $originNickname);
+			}
+		}
+		// 输出
+		header('Content-Type: application/vnd.ms-excel');
+		header('Cache-Control: max-age=0');
+
+		$filename = $oArticle->title . '.xlsx';
+		$ua = $_SERVER["HTTP_USER_AGENT"];
+		//if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
+		if (preg_match("/MSIE/", $ua)) {
+			$encoded_filename = urlencode($filename);
+			$encoded_filename = str_replace("+", "%20", $encoded_filename);
+			$encoded_filename = iconv('UTF-8', 'GBK//IGNORE', $encoded_filename);
+			header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
+		} else if (preg_match("/Firefox/", $ua)) {
+			header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '"');
+		} else {
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+		}
+
+		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+		exit;
+	}
 }

@@ -67,7 +67,6 @@
      var _isReady = false;
      this.config = function(options) {
          this.options = options;
-         options.logger && options.logger('T');
      };
      this.set = function(title, link, desc, img, fnOther) {
          var _this = this;

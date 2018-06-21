@@ -250,10 +250,11 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
     };
     /* 设置记录阅读日志信息 */
     $scope.logAccess = function(oParams) {
-        var oApp, oUser, activeRid, oData,
+        var oApp, oUser, activeRid, oData, shareby;
         oApp = $scope.app;
         oUser = $scope.user;
         activeRid = $scope.activeRid;
+        shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
         oData = {
             search: location.search.replace('?', ''),
             referer: document.referrer,
@@ -261,7 +262,8 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             assignedNickname: oUser.nickname,
             id: oApp.id,
             type: 'enroll',
-            title: oApp.title
+            title: oApp.title,
+            shareby: shareby
         }
 
         if(oParams) {

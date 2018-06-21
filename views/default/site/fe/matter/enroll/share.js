@@ -25,7 +25,6 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
                     sharelink += '#' + anchor;
                 }
             }
-            alert(sharelink);
             /* 分享次数计数器 */
             tmsSnsShare.config({
                 siteId: oApp.siteid,

@@ -9,7 +9,7 @@ class topic extends base {
 	/**
 	 *
 	 */
-	public function get_action($topic, $role) {
+	public function get_action($topic, $role = '') {
 		$modelTop = $this->model('matter\enroll\topic');
 		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group']);
 		if (false === $oTopic || $oTopic->state !== '1') {

@@ -40,7 +40,6 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
                     url += "&target_id=" + oApp.record.id;
                     url += "&shareby=" + shareby;
                     url += "&shareto=" + shareto;
-                    alert(url);
                     http2.get(url);
                 },
                 jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage']

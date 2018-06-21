@@ -63,8 +63,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         }
                     }
                     if (prop && prop === 'shareable') {
-                        if (oUpdatedSchema.shareable === 'Y') {
-                            oUpdatedSchema.remarkable = 'Y';
+                        if (!/single|multiple|scope/.test(oUpdatedSchema.type)) {
+                            if (oUpdatedSchema.shareable === 'Y') {
+                                oUpdatedSchema.remarkable = 'Y';
+                            }
                         }
                     }
                     srvApp.get().then(function(oApp) {

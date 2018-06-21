@@ -178,7 +178,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         }
     };
     /* 设置公众号分享信息 */
-    $scope.setSnsShare = function(oRecord, oParams) {
+    $scope.setSnsShare = function(oRecord, oParams, oData) {
         function fnReadySnsShare() {
             if (window.__wxjs_environment === 'miniprogram') {
                 return;
@@ -203,6 +203,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                 });
             }
             shareid = oUser.uid + '_' + (new Date * 1);
+            shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
             sharelink += "&shareby=" + shareid;
             /* 设置分享 */
             summary = oApp.summary;
@@ -220,8 +221,16 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                     url += "&site=" + oApp.siteid;
                     url += "&id=" + oApp.id;
                     url += "&type=enroll";
-                    url += "&title=" + oApp.title;
-                    url += "&shareby=" + shareid;
+                    if(oData&&oData.title) {
+                        url += "&title=" + oData.title;
+                    }else {
+                        url += "&title=" + oApp.title;
+                    }
+                    if(oData) {
+                        url += "&target_type=" + oData.target_type;
+                        url += "&target_id=" + oData.target_id;
+                    }
+                    url += "&shareby=" + shareby;
                     url += "&shareto=" + shareto;
                     http2.get(url);
                     window.shareCounter++;
@@ -239,6 +248,31 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             }
         }
     };
+    /* 设置记录阅读日志信息 */
+    $scope.logAccess = function(oParams) {
+        var oApp, oUser, activeRid, oData, shareby;
+        oApp = $scope.app;
+        oUser = $scope.user;
+        activeRid = $scope.activeRid;
+        shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+        oData = {
+            search: location.search.replace('?', ''),
+            referer: document.referrer,
+            rid: activeRid,
+            assignedNickname: oUser.nickname,
+            id: oApp.id,
+            type: 'enroll',
+            title: oApp.title,
+            shareby: shareby
+        }
+
+        if(oParams) {
+            if(oParams.title) { oData.title = oParams.title; }
+            oData.target_type = oParams.target_type;
+            oData.target_id = oParams.target_id;
+        }
+        http2.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid, oData);
+    }
     $scope.isSmallLayout = false;
     if (window.screen && window.screen.width < 992) {
         $scope.isSmallLayout = true;
@@ -250,8 +284,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             oMission = params.mission,
             oPage = params.page,
             oUser = params.user,
-            schemasById = {},
-            activeRid = '';
+            schemasById = {};
 
         oApp.dataSchemas.forEach(function(schema) {
             schemasById[schema.id] = schema;
@@ -262,9 +295,10 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         $scope.mission = oMission;
         $scope.app = oApp;
         $scope.user = oUser;
-        if (oApp.multi_rounds === 'Y' && oApp.appRound) {
-            $scope.activeRound = oApp.appRound;
-            activeRid = oApp.appRound.rid;
+        $scope.activeRid = '';
+        if (oApp.multi_rounds === 'Y' && params.activeRound) {
+            $scope.activeRound = params.activeRound;
+            $scope.activeRid = params.activeRound.rid;
         }
         if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
             tmsDynaPage.loadCode(ngApp, oSite.header_page);
@@ -301,15 +335,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         }
         $timeout(function() {
             $scope.$broadcast('xxt.app.enroll.ready', params);
-        });
-        http2.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid, {
-            search: location.search.replace('?', ''),
-            referer: document.referrer,
-            rid: activeRid,
-            assignedNickname: oUser.nickname,
-            id: oApp.id,
-            type: 'enroll',
-            title: oApp.title
         });
     });
 }]);

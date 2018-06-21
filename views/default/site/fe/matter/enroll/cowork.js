@@ -82,7 +82,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             oRecord._canAgree = fnCanAgreeRecord(oRecord, _oUser);
             $scope.record = oRecord
             /* 设置页面分享信息 */
-            $scope.setSnsShare(oRecord);
+            $scope.setSnsShare(oRecord, null, {target_type: 'cowork', target_id: oRecord.id});
+            /*页面阅读日志*/
+            $scope.logAccess({target_type: 'cowork', target_id: oRecord.id});
             /* 加载协作填写数据 */
             if (aCoworkSchemas.length) {
                 oRecord.verbose = {};

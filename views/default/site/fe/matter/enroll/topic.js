@@ -188,8 +188,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         var oApp, oUser;
         _oApp = oApp = params.app;
         oUser = params.user;
-        /* 设置页面分享信息 */
-        $scope.setSnsShare(null, { topic: LS.s().topic }); // 应该禁止分享
         oApp.dataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
@@ -245,6 +243,10 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         fnGetTopic().then(function(rsp) {
             $scope.topic = rsp.data;
+            /* 设置页面分享信息 */
+            $scope.setSnsShare(null, { topic: LS.s().topic }, {target_type: 'topic', target_id: rsp.data.id, title: rsp.data.title}); // 应该禁止分享
+            /*页面阅读日志*/
+            $scope.logAccess({target_type: 'topic', target_id: rsp.data.id, title: rsp.data.title});
             $scope.recordList(1);
         });
     });

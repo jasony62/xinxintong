@@ -8,14 +8,16 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             if (window.__wxjs_environment === 'miniprogram') {
                 return;
             }
-            var sharelink, shareid, shareby, target_type;
+            var sharelink, shareid, shareby, target_type, target_title;
             /* 设置活动的当前链接 */
             sharelink = location.protocol + '//' + location.host
             if (LS.s().topic) {
                 target_type = 'topic';
+                target_title = oApp.record.title;
                 sharelink += LS.j('', 'site', 'app', 'topic') + '&page=topic';
             } else {
                 target_type = 'cowork';
+                target_title = oApp.title;
                 sharelink += LS.j('', 'site', 'app', 'ek') + '&page=cowork';
                 if (anchor) {
                     sharelink += '#' + anchor;
@@ -23,6 +25,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             }
             shareid = _oUser.uid + '_' + (new Date * 1);
             shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+            sharelink += shareby;
             /* 分享次数计数器 */
             tmsSnsShare.config({
                 siteId: oApp.siteid,
@@ -32,14 +35,10 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
                     url += "?shareid=" + shareid;
                     url += "&site=" + oApp.siteid;
                     url += "&id=" + oApp.id;
+                    url += "&title=" + target_title;
                     url += "&type=enroll";
-                    url += "&target_type" + target_type;
+                    url += "&target_type=" + target_type;
                     url += "&target_id=" + oApp.record.id;
-                    if(target_title) {
-                        url += "&title=" + oApp.record.title;
-                    }else {
-                        url += "&title=" + oApp.title;
-                    }
                     url += "&shareby=" + shareby;
                     url += "&shareto=" + shareto;
                     http2.get(url);

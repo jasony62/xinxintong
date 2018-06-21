@@ -221,12 +221,12 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                     url += "&site=" + oApp.siteid;
                     url += "&id=" + oApp.id;
                     url += "&type=enroll";
-                    if(oData&&oData.title) {
+                    if (oData && oData.title) {
                         url += "&title=" + oData.title;
-                    }else {
+                    } else {
                         url += "&title=" + oApp.title;
                     }
-                    if(oData) {
+                    if (oData) {
                         url += "&target_type=" + oData.target_type;
                         url += "&target_id=" + oData.target_id;
                     }
@@ -266,8 +266,8 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             shareby: shareby
         }
 
-        if(oParams) {
-            if(oParams.title) { oData.title = oParams.title; }
+        if (oParams) {
+            if (oParams.title) { oData.title = oParams.title; }
             oData.target_type = oParams.target_type;
             oData.target_id = oParams.target_id;
         }

@@ -146,7 +146,7 @@
                                         <button ng-switch-when="N" class='btn btn-xs btn-danger'>关闭</button>
                                         <button ng-switch-when="" class='btn btn-xs btn-default'>未表态</button>
                                     </div>
-                                    <div ng-if="!item._others">
+                                    <div ng-if="!item._others||user.is_editor==='Y'">
                                         <div class="btn-group" uib-dropdown>
                                             <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                                                 <span class="glyphicon glyphicon-option-vertical"></span>
@@ -154,6 +154,7 @@
                                             <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
                                                 <li><a href ng-click="removeItem(schema,$index)"><span class='glyphicon glyphicon-trash'></span> 删除</a></li>
                                                 <li><a href ng-click="editItem(schema,$index)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                                                <li><a href ng-click="coworkAsRemark(schema,$index)"><span class='glyphicon glyphicon-transfer'></span> 转为留言</a></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -237,7 +238,7 @@
                     </div>
                     <div class='remark'>
                         <div class='text-center'>
-                            <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-plus'></span> 写留言</button>
+                            <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-pencil'></span> 写留言</button>
                         </div>
                     </div>
                 </div>

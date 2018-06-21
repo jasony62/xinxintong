@@ -82,9 +82,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             oRecord._canAgree = fnCanAgreeRecord(oRecord, _oUser);
             $scope.record = oRecord
             /* 设置页面分享信息 */
-            $scope.setSnsShare(oRecord, null, {target_type: 'cowork', target_id: oRecord.id});
+            $scope.setSnsShare(oRecord, null, { target_type: 'cowork', target_id: oRecord.id });
             /*页面阅读日志*/
-            $scope.logAccess({target_type: 'cowork', target_id: oRecord.id});
+            $scope.logAccess({ target_type: 'cowork', target_id: oRecord.id });
             /* 加载协作填写数据 */
             if (aCoworkSchemas.length) {
                 oRecord.verbose = {};
@@ -241,6 +241,28 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             }
         }
         return false;
+    }
+
+    function fnAppendRemark(oNewRemark, oUpperRemark) {
+        var oNewRemark;
+        oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
+        if (oUpperRemark) {
+            oNewRemark.reply = '<a href="#remark-' + oUpperRemark.id + '">回复' + oUpperRemark.nickname + '的留言 #' + oUpperRemark.seq_in_record + '</a>';
+        }
+        $scope.remarks.push(oNewRemark);
+        if (!oUpperRemark) {
+            $scope.record.rec_remark_num++;
+        }
+        $timeout(function() {
+            var elRemark;
+            $location.hash('remark-' + oNewRemark.id);
+            $anchorScroll();
+            elRemark = document.querySelector('#remark-' + oNewRemark.id);
+            elRemark.classList.toggle('blink', true);
+            $timeout(function() {
+                elRemark.classList.toggle('blink', false);
+            }, 1000);
+        });
     }
 
     if (!LS.s().ek) {
@@ -416,6 +438,17 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             oRemark.like_num = rsp.data.like_num;
         });
     };
+    $scope.coworkAsRemark = function(oSchema, index) {
+        var oRecData, oItem;
+        oRecData = $scope.record.verbose[oSchema.id];
+        oItem = oRecData.items[index];
+        noticebox.confirm('将填写项转为留言，确定？').then(function() {
+            http2.get(LS.j('cowork/asRemark', 'site') + '&item=' + oItem.id).then(function(rsp) {
+                oRecData.items.splice(index, 1);
+                fnAppendRemark(rsp.data);
+            });
+        });
+    };
     $scope.remarkAsCowork = function(oRemark) {
         var url, oSchema;
         url = LS.j('remark/asCowork', 'site');
@@ -463,26 +496,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             backdrop: 'static',
         }).result.then(function(data) {
             addRemark(data.content, oUpperRemark).then(function(rsp) {
-                var oNewRemark;
-                oNewRemark = rsp.data;
-                oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
-                if (oUpperRemark) {
-                    oNewRemark.reply = '<a href="#remark-' + oUpperRemark.id + '">回复' + oUpperRemark.nickname + '的留言 #' + oUpperRemark.seq_in_record + '</a>';
-                }
-                $scope.remarks.push(oNewRemark);
-                if (!oUpperRemark) {
-                    $scope.record.rec_remark_num++;
-                }
-                $timeout(function() {
-                    var elRemark;
-                    $location.hash('remark-' + oNewRemark.id);
-                    $anchorScroll();
-                    elRemark = document.querySelector('#remark-' + oNewRemark.id);
-                    elRemark.classList.toggle('blink', true);
-                    $timeout(function() {
-                        elRemark.classList.toggle('blink', false);
-                    }, 1000);
-                });
+                fnAppendRemark(rsp.data, oUpperRemark);
             });
         });
     };
@@ -707,7 +721,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         oRecData = $scope.record.verbose[oSchema.id];
         oItem = oRecData.items[index];
         noticebox.confirm('删除填写项，确定？').then(function() {
-            http2.get(LS.j('cowork/remove', 'site') + '&data=' + oRecData.id + '&item=' + oItem.id).then(function(rsp) {
+            http2.get(LS.j('cowork/remove', 'site') + '&item=' + oItem.id).then(function(rsp) {
                 oRecData.items.splice(index, 1);
             });
         });

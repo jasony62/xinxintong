@@ -96,6 +96,8 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
         if (!oApp) return;
         /* 设置页面分享信息 */
         $scope.setSnsShare(); // 应该禁止分享
+        /*页面阅读日志*/
+        $scope.logAccess();
         /*设置页面导航*/
         var oAppNavs = {};
         if (oApp.can_repos === 'Y') {

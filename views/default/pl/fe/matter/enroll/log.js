@@ -2,7 +2,6 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlLog', ['$scope', 'srvEnrollLog', function($scope, srvEnrollLog) {
         var _oApp;
-        $scope.criteria = {};
         $scope.operations = {
             'read': '阅读',
             'site.matter.enroll.submit': '提交',
@@ -23,32 +22,119 @@ define(['frame'], function(ngApp) {
             'U': '修改活动',
             'C': '创建活动',
             'verify.batch': '审核通过指定记录',
-            'verify.all': '审核通过全部记录'
+            'verify.all': '审核通过全部记录',
+            'shareT': '分享',
+            'shareF': '转发'
         };
-        $scope.filter = function(type) {
-            srvEnrollLog.filter(type).then(function(data) {
-                $scope.criteria = data;
-                type == 'site' ? $scope.read.list() : $scope.record.list();
+        $scope.filter = function(type, criteria) {
+            srvEnrollLog.filter(type, criteria).then(function(data) {
+                switch(type) {
+                    case 'pl':
+                        $scope.plLog.criteria = data;
+                        $scope.plLog.list();
+                    break;
+                    case 'site':
+                        $scope.siteLog.criteria = data;
+                        $scope.siteLog.list();
+                    break;
+                    case 'page':
+                        $scope.pageLog.criteria = data;
+                        $scope.pageLog.list();
+                    break;
+                }
             });
         };
-        $scope.clean = function() {
-            $scope.criteria = {};
-            $scope.active == '0' ? $scope.read.list() : $scope.record.list();
+        $scope.export = function(type, criteria) {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/log/exportLog?app=' + _oApp.id + '&logType=' + type;
+            url += '&startAt=' + criteria.startAt + '&endAt=' + criteria.endAt + '&byOp=' + criteria.byOp;
+            if (type=='page') {
+                url += '&target_type=' + criteria.target_type + '&target_id=' + criteria.target_id;
+            } else {
+                url += '&byUser=' + criteria.byUser + '&byRid=' + criteria.byRid;
+            }
+           
+            window.open(url);
         }
-        $scope.read = {
+        $scope.clean = function() {
+            switch($scope.active) {
+                case 1:
+                    $scope.plLog.criteria = {
+                        byOp: 'ALL',
+                        byUser: '',
+                        byRid: '',
+                        startAt: '',
+                        endAt: ''
+                    };
+                    $scope.plLog.list();
+                break;
+                case 2:
+                    $scope.siteLog.criteria = {
+                        byOp: 'ALL',
+                        byUser: '',
+                        byRid: '',
+                        startAt: '',
+                        endAt: ''
+                    };
+                    $scope.siteLog.list();
+                break;
+                case 3:
+                    $scope.pageLog.criteria = {
+                        byOp: 'ALL',
+                        target_type: 'repos',
+                        target_id: '',
+                        startAt: '',
+                        endAt: ''
+                    };
+                    $scope.pageLog.list();
+                break;
+            }
+        };
+        $scope.plLog = {
             page: {},
+            criteria: {
+                byOp: 'ALL',
+                byUser: '',
+                byRid: '',
+                startAt: '',
+                endAt: ''
+            },
             list: function() {
                 var _this = this;
-                srvEnrollLog.list(this.page, 'site', $scope.criteria).then(function(logs) {
+                srvEnrollLog.list(this.page, 'pl', this.criteria).then(function(logs) {
                     _this.logs = logs;
                 });
             }
         };
-        $scope.record = {
+        $scope.siteLog = {
             page: {},
+            criteria: {
+                byOp: 'ALL',
+                byUser: '',
+                byRid: '',
+                startAt: '',
+                endAt: ''
+            },
             list: function() {
                 var _this = this;
-                srvEnrollLog.list(this.page, 'pl', $scope.criteria).then(function(logs) {
+                srvEnrollLog.list(this.page, 'site', this.criteria).then(function(logs) {
+                    _this.logs = logs;
+                });
+            }
+        };
+        $scope.pageLog = {
+            page: {},
+            criteria: {
+                byOp: 'ALL',
+                target_type: 'repos',
+                target_id: '',
+                startAt: '',
+                endAt: ''
+            },
+            list: function() {
+                var _this = this;
+                if(this.criteria.target_type=='repos') { this.criteria.target_id = _oApp.id; };
+                srvEnrollLog.list(this.page, 'page', this.criteria).then(function(logs) {
                     _this.logs = logs;
                 });
             }
@@ -56,9 +142,21 @@ define(['frame'], function(ngApp) {
         $scope.$watch('app', function(oApp) {
             if (!oApp) return;
             _oApp = oApp;
-            $scope.active = 0;
-            $scope.read.list("site");
-            $scope.record.list("pl");
+            $scope.active = 1;
+            $scope.$watch('active', function(nv) {
+                if(!nv) return;
+                switch(nv) {
+                    case 1:
+                        $scope.plLog.list();
+                    break;
+                    case 2:
+                        $scope.siteLog.list();
+                    break;
+                    case 3:
+                        $scope.pageLog.list();
+                    break;
+                }
+            });
         });
     }]);
 });

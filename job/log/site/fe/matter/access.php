@@ -28,8 +28,8 @@ class access extends \TMS_MODEL {
 		//
 		$clientIp = $this->args['clientIp'];
 		$HTTP_USER_AGENT = isset($this->args['HTTP_USER_AGENT']) ? $this->args['HTTP_USER_AGENT'] : '';
-		$QUERY_STRING = isset($this->args['QUERY_STRING']) ? $this->args['QUERY_STRING'] : '';
-		$HTTP_REFERER = isset($this->args['HTTP_REFERER']) ? $this->args['HTTP_REFERER'] : '';
+		$QUERY_STRING = $this->args['search'];
+		$HTTP_REFERER = $this->args['referer'];
 
 		$model = $this->model();
 		switch ($type) {
@@ -58,6 +58,15 @@ class access extends \TMS_MODEL {
 		$logClient = new \stdClass;
 		$logClient->ip = $clientIp;
 		$logClient->agent = $HTTP_USER_AGENT;
+
+		// 登记活动的专题页和讨论页和共享页需要单独记录
+		if ($type === 'enroll') {
+			$targets = ['topic', 'repos', 'cowork'];
+			if (!empty($this->args['target_type']) && in_array($this->args['target_type'], $targets) && !empty($this->args['target_id'])) {
+				$logMatter->id = $this->args['target_id'];
+				$logMatter->type = 'enroll.' . $this->args['target_type'];
+			}
+		}
 
 		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $QUERY_STRING, $HTTP_REFERER, $options);
 		/**

@@ -217,6 +217,8 @@ ngApp.controller('ctrlList', ['$scope', function($scope) {
         oApp = params.app;
         /*设置页面分享信息*/
         $scope.setSnsShare();
+        /*页面阅读日志*/
+        $scope.logAccess();
         /*设置页面操作*/
         $scope.appActs = {
             addRecord: {}

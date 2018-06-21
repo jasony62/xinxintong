@@ -25,6 +25,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             }
             shareid = _oUser.uid + '_' + (new Date * 1);
             shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+            sharelink += shareby;
             /* 分享次数计数器 */
             tmsSnsShare.config({
                 siteId: oApp.siteid,

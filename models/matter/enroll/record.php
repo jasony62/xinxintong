@@ -1585,7 +1585,6 @@ class record_model extends record_base {
 			];
 			$oDataBySchema->sum = 0;
 			if (in_array($oSchema->type, ['single', 'phase'])) {
-				$sortArr = [];
 				foreach ($oSchema->ops as $op) {
 					/**
 					 * 获取数据
@@ -1601,11 +1600,8 @@ class record_model extends record_base {
 					$op->c = (int) $this->query_val_ss($q);
 					$oDataBySchema->ops[] = $op;
 					$oDataBySchema->sum += $op->c;
-					$sortArr[] = $op->v;
 				}
-				array_multisort($sortArr,SORT_ASC, SORT_NATURAL, $oDataBySchema->ops);
 			} else if ($oSchema->type === 'multiple') {
-				$sortArr = [];
 				foreach ($oSchema->ops as $op) {
 					/**
 					 * 获取数据
@@ -1621,9 +1617,7 @@ class record_model extends record_base {
 					$op->c = (int) $this->query_val_ss($q);
 					$oDataBySchema->ops[] = $op;
 					$oDataBySchema->sum += $op->c;
-					$sortArr[] = $op->v;
 				}
-				array_multisort($sortArr,SORT_ASC, SORT_NATURAL, $oDataBySchema->ops);
 			} else if ($oSchema->type === 'score') {
 				$scoreByOp = [];
 				foreach ($oSchema->ops as &$op) {

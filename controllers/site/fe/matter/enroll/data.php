@@ -14,7 +14,7 @@ class data extends base {
 	 * @param string $data
 	 */
 	public function get_action($ek, $schema = '', $data = '', $cascaded = 'N', $role = null) {
-		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'aid,rid,enroll_key,userid,group_id,nickname,enroll_at']);
+		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'id,aid,rid,enroll_key,userid,group_id,nickname,enroll_at']);
 		if (false === $oRecord) {
 			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
 		}

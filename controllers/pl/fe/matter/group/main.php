@@ -242,11 +242,11 @@ class main extends \pl\fe\matter\main_base {
 		if (!empty($rule->schemas)) {
 			/*create targets*/
 			$schemasForGroup = new \stdClass;
-			foreach ($oApp->dataSchemas as $schema) {
-				if (in_array($schema->id, $rule->schemas)) {
-					foreach ($schema->ops as $op) {
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if (in_array($oSchema->id, $rule->schemas) && !empty($oSchema->ops)) {
+					foreach ($oSchema->ops as $op) {
 						$target = new \stdClass;
-						$target->{$schema->id} = $op->v;
+						$target->{$oSchema->id} = $op->v;
 						$targets[] = $target;
 					}
 				}

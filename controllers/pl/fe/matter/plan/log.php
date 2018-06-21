@@ -23,13 +23,13 @@ class log extends \pl\fe\matter\base {
 		$criteria = $this->getPostJson();
 		$options = [];
 		if (!empty($criteria->byUser)) {
-			$options['byUser'] = $criteria->byUser;
+			$options['byUser'] = $modelLog->escape($criteria->byUser);
 		}
 		if (!empty($criteria->byOp) && (strcasecmp('all', $criteria->byOp) != 0)) {
-			$options['byOp'] = $criteria->byOp;
+			$options['byOp'] = $modelLog->escape($criteria->byOp);
 		}
 		if (!empty($criteria->byRid) && (strcasecmp('all', $criteria->byRid) != 0)) {
-			$options['byTask'] = $criteria->byTask;
+			$options['byTask'] = $modelLog->escape($criteria->byRid);
 		}
 		
 		if ($logType === 'pl') {

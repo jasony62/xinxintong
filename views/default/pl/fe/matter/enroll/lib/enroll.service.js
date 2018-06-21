@@ -1760,26 +1760,22 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     return defer.promise;
                 },
-                filter: function(type) {
+                filter: function(type, criteria) {
                     var defer = $q.defer();
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/enroll/component/logFilter.html?_=1',
                         controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
                             var oCriteria;
                             $scope2.type = type;
+                            $scope2.criteria = oCriteria = criteria;
                             $scope2.siteOperations = _siteOperations;
                             $scope2.plOperations = _plOperations;
                             $scope2.pageOfRound = {
                                 at: 1,
-                                size: 5,
+                                size: 30,
                                 j: function() {
                                     return '&page=' + this.at + '&size=' + this.size;
                                 }
-                            };
-                            $scope2.criteria = oCriteria = {
-                                byUser: '',
-                                byRid: '',
-                                byOp: 'ALL'
                             };
                             $scope2.doSearchRound = function() {
                                 var url = '/rest/pl/fe/matter/enroll/round/list?site=' + _siteId + '&app=' + _appId + $scope2.pageOfRound.j();
@@ -1797,7 +1793,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 defer.resolve(oCriteria);
                                 $mi.close();
                             };
-                            $scope2.doSearchRound();
+                            if(type!=='page') {$scope2.doSearchRound();}
                         }],
                         backdrop: 'static',
                     });

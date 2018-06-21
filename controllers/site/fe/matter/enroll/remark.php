@@ -55,7 +55,7 @@ class remark extends base {
 		$this->_setNickname($oRemark, $oUser, isset($oEditor) ? $oEditor : null);
 		/* 关联数据 */
 		if (!empty($cascaded)) {
-			$oRecord = $this->model('matter\enroll\record')->byId($oRemark->enroll_key, ['fields' => 'userid,group_id,nickname']);
+			$oRecord = $this->model('matter\enroll\record')->byId($oRemark->enroll_key, ['fields' => 'id,userid,group_id,nickname']);
 			$this->_setNickname($oRecord, $oUser, isset($oEditor) ? $oEditor : null);
 			$oRemark->record = $oRecord;
 			if (!empty($oRemark->data_id)) {

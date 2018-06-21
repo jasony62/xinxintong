@@ -247,8 +247,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         noticebox.error('参数不完整');
         return;
     }
-    var _oApp, _oUser, ek, _oMocker;
+    var _oApp, _oUser, ek, _oMocker, shareby;
     ek = LS.s().ek;
+    shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
     $scope.coworkTasks = [];
     $scope.remarkTasks = [];
     $scope.newRemark = {};
@@ -542,7 +543,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         $scope.gotoPage(event, page, $scope.record.enroll_key);
     };
     $scope.shareRecord = function(oRecord) {
-        location.href = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
+        var url;
+        url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
+        if(shareby) {
+            url += '&shareby=' + shareby;
+        }
+        location.href = url;
     };
     $scope.likeItem = function(oItem) {
         http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
@@ -573,7 +579,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         $scope.remarkTasks.splice(index, 1);
     };
     $scope.shareRemark = function(oRemark) {
-        location.href = LS.j('', 'site', 'app', 'ek') + '&remark=' + oRemark.id + '&page=share';
+        var url;
+        url = LS.j('', 'site', 'app', 'ek') + '&remark=' + oRemark.id + '&page=share';
+        if(shareby) {
+            url += '&shareby=' + shareby;
+        }
+        location.href = url;
     };
     $scope.gotoAssoc = function(oEntity) {
         var url;
@@ -777,7 +788,13 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         });
     };
     $scope.shareItem = function(oItem) {
-        location.href = LS.j('', 'site', 'app', 'ek') + '&data=' + oItem.id + '&page=share';
+        var url, shareby;
+        url = LS.j('', 'site', 'app', 'ek') + '&data=' + oItem.id + '&page=share';
+        shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+        if(shareby) {
+            url += '&shareby=' + shareby;
+        }
+        location.href = url;
     };
     $scope.$watch('record', function(oRecord) {
         if (oRecord) {

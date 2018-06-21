@@ -92,6 +92,7 @@ class import extends \pl\fe\matter\base {
 			if ($recordImgs[0] === false) {
 				return new \ResponseError($recordImgs[1]);
 			}
+			var_dump($recordImgs[1]);die;
 			$data = $this->_extractImg($oApp, $recordImgs[1], $oneRecordImgNum);
 			if ($data[0] === false) {
 				return new \ResponseError($data[1]);
@@ -347,8 +348,6 @@ class import extends \pl\fe\matter\base {
 	 * 从文件中提取数据
 	 */
 	private function &_extractZIP($oApp, $zipfile, $modelFs, $file) {
-		require_once TMS_APP_DIR . '/lib/PHPZip.php';
-
 		$savepath = $modelFs->rootDir . '/enroll_' . $oApp->id . '_importZIP_' . $file->uniqueIdentifier;
 		if(!is_dir($savepath)) {  
         	mkdir($savepath, 0777, true);//创建目录保存解压内容  
@@ -357,48 +356,80 @@ class import extends \pl\fe\matter\base {
 	    $fileDirectory = new \stdClass;
         $fileDirectory->toDir = $savepath;
 	    if(file_exists($zipfile)) {
-	        $archive   = new \PHPZip();
-	        $FileInfos  = $archive->GetZipInnerFilesInfo($zipfile);
-	        $failFiles = [];  
-	        $pssFiles = [];
-	        for($i=0; $i<count($FileInfos); $i++) {  
-	        	$fileInfo = $FileInfos[$i];
-	            if($fileInfo['folder'] == 0){  
-	            	$rst = $archive->unZip($zipfile, $savepath, $i, $fileInfo);
-	                if($rst['state'] === true){  
-	                	if ((strpos($fileInfo['filename'], '/')) !== false) {
-	                		$oUrl = $savepath . '/' . $fileInfo['filename'];
-	                		$names = explode('/', $fileInfo['filename']);
-	                		$newFile = [];
-	                		$newFile['title'] = $names[1];
-	                		$newFile['size'] = $fileInfo['size'];
-	                		$newFile['oUrl'] = $oUrl;
-	                		$pssFiles[$names[0]][] = $newFile;
-	                	} else {
-	                		$newFile = [];
-	                		$fileName = $fileInfo['filename'];
-	                		$newFile['title'] = substr($fileName, 0, strrpos($fileName, '.'));
-	                		$newFile['size'] = $fileInfo['size'];
-	                		$newFile['oUrl'] = $savepath . '/' . $fileInfo['filename'];
-	                		$fileDirectory->{$newFile['title']} = $newFile;
-	                	}
-	                }else{  
-	                    $failFiles[] = $fileInfo['filename'];  
-	                }  
-	            }else{
-	            	if(!@is_dir($savepath . '/' . $fileInfo['filename'])){ 
-	            	 	@mkdir($savepath . '/' . $fileInfo['filename'], 0777, true); 
-	            	}   
-	            	$fileName = $this->_iconvConvert($fileInfo['filename']);;
-	            	$pssFiles[substr($fileName, 0, -1)] = [];
-	            }  
-	        }
-	        unlink($zipfile);
+	    	if (1==11) {
+				require_once TMS_APP_DIR . '/lib/PHPZip.php';
+		        $archive   = new \PHPZip();
+		        $FileInfos  = $archive->GetZipInnerFilesInfo($zipfile);
+		        $failFiles = [];  
+		        $pssFiles = [];
+		        for($i=0; $i<count($FileInfos); $i++) {  
+		        	$fileInfo = $FileInfos[$i];
+		            if($fileInfo['folder'] == 0){  
+		            	$rst = $archive->unZip($zipfile, $savepath, $i, $fileInfo);
+		                if($rst['state'] === true){  
+		                	if ((strpos($fileInfo['filename'], '/')) !== false) {
+		                		$oUrl = $savepath . '/' . $fileInfo['filename'];
+		                		$names = explode('/', $fileInfo['filename']);
+		                		$newFile = [];
+		                		$newFile['title'] = $names[1];
+		                		$newFile['size'] = $fileInfo['size'];
+		                		$newFile['oUrl'] = $oUrl;
+		                		$pssFiles[$names[0]][] = $newFile;
+		                	} else {
+		                		$newFile = [];
+		                		$fileName = $fileInfo['filename'];
+		                		$newFile['title'] = substr($fileName, 0, strrpos($fileName, '.'));
+		                		$newFile['size'] = $fileInfo['size'];
+		                		$newFile['oUrl'] = $savepath . '/' . $fileInfo['filename'];
+		                		$fileDirectory->{$newFile['title']} = $newFile;
+		                	}
+		                }else{  
+		                    $failFiles[] = $fileInfo['filename'];  
+		                }  
+		            }else{
+		            	if(!@is_dir($savepath . '/' . $fileInfo['filename'])){ 
+		            	 	@mkdir($savepath . '/' . $fileInfo['filename'], 0777, true); 
+		            	}   
+		            	$fileName = $this->_iconvConvert($fileInfo['filename']);;
+		            	$pssFiles[substr($fileName, 0, -1)] = [];
+		            }  
+		        }
+		        unlink($zipfile);
 
-        	$fileDirectory->data = $pssFiles;
-        	$fileDirectory->failData = $failFiles;
-	    	$res = [true, $fileDirectory];
-	    	return $res;
+	        	$fileDirectory->data = $pssFiles;
+	        	$fileDirectory->failData = $failFiles;
+		    	$res = [true, $fileDirectory];
+		    	return $res;
+		    } else {
+		    	$zip = new \ZipArchive;
+				if ($zip->open($zipfile) === true) {
+					$docnum = $zip->numFiles;
+					for($i = 0; $i < $docnum; $i++) {
+					    $statInfo = $zip->statIndex($i);
+					    if($statInfo['crc'] == 0) {
+					    	$dirName2 = substr($statInfo['name'], 0,-1);
+					    	if (strpos($dirName2, '__MACOSX') !== false) {
+					    		continue;
+					    	}
+					        mkdir($savepath.'/'.$dirName2, 0777, true);
+					    } else {
+					    	$dirName2 = $statInfo['name'];
+					    	if (strpos($dirName2, '__MACOSX') !== false || strpos($dirName2, '.DS_Store') !== false) {
+					    		continue;
+					    	}
+					        //拷贝文件
+					        copy('zip://'.$zipfile.'#'.$statInfo['name'], $savepath.'/'.$dirName2);
+					    }
+					}
+					$zip->close();
+				} else {
+					// 删除解压后的文件包
+					unlink($zipfile);
+					$res = [false, '压缩包打开失败'];
+		    		return $res;
+				}
+		    }
+
 	    } else {
 	    	$res = [false, '压缩文件上传失败'];
 	    	return $res;

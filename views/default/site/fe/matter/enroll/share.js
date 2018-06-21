@@ -10,22 +10,22 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             }
             var sharelink, shareid, shareby, target_type, target_title;
             /* 设置活动的当前链接 */
+            shareid = _oUser.uid + '_' + (new Date * 1);
+            shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
             sharelink = location.protocol + '//' + location.host
             if (LS.s().topic) {
                 target_type = 'topic';
                 target_title = oApp.record.title;
-                sharelink += LS.j('', 'site', 'app', 'topic') + '&page=topic';
+                sharelink += LS.j('', 'site', 'app', 'topic') + '&page=topic&shareby=' + shareid;
             } else {
                 target_type = 'cowork';
                 target_title = oApp.title;
-                sharelink += LS.j('', 'site', 'app', 'ek') + '&page=cowork';
+                sharelink += LS.j('', 'site', 'app', 'ek') + '&page=cowork&shareby=' + shareid;
                 if (anchor) {
                     sharelink += '#' + anchor;
                 }
             }
-            shareid = _oUser.uid + '_' + (new Date * 1);
-            shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
-            sharelink += shareby;
+            alert(sharelink);
             /* 分享次数计数器 */
             tmsSnsShare.config({
                 siteId: oApp.siteid,

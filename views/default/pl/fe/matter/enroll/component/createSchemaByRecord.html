@@ -4,9 +4,9 @@
 </div>
 <div class="modal-body">
     <div class='row'>
-        <div class='col-md-6'>
+        <div class='col-md-4'>
             <div class='form-group'>
-                <label>活动</label>
+                <label>目标活动</label>
                 <div class='input-group'>
                     <input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
                     <span class='input-group-btn'>
@@ -21,32 +21,33 @@
                 </div>
             </div>
         </div>
-        <div class='col-md-6'>
+        <div class='col-md-4'>
             <div class='form-group'>
-                <label>题目</label>
+                <label>目标活动中的选择题</label>
                 <div class='list-group' style='height:300px;overflow-y:auto'>
-                    <div class='list-group-item' ng-repeat="schema in result.fromApp.dataSchemas">
+                    <div class='list-group-item' ng-repeat="schema in result.fromApp.dataSchemas" ng-if="['single','multiple'].indexOf(schema.type)!==-1">
                         <label class="checkbox-inline">
                             <input type='checkbox' ng-model="schema._selected" ng-change="selectSchema(schema)">{{schema.title}}</label>
                     </div>
                 </div>
             </div>
         </div>
-        <div class='col-md-12'>
-            <div class='form-inline text-right'>
-                <div class='form-group'>
-                    <input type='number' class='form-control' ng-model="result.limit.num" placeholder="数量" style='width:6em'>
-                </div>
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="limitScope" value="top" ng-model="result.limit.scope"> <span>按选择数排序的前<mark ng-bind="result.limit.num"></mark>选项</span>
-                    </label>
-                </div>
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="limitScope" value="checked" ng-model="result.limit.scope"> <span>获得选择数大于<mark ng-bind="result.limit.num"></mark>的选项</span>
-                    </label>
-                </div>
+        <div class='col-md-4'>
+            <div class='form-group'>
+                <label>选项条件</label>
+            </div>
+            <div class='form-group'>
+                <input type='number' class='form-control' ng-model="result.limit.num" placeholder="数量" style='width:6em'>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="limitScope" value="top" ng-model="result.limit.scope"> <span>按选择数排序的前<mark ng-bind="result.limit.num"></mark>选项</span>
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="limitScope" value="checked" ng-model="result.limit.scope"> <span>获得选择数大于<mark ng-bind="result.limit.num"></mark>的选项</span>
+                </label>
             </div>
         </div>
     </div>

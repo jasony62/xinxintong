@@ -138,6 +138,9 @@ define(['frame'], function(ngApp) {
         $scope.transferSchemaAndVotes = function() {
             srvEnrollRecord.transferSchemaAndVotes($scope.app);
         };
+        $scope.fillByOther = function() {
+            srvEnrollRecord.fillByOther($scope.app);
+        };
         $scope.openFileUrl = function(file) {
             var url;
             url = '/rest/site/fe/matter/enroll/attachment/download?app=' + $scope.app.id;

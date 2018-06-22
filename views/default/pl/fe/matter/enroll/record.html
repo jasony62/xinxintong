@@ -24,6 +24,7 @@
                     <li><a href ng-click="renewScore()">更新全部记录得分</a></li>
                     <li><a href ng-click="importByOther()">从其他活动导入记录</a></li>
                     <li><a href ng-click="exportToOther()">将记录导入其他活动<span>（{{rows.count}}）</span></a></li>
+                    <li><a href ng-click="fillByOther()">用其他活动的数据填充到已有记录</a></li>
                     <li><a href ng-click="transferVoting()">将投票结果作为其他活动的记录</a></li>
                     <li><a href ng-click="transferSchemaAndVoting()">将题目和投票结果作为其他活动的记录</a></li>
                     <li ng-if="app.scenario==='mis_user_score'" class="divider"></li>

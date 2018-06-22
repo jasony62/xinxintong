@@ -500,30 +500,23 @@ class record_model extends record_base {
 		// 指定登记活动下的登记记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
-		// 指定轮次，或者当前激活轮次
-		if (!empty($oCriteria->record->rid)) {
+		/* 指定轮次，或者当前激活轮次 */
+		if (empty($oCriteria->record->rid)) {
+			$oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp);
+			if ($oActiveRnd) {
+				$rid = $oActiveRnd->rid;
+				$w .= " and r.rid='$rid'";
+			}
+		} else {
 			if (is_string($oCriteria->record->rid)) {
 				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 					$rid = $oCriteria->record->rid;
+					$w .= " and r.rid='$rid'";
 				}
 			} else if (is_array($oCriteria->record->rid)) {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
 					$rid = $oCriteria->record->rid;
-				}
-			}
-		} else if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
-			$rid = $oActiveRnd->rid;
-		}
-		if (isset($rid)) {
-			if (is_string($rid)) {
-				$w .= " and r.rid='$rid'";
-			} else if (is_array($rid)) {
-				if (empty($rid)) {
-					$w .= " and r.rid=''";
-				} else {
-					$w .= " and r.rid in('";
-					$w .= implode("','", $rid);
-					$w .= "')";
+					$w .= " and r.rid in('" . implode("','", $rid) . "')";
 				}
 			}
 		}
@@ -1030,7 +1023,7 @@ class record_model extends record_base {
 	 * 返回指定登记项的登记记录
 	 *
 	 */
-	public function list4Schema(&$oApp, $schemaId, $options = null) {
+	public function list4Schema($oApp, $schemaId, $options = null) {
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if ($oSchema->id === $schemaId) {
 				$oDataSchema = $oSchema;

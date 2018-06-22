@@ -53,16 +53,16 @@
                         <tbody>
                             <tr>
                                 <td>姓名</td>
-                                <td>
-                                    <select class='form-control' ng-model="data.intersected.name" ng-options="schema2.id as schema2.title for schema2 in sourceApp.dataSchemas">
+                                <td style='padding:0'>
+                                    <select class='form-control' ng-model="data.intersected.name" ng-options="schema2.id as schema2.title for schema2 in dataSchemas">
                                         <option value=></option>
                                     </select>
                                 </td>
                             </tr>
                             <tr>
                                 <td>手机</td>
-                                <td>
-                                    <select class='form-control' ng-model="data.intersected.mobile" ng-options="schema2.id as schema2.title for schema2 in sourceApp.dataSchemas">
+                                <td style='padding:0'>
+                                    <select class='form-control' ng-model="data.intersected.mobile" ng-options="schema2.id as schema2.title for schema2 in dataSchemas">
                                         <option value=></option>
                                     </select>
                                 </td>
@@ -88,7 +88,7 @@
                                 <div ng-switch-when="shorttext">
                                     <input type='text' class='form-control' ng-model="data.mappings[schema.id].value">
                                 </div>
-                                <select class='form-control' ng-model="data.mappings[schema.id].from" ng-options="schema2.id as schema2.title for schema2 in sourceApp.dataSchemas">
+                                <select class='form-control' ng-model="data.mappings[schema.id].from" ng-options="schema2.id as schema2.title for schema2 in dataSchemas">
                                     <option value=></option>
                                 </select>
                             </div>
@@ -101,7 +101,49 @@
             <div class='form-group'>
                 <label>设置同步内容</label>
             </div>
-            系统用户ID
+            <div ng-switch on="data.matterType">
+                <table class='table table-bordered' ng-switch-when="mschema">
+                    <thead>
+                        <tr>
+                            <th>目标活动</th>
+                            <th>当前活动</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>系统用户ID</td>
+                            <td>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-true-value="'userid'" ng-model="data.filled.userid">是</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>姓名</td>
+                            <td style='padding:0'>
+                                <select class='form-control' ng-model="data.filled.name" ng-options="schema2.id as schema2.title for schema2 in dataSchemas">
+                                    <option value=></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>手机</td>
+                            <td style='padding:0'>
+                                <select class='form-control' ng-model="data.filled.mobile" ng-options="schema2.id as schema2.title for schema2 in dataSchemas">
+                                    <option value=></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr ng-repeat="extAttr in data.fromApp.extAttrs" ng-if="extAttr.type==='shorttext'">
+                            <td><span ng-bind="extAttr.title"></span></td>
+                            <td style='padding:0'>
+                                <select class='form-control' ng-model="data.filled[extAttr.id]" ng-options="schema2.id as schema2.title for schema2 in dataSchemas">
+                                    <option value=></option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

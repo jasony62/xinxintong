@@ -1,0 +1,110 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()" type="button">×</button>
+    <h5 class="modal-title">用其他活动的数据填充到已有记录</h5>
+</div>
+<div class="modal-body">
+    <div class='row'>
+        <div class='col-md-4'>
+            <div class='form-group'>
+                <label class='radio-inline'>
+                    <input type='radio' value='mschema' ng-model="data.matterType">通信录</label>
+            </div>
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="doFilter()"><i class='glyphicon glyphicon-refresh'></i></button>
+                    </div>
+                </div>
+                <select class="form-control" ng-model="data.fromApp" ng-options="app.title for app in apps" size="10"></select>
+            </div>
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <ul uib-pagination class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                </div>
+            </div>
+        </div>
+        <div class='col-md-4'>
+            <div class='form-group'>
+                <label>设置匹配规则</label>
+            </div>
+            <form class='form-horizontal' ng-switch on="data.matterType">
+                <div class="form-group" ng-if="rounds.length">
+                    <label class='form-label col-md-3'>所属轮次</label>
+                    <div class='col-md-9'>
+                        <select class='form-control' ng-model="record.rid" size=5>
+                            <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
+                            <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
+                        </select>
+                        <div ng-show="pageOfRound.total>pageOfRound.size">
+                            <span>总数：{{pageOfRound.total}}</span>
+                            <ul uib-pagination boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div ng-switch-when="mschema">
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th>目标活动</th>
+                                <th>当前活动</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>姓名</td>
+                                <td>
+                                    <select class='form-control' ng-model="data.intersected.name" ng-options="schema2.id as schema2.title for schema2 in sourceApp.dataSchemas">
+                                        <option value=></option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>手机</td>
+                                <td>
+                                    <select class='form-control' ng-model="data.intersected.mobile" ng-options="schema2.id as schema2.title for schema2 in sourceApp.dataSchemas">
+                                        <option value=></option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div ng-switch-when="enroll">
+                    <div ng-repeat="schema in data.fromApp.dataSchemas" ng-if="schema.type!=='html'&&!schema.schema_id">
+                        <div class="form-group">
+                            <label class='form-label col-md-3' ng-bind="schema.title"></label>
+                            <div ng-switch on="schema.type" class='col-md-9'>
+                                <textarea class='form-control' ng-switch-when="longtext" ng-model="data.mappings[schema.id].value"></textarea>
+                                <select class='form-control' ng-switch-when="single" ng-model="data.mappings[schema.id].value" ng-options="op.v as op.l for op in schema.ops">
+                                    <option value=></option>
+                                </select>
+                                <ul ng-switch-when="multiple">
+                                    <li class='checkbox' ng-repeat="op in schema.ops">
+                                        <label>
+                                            <input type="checkbox" name="{{schema.id}}" ng-model="data.mappings[schema.id].value[op.v]" /><span>{{op.l}}</span></label>
+                                    </li>
+                                </ul>
+                                <div ng-switch-when="shorttext">
+                                    <input type='text' class='form-control' ng-model="data.mappings[schema.id].value">
+                                </div>
+                                <select class='form-control' ng-model="data.mappings[schema.id].from" ng-options="schema2.id as schema2.title for schema2 in sourceApp.dataSchemas">
+                                    <option value=></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class='col-md-4'>
+            <div class='form-group'>
+                <label>设置同步内容</label>
+            </div>
+            系统用户ID
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success" ng-click="ok()">执行</button>
+</div>

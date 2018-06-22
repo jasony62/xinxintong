@@ -153,7 +153,7 @@ class record extends main_base {
 		return new \ResponseData($result);
 	}
 	/**
-	 *
+	 * 更新指定活动下所有记录的得分
 	 */
 	public function renewScore_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -626,6 +626,170 @@ class record extends main_base {
 		}
 
 		return new \ResponseData($newRecordNum);
+	}
+	/**
+	 * 用一个活动中的数据填充指定活动的记录
+	 *
+	 * 仅支持用单行填写题或单选题进行匹配
+	 *
+	 * 除更新题目外，支持更新userid
+	 *
+	 */
+	public function fillByOther_action($app, $targetApp, $preview = 'Y') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+		list($targetType, $targetId) = explode(',', $targetApp);
+		if (empty($targetType) || empty($targetId)) {
+			return new \ParameterError('目标活动参数不完整');
+		}
+		if (!in_array($targetType, ['mschema'])) {
+			return new \ParameterError('指定了不支持的目标活动类型');
+		}
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->intersectedSchemas)) {
+			return new \ParameterError('没有指定题目匹配规则');
+		}
+		if (empty($oPosted->filledSchemas)) {
+			return new \ParameterError('没有指定填充题目规则');
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		/* 允许填写活动定义的题目和部分字段 */
+		$filledAppAttrs = [];
+		$filledAppSchemas = [];
+		foreach ($oPosted->filledSchemas as $aMapping) {
+			if (in_array($aMapping[0], ['userid'])) {
+				$filledAppAttrs[] = $aMapping[0];
+			} else {
+				$bFound = false;
+				foreach ($oApp->dataSchemas as $oSchema) {
+					if ($aMapping[0] === $oSchema->id) {
+						$bFound = true;
+						$filledAppSchemas[] = $aMapping[0];
+						break;
+					}
+				}
+				if (false === $bFound) {
+					return new \ParameterError('指定的填充题目不存在');
+				}
+			}
+		}
+
+		switch ($targetType) {
+		case 'mschema':
+			$oTargetApp = $this->model('matter\memberschema')->byId($targetId);
+			if (false === $oTargetApp) {
+				return new \ObjectNotFoundError();
+			}
+			$modelMember = $this->model('site\user\member');
+			$fnMatchHandler = function ($oData) use ($oTargetApp, $modelMember) {
+				$members = $modelMember->byMschema($oTargetApp->id, ['filter' => (object) ['attrs' => $oData]]);
+				foreach ($members as $oMember) {
+					if (!empty($oMember->extattr) && is_string($oMember->extattr)) {
+						$oMember->extattr = json_decode($oMember->extattr);
+					}
+				}
+				return $members;
+			};
+			$filledSchemas = $oPosted->filledSchemas;
+			$fnFillHandler = function ($oMember) use ($filledSchemas) {
+				$oFilled = new \stdClass;
+				foreach ($filledSchemas as $aMapping) {
+					if (!empty($oMember->{$aMapping[1]})) {
+						$oFilled->{$aMapping[0]} = $oMember->{$aMapping[1]};
+					} else if (!empty($oMember->extattr->{$aMapping[1]})) {
+						$oFilled->{$aMapping[0]} = $oMember->extattr->{$aMapping[1]};
+					}
+				}
+				return $oFilled;
+			};
+			break;
+		}
+
+		/* 设置记录匹配的交集 */
+		$intersectedSchemas = $oPosted->intersectedSchemas;
+		$fnRecordIntersect = function ($oRecord) use ($intersectedSchemas) {
+			$oIntersection = new \stdClass;
+			if (isset($oRecord->data)) {
+				foreach ($intersectedSchemas as $aMapping) {
+					if (!empty($oRecord->data->{$aMapping[0]})) {
+						$oIntersection->{$aMapping[1]} = $oRecord->data->{$aMapping[0]};
+					}
+				}
+			}
+			return $oIntersection;
+		};
+		/* 用填充数据更新记录 */
+		$fnUpdateRecord = function ($oRecord, $oFilled) use ($modelRec, $oApp, $filledAppAttrs, $filledAppSchemas) {
+			/* 更新记录属性 */
+			if (count($filledAppAttrs)) {
+				$aUpdatedAttrs = [];
+				foreach ($filledAppAttrs as $attr) {
+					if (isset($oFilled->{$attr})) {
+						$aUpdatedAttrs[$attr] = $oFilled->{$attr};
+					}
+				}
+				if (count($aUpdatedAttrs)) {
+					$modelRec->update('xxt_enroll_record', $aUpdatedAttrs, ['enroll_key' => $oRecord->enroll_key]);
+					$modelRec->update('xxt_enroll_record_data', $aUpdatedAttrs, ['enroll_key' => $oRecord->enroll_key]);
+				}
+			}
+			/* 更新题目 */
+			if (count($filledAppSchemas)) {
+				$bModified = false;
+				$oUpdatedData = $oRecord->data;
+				foreach ($filledAppSchemas as $schemaId) {
+					if (isset($oFilled->{$schemaId})) {
+						$oUpdatedData->{$schemaId} = $oFilled->{$schemaId};
+						$bModified = true;
+					}
+				}
+				if ($bModified) {
+					$modelRec->setData(null, $oApp, $oRecord->enroll_key, $oUpdatedData);
+				}
+			}
+
+			return true;
+		};
+
+		$oResult = new \stdClass;
+		$oResult->total = 0;
+		$oResult->filledCount = 0; // 完成了填充的记录数
+		$oResult->matchedCount = 0; // 能够匹配的数据
+
+		/* 指定活动的所有记录 */
+		$oSearchResult = $modelRec->byApp($oApp);
+		if (!empty($oSearchResult->records)) {
+			$oResult->total = count($oSearchResult->records);
+			foreach ($oSearchResult->records as $oRecord) {
+				$oIntersection = $fnRecordIntersect($oRecord);
+				$targetRecords = $fnMatchHandler($oIntersection);
+				/* 必须唯一匹配，才能进行填充 */
+				if (count($targetRecords) !== 1) {
+					continue;
+				}
+				$oResult->matchedCount++;
+				/* 获得要填充的数据 */
+				$oFilled = $fnFillHandler($targetRecords[0]);
+				if (!empty($oFilled)) {
+					if ('Y' !== $preview) {
+						/* 更新数据 */
+						if ($fnUpdateRecord($oRecord, $oFilled)) {
+							$oResult->filledCount++;
+						}
+					}
+				}
+			}
+		}
+
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 更新登记记录

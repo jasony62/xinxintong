@@ -316,7 +316,7 @@ class repos extends base {
 			}
 		}
 		/* 留言显示在共享页所需点赞数量 */
-		$remarkReposAgreed = 'Y';
+		$remarkReposAgreed = ['Y'];
 		$remarkReposLikeNum = 0;
 		if (isset($oActionRule->remark->repos->pre)) {
 			$oRule = $oActionRule->remark->repos->pre;
@@ -527,9 +527,9 @@ class repos extends base {
 					"enroll_key='{$oRecord->enroll_key}' and state=1",
 				];
 				if ($remarkReposLikeNum) {
-					$q[2] .= " and (agreed='{$remarkReposAgreed}' or like_num>={$remarkReposLikeNum})";
+					$q[2] .= " and (agreedin ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
 				} else {
-					$q[2] .= " and agreed='{$remarkReposAgreed}'";
+					$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
 				}
 				$q2 = [
 					'o' => 'agreed desc,like_num desc,create_at desc',
@@ -577,11 +577,15 @@ class repos extends base {
 			}
 		}
 		/* 留言显示在共享页所需点赞数量 */
+		$remarkReposAgreed = ['Y'];
 		$remarkReposLikeNum = 0;
 		if (isset($oApp->actionRule->remark->repos->pre)) {
 			$oRule = $oApp->actionRule->remark->repos->pre;
 			if (!empty($oRule->remark->likeNum)) {
 				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
+			}
+			if (!empty($oRule->remark->agreed)) {
+				$remarkReposAgreed = $oRule->remark->agreed;
 			}
 		}
 
@@ -735,9 +739,9 @@ class repos extends base {
 					"enroll_key='{$oRecord->enroll_key}' and state=1",
 				];
 				if ($remarkReposLikeNum) {
-					$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";
+					$q[2] .= " and (agreedin ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
 				} else {
-					$q[2] .= " and agreed='Y'";
+					$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
 				}
 				$q2 = [
 					'o' => 'agreed desc,like_num desc,create_at desc',

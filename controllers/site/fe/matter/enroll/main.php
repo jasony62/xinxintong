@@ -211,13 +211,7 @@ class main extends base {
 						}
 					}
 				} else {
-					if ($oApp->enrolled_entry_page === 'score') {
-						$oOpenPage = new \stdClass;
-						$oOpenPage->name = $oApp->enrolled_entry_page;
-						$oOpenPage->type = '';
-					} else {
-						$oOpenPage = $modelPage->byName($oApp->id, $oApp->enrolled_entry_page);
-					}
+					$oOpenPage = $modelPage->byName($oApp->id, $oApp->enrolled_entry_page);
 				}
 			}
 		}

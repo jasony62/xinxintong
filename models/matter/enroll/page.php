@@ -42,9 +42,10 @@ class page_model extends page_base {
 	 * 根据页面的名称获得页面
 	 */
 	public function byName($appId, $name, $published = 'N') {
-		if ($name === 'repos') {
+		if (in_array($name, ['repos', 'rank', 'votes', 'event', 'score'])) {
 			$ep = new \stdClass;
-			$ep->name = 'repos';
+			$ep->name = $name;
+			$ep->type = '';
 			return $ep;
 		} else {
 			$select = 'ep.*,cp.html,cp.css,cp.js';

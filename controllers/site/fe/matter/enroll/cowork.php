@@ -199,38 +199,108 @@ class cowork extends base {
 	/**
 	 * 从题目删除一个项
 	 */
-	public function remove_action($data, $item) {
-		$modelData = $this->model('matter\enroll\data')->setOnlyWriteDbConn(true);
-		$oItem = $modelData->byId($item, ['fields' => 'id,state,userid,aid,rid,enroll_key,schema_id,multitext_seq,value']);
+	public function remove_action($item) {
+		$oResult = $this->_removeItem($item, true);
+		if (false === $oResult[0]) {
+			return new \ResponseError($oResult[1]);
+		}
+
+		$oRecData = $oResult[1]->data;
+
+		return new \ResponseData($oRecData->data);
+	}
+	/**
+	 * 将题目的协作填写项改为留言
+	 */
+	public function asRemark_action($item) {
+		/* 删除协作填写项 */
+		$oResult = $this->_removeItem($item, false);
+		if (false === $oResult[0]) {
+			return new \ResponseError($oResult[1]);
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oRecord = $oResult[1]->record;
+		$oItem = $oResult[1]->item;
+
+		/* 根据协作填写项添加留言 */
+		$current = time();
+		$oNewRemark = new \stdClass;
+		$oNewRemark->siteid = $oRecord->siteid;
+		$oNewRemark->aid = $oRecord->aid;
+		$oNewRemark->rid = $oRecord->rid;
+		$oNewRemark->userid = $oItem->userid;
+		$oNewRemark->group_id = isset($oItem->group_id) ? $oItem->group_id : '';
+		$oNewRemark->user_src = 'S';
+		$oNewRemark->nickname = $modelRec->escape($oItem->nickname);
+		$oNewRemark->enroll_key = $oRecord->enroll_key;
+		$oNewRemark->enroll_group_id = $oRecord->group_id;
+		$oNewRemark->enroll_userid = $oRecord->userid;
+		$oNewRemark->schema_id = '';
+		$oNewRemark->data_id = 0;
+		$oNewRemark->remark_id = 0;
+		$oNewRemark->create_at = $current;
+		$oNewRemark->modify_at = $current;
+		$oNewRemark->content = $modelRec->escape($oItem->value);
+		$oNewRemark->as_cowork_id = '0';
+		$oNewRemark->like_num = 0;
+		$oNewRemark->like_log = '{}';
+		$oNewRemark->remark_num = 0;
+
+		/* 在记录中的序号 */
+		$seq = (int) $modelRec->query_val_ss([
+			'max(seq_in_record)',
+			'xxt_enroll_record_remark',
+			['enroll_key' => $oRecord->enroll_key],
+		]);
+		$oNewRemark->seq_in_record = $seq + 1;
+
+		$oNewRemark->id = $modelRec->insert('xxt_enroll_record_remark', $oNewRemark, true);
+
+		/* 留言总数 */
+		$modelRec->update("update xxt_enroll_record set remark_num=remark_num+1,rec_remark_num=rec_remark_num+1 where enroll_key='{$oRecord->enroll_key}'");
+
+		return new \ResponseData($oNewRemark);
+	}
+	/**
+	 * 从题目删除一个项
+	 */
+	private function _removeItem($itemId, $bCheckUser = false) {
+		$modelData = $this->model('matter\enroll\data');
+		/* 要更新的数据项 */
+		$oItem = $modelData->byId($itemId, ['fields' => '*']);
 		if (false === $oItem || $oItem->state !== '1') {
-			return new \ObjectNotFoundError();
+			return [false, '访问的对象不存在（1）'];
 		}
-		/* 要更新的题目 */
-		$oRecData = $modelData->byId($data, ['fields' => 'id,userid,state,aid,rid,enroll_key,schema_id,multitext_seq,value']);
+		if ($oItem->multitext_seq === '0') {
+			return [false, '访问的对象数据错误（1）'];
+		}
+		/* 要更新的数据 */
+		$oRecData = $modelData->byRecord($oItem->enroll_key, ['schema' => $oItem->schema_id, 'fields' => '*']);
 		if (false === $oRecData || $oRecData->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-		/* 要更新的记录 */
-		$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['fields' => 'id,state,data']);
-		if (false === $oRecord || $oRecord->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-		if ($oRecData->multitext_seq !== '0') {
-			return new \ParameterError();
+			return [false, '访问的对象不存在（2）'];
 		}
 		$oRecData->value = empty($oRecData->value) ? [] : json_decode($oRecData->value);
-
 		if (!isset($oRecData->value[$oItem->multitext_seq - 1]) || $oRecData->value[$oItem->multitext_seq - 1]->id !== (int) $oItem->id) {
-			return new \ParameterError('填写项与填写数据中的内容不一致');
+			return [false, '填写项与填写数据中的内容不一致'];
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N']);
-		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
+		/* 要更新的记录 */
+		$oRecord = $this->model('matter\enroll\record')->byId($oItem->enroll_key, ['fields' => '*']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return [false, '访问的对象不存在（3）'];
 		}
-		$oUser = $this->getUser($oApp);
-		if ($oUser->uid !== $oItem->userid) {
-			return new \ResponseError('不允许删除其他用户提交的数据');
+
+		$oApp = $this->model('matter\enroll')->byId($oItem->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return [false, '访问的对象不存在（4）'];
+		}
+
+		$oCurrentUser = $this->getUser($oApp);
+		if ($bCheckUser) {
+			if ($oCurrentUser->uid !== $oItem->userid) {
+				return [false, '不允许删除其他用户提交的数据'];
+			}
 		}
 
 		/**
@@ -272,10 +342,12 @@ class cowork extends base {
 		);
 
 		/* 更新用户汇总信息及积分 */
-		$modelEvt = $this->model('matter\enroll\event');
-		$modelEvt->removeCowork($oApp, $oRecData, $oItem, $oUser);
+		if ($bCheckUser) {
+			$modelEvt = $this->model('matter\enroll\event');
+			$modelEvt->removeCowork($oApp, $oRecData, $oItem, $oCurrentUser);
+		}
 
-		return new \ResponseData($oRecData->value);
+		return [true, (object) ['record' => $oRecord, 'data' => $oRecData, 'item' => $oItem]];
 	}
 	/**
 	 * 获得和协作填写相关的任务定义

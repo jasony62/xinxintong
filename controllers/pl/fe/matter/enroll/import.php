@@ -16,7 +16,7 @@ class import extends \pl\fe\matter\base {
 
 		// 登记活动
 		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario', 'cascaded' => 'N']);
-		$schemas = json_decode($app->data_schemas);
+		$schemas = $app->dataSchemas;
 
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
@@ -355,7 +355,9 @@ class import extends \pl\fe\matter\base {
 	    $fileDirectory = new \stdClass;
         $fileDirectory->toDir = $savepath;
 	    if(file_exists($zipfile)) {
-	    	if (strpos(PHP_OS, 'WIN') !== false) {
+	    	// 判断客户端操作系统
+	    	$agent = $_SERVER['HTTP_USER_AGENT'];
+	    	if (preg_match('/win/i', $agent)) {
 				$res = $this->_unZipWin($zipfile, $savepath, $fileDirectory);
 		    } else {
 		    	$res = $this->_unZipMac($zipfile, $savepath, $fileDirectory);
@@ -363,7 +365,7 @@ class import extends \pl\fe\matter\base {
 	    } else {
 	    	$res = [false, '压缩文件上传失败'];
 	    }
-var_dump($res);die;
+
     	return $res;
 	}
 	/*

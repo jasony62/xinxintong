@@ -599,7 +599,7 @@ class data_model extends entity_model {
 		}
 		/* 是否排除协作填写数据 */
 		if (isset($oOptions->multitext_seq)) {
-			$q[2] .= ' and multitext_seq=' . $multitext_seq;
+			$q[2] .= ' and multitext_seq=' . $oOptions->multitext_seq;
 		}
 		/* 限制填写轮次 */
 		if (!empty($rid)) {

@@ -138,7 +138,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         return false;
     }
-    var _oApp, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker;
+    var _oApp, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker, shareby;
+    shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12, total: 0 };
     $scope.filter = _oFilter = {}; // 过滤条件
@@ -232,7 +233,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
     };
     $scope.shareRecord = function(oRecord) {
-        location.href = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
+        var url;
+        url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
+        if(shareby) {
+            url += '&shareby=' + shareby;
+        }
+        location.href = url;
     };
     $scope.editRecord = function(event, oRecord) {
         if (oRecord.userid !== $scope.user.uid) {
@@ -358,7 +364,13 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
         });
     };
     $scope.shareTopic = function(oTopic) {
-        location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=share';
+        var url, shareby;
+        url = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=share';
+        shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+        if(shareby) {
+            url += '&shareby=' + shareby;
+        }
+        location.href = url;
     };
     $scope.copyTopic = function(oTopic) {
         enlAssoc.copy($scope.app, { id: oTopic.id, type: 'topic' });

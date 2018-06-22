@@ -123,11 +123,13 @@ class import extends \pl\fe\matter\base {
 		}
 
 		// 取出excel中的数据
+		$records = [];
 		if (isset($imgs->{$oApp->title})) {
-			$data = $this->_extractExcel($oApp, $imgs->{$oApp->title}['oUrl']);
-			$records = $data->records;
-		} else {
-			$records = [];
+			$fileType = pathinfo($imgs->{$oApp->title}['oUrl']);
+			if ($fileType['extension'] === 'xlsx') {
+				$data = $this->_extractExcel($oApp, $imgs->{$oApp->title}['oUrl']);
+				$records = $data->records;
+			}
 		}
 
 		// 如果有excel，excel决定的数据条数

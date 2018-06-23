@@ -592,11 +592,11 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     });
                 });
             };
-            $scope.createByRecord = function() {
+            $scope.createInputByOption = function() {
                 var _oApp;
                 _oApp = $scope.app;
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/createSchemaByRecord.html?_=1',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/createInputByOption.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
                         $scope2.page = oPage = {
@@ -663,10 +663,109 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 type: oSchema.type
                             });
                         });
-                        url = '/rest/pl/fe/matter/enroll/schema/createByRecord';
+                        url = '/rest/pl/fe/matter/enroll/schema/inputByOption';
                         url += '?app=' + _oApp.id;
                         url += '&targetApp=' + oResult.fromApp.id;
                         oConfig = { schemas: targetSchemas, limit: oResult.limit };
+                        http2.post(url, oConfig, function(rsp) {
+                            if (rsp.data.length) {
+                                rsp.data.forEach(function(oNewSchema) {
+                                    $scope._appendSchema(oNewSchema);
+                                });
+                            }
+                        });
+                    }
+                });
+            };
+            $scope.createScoreByInput = function() {
+                var _oApp;
+                _oApp = $scope.app;
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/createScoreByInput.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oFilter;
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 12,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.result = oResult = {
+                            range: { from: 1, to: 5 },
+                            ops: []
+                        };
+                        $scope2.dataSchemas = null; // 目标活动的可选题目
+                        $scope2.filter = oFilter = {};
+                        $scope2.selectApp = function() {
+                            var dataSchemas;
+                            $scope2.dataSchemas = [];
+                            oResult.schemas = [];
+                            if (oResult.fromApp.data_schemas && angular.isString(oResult.fromApp.data_schemas)) {
+                                dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                dataSchemas.forEach(function(oSchema) {
+                                    if (/shorttext|longtext/.test(oSchema.type)) {
+                                        $scope2.dataSchemas.push(oSchema);
+                                    }
+                                });
+                            }
+                        };
+                        $scope2.selectSchema = function(schema) {
+                            if (schema._selected) {
+                                oResult.schemas.push(schema);
+                            } else {
+                                oResult.schemas.splice(oResult.schemas.indexOf(schema), 1);
+                            }
+                        };
+                        $scope2.ok = function() {
+                            $mi.close(oResult);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.doFilter = function() {
+                            oPage.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            if (_oApp.mission) {
+                                url += '&mission=' + _oApp.mission.id;
+                            }
+                            http2.post(url, {
+                                byTitle: oFilter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    oResult.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                oPage.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                    size: 'lg'
+                }).result.then(function(oResult) {
+                    var targetSchemas, oProto, url, oConfig;
+                    if (oResult.range && oResult.range.from && oResult.range.to && oResult.ops && oResult.ops.length) {
+                        oProto = {};
+                        oProto.range = [oResult.range.from, oResult.range.to];
+                        oProto.ops = [];
+                        oResult.ops.forEach(function(op, index) {
+                            oProto.ops.push({ v: 'v' + (index + 1), l: op.l });
+                        });
+                    }
+                    if (oResult.schemas && oResult.schemas.length) {
+                        targetSchemas = [];
+                        oResult.schemas.forEach(function(oSchema) {
+                            targetSchemas.push({ id: oSchema.id });
+                        });
+                        url = '/rest/pl/fe/matter/enroll/schema/scoreByInput';
+                        url += '?app=' + _oApp.id;
+                        url += '&targetApp=' + oResult.fromApp.id;
+                        oConfig = { schemas: targetSchemas, proto: oProto };
                         http2.post(url, oConfig, function(rsp) {
                             if (rsp.data.length) {
                                 rsp.data.forEach(function(oNewSchema) {

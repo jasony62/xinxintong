@@ -418,19 +418,52 @@ class data_model extends entity_model {
 
 		/* 评估 */
 		$fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) {
+			$schemaScore = null; // 题目的得分
 			switch ($oSchema->type) {
 			case 'shorttext';
 				if (isset($oSchema->format) && $oSchema->format === 'number') {
-					$weight = isset($oSchema->weight) ? $oSchema->weight : 1;
-					$oRecordScore->{$oSchema->id} = $treatedValue * $weight;
-					$oRecordScore->sum += round((float) $oRecordScore->{$oSchema->id}, 2);
-					return true;
+					$weight = (isset($oSchema->weight) && is_numeric($oSchema->weight)) ? $oSchema->weight : 1;
+					$schemaScore = $treatedValue * $weight;
 				}
 				break;
 			case 'single':
+				if (!empty($oSchema->ops)) {
+					foreach ($oSchema->ops as $oOp) {
+						if (isset($oOp->v) && $treatedValue === $oOp->v) {
+							if (!empty($oOp->score) && is_numeric($oOp->score)) {
+								$schemaScore = $oOp->score;
+							}
+							break;
+						}
+					}
+				}
 				break;
 			case 'multiple':
+				if (!empty($oSchema->ops)) {
+					$aTreatedValue = explode(',', $treatedValue);
+					foreach ($oSchema->ops as $oOp) {
+						if (isset($oOp->v) && in_array($oOp->v, $aTreatedValue)) {
+							if (!empty($oOp->score) && is_numeric($oOp->score)) {
+								if (isset($schemaScore)) {
+									$schemaScore += $oOp->score;
+								} else {
+									$schemaScore = $oOp->score;
+								}
+							}
+							/* 去掉已经比较过的选中项，提高效率 */
+							if (count($aTreatedValue) === 1) {
+								break;
+							}
+							array_splice($aTreatedValue, array_search($oOp->v, $aTreatedValue), 1);
+						}
+					}
+				}
 				break;
+			}
+			if (isset($schemaScore)) {
+				$oRecordScore->{$oSchema->id} = $schemaScore;
+				$oRecordScore->sum += round((float) $schemaScore, 2);
+				return true;
 			}
 			return false;
 		};

@@ -49,23 +49,37 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     });
                     return deferred.promise;
                 },
+                /**
+                 * 更新题目定义
+                 */
                 update: function(oUpdatedSchema, oBeforeState, prop) {
-                    if (oUpdatedSchema.format === 'number') {
-                        if (oUpdatedSchema.weight === undefined) {
-                            oUpdatedSchema.weight = 1;
-                        } else {
-                            if (false === /^\d+\.?\d*$/.test(oUpdatedSchema.weight)) {
-                                oUpdatedSchema.weight = 1;
-                            } else if (/\.$/.test(oUpdatedSchema.weight)) {
-                                // 这样会导致无法输入“点”
-                                //oSchema.weight = oSchema.weight.slice(0, -1);
-                            }
+                    if (prop) {
+                        switch (prop) {
+                            case 'requireScore':
+                                if (oUpdatedSchema.scoreMode === undefined) {
+                                    oUpdatedSchema.scoreMode = 'evaluation';
+                                }
+                                break;
+                            case 'shareable':
+                                if (!/single|multiple|scope/.test(oUpdatedSchema.type)) {
+                                    if (oUpdatedSchema.shareable === 'Y') {
+                                        oUpdatedSchema.remarkable = 'Y';
+                                    }
+                                }
+                                break;
                         }
                     }
-                    if (prop && prop === 'shareable') {
-                        if (!/single|multiple|scope/.test(oUpdatedSchema.type)) {
-                            if (oUpdatedSchema.shareable === 'Y') {
-                                oUpdatedSchema.remarkable = 'Y';
+                    if (oUpdatedSchema.format === 'number') {
+                        if (oUpdatedSchema.scoreMode === 'evaluation') {
+                            if (oUpdatedSchema.weight === undefined) {
+                                oUpdatedSchema.weight = 1;
+                            } else {
+                                if (false === /^\d+\.?\d*$/.test(oUpdatedSchema.weight)) {
+                                    oUpdatedSchema.weight = 1;
+                                } else if (/\.$/.test(oUpdatedSchema.weight)) {
+                                    // 这样会导致无法输入“点”
+                                    //oSchema.weight = oSchema.weight.slice(0, -1);
+                                }
                             }
                         }
                     }
@@ -1306,21 +1320,29 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     timerOfUpdate = null;
                 });
             };
-            $scope.removeSchema = function(removedSchema) {
-                if (window.confirm('确定从所有页面上删除登记项［' + removedSchema.title + '］？')) {
-                    $scope._removeSchema(removedSchema);
+            $scope.removeSchema = function(oRemovedSchema) {
+                if (window.confirm('确定从所有页面上删除登记项［' + oRemovedSchema.title + '］？')) {
+                    $scope._removeSchema(oRemovedSchema);
+                    $scope.activeSchema = null;
+                    $scope.activeOption = null;
                 }
             };
-            $scope.chooseSchema = function(event, schema) {
-                var activeSchema;
-                $scope.activeSchema = activeSchema = schema;
-                if ($scope.app.scenario && activeSchema.type === 'multiple') {
-                    angular.isString(activeSchema.answer) && (activeSchema.answer = activeSchema.answer.split(','));
+            $scope.chooseSchema = function(event, oSchema) {
+                $scope.activeOption && ($scope.activeOption = null);
+                $scope.activeSchema = oSchema;
+                if ($scope.app.scenario && oSchema.type === 'multiple') {
+                    angular.isString(oSchema.answer) && (oSchema.answer = oSchema.answer.split(','));
                     !$scope.data && ($scope.data = {});
-                    angular.forEach(activeSchema.answer, function(answer) {
+                    angular.forEach(oSchema.answer, function(answer) {
                         $scope.data[answer] = true;
                     })
                 }
+            };
+            $scope.chooseOption = function(event, oSchema, oOption) {
+                if (oSchema !== $scope.activeSchema) {
+                    $scope.chooseSchema(event, oSchema);
+                }
+                $scope.activeOption = oOption;
             };
             $scope.updSchemaMultiple = function(oUpdatedSchema) {
                 !oUpdatedSchema.answer && (oUpdatedSchema.answer = []);
@@ -1343,9 +1365,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 }
             };
             $scope.schemaEditorHtml = function() {
-                if ($scope.activeSchema) {
-                    var bust = (new Date()).getMinutes();
-                    return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
+                if ($scope.activeOption) {
+                    return '/views/default/pl/fe/matter/enroll/schema/option.html';
+                } else if ($scope.activeSchema) {
+                    return '/views/default/pl/fe/matter/enroll/schema/main.html';
                 } else {
                     return '';
                 }
@@ -1436,9 +1459,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     $scope.updSchema(schema);
                 }
             };
-            $scope.removeOption = function(schema, op) {
-                schema.ops.splice(schema.ops.indexOf(op), 1);
-                $scope.updSchema(schema);
+            $scope.removeOption = function(oSchema, oOp) {
+                oSchema.ops.splice(oSchema.ops.indexOf(oOp), 1);
+                $scope.updSchema(oSchema);
             };
             $scope.refreshSchema = function(oSchema) {
                 var oApp;
@@ -1527,30 +1550,35 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
         $scope.$watch('activeSchema', function() {
             var oActiveSchema, oPage, oWrap;
 
-            oActiveSchema = $scope.activeSchema;
-            _oEditing.type = oActiveSchema.type;
-            switch (_oEditing.type) {
-                case 'multiple':
-                    if (!oActiveSchema.limitChoice) {
-                        oActiveSchema.limitChoice = 'N';
-                    }
-                    if (!oActiveSchema.range) {
-                        oActiveSchema.range = [1, oActiveSchema.ops ? oActiveSchema.ops.length : 1];
-                    }
-                    break;
-            }
             $scope.activeConfig = false;
             $scope.inputPage = false;
-            for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
-                oPage = $scope.app.pages[i];
-                if (oPage.type === 'I') {
-                    $scope.inputPage = oPage;
-                    if (oWrap = oPage.wrapBySchema(oActiveSchema)) {
-                        $scope.activeConfig = oWrap.config;
+            if (oActiveSchema = $scope.activeSchema) {
+                _oEditing.type = oActiveSchema.type;
+                switch (_oEditing.type) {
+                    case 'multiple':
+                        if (!oActiveSchema.limitChoice) {
+                            oActiveSchema.limitChoice = 'N';
+                        }
+                        if (!oActiveSchema.range) {
+                            oActiveSchema.range = [1, oActiveSchema.ops ? oActiveSchema.ops.length : 1];
+                        }
+                        break;
+                }
+                for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
+                    oPage = $scope.app.pages[i];
+                    if (oPage.type === 'I') {
+                        $scope.inputPage = oPage;
+                        if (oWrap = oPage.wrapBySchema(oActiveSchema)) {
+                            $scope.activeConfig = oWrap.config;
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         });
     }]);
+    /**
+     * 单个选项
+     */
+    ngMod.controller('ctrlSchemaOption', ['$scope', function($scope) {}]);
 });

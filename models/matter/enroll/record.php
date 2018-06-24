@@ -1178,11 +1178,11 @@ class record_model extends record_base {
 	 * 计算指定登记项所有记录的合计
 	 */
 	public function score4Schema($oApp, $rid = 'ALL', $gid = '') {
-		if (empty($oApp->data_schemas)) {
+		if (empty($oApp->dataSchemas)) {
 			return false;
 		}
 		$oResult = new \stdClass;
-		$dataSchemas = isset($oApp->dataSchemas) ? $oApp->dataSchemas : json_decode($oApp->data_schemas);
+		$dataSchemas = $oApp->dataSchemas;
 		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
@@ -1190,7 +1190,7 @@ class record_model extends record_base {
 		}
 		/* 每道题目的得分 */
 		foreach ($dataSchemas as $oSchema) {
-			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') || (isset($oSchema->format) && $oSchema->format === 'number')) {
+			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
 				$q = [
 					'sum(score)',
 					'xxt_enroll_record_data',
@@ -1570,7 +1570,7 @@ class record_model extends record_base {
 				foreach ($ops as $op) {
 					$sortArr[] = $op->v;
 				}
-				array_multisort($sortArr,SORT_ASC, SORT_NATURAL, $ops);
+				array_multisort($sortArr, SORT_ASC, SORT_NATURAL, $ops);
 				$value->ops = $ops;
 			}
 		}

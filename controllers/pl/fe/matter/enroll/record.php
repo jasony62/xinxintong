@@ -131,6 +131,9 @@ class record extends main_base {
 	}
 	/**
 	 * 计算指定登记项的得分
+	 *
+	 * @param string $gid 分组id
+	 *
 	 */
 	public function score4Schema_action($app, $rid = '', $gid = '') {
 		if (false === ($user = $this->accountUser())) {
@@ -140,7 +143,7 @@ class record extends main_base {
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if (false === $enrollApp) {
+		if (false === $enrollApp || $enrollApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -148,9 +151,9 @@ class record extends main_base {
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
-		$result = $modelRec->score4Schema($enrollApp, $rid, $gid);
+		$oResult = $modelRec->score4Schema($enrollApp, $rid, $gid);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 更新指定活动下所有记录的得分
@@ -1528,7 +1531,7 @@ class record extends main_base {
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $schema->title);
 			/* 需要计算得分 */
-			if ((isset($schema->requireScore) && $schema->requireScore === 'Y') || (isset($schema->format) && $schema->format === 'number')) {
+			if ((isset($schema->requireScore) && $schema->requireScore === 'Y')) {
 				$aScoreSum[$columnNum4] = $schema->id;
 				$bRequireScore = true;
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');

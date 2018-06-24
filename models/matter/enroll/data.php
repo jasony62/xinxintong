@@ -415,88 +415,115 @@ class data_model extends entity_model {
 		$oRecordScore->sum = 0; // 记录总分
 		$quizSchemaNum = 0; // 测验题目的数量
 		$quizCorrectSchemaNum = 0; // 答对测验题目的数量
+
+		/* 评估 */
+		$fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) {
+			switch ($oSchema->type) {
+			case 'shorttext';
+				if (isset($oSchema->format) && $oSchema->format === 'number') {
+					$weight = isset($oSchema->weight) ? $oSchema->weight : 1;
+					$oRecordScore->{$oSchema->id} = $treatedValue * $weight;
+					$oRecordScore->sum += round((float) $oRecordScore->{$oSchema->id}, 2);
+					return true;
+				}
+				break;
+			case 'single':
+				break;
+			case 'multiple':
+				break;
+			}
+			return false;
+		};
+
+		/* 测验 */
+		$fnQuestion = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oRecord, $oAssignScore, $quizSchemaNum, $quizCorrectSchemaNum) {
+			if (empty($oSchema->answer)) {
+				return false;
+			}
+			$quizScore = null;
+			$quizSchemaNum++;
+			switch ($oSchema->type) {
+			case 'single':
+				if ($treatedValue === $oSchema->answer) {
+					$quizScore = empty($oSchema->score) ? 0 : $oSchema->score;
+					$quizCorrectSchemaNum++;
+				} else {
+					$quizScore = 0;
+				}
+				break;
+			case 'multiple':
+				$correct = 0;
+				$pendingValues = explode(',', $treatedValue);
+				is_string($oSchema->answer) && $oSchema->answer = explode(',', $oSchema->answer);
+				foreach ($pendingValues as $pending) {
+					if (in_array($pending, $oSchema->answer)) {
+						$correct++;
+					} else {
+						$correct = 0;
+						break;
+					}
+				}
+				$quizScore = (empty($oSchema->score) ? 0 : $oSchema->score) / count($oSchema->answer) * $correct;
+				if (count($oSchema->answer) === $correct) {
+					$quizCorrectSchemaNum++;
+				}
+				break;
+			default: // 主观题
+				if (!empty($oAssignScore) && isset($oAssignScore->{$oSchema->id})) {
+					//有指定的优先使用指定的评分
+					$quizScore = $oAssignScore->{$oSchema->id};
+				} else {
+					$oLastSchemaValues = $this->query_objs_ss(
+						[
+							'id,value,score',
+							'xxt_enroll_record_data',
+							['enroll_key' => $oRecord->enroll_key, 'schema_id' => $oSchema->id, 'state' => 1],
+						]
+					);
+					if (!empty($oLastSchemaValues) && (count($oLastSchemaValues) == 1) && ($oLastSchemaValues[0]->value == $treatedValue) && !empty($oLastSchemaValues[0]->score)) {
+						//有提交记录且没修改且已经评分
+						$quizScore = $oLastSchemaValues[0]->score;
+					} elseif ($treatedValue === $oSchema->answer) {
+						$quizScore = $oSchema->score;
+					} else {
+						$quizScore = 0;
+					}
+				}
+				if ($quizScore == $oSchema->score) {
+					$quizCorrectSchemaNum++;
+				}
+				break;
+			}
+			// 记录分数
+			if (isset($quizScore)) {
+				$oRecordScore->{$oSchema->id} = round((float) $quizScore, 2);
+				$oRecordScore->sum += round((float) $quizScore, 2);
+			}
+			return true;
+		};
+
 		foreach ($dbData as $schemaId => $treatedValue) {
 			if (!isset($aSchemasById[$schemaId])) {
 				continue;
 			}
 			$oSchema = $aSchemasById[$schemaId];
-
+			if (!isset($oSchema->requireScore) || $oSchema->requireScore !== 'Y' || !isset($oSchema->scoreMode)) {
+				continue;
+			}
+			// @todo 为什么要有这么一段代码？
 			if (is_object($treatedValue) || is_array($treatedValue)) {
 				$treatedValue = $this->toJson($treatedValue);
 			}
 			/**
 			 * 计算单个题目的得分
 			 */
-			if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
-				$weight = isset($oSchema->weight) ? $oSchema->weight : 1;
-				$oRecordScore->{$schemaId} = $treatedValue * $weight;
-				$oRecordScore->sum += round((float) $oRecordScore->{$schemaId}, 2);
-			}
-			/* 计算题目的分数。只支持对单选题和多选题自动打分 */
-			if ($oApp->scenario === 'quiz') {
-				$quizScore = null;
-				if (isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') {
-					$quizSchemaNum++;
-					if (!empty($oSchema->answer)) {
-						switch ($oSchema->type) {
-						case 'single':
-							if ($treatedValue === $oSchema->answer) {
-								$quizScore = empty($oSchema->score) ? 0 : $oSchema->score;
-								$quizCorrectSchemaNum++;
-							} else {
-								$quizScore = 0;
-							}
-							break;
-						case 'multiple':
-							$correct = 0;
-							$pendingValues = explode(',', $treatedValue);
-							is_string($oSchema->answer) && $oSchema->answer = explode(',', $oSchema->answer);
-							foreach ($pendingValues as $pending) {
-								if (in_array($pending, $oSchema->answer)) {
-									$correct++;
-								} else {
-									$correct = 0;
-									break;
-								}
-							}
-							$quizScore = (empty($oSchema->score) ? 0 : $oSchema->score) / count($oSchema->answer) * $correct;
-							if (count($oSchema->answer) === $correct) {
-								$quizCorrectSchemaNum++;
-							}
-							break;
-						default: // 主观题
-							if (!empty($oAssignScore) && isset($oAssignScore->{$schemaId})) {
-								//有指定的优先使用指定的评分
-								$quizScore = $oAssignScore->{$schemaId};
-							} else {
-								$oLastSchemaValues = $this->query_objs_ss(
-									[
-										'id,value,score',
-										'xxt_enroll_record_data',
-										['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId, 'state' => 1],
-									]
-								);
-								if (!empty($oLastSchemaValues) && (count($oLastSchemaValues) == 1) && ($oLastSchemaValues[0]->value == $treatedValue) && !empty($oLastSchemaValues[0]->score)) {
-									//有提交记录且没修改且已经评分
-									$quizScore = $oLastSchemaValues[0]->score;
-								} elseif ($treatedValue === $oSchema->answer) {
-									$quizScore = $oSchema->score;
-								} else {
-									$quizScore = 0;
-								}
-							}
-							if ($quizScore == $oSchema->score) {
-								$quizCorrectSchemaNum++;
-							}
-							break;
-						}
-					}
-					// 记录分数
-					if (isset($quizScore)) {
-						$oRecordScore->{$schemaId} = round((float) $quizScore, 2);
-						$oRecordScore->sum += round((float) $quizScore, 2);
-					}
-				}
+			switch ($oSchema->scoreMode) {
+			case 'evaluation':
+				$fnEvaluation($oSchema, $treatedValue, $oRecordScore);
+				break;
+			case 'question':
+				$fnQuestion($oSchema, $treatedValue, $oRecordScore);
+				break;
 			}
 		}
 

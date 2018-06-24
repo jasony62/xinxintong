@@ -74,7 +74,7 @@ foreach ($apps as $oApp) {
 if ($oUpdatedLog) {
 	$model->update('xxt_log', ['data' => $lastRowNo + count($apps)], ['id' => $oUpdatedLog->id]);
 } else {
-	$model->insert('xxt_log', ['mpid' => 'maintain', 'method' => $logMethod, 'data' => $lastRowNo + count($apps)], false);
+	$model->insert('xxt_log', ['mpid' => 'maintain', 'create_at' => time(), 'method' => $logMethod, 'data' => $lastRowNo + count($apps)], false);
 }
 
 header('Content-Type: text/plain; charset=utf-8');

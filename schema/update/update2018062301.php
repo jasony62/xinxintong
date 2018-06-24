@@ -1,13 +1,15 @@
 <?php
 require_once dirname(dirname(dirname(__FILE__))) . '/config.php';
-require_once '../../db.php';
-require_once '../../tms/db.php';
-require_once '../../tms/tms_model.php';
+require_once dirname(dirname(dirname(__FILE__))) . '/db.php';
+require_once dirname(dirname(dirname(__FILE__))) . '/tms/db.php';
+require_once dirname(dirname(dirname(__FILE__))) . '/tms/tms_model.php';
+
+set_time_limit(0);
 
 $model = TMS_MODEL::model();
 
 $logMethod = 'update2018062301';
-$batchSize = 100; // 一次执行多少条
+$batchSize = 50; // 一次执行多少条
 
 $oUpdatedLog = $model->query_obj_ss(['*', 'xxt_log', ['method' => $logMethod]]);
 if ($oUpdatedLog) {

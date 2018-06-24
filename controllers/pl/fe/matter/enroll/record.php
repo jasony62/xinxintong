@@ -1704,7 +1704,7 @@ class record extends main_base {
 				}
 				$one = $i + $columnNum3;
 				// 分数
-				if ((isset($schema->requireScore) && $schema->requireScore === 'Y') || (isset($schema->format) && $schema->format === 'number')) {
+				if ((isset($schema->requireScore) && $schema->requireScore === 'Y')) {
 					$cellScore = empty($oRecScore->{$schema->id}) ? 0 : $oRecScore->{$schema->id};
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 				}

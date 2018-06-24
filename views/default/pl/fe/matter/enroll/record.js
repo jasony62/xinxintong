@@ -214,6 +214,9 @@ define(['frame'], function(ngApp) {
                     recordSchemasExt.push({ type: 'calcScore', title: '得分', id: oSchema.id });
                     bRequireScore = true;
                 }
+                if (oSchema.format && oSchema.format === 'number') {
+                    bRequireSum = true;
+                }
             });
 
             $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;

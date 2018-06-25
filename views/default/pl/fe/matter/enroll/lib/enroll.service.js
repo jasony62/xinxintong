@@ -1414,6 +1414,104 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
+            _ins.fillByOther = function(oApp) {
+                var defer;
+                defer = $q.defer();
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/fillByOther.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oFilter, dataSchemas;
+                        $scope2.dataSchemas = dataSchemas = [];
+                        oApp.dataSchemas.forEach(function(oSchema) {
+                            if (oSchema.type === 'shorttext') {
+                                dataSchemas.push(oSchema);
+                            }
+                        });
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 10,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.data = oResult = {
+                            matterType: 'mschema',
+                            intersected: {},
+                            filled: {}
+                        };
+                        $scope2.filter = oFilter = {};
+                        $scope2.ok = function() {
+                            $mi.close(oResult);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss('cancel');
+                        };
+                        $scope2.doFilter = function() {
+                            oPage.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url;
+                            switch (oResult.matterType) {
+                                case 'mschema':
+                                    url = '/rest/pl/fe/site/member/schema/list?valid=Y&site=' + oApp.siteid + '&matter=' + oApp.id + ',enroll';
+                                    http2.post(url, {
+                                        byTitle: oFilter.byTitle
+                                    }, function(rsp) {
+                                        $scope2.apps = rsp.data;
+                                        if ($scope2.apps.length) {
+                                            oResult.fromApp = $scope2.apps[0];
+                                        }
+                                        oPage.total = $scope2.apps.length;
+                                    });
+                                    break;
+                                case 'enroll':
+                                    url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
+                                    http2.post(url, {
+                                        byTitle: oFilter.byTitle
+                                    }, function(rsp) {
+                                        $scope2.apps = rsp.data.apps;
+                                        if ($scope2.apps.length) {
+                                            oResult.fromApp = $scope2.apps[0];
+                                            $scope2.selectApp();
+                                        }
+                                        oPage.total = rsp.data.total;
+                                    });
+                                    break;
+                            }
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                    size: 'lg'
+                }).result.then(function(data) {
+                    var url, intersectedSchemas, filledSchemas;
+                    if (data.fromApp && data.fromApp.id && data.intersected) {
+                        intersectedSchemas = [];
+                        angular.forEach(data.intersected, function(source, target) {
+                            if (source) {
+                                intersectedSchemas.push([source, target]);
+                            }
+                        });
+                        filledSchemas = [];
+                        angular.forEach(data.filled, function(source, target) {
+                            if (source) {
+                                filledSchemas.push([source, target]);
+                            }
+                        });
+                        if (intersectedSchemas.length && filledSchemas) {
+                            url = '/rest/pl/fe/matter/enroll/record/fillByOther';
+                            url += '?app=' + oApp.id;
+                            url += '&targetApp=' + data.matterType + ',' + data.fromApp.id;
+                            url += '&preview=N';
+                            http2.post(url, { intersectedSchemas: intersectedSchemas, filledSchemas: filledSchemas }, function(rsp) {
+                                defer.resolve(rsp.data);
+                            });
+                        }
+                    }
+                });
+                return defer.promise;
+            };
             _ins.sum4Schema = function() {
                 var url,
                     defer = $q.defer();
@@ -1793,7 +1891,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 defer.resolve(oCriteria);
                                 $mi.close();
                             };
-                            if(type!=='page') {$scope2.doSearchRound();}
+                            if (type !== 'page') { $scope2.doSearchRound(); }
                         }],
                         backdrop: 'static',
                     });

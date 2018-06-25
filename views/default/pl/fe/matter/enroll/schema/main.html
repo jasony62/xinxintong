@@ -26,24 +26,20 @@
     </div>
     <div class="form-group" ng-show="activeSchema.type==='shorttext'">
         <label>填写限制</label>
-        <div class='radio' style='margin-top:0'>
-            <label class="checkbox-inline">
+        <div class='radio'>
+            <label class="radio-inline">
                 <input type='radio' ng-model='activeSchema.format' value='' name='format' ng-change="updSchema(activeSchema)">不限</label>
         </div>
         <div class='radio'>
-            <label class="checkbox-inline">
+            <label class="radio-inline">
                 <input type='radio' value="number" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,null,'format')">数值</label>
-            <label class='checkbox-inline' ng-if='activeSchema.format==="number"'>
-                权重
-                <input type='text' style='width:4em' ng-model="activeSchema.weight" ng-change="updSchema(activeSchema,null,'weight')" placeholder="请输入数字">
-            </label>
         </div>
         <div class='radio'>
-            <label class="checkbox-inline">
+            <label class="radio-inline">
                 <input type='radio' value="name" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">姓名</label>
-            <label class="checkbox-inline">
+            <label class="radio-inline">
                 <input type='radio' value="mobile" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">手机</label>
-            <label class="checkbox-inline">
+            <label class="radio-inline">
                 <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">邮箱</label>
         </div>
     </div>
@@ -83,10 +79,6 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema(activeSchema)"> 唯一</label>
     </div>
-    <div class="checkbox" ng-show="app.scenario==='quiz'">
-        <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.requireScore' ng-change="updSchema(activeSchema)"> 作为考题</label>
-    </div>
     <div class="checkbox" ng-if="activeSchema.id.indexOf('member.')!==0">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.remarkable' ng-change="updSchema(activeSchema)"> 允许进行留言</label>
@@ -110,7 +102,19 @@
         <label>限制数量</label>
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema)">
     </div>
+    <!-- score -->
+    <div class="checkbox" ng-if="['single','multiple','shorttext','longtext','score'].indexOf(activeSchema.type)!==-1">
+        <hr>
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.requireScore' ng-change="updSchema(activeSchema,null,'requireScore')"> 需要计分</label>
+    </div>
     <div class='form-group' ng-if="activeSchema.requireScore==='Y'">
+        <label class='radio-inline'>
+            <input type='radio' name='scoreMode' value='evaluation' ng-model='activeSchema.scoreMode' ng-change="updSchema(activeSchema)"> 作为测评</label>
+        <label class='radio-inline'>
+            <input type='radio' name='scoreMode' value='question' ng-model='activeSchema.scoreMode' ng-change="updSchema(activeSchema)"> 作为考题</label>
+    </div>
+    <div ng-if="activeSchema.scoreMode==='question'">
         <!--设置分数-->
         <div class="form-group">
             <label>设置分数</label>
@@ -147,6 +151,17 @@
             </li>
         </ul>
     </div>
+    <div ng-if="activeSchema.scoreMode==='evaluation'">
+        <div class='form-group' ng-if='activeSchema.format==="number"'>
+            <label>计分权重</label>
+            <input type='text' class='form-control' ng-model="activeSchema.weight" ng-change="updSchema(activeSchema,null,'weight')" placeholder="请输入数字">
+        </div>
+        <div class='form-group' ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1">
+            <label><span class='glyphicon glyphicon-info-sign'></span> 选择选项，设置每个选项的分值</label>
+        </div>
+    </div>
+    <hr>
+    <!-- end score -->
     <div class="checkbox" ng-show="'single'===activeSchema.type||'Y'===activeSchema.history">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.asdir' ng-change="updSchema(activeSchema)"> 在共享页作为内容分类目录</label>

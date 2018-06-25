@@ -13,6 +13,9 @@
                     <audio ng-switch-when="audio/x-m4a" controls="controls" preload="none">
                         <source src="{{file.url}}" type="{{file.type}}" />
                     </audio>
+                    <audio ng-switch-when="audio/mp3" controls="controls" preload="none">
+                        <source src="{{file.url}}" type="{{file.type}}" />
+                    </audio>
                     <img ng-switch-when="image" ng-src='{{file.url}}' style="width:40%" />
                     <a ng-switch-default href ng-click="open(file)">{{file.name}}</a>
                 </div>

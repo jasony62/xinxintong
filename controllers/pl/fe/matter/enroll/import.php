@@ -87,7 +87,7 @@ class import extends \pl\fe\matter\base {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelFs = $this->model('fs/local', $oApp->siteid, '_resumable');
 		$fileUploaded = 'enroll_' . $oApp->id . '_' . $file->name;
-		if (strpos($type, 'zip') !== false) {
+		if (in_array($type, ['application/x-zip-compressed','application/zip'])) {
 			$recordImgs = $this->_extractZIP($oApp, $modelFs->rootDir . '/' . $fileUploaded, $modelFs, $file);
 			if ($recordImgs[0] === false) {
 				return new \ResponseError($recordImgs[1]);

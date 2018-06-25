@@ -459,6 +459,20 @@ class data_model extends entity_model {
 					}
 				}
 				break;
+			case 'score': // 打分题
+				if (!empty($oSchema->ops)) {
+					$oTreatedValue = json_decode($treatedValue);
+					foreach ($oSchema->ops as $oOp) {
+						if (isset($oOp->v) && !empty($oTreatedValue->{$oOp->v}) && is_numeric($oTreatedValue->{$oOp->v})) {
+							if (isset($schemaScore)) {
+								$schemaScore += $oTreatedValue->{$oOp->v};
+							} else {
+								$schemaScore = $oTreatedValue->{$oOp->v};
+							}
+						}
+					}
+				}
+				break;
 			}
 			if (isset($schemaScore)) {
 				$oRecordScore->{$oSchema->id} = $schemaScore;

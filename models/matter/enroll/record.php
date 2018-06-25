@@ -1146,30 +1146,47 @@ class record_model extends record_base {
 			}
 		}
 		/* 每道题目的合计 */
-		foreach ($dataSchemas as $schema) {
-			if (isset($schema->format) && $schema->format === 'number') {
-				$q = [
-					'sum(value)',
-					'xxt_enroll_record_data',
-					['aid' => $oApp->id, 'schema_id' => $schema->id, 'state' => 1],
-				];
-				if (!empty($rid)) {
-					if (is_string($rid)) {
-						$rid !== 'ALL' && $q[2]['rid'] = $rid;
-					} else if (is_array($rid)) {
-						if (empty(array_intersect(['all', 'ALL'], $rid))) {
-							$q[2]['rid'] = $rid;
-						}
+		foreach ($dataSchemas as $oSchema) {
+			if (!in_array($oSchema->type, ['shorttext', 'score'])) {
+				continue;
+			}
+			if ($oSchema->type === 'shorttext') {
+				/* 数字格式的单行填写题 */
+				if (!isset($oSchema->format) || $oSchema->format !== 'number') {
+					continue;
+				}
+			}
+
+			switch ($oSchema->type) {
+			case 'shorttext':
+				$sumSql = 'sum(value)';
+				break;
+			case 'score':
+				$sumSql = 'sum(score)';
+				break;
+			}
+
+			$q = [
+				$sumSql,
+				'xxt_enroll_record_data',
+				['aid' => $oApp->id, 'schema_id' => $oSchema->id, 'state' => 1],
+			];
+			if (!empty($rid)) {
+				if (is_string($rid)) {
+					$rid !== 'ALL' && $q[2]['rid'] = $rid;
+				} else if (is_array($rid)) {
+					if (empty(array_intersect(['all', 'ALL'], $rid))) {
+						$q[2]['rid'] = $rid;
 					}
 				}
-				if (!empty($gid)) {
-					$q[2]['group_id'] = $gid;
-				}
-
-				$sum = (float) $this->query_val_ss($q);
-				$sum = number_format($sum, 2, '.', '');
-				$oResult->{$schema->id} = (float) $sum;
 			}
+			if (!empty($gid)) {
+				$q[2]['group_id'] = $gid;
+			}
+
+			$sum = (float) $this->query_val_ss($q);
+			$sum = number_format($sum, 2, '.', '');
+			$oResult->{$oSchema->id} = (float) $sum;
 		}
 
 		return $oResult;

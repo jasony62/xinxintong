@@ -103,8 +103,8 @@
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema)">
     </div>
     <!-- score -->
-    <hr>
-    <div class="checkbox">
+    <div class="checkbox" ng-if="['single','multiple','shorttext','longtext','score'].indexOf(activeSchema.type)!==-1">
+        <hr>
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.requireScore' ng-change="updSchema(activeSchema,null,'requireScore')"> 需要计分</label>
     </div>

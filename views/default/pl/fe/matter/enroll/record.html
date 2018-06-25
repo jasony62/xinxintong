@@ -149,7 +149,7 @@
                         <td></td>
                         <td ng-if="app.multi_rounds==='Y'"></td>
                         <td ng-repeat="schema in recordSchemasExt">
-                            <div ng-if="schema.format==='number'">
+                            <div ng-if="schema.format==='number'||schema.type==='score'">
                                 {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                             </div>
                             <div ng-if="schema.type==='calcScore'">

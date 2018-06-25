@@ -249,7 +249,7 @@ class enroll_model extends enroll_base {
 			$oAppRnd = $this->model('matter\enroll\round')->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
 		}
 		foreach ($oApp->dataSchemas as $oSchema) {
-			if (in_array($oSchema->type, ['single', 'multiple'])) {
+			if (isset($oSchema->type) && in_array($oSchema->type, ['single', 'multiple'])) {
 				if (!empty($oSchema->dsOps->app->id) && !empty($oSchema->dsOps->schema->id)) {
 					if (!empty($oAppRound->mission_rid)) {
 						if (!isset($modelRnd)) {
@@ -535,7 +535,7 @@ class enroll_model extends enroll_base {
 			/* 匿名访问 */
 			$nickname = '';
 		} else {
-			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
+			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
 				foreach ($oEntryRule->member as $schemaId => $rule) {
 					$modelMem = $this->model('site\user\member');
 					if (empty($oUser->unionid)) {

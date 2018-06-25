@@ -1420,8 +1420,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/fillByOther.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                        var oPage, oResult, oFilter;
-                        $scope2.sourceApp = oApp;
+                        var oPage, oResult, oFilter, dataSchemas;
+                        $scope2.dataSchemas = dataSchemas = [];
+                        oApp.dataSchemas.forEach(function(oSchema) {
+                            if (oSchema.type === 'shorttext') {
+                                dataSchemas.push(oSchema);
+                            }
+                        });
                         $scope2.page = oPage = {
                             at: 1,
                             size: 10,
@@ -1432,9 +1437,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         $scope2.data = oResult = {
                             matterType: 'mschema',
                             intersected: {},
-                            filledSchemas: [
-                                ['userid', 'userid']
-                            ]
+                            filled: {}
                         };
                         $scope2.filter = oFilter = {};
                         $scope2.ok = function() {
@@ -1482,7 +1485,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     backdrop: 'static',
                     size: 'lg'
                 }).result.then(function(data) {
-                    var url, intersectedSchemas;
+                    var url, intersectedSchemas, filledSchemas;
                     if (data.fromApp && data.fromApp.id && data.intersected) {
                         intersectedSchemas = [];
                         angular.forEach(data.intersected, function(source, target) {
@@ -1490,12 +1493,18 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 intersectedSchemas.push([source, target]);
                             }
                         });
-                        if (intersectedSchemas.length) {
+                        filledSchemas = [];
+                        angular.forEach(data.filled, function(source, target) {
+                            if (source) {
+                                filledSchemas.push([source, target]);
+                            }
+                        });
+                        if (intersectedSchemas.length && filledSchemas) {
                             url = '/rest/pl/fe/matter/enroll/record/fillByOther';
                             url += '?app=' + oApp.id;
                             url += '&targetApp=' + data.matterType + ',' + data.fromApp.id;
                             url += '&preview=N';
-                            http2.post(url, { intersectedSchemas: intersectedSchemas, filledSchemas: data.filledSchemas }, function(rsp) {
+                            http2.post(url, { intersectedSchemas: intersectedSchemas, filledSchemas: filledSchemas }, function(rsp) {
                                 defer.resolve(rsp.data);
                             });
                         }

@@ -131,6 +131,9 @@ class record extends main_base {
 	}
 	/**
 	 * 计算指定登记项的得分
+	 *
+	 * @param string $gid 分组id
+	 *
 	 */
 	public function score4Schema_action($app, $rid = '', $gid = '') {
 		if (false === ($user = $this->accountUser())) {
@@ -140,7 +143,7 @@ class record extends main_base {
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if (false === $enrollApp) {
+		if (false === $enrollApp || $enrollApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -148,9 +151,9 @@ class record extends main_base {
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
-		$result = $modelRec->score4Schema($enrollApp, $rid, $gid);
+		$oResult = $modelRec->score4Schema($enrollApp, $rid, $gid);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 更新指定活动下所有记录的得分
@@ -1513,27 +1516,33 @@ class record extends main_base {
 		if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid !== 'Y') || isset($oApp->assignedNickname->schema->id)) {
 			$bRequireNickname = false;
 		}
-		$bRequireSum = false;
-		$bRequireScore = false;
+		$bRequireSum = false; // 是否需要计算合计
+		$bRequireScore = false; // 是否需要计算总分
 		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {
-			$schema = $schemas[$a];
+			$oSchema = $schemas[$a];
 			/* 跳过图片,描述说明和文件 */
-			if (in_array($schema->type, ['html'])) {
+			if (in_array($oSchema->type, ['html'])) {
 				continue;
 			}
-			/* 数值型，需要计算合计 */
-			if (isset($schema->format) && $schema->format === 'number') {
-				$aNumberSum[$columnNum4] = $schema->id;
+			if ($oSchema->type === 'shorttext') {
+				/* 数值型，需要计算合计 */
+				if (isset($oSchema->format) && $oSchema->format === 'number') {
+					$aNumberSum[$columnNum4] = $oSchema->id;
+					$bRequireSum = true;
+				}
+			} else if ($oSchema->type === 'score') {
+				/* 打分题，需要计算合计 */
+				$aNumberSum[$columnNum4] = $oSchema->id;
 				$bRequireSum = true;
 			}
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $schema->title);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
 			/* 需要计算得分 */
-			if ((isset($schema->requireScore) && $schema->requireScore === 'Y') || (isset($schema->format) && $schema->format === 'number')) {
-				$aScoreSum[$columnNum4] = $schema->id;
+			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
+				$aScoreSum[$columnNum4] = $oSchema->id;
 				$bRequireScore = true;
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
 			}
-			if (isset($remarkables) && in_array($schema->id, $remarkables)) {
+			if (isset($remarkables) && in_array($oSchema->id, $remarkables)) {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '留言数');
 			}
 		}
@@ -1577,10 +1586,10 @@ class record extends main_base {
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
 				$columnNum3 = $columnNum2; //列号
 				$schema = $schemas[$i2];
-				if (isset($data->{$schema->id})) {
-					$v = $data->{$schema->id};
-				} else if ((strpos($schema->id, 'member.') === 0) && isset($data->member)) {
-					$mbSchemaId = $schema->id;
+				if (isset($data->{$oSchema->id})) {
+					$v = $data->{$oSchema->id};
+				} else if ((strpos($oSchema->id, 'member.') === 0) && isset($data->member)) {
+					$mbSchemaId = $oSchema->id;
 					$mbSchemaIds = explode('.', $mbSchemaId);
 					$mbSchemaId = $mbSchemaIds[1];
 					if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
@@ -1593,19 +1602,19 @@ class record extends main_base {
 					$v = '';
 				}
 
-				if (in_array($schema->type, ['html'])) {
+				if (in_array($oSchema->type, ['html'])) {
 					continue;
 				}
-				switch ($schema->type) {
+				switch ($oSchema->type) {
 				case 'single':
 					$cellValue = '';
-					foreach ($schema->ops as $op) {
+					foreach ($oSchema->ops as $op) {
 						if ($op->v === $v) {
 							$cellValue = $op->l;
 						}
 					}
-					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
+					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
 					}
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
@@ -1617,7 +1626,7 @@ class record extends main_base {
 					$labels = [];
 					$v = explode(',', $v);
 					foreach ($v as $oneV) {
-						foreach ($schema->ops as $op) {
+						foreach ($oSchema->ops as $op) {
 							if ($op->v === $oneV) {
 								$labels[] = $op->l;
 								break;
@@ -1625,8 +1634,8 @@ class record extends main_base {
 						}
 					}
 					$cellValue = implode(',', $labels);
-					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
+					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
 					}
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
@@ -1636,7 +1645,7 @@ class record extends main_base {
 					break;
 				case 'score':
 					$labels = [];
-					foreach ($schema->ops as $op) {
+					foreach ($oSchema->ops as $op) {
 						if (isset($v->{$op->v})) {
 							$labels[] = $op->l . ':' . $v->{$op->v};
 						}
@@ -1645,8 +1654,8 @@ class record extends main_base {
 					break;
 				case 'image':
 					$v0 = '';
-					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
+					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
 					}
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
@@ -1656,8 +1665,8 @@ class record extends main_base {
 					break;
 				case 'file':
 					$v0 = '';
-					if (isset($schema->supplement) && $schema->supplement === 'Y') {
-						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$schema->id}) ? $supplement->{$schema->id} : '') . ")";
+					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
 					}
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
@@ -1670,7 +1679,7 @@ class record extends main_base {
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				case 'shorttext':
-					if (isset($schema->format) && $schema->format === 'number') {
+					if (isset($oSchema->format) && $oSchema->format === 'number') {
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 					} else {
 						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
@@ -1701,14 +1710,14 @@ class record extends main_base {
 				}
 				$one = $i + $columnNum3;
 				// 分数
-				if ((isset($schema->requireScore) && $schema->requireScore === 'Y') || (isset($schema->format) && $schema->format === 'number')) {
-					$cellScore = empty($oRecScore->{$schema->id}) ? 0 : $oRecScore->{$schema->id};
+				if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
+					$cellScore = empty($oRecScore->{$oSchema->id}) ? 0 : $oRecScore->{$oSchema->id};
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 				}
 				// 留言数
-				if (isset($remarkables) && in_array($schema->id, $remarkables)) {
-					if (isset($oVerbose->{$schema->id})) {
-						$remark_num = $oVerbose->{$schema->id}->remark_num;
+				if (isset($remarkables) && in_array($oSchema->id, $remarkables)) {
+					if (isset($oVerbose->{$oSchema->id})) {
+						$remark_num = $oVerbose->{$oSchema->id}->remark_num;
 					} else {
 						$remark_num = 0;
 					}

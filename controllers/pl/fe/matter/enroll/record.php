@@ -1585,7 +1585,7 @@ class record extends main_base {
 			$i = 0; // 列序号
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
 				$columnNum3 = $columnNum2; //列号
-				$schema = $schemas[$i2];
+				$oSchema = $schemas[$i2];
 				if (isset($data->{$oSchema->id})) {
 					$v = $data->{$oSchema->id};
 				} else if ((strpos($oSchema->id, 'member.') === 0) && isset($data->member)) {

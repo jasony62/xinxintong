@@ -16,35 +16,76 @@ class repos extends base {
 			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
 		}
 
-		$dirSchemas = [];
+		$dirSchemas = []; // 作为分类的题目
 		$oSchemasById = new \stdClass;
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if (isset($oSchema->asdir) && $oSchema->asdir === 'Y') {
 				$oSchemasById->{$oSchema->id} = $oSchema;
-				if (empty($oSchema->optGroups)) {
-					/* 根分类 */
-					foreach ($oSchema->ops as $oOp) {
-						$oRootDir = new \stdClass;
-						$oRootDir->schema_id = $oSchema->id;
-						$oRootDir->op = $oOp;
-						$dirSchemas[] = $oRootDir;
-					}
-				} else {
-					foreach ($oSchema->optGroups as $oOptGroup) {
-						if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && $oSchemasById->{$oOptGroup->assocOp->schemaId}) {
-							$oParentSchema = $oSchemasById->{$oOptGroup->assocOp->schemaId};
-							foreach ($oParentSchema->ops as $oAssocOp) {
-								if ($oAssocOp->v === $oOptGroup->assocOp->v) {
-									$oAssocOp->childrenDir = [];
-									foreach ($oSchema->ops as $oOp) {
-										if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
-											$oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
+				switch ($oSchema->type) {
+				case 'single':
+					if (empty($oSchema->optGroups)) {
+						/* 根分类 */
+						foreach ($oSchema->ops as $oOp) {
+							$oRootDir = new \stdClass;
+							$oRootDir->schema_id = $oSchema->id;
+							$oRootDir->schema_type = 'single';
+							$oRootDir->op = $oOp;
+							$dirSchemas[] = $oRootDir;
+						}
+					} else {
+						foreach ($oSchema->optGroups as $oOptGroup) {
+							if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && $oSchemasById->{$oOptGroup->assocOp->schemaId}) {
+								$oParentSchema = $oSchemasById->{$oOptGroup->assocOp->schemaId};
+								foreach ($oParentSchema->ops as $oAssocOp) {
+									if ($oAssocOp->v === $oOptGroup->assocOp->v) {
+										$oAssocOp->childrenDir = [];
+										foreach ($oSchema->ops as $oOp) {
+											if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
+												$oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
+											}
 										}
 									}
 								}
 							}
 						}
 					}
+					break;
+				case 'shorttext':
+					$modelData = $this->model('matter\enroll\data');
+					if (empty($oSchema->historyAssoc)) {
+						$oOptions = new \stdClass;
+						$oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
+						$oOptions->page = 1;
+						$oOptions->size = 99;
+						$oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
+						foreach ($oResult->records as $oRecData) {
+							$oRootDir = new \stdClass;
+							$oRootDir->schema_id = $oSchema->id;
+							$oRootDir->schema_type = 'shorttext';
+							$oRootDir->op = (object) ['v' => $oRecData->value, 'l' => $oRecData->value];
+							$dirSchemas[] = $oRootDir;
+						}
+					} else {
+						foreach ($dirSchemas as $oParentDirSchema) {
+							if (in_array($oParentDirSchema->schema_id, $oSchema->historyAssoc)) {
+								$aChildrenDir = [];
+								$oOptions = new \stdClass;
+								$oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
+								$oOptions->page = 1;
+								$oOptions->size = 99;
+								$oOptions->assocData = (object) [$oParentDirSchema->schema_id => $oParentDirSchema->op->v];
+								$oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
+								foreach ($oResult->records as $oRecData) {
+									$oChildOption = new \stdClass;
+									$oChildOption = (object) ['schema_id' => $oSchema->id, 'op' => (object) ['v' => $oRecData->value, 'l' => $oRecData->value]];
+									$aChildrenDir[] = $oChildOption;
+								}
+								$oParentDirSchema->op->childrenDir = $aChildrenDir;
+							}
+						}
+
+					}
+					break;
 				}
 			}
 		}
@@ -275,7 +316,7 @@ class repos extends base {
 			}
 		}
 		/* 留言显示在共享页所需点赞数量 */
-		$remarkReposAgreed = 'Y';
+		$remarkReposAgreed = ['Y'];
 		$remarkReposLikeNum = 0;
 		if (isset($oActionRule->remark->repos->pre)) {
 			$oRule = $oActionRule->remark->repos->pre;
@@ -486,9 +527,9 @@ class repos extends base {
 					"enroll_key='{$oRecord->enroll_key}' and state=1",
 				];
 				if ($remarkReposLikeNum) {
-					$q[2] .= " and (agreed='{$remarkReposAgreed}' or like_num>={$remarkReposLikeNum})";
+					$q[2] .= " and (agreedin ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
 				} else {
-					$q[2] .= " and agreed='{$remarkReposAgreed}'";
+					$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
 				}
 				$q2 = [
 					'o' => 'agreed desc,like_num desc,create_at desc',
@@ -536,11 +577,15 @@ class repos extends base {
 			}
 		}
 		/* 留言显示在共享页所需点赞数量 */
+		$remarkReposAgreed = ['Y'];
 		$remarkReposLikeNum = 0;
 		if (isset($oApp->actionRule->remark->repos->pre)) {
 			$oRule = $oApp->actionRule->remark->repos->pre;
 			if (!empty($oRule->remark->likeNum)) {
 				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
+			}
+			if (!empty($oRule->remark->agreed)) {
+				$remarkReposAgreed = $oRule->remark->agreed;
 			}
 		}
 
@@ -694,9 +739,9 @@ class repos extends base {
 					"enroll_key='{$oRecord->enroll_key}' and state=1",
 				];
 				if ($remarkReposLikeNum) {
-					$q[2] .= " and (agreed='Y' or like_num>={$remarkReposLikeNum})";
+					$q[2] .= " and (agreedin ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
 				} else {
-					$q[2] .= " and agreed='Y'";
+					$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
 				}
 				$q2 = [
 					'o' => 'agreed desc,like_num desc,create_at desc',

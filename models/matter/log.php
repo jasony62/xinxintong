@@ -322,7 +322,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'l.userid,l.nickname,l.operation,l.operate_at,l.user_op_num,l.matter_op_num',
 			'xxt_log_user_matter l',
-			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
+			"l.matter_type='" . $matterType . "' and l.matter_id='" . $matterId . "'",
 		];
 
 		if ($matterType === 'enroll') {
@@ -333,16 +333,16 @@ class log_model extends \TMS_MODEL {
 
 		if (!empty($options['byUser'])) {
 			if ($matterType === 'enroll') {
-				$q[2] .= " and u.nickname like '%" . $this->escape($options['byUser']) . "%'";
+				$q[2] .= " and u.nickname like '%" . $options['byUser'] . "%'";
 			} else {
-				$q[2] .= " and l.nickname like '%" . $this->escape($options['byUser']) . "%'";
+				$q[2] .= " and l.nickname like '%" . $options['byUser'] . "%'";
 			}
 		}
 		if (!empty($options['byOp']) && strcasecmp($options['byOp'], 'all') !== 0) {
-			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
+			$q[2] .= " and l.operation = '" . $options['byOp'] . "'";
 		}
 		if (!empty($options['byRid'])) {
-			$q[2] .= " and l.operate_data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
+			$q[2] .= " and l.operate_data like '%" . '"rid":"' . $options['byRid'] . '"' . "%'";
 		}
 
 		/**
@@ -373,17 +373,23 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'l.operator userid,l.operator_name nickname,l.operation,l.operate_at',
 			'xxt_log_matter_op l',
-			"l.matter_type='" . $this->escape($matterType) . "' and l.matter_id='" . $this->escape($matterId) . "'",
+			"l.matter_type='" . $matterType . "' and l.matter_id='" . $matterId . "'",
 		];
 
 		if (!empty($options['byUser'])) {
-			$q[2] .= " and l.operator_name like '%" . $this->escape($options['byUser']) . "%'";
+			$q[2] .= " and l.operator_name like '%" . $options['byUser'] . "%'";
 		}
 		if (!empty($options['byOp'])) {
-			$q[2] .= " and l.operation = '" . $this->escape($options['byOp']) . "'";
+			$q[2] .= " and l.operation = '" . $options['byOp'] . "'";
 		}
 		if (!empty($options['byRid'])) {
-			$q[2] .= " and l.data like '%" . '"rid":"' . $this->escape($options['byRid']) . '"' . "%'";
+			$q[2] .= " and l.data like '%" . '"rid":"' . $options['byRid'] . '"' . "%'";
+		}
+		if (!empty($options['startAt'])) {
+			$q[2] .= " and l.operate_at > {$options['startAt']}";
+		}
+		if (!empty($options['endAt'])) {
+			$q[2] .= " and l.operate_at < {$options['endAt']}";
 		}
 
 		/**
@@ -1243,6 +1249,9 @@ class log_model extends \TMS_MODEL {
 					$log->origin_userid = '';
 					$log->origin_nickname = '未获取';
 				}
+			} else {
+				$log->origin_userid = '';
+				$log->origin_nickname = '';
 			}
 		}
 		

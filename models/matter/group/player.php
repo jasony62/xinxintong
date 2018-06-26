@@ -580,9 +580,9 @@ class player_model extends \TMS_MODEL {
 		if (!empty($oMschema->extAttrs)) {
 			foreach ($oMschema->extAttrs as $ea) {
 				$dataSchema = new \stdClass;
-				$dataSchema->id = $ea->id;
-				$dataSchema->type = $ea->type;
-				$dataSchema->title = $ea->title;
+				foreach ($ea as $key => $val) {
+					$dataSchema->{$key} = $val;
+				}
 				$extDataSchemas[] = $dataSchema;
 			}
 		}
@@ -660,7 +660,7 @@ class player_model extends \TMS_MODEL {
 			],
 			['id' => $oGrpApp->id]
 		);
-		$oGrpApp->dataSchemas = json_decode($oSourceApp->data_schemas);
+		$oGrpApp->dataSchemas = $oSourceApp->dataSchemas;
 		/* 清空已有分组数据 */
 		$this->clean($oGrpApp->id, true);
 
@@ -916,9 +916,8 @@ class player_model extends \TMS_MODEL {
 		$dataSchemas = json_decode($objGrp->data_schemas);
 		$data = new \stdClass;
 		foreach ($dataSchemas as $ds) {
-			$data->{$ds->id} = isset($ds->format) ? $record->{$ds->format} : (isset($record->{$ds->id}) ? $record->{$ds->id} : '');
+			$data->{$ds->id} = !empty($ds->format) ? $record->{$ds->format} : (!empty($record->{$ds->id}) ? $record->{$ds->id} : '');
 		}
-
 		$record->data = $data;
 		return $record;
 	}

@@ -272,11 +272,14 @@
                                     </div>
                                     <div class='form-group'>
                                         <label>什么表态的留言显示在共享页</label>
-                                        <select class='form-control' ng-model="rule.remark.repos.pre.remark.agreed">
-                                            <option value=''></option>
-                                            <option value='Y'>推荐</option>
-                                            <option value='A'>接受</option>
-                                        </select>
+                                        <div tms-array-checkbox model="rule.remark.repos.pre.remark.agreed">
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' value='Y'>推荐
+                                            </label>
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' value='A'>接受
+                                            </label>
+                                        </div>
                                         <div class='help-block'>默认【推荐】的留言显示在共享页</div>
                                     </div>
                                     <div class='form-group'>

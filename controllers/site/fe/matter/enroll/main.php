@@ -9,10 +9,6 @@ class main extends base {
 	/**
 	 *
 	 */
-	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,multi_rounds,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config,round_cron,mission_id,sync_mission_round';
-	/**
-	 *
-	 */
 	private $modelApp;
 	/**
 	 *
@@ -53,7 +49,7 @@ class main extends base {
 		}
 
 		/* 返回登记活动页面 */
-		if (in_array($page, ['cowork', 'share', 'event', 'rank', 'score', 'repos', 'favor', 'topic'])) {
+		if (in_array($page, ['cowork', 'share', 'event', 'rank', 'score', 'votes', 'repos', 'favor', 'topic'])) {
 			/* 设置页面标题 */
 			if (in_array($page, ['topic', 'share']) && !empty($topic)) {
 				$modelTop = $this->model('matter\enroll\topic');
@@ -81,8 +77,12 @@ class main extends base {
 				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp->id, $page);
 			}
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
+			// 访问专题页和共享页和讨论页需要记录数据
+			if (in_array($oOpenPage->name, ['repos'])) {
+				$this->_pageReadlog($oApp, $oOpenPage->name, $rid, $ek, $topic);
+			}
 			\TPL::assign('title', $oApp->title);
-			if (in_array($oOpenPage->name, ['event', 'rank', 'score', 'repos', 'favor', 'topic'])) {
+			if (in_array($oOpenPage->name, ['event', 'rank', 'score', 'votes', 'repos', 'favor', 'topic'])) {
 				\TPL::output('/site/fe/matter/enroll/' . $oOpenPage->name);
 			} else if ($oOpenPage->type === 'I') {
 				\TPL::output('/site/fe/matter/enroll/input');
@@ -211,13 +211,7 @@ class main extends base {
 						}
 					}
 				} else {
-					if ($oApp->enrolled_entry_page === 'score') {
-						$oOpenPage = new \stdClass;
-						$oOpenPage->name = $oApp->enrolled_entry_page;
-						$oOpenPage->type = '';
-					} else {
-						$oOpenPage = $modelPage->byName($oApp->id, $oApp->enrolled_entry_page);
-					}
+					$oOpenPage = $modelPage->byName($oApp->id, $oApp->enrolled_entry_page);
 				}
 			}
 		}
@@ -248,15 +242,22 @@ class main extends base {
 	 *
 	 */
 	public function get_action($app, $rid = '', $page = null, $ek = null, $ignoretime = 'N', $cascaded = 'N') {
-		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields]);
+		$params = []; // 返回的结果
+		/* 要打开的记录 */
+		$modelRec = $this->model('matter\enroll\record');
+		if (!empty($ek)) {
+			$oOpenedRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
+		}
+		/* 要打开的应用 */
+		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields, 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
-		unset($oApp->data_schemas);
+		if (isset($oApp->appRound->rid)) {
+			$rid = $oApp->appRound->rid;
+		}
 		unset($oApp->round_cron);
 		unset($oApp->rp_config);
-
-		$params = [];
 		$params['app'] = $oApp;
 
 		/* 当前访问用户的基本信息 */
@@ -288,38 +289,8 @@ class main extends base {
 			}
 		}
 
-		/* 要打开的记录 */
-		$modelRec = $this->model('matter\enroll\record');
-		if (!empty($ek)) {
-			$oOpenedRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
-		}
-
-		/* 要打开的轮次 */
-		if ($oApp->multi_rounds === 'Y') {
-			$modelRnd = $this->model('matter\enroll\round');
-			if (isset($oOpenedRecord)) {
-				if (!empty($oOpenedRecord->rid)) {
-					$rid = $oOpenedRecord->rid;
-					$oAppRnd = $modelRnd->byId($oOpenedRecord->rid, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
-				}
-			} else if (empty($rid)) {
-				$oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
-				if ($oAppRnd) {
-					$rid = $oAppRnd->rid;
-				}
-			} else {
-				$oAppRnd = $modelRnd->byId($rid, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
-			}
-			if (isset($oAppRnd)) {
-				$params['activeRound'] = $oAppRnd;
-			}
-		}
-
-		/* 需要动态选项 */
-		$this->modelApp->setDynaOptions($oApp, isset($oAppRnd) ? $oAppRnd : null);
-
 		/* 要打开的页面 */
-		if (!in_array($page, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'favor', 'topic'])) {
+		if (!in_array($page, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'favor', 'topic'])) {
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */
 			if (empty($page)) {

@@ -200,8 +200,8 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation',
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
-        if (params.activeRound) {
-            oActiveRound = params.activeRound;
+        if (oApp.appRound) {
+            oActiveRound = oApp.appRound;
             oCurrentCriteria = { record: { rid: oActiveRound.rid } };
         }
         $scope.$watch('options.owner', function(nv) {
@@ -217,6 +217,8 @@ ngApp.controller('ctrlList', ['$scope', function($scope) {
         oApp = params.app;
         /*设置页面分享信息*/
         $scope.setSnsShare();
+        /*页面阅读日志*/
+        $scope.logAccess();
         /*设置页面操作*/
         $scope.appActs = {
             addRecord: {}

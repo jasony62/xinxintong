@@ -8,13 +8,19 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             if (window.__wxjs_environment === 'miniprogram') {
                 return;
             }
-            var sharelink;
+            var sharelink, shareid, shareby, target_type, target_title;
             /* 设置活动的当前链接 */
+            shareid = _oUser.uid + '_' + (new Date * 1);
+            shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
             sharelink = location.protocol + '//' + location.host
             if (LS.s().topic) {
-                sharelink += LS.j('', 'site', 'app', 'topic') + '&page=topic';
+                target_type = 'topic';
+                target_title = oApp.record.title;
+                sharelink += LS.j('', 'site', 'app', 'topic') + '&page=topic&shareby=' + shareid;
             } else {
-                sharelink += LS.j('', 'site', 'app', 'ek') + '&page=cowork';
+                target_type = 'cowork';
+                target_title = oApp.title;
+                sharelink += LS.j('', 'site', 'app', 'ek') + '&page=cowork&shareby=' + shareid;
                 if (anchor) {
                     sharelink += '#' + anchor;
                 }
@@ -22,7 +28,20 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             /* 分享次数计数器 */
             tmsSnsShare.config({
                 siteId: oApp.siteid,
-                logger: function(shareto) {},
+                logger: function(shareto) {
+                    var url;
+                    url = "/rest/site/fe/matter/logShare";
+                    url += "?shareid=" + shareid;
+                    url += "&site=" + oApp.siteid;
+                    url += "&id=" + oApp.id;
+                    url += "&title=" + target_title;
+                    url += "&type=enroll";
+                    url += "&target_type=" + target_type;
+                    url += "&target_id=" + oApp.record.id;
+                    url += "&shareby=" + shareby;
+                    url += "&shareto=" + shareto;
+                    http2.get(url);
+                },
                 jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage']
             });
             tmsSnsShare.set(oApp.title, sharelink, message, oApp.pic);
@@ -64,7 +83,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
         $scope.message = message = oMsg.toString();
         fnSetSnsShare(_oApp, message, oMsg.anchor);
     });
-    $scope.shiftInviter = function() {
+    $scope.shiftAuthor = function() {
         if (_oOptions.editorAsAuthor) {
             _oMessage.defaultAuthor === undefined && (_oMessage.defaultAuthor = _oMessage.author);
             _oMessage.author = _oApp.actionRule.role.editor.nickname;
@@ -105,6 +124,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
                 var oRecord, oRecData;
                 oRecord = rsp.data;
                 oRecData = oRecord.verbose[oRecord.schema_id];
+                _oApp.record = rsp.data;
                 _oMessage.inviter = _oUser.nickname;
                 _oMessage.author = _oUser.uid === oRecData.userid ? 'ta' : (oRecData.nickname);
                 _oMessage.relevent = '给';
@@ -124,6 +144,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             http2.get(LS.j('remark/get', 'site', 'remark') + '&cascaded=Y').then(function(rsp) {
                 var oRemark;
                 oRemark = rsp.data;
+                _oApp.record = rsp.data.record;
                 _oMessage.inviter = _oUser.nickname;
                 _oMessage.author = _oUser.uid === oRemark.userid ? 'ta' : (oRemark.nickname);
                 if (oRemark.record) {
@@ -153,6 +174,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             http2.get(LS.j('repos/recordGet', 'site', 'app', 'ek')).then(function(rsp) {
                 var oRecord;
                 oRecord = rsp.data;
+                _oApp.record = rsp.data;
                 _oMessage.inviter = _oUser.nickname;
                 _oMessage.author = _oUser.uid === oRecord.userid ? 'ta' : (oRecord.nickname);
                 _oMessage.object = '的记录。';
@@ -165,6 +187,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             http2.get(LS.j('topic/get', 'site', 'app', 'topic')).then(function(rsp) {
                 var oTopic;
                 oTopic = rsp.data;
+                _oApp.record = rsp.data;
                 _oMessage.inviter = _oUser.nickname;
                 _oMessage.author = _oUser.unionid === oTopic.unionid ? 'ta' : (oTopic.nickname);
                 _oMessage.object = '的专题。';

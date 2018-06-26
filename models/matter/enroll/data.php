@@ -16,7 +16,7 @@ class data_model extends entity_model {
 	 */
 	public function setData($oUser, $oApp, $oRecord, $submitData, $submitkey = '', $oAssignScore = null) {
 		if (empty($submitkey)) {
-			$submitkey = empty($oUser) ? '' : $oUser->uid;
+			$submitkey = empty($oUser->uid) ? '' : $oUser->uid;
 		}
 
 		$schemasById = []; // 方便获取登记项定义
@@ -160,7 +160,7 @@ class data_model extends entity_model {
 					);
 				}
 			} else {
-				// 处理可多项填写题型
+				/* 获得一道题目的多条数据，多项填写题型 */
 				$aSchemaValue = [];
 				if ($oSchema->type === 'multitext') {
 					$newSchemaValues = json_decode($treatedValue);
@@ -170,12 +170,15 @@ class data_model extends entity_model {
 						if ((int) $v->multitext_seq > 0) {
 							$beforeSchemaItems[$v->id] = $v;
 						} else if ((int) $v->multitext_seq === 0) {
+							/* 题目的根数据 */
 							$oBeforeSchemaVal = $v;
 						}
 					}
 					if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-						$treatedValue = $oBeforeSchemaVal->value;
-						$dbData->{$schemaId} = json_encode($treatedValue);
+						if (isset($oBeforeSchemaVal->value)) {
+							$treatedValue = $oBeforeSchemaVal->value;
+							$dbData->{$schemaId} = json_encode($treatedValue);
+						}
 					} else {
 						foreach ($newSchemaValues as $k => $newSchemaValue) {
 							if ($newSchemaValue->id == 0) {
@@ -412,88 +415,162 @@ class data_model extends entity_model {
 		$oRecordScore->sum = 0; // 记录总分
 		$quizSchemaNum = 0; // 测验题目的数量
 		$quizCorrectSchemaNum = 0; // 答对测验题目的数量
+
+		/* 评估 */
+		$fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) {
+			$schemaScore = null; // 题目的得分
+			switch ($oSchema->type) {
+			case 'shorttext';
+				if (isset($oSchema->format) && $oSchema->format === 'number') {
+					$weight = (isset($oSchema->weight) && is_numeric($oSchema->weight)) ? $oSchema->weight : 1;
+					$schemaScore = $treatedValue * $weight;
+				}
+				break;
+			case 'single':
+				if (!empty($oSchema->ops)) {
+					foreach ($oSchema->ops as $oOp) {
+						if (isset($oOp->v) && $treatedValue === $oOp->v) {
+							if (!empty($oOp->score) && is_numeric($oOp->score)) {
+								$schemaScore = $oOp->score;
+							}
+							break;
+						}
+					}
+				}
+				break;
+			case 'multiple':
+				if (!empty($oSchema->ops)) {
+					$aTreatedValue = explode(',', $treatedValue);
+					foreach ($oSchema->ops as $oOp) {
+						if (isset($oOp->v) && in_array($oOp->v, $aTreatedValue)) {
+							if (!empty($oOp->score) && is_numeric($oOp->score)) {
+								if (isset($schemaScore)) {
+									$schemaScore += $oOp->score;
+								} else {
+									$schemaScore = $oOp->score;
+								}
+							}
+							/* 去掉已经比较过的选中项，提高效率 */
+							if (count($aTreatedValue) === 1) {
+								break;
+							}
+							array_splice($aTreatedValue, array_search($oOp->v, $aTreatedValue), 1);
+						}
+					}
+				}
+				break;
+			case 'score': // 打分题
+				if (!empty($oSchema->ops)) {
+					$oTreatedValue = json_decode($treatedValue);
+					foreach ($oSchema->ops as $oOp) {
+						if (isset($oOp->v) && !empty($oTreatedValue->{$oOp->v}) && is_numeric($oTreatedValue->{$oOp->v})) {
+							if (isset($schemaScore)) {
+								$schemaScore += $oTreatedValue->{$oOp->v};
+							} else {
+								$schemaScore = $oTreatedValue->{$oOp->v};
+							}
+						}
+					}
+				}
+				break;
+			}
+			if (isset($schemaScore)) {
+				$oRecordScore->{$oSchema->id} = $schemaScore;
+				$oRecordScore->sum += round((float) $schemaScore, 2);
+				return true;
+			}
+			return false;
+		};
+
+		/* 测验 */
+		$fnQuestion = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oRecord, $oAssignScore, $quizSchemaNum, $quizCorrectSchemaNum) {
+			if (empty($oSchema->answer)) {
+				return false;
+			}
+			$quizScore = null;
+			$quizSchemaNum++;
+			switch ($oSchema->type) {
+			case 'single':
+				if ($treatedValue === $oSchema->answer) {
+					$quizScore = empty($oSchema->score) ? 0 : $oSchema->score;
+					$quizCorrectSchemaNum++;
+				} else {
+					$quizScore = 0;
+				}
+				break;
+			case 'multiple':
+				$correct = 0;
+				$pendingValues = explode(',', $treatedValue);
+				is_string($oSchema->answer) && $oSchema->answer = explode(',', $oSchema->answer);
+				foreach ($pendingValues as $pending) {
+					if (in_array($pending, $oSchema->answer)) {
+						$correct++;
+					} else {
+						$correct = 0;
+						break;
+					}
+				}
+				$quizScore = (empty($oSchema->score) ? 0 : $oSchema->score) / count($oSchema->answer) * $correct;
+				if (count($oSchema->answer) === $correct) {
+					$quizCorrectSchemaNum++;
+				}
+				break;
+			default: // 主观题
+				if (!empty($oAssignScore) && isset($oAssignScore->{$oSchema->id})) {
+					//有指定的优先使用指定的评分
+					$quizScore = $oAssignScore->{$oSchema->id};
+				} else {
+					$oLastSchemaValues = $this->query_objs_ss(
+						[
+							'id,value,score',
+							'xxt_enroll_record_data',
+							['enroll_key' => $oRecord->enroll_key, 'schema_id' => $oSchema->id, 'state' => 1],
+						]
+					);
+					if (!empty($oLastSchemaValues) && (count($oLastSchemaValues) == 1) && ($oLastSchemaValues[0]->value == $treatedValue) && !empty($oLastSchemaValues[0]->score)) {
+						//有提交记录且没修改且已经评分
+						$quizScore = $oLastSchemaValues[0]->score;
+					} elseif ($treatedValue === $oSchema->answer) {
+						$quizScore = $oSchema->score;
+					} else {
+						$quizScore = 0;
+					}
+				}
+				if ($quizScore == $oSchema->score) {
+					$quizCorrectSchemaNum++;
+				}
+				break;
+			}
+			// 记录分数
+			if (isset($quizScore)) {
+				$oRecordScore->{$oSchema->id} = round((float) $quizScore, 2);
+				$oRecordScore->sum += round((float) $quizScore, 2);
+			}
+			return true;
+		};
+
 		foreach ($dbData as $schemaId => $treatedValue) {
 			if (!isset($aSchemasById[$schemaId])) {
 				continue;
 			}
 			$oSchema = $aSchemasById[$schemaId];
-
+			if (!isset($oSchema->requireScore) || $oSchema->requireScore !== 'Y' || !isset($oSchema->scoreMode)) {
+				continue;
+			}
+			// @todo 为什么要有这么一段代码？
 			if (is_object($treatedValue) || is_array($treatedValue)) {
 				$treatedValue = $this->toJson($treatedValue);
 			}
 			/**
 			 * 计算单个题目的得分
 			 */
-			if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
-				$weight = isset($oSchema->weight) ? $oSchema->weight : 1;
-				$oRecordScore->{$schemaId} = $treatedValue * $weight;
-				$oRecordScore->sum += round((float) $oRecordScore->{$schemaId}, 2);
-			}
-			/* 计算题目的分数。只支持对单选题和多选题自动打分 */
-			if ($oApp->scenario === 'quiz') {
-				$quizScore = null;
-				if (isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') {
-					$quizSchemaNum++;
-					if (!empty($oSchema->answer)) {
-						switch ($oSchema->type) {
-						case 'single':
-							if ($treatedValue === $oSchema->answer) {
-								$quizScore = empty($oSchema->score) ? 0 : $oSchema->score;
-								$quizCorrectSchemaNum++;
-							} else {
-								$quizScore = 0;
-							}
-							break;
-						case 'multiple':
-							$correct = 0;
-							$pendingValues = explode(',', $treatedValue);
-							is_string($oSchema->answer) && $oSchema->answer = explode(',', $oSchema->answer);
-							foreach ($pendingValues as $pending) {
-								if (in_array($pending, $oSchema->answer)) {
-									$correct++;
-								} else {
-									$correct = 0;
-									break;
-								}
-							}
-							$quizScore = (empty($oSchema->score) ? 0 : $oSchema->score) / count($oSchema->answer) * $correct;
-							if (count($oSchema->answer) === $correct) {
-								$quizCorrectSchemaNum++;
-							}
-							break;
-						default: // 主观题
-							if (!empty($oAssignScore) && isset($oAssignScore->{$schemaId})) {
-								//有指定的优先使用指定的评分
-								$quizScore = $oAssignScore->{$schemaId};
-							} else {
-								$oLastSchemaValues = $this->query_objs_ss(
-									[
-										'id,value,score',
-										'xxt_enroll_record_data',
-										['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId, 'state' => 1],
-									]
-								);
-								if (!empty($oLastSchemaValues) && (count($oLastSchemaValues) == 1) && ($oLastSchemaValues[0]->value == $treatedValue) && !empty($oLastSchemaValues[0]->score)) {
-									//有提交记录且没修改且已经评分
-									$quizScore = $oLastSchemaValues[0]->score;
-								} elseif ($treatedValue === $oSchema->answer) {
-									$quizScore = $oSchema->score;
-								} else {
-									$quizScore = 0;
-								}
-							}
-							if ($quizScore == $oSchema->score) {
-								$quizCorrectSchemaNum++;
-							}
-							break;
-						}
-					}
-					// 记录分数
-					if (isset($quizScore)) {
-						$oRecordScore->{$schemaId} = round((float) $quizScore, 2);
-						$oRecordScore->sum += round((float) $quizScore, 2);
-					}
-				}
+			switch ($oSchema->scoreMode) {
+			case 'evaluation':
+				$fnEvaluation($oSchema, $treatedValue, $oRecordScore);
+				break;
+			case 'question':
+				$fnQuestion($oSchema, $treatedValue, $oRecordScore);
+				break;
 			}
 		}
 
@@ -596,7 +673,7 @@ class data_model extends entity_model {
 		}
 		/* 是否排除协作填写数据 */
 		if (isset($oOptions->multitext_seq)) {
-			$q[2] .= ' and multitext_seq=' . $multitext_seq;
+			$q[2] .= ' and multitext_seq=' . $oOptions->multitext_seq;
 		}
 		/* 限制填写轮次 */
 		if (!empty($rid)) {

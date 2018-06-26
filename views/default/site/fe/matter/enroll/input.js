@@ -708,6 +708,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         if (_oApp.can_rank === 'Y') {
             oAppNavs.rank = {};
         }
+        if (_oApp.scenario === 'voting') {
+            oAppNavs.votes = {};
+        }
         if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
             oAppNavs.event = {};
         }
@@ -792,12 +795,16 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 }
                 /*设置页面分享信息*/
                 $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
+                /*页面阅读日志*/
+                $scope.logAccess();
                 /*根据加载的数据设置页面*/
                 fnAfterLoad(params.app, params.page, $scope.data);
             });
         } else {
             /*设置页面分享信息*/
             $scope.setSnsShare(false, { 'newRecord': LS.s().newRecord });
+            /*页面阅读日志*/
+            $scope.logAccess();
             /*根据加载的数据设置页面*/
             fnAfterLoad(params.app, params.page, $scope.data);
         }

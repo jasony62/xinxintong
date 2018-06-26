@@ -5,15 +5,26 @@ define(['frame'], function(ngApp) {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
             if ($scope.bRequireScore) {
-                srvEnrollRecord.sum4Schema().then(function(result) {
-                    $scope.sum4Schema = result;
-                    for (var schemaId in result) {
+                srvEnrollRecord.sum4Schema().then(function(oResult) {
+                    $scope.sum4Schema = oResult;
+                    for (var schemaId in oResult) {
                         if ($scope.records.length) {
                             $scope.records.forEach(function(oRecord) {
-                                if (sum4SchemaAtPage[schemaId]) {
-                                    sum4SchemaAtPage[schemaId] += oRecord.data[schemaId] ? parseFloat(oRecord.data[schemaId]) : 0;
-                                } else {
-                                    sum4SchemaAtPage[schemaId] = oRecord.data[schemaId] ? parseFloat(oRecord.data[schemaId]) : 0;
+                                var recValue, sumValue;
+                                if (recValue = oRecord.data[schemaId]) {
+                                    if (angular.isObject(recValue)) { // 打分题的情况
+                                        sumValue = 0;
+                                        angular.forEach(recValue, function(v) {
+                                            sumValue += parseFloat(v);
+                                        });
+                                    } else {
+                                        sumValue = parseFloat(recValue);
+                                    }
+                                    if (sum4SchemaAtPage[schemaId]) {
+                                        sum4SchemaAtPage[schemaId] += sumValue;
+                                    } else {
+                                        sum4SchemaAtPage[schemaId] = sumValue;
+                                    }
                                 }
                             });
                             if (sum4SchemaAtPage[schemaId]) {
@@ -130,10 +141,16 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.exportToOther = function() {
-            srvEnrollRecord.exportToOther($scope.app, $scope.rows).then(function() {});
+            srvEnrollRecord.exportToOther($scope.app, $scope.rows);
         };
-        $scope.transferVotingToOther = function() {
-            srvEnrollRecord.transferVotingToOther($scope.app).then(function() {});
+        $scope.transferVotes = function() {
+            srvEnrollRecord.transferVotes($scope.app);
+        };
+        $scope.transferSchemaAndVotes = function() {
+            srvEnrollRecord.transferSchemaAndVotes($scope.app);
+        };
+        $scope.fillByOther = function() {
+            srvEnrollRecord.fillByOther($scope.app);
         };
         $scope.openFileUrl = function(file) {
             var url;
@@ -207,11 +224,12 @@ define(['frame'], function(ngApp) {
                 if (oSchema.requireScore && oSchema.requireScore === 'Y') {
                     recordSchemasExt.push({ type: 'calcScore', title: '得分', id: oSchema.id });
                     bRequireScore = true;
+                    if (oSchema.type === 'score') {
+                        bRequireSum = true;
+                    }
                 }
                 if (oSchema.format && oSchema.format === 'number') {
-                    recordSchemasExt.push({ type: 'calcScore', title: '得分', id: oSchema.id });
                     bRequireSum = true;
-                    bRequireScore = true;
                 }
             });
 

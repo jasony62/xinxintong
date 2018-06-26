@@ -38,10 +38,16 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     }
 
     $scope.shareTopic = function() {
-        location.href = LS.j('', 'site', 'app') + '&topic=' + $scope.topic.id + '&page=share';
+        var url;
+        url = LS.j('', 'site', 'app') + '&topic=' + $scope.topic.id + '&page=share';
+        if(shareby) {
+            url += '&shareby=' + shareby;
+        }
+        location.href = url;
     };
 
-    var _oApp, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker;
+    var _oApp, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker, shareby;
+    shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12, total: 0 };
     $scope.criteria = _oCriteria = { rid: 'all', creator: false, favored: true, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
@@ -137,7 +143,12 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
     };
     $scope.shareRecord = function(oRecord) {
-        location.href = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
+        var url;
+        url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
+        if(shareby) {
+            url += '&shareby=' + shareby;
+        }
+        location.href = url;
     };
     $scope.editRecord = function(event, oRecord) {
         if (oRecord.userid !== $scope.user.uid) {
@@ -188,8 +199,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         var oApp, oUser;
         _oApp = oApp = params.app;
         oUser = params.user;
-        /* 设置页面分享信息 */
-        $scope.setSnsShare(null, { topic: LS.s().topic }); // 应该禁止分享
         oApp.dataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
@@ -245,6 +254,10 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         fnGetTopic().then(function(rsp) {
             $scope.topic = rsp.data;
+            /* 设置页面分享信息 */
+            $scope.setSnsShare(null, { topic: LS.s().topic }, {target_type: 'topic', target_id: rsp.data.id, title: rsp.data.title}); // 应该禁止分享
+            /*页面阅读日志*/
+            $scope.logAccess({target_type: 'topic', target_id: rsp.data.id, title: rsp.data.title});
             $scope.recordList(1);
         });
     });

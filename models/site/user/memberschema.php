@@ -161,8 +161,8 @@ class memberschema_model extends \TMS_MODEL {
 	 * @param string $siteId
 	 * @param string $valid [null|Y|N]
 	 */
-	public function &bySite($siteId, $valid = null, $options = []) {
-		$onlyMatter = isset($options['onlyMatter']) ? $options['onlyMatter'] : 'Y';
+	public function &bySite($siteId, $valid = null, $aOptions = []) {
+		$onlyMatter = isset($aOptions['onlyMatter']) ? $aOptions['onlyMatter'] : 'Y';
 
 		$siteId = $this->escape($siteId);
 		$where = "siteid='$siteId'";
@@ -174,8 +174,8 @@ class memberschema_model extends \TMS_MODEL {
 				$where .= " and valid='N'";
 			}
 		}
-		if (isset($options['matter'])) {
-			$oMatter = $options['matter'];
+		if (isset($aOptions['matter'])) {
+			$oMatter = $aOptions['matter'];
 			if ($onlyMatter === 'Y') {
 				$where .= ' and (matter_id = \'' . $oMatter->id . '\' and matter_type=\'' . $oMatter->type . '\')';
 			} else {
@@ -193,12 +193,12 @@ class memberschema_model extends \TMS_MODEL {
 			$where .= ' and matter_id = \'\'';
 		}
 
-		if (isset($options['atUserHome'])) {
+		if (isset($aOptions['atUserHome'])) {
 			$where .= " and at_user_home='Y'";
 		}
 
-		if (isset($options['fields'])) {
-			$schemas = $this->_queryBy($where, $options['fields']);
+		if (isset($aOptions['fields'])) {
+			$schemas = $this->_queryBy($where, $aOptions['fields']);
 		} else {
 			$schemas = $this->_queryBy($where);
 		}
@@ -210,7 +210,7 @@ class memberschema_model extends \TMS_MODEL {
 	 *
 	 * @param string $siteId;
 	 */
-	public function qyabSchemaBySite($siteId, $optons = []) {
+	public function qyabSchemaBySite($siteId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = [
 			$fields,

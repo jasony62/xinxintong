@@ -1,11 +1,11 @@
 <div class="tms-editor">
     <div>
-        <iframe src="javascript:void(0);" onload="this.height=this.parentElement.offsetHeight-2"></iframe>
+        <iframe src="javascript:void(0);"></iframe>
     </div>
     <div class="btn-toolbar btn-sm">
         <div class="btn-group">
             <button ng-if="mobileAgent" class="btn btn-default" ng-click="toggleDesignMode()"><span ng-if="!designMode">设置样式</span><span ng-if="designMode" class="glyphicon glyphicon-menu-left"></span></button>
-            <button ng-if="designMode" class="btn btn-default" command="bold"><span style="font-weight:blod;">B</span></button>
+            <button ng-if="designMode" class="btn btn-default" command="bold"><strong>B</strong></button>
             <button ng-if="designMode" class="btn btn-default" command="italic"><i>I</i></button>
             <button ng-if="designMode" class="btn btn-default" command="underline"><span style="text-decoration:underline;">U</span></button>
             <button ng-if="designMode" class="btn btn-default" command="BackColor"><i class="glyphicon glyphicon-text-background"></i></button>

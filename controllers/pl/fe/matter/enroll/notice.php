@@ -44,6 +44,7 @@ class notice extends \pl\fe\matter\base {
 			!empty($oCriteria->rid) && $rid = $modelEnlUsr->escape($oCriteria->rid);
 			$aOptions = [
 				'rid' => $rid,
+				'cascaded' => 'N',
 			];
 			!empty($oCriteria->onlyEnrolled) && $aOptions['onlyEnrolled'] = $oCriteria->onlyEnrolled;
 			$enrollUsers = $modelEnlUsr->enrolleeByApp($oApp, '', '', $aOptions);
@@ -52,6 +53,7 @@ class notice extends \pl\fe\matter\base {
 			// 直接指定
 			$enrollers = $posted->users;
 		}
+		
 		/* 发送消息 */
 		if (count($enrollers)) {
 			$params = $posted->message;

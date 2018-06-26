@@ -114,6 +114,7 @@ class notice extends \pl\fe\matter\base {
 			$modelAcnt = $this->model('site\user\account');
 			$modelRec = $this->model('matter\enroll\record');
 			$records = [];
+			$records2 = [];
 			foreach ($logs as $log) {
 				$oSiteUser = $modelAcnt->byId($log->userid);
 				if (empty($log->assoc_with)) {
@@ -124,9 +125,14 @@ class notice extends \pl\fe\matter\base {
 					$records[] = $record;
 					continue;
 				}
-				if ($record = $modelRec->byId($log->assoc_with)) {
+				if (isset($records2[$log->assoc_with])) {
+					$record = $records2[$log->assoc_with];
 					$record->noticeStatus = $log->status;
 					$records[] = $record;
+				} else if ($record = $modelRec->byId($log->assoc_with)) {
+					$record->noticeStatus = $log->status;
+					$records[] = $record;
+					$records2[$log->assoc_with] = $record;
 				}
 			}
 			$oResult->records = $records;

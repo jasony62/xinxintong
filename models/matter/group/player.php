@@ -660,7 +660,7 @@ class player_model extends \TMS_MODEL {
 			],
 			['id' => $oGrpApp->id]
 		);
-		$oGrpApp->dataSchemas = json_decode($oSourceApp->data_schemas);
+		$oGrpApp->dataSchemas = $oSourceApp->dataSchemas;
 		/* 清空已有分组数据 */
 		$this->clean($oGrpApp->id, true);
 

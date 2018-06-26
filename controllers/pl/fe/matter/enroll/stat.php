@@ -43,24 +43,8 @@ class stat extends \pl\fe\matter\base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
-		$schemas = new \stdClass;
-		foreach ($oApp->dataSchemas as $oSchema) {
-			$schemas->{$oSchema->id} = $oSchema;
-		}
 
 		$result = $this->model('matter\enroll\record')->getStat($oApp, $rid, $renewCache);
-		// 对选择题选项排序
-		foreach ($result as $key => &$value) {
-			if (isset($schemas->{$key}) && in_array($schemas->{$key}->type, ['single', 'multiple'])) {
-				$ops = $value->ops;
-				$sortArr = [];
-				foreach ($ops as $op) {
-					$sortArr[] = $op->v;
-				}
-				array_multisort($sortArr,SORT_ASC, SORT_NATURAL, $ops);
-				$value->ops = $ops;
-			}
-		}
 
 		return new \ResponseData($result);
 	}

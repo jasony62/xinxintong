@@ -67,16 +67,38 @@ class member_model extends \TMS_MODEL {
 	/**
 	 * 获取自定义用户信息
 	 *
-	 * @param string $userid
+	 * @param string $mschemaId
 	 *
 	 */
-	public function &byMschema($mschemaId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function &byMschema($mschemaId, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_site_member',
 			['schema_id' => $mschemaId, 'forbidden' => 'N'],
 		];
+
+		/* 设置了按属性过滤条件 */
+		if (isset($aOptions['filter'])) {
+			$oFilter = $aOptions['filter'];
+			if (!empty($oFilter->attrs)) {
+				foreach ($oFilter->attrs as $prop => $val) {
+					switch ($prop) {
+					case 'name':
+						$q[2]['name'] = $this->escape($val);
+						break;
+					case 'mobile':
+						$q[2]['mobile'] = $this->escape($val);
+						break;
+					case 'email':
+						$q[2]['email'] = $this->escape($val);
+						break;
+					default:
+						$q[2]['extattr'] = (object) ['op' => 'like', 'pat' => '%"' . $this->escape($prop) . '":"' . $this->escape($val) . '"%'];
+					}
+				}
+			}
+		}
 
 		$members = $this->query_objs_ss($q);
 
@@ -339,7 +361,7 @@ class member_model extends \TMS_MODEL {
 	 * $items array 用户认证信息定义
 	 * 0:hidden,1:mandatory,2:unique,3:immuatable,4:verification,5:identity
 	 */
-	public function findMember(&$member, &$oMschema, $options = array()) {
+	public function findMember(&$member, &$oMschema, $aOptions = array()) {
 		if (isset($member->mobile) && $oMschema->attr_mobile[5] === '1') {
 			/**
 			 * 手机号唯一
@@ -352,7 +374,7 @@ class member_model extends \TMS_MODEL {
 			$identity = $member->email;
 		}
 		if (isset($identity)) {
-			$fields = isset($options['fields']) ? $options['fields'] : '*';
+			$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 			$q = [
 				$fields,
 				'xxt_site_member',
@@ -366,8 +388,8 @@ class member_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &search($siteId, $identity, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function &search($siteId, $identity, $aOptions = array()) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = array(
 			$fields,
 			'xxt_site_member',
@@ -377,9 +399,9 @@ class member_model extends \TMS_MODEL {
 
 		return $members;
 	}
-	/*
-		 * 如果通讯录被分组活动绑定进行需要自动同步
-	*/
+	/**
+	 * 如果通讯录被分组活动绑定进行需要自动同步
+	 */
 	public function syncToGroupPlayer($schemaId, $oNewMember) {
 		$user = new \stdClass;
 		$user->enroll_key = $oNewMember->id;

@@ -500,30 +500,23 @@ class record_model extends record_base {
 		// 指定登记活动下的登记记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
-		// 指定轮次，或者当前激活轮次
-		if (!empty($oCriteria->record->rid)) {
+		/* 指定轮次，或者当前激活轮次 */
+		if (empty($oCriteria->record->rid)) {
+			$oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp);
+			if ($oActiveRnd) {
+				$rid = $oActiveRnd->rid;
+				$w .= " and r.rid='$rid'";
+			}
+		} else {
 			if (is_string($oCriteria->record->rid)) {
 				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 					$rid = $oCriteria->record->rid;
+					$w .= " and r.rid='$rid'";
 				}
 			} else if (is_array($oCriteria->record->rid)) {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
 					$rid = $oCriteria->record->rid;
-				}
-			}
-		} else if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
-			$rid = $oActiveRnd->rid;
-		}
-		if (isset($rid)) {
-			if (is_string($rid)) {
-				$w .= " and r.rid='$rid'";
-			} else if (is_array($rid)) {
-				if (empty($rid)) {
-					$w .= " and r.rid=''";
-				} else {
-					$w .= " and r.rid in('";
-					$w .= implode("','", $rid);
-					$w .= "')";
+					$w .= " and r.rid in('" . implode("','", $rid) . "')";
 				}
 			}
 		}
@@ -1030,7 +1023,7 @@ class record_model extends record_base {
 	 * 返回指定登记项的登记记录
 	 *
 	 */
-	public function list4Schema(&$oApp, $schemaId, $options = null) {
+	public function list4Schema($oApp, $schemaId, $options = null) {
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if ($oSchema->id === $schemaId) {
 				$oDataSchema = $oSchema;
@@ -1153,30 +1146,47 @@ class record_model extends record_base {
 			}
 		}
 		/* 每道题目的合计 */
-		foreach ($dataSchemas as $schema) {
-			if (isset($schema->format) && $schema->format === 'number') {
-				$q = [
-					'sum(value)',
-					'xxt_enroll_record_data',
-					['aid' => $oApp->id, 'schema_id' => $schema->id, 'state' => 1],
-				];
-				if (!empty($rid)) {
-					if (is_string($rid)) {
-						$rid !== 'ALL' && $q[2]['rid'] = $rid;
-					} else if (is_array($rid)) {
-						if (empty(array_intersect(['all', 'ALL'], $rid))) {
-							$q[2]['rid'] = $rid;
-						}
+		foreach ($dataSchemas as $oSchema) {
+			if (!in_array($oSchema->type, ['shorttext', 'score'])) {
+				continue;
+			}
+			if ($oSchema->type === 'shorttext') {
+				/* 数字格式的单行填写题 */
+				if (!isset($oSchema->format) || $oSchema->format !== 'number') {
+					continue;
+				}
+			}
+
+			switch ($oSchema->type) {
+			case 'shorttext':
+				$sumSql = 'sum(value)';
+				break;
+			case 'score':
+				$sumSql = 'sum(score)';
+				break;
+			}
+
+			$q = [
+				$sumSql,
+				'xxt_enroll_record_data',
+				['aid' => $oApp->id, 'schema_id' => $oSchema->id, 'state' => 1],
+			];
+			if (!empty($rid)) {
+				if (is_string($rid)) {
+					$rid !== 'ALL' && $q[2]['rid'] = $rid;
+				} else if (is_array($rid)) {
+					if (empty(array_intersect(['all', 'ALL'], $rid))) {
+						$q[2]['rid'] = $rid;
 					}
 				}
-				if (!empty($gid)) {
-					$q[2]['group_id'] = $gid;
-				}
-
-				$sum = (float) $this->query_val_ss($q);
-				$sum = number_format($sum, 2, '.', '');
-				$oResult->{$schema->id} = (float) $sum;
 			}
+			if (!empty($gid)) {
+				$q[2]['group_id'] = $gid;
+			}
+
+			$sum = (float) $this->query_val_ss($q);
+			$sum = number_format($sum, 2, '.', '');
+			$oResult->{$oSchema->id} = (float) $sum;
 		}
 
 		return $oResult;
@@ -1185,11 +1195,11 @@ class record_model extends record_base {
 	 * 计算指定登记项所有记录的合计
 	 */
 	public function score4Schema($oApp, $rid = 'ALL', $gid = '') {
-		if (empty($oApp->data_schemas)) {
+		if (empty($oApp->dataSchemas)) {
 			return false;
 		}
 		$oResult = new \stdClass;
-		$dataSchemas = isset($oApp->dataSchemas) ? $oApp->dataSchemas : json_decode($oApp->data_schemas);
+		$dataSchemas = $oApp->dataSchemas;
 		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
@@ -1197,7 +1207,7 @@ class record_model extends record_base {
 		}
 		/* 每道题目的得分 */
 		foreach ($dataSchemas as $oSchema) {
-			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') || (isset($oSchema->format) && $oSchema->format === 'number')) {
+			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
 				$q = [
 					'sum(score)',
 					'xxt_enroll_record_data',
@@ -1563,6 +1573,23 @@ class record_model extends record_base {
 			}
 		} else {
 			$aResult = $this->_calcStat($oApp, $rid);
+		}
+
+		// 对选择题和打分题选项排序
+		$oSchemas = new \stdClass;
+		foreach ($oApp->dataSchemas as $oSchema) {
+			$oSchemas->{$oSchema->id} = $oSchema;
+		}
+		foreach ($aResult as $key => &$value) {
+			if (isset($oSchemas->{$key}) && in_array($oSchemas->{$key}->type, ['single', 'multiple', 'score'])) {
+				$ops = $value->ops;
+				$sortArr = [];
+				foreach ($ops as $op) {
+					$sortArr[] = $op->v;
+				}
+				array_multisort($sortArr, SORT_ASC, SORT_NATURAL, $ops);
+				$value->ops = $ops;
+			}
 		}
 
 		return $aResult;

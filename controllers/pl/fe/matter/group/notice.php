@@ -44,9 +44,7 @@ class notice extends \pl\fe\matter\base {
 		}
 
 		if (count($users)) {
-			// $params = $posted->message;
-			$params = new \stdClass;
-			$params->url = 'http://www.baidu.com';
+			$params = $posted->message;
 			$rst = $this->_notifyWithMatter($oApp->siteid, $app, $users, $tmplmsg, $params);
 			if ($rst[0] === false) {
 				return new \ResponseError($rst[1]);

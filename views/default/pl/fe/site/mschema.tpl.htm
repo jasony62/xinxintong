@@ -24,6 +24,22 @@
             </div>
             <!--侧边栏-->
             <ul class="nav nav-tabs nav-stacked">
+                <li ng-class="{'opened':opened==='edit'}">
+                    <a href='' ng-click="opened=opened==='edit'?false:'edit';switchTo('main')">制作 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'41px':'0'}">
+                        <li ng-class="{'active':subView==='main'}">
+                            <a href='' ng-click="switchTo('main')">描述</a>
+                        </li>
+                    </ul>
+                </li>
+                <li ng-class="{'opened':opened==='other'}">
+                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('notice')">其他 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'41px':'0'}">
+                        <li ng-class="{'active':subView==='notice'}">
+                            <a href='' ng-click="switchTo('notice')">通知记录</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
         <!--导航+主体内容-->

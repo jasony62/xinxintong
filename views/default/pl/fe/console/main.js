@@ -368,7 +368,7 @@ define(['frame'], function(ngApp) {
             }, true);
         });
     }]);
-    ngApp.provider.controller('ctrlUser', ['$scope', '$location', 'http2', 'cstApp', 'pushnotify', function($scope, $location, http2, cstApp, pushnotify) {
+    ngApp.provider.controller('ctrlUser', ['$scope', '$location', 'http2', 'cstApp', 'pushnotify', 'noticebox', function($scope, $location, http2, cstApp, pushnotify, noticebox) {
         var oSelected, oMembers;
         $scope.selected = oSelected = {
             mschema: null

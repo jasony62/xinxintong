@@ -461,7 +461,7 @@ class record extends \pl\fe\matter\base {
 		// 关联的报名活动
 		if (!empty($signinApp->enroll_app_id)) {
 			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$enrollSchemas = json_decode($enrollApp->data_schemas);
+			$enrollSchemas = $enrollApp->dataSchemas;
 			$mapOfSigninSchemas = [];
 			foreach ($schemas as $schema) {
 				$mapOfSigninSchemas[] = $schema->id;
@@ -718,7 +718,7 @@ class record extends \pl\fe\matter\base {
 		// 关联的登记活动
 		if (!empty($signinApp->enroll_app_id)) {
 			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$enrollSchemas = json_decode($enrollApp->data_schemas);
+			$enrollSchemas = $enrollApp->dataSchemas;
 			$mapOfSigninSchemas = [];
 			foreach ($schemas as $schema) {
 				$mapOfSigninSchemas[] = $schema->id;

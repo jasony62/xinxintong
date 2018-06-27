@@ -10,24 +10,27 @@ class import extends \pl\fe\matter\base {
 	 * 下载导入模板
 	 */
 	public function downloadTemplate_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		// 登记活动
-		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario', 'cascaded' => 'N']);
-		$schemas = json_decode($app->data_schemas);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,state,title,data_schemas,scenario', 'cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$schemas = $oApp->dataSchemas;
 
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
 		// Set properties
-		$objPHPExcel->getProperties()->setCreator("信信通")
-			->setLastModifiedBy("信信通")
-			->setTitle($app->title)
-			->setSubject($app->title)
-			->setDescription($app->title);
+		$objPHPExcel->getProperties()->setCreator($oUser->name)
+			->setLastModifiedBy($oUser->name)
+			->setTitle($oApp->title)
+			->setSubject($oApp->title)
+			->setDescription($oApp->title);
 
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
 		// 转换标题
@@ -46,17 +49,17 @@ class import extends \pl\fe\matter\base {
 		$objPHPExcel->setActiveSheetIndex(0);
 		// 输出
 		header('Content-Type: application/vnd.ms-excel');
-		header('Content-Disposition: attachment;filename="' . $app->title . '（导入模板）.xlsx"');
+		header('Content-Disposition: attachment;filename="' . $oApp->title . '（导入模板）.xlsx"');
 		header('Cache-Control: max-age=0');
 		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');
 		exit;
 	}
 	/**
-	 * 上传文件结束
+	 * 上传文件
 	 */
-	public function upload_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+	public function upload_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -64,8 +67,14 @@ class import extends \pl\fe\matter\base {
 			return new \ResponseError('not support');
 		}
 
-		$dest = '/enroll_' . $app . '_' . $_POST['resumableFilename'];
-		$resumable = $this->model('fs/resumable', $site, $dest);
+		// 登记活动
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,siteid,state', 'cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$dest = '/enroll_' . $oApp->id . '_' . $_POST['resumableFilename'];
+		$resumable = $this->model('fs/resumable', $oApp->siteid, $dest);
 		$resumable->handleRequest($_POST);
 
 		exit;
@@ -81,10 +90,14 @@ class import extends \pl\fe\matter\base {
 			return new \ResponseError('not support');
 		}
 
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
 		$file = $this->getPostJson();
 		$type = $file->type;
 
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$modelFs = $this->model('fs/local', $oApp->siteid, '_resumable');
 		$fileUploaded = 'enroll_' . $oApp->id . '_' . $file->name;
 		if ($type === 'application/x-zip-compressed') {
@@ -163,7 +176,7 @@ class import extends \pl\fe\matter\base {
 				$oRecData = $records[$row]->data;
 			} else {
 				$oRecord = new \stdClass;
-				$oRecData = new \stdClass;	
+				$oRecData = new \stdClass;
 			}
 			foreach ($imgs->data as $key => &$imgArray) {
 				// 从excle表中取出对应列的名称
@@ -177,11 +190,11 @@ class import extends \pl\fe\matter\base {
 							continue;
 						}
 						//将图片转成base64位储存
-						$mime_type = getimagesize($img['oUrl'])['mime']; 
-				        $base64_data = base64_encode(file_get_contents($img['oUrl']));
-				        $base64_img = 'data:'.$mime_type.';base64,'.$base64_data;
-				        $newImg = new \stdClass;
-				        $newImg->imgSrc = $base64_img;
+						$mime_type = getimagesize($img['oUrl'])['mime'];
+						$base64_data = base64_encode(file_get_contents($img['oUrl']));
+						$base64_img = 'data:' . $mime_type . ';base64,' . $base64_data;
+						$newImg = new \stdClass;
+						$newImg->imgSrc = $base64_img;
 
 						$base64Imgs[] = $newImg;
 					}
@@ -350,59 +363,59 @@ class import extends \pl\fe\matter\base {
 		require_once TMS_APP_DIR . '/lib/PHPZip.php';
 
 		$savepath = $modelFs->rootDir . '/enroll_' . $oApp->id . '_importZIP_' . $file->uniqueIdentifier;
-		if(!is_dir($savepath)) {  
-        	mkdir($savepath, 0777, true);//创建目录保存解压内容  
-	    }
-	    // 文件目录
-	    $fileDirectory = new \stdClass;
-        $fileDirectory->toDir = $savepath;
-	    if(file_exists($zipfile)) {
-	        $archive   = new \PHPZip();
-	        $FileInfos  = $archive->GetZipInnerFilesInfo($zipfile);
-	        $failFiles = [];  
-	        $pssFiles = [];
-	        for($i=0; $i<count($FileInfos); $i++) {  
-	        	$fileInfo = $FileInfos[$i];
-	            if($fileInfo['folder'] == 0){  
-	            	$rst = $archive->unZip($zipfile, $savepath, $i, $fileInfo);
-	                if($rst['state'] === true){  
-	                	if ((strpos($fileInfo['filename'], '/')) !== false) {
-	                		$oUrl = $savepath . '/' . $fileInfo['filename'];
-	                		$names = explode('/', $fileInfo['filename']);
-	                		$newFile = [];
-	                		$newFile['title'] = $names[1];
-	                		$newFile['size'] = $fileInfo['size'];
-	                		$newFile['oUrl'] = $oUrl;
-	                		$pssFiles[$names[0]][] = $newFile;
-	                	} else {
-	                		$newFile = [];
-	                		$fileName = $fileInfo['filename'];
-	                		$newFile['title'] = substr($fileName, 0, strrpos($fileName, '.'));
-	                		$newFile['size'] = $fileInfo['size'];
-	                		$newFile['oUrl'] = $savepath . '/' . $fileInfo['filename'];
-	                		$fileDirectory->{$newFile['title']} = $newFile;
-	                	}
-	                }else{  
-	                    $failFiles[] = $fileInfo['filename'];  
-	                }  
-	            }else{
-	            	if(!@is_dir($savepath . '/' . $fileInfo['filename'])){ 
-	            	 	@mkdir($savepath . '/' . $fileInfo['filename'], 0777, true); 
-	            	}   
-	            	$fileName = $this->_iconvConvert($fileInfo['filename']);;
-	            	$pssFiles[substr($fileName, 0, -1)] = [];
-	            }  
-	        }
-	        unlink($zipfile);
+		if (!is_dir($savepath)) {
+			mkdir($savepath, 0777, true); //创建目录保存解压内容
+		}
+		// 文件目录
+		$fileDirectory = new \stdClass;
+		$fileDirectory->toDir = $savepath;
+		if (file_exists($zipfile)) {
+			$archive = new \PHPZip();
+			$FileInfos = $archive->GetZipInnerFilesInfo($zipfile);
+			$failFiles = [];
+			$pssFiles = [];
+			for ($i = 0; $i < count($FileInfos); $i++) {
+				$fileInfo = $FileInfos[$i];
+				if ($fileInfo['folder'] == 0) {
+					$rst = $archive->unZip($zipfile, $savepath, $i, $fileInfo);
+					if ($rst['state'] === true) {
+						if ((strpos($fileInfo['filename'], '/')) !== false) {
+							$oUrl = $savepath . '/' . $fileInfo['filename'];
+							$names = explode('/', $fileInfo['filename']);
+							$newFile = [];
+							$newFile['title'] = $names[1];
+							$newFile['size'] = $fileInfo['size'];
+							$newFile['oUrl'] = $oUrl;
+							$pssFiles[$names[0]][] = $newFile;
+						} else {
+							$newFile = [];
+							$fileName = $fileInfo['filename'];
+							$newFile['title'] = substr($fileName, 0, strrpos($fileName, '.'));
+							$newFile['size'] = $fileInfo['size'];
+							$newFile['oUrl'] = $savepath . '/' . $fileInfo['filename'];
+							$fileDirectory->{$newFile['title']} = $newFile;
+						}
+					} else {
+						$failFiles[] = $fileInfo['filename'];
+					}
+				} else {
+					if (!@is_dir($savepath . '/' . $fileInfo['filename'])) {
+						@mkdir($savepath . '/' . $fileInfo['filename'], 0777, true);
+					}
+					$fileName = $this->_iconvConvert($fileInfo['filename']);
+					$pssFiles[substr($fileName, 0, -1)] = [];
+				}
+			}
+			unlink($zipfile);
 
-        	$fileDirectory->data = $pssFiles;
-        	$fileDirectory->failData = $failFiles;
-	    	$res = [true, $fileDirectory];
-	    	return $res;
-	    } else {
-	    	$res = [false, '压缩文件上传失败'];
-	    	return $res;
-	    }
+			$fileDirectory->data = $pssFiles;
+			$fileDirectory->failData = $failFiles;
+			$res = [true, $fileDirectory];
+			return $res;
+		} else {
+			$res = [false, '压缩文件上传失败'];
+			return $res;
+		}
 	}
 	/**
 	 * 保存数据
@@ -417,7 +430,7 @@ class import extends \pl\fe\matter\base {
 				$rid = $activeRound->rid;
 			}
 		}
-		
+
 		foreach ($records as $oRecord) {
 			$ek = $modelRec->genKey($oApp->siteid, $oApp->id);
 
@@ -482,19 +495,19 @@ class import extends \pl\fe\matter\base {
 	 * 删除文件夹
 	 */
 	private function _deldir($path) {
-        $path .= '/';
-        $files = scandir($path);
-        foreach($files as $file){
-            if($file !="." && $file !=".."){
-                if(is_dir($path . $file)){
-                    $this->_deldir($path . $file . '/');
-                }else{
-                    unlink($path . $file);
-                }
-            }
-        }
-        @rmdir($path);
+		$path .= '/';
+		$files = scandir($path);
+		foreach ($files as $file) {
+			if ($file != "." && $file != "..") {
+				if (is_dir($path . $file)) {
+					$this->_deldir($path . $file . '/');
+				} else {
+					unlink($path . $file);
+				}
+			}
+		}
+		@rmdir($path);
 
-        return 'ok';
-    }
+		return 'ok';
+	}
 }

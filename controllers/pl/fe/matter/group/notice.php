@@ -21,17 +21,23 @@ class notice extends \pl\fe\matter\base {
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
-	public function send_action($app, $tmplmsg) {
+	public function send_action() {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
-		}
-		$oApp = $this->model('matter\group')->byId($app);
-		if (false === $oApp) {
-			return new \ObjectNotFountError();
 		}
 
 		$modelRec = $this->model('matter\group\player');
 		$posted = $this->getPostJson();
+		if (empty($posted->app) || empty($posted->tmplmsg)) {
+			return new \ResponseError('参数不完整');
+		}
+		$app = $modelRec->escape($posted->app);
+		$tmplmsg = $modelRec->escape($posted->tmplmsg);
+		
+		$oApp = $this->model('matter\group')->byId($app);
+		if (false === $oApp) {
+			return new \ObjectNotFountError();
+		}
 
 		if (empty($posted->users)) {
 			// 筛选条件

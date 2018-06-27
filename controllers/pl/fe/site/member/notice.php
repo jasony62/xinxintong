@@ -13,18 +13,23 @@ class notice extends \pl\fe\base {
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
-	public function send_action($schema, $tmplmsg) {
+	public function send_action() {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$modelSchmUsr = $this->model('site\user\member');
+		$posted = $this->getPostJson();
+		if (empty($posted->schema) || empty($posted->tmplmsg)) {
+			return new \ResponseError('参数不完整');
+		}
+		$schema = $modelSchmUsr->escape($posted->schema);
+		$tmplmsg = $modelSchmUsr->escape($posted->tmplmsg);
 
 		$oSchema = $this->model('site\user\memberschema')->byId($schema);
 		if (false === $oSchema) {
 			return new \ObjectNotFountError();
 		}
 
-		$modelSchmUsr = $this->model('site\user\member');
-		$posted = $this->getPostJson();
 
 		if (empty($posted->users)) {
 			$users = $modelSchmUsr->byMschema($schema);

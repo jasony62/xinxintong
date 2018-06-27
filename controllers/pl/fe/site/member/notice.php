@@ -100,14 +100,19 @@ class notice extends \pl\fe\base {
 		if (count($logs)) {
 			$modelMemb = $this->model('site\user\member');
 			$records = [];
+			$records2 = [];
 			foreach ($logs as &$log) {
-				if (isset($records[$log->assoc_with])) {
-					$log->record = $records[$log->assoc_with];
+				if (isset($records2[$log->assoc_with])) {
+					$record = $records2[$log->assoc_with];
+					$record->noticeStatus = $log->status;
+					$records[] = $record;
 				} else if ($record = $modelMemb->byId($log->assoc_with)) {
-					$log->record = $record;
-					$records[$log->assoc_with] = $record;
+					$records2[$log->assoc_with] = $record;
+					$record->noticeStatus = $log->status;
+					$records[] = $record;
 				}
 			}
+			$result->records = $records;
 		}
 
 		return new \ResponseData($result);

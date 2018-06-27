@@ -111,17 +111,19 @@ class notice extends \pl\fe\matter\base {
 		if (count($logs)) {
 			$modelRec = $this->model('matter\group\player');
 			$records = [];
+			$records2 = [];
 			foreach ($logs as &$log) {
-				if (empty($log->assoc_with)) {
-					continue;
-				}
-				if (isset($records[$log->assoc_with])) {
-					$log->record = $records[$log->assoc_with];
+				if (isset($records2[$log->assoc_with])) {
+					$record = $records2[$log->assoc_with];
+					$record->noticeStatus = $log->status;
+					$records[] = $record;
 				} else if ($record = $modelRec->byId($app, $log->assoc_with)) {
-					$log->record = $record;
-					$records[$log->assoc_with] = $record;
+					$records2[$log->assoc_with] = $record;
+					$record->noticeStatus = $log->status;
+					$records[] = $record;
 				}
 			}
+			$result->records = $records;
 		}
 
 		return new \ResponseData($result);

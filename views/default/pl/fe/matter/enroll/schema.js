@@ -5,43 +5,64 @@ define(['frame'], function(ngApp) {
      */
     ngApp.provider.controller('ctrlSchema', ['$scope', function($scope) {}]);
     /**
-     * 导入导出记录
+     * 导出模板，导入记录
      */
-    ngApp.provider.controller('ctrlImport', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnrollApp) {
-        srvEnrollApp.get().then(function(app) {
-            var r = new Resumable({
-                target: '/rest/pl/fe/matter/enroll/import/upload?site=' + app.siteid + '&app=' + app.id,
-                testChunks: false,
+    ngApp.provider.controller('ctrlImport', ['$scope', '$uibModal', 'http2', 'noticebox', function($scope, $uibModal, http2, noticebox) {
+        $scope.importByExcel = function() {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/importByExcel.html?_=1',
+                controller: ['$scope', '$timeout', '$uibModalInstance', function($scope2, $timeout, $mi) {
+                    var oApp, oResu, oOptions;
+                    oApp = $scope.app;
+                    oResu = new Resumable({
+                        target: '/rest/pl/fe/matter/enroll/import/upload?site=' + oApp.siteid + '&app=' + oApp.id,
+                        testChunks: false,
+                    });
+                    oResu.on('fileAdded', function(file, event) {
+                        $scope.$apply(function() {
+                            noticebox.progress('开始上传文件');
+                        });
+                        oResu.upload();
+                    });
+                    oResu.on('progress', function(file, event) {
+                        $scope.$apply(function() {
+                            noticebox.progress('正在上传文件：' + Math.floor(oResu.progress() * 100) + '%');
+                        });
+                    });
+                    oResu.on('complete', function() {
+                        var f, lastModified, oPosted;
+                        f = oResu.files.pop().file;
+                        lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+                        oPosted = {
+                            name: f.name,
+                            size: f.size,
+                            type: f.type,
+                            lastModified: lastModified,
+                            uniqueIdentifier: f.uniqueIdentifier,
+                            options: oOptions
+                        };
+                        http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + oApp.siteid + '&app=' + oApp.id, oPosted, function success(rsp) {});
+                    });
+                    $timeout(function() {
+                        oResu.assignBrowse(document.getElementById('btnImportByExcel'));
+                    });
+                    $scope2.dataSchemas = oApp.dataSchemas;
+                    $scope2.options = oOptions = {
+                        overwrite: '',
+                        assocUserid: true,
+                        assocAppType: 'enroll',
+                        assocSchemas: []
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                }],
+                windowClass: 'auto-height',
+                backdrop: 'static',
+                size: 'lg'
+            }).result.then(function() {
+
             });
-            r.assignBrowse(document.getElementById('btnImportRecords'));
-            r.assignBrowse(document.getElementById('btnImportImg'));
-            r.on('fileAdded', function(file, event) {
-                $scope.$apply(function() {
-                    noticebox.progress('开始上传文件');
-                });
-                r.upload();
-            });
-            r.on('progress', function(file, event) {
-                $scope.$apply(function() {
-                    noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
-                });
-            });
-            r.on('complete', function() {
-                var f, lastModified, posted;
-                f = r.files.pop().file;
-                lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
-                posted = {
-                    name: f.name,
-                    size: f.size,
-                    type: f.type,
-                    lastModified: lastModified,
-                    uniqueIdentifier: f.uniqueIdentifier,
-                };
-                http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + app.siteid + '&app=' + app.id, posted, function success(rsp) {});
-            });
-        });
-        $scope.options = {
-            overwrite: 'Y'
         };
         $scope.downloadTemplate = function() {
             var url = '/rest/pl/fe/matter/enroll/import/downloadTemplate?site=' + $scope.app.siteid + '&app=' + $scope.app.id;

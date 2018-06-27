@@ -1,0 +1,56 @@
+<div class="modal-header">
+    <h5 class="modal-title">从excel文件导入记录</h5>
+</div>
+<div class="modal-body">
+    <div class='row'>
+        <div class='col-md-12'>
+            <div class='form-group'>
+                <label class='radio-inline'>
+                    <input type='radio' name='overwrite' value='' ng-model="options.overwrite"> 保留已有记录</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='overwrite' value='all' ng-model="options.overwrite"> 覆盖已有记录</label>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class='row'>
+        <div class='col-md-4'>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-model="options.assocUserid"> 关联系统用户ID</label>
+            </div>
+            <div>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' name='assocAppType' value='enroll' ng-disabled='!options.assocAppType' ng-model="options.assocAppType"> 活动已有用户</label>
+                </div>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' name='assocAppType' value='mission' ng-disabled='!options.assocAppType' ng-model="options.assocAppType"> 项目已有用户</label>
+                </div>
+                <div class='radio'>
+                    <label>
+                        <input type='radio' name='assocAppType' value='mschema' ng-disabled='!options.assocAppType' ng-model="options.assocAppType"> 通迅录用户</label>
+                </div>
+            </div>
+        </div>
+        <div class='col-md-4' ng-switch on="options.assocAppType">
+            <div ng-switch-when="enroll">
+                <div class='form-group'>
+                    <label>设置用户匹配的题目</label>
+                </div>
+                <div tms-array-checkbox model="options.assocSchemas">
+                    <div class='checkbox' ng-repeat="schema in dataSchemas">
+                        <label>
+                            <input type='checkbox' value='{{schema.id}}'><span ng-bind="schema.title"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    <button id='btnImportByExcel' class="btn btn-primary">选择文件并开始导入</button>
+</div>

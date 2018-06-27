@@ -98,9 +98,7 @@
                 <button class='btn btn-default btn-block' ng-click="downloadTemplate()">下载导入模板</button>
             </div>
             <div class='form-group'>
-                <button id='btnImportRecords' class='btn btn-default'>导入记录【.xlsx】</button>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="options.overwrite">覆盖现有数据</label>
+                <button class='btn btn-default' ng-click="importByExcel()">导入记录【.xlsx】</button>
             </div>
             <div>
                 <button id='btnImportImg' class='btn btn-default'>导入图片【.zip】</button>

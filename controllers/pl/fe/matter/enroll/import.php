@@ -119,7 +119,7 @@ class import extends \pl\fe\matter\base {
 			unlink($modelFs->rootDir . '/' . $fileUploaded);
 			return new \ResponseError('暂不支持此格式文件');
 		}
-
+		/* 保存提取到的数据 */
 		$eks = $this->_persist($oApp, $records);
 
 		return new \ResponseData($eks);
@@ -506,48 +506,20 @@ class import extends \pl\fe\matter\base {
 		}
 
 		foreach ($records as $oRecord) {
-			$ek = $modelRec->genKey($oApp->siteid, $oApp->id);
-
-			$r = array();
-			$r['aid'] = $oApp->id;
-			$r['rid'] = $rid;
-			$r['siteid'] = $oApp->siteid;
-			$r['enroll_key'] = $ek;
-			$r['enroll_at'] = $current;
-			$r['first_enroll_at'] = $current;
-			$r['nickname'] = isset($oRecord->nickname) ? $oRecord->nickname : '';
-			$r['verified'] = isset($oRecord->verified) ? $oRecord->verified : 'N';
-			$r['comment'] = isset($oRecord->comment) ? $oRecord->comment : '';
-			if (isset($oRecord->tags)) {
-				$r['tags'] = $oRecord->tags;
-				$modelApp->updateTags($oApp->id, $oRecord->tags);
-			}
-			$id = $modelRec->insert('xxt_enroll_record', $r, true);
-			$r['id'] = $id;
-			/**
-			 * 登记数据
-			 */
+			$aOptions = [
+				'nickname' => isset($oRecord->nickname) ? $oRecord->nickname : '',
+				'comment' => isset($oRecord->comment) ? $oRecord->comment : '',
+				'verified' => isset($oRecord->verified) ? $oRecord->verified : 'N',
+				'assignRid' => $rid,
+			];
+			$ek = $modelRec->enroll($oApp, null, $aOptions);
+			/* 登记数据 */
 			if (isset($oRecord->data)) {
-				//
-				$jsonData = $modelRec->toJson($oRecord->data);
-				$modelRec->update('xxt_enroll_record', ['data' => $jsonData], "enroll_key='$ek'");
-				$enrollKeys[] = $ek;
-				//
-				foreach ($oRecord->data as $n => $v) {
-					if (is_object($v) || is_array($v)) {
-						$v = json_encode($v);
-					}
-					if (count($v)) {
-						$cd = [
-							'aid' => $oApp->id,
-							'rid' => $rid,
-							'enroll_key' => $ek,
-							'schema_id' => $n,
-							'value' => $v,
-						];
-						$modelRec->insert('xxt_enroll_record_data', $cd, false);
-					}
-				}
+				$modelRec->setData(null, $oApp, $ek, $oRecord->data);
+			}
+			/* 更新活动标签，@todo 还有用吗？ */
+			if (isset($oRecord->tags)) {
+				$modelApp->updateTags($oApp->id, $oRecord->tags);
 			}
 		}
 

@@ -267,6 +267,7 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                         urlMatterTypes = [],
                         missionId;
 
+                    $scope.siteId = siteId;
                     $scope.options = options;
                     $scope.msgMatter = msgMatter;
                     if (options) {
@@ -328,6 +329,9 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                             } else if (/enroll/.test(matterType.value)) {
                                 $scope.matters = rsp.data.apps;
                                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
+                            } else if(/news|channel/.test(matterType.value)) {
+                                $scope.matters = rsp.data.docs;
+                                $scope.page.total = rsp.data.total;
                             } else {
                                 $scope.matters = rsp.data;
                                 $scope.page.total = $scope.matters.length;
@@ -376,6 +380,9 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                             } else if (/enroll/.test(matterType.value)) {
                                 $scope.matters2 = rsp.data.apps;
                                 rsp.data[1] && ($scope.page2.total = rsp.data[1]);
+                            } else if(/news|channel/.test(matterType.value)) {
+                                $scope.matters2 = rsp.data.docs;
+                                $scope.page2.total = rsp.data.total;
                             } else {
                                 $scope.matters2 = rsp.data;
                                 $scope.page2.total = $scope.matters2.length;

@@ -251,6 +251,13 @@
                     <div class='form-group' ng-if="catelog==='member'">
                         <button class='btn btn-default' ng-click="createMschema()"><i class='glyphicon glyphicon-plus'></i> 新建通讯录</button>
                     </div>
+                    <div class='btn-group' ng-if="catelog==='member'">
+                        <button type="button" class='btn btn-default dropdown-toggle' data-toggle="dropdown">更多操作 <i class="caret"></i></button>
+                        <ul class="dropdown-menu">
+                            <li><a href ng-click="notify(true)">给选中用户发消息<span>（{{members.rows.count}}）</span></a></li>
+                            <li><a href ng-click="notify()">给全部用户发消息<span>（{{members.page.total}}）</span></a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div ng-controller='ctrlMember' ng-switch-when="member">
@@ -258,6 +265,7 @@
                     <table class='table table-bordered'>
                         <thead>
                             <tr>
+                                <th style='width:28px'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected"/></th>
                                 <th style='width:48px'>序号</th>
                                 <th style='width:120px'>填写日期</th>
                                 <th style='width:80px'>通过审核</th>
@@ -270,6 +278,7 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat='m in members'>
+                                <td><input type="checkbox" ng-change="rows.change($index)" ng-model="rows.selected[$index]"/></td>
                                 <td>{{$index+1}}</td>
                                 <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                                 <td>{{m.verified==='Y'?'是':(m.verified==='N'?'否':'待定')}}</td>

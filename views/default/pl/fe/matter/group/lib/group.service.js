@@ -541,15 +541,13 @@ provider('srvGroupApp', function() {
                                     targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
                                 }
                             });
-                        } else {
-                            targetAndMsg.criteria = _ins._oCriteria;
-                        }
+                        } 
                         targetAndMsg.message = notify.message;
 
                         url = '/rest/pl/fe/matter/group/notice/send';
                         url += '?site=' + _siteId;
-                        url += '&app=' + _appId;
-                        url += '&tmplmsg=' + notify.tmplmsg.id;
+                        targetAndMsg.app = _appId;
+                        targetAndMsg.tmplmsg = notify.tmplmsg.id;
 
                         http2.post(url, targetAndMsg, function(data) {
                             noticebox.success('发送完成');

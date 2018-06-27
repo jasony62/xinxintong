@@ -8,7 +8,10 @@
     <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
 </div>
 <div class="modal-body" style='overflow:auto'>
-    <div class="row">
+    <div ng-if="!tmplmsgConfig">
+        <span>请先指定"推送素材"的模板消息，<a href="/rest/pl/fe/site/setting/notice?site={{siteId}}" target='_blank'>去添加</a></span>
+    </div>
+    <div class="row" ng-if="tmplmsgConfig">
         <!-- matters -->
         <div class="col-md-6">
             <ul class="list-group">

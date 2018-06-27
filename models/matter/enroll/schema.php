@@ -37,4 +37,19 @@ class schema_model extends \TMS_MODEL {
 
 		return false;
 	}
+	/**
+	 * 去除掉无效的内容
+	 * 1、无效的字段
+	 * 2、无效的设置，例如隐藏条件
+	 */
+	public function purify($aDataSchemas) {
+		$purified = [];
+		foreach ($aDataSchemas as $oSchema) {
+			unset($oSchema->summary);
+			unset($oSchema->_open);
+			$purified[] = $oSchema;
+		}
+
+		return $purified;
+	}
 }

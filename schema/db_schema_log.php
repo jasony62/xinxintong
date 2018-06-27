@@ -5,7 +5,7 @@ require_once '../db.php';
  */
 $sql = "create table if not exists xxt_log(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",create_at int(10) not null";
 $sql .= ",method varchar(255) not null";
 $sql .= ",data longtext null";

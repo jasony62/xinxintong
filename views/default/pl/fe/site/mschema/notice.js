@@ -12,13 +12,18 @@ define(['frame'], function(ngApp) {
                 $scope.logs = result.logs;
                 if (result.records && result.records.length) {
                     records = result.records;
-                    records.forEach(function(record) {
-                        tmsSchema.forTable(record, $scope.app._schemasById);
-                        if (noticeStatus = record.noticeStatus) {
-                            record._noticeStatus = noticeStatus.split(':');
-                            record._noticeStatus[0] = record._noticeStatus[0] === 'success' ? '成功' : '失败';
+                    if (records.length) {
+                        if ($scope.choosedSchema.extAttrs.length) {
+                            records.forEach(function(record) {
+                                record._extattr = tmsSchema.member.getExtattrsUIValue($scope.choosedSchema.extAttrs, record);
+                                console.log(record);
+                                if (noticeStatus = record.noticeStatus) {
+                                    record._noticeStatus = noticeStatus.split(':');
+                                    record._noticeStatus[0] = record._noticeStatus[0] === 'success' ? '成功' : '失败';
+                                }
+                            });
                         }
-                    });
+                    }
                     $scope.records = records;
                 }
                 $scope.activeBatch = batch;

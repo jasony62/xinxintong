@@ -1,7 +1,7 @@
 <div class="modal-header">
     <button class="close" type="button" ng-click="cancel()">×</button>
     <span class="modal-title h5">发送信息</span>
-    <select class='form-control' ng-if="options.matterTypes&&options.matterTypes.length" style='display:inline-block;width:120px' ng-model='msgMatter.matterType' ng-options='t.title for t in options.matterTypes' ng-change="changeType()">
+    <select class='form-control' ng-if="options.matterTypes&&options.matterTypes.length" style='display:inline-block;width:120px' ng-model='msgMatter.matterType' ng-options='t.title for t in options.matterTypes'>
         <option></option>
     </select>
     <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>

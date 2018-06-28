@@ -283,13 +283,6 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                     //站点设置的素材通知模版
                     http2.get(url, function(rsp) {
                         $scope.tmplmsgConfig = rsp.data.tmplmsgConfig;
-                        if($scope.tmplmsgConfig) {
-                            $scope.doSearch();
-                        }else {
-                            var html;
-                            html = '<div><span>请先指定"推送素材"的模板消息，<a href="/rest/pl/fe/site/setting/notice?site='+ siteId +'" target="_blank">去添加</a></span</div>';
-                            document.querySelector('.modal-body').innerHTML = html;
-                        }
                     });
                     $scope.page = {
                         at: 1,
@@ -431,6 +424,15 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                     $scope.changeType = function() {
                         $scope.doSearch();
                     };
+                    $scope.$watch('msgMatter.matterType', function(nv) {
+                        if(nv.value!=='tmplmsg'&& !$scope.tmplmsgConfig) {
+                            var html;
+                            html = '<div><span>请先指定"推送素材"的模板消息，<a href="/rest/pl/fe/site/setting/notice?site='+ siteId +'" target="_blank">去添加</a></span</div>';
+                            document.querySelector('.modal-body').innerHTML = html;
+                        }else {
+                            $scope.doSearch();
+                        }
+                    });
                 }],
                 backdrop: 'static',
                 size: 'lg',

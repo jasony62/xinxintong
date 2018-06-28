@@ -1,4 +1,3 @@
-<!--<div id='notice-view'>-->
 <div class="col-md-12 form-group checkbox">
     <label ng-if="activeBatch">
         <input type="checkbox" ng-model="choosed.value" ng-true-value="'Y'" ng-false-value="'N'" ng-click="fail(choosed.value)">仅展示失败记录
@@ -21,11 +20,11 @@
                         <th style='width:40px'></th>
                         <th style='width:140px'>发送结果</th>
                         <th style='width:140px'>失败原因</th>
-                        <th style='width:120px' ng-if="null===activeRound">分组</th>
-                        <th class='custom-col {{schema.type}}' ng-repeat="c in recordSchemas">{{c.title}}</th>
                         <th style='width:140px'>用户昵称</th>
-                        <th style='width:140px' ng-if="app.tags.length">标签</th>
-                        <th style='width:140px'>备注</th>
+                        <th ng-if='!choosedSchema.attrs.name.hide' class='th-action'>姓名</th>
+                        <th ng-if='!choosedSchema.attrs.mobile.hide' class='th-action'>手机</th>
+                        <th ng-if='!choosedSchema.attrs.email.hide' class='th-action'>邮箱</th>
+                        <th class='th-action' ng-repeat='ea in choosedSchema.extAttrs'>{{ea.title}}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,24 +32,22 @@
                         <td>{{$index+1}}</td>
                         <td>{{r._noticeStatus[0]}}</td>
                         <td style='color:red'>{{r._noticeStatus[1]}}</td>
-                        <td ng-if="null===activeRound">{{r.round_title}}</td>
-                        <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
-                            <span ng-switch-when="image">
-                                    <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
-                                </span>
-                            <span ng-switch-when="file">
-                                    <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                            </span>
-                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                        </td>
                         <td>{{r.nickname}}</td>
-                        <td ng-if="app.tags.length">{{r.tags}}</td>
-                        <td>{{r.comment}}</td>
+                        <td ng-if='!choosedSchema.attrs.name.hide'>{{r.name}}</td>
+                        <td ng-if="!choosedSchema.attrs.mobile.hide">{{r.mobile}}</td>
+                        <td ng-if="!choosedSchema.attrs.email.hide">{{r.email}}</td>
+                        <td ng-repeat='ea in choosedSchema.extAttrs' ng-switch on="ea.type">
+                            <div ng-switch-when="date">
+                                <span ng-if="r._extattr[ea.id]">{{r._extattr[ea.id]*1000|date:'yy-MM-dd HH:mm'}}</span>
+                            </div>
+                            <div ng-switch-when="image">
+                                <div ng-repeat="img in r._extattr[ea.id]"><img style="max-width:128px;" ng-src="{{img.imgSrc}}"></div>
+                            </div>
+                            <div ng-switch-default>{{r._extattr[ea.id]}}</div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-<!--</div>-->

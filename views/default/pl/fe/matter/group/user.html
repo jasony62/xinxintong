@@ -36,6 +36,9 @@
                     <li><a href="" ng-click="addPlayer()">添加用户</a></li>
                     <li><a href="" ng-click="export()">导出结果</a></li>
                     <li class="divider"></li>
+                    <li><a href="" ng-click="notify(true)">给选中用户发消息<span>（{{rows.players.length}}）</span></a></li>
+                    <li><a href="" ng-click="notify()">给全部用户发消息<span>（{{players.length}}）</span></a></li>
+                    <li class="divider"></li>
                     <li><a href="" ng-click="empty()">清空用户</a></li>
                 </ul>
             </div>

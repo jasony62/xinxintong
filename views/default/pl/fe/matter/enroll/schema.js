@@ -11,7 +11,7 @@ define(['frame'], function(ngApp) {
         $scope.importByExcel = function() {
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/importByExcel.html?_=1',
-                controller: ['$scope', '$timeout', '$uibModalInstance', function($scope2, $timeout, $mi) {
+                controller: ['$scope', '$timeout', '$uibModalInstance', 'srvEnrollRound', function($scope2, $timeout, $mi, srvEnlRnd) {
                     var oApp, oResu, oOptions;
                     oApp = $scope.app;
                     oResu = new Resumable({
@@ -34,11 +34,13 @@ define(['frame'], function(ngApp) {
                         f = oResu.files.pop().file;
                         lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
                         oPosted = {
-                            name: f.name,
-                            size: f.size,
-                            type: f.type,
-                            lastModified: lastModified,
-                            uniqueIdentifier: f.uniqueIdentifier,
+                            file: {
+                                name: f.name,
+                                size: f.size,
+                                type: f.type,
+                                lastModified: lastModified,
+                                uniqueIdentifier: f.uniqueIdentifier
+                            },
                             options: oOptions
                         };
                         http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + oApp.siteid + '&app=' + oApp.id, oPosted, function success(rsp) {});
@@ -49,13 +51,36 @@ define(['frame'], function(ngApp) {
                     $scope2.dataSchemas = oApp.dataSchemas;
                     $scope2.options = oOptions = {
                         overwrite: '',
-                        assocUserid: true,
-                        assocAppType: 'enroll',
-                        assocSchemas: []
+                        assoc: {
+                            userid: true,
+                            source: 'app.mschema'
+                        },
                     };
+                    $scope2.hasError = true; // 参数是否完整
+                    $scope2.intersectedValidNum = 0;
+                    srvEnlRnd.list().then(function(oResult) {
+                        $scope2.rounds = oResult.rounds;
+                    });
                     $scope2.cancel = function() {
                         $mi.dismiss('cancel');
                     };
+                    $scope2.$watch('options', function(nv) {
+                        $scope2.hasError = false;
+                        $scope2.intersectedValidNum = 0;
+                        if (!oOptions.rid) {
+                            $scope2.hasError = true;
+                        }
+                        if (oOptions.assoc.userid) {
+                            if (!oOptions.assoc.intersected || Object.keys(oOptions.assoc.intersected).length === 0) {
+                                $scope2.hasError = true;
+                            } else {
+                                angular.forEach(oOptions.assoc.intersected, function(matched) {
+                                    if (matched) $scope2.intersectedValidNum++;
+                                });
+                                if ($scope2.intersectedValidNum === 0) $scope2.hasError = true;
+                            }
+                        }
+                    }, true);
                 }],
                 windowClass: 'auto-height',
                 backdrop: 'static',

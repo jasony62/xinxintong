@@ -95,13 +95,25 @@ class import extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$file = $this->getPostJson();
-		$type = $file->type;
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->file)) {
+			return new \ParameterError('参数不完整（1）');
+		}
+		if (empty($oPosted->options->rid)) {
+			return new \ParameterError('参数不完整（2）');
+		}
+		$oRound = $this->model('matter\enroll\round')->byId($oPosted->options->rid);
+		if (false === $oRound) {
+			return new \ParameterError('指定的轮次不存在（3）');
+		}
+
+		$oUploadFile = $oPosted->file;
+		$fileType = $oUploadFile->type;
 
 		$modelFs = $this->model('fs/local', $oApp->siteid, '_resumable');
-		$fileUploaded = 'enroll_' . $oApp->id . '_' . $file->name;
-		if (in_array($type, ['application/x-zip-compressed', 'application/zip'])) {
-			$recordImgs = $this->_extractZIP($oApp, $modelFs->rootDir . '/' . $fileUploaded, $modelFs, $file);
+		$fileUploaded = 'enroll_' . $oApp->id . '_' . $oUploadFile->name;
+		if (in_array($fileType, ['application/x-zip-compressed', 'application/zip'])) {
+			$recordImgs = $this->_extractZIP($oApp, $modelFs->rootDir . '/' . $fileUploaded, $modelFs, $oUploadFile);
 			if ($recordImgs[0] === false) {
 				return new \ResponseError($recordImgs[1]);
 			}
@@ -112,21 +124,34 @@ class import extends \pl\fe\matter\base {
 			$records = $data[1];
 			// 删除解压后的文件包
 			$this->_deldir($recordImgs[1]->toDir);
-		} else if ($type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+		} else if ($fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
 			$records = $this->_extractExcel($oApp, $modelFs->rootDir . '/' . $fileUploaded)->records;
 			$modelFs->delete($fileUploaded);
 		} else {
 			unlink($modelFs->rootDir . '/' . $fileUploaded);
 			return new \ResponseError('暂不支持此格式文件');
 		}
+		/* 覆盖已有数据 */
+		if (!empty($oPosted->options->overwrite)) {
+			switch ($oPosted->options->overwrite) {
+			case 'all':
+				$this->model('matter\enroll\record')->clean($oApp);
+				break;
+			}
+		}
 		/* 保存提取到的数据 */
-		$eks = $this->_persist($oApp, $records);
+		$oResult = $this->_persist($oApp, $records, $oPosted->options->rid, isset($oPosted->options) ? $oPosted->options : null);
+		if (false === $oResult[0]) {
+			return new \ResponseError($oResult[0]);
+		}
+		$eks = $oResult[1];
 
-		return new \ResponseData($eks);
+		return new \ResponseData(count($eks));
 	}
 	/**
 	 * 从文件中提取数据
-	 * int $oneRecordImgNum 每条数据抽取多少个图片
+	 *
+	 * @param int $oneRecordImgNum 每条数据抽取多少个图片
 	 */
 	private function &_extractImg($oApp, $imgs, $oneRecordImgNum = 1) {
 		$schemas = $oApp->dataSchemas;
@@ -494,17 +519,68 @@ class import extends \pl\fe\matter\base {
 	/**
 	 * 保存数据
 	 */
-	private function _persist($oApp, $records, $rid = '') {
+	private function _persist($oApp, $records, $rid = '', $oOptions = null) {
 		$current = time();
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
-		$enrollKeys = [];
 		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
 			}
 		}
 
+		if (isset($oOptions)) {
+			/* 导入记录关联系统用户ID */
+			if (isset($oOptions->assoc->userid) && true === $oOptions->assoc->userid) {
+				$oAssoc = $oOptions->assoc;
+				if (empty($oAssoc->source)) {
+					return [false, '导入记录关联【系统用户ID】参数不完整（1）'];
+				}
+				switch ($oAssoc->source) {
+				case 'app.mschema':
+					if (!isset($oApp->entryRule)) {
+						$oApp2 = $modelApp->byId($oApp->id, ['fields' => 'entry_rule']);
+						$oApp->entryRule = $oApp2->entryRule;
+					}
+					if (!isset($oApp->entryRule->member) && empty((array) $oApp->entryRule->member)) {
+						return [false, '导入记录关联【系统用户ID】参数不完整（2）'];
+					}
+					if (empty((object) $oAssoc->intersected)) {
+						return [false, '导入记录关联【系统用户ID】参数不完整（3）'];
+					}
+					$intersectedSchemas = $oAssoc->intersected;
+					$fnRecordIntersect = function ($oRecord) use ($intersectedSchemas) {
+						$oIntersection = new \stdClass;
+						if (isset($oRecord->data)) {
+							foreach ($intersectedSchemas as $aMapping) {
+								if (!empty($oRecord->data->{$aMapping[0]})) {
+									$oIntersection->{$aMapping[1]} = $oRecord->data->{$aMapping[0]};
+								}
+							}
+						}
+						return $oIntersection;
+					};
+					$modelMember = $this->model('site\user\member');
+					$mschemaIds = array_keys((array) $oApp->entryRule->member);
+					$fnAssocUserid = function ($oData) use ($modelMember, $mschemaIds) {
+						foreach ($mschemaIds as $mschemaId) {
+							$members = $modelMember->byMschema($mschemaId, ['filter' => (object) ['attrs' => $oData]]);
+							if (count($members)) {
+								foreach ($members as $oMember) {
+									if (!empty($oMember->userid)) {
+										return $oMember;
+									}
+								}
+							}
+						}
+						return null;
+					};
+					break;
+				}
+			}
+		}
+
+		$enrollKeys = [];
 		foreach ($records as $oRecord) {
 			$aOptions = [
 				'nickname' => isset($oRecord->nickname) ? $oRecord->nickname : '',
@@ -512,10 +588,18 @@ class import extends \pl\fe\matter\base {
 				'verified' => isset($oRecord->verified) ? $oRecord->verified : 'N',
 				'assignRid' => $rid,
 			];
-			$ek = $modelRec->enroll($oApp, null, $aOptions);
+			/* 记录信息 */
+			$oMockUser = new \stdClass;
+			if (isset($fnRecordIntersect) && isset($fnAssocUserid)) {
+				$oIntersection = $fnRecordIntersect($oRecord);
+				$oUserData = $fnAssocUserid($oIntersection);
+				$oMockUser->uid = isset($oUserData->userid) ? $oUserData->userid : '';
+			}
+			$ek = $modelRec->enroll($oApp, $oMockUser, $aOptions);
+			$enrollKeys[] = $ek;
 			/* 登记数据 */
 			if (isset($oRecord->data)) {
-				$modelRec->setData(null, $oApp, $ek, $oRecord->data);
+				$modelRec->setData($oMockUser, $oApp, $ek, $oRecord->data);
 			}
 			/* 更新活动标签，@todo 还有用吗？ */
 			if (isset($oRecord->tags)) {
@@ -523,7 +607,7 @@ class import extends \pl\fe\matter\base {
 			}
 		}
 
-		return $enrollKeys;
+		return [true, $enrollKeys];
 	}
 	/**
 	 *

@@ -41,16 +41,6 @@ define(['frame'], function(ngApp) {
                 _quizScore(oRecord);
                 $scope.quizScore = oQuizScore;
             }
-            /* 点评数据 */
-            var remarkableSchemas = [];
-            app.dataSchemas.forEach(function(schema) {
-                if (schema.remarkable === 'Y') {
-                    schema._open = false;
-                    oRecord.verbose && oRecord.verbose[schema.id] && (schema.summary = oRecord.verbose[schema.id]);
-                    remarkableSchemas.push(schema);
-                }
-            });
-            $scope.remarkableSchemas = remarkableSchemas;
         }
 
         function _items(schema) {

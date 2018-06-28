@@ -119,11 +119,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             }
             fnCallback(oEnrollApp);
-            if (oEnrollApp.dataSchemas) {
-                oEnrollApp.dataSchemas.forEach(function(oSchema) {
-                    schemaLib._upgrade(oSchema, oEnrollApp);
-                });
-            }
             if (oEnrollApp.pages) {
                 oEnrollApp.pages.forEach(function(oPage) {
                     pageLib.enhance(oPage, oEnrollApp._schemasById);

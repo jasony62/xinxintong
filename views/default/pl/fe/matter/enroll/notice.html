@@ -1,8 +1,8 @@
 <div class="col-md-12">
     <div id='notice-view'>
         <div class="col-md-12 form-group checkbox">
-            <label ng-if="records.length">
-                <input type="checkbox" ng-model="choose" ng-true-value="'Y'" ng-false-value="'N'" ng-click="fail(choose)">仅展示失败记录
+            <label ng-if="activeBatch">
+                <input type="checkbox" ng-model="choosed.value" ng-true-value="'Y'" ng-false-value="'N'" ng-click="fail(choosed.value)">仅展示失败记录
             </label>
         </div>
         <div class='col-md-4'>

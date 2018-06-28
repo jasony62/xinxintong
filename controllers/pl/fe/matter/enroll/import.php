@@ -594,6 +594,10 @@ class import extends \pl\fe\matter\base {
 				$oIntersection = $fnRecordIntersect($oRecord);
 				$oUserData = $fnAssocUserid($oIntersection);
 				$oMockUser->uid = isset($oUserData->userid) ? $oUserData->userid : '';
+				if (!isset($modelUsr)) {
+					$modelUsr = $this->model('matter\enroll\user');
+				}
+				$oMockUser = $modelUsr->detail($oApp, $oMockUser, $oRecord->data);
 			}
 			$ek = $modelRec->enroll($oApp, $oMockUser, $aOptions);
 			$enrollKeys[] = $ek;

@@ -148,7 +148,7 @@ class batch_model extends \TMS_MODEL {
 		$batch->template_id = $tmpl->templateid;
 		$batch->user_num = $userCount;
 		$batch->creater = isset($creater->uid) ? $creater->uid : '';
-		$batch->creater_name = isset($creater->name) ? $creater->name : '';
+		$batch->creater_name = isset($creater->name) ? $this->escape($creater->name) : '';
 		$batch->creater_src = isset($creater->src) ? $creater->src : '';
 		$batch->create_at = time();
 		$batch->params = $this->escape($this->toJson($params));

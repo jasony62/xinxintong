@@ -423,7 +423,9 @@ class main extends main_base {
 			if (in_array($n, ['title', 'summary'])) {
 				$oUpdated->{$n} = $modelApp->escape($v);
 			} else if (in_array($n, ['data_schemas', 'recycle_schemas'])) {
-				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($v));
+				$modelSch = $this->model('matter\enroll\schema');
+				$dataSchemas = $modelSch->purify($v);
+				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($dataSchemas));
 			} else if ($n === 'entryRule') {
 				if ($v->scope === 'group') {
 					if (isset($v->group->title)) {

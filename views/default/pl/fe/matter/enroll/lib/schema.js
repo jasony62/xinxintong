@@ -25,8 +25,7 @@ define([], function() {
     var base = {
             title: '',
             type: '',
-            unique: 'N',
-            _ver: 1
+            unique: 'N'
         },
         prefab = {};
     return {
@@ -194,15 +193,6 @@ define([], function() {
             }
 
             return newOp;
-        },
-        _upgrade: function(oSchema, oApp) {
-            if (oSchema._ver === undefined) {
-                oSchema.unique = 'N';
-                oSchema._ver = 1;
-            }
-            if (!oSchema.fromApp) {
-                delete oSchema.requireCheck;
-            }
         }
     }
 });

@@ -6,7 +6,7 @@ class log_model extends TMS_MODEL {
 	/**
 	 *
 	 */
-	public function log($mpid, $method, $data, $agent = '', $referer = '') {
+	public function log($siteid, $method, $data, $agent = '', $referer = '') {
 		if (empty($agent) && isset($_SERVER['HTTP_USER_AGENT'])) {
 			$agent = $_SERVER['HTTP_USER_AGENT'];
 		}
@@ -16,7 +16,7 @@ class log_model extends TMS_MODEL {
 
 		$current = time();
 		$log = [];
-		$log['mpid'] = $mpid;
+		$log['siteid'] = $siteid;
 		$log['method'] = $this->escape($method);
 		$log['create_at'] = $current;
 		$log['data'] = $this->escape($data);

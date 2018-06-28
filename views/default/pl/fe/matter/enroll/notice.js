@@ -6,7 +6,7 @@ define(['frame'], function(ngApp) {
         $scope.oBatchPage = oBatchPage = {};
         $scope.batches = aBatches = [];
         $scope.detail = function(batch) {
-            $scope.batchId = batch;
+            $scope.choosed = {value: 'N'};
             srvEnrollNotice.detail(batch).then(function(result) {
                 var records, noticeStatus;
                 $scope.logs = result.logs;
@@ -26,16 +26,15 @@ define(['frame'], function(ngApp) {
                 $scope.activeBatch = batch;
             })
         };
-        $scope.choose = 'N';
         $scope.fail = function(isCheck) {
             if (isCheck == 'Y') {
-                $scope.records.forEach(function(item, index) {
-                    if (!(item.noticeStatus.indexOf('failed') < 0)) {
-                        $scope.records.splice(item, index);
+                for(var i=$scope.records.length-1; i>=0; i--) {
+                    if($scope.records[i].noticeStatus.indexOf('failed') == -1) {
+                        $scope.records.splice(i,1);
                     }
-                });
+                }
             } else {
-                $scope.detail($scope.batchId);
+                $scope.detail($scope.activeBatch);
             }
         }
         $scope.$watch('app', function(app) {

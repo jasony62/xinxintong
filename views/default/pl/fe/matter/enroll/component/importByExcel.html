@@ -1,4 +1,5 @@
 <div class="modal-header">
+    <button class="close" ng-click="cancel()" type="button">×</button>
     <h5 class="modal-title">从excel文件导入记录</h5>
 </div>
 <div class="modal-body">
@@ -21,7 +22,7 @@
     </div>
     <hr>
     <div class='row'>
-        <div class='col-md-4'>
+        <div class='col-md-6'>
             <div class='checkbox'>
                 <label>
                     <input type='checkbox' ng-model="options.assoc.userid"> 导入记录作为用户填写内容（关联【系统用户ID】）</label>
@@ -33,7 +34,7 @@
                 </div>
             </div>
         </div>
-        <div class='col-md-4' ng-switch on="options.assoc.source">
+        <div class='col-md-6' ng-switch on="options.assoc.source">
             <div ng-switch-when="app.mschema">
                 <table class='table table-bordered'>
                     <thead>

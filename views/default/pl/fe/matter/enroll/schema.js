@@ -48,7 +48,12 @@ define(['frame'], function(ngApp) {
                     $timeout(function() {
                         oResu.assignBrowse(document.getElementById('btnImportByExcel'));
                     });
-                    $scope2.dataSchemas = oApp.dataSchemas;
+                    $scope2.dataSchemas = [];
+                    oApp.dataSchemas.forEach(function(oSchema) {
+                        if (/shorttext/.test(oSchema.type) && (!oSchema.format || oSchema.format !== 'number')) {
+                            $scope2.dataSchemas.push(oSchema);
+                        }
+                    });
                     $scope2.options = oOptions = {
                         overwrite: '',
                         assoc: {

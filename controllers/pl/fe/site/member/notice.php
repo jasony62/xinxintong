@@ -101,15 +101,17 @@ class notice extends \pl\fe\base {
 			$modelMemb = $this->model('site\user\member');
 			$records = [];
 			$records2 = [];
-			foreach ($logs as &$log) {
+			foreach ($logs as $log) {
 				if (isset($records2[$log->assoc_with])) {
-					$record = $records2[$log->assoc_with];
+					$record = clone $records2[$log->assoc_with];
 					$record->noticeStatus = $log->status;
 					$records[] = $record;
+					unset($record);
 				} else if ($record = $modelMemb->byId($log->assoc_with)) {
-					$records2[$log->assoc_with] = $record;
+					$records2[$log->assoc_with] = clone $record;
 					$record->noticeStatus = $log->status;
 					$records[] = $record;
+					unset($record);
 				}
 			}
 			$result->records = $records;

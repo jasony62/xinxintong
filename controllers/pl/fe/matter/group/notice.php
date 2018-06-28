@@ -114,13 +114,15 @@ class notice extends \pl\fe\matter\base {
 			$records2 = [];
 			foreach ($logs as &$log) {
 				if (isset($records2[$log->assoc_with])) {
-					$record = $records2[$log->assoc_with];
+					$record = clone $records2[$log->assoc_with];
 					$record->noticeStatus = $log->status;
 					$records[] = $record;
+					unset($record);
 				} else if ($record = $modelRec->byId($app, $log->assoc_with)) {
-					$records2[$log->assoc_with] = $record;
+					$records2[$log->assoc_with] = clone $record;
 					$record->noticeStatus = $log->status;
 					$records[] = $record;
+					unset($record);
 				}
 			}
 			$result->records = $records;

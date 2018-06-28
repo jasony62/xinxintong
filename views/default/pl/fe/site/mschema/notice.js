@@ -7,7 +7,7 @@ define(['frame'], function(ngApp) {
         $scope.batches = aBatches = [];
         $scope.detail = function(batch) {
             $scope.batchId = batch;
-            srvGroupNotice.detail(batch).then(function(result) {
+            srvMschemaNotice.detail(batch).then(function(result) {
                 var records, noticeStatus;
                 $scope.logs = result.logs;
                 if (result.records && result.records.length) {
@@ -36,19 +36,11 @@ define(['frame'], function(ngApp) {
                 $scope.detail($scope.batchId);
             }
         }
-        $scope.$watch('app', function(app) {
-            var recordSchemas;
-            if (!app) return;
-            recordSchemas = [];
-            app.data_schemas.forEach(function(schema) {
-                if (schema.type !== 'html') {
-                    recordSchemas.push(schema);
-                }
-            });
-            srvTmplmsgNotice.init('group:' + app.id, oBatchPage, aBatches);
+        $scope.$watch('choosedSchema', function(mschema) {
+            if(!mschema) return;
+            srvTmplmsgNotice.init('schema:' + mschema.id, oBatchPage, aBatches);
             srvTmplmsgNotice.list();
             $scope.tmsTableWrapReady = 'Y';
-            $scope.recordSchemas = recordSchemas;
-        });
+        })
     }]);
 });

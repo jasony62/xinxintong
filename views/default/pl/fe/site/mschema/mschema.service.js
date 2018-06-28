@@ -62,13 +62,13 @@ define(['require'], function(require) {
         }];
     });
     ngMod.provider('srvMschemaNotice', function() {
-        this.$get = ['$q', 'http2', 'srvGroupApp', function($q, http2, srvGroupApp) {
+        this.$get = ['$q', 'http2', 'srvMschema', function($q, http2, srvMschema) {
             return {
                 detail: function(batch) {
                     var defer = $q.defer(),
                         url;
-                    srvGroupApp.get().then(function(oApp) {
-                        url = '/rest/pl/fe/matter/group/notice/logList?batch=' + batch.id + '&app=' + oApp.id;
+                    srvMschema.get().then(function(mschema) {
+                        url = '/rest/pl/fe/site/member/notice/logList?batch=' + batch.id + '&schema=' + mschema.id;
                         http2.get(url, function(rsp) {
                             defer.resolve(rsp.data);
                         });

@@ -93,7 +93,7 @@ define(['require', 'mschemaService'], function(require) {
                 $scope.sns = data;
             });
             if (location.hash) {
-                entryMschemaId = location.hash.substr(1);
+                $scope.entryMschemaId = entryMschemaId = location.hash.substr(1);
                 srvMschema.get(entryMschemaId).then(function(oMschema) {
                     shiftAttr(oMschema);
                     $scope.schemas = [oMschema];

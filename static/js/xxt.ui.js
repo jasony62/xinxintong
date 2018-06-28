@@ -421,13 +421,9 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                     $scope.cancel = function() {
                         $mi.dismiss();
                     };
-                    $scope.changeType = function() {
-                        $scope.doSearch();
-                    };
                     $scope.$watch('msgMatter.matterType', function(nv) {
                         if(nv.value!=='tmplmsg'&& !$scope.tmplmsgConfig) {
-                            var html;
-                            html = '<div><span>请先指定"推送素材"的模板消息，<a href="/rest/pl/fe/site/setting/notice?site='+ siteId +'" target="_blank">去添加</a></span</div>';
+                            var html = '<div><span>请先指定"推送素材"的模板消息，<a href="/rest/pl/fe/site/setting/notice?site='+ siteId +'" target="_blank">去添加</a></span</div>';
                             document.querySelector('.modal-body').innerHTML = html;
                         }else {
                             $scope.doSearch();

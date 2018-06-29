@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMschema', ['$scope', '$location', '$uibModal', 'http2', 'tmsSchema', 'srvSite', function($scope, $location, $uibModal, http2, tmsSchema, srvSite) {
+    ngApp.provider.controller('ctrlMschema', ['$scope', '$location', '$uibModal', 'http2', 'tmsSchema', 'srvSite', 'CstNaming', 'pushnotify', 'noticebox', function($scope, $location, $uibModal, http2, tmsSchema, srvSite, CstNaming, pushnotify, noticebox) {
         function listInvite(oSchema) {
             http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id, function(rsp) {
                 $scope.invites = rsp.data.invites;
@@ -31,6 +31,19 @@ define(['frame'], function(ngApp) {
                     size: 30,
                     keyword: '',
                     searchBy: $scope.searchBys[0].v
+                };
+                $scope.rows = {
+                    allSelected: 'N',
+                    selected: {},
+                    count: 0,
+                    change: function(index) {
+                        this.selected[index] ? this.count++ : this.count--;
+                    },
+                    reset: function() {
+                        this.allSelected = 'N';
+                        this.selected = {};
+                        this.count = 0;
+                    }
                 };
                 $location.hash(mschema.id);
                 $scope.doSearch(1);
@@ -125,6 +138,47 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
+        $scope.notify = function(isBatch) {
+            var rows = isBatch ? $scope.rows : null;
+            var options = {
+                matterTypes: CstNaming.notifyMatter,
+                sender: 'schema:' + selected.mschema.id
+            };
+            pushnotify.open(selected.mschema.siteid, function(notify) {
+                var url, targetAndMsg = {}; 
+                if (notify.matters.length) {
+                    if (rows) {
+                        targetAndMsg.users = [];
+                        Object.keys(rows.selected).forEach(function(key) {
+                            if (rows.selected[key] === true) {
+                                var rec = $scope.members[key];
+                                targetAndMsg.users.push({ id:rec.id, userid: rec.userid});
+                            }
+                        });
+                    }
+                    targetAndMsg.message = notify.message;
+
+                    url = '/rest/pl/fe/site/member/notice/send?site=' + selected.mschema.siteid;
+                    targetAndMsg.schema = selected.mschema.id;
+                    targetAndMsg.tmplmsg = notify.tmplmsg.id;
+
+                    http2.post(url, targetAndMsg, function(data) {
+                        noticebox.success('发送完成');
+                    });
+                }
+            }, options);
+        }
+        $scope.$watch('rows.allSelected', function(nv) {
+            var index = 0;
+            if(nv == 'Y') {
+                while(index < $scope.members.length) {
+                    $scope.rows.selected[index++] = true;
+                }
+                $scope.rows.count = $scope.members.length;
+            }else if(nv == 'N'){
+                $scope.rows.reset();
+            }
+        });
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
             srvSite.memberSchemaList(oMission, true).then(function(aMemberSchemas) {

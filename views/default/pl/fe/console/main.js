@@ -368,8 +368,8 @@ define(['frame'], function(ngApp) {
             }, true);
         });
     }]);
-    ngApp.provider.controller('ctrlUser', ['$scope', '$location', 'http2', function($scope, $location, http2) {
-        var oSelected;
+    ngApp.provider.controller('ctrlUser', ['$scope', '$location', 'http2', 'cstApp', 'pushnotify', 'noticebox', function($scope, $location, http2, cstApp, pushnotify, noticebox) {
+        var oSelected, oMembers;
         $scope.selected = oSelected = {
             mschema: null
         };
@@ -383,6 +383,39 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
+        $scope.notify = function(isBatch) {
+            var rows = isBatch ? oMembers.rows : null;
+            var options = {
+                matterTypes: cstApp.notifyMatter,
+                sender: 'schema:' + oMembers.schema.id
+            };
+            pushnotify.open(oMembers.schema.siteid, function(notify) {
+                var url, targetAndMsg = {}; 
+                if (notify.matters.length) {
+                    if (rows) {
+                        targetAndMsg.users = [];
+                        Object.keys(rows.selected).forEach(function(key) {
+                            if (rows.selected[key] === true) {
+                                var rec = oMembers.persons[key];
+                                targetAndMsg.users.push({ id:rec.id, userid: rec.userid});
+                            }
+                        });
+                    }
+                    targetAndMsg.message = notify.message;
+
+                    url = '/rest/pl/fe/site/member/notice/send?site=' + oMembers.schema.siteid;
+                    targetAndMsg.schema = oMembers.schema.id;
+                    targetAndMsg.tmplmsg = notify.tmplmsg.id;
+
+                    http2.post(url, targetAndMsg, function(data) {
+                        noticebox.success('发送完成');
+                    });
+                }
+            }, options);
+        }
+        $scope.$on('member.data', function(event, data) {
+            $scope.members = oMembers = data;
+        });
         $scope.$watch('frameState.sid', function(siteId) {
             if (siteId) {
                 http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId + '&valid=Y', function(rsp) {
@@ -425,6 +458,19 @@ define(['frame'], function(ngApp) {
                     at: 1,
                     size: 30,
                 };
+                $scope.rows = {
+                    allSelected: 'N',
+                    selected: {},
+                    count: 0,
+                    change: function(index) {
+                        this.selected[index] ? this.count++ : this.count--;
+                    },
+                    reset: function() {
+                        this.allSelected = 'N';
+                        this.selected = {};
+                        this.count = 0;
+                    }
+                };
                 $scope.mschema = _oMschema = oMschema;
                 $scope.doSearch(1);
                 listInvite(oMschema);
@@ -451,6 +497,7 @@ define(['frame'], function(ngApp) {
                 }
                 $scope.members = members;
                 $scope.page.total = rsp.data.total;
+                $scope.$emit('member.data', {page:$scope.page, rows:$scope.rows, schema:$scope.mschema, persons:members});
             });
         };
         $scope.editMember = function(oMember) {
@@ -505,6 +552,17 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
+        $scope.$watch('rows.allSelected', function(nv) {
+            var index = 0;
+            if(nv == 'Y') {
+                while(index < $scope.members.length) {
+                    $scope.rows.selected[index++] = true;
+                }
+                $scope.rows.count = $scope.members.length;
+            }else if(nv == 'N'){
+                $scope.rows.reset();
+            }
+        });
     }]);
     ngApp.provider.controller('ctrlSiteAccount', ['$scope', '$uibModal', 'http2', 'facListFilter', 'srvSite', function($scope, $uibModal, http2, facListFilter, srvSite) {
         var _oFilter, _oPage;

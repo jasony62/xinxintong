@@ -691,6 +691,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     }
                 });
             };
+            /**
+             * 由填写题创建打分题
+             */
             $scope.createScoreByInput = function() {
                 var _oApp;
                 _oApp = $scope.app;
@@ -724,11 +727,11 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 });
                             }
                         };
-                        $scope2.selectSchema = function(schema) {
-                            if (schema._selected) {
-                                oResult.schemas.push(schema);
+                        $scope2.selectSchema = function(oSchema) {
+                            if (oSchema._selected) {
+                                oResult.schemas.push(oSchema);
                             } else {
-                                oResult.schemas.splice(oResult.schemas.indexOf(schema), 1);
+                                oResult.schemas.splice(oResult.schemas.indexOf(oSchema), 1);
                             }
                         };
                         $scope2.ok = function() {
@@ -757,9 +760,17 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 oPage.total = rsp.data.total;
                             });
                         };
+                        $scope2.disabled = true; // 选择的参数是否完整
+                        $scope2.$watch('result', function() {
+                            $scope2.disabled = false;
+                            if (!oResult.fromApp) $scope2.disabled = true;
+                            if (!oResult.schemas || oResult.schemas.length === 0) $scope2.disabled = true;
+                            if (oResult.ops.length === 0) $scope2.disabled = true;
+                        }, true);
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
                     var targetSchemas, oProto, url, oConfig;
@@ -770,6 +781,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         oResult.ops.forEach(function(op, index) {
                             oProto.ops.push({ v: 'v' + (index + 1), l: op.l });
                         });
+                        if (oResult.requireScore) oProto.requireScore = true;
                     }
                     if (oResult.schemas && oResult.schemas.length) {
                         targetSchemas = [];

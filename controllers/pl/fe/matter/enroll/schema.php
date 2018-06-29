@@ -243,6 +243,10 @@ class schema extends main_base {
 				$oNewSchema->required = 'Y';
 				$oNewSchema->range = $oPosted->proto->range;
 				$oNewSchema->ops = $oPosted->proto->ops;
+				if (!empty($oPosted->proto->requireScore)) {
+					$oNewSchema->requireScore = 'Y';
+					$oNewSchema->scoreMode = 'evaluation';
+				}
 				$newSchemas[] = $oNewSchema;
 			}
 		}

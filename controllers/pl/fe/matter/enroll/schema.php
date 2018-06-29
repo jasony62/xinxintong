@@ -248,7 +248,7 @@ class schema extends main_base {
 					$oNewSchema->scoreMode = 'evaluation';
 				}
 				/* 记录数据来源 */
-				$oNewSchema->ds = (object) ['ek' => $oTargetRecord->enroll_key, 'userid' => $oTargetRecord->userid, 'nickname' => $oTargetRecord->nickname];
+				$oNewSchema->dsSchema = (object) ['ek' => $oTargetRecord->enroll_key, 'userid' => $oTargetRecord->userid, 'nickname' => $oTargetRecord->nickname];
 				$newSchemas[] = $oNewSchema;
 			}
 		}

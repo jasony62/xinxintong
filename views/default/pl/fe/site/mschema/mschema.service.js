@@ -61,6 +61,24 @@ define(['require'], function(require) {
             return _oInstance;
         }];
     });
+    ngMod.provider('srvMschemaNotice', function() {
+        this.$get = ['$q', 'http2', 'srvMschema', function($q, http2, srvMschema) {
+            return {
+                detail: function(batch) {
+                    var defer = $q.defer(),
+                        url;
+                    srvMschema.get().then(function(mschema) {
+                        url = '/rest/pl/fe/site/member/notice/logList?batch=' + batch.id + '&schema=' + mschema.id;
+                        http2.get(url, function(rsp) {
+                            defer.resolve(rsp.data);
+                        });
+                    });
+
+                    return defer.promise;
+                }
+            }
+        }]
+    });
     ngMod.provider('srvEnrollPage', function() {
         this.$get = [function() {}];
     });

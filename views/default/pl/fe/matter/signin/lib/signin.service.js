@@ -127,9 +127,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             }
             method(oSigninApp);
-            oSigninApp.dataSchemas.forEach(function(oSchema) {
-                schemaLib._upgrade(oSchema, oSigninApp);
-            });
             oSigninApp.pages.forEach(function(page) {
                 pageLib.enhance(page, oSigninApp._schemasById);
             });

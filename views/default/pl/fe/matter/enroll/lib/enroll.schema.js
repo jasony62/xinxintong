@@ -1107,12 +1107,13 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
                     if (oResult.app && oResult.schema) {
                         oSchema.ds = {
                             app: { id: oResult.app.id, title: oResult.app.title },
-                            schema: { id: oResult.schema.id, title: oResult.schema.title },
+                            schema: { id: oResult.schema.id, title: oResult.schema.title, type: oResult.schema.type },
                         }
                         $scope.updSchema(oSchema);
                     }

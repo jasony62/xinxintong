@@ -1054,7 +1054,7 @@ class record extends main_base {
 	/**
 	 * 删除一条登记信息
 	 */
-	public function remove_action($site, $app, $key) {
+	public function remove_action($app, $key) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

@@ -70,10 +70,9 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 },
                 clean: function(page) {
                     page.html = '';
-                    page.data_schemas = [];
-                    page.act_schemas = [];
-                    page.user_schemas = [];
-                    return _self.update(page, ['data_schemas', 'act_schemas', 'user_schemas', 'html']);
+                    page.dataSchemas = [];
+                    page.actSchemas = [];
+                    return _self.update(page, ['dataSchemas', 'actSchemas', 'html']);
                 },
                 remove: function(page) {
                     var defer = $q.defer();
@@ -111,7 +110,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                             if (aRepairResult[1] && aRepairResult[1].length) {
                                 aRepairResult[1].forEach(function(changedProp) {
                                     switch (changedProp) {
-                                        case 'data_schemas':
+                                        case 'dataSchemas':
                                             // do nothing
                                             break;
                                         case 'html':
@@ -214,7 +213,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 editorProxy.removeWrap(activeWrap);
                 if (/I|V/.test($scope.ep.type)) {
                     schema = activeWrap.schema
-                    $scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', schema);
+                    $scope.$broadcast('xxt.matter.enroll.page.dataSchemas.removed', schema);
                 }
                 $scope.setActiveWrap(null);
             } else if (/radio|checkbox|score/.test(wrapType)) {
@@ -226,16 +225,16 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 // 更新当前页面
                 editorProxy.removeWrap(activeWrap);
                 // 更新其它页面
-                $scope.$emit('xxt.matter.enroll.app.data_schemas.modified', {
+                $scope.$emit('xxt.matter.enroll.app.dataSchemas.modified', {
                     originator: $scope.ep,
                     schema: schema
                 });
                 $scope.setActiveWrap(null);
             } else if (/records|enrollees/.test(wrapType)) {
                 editorProxy.removeWrap(activeWrap);
-                for (var i = $scope.ep.data_schemas.length - 1; i >= 0; i--) {
-                    if ($scope.ep.data_schemas[i].config.id === activeWrap.config.id) {
-                        $scope.ep.data_schemas.splice(i, 1);
+                for (var i = $scope.ep.dataSchemas.length - 1; i >= 0; i--) {
+                    if ($scope.ep.dataSchemas[i].config.id === activeWrap.config.id) {
+                        $scope.ep.dataSchemas.splice(i, 1);
                         break;
                     }
                 }
@@ -311,7 +310,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             }
             if (status.schemaChanged === true) {
                 // 更新其他页面
-                $scope.$emit('xxt.matter.enroll.app.data_schemas.modified', {
+                $scope.$emit('xxt.matter.enroll.app.dataSchemas.modified', {
                     originator: $scope.ep,
                     schema: $scope.activeWrap.schema || status.schema
                 });
@@ -444,7 +443,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 }
             }
         };
-        $scope.$on('xxt.matter.enroll.page.data_schemas.removed', function(event, removedSchema) {
+        $scope.$on('xxt.matter.enroll.page.dataSchemas.removed', function(event, removedSchema) {
             if (removedSchema && removedSchema.id) {
                 _oChooseState[removedSchema.id] = false;
             }
@@ -457,7 +456,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     _oChooseState[schema.id] = false;
                 });
                 if (oPage.type === 'I') {
-                    oPage.data_schemas.forEach(function(dataWrap) {
+                    oPage.dataSchemas.forEach(function(dataWrap) {
                         if (dataWrap.schema) {
                             _oChooseState[dataWrap.schema.id] = true;
                         }
@@ -472,7 +471,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                         type: '_roundTitle',
                         title: '填写轮次'
                     }];
-                    oPage.data_schemas.forEach(function(config) {
+                    oPage.dataSchemas.forEach(function(config) {
                         config.schema && config.schema.id && (_oChooseState[config.schema.id] = true);
                     });
                     _oChooseState['enrollAt'] === undefined && (_oChooseState['enrollAt'] = false);
@@ -480,7 +479,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 }
                 $scope.chooseState = _oChooseState;
             }
-            $scope.$watchCollection('ep.data_schemas', function(newVal) {
+            $scope.$watchCollection('ep.dataSchemas', function(newVal) {
                 var aUncheckedSchemaIds;
                 if (/I|V/.test($scope.ep.type)) {
                     if (newVal) {
@@ -537,7 +536,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
         $scope.updWrap = function() {
             $scope.ep.$$modified = true;
             editorProxy.modifySchema($scope.activeWrap);
-            $scope.$emit('xxt.matter.enroll.app.data_schemas.modified', {
+            $scope.$emit('xxt.matter.enroll.app.dataSchemas.modified', {
                 originator: $scope.ep,
                 schema: $scope.activeWrap.schema
             });

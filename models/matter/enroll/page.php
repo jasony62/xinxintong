@@ -3,7 +3,7 @@ namespace matter\enroll;
 
 require_once dirname(__FILE__) . '/page_base.php';
 /**
- *
+ * 记录活动页面
  */
 class page_model extends page_base {
 	/**
@@ -13,63 +13,76 @@ class page_model extends page_base {
 		return 'xxt_enroll_page';
 	}
 	/**
+	 * 处理从数据库中获得的页面数据
+	 */
+	private function _processDb2Obj(&$oPage, $cascaded = 'Y', $published = 'N') {
+		if (property_exists($oPage, 'data_schemas')) {
+			if (!empty($oPage->data_schemas)) {
+				$oPage->dataSchemas = json_decode($oPage->data_schemas);
+			} else {
+				$oPage->dataSchemas = [];
+			}
+			unset($oPage->data_schemas);
+		}
+		if (property_exists($oPage, 'act_schemas')) {
+			if (!empty($oPage->act_schemas)) {
+				$oPage->actSchemas = json_decode($oPage->act_schemas);
+			} else {
+				$oPage->actSchemas = [];
+			}
+			unset($oPage->act_schemas);
+		}
+		if ($cascaded === 'Y') {
+			$modelCode = $this->model('code\page');
+			if ($published === 'Y') {
+				$oCode = $modelCode->lastPublishedByName($oPage->siteid, $oPage->code_name);
+			} else {
+				$oCode = $modelCode->lastByName($oPage->siteid, $oPage->code_name);
+			}
+			$oPage->html = $oCode->html;
+			$oPage->css = $oCode->css;
+			$oPage->js = $oCode->js;
+			$oPage->ext_js = $oCode->ext_js;
+			$oPage->ext_css = $oCode->ext_css;
+		}
+
+		return $oPage;
+	}
+	/**
 	 *
 	 */
 	public function &byId($appId, $apid, $published = 'N') {
-		$select = 'ap.*,cp.html,cp.css,cp.js';
-		$from = 'xxt_enroll_page ap,xxt_code_page cp';
-		$where = "ap.aid='$appId' and ap.id=$apid and ap.code_id=cp.id";
-
-		$q = array($select, $from, $where);
-
-		$ep = $this->query_obj_ss($q);
-		if ($ep) {
-			if ($published === 'Y') {
-				$code = $this->model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
-			} else {
-				$code = $this->model('code\page')->lastByName($ep->siteid, $ep->code_name);
-			}
-			$ep->html = $code->html;
-			$ep->css = $code->css;
-			$ep->js = $code->js;
-			$ep->ext_js = $code->ext_js;
-			$ep->ext_css = $code->ext_css;
+		$q = [
+			'*',
+			'xxt_enroll_page',
+			['aid' => $appId, 'id' => $apid],
+		];
+		if ($oPage = $this->query_obj_ss($q)) {
+			$this->_processDb2Obj($oPage, 'Y', $published);
 		}
 
-		return $ep;
+		return $oPage;
 	}
 	/**
 	 * 根据页面的名称获得页面
 	 */
 	public function byName($appId, $name, $published = 'N') {
 		if (in_array($name, ['repos', 'rank', 'votes', 'event', 'score'])) {
-			$ep = new \stdClass;
-			$ep->name = $name;
-			$ep->type = '';
-			return $ep;
+			$oPage = new \stdClass;
+			$oPage->name = $name;
+			$oPage->type = '';
 		} else {
-			$select = 'ep.*,cp.html,cp.css,cp.js';
-			$from = 'xxt_enroll_page ep,xxt_code_page cp';
-			$where = "ep.aid='$appId' and ep.name='$name' and ep.code_id=cp.id";
-
-			$q = array($select, $from, $where);
-
-			if ($ep = $this->query_obj_ss($q)) {
-				if ($published === 'Y') {
-					$code = $this->model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
-				} else {
-					$code = $this->model('code\page')->lastByName($ep->siteid, $ep->code_name);
-				}
-				$ep->html = $code->html;
-				$ep->css = $code->css;
-				$ep->js = $code->js;
-				$ep->ext_js = $code->ext_js;
-				$ep->ext_css = $code->ext_css;
-				return $ep;
+			$q = [
+				'*',
+				'xxt_enroll_page',
+				['aid' => $appId, 'name' => $name],
+			];
+			if ($oPage = $this->query_obj_ss($q)) {
+				$this->_processDb2Obj($oPage, 'Y', $published);
 			}
 		}
 
-		return false;
+		return $oPage;
 	}
 	/**
 	 * 返回指定登记活动的页面
@@ -77,33 +90,20 @@ class page_model extends page_base {
 	public function &byApp($appId, $options = array(), $published = 'N') {
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_enroll_page',
 			['aid' => $appId],
-		);
-		$q2 = array('o' => 'seq,create_at');
+		];
+		$q2 = ['o' => 'seq,create_at'];
 		$eps = $this->query_objs_ss($q, $q2);
-		if ($cascaded === 'Y' && !empty($eps)) {
-			$modelCode = $this->model('code\page');
-			$pages = array();
-			foreach ($eps as &$ep) {
-				if ($published === 'Y') {
-					$code = $modelCode->lastPublishedByName($ep->siteid, $ep->code_name);
-				} else {
-					$code = $modelCode->lastByName($ep->siteid, $ep->code_name);
-				}
-				$ep->html = $code->html;
-				$ep->css = $code->css;
-				$ep->js = $code->js;
-				$ep->ext_js = $code->ext_js;
-				$ep->ext_css = $code->ext_css;
-				$pages[] = $ep;
+		if (count($eps)) {
+			foreach ($eps as $oPage) {
+				$this->_processDb2Obj($oPage, $cascaded, $published);
 			}
-			return $pages;
-		} else {
-			return $eps;
 		}
+
+		return $eps;
 	}
 	/**
 	 * 从页面的html中提取登记项定义

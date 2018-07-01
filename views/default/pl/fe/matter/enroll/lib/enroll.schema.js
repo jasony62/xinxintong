@@ -92,7 +92,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 submitChange: function(changedPages) {
                     var deferred = $q.defer();
                     srvApp.get().then(function(oApp) {
-                        var updatedAppProps = ['data_schemas'],
+                        var updatedAppProps = ['dataSchemas'],
                             oSchema, oNicknameSchema, oAppNicknameSchema;
                         for (var i = oApp.dataSchemas.length - 1; i >= 0; i--) {
                             oSchema = oApp.dataSchemas[i];
@@ -137,7 +137,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             } else {
                                 var fnOnePage;
                                 fnOnePage = function(index) {
-                                    srvAppPage.update(changedPages[index], ['data_schemas', 'html']).then(function() {
+                                    srvAppPage.update(changedPages[index], ['dataSchemas', 'html']).then(function() {
                                         index++;
                                         if (index === changedPages.length) {
                                             deferred.resolve();
@@ -247,7 +247,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         delete oSchema.fromApp;
                         delete oSchema.requireCheck;
                     });
-                    srvApp.update(['group_app_id', 'data_schemas']);
+                    srvApp.update(['group_app_id', 'dataSchemas']);
                 });
             };
             $scope.assignEnrollApp = function() {
@@ -313,7 +313,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         oPage = pages[i];
                         if (oPage.type === 'I') {
                             oPage.updateSchema(oActiveSchema);
-                            srvAppPage.update(oPage, ['data_schemas', 'html']);
+                            srvAppPage.update(oPage, ['dataSchemas', 'html']);
                         }
                     }
                 });

@@ -21,19 +21,25 @@ class page extends \pl\fe\matter\base {
 	/**
 	 * 添加活动页面
 	 *
-	 * @param string $site
 	 * @param string $app
 	 */
-	public function add_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+	public function add_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$options = $this->getPostJson();
+		$oOptions = $this->getPostJson();
 
-		$newPage = $this->model('matter\enroll\page')->add($user, $site, $app, $options);
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,state', 'cascaded' => 'N']);
+		if ($oApp === false || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
-		return new \ResponseData($newPage);
+		$modelPage = $this->model('matter\enroll\page');
+		$oNewPage = $modelPage->add($oUser, $oApp->siteid, $oApp->id, $oOptions);
+
+		return new \ResponseData($oNewPage);
 	}
 	/**
 	 * 更新活动的页面的属性信息
@@ -48,13 +54,20 @@ class page extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$oPosted = $this->getPostJson();
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state', 'cascaded' => 'N']);
+		if ($oApp === false || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
 		$modelPage = $this->model('matter\enroll\page');
-		$oPage = $modelPage->byId($app, $page);
+		$oPage = $modelPage->byId($oApp, $page);
 		if ($oPage === false) {
-			return new \ResponseError('指定的页面不存在');
+			return new \ObjectNotFoundError();
 		}
+
+		$oPosted = $this->getPostJson();
+
 		/* 更新页面内容 */
 		if (isset($oPosted->html)) {
 			$data = [
@@ -95,21 +108,31 @@ class page extends \pl\fe\matter\base {
 	/**
 	 * 删除活动的页面
 	 *
-	 * @param string $site
 	 * @param string $aid
 	 * @param string $pid
+	 * @param string $cname
 	 */
-	public function remove_action($site, $app, $pid, $cname) {
-		if (false === ($user = $this->accountUser())) {
+	public function remove_action($app, $pid, $cname) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$page = $this->model('matter\enroll\page')->byId($app, $pid);
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state', 'cascaded' => 'N']);
+		if ($oApp === false || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelPage = $this->model('matter\enroll\page');
+		$oPage = $modelPage->byId($oApp, $pid);
+		if ($oPage === false) {
+			return new \ObjectNotFoundError();
+		}
 
 		$modelCode = $this->model('code\page');
-		$modelCode->removeByName($site, $cname);
+		$modelCode->removeByName($oPage->siteid, $cname);
 
-		$rst = $modelCode->delete('xxt_enroll_page', "aid='$app' and id=$pid");
+		$rst = $modelPage->delete('xxt_enroll_page', ['aid' => $oApp->id, 'id' => $oPage->id]);
 
 		return new \ResponseData($rst);
 	}

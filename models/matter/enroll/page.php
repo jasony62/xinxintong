@@ -51,11 +51,13 @@ class page_model extends page_base {
 	/**
 	 * 根据页面的ID获得页面
 	 */
-	public function &byId($appId, $apid, $published = 'N') {
+	public function &byId($oApp, $apid, $aOptions = []) {
+		$published = isset($aOptions['published']) ? ($aOptions['published'] === 'Y' ? 'Y' : 'N') : 'N';
+
 		$q = [
 			'*',
 			'xxt_enroll_page',
-			['aid' => $appId, 'id' => $apid],
+			['aid' => $oApp->id, 'id' => $apid],
 		];
 		if ($oPage = $this->query_obj_ss($q)) {
 			$this->_processDb2Obj($oPage, 'Y', $published);
@@ -66,7 +68,9 @@ class page_model extends page_base {
 	/**
 	 * 根据页面的名称获得页面
 	 */
-	public function byName($appId, $name, $published = 'N') {
+	public function byName($oApp, $name, $aOptions = []) {
+		$published = isset($aOptions['published']) ? ($aOptions['published'] === 'Y' ? 'Y' : 'N') : 'N';
+
 		if (in_array($name, ['repos', 'rank', 'votes', 'event', 'score', 'topic', 'share', 'favor'])) {
 			$oPage = new \stdClass;
 			$oPage->name = $name;
@@ -75,7 +79,7 @@ class page_model extends page_base {
 			$q = [
 				'*',
 				'xxt_enroll_page',
-				['aid' => $appId, 'name' => $name],
+				['aid' => $oApp->id, 'name' => $name],
 			];
 			if ($oPage = $this->query_obj_ss($q)) {
 				$this->_processDb2Obj($oPage, 'Y', $published);

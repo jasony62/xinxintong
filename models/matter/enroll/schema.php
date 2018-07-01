@@ -44,11 +44,15 @@ class schema_model extends \TMS_MODEL {
 	 * 2、无效的设置，例如隐藏条件
 	 */
 	public function purify($aAppSchemas) {
+		$validProps = ['id', 'type', 'title', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchemas', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
+
 		$purified = [];
 		foreach ($aAppSchemas as $oSchema) {
-			unset($oSchema->summary);
-			unset($oSchema->_open);
-			unset($oSchema->_ver);
+			foreach ($oSchema as $prop => $val) {
+				if (!in_array($prop, $validProps)) {
+					unset($oSchema->{$prop});
+				}
+			}
 			/* 关联到其他应用时才需要检查 */
 			if (empty($oSchema->fromApp)) {
 				unset($oSchema->requireCheck);

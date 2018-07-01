@@ -1193,6 +1193,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
                     if (oResult.app && oResult.schema) {
@@ -1213,6 +1214,108 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         }
                                     };
                                     oSchema.dsOps.filters.push(oNewFilter);
+                                }
+                            });
+                        }
+                        $scope.updSchema(oSchema);
+                    }
+                });;
+            };
+            $scope.setSchemaSource = function(oSchema) {
+                var _oApp;
+                _oApp = $scope.app;
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setSchemaSource.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oAppFilter;
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 12,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.result = oResult = {};
+                        $scope2.appFilter = oAppFilter = {};
+                        $scope2.dsSchemas = [];
+                        $scope2.filterSchemas = [];
+                        $scope2.selectApp = function() {
+                            $scope2.dsSchemas = [];
+                            $scope2.filterSchemas = [];
+                            oResult.selected = null;
+                            oResult.filters = [];
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                    if (/longtext|url/.test(oSchema.type)) {
+                                        $scope2.dsSchemas.push(oSchema);
+                                    } else if (/shorttext/.test(oSchema.type) && !oSchema.format) {
+                                        $scope2.dsSchemas.push(oSchema);
+                                    } else if (/single/.test(oSchema.type)) {
+                                        $scope2.filterSchemas.push(angular.copy(oSchema));
+                                    }
+                                });
+                            }
+                            oResult.selected = null;
+                        };
+                        $scope2.addFilter = function() {
+                            oResult.filters.push({});
+                        };
+                        $scope2.removeFilter = function(oFilter) {
+                            oResult.filters.splice(oResult.filters.indexOf(oFilter), 1);
+                        };
+                        $scope2.ok = function() {
+                            var fromApp;
+                            if ((fromApp = oResult.fromApp) && oResult.selected !== undefined) {
+                                $mi.close({ app: { id: fromApp.id, title: fromApp.title }, schema: $scope2.dsSchemas[parseInt(oResult.selected)], filters: oResult.filters });
+                            } else {
+                                $mi.dismiss();
+                            }
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.doSearch = function(pageAt) {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            if (_oApp.mission) {
+                                url += '&mission=' + _oApp.mission.id;
+                            }
+                            pageAt && (oPage.at = pageAt);
+                            http2.post(url, {
+                                byTitle: oAppFilter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    oResult.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                oPage.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                    windowClass: 'auto-height',
+                    size: 'lg'
+                }).result.then(function(oResult) {
+                    if (oResult.app && oResult.schema) {
+                        oSchema.dsSchemas = {
+                            app: { id: oResult.app.id, title: oResult.app.title },
+                            schema: { id: oResult.schema.id, title: oResult.schema.title },
+                        }
+                        if (oResult.filters && oResult.filters.length) {
+                            oSchema.dsSchemas.filters = [];
+                            oResult.filters.forEach(function(oFilter) {
+                                var oNewFilter;
+                                if (oFilter.schema && oFilter.op) {
+                                    oNewFilter = {
+                                        schema: {
+                                            id: oFilter.schema.id,
+                                            type: oFilter.schema.type,
+                                            op: { v: oFilter.op.v, l: oFilter.op.l }
+                                        }
+                                    };
+                                    oSchema.dsSchemas.filters.push(oNewFilter);
                                 }
                             });
                         }

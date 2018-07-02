@@ -21,6 +21,10 @@ class schema extends base {
 			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
 		}
 
+		/* 应用的动态题目 */
+		$modelSch = $this->model('matter\enroll\schema');
+		$modelSch->setDynaSchemas($oApp);
+
 		$dataSchemas = $oApp->dataSchemas;
 
 		return new \ResponseData($dataSchemas);

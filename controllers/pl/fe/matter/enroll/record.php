@@ -1054,7 +1054,7 @@ class record extends main_base {
 	/**
 	 * 删除一条登记信息
 	 */
-	public function remove_action($site, $app, $key) {
+	public function remove_action($app, $key) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -2042,8 +2042,10 @@ class record extends main_base {
 					}
 					if (!empty($oDsApp->dataSchemas)) {
 						/* 设置动态选项 */
-						$modelApp->setDynaOptions($oDsApp, isset($oDsAssignedRnd) ? $oDsAssignedRnd : null);
-
+						if (!isset($modelSch)) {
+							$modelSch = $this->model('matter\enroll\schema');
+						}
+						$modelSch->setDynaOptions($oDsApp, isset($oDsAssignedRnd) ? $oDsAssignedRnd : null);
 						foreach ($oDsApp->dataSchemas as $oDsSchema) {
 							if ($oSchema->ds->schema->id !== $oDsSchema->id) {
 								continue;

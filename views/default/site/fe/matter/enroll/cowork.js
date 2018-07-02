@@ -1,5 +1,5 @@
 'use strict';
-require('./cowork.css');
+require('./enroll.public.css');
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
 require('../../../../../../asset/js/xxt.ui.trace.js');

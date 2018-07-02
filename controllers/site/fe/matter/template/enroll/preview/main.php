@@ -18,7 +18,7 @@ class main extends \TMS_CONTROLLER {
 	 *
 	 */
 	public function index_action($site, $tid) {
-		if (false === ($template = $this->model('matter\template')->byId($tid, null, ['cascaded'=>'N'])) ) {
+		if (false === ($template = $this->model('matter\template')->byId($tid, null, ['cascaded' => 'N']))) {
 			die('指定的模板不存在，请检查参数是否正确');
 		}
 
@@ -49,8 +49,8 @@ class main extends \TMS_CONTROLLER {
 
 		/* 计算打开哪个页面 */
 		$modelPage = $this->model('matter\enroll\page');
-		$aid = 'template:'.$template->vid;
-		$oOpenPage = $modelPage->byName($aid, $page);
+		$aid = 'template:' . $template->vid;
+		$oOpenPage = $modelPage->byName((object) ['id' => $aid], $page);
 		if (empty($oOpenPage)) {
 			return new \ResponseError('模板页面不存在');
 		}

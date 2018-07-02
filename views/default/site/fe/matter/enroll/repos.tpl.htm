@@ -165,7 +165,7 @@
                 <div id='repos'>
                     <div class='records'>
                         <div class='record' ng-repeat="rec in repos" ng-cloak>
-                            <div class='header'>
+                            <div class='top-bar'>
                                 <div class='seq label label-default'>{{$index+1}}</div>
                                 <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
                                 <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>

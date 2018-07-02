@@ -71,10 +71,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.shiftOrderBy = function() {
             if ($scope.criteria.order.orderby == 'sum') {
-                $scope.criteria.order.schemaId = ''
+                $scope.criteria.order.schemaId = '';
             }
-            ç
-        }
+        };
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvEnrollRecord.search(pageNumber).then(function() {

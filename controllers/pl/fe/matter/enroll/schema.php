@@ -7,6 +7,34 @@ require_once dirname(__FILE__) . '/main_base.php';
  */
 class schema extends main_base {
 	/**
+	 * 返回登记活动题目定义
+	 *
+	 * @param string $app
+	 * @param string $rid
+	 *
+	 */
+	public function get_action($app, $rid = '') {
+		$modelApp = $this->model('matter\enroll');
+		$aOptions = [
+			'cascaded' => 'N',
+		];
+		if (!empty($rid)) {
+			$aOptions['appRid'] = $rid;
+		}
+		$oApp = $modelApp->byId($app, $aOptions);
+		if ($oApp === false || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 应用的动态题目 */
+		$modelSch = $this->model('matter\enroll\schema');
+		$modelSch->setDynaSchemas($oApp);
+
+		$dataSchemas = $oApp->dataSchemas;
+
+		return new \ResponseData($dataSchemas);
+	}
+	/**
 	 * 由目标活动的选择题创建填写题
 	 *
 	 * @param string $app 需要创建题目的登记活动

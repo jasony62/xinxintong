@@ -754,9 +754,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = params.app._schemasById;
         _oApp = params.app;
-        if (params.page.data_schemas) {
-            params.page.dataSchemas = JSON.parse(params.page.data_schemas);
-        }
         if (_oApp.end_submit_at > 0 && parseInt(_oApp.end_submit_at) < (new Date * 1) / 1000) {
             fnDisableActions();
             noticebox.warn('活动提交数据时间已经结束，不能提交数据');

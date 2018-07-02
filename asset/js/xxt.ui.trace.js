@@ -84,12 +84,14 @@ ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, h
     if (oStorage = window.localStorage) {
         oCached = oStorage.getItem(StoreKey);
         oCached = oCached ? JSON.parse(oCached) : {};
-        for (var i in oCached) {
-            oTrace = oCached[i];
-            if (oTrace.closing && oTrace.closing === 'Y') {
-                delete oCached[i];
-                oCached = oStorage.setItem(StoreKey, JSON.stringify(oCached));
-                http2.post(oTrace.sendUrl, { start: oTrace.start, events: oTrace.events }).then(function() {});
+        if (oCached) {
+            for (var i in oCached) {
+                oTrace = oCached[i];
+                if (oTrace.closing && oTrace.closing === 'Y') {
+                    delete oCached[i];
+                    oCached = oStorage.setItem(StoreKey, JSON.stringify(oCached));
+                    http2.post(oTrace.sendUrl, { start: oTrace.start, events: oTrace.events }).then(function() {});
+                }
             }
         }
     }

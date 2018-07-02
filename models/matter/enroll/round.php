@@ -282,5 +282,31 @@ class round_model extends \TMS_MODEL {
 
 		return [true, $oRound];
 	}
+	/**
+	 * 删除轮次
+	 */
+	public function remove($oApp, $oRound) {
+		/* 删除轮次下的记录 */
+		$modelRec = $this->model('matter\enroll\record');
+		$records = $modelRec->byRound($oRound->rid);
+		if (count($records)) {
+			foreach ($records as $oRecord) {
+				$modelRec->remove($oApp, $oRecord);
+			}
+			/* 打标记 */
+			$rst = $this->update(
+				'xxt_enroll_round',
+				['state' => 100],
+				['aid' => $oApp->id, 'rid' => $oRound->rid]
+			);
+		} else {
+			/* 删除 */
+			$rst = $this->delete(
+				'xxt_enroll_round',
+				['aid' => $oApp->id, 'rid' => $oRound->rid]
+			);
+		}
 
+		return $rst;
+	}
 }

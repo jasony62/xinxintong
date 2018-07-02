@@ -74,7 +74,7 @@ class main extends base {
 				/* 计算打开哪个页面 */
 				$oOpenPage = $this->_defaultPage($oApp, $rid, true, $ignoretime);
 			} else {
-				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp->id, $page);
+				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp, $page);
 			}
 			empty($oOpenPage) && $this->outputError('没有可访问的页面');
 			// 访问专题页和共享页和讨论页需要记录数据
@@ -148,24 +148,25 @@ class main extends base {
 	 *
 	 * @param object $app 登记活动
 	 */
-	private function _isValid(&$app) {
+	private function _isValid(&$oApp) {
 		$tipPage = false;
 		$current = time();
-		if ($app->start_at != 0 && $current < $app->start_at) {
-			if (empty($app->before_start_page)) {
-				return [false, '【' . $app->title . '】没有开始'];
+		if ($oApp->start_at != 0 && $current < $oApp->start_at) {
+			if (empty($oApp->before_start_page)) {
+				return [false, '【' . $oApp->title . '】没有开始'];
 			} else {
-				$tipPage = $app->before_start_page;
+				$tipPage = $oApp->before_start_page;
 			}
-		} else if ($app->end_at != 0 && $current > $app->end_at) {
-			if (empty($app->after_end_page)) {
-				return [false, '【' . $app->title . '】已经结束'];
+		} else if ($oApp->end_at != 0 && $current > $oApp->end_at) {
+			if (empty($oApp->after_end_page)) {
+				return [false, '【' . $oApp->title . '】已经结束'];
 			} else {
-				$tipPage = $app->after_end_page;
+				$tipPage = $oApp->after_end_page;
 			}
 		}
 		if ($tipPage !== false) {
-			$oOpenPage = $this->model('matter\enroll\page')->byName($app->id, $tipPage);
+			$modelPage = $this->model('matter\enroll\page');
+			$oOpenPage = $modelPage->byName($oApp, $tipPage);
 			return [false, $oOpenPage];
 		}
 
@@ -206,12 +207,12 @@ class main extends base {
 					$pages = $modelPage->byApp($oApp->id);
 					foreach ($pages as $p) {
 						if ($p->type === 'V') {
-							$oOpenPage = $modelPage->byId($oApp->id, $p->id);
+							$oOpenPage = $modelPage->byId($oApp, $p->id);
 							break;
 						}
 					}
 				} else {
-					$oOpenPage = $modelPage->byName($oApp->id, $oApp->enrolled_entry_page);
+					$oOpenPage = $modelPage->byName($oApp, $oApp->enrolled_entry_page);
 				}
 			}
 		}
@@ -220,7 +221,7 @@ class main extends base {
 			// 根据进入规则确定进入页面
 			$aResult = $this->checkEntryRule($oApp, $redirect);
 			if (true === $aResult[0]) {
-				$oOpenPage = $modelPage->byName($oApp->id, $aResult[1]);
+				$oOpenPage = $modelPage->byName($oApp, $aResult[1]);
 			}
 		}
 
@@ -251,8 +252,12 @@ class main extends base {
 		/* 要打开的应用 */
 		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields, 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
 		if ($oApp === false || $oApp->state !== '1') {
-			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+			return new \ResponseError('指定的活动不存在，请检查参数是否正确');
 		}
+		/* 应用的动态题目 */
+		$modelSch = $this->model('matter\enroll\schema');
+		$modelSch->setDynaSchemas($oApp);
+
 		if (isset($oApp->appRound->rid)) {
 			$rid = $oApp->appRound->rid;
 		}
@@ -291,17 +296,19 @@ class main extends base {
 
 		/* 要打开的页面 */
 		if (!in_array($page, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'favor', 'topic'])) {
+			$modelPage = $this->model('matter\enroll\page');
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */
 			if (empty($page)) {
 				$oOpenPage = $this->_defaultPage($oApp, $rid, false, $ignoretime);
 			} else {
-				$modelPage = $this->model('matter\enroll\page');
-				$oOpenPage = $modelPage->byName($oApp->id, $page);
+				$oOpenPage = $modelPage->byName($oApp, $page);
 			}
 			if (empty($oOpenPage)) {
 				return new \ResponseError('页面不存在');
 			}
+			/* 根据动态题目更新页面定义 */
+			$modelPage->setDynaSchemas($oApp, $oOpenPage);
 			$params['page'] = $oOpenPage;
 		}
 

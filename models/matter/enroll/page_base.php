@@ -60,7 +60,7 @@ abstract class page_base extends \TMS_MODEL {
 			}
 		}
 
-		$oPage->data_schemas = $this->toJson($aPageDataSchemas);
+		$oPage->dataSchemas = $this->toJson($aPageDataSchemas);
 
 		return [true];
 	}
@@ -88,7 +88,7 @@ abstract class page_base extends \TMS_MODEL {
 				break;
 			}
 		}
-		$oPage->data_schemas = $this->toJson($aPageDataSchemas);
+		$oPage->dataSchemas = $this->toJson($aPageDataSchemas);
 
 		return [true];
 	}

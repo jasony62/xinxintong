@@ -243,6 +243,12 @@ class schema extends main_base {
 				$oNewSchema->required = 'Y';
 				$oNewSchema->range = $oPosted->proto->range;
 				$oNewSchema->ops = $oPosted->proto->ops;
+				if (!empty($oPosted->proto->requireScore)) {
+					$oNewSchema->requireScore = 'Y';
+					$oNewSchema->scoreMode = 'evaluation';
+				}
+				/* 记录数据来源 */
+				$oNewSchema->dsSchema = (object) ['ek' => $oTargetRecord->enroll_key, 'userid' => $oTargetRecord->userid, 'nickname' => $oTargetRecord->nickname];
 				$newSchemas[] = $oNewSchema;
 			}
 		}

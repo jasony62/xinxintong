@@ -55,7 +55,7 @@ class main extends \TMS_CONTROLLER {
 
 		/* 计算打开哪个页面 */
 		$modelPage = $this->model('matter\enroll\page');
-		$oOpenPage = $modelPage->byName($oApp->id, $page);
+		$oOpenPage = $modelPage->byName($oApp, $page);
 		if (empty($oOpenPage)) {
 			return new \ResponseError('页面不存在');
 		}

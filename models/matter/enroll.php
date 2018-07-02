@@ -79,7 +79,7 @@ class enroll_model extends enroll_base {
 		}
 		if (empty($oAppRnd)) {
 			$oRoundProto = new \stdClass;
-			$oRoundProto->title = '填写时段';
+			$oRoundProto->title = '填写轮次';
 			$oRoundProto->state = 1;
 			$modelRnd->create($oNewApp, $oRoundProto, $oUser);
 		}
@@ -145,7 +145,8 @@ class enroll_model extends enroll_base {
 				unset($oApp->data_schemas);
 
 				/* 设置活动的动态选项 */
-				$this->setDynaOptions($oApp, $oAppRnd);
+				$modelSch = $this->model('matter\enroll\schema');
+				$modelSch->setDynaOptions($oApp, $oAppRnd);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'recycle_schemas')) {
 				if (!empty($oApp->recycle_schemas)) {
@@ -230,68 +231,6 @@ class enroll_model extends enroll_base {
 					$oApp->pages = $modelPage->byApp($oApp->id);
 				} else {
 					$oApp->pages = $modelPage->byApp($oApp->id, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
-				}
-			}
-		}
-
-		return $oApp;
-	}
-	/**
-	 * 设置活动题目的动态选项
-	 *
-	 * @param object $oApp
-	 * @param object $oAppRound
-	 *
-	 * @return object $oApp
-	 */
-	public function setDynaOptions(&$oApp, $oAppRound = null) {
-		if (empty($oAppRound)) {
-			$oAppRnd = $this->model('matter\enroll\round')->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
-		}
-		foreach ($oApp->dataSchemas as $oSchema) {
-			if (isset($oSchema->type) && in_array($oSchema->type, ['single', 'multiple'])) {
-				if (!empty($oSchema->dsOps->app->id) && !empty($oSchema->dsOps->schema->id)) {
-					if (!empty($oAppRound->mission_rid)) {
-						if (!isset($modelRnd)) {
-							$modelRnd = $this->model('matter\enroll\round');
-						}
-						$oDsAppRnd = $modelRnd->byMissionRid($oSchema->dsOps->app, $oAppRound->mission_rid, ['fields' => 'rid']);
-					}
-					$oSchema->ops = [];
-					$q = [
-						'enroll_key,value,userid,nickname',
-						"xxt_enroll_record_data t0",
-						['state' => 1, 'aid' => $oSchema->dsOps->app->id, 'schema_id' => $oSchema->dsOps->schema->id],
-					];
-					/* 设置轮次条件 */
-					if (!empty($oDsAppRnd)) {
-						$q[2]['rid'] = $oDsAppRnd->rid;
-					}
-					/* 设置顾虑条件 */
-					if (!empty($oSchema->dsOps->filters)) {
-						foreach ($oSchema->dsOps->filters as $index => $oFilter) {
-							if (!empty($oFilter->schema->id) && !empty($oFilter->schema->type)) {
-								switch ($oFilter->schema->type) {
-								case 'single':
-									if (!empty($oFilter->schema->op->v)) {
-										$tbl = 't' . ($index + 1);
-										$sql = "select 1 from xxt_enroll_record_data {$tbl} where state=1 and aid='{$oSchema->dsOps->app->id}'and schema_id='{$oFilter->schema->id}' and value='{$oFilter->schema->op->v}' and t0.enroll_key={$tbl}.enroll_key";
-										$q[2]['enroll_key'] = (object) ['op' => 'exists', 'pat' => $sql];
-									}
-									break;
-								}
-							}
-						}
-					}
-					/* 处理数据 */
-					$datas = $this->query_objs_ss($q);
-					foreach ($datas as $index => $oRecData) {
-						$oNewOp = new \stdClass;
-						$oNewOp->v = 'v' . ($index + 1);
-						$oNewOp->l = $oRecData->value;
-						$oNewOp->ds = (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname];
-						$oSchema->ops[] = $oNewOp;
-					}
 				}
 			}
 		}

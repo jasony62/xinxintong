@@ -70,11 +70,11 @@ class record extends main_base {
 		if (!empty($oResult->records)) {
 			$remarkables = [];
 			$bRequireScore = false;
-			foreach ($oEnrollApp->dataSchemas as $oSchema) {
+			foreach ($oEnrollApp->dynaDataSchemas as $oSchema) {
 				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
 					$remarkables[] = $oSchema->id;
 				}
-				if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format == 'number') {
+				if (isset($oSchema->requireScore) && $oSchema->requireScore == 'Y') {
 					$bRequireScore = true;
 				}
 			}

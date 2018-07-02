@@ -147,7 +147,14 @@ class enroll_model extends enroll_base {
 				/* 设置活动的动态选项 */
 				$modelSch = $this->model('matter\enroll\schema');
 				$modelSch->setDynaOptions($oApp, $oAppRnd);
+
+				/* 应用的动态题目 */
+				$oApp2 = (object) ['appRound' => $oApp->appRound, 'dataSchemas' => $oApp->dataSchemas];
+				$modelSch = $this->model('matter\enroll\schema');
+				$modelSch->setDynaSchemas($oApp2);
+				$oApp->dynaDataSchemas = $oApp2->dataSchemas;
 			}
+
 			if ($fields === '*' || false !== strpos($fields, 'recycle_schemas')) {
 				if (!empty($oApp->recycle_schemas)) {
 					$oApp->recycleSchemas = json_decode($oApp->recycle_schemas);

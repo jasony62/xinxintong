@@ -20,7 +20,7 @@ class data_model extends entity_model {
 		}
 
 		$schemasById = []; // 方便获取登记项定义
-		foreach ($oApp->dataSchemas as $schema) {
+		foreach ($oApp->dynaDataSchemas as $schema) {
 			if (strpos($schema->id, 'member.') === 0) {
 				$schema->id = 'member';
 			}

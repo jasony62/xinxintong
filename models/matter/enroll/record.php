@@ -1135,11 +1135,11 @@ class record_model extends record_base {
 	 * 计算指定登记项所有记录的合计
 	 */
 	public function sum4Schema($oApp, $rid = 'ALL', $gid = '') {
-		if (empty($oApp->dataSchemas)) {
+		if (empty($oApp->dynaDataSchemas)) {
 			return false;
 		}
 		$oResult = new \stdClass;
-		$dataSchemas = $oApp->dataSchemas;
+		$dataSchemas = $oApp->dynaDataSchemas;
 		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
@@ -1195,11 +1195,11 @@ class record_model extends record_base {
 	 * 计算指定登记项所有记录的合计
 	 */
 	public function score4Schema($oApp, $rid = 'ALL', $gid = '') {
-		if (empty($oApp->dataSchemas)) {
+		if (empty($oApp->dynaDataSchemas)) {
 			return false;
 		}
 		$oResult = new \stdClass;
-		$dataSchemas = $oApp->dataSchemas;
+		$dataSchemas = $oApp->dynaDataSchemas;
 		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;

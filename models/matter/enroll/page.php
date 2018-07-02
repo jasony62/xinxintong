@@ -385,7 +385,7 @@ class page_model extends page_base {
 		}
 
 		foreach ($dataSchemas as $oSchema) {
-			if (empty($oSchema) || $oSchema->dynamic !== 'Y' || empty($oSchema->prototype->schema->id) || empty($pageWrapsById[$oSchema->prototype->schema->id])) {
+			if (empty($oSchema) || empty($oSchema->dynamic) || $oSchema->dynamic !== 'Y' || empty($oSchema->prototype->schema->id) || empty($pageWrapsById[$oSchema->prototype->schema->id])) {
 				continue;
 			}
 			$oProtoSchema = $oSchema->prototype->schema;

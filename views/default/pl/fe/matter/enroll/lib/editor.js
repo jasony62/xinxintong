@@ -157,7 +157,7 @@ define(['wrap'], function(wrapLib) {
                 var wrapParam;
 
                 oNewWrap = wrapLib.input.newWrap(newSchema);
-                _page.data_schemas.push(oNewWrap);
+                _page.dataSchemas.push(oNewWrap);
 
                 wrapParam = wrapLib.input.embed(oNewWrap, true);
                 domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, oSiblingSchema, insertBefore);
@@ -165,7 +165,7 @@ define(['wrap'], function(wrapLib) {
                 var wrapParam;
 
                 oNewWrap = wrapLib.value.newWrap(newSchema);
-                _page.data_schemas.push(oNewWrap);
+                _page.dataSchemas.push(oNewWrap);
 
                 wrapParam = wrapLib.value.embed(oNewWrap);
                 domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, oSiblingSchema, insertBefore);
@@ -278,14 +278,14 @@ define(['wrap'], function(wrapLib) {
                     }
                 } else if (domNodeWrap.length === 2) {
                     // 编辑input's options
-                    (function(page) {
+                    (function(oPage) {
                         var $domParentWrap = $(domNodeWrap[0]),
                             oOptionWrap, editingSchema;
                         if (/radio|checkbox|score/.test($domParentWrap.attr('wrap'))) {
                             oOptionWrap = wrapLib.input.dataByDom(domNodeWrap[0]);
                             if (oOptionWrap.schema && oOptionWrap.schema.ops && oOptionWrap.schema.ops.length === 1) {
-                                for (var i = page.data_schemas.length - 1; i >= 0; i--) {
-                                    editingSchema = page.data_schemas[i].schema;
+                                for (var i = oPage.dataSchemas.length - 1; i >= 0; i--) {
+                                    editingSchema = oPage.dataSchemas[i].schema;
                                     if (oOptionWrap.schema.id === editingSchema.id) {
                                         for (var j = editingSchema.ops.length - 1; j >= 0; j--) {
                                             if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {
@@ -485,7 +485,7 @@ define(['wrap'], function(wrapLib) {
                 label: btn.l,
                 next: btn.next || ''
             };
-            _page.act_schemas.push(oWrap);
+            _page.actSchemas.push(oWrap);
             wrapParam = wrapLib.button.embed(oWrap);
 
             return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
@@ -515,7 +515,7 @@ define(['wrap'], function(wrapLib) {
                     }
                 }
             }
-            _page.data_schemas.push(dataWrap);
+            _page.dataSchemas.push(dataWrap);
             wrapParam = wrapLib.records.embed(dataWrap);
 
             return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
@@ -555,7 +555,7 @@ define(['wrap'], function(wrapLib) {
                     type: 'sns'
                 });
             }
-            _page.data_schemas.push(dataWrap);
+            _page.dataSchemas.push(dataWrap);
             wrapParam = wrapLib.records.embed(dataWrap);
 
             return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
@@ -587,10 +587,10 @@ define(['wrap'], function(wrapLib) {
                     var listId = $domRemoved.attr('id'),
                         list;
 
-                    for (var i = _page.data_schemas.length - 1; i >= 0; i--) {
-                        list = _page.data_schemas[i];
+                    for (var i = _page.dataSchemas.length - 1; i >= 0; i--) {
+                        list = _page.dataSchemas[i];
                         if (list.id === listId) {
-                            _page.data_schemas.splice(i, 1);
+                            _page.dataSchemas.splice(i, 1);
                             break;
                         }
                     }
@@ -612,7 +612,7 @@ define(['wrap'], function(wrapLib) {
             var pageSchemas, $domRemoved;
 
             if (/I|V/.test(_page.type)) {
-                pageSchemas = _page.data_schemas;
+                pageSchemas = _page.dataSchemas;
                 for (var i = pageSchemas.length - 1; i >= 0; i--) {
                     if (removedSchema.id === pageSchemas[i].schema.id) {
                         $domRemoved = $(_editor.getBody()).find("[schema='" + removedSchema.id + "']");

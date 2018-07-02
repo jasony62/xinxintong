@@ -106,7 +106,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'tmsLocation', 'Record', function($sco
         schemas = [];
     facRecord.get($scope.CustomConfig);
     $scope.Record = facRecord;
-    $scope.page.data_schemas.forEach(function(oSchemaWrap) {
+    $scope.page.dataSchemas.forEach(function(oSchemaWrap) {
         schemas.push(oSchemaWrap.schema);
     });
     $scope.value2Label = function(key) {

@@ -92,7 +92,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 submitChange: function(changedPages) {
                     var deferred = $q.defer();
                     srvApp.get().then(function(oApp) {
-                        var updatedAppProps = ['data_schemas'],
+                        var updatedAppProps = ['dataSchemas'],
                             oSchema, oNicknameSchema, oAppNicknameSchema;
                         for (var i = oApp.dataSchemas.length - 1; i >= 0; i--) {
                             oSchema = oApp.dataSchemas[i];
@@ -137,7 +137,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             } else {
                                 var fnOnePage;
                                 fnOnePage = function(index) {
-                                    srvAppPage.update(changedPages[index], ['data_schemas', 'html']).then(function() {
+                                    srvAppPage.update(changedPages[index], ['dataSchemas', 'html']).then(function() {
                                         index++;
                                         if (index === changedPages.length) {
                                             deferred.resolve();
@@ -247,7 +247,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         delete oSchema.fromApp;
                         delete oSchema.requireCheck;
                     });
-                    srvApp.update(['group_app_id', 'data_schemas']);
+                    srvApp.update(['group_app_id', 'dataSchemas']);
                 });
             };
             $scope.assignEnrollApp = function() {
@@ -313,7 +313,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         oPage = pages[i];
                         if (oPage.type === 'I') {
                             oPage.updateSchema(oActiveSchema);
-                            srvAppPage.update(oPage, ['data_schemas', 'html']);
+                            srvAppPage.update(oPage, ['dataSchemas', 'html']);
                         }
                     }
                 });
@@ -691,6 +691,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     }
                 });
             };
+            /**
+             * 由填写题创建打分题
+             */
             $scope.createScoreByInput = function() {
                 var _oApp;
                 _oApp = $scope.app;
@@ -724,11 +727,11 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 });
                             }
                         };
-                        $scope2.selectSchema = function(schema) {
-                            if (schema._selected) {
-                                oResult.schemas.push(schema);
+                        $scope2.selectSchema = function(oSchema) {
+                            if (oSchema._selected) {
+                                oResult.schemas.push(oSchema);
                             } else {
-                                oResult.schemas.splice(oResult.schemas.indexOf(schema), 1);
+                                oResult.schemas.splice(oResult.schemas.indexOf(oSchema), 1);
                             }
                         };
                         $scope2.ok = function() {
@@ -757,9 +760,17 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 oPage.total = rsp.data.total;
                             });
                         };
+                        $scope2.disabled = true; // 选择的参数是否完整
+                        $scope2.$watch('result', function() {
+                            $scope2.disabled = false;
+                            if (!oResult.fromApp) $scope2.disabled = true;
+                            if (!oResult.schemas || oResult.schemas.length === 0) $scope2.disabled = true;
+                            if (oResult.ops.length === 0) $scope2.disabled = true;
+                        }, true);
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
                     var targetSchemas, oProto, url, oConfig;
@@ -770,6 +781,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         oResult.ops.forEach(function(op, index) {
                             oProto.ops.push({ v: 'v' + (index + 1), l: op.l });
                         });
+                        if (oResult.requireScore) oProto.requireScore = true;
                     }
                     if (oResult.schemas && oResult.schemas.length) {
                         targetSchemas = [];
@@ -1095,12 +1107,13 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
                     if (oResult.app && oResult.schema) {
                         oSchema.ds = {
                             app: { id: oResult.app.id, title: oResult.app.title },
-                            schema: { id: oResult.schema.id, title: oResult.schema.title },
+                            schema: { id: oResult.schema.id, title: oResult.schema.title, type: oResult.schema.type },
                         }
                         $scope.updSchema(oSchema);
                     }

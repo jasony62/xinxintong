@@ -38,51 +38,59 @@ class page extends \pl\fe\matter\base {
 	/**
 	 * 更新活动的页面的属性信息
 	 *
-	 * string $app 活动的id
-	 * $page 页面的id
-	 * $cname 页面对应code page id
+	 * @param string $app 活动的id
+	 * @param string $page 页面的id
+	 * @param $cname 页面对应code page id
+	 *
 	 */
-	public function update_action($site, $app, $page, $cname) {
-		if (false === ($user = $this->accountUser())) {
+	public function update_action($app, $page, $cname) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$nv = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
 		$modelPage = $this->model('matter\enroll\page');
-		$page = $modelPage->byId($app, $page);
-		if ($page === false) {
+		$oPage = $modelPage->byId($app, $page);
+		if ($oPage === false) {
 			return new \ResponseError('指定的页面不存在');
 		}
 		/* 更新页面内容 */
-		if (isset($nv->html)) {
+		if (isset($oPosted->html)) {
 			$data = [
-				'html' => urldecode($nv->html),
+				'html' => urldecode($oPosted->html),
 			];
 			$modelCode = $this->model('code\page');
-			$code = $modelCode->lastByName($site, $cname);
-			$rst = $modelCode->modify($code->id, $data);
-			unset($nv->html);
+			$oCode = $modelCode->lastByName($oPage->siteid, $cname);
+			$rst = $modelCode->modify($oCode->id, $data);
+			unset($oPosted->html);
 		}
 		/* 更新了除内容外，页面的其他属性 */
-		if (count(array_keys(get_object_vars($nv)))) {
-			if (isset($nv->data_schemas)) {
-				$nv->data_schemas = $modelPage->escape($modelPage->toJson($nv->data_schemas));
-			}
-			if (isset($nv->act_schemas)) {
-				$nv->act_schemas = $modelPage->escape($modelPage->toJson($nv->act_schemas));
-			}
-			if (isset($nv->user_schemas)) {
-				$nv->user_schemas = $modelPage->escape($modelPage->toJson($nv->user_schemas));
+		if (count((array) $oPosted)) {
+			$aUpdated = [];
+			foreach ($oPosted as $prop => $val) {
+				switch ($prop) {
+				case 'dataSchemas':
+					$aUpdated['data_schemas'] = $modelPage->escape($modelPage->toJson($val));
+					break;
+				case 'actSchemas':
+					$aUpdated['act_schemas'] = $modelPage->escape($modelPage->toJson($val));
+					break;
+				case 'title':
+					$aUpdated[$prop] = $modelPage->escape($val);
+					break;
+				default:
+					$aUpdated[$prop] = $val;
+				}
 			}
 			$rst = $modelPage->update(
 				'xxt_enroll_page',
-				$nv,
-				["id" => $page->id]
+				$aUpdated,
+				["id" => $oPage->id]
 			);
 		}
 
-		return new \ResponseData($rst);
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 删除活动的页面

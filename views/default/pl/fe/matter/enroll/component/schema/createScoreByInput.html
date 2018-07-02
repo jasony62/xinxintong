@@ -1,12 +1,12 @@
 <div class="modal-header">
     <button class="close" ng-click="cancel()">×</button>
-    <h5 class="modal-title">从其他活动的填写题填写结果创建打分题</h5>
+    <h5 class="modal-title">由其他活动的填写题填写结果创建打分题</h5>
 </div>
 <div class="modal-body">
     <div class='row'>
         <div class='col-md-4'>
             <div class='form-group'>
-                <label>目标活动</label>
+                <label>1.选择目标活动</label>
                 <div class='input-group'>
                     <input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
                     <span class='input-group-btn'>
@@ -23,7 +23,7 @@
         </div>
         <div class='col-md-4'>
             <div class='form-group'>
-                <label>目标活动的填写题</label>
+                <label>2.选择活动中的填写题 <span ng-if="!result.schemas.length" class='text-success glyphicon glyphicon-hand-left'></span></label>
                 <div class='list-group' style='height:300px;overflow-y:auto'>
                     <div class='list-group-item' ng-repeat="schema in dataSchemas">
                         <label class="checkbox-inline">
@@ -34,33 +34,39 @@
         </div>
         <div class='col-md-4'>
             <div class='form-group'>
-                <label>打分题设置</label>
+                <label>3.设置打分题</label>
             </div>
             <div class='form-group'>
-                <label>分值范围</label>
-                <div class='form-inline'>
-                    <input type='number' class='form-control' ng-model="result.range.from" placeholder="最低" style='width:6em'>
-                    <input type='number' class='form-control' ng-model="result.range.to" placeholder="最高" style='width:6em'>
-                </div>
-            </div>
-            <div class='form-group'>
-                <label>打分项</label>
+                <label>打分项 <span ng-if="!result.ops.length" class='text-success glyphicon glyphicon-hand-left'></span></label>
                 <div ng-repeat="op in result.ops">
                     <textarea class='form-control' ng-model="op.l"></textarea>
                 </div>
             </div>
-            <button class='btn btn-default' ng-click="result.ops.push({})">添加打分项</button>
-            <div class="btn-group">
-                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style='width:100%'>
-                    删除打分项 <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href ng-click="result.ops.splice($index,1)" ng-repeat="op in result.ops"><span>{{$index+1}}</span>: <span>{{op.l}}</span></a></li>
-                </ul>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="result.ops.push({})">添加打分项</button>
+                <div class="btn-group">
+                    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style='width:100%'>
+                        删除打分项 <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href ng-click="result.ops.splice($index,1)" ng-repeat="op in result.ops"><span>{{$index+1}}</span>: <span>{{op.l}}</span></a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label>分值范围</label>
+                <div class='form-inline'>
+                    <input type='number' class='form-control' ng-model="result.range.from" placeholder="最低" style='width:4em'>
+                    <input type='number' class='form-control' ng-model="result.range.to" placeholder="最高" style='width:4em'>
+                </div>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-model="result.requireScore"> 需要计分</label>
             </div>
         </div>
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-success" ng-click="ok()" ng-disabled="!result.fromApp">执行</button>
+    <button class="btn btn-success" ng-click="ok()" ng-disabled="disabled">生成题目</button>
 </div>

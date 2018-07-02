@@ -28,7 +28,7 @@ class round extends \pl\fe\matter\base {
 		$oPage->num = $page;
 		$oPage->size = $size;
 
-		$oResult = $modelRnd->byApp($oApp, ['page' => $oPage, 'fields' => 'id,state,rid,title,start_at,end_at,mission_rid']);
+		$oResult = $modelRnd->byApp($oApp, ['page' => $oPage, 'fields' => 'id,state,rid,title,start_at,end_at,mission_rid', 'state' => [0, 1, 2]]);
 		if (!empty($checked)) {
 			if ($checked = $modelRnd->byId($checked)) {
 				$oResult->checked = $checked;
@@ -205,37 +205,14 @@ class round extends \pl\fe\matter\base {
 
 		$modelRnd = $this->model('matter\enroll\round');
 		$oRound = $modelRnd->byId($rid);
-		if (false === $oRound) {
+		if (false === $oRound || $oRound->state === '100') {
 			return new \ObjectNotFoundError();
 		}
-
-		$modelRec = $this->model('matter\enroll\record');
-		$countOfRecords = $modelRec->byRound($rid, ['fields' => 'count(*)']);
-		if ($countOfRecords > 0) {
-			return new \ResponseError('【' . $oRound->title . '】已有登记数据不能删除');
-		}
-
 		if (1 === $modelRnd->countByApp($oApp)) {
 			return new \ResponseError('每个活动至少要保留一个填写时段');
 		}
-		/**
-		 * 删除轮次
-		 */
-		$rst = $modelRnd->delete(
-			'xxt_enroll_round',
-			['aid' => $oApp->id, 'rid' => $rid]
-		);
 
-		if (0 === (int) $modelRnd->query_val_ss(['count(*)', 'xxt_enroll_round', ['aid' => $oApp->id]])) {
-			/**
-			 * 如果不存在轮次了修改登记活动的状态标记
-			 */
-			$modelRnd->update(
-				'xxt_enroll',
-				['multi_rounds' => 'N'],
-				['id' => $oApp->id]
-			);
-		}
+		$rst = $modelRnd->remove($oApp, $oRound);
 
 		return new \ResponseData($rst);
 	}

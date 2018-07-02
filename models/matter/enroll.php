@@ -79,7 +79,7 @@ class enroll_model extends enroll_base {
 		}
 		if (empty($oAppRnd)) {
 			$oRoundProto = new \stdClass;
-			$oRoundProto->title = '填写时段';
+			$oRoundProto->title = '填写轮次';
 			$oRoundProto->state = 1;
 			$modelRnd->create($oNewApp, $oRoundProto, $oUser);
 		}

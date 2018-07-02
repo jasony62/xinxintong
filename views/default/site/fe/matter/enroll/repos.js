@@ -1,5 +1,5 @@
 'use strict';
-require('./repos.css');
+require('./enroll.public.css');
 
 require('../../../../../../asset/js/xxt.ui.trace.js');
 require('./_asset/ui.repos.js');

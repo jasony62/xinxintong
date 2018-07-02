@@ -165,7 +165,8 @@ class main extends base {
 			}
 		}
 		if ($tipPage !== false) {
-			$oOpenPage = $this->model('matter\enroll\page')->byName($oApp, $tipPage);
+			$modelPage = $this->model('matter\enroll\page');
+			$oOpenPage = $modelPage->byName($oApp, $tipPage);
 			return [false, $oOpenPage];
 		}
 
@@ -251,8 +252,12 @@ class main extends base {
 		/* 要打开的应用 */
 		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields, 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
 		if ($oApp === false || $oApp->state !== '1') {
-			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+			return new \ResponseError('指定的活动不存在，请检查参数是否正确');
 		}
+		/* 应用的动态题目 */
+		$modelSch = $this->model('matter\enroll\schema');
+		$modelSch->setDynaSchemas($oApp);
+
 		if (isset($oApp->appRound->rid)) {
 			$rid = $oApp->appRound->rid;
 		}
@@ -291,17 +296,19 @@ class main extends base {
 
 		/* 要打开的页面 */
 		if (!in_array($page, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'favor', 'topic'])) {
+			$modelPage = $this->model('matter\enroll\page');
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */
 			if (empty($page)) {
 				$oOpenPage = $this->_defaultPage($oApp, $rid, false, $ignoretime);
 			} else {
-				$modelPage = $this->model('matter\enroll\page');
 				$oOpenPage = $modelPage->byName($oApp, $page);
 			}
 			if (empty($oOpenPage)) {
 				return new \ResponseError('页面不存在');
 			}
+			/* 根据动态题目更新页面定义 */
+			$modelPage->setDynaSchemas($oApp, $oOpenPage);
 			$params['page'] = $oOpenPage;
 		}
 

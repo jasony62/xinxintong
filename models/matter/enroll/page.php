@@ -2,6 +2,9 @@
 namespace matter\enroll;
 
 require_once dirname(__FILE__) . '/page_base.php';
+
+use Sunra\PhpSimple\HtmlDomParser;
+
 /**
  * 记录活动页面
  */
@@ -365,5 +368,61 @@ class page_model extends page_base {
 	public function &htmlBySimpleSchema(&$simpleSchema, $template) {
 		$schema = $this->schemaByText($simpleSchema);
 		return $this->htmlBySchema($schema, $template);
+	}
+	/**
+	 * 设置动态题目
+	 */
+	public function setDynaSchemas($oApp, &$oPage) {
+		$dataSchemas = $oApp->dataSchemas;
+		$dom = HtmlDomParser::str_get_html($oPage->html);
+		$aProtoHtmls = []; // 作为原型的题目
+		$aProtoWraps = [];
+		$pageWrapsById = []; // 页面上的题目定义
+		foreach ($oPage->dataSchemas as $oWrap) {
+			if (isset($oWrap->schema->id)) {
+				$pageWrapsById[$oWrap->schema->id] = $oWrap;
+			}
+		}
+
+		foreach ($dataSchemas as $oSchema) {
+			if (empty($oSchema) || $oSchema->dynamic !== 'Y' || empty($oSchema->prototype->schema->id) || empty($pageWrapsById[$oSchema->prototype->schema->id])) {
+				continue;
+			}
+			$oProtoSchema = $oSchema->prototype->schema;
+			$protoElem = $dom->find('[schema="' . $oProtoSchema->id . '"]');
+			if (1 === count($protoElem)) {
+				/* html */
+				$protoElem = $protoElem[0];
+				$sProtoHtml = strval($protoElem);
+				$aProtoHtmls[$oProtoSchema->id] = $sProtoHtml;
+				$oNewElem = str_replace([$oProtoSchema->id, $oProtoSchema->title], [$oSchema->id, $oSchema->title], $sProtoHtml);
+				$elemParent = $protoElem->parent();
+				$elemParent->innertext = str_replace($sProtoHtml, $oNewElem . $sProtoHtml, $elemParent->innertext);
+				/* wrap */
+				$oProtoWrap = $pageWrapsById[$oProtoSchema->id];
+				$aProtoWraps[$oProtoSchema->id] = $oProtoWrap;
+				$oNewWrap = clone $oProtoWrap;
+				$oNewWrap->schema = $oSchema;
+				$oPage->dataSchemas[] = $oNewWrap;
+			}
+		}
+
+		/* 清除作为原型的题目 */
+		if (count($aProtoHtmls)) {
+			/* 清除html */
+			foreach ($aProtoHtmls as $html) {
+				$dom->innertext = str_replace($html, '', $dom->innertext);
+			}
+			$oPage->html = $dom->innertext;
+			/* 清除wrap */
+			foreach ($aProtoWraps as $oProtoWrap) {
+				$index = array_search($oProtoWrap, $oPage->dataSchemas);
+				if (false !== $index) {
+					array_splice($oPage->dataSchemas, $index, 1);
+				}
+			}
+		}
+
+		return $oPage;
 	}
 }

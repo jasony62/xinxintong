@@ -48,8 +48,8 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
             $('body').click();
             for (var i = _oApp.pages.length - 1; i >= 0; i--) {
                 oPage = _oApp.pages[i];
-                for (var j = oPage.act_schemas.length - 1; j >= 0; j--) {
-                    oActSchema = oPage.act_schemas[j];
+                for (var j = oPage.actSchemas.length - 1; j >= 0; j--) {
+                    oActSchema = oPage.actSchemas[j];
                     if (oActSchema.next === $scope.ep.name) {
                         bUserd = true;
                         break;
@@ -79,7 +79,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
             }
             return $scope.ep = page;
         };
-        $scope.$on('xxt.matter.enroll.app.data_schemas.modified', function(event, state) {
+        $scope.$on('xxt.matter.enroll.app.dataSchemas.modified', function(event, state) {
             var originator = state.originator,
                 modifiedSchema = state.schema;
 
@@ -97,7 +97,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
             var pages, oPage, aCheckResult, updatedAppProps, bCanAddRecord;
 
             pages = _oApp.pages;
-            updatedAppProps = ['data_schemas'];
+            updatedAppProps = ['dataSchemas'];
             bCanAddRecord = false;
 
             /* 更新当前编辑页 */
@@ -112,9 +112,9 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
                     return false;
                 }
                 if (oPage.type === 'V') {
-                    if (oPage.act_schemas && oPage.act_schemas.length) {
-                        for (var j = oPage.act_schemas.length - 1; j >= 0; j--) {
-                            if (oPage.act_schemas[j].name === 'addRecord') {
+                    if (oPage.actSchemas && oPage.actSchemas.length) {
+                        for (var j = oPage.actSchemas.length - 1; j >= 0; j--) {
+                            if (oPage.actSchemas[j].name === 'addRecord') {
                                 bCanAddRecord = true;
                                 break;
                             }
@@ -135,7 +135,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
             }
             srvEnrollApp.update(updatedAppProps).then(function() {
                 _oApp.pages.forEach(function(page) {
-                    $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);
+                    $scope.updPage(page, ['dataSchemas', 'actSchemas', 'html']);
                 });
             });
         };

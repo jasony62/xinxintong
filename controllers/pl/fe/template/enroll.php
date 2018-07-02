@@ -92,7 +92,7 @@ class enroll extends \pl\fe\base {
 		$nv = $this->getPostJson();
 		$vid = 'template:' . $vid;
 		$modelPage = $this->model('matter\enroll\page');
-		$page = $modelPage->byId($vid, $pageId);
+		$page = $modelPage->byId((object) ['id' => $vid], $pageId);
 		if ($page === false) {
 			return new \ResponseError('指定的页面不存在');
 		}

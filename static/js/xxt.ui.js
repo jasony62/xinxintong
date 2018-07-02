@@ -328,6 +328,9 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                             } else if (/enroll/.test(matterType.value)) {
                                 $scope.matters = rsp.data.apps;
                                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
+                            } else if(/news|channel/.test(matterType.value)) {
+                                $scope.matters = rsp.data.docs;
+                                $scope.page.total = rsp.data.total;
                             } else {
                                 $scope.matters = rsp.data;
                                 $scope.page.total = $scope.matters.length;
@@ -376,6 +379,9 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                             } else if (/enroll/.test(matterType.value)) {
                                 $scope.matters2 = rsp.data.apps;
                                 rsp.data[1] && ($scope.page2.total = rsp.data[1]);
+                            } else if(/news|channel/.test(matterType.value)) {
+                                $scope.matters2 = rsp.data.docs;
+                                $scope.page2.total = rsp.data.total;
                             } else {
                                 $scope.matters2 = rsp.data;
                                 $scope.page2.total = $scope.matters2.length;
@@ -416,7 +422,12 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                         $mi.dismiss();
                     };
                     $scope.$watch('msgMatter.matterType', function(nv) {
-                        $scope.doSearch();
+                        if(nv.value!=='tmplmsg'&& !$scope.tmplmsgConfig) {
+                            var html = '<div><span>请先指定"推送素材"的模板消息，<a href="/rest/pl/fe/site/setting/notice?site='+ siteId +'" target="_blank">去添加</a></span</div>';
+                            document.querySelector('.modal-body').innerHTML = html;
+                        }else {
+                            $scope.doSearch();
+                        }
                     });
                 }],
                 backdrop: 'static',

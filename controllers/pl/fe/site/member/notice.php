@@ -1,57 +1,46 @@
 <?php
-namespace pl\fe\matter\group;
+namespace pl\fe\site\member;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
-/*
- *
+require_once dirname(dirname(dirname(__FILE__))) . '/base.php';
+/**
+ * 消息通知控制器
  */
-class notice extends \pl\fe\matter\base {
+class notice extends \pl\fe\base {
 	/**
-	 * 返回视图
-	 */
-	public function index_action() {
-		\TPL::output('/pl/fe/matter/group/frame');
-		exit;
-	}
-	/**
-	 * 给分组活动的参与人发消息
+	 * 给联系人发送消息
 	 *
-	 * @param string $site site'id
-	 * @param string $app app'id
+	 * @param string $schema schema'id
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
 	public function send_action() {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
-		$modelRec = $this->model('matter\group\player');
+		$modelSchmUsr = $this->model('site\user\member');
 		$posted = $this->getPostJson();
-		if (empty($posted->app) || empty($posted->tmplmsg)) {
+		if (empty($posted->schema) || empty($posted->tmplmsg)) {
 			return new \ResponseError('参数不完整');
 		}
-		$app = $modelRec->escape($posted->app);
-		$tmplmsg = $modelRec->escape($posted->tmplmsg);
-		
-		$oApp = $this->model('matter\group')->byId($app);
-		if (false === $oApp) {
+		$schema = $modelSchmUsr->escape($posted->schema);
+		$tmplmsg = $modelSchmUsr->escape($posted->tmplmsg);
+
+		$oSchema = $this->model('site\user\memberschema')->byId($schema);
+		if (false === $oSchema) {
 			return new \ObjectNotFountError();
 		}
 
+
 		if (empty($posted->users)) {
-			// 筛选条件
-			$options = new \stdClass;
-			isset($posted->tags) && $options->tags = $posted->tags;
-			$users = $modelRec->byApp($oApp, $options)->players;
+			$users = $modelSchmUsr->byMschema($schema);
 		} else {
 			// 直接指定
 			$users = $posted->users;
 		}
-
+		/* 发送消息 */
 		if (count($users)) {
 			$params = $posted->message;
-			$rst = $this->_notifyWithMatter($oApp->siteid, $app, $users, $tmplmsg, $params);
+			$rst = $this->notifyWithMatter($oSchema, $users, $tmplmsg, $params);
 			if ($rst[0] === false) {
 				return new \ResponseError($rst[1]);
 			}
@@ -62,25 +51,25 @@ class notice extends \pl\fe\matter\base {
 	/**
 	 * 给用户发送素材
 	 */
-	protected function _notifyWithMatter($siteId, $appId, &$users, $tmplmsgId, &$params) {
+	protected function notifyWithMatter(&$oSchema, &$users, $tmplmsgId, &$params) {
 		if (count($users)) {
 			$receivers = [];
 			foreach ($users as $user) {
-				if (empty($user->enroll_key)) {
+				if (empty($user->id)) {
 					return array(false, '参数错误，缺少用户唯一标识');
 				}
 				$receiver = new \stdClass;
-				$receiver->assoc_with = $user->enroll_key;
 				$receiver->userid = $user->userid;
+				$receiver->assoc_with = $user->id;
 				$receivers[] = $receiver;
 			}
-			$user = $this->accountUser();
+			$oUser = $this->accountUser();
 			$creater = new \stdClass;
-			$creater->uid = $user->id;
-			$creater->name = $user->name;
+			$creater->uid = $oUser->id;
+			$creater->name = $oUser->name;
 			$creater->src = 'pl';
 			$modelTmplBat = $this->model('matter\tmplmsg\batch');
-			$modelTmplBat->send($siteId, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'group:' . $appId]);
+			$modelTmplBat->send($oSchema->siteid, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'schema:' . $oSchema->id]);
 		}
 
 		return array(true);
@@ -89,9 +78,9 @@ class notice extends \pl\fe\matter\base {
 	 * 查看通知发送日志
 	 *
 	 * @param int $batch 通知批次id
-	 * @param string $app 分组活动的id
+	 * @param string $schema 分组活动的id
 	 */
-	public function logList_action($app, $batch) {
+	public function logList_action($schema, $batch) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -109,16 +98,16 @@ class notice extends \pl\fe\matter\base {
 
 		/* 和登记记录进行关联 */
 		if (count($logs)) {
-			$modelRec = $this->model('matter\group\player');
+			$modelMemb = $this->model('site\user\member');
 			$records = [];
 			$records2 = [];
-			foreach ($logs as &$log) {
+			foreach ($logs as $log) {
 				if (isset($records2[$log->assoc_with])) {
 					$record = clone $records2[$log->assoc_with];
 					$record->noticeStatus = $log->status;
 					$records[] = $record;
 					unset($record);
-				} else if ($record = $modelRec->byId($app, $log->assoc_with)) {
+				} else if ($record = $modelMemb->byId($log->assoc_with)) {
 					$records2[$log->assoc_with] = clone $record;
 					$record->noticeStatus = $log->status;
 					$records[] = $record;

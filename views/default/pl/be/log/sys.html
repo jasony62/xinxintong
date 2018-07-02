@@ -18,7 +18,7 @@ td{word-break:break-all;}
     <tbody>
         <tr ng-repeat="l in logs">
             <td>{{$index+1}}</td>
-            <td ng-bind="l.mpid"></td>
+            <td ng-bind="l.siteid"></td>
             <td ng-bind="l.create_at*1000|date:'yy-MM-dd HH:mm'"></td>
             <td ng-bind="l.method"></td>
             <td ng-bind="l.data"></td>

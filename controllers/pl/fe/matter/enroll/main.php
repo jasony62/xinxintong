@@ -419,50 +419,69 @@ class main extends main_base {
 		$oPosted = $this->getPostJson();
 		/* 处理数据 */
 		$oUpdated = new \stdClass;
-		foreach ($oPosted as $n => $v) {
-			if (in_array($n, ['title', 'summary'])) {
-				$oUpdated->{$n} = $modelApp->escape($v);
-			} else if (in_array($n, ['data_schemas', 'recycle_schemas'])) {
-				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'entryRule') {
-				if ($v->scope === 'group') {
-					if (isset($v->group->title)) {
-						unset($v->group->title);
+		foreach ($oPosted as $prop => $val) {
+			switch ($prop) {
+			case 'title':
+			case 'summary':
+				$oUpdated->{$prop} = $modelApp->escape($val);
+				break;
+			case 'dataSchemas':
+				$modelSch = $this->model('matter\enroll\schema');
+				$dataSchemas = $modelSch->purify($val);
+				$oUpdated->data_schemas = $modelApp->escape($modelApp->toJson($dataSchemas));
+				break;
+			case 'entryRule':
+				if ($val->scope === 'group') {
+					if (isset($val->group->title)) {
+						unset($val->group->title);
 					}
-					if (isset($v->group->round->title)) {
-						unset($v->group->round->title);
+					if (isset($val->group->round->title)) {
+						unset($val->group->round->title);
 					}
 				}
-				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'actionRule') {
-				$oUpdated->action_rule = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'assignedNickname') {
-				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'scenarioConfig') {
-				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'notifyConfig') {
-				$oUpdated->notify_config = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'roundCron') {
-				$rst = $this->checkCron($v);
+				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'recycle_schemas':
+				$oUpdated->recycle_schemas = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'roundCron':
+				$rst = $this->checkCron($val);
 				if ($rst[0] === false) {
 					return new \ResponseError($rst[1]);
 				}
-				$oUpdated->round_cron = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'rpConfig') {
-				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'reposConfig') {
-				$oUpdated->repos_config = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'rankConfig') {
-				$oUpdated->rank_config = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'absent_cause') {
+				$oUpdated->round_cron = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'actionRule':
+				$oUpdated->action_rule = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'assignedNickname':
+				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'scenarioConfig':
+				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'notifyConfig':
+				$oUpdated->notify_config = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'rpConfig':
+				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'reposConfig':
+				$oUpdated->repos_config = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'rankConfig':
+				$oUpdated->rank_config = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'absent_cause':
 				$absentCause = !empty($oApp->absent_cause) ? $oApp->absent_cause : new \stdClass;
-				foreach ($v as $uid => $val) {
+				foreach ($val as $uid => $val2) {
 					!isset($absentCause->{$uid}) && $absentCause->{$uid} = new \stdClass;
-					$absentCause->{$uid}->{$val->rid} = $val->cause;
+					$absentCause->{$uid}->{$val2->rid} = $val2->cause;
 				}
-				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($absentCause));
-			} else {
-				$oUpdated->{$n} = $v;
+				$oUpdated->absent_cause = $modelApp->escape($modelApp->toJson($absentCause));
+				break;
+			default:
+				$oUpdated->{$prop} = $val;
 			}
 		}
 

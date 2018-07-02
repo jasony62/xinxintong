@@ -16,10 +16,14 @@ class schema extends base {
 	public function get_action($app, $rid = '') {
 		/* 要打开的应用 */
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => self::AppFields, 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => self::AppFields, 'appRid' => $rid]);
 		if ($oApp === false || $oApp->state !== '1') {
-			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+			return new \ObjectNotFoundError();
 		}
+
+		/* 应用的动态题目 */
+		$modelSch = $this->model('matter\enroll\schema');
+		$modelSch->setDynaSchemas($oApp);
 
 		$dataSchemas = $oApp->dataSchemas;
 

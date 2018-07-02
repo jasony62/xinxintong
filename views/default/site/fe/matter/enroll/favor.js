@@ -1,5 +1,5 @@
 'use strict';
-require('./favor.css');
+require('./enroll.public.css');
 
 require('./_asset/ui.repos.js');
 require('./_asset/ui.tag.js');

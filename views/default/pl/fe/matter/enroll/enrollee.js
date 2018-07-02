@@ -119,6 +119,7 @@ define(['frame'], function(ngApp) {
         $scope.searchEnrollee = function(pageAt) {
             var url;
 
+            _oRows.reset();
             pageAt && (page.at = pageAt);
             url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + page.j();
             http2.post(url, _oCriteria, function(rsp) {

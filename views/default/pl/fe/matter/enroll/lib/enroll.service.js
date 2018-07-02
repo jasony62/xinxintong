@@ -60,6 +60,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         this._bSearch = function(url) {
             var that = this,
                 defer = $q.defer();
+            $http.get('/rest/pl/fe/matter/enroll/schema/get?app=' + that._oApp.id, function(rsp) {});
             $http.post(url, that._oCriteria, function(rsp) {
                 var records;
                 if (rsp.data) {
@@ -76,7 +77,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 defer.resolve(records);
             });
             return defer.promise;
-        }
+        };
         this._bBatchVerify = function(rows, url) {
             var eks = [],
                 selectedRecords = [],
@@ -119,11 +120,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             }
             fnCallback(oEnrollApp);
-            if (oEnrollApp.dataSchemas) {
-                oEnrollApp.dataSchemas.forEach(function(oSchema) {
-                    schemaLib._upgrade(oSchema, oEnrollApp);
-                });
-            }
             if (oEnrollApp.pages) {
                 oEnrollApp.pages.forEach(function(oPage) {
                     pageLib.enhance(oPage, oEnrollApp._schemasById);
@@ -280,7 +276,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     angular.isString(names) && (names = [names]);
                     names.forEach(function(name) {
                         if (/data_schemas|dataSchemas/.test(name)) {
-                            modifiedData['data_schemas'] = _oApp.dataSchemas;
+                            modifiedData['dataSchemas'] = _oApp.dataSchemas;
                         } else if (/recycle_schemas|recycleSchemas/.test(name)) {
                             modifiedData['recycle_schemas'] = _oApp.recycleSchemas;
                         } else if (name === 'tags') {
@@ -2189,24 +2185,23 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     return defer.promise;
                 },
-                clean: function(page) {
-                    page.html = '';
-                    page.data_schemas = [];
-                    page.act_schemas = [];
-                    page.user_schemas = [];
-                    return _self.update(page, ['data_schemas', 'act_schemas', 'user_schemas', 'html']);
+                clean: function(oPage) {
+                    oPage.html = '';
+                    oPage.dataSchemas = [];
+                    oPage.actSchemas = [];
+                    return _self.update(oPage, ['dataSchemas', 'actSchemas', 'html']);
                 },
-                remove: function(page) {
+                remove: function(oPage) {
                     var defer = $q.defer();
                     srvTempApp.tempEnrollGet().then(function(app) {
                         var url = '/rest/pl/fe/template/enroll/remove';
                         url += '?site=' + _siteId;
                         url += '&tid=' + _appId;
                         url += '&vid=' + app.vid;
-                        url += '&pageId=' + page.id;
-                        url += '&cname=' + page.code_name;
+                        url += '&pageId=' + oPage.id;
+                        url += '&cname=' + oPage.code_name;
                         http2.get(url, function(rsp) {
-                            app.pages.splice(app.pages.indexOf(page), 1);
+                            app.pages.splice(app.pages.indexOf(oPage), 1);
                             defer.resolve(app.pages);
                             noticebox.success('完成删除');
                         });

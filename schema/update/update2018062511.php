@@ -1,10 +1,9 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
+$sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_channel change public_visible public_visible char(1) not null default 'Y'";
-$sqls[] = "update xxt_channel set public_visible='Y'";
+$sqls[] = "alter table xxt_log change mpid siteid varchar(32) not null";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

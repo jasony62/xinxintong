@@ -691,6 +691,97 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     }
                 });
             };
+            $scope.createInputByScore = function() {
+                var _oApp;
+                _oApp = $scope.app;
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/createInputByScore.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oFilter;
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 12,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.result = oResult = {
+                            limit: { scope: 'top', num: 3 }
+                        };
+                        $scope2.filter = oFilter = {};
+                        $scope2.selectApp = function() {
+                            $scope2.dataSchemas = [];
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                    if (oSchema.type === 'score' && oSchema.dsSchemas) {
+                                        $scope2.dataSchemas.push(oSchema);
+                                    }
+                                });
+                            }
+                            oResult.schemas = [];
+                        };
+                        $scope2.selectSchema = function(schema) {
+                            if (schema._selected) {
+                                oResult.schemas.push(schema);
+                            } else {
+                                oResult.schemas.splice(oResult.schemas.indexOf(schema), 1);
+                            }
+                        };
+                        $scope2.ok = function() {
+                            $mi.close(oResult);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.doFilter = function() {
+                            oPage.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            if (_oApp.mission) {
+                                url += '&mission=' + _oApp.mission.id;
+                            }
+                            http2.post(url, {
+                                byTitle: oFilter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    oResult.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                oPage.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                    size: 'lg'
+                }).result.then(function(oResult) {
+                    var targetSchemas, url, oConfig;
+                    if (oResult.schemas && oResult.schemas.length) {
+                        targetSchemas = [];
+                        oResult.schemas.forEach(function(oSchema) {
+                            targetSchemas.push({
+                                id: oSchema.id,
+                                type: oSchema.type
+                            });
+                        });
+                        url = '/rest/pl/fe/matter/enroll/schema/inputByScore';
+                        url += '?app=' + _oApp.id;
+                        url += '&targetApp=' + oResult.fromApp.id;
+                        oConfig = { schemas: targetSchemas, limit: oResult.limit };
+                        http2.post(url, oConfig, function(rsp) {
+                            if (rsp.data.length) {
+                                rsp.data.forEach(function(oNewSchema) {
+                                    $scope._appendSchema(oNewSchema);
+                                });
+                            }
+                        });
+                    }
+                });
+            };
             /**
              * 由填写题创建打分题
              */
@@ -1460,20 +1551,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 }
                 $scope.activeOption = oOption;
             };
-            $scope.updSchemaMultiple = function(oUpdatedSchema) {
-                !oUpdatedSchema.answer && (oUpdatedSchema.answer = []);
-                angular.forEach($scope.data, function(data, key) {
-                    var i = oUpdatedSchema.answer.indexOf(key);
-                    // 如果key 在answer中 data为false，则去掉
-                    // 如果不在answer中，data为true ，则添加
-                    if (i !== -1 && data === false) {
-                        oUpdatedSchema.answer.splice(i, 1);
-                    } else if (i === -1 && data === true) {
-                        oUpdatedSchema.answer.push(key);
-                    }
-                });
-                $scope.updSchema(oUpdatedSchema);
-            };
             $scope.schemaHtml = function(schema) {
                 if (schema) {
                     var bust = (new Date()).getMinutes();
@@ -1663,9 +1740,24 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;
             $scope.updSchema($scope.activeSchema, oBeforeState);
         };
+        /*@todo 这部分代码的逻辑有问题*/
+        $scope.updSchemaMultiple = function(oUpdatedSchema) {
+            !oUpdatedSchema.answer && (oUpdatedSchema.answer = []);
+            angular.forEach($scope.answerData, function(data, key) {
+                var i = oUpdatedSchema.answer.indexOf(key);
+                // 如果key 在answer中 data为false，则去掉
+                // 如果不在answer中，data为true ，则添加
+                if (i !== -1 && data === false) {
+                    oUpdatedSchema.answer.splice(i, 1);
+                } else if (i === -1 && data === true) {
+                    oUpdatedSchema.answer.push(key);
+                }
+            });
+            $scope.updSchema(oUpdatedSchema);
+        };
         $scope.$watch('activeSchema', function() {
             var oActiveSchema, oPage, oWrap;
-
+            $scope.answerData = {};
             $scope.activeConfig = false;
             $scope.inputPage = false;
             if (oActiveSchema = $scope.activeSchema) {
@@ -1677,6 +1769,11 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         }
                         if (!oActiveSchema.range) {
                             oActiveSchema.range = [1, oActiveSchema.ops ? oActiveSchema.ops.length : 1];
+                        }
+                        if (oActiveSchema.answer && angular.isArray(oActiveSchema.answer)) {
+                            oActiveSchema.answer.forEach(function(key) {
+                                $scope.answerData[key] = true;
+                            });
                         }
                         break;
                 }

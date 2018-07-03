@@ -349,6 +349,9 @@ class player_model extends \TMS_MODEL {
 				$w .= " and concat(',',tags,',') like '%,$tag,%'";
 			}
 		}
+		if (!empty($oOptions->roleRoundId)) {
+			$w .= " and role_rounds like '%\"" . $oOptions->roleRoundId . "\"%'";
+		}
 		$q = [
 			$fields,
 			'xxt_group_player',
@@ -570,9 +573,14 @@ class player_model extends \TMS_MODEL {
 		$q2 = ['o' => 'round_id,draw_at'];
 
 		if ($players = $this->query_objs_ss($q, $q2)) {
-			if ($fields === '*' || false !== strpos($fields, 'data')) {
+			if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_rounds')) {
 				foreach ($players as $player) {
-					$player->data = json_decode($player->data);
+					if (!empty($player->data)) {
+						$player->data = json_decode($player->data);
+					}
+					if (!empty($player->role_rounds)) {
+						$player->role_rounds = json_decode($player->role_rounds);
+					}
 				}
 			}
 		}

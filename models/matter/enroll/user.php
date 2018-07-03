@@ -104,18 +104,19 @@ class user_model extends \TMS_MODEL {
 		if (isset($assocGroupId)) {
 			$modelGrpUsr = $this->model('matter\group\player');
 			$oAssocGrpApp = (object) ['id' => $assocGroupId];
-			$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oUser->uid, ['fields' => 'round_id,is_leader', 'onlyOne' => true]);
+			$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oUser->uid, ['fields' => 'round_id,is_leader,role_rounds', 'onlyOne' => true]);
 			if ($oGrpMemb) {
 				$oUser->group_id = $oGrpMemb->round_id;
 				$oUser->is_leader = $oGrpMemb->is_leader;
+				$oUser->role_rounds = $oGrpMemb->role_rounds;
 			}
 		}
 
 		/* 当前用户是否为编辑 */
 		if (!empty($oApp->actionRule->role->editor->group)) {
 			$oUser->is_editor = 'N';
-			if (!empty($oUser->group_id)) {
-				if ($oUser->group_id === $oApp->actionRule->role->editor->group) {
+			if (!empty($oUser->role_rounds)) {
+				if (in_array($oApp->actionRule->role->editor->group, $oUser->role_rounds)) {
 					$oUser->is_editor = 'Y';
 				}
 			}

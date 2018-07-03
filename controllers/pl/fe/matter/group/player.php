@@ -431,7 +431,7 @@ class player extends \pl\fe\matter\base {
 			$oNewPlayer->tags = $modelPly->escape($oPosted->tags);
 		}
 		if (empty($oPosted->round_id)) {
-			$oNewPlayer->round_id = 0;
+			$oNewPlayer->round_id = '';
 			$oNewPlayer->round_title = '';
 		} else {
 			$modelRnd = $this->model('matter\group\round');
@@ -440,6 +440,16 @@ class player extends \pl\fe\matter\base {
 				$oNewPlayer->round_title = $round->title;
 			}
 		}
+		if (empty($oPosted->role_rounds)) {
+			$oNewPlayer->role_rounds = '';
+		} else {
+			$roleRounds = [];
+			foreach ($oPosted->role_rounds as $roleRound) {
+				$roleRounds[] = $roleRound;
+			}
+			$oNewPlayer->role_rounds = json_encode($roleRounds);
+		}
+
 		$modelPly->update(
 			'xxt_group_player',
 			$oNewPlayer,

@@ -53,6 +53,36 @@ class schema_model extends \TMS_MODEL {
 					unset($oSchema->{$prop});
 				}
 			}
+			// 删除多选题答案中被删除的选项
+			if (!empty($oSchema->answer) && $oSchema->type === 'multiple') {
+				$answers = $oSchema->answer;
+				foreach ($answers as $key => $value) {
+					$del = true;
+					foreach ($oSchema->ops as $op) {
+						if ($op->v === $value) {
+							$del = false;
+							break;
+						}
+					}
+					if ($del) {
+						unset($answers[$key]);
+					}
+				}
+				$oSchema->answer = array_values($answers);
+			}
+			// 删除单选题答案中被删除的选项
+			if (!empty($oSchema->answer) && $oSchema->type === 'single') {
+				$del = true;
+				foreach ($oSchema->ops as $op) {
+					if ($op->v === $oSchema->answer) {
+						$del = false;
+						break;
+					}
+				}
+				if ($del) {
+					unset($oSchema->answer);
+				}
+			}
 			/* 关联到其他应用时才需要检查 */
 			if (empty($oSchema->fromApp)) {
 				unset($oSchema->requireCheck);

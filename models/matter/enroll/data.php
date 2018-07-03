@@ -413,8 +413,9 @@ class data_model extends entity_model {
 	public function socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore = null) {
 		$oRecordScore = new \stdClass; // 记录的得分数据
 		$oRecordScore->sum = 0; // 记录总分
-		$quizSchemaNum = 0; // 测验题目的数量
-		$quizCorrectSchemaNum = 0; // 答对测验题目的数量
+		$oQuizNum = new \stdClass;
+		$oQuizNum->schema = 0; // 测验题目的数量
+		$oQuizNum->correctSchema = 0; // 答对测验题目的数量
 
 		/* 评估 */
 		$fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) {
@@ -483,17 +484,17 @@ class data_model extends entity_model {
 		};
 
 		/* 测验 */
-		$fnQuestion = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oRecord, $oAssignScore, $quizSchemaNum, $quizCorrectSchemaNum) {
+		$fnQuestion = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oRecord, $oAssignScore, $oQuizNum) {
 			if (empty($oSchema->answer)) {
 				return false;
 			}
 			$quizScore = null;
-			$quizSchemaNum++;
+			$oQuizNum->schema++;
 			switch ($oSchema->type) {
 			case 'single':
 				if ($treatedValue === $oSchema->answer) {
 					$quizScore = empty($oSchema->score) ? 0 : $oSchema->score;
-					$quizCorrectSchemaNum++;
+					$oQuizNum->correctSchema++;
 				} else {
 					$quizScore = 0;
 				}
@@ -512,7 +513,7 @@ class data_model extends entity_model {
 				}
 				$quizScore = (empty($oSchema->score) ? 0 : $oSchema->score) / count($oSchema->answer) * $correct;
 				if (count($oSchema->answer) === $correct) {
-					$quizCorrectSchemaNum++;
+					$oQuizNum->correctSchema++;
 				}
 				break;
 			default: // 主观题
@@ -537,7 +538,7 @@ class data_model extends entity_model {
 					}
 				}
 				if ($quizScore == $oSchema->score) {
-					$quizCorrectSchemaNum++;
+					$oQuizNum->correctSchema++;
 				}
 				break;
 			}
@@ -576,7 +577,7 @@ class data_model extends entity_model {
 
 		/* 如果测验题目全对，且指定了总分，那么总得分为指定的总分 */
 		if ($oApp->scenario === 'quiz' && !empty($oApp->scenarioConfig->quizSum)) {
-			if ($quizSchemaNum === $quizCorrectSchemaNum) {
+			if ($oQuizNum->schema === $oQuizNum->correctSchema) {
 				$oRecordScore->sum = $oApp->scenarioConfig->quizSum;
 			}
 		}

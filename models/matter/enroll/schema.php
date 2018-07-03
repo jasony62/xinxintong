@@ -54,34 +54,36 @@ class schema_model extends \TMS_MODEL {
 				}
 			}
 			// 删除多选题答案中被删除的选项
-			if (!empty($oSchema->answer) && $oSchema->type === 'multiple') {
-				$answers = $oSchema->answer;
-				foreach ($answers as $key => $value) {
+			switch ($oSchema->type) {
+			case 'multiple':
+				if (!empty($oSchema->answer)) {
+					if (is_array($oSchema->answer)) {
+						$answers = $oSchema->answer;
+						$allOptionValues = [];
+						foreach ($oSchema->ops as $op) {
+							$allOptionValues[] = $op->v;
+						}
+						$oSchema->answer = array_intersect($answers, $allOptionValues);
+					} else {
+						$oSchema->answer = [];
+					}
+				}
+				break;
+			case 'single':
+				// 删除单选题答案中被删除的选项
+				if (!empty($oSchema->answer)) {
 					$del = true;
 					foreach ($oSchema->ops as $op) {
-						if ($op->v === $value) {
+						if ($op->v === $oSchema->answer) {
 							$del = false;
 							break;
 						}
 					}
 					if ($del) {
-						unset($answers[$key]);
+						unset($oSchema->answer);
 					}
 				}
-				$oSchema->answer = array_values($answers);
-			}
-			// 删除单选题答案中被删除的选项
-			if (!empty($oSchema->answer) && $oSchema->type === 'single') {
-				$del = true;
-				foreach ($oSchema->ops as $op) {
-					if ($op->v === $oSchema->answer) {
-						$del = false;
-						break;
-					}
-				}
-				if ($del) {
-					unset($oSchema->answer);
-				}
+				break;
 			}
 			/* 关联到其他应用时才需要检查 */
 			if (empty($oSchema->fromApp)) {

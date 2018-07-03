@@ -289,7 +289,7 @@ class main extends \site\fe\matter\base {
 	 * $shareby 谁分享的当前素材ID
 	 *
 	 */
-	public function logShare_action($shareid, $site, $id, $type, $target_type = '', $target_id = '', $title, $shareto, $shareby = '', $shareUrl = '', $rid = '') {
+	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '', $shareUrl = '', $rid = '', $target_type = '', $target_id = '') {
 		//header('Access-Control-Allow-Origin:*');
 
 		$model = $this->model();

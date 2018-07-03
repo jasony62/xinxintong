@@ -373,6 +373,10 @@ class page_model extends page_base {
 	 * 设置动态题目
 	 */
 	public function setDynaSchemas($oApp, &$oPage) {
+		if (in_array($oPage->name, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'favor', 'topic'])) {
+			return $oPage;
+		}
+		
 		$dataSchemas = $oApp->dataSchemas;
 		$dom = HtmlDomParser::str_get_html($oPage->html);
 		$aProtoHtmls = []; // 作为原型的题目

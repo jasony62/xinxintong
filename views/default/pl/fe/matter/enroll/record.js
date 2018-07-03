@@ -204,60 +204,66 @@ define(['frame'], function(ngApp) {
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
         srvEnrollApp.get().then(function(oApp) {
-            srvEnrollRecord.init(oApp, $scope.page, $scope.criteria, $scope.records);
-            // schemas
-            var recordSchemas = [],
-                recordSchemasExt = [],
-                enrollDataSchemas = [],
-                bRequireSum = false,
-                bRequireScore = false,
-                groupDataSchemas = [];
-            oApp.dataSchemas.forEach(function(oSchema) {
-                if (oSchema.type !== 'html') {
-                    recordSchemas.push(oSchema);
-                    recordSchemasExt.push(oSchema);
-                }
-                if (oSchema.remarkable && oSchema.remarkable === 'Y') {
-                    recordSchemasExt.push({ type: 'remark', title: '留言数', id: oSchema.id });
-                }
-                if (oSchema.requireScore && oSchema.requireScore === 'Y') {
-                    recordSchemasExt.push({ type: 'calcScore', title: '得分', id: oSchema.id });
-                    bRequireScore = true;
-                    if (oSchema.type === 'score') {
+            http2.get('/rest/pl/fe/matter/enroll/schema/get?app=' + oApp.id, function(rsp) {
+                rsp.data.forEach(function(oSchema) {
+                    oApp._unionSchemasById[oSchema.id] = oSchema;
+                });
+                srvEnrollRecord.init(oApp, $scope.page, $scope.criteria, $scope.records);
+                // schemas
+                var recordSchemas = [],
+                    recordSchemasExt = [],
+                    enrollDataSchemas = [],
+                    bRequireSum = false,
+                    bRequireScore = false,
+                    groupDataSchemas = [];
+
+                rsp.data.forEach(function(oSchema) {
+                    if (oSchema.type !== 'html') {
+                        recordSchemas.push(oSchema);
+                        recordSchemasExt.push(oSchema);
+                    }
+                    if (oSchema.remarkable && oSchema.remarkable === 'Y') {
+                        recordSchemasExt.push({ type: 'remark', title: '留言数', id: oSchema.id });
+                    }
+                    if (oSchema.requireScore && oSchema.requireScore === 'Y') {
+                        recordSchemasExt.push({ type: 'calcScore', title: '得分', id: oSchema.id });
+                        bRequireScore = true;
+                        if (oSchema.type === 'score') {
+                            bRequireSum = true;
+                        }
+                    }
+                    if (oSchema.format && oSchema.format === 'number') {
                         bRequireSum = true;
                     }
-                }
-                if (oSchema.format && oSchema.format === 'number') {
-                    bRequireSum = true;
-                }
-            });
+                });
 
-            $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
-            if (!oApp.group_app_id) {
-                $scope.bRequireGroup = oApp.entryRule.scope.group === 'Y' && oApp.entryRule.group && oApp.entryRule.group.id;
-            }
-            $scope.bRequireSum = bRequireSum;
-            $scope.bRequireScore = bRequireScore;
-            $scope.recordSchemas = recordSchemas;
-            $scope.recordSchemasExt = recordSchemasExt;
-            if (oApp._schemasFromEnrollApp) {
-                oApp._schemasFromEnrollApp.forEach(function(schema) {
-                    if (schema.type !== 'html') {
-                        enrollDataSchemas.push(schema);
-                    }
-                });
-            }
-            $scope.enrollDataSchemas = enrollDataSchemas;
-            if (oApp._schemasFromGroupApp) {
-                oApp._schemasFromGroupApp.forEach(function(schema) {
-                    if (schema.type !== 'html') {
-                        groupDataSchemas.push(schema);
-                    }
-                });
-            }
-            $scope.groupDataSchemas = groupDataSchemas;
-            $scope.tmsTableWrapReady = 'Y';
-            $scope.doSearch();
+                $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
+                if (!oApp.group_app_id) {
+                    $scope.bRequireGroup = oApp.entryRule.scope.group === 'Y' && oApp.entryRule.group && oApp.entryRule.group.id;
+                }
+                $scope.bRequireSum = bRequireSum;
+                $scope.bRequireScore = bRequireScore;
+                $scope.recordSchemas = recordSchemas;
+                $scope.recordSchemasExt = recordSchemasExt;
+                if (oApp._schemasFromEnrollApp) {
+                    oApp._schemasFromEnrollApp.forEach(function(schema) {
+                        if (schema.type !== 'html') {
+                            enrollDataSchemas.push(schema);
+                        }
+                    });
+                }
+                $scope.enrollDataSchemas = enrollDataSchemas;
+                if (oApp._schemasFromGroupApp) {
+                    oApp._schemasFromGroupApp.forEach(function(schema) {
+                        if (schema.type !== 'html') {
+                            groupDataSchemas.push(schema);
+                        }
+                    });
+                }
+                $scope.groupDataSchemas = groupDataSchemas;
+                $scope.tmsTableWrapReady = 'Y';
+                $scope.doSearch();
+            });
         });
     }]);
 });

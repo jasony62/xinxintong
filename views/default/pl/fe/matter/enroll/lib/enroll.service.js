@@ -60,6 +60,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         this._bSearch = function(url) {
             var that = this,
                 defer = $q.defer();
+            $http.get('/rest/pl/fe/matter/enroll/schema/get?app=' + that._oApp.id, function(rsp) {});
             $http.post(url, that._oCriteria, function(rsp) {
                 var records;
                 if (rsp.data) {
@@ -76,7 +77,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 defer.resolve(records);
             });
             return defer.promise;
-        }
+        };
         this._bBatchVerify = function(rows, url) {
             var eks = [],
                 selectedRecords = [],

@@ -7,6 +7,34 @@ require_once dirname(__FILE__) . '/main_base.php';
  */
 class schema extends main_base {
 	/**
+	 * 返回登记活动题目定义
+	 *
+	 * @param string $app
+	 * @param string $rid
+	 *
+	 */
+	public function get_action($app, $rid = '') {
+		$modelApp = $this->model('matter\enroll');
+		$aOptions = [
+			'cascaded' => 'N',
+		];
+		if (!empty($rid)) {
+			$aOptions['appRid'] = $rid;
+		}
+		$oApp = $modelApp->byId($app, $aOptions);
+		if ($oApp === false || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 应用的动态题目 */
+		$modelSch = $this->model('matter\enroll\schema');
+		$modelSch->setDynaSchemas($oApp);
+
+		$dataSchemas = $oApp->dataSchemas;
+
+		return new \ResponseData($dataSchemas);
+	}
+	/**
 	 * 由目标活动的选择题创建填写题
 	 *
 	 * @param string $app 需要创建题目的登记活动
@@ -251,6 +279,84 @@ class schema extends main_base {
 				$oNewSchema->dsSchema = (object) ['ek' => $oTargetRecord->enroll_key, 'userid' => $oTargetRecord->userid, 'nickname' => $oTargetRecord->nickname];
 				$newSchemas[] = $oNewSchema;
 			}
+		}
+
+		return new \ResponseData($newSchemas);
+	}
+	/**
+	 * 由目标活动的打分题创建填写题
+	 *
+	 * @param string $app 需要创建题目的登记活动
+	 * @param string $targetApp 数据来源的登记活动
+	 *
+	 */
+	public function inputByScore_action($app, $targetApp, $round = '') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->schemas)) {
+			return new \ParameterError('没有指定题目');
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+
+		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round', 'appRid' => $round]);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => 'siteid,state,mission_id,data_schemas,sync_mission_round']);
+		if (false === $oTargetApp || $oTargetApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		if ($oApp->mission_id !== $oTargetApp->mission_id) {
+			return new \ParameterError('仅支持在同一个项目的活动间通过记录生成题目');
+		}
+
+		$targetSchemas = []; // 目标应用中选择的题目
+		foreach ($oPosted->schemas as $oSchema) {
+			foreach ($oTargetApp->dynaDataSchemas as $oSchema2) {
+				if (empty($oSchema2->dynamic) || $oSchema2->dynamic !== 'Y' || empty($oSchema2->prototype->schema->id)) {
+					continue;
+				}
+				if ($oSchema->id === $oSchema2->prototype->schema->id) {
+					$targetSchemas[$oSchema2->id] = $oSchema2;
+				}
+			}
+		}
+		if (empty($targetSchemas)) {
+			return new \ParameterError('指定的题目无效');
+		}
+
+		/* 匹配的轮次 */
+		$oAssignedRnd = $oApp->appRound;
+		$modelRnd = $this->model('matter\enroll\round');
+		$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
+
+		// 查询结果
+		$modelRec = $this->model('matter\enroll\record');
+		$oResult = $modelRec->score4Schema($oTargetApp, isset($oTargetAppRnd->rid) ? $oTargetAppRnd->rid : '');
+		unset($oResult->sum);
+		$aResult = (array) $oResult;
+		uasort($aResult, function ($a, $b) {
+			return (int) $b - (int) $a;
+		});
+
+		$newSchemas = [];
+		$i = 0;
+		foreach ($aResult as $schemaId => $score) {
+			if ($i >= $oPosted->limit->num) {
+				break;
+			}
+			$oProtoSchema = $targetSchemas[$schemaId];
+			$oNewSchema = new \stdClass;
+			$oNewSchema->id = $oProtoSchema->id;
+			$oNewSchema->title = $oProtoSchema->title;
+			$oNewSchema->type = 'longtext';
+			$newSchemas[] = $oNewSchema;
+			$i++;
 		}
 
 		return new \ResponseData($newSchemas);

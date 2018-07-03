@@ -1654,6 +1654,19 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             };
             $scope.removeOption = function(oSchema, oOp) {
                 oSchema.ops.splice(oSchema.ops.indexOf(oOp), 1);
+                if(oSchema.answer) {
+                    if(oSchema.type=='single') {
+                        if(oOp.v==oSchema.answer) {
+                            delete oSchema.answer;
+                        }
+                    }else if(oSchema.type=='multiple') {
+                        oSchema.answer.forEach(function(item, index){
+                            if(oOp.v==item) {
+                                oSchema.answer.splice(index, 1);
+                            }
+                        });
+                    }
+                }
                 $scope.updSchema(oSchema);
             };
             $scope.refreshSchema = function(oSchema) {

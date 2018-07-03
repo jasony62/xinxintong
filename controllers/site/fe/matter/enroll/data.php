@@ -64,6 +64,18 @@ class data extends base {
 				$oEditor = new \stdClass;
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
+				$modelGrpUsr = $this->model('matter\group\player');
+				$assocGroupId = $oApp->entryRule->group->id;
+				$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+				if (isset($groupEditor->players)) {
+					$groupEditorPlayers = $groupEditor->players;
+					$oEditorUsers = new \stdClass;
+					foreach ($groupEditorPlayers as $player) {
+						$oEditorUsers->{$player->userid} = $player->role_rounds;
+					}
+					unset($groupEditorPlayers);
+				}
 			}
 		}
 		/* 修改默认访客昵称 */
@@ -78,6 +90,8 @@ class data extends base {
 			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
 				/* 设置编辑统一昵称 */
 				if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+					$oRecord->nickname = $oEditor->nickname;
+				} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRecord->userid})) { // 记录提交者是否有编辑组角色
 					$oRecord->nickname = $oEditor->nickname;
 				}
 			}
@@ -161,6 +175,8 @@ class data extends base {
 							/* 设置编辑统一昵称 */
 							if (!empty($oItem->group_id) && $oItem->group_id === $oEditor->group) {
 								$oItem->nickname = $oEditor->nickname;
+							} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oItem->userid})) { // 记录提交者是否有编辑组角色
+								$oItem->nickname = $oEditor->nickname;
 							}
 						}
 					}
@@ -175,6 +191,8 @@ class data extends base {
 					if (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y') {
 						/* 设置编辑统一昵称 */
 						if (!empty($oRecData->group_id) && $oRecData->group_id === $oEditor->group) {
+							$oRecData->nickname = $oEditor->nickname;
+						} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRecData->userid})) { // 记录提交者是否有编辑组角色
 							$oRecData->nickname = $oEditor->nickname;
 						}
 					}

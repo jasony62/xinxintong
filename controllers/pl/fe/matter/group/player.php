@@ -25,7 +25,12 @@ class player extends \pl\fe\matter\base {
 		$modelPlayer = $this->model('matter\group\player');
 
 		$oApp = $modelGrp->byId($app);
-		$result = $modelPlayer->byApp($oApp);
+		$filter = $this->getPostJson();
+		$options = [];
+		if (isset($filter->roleRoundId)) {
+			$options['roleRoundId'] = $modelPlayer->escape($filter->roleRoundId);
+		}
+		$result = $modelPlayer->byApp($oApp, $options);
 
 		return new \ResponseData($result);
 	}

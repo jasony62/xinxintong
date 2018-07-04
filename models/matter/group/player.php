@@ -349,7 +349,9 @@ class player_model extends \TMS_MODEL {
 				$w .= " and concat(',',tags,',') like '%,$tag,%'";
 			}
 		}
-		if (!empty($oOptions->roleRoundId)) {
+		if (empty($oOptions->roleRoundId)) {
+			$w .= " and role_rounds = ''";
+		} else if (strcasecmp($oOptions->roleRoundId, 'all') !== 0) {
 			$w .= " and role_rounds like '%\"" . $oOptions->roleRoundId . "\"%'";
 		}
 		$q = [

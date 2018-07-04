@@ -33,25 +33,13 @@ define(['frame'], function(ngApp) {
             srvGroupPlayer.execute();
         };
         $scope.list = function(arg) {
-            var oReturnDatas;
-            if (_oCriteria[arg]round_id === 'all') {
-                oReturnDatas = srvGroupPlayer.list(null, arg);               
+            if (_oCriteria[arg].round_id === 'all') {
+                srvGroupPlayer.list(null, arg);
             } else if (_oCriteria[arg].round_id === 'pending') {
-                oReturnDatas = srvGroupPlayer.list(false, arg);
+                srvGroupPlayer.list(false, arg);
             } else {
-                oReturnDatas = srvGroupPlayer.list(_oCriteria[arg]);
+                srvGroupPlayer.list(_oCriteria[arg]);
             }
-            oReturnDatas.then(function(datas) {
-                var role_round_titles = [];
-                datas.forEach(function(data) {
-                    if(data.role_rounds.length) {
-                        data.role_rounds.forEach(function(round) {
-                            role_round_titles.push($scope.rounds._roundsById[round].title);
-                        });
-                        data.role_round_titles = role_round_titles;
-                    }
-                });
-            });
         };
         $scope.editPlayer = function(player) {
             srvGroupPlayer.edit(player).then(function(updated) {
@@ -60,7 +48,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.addPlayer = function() {
-            srvGroupPlayer.edit({ tags: '' }).then(function(updated) {
+            srvGroupPlayer.edit({ tags: '' , role_rounds: []}).then(function(updated) {
                 srvGroupPlayer.add(updated.player);
             });
         };
@@ -133,7 +121,7 @@ define(['frame'], function(ngApp) {
                 $scope.list(arg);
                 this.close();
             },
-            exec: function() {
+            exec: function(arg) {
                 $scope.list(arg);
                 this.close();
             }
@@ -163,19 +151,12 @@ define(['frame'], function(ngApp) {
                     $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
                 }
                 srvGroupPlayer.init(players).then(function() {
-                    $scope.list();
+                    $scope.list('round');
                     $scope.tableReady = 'Y';
                 });
             }
         });
         srvGroupRound.list().then(function(rounds) {
-            if(rounds.length) {
-                var roundsById = {};
-                rounds.forEach(function(round) {
-                    roundsById[round.aid] = round;
-                });
-                rounds._roundsById = roundsById;
-            }
             $scope.rounds = rounds;
         });
     }]);

@@ -349,9 +349,9 @@ class player_model extends \TMS_MODEL {
 				$w .= " and concat(',',tags,',') like '%,$tag,%'";
 			}
 		}
-		if (empty($oOptions->roleRoundId)) {
+		if (isset($oOptions->roleRoundId) && $oOptions->roleRoundId == '') {
 			$w .= " and role_rounds = ''";
-		} else if (strcasecmp($oOptions->roleRoundId, 'all') !== 0) {
+		} else if (isset($oOptions->roleRoundId) && (strcasecmp($oOptions->roleRoundId, 'all') !== 0)) {
 			$w .= " and role_rounds like '%\"" . $oOptions->roleRoundId . "\"%'";
 		}
 		$q = [
@@ -543,7 +543,7 @@ class player_model extends \TMS_MODEL {
 	public function &pendings($appId) {
 		/* 没有抽中过的用户 */
 		$q = array(
-			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,data,tags,comment',
+			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,data,tags,comment,role_rounds',
 			'xxt_group_player',
 			"aid='$appId' and state=1 and round_id=0",
 		);
@@ -551,7 +551,14 @@ class player_model extends \TMS_MODEL {
 		/* 获得用户的登记数据 */
 		if (($players = $this->query_objs_ss($q, $q2)) && !empty($players)) {
 			foreach ($players as &$player) {
-				$player->data = json_decode($player->data);
+				if (!empty($player->data)) {
+					$player->data = json_decode($player->data);
+				}
+				if (!empty($player->role_rounds)) {
+					$player->role_rounds = json_decode($player->role_rounds);
+				} else {
+					$player->role_rounds = [];
+				}
 			}
 		}
 
@@ -582,6 +589,8 @@ class player_model extends \TMS_MODEL {
 					}
 					if (!empty($player->role_rounds)) {
 						$player->role_rounds = json_decode($player->role_rounds);
+					} else {
+						$player->role_rounds = [];
 					}
 				}
 			}

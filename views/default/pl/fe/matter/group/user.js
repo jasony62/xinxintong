@@ -32,14 +32,26 @@ define(['frame'], function(ngApp) {
         $scope.execute = function() {
             srvGroupPlayer.execute();
         };
-        $scope.list = function() {
-            if (_oCriteria.round.round_id === 'all') {
-                srvGroupPlayer.list(null);
-            } else if (_oCriteria.round.round_id === 'pending') {
-                srvGroupPlayer.list(false);
+        $scope.list = function(arg) {
+            var oReturnDatas;
+            if (_oCriteria[arg]round_id === 'all') {
+                oReturnDatas = srvGroupPlayer.list(null, arg);               
+            } else if (_oCriteria[arg].round_id === 'pending') {
+                oReturnDatas = srvGroupPlayer.list(false, arg);
             } else {
-                srvGroupPlayer.list(_oCriteria.round);
+                oReturnDatas = srvGroupPlayer.list(_oCriteria[arg]);
             }
+            oReturnDatas.then(function(datas) {
+                var role_round_titles = [];
+                datas.forEach(function(data) {
+                    if(data.role_rounds.length) {
+                        data.role_rounds.forEach(function(round) {
+                            role_round_titles.push($scope.rounds._roundsById[round].title);
+                        });
+                        data.role_round_titles = role_round_titles;
+                    }
+                });
+            });
         };
         $scope.editPlayer = function(player) {
             srvGroupPlayer.edit(player).then(function(updated) {
@@ -116,13 +128,13 @@ define(['frame'], function(ngApp) {
                 }
                 $(this.target).trigger('hide');
             },
-            cancel: function() {
-                _oCriteria.round.round_id = 'all';
-                $scope.list();
+            cancel: function(arg) {
+                _oCriteria[arg].round_id = 'all';
+                $scope.list(arg);
                 this.close();
             },
             exec: function() {
-                $scope.list();
+                $scope.list(arg);
                 this.close();
             }
         };
@@ -142,7 +154,8 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.criteria = _oCriteria = {
-            round: { round_id: 'all' }
+            round: { round_id: 'all' },
+            roleRound: {round_id: 'all'}
         };
         $scope.$watch('app', function(oApp) {
             if (oApp) {
@@ -156,6 +169,13 @@ define(['frame'], function(ngApp) {
             }
         });
         srvGroupRound.list().then(function(rounds) {
+            if(rounds.length) {
+                var roundsById = {};
+                rounds.forEach(function(round) {
+                    roundsById[round.aid] = round;
+                });
+                rounds._roundsById = roundsById;
+            }
             $scope.rounds = rounds;
         });
     }]);

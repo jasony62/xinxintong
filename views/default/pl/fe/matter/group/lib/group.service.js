@@ -355,25 +355,40 @@ provider('srvGroupApp', function() {
                     });
                 }
             },
-            list: function(round) {
-                if (round === undefined) {
-                    round = _activeRound;
+            list: function(round, arg) {
+                arg == 'round' ? round() : roleRound();
+                function round() {
+                    var that = this;
+                    if (round === undefined) {
+                        round = _activeRound;
+                    }
+                    if (round === null) {
+                        return that.all();
+                    } else if (round === false) {
+                        return that.pendings();
+                    } else {
+                        return that.winners(round);
+                    }
                 }
-                if (round === null) {
-                    return this.all();
-                } else if (round === false) {
-                    return this.pendings();
-                } else {
-                    return this.winners(round);
+                function roleRound() {
+                    var that = this;
+                    if (round === null) {
+                        return that.all({roleRoundId: 'all'});
+                    } else if (round === false) {
+                        return that.all({roleRoundId: 'pending'});
+                    } else {
+                        return that.all({roleRoundId:round.round_id});
+                    }
                 }
+                
             },
-            all: function() {
+            all: function(oFilter) {
                 var defer = $q.defer(),
                     url = '/rest/pl/fe/matter/group/player/list?site=' + _siteId + '&app=' + _appId;
 
                 _activeRound = null;
                 _aPlayers.splice(0, _aPlayers.length);
-                http2.get(url, function(rsp) {
+                http2.post(url, oFilter, function(rsp) {
                     if (rsp.data.total) {
                         rsp.data.players.forEach(function(player) {
                             tmsSchema.forTable(player, _oApp._schemasById);

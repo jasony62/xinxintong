@@ -115,7 +115,12 @@ class user_model extends \TMS_MODEL {
 		/* 当前用户是否为编辑 */
 		if (!empty($oApp->actionRule->role->editor->group)) {
 			$oUser->is_editor = 'N';
-			if (!empty($oUser->role_rounds)) {
+			if (!empty($oUser->group_id)) {
+				if ($oUser->group_id === $oApp->actionRule->role->editor->group) {
+					$oUser->is_editor = 'Y';
+				}
+			}
+			if ($oUser->is_editor === 'N' && !empty($oUser->role_rounds)) {
 				if (in_array($oApp->actionRule->role->editor->group, $oUser->role_rounds)) {
 					$oUser->is_editor = 'Y';
 				}

@@ -172,6 +172,7 @@ class schema_model extends \TMS_MODEL {
 			$oAppRound = $oApp->appRound;
 		}
 
+		/* 根据填写数据生成题目 */
 		$fnMakeDynaSchemaByData = function ($oSchema, $oDsAppRnd, $schemaIndex, &$dynaSchemasByIndex) {
 			$q = [
 				'id,enroll_key,value,userid,nickname',
@@ -213,6 +214,7 @@ class schema_model extends \TMS_MODEL {
 			}
 		};
 
+		/* 根据打分题获得的分数生成题目 */
 		$fnMakeDynaSchemaByScore = function ($oSchema, $oDsAppRnd, $schemaIndex, &$dynaSchemasByIndex) use ($oApp) {
 			$modelEnl = $this->model('matter\enroll');
 			$oTargetApp = $modelEnl->byId($oSchema->dsSchemas->app->id, ['fields' => 'siteid,state,mission_id,data_schemas,sync_mission_round']);
@@ -266,6 +268,71 @@ class schema_model extends \TMS_MODEL {
 			}
 		};
 
+		/* 根据选择题获得的票数生成题目 */
+		$fnMakeDynaSchemaByOption = function ($oSchema, $oDsAppRnd, $schemaIndex, &$dynaSchemasByIndex) use ($oApp) {
+			$modelEnl = $this->model('matter\enroll');
+
+			$oTargetApp = $modelEnl->byId($oSchema->dsSchemas->app->id, ['fields' => 'siteid,state,mission_id,data_schemas,sync_mission_round']);
+			if (false === $oTargetApp || $oTargetApp->state !== '1') {
+				return [false, '指定的目标活动不可用'];
+			}
+			if ($oApp->mission_id !== $oTargetApp->mission_id) {
+				return [false, '仅支持在同一个项目的活动间通过记录生成题目'];
+			}
+
+			$targetSchemas = []; // 目标应用中选择的题目
+			foreach ($oTargetApp->dataSchemas as $oSchema2) {
+				if ($oSchema->dsSchemas->schema->id === $oSchema2->id) {
+					$targetSchemas[] = $oSchema2;
+					break;
+				}
+			}
+			if (empty($targetSchemas)) {
+				return [false, '指定的题目无效'];
+			}
+
+			/* 匹配的轮次 */
+			$oAssignedRnd = $oApp->appRound;
+			if ($oAssignedRnd) {
+				$modelRnd = $this->model('matter\enroll\round');
+				$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
+			}
+
+			/* 目标活动的统计结果 */
+			$modelRec = $this->model('matter\enroll\record');
+			$aTargetData = $modelRec->getStat($oTargetApp, !empty($oTargetAppRnd) ? $oTargetAppRnd->rid : '', 'N');
+			$newSchemas = []; // 根据记录创建的题目
+			$modelDat = $this->model('matter\enroll\data');
+			foreach ($targetSchemas as $oTargetSchema) {
+				switch ($oTargetSchema->type) {
+				case 'single':
+				case 'multiple':
+					if (!empty($aTargetData[$oTargetSchema->id]->ops)) {
+						$options = $aTargetData[$oTargetSchema->id]->ops;
+						usort($options, function ($a, $b) {
+							return $a->c < $b->c;
+						});
+						//if (!empty($oTargetSchema->limit->scope) && !empty($oTargetSchema->limit->num) && (int) $oTargetSchema->limit->num) {
+						//	if ($oTargetSchema->limit->scope === 'top') {
+						//		die('xxx');
+						$this->genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas);
+						foreach ($newSchemas as $oNewDynaSchema) {
+							$oNewDynaSchema->dynamic = 'Y';
+							$oNewDynaSchema->prototype = (object) [
+								'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title],
+							];
+						}
+						//	} else if ($oTargetSchema->limit->scope === 'checked') {
+						//		$this->genSchemaByCheckedOptions($oTargetSchema, $options, $oTargetSchema->limit->num, $newSchemas);
+						//	}
+						//}
+					}
+					break;
+				}
+			}
+			$dynaSchemasByIndex[$schemaIndex] = $newSchemas;
+		};
+
 		$dynaSchemasByIndex = []; // 动态创建的题目
 		foreach ($oApp->dataSchemas as $schemaIndex => $oSchema) {
 			if (!empty($oSchema->dsSchemas->mode) && !empty($oSchema->dsSchemas->app->id) && !empty($oSchema->dsSchemas->schema->id)) {
@@ -283,6 +350,9 @@ class schema_model extends \TMS_MODEL {
 				case 'fromScore':
 					$fnMakeDynaSchemaByScore($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
 					break;
+				case 'fromOption':
+					$fnMakeDynaSchemaByOption($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
+					break;
 				}
 			}
 		}
@@ -295,5 +365,59 @@ class schema_model extends \TMS_MODEL {
 		}
 
 		return $oApp;
+	}
+	/**
+	 * 根据指定的数量，从选项生成题目
+	 */
+	public function genSchemaByTopOptions($oTargetSchema, $votingOptions, $limitNum, &$newSchemas) {
+		if ($limitNum > count($votingOptions)) {
+			$limitNum = count($votingOptions);
+		}
+
+		$originalOptionsByValue = [];
+		foreach ($oTargetSchema->ops as $oOption) {
+			$originalOptionsByValue[$oOption->v] = $oOption;
+		}
+
+		for ($i = 0; $i < $limitNum; $i++) {
+			$oOption = $votingOptions[$i];
+			if (isset($originalOptionsByValue[$oOption->v])) {
+				$oNewSchema = new \stdClass;
+				$oNewSchema->id = $oTargetSchema->id . $oOption->v;
+				$oNewSchema->title = $oOption->l;
+				$oNewSchema->type = 'longtext';
+				if (isset($originalOptionsByValue[$oOption->v]->ds)) {
+					$oNewSchema->ds = $originalOptionsByValue[$oOption->v]->ds;
+				}
+				$newSchemas[] = $oNewSchema;
+			}
+		}
+	}
+	/**
+	 * 根据选项获得的选择数量生成题目
+	 */
+	public function genSchemaByCheckedOptions($oTargetSchema, $votingOptions, $checkedNum, &$newSchemas) {
+		for ($i = 0, $ii = count($votingOptions); $i < $ii; $i++) {
+			$oOption = $votingOptions[$i];
+
+			$originalOptionsByValue = [];
+			foreach ($oTargetSchema->ops as $oOption) {
+				$originalOptionsByValue[$oOption->v] = $oOption;
+			}
+
+			if (isset($originalOptionsByValue[$oOption->v])) {
+				if ($oOption->c < $checkedNum) {
+					break;
+				}
+				$oNewSchema = new \stdClass;
+				$oNewSchema->id = $oTargetSchema->id . $oOption->v;
+				$oNewSchema->title = $oOption->l;
+				$oNewSchema->type = 'longtext';
+				if (isset($originalOptionsByValue[$oOption->v]->ds)) {
+					$oNewSchema->ds = $originalOptionsByValue[$oOption->v]->ds;
+				}
+				$newSchemas[] = $oNewSchema;
+			}
+		}
 	}
 }

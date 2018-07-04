@@ -1360,6 +1360,13 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                                 }
                                             };
                                             break;
+                                        case 'fromOption':
+                                            fnValidSchema = function(oSchema) {
+                                                if (/single|multiple/.test(oSchema.type)) {
+                                                    $scope2.dsSchemas.push(angular.copy(oSchema));
+                                                }
+                                            };
+                                            break;
                                     }
                                     if (fnValidSchema) {
                                         oResult.fromApp.dataSchemas.forEach(fnValidSchema);

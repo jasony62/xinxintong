@@ -393,6 +393,13 @@ class player extends \pl\fe\matter\base {
 			$oPlayer->round_id = $oPosted->round_id;
 			$oPlayer->round_title = $round->title;
 		}
+		if (!empty($oPosted->role_rounds)) {
+			$roleRounds = [];
+			foreach ($oPosted->role_rounds as $roleRound) {
+				$roleRounds[] = $roleRound;
+			}
+			$oPlayer->role_rounds = json_encode($roleRounds);
+		}
 
 		$modelPly->enroll($oApp, $oEnrollee, $oPlayer);
 		$result = $modelPly->setData($oApp, $ek, $oPosted->data);
@@ -400,6 +407,9 @@ class player extends \pl\fe\matter\base {
 			return new \ResponseError($result[1]);
 		}
 		$oPlayer->data = json_decode($result[1]);
+		if (!empty($oPlayer->role_rounds)) {
+			$oPlayer->role_rounds = json_decode($oPlayer->role_rounds);
+		}
 
 		return new \ResponseData($oPlayer);
 	}

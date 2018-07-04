@@ -1326,7 +1326,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 return 'page=' + this.at + '&size=' + this.size;
                             }
                         };
-                        $scope2.result = oResult = {};
+                        $scope2.result = oResult = {
+                            mode: 'fromData'
+                        };
                         $scope2.appFilter = oAppFilter = {};
                         $scope2.dsSchemas = [];
                         $scope2.filterSchemas = [];
@@ -1337,15 +1339,32 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             oResult.filters = [];
                             if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
                                 oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
-                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
-                                    if (/longtext|url/.test(oSchema.type)) {
-                                        $scope2.dsSchemas.push(oSchema);
-                                    } else if (/shorttext/.test(oSchema.type) && !oSchema.format) {
-                                        $scope2.dsSchemas.push(oSchema);
-                                    } else if (/single/.test(oSchema.type)) {
-                                        $scope2.filterSchemas.push(angular.copy(oSchema));
+                                if (oResult.fromApp.dataSchemas.length) {
+                                    var fnValidSchema;
+                                    switch (oResult.mode) {
+                                        case 'fromData':
+                                            fnValidSchema = function(oSchema) {
+                                                if (/longtext|url/.test(oSchema.type)) {
+                                                    $scope2.dsSchemas.push(oSchema);
+                                                } else if (/shorttext/.test(oSchema.type) && !oSchema.format) {
+                                                    $scope2.dsSchemas.push(oSchema);
+                                                } else if (/single/.test(oSchema.type)) {
+                                                    $scope2.filterSchemas.push(angular.copy(oSchema));
+                                                }
+                                            };
+                                            break;
+                                        case 'fromScore':
+                                            fnValidSchema = function(oSchema) {
+                                                if (/score/.test(oSchema.type) && oSchema.dsSchemas) {
+                                                    $scope2.dsSchemas.push(angular.copy(oSchema));
+                                                }
+                                            };
+                                            break;
                                     }
-                                });
+                                    if (fnValidSchema) {
+                                        oResult.fromApp.dataSchemas.forEach(fnValidSchema);
+                                    }
+                                }
                             }
                             oResult.selected = null;
                         };
@@ -1358,7 +1377,12 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.ok = function() {
                             var fromApp;
                             if ((fromApp = oResult.fromApp) && oResult.selected !== undefined) {
-                                $mi.close({ app: { id: fromApp.id, title: fromApp.title }, schema: $scope2.dsSchemas[parseInt(oResult.selected)], filters: oResult.filters });
+                                $mi.close({
+                                    mode: oResult.mode,
+                                    app: { id: fromApp.id, title: fromApp.title },
+                                    schema: $scope2.dsSchemas[parseInt(oResult.selected)],
+                                    filters: oResult.filters
+                                });
                             } else {
                                 $mi.dismiss();
                             }
@@ -1384,6 +1408,13 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             });
                         };
                         $scope2.doSearch();
+                        $scope2.$watch('result', function(oNew, oOld) {
+                            if (oNew && oOld) {
+                                if (oNew.mode !== oOld.mode) {
+                                    $scope2.selectApp();
+                                }
+                            }
+                        }, true);
                     }],
                     backdrop: 'static',
                     windowClass: 'auto-height',
@@ -1392,7 +1423,8 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     if (oResult.app && oResult.schema) {
                         oSchema.dsSchemas = {
                             app: { id: oResult.app.id, title: oResult.app.title },
-                            schema: { id: oResult.schema.id, title: oResult.schema.title },
+                            schema: { id: oResult.schema.id, title: oResult.schema.title, type: oResult.schema.type },
+                            mode: oResult.mode
                         }
                         if (oResult.filters && oResult.filters.length) {
                             oSchema.dsSchemas.filters = [];
@@ -1654,14 +1686,14 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             };
             $scope.removeOption = function(oSchema, oOp) {
                 oSchema.ops.splice(oSchema.ops.indexOf(oOp), 1);
-                if(oSchema.answer) {
-                    if(oSchema.type=='single') {
-                        if(oOp.v==oSchema.answer) {
+                if (oSchema.answer) {
+                    if (oSchema.type == 'single') {
+                        if (oOp.v == oSchema.answer) {
                             delete oSchema.answer;
                         }
-                    }else if(oSchema.type=='multiple') {
-                        oSchema.answer.forEach(function(item, index){
-                            if(oOp.v==item) {
+                    } else if (oSchema.type == 'multiple') {
+                        oSchema.answer.forEach(function(item, index) {
+                            if (oOp.v == item) {
                                 oSchema.answer.splice(index, 1);
                             }
                         });

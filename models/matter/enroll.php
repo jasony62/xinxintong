@@ -149,7 +149,7 @@ class enroll_model extends enroll_base {
 				$modelSch->setDynaOptions($oApp, $oAppRnd);
 
 				/* 应用的动态题目 */
-				$oApp2 = (object) ['appRound' => $oApp->appRound, 'dataSchemas' => $oApp->dataSchemas];
+				$oApp2 = (object) ['id' => $oApp->id, 'appRound' => $oApp->appRound, 'dataSchemas' => $oApp->dataSchemas, 'mission_id' => $oApp->mission_id];
 				$modelSch = $this->model('matter\enroll\schema');
 				$modelSch->setDynaSchemas($oApp2);
 				$oApp->dynaDataSchemas = $oApp2->dataSchemas;

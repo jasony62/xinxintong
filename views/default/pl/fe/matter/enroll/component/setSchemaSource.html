@@ -1,8 +1,20 @@
 <div class="modal-header">
     <button class="close" ng-click="cancel()">×</button>
-    <h5 class="modal-title">题目的数量和标题每轮次从其它活动的填写记录生成</h5>
+    <h5 class="modal-title">题目的数量和标题每轮次从其它活动生成</h5>
 </div>
 <div class="modal-body">
+    <div class='row'>
+        <div class='col-md-12'>
+            <div class='form-group'>
+                <label class='radio-inline'>
+                    <input type='radio' name='mode' value='fromData' ng-model="result.mode">来源于填写数据</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='mode' value='fromScore' ng-model="result.mode">来源于打分题</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='mode' value='fromOption' ng-model="result.mode">来源于选项</label>
+            </div>
+        </div>
+    </div>
     <div class='row'>
         <div class='col-md-4'>
             <div class='form-group'>

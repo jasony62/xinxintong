@@ -91,6 +91,7 @@ class schema extends main_base {
 		$aTargetData = $modelRec->getStat($oTargetApp, !empty($oTargetAppRnd) ? $oTargetAppRnd->rid : '', 'N');
 		$newSchemas = []; // 根据记录创建的题目
 		$modelDat = $this->model('matter\enroll\data');
+		$modelSch = $this->model('matter\enroll\schema');
 		foreach ($targetSchemas as $oTargetSchema) {
 			switch ($oTargetSchema->type) {
 			case 'single':
@@ -103,26 +104,26 @@ class schema extends main_base {
 					$bGenerated = false;
 					if (!empty($oTargetSchema->limit->scope) && !empty($oTargetSchema->limit->num) && (int) $oTargetSchema->limit->num) {
 						if ($oTargetSchema->limit->scope === 'top') {
-							$this->_genSchemaByTopOptions($oTargetSchema, $options, $oTargetSchema->limit->num, $newSchemas);
+							$modelSch->genSchemaByTopOptions($oTargetSchema, $options, $oTargetSchema->limit->num, $newSchemas);
 							$bGenerated = true;
 						} else if ($oTargetSchema->limit->scope === 'checked') {
-							$this->_genSchemaByCheckedOptions($oTargetSchema, $options, $oTargetSchema->limit->num, $newSchemas);
+							$modelSch->genSchemaByCheckedOptions($oTargetSchema, $options, $oTargetSchema->limit->num, $newSchemas);
 							$bGenerated = true;
 						}
 					}
 					if (!$bGenerated) {
 						if (!empty($oPosted->limit->scope) && !empty($oPosted->limit->num) && (int) $oPosted->limit->num) {
 							if ($oPosted->limit->scope === 'top') {
-								$this->_genSchemaByTopOptions($oTargetSchema, $options, $oPosted->limit->num, $newSchemas);
+								$modelSch->genSchemaByTopOptions($oTargetSchema, $options, $oPosted->limit->num, $newSchemas);
 								$bGenerated = true;
 							} else if ($oPosted->limit->scope === 'checked') {
-								$this->_genSchemaByCheckedOptions($oTargetSchema, $options, $oPosted->limit->num, $newSchemas);
+								$modelSch->genSchemaByCheckedOptions($oTargetSchema, $options, $oPosted->limit->num, $newSchemas);
 								$bGenerated = true;
 							}
 						}
 					}
 					if (!$bGenerated) {
-						$this->_genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas);
+						$modelSch->genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas);
 					}
 				}
 				break;
@@ -130,60 +131,6 @@ class schema extends main_base {
 		}
 
 		return new \ResponseData($newSchemas);
-	}
-	/**
-	 * 根据指定的数量，从选项生成题目
-	 */
-	private function _genSchemaByTopOptions($oTargetSchema, $votingOptions, $limitNum, &$newSchemas) {
-		if ($limitNum > count($votingOptions)) {
-			$limitNum = count($votingOptions);
-		}
-
-		$originalOptionsByValue = [];
-		foreach ($oTargetSchema->ops as $oOption) {
-			$originalOptionsByValue[$oOption->v] = $oOption;
-		}
-
-		for ($i = 0; $i < $limitNum; $i++) {
-			$oOption = $votingOptions[$i];
-			if (isset($originalOptionsByValue[$oOption->v])) {
-				$oNewSchema = new \stdClass;
-				$oNewSchema->id = $oTargetSchema->id . $oOption->v;
-				$oNewSchema->title = $oOption->l;
-				$oNewSchema->type = 'longtext';
-				if (isset($originalOptionsByValue[$oOption->v]->ds)) {
-					$oNewSchema->ds = $originalOptionsByValue[$oOption->v]->ds;
-				}
-				$newSchemas[] = $oNewSchema;
-			}
-		}
-	}
-	/**
-	 * 根据选项获得的选择数量生成题目
-	 */
-	private function _genSchemaByCheckedOptions($oTargetSchema, $votingOptions, $checkedNum, &$newSchemas) {
-		for ($i = 0, $ii = count($votingOptions); $i < $ii; $i++) {
-			$oOption = $votingOptions[$i];
-
-			$originalOptionsByValue = [];
-			foreach ($oTargetSchema->ops as $oOption) {
-				$originalOptionsByValue[$oOption->v] = $oOption;
-			}
-
-			if (isset($originalOptionsByValue[$oOption->v])) {
-				if ($oOption->c < $checkedNum) {
-					break;
-				}
-				$oNewSchema = new \stdClass;
-				$oNewSchema->id = $oTargetSchema->id . $oOption->v;
-				$oNewSchema->title = $oOption->l;
-				$oNewSchema->type = 'longtext';
-				if (isset($originalOptionsByValue[$oOption->v]->ds)) {
-					$oNewSchema->ds = $originalOptionsByValue[$oOption->v]->ds;
-				}
-				$newSchemas[] = $oNewSchema;
-			}
-		}
 	}
 	/**
 	 * 由目标活动的填写题创建打分题

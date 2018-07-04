@@ -307,12 +307,11 @@ class main extends main_base {
 				$rst = $modelPg->update(
 					'xxt_enroll_page',
 					[
-						'title' => $ep->title,
+						'title' => $modelApp->escape($ep->title),
 						'name' => $ep->name,
 						'type' => $ep->type,
-						'data_schemas' => $modelApp->escape($ep->data_schemas),
-						'act_schemas' => $modelApp->escape($ep->act_schemas),
-						'user_schemas' => $modelApp->escape($ep->user_schemas),
+						'data_schemas' => $modelApp->escape($modelApp->toJson($ep->dataSchemas)),
+						'act_schemas' => $modelApp->escape($modelApp->toJson($ep->actSchemas)),
 					],
 					['aid' => $oNewApp->id, 'id' => $oNewPage->id]
 				);

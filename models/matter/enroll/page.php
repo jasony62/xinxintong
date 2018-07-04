@@ -377,7 +377,7 @@ class page_model extends page_base {
 			return $oPage;
 		}
 
-		$dataSchemas = $oApp->dataSchemas;
+		$dataSchemas = $oApp->dynaDataSchemas;
 		$dom = HtmlDomParser::str_get_html($oPage->html);
 		$aProtoHtmls = []; // 作为原型的题目
 		$aProtoWraps = [];

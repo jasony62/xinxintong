@@ -197,7 +197,7 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.showOpDsLink' ng-change="updSchema(activeSchema)"> 填写时跳转到选项来源记录</label>
     </div>
-    <div class='form-group' ng-if="['score','longtext'].indexOf(activeSchema.type)!==-1">
+    <div class='form-group' ng-if="['single','multiple','score','longtext'].indexOf(activeSchema.type)!==-1">
         <button class='btn btn-default' ng-click="setSchemaSource(activeSchema)">数量和标题从其它活动生成 <span ng-if="activeSchema.dsSchemas" class='glyphicon glyphicon-check'></span></button>
     </div>
 </div>

@@ -235,21 +235,21 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 用户操作素材日志
 	 */
-	public function addUserMatterOp($siteId, &$user, &$matter, &$operation, &$client, $referer = '') {
+	public function addUserMatterOp($siteId, &$oUser, &$oMatter, &$oOperation, &$client, $referer = '') {
 		// 避免数据库双机同步延迟问题
 		$this->setOnlyWriteDbConn(true);
 		// 素材累积执行指定操作的次数
 		$q = [
 			'id,matter_op_num',
 			'xxt_log_user_matter',
-			"matter_id='$matter->id' and matter_type='$matter->type' and operation='{$operation->name}' and matter_last_op='Y'",
+			['matter_id' => $oMatter->id, 'matter_type' => $oMatter->type, 'operation' => $oOperation->name, 'matter_last_op' => 'Y'],
 		];
 		$matterOpNum = $this->query_objs_ss($q);
 		/* 并发情况下有可能产生多条数据 */
 		if (count($matterOpNum)) {
 			$lastOpNum = 0;
 			foreach ($matterOpNum as $mon) {
-				$this->update('xxt_log_user_matter', ['matter_last_op' => 'N'], "id={$mon->id}");
+				$this->update('xxt_log_user_matter', ['matter_last_op' => 'N'], ['id' => $mon->id]);
 				$mon->matter_op_num > $lastOpNum && $lastOpNum = $mon->matter_op_num;
 			}
 			$matterOpNum = (int) $lastOpNum + count($matterOpNum);
@@ -260,49 +260,49 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			'id,user_op_num',
 			'xxt_log_user_matter',
-			"userid='{$user->userid}' and matter_id='$matter->id' and matter_type='$matter->type' and operation='{$operation->name}' and user_last_op='Y'",
+			['userid' => $oUser->userid, 'matter_id' => $oMatter->id, 'matter_type' => $oMatter->type, 'operation' => $oOperation->name, 'user_last_op' => 'Y'],
 		];
 		if ($userOpNum = $this->query_obj_ss($q)) {
-			$this->update('xxt_log_user_matter', ['user_last_op' => 'N'], "id={$userOpNum->id}");
+			$this->update('xxt_log_user_matter', ['user_last_op' => 'N'], ['id' => $userOpNum->id]);
 			$userOpNum = (int) $userOpNum->user_op_num + 1;
 		} else {
 			$userOpNum = 1;
 		}
 		/* 如果是登记活动提交操作处理之前保存的数据 */
-		if ($operation->name === 'submit' || $operation->name === 'updateData' || $operation->name === 'undoSave') {
+		if ($oOperation->name === 'submit' || $oOperation->name === 'updateData' || $oOperation->name === 'undoSave') {
 			$this->update(
 				'xxt_log_user_matter',
 				['user_last_op' => 'N'],
-				"userid='{$user->userid}' and matter_id='$matter->id' and matter_type='$matter->type' and operation='saveData' and user_last_op='Y'"
+				['userid' => $oUser->userid, 'matter_id' => $oMatter->id, 'matter_type' => $oMatter->type, 'operation' => 'saveData', 'user_last_op' => 'Y']
 			);
 		}
 		// 新建日志
-		$log = array();
+		$log = [];
 		$log['siteid'] = $siteId;
-		$log['userid'] = $user->userid;
-		$log['nickname'] = $this->escape($user->nickname);
-		$log['matter_id'] = $matter->id;
-		$log['matter_type'] = $matter->type;
-		$log['matter_title'] = $this->escape($matter->title);
-		if (!empty($matter->mission_id)) {
-			$log['mission_id'] = $matter->mission_id;
-			if (!empty($matter->mission_title)) {
-				$log['mission_title'] = $this->escape($matter->mission_title);
+		$log['userid'] = $oUser->userid;
+		$log['nickname'] = $this->escape($oUser->nickname);
+		$log['matter_id'] = $oMatter->id;
+		$log['matter_type'] = $oMatter->type;
+		$log['matter_title'] = $this->escape($oMatter->title);
+		if (!empty($oMatter->mission_id)) {
+			$log['mission_id'] = $oMatter->mission_id;
+			if (!empty($oMatter->mission_title)) {
+				$log['mission_title'] = $this->escape($oMatter->mission_title);
 			} else {
-				$mission = $this->M('matter\mission')->byId($matter->mission_id, ['fields' => 'title']);
+				$mission = $this->M('matter\mission')->byId($oMatter->mission_id, ['fields' => 'title']);
 				$log['mission_title'] = $this->escape($mission->title);
 			}
 		}
 		$log['user_agent'] = $client->agent;
 		$log['client_ip'] = isset($client->ip) ? $client->ip : '';
 		$log['referer'] = $referer;
-		$log['operation'] = $operation->name;
-		$log['operate_at'] = isset($operation->at) ? $operation->at : time();
-		if (isset($operation->data)) {
-			if (is_string($operation->data)) {
-				$log['operate_data'] = $this->escape($operation->data);
+		$log['operation'] = $oOperation->name;
+		$log['operate_at'] = isset($oOperation->at) ? $oOperation->at : time();
+		if (isset($oOperation->data)) {
+			if (is_string($oOperation->data)) {
+				$log['operate_data'] = $this->escape($oOperation->data);
 			} else {
-				$log['operate_data'] = $this->escape($this->toJson($operation->data));
+				$log['operate_data'] = $this->escape($this->toJson($oOperation->data));
 			}
 		}
 		$log['matter_last_op'] = 'Y';
@@ -1168,12 +1168,12 @@ class log_model extends \TMS_MODEL {
 	 * 操作素材行为列表
 	 */
 	public function listMatterAction($site, $matterType, $matterId, $options = []) {
-		$fields = !empty($options['fields'])? $options['fields'] : 'id,action_at,act_read,act_share_timeline,act_share_friend,original_logid';
+		$fields = !empty($options['fields']) ? $options['fields'] : 'id,action_at,act_read,act_share_timeline,act_share_friend,original_logid';
 
 		$q = [
 			$fields,
 			'xxt_log_matter_action',
-			"matter_id = '{$matterId}' and matter_type = '{$matterType}'"
+			"matter_id = '{$matterId}' and matter_type = '{$matterType}'",
 		];
 
 		if (!empty($options['startAt'])) {
@@ -1184,15 +1184,15 @@ class log_model extends \TMS_MODEL {
 		}
 		if (!empty($options['byEvent'])) {
 			switch ($options['byEvent']) {
-				case 'shareT':
-					$q[2] .= " and act_share_timeline > 0";
-					break;
-				case 'shareF':
-					$q[2] .= " and act_share_friend > 0";
-					break;
-				default:
-					$q[2] .= " and act_read > 0";
-					break;
+			case 'shareT':
+				$q[2] .= " and act_share_timeline > 0";
+				break;
+			case 'shareF':
+				$q[2] .= " and act_share_friend > 0";
+				break;
+			default:
+				$q[2] .= " and act_read > 0";
+				break;
 			}
 		}
 
@@ -1217,7 +1217,7 @@ class log_model extends \TMS_MODEL {
 			} else {
 				$log->event = '未知';
 			}
-			
+
 			$table = 'xxt_log_matter_read';
 			if ($log->act_share_timeline > 0 || $log->act_share_friend > 0) {
 				$table = 'xxt_log_matter_share';
@@ -1226,7 +1226,7 @@ class log_model extends \TMS_MODEL {
 			$q2 = [
 				'userid,nickname,matter_shareby',
 				$table,
-				['id' => $log->original_logid]
+				['id' => $log->original_logid],
 			];
 			$logInfo = $this->query_obj_ss($q2);
 			$log->userid = $logInfo->userid;
@@ -1239,7 +1239,7 @@ class log_model extends \TMS_MODEL {
 				$q3 = [
 					'nickname',
 					'xxt_site_account',
-					['uid' => $originUserid]
+					['uid' => $originUserid],
 				];
 				$originUser = $this->query_obj_ss($q3);
 				if ($originUser) {
@@ -1254,14 +1254,13 @@ class log_model extends \TMS_MODEL {
 				$log->origin_nickname = '';
 			}
 		}
-		
+
 		$result = new \stdClass;
 		$result->logs = $logs;
 		$q[0] = 'count(*)';
 		$result->total = $this->query_val_ss($q);
 
 		return $result;
-
 
 	}
 }

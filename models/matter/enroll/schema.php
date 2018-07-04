@@ -106,7 +106,7 @@ class schema_model extends \TMS_MODEL {
 		if (empty($oAppRound)) {
 			$oAppRound = $this->model('matter\enroll\round')->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
 		}
-		foreach ($oApp->dataSchemas as $oSchema) {
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if (isset($oSchema->type) && in_array($oSchema->type, ['single', 'multiple'])) {
 				if (!empty($oSchema->dsOps->app->id) && !empty($oSchema->dsOps->schema->id)) {
 					if (!empty($oAppRound->mission_rid)) {
@@ -301,8 +301,8 @@ class schema_model extends \TMS_MODEL {
 			/* 目标活动的统计结果 */
 			$modelRec = $this->model('matter\enroll\record');
 			$aTargetData = $modelRec->getStat($oTargetApp, !empty($oTargetAppRnd) ? $oTargetAppRnd->rid : '', 'N');
-			$newSchemas = []; // 根据记录创建的题目
 			$modelDat = $this->model('matter\enroll\data');
+			$newSchemas = []; // 根据记录创建的题目
 			foreach ($targetSchemas as $oTargetSchema) {
 				switch ($oTargetSchema->type) {
 				case 'single':
@@ -314,8 +314,7 @@ class schema_model extends \TMS_MODEL {
 						});
 						//if (!empty($oTargetSchema->limit->scope) && !empty($oTargetSchema->limit->num) && (int) $oTargetSchema->limit->num) {
 						//	if ($oTargetSchema->limit->scope === 'top') {
-						//		die('xxx');
-						$this->genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas);
+						$this->genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas, $oSchema);
 						foreach ($newSchemas as $oNewDynaSchema) {
 							$oNewDynaSchema->dynamic = 'Y';
 							$oNewDynaSchema->prototype = (object) [
@@ -328,6 +327,19 @@ class schema_model extends \TMS_MODEL {
 						//}
 					}
 					break;
+				}
+			}
+			if (isset($oSchema->dsOps->app->id)) {
+				$oApp3 = $modelEnl->byId($oSchema->dsOps->app->id, ['cascaded' => 'N']);
+				foreach ($newSchemas as $oNewDynaSchema1) {
+					if (isset($oNewDynaSchema1->ds->ek) && isset($oNewDynaSchema1->dsOps->schema)) {
+						foreach ($oApp3->dynaDataSchemas as $oDynaSchema2) {
+							if (isset($oDynaSchema2->ds->ek) && $oDynaSchema2->ds->ek === $oNewDynaSchema1->ds->ek) {
+								$oNewDynaSchema1->dsOps->schema->id = $oDynaSchema2->id;
+								$oNewDynaSchema1->dsOps->schema->title = $oDynaSchema2->title;
+							}
+						}
+					}
 				}
 			}
 			$dynaSchemasByIndex[$schemaIndex] = $newSchemas;
@@ -369,7 +381,7 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 根据指定的数量，从选项生成题目
 	 */
-	public function genSchemaByTopOptions($oTargetSchema, $votingOptions, $limitNum, &$newSchemas) {
+	public function genSchemaByTopOptions($oTargetSchema, $votingOptions, $limitNum, &$newSchemas, $oProtoSchema = null) {
 		if ($limitNum > count($votingOptions)) {
 			$limitNum = count($votingOptions);
 		}
@@ -382,10 +394,14 @@ class schema_model extends \TMS_MODEL {
 		for ($i = 0; $i < $limitNum; $i++) {
 			$oOption = $votingOptions[$i];
 			if (isset($originalOptionsByValue[$oOption->v])) {
-				$oNewSchema = new \stdClass;
+				if (empty($oProtoSchema)) {
+					$oNewSchema = new \stdClass;
+					$oNewSchema->type = 'longtext';
+				} else {
+					$oNewSchema = clone $oProtoSchema;
+				}
 				$oNewSchema->id = $oTargetSchema->id . $oOption->v;
 				$oNewSchema->title = $oOption->l;
-				$oNewSchema->type = 'longtext';
 				if (isset($originalOptionsByValue[$oOption->v]->ds)) {
 					$oNewSchema->ds = $originalOptionsByValue[$oOption->v]->ds;
 				}

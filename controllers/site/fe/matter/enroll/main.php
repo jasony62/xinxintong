@@ -252,12 +252,10 @@ class main extends base {
 		/* 要打开的应用 */
 		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields, 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
 		if ($oApp === false || $oApp->state !== '1') {
-			return new \ResponseError('指定的活动不存在，请检查参数是否正确');
+			return new \ObjectNotFoundError();
 		}
+		$oApp->dataSchemas = $oApp->dynaDataSchemas;
 		/* 应用的动态题目 */
-		$modelSch = $this->model('matter\enroll\schema');
-		$modelSch->setDynaSchemas($oApp);
-
 		if (isset($oApp->appRound->rid)) {
 			$rid = $oApp->appRound->rid;
 		}

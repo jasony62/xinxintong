@@ -349,7 +349,7 @@ class player_model extends \TMS_MODEL {
 				$w .= " and concat(',',tags,',') like '%,$tag,%'";
 			}
 		}
-		if (isset($oOptions->roleRoundId) && $oOptions->roleRoundId == '') {
+		if (isset($oOptions->roleRoundId) && ($oOptions->roleRoundId == '' || $oOptions->roleRoundId == 'pending')) {
 			$w .= " and role_rounds = ''";
 		} else if (isset($oOptions->roleRoundId) && (strcasecmp($oOptions->roleRoundId, 'all') !== 0)) {
 			$w .= " and role_rounds like '%\"" . $oOptions->roleRoundId . "\"%'";

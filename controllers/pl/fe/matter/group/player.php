@@ -400,6 +400,7 @@ class player extends \pl\fe\matter\base {
 			return new \ResponseError($result[1]);
 		}
 		$oPlayer->data = json_decode($result[1]);
+		$oPlayer->role_rounds = [];
 
 		return new \ResponseData($oPlayer);
 	}

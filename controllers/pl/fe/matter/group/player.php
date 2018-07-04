@@ -433,6 +433,10 @@ class player extends \pl\fe\matter\base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		$player = $modelPly->byId($oApp->id, $ek, ['fields' => 'userid,state']);
+		if (false === $player || $player->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
 		/* 更新记录数据 */
 		$oNewPlayer = new \stdClass;
@@ -457,7 +461,7 @@ class player extends \pl\fe\matter\base {
 		}
 		if (empty($oPosted->role_rounds)) {
 			$oNewPlayer->role_rounds = '';
-		} else {
+		} else if (!empty($player->userid)) {
 			$roleRounds = [];
 			foreach ($oPosted->role_rounds as $roleRound) {
 				$roleRounds[] = $roleRound;

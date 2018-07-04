@@ -38,7 +38,6 @@ class player_model extends \TMS_MODEL {
 		$aNewPlayer['draw_at'] = isset($aOptions['draw_at']) ? $aOptions['draw_at'] : $current;
 		isset($aOptions['round_id']) && $aNewPlayer['round_id'] = $aOptions['round_id'];
 		isset($aOptions['round_title']) && $aNewPlayer['round_title'] = $this->escape($aOptions['round_title']);
-		isset($aOptions['role_rounds']) && $aNewPlayer['role_rounds'] = $aOptions['role_rounds'];
 		isset($aOptions['comment']) && $aNewPlayer['comment'] = $this->escape($aOptions['comment']);
 		isset($aOptions['tags']) && $aNewPlayer['tags'] = $this->escape($aOptions['tags']);
 		isset($aOptions['referrer']) && $aNewPlayer['referrer'] = $aOptions['referrer'];
@@ -353,7 +352,7 @@ class player_model extends \TMS_MODEL {
 		if (isset($oOptions->roleRoundId) && ($oOptions->roleRoundId == '' || $oOptions->roleRoundId == 'pending')) {
 			$w .= " and role_rounds = ''";
 		} else if (isset($oOptions->roleRoundId) && (strcasecmp($oOptions->roleRoundId, 'all') !== 0)) {
-			$w .= " and role_rounds like '%\"" . $oOptions->roleRoundId . "\"%'";
+			$w .= " and role_rounds like '%\"" . $oOptions->roleRoundId . "\"%' and userid <> ''";
 		}
 		$q = [
 			$fields,

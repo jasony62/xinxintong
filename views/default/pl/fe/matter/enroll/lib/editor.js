@@ -158,7 +158,7 @@ define(['wrap'], function(wrapLib) {
 
                 oNewWrap = wrapLib.input.newWrap(newSchema);
                 _page.dataSchemas.push(oNewWrap);
-
+                
                 wrapParam = wrapLib.input.embed(oNewWrap, true);
                 domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, oSiblingSchema, insertBefore);
             } else if (_page.type === 'V') {

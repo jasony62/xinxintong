@@ -134,10 +134,10 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 }
             }
             // 更新应用
-            srvSigninApp.update('data_schemas').then(function() {
+            srvSigninApp.update('dataSchemas').then(function() {
                 // 更新页面
                 pages.forEach(function(oPage) {
-                    $scope.updPage(oPage, ['data_schemas', 'act_schemas', 'html']);
+                    $scope.updPage(oPage, ['dataSchemas', 'actSchemas', 'html']);
                 });
             });
         };

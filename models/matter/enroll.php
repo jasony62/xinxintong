@@ -151,7 +151,6 @@ class enroll_model extends enroll_base {
 				$oApp->dynaDataSchemas = $oApp2->dataSchemas;
 
 				/* 设置活动的动态选项 */
-				$modelSch = $this->model('matter\enroll\schema');
 				$modelSch->setDynaOptions($oApp, $oAppRnd);
 			}
 

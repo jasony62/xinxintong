@@ -36,37 +36,57 @@ class page extends \pl\fe\matter\base {
 	 * $page 页面的id，如果id==0，是固定页面
 	 * $cid 页面对应code page id
 	 */
-	public function update_action($site, $app, $page, $cname) {
+	public function update_action($app, $page, $cname) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$nv = $this->getPostJson();
 
-		$rst = 0;
-		if (isset($nv->html)) {
+		$modelApp = $this->model('matter\signin');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,state', 'cascaded' => 'N']);
+		if ($oApp === false || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelPage = $this->model('matter\signin\page');
+		$oPage = $modelPage->byId($oApp->id, $page);
+		if ($oPage === false) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oPosted = $this->getPostJson();
+
+		/* 更新页面内容 */
+		if (isset($oPosted->html)) {
 			$data = [
-				'html' => urldecode($nv->html),
+				'html' => urldecode($oPosted->html),
 			];
 			$modelCode = $this->model('code\page');
-			$code = $modelCode->lastByName($site, $cname);
-			$rst = $modelCode->modify($code->id, $data);
-			unset($nv->html);
+			$oCode = $modelCode->lastByName($oPage->siteid, $cname);
+			$rst = $modelCode->modify($oCode->id, $data);
+			unset($oPosted->html);
 		}
-		if ($page != 0 && count(array_keys(get_object_vars($nv)))) {
-			$model = $this->model();
-			if (isset($nv->data_schemas)) {
-				$nv->data_schemas = $model->escape($model->toJson($nv->data_schemas));
+		/* 更新了除内容外，页面的其他属性 */
+		if (count((array) $oPosted)) {
+			$aUpdated = [];
+			foreach ($oPosted as $prop => $val) {
+				switch ($prop) {
+				case 'dataSchemas':
+					$aUpdated['data_schemas'] = $modelPage->escape($modelPage->toJson($val));
+					break;
+				case 'actSchemas':
+					$aUpdated['act_schemas'] = $modelPage->escape($modelPage->toJson($val));
+					break;
+				case 'title':
+					$aUpdated[$prop] = $modelPage->escape($val);
+					break;
+				default:
+					$aUpdated[$prop] = $val;
+				}
 			}
-			if (isset($nv->act_schemas)) {
-				$nv->act_schemas = $model->escape($model->toJson($nv->act_schemas));
-			}
-			if (isset($nv->user_schemas)) {
-				$nv->user_schemas = $model->escape($model->toJson($nv->user_schemas));
-			}
-			$rst = $model->update(
+			$rst = $modelPage->update(
 				'xxt_signin_page',
-				$nv,
-				["aid" => $app, "id" => $page]
+				$aUpdated,
+				["id" => $oPage->id]
 			);
 		}
 

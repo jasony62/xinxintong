@@ -18,7 +18,6 @@ class main extends main_base {
 		if (false === ($oApp = $modelEnl->byId($app))) {
 			return new \ResponseError('指定的数据不存在');
 		}
-		unset($oApp->data_schemas);
 		unset($oApp->round_cron);
 		unset($oApp->rp_config);
 

@@ -42,6 +42,11 @@ class schema_model extends \TMS_MODEL {
 	 *
 	 * 1、无效的字段
 	 * 2、无效的设置，例如隐藏条件
+	 *
+	 * 支持的类型
+	 * type
+	 * title
+	 * dsOps 动态选项来源
 	 */
 	public function purify($aAppSchemas) {
 		$validProps = ['id', 'type', 'title', 'content', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchemas', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
@@ -106,6 +111,7 @@ class schema_model extends \TMS_MODEL {
 		if (empty($oAppRound)) {
 			$oAppRound = $this->model('matter\enroll\round')->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
 		}
+
 		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if (isset($oSchema->type) && in_array($oSchema->type, ['single', 'multiple'])) {
 				if (!empty($oSchema->dsOps->app->id) && !empty($oSchema->dsOps->schema->id)) {
@@ -371,8 +377,10 @@ class schema_model extends \TMS_MODEL {
 
 		/* 加入动态创建的题目 */
 		if (count($dynaSchemasByIndex)) {
+			$protoSchemaOffset = 0;
 			foreach ($dynaSchemasByIndex as $index => $dynaSchemas) {
-				array_splice($oApp->dataSchemas, $index, 1, $dynaSchemas);
+				array_splice($oApp->dataSchemas, $index + $protoSchemaOffset, 1, $dynaSchemas);
+				$protoSchemaOffset += count($dynaSchemas) - 1;
 			}
 		}
 

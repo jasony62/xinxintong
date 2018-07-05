@@ -1,12 +1,12 @@
 <div class="modal-header">
     <button class="close" ng-click="cancel()">×</button>
-    <h5 class="modal-title">从其他活动导入题目</h5>
+    <h5 class="modal-title">从其他活动复制题目</h5>
 </div>
 <div class="modal-body">
     <div class='row'>
         <div class='col-md-6'>
             <div class='form-group'>
-                <label>活动</label>
+                <label>1.选择目标活动</label>
                 <div class='input-group'>
                     <input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
                     <span class='input-group-btn'>
@@ -15,9 +15,12 @@
                 </div>
                 <select class="form-control" ng-model="result.fromApp" ng-options="app as app.title for app in apps" size="12" ng-change="selectApp()" style='overflow-x:auto'></select>
             </div>
+            <div class='pl-pagination'>
+                <ul uib-pagination class='pagination-sm' ng-if="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
+            </div>
         </div>
         <div class='col-md-6'>
-            <label>题目</label>
+            <label>2.选择要复制的题目</label>
             <div class='list-group' style='height:300px;overflow-y:auto'>
                 <div class='list-group-item' ng-repeat="schema in result.fromApp.dataSchemas">
                     <label class="checkbox-inline">
@@ -26,15 +29,7 @@
             </div>
         </div>
     </div>
-    <div class='row'>
-        <div class='col-md-12'>
-            <div class='pl-pagination'>
-                <span>总数：{{page.total}}</span>
-                <ul uib-pagination ng-show="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
-            </div>
-        </div>
-    </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-success" ng-click="ok()" ng-disabled="!result.fromApp">执行</button>
+    <button class="btn btn-success" ng-click="ok()" ng-disabled="!result.schemas.length">复制</button>
 </div>

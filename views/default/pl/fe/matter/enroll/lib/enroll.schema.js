@@ -535,7 +535,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 var _oApp;
                 _oApp = $scope.app;
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/importSchemaByOther.html?_=2',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/importByOther.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
                         $scope2.page = oPage = {
@@ -586,6 +586,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(schemas) {
                     schemas.forEach(function(schema) {
@@ -1214,7 +1215,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 var _oApp;
                 _oApp = $scope.app;
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setOptionsSource.html?_=1',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setOptionsSource.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oAppFilter;
                         $scope2.page = oPage = {

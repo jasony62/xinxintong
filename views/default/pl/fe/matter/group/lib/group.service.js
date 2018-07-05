@@ -198,13 +198,11 @@ provider('srvGroupApp', function() {
             },
             dealData: function(player) {
                 var role_round_titles = [];
-                if(player.role_rounds.length) {
-                    player.role_rounds.forEach(function(roundId) {
-                        role_round_titles.push(_oApp._roundsById[roundId].title);
-                    });
-                    player.role_round_titles = role_round_titles;
-                }
-            },
+                player.role_rounds.forEach(function(roundId) {
+                    role_round_titles.push(_oApp._roundsById[roundId].title);
+                });
+                player.role_round_titles = role_round_titles;
+            }
         };
     }];
 }).provider('srvGroupRound', function() {
@@ -643,6 +641,9 @@ provider('srvGroupApp', function() {
             for(var i in $scope.player._role_rounds) {
                 if($scope.player._role_rounds[i]&&$scope.player.role_rounds.indexOf(i)===-1) {
                     $scope.player.role_rounds.push(i);
+                }
+                if(!$scope.player._role_rounds[i]&&$scope.player.role_rounds.indexOf(i)!==-1) {
+                    $scope.player.role_rounds.splice(i, 1);
                 }
             }
         } 

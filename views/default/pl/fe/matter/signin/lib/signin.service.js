@@ -944,9 +944,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                 return defer.promise;
             };
-            _ins.absent = function() {
-                var defer = $q.defer();
-                http2.get('/rest/pl/fe/matter/signin/record/absent?site=' + siteId + '&app=' + appId, function(rsp) {
+            _ins.absent = function(rid) {
+                var defer = $q.defer(),
+                    url;
+                url = '/rest/pl/fe/matter/signin/record/absent?site=' + siteId + '&app=' + appId;
+                if (rid) url += '&rid=' + rid;
+                http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;

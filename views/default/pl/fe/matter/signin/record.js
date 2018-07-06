@@ -2,7 +2,7 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlRecord', ['$scope', '$uibModal', 'srvSigninApp', 'srvSigninRecord', function($scope, $uibModal, srvSigninApp, srvSigninRecord) {
         $scope.absent = function() {
-            srvSigninRecord.absent().then(function(data) {
+            srvSigninRecord.absent($scope.page.byRound ? $scope.page.byRound : null).then(function(data) {
                 $scope.absentUsers = data.users;
             });
         };
@@ -17,6 +17,10 @@ define(['frame'], function(ngApp) {
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
             srvSigninRecord.search(pageNumber);
+        };
+        $scope.changeRound = function() {
+            $scope.doSearch(1);
+            $scope.absent();
         };
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);

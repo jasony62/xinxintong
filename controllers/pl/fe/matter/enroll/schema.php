@@ -93,33 +93,33 @@ class schema extends main_base {
 			case 'single':
 			case 'multiple':
 				if (!empty($aTargetData[$oTargetSchema->id]->ops)) {
-					$options = $aTargetData[$oTargetSchema->id]->ops;
-					usort($options, function ($a, $b) {
+					$targetOptions = $aTargetData[$oTargetSchema->id]->ops;
+					usort($targetOptions, function ($a, $b) {
 						return $a->c < $b->c;
 					});
 					$bGenerated = false;
 					if (!empty($oTargetSchema->limit->scope) && !empty($oTargetSchema->limit->num) && (int) $oTargetSchema->limit->num) {
 						if ($oTargetSchema->limit->scope === 'top') {
-							$modelSch->genSchemaByTopOptions($oTargetSchema, $options, $oTargetSchema->limit->num, $newSchemas);
+							$modelSch->genSchemaByTopOptions($oTargetSchema, $targetOptions, $oTargetSchema->limit->num, $newSchemas);
 							$bGenerated = true;
 						} else if ($oTargetSchema->limit->scope === 'checked') {
-							$modelSch->genSchemaByCheckedOptions($oTargetSchema, $options, $oTargetSchema->limit->num, $newSchemas);
+							$modelSch->genSchemaByCheckedOptions($oTargetSchema, $targetOptions, $oTargetSchema->limit->num, $newSchemas);
 							$bGenerated = true;
 						}
 					}
 					if (!$bGenerated) {
 						if (!empty($oPosted->limit->scope) && !empty($oPosted->limit->num) && (int) $oPosted->limit->num) {
 							if ($oPosted->limit->scope === 'top') {
-								$modelSch->genSchemaByTopOptions($oTargetSchema, $options, $oPosted->limit->num, $newSchemas);
+								$modelSch->genSchemaByTopOptions($oTargetSchema, $targetOptions, $oPosted->limit->num, $newSchemas);
 								$bGenerated = true;
 							} else if ($oPosted->limit->scope === 'checked') {
-								$modelSch->genSchemaByCheckedOptions($oTargetSchema, $options, $oPosted->limit->num, $newSchemas);
+								$modelSch->genSchemaByCheckedOptions($oTargetSchema, $targetOptions, $oPosted->limit->num, $newSchemas);
 								$bGenerated = true;
 							}
 						}
 					}
 					if (!$bGenerated) {
-						$modelSch->genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas);
+						$modelSch->genSchemaByTopOptions($oTargetSchema, $targetOptions, count($targetOptions), $newSchemas);
 					}
 				}
 				break;

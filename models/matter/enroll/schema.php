@@ -321,8 +321,6 @@ class schema_model extends \TMS_MODEL {
 						usort($options, function ($a, $b) {
 							return $a->c < $b->c;
 						});
-						//if (!empty($oTargetSchema->limit->scope) && !empty($oTargetSchema->limit->num) && (int) $oTargetSchema->limit->num) {
-						//	if ($oTargetSchema->limit->scope === 'top') {
 						$this->genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas, $oSchema);
 						foreach ($newSchemas as $oNewDynaSchema) {
 							$oNewDynaSchema->dynamic = 'Y';
@@ -330,10 +328,6 @@ class schema_model extends \TMS_MODEL {
 								'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title],
 							];
 						}
-						//	} else if ($oTargetSchema->limit->scope === 'checked') {
-						//		$this->genSchemaByCheckedOptions($oTargetSchema, $options, $oTargetSchema->limit->num, $newSchemas);
-						//	}
-						//}
 					}
 					break;
 				}
@@ -412,17 +406,17 @@ class schema_model extends \TMS_MODEL {
 		}
 
 		for ($i = 0; $i < $limitNum; $i++) {
-			$oOption = $votingOptions[$i];
-			if (isset($originalOptionsByValue[$oOption->v])) {
-				$oOriginalOption = $originalOptionsByValue[$oOption->v];
+			$oVotingOption = $votingOptions[$i];
+			if (isset($originalOptionsByValue[$oVotingOption->v])) {
+				$oOriginalOption = $originalOptionsByValue[$oVotingOption->v];
 				if (empty($oProtoSchema)) {
 					$oNewSchema = new \stdClass;
 					$oNewSchema->type = 'longtext';
 				} else {
 					$oNewSchema = clone $oProtoSchema;
 				}
-				$oNewSchema->id = $oTargetSchema->id . $oOption->v;
-				$oNewSchema->title = $oOption->l;
+				$oNewSchema->id = $oTargetSchema->id . $oOriginalOption->v;
+				$oNewSchema->title = $oOriginalOption->l;
 				/* 题目定义的来源 */
 				if (!isset($oNewSchema->dsSchema)) {
 					$oNewSchema->dsSchema = new \stdClass;
@@ -437,29 +431,34 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 根据选项获得的选择数量生成题目
 	 */
-	public function genSchemaByCheckedOptions($oTargetSchema, $votingOptions, $checkedNum, &$newSchemas) {
+	public function genSchemaByCheckedOptions($oTargetSchema, $votingOptions, $checkedNum, &$newSchemas, $oProtoSchema = null) {
+		$originalOptionsByValue = [];
+		foreach ($oTargetSchema->ops as $oOption) {
+			$originalOptionsByValue[$oOption->v] = $oOption;
+		}
 		for ($i = 0, $ii = count($votingOptions); $i < $ii; $i++) {
-			$oOption = $votingOptions[$i];
-
-			$originalOptionsByValue = [];
-			foreach ($oTargetSchema->ops as $oOption) {
-				$originalOptionsByValue[$oOption->v] = $oOption;
+			$oVotingOption = $votingOptions[$i];
+			if (!isset($originalOptionsByValue[$oVotingOption->v]) && $oVotingOption->c < $checkedNum) {
+				break;
 			}
+			$oOriginalOption = $originalOptionsByValue[$oVotingOption->v];
 
-			if (isset($originalOptionsByValue[$oOption->v])) {
-				if ($oOption->c < $checkedNum) {
-					break;
-				}
+			if (empty($oProtoSchema)) {
 				$oNewSchema = new \stdClass;
-				$oNewSchema->id = $oTargetSchema->id . $oOption->v;
-				$oNewSchema->title = $oOption->l;
 				$oNewSchema->type = 'longtext';
-				if (isset($originalOptionsByValue[$oOption->v]->ds)) {
-					$oNewSchema->ds = $originalOptionsByValue[$oOption->v]->ds;
-					//$oNewSchema->ds->schema_id = $oTargetSchema->dsOps->schema->id;
-				}
-				$newSchemas[] = $oNewSchema;
+			} else {
+				$oNewSchema = clone $oProtoSchema;
 			}
+			$oNewSchema->id = $oTargetSchema->id . $oOriginalOption->v;
+			$oNewSchema->title = $oOriginalOption->l;
+			/* 题目定义的来源 */
+			if (!isset($oNewSchema->dsSchema)) {
+				$oNewSchema->dsSchema = new \stdClass;
+			}
+			$oNewSchema->dsSchema->op = clone $oOriginalOption;
+			$oNewSchema->dsSchema->op->schema_id = $oTargetSchema->id;
+
+			$newSchemas[] = $oNewSchema;
 		}
 	}
 }

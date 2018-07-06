@@ -46,10 +46,11 @@ class schema_model extends \TMS_MODEL {
 	 * 支持的类型
 	 * type
 	 * title
+	 * dsSchema 题目定义的来源
 	 * dsOps 动态选项来源
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'title', 'content', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchemas', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
+		$validProps = ['id', 'type', 'title', 'content', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
 
 		$purified = [];
 		foreach ($aAppSchemas as $oSchema) {
@@ -153,7 +154,7 @@ class schema_model extends \TMS_MODEL {
 						$oNewOp = new \stdClass;
 						$oNewOp->v = 'v' . ($index + 1);
 						$oNewOp->l = $oRecData->value;
-						$oNewOp->ds = (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname];
+						$oNewOp->ds = (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname, 'schema_id' => $oSchema->dsOps->schema->id];
 						$oSchema->ops[] = $oNewOp;
 					}
 				}
@@ -335,14 +336,16 @@ class schema_model extends \TMS_MODEL {
 					break;
 				}
 			}
+			/* 修改动态选项 */
 			if (isset($oSchema->dsOps->app->id)) {
 				$oApp3 = $modelEnl->byId($oSchema->dsOps->app->id, ['cascaded' => 'N']);
 				foreach ($newSchemas as $oNewDynaSchema1) {
 					if (isset($oNewDynaSchema1->ds->ek) && isset($oNewDynaSchema1->dsOps->schema)) {
 						foreach ($oApp3->dynaDataSchemas as $oDynaSchema2) {
-							if (isset($oDynaSchema2->ds->ek) && $oDynaSchema2->ds->ek === $oNewDynaSchema1->ds->ek) {
+							if ($oDynaSchema2->id === $oNewDynaSchema1->id) {
 								$oNewDynaSchema1->dsOps->schema->id = $oDynaSchema2->id;
 								$oNewDynaSchema1->dsOps->schema->title = $oDynaSchema2->title;
+								break;
 							}
 						}
 					}
@@ -402,17 +405,18 @@ class schema_model extends \TMS_MODEL {
 		for ($i = 0; $i < $limitNum; $i++) {
 			$oOption = $votingOptions[$i];
 			if (isset($originalOptionsByValue[$oOption->v])) {
+				$oOriginalOption = $originalOptionsByValue[$oOption->v];
 				if (empty($oProtoSchema)) {
 					$oNewSchema = new \stdClass;
 					$oNewSchema->type = 'longtext';
+					$oNewSchema->dsSchema = new \stdClass;
 				} else {
 					$oNewSchema = clone $oProtoSchema;
 				}
 				$oNewSchema->id = $oTargetSchema->id . $oOption->v;
 				$oNewSchema->title = $oOption->l;
-				if (isset($originalOptionsByValue[$oOption->v]->ds)) {
-					$oNewSchema->ds = $originalOptionsByValue[$oOption->v]->ds;
-				}
+				$oNewSchema->dsSchema->op = $oOriginalOption;
+				$oNewSchema->dsSchema->op->schema_id = $oTargetSchema->id;
 				$newSchemas[] = $oNewSchema;
 			}
 		}
@@ -439,6 +443,7 @@ class schema_model extends \TMS_MODEL {
 				$oNewSchema->type = 'longtext';
 				if (isset($originalOptionsByValue[$oOption->v]->ds)) {
 					$oNewSchema->ds = $originalOptionsByValue[$oOption->v]->ds;
+					//$oNewSchema->ds->schema_id = $oTargetSchema->dsOps->schema->id;
 				}
 				$newSchemas[] = $oNewSchema;
 			}

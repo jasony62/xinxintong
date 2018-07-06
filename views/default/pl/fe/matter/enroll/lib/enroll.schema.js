@@ -715,7 +715,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
                                 oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
                                 oResult.fromApp.dataSchemas.forEach(function(oSchema) {
-                                    if (oSchema.type === 'score' && oSchema.dsSchemas) {
+                                    if (oSchema.type === 'score' && oSchema.dsSchema) {
                                         $scope2.dataSchemas.push(oSchema);
                                     }
                                 });
@@ -1429,13 +1429,13 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     size: 'lg'
                 }).result.then(function(oResult) {
                     if (oResult.app && oResult.schema) {
-                        oSchema.dsSchemas = {
+                        oSchema.dsSchema = {
                             app: { id: oResult.app.id, title: oResult.app.title },
                             schema: { id: oResult.schema.id, title: oResult.schema.title, type: oResult.schema.type },
                             mode: oResult.mode
                         }
                         if (oResult.filters && oResult.filters.length) {
-                            oSchema.dsSchemas.filters = [];
+                            oSchema.dsSchema.filters = [];
                             oResult.filters.forEach(function(oFilter) {
                                 var oNewFilter;
                                 if (oFilter.schema && oFilter.op) {
@@ -1446,7 +1446,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                             op: { v: oFilter.op.v, l: oFilter.op.l }
                                         }
                                     };
-                                    oSchema.dsSchemas.filters.push(oNewFilter);
+                                    oSchema.dsSchema.filters.push(oNewFilter);
                                 }
                             });
                         }

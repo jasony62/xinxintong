@@ -5,8 +5,17 @@
 <div class="modal-body">
     <div class='row'>
         <div class='col-md-4'>
+            <label>1.选择要发布的投票题目</label>
+            <div class='list-group' style='height:300px;overflow-y:auto'>
+                <div class='list-group-item' ng-repeat="schema in votingSchemas">
+                    <label class="checkbox-inline">
+                        <input type='checkbox' ng-model="schema._selected" ng-change="selectSchema(schema)">{{schema.title}}</label>
+                </div>
+            </div>
+        </div>
+        <div class='col-md-4'>
             <div class='form-group'>
-                <label>活动</label>
+                <label>2.选择目标活动</label>
                 <div class='input-group'>
                     <input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
                     <span class='input-group-btn'>
@@ -17,16 +26,7 @@
             </div>
             <div class='form-group'>
                 <div class='pl-pagination'>
-                    <ul uib-pagination ng-show="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
-                </div>
-            </div>
-        </div>
-        <div class='col-md-4'>
-            <label>投票题目</label>
-            <div class='list-group' style='height:300px;overflow-y:auto'>
-                <div class='list-group-item' ng-repeat="schema in votingSchemas">
-                    <label class="checkbox-inline">
-                        <input type='checkbox' ng-model="schema._selected" ng-change="selectSchema(schema)">{{schema.title}}</label>
+                    <ul uib-pagination class='pagination-sm' ng-if="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
                 </div>
             </div>
         </div>
@@ -39,24 +39,19 @@
                 <label>用题目选项填充的题目</label>
                 <select class='form-control' ng-model="result.answerSchema" ng-options="schema.id as schema.title for schema in result.answerSchemas"></select>
             </div>
-        </div>
-    </div>
-    <div class='row'>
-        <div class='col-md-12'>
-            <div class='form-inline text-right'>
-                <div class='form-group'>
-                    <input type='number' class='form-control' ng-model="result.limit.num" placeholder="数量" style='width:6em'>
-                </div>
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="limitScope" value="top" ng-model="result.limit.scope"> <span>按选择数排序的前<mark ng-bind="result.limit.num"></mark>选项</span>
-                    </label>
-                </div>
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="limitScope" value="checked" ng-model="result.limit.scope"> <span>获得选择数大于<mark ng-bind="result.limit.num"></mark>的选项</span>
-                    </label>
-                </div>
+            <hr>
+            <div class='form-group'>
+                <input type='number' class='form-control' ng-model="result.limit.num" placeholder="数量" style='width:6em'>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="limitScope" value="top" ng-model="result.limit.scope"> <span>按选择数排序的前<mark ng-bind="result.limit.num"></mark>选项</span>
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="limitScope" value="checked" ng-model="result.limit.scope"> <span>获得选择数大于<mark ng-bind="result.limit.num"></mark>的选项</span>
+                </label>
             </div>
         </div>
     </div>

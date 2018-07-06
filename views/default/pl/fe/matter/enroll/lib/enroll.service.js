@@ -1338,10 +1338,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }
                         };
                         $scope2.result = oResult = {
+                            votingSchemas: [],
                             limit: { scope: 'top', num: 3 }
                         };
                         $scope2.votingSchemas = [];
-                        oApp.dataSchemas.forEach(function(oSchema) {
+                        oApp.dynaDataSchemas.forEach(function(oSchema) {
                             if (/single|multiple/.test(oSchema.type)) {
                                 $scope2.votingSchemas.push(angular.copy(oSchema));
                             }
@@ -1350,7 +1351,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         $scope2.selectApp = function() {
                             oResult.questionSchemas = [];
                             oResult.answerSchemas = [];
-                            oResult.votingSchemas = [];
                             if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
                                 oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
                                 oResult.fromApp.dataSchemas.forEach(function(oSchema) {
@@ -1395,6 +1395,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
                     var url;

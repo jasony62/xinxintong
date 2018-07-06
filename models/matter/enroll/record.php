@@ -1577,7 +1577,7 @@ class record_model extends record_base {
 
 		// 对选择题和打分题选项排序
 		$oSchemas = new \stdClass;
-		foreach ($oApp->dataSchemas as $oSchema) {
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			$oSchemas->{$oSchema->id} = $oSchema;
 		}
 		foreach ($aResult as $key => &$value) {
@@ -1600,7 +1600,7 @@ class record_model extends record_base {
 	private function &_calcStat($oApp, $rid) {
 		$aResult = [];
 
-		$dataSchemas = $oApp->dataSchemas;
+		$dataSchemas = $oApp->dynaDataSchemas;
 		foreach ($dataSchemas as $oSchema) {
 			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score', 'multitext'])) {
 				continue;

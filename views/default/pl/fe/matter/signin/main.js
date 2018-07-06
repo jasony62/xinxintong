@@ -131,11 +131,12 @@ define(['frame'], function(ngApp) {
             srvSigninApp.changeUserScope($scope.rule.scope, $scope.sns);
         };
         $scope.chooseMschema = function() {
-            srvSite.chooseMschema($scope.app).then(function(result) {
-                var rule = {};
-                if (!oEntryRule.member[result.chosen.id]) {
+            srvSite.chooseMschema($scope.app).then(function(oResult) {
+                var ruleMember, rule = {};
+                if (!(ruleMember = oEntryRule.member)) oEntryRule.member = ruleMember = {};
+                if (!ruleMember[oResult.chosen.id]) {
                     rule.entry = 'Y';
-                    oEntryRule.member[result.chosen.id] = rule;
+                    ruleMember[oResult.chosen.id] = rule;
                     $scope.update('entryRule');
                 }
             });

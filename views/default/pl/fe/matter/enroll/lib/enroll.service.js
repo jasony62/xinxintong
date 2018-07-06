@@ -1392,6 +1392,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 oPage.total = rsp.data.total;
                             });
                         };
+                        $scope2.disabled = true; // 选择的参数是否完整
+                        $scope2.$watch('result', function() {
+                            $scope2.disabled = false;
+                            if (!oResult.votingSchemas || oResult.votingSchemas.length === 0) $scope2.disabled = true;
+                            if (!oResult.fromApp) $scope2.disabled = true;
+                            if (!oResult.answerSchema) $scope2.disabled = true;
+                            if (!oResult.questionSchema) $scope2.disabled = true;
+                        }, true);
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',

@@ -26,11 +26,7 @@ class schema extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		/* 应用的动态题目 */
-		$modelSch = $this->model('matter\enroll\schema');
-		$modelSch->setDynaSchemas($oApp);
-
-		$dataSchemas = $oApp->dataSchemas;
+		$dataSchemas = $oApp->dynaDataSchemas;
 
 		return new \ResponseData($dataSchemas);
 	}

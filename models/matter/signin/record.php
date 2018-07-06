@@ -692,8 +692,8 @@ class record_model extends \matter\enroll\record_base {
 	 * @param object $options
 	 *
 	 */
-	public function enrolleeByApp($oApp, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'enroll_key,userid';
+	public function enrolleeByApp($oApp, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'enroll_key,userid';
 
 		$w = "state=1 and aid='{$oApp->id}' and userid<>''";
 
@@ -703,9 +703,24 @@ class record_model extends \matter\enroll\record_base {
 			"xxt_signin_record",
 			$w,
 		];
-		$enrollees = $this->query_objs_ss($q);
+		$records = $this->query_objs_ss($q);
+		if (count($records)) {
+			$fnDataHandlers = [];
+			if ($fields === '*' || strpos($fields, 'signin_log') !== false) {
+				$fnDataHandlers[] = function (&$oRecord) {
+					$oRecord->signin_log = empty($oRecord->signin_log) ? new \stdClass : json_decode($oRecord->signin_log);
+				};
+			}
+			if (count($fnDataHandlers)) {
+				foreach ($records as $oRecord) {
+					foreach ($fnDataHandlers as $fnHandler) {
+						$fnHandler($oRecord);
+					}
+				}
+			}
+		}
 
-		return $enrollees;
+		return $records;
 	}
 	/**
 	 * 缺席用户
@@ -716,33 +731,22 @@ class record_model extends \matter\enroll\record_base {
 	 */
 	public function absentByApp($oApp, $rid = '') {
 		/* 获得当前活动的参与人 */
-		$oUsers = $this->enrolleeByApp($oApp, ['fields' => 'id,userid']);
-		$oUsers2 = [];
+		$oUsers = $this->enrolleeByApp($oApp, ['fields' => 'id,userid,signin_log']);
+		$oSigninedUsers = []; // 做过签到的用户
 		foreach ($oUsers as $oUser) {
-			$oUsers2[$oUser->id] = $oUser->userid;
-		}
-		$aAbsentUsrs = [];
-		if (isset($oApp->entryRule->scope->member) && $oApp->entryRule->scope->member === 'Y') {
-			if ($oApp->entryRule->scope === 'member' && isset($oApp->entryRule->member)) {
-				$modelMem = $this->model('site\user\member');
-				foreach ($oApp->entryRule->member as $mschemaId => $rule) {
-					$members = $modelMem->byMschema($mschemaId);
-					foreach ($members as $oMember) {
-						if (false === in_array($oMember->userid, $oUsers2)) {
-							$oUser = new \stdClass;
-							$oUser->userid = $oMember->userid;
-							$oUser->nickname = $oMember->name;
-							$aAbsentUsrs[] = $oUser;
-						}
-					}
-				}
+			if (empty($rid)) {
+				$oSigninedUsers[] = $oUser->userid;
+			} else if (isset($oUser->signin_log->{$rid})) {
+				$oSigninedUsers[] = $oUser->userid;
 			}
-		} else if (!empty($oApp->group_app_id)) {
+		}
+		$aAllUsrs = [];
+		if (!empty($oApp->group_app_id)) {
 			$modelGrpUsr = $this->model('matter\group\player');
 			$aGrpUsrs = $modelGrpUsr->byApp($oApp->group_app_id, ['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']);
 			foreach ($aGrpUsrs->players as $oGrpUsr) {
-				if (false === in_array($oGrpUsr->userid, $oUsers2)) {
-					$aAbsentUsrs[] = $oGrpUsr;
+				if (false === in_array($oGrpUsr->userid, $oSigninedUsers)) {
+					$aAllUsrs[] = $oGrpUsr;
 				}
 			}
 		} else if (!empty($oApp->enroll_app_id)) {
@@ -750,35 +754,48 @@ class record_model extends \matter\enroll\record_base {
 			$result = $modelRec->byApp($oApp->enroll_app_id);
 			if (!empty($result->records)) {
 				foreach ($result->records as $oRec) {
-					if (false === in_array($oRec->userid, $oUsers2)) {
-						$aAbsentUsrs[] = $oRec;
+					if (false === in_array($oRec->userid, $oSigninedUsers)) {
+						$aAllUsrs[] = $oRec;
+					}
+				}
+			}
+		} else if (isset($oApp->entryRule->scope->member) && $oApp->entryRule->scope->member === 'Y' && !empty($oApp->entryRule->member)) {
+			$modelMem = $this->model('site\user\member');
+			foreach ($oApp->entryRule->member as $mschemaId => $rule) {
+				$members = $modelMem->byMschema($mschemaId);
+				foreach ($members as $oMember) {
+					if (false === in_array($oMember->userid, $oSigninedUsers)) {
+						$oUser = new \stdClass;
+						$oUser->userid = $oMember->userid;
+						$oUser->nickname = $oMember->name;
+						$aAllUsrs[] = $oUser;
 					}
 				}
 			}
 		}
 		/* userid去重 */
-		$aAbsentUsrs2 = [];
-		foreach ($aAbsentUsrs as $aAbsentUsr) {
-			$state = true;
-			foreach ($aAbsentUsrs2 as $aAbsentUsr2) {
+		$aAbsentUsrs = [];
+		foreach ($aAllUsrs as $aAbsentUsr) {
+			$isNew = true;
+			foreach ($aAbsentUsrs as $aAbsentUsr2) {
 				if ($aAbsentUsr->userid === $aAbsentUsr2->userid || empty($aAbsentUsr->userid)) {
-					$state = false;
+					$isNew = false;
 					break;
 				}
 			}
-			if ($state) {
+			if ($isNew) {
 				if (isset($oApp->absent_cause->{$aAbsentUsr->userid})) {
 					$aAbsentUsr->absent_cause = $oApp->absent_cause->{$aAbsentUsr->userid};
 				} else {
 					$aAbsentUsr->absent_cause = '';
 				}
-				$aAbsentUsrs2[] = $aAbsentUsr;
+				$aAbsentUsrs[] = $aAbsentUsr;
 			}
 		}
 
-		$result = new \stdClass;
-		$result->users = $aAbsentUsrs2;
+		$oResult = new \stdClass;
+		$oResult->users = $aAbsentUsrs;
 
-		return $result;
+		return $oResult;
 	}
 }

@@ -20,7 +20,7 @@
             </div>
         </div>
         <div class='col-md-6'>
-            <label>2.选择要复制的题目</label>
+            <label>2.选择要复制的题目 <span ng-if="!result.schemas.length" class='text-danger glyphicon glyphicon-hand-left'></span></label>
             <div class='list-group' style='height:300px;overflow-y:auto'>
                 <div class='list-group-item' ng-repeat="schema in result.fromApp.dataSchemas">
                     <label class="checkbox-inline">
@@ -31,5 +31,5 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-success" ng-click="ok()" ng-disabled="!result.schemas.length">复制</button>
+    <button class="btn btn-success" ng-class="{'btn-danger':disabled,'btn-success':!disabled}" ng-click="ok()" ng-disabled="disabled">复制</button>
 </div>

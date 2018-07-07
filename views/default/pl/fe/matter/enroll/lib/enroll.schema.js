@@ -531,6 +531,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
 
                 return newSchema;
             };
+            /**
+             * 从其他活动中引入题目
+             */
             $scope.importByOther = function() {
                 var _oApp;
                 _oApp = $scope.app;
@@ -583,6 +586,11 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 oPage.total = rsp.data.total;
                             });
                         };
+                        $scope2.disabled = true;
+                        $scope2.$watch('result', function() {
+                            $scope2.disabled = false;
+                            if (!oResult.schemas || oResult.schemas.length === 0) $scope2.disabled = true;
+                        }, true);
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',

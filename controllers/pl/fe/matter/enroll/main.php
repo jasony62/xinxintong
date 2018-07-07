@@ -1136,17 +1136,17 @@ class main extends main_base {
 				case 'M':
 					if (empty($oRule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
 					if (empty($oRule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
-					if ($oRule->hour === '') {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
 					break;
 				// 0-6 周几
 				case 'W':
-					if ($oRule->wday === '') {return [false, '请设置定时轮次每周几开始！'];}
-					if ($oRule->end_wday === '') {return [false, '请设置定时轮次每周几结束！'];}
-					if ($oRule->hour === '') {return [false, '请设置定时轮次每周几的几点开始！'];}
+					if (empty($oRule->wday)) {return [false, '请设置定时轮次每周几开始！'];}
+					if (empty($oRule->end_wday)) {return [false, '请设置定时轮次每周几结束！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每周几的几点开始！'];}
 					break;
 				// 0-23 几点
 				default:
-					if ($oRule->hour === '') {return [false, '请设置定时轮次每天的几点开始！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每天的几点开始！'];}
 					break;
 				}
 			} else if ($oRule->pattern === 'interval') {

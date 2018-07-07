@@ -268,11 +268,15 @@ class round_model extends \TMS_MODEL {
 			'xxt_enroll_round',
 			['aid' => $oApp->id, 'state' => 1, 'start_at' => $oCronRound->start_at],
 		];
-		if ($oRound = $this->query_obj_ss($q)) {
-			return [true, $oRound];
+		$rounds = $this->query_objs_ss($q);
+		if (count($rounds) > 1) {
+			return [false, '轮次数据错误，同一个开始时间有多个轮次[' . date('y年n月d日 H:i', $oCronRound->start_at) . ']'];
 		}
-		/* 创建新论次 */
-		if (false === $oRound) {
+		if (count($rounds) === 1) {
+			/* 找到匹配的轮次 */
+			$oRound = $rounds[0];
+		} else {
+			/* 创建新论次 */
 			$rst = $this->create($oApp, $oCronRound);
 			if (false === $rst[0]) {
 				return $rst;

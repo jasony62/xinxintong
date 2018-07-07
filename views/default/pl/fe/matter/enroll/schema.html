@@ -35,17 +35,10 @@
             </div>
         </div>
         <div class='form-group list-group-item'>
+            <button class='btn btn-default btn-block' ng-click="importByOther()">由其他活动中的题目生成题目</button>
             <div class="btn-group btn-block">
                 <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style='width:100%'>
-                    由指定活动的题目生成题目 <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href ng-click="importByOther()">复制题目</a></li>
-                </ul>
-            </div>
-            <div class="btn-group btn-block">
-                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style='width:100%'>
-                    由指定活动的填写结果生成题目 <span class="caret"></span>
+                    由其他活动的填写结果生成题目 <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
                     <li><a href ng-click="createInputByOption()">【选项】生成【填写题】</a></li>

@@ -548,13 +548,29 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 return 'page=' + this.at + '&size=' + this.size;
                             }
                         };
-                        $scope2.result = oResult = {};
+                        $scope2.result = oResult = {
+                            purpose: 'copy'
+                        };
                         $scope2.filter = oFilter = {};
                         $scope2.selectApp = function() {
-                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
-                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
-                            }
+                            var dataSchemas;
+                            $scope2.dataSchemas = [];
                             oResult.schemas = [];
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                switch (oResult.purpose) {
+                                    case 'copy':
+                                        $scope2.dataSchemas = dataSchemas;
+                                        break;
+                                    case 'optionByInput':
+                                        dataSchemas.forEach(function(oSchema) {
+                                            if (/shorttext|longtext/.test(oSchema.type)) {
+                                                $scope2.dataSchemas.push(oSchema);
+                                            }
+                                        });
+                                        break;
+                                }
+                            }
                         };
                         $scope2.selectSchema = function(schema) {
                             if (schema._selected) {
@@ -587,9 +603,17 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             });
                         };
                         $scope2.disabled = true;
-                        $scope2.$watch('result', function() {
+                        $scope2.$watch('result', function(oNew, oOld) {
                             $scope2.disabled = false;
                             if (!oResult.schemas || oResult.schemas.length === 0) $scope2.disabled = true;
+                            if (oNew.purpose !== oOld.purpose) {
+                                $scope2.selectApp();
+                            }
+                            if (oResult.purpose === 'optionByInput') {
+                                if (!oResult.target || !oResult.target.type) {
+                                    $scope2.disabled = true;
+                                }
+                            }
                         }, true);
                         $scope2.doSearch();
                     }],

@@ -1,10 +1,19 @@
 <div class="modal-header">
     <button class="close" ng-click="cancel()">×</button>
-    <h5 class="modal-title">从其他活动复制题目</h5>
+    <h5 class="modal-title">由其他活动中的题目生成题目</h5>
 </div>
 <div class="modal-body">
     <div class='row'>
-        <div class='col-md-6'>
+        <div class='col-md-12'>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='copy' ng-model="result.purpose">复制题目</label>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='optionByInput' ng-model="result.purpose">填写题结果生成选择题</label>
+        </div>
+    </div>
+    <hr>
+    <div class='row'>
+        <div class='col-md-4'>
             <div class='form-group'>
                 <label>1.选择目标活动</label>
                 <div class='input-group'>
@@ -19,13 +28,26 @@
                 <ul uib-pagination class='pagination-sm' ng-if="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
             </div>
         </div>
-        <div class='col-md-6'>
+        <div class='col-md-4'>
             <label>2.选择要复制的题目 <span ng-if="!result.schemas.length" class='text-danger glyphicon glyphicon-hand-left'></span></label>
             <div class='list-group' style='height:300px;overflow-y:auto'>
-                <div class='list-group-item' ng-repeat="schema in result.fromApp.dataSchemas">
+                <div class='list-group-item' ng-repeat="schema in dataSchemas">
                     <label class="checkbox-inline">
                         <input type='checkbox' ng-model="schema._selected" ng-change="selectSchema(schema)">{{schema.title}}</label>
                 </div>
+            </div>
+        </div>
+        <div class='col-md-4' ng-if="result.purpose==='optionByInput'">
+            <label>3.设置要生成题目</label>
+            <hr>
+            <div class='form-group'>
+                <div>
+                    <label>题目类型 <span ng-if="!result.target.type" class='text-danger glyphicon glyphicon-hand-left'></span></label>
+                </div>
+                <label class='radio-inline'>
+                    <input type='radio' name='targetType' value='single' ng-model="result.target.type">单选题</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='targetType' value='multiple' ng-model="result.target.type">多选题</label>
             </div>
         </div>
     </div>

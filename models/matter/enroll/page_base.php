@@ -33,7 +33,7 @@ abstract class page_base extends \TMS_MODEL {
 	 */
 	public function replaceMemberSchema(&$oPage, $oMschema) {
 		$modelSch = $this->model('matter\enroll\schema');
-		$aPageDataSchemas = json_decode($oPage->data_schemas);
+		$aPageDataSchemas = $oPage->dataSchemas;
 		foreach ($aPageDataSchemas as $oPageWrap) {
 			switch ($oPage->type) {
 			case 'I':
@@ -69,7 +69,7 @@ abstract class page_base extends \TMS_MODEL {
 	 */
 	public function replaceAssocSchema(&$oPage, $aAssocAppIds) {
 		$modelSch = $this->model('matter\enroll\schema');
-		$aPageDataSchemas = json_decode($oPage->data_schemas);
+		$aPageDataSchemas = $oPage->dataSchemas;
 		foreach ($aPageDataSchemas as $oPageWrap) {
 			switch ($oPage->type) {
 			case 'I':

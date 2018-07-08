@@ -389,7 +389,7 @@ class page_model extends page_base {
 		}
 
 		foreach ($dataSchemas as $oSchema) {
-			if (empty($oSchema) || empty($oSchema->dynamic) || $oSchema->dynamic !== 'Y' || empty($oSchema->prototype->schema->id) || empty($pageWrapsById[$oSchema->prototype->schema->id])) {
+			if (empty($oSchema->dynamic) || $oSchema->dynamic !== 'Y' || empty($oSchema->prototype->schema->id) || empty($pageWrapsById[$oSchema->prototype->schema->id])) {
 				continue;
 			}
 			$oProtoSchema = $oSchema->prototype->schema;
@@ -426,6 +426,55 @@ class page_model extends page_base {
 				}
 			}
 		}
+
+		return $oPage;
+	}
+	/**
+	 * 设置页面题目的动态选项
+	 */
+	public function setDynaOptions($oApp, &$oPage) {
+		if (!in_array($oPage->type, ['I', 'V', 'L'])) {
+			return $oPage;
+		}
+
+		$dataSchemas = $oApp->dynaDataSchemas;
+		$dom = HtmlDomParser::str_get_html($oPage->html);
+		$pageWrapsById = []; // 页面上的题目定义
+		foreach ($oPage->dataSchemas as $oWrap) {
+			if (isset($oWrap->schema->id)) {
+				$pageWrapsById[$oWrap->schema->id] = $oWrap;
+			}
+		}
+
+		foreach ($dataSchemas as $oSchema) {
+			if (!in_array($oSchema->type, ['single', 'multiple']) || empty($oSchema->ops) || empty($oSchema->dsOps)) {
+				continue;
+			}
+			/* 更新页面题目定义 */
+			$oWrap = $pageWrapsById[$oSchema->id];
+			$oWrap->schema = $oSchema;
+			if ($elemWrap = $dom->find('[schema="' . $oSchema->id . '"]', 0)) {
+				/* 更新页面中的html */
+				$elemUl = $elemWrap->find('ul', 0);
+				if ($elemLi = $elemUl->first_child()) {
+					/* 包含可参照的原型 */
+					$elemDynaLis = [];
+					foreach ($oSchema->ops as $oOption) {
+						$elemDynaLi = clone $elemLi;
+						if ($elemDynaInput = $elemDynaLi->find('input', 0)) {
+							$elemDynaInput->setAttribute('ng-model', 'data.' . $oSchema->id . '.' . $oOption->v);
+							if ($elemSpan = $elemDynaLi->find('label>span', 0)) {
+								$elemSpan->innertext = $oOption->l;
+								$elemDynaLis[] = strval($elemDynaLi);
+							}
+						}
+					}
+					$elemUl->innertext = implode('', $elemDynaLis);
+				}
+			}
+		}
+
+		$oPage->html = $dom->innertext;
 
 		return $oPage;
 	}

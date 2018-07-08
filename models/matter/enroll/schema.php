@@ -64,6 +64,7 @@ class schema_model extends \TMS_MODEL {
 			// 删除多选题答案中被删除的选项
 			switch ($oSchema->type) {
 			case 'multiple':
+				/* 设置了答案 */
 				if (!empty($oSchema->answer)) {
 					if (is_array($oSchema->answer)) {
 						$answers = $oSchema->answer;
@@ -74,6 +75,16 @@ class schema_model extends \TMS_MODEL {
 						$oSchema->answer = array_intersect($answers, $allOptionValues);
 					} else {
 						$oSchema->answer = [];
+					}
+				}
+				/* 设置了选项数量限制 */
+				if (isset($oSchema->limitChoice)) {
+					if (!in_array($oSchema->limitChoice, ['Y', 'N'])) {
+						unset($oSchema->limitChoice);
+					} else {
+						if ('Y' === $oSchema->limitChoice) {
+
+						}
 					}
 				}
 				break;

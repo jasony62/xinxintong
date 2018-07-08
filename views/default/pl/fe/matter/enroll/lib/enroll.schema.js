@@ -580,7 +580,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         };
                         $scope2.ok = function() {
-                            $mi.close(oResult.schemas);
+                            $mi.close(oResult);
                         };
                         $scope2.cancel = function() {
                             $mi.dismiss();
@@ -620,23 +620,66 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     backdrop: 'static',
                     windowClass: 'auto-height',
                     size: 'lg'
-                }).result.then(function(schemas) {
-                    schemas.forEach(function(schema) {
-                        var newSchema;
-                        newSchema = schemaLib.newSchema(schema.type, _oApp);
-                        newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
-                        newSchema.title = schema.title;
-                        if (schema.ops) {
-                            newSchema.ops = schema.ops;
+                }).result.then(function(oResult) {
+                    var protoSchemas, fnGenNewSchema;
+                    protoSchemas = oResult.schemas;
+                    if (protoSchemas && protoSchemas.length) {
+                        switch (oResult.purpose) {
+                            case 'copy':
+                                fnGenNewSchema = function(oProtoSchema) {
+                                    var oNewSchema;
+                                    oNewSchema = schemaLib.newSchema(oProtoSchema.type, _oApp);
+                                    oNewSchema.type === 'member' && (oNewSchema.schema_id = oProtoSchema.schema_id);
+                                    oNewSchema.title = oProtoSchema.title;
+                                    if (oProtoSchema.ops) {
+                                        oNewSchema.ops = oProtoSchema.ops;
+                                    }
+                                    if (oProtoSchema.range) {
+                                        oNewSchema.range = oProtoSchema.range;
+                                    }
+                                    if (oProtoSchema.count) {
+                                        oNewSchema.count = oProtoSchema.count;
+                                    }
+                                    return oNewSchema;
+                                };
+                                break;
+                            case 'optionByInput':
+                                if (oResult.target && oResult.target.type && /single|multiple/.test(oResult.target.type)) {
+                                    fnGenNewSchema = function(oProtoSchema) {
+                                        if (!/shorttext|longtext/.test(oProtoSchema.type)) {
+                                            return null;
+                                        }
+                                        var oNewSchema;
+                                        oNewSchema = schemaLib.newSchema(oResult.target.type, _oApp);
+                                        oNewSchema.title = oProtoSchema.title;
+                                        oNewSchema.dsOps = {
+                                            app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
+                                            schema: { id: oProtoSchema.id, title: oProtoSchema.title },
+                                        }
+                                        if (oNewSchema.type === 'multiple') {
+                                            if (oResult.limitChoice && oResult.limitChoice === 'Y') {
+                                                oNewSchema.limitChoice = 'Y';
+                                                if (oResult.range && angular.isArray(oResult.range)) {
+                                                    oNewSchema.range = [];
+                                                    if (oResult.range[0]) oNewSchema.range[0] = parseInt(oResult.range[0]);
+                                                    if (oResult.range[1]) oNewSchema.range[1] = parseInt(oResult.range[1]);
+                                                }
+                                            }
+                                        }
+                                        return oNewSchema;
+                                    };
+                                }
+                                break;
                         }
-                        if (schema.range) {
-                            newSchema.range = schema.range;
+                        if (fnGenNewSchema) {
+                            protoSchemas.forEach(function(oProtoSchema) {
+                                var oNewSchema;
+                                if (oNewSchema = fnGenNewSchema(oProtoSchema)) {
+                                    $scope._appendSchema(oNewSchema);
+                                }
+                            });
                         }
-                        if (schema.count) {
-                            newSchema.count = schema.count;
-                        }
-                        $scope._appendSchema(newSchema);
-                    });
+                    }
                 });
             };
             $scope.createInputByOption = function() {

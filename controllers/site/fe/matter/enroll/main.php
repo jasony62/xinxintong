@@ -307,6 +307,9 @@ class main extends base {
 			}
 			/* 根据动态题目更新页面定义 */
 			$modelPage->setDynaSchemas($oApp, $oOpenPage);
+			/* 根据动态选项更新页面定义 */
+			$modelPage->setDynaOptions($oApp, $oOpenPage);
+
 			$params['page'] = $oOpenPage;
 		}
 

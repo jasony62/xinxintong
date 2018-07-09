@@ -14,7 +14,7 @@ define(['frame'], function(ngApp) {
                 result = rsp.data;
                 if (result.logs && result.logs.length) {
                     result.logs.forEach(function(oLog) {
-                        if (noticeStatus = oLog.noticeStatus) {
+                        if (noticeStatus = oLog.status) {
                             oLog._noticeStatus = noticeStatus.split(':');
                             oLog._noticeStatus[0] = oLog._noticeStatus[0] === 'success' ? '成功' : '失败';
                         }

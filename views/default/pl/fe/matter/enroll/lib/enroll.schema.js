@@ -569,6 +569,13 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                             }
                                         });
                                         break;
+                                    case 'inputByOption':
+                                        dataSchemas.forEach(function(oSchema) {
+                                            if (/single|multiple/.test(oSchema.type)) {
+                                                $scope2.dataSchemas.push(oSchema);
+                                            }
+                                        });
+                                        break;
                                 }
                             }
                         };
@@ -609,10 +616,14 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             if (oNew.purpose !== oOld.purpose) {
                                 $scope2.selectApp();
                             }
-                            if (oResult.purpose === 'optionByInput') {
-                                if (!oResult.target || !oResult.target.type) {
-                                    $scope2.disabled = true;
-                                }
+                            switch (oResult.purpose) {
+                                case 'optionByInput':
+                                    if (!oResult.target || !oResult.target.type) {
+                                        $scope2.disabled = true;
+                                    }
+                                    break;
+                                case 'inputByOption':
+                                    break;
                             }
                         }, true);
                         $scope2.doSearch();
@@ -669,6 +680,19 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         return oNewSchema;
                                     };
                                 }
+                                break;
+                            case 'inputByOption':
+                                fnGenNewSchema = function(oProtoSchema) {
+                                    var oNewSchema;
+                                    oNewSchema = schemaLib.newSchema('longtext', _oApp);
+                                    oNewSchema.title = oProtoSchema.title;
+                                    oNewSchema.dsSchema = {
+                                        app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
+                                        schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type },
+                                        mode: 'fromOption'
+                                    }
+                                    return oNewSchema;
+                                };
                                 break;
                         }
                         if (fnGenNewSchema) {
@@ -742,6 +766,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
                     var targetSchemas, url, oConfig;

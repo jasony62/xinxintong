@@ -301,7 +301,7 @@ class schema_model extends \TMS_MODEL {
 			}
 
 			$targetSchemas = []; // 目标应用中选择的题目
-			foreach ($oTargetApp->dataSchemas as $oSchema2) {
+			foreach ($oTargetApp->dynaDataSchemas as $oSchema2) {
 				if ($oSchema->dsSchema->schema->id === $oSchema2->id) {
 					$targetSchemas[] = $oSchema2;
 					break;

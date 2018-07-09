@@ -666,6 +666,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         oNewSchema.dsOps = {
                                             app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
                                             schema: { id: oProtoSchema.id, title: oProtoSchema.title },
+                                        };
+                                        if (oProtoSchema.dsSchema) {
+                                            oNewSchema.dsSchema = oProtoSchema.dsSchema;
                                         }
                                         if (oNewSchema.type === 'multiple') {
                                             if (oResult.limitChoice && oResult.limitChoice === 'Y') {

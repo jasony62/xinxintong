@@ -31,7 +31,7 @@ class notice extends \pl\fe\matter\base {
 			"de.batch_id = $batch and a.siteid = de.siteid and a.uid = de.userid",
 		];
 		if ($onlySns === 'Y') {
-			$q[2] .= " and a.openid<>''";
+			$q[2] .= " and de.openid<>''";
 		}
 
 		$logs = $modelTmplBat->query_objs_ss($q);

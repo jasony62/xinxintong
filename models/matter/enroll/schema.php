@@ -377,17 +377,17 @@ class schema_model extends \TMS_MODEL {
 						$modelRnd = $this->model('matter\enroll\round');
 					}
 					$oDsAppRnd = $modelRnd->byMissionRid($oDsSchemas->app, $oAppRound->mission_rid, ['fields' => 'rid,mission_rid']);
-				}
-				switch ($oDsSchemas->mode) {
-				case 'fromData':
-					$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
-					break;
-				case 'fromScore':
-					$fnMakeDynaSchemaByScore($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
-					break;
-				case 'fromOption':
-					$fnMakeDynaSchemaByOption($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
-					break;
+					switch ($oDsSchemas->mode) {
+					case 'fromData':
+						$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
+						break;
+					case 'fromScore':
+						$fnMakeDynaSchemaByScore($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
+						break;
+					case 'fromOption':
+						$fnMakeDynaSchemaByOption($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
+						break;
+					}
 				}
 			}
 		}

@@ -13,6 +13,8 @@
                 <input type='radio' name='purpose' value='scoreByInput' ng-model="result.purpose">填写题结果生成打分题</label>
             <label class='radio-inline'>
                 <input type='radio' name='purpose' value='inputByOption' ng-model="result.purpose">选择题结果生成填写题</label>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='inputByScore' ng-model="result.purpose">打分题结果生成填写题</label>
         </div>
     </div>
     <hr>
@@ -119,6 +121,10 @@
                         <input type="radio" name="limitScope" value="checked" ng-model="result.target.limit.scope"> <span>获得选择数大于<mark ng-if="result.target.limit.num" ng-bind="result.target.limit.num"></mark><mark ng-if="!result.target.limit.num">?</mark>的选项</span>
                     </label>
                 </div>
+            </div>
+            <div ng-switch-when="inputByScore">
+                <label>3.设置生成题目</label>
+                <hr>
             </div>
         </div>
     </div>

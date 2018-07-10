@@ -578,6 +578,13 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                             }
                                         });
                                         break;
+                                    case 'inputByScore':
+                                        dataSchemas.forEach(function(oSchema) {
+                                            if (/score/.test(oSchema.type)) {
+                                                $scope2.dataSchemas.push(oSchema);
+                                            }
+                                        });
+                                        break;
                                 }
                             }
                         };
@@ -634,6 +641,8 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     }
                                     break;
                                 case 'inputByOption':
+                                    break;
+                                case 'inputByScore':
                                     break;
                             }
                         }, true);
@@ -715,8 +724,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         if (oNewSchema.requireScore === 'Y') oNewSchema.scoreMode = 'evaluation';
                                         oNewSchema.dsSchema = oNewSchema.dsSchema = {
                                             app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
-                                            schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type },
-                                            mode: 'fromData'
+                                            schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type }
                                         };
                                         return oNewSchema;
                                     };
@@ -729,8 +737,19 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     oNewSchema.title = oProtoSchema.title;
                                     oNewSchema.dsSchema = {
                                         app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
-                                        schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type },
-                                        mode: 'fromOption'
+                                        schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type }
+                                    };
+                                    return oNewSchema;
+                                };
+                                break;
+                            case 'inputByScore':
+                                fnGenNewSchema = function(oProtoSchema) {
+                                    var oNewSchema;
+                                    oNewSchema = schemaLib.newSchema('longtext', _oApp);
+                                    oNewSchema.title = oProtoSchema.title;
+                                    oNewSchema.dsSchema = {
+                                        app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
+                                        schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type }
                                     };
                                     return oNewSchema;
                                 };
@@ -1603,8 +1622,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             if (oResult.app && oResult.schema) {
                                 oSchema.dsSchema = {
                                     app: { id: oResult.app.id, title: oResult.app.title },
-                                    schema: { id: oResult.schema.id, title: oResult.schema.title, type: oResult.schema.type },
-                                    mode: oResult.mode
+                                    schema: { id: oResult.schema.id, title: oResult.schema.title, type: oResult.schema.type }
                                 }
                                 if (oResult.filters && oResult.filters.length) {
                                     oSchema.dsSchema.filters = [];

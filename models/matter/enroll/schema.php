@@ -272,6 +272,9 @@ class schema_model extends \TMS_MODEL {
 			});
 
 			foreach ($aResult as $schemaId => $score) {
+				if (empty($targetSchemas[$schemaId])) {
+					continue;
+				}
 				$oProtoSchema = $targetSchemas[$schemaId];
 				$oNewSchema = new \stdClass;
 				$oNewSchema->id = $oProtoSchema->id;
@@ -370,21 +373,23 @@ class schema_model extends \TMS_MODEL {
 
 		$dynaSchemasByIndex = []; // 动态创建的题目
 		foreach ($oApp->dataSchemas as $schemaIndex => $oSchema) {
-			if (!empty($oSchema->dsSchema->mode) && !empty($oSchema->dsSchema->app->id) && !empty($oSchema->dsSchema->schema->id)) {
-				$oDsSchemas = $oSchema->dsSchema;
+			if (!empty($oSchema->dsSchema->schema->type) && !empty($oSchema->dsSchema->app->id) && !empty($oSchema->dsSchema->schema->id)) {
+				$oDsSchema = $oSchema->dsSchema;
 				if (!empty($oAppRound->mission_rid)) {
 					if (!isset($modelRnd)) {
 						$modelRnd = $this->model('matter\enroll\round');
 					}
-					$oDsAppRnd = $modelRnd->byMissionRid($oDsSchemas->app, $oAppRound->mission_rid, ['fields' => 'rid,mission_rid']);
-					switch ($oDsSchemas->mode) {
-					case 'fromData':
+					$oDsAppRnd = $modelRnd->byMissionRid($oDsSchema->app, $oAppRound->mission_rid, ['fields' => 'rid,mission_rid']);
+					switch ($oDsSchema->schema->type) {
+					case 'shorttext':
+					case 'longtext':
 						$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
 						break;
-					case 'fromScore':
+					case 'score':
 						$fnMakeDynaSchemaByScore($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
 						break;
-					case 'fromOption':
+					case 'single':
+					case 'multiple':
 						$fnMakeDynaSchemaByOption($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
 						break;
 					}

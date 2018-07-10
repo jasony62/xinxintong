@@ -77,47 +77,50 @@ define([], function() {
                 scope: ['I', 'V', 'L']
             }
         },
-        newSchema: function(type, app, proto) {
-            var schema = angular.copy(base);
+        newSchema: function(type, oApp, oProto) {
+            var oSchema = angular.copy(base);
 
-            schema.id = (proto && proto.id) ? proto.id : 's' + (new Date * 1);
-            schema.required = type === 'html' ? 'N' : 'Y';
-            schema.type = type;
+            oSchema.id = (oProto && oProto.id) ? oProto.id : 's' + (new Date * 1);
+            oSchema.required = type === 'html' ? 'N' : 'Y';
+            oSchema.type = type;
             if (prefab[type]) {
                 var countOfType = 0;
-                app.dataSchemas.forEach(function(schema) {
-                    if (schema.type === type) {
+                oApp.dataSchemas.forEach(function(schema) {
+                    if (oSchema.type === type) {
                         countOfType++;
                     }
                 });
-                schema.title = (proto && proto.title) ? proto.title : (prefab[type].title + (++countOfType));
+                oSchema.title = (oProto && oProto.title) ? oProto.title : (prefab[type].title + (++countOfType));
             } else {
-                schema.title = (proto && proto.title) ? proto.title : ('填写项' + (app.dataSchemas.length + 1));
+                oSchema.title = (oProto && oProto.title) ? oProto.title : ('填写项' + (oApp.dataSchemas.length + 1));
                 if (type === 'single' || type === 'multiple') {
-                    schema.ops = protoOps(type);
+                    oSchema.ops = protoOps(type);
                     if (type === 'multiple') {
-                        schema.limitChoice = 'N';
-                        schema.range = [1, schema.ops.length];
+                        oSchema.limitChoice = 'N';
+                        oSchema.range = [1, oSchema.ops.length];
                     }
                 } else if (/image|file|voice/.test(type)) {
-                    schema.count = 1;
+                    oSchema.count = 1;
                 } else if (type === 'score') {
-                    schema.range = [1, 5];
-                    schema.ops = protoOps(type);
+                    oSchema.range = (oProto && oProto.range) ? oProto.range : [1, 5];
+                    oSchema.ops = (oProto && oProto.ops) ? oProto.ops : protoOps(type);
+                    if (oProto && oProto.requireScore) {
+                        oSchema.requireScore = oProto.requireScore;
+                    }
                 } else if (type === 'html') {
-                    schema.content = '请点击下面“编辑”按钮，编辑本说明文字';
+                    oSchema.content = '请点击下面“编辑”按钮，编辑本说明文字';
                 }
             }
             if (/longtext|file|image|multitext|url|voice/.test(type)) {
-                schema.remarkable = 'Y';
+                oSchema.remarkable = 'Y';
             }
-            if (proto && proto.format !== undefined) {
-                schema.format = proto.format;
+            if (oProto && oProto.format !== undefined) {
+                oSchema.format = oProto.format;
             } else if (/shorttext/.test(type)) {
-                schema.format = '';
+                oSchema.format = '';
             }
 
-            return schema;
+            return oSchema;
         },
         changeType: function(schema, newType) {
             if ('member' === newType && !/^member\./.test(schema.id)) {

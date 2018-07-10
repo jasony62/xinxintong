@@ -10,6 +10,8 @@
             <label class='radio-inline'>
                 <input type='radio' name='purpose' value='optionByInput' ng-model="result.purpose">填写题结果生成选择题</label>
             <label class='radio-inline'>
+                <input type='radio' name='purpose' value='scoreByInput' ng-model="result.purpose">填写题结果生成打分题</label>
+            <label class='radio-inline'>
                 <input type='radio' name='purpose' value='inputByOption' ng-model="result.purpose">选择题结果生成填写题</label>
         </div>
     </div>
@@ -64,6 +66,42 @@
                     </div>
                 </div>
             </div>
+            <div ng-switch-when="scoreByInput">
+                <label>3.设置生成题目</label>
+                <hr>
+                <div class='form-group'>
+                    <label>打分项 <span ng-if="!result.target.ops.length" class='text-danger glyphicon glyphicon-hand-left'></span></label>
+                    <div ng-repeat="op in result.target.ops">
+                        <textarea class='form-control' ng-model="op.l"></textarea>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click="result.target.ops.push({})">添加打分项</button>
+                    <div class="btn-group">
+                        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style='width:100%'>
+                            删除打分项 <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href ng-click="result.target.ops.splice($index,1)" ng-repeat="op in result.target.ops"><span>{{$index+1}}</span>: <span>{{op.l}}</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label>分值范围</label>
+                    <div class='form-inline'>
+                        <div class='form-group' ng-class="{'has-error':!result.target.range.from}" style='width:6em'>
+                            <input type='number' class='form-control' ng-model="result.target.range.from" placeholder="最低" style='width:100%'>
+                        </div>
+                        <div class='form-group' ng-class="{'has-error':!result.target.range.to}" style='width:6em'>
+                            <input type='number' class='form-control' ng-model="result.target.range.to" placeholder="最高" style='width:100%'>
+                        </div>
+                    </div>
+                </div>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-model="result.target.requireScore"> 需要计分</label>
+                </div>
+            </div>
             <div ng-switch-when="inputByOption">
                 <label>3.设置生成题目</label>
                 <hr>
@@ -86,5 +124,5 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-success" ng-class="{'btn-danger':disabled,'btn-success':!disabled}" ng-click="ok()" ng-disabled="disabled">生成</button>
+    <button class="btn btn-success" ng-class="{'btn-danger':disabled,'btn-success':!disabled}" ng-click="ok()" ng-disabled="disabled">生成题目</button>
 </div>

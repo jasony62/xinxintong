@@ -23,7 +23,7 @@
         </div>
         <div class='col-md-4'>
             <div class='form-group'>
-                <label>2.选择活动中的填写题 <span ng-if="!result.schemas.length" class='text-success glyphicon glyphicon-hand-left'></span></label>
+                <label>2.选择目标题目 <span ng-if="!result.schemas.length" class='text-danger glyphicon glyphicon-hand-left'></span></label>
                 <div class='list-group' style='height:300px;overflow-y:auto'>
                     <div class='list-group-item' ng-repeat="schema in dataSchemas">
                         <label class="checkbox-inline">
@@ -37,7 +37,7 @@
                 <label>3.设置打分题</label>
             </div>
             <div class='form-group'>
-                <label>打分项 <span ng-if="!result.ops.length" class='text-success glyphicon glyphicon-hand-left'></span></label>
+                <label>打分项 <span ng-if="!result.ops.length" class='text-danger glyphicon glyphicon-hand-left'></span></label>
                 <div ng-repeat="op in result.ops">
                     <textarea class='form-control' ng-model="op.l"></textarea>
                 </div>
@@ -68,5 +68,5 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-success" ng-click="ok()" ng-disabled="disabled">生成题目</button>
+    <button class="btn btn-success" ng-class="{'btn-danger':disabled,'btn-success':!disabled}" ng-click="ok()" ng-disabled="disabled">生成题目</button>
 </div>

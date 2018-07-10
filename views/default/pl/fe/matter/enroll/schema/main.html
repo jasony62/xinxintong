@@ -110,9 +110,9 @@
     </div>
     <div class='form-group' ng-if="activeSchema.requireScore==='Y'">
         <label class='radio-inline'>
-            <input type='radio' name='scoreMode' value='evaluation' ng-model='activeSchema.scoreMode' ng-change="updSchema(activeSchema)"> 作为测评</label>
+            <input type='radio' name='scoreMode' value='evaluation' ng-model='activeSchema.scoreMode' ng-disabled="activeSchema.type==='score'" ng-change="updSchema(activeSchema)"> 作为测评</label>
         <label class='radio-inline'>
-            <input type='radio' name='scoreMode' value='question' ng-model='activeSchema.scoreMode' ng-change="updSchema(activeSchema)"> 作为考题</label>
+            <input type='radio' name='scoreMode' value='question' ng-model='activeSchema.scoreMode' ng-disabled="activeSchema.type==='score'" ng-change="updSchema(activeSchema)"> 作为考题</label>
     </div>
     <div ng-if="activeSchema.scoreMode==='question'">
         <!--设置分数-->

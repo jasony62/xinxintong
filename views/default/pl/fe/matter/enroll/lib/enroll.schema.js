@@ -549,7 +549,8 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         };
                         $scope2.result = oResult = {
-                            purpose: 'copy'
+                            purpose: 'copy',
+                            target: { ops: [], range: {} }
                         };
                         $scope2.filter = oFilter = {};
                         $scope2.selectApp = function() {
@@ -563,6 +564,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         $scope2.dataSchemas = dataSchemas;
                                         break;
                                     case 'optionByInput':
+                                    case 'scoreByInput':
                                         dataSchemas.forEach(function(oSchema) {
                                             if (/shorttext|longtext/.test(oSchema.type)) {
                                                 $scope2.dataSchemas.push(oSchema);
@@ -620,6 +622,15 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 case 'optionByInput':
                                     if (!oResult.target || !oResult.target.type) {
                                         $scope2.disabled = true;
+                                    }
+                                    break;
+                                case 'scoreByInput':
+                                    if (!oResult.target) {
+                                        $scope2.disabled = true;
+                                    } else {
+                                        var oTarget = oResult.target;
+                                        if (!oTarget.ops || oTarget.ops.length === 0) $scope2.disabled = true;
+                                        if (!oTarget.range || !oTarget.range.from || !oTarget.range.to) $scope2.disabled = true;
                                     }
                                     break;
                                 case 'inputByOption':
@@ -684,6 +695,33 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     };
                                 }
                                 break;
+                            case 'scoreByInput':
+                                if (oResult.target) {
+                                    var oScoreProto;
+                                    oScoreProto = {};
+                                    oScoreProto.range = [oResult.target.range.from, oResult.target.range.to];
+                                    oScoreProto.ops = [];
+                                    oResult.target.ops.forEach(function(op, index) {
+                                        oScoreProto.ops.push({ v: 'v' + (index + 1), l: op.l });
+                                    });
+                                    if (oResult.target.requireScore) oScoreProto.requireScore = 'Y';
+                                    fnGenNewSchema = function(oProtoSchema) {
+                                        if (!/shorttext|longtext/.test(oProtoSchema.type)) {
+                                            return null;
+                                        }
+                                        var oNewSchema;
+                                        oNewSchema = schemaLib.newSchema('score', _oApp, oScoreProto);
+                                        oNewSchema.title = oProtoSchema.title;
+                                        if (oNewSchema.requireScore === 'Y') oNewSchema.scoreMode = 'evaluation';
+                                        oNewSchema.dsSchema = oNewSchema.dsSchema = {
+                                            app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
+                                            schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type },
+                                            mode: 'fromData'
+                                        };
+                                        return oNewSchema;
+                                    };
+                                }
+                                break;
                             case 'inputByOption':
                                 fnGenNewSchema = function(oProtoSchema) {
                                     var oNewSchema;
@@ -693,7 +731,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
                                         schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type },
                                         mode: 'fromOption'
-                                    }
+                                    };
                                     return oNewSchema;
                                 };
                                 break;

@@ -226,7 +226,7 @@ class schema_model extends \TMS_MODEL {
 				$oNewDynaSchema->id = 'dyna' . $oRecData->id;
 				$oNewDynaSchema->title = $oRecData->value;
 				$oNewDynaSchema->dynamic = 'Y';
-				$oNewDynaSchema->prototype = (object) [
+				$oNewDynaSchema->model = (object) [
 					'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title],
 					'ds' => (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname],
 				];
@@ -247,10 +247,10 @@ class schema_model extends \TMS_MODEL {
 
 			$targetSchemas = []; // 目标应用中选择的题目
 			foreach ($oTargetApp->dynaDataSchemas as $oSchema2) {
-				if (empty($oSchema2->dynamic) || $oSchema2->dynamic !== 'Y' || empty($oSchema2->prototype->schema->id)) {
+				if (empty($oSchema2->dynamic) || $oSchema2->dynamic !== 'Y' || empty($oSchema2->model->schema->id)) {
 					continue;
 				}
-				if ($oSchema->dsSchema->schema->id === $oSchema2->prototype->schema->id) {
+				if ($oSchema->dsSchema->schema->id === $oSchema2->model->schema->id) {
 					$targetSchemas[$oSchema2->id] = $oSchema2;
 				}
 			}
@@ -278,11 +278,11 @@ class schema_model extends \TMS_MODEL {
 				$oNewSchema->title = $oProtoSchema->title;
 				$oNewSchema->type = 'longtext';
 				$oNewSchema->dynamic = 'Y';
-				$oNewSchema->prototype = (object) [
-					'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title],
+				$oNewSchema->model = (object) [
+					'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title, 'type' => $oSchema->type],
 				];
 				if (isset($oProtoSchema->ds)) {
-					$oNewSchema->prototype->ds = $oProtoSchema->ds;
+					$oNewSchema->model->ds = $oProtoSchema->ds;
 				}
 				$dynaSchemasByIndex[$schemaIndex][] = $oNewSchema;
 			}
@@ -335,8 +335,8 @@ class schema_model extends \TMS_MODEL {
 						$this->genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas, $oSchema);
 						foreach ($newSchemas as $oNewDynaSchema) {
 							$oNewDynaSchema->dynamic = 'Y';
-							$oNewDynaSchema->prototype = (object) [
-								'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title],
+							$oNewDynaSchema->model = (object) [
+								'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title, 'type' => $oSchema->type],
 							];
 						}
 					}

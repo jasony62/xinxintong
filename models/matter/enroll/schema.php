@@ -194,50 +194,67 @@ class schema_model extends \TMS_MODEL {
 
 		/* 根据填写数据生成题目 */
 		$fnMakeDynaSchemaByData = function ($oSchema, $oDsAppRnd, $schemaIndex, &$dynaSchemasByIndex) {
-			$modelEnl = $this->model('matter\enroll');
-			//???
-			$oTargetApp = $modelEnl->byId($oSchema->dsSchema->app->id, ['fields' => 'siteid,state,mission_id,data_schemas,sync_mission_round']);
-			if (false === $oTargetApp || $oTargetApp->state !== '1') {
-				return [false, '指定的目标活动不可用'];
-			}
-
-			$q = [
-				'id,enroll_key,value,userid,nickname',
-				"xxt_enroll_record_data t0",
-				['state' => 1, 'aid' => $oSchema->dsSchema->app->id, 'schema_id' => $oSchema->dsSchema->schema->id],
-			];
-			/* 设置轮次条件 */
-			if (!empty($oDsAppRnd)) {
-				$q[2]['rid'] = $oDsAppRnd->rid;
-			}
-			/* 设置过滤条件 */
-			if (!empty($oSchema->dsSchema->filters)) {
-				foreach ($oSchema->dsSchema->filters as $index => $oFilter) {
-					if (!empty($oFilter->schema->id) && !empty($oFilter->schema->type)) {
-						switch ($oFilter->schema->type) {
-						case 'single':
-							if (!empty($oFilter->schema->op->v)) {
-								$tbl = 't' . ($index + 1);
-								$sql = "select 1 from xxt_enroll_record_data {$tbl} where state=1 and aid='{$oSchema->dsSchema->app->id}'and schema_id='{$oFilter->schema->id}' and value='{$oFilter->schema->op->v}' and t0.enroll_key={$tbl}.enroll_key";
-								$q[2]['enroll_key'] = (object) ['op' => 'exists', 'pat' => $sql];
-							}
-							break;
-						}
+			/* 如果题目本身是动态题目，需要先生成题目 */
+			$targetSchemas = [];
+			if (!empty($oSchema->dsSchema->app->id)) {
+				$modelEnl = $this->model('matter\enroll');
+				$aTargetAppOptions = ['fields' => 'siteid,state,mission_id,data_schemas,sync_mission_round'];
+				/* 设置轮次条件 */
+				if (!empty($oDsAppRnd)) {
+					$aTargetAppOptions['appRid'] = $oDsAppRnd->rid;
+				}
+				$oTargetApp = $modelEnl->byId($oSchema->dsSchema->app->id, $aTargetAppOptions);
+				if (false === $oTargetApp || $oTargetApp->state !== '1') {
+					return [false, '指定的目标活动不可用'];
+				}
+				foreach ($oTargetApp->dynaDataSchemas as $oDynaSchema) {
+					if ($oDynaSchema->id === $oSchema->dsSchema->schema->id) {
+						$targetSchemas[] = $oDynaSchema;
+					} else if (!empty($oDynaSchema->dynamic) && $oDynaSchema->dynamic === 'Y' && !empty($oDynaSchema->model->schema->id) && $oDynaSchema->model->schema->id === $oSchema->dsSchema->schema->id) {
+						$targetSchemas[] = $oDynaSchema;
 					}
 				}
 			}
-			/* 处理数据 */
-			$datas = $this->query_objs_ss($q);
-			foreach ($datas as $index => $oRecData) {
-				$oNewDynaSchema = clone $oSchema;
-				$oNewDynaSchema->id = 'dyna' . $oRecData->id;
-				$oNewDynaSchema->title = $oRecData->value;
-				$oNewDynaSchema->dynamic = 'Y';
-				$oNewDynaSchema->model = (object) [
-					'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title],
-					'ds' => (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname],
+
+			foreach ($targetSchemas as $oTargetSchema) {
+				$q = [
+					'id,enroll_key,value,userid,nickname',
+					"xxt_enroll_record_data t0",
+					['state' => 1, 'aid' => $oSchema->dsSchema->app->id, 'schema_id' => $oTargetSchema->id],
 				];
-				$dynaSchemasByIndex[$schemaIndex][] = $oNewDynaSchema;
+				/* 设置轮次条件 */
+				if (!empty($oDsAppRnd)) {
+					$q[2]['rid'] = $oDsAppRnd->rid;
+				}
+				/* 设置过滤条件 */
+				if (!empty($oSchema->dsSchema->filters)) {
+					foreach ($oSchema->dsSchema->filters as $index => $oFilter) {
+						if (!empty($oFilter->schema->id) && !empty($oFilter->schema->type)) {
+							switch ($oFilter->schema->type) {
+							case 'single':
+								if (!empty($oFilter->schema->op->v)) {
+									$tbl = 't' . ($index + 1);
+									$sql = "select 1 from xxt_enroll_record_data {$tbl} where state=1 and aid='{$oSchema->dsSchema->app->id}'and schema_id='{$oFilter->schema->id}' and value='{$oFilter->schema->op->v}' and t0.enroll_key={$tbl}.enroll_key";
+									$q[2]['enroll_key'] = (object) ['op' => 'exists', 'pat' => $sql];
+								}
+								break;
+							}
+						}
+					}
+				}
+				/* 处理数据 */
+				$datas = $this->query_objs_ss($q);
+				foreach ($datas as $index => $oRecData) {
+					$oNewDynaSchema = clone $oSchema;
+					$oNewDynaSchema->id = 'dyna' . $oRecData->id;
+					$oNewDynaSchema->title = $oRecData->value;
+					$oNewDynaSchema->dynamic = 'Y';
+					$oNewDynaSchema->model = (object) [
+						'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title],
+						'ds' => (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname],
+					];
+					$dynaSchemasByIndex[$schemaIndex][] = $oNewDynaSchema;
+				}
 			}
 		};
 

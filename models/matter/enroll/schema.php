@@ -194,6 +194,13 @@ class schema_model extends \TMS_MODEL {
 
 		/* 根据填写数据生成题目 */
 		$fnMakeDynaSchemaByData = function ($oSchema, $oDsAppRnd, $schemaIndex, &$dynaSchemasByIndex) {
+			$modelEnl = $this->model('matter\enroll');
+			//???
+			$oTargetApp = $modelEnl->byId($oSchema->dsSchema->app->id, ['fields' => 'siteid,state,mission_id,data_schemas,sync_mission_round']);
+			if (false === $oTargetApp || $oTargetApp->state !== '1') {
+				return [false, '指定的目标活动不可用'];
+			}
+
 			$q = [
 				'id,enroll_key,value,userid,nickname',
 				"xxt_enroll_record_data t0",

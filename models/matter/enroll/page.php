@@ -455,24 +455,25 @@ class page_model extends page_base {
 			$oWrap->schema = $oSchema;
 			if ($elemWrap = $dom->find('[schema="' . $oSchema->id . '"]', 0)) {
 				/* 更新页面中的html */
-				$elemUl = $elemWrap->find('ul', 0);
-				if ($elemLi = $elemUl->first_child()) {
-					/* 包含可参照的原型 */
-					if (count($oSchema->ops)) {
-						$elemDynaLis = [];
-						foreach ($oSchema->ops as $oOption) {
-							$elemDynaLi = clone $elemLi;
-							if ($elemDynaInput = $elemDynaLi->find('input', 0)) {
-								$elemDynaInput->setAttribute('ng-model', 'data.' . $oSchema->id . '.' . $oOption->v);
-								if ($elemSpan = $elemDynaLi->find('label>span', 0)) {
-									$elemSpan->innertext = $oOption->l;
-									$elemDynaLis[] = strval($elemDynaLi);
+				if ($elemUl = $elemWrap->find('ul', 0)) {
+					if ($elemLi = $elemUl->first_child()) {
+						/* 包含可参照的原型 */
+						if (count($oSchema->ops)) {
+							$elemDynaLis = [];
+							foreach ($oSchema->ops as $oOption) {
+								$elemDynaLi = clone $elemLi;
+								if ($elemDynaInput = $elemDynaLi->find('input', 0)) {
+									$elemDynaInput->setAttribute('ng-model', 'data.' . $oSchema->id . '.' . $oOption->v);
+									if ($elemSpan = $elemDynaLi->find('label>span', 0)) {
+										$elemSpan->innertext = $oOption->l;
+										$elemDynaLis[] = strval($elemDynaLi);
+									}
 								}
 							}
+							$elemUl->innertext = implode('', $elemDynaLis);
+						} else {
+							$elemUl->innertext = '';
 						}
-						$elemUl->innertext = implode('', $elemDynaLis);
-					} else {
-						$elemUl->innertext = '';
 					}
 				}
 			}

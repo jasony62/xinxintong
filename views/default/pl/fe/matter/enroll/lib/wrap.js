@@ -128,22 +128,6 @@ define([], function() {
         return html;
     }
 
-    function _htmlDynaRadio(oSchema) {
-        var html;
-
-        html = '<li ng-repeat="op in schemasById[\'' + oSchema.id + '\'].ops" class="radio" wrap="radio"';
-        oSchema.required === 'Y' && (html += 'required');
-        html += '><label><input type="radio" name="' + oSchema.id + '"';
-        html += ' value="{{op.v}}"';
-        html += ' ng-model="data.' + oSchema.id + '"';
-        oSchema.attrs && oSchema.attrs.forEach(function(attr) {
-            html += 'data-' + attr.name + '="' + attr.value + '"';
-        });
-        html += '><span ng-bind-html="op.l"></span></label></li>';
-
-        return html;
-    }
-
     function _htmlCheckbox(schema, op, config, forEdit) {
         var html, cls;
 
@@ -162,19 +146,6 @@ define([], function() {
         forEdit && (html += 'contenteditable="true"');
         html += '>' + op.l + '</span></label>';
         if (op.desc && op.desc.length) html += '<div class="desc">' + op.desc + '</div>';
-        html += '</li>';
-
-        return html;
-    }
-
-    function _htmlDynaCheckbox(oSchema) {
-        var html;
-
-        html = '<li ng-repeat="op in schemasById[\'' + oSchema.id + '\'].ops" class="checkbox" wrap="checkbox"';
-        oSchema.required === 'Y' && (html += 'required');
-        html += '><label><input type="checkbox" name="' + oSchema.id + '"';
-        html += ' ng-model="data.' + oSchema.id + '[op.v]"';
-        html += '><span ng-bind-html="op.l"></span></label>';
         html += '</li>';
 
         return html;
@@ -251,9 +222,6 @@ define([], function() {
 
         return html;
     };
-    InputWrap.prototype._htmlDynaRadio = function(oWrap) {
-        return _htmlDynaRadio(oWrap.schema);
-    };
     InputWrap.prototype._htmlSingleSelect = function(oWrap, onlyChildren) {
         var config = oWrap.config,
             schema = oWrap.schema,
@@ -293,9 +261,6 @@ define([], function() {
         }
 
         return html;
-    };
-    InputWrap.prototype._htmlDynaCheckbox = function(oWrap) {
-        return _htmlDynaCheckbox(oWrap.schema);
     };
     InputWrap.prototype._htmlScoreItem = function(oWrap, bForEdit) {
         var config = oWrap.config,
@@ -530,11 +495,7 @@ define([], function() {
                 } else if (/single/.test(oSchema.type)) {
                     (function(lib) {
                         var html;
-                        if (oSchema.dsOps) {
-                            /* 选项需要从其他活动中动态获得 */
-                            html = lib._htmlDynaRadio(dataWrap);
-                            $dom.children('ul').html(html);
-                        } else if (oSchema.ops) {
+                        if (oSchema.ops) {
                             /* 直接在页面上生成选项 */
                             if (oConfig.component === 'R') {
                                 if ($dom.children('ul').length) {
@@ -558,11 +519,7 @@ define([], function() {
                 } else if ('multiple' === oSchema.type) {
                     (function(lib) {
                         var html;
-                        if (oSchema.dsOps) {
-                            /* 选项需要从其他活动中动态获得 */
-                            html = lib._htmlDynaCheckbox(dataWrap);
-                            $dom.children('ul').html(html);
-                        } else if (oSchema.ops) {
+                        if (oSchema.ops) {
                             html = lib._htmlMultiple(dataWrap, false, true);
                             $dom.children('ul').html(html);
                         }

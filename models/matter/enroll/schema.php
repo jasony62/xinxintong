@@ -5,39 +5,6 @@ namespace matter\enroll;
  */
 class schema_model extends \TMS_MODEL {
 	/**
-	 * 去除题目中的通讯录信息
-	 */
-	public function wipeMschema(&$oSchema, $oMschema) {
-		if ($oSchema->type === 'member' && $oSchema->schema_id === $oMschema->id) {
-			/* 更新题目 */
-			$oSchema->type = 'shorttext';
-			$oSchema->id = str_replace('member.', '', $oSchema->id);
-			if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
-				$oSchema->format = $oSchema->id;
-			} else {
-				$oSchema->format = '';
-			}
-			unset($oSchema->schema_id);
-
-			return true;
-		}
-
-		return false;
-	}
-	/**
-	 * 去除和其他活动的题目的关联
-	 */
-	public function wipeAssoc(&$oSchema, $aAssocAppIds) {
-		if (isset($oSchema->fromApp) && in_array($oSchema->fromApp, $aAssocAppIds)) {
-			unset($oSchema->fromApp);
-			unset($oSchema->requieCheck);
-
-			return true;
-		}
-
-		return false;
-	}
-	/**
 	 * 去除掉无效的内容
 	 *
 	 * 1、无效的字段
@@ -46,13 +13,14 @@ class schema_model extends \TMS_MODEL {
 	 * 支持的类型
 	 * type
 	 * title
+	 * parent 父题目，表示题目之间的从属关系
 	 * dsSchema 题目定义的来源
 	 * dynamic 是否为动态生成的题目
 	 * prototype 动态题目的原始定义
 	 * dsOps 动态选项来源
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'title', 'content', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
 
 		$purified = [];
 		foreach ($aAppSchemas as $oSchema) {
@@ -112,6 +80,39 @@ class schema_model extends \TMS_MODEL {
 		}
 
 		return $purified;
+	}
+	/**
+	 * 去除题目中的通讯录信息
+	 */
+	public function wipeMschema(&$oSchema, $oMschema) {
+		if ($oSchema->type === 'member' && $oSchema->schema_id === $oMschema->id) {
+			/* 更新题目 */
+			$oSchema->type = 'shorttext';
+			$oSchema->id = str_replace('member.', '', $oSchema->id);
+			if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
+				$oSchema->format = $oSchema->id;
+			} else {
+				$oSchema->format = '';
+			}
+			unset($oSchema->schema_id);
+
+			return true;
+		}
+
+		return false;
+	}
+	/**
+	 * 去除和其他活动的题目的关联
+	 */
+	public function wipeAssoc(&$oSchema, $aAssocAppIds) {
+		if (isset($oSchema->fromApp) && in_array($oSchema->fromApp, $aAssocAppIds)) {
+			unset($oSchema->fromApp);
+			unset($oSchema->requieCheck);
+
+			return true;
+		}
+
+		return false;
 	}
 	/**
 	 * 设置活动题目的动态选项

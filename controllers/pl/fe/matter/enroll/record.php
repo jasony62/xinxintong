@@ -559,8 +559,8 @@ class record extends main_base {
 				}
 			}
 			/* 生成记录 */
-			if (isset($oVotingSchema->ds->userid)) {
-				$oMockRecUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingSchema->ds->userid]);
+			if (isset($oVotingSchema->referRecord->ds->user)) {
+				$oMockRecUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingSchema->referRecord->ds->user]);
 			} else {
 				$oMockRecUser = new \stdClass;
 			}
@@ -588,8 +588,8 @@ class record extends main_base {
 				/* 模拟用户 */
 				$oVotingOpDs = null;
 				foreach ($oVotingSchema->ops as $oOption) {
-					if ($oOption->v === $oQualifiedOp->v && !empty($oOption->ds->user)) {
-						$oVotingOpDs = $oOption->ds;
+					if ($oOption->v === $oQualifiedOp->v && !empty($oOption->referRecord->ds->user)) {
+						$oVotingOpDs = $oOption->referRecord->ds;
 						break;
 					}
 				}

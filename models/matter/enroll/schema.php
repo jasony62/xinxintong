@@ -10,14 +10,22 @@ class schema_model extends \TMS_MODEL {
 	 * 1、无效的字段
 	 * 2、无效的设置，例如隐藏条件
 	 *
-	 * 支持的类型
+	 * 支持的静态类型
 	 * type
 	 * title
 	 * parent 父题目，表示题目之间的从属关系
 	 * dsSchema 题目定义的来源
+	 *		app 定义来源的应用
+	 *		schema 定义来源的题目
 	 * dynamic 是否为动态生成的题目
 	 * prototype 动态题目的原始定义
 	 * dsOps 动态选项来源
+	 *
+	 * 支持的动态属性
+	 * cloneSchema
+	 * referSchema
+	 * referOption
+	 * referReecord
 	 */
 	public function purify($aAppSchemas) {
 		$validProps = ['id', 'type', 'parent', 'title', 'content', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
@@ -76,6 +84,15 @@ class schema_model extends \TMS_MODEL {
 			if (empty($oSchema->fromApp)) {
 				unset($oSchema->requireCheck);
 			}
+			/* 题目来源 */
+			if (isset($oSchema->dsSchema)) {
+				foreach ($oSchema->dsSchema as $prop2 => $val2) {
+					if (!in_array($prop2, ['app', 'schema'])) {
+						unset($oSchema->dsSchema->{$prop2});
+					}
+				}
+			}
+
 			$purified[] = $oSchema;
 		}
 
@@ -168,7 +185,10 @@ class schema_model extends \TMS_MODEL {
 						$oNewOp = new \stdClass;
 						$oNewOp->v = 'v' . ($index + 1);
 						$oNewOp->l = $oRecData->value;
-						$oNewOp->ds = (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname, 'schema_id' => $oSchema->dsOps->schema->id];
+						$oNewOp->referRecord = (object) [
+							'schema' => (object) ['id' => $oSchema->dsOps->schema->id],
+							'ds' => (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname],
+						];
 						$oSchema->ops[] = $oNewOp;
 					}
 				}
@@ -193,6 +213,51 @@ class schema_model extends \TMS_MODEL {
 			$oAppRound = $oApp->appRound;
 		}
 
+		/* 从题目生成题目 */
+		$fnMakeDynaSchemaBySchema = function ($oSchema, $oDsAppRnd, $schemaIndex, &$dynaSchemasByIndex) use ($oApp) {
+			$modelEnl = $this->model('matter\enroll');
+			$oTargetApp = $modelEnl->byId($oSchema->dsSchema->app->id, ['fields' => 'siteid,state,mission_id,data_schemas,sync_mission_round']);
+			if (false === $oTargetApp || $oTargetApp->state !== '1') {
+				return [false, '指定的目标活动不可用'];
+			}
+			if ($oApp->mission_id !== $oTargetApp->mission_id) {
+				return [false, '仅支持在同一个项目的活动间通过记录生成题目'];
+			}
+
+			$targetSchemas = []; // 目标应用中选择的题目
+			foreach ($oTargetApp->dynaDataSchemas as $oTargetSchema) {
+				if (empty($oTargetSchema->dynamic) || $oTargetSchema->dynamic !== 'Y' || empty($oTargetSchema->cloneSchema->id)) {
+					continue;
+				}
+				if ($oSchema->dsSchema->schema->id === $oTargetSchema->cloneSchema->id) {
+					$targetSchemas[$oTargetSchema->id] = $oTargetSchema;
+				}
+			}
+			if (empty($targetSchemas)) {
+				return [false, '指定的题目无效'];
+			}
+
+			foreach ($targetSchemas as $oReferSchema) {
+				$oNewDynaSchema = clone $oSchema;
+				$oNewDynaSchema->cloneSchema = (object) ['id' => $oSchema->id, 'title' => $oSchema->title];
+				$oNewDynaSchema->referSchema = (object) ['id' => $oReferSchema->id, 'title' => $oReferSchema->title, 'type' => $oReferSchema->type];
+				$oNewDynaSchema->id = $oReferSchema->id;
+				$oNewDynaSchema->title = $oReferSchema->title;
+				$oNewDynaSchema->dynamic = 'Y';
+				if (isset($oReferSchema->referRecord)) {
+					$oNewDynaSchema->referRecord = $oReferSchema->referRecord;
+				}
+				$dynaSchemasByIndex[$schemaIndex][] = $oNewDynaSchema;
+
+				/* 原型题目中设置了动态选项，且和题目指向了相同的题目 */
+				if (!empty($oNewDynaSchema->dsOps->app->id) && !empty($oNewDynaSchema->dsOps->schema->id) && $oNewDynaSchema->dsOps->app->id === $oSchema->dsSchema->app->id && $oNewDynaSchema->dsOps->schema->id === $oSchema->dsSchema->schema->id) {
+					$oNewDynaSchema->dsOps->schema->id = $oReferSchema->id;
+					$oNewDynaSchema->dsOps->schema->title = $oReferSchema->title;
+					$oNewDynaSchema->dsOps->schema->type = $oReferSchema->type;
+				}
+			}
+		};
+
 		/* 根据填写数据生成题目 */
 		$fnMakeDynaSchemaByData = function ($oSchema, $oDsAppRnd, $schemaIndex, &$dynaSchemasByIndex) {
 			/* 如果题目本身是动态题目，需要先生成题目 */
@@ -211,7 +276,7 @@ class schema_model extends \TMS_MODEL {
 				foreach ($oTargetApp->dynaDataSchemas as $oDynaSchema) {
 					if ($oDynaSchema->id === $oSchema->dsSchema->schema->id) {
 						$targetSchemas[] = $oDynaSchema;
-					} else if (!empty($oDynaSchema->dynamic) && $oDynaSchema->dynamic === 'Y' && !empty($oDynaSchema->model->schema->id) && $oDynaSchema->model->schema->id === $oSchema->dsSchema->schema->id) {
+					} else if (!empty($oDynaSchema->dynamic) && $oDynaSchema->dynamic === 'Y' && !empty($oDynaSchema->cloneSchema->id) && $oDynaSchema->cloneSchema->id === $oSchema->dsSchema->schema->id) {
 						$targetSchemas[] = $oDynaSchema;
 					}
 				}
@@ -247,11 +312,13 @@ class schema_model extends \TMS_MODEL {
 				$datas = $this->query_objs_ss($q);
 				foreach ($datas as $index => $oRecData) {
 					$oNewDynaSchema = clone $oSchema;
+					$oNewDynaSchema->cloneSchema = (object) ['id' => $oSchema->id, 'title' => $oSchema->title];
 					$oNewDynaSchema->id = 'dyna' . $oRecData->id;
 					$oNewDynaSchema->title = $oRecData->value;
 					$oNewDynaSchema->dynamic = 'Y';
-					$oNewDynaSchema->model = (object) [
-						'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title],
+					/* 记录题目的数据来源 */
+					$oNewDynaSchema->referRecord = (object) [
+						'schema' => (object) ['id' => $oTargetSchema->id, 'type' => $oTargetSchema->type, 'title' => $oTargetSchema->title],
 						'ds' => (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname],
 					];
 					$dynaSchemasByIndex[$schemaIndex][] = $oNewDynaSchema;
@@ -271,12 +338,12 @@ class schema_model extends \TMS_MODEL {
 			}
 
 			$targetSchemas = []; // 目标应用中选择的题目
-			foreach ($oTargetApp->dynaDataSchemas as $oSchema2) {
-				if (empty($oSchema2->dynamic) || $oSchema2->dynamic !== 'Y' || empty($oSchema2->model->schema->id)) {
+			foreach ($oTargetApp->dynaDataSchemas as $oTargetSchema) {
+				if (empty($oTargetSchema->dynamic) || $oTargetSchema->dynamic !== 'Y' || empty($oTargetSchema->cloneSchema->id)) {
 					continue;
 				}
-				if ($oSchema->dsSchema->schema->id === $oSchema2->model->schema->id) {
-					$targetSchemas[$oSchema2->id] = $oSchema2;
+				if ($oSchema->dsSchema->schema->id === $oTargetSchema->cloneSchema->id) {
+					$targetSchemas[$oTargetSchema->id] = $oTargetSchema;
 				}
 			}
 			if (empty($targetSchemas)) {
@@ -300,19 +367,17 @@ class schema_model extends \TMS_MODEL {
 				if (empty($targetSchemas[$schemaId])) {
 					continue;
 				}
-				$oProtoSchema = $targetSchemas[$schemaId];
-				$oNewSchema = new \stdClass;
-				$oNewSchema->id = $oProtoSchema->id;
-				$oNewSchema->title = $oProtoSchema->title;
-				$oNewSchema->type = 'longtext';
-				$oNewSchema->dynamic = 'Y';
-				$oNewSchema->model = (object) [
-					'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title, 'type' => $oSchema->type],
-				];
-				if (isset($oProtoSchema->ds)) {
-					$oNewSchema->model->ds = $oProtoSchema->ds;
+				$oReferSchema = $targetSchemas[$schemaId];
+				$oNewDynaSchema = clone $oSchema;
+				$oNewDynaSchema->cloneSchema = (object) ['id' => $oSchema->id, 'title' => $oSchema->title];
+				$oNewDynaSchema->referSchema = (object) ['id' => $oReferSchema->id, 'title' => $oReferSchema->title, 'type' => $oReferSchema->type];
+				$oNewDynaSchema->id = $oReferSchema->id;
+				$oNewDynaSchema->title = $oReferSchema->title;
+				$oNewDynaSchema->dynamic = 'Y';
+				if (isset($oReferSchema->referRecord)) {
+					$oNewDynaSchema->referRecord = $oReferSchema->referRecord;
 				}
-				$dynaSchemasByIndex[$schemaIndex][] = $oNewSchema;
+				$dynaSchemasByIndex[$schemaIndex][] = $oNewDynaSchema;
 			}
 		};
 
@@ -363,9 +428,7 @@ class schema_model extends \TMS_MODEL {
 						$this->genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas, $oSchema);
 						foreach ($newSchemas as $oNewDynaSchema) {
 							$oNewDynaSchema->dynamic = 'Y';
-							$oNewDynaSchema->model = (object) [
-								'schema' => (object) ['id' => $oSchema->id, 'title' => $oSchema->title, 'type' => $oSchema->type],
-							];
+							$oNewDynaSchema->cloneSchema = (object) ['id' => $oSchema->id, 'title' => $oSchema->title];
 						}
 					}
 					break;
@@ -408,7 +471,12 @@ class schema_model extends \TMS_MODEL {
 					switch ($oDsSchema->schema->type) {
 					case 'shorttext':
 					case 'longtext':
-						$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
+						if (!empty($oSchema->dsOps->app->id) && $oSchema->dsOps->app->id === $oSchema->dsSchema->app->id) {
+							/* 如果动态选项指向了相同的题目，就是直接复制题目 */
+							$fnMakeDynaSchemaBySchema($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
+						} else {
+							$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
+						}
 						break;
 					case 'score':
 						$fnMakeDynaSchemaByScore($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
@@ -458,12 +526,10 @@ class schema_model extends \TMS_MODEL {
 				}
 				$oNewSchema->id = $oTargetSchema->id . $oOriginalOption->v;
 				$oNewSchema->title = $oOriginalOption->l;
-				/* 题目定义的来源 */
-				if (!isset($oNewSchema->dsSchema)) {
-					$oNewSchema->dsSchema = new \stdClass;
+				$oNewSchema->referOption = (object) ['l' => $oOriginalOption->l, 'v' => $oOriginalOption->v];
+				if (isset($oOriginalOption->referRecord)) {
+					$oNewSchema->referRecord = $oOriginalOption->referRecord;
 				}
-				$oNewSchema->dsSchema->op = clone $oOriginalOption;
-				$oNewSchema->dsSchema->op->schema_id = $oTargetSchema->id;
 
 				$newSchemas[] = $oNewSchema;
 			}

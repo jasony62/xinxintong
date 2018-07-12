@@ -64,8 +64,8 @@ ngApp.controller('ctrlMarks', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
     };
     $scope.gotoOptionLink = function(oSchema) {
         if (oSchema.dsSchema && oSchema.dsSchema.app && oSchema.dsSchema.app.id) {
-            if (oSchema.model && oSchema.model.ds && oSchema.model.ds.ek) {
-                location.href = LS.j('', 'site') + '&app=' + oSchema.dsSchema.app.id + '&ek=' + oSchema.model.ds.ek + '&page=cowork';
+            if (oSchema.referRecord && oSchema.referRecord.ds && oSchema.referRecord.ds.ek) {
+                location.href = LS.j('', 'site') + '&app=' + oSchema.dsSchema.app.id + '&ek=' + oSchema.referRecord.ds.ek + '&page=cowork';
             }
         }
     };

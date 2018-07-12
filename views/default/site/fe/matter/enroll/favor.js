@@ -15,7 +15,7 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
     TopicRepos = function(oApp, oTopic) {
         var oShareableSchemas;
         oShareableSchemas = {};
-        oApp.dataSchemas.forEach(function(oSchema) {
+        oApp.dynaDataSchemas.forEach(function(oSchema) {
             if (oSchema.shareable && oSchema.shareable === 'Y') {
                 oShareableSchemas[oSchema.id] = oSchema;
             }
@@ -175,7 +175,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
             $timeout(function() {
                 var imgs;
-                if(imgs = document.querySelectorAll('.data img')) {
+                if (imgs = document.querySelectorAll('.data img')) {
                     picviewer.init(imgs);
                 }
             });
@@ -235,7 +235,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.shareRecord = function(oRecord) {
         var url;
         url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
-        if(shareby) {
+        if (shareby) {
             url += '&shareby=' + shareby;
         }
         location.href = url;
@@ -301,7 +301,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 }
             }
         }
-        _oApp.dataSchemas.forEach(function(schema) {
+        _oApp.dynaDataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
             }
@@ -367,7 +367,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
         var url, shareby;
         url = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=share';
         shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
-        if(shareby) {
+        if (shareby) {
             url += '&shareby=' + shareby;
         }
         location.href = url;

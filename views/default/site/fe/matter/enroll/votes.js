@@ -63,8 +63,8 @@ ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
         }
     };
     $scope.gotoOptionLink = function(oSchema, oOption) {
-        if (oOption.ds && oOption.ds.ek && oSchema.dsOps && oSchema.dsOps.app && oSchema.dsOps.app.id) {
-            location.href = LS.j('', 'site') + '&app=' + oSchema.dsOps.app.id + '&ek=' + oOption.ds.ek + '&page=cowork';
+        if (oOption.referRecord && oOption.referRecord.ds && oOption.referRecord.ds.ek && oSchema.dsOps && oSchema.dsOps.app && oSchema.dsOps.app.id) {
+            location.href = LS.j('', 'site') + '&app=' + oSchema.dsOps.app.id + '&ek=' + oOption.referRecord.ds.ek + '&page=cowork';
         }
     };
     /* 获得投票结果 */
@@ -95,8 +95,8 @@ ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
                                     for (var i = 0, ii = oOriginalSchema.ops.length; i < ii; i++) {
                                         oOriginalOption = oOriginalSchema.ops[i];
                                         if (oOption.v === oOriginalOption.v) {
-                                            if (oOriginalOption.ds) {
-                                                oOption.ds = oOriginalOption.ds;
+                                            if (oOriginalOption.referRecord) {
+                                                oOption.referRecord = oOriginalOption.referRecord;
                                             }
                                             break;
                                         }

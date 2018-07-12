@@ -50,7 +50,7 @@
             </div>
             <div class='schema'>
                 <div class='option' ng-repeat="schema in marks">
-                    <div><span ng-bind="schema.title"></span><small class='option-link' ng-if="schema.model.ds.ek" ng-click="gotoOptionLink(schema)">[详情]</small></div>
+                    <div><span ng-bind="schema.title"></span><small class='option-link' ng-if="schema.referRecord.ds.ek" ng-click="gotoOptionLink(schema)">[详情]</small></div>
                     <div ng-bind="schema._score"></div>
                 </div>
             </div>

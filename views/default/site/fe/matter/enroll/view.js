@@ -7,7 +7,7 @@ ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
     var Record, _ins, _deferredRecord;
     Record = function(oApp) {
         var data = {}; // 初始化空数据，优化加载体验
-        oApp.dataSchemas.forEach(function(schema) {
+        oApp.dynaDataSchemas.forEach(function(schema) {
             data[schema.id] = '';
         });
         this.current = {
@@ -221,7 +221,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
         var oApp, dataSchemas, facRecord;
 
         oApp = params.app;
-        dataSchemas = params.app.dataSchemas;
+        dataSchemas = params.app.dynaDataSchemas;
         facRecord = Record.ins(oApp);
 
         fnGetRecord().then(function(rsp) {

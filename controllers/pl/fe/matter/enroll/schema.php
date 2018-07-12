@@ -261,10 +261,10 @@ class schema extends main_base {
 		$targetSchemas = []; // 目标应用中选择的题目
 		foreach ($oPosted->schemas as $oSchema) {
 			foreach ($oTargetApp->dynaDataSchemas as $oSchema2) {
-				if (empty($oSchema2->dynamic) || $oSchema2->dynamic !== 'Y' || empty($oSchema2->model->schema->id)) {
+				if (empty($oSchema2->dynamic) || $oSchema2->dynamic !== 'Y' || empty($oSchema2->cloneSchema->id)) {
 					continue;
 				}
-				if ($oSchema->id === $oSchema2->model->schema->id) {
+				if ($oSchema->id === $oSchema2->cloneSchema->id) {
 					$targetSchemas[$oSchema2->id] = $oSchema2;
 				}
 			}

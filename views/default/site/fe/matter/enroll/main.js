@@ -286,7 +286,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             oUser = params.user,
             schemasById = {};
 
-        oApp.dataSchemas.forEach(function(schema) {
+        oApp.dynaDataSchemas.forEach(function(schema) {
             schemasById[schema.id] = schema;
         });
         oApp._schemasById = schemasById;

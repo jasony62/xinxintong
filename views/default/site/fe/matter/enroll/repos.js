@@ -222,7 +222,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         var url, shareby;
         url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
         shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
-        if(shareby) {
+        if (shareby) {
             url += '&shareby=' + shareby;
         }
         location.href = url;
@@ -363,7 +363,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 }
             }
         }
-        _oApp.dataSchemas.forEach(function(schema) {
+        _oApp.dynaDataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
             }
@@ -415,9 +415,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
         });
         /* 设置页面分享信息 */
-        $scope.setSnsShare(null, null, {target_type: 'repos', target_id: _oApp.id});
+        $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /*页面阅读日志*/
-        $scope.logAccess({target_type: 'repos', target_id: _oApp.id});
+        $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
         /*设置页面操作*/
         $scope.appActs = {};
         /* 允许添加记录 */

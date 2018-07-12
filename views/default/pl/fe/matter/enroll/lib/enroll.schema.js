@@ -685,11 +685,12 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         oNewSchema.title = oProtoSchema.title;
                                         oNewSchema.dsOps = {
                                             app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
-                                            schema: { id: oProtoSchema.id, title: oProtoSchema.title },
+                                            schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type },
                                         };
-                                        if (oProtoSchema.dsSchema) {
-                                            oNewSchema.dsSchema = oProtoSchema.dsSchema;
-                                        }
+                                        oNewSchema.dsSchema = {
+                                            app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
+                                            schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type }
+                                        };
                                         if (oNewSchema.type === 'multiple') {
                                             if (oResult.limitChoice && oResult.limitChoice === 'Y') {
                                                 oNewSchema.limitChoice = 'Y';
@@ -722,7 +723,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         oNewSchema = schemaLib.newSchema('score', _oApp, oScoreProto);
                                         oNewSchema.title = oProtoSchema.title;
                                         if (oNewSchema.requireScore === 'Y') oNewSchema.scoreMode = 'evaluation';
-                                        oNewSchema.dsSchema = oNewSchema.dsSchema = {
+                                        oNewSchema.dsSchema = {
                                             app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
                                             schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type }
                                         };
@@ -1538,7 +1539,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                             break;
                                         case 'fromScore':
                                             fnValidSchema = function(oSchema) {
-                                                if (/score/.test(oSchema.type) && oSchema.dsSchemas) {
+                                                if (/score/.test(oSchema.type) && oSchema.dsSchema) {
                                                     $scope2.dsSchemas.push(angular.copy(oSchema));
                                                 }
                                             };

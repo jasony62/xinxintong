@@ -173,6 +173,9 @@
         <button class='btn btn-default' ng-click="setOptGroup(activeSchema)">设置选项可见条件</button>
     </div>
     <div class='form-group'>
+        <button class='btn btn-default' ng-click="setSchemaParent(activeSchema)">设置父题目 <span ng-if="activeSchema.parent" class='glyphicon glyphicon-check'></span></button>
+    </div>
+    <div class='form-group'>
         <button class='btn btn-default' ng-click="setVisibility(activeSchema)">设置题目可见条件({{activeSchema.visibility.rules.length||0}})</button>
     </div>
     <div class="checkbox" ng-show="'multitext'===activeSchema.type">

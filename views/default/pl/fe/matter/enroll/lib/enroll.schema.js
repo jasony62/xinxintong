@@ -659,7 +659,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             case 'copy':
                                 fnGenNewSchema = function(oProtoSchema) {
                                     var oNewSchema;
-                                    oNewSchema = schemaLib.newSchema(oProtoSchema.type, _oApp);
+                                    oNewSchema = schemaLib.newSchema(oProtoSchema.type, _oApp, { id: oProtoSchema.id });
                                     oNewSchema.type === 'member' && (oNewSchema.schema_id = oProtoSchema.schema_id);
                                     oNewSchema.title = oProtoSchema.title;
                                     if (oProtoSchema.ops) {
@@ -681,7 +681,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                             return null;
                                         }
                                         var oNewSchema;
-                                        oNewSchema = schemaLib.newSchema(oResult.target.type, _oApp);
+                                        oNewSchema = schemaLib.newSchema(oResult.target.type, _oApp, { id: oProtoSchema.id });
                                         oNewSchema.title = oProtoSchema.title;
                                         oNewSchema.dsOps = {
                                             app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
@@ -720,7 +720,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                             return null;
                                         }
                                         var oNewSchema;
-                                        oNewSchema = schemaLib.newSchema('score', _oApp, oScoreProto);
+                                        oNewSchema = schemaLib.newSchema('score', _oApp, oScoreProto, { id: oProtoSchema.id });
                                         oNewSchema.title = oProtoSchema.title;
                                         if (oNewSchema.requireScore === 'Y') oNewSchema.scoreMode = 'evaluation';
                                         oNewSchema.dsSchema = {
@@ -734,7 +734,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             case 'inputByOption':
                                 fnGenNewSchema = function(oProtoSchema) {
                                     var oNewSchema;
-                                    oNewSchema = schemaLib.newSchema('longtext', _oApp);
+                                    oNewSchema = schemaLib.newSchema('longtext', _oApp, { id: oProtoSchema.id });
                                     oNewSchema.title = oProtoSchema.title;
                                     oNewSchema.dsSchema = {
                                         app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
@@ -746,7 +746,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             case 'inputByScore':
                                 fnGenNewSchema = function(oProtoSchema) {
                                     var oNewSchema;
-                                    oNewSchema = schemaLib.newSchema('longtext', _oApp);
+                                    oNewSchema = schemaLib.newSchema('longtext', _oApp, { id: oProtoSchema.id });
                                     oNewSchema.title = oProtoSchema.title;
                                     oNewSchema.dsSchema = {
                                         app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
@@ -760,6 +760,13 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             protoSchemas.forEach(function(oProtoSchema) {
                                 var oNewSchema;
                                 if (oNewSchema = fnGenNewSchema(oProtoSchema)) {
+                                    if (oResult.requireGroup) {
+                                        var oNewGroupSchema;
+                                        oNewGroupSchema = schemaLib.newSchema('html', _oApp, { 'id': 'g' + oProtoSchema.id, title: oProtoSchema.title });
+                                        oNewGroupSchema.content = '<div>' + oProtoSchema.title + '</div>';
+                                        $scope._appendSchema(oNewGroupSchema);
+                                        oNewSchema.parent = { id: oNewGroupSchema.id, type: oNewGroupSchema.type };
+                                    }
                                     $scope._appendSchema(oNewSchema);
                                 }
                             });
@@ -1141,6 +1148,44 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     oSchema.ops = groupAndOps.options;
                     oSchema.optGroups = groupAndOps.groups;
                     $scope.updSchema(oSchema);
+                });
+            };
+            $scope.setSchemaParent = function(oSchema) {
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setSchemaParent.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var htmlSchemas, oResult;
+                        htmlSchemas = []; //所有单项选择题
+                        $scope2.result = oResult = {};
+                        $scope.app.dataSchemas.forEach(function(oAppSchema) {
+                            if (oAppSchema.type === 'html') {
+                                htmlSchemas.push(angular.copy(oAppSchema));
+                                if (oSchema.parent && oAppSchema.id === oSchema.parent.id) {
+                                    oResult.id = oAppSchema.id;
+                                    oResult.type = oAppSchema.type;
+                                    oResult.title = oAppSchema.title;
+                                }
+                            }
+                        });
+                        $scope2.htmlSchemas = htmlSchemas;
+                        $scope2.selectSchema = function(oSchema) {
+                            oResult.id = oSchema.id;
+                            oResult.title = oSchema.title;
+                            oResult.type = oSchema.type;
+                        };
+                        $scope2.ok = function() {
+                            $mi.close(oResult);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                    }],
+                    backdrop: 'static',
+                }).result.then(function(oResult) {
+                    if (oResult.id && oResult.type && oResult.title) {
+                        oSchema.parent = oResult;
+                        $scope.updSchema(oSchema);
+                    }
                 });
             };
             $scope.setVisibility = function(oSchema) {

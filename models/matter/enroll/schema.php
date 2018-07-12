@@ -31,6 +31,10 @@ class schema_model extends \TMS_MODEL {
 		$validProps = ['id', 'type', 'parent', 'title', 'content', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
 
 		$purified = [];
+		$schemasById = [];
+		foreach ($aAppSchemas as $oSchema) {
+			$schemasById[$oSchema->id] = $oSchema;
+		}
 		foreach ($aAppSchemas as $oSchema) {
 			foreach ($oSchema as $prop => $val) {
 				if (!in_array($prop, $validProps)) {
@@ -89,6 +93,21 @@ class schema_model extends \TMS_MODEL {
 				foreach ($oSchema->dsSchema as $prop2 => $val2) {
 					if (!in_array($prop2, ['app', 'schema'])) {
 						unset($oSchema->dsSchema->{$prop2});
+					}
+				}
+			}
+			/* 检查父题目是否存在 */
+			if (isset($oSchema->parent)) {
+				if (empty($oSchema->parent->id) || empty($oSchema->parent->type)) {
+					unset($oSchema->parent);
+				} else {
+					if (empty($schemasById[$oSchema->parent->id])) {
+						unset($oSchema->parent);
+					} else {
+						$oParentSchema = $schemasById[$oSchema->parent->id];
+						if ($oSchema->parent->type !== $oParentSchema->type) {
+							unset($oSchema->parent);
+						}
 					}
 				}
 			}

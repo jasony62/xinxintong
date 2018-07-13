@@ -503,7 +503,7 @@ class record extends main_base {
 		}
 		/* 指定的投票题目 */
 		$aVotingSchemas = [];
-		foreach ($oApp->dataSchemas as $oSchema) {
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if (in_array($oSchema->id, $oPosted->votingSchemas)) {
 				if (in_array($oSchema->type, ['single', 'multiple'])) {
 					$aVotingSchemas[] = $oSchema;
@@ -520,9 +520,13 @@ class record extends main_base {
 		}
 		/* 匹配的轮次 */
 		$oAssignedRnd = $oApp->appRound;
-		$modelRnd = $this->model('matter\enroll\round');
-		if ($oAssignedRnd) {
-			$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
+		if ($oApp->mission_id === $oTargetApp->mission_id) {
+			$modelRnd = $this->model('matter\enroll\round');
+			if ($oAssignedRnd) {
+				$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
+			}
+		} else {
+			$oTargetAppRnd = $oTargetApp->appRound;
 		}
 		/* 目标活动的投票结果 */
 		$aVotingData = $modelRec->getStat($oApp, $oAssignedRnd ? $oAssignedRnd->rid : '', 'N');
@@ -557,7 +561,6 @@ class record extends main_base {
 					}
 				}
 			}
-
 			/* 生成记录 */
 			if (isset($oVotingSchema->ds->userid)) {
 				$oMockRecUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingSchema->ds->userid]);
@@ -566,15 +569,15 @@ class record extends main_base {
 			}
 			$newek = $modelRec->enroll($oTargetApp, $oMockRecUser);
 
+			$oNewRecData = new \stdClass; // 问题+答案的记录数据
 			/* 写入问题 */
-			$oNewRecData = new \stdClass;
 			$oNewRecData->{$oPosted->questionSchema} = $oVotingSchema->title;
 
 			/* 写入答案 */
 			$current = time();
 			$oRecData = new \stdClass;
 			$oRecData->aid = $oTargetApp->id;
-			$oRecData->rid = isset($oTargetAppRnd) ? $oTargetAppRnd->rid : '';
+			$oRecData->rid = empty($oTargetAppRnd->rid) ? '' : $oTargetAppRnd->rid;
 			$oRecData->enroll_key = $newek;
 			$oRecData->submit_at = $current;
 			$oRecData->userid = isset($oMockRecUser->uid) ? $oMockRecUser->uid : '';

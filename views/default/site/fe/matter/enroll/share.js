@@ -1,5 +1,4 @@
 'use strict';
-require('./share.css');
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsShare', 'http2', function($scope, $sce, $q, LS, tmsSnsShare, http2) {

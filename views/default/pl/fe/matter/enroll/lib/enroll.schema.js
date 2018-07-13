@@ -531,11 +531,14 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
 
                 return newSchema;
             };
+            /**
+             * 从其他活动中引入题目
+             */
             $scope.importByOther = function() {
                 var _oApp;
                 _oApp = $scope.app;
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/importSchemaByOther.html?_=2',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/importByOther.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
                         $scope2.page = oPage = {
@@ -545,13 +548,45 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 return 'page=' + this.at + '&size=' + this.size;
                             }
                         };
-                        $scope2.result = oResult = {};
+                        $scope2.result = oResult = {
+                            purpose: 'copy',
+                            target: { ops: [], range: {} }
+                        };
                         $scope2.filter = oFilter = {};
                         $scope2.selectApp = function() {
-                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
-                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
-                            }
+                            var dataSchemas;
+                            $scope2.dataSchemas = [];
                             oResult.schemas = [];
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                switch (oResult.purpose) {
+                                    case 'copy':
+                                        $scope2.dataSchemas = dataSchemas;
+                                        break;
+                                    case 'optionByInput':
+                                    case 'scoreByInput':
+                                        dataSchemas.forEach(function(oSchema) {
+                                            if (/shorttext|longtext/.test(oSchema.type)) {
+                                                $scope2.dataSchemas.push(oSchema);
+                                            }
+                                        });
+                                        break;
+                                    case 'inputByOption':
+                                        dataSchemas.forEach(function(oSchema) {
+                                            if (/single|multiple/.test(oSchema.type)) {
+                                                $scope2.dataSchemas.push(oSchema);
+                                            }
+                                        });
+                                        break;
+                                    case 'inputByScore':
+                                        dataSchemas.forEach(function(oSchema) {
+                                            if (/score/.test(oSchema.type)) {
+                                                $scope2.dataSchemas.push(oSchema);
+                                            }
+                                        });
+                                        break;
+                                }
+                            }
                         };
                         $scope2.selectSchema = function(schema) {
                             if (schema._selected) {
@@ -561,7 +596,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         };
                         $scope2.ok = function() {
-                            $mi.close(oResult.schemas);
+                            $mi.close(oResult);
                         };
                         $scope2.cancel = function() {
                             $mi.dismiss();
@@ -583,27 +618,152 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 oPage.total = rsp.data.total;
                             });
                         };
+                        $scope2.disabled = true;
+                        $scope2.$watch('result', function(oNew, oOld) {
+                            $scope2.disabled = false;
+                            if (!oResult.schemas || oResult.schemas.length === 0) $scope2.disabled = true;
+                            if (oNew.purpose !== oOld.purpose) {
+                                $scope2.selectApp();
+                            }
+                            switch (oResult.purpose) {
+                                case 'optionByInput':
+                                    if (!oResult.target || !oResult.target.type) {
+                                        $scope2.disabled = true;
+                                    }
+                                    break;
+                                case 'scoreByInput':
+                                    if (!oResult.target) {
+                                        $scope2.disabled = true;
+                                    } else {
+                                        var oTarget = oResult.target;
+                                        if (!oTarget.ops || oTarget.ops.length === 0) $scope2.disabled = true;
+                                        if (!oTarget.range || !oTarget.range.from || !oTarget.range.to) $scope2.disabled = true;
+                                    }
+                                    break;
+                                case 'inputByOption':
+                                    break;
+                                case 'inputByScore':
+                                    break;
+                            }
+                        }, true);
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
-                }).result.then(function(schemas) {
-                    schemas.forEach(function(schema) {
-                        var newSchema;
-                        newSchema = schemaLib.newSchema(schema.type, _oApp);
-                        newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
-                        newSchema.title = schema.title;
-                        if (schema.ops) {
-                            newSchema.ops = schema.ops;
+                }).result.then(function(oResult) {
+                    var protoSchemas, fnGenNewSchema;
+                    protoSchemas = oResult.schemas;
+                    if (protoSchemas && protoSchemas.length) {
+                        switch (oResult.purpose) {
+                            case 'copy':
+                                fnGenNewSchema = function(oProtoSchema) {
+                                    var oNewSchema;
+                                    oNewSchema = schemaLib.newSchema(oProtoSchema.type, _oApp);
+                                    oNewSchema.type === 'member' && (oNewSchema.schema_id = oProtoSchema.schema_id);
+                                    oNewSchema.title = oProtoSchema.title;
+                                    if (oProtoSchema.ops) {
+                                        oNewSchema.ops = oProtoSchema.ops;
+                                    }
+                                    if (oProtoSchema.range) {
+                                        oNewSchema.range = oProtoSchema.range;
+                                    }
+                                    if (oProtoSchema.count) {
+                                        oNewSchema.count = oProtoSchema.count;
+                                    }
+                                    return oNewSchema;
+                                };
+                                break;
+                            case 'optionByInput':
+                                if (oResult.target && oResult.target.type && /single|multiple/.test(oResult.target.type)) {
+                                    fnGenNewSchema = function(oProtoSchema) {
+                                        if (!/shorttext|longtext/.test(oProtoSchema.type)) {
+                                            return null;
+                                        }
+                                        var oNewSchema;
+                                        oNewSchema = schemaLib.newSchema(oResult.target.type, _oApp);
+                                        oNewSchema.title = oProtoSchema.title;
+                                        oNewSchema.dsOps = {
+                                            app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
+                                            schema: { id: oProtoSchema.id, title: oProtoSchema.title },
+                                        };
+                                        if (oProtoSchema.dsSchema) {
+                                            oNewSchema.dsSchema = oProtoSchema.dsSchema;
+                                        }
+                                        if (oNewSchema.type === 'multiple') {
+                                            if (oResult.limitChoice && oResult.limitChoice === 'Y') {
+                                                oNewSchema.limitChoice = 'Y';
+                                                if (oResult.range && angular.isArray(oResult.range)) {
+                                                    oNewSchema.range = [];
+                                                    if (oResult.range[0]) oNewSchema.range[0] = parseInt(oResult.range[0]);
+                                                    if (oResult.range[1]) oNewSchema.range[1] = parseInt(oResult.range[1]);
+                                                }
+                                            }
+                                        }
+                                        return oNewSchema;
+                                    };
+                                }
+                                break;
+                            case 'scoreByInput':
+                                if (oResult.target) {
+                                    var oScoreProto;
+                                    oScoreProto = {};
+                                    oScoreProto.range = [oResult.target.range.from, oResult.target.range.to];
+                                    oScoreProto.ops = [];
+                                    oResult.target.ops.forEach(function(op, index) {
+                                        oScoreProto.ops.push({ v: 'v' + (index + 1), l: op.l });
+                                    });
+                                    if (oResult.target.requireScore) oScoreProto.requireScore = 'Y';
+                                    fnGenNewSchema = function(oProtoSchema) {
+                                        if (!/shorttext|longtext/.test(oProtoSchema.type)) {
+                                            return null;
+                                        }
+                                        var oNewSchema;
+                                        oNewSchema = schemaLib.newSchema('score', _oApp, oScoreProto);
+                                        oNewSchema.title = oProtoSchema.title;
+                                        if (oNewSchema.requireScore === 'Y') oNewSchema.scoreMode = 'evaluation';
+                                        oNewSchema.dsSchema = oNewSchema.dsSchema = {
+                                            app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
+                                            schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type }
+                                        };
+                                        return oNewSchema;
+                                    };
+                                }
+                                break;
+                            case 'inputByOption':
+                                fnGenNewSchema = function(oProtoSchema) {
+                                    var oNewSchema;
+                                    oNewSchema = schemaLib.newSchema('longtext', _oApp);
+                                    oNewSchema.title = oProtoSchema.title;
+                                    oNewSchema.dsSchema = {
+                                        app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
+                                        schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type }
+                                    };
+                                    return oNewSchema;
+                                };
+                                break;
+                            case 'inputByScore':
+                                fnGenNewSchema = function(oProtoSchema) {
+                                    var oNewSchema;
+                                    oNewSchema = schemaLib.newSchema('longtext', _oApp);
+                                    oNewSchema.title = oProtoSchema.title;
+                                    oNewSchema.dsSchema = {
+                                        app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
+                                        schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type }
+                                    };
+                                    return oNewSchema;
+                                };
+                                break;
                         }
-                        if (schema.range) {
-                            newSchema.range = schema.range;
+                        if (fnGenNewSchema) {
+                            protoSchemas.forEach(function(oProtoSchema) {
+                                var oNewSchema;
+                                if (oNewSchema = fnGenNewSchema(oProtoSchema)) {
+                                    $scope._appendSchema(oNewSchema);
+                                }
+                            });
                         }
-                        if (schema.count) {
-                            newSchema.count = schema.count;
-                        }
-                        $scope._appendSchema(newSchema);
-                    });
+                    }
                 });
             };
             $scope.createInputByOption = function() {
@@ -666,6 +826,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
                     var targetSchemas, url, oConfig;
@@ -678,6 +839,97 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             });
                         });
                         url = '/rest/pl/fe/matter/enroll/schema/inputByOption';
+                        url += '?app=' + _oApp.id;
+                        url += '&targetApp=' + oResult.fromApp.id;
+                        oConfig = { schemas: targetSchemas, limit: oResult.limit };
+                        http2.post(url, oConfig, function(rsp) {
+                            if (rsp.data.length) {
+                                rsp.data.forEach(function(oNewSchema) {
+                                    $scope._appendSchema(oNewSchema);
+                                });
+                            }
+                        });
+                    }
+                });
+            };
+            $scope.createInputByScore = function() {
+                var _oApp;
+                _oApp = $scope.app;
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/createInputByScore.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oFilter;
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 12,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.result = oResult = {
+                            limit: { scope: 'top', num: 3 }
+                        };
+                        $scope2.filter = oFilter = {};
+                        $scope2.selectApp = function() {
+                            $scope2.dataSchemas = [];
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                    if (oSchema.type === 'score' && oSchema.dsSchema) {
+                                        $scope2.dataSchemas.push(oSchema);
+                                    }
+                                });
+                            }
+                            oResult.schemas = [];
+                        };
+                        $scope2.selectSchema = function(schema) {
+                            if (schema._selected) {
+                                oResult.schemas.push(schema);
+                            } else {
+                                oResult.schemas.splice(oResult.schemas.indexOf(schema), 1);
+                            }
+                        };
+                        $scope2.ok = function() {
+                            $mi.close(oResult);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.doFilter = function() {
+                            oPage.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            if (_oApp.mission) {
+                                url += '&mission=' + _oApp.mission.id;
+                            }
+                            http2.post(url, {
+                                byTitle: oFilter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    oResult.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                oPage.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                    size: 'lg'
+                }).result.then(function(oResult) {
+                    var targetSchemas, url, oConfig;
+                    if (oResult.schemas && oResult.schemas.length) {
+                        targetSchemas = [];
+                        oResult.schemas.forEach(function(oSchema) {
+                            targetSchemas.push({
+                                id: oSchema.id,
+                                type: oSchema.type
+                            });
+                        });
+                        url = '/rest/pl/fe/matter/enroll/schema/inputByScore';
                         url += '?app=' + _oApp.id;
                         url += '&targetApp=' + oResult.fromApp.id;
                         oConfig = { schemas: targetSchemas, limit: oResult.limit };
@@ -1123,7 +1375,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 var _oApp;
                 _oApp = $scope.app;
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setOptionsSource.html?_=1',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setOptionsSource.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oAppFilter;
                         $scope2.page = oPage = {
@@ -1133,6 +1385,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 return 'page=' + this.at + '&size=' + this.size;
                             }
                         };
+                        $scope2.schema = oSchema;
                         $scope2.result = oResult = {};
                         $scope2.appFilter = oAppFilter = {};
                         $scope2.dsSchemas = [];
@@ -1165,14 +1418,18 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.ok = function() {
                             var fromApp;
                             if ((fromApp = oResult.fromApp) && oResult.selected !== undefined) {
-                                $mi.close({ app: { id: fromApp.id, title: fromApp.title }, schema: $scope2.dsSchemas[parseInt(oResult.selected)], filters: oResult.filters });
+                                $mi.close({ action: 'ok', app: { id: fromApp.id, title: fromApp.title }, schema: $scope2.dsSchemas[parseInt(oResult.selected)], filters: oResult.filters });
                             } else {
                                 $mi.dismiss();
                             }
                         };
+                        $scope2.clean = function() {
+                            $mi.close({ action: 'clean' });
+                        };
                         $scope2.cancel = function() {
                             $mi.dismiss();
                         };
+
                         $scope2.doSearch = function(pageAt) {
                             var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
                             if (_oApp.mission) {
@@ -1190,42 +1447,58 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 oPage.total = rsp.data.total;
                             });
                         };
+                        $scope2.disabled = true;
+                        $scope2.$watch('result', function() {
+                            $scope2.disabled = false;
+                            if (!oResult.selected) $scope2.disabled = true;
+                        }, true);
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
                     windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
-                    if (oResult.app && oResult.schema) {
-                        oSchema.dsOps = {
-                            app: { id: oResult.app.id, title: oResult.app.title },
-                            schema: { id: oResult.schema.id, title: oResult.schema.title },
-                        }
-                        if (oResult.filters && oResult.filters.length) {
-                            oSchema.dsOps.filters = [];
-                            oResult.filters.forEach(function(oFilter) {
-                                var oNewFilter;
-                                if (oFilter.schema && oFilter.op) {
-                                    oNewFilter = {
-                                        schema: {
-                                            id: oFilter.schema.id,
-                                            type: oFilter.schema.type,
-                                            op: { v: oFilter.op.v, l: oFilter.op.l }
-                                        }
-                                    };
-                                    oSchema.dsOps.filters.push(oNewFilter);
+                    switch (oResult.action) {
+                        case 'ok':
+                            if (oResult.app && oResult.schema) {
+                                oSchema.dsOps = {
+                                    app: { id: oResult.app.id, title: oResult.app.title },
+                                    schema: { id: oResult.schema.id, title: oResult.schema.title },
                                 }
-                            });
-                        }
-                        $scope.updSchema(oSchema);
+                                if (oResult.filters && oResult.filters.length) {
+                                    oSchema.dsOps.filters = [];
+                                    oResult.filters.forEach(function(oFilter) {
+                                        var oNewFilter;
+                                        if (oFilter.schema && oFilter.op) {
+                                            oNewFilter = {
+                                                schema: {
+                                                    id: oFilter.schema.id,
+                                                    type: oFilter.schema.type,
+                                                    op: { v: oFilter.op.v, l: oFilter.op.l }
+                                                }
+                                            };
+                                            oSchema.dsOps.filters.push(oNewFilter);
+                                        }
+                                    });
+                                }
+                                $scope.updSchema(oSchema);
+                            }
+                            break;
+                        case 'clean':
+                            delete oSchema.dsOps;
+                            $scope.updSchema(oSchema);
+                            break;
                     }
-                });;
+                });
             };
+            /**
+             * 动态题目设置
+             */
             $scope.setSchemaSource = function(oSchema) {
                 var _oApp;
                 _oApp = $scope.app;
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setSchemaSource.html?_=1',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setSchemaSource.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oAppFilter;
                         $scope2.page = oPage = {
@@ -1235,7 +1508,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 return 'page=' + this.at + '&size=' + this.size;
                             }
                         };
-                        $scope2.result = oResult = {};
+                        $scope2.schema = oSchema;
+                        $scope2.result = oResult = {
+                            mode: 'fromData'
+                        };
                         $scope2.appFilter = oAppFilter = {};
                         $scope2.dsSchemas = [];
                         $scope2.filterSchemas = [];
@@ -1246,15 +1522,39 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             oResult.filters = [];
                             if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
                                 oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
-                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
-                                    if (/longtext|url/.test(oSchema.type)) {
-                                        $scope2.dsSchemas.push(oSchema);
-                                    } else if (/shorttext/.test(oSchema.type) && !oSchema.format) {
-                                        $scope2.dsSchemas.push(oSchema);
-                                    } else if (/single/.test(oSchema.type)) {
-                                        $scope2.filterSchemas.push(angular.copy(oSchema));
+                                if (oResult.fromApp.dataSchemas.length) {
+                                    var fnValidSchema;
+                                    switch (oResult.mode) {
+                                        case 'fromData':
+                                            fnValidSchema = function(oSchema) {
+                                                if (/longtext|url/.test(oSchema.type)) {
+                                                    $scope2.dsSchemas.push(oSchema);
+                                                } else if (/shorttext/.test(oSchema.type) && !oSchema.format) {
+                                                    $scope2.dsSchemas.push(oSchema);
+                                                } else if (/single/.test(oSchema.type)) {
+                                                    $scope2.filterSchemas.push(angular.copy(oSchema));
+                                                }
+                                            };
+                                            break;
+                                        case 'fromScore':
+                                            fnValidSchema = function(oSchema) {
+                                                if (/score/.test(oSchema.type) && oSchema.dsSchemas) {
+                                                    $scope2.dsSchemas.push(angular.copy(oSchema));
+                                                }
+                                            };
+                                            break;
+                                        case 'fromOption':
+                                            fnValidSchema = function(oSchema) {
+                                                if (/single|multiple/.test(oSchema.type)) {
+                                                    $scope2.dsSchemas.push(angular.copy(oSchema));
+                                                }
+                                            };
+                                            break;
                                     }
-                                });
+                                    if (fnValidSchema) {
+                                        oResult.fromApp.dataSchemas.forEach(fnValidSchema);
+                                    }
+                                }
                             }
                             oResult.selected = null;
                         };
@@ -1267,10 +1567,19 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.ok = function() {
                             var fromApp;
                             if ((fromApp = oResult.fromApp) && oResult.selected !== undefined) {
-                                $mi.close({ app: { id: fromApp.id, title: fromApp.title }, schema: $scope2.dsSchemas[parseInt(oResult.selected)], filters: oResult.filters });
+                                $mi.close({
+                                    action: 'ok',
+                                    mode: oResult.mode,
+                                    app: { id: fromApp.id, title: fromApp.title },
+                                    schema: $scope2.dsSchemas[parseInt(oResult.selected)],
+                                    filters: oResult.filters
+                                });
                             } else {
                                 $mi.dismiss();
                             }
+                        };
+                        $scope2.clean = function() {
+                            $mi.close({ action: 'clean' });
                         };
                         $scope2.cancel = function() {
                             $mi.dismiss();
@@ -1292,34 +1601,52 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 oPage.total = rsp.data.total;
                             });
                         };
+                        $scope2.disabled = true;
+                        $scope2.$watch('result', function(oNew, oOld) {
+                            $scope2.disabled = false;
+                            if (!oResult.selected) $scope2.disabled = true;
+                            if (oNew && oOld) {
+                                if (oNew.mode !== oOld.mode) {
+                                    $scope2.selectApp();
+                                }
+                            }
+                        }, true);
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
                     windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
-                    if (oResult.app && oResult.schema) {
-                        oSchema.dsSchemas = {
-                            app: { id: oResult.app.id, title: oResult.app.title },
-                            schema: { id: oResult.schema.id, title: oResult.schema.title },
-                        }
-                        if (oResult.filters && oResult.filters.length) {
-                            oSchema.dsSchemas.filters = [];
-                            oResult.filters.forEach(function(oFilter) {
-                                var oNewFilter;
-                                if (oFilter.schema && oFilter.op) {
-                                    oNewFilter = {
-                                        schema: {
-                                            id: oFilter.schema.id,
-                                            type: oFilter.schema.type,
-                                            op: { v: oFilter.op.v, l: oFilter.op.l }
-                                        }
-                                    };
-                                    oSchema.dsSchemas.filters.push(oNewFilter);
+                    switch (oResult.action) {
+                        case 'ok':
+                            if (oResult.app && oResult.schema) {
+                                oSchema.dsSchema = {
+                                    app: { id: oResult.app.id, title: oResult.app.title },
+                                    schema: { id: oResult.schema.id, title: oResult.schema.title, type: oResult.schema.type }
                                 }
-                            });
-                        }
-                        $scope.updSchema(oSchema);
+                                if (oResult.filters && oResult.filters.length) {
+                                    oSchema.dsSchema.filters = [];
+                                    oResult.filters.forEach(function(oFilter) {
+                                        var oNewFilter;
+                                        if (oFilter.schema && oFilter.op) {
+                                            oNewFilter = {
+                                                schema: {
+                                                    id: oFilter.schema.id,
+                                                    type: oFilter.schema.type,
+                                                    op: { v: oFilter.op.v, l: oFilter.op.l }
+                                                }
+                                            };
+                                            oSchema.dsSchema.filters.push(oNewFilter);
+                                        }
+                                    });
+                                }
+                                $scope.updSchema(oSchema);
+                            }
+                            break;
+                        case 'clean':
+                            delete oSchema.dsSchema;
+                            $scope.updSchema(oSchema);
+                            break;
                     }
                 });;
             };
@@ -1460,20 +1787,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 }
                 $scope.activeOption = oOption;
             };
-            $scope.updSchemaMultiple = function(oUpdatedSchema) {
-                !oUpdatedSchema.answer && (oUpdatedSchema.answer = []);
-                angular.forEach($scope.data, function(data, key) {
-                    var i = oUpdatedSchema.answer.indexOf(key);
-                    // 如果key 在answer中 data为false，则去掉
-                    // 如果不在answer中，data为true ，则添加
-                    if (i !== -1 && data === false) {
-                        oUpdatedSchema.answer.splice(i, 1);
-                    } else if (i === -1 && data === true) {
-                        oUpdatedSchema.answer.push(key);
-                    }
-                });
-                $scope.updSchema(oUpdatedSchema);
-            };
             $scope.schemaHtml = function(schema) {
                 if (schema) {
                     var bust = (new Date()).getMinutes();
@@ -1577,6 +1890,19 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             };
             $scope.removeOption = function(oSchema, oOp) {
                 oSchema.ops.splice(oSchema.ops.indexOf(oOp), 1);
+                if (oSchema.answer) {
+                    if (oSchema.type == 'single') {
+                        if (oOp.v == oSchema.answer) {
+                            delete oSchema.answer;
+                        }
+                    } else if (oSchema.type == 'multiple') {
+                        oSchema.answer.forEach(function(item, index) {
+                            if (oOp.v == item) {
+                                oSchema.answer.splice(index, 1);
+                            }
+                        });
+                    }
+                }
                 $scope.updSchema(oSchema);
             };
             $scope.refreshSchema = function(oSchema) {
@@ -1663,9 +1989,24 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;
             $scope.updSchema($scope.activeSchema, oBeforeState);
         };
+        /*@todo 这部分代码的逻辑有问题*/
+        $scope.updSchemaMultiple = function(oUpdatedSchema) {
+            !oUpdatedSchema.answer && (oUpdatedSchema.answer = []);
+            angular.forEach($scope.answerData, function(data, key) {
+                var i = oUpdatedSchema.answer.indexOf(key);
+                // 如果key 在answer中 data为false，则去掉
+                // 如果不在answer中，data为true ，则添加
+                if (i !== -1 && data === false) {
+                    oUpdatedSchema.answer.splice(i, 1);
+                } else if (i === -1 && data === true) {
+                    oUpdatedSchema.answer.push(key);
+                }
+            });
+            $scope.updSchema(oUpdatedSchema);
+        };
         $scope.$watch('activeSchema', function() {
             var oActiveSchema, oPage, oWrap;
-
+            $scope.answerData = {};
             $scope.activeConfig = false;
             $scope.inputPage = false;
             if (oActiveSchema = $scope.activeSchema) {
@@ -1677,6 +2018,11 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         }
                         if (!oActiveSchema.range) {
                             oActiveSchema.range = [1, oActiveSchema.ops ? oActiveSchema.ops.length : 1];
+                        }
+                        if (oActiveSchema.answer && angular.isArray(oActiveSchema.answer)) {
+                            oActiveSchema.answer.forEach(function(key) {
+                                $scope.answerData[key] = true;
+                            });
                         }
                         break;
                 }

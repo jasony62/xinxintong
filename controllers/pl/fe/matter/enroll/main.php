@@ -18,7 +18,6 @@ class main extends main_base {
 		if (false === ($oApp = $modelEnl->byId($app))) {
 			return new \ResponseError('指定的数据不存在');
 		}
-		unset($oApp->data_schemas);
 		unset($oApp->round_cron);
 		unset($oApp->rp_config);
 
@@ -307,12 +306,11 @@ class main extends main_base {
 				$rst = $modelPg->update(
 					'xxt_enroll_page',
 					[
-						'title' => $ep->title,
+						'title' => $modelApp->escape($ep->title),
 						'name' => $ep->name,
 						'type' => $ep->type,
-						'data_schemas' => $modelApp->escape($ep->data_schemas),
-						'act_schemas' => $modelApp->escape($ep->act_schemas),
-						'user_schemas' => $modelApp->escape($ep->user_schemas),
+						'data_schemas' => $modelApp->escape($modelApp->toJson($ep->dataSchemas)),
+						'act_schemas' => $modelApp->escape($modelApp->toJson($ep->actSchemas)),
 					],
 					['aid' => $oNewApp->id, 'id' => $oNewPage->id]
 				);
@@ -1138,17 +1136,17 @@ class main extends main_base {
 				case 'M':
 					if (empty($oRule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
 					if (empty($oRule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
-					if ($oRule->hour === '') {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
 					break;
 				// 0-6 周几
 				case 'W':
-					if ($oRule->wday === '') {return [false, '请设置定时轮次每周几开始！'];}
-					if ($oRule->end_wday === '') {return [false, '请设置定时轮次每周几结束！'];}
-					if ($oRule->hour === '') {return [false, '请设置定时轮次每周几的几点开始！'];}
+					if (empty($oRule->wday)) {return [false, '请设置定时轮次每周几开始！'];}
+					if (empty($oRule->end_wday)) {return [false, '请设置定时轮次每周几结束！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每周几的几点开始！'];}
 					break;
 				// 0-23 几点
 				default:
-					if ($oRule->hour === '') {return [false, '请设置定时轮次每天的几点开始！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每天的几点开始！'];}
 					break;
 				}
 			} else if ($oRule->pattern === 'interval') {

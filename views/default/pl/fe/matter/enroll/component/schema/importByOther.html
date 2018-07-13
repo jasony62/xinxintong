@@ -1,0 +1,134 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()">×</button>
+    <h5 class="modal-title">由其他活动中的题目生成题目</h5>
+</div>
+<div class="modal-body">
+    <div class='row'>
+        <div class='col-md-12'>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='copy' ng-model="result.purpose">复制题目</label>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='optionByInput' ng-model="result.purpose">填写题结果生成选择题</label>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='scoreByInput' ng-model="result.purpose">填写题结果生成打分题</label>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='inputByOption' ng-model="result.purpose">选择题结果生成填写题</label>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='inputByScore' ng-model="result.purpose">打分题结果生成填写题</label>
+        </div>
+    </div>
+    <hr>
+    <div class='row'>
+        <div class='col-md-4'>
+            <div class='form-group'>
+                <label>1.选择目标活动</label>
+                <div class='input-group'>
+                    <input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="doFilter()"><i class='glyphicon glyphicon-refresh'></i></button>
+                    </span>
+                </div>
+                <select class="form-control" ng-model="result.fromApp" ng-options="app as app.title for app in apps" size="12" ng-change="selectApp()" style='overflow-x:auto'></select>
+            </div>
+            <div class='pl-pagination'>
+                <ul uib-pagination class='pagination-sm' ng-if="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
+            </div>
+        </div>
+        <div class='col-md-4'>
+            <label>2.选择目标题目 <span ng-if="!result.schemas.length" class='text-danger glyphicon glyphicon-hand-left'></span></label>
+            <div class='list-group' style='height:300px;overflow-y:auto'>
+                <div class='list-group-item' ng-repeat="schema in dataSchemas">
+                    <label class="checkbox-inline">
+                        <input type='checkbox' ng-model="schema._selected" ng-change="selectSchema(schema)">{{schema.title}}</label>
+                </div>
+            </div>
+        </div>
+        <div class='col-md-4' ng-switch on="result.purpose">
+            <div ng-switch-when="optionByInput">
+                <label>3.设置生成题目</label>
+                <hr>
+                <div class='form-group'>
+                    <div>
+                        <label>题目类型 <span ng-if="!result.target.type" class='text-danger glyphicon glyphicon-hand-left'></span></label>
+                    </div>
+                    <label class='radio-inline'>
+                        <input type='radio' name='targetType' value='single' ng-model="result.target.type">单选题</label>
+                    <label class='radio-inline'>
+                        <input type='radio' name='targetType' value='multiple' ng-model="result.target.type">多选题</label>
+                </div>
+                <div class="form-group" ng-if="result.target.type==='multiple'">
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="result.target.limitChoice">限制选择数量</label>
+                    </div>
+                    <div class='form-inline'>
+                        至少选
+                        <input type='text' class='form-control' style='width:3em;' ng-model='result.target.range[0]'>项，最多选
+                        <input type='text' class='form-control' style='width:3em;' ng-model='result.target.range[1]'>项
+                    </div>
+                </div>
+            </div>
+            <div ng-switch-when="scoreByInput">
+                <label>3.设置生成题目</label>
+                <hr>
+                <div class='form-group'>
+                    <label>打分项 <span ng-if="!result.target.ops.length" class='text-danger glyphicon glyphicon-hand-left'></span></label>
+                    <div ng-repeat="op in result.target.ops">
+                        <textarea class='form-control' ng-model="op.l"></textarea>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click="result.target.ops.push({})">添加打分项</button>
+                    <div class="btn-group">
+                        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style='width:100%'>
+                            删除打分项 <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href ng-click="result.target.ops.splice($index,1)" ng-repeat="op in result.target.ops"><span>{{$index+1}}</span>: <span>{{op.l}}</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label>分值范围</label>
+                    <div class='form-inline'>
+                        <div class='form-group' ng-class="{'has-error':!result.target.range.from}" style='width:6em'>
+                            <input type='number' class='form-control' ng-model="result.target.range.from" placeholder="最低" style='width:100%'>
+                        </div>
+                        <div class='form-group' ng-class="{'has-error':!result.target.range.to}" style='width:6em'>
+                            <input type='number' class='form-control' ng-model="result.target.range.to" placeholder="最高" style='width:100%'>
+                        </div>
+                    </div>
+                </div>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-model="result.target.requireScore"> 需要计分</label>
+                </div>
+            </div>
+            <div ng-switch-when="inputByOption">
+                <label>3.设置生成题目</label>
+                <hr>
+                <div class='form-group'>
+                    <label>数量限制</label>
+                    <input type='number' class='form-control' ng-model="result.target.limit.num" placeholder="数量" style='width:6em'>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="limitScope" value="top" ng-model="result.target.limit.scope"> <span>按选择数排序的前<mark ng-if="result.target.limit.num" ng-bind="result.target.limit.num"></mark><mark ng-if="!result.target.limit.num">?</mark>选项</span>
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="limitScope" value="checked" ng-model="result.target.limit.scope"> <span>获得选择数大于<mark ng-if="result.target.limit.num" ng-bind="result.target.limit.num"></mark><mark ng-if="!result.target.limit.num">?</mark>的选项</span>
+                    </label>
+                </div>
+            </div>
+            <div ng-switch-when="inputByScore">
+                <label>3.设置生成题目</label>
+                <hr>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success" ng-class="{'btn-danger':disabled,'btn-success':!disabled}" ng-click="ok()" ng-disabled="disabled">生成题目</button>
+</div>

@@ -247,6 +247,11 @@ class record extends base {
 			$this->model('matter\enroll\notice')->addRecord($oEnrollApp, $oRecord, $oUser);
 		}
 
+		/* 抵消保存日志 */
+		$oOperation = new \stdClass;
+		$oOperation->name = 'submit';
+		$logid = $this->_logUserOp($oEnrollApp, $oOperation, $oUser);
+
 		/* 通知登记活动事件接收人 */
 		if (isset($oEnrollApp->notifyConfig->submit->valid) && $oEnrollApp->notifyConfig->submit->valid === true) {
 			$this->_notifyReceivers($oEnrollApp, $ek);
@@ -305,33 +310,33 @@ class record extends base {
 		!empty($rid) && $oPosted->rid = $rid;
 
 		/* 插入到用户对素材的行为日志中 */
-		$operation = new \stdClass;
-		$operation->name = 'saveData';
-		$operation->data = $oPosted;
-		$logid = $this->_logUserOp($oEnrollApp, $operation, $oUser);
+		$oOperation = new \stdClass;
+		$oOperation->name = 'saveData';
+		$oOperation->data = $oPosted;
+		$logid = $this->_logUserOp($oEnrollApp, $oOperation, $oUser);
 
 		return $logid;
 	}
 	/**
 	 * 记录用户提交日志
 	 *
-	 * @param object $app
+	 * @param object $oApp
 	 *
 	 */
-	private function _logUserOp($oApp, $operation, $user) {
+	private function _logUserOp($oApp, $oOperation, $oUser) {
 		$modelLog = $this->model('matter\log');
 
-		$logUser = new \stdClass;
-		$logUser->userid = $user->uid;
-		$logUser->nickname = $user->nickname;
+		$oLogUser = new \stdClass;
+		$oLogUser->userid = $oUser->uid;
+		$oLogUser->nickname = $oUser->nickname;
 
-		$client = new \stdClass;
-		$client->agent = $_SERVER['HTTP_USER_AGENT'];
-		$client->ip = $this->client_ip();
+		$oClient = new \stdClass;
+		$oClient->agent = $_SERVER['HTTP_USER_AGENT'];
+		$oClient->ip = $this->client_ip();
 
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-		$logid = $modelLog->addUserMatterOp($oApp->siteid, $logUser, $oApp, $operation, $client, $referer);
+		$logid = $modelLog->addUserMatterOp($oApp->siteid, $oLogUser, $oApp, $oOperation, $oClient, $referer);
 
 		return $logid;
 	}

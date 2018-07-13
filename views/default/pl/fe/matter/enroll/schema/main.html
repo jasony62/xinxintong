@@ -110,9 +110,9 @@
     </div>
     <div class='form-group' ng-if="activeSchema.requireScore==='Y'">
         <label class='radio-inline'>
-            <input type='radio' name='scoreMode' value='evaluation' ng-model='activeSchema.scoreMode' ng-change="updSchema(activeSchema)"> 作为测评</label>
+            <input type='radio' name='scoreMode' value='evaluation' ng-model='activeSchema.scoreMode' ng-disabled="activeSchema.type==='score'" ng-change="updSchema(activeSchema)"> 作为测评</label>
         <label class='radio-inline'>
-            <input type='radio' name='scoreMode' value='question' ng-model='activeSchema.scoreMode' ng-change="updSchema(activeSchema)"> 作为考题</label>
+            <input type='radio' name='scoreMode' value='question' ng-model='activeSchema.scoreMode' ng-disabled="activeSchema.type==='score'" ng-change="updSchema(activeSchema)"> 作为考题</label>
     </div>
     <div ng-if="activeSchema.scoreMode==='question'">
         <!--设置分数-->
@@ -147,7 +147,7 @@
             </li>
             <li class="checkbox" wrap="checkbox" ng-repeat="op in activeSchema.ops">
                 <label>
-                    <input type="checkbox" ng-model="data[op.v]" ng-change="updSchemaMultiple(activeSchema)" /><span>{{op.l}}</span></label>
+                    <input type="checkbox" ng-model="answerData[op.v]" ng-change="updSchemaMultiple(activeSchema)" /><span>{{op.l}}</span></label>
             </li>
         </ul>
     </div>
@@ -197,7 +197,7 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.showOpDsLink' ng-change="updSchema(activeSchema)"> 填写时跳转到选项来源记录</label>
     </div>
-    <div class='form-group' ng-if="['score'].indexOf(activeSchema.type)!==-1">
-        <button class='btn btn-default' ng-click="setSchemaSource(activeSchema)">数量和标题从其它活动生成 <span ng-if="activeSchema.dsSchemas" class='glyphicon glyphicon-check'></span></button>
+    <div class='form-group' ng-if="['single','multiple','score','longtext'].indexOf(activeSchema.type)!==-1">
+        <button class='btn btn-default' ng-click="setSchemaSource(activeSchema)">数量和标题从其它活动生成 <span ng-if="activeSchema.dsSchema" class='glyphicon glyphicon-check'></span></button>
     </div>
 </div>

@@ -22,7 +22,7 @@ class rank extends base {
 		$modelUsr = $this->model('matter\enroll\user');
 
 		$q = [
-			'u.userid,u.nickname,u.rid,a.headimgurl',
+			'u.userid,u.nickname,a.headimgurl',
 			'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
 			"u.aid='{$oApp->id}' and u.state=1",
 		];
@@ -41,44 +41,45 @@ class rank extends base {
 
 		switch ($oCriteria->orderby) {
 		case 'enroll':
-			$q[0] .= ',u.enroll_num';
+			$q[0] .= ',sum(u.enroll_num) enroll_num';
 			$q[2] .= ' and u.enroll_num>0';
-			$q2 = ['o' => 'u.enroll_num desc,u.last_enroll_at'];
+			$q2 = ['o' => 'enroll_num desc'];
 			break;
 		case 'remark':
-			$q[0] .= ',u.remark_num';
+			$q[0] .= ',sum(u.remark_num) remark_num';
 			$q[2] .= ' and u.remark_num>0';
-			$q2 = ['o' => 'u.remark_num desc,u.last_remark_at'];
+			$q2 = ['o' => 'remark_num desc'];
 			break;
 		case 'like':
-			$q[0] .= ',u.like_num';
+			$q[0] .= ',sum(u.like_num) like_num';
 			$q[2] .= ' and u.like_num>0';
-			$q2 = ['o' => 'u.like_num desc,u.last_like_at'];
+			$q2 = ['o' => 'like_num desc'];
 			break;
 		case 'remark_other':
-			$q[0] .= ',u.do_remark_num';
+			$q[0] .= ',sum(u.do_remark_num) do_remark_num';
 			$q[2] .= ' and u.do_remark_num>0';
-			$q2 = ['o' => 'u.do_remark_num desc,u.last_do_remark_at'];
+			$q2 = ['o' => 'do_remark_num desc'];
 			break;
-		case 'like_other':
-			$q[0] .= ',u.do_like_num';
+		case 'do_like':
+			$q[0] .= ',sum(u.do_like_num) do_like_num';
 			$q[2] .= ' and u.do_like_num>0';
-			$q2 = ['o' => 'u.do_like_num desc,u.last_do_like_at'];
+			$q2 = ['o' => 'do_like_num desc'];
 			break;
 		case 'total_coin':
-			$q[0] .= ',u.user_total_coin';
+			$q[0] .= ',sum(u.user_total_coin) user_total_coin';
 			$q[2] .= ' and u.user_total_coin>0';
-			$q2 = ['o' => 'u.user_total_coin desc,u.id'];
+			$q2 = ['o' => 'user_total_coin desc'];
 			break;
 		case 'score':
-			$q[0] .= ',u.score';
+			$q[0] .= ',sum(u.score) score';
 			$q[2] .= ' and u.score>0';
-			$q2 = ['o' => 'u.score desc,u.id'];
+			$q2 = ['o' => 'score desc'];
 			break;
 		}
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		$q2['g'] = ['userid'];
 
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$users = $modelUsr->query_objs_ss($q, $q2);
 		if (count($users) && !empty($oApp->group_app_id)) {
 			$q = [
@@ -101,12 +102,12 @@ class rank extends base {
 				}
 			}
 		}
-		$result->users = $users;
+		$oResult->users = $users;
 
 		$q[0] = 'count(*)';
-		$result->total = (int) $modelUsr->query_val_ss($q);
+		$oResult->total = (int) $modelUsr->query_val_ss($q);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 分组排行榜
@@ -199,10 +200,10 @@ class rank extends base {
 			return $b->num - $a->num;
 		});
 
-		$result = new \stdClass;
-		$result->groups = $userGroups;
+		$oResult = new \stdClass;
+		$oResult->groups = $userGroups;
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 登记内容排行榜
@@ -267,7 +268,7 @@ class rank extends base {
 			break;
 		}
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$records = $modelData->query_objs_ss($q, $q2);
 		if (count($records)) {
 			// 题目类型
@@ -296,12 +297,12 @@ class rank extends base {
 				}
 			}
 		}
-		$result->records = $records;
+		$oResult->records = $records;
 
 		$q[0] = 'count(*)';
-		$result->total = (int) $modelData->query_val_ss($q);
+		$oResult->total = (int) $modelData->query_val_ss($q);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 *
@@ -339,7 +340,7 @@ class rank extends base {
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
 
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$remarks = $modelRem->query_objs_ss($q, $q2);
 		if ($remarks && !empty($oApp->group_app_id)) {
 			$q = [
@@ -359,11 +360,11 @@ class rank extends base {
 				}
 			}
 		}
-		$result->remarks = $remarks;
+		$oResult->remarks = $remarks;
 
 		$q[0] = 'count(*)';
-		$result->total = (int) $modelRem->query_val_ss($q);
+		$oResult->total = (int) $modelRem->query_val_ss($q);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 }

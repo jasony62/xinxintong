@@ -139,20 +139,18 @@ class enroll_model extends enroll_base {
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
 				if (!empty($oApp->data_schemas)) {
 					$oApp->dataSchemas = json_decode($oApp->data_schemas);
+					/* 应用的动态题目 */
+					$oApp2 = (object) ['id' => $oApp->id, 'appRound' => $oApp->appRound, 'dataSchemas' => json_decode($oApp->data_schemas), 'mission_id' => $oApp->mission_id];
+					$modelSch = $this->model('matter\enroll\schema');
+					$modelSch->setDynaSchemas($oApp2);
+					$oApp->dynaDataSchemas = $oApp2->dataSchemas;
+					/* 设置活动的动态选项 */
+					$modelSch->setDynaOptions($oApp, $oAppRnd);
 				} else {
-					$oApp->dataSchemas = [];
+					$oApp->dataSchemas = $oApp->dynaDataSchemas = [];
 				}
+				/* 清除数据 */
 				unset($oApp->data_schemas);
-
-				/* 设置活动的动态选项 */
-				$modelSch = $this->model('matter\enroll\schema');
-				$modelSch->setDynaOptions($oApp, $oAppRnd);
-
-				/* 应用的动态题目 */
-				$oApp2 = (object) ['appRound' => $oApp->appRound, 'dataSchemas' => $oApp->dataSchemas];
-				$modelSch = $this->model('matter\enroll\schema');
-				$modelSch->setDynaSchemas($oApp2);
-				$oApp->dynaDataSchemas = $oApp2->dataSchemas;
 			}
 
 			if ($fields === '*' || false !== strpos($fields, 'recycle_schemas')) {

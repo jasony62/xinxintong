@@ -1,12 +1,32 @@
 <div class="modal-header">
     <button class="close" ng-click="cancel()">×</button>
-    <h5 class="modal-title">指定其他活动中的题目</h5>
+    <h5 class="modal-title">题目的数量和标题每轮次从其它活动生成</h5>
 </div>
 <div class="modal-body">
+    <div class='row' ng-if="schema.dsSchema">
+        <div class='col-md-12'>
+            <h4 style='display:inline-block'><span class='label label-default' ng-bind="schema.dsSchema.app.title"></span></h4>
+            <h4 style='display:inline-block'><span class='label label-default' ng-bind="schema.dsSchema.schema.title"></span></h4>
+            <button class='btn btn-default' ng-click="clean()">清除已有设置后关闭</button>
+            <hr>
+        </div>
+    </div>
+    <div class='row'>
+        <div class='col-md-12'>
+            <div class='form-group'>
+                <label class='radio-inline'>
+                    <input type='radio' name='mode' value='fromData' ng-model="result.mode">题目来源于填写数据</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='mode' value='fromScore' ng-model="result.mode">题目来源于打分题</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='mode' value='fromOption' ng-model="result.mode">题目来源于选项</label>
+            </div>
+        </div>
+    </div>
     <div class='row'>
         <div class='col-md-4'>
             <div class='form-group'>
-                <label>活动</label>
+                <label>1.选择目标活动</label>
                 <div class='input-group'>
                     <input type='text' class='form-control' ng-model="appFilter.byTitle" placeholder="输入活动标题筛选">
                     <span class='input-group-btn'>
@@ -17,12 +37,12 @@
             </div>
             <div class='form-group'>
                 <div class='pl-pagination'>
-                    <ul uib-pagination ng-show="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
+                    <ul uib-pagination class='pagination-sm' ng-if="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
                 </div>
             </div>
         </div>
         <div class='col-md-4'>
-            <label>选项来源</label>
+            <label>2.选择目标题目 <span ng-if="!result.selected" class='text-danger glyphicon glyphicon-hand-left'></span></label>
             <div class='list-group' style='height:300px;overflow-y:auto'>
                 <div class='list-group-item' ng-repeat="schema in dsSchemas">
                     <label class="radio-inline">
@@ -31,7 +51,7 @@
             </div>
         </div>
         <div class='col-md-4'>
-            <label>过滤条件</label>
+            <label>3.设置筛选条件</label>
             <div class='list-group'>
                 <div class='list-group-item' ng-repeat="filter in result.filters">
                     <select class='form-control' ng-model="filter.schema" ng-options="schema.title for schema in filterSchemas"></select>
@@ -44,5 +64,5 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-success" ng-click="ok()" ng-disabled="!result.fromApp">执行</button>
+    <button class="btn btn-success" ng-class="{'btn-danger':disabled,'btn-success':!disabled}" ng-click="ok()" ng-disabled="disabled">设置</button>
 </div>

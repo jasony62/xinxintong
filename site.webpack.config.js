@@ -19,6 +19,7 @@ module.exports = {
         '/site/fe/matter/enroll/rank': ['./views/default/site/fe/matter/enroll/rank.js'],
         '/site/fe/matter/enroll/score': ['./views/default/site/fe/matter/enroll/score.js'],
         '/site/fe/matter/enroll/votes': ['./views/default/site/fe/matter/enroll/votes.js'],
+        '/site/fe/matter/enroll/marks': ['./views/default/site/fe/matter/enroll/marks.js'],
         '/site/fe/matter/enroll/preview': ['./views/default/site/fe/matter/enroll/preview.js'],
         '/site/fe/matter/enroll/template': ['./views/default/site/fe/matter/enroll/template.js'],
         '/site/fe/matter/signin/signin': ['./views/default/site/fe/matter/signin/signin.js'],

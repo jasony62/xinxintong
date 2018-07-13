@@ -328,16 +328,19 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     all.push({ name: 'repos', 'title': '共享数据页' });
                     all.push({ name: 'rank', 'title': '排行榜' });
                     all.push({ name: 'votes', 'title': '投票榜' });
+                    all.push({ name: 'marks', 'title': '打分榜' });
                     all.push({ name: 'score', 'title': '测验结果' });
                     otherwise.push({ name: 'event', 'title': '活动动态页' });
                     otherwise.push({ name: 'repos', 'title': '共享数据页' });
                     otherwise.push({ name: 'rank', 'title': '排行榜' });
                     otherwise.push({ name: 'votes', 'title': '投票榜' });
+                    otherwise.push({ name: 'marks', 'title': '打分榜' });
                     exclude.push({ name: 'event', 'title': '活动动态页' });
                     exclude.push({ name: 'repos', 'title': '共享数据页' });
                     exclude.push({ name: 'cowork', 'title': '讨论页' });
                     exclude.push({ name: 'rank', 'title': '排行榜' });
                     exclude.push({ name: 'votes', 'title': '投票榜' });
+                    exclude.push({ name: 'marks', 'title': '打分榜' });
                     exclude.push({ name: 'score', 'title': '测验结果' });
 
                     return {
@@ -1338,10 +1341,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }
                         };
                         $scope2.result = oResult = {
+                            votingSchemas: [],
                             limit: { scope: 'top', num: 3 }
                         };
                         $scope2.votingSchemas = [];
-                        oApp.dataSchemas.forEach(function(oSchema) {
+                        oApp.dynaDataSchemas.forEach(function(oSchema) {
                             if (/single|multiple/.test(oSchema.type)) {
                                 $scope2.votingSchemas.push(angular.copy(oSchema));
                             }
@@ -1350,7 +1354,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         $scope2.selectApp = function() {
                             oResult.questionSchemas = [];
                             oResult.answerSchemas = [];
-                            oResult.votingSchemas = [];
                             if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
                                 oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
                                 oResult.fromApp.dataSchemas.forEach(function(oSchema) {
@@ -1392,9 +1395,18 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 oPage.total = rsp.data.total;
                             });
                         };
+                        $scope2.disabled = true; // 选择的参数是否完整
+                        $scope2.$watch('result', function() {
+                            $scope2.disabled = false;
+                            if (!oResult.votingSchemas || oResult.votingSchemas.length === 0) $scope2.disabled = true;
+                            if (!oResult.fromApp) $scope2.disabled = true;
+                            if (!oResult.answerSchema) $scope2.disabled = true;
+                            if (!oResult.questionSchema) $scope2.disabled = true;
+                        }, true);
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
+                    windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
                     var url;

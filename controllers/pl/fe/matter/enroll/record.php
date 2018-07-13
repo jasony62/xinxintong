@@ -704,7 +704,12 @@ class record extends main_base {
 			}
 			$oGroupSchema = $aGroupSchemas[$groupSchemaId];
 			/* 生成记录 */
-			$oMockRecUser = new \stdClass;
+			/* 模拟用户 */
+			if (isset($oGroupSchema->referRecord->ds->user)) {
+				$oMockRecUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oGroupSchema->referRecord->ds->user]);
+			} else {
+				$oMockRecUser = new \stdClass;
+			}
 			$newek = $modelRec->enroll($oTargetApp, $oMockRecUser);
 
 			$oNewRecData = new \stdClass; // 问题+答案的记录数据
@@ -727,7 +732,11 @@ class record extends main_base {
 
 			foreach ($oGroupScoreSchemas as $oScoreSchema) {
 				/* 模拟用户 */
-				$oMockAnswerUser = null;
+				if (isset($oScoreSchema->referRecord->ds->user)) {
+					$oMockAnswerUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oScoreSchema->referRecord->ds->user]);
+				} else {
+					$oMockAnswerUser = null;
+				}
 
 				$oNewItem = new \stdClass;
 				$oNewItem->aid = $oRecData->aid;

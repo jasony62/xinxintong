@@ -764,6 +764,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         var oNewGroupSchema;
                                         oNewGroupSchema = schemaLib.newSchema('html', _oApp, { 'id': 'g' + oProtoSchema.id, title: oProtoSchema.title });
                                         oNewGroupSchema.content = '<div>' + oProtoSchema.title + '</div>';
+                                        oNewGroupSchema.dsSchema = {
+                                            app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
+                                            schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type }
+                                        };
                                         $scope._appendSchema(oNewGroupSchema);
                                         oNewSchema.parent = { id: oNewGroupSchema.id, type: oNewGroupSchema.type };
                                     }

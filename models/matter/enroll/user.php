@@ -33,7 +33,7 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 用户的详细信息
 	 */
-	public function detail($oApp, $who, $oEnrolledData) {
+	public function detail($oApp, $who, $oEnrolledData = null) {
 		$oUser = clone $who;
 		$oUser->members = new \stdClass;
 		$oEntryRule = $oApp->entryRule;

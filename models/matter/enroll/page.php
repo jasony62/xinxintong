@@ -389,6 +389,7 @@ class page_model extends page_base {
 		}
 
 		foreach ($dataSchemas as $oSchema) {
+			/* 不是动态题目，不处理 */
 			if (empty($oSchema->dynamic) || $oSchema->dynamic !== 'Y' || empty($oSchema->cloneSchema->id) || empty($pageWrapsById[$oSchema->cloneSchema->id])) {
 				continue;
 			}

@@ -28,7 +28,7 @@ class schema_model extends \TMS_MODEL {
 	 * referReecord
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'parent', 'title', 'content', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
 
 		$purified = [];
 		$schemasById = [];
@@ -480,7 +480,10 @@ class schema_model extends \TMS_MODEL {
 
 		$dynaSchemasByIndex = []; // 动态创建的题目
 		foreach ($oApp->dataSchemas as $schemaIndex => $oSchema) {
-			if (!empty($oSchema->dsSchema->schema->type) && !empty($oSchema->dsSchema->app->id) && !empty($oSchema->dsSchema->schema->id)) {
+			if (!in_array($oSchema->type, ['single', 'multiple', 'score', 'longtext', 'html'])) {
+				continue;
+			}
+			if (!empty($oSchema->dsSchema->app->id) && !empty($oSchema->dsSchema->schema->id) && !empty($oSchema->dsSchema->schema->type)) {
 				$oDsSchema = $oSchema->dsSchema;
 				if (!empty($oAppRound->mission_rid)) {
 					if (!isset($modelRnd)) {
@@ -508,7 +511,6 @@ class schema_model extends \TMS_MODEL {
 				}
 			}
 		}
-
 		/* 加入动态创建的题目 */
 		if (count($dynaSchemasByIndex)) {
 			$protoSchemaOffset = 0;

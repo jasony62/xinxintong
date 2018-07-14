@@ -381,6 +381,7 @@ class page_model extends page_base {
 		$dom = HtmlDomParser::str_get_html($oPage->html);
 		$aProtoHtmls = []; // 作为原型的题目
 		$aProtoWraps = [];
+		$aLastChildByParent = []; // 父题目下最后一个题目
 		$pageWrapsById = []; // 页面上的题目定义
 		foreach ($oPage->dataSchemas as $oWrap) {
 			if (isset($oWrap->schema->id)) {
@@ -394,15 +395,35 @@ class page_model extends page_base {
 				continue;
 			}
 			$oProtoSchema = $oSchema->cloneSchema;
-			$protoElem = $dom->find('[schema="' . $oProtoSchema->id . '"]');
-			if (1 === count($protoElem)) {
+			if (isset($oSchema->parent->id)) {
+				if (isset($aLastChildByParent[$oSchema->parent->id])) {
+					$elemParentOrBrotherSchema = $dom->find('[schema="' . $aLastChildByParent[$oSchema->parent->id] . '"]', 0);
+				} else {
+					$elemParentOrBrotherSchema = $dom->find('[schema="' . $oSchema->parent->id . '"]', 0);
+				}
+				$elemProto = $dom->find('[schema="' . $oProtoSchema->id . '"]', 0);
+				$aLastChildByParent[$oSchema->parent->id] = $oSchema->id;
+			} else {
+				$elemParentOrBrotherSchema = false;
+				$elemProto = $dom->find('[schema="' . $oProtoSchema->id . '"]', 0);
+			}
+			if ($elemProto) {
 				/* html */
-				$protoElem = $protoElem[0];
-				$sProtoHtml = strval($protoElem);
-				$aProtoHtmls[$oProtoSchema->id] = $sProtoHtml;
-				$oNewElem = str_replace([$oProtoSchema->id, $oProtoSchema->title], [$oSchema->id, $oSchema->title], $sProtoHtml);
-				$elemParent = $protoElem->parent();
-				$elemParent->innertext = str_replace($sProtoHtml, $oNewElem . $sProtoHtml, $elemParent->innertext);
+				$sHtmlProto = $elemProto->outertext;
+				if (!isset($aHtmlProtos[$oProtoSchema->id])) {
+					$aHtmlProtos[$oProtoSchema->id] = $sHtmlProto;
+				}
+				$oHtmlNewElem = str_replace([$oProtoSchema->id, $oProtoSchema->title], [$oSchema->id, $oSchema->title], $sHtmlProto);
+				/* 放到页面里 */
+				if (!empty($elemParentOrBrotherSchema)) {
+					$sHtmlParentSchema = $elemParentOrBrotherSchema->outertext;
+					$elemParent = $elemParentOrBrotherSchema->parent();
+					$elemParent->innertext = str_replace($sHtmlParentSchema, $sHtmlParentSchema . $oHtmlNewElem, $elemParent->innertext);
+				} else {
+					$elemParent = $elemProto->parent();
+					$elemParent->innertext = str_replace($sHtmlProto, $oHtmlNewElem . $sHtmlProto, $elemParent->innertext);
+				}
+				$dom->load($dom->save());
 				/* wrap */
 				$oProtoWrap = $pageWrapsById[$oProtoSchema->id];
 				$aProtoWraps[$oProtoSchema->id] = $oProtoWrap;
@@ -413,9 +434,9 @@ class page_model extends page_base {
 		}
 
 		/* 清除作为原型的题目 */
-		if (count($aProtoHtmls)) {
+		if (count($aHtmlProtos)) {
 			/* 清除html */
-			foreach ($aProtoHtmls as $html) {
+			foreach ($aHtmlProtos as $html) {
 				$dom->innertext = str_replace($html, '', $dom->innertext);
 			}
 			$oPage->html = $dom->innertext;

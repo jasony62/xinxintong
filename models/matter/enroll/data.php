@@ -20,12 +20,12 @@ class data_model extends entity_model {
 		}
 
 		$schemasById = []; // 方便获取题目的定义
-		array_walk($oApp->dynaDataSchemas, function (&$oSchema, $index, &$schemasById) {
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if (strpos($oSchema->id, 'member.') === 0) {
 				$oSchema->id = 'member';
 			}
 			$schemasById[$oSchema->id] = $oSchema;
-		}, $schemasById);
+		};
 
 		$dbData = $this->disposRecrdData($oApp, $schemasById, $submitData, $submitkey, $oRecord);
 		if ($dbData[0] === false) {

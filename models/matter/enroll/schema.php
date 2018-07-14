@@ -25,7 +25,7 @@ class schema_model extends \TMS_MODEL {
 	 * cloneSchema
 	 * referSchema
 	 * referOption
-	 * referReecord
+	 * referRercord
 	 */
 	public function purify($aAppSchemas) {
 		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
@@ -477,7 +477,7 @@ class schema_model extends \TMS_MODEL {
 			}
 			$dynaSchemasByIndex[$schemaIndex] = $newSchemas;
 		};
-
+		/* 生成动态题目 */
 		$dynaSchemasByIndex = []; // 动态创建的题目
 		foreach ($oApp->dataSchemas as $schemaIndex => $oSchema) {
 			if (!in_array($oSchema->type, ['single', 'multiple', 'score', 'longtext', 'html'])) {
@@ -493,7 +493,7 @@ class schema_model extends \TMS_MODEL {
 					switch ($oDsSchema->schema->type) {
 					case 'shorttext':
 					case 'longtext':
-						if (!empty($oSchema->dsOps->app->id) && $oSchema->dsOps->app->id === $oSchema->dsSchema->app->id) {
+						if ((!empty($oSchema->dsOps->app->id) && $oSchema->dsOps->app->id === $oSchema->dsSchema->app->id) || $oSchema->type === 'html') {
 							/* 如果动态选项指向了相同的题目，就是直接复制题目 */
 							$fnMakeDynaSchemaBySchema($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
 						} else {
@@ -517,6 +517,26 @@ class schema_model extends \TMS_MODEL {
 			foreach ($dynaSchemasByIndex as $index => $dynaSchemas) {
 				array_splice($oApp->dataSchemas, $index + $protoSchemaOffset, 1, $dynaSchemas);
 				$protoSchemaOffset += count($dynaSchemas) - 1;
+			}
+		}
+		/* 修改对动态创建的父题目的引用 */
+		$schemasByCloneId = [];
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if ($oSchema->type === 'html' && isset($oSchema->cloneSchema->id)) {
+				$schemasByCloneId[$oSchema->cloneSchema->id][] = $oSchema;
+			}
+		}
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (isset($oSchema->parent->id) && !empty($schemasByCloneId[$oSchema->parent->id])) {
+				if (isset($oSchema->referRecord->schema)) {
+					$oDynaParentSchemas = $schemasByCloneId[$oSchema->parent->id];
+					foreach ($oDynaParentSchemas as $oDynaParentSchema) {
+						if (isset($oDynaParentSchema->referSchema->id) && $oDynaParentSchema->referSchema->id === $oSchema->referRecord->schema->id) {
+							$oSchema->referParent = $oSchema->parent;
+							$oSchema->parent = (object) ['id' => $oDynaParentSchema->id, 'type' => $oDynaParentSchema->type, 'title' => $oDynaParentSchema->title];
+						}
+					}
+				}
 			}
 		}
 

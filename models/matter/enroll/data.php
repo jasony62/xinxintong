@@ -19,13 +19,14 @@ class data_model extends entity_model {
 			$submitkey = empty($oUser->uid) ? '' : $oUser->uid;
 		}
 
-		$schemasById = []; // 方便获取登记项定义
-		foreach ($oApp->dynaDataSchemas as $schema) {
-			if (strpos($schema->id, 'member.') === 0) {
-				$schema->id = 'member';
+		$schemasById = []; // 方便获取题目的定义
+		array_walk($oApp->dynaDataSchemas, function (&$oSchema, $index, &$schemasById) {
+			if (strpos($oSchema->id, 'member.') === 0) {
+				$oSchema->id = 'member';
 			}
-			$schemasById[$schema->id] = $schema;
-		}
+			$schemasById[$oSchema->id] = $oSchema;
+		}, $schemasById);
+
 		$dbData = $this->disposRecrdData($oApp, $schemasById, $submitData, $submitkey, $oRecord);
 		if ($dbData[0] === false) {
 			return $dbData;

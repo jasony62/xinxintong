@@ -715,6 +715,7 @@ class record extends main_base {
 			$oNewRecData = new \stdClass; // 问题+答案的记录数据
 			/* 写入问题 */
 			$oNewRecData->{$oPosted->questionSchema} = $oGroupSchema->title;
+			$modelRec->setData($oMockRecUser, $oTargetApp, $newek, $oNewRecData, '', true);
 
 			/* 写入答案 */
 			$current = time();
@@ -729,6 +730,7 @@ class record extends main_base {
 			$oRecData->schema_id = $oPosted->answerSchema;
 			$oRecData->multitext_seq = 0;
 			$oRecData->value = [];
+			$oRecDataValue = [];
 
 			foreach ($oGroupScoreSchemas as $oScoreSchema) {
 				/* 模拟用户 */
@@ -738,27 +740,31 @@ class record extends main_base {
 					$oMockAnswerUser = null;
 				}
 
-				$oNewItem = new \stdClass;
-				$oNewItem->aid = $oRecData->aid;
-				$oNewItem->rid = $oRecData->rid;
-				$oNewItem->enroll_key = $oRecData->enroll_key;
-				$oNewItem->submit_at = $current;
-				$oNewItem->userid = isset($oMockAnswerUser->uid) ? $oMockAnswerUser->uid : '';
-				$oNewItem->nickname = isset($oMockAnswerUser->nickname) ? $modelData->escape($oMockAnswerUser->nickname) : '';
-				$oNewItem->group_id = isset($oMockAnswerUser->group_id) ? $oMockAnswerUser->group_id : '';
-				$oNewItem->schema_id = $oPosted->answerSchema;
-				$oNewItem->value = $this->escape($oScoreSchema->title);
-				$oNewItem->multitext_seq = count($oRecData->value) + 1;
-				$oNewItem->id = $modelData->insert('xxt_enroll_record_data', $oNewItem, true);
+				$oRecCowork = new \stdClass;
+				$oRecCowork->aid = $oRecData->aid;
+				$oRecCowork->rid = $oRecData->rid;
+				$oRecCowork->enroll_key = $oRecData->enroll_key;
+				$oRecCowork->submit_at = $current;
+				$oRecCowork->userid = isset($oMockAnswerUser->uid) ? $oMockAnswerUser->uid : '';
+				$oRecCowork->nickname = isset($oMockAnswerUser->nickname) ? $modelData->escape($oMockAnswerUser->nickname) : '';
+				$oRecCowork->group_id = isset($oMockAnswerUser->group_id) ? $oMockAnswerUser->group_id : '';
+				$oRecCowork->schema_id = $oPosted->answerSchema;
+				$oRecCowork->value = $this->escape($oScoreSchema->title);
+				$oRecCowork->multitext_seq = count($oRecData->value) + 1;
+				$oRecCowork->id = $modelData->insert('xxt_enroll_record_data', $oRecCowork, true);
 
-				$oRecData->value[] = (object) ['id' => $oNewItem->id, 'value' => $oNewItem->value];
+				$oRecDataValue[] = (object) ['id' => $oRecCowork->id, 'value' => $oRecCowork->value];
 			}
-			/* 记录的数据 */
-			$oNewRecData->{$oPosted->answerSchema} = $oRecData->value;
-			$modelRec->setData($oMockRecUser, $oTargetApp, $newek, $oNewRecData, '', true);
 			/* 答案的根数据 */
-			$oRecData->value = $modelData->escape($modelData->toJson($oRecData->value));
+			$oRecData->value = $modelData->escape($modelData->toJson($oRecDataValue));
 			$oRecData->id = $modelData->insert('xxt_enroll_record_data', $oRecData, true);
+			/* 记录的数据 */
+			$oNewRecData->{$oPosted->answerSchema} = $oRecDataValue;
+			$modelData->update(
+				'xxt_enroll_record',
+				['data' => $this->escape($modelData->toJson($oNewRecData))],
+				['enroll_key' => $newek]
+			);
 
 			$newRecordNum++;
 		}

@@ -434,7 +434,7 @@ class page_model extends page_base {
 		}
 
 		/* 清除作为原型的题目 */
-		if (count($aHtmlProtos)) {
+		if (!empty($aHtmlProtos)) {
 			/* 清除html */
 			foreach ($aHtmlProtos as $html) {
 				$dom->innertext = str_replace($html, '', $dom->innertext);

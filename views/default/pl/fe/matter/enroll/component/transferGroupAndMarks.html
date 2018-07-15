@@ -5,23 +5,8 @@
 <div class="modal-body">
     <div class='row'>
         <div class='col-md-4'>
-            <label>1.选择要发布的投票题目 <span ng-if="!result.scoreSchemas.length" class='text-danger glyphicon glyphicon-hand-left'></span></label>
-            <div class='list-group'>
-                <div class='list-group-item' ng-repeat="schema in groupSchemas">
-                    <label class="checkbox-inline">
-                        <input type='checkbox' ng-model="schema._selected" ng-change="selectGroupSchema(schema)">{{schema.title}}</label>
-                </div>
-            </div>
-            <div class='list-group' style='height:300px;overflow-y:auto'>
-                <div class='list-group-item' ng-repeat="schema in scoreSchemas">
-                    <label class="checkbox-inline">
-                        <input type='checkbox' ng-model="schema._selected" ng-change="selectSchema(schema)">{{schema.title}}</label>
-                </div>
-            </div>
-        </div>
-        <div class='col-md-4'>
             <div class='form-group'>
-                <label>2.选择目标活动</label>
+                <label>1.选择目标活动</label>
                 <div class='input-group'>
                     <input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
                     <span class='input-group-btn'>

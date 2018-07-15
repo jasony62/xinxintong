@@ -655,26 +655,47 @@ class record extends main_base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		/* 指定的投票题目 */
-		$aScoreSchemas = [];
+		/* 所有打分题 */
+		$aAllScoreSchemas = [];
+		$aSchemaMapGroupIds = [];
 		foreach ($oApp->dynaDataSchemas as $oSchema) {
-			if (in_array($oSchema->id, $oPosted->scoreSchemas)) {
-				if ($oSchema->type === 'score' && isset($oSchema->parent->id)) {
-					$aScoreSchemas[$oSchema->parent->id][] = $oSchema;
-				}
+			if ($oSchema->type === 'score' && isset($oSchema->parent->id)) {
+				$aAllScoreSchemas[$oSchema->parent->id][] = $oSchema;
+				$aSchemaMapGroupIds[$oSchema->id] = $oSchema->parent->id;
 			}
 		}
-		if (empty($aScoreSchemas)) {
+		if (empty($aAllScoreSchemas)) {
 			return new \ParameterError('没有指定有效的打分题');
 		}
+		/* 所有分组题 */
 		$aGroupSchemas = [];
 		foreach ($oApp->dynaDataSchemas as $oSchema) {
-			if ($oSchema->type === 'html' && isset($aScoreSchemas[$oSchema->id])) {
+			if ($oSchema->type === 'html' && isset($aAllScoreSchemas[$oSchema->id])) {
 				$aGroupSchemas[$oSchema->id] = $oSchema;
 			}
 		}
 		if (empty($aGroupSchemas)) {
 			return new \ParameterError('没有指定有效的分组题');
+		}
+		/* 根据题目打分结果和规则筛选符合条件的题目 */
+		$iLimitNum = 1;
+		if (isset($oPosted->limit->num) && is_int($oPosted->limit->num)) {
+			$iLimitNum = $oPosted->limit->num;
+		}
+		$oResult = $modelRec->score4Schema($oApp);
+		unset($oResult->sum);
+		$aResult = (array) $oResult;
+		uasort($aResult, function ($a, $b) {
+			return $a < $b ? 1 : -1;
+		});
+		$aGroupSchemasByScore = []; // 每个分组符合得分排序的题目
+		foreach ($aResult as $schemaId => $score) {
+			$groupSchemaId = $aSchemaMapGroupIds[$schemaId];
+			if (!isset($aGroupSchemasByScore[$groupSchemaId])) {
+				$aGroupSchemasByScore[$groupSchemaId] = [$schemaId];
+			} else if ($iLimitNum > 1 && count($aGroupSchemasByScore[$groupSchemaId]) < $iLimitNum) {
+				$aGroupSchemasByScore[$groupSchemaId][] = $schemaId;
+			}
 		}
 
 		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => '*']);
@@ -692,13 +713,8 @@ class record extends main_base {
 			$oTargetAppRnd = $oTargetApp->appRound;
 		}
 
-		/* 目标活动所有题目的打分结果 */
-		$oResult = $modelRec->score4Schema($oTargetApp, isset($oTargetAppRnd->rid) ? $oTargetAppRnd->rid : '');
-		unset($oResult->sum);
-		$aResult = (array) $oResult;
-
 		$newRecordNum = 0;
-		foreach ($aScoreSchemas as $groupSchemaId => $oGroupScoreSchemas) {
+		foreach ($aAllScoreSchemas as $groupSchemaId => $oGroupScoreSchemas) {
 			if (empty($aGroupSchemas[$groupSchemaId])) {
 				continue;
 			}
@@ -732,7 +748,11 @@ class record extends main_base {
 			$oRecData->value = [];
 			$oRecDataValue = [];
 
+			/* 分组下的题目作为答案的内容 */
 			foreach ($oGroupScoreSchemas as $oScoreSchema) {
+				if (!in_array($oScoreSchema->id, $aGroupSchemasByScore[$groupSchemaId])) {
+					continue;
+				}
 				/* 模拟用户 */
 				if (isset($oScoreSchema->referRecord->ds->user)) {
 					$oMockAnswerUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oScoreSchema->referRecord->ds->user]);

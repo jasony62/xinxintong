@@ -1437,18 +1437,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             }
                         };
                         $scope2.result = oResult = {
-                            scoreSchemas: [],
-                            limit: { num: 3 }
+                            limit: { num: 1 }
                         };
-                        $scope2.groupSchemas = [];
-                        $scope2.scoreSchemas = [];
-                        oApp.dynaDataSchemas.forEach(function(oSchema) {
-                            if (/score/.test(oSchema.type)) {
-                                $scope2.scoreSchemas.push(angular.copy(oSchema));
-                            } else if (/html/.test(oSchema.type)) {
-                                $scope2.groupSchemas.push(angular.copy(oSchema));
-                            }
-                        });
                         $scope2.filter = oFilter = {};
                         $scope2.selectApp = function() {
                             oResult.questionSchemas = [];
@@ -1462,13 +1452,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                         oResult.answerSchemas.push(oSchema);
                                     }
                                 });
-                            }
-                        };
-                        $scope2.selectSchema = function(oSchema) {
-                            if (oSchema._selected) {
-                                oResult.scoreSchemas.push(oSchema.id);
-                            } else {
-                                oResult.scoreSchemas.splice(oResult.scoreSchemas.indexOf(oSchema.id), 1);
                             }
                         };
                         $scope2.ok = function() {
@@ -1497,7 +1480,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         $scope2.disabled = true; // 选择的参数是否完整
                         $scope2.$watch('result', function() {
                             $scope2.disabled = false;
-                            if (!oResult.scoreSchemas || oResult.scoreSchemas.length === 0) $scope2.disabled = true;
                             if (!oResult.fromApp) $scope2.disabled = true;
                             if (!oResult.answerSchema) $scope2.disabled = true;
                             if (!oResult.questionSchema) $scope2.disabled = true;
@@ -1509,11 +1491,11 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     size: 'lg'
                 }).result.then(function(oResult) {
                     var url;
-                    if (oResult.fromApp && oResult.questionSchema && oResult.answerSchema && oResult.scoreSchemas.length) {
+                    if (oResult.fromApp && oResult.questionSchema && oResult.answerSchema) {
                         url = '/rest/pl/fe/matter/enroll/record/transferGroupAndMarks';
                         url += '?app=' + oApp.id;
                         url += '&targetApp=' + oResult.fromApp.id;
-                        http2.post(url, { questionSchema: oResult.questionSchema, answerSchema: oResult.answerSchema, scoreSchemas: oResult.scoreSchemas, limit: oResult.limit }, function(rsp) {
+                        http2.post(url, { questionSchema: oResult.questionSchema, answerSchema: oResult.answerSchema, limit: oResult.limit }, function(rsp) {
                             noticebox.info('创建（' + rsp.data + '）条记录');
                             defer.resolve(rsp);
                         });

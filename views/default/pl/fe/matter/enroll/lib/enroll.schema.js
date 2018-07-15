@@ -786,86 +786,52 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     });
                                 }
                             }
-                            break;
+                            break; //end: 生成规则
                         case 'schema': // 直接生成题目
-                            switch (oResult.purpose) {
-                                case 'inputByOption':
-                                    var targetSchemas, url, oConfig;
-                                    if (oResult.schemas && oResult.schemas.length) {
-                                        targetSchemas = [];
-                                        oResult.schemas.forEach(function(oSchema) {
-                                            targetSchemas.push({
-                                                id: oSchema.id,
-                                                type: oSchema.type
-                                            });
-                                        });
-                                        url = '/rest/pl/fe/matter/enroll/schema/inputByOption';
-                                        url += '?app=' + _oApp.id;
-                                        url += '&targetApp=' + oResult.fromApp.id;
+                            if (oResult.schemas && oResult.schemas.length) {
+                                var url, oConfig, targetSchemas;
+                                targetSchemas = [];
+                                oResult.schemas.forEach(function(oSchema) {
+                                    targetSchemas.push({
+                                        id: oSchema.id,
+                                        type: oSchema.type
+                                    });
+                                });
+                                switch (oResult.purpose) {
+                                    case 'inputByOption':
+                                    case 'inputByScore':
                                         oConfig = { schemas: targetSchemas, limit: oResult.target.limit };
-                                        http2.post(url, oConfig, function(rsp) {
-                                            if (rsp.data.length) {
-                                                rsp.data.forEach(function(oNewSchema) {
-                                                    $scope._appendSchema(oNewSchema);
+                                        break;
+                                    case 'scoreByInput':
+                                        var oProto, oTarget;
+                                        if (oTarget = oResult.target) {
+                                            if (oTarget.range && oTarget.range.from && oTarget.range.to && oTarget.ops && oTarget.ops.length) {
+                                                oProto = {};
+                                                oProto.range = [oTarget.range.from, oTarget.range.to];
+                                                oProto.ops = [];
+                                                oTarget.ops.forEach(function(op, index) {
+                                                    oProto.ops.push({ v: 'v' + (index + 1), l: op.l });
                                                 });
+                                                if (oTarget.requireScore) oProto.requireScore = true;
                                             }
-                                        });
-                                    }
-                                    break;
-                                case 'inputByScore':
-                                    var targetSchemas, url, oConfig;
-                                    if (oResult.schemas && oResult.schemas.length) {
-                                        targetSchemas = [];
-                                        oResult.schemas.forEach(function(oSchema) {
-                                            targetSchemas.push({
-                                                id: oSchema.id,
-                                                type: oSchema.type
-                                            });
-                                        });
-                                        url = '/rest/pl/fe/matter/enroll/schema/inputByScore';
-                                        url += '?app=' + _oApp.id;
-                                        url += '&targetApp=' + oResult.fromApp.id;
-                                        oConfig = { schemas: targetSchemas, limit: oResult.target.limit };
-                                        http2.post(url, oConfig, function(rsp) {
-                                            if (rsp.data.length) {
-                                                rsp.data.forEach(function(oNewSchema) {
-                                                    $scope._appendSchema(oNewSchema);
-                                                });
-                                            }
-                                        });
-                                    }
-                                    break;
-                                case 'scoreByInput':
-                                    var targetSchemas, oProto, url, oConfig;
-                                    if (oResult.target.range && oResult.target.range.from && oResult.target.range.to && oResult.target.ops && oResult.target.ops.length) {
-                                        oProto = {};
-                                        oProto.range = [oResult.target.range.from, oResult.target.range.to];
-                                        oProto.ops = [];
-                                        oResult.target.ops.forEach(function(op, index) {
-                                            oProto.ops.push({ v: 'v' + (index + 1), l: op.l });
-                                        });
-                                        if (oResult.target.requireScore) oProto.requireScore = true;
-                                    }
-                                    if (oResult.schemas && oResult.schemas.length) {
-                                        targetSchemas = [];
-                                        oResult.schemas.forEach(function(oSchema) {
-                                            targetSchemas.push({ id: oSchema.id });
-                                        });
-                                        url = '/rest/pl/fe/matter/enroll/schema/scoreByInput';
-                                        url += '?app=' + _oApp.id;
-                                        url += '&targetApp=' + oResult.fromApp.id;
+                                        }
                                         oConfig = { schemas: targetSchemas, proto: oProto };
-                                        http2.post(url, oConfig, function(rsp) {
-                                            if (rsp.data.length) {
-                                                rsp.data.forEach(function(oNewSchema) {
-                                                    $scope._appendSchema(oNewSchema);
-                                                });
-                                            }
-                                        });
-                                    }
-                                    break;
+                                        break;
+                                }
+                                if (oConfig) {
+                                    url = '/rest/pl/fe/matter/enroll/schema/' + oResult.purpose;
+                                    url += '?app=' + _oApp.id;
+                                    url += '&targetApp=' + oResult.fromApp.id;
+                                    http2.post(url, oConfig, function(rsp) {
+                                        if (rsp.data.length) {
+                                            rsp.data.forEach(function(oNewSchema) {
+                                                $scope._appendSchema(oNewSchema);
+                                            });
+                                        }
+                                    });
+                                }
                             }
-                            break;
+                            break; //end: 直接生成题目
                     }
                 });
             };

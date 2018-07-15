@@ -6,16 +6,16 @@
     <div class='row'>
         <div class='col-md-12'>
             <label class='radio-inline'>
-                <input type='radio' name='make' value='rule' ng-model="result.make">设置题目生成规则</label>
+                <input type='radio' name='make' value='copy' ng-model="result.make">复制题目</label>
             <label class='radio-inline'>
-                <input type='radio' name='make' value='schema' ng-model="result.make">根据已有数据生成题目</label>
+                <input type='radio' name='make' value='schema' ng-model="result.make">根据现有数据生成题目</label>
+            <label class='radio-inline'>
+                <input type='radio' name='make' value='rule' ng-model="result.make" ng-disabled="!app.mission">根据规则运行时生成题目</label>
         </div>
     </div>
-    <hr>
     <div class='row' ng-if="result.make==='rule'">
+        <hr>
         <div class='col-md-12'>
-            <label class='radio-inline'>
-                <input type='radio' name='purpose' value='copy' ng-model="result.purpose">复制题目</label>
             <label class='radio-inline'>
                 <input type='radio' name='purpose' value='optionByInput' ng-model="result.purpose">填写题结果生成选择题</label>
             <label class='radio-inline'>
@@ -27,13 +27,14 @@
         </div>
     </div>
     <div class='row' ng-if="result.make==='schema'">
+        <hr>
         <div class='col-md-12'>
             <label class='radio-inline'>
                 <input type='radio' name='purpose' value='inputByOption' ng-model="result.purpose">【选项】生成【填写题】</label>
             <label class='radio-inline'>
-                <input type='radio' name='purpose' value='inputByScore' ng-model="result.purpose">【打分题】生成【填写题】</label>
-            <label class='radio-inline'>
                 <input type='radio' name='purpose' value='scoreByInput' ng-model="result.purpose">【填写题结果】生成【打分题】</label>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='inputByScore' ng-model="result.purpose">【打分题】生成【填写题】</label>
         </div>
     </div>
     <hr>

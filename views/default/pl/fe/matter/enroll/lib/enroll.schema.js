@@ -541,6 +541,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/importByOther.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
+                        $scope2.app = _oApp;
                         $scope2.page = oPage = {
                             at: 1,
                             size: 12,
@@ -549,8 +550,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         };
                         $scope2.result = oResult = {
-                            make: 'rule',
-                            purpose: 'copy',
+                            make: 'copy',
                             target: { ops: [], range: {} }
                         };
                         $scope2.filter = oFilter = {};
@@ -560,32 +560,33 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             oResult.schemas = [];
                             if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
                                 dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
-                                switch (oResult.purpose) {
-                                    case 'copy':
-                                        $scope2.dataSchemas = dataSchemas;
-                                        break;
-                                    case 'optionByInput':
-                                    case 'scoreByInput':
-                                        dataSchemas.forEach(function(oSchema) {
-                                            if (/shorttext|longtext/.test(oSchema.type)) {
-                                                $scope2.dataSchemas.push(oSchema);
-                                            }
-                                        });
-                                        break;
-                                    case 'inputByOption':
-                                        dataSchemas.forEach(function(oSchema) {
-                                            if (/single|multiple/.test(oSchema.type)) {
-                                                $scope2.dataSchemas.push(oSchema);
-                                            }
-                                        });
-                                        break;
-                                    case 'inputByScore':
-                                        dataSchemas.forEach(function(oSchema) {
-                                            if (/score/.test(oSchema.type)) {
-                                                $scope2.dataSchemas.push(oSchema);
-                                            }
-                                        });
-                                        break;
+                                if (oResult.make === 'copy') {
+                                    $scope2.dataSchemas = dataSchemas;
+                                } else {
+                                    switch (oResult.purpose) {
+                                        case 'optionByInput':
+                                        case 'scoreByInput':
+                                            dataSchemas.forEach(function(oSchema) {
+                                                if (/shorttext|longtext/.test(oSchema.type)) {
+                                                    $scope2.dataSchemas.push(oSchema);
+                                                }
+                                            });
+                                            break;
+                                        case 'inputByOption':
+                                            dataSchemas.forEach(function(oSchema) {
+                                                if (/single|multiple/.test(oSchema.type)) {
+                                                    $scope2.dataSchemas.push(oSchema);
+                                                }
+                                            });
+                                            break;
+                                        case 'inputByScore':
+                                            dataSchemas.forEach(function(oSchema) {
+                                                if (/score/.test(oSchema.type)) {
+                                                    $scope2.dataSchemas.push(oSchema);
+                                                }
+                                            });
+                                            break;
+                                    }
                                 }
                             }
                         };
@@ -608,6 +609,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         };
                         $scope2.doSearch = function() {
                             var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            if (oResult.make === 'rule' && _oApp.mission) {
+                                /* 同一个项目下的题目才可以设置规则 */
+                                url += '&mission=' + _oApp.mission.id;
+                            }
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
                             }, function(rsp) {
@@ -623,7 +628,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.$watch('result', function(oNew, oOld) {
                             $scope2.disabled = false;
                             if (!oResult.schemas || oResult.schemas.length === 0) $scope2.disabled = true;
-                            if (oNew.purpose !== oOld.purpose) {
+                            if (oNew.make !== oOld.make) {
+                                oPage.at = 1;
+                                $scope2.doSearch();
+                            } else if (oNew.purpose !== oOld.purpose) {
                                 $scope2.selectApp();
                             }
                             switch (oResult.purpose) {
@@ -658,30 +666,35 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
+                    var fnGenNewSchema;
                     switch (oResult.make) {
+                        case 'copy': // 复制题目
+                            fnGenNewSchema = function(oProtoSchema) {
+                                var oNewSchema;
+                                oNewSchema = schemaLib.newSchema(oProtoSchema.type, _oApp, { id: oProtoSchema.id });
+                                oNewSchema.type === 'member' && (oNewSchema.schema_id = oProtoSchema.schema_id);
+                                oNewSchema.title = oProtoSchema.title;
+                                if (oProtoSchema.ops) {
+                                    oNewSchema.ops = oProtoSchema.ops;
+                                }
+                                if (oProtoSchema.range) {
+                                    oNewSchema.range = oProtoSchema.range;
+                                }
+                                if (oProtoSchema.count) {
+                                    oNewSchema.count = oProtoSchema.count;
+                                }
+                                return oNewSchema;
+                            };
+                            oResult.schemas.forEach(function(oProtoSchema) {
+                                var oNewSchema;
+                                if (oNewSchema = fnGenNewSchema(oProtoSchema)) {
+                                    $scope._appendSchema(oNewSchema);
+                                }
+                            });
+                            break; //end: 复制题目
                         case 'rule': // 设置生成题目规则
-                            var protoSchemas, fnGenNewSchema;
-                            protoSchemas = oResult.schemas;
-                            if (protoSchemas && protoSchemas.length) {
+                            if (oResult.schemas && oResult.schemas.length) {
                                 switch (oResult.purpose) {
-                                    case 'copy':
-                                        fnGenNewSchema = function(oProtoSchema) {
-                                            var oNewSchema;
-                                            oNewSchema = schemaLib.newSchema(oProtoSchema.type, _oApp, { id: oProtoSchema.id });
-                                            oNewSchema.type === 'member' && (oNewSchema.schema_id = oProtoSchema.schema_id);
-                                            oNewSchema.title = oProtoSchema.title;
-                                            if (oProtoSchema.ops) {
-                                                oNewSchema.ops = oProtoSchema.ops;
-                                            }
-                                            if (oProtoSchema.range) {
-                                                oNewSchema.range = oProtoSchema.range;
-                                            }
-                                            if (oProtoSchema.count) {
-                                                oNewSchema.count = oProtoSchema.count;
-                                            }
-                                            return oNewSchema;
-                                        };
-                                        break;
                                     case 'optionByInput':
                                         if (oResult.target && oResult.target.type && /single|multiple/.test(oResult.target.type)) {
                                             fnGenNewSchema = function(oProtoSchema) {
@@ -767,7 +780,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         break;
                                 }
                                 if (fnGenNewSchema) {
-                                    protoSchemas.forEach(function(oProtoSchema) {
+                                    oResult.schemas.forEach(function(oProtoSchema) {
                                         var oNewSchema;
                                         if (oNewSchema = fnGenNewSchema(oProtoSchema)) {
                                             if (oResult.requireGroup) {

@@ -91,7 +91,7 @@ class schema_model extends \TMS_MODEL {
 			/* 题目来源 */
 			if (isset($oSchema->dsSchema)) {
 				foreach ($oSchema->dsSchema as $prop2 => $val2) {
-					if (!in_array($prop2, ['app', 'schema'])) {
+					if (!in_array($prop2, ['app', 'schema', 'limit'])) {
 						unset($oSchema->dsSchema->{$prop2});
 					}
 				}
@@ -381,11 +381,29 @@ class schema_model extends \TMS_MODEL {
 			uasort($aResult, function ($a, $b) {
 				return (int) $b - (int) $a;
 			});
-
+			$newSchemaNum = 0;
 			foreach ($aResult as $schemaId => $score) {
 				if (empty($targetSchemas[$schemaId])) {
 					continue;
 				}
+				/* 检查显示规则 */
+				if (isset($oSchema->dsSchema->limit->scope)) {
+					if (isset($oSchema->dsSchema->limit->num) && is_int($oSchema->dsSchema->limit->num)) {
+						$limitNum = $oSchema->dsSchema->limit->num;
+					} else {
+						$limitNum = 1;
+					}
+					if ($oSchema->dsSchema->limit->scope === 'top') {
+						if ($newSchemaNum >= $limitNum) {
+							break;
+						}
+					} else if ($oSchema->dsSchema->limit->scope === 'greater') {
+						if ($score < $limitNum) {
+							continue;
+						}
+					}
+				}
+
 				$oReferSchema = $targetSchemas[$schemaId];
 				$oNewDynaSchema = clone $oSchema;
 				$oNewDynaSchema->cloneSchema = (object) ['id' => $oSchema->id, 'title' => $oSchema->title];
@@ -397,6 +415,7 @@ class schema_model extends \TMS_MODEL {
 					$oNewDynaSchema->referRecord = $oReferSchema->referRecord;
 				}
 				$dynaSchemasByIndex[$schemaIndex][] = $oNewDynaSchema;
+				$newSchemaNum++;
 			}
 		};
 
@@ -444,7 +463,23 @@ class schema_model extends \TMS_MODEL {
 						usort($options, function ($a, $b) {
 							return $a->c < $b->c;
 						});
-						$this->genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas, $oSchema);
+						if (isset($oSchema->dsSchema->limit->scope)) {
+							if (isset($oSchema->dsSchema->limit->num) && is_int($oSchema->dsSchema->limit->num)) {
+								$limitNum = $oSchema->dsSchema->limit->num;
+							} else {
+								$limitNum = 1;
+							}
+							switch ($oSchema->dsSchema->limit->scope) {
+							case 'top':
+								$this->genSchemaByTopOptions($oTargetSchema, $options, $limitNum, $newSchemas, $oSchema);
+								break;
+							case 'checked':
+								$this->genSchemaByCheckedOptions($oTargetSchema, $options, $limitNum, $newSchemas, $oSchema);
+								break;
+							}
+						} else {
+							$this->genSchemaByTopOptions($oTargetSchema, $options, count($options), $newSchemas, $oSchema);
+						}
 						foreach ($newSchemas as $oNewDynaSchema) {
 							$oNewDynaSchema->dynamic = 'Y';
 							$oNewDynaSchema->cloneSchema = (object) ['id' => $oSchema->id, 'title' => $oSchema->title];

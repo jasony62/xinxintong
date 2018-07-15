@@ -129,6 +129,19 @@
             <div ng-switch-when="inputByScore">
                 <label>3.设置生成题目</label>
                 <hr>
+                <div class='form-group'>
+                    <input type='number' class='form-control' ng-model="result.target.limit.num" placeholder="数量" style='width:6em'>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="limitScope" value="top" ng-model="result.target.limit.scope"> <span>按选择数排序的前<mark ng-bind="result.target.limit.num"></mark>选项</span>
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="limitScope" value="checked" ng-model="result.target.limit.scope"> <span>获得选择数大于<mark ng-bind="result.target.limit.num"></mark>的选项</span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>

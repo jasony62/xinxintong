@@ -1,9 +1,18 @@
 <div class="modal-header">
     <button class="close" ng-click="cancel()">×</button>
-    <h5 class="modal-title">由其他活动中的题目生成题目</h5>
+    <h5 class="modal-title">从其他活动生成题目</h5>
 </div>
 <div class="modal-body">
     <div class='row'>
+        <div class='col-md-12'>
+            <label class='radio-inline'>
+                <input type='radio' name='make' value='rule' ng-model="result.make">设置题目生成规则</label>
+            <label class='radio-inline'>
+                <input type='radio' name='make' value='schema' ng-model="result.make">根据已有数据生成题目</label>
+        </div>
+    </div>
+    <hr>
+    <div class='row' ng-if="result.make==='rule'">
         <div class='col-md-12'>
             <label class='radio-inline'>
                 <input type='radio' name='purpose' value='copy' ng-model="result.purpose">复制题目</label>
@@ -15,6 +24,16 @@
                 <input type='radio' name='purpose' value='inputByOption' ng-model="result.purpose">选择题结果生成填写题</label>
             <label class='radio-inline'>
                 <input type='radio' name='purpose' value='inputByScore' ng-model="result.purpose">打分题结果生成填写题</label>
+        </div>
+    </div>
+    <div class='row' ng-if="result.make==='schema'">
+        <div class='col-md-12'>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='inputByOption' ng-model="result.purpose">【选项】生成【填写题】</label>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='inputByScore' ng-model="result.purpose">【打分题】生成【填写题】</label>
+            <label class='radio-inline'>
+                <input type='radio' name='purpose' value='scoreByInput' ng-model="result.purpose">【填写题结果】生成【打分题】</label>
         </div>
     </div>
     <hr>

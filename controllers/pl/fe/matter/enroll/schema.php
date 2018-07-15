@@ -64,8 +64,8 @@ class schema extends main_base {
 
 		$targetSchemas = []; // 目标应用中选择的题目
 		foreach ($oPosted->schemas as $oSchema) {
-			foreach ($oTargetApp->dataSchemas as $oSchema2) {
-				if ($oSchema->id === $oSchema2->id) {
+			foreach ($oTargetApp->dynaDataSchemas as $oSchema2) {
+				if ($oSchema->id === $oSchema2->id || (isset($oSchema2->cloneSchema) && $oSchema2->cloneSchema->id === $oSchema->id)) {
 					$targetSchemas[] = $oSchema2;
 					break;
 				}
@@ -288,9 +288,12 @@ class schema extends main_base {
 		});
 
 		$newSchemas = [];
-		$i = 0;
+		$newSchemaNum = 0;
 		foreach ($aResult as $schemaId => $score) {
-			if ($i >= $oPosted->limit->num) {
+			if (!isset($targetSchemas[$schemaId])) {
+				continue;
+			}
+			if ($newSchemaNum >= $oPosted->limit->num) {
 				break;
 			}
 			$oProtoSchema = $targetSchemas[$schemaId];
@@ -299,7 +302,7 @@ class schema extends main_base {
 			$oNewSchema->title = $oProtoSchema->title;
 			$oNewSchema->type = 'longtext';
 			$newSchemas[] = $oNewSchema;
-			$i++;
+			$newSchemaNum++;
 		}
 
 		return new \ResponseData($newSchemas);

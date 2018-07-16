@@ -2100,41 +2100,38 @@ class record extends main_base {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
-		if (false === ($app = $modelApp->byId($app))) {
+		if (false === ($oApp = $modelApp->byId($app))) {
 			return new \ResponseError('指定的活动不存在（1）');
 		}
-		if (false === ($fromApp = $modelApp->byId($fromApp))) {
+		if (false === ($oFromApp = $modelApp->byId($fromApp))) {
 			return new \ResponseError('指定的活动不存在（2）');
 		}
 
-		$dataSchemas = json_decode($app->data_schemas);
-		$fromDataSchemas = json_decode($fromApp->data_schemas);
-
 		/* 获得兼容的登记项 */
-		$compatibleSchemas = $modelRec->compatibleSchemas($dataSchemas, $fromDataSchemas);
+		$compatibleSchemas = $modelRec->compatibleSchemas($oApp->dynaDataSchemas, $oFromApp->dynaDataSchemas);
 		if (empty($compatibleSchemas)) {
 			return new \ResponseData('没有匹配的数据项');
 		}
 		/* 获得数据 */
-		$records = $modelRec->byApp($fromApp);
+		$oResult = $modelRec->byApp($oFromApp);
 		$countOfImport = 0;
-		if ($records->total > 0) {
-			foreach ($records->records as $record) {
+		if ($oResult->total > 0) {
+			foreach ($oResult->records as $oRecord) {
 				// 新登记
-				$user = new \stdClass;
-				$user->uid = $record->userid;
-				$user->nickname = $record->nickname;
+				$oEnrollee = new \stdClass;
+				$oEnrollee->uid = $oRecord->userid;
+				$oEnrollee->nickname = $oRecord->nickname;
 				$aOptions = [];
-				$aOptions['enrollAt'] = $record->enroll_at;
-				$aOptions['nickname'] = $record->nickname;
-				$ek = $modelRec->enroll($app, $user, $aOptions);
+				$aOptions['enrollAt'] = $oRecord->enroll_at;
+				$aOptions['nickname'] = $oRecord->nickname;
+				$ek = $modelRec->enroll($oApp, $oEnrollee, $aOptions);
 				// 登记数据
-				$data = new \stdClass;
+				$oRecData = new \stdClass;
 				foreach ($compatibleSchemas as $cs) {
-					if (empty($record->data->{$cs[0]->id})) {
+					if (empty($oRecord->data->{$cs[0]->id})) {
 						continue;
 					}
-					$val = $record->data->{$cs[0]->id};
+					$val = $oRecord->data->{$cs[0]->id};
 					if ($cs[0]->type === 'single') {
 						foreach ($cs[0]->ops as $index => $op) {
 							if ($op->v === $val) {
@@ -2166,9 +2163,9 @@ class record extends main_base {
 						}
 						$val = $val2;
 					}
-					$data->{$cs[1]->id} = $val;
+					$oRecData->{$cs[1]->id} = $val;
 				}
-				$modelRec->setData($user, $app, $ek, $data);
+				$modelRec->setData($oEnrollee, $oApp, $ek, $oRecData);
 				$countOfImport++;
 			}
 		}

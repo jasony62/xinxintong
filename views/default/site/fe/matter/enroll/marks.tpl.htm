@@ -49,25 +49,33 @@
                 </div>
             </div>
             <div class='schema'>
-                <div class='option' ng-repeat="schema in marks">
-                    <div><span ng-bind="schema.title"></span><small class='option-link' ng-if="schema.referRecord.ds.ek" ng-click="gotoOptionLink(schema)">[详情]</small></div>
-                    <div ng-bind="schema._score"></div>
+                <div ng-repeat="schema in marks">
+                    <div class='option'>
+                        <div><span ng-bind="schema.title"></span><small class='option-link' ng-if="schema.referRecord.ds.ek" ng-click="gotoOptionLink(schema)">[详情]</small></div>
+                        <div ng-bind="schema._score.sum"></div>
+                        <div ng-bind="schema._score.avg"></div>
+                    </div>
+                    <div ng-repeat="op in schema.ops" class='option small'>
+                        <div><span ng-bind="op.l"></span></div>
+                        <div ng-bind="op._score.sum"></div>
+                        <div ng-bind="op._score.avg"></div>
+                    </div>
+                    <hr>
                 </div>
             </div>
         </div>
-    </div>
-    <div ng-if="appActs" tms-app-act app-acts="appActs"></div>
-    <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
-    <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
-    <div class="loading">
-        <div class='loading-indicator'><i></i></div>
-    </div>
-    <script src="/static/js/xxt.ui.error.js"></script>
-    <script src="/static/js/angular.min.js"></script>
-    <script src="/static/js/angular-route.min.js"></script>
-    <script src="/static/js/angular-sanitize.min.js"></script>
-    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/marks.js');?>"></script>
+        <div ng-if="appActs" tms-app-act app-acts="appActs"></div>
+        <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+        <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+        <div class="loading">
+            <div class='loading-indicator'><i></i></div>
+        </div>
+        <script src="/static/js/xxt.ui.error.js"></script>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-route.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+        <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/marks.js');?>"></script>
 </body>
 
 </html>

@@ -38,7 +38,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlMarks', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2', 'Round', function($scope, $q, $timeout, LS, http2, srvRound) {
+ngApp.controller('ctrlMarks', ['$scope', '$q', '$timeout', '$filter', 'tmsLocation', 'http2', 'Round', function($scope, $q, $timeout, $filter, LS, http2, srvRound) {
     var _oApp, _facRound, _oCriteria, _oFilter;
     $scope.criteria = _oCriteria = {}; // 数据查询条件
     $scope.filter = _oFilter = {}; // 过滤条件
@@ -85,16 +85,30 @@ ngApp.controller('ctrlMarks', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
             }
             http2.get(url).then(function(rsp) {
                 var marks = [];
-                angular.forEach(rsp.data, function(score, schemaId) {
+                angular.forEach(rsp.data, function(oStat, schemaId) {
                     var oSchema;
                     if (oSchema = oSchemasById[schemaId]) {
-                        oSchema._score = score;
+                        oSchema._score = {
+                            sum: oStat.sum,
+                            avg: $filter('number')(oStat.sum / oStat.count, 2).replace('.00', '')
+                        };
+                        if (oSchema.ops && oSchema.ops.length) {
+                            oSchema.ops.forEach(function(oOption) {
+                                var opSum;
+                                if (opSum = oStat[oOption.v]) {
+                                    oOption._score = {
+                                        sum: opSum,
+                                        avg: $filter('number')(opSum / oStat.count, 2).replace('.00', '')
+                                    }
+                                }
+                            });
+                        }
                         marks.push(oSchema);
                     }
                 });
                 /* 按获得的投票数量进行排序 */
                 marks = marks.sort(function(a, b) {
-                    return b._score - a._score;
+                    return b._score.sum - a._score.sum;
                 });
                 $scope.marks = marks;
                 defer.resolve(marks);

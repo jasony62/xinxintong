@@ -701,7 +701,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                                 if (!/shorttext|longtext/.test(oProtoSchema.type)) {
                                                     return null;
                                                 }
-                                                var oNewSchema;
+                                                var oNewSchema, oTarget;
                                                 oNewSchema = schemaLib.newSchema(oResult.target.type, _oApp, { id: oProtoSchema.id });
                                                 oNewSchema.title = oProtoSchema.title;
                                                 oNewSchema.dsOps = {
@@ -712,13 +712,17 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                                     app: { id: oResult.fromApp.id, title: oResult.fromApp.title },
                                                     schema: { id: oProtoSchema.id, title: oProtoSchema.title, type: oProtoSchema.type }
                                                 };
-                                                if (oNewSchema.type === 'multiple') {
-                                                    if (oResult.limitChoice && oResult.limitChoice === 'Y') {
-                                                        oNewSchema.limitChoice = 'Y';
-                                                        if (oResult.range && angular.isArray(oResult.range)) {
-                                                            oNewSchema.range = [];
-                                                            if (oResult.range[0]) oNewSchema.range[0] = parseInt(oResult.range[0]);
-                                                            if (oResult.range[1]) oNewSchema.range[1] = parseInt(oResult.range[1]);
+                                                if (oTarget = oResult.target) {
+                                                    if (oNewSchema.type === 'multiple') {
+                                                        if (oTarget.limitChoice && oTarget.limitChoice === 'Y') {
+                                                            oNewSchema.limitChoice = 'Y';
+                                                            if (oTarget.range) {
+                                                                oNewSchema.range = [];
+                                                                if (oTarget.range.from) {
+                                                                    oNewSchema.range.push(parseInt(oTarget.range.from));
+                                                                    if (oTarget.range.to) oNewSchema.range.push(parseInt(oTarget.range.to));
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -802,7 +806,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             break; //end: 生成规则
                         case 'schema': // 直接生成题目
                             if (oResult.schemas && oResult.schemas.length) {
-                                var url, oConfig, targetSchemas;
+                                var url, oConfig, targetSchemas, oProto, oTarget;
                                 targetSchemas = [];
                                 oResult.schemas.forEach(function(oSchema) {
                                     targetSchemas.push({
@@ -815,8 +819,25 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     case 'inputByScore':
                                         oConfig = { schemas: targetSchemas, limit: oResult.target.limit };
                                         break;
+                                    case 'optionByInput':
+                                        if (oTarget = oResult.target) {
+                                            oProto = { type: oTarget.type }
+                                            if (oTarget.type === 'multiple') {
+                                                if (oTarget.limitChoice && oTarget.limitChoice === 'Y') {
+                                                    oProto.limitChoice = 'Y';
+                                                    if (oTarget.range) {
+                                                        oProto.range = [];
+                                                        if (oTarget.range.from) {
+                                                            oProto.range.push(parseInt(oTarget.range.from));
+                                                            if (oTarget.range.to) oProto.range.push(parseInt(oTarget.range.to));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            oConfig = { schemas: targetSchemas, proto: oProto };
+                                        }
+                                        break;
                                     case 'scoreByInput':
-                                        var oProto, oTarget;
                                         if (oTarget = oResult.target) {
                                             if (oTarget.range && oTarget.range.from && oTarget.range.to && oTarget.ops && oTarget.ops.length) {
                                                 oProto = {};

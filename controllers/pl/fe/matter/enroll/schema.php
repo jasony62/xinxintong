@@ -129,6 +129,112 @@ class schema extends main_base {
 		return new \ResponseData($newSchemas);
 	}
 	/**
+	 * 由目标活动的填写题创建选择题
+	 *
+	 * @param string $app 需要创建题目的登记活动
+	 * @param string $targetApp 数据来源的登记活动
+	 *
+	 */
+	public function optionByInput_action($app, $targetApp, $round = '') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->schemas)) {
+			return new \ParameterError('没有指定题目');
+		}
+		if (empty($oPosted->proto->type) || !in_array($oPosted->proto->type, ['single', 'multiple'])) {
+			return new \ParameterError('没有指定题目的原型，或原型不完整');
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+
+		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round', 'appRid' => $round]);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => 'siteid,state,mission_id,data_schemas,sync_mission_round']);
+		if (false === $oTargetApp || $oTargetApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		if ($oApp->mission_id !== $oTargetApp->mission_id) {
+			return new \ParameterError('仅支持在同一个项目的活动间通过记录生成题目');
+		}
+
+		$targetSchemas = []; // 目标应用中选择的题目
+		foreach ($oPosted->schemas as $oSchema) {
+			foreach ($oTargetApp->dynaDataSchemas as $oSchema2) {
+				if (in_array($oSchema2->type, ['shorttext', 'longtext'])) {
+					if ($oSchema->id === $oSchema2->id) {
+						$targetSchemas[] = $oSchema2;
+						break;
+					} else if (isset($oSchema2->cloneSchema->id) && $oSchema2->cloneSchema->id === $oSchema->id) {
+						$targetSchemas[] = $oSchema2;
+						break;
+					}
+				}
+			}
+		}
+		if (empty($targetSchemas)) {
+			return new \ParameterError('目标活动中指定的题目无效');
+		}
+		$oAssignedRnd = $oApp->appRound;
+		if ($oAssignedRnd) {
+			$modelRnd = $this->model('matter\enroll\round');
+			$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
+		}
+
+		/* 目标活动的统计结果 */
+		$modelRec = $this->model('matter\enroll\record');
+		$oOptions = [];
+		if (isset($oTargetAppRnd->rid)) {
+			$oOptions['record'] = (object) ['rid' => $oTargetAppRnd->rid];
+		}
+		$aSearchResult = $modelRec->byApp($oTargetApp, $oOptions);
+		$aRecords = $aSearchResult->records;
+		if (empty($aRecords)) {
+			return new \ParameterError('目标活动中没有填写记录');
+		}
+
+		$newSchemas = []; // 根据记录创建的题目
+		foreach ($targetSchemas as $oTargetSchema) {
+			$oNewSchema = new \stdClass;
+			$oNewSchema->id = $oTargetSchema->id;
+			$oNewSchema->title = $oTargetSchema->title;
+			$oNewSchema->type = $oPosted->proto->type;
+			$oNewSchema->required = 'Y';
+			if (isset($oPosted->proto->limitChoice) && $oPosted->proto->limitChoice === 'Y') {
+				$oNewSchema->limitChoice = 'Y';
+			}
+			if (isset($oPosted->proto->range) && is_array($oPosted->proto->range) && count($oPosted->proto->range) === 2) {
+				$oNewSchema->range = [(int) $oPosted->proto->range[0], (int) $oPosted->proto->range[1]];
+			}
+			$aOptions = [];
+			foreach ($aRecords as $oTargetRecord) {
+				if (empty($oTargetRecord->data->{$oTargetSchema->id})) {
+					continue;
+				}
+				/* 新选项 */
+				$oNewOption = new \stdClass;
+				$oNewOption->v = 'v' . $oTargetRecord->id;
+				$oNewOption->l = $oTargetRecord->data->{$oTargetSchema->id};
+				/* 记录数据来源 */
+				$oNewOption->referRecord = (object) [
+					'schema' => (object) ['id' => $oTargetSchema->id],
+					'ds' => (object) ['ek' => $oTargetRecord->enroll_key, 'user' => $oTargetRecord->userid, 'nickname' => $oTargetRecord->nickname],
+				];
+				$aOptions[] = $oNewOption;
+			}
+			$oNewSchema->ops = $aOptions;
+
+			$newSchemas[] = $oNewSchema;
+		}
+
+		return new \ResponseData($newSchemas);
+	}
+	/**
 	 * 由目标活动的填写题创建打分题
 	 *
 	 * @param string $app 需要创建题目的登记活动
@@ -173,10 +279,15 @@ class schema extends main_base {
 
 		$targetSchemas = []; // 目标应用中选择的题目
 		foreach ($oPosted->schemas as $oSchema) {
-			foreach ($oTargetApp->dataSchemas as $oSchema2) {
-				if ($oSchema->id === $oSchema2->id && in_array($oSchema2->type, ['shorttext', 'longtext'])) {
-					$targetSchemas[] = $oSchema2;
-					break;
+			foreach ($oTargetApp->dynaDataSchemas as $oSchema2) {
+				if (in_array($oSchema2->type, ['shorttext', 'longtext'])) {
+					if ($oSchema->id === $oSchema2->id) {
+						$targetSchemas[] = $oSchema2;
+						break;
+					} else if (isset($oSchema2->cloneSchema->id) && $oSchema2->cloneSchema->id === $oSchema->id) {
+						$targetSchemas[] = $oSchema2;
+						break;
+					}
 				}
 			}
 		}

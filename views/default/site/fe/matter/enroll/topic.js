@@ -40,7 +40,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.shareTopic = function() {
         var url;
         url = LS.j('', 'site', 'app') + '&topic=' + $scope.topic.id + '&page=share';
-        if(shareby) {
+        if (shareby) {
             url += '&shareby=' + shareby;
         }
         location.href = url;
@@ -83,10 +83,10 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
                     $scope.repos.push(oRecord);
                 });
-            } 
+            }
             $timeout(function() {
                 var imgs;
-                if(imgs = document.querySelectorAll('.data img')) {
+                if (imgs = document.querySelectorAll('.data img')) {
                     picviewer.init(imgs);
                 }
             });
@@ -145,7 +145,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.shareRecord = function(oRecord) {
         var url;
         url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
-        if(shareby) {
+        if (shareby) {
             url += '&shareby=' + shareby;
         }
         location.href = url;
@@ -199,7 +199,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         var oApp, oUser;
         _oApp = oApp = params.app;
         oUser = params.user;
-        oApp.dataSchemas.forEach(function(schema) {
+        oApp.dynaDataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
             }
@@ -255,9 +255,9 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         fnGetTopic().then(function(rsp) {
             $scope.topic = rsp.data;
             /* 设置页面分享信息 */
-            $scope.setSnsShare(null, { topic: LS.s().topic }, {target_type: 'topic', target_id: rsp.data.id, title: rsp.data.title}); // 应该禁止分享
+            $scope.setSnsShare(null, { topic: LS.s().topic }, { target_type: 'topic', target_id: rsp.data.id, title: rsp.data.title }); // 应该禁止分享
             /*页面阅读日志*/
-            $scope.logAccess({target_type: 'topic', target_id: rsp.data.id, title: rsp.data.title});
+            $scope.logAccess({ target_type: 'topic', target_id: rsp.data.id, title: rsp.data.title });
             $scope.recordList(1);
         });
     });

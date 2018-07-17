@@ -286,10 +286,10 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
                 }
                 if ($scope.schemasById && $scope.schemasById[schemaId]) {
                     oSchema = $scope.schemasById[schemaId];
-                } else if ($scope.app && $scope.app.dataSchemas && $scope.app.dataSchemas.length) {
-                    for (var i = $scope.app.dataSchemas.length - 1; i >= 0; i--) {
-                        if ($scope.app.dataSchemas[i].id = schemaId) {
-                            oSchema = $scope.app.dataSchemas[i];
+                } else if ($scope.app && $scope.app.dynaDataSchemas && $scope.app.dynaDataSchemas.length) {
+                    for (var i = $scope.app.dynaDataSchemas.length - 1; i >= 0; i--) {
+                        if ($scope.app.dynaDataSchemas[i].id = schemaId) {
+                            oSchema = $scope.app.dynaDataSchemas[i];
                             break;
                         }
                     }
@@ -670,9 +670,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         // 添加辅助功能
         fnAssistant(dataSchemas);
         // 从其他活动生成的选项的昵称
-        fnAppendOpNickname(oApp.dataSchemas);
+        fnAppendOpNickname(oApp.dynaDataSchemas);
         // 从其他活动生成的选项的详情链接
-        fnAppendOpDsLink(oApp.dataSchemas);
+        fnAppendOpDsLink(oApp.dynaDataSchemas);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
@@ -759,8 +759,8 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             noticebox.warn('活动提交数据时间已经结束，不能提交数据');
         }
         /* 判断多项类型 */
-        if (_oApp.dataSchemas.length) {
-            angular.forEach(_oApp.dataSchemas, function(dataSchema) {
+        if (_oApp.dynaDataSchemas.length) {
+            angular.forEach(_oApp.dynaDataSchemas, function(dataSchema) {
                 if (dataSchema.type == 'multitext') {
                     $scope.data[dataSchema.id] === undefined && ($scope.data[dataSchema.id] = []);
                 }
@@ -999,7 +999,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 if (oResult.selected.value) {
                     $scope.data[oHandleSchema.id] = oResult.selected.value;
                     /* 检查是否存在关联题目，自动完成数据填写 */
-                    _oApp.dataSchemas.forEach(function(oOther) {
+                    _oApp.dynaDataSchemas.forEach(function(oOther) {
                         if (oOther.id !== oHandleSchema.id && oOther.history === 'Y' && oOther.historyAssoc && oOther.historyAssoc.indexOf(oHandleSchema.id) !== -1) {
                             assocSchemaIds.push(oOther.id);
                         }
@@ -1020,28 +1020,29 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     };
     $scope.score = function(schemaId, opIndex, number) {
-        var schema = $scope.schemasById[schemaId],
-            op = schema.ops[opIndex];
+        var oSchema, oOption;
 
-        if ($scope.data[schemaId] === undefined) {
-            $scope.data[schemaId] = {};
-            schema.ops.forEach(function(op) {
-                $scope.data[schema.id][op.v] = 0;
+        if (!(oSchema = $scope.schemasById[schemaId])) return;
+        if (!(oOption = oSchema.ops[opIndex])) return;
+
+        if ($scope.data[oSchema.id] === undefined) {
+            $scope.data[oSchema.id] = {};
+            oSchema.ops.forEach(function(oOp) {
+                $scope.data[oSchema.id][oOp.v] = 0;
             });
         }
 
-        $scope.data[schemaId][op.v] = number;
+        $scope.data[oSchema.id][oOption.v] = number;
     };
     $scope.lessScore = function(schemaId, opIndex, number) {
+        var oSchema, oOption;
+
         if (!$scope.schemasById) return false;
-
-        var schema = $scope.schemasById[schemaId],
-            op = schema.ops[opIndex];
-
-        if ($scope.data[schemaId] === undefined) {
+        if (!(oSchema = $scope.schemasById[schemaId])) return false;
+        if (!(oOption = oSchema.ops[opIndex])) return false;
+        if ($scope.data[oSchema.id] === undefined) {
             return false;
         }
-
-        return $scope.data[schemaId][op.v] >= number;
+        return $scope.data[oSchema.id][oOption.v] >= number;
     };
 }]);

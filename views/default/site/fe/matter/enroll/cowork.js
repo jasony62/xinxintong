@@ -559,7 +559,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     $scope.shareRecord = function(oRecord) {
         var url;
         url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
-        if(shareby) {
+        if (shareby) {
             url += '&shareby=' + shareby;
         }
         location.href = url;
@@ -595,7 +595,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     $scope.shareRemark = function(oRemark) {
         var url;
         url = LS.j('', 'site', 'app', 'ek') + '&remark=' + oRemark.id + '&page=share';
-        if(shareby) {
+        if (shareby) {
             url += '&shareby=' + shareby;
         }
         location.href = url;
@@ -623,7 +623,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         aVisibleSchemas = [];
         aCoworkSchemas = [];
         oSchemasById = {};
-        _oApp.dataSchemas.forEach(function(oSchema) {
+        _oApp.dynaDataSchemas.forEach(function(oSchema) {
             if (oSchema.cowork === 'Y') {
                 aCoworkSchemas.push(oSchema);
             } else if (oSchema.shareable && oSchema.shareable === 'Y') {
@@ -805,7 +805,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         var url, shareby;
         url = LS.j('', 'site', 'app', 'ek') + '&data=' + oItem.id + '&page=share';
         shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
-        if(shareby) {
+        if (shareby) {
             url += '&shareby=' + shareby;
         }
         location.href = url;

@@ -325,7 +325,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oConfig, rankItems, dataSchemas, facRound;
         oApp = params.app;
-        dataSchemas = oApp.dataSchemas;
+        dataSchemas = oApp.dynaDataSchemas;
         for (var i = dataSchemas.length - 1; i >= 0; i--) {
             if (Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable == 'Y') {
                 $scope.isRemark = true;

@@ -254,7 +254,7 @@ class main extends base {
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		$oApp->dataSchemas = $oApp->dynaDataSchemas;
+		//$oApp->dataSchemas = $oApp->dynaDataSchemas;
 		/* 应用的动态题目 */
 		if (isset($oApp->appRound->rid)) {
 			$rid = $oApp->appRound->rid;

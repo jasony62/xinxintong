@@ -166,7 +166,7 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation',
             controller: ['$scope', '$uibModalInstance', 'Round', 'oApp', 'oOptions', function($scope2, $mi, Round, oApp, oOptions) {
                 var facRound, aFilterSchemas;
                 $scope2.filterSchemas = aFilterSchemas = [];
-                oApp.dataSchemas.forEach(function(oSchema) {
+                oApp.dynaDataSchemas.forEach(function(oSchema) {
                     if (['shorttext', 'longtext', 'location', 'single', 'multiple'].indexOf(oSchema.type) !== -1) {
                         if (oOptions.owner && oOptions.owner === 'G' && oSchema.id === '_round_id') {} else {
                             aFilterSchemas.push(oSchema);

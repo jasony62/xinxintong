@@ -1422,6 +1422,87 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
+            _ins.transferGroupAndMarks = function(oApp) {
+                var defer;
+                defer = $q.defer();
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/transferGroupAndMarks.html?_=1',
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var oPage, oResult, oFilter;
+                        $scope2.page = oPage = {
+                            at: 1,
+                            size: 12,
+                            j: function() {
+                                return 'page=' + this.at + '&size=' + this.size;
+                            }
+                        };
+                        $scope2.result = oResult = {
+                            limit: { num: 1 }
+                        };
+                        $scope2.filter = oFilter = {};
+                        $scope2.selectApp = function() {
+                            oResult.questionSchemas = [];
+                            oResult.answerSchemas = [];
+                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                    if (/shorttext|longtext/.test(oSchema.type)) {
+                                        oResult.questionSchemas.push(oSchema);
+                                    } else if ('multitext' === oSchema.type) {
+                                        oResult.answerSchemas.push(oSchema);
+                                    }
+                                });
+                            }
+                        };
+                        $scope2.ok = function() {
+                            $mi.close(oResult);
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.doFilter = function() {
+                            oPage.at = 1;
+                            $scope2.doSearch();
+                        };
+                        $scope2.doSearch = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
+                            http2.post(url, {
+                                byTitle: oFilter.byTitle
+                            }, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                                if ($scope2.apps.length) {
+                                    oResult.fromApp = $scope2.apps[0];
+                                    $scope2.selectApp();
+                                }
+                                oPage.total = rsp.data.total;
+                            });
+                        };
+                        $scope2.disabled = true; // 选择的参数是否完整
+                        $scope2.$watch('result', function() {
+                            $scope2.disabled = false;
+                            if (!oResult.fromApp) $scope2.disabled = true;
+                            if (!oResult.answerSchema) $scope2.disabled = true;
+                            if (!oResult.questionSchema) $scope2.disabled = true;
+                        }, true);
+                        $scope2.doSearch();
+                    }],
+                    backdrop: 'static',
+                    windowClass: 'auto-height',
+                    size: 'lg'
+                }).result.then(function(oResult) {
+                    var url;
+                    if (oResult.fromApp && oResult.questionSchema && oResult.answerSchema) {
+                        url = '/rest/pl/fe/matter/enroll/record/transferGroupAndMarks';
+                        url += '?app=' + oApp.id;
+                        url += '&targetApp=' + oResult.fromApp.id;
+                        http2.post(url, { questionSchema: oResult.questionSchema, answerSchema: oResult.answerSchema, limit: oResult.limit }, function(rsp) {
+                            noticebox.info('创建（' + rsp.data + '）条记录');
+                            defer.resolve(rsp);
+                        });
+                    }
+                });
+                return defer.promise;
+            };
             _ins.fillByOther = function(oApp) {
                 var defer;
                 defer = $q.defer();

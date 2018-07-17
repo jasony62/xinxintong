@@ -482,9 +482,6 @@ class record extends main_base {
 		}
 
 		$oPosted = $this->getPostJson();
-		if (empty($oPosted->answerSchema)) {
-			return new \ParameterError('没有在源活动中指定题目');
-		}
 		if (empty($oPosted->questionSchema)) {
 			return new \ParameterError('目标活动中没有指定作为问题的题目');
 		}
@@ -562,8 +559,8 @@ class record extends main_base {
 				}
 			}
 			/* 生成记录 */
-			if (isset($oVotingSchema->ds->userid)) {
-				$oMockRecUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingSchema->ds->userid]);
+			if (isset($oVotingSchema->referRecord->ds->user)) {
+				$oMockRecUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingSchema->referRecord->ds->user]);
 			} else {
 				$oMockRecUser = new \stdClass;
 			}
@@ -591,8 +588,8 @@ class record extends main_base {
 				/* 模拟用户 */
 				$oVotingOpDs = null;
 				foreach ($oVotingSchema->ops as $oOption) {
-					if ($oOption->v === $oQualifiedOp->v && !empty($oOption->ds->user)) {
-						$oVotingOpDs = $oOption->ds;
+					if ($oOption->v === $oQualifiedOp->v && !empty($oOption->referRecord->ds->user)) {
+						$oVotingOpDs = $oOption->referRecord->ds;
 						break;
 					}
 				}
@@ -629,6 +626,167 @@ class record extends main_base {
 			/* 答案的根数据 */
 			$oRecData->value = $modelData->escape($modelData->toJson($oRecData->value));
 			$oRecData->id = $modelData->insert('xxt_enroll_record_data', $oRecData, true);
+		}
+
+		return new \ResponseData($newRecordNum);
+	}
+	/**
+	 * 投票题目和结果导出到其他活动作为记录
+	 */
+	public function transferGroupAndMarks_action($app, $targetApp, $round = '') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->questionSchema)) {
+			return new \ParameterError('目标活动中没有指定作为问题的题目');
+		}
+		if (empty($oPosted->answerSchema)) {
+			return new \ParameterError('目标活动中没有指定作为答案的题目');
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+		$modelData = $this->model('matter\enroll\data');
+		$modelUsr = $this->model('matter\enroll\user');
+
+		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,round_cron,data_schemas', 'appRid' => $round]);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		/* 所有打分题 */
+		$aAllScoreSchemas = [];
+		$aSchemaMapGroupIds = [];
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
+			if ($oSchema->type === 'score' && isset($oSchema->parent->id)) {
+				$aAllScoreSchemas[$oSchema->parent->id][] = $oSchema;
+				$aSchemaMapGroupIds[$oSchema->id] = $oSchema->parent->id;
+			}
+		}
+		if (empty($aAllScoreSchemas)) {
+			return new \ParameterError('没有指定有效的打分题');
+		}
+		/* 所有分组题 */
+		$aGroupSchemas = [];
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
+			if ($oSchema->type === 'html' && isset($aAllScoreSchemas[$oSchema->id])) {
+				$aGroupSchemas[$oSchema->id] = $oSchema;
+			}
+		}
+		if (empty($aGroupSchemas)) {
+			return new \ParameterError('没有指定有效的分组题');
+		}
+		/* 根据题目打分结果和规则筛选符合条件的题目 */
+		$iLimitNum = 1;
+		if (isset($oPosted->limit->num) && is_int($oPosted->limit->num)) {
+			$iLimitNum = $oPosted->limit->num;
+		}
+		$oResult = $modelRec->score4Schema($oApp);
+		unset($oResult->sum);
+		$aResult = (array) $oResult;
+		uasort($aResult, function ($a, $b) {
+			return $a < $b ? 1 : -1;
+		});
+		$aGroupSchemasByScore = []; // 每个分组符合得分排序的题目
+		foreach ($aResult as $schemaId => $score) {
+			$groupSchemaId = $aSchemaMapGroupIds[$schemaId];
+			if (!isset($aGroupSchemasByScore[$groupSchemaId])) {
+				$aGroupSchemasByScore[$groupSchemaId] = [$schemaId];
+			} else if ($iLimitNum > 1 && count($aGroupSchemasByScore[$groupSchemaId]) < $iLimitNum) {
+				$aGroupSchemasByScore[$groupSchemaId][] = $schemaId;
+			}
+		}
+
+		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => '*']);
+		if (false === $oTargetApp || $oTargetApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		/* 匹配的轮次 */
+		$oAssignedRnd = $oApp->appRound;
+		if ($oApp->mission_id === $oTargetApp->mission_id) {
+			$modelRnd = $this->model('matter\enroll\round');
+			if ($oAssignedRnd) {
+				$oTargetAppRnd = $modelRnd->byMissionRid($oTargetApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
+			}
+		} else {
+			$oTargetAppRnd = $oTargetApp->appRound;
+		}
+
+		$newRecordNum = 0;
+		foreach ($aAllScoreSchemas as $groupSchemaId => $oGroupScoreSchemas) {
+			if (empty($aGroupSchemas[$groupSchemaId])) {
+				continue;
+			}
+			$oGroupSchema = $aGroupSchemas[$groupSchemaId];
+			/* 生成记录 */
+			/* 模拟用户 */
+			if (isset($oGroupSchema->referRecord->ds->user)) {
+				$oMockRecUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oGroupSchema->referRecord->ds->user]);
+			} else {
+				$oMockRecUser = new \stdClass;
+			}
+			$newek = $modelRec->enroll($oTargetApp, $oMockRecUser);
+
+			$oNewRecData = new \stdClass; // 问题+答案的记录数据
+			/* 写入问题 */
+			$oNewRecData->{$oPosted->questionSchema} = $oGroupSchema->title;
+			$modelRec->setData($oMockRecUser, $oTargetApp, $newek, $oNewRecData, '', true);
+
+			/* 写入答案 */
+			$current = time();
+			$oRecData = new \stdClass;
+			$oRecData->aid = $oTargetApp->id;
+			$oRecData->rid = empty($oTargetAppRnd->rid) ? '' : $oTargetAppRnd->rid;
+			$oRecData->enroll_key = $newek;
+			$oRecData->submit_at = $current;
+			$oRecData->userid = isset($oMockRecUser->uid) ? $oMockRecUser->uid : '';
+			$oRecData->nickname = isset($oMockRecUser->nickname) ? $modelData->escape($oMockRecUser->nickname) : '';
+			$oRecData->group_id = isset($oMockRecUser->group_id) ? $oMockRecUser->group_id : '';
+			$oRecData->schema_id = $oPosted->answerSchema;
+			$oRecData->multitext_seq = 0;
+			$oRecData->value = [];
+			$oRecDataValue = [];
+
+			/* 分组下的题目作为答案的内容 */
+			foreach ($oGroupScoreSchemas as $oScoreSchema) {
+				if (!in_array($oScoreSchema->id, $aGroupSchemasByScore[$groupSchemaId])) {
+					continue;
+				}
+				/* 模拟用户 */
+				if (isset($oScoreSchema->referRecord->ds->user)) {
+					$oMockAnswerUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oScoreSchema->referRecord->ds->user]);
+				} else {
+					$oMockAnswerUser = null;
+				}
+
+				$oRecCowork = new \stdClass;
+				$oRecCowork->aid = $oRecData->aid;
+				$oRecCowork->rid = $oRecData->rid;
+				$oRecCowork->enroll_key = $oRecData->enroll_key;
+				$oRecCowork->submit_at = $current;
+				$oRecCowork->userid = isset($oMockAnswerUser->uid) ? $oMockAnswerUser->uid : '';
+				$oRecCowork->nickname = isset($oMockAnswerUser->nickname) ? $modelData->escape($oMockAnswerUser->nickname) : '';
+				$oRecCowork->group_id = isset($oMockAnswerUser->group_id) ? $oMockAnswerUser->group_id : '';
+				$oRecCowork->schema_id = $oPosted->answerSchema;
+				$oRecCowork->value = $this->escape($oScoreSchema->title);
+				$oRecCowork->multitext_seq = count($oRecData->value) + 1;
+				$oRecCowork->id = $modelData->insert('xxt_enroll_record_data', $oRecCowork, true);
+
+				$oRecDataValue[] = (object) ['id' => $oRecCowork->id, 'value' => $oRecCowork->value];
+			}
+			/* 答案的根数据 */
+			$oRecData->value = $modelData->escape($modelData->toJson($oRecDataValue));
+			$oRecData->id = $modelData->insert('xxt_enroll_record_data', $oRecData, true);
+			/* 记录的数据 */
+			$oNewRecData->{$oPosted->answerSchema} = $oRecDataValue;
+			$modelData->update(
+				'xxt_enroll_record',
+				['data' => $this->escape($modelData->toJson($oNewRecData))],
+				['enroll_key' => $newek]
+			);
+
+			$newRecordNum++;
 		}
 
 		return new \ResponseData($newRecordNum);
@@ -1942,41 +2100,38 @@ class record extends main_base {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
-		if (false === ($app = $modelApp->byId($app))) {
+		if (false === ($oApp = $modelApp->byId($app))) {
 			return new \ResponseError('指定的活动不存在（1）');
 		}
-		if (false === ($fromApp = $modelApp->byId($fromApp))) {
+		if (false === ($oFromApp = $modelApp->byId($fromApp))) {
 			return new \ResponseError('指定的活动不存在（2）');
 		}
 
-		$dataSchemas = json_decode($app->data_schemas);
-		$fromDataSchemas = json_decode($fromApp->data_schemas);
-
 		/* 获得兼容的登记项 */
-		$compatibleSchemas = $modelRec->compatibleSchemas($dataSchemas, $fromDataSchemas);
+		$compatibleSchemas = $modelRec->compatibleSchemas($oApp->dynaDataSchemas, $oFromApp->dynaDataSchemas);
 		if (empty($compatibleSchemas)) {
 			return new \ResponseData('没有匹配的数据项');
 		}
 		/* 获得数据 */
-		$records = $modelRec->byApp($fromApp);
+		$oResult = $modelRec->byApp($oFromApp);
 		$countOfImport = 0;
-		if ($records->total > 0) {
-			foreach ($records->records as $record) {
+		if ($oResult->total > 0) {
+			foreach ($oResult->records as $oRecord) {
 				// 新登记
-				$user = new \stdClass;
-				$user->uid = $record->userid;
-				$user->nickname = $record->nickname;
+				$oEnrollee = new \stdClass;
+				$oEnrollee->uid = $oRecord->userid;
+				$oEnrollee->nickname = $oRecord->nickname;
 				$aOptions = [];
-				$aOptions['enrollAt'] = $record->enroll_at;
-				$aOptions['nickname'] = $record->nickname;
-				$ek = $modelRec->enroll($app, $user, $aOptions);
+				$aOptions['enrollAt'] = $oRecord->enroll_at;
+				$aOptions['nickname'] = $oRecord->nickname;
+				$ek = $modelRec->enroll($oApp, $oEnrollee, $aOptions);
 				// 登记数据
-				$data = new \stdClass;
+				$oRecData = new \stdClass;
 				foreach ($compatibleSchemas as $cs) {
-					if (empty($record->data->{$cs[0]->id})) {
+					if (empty($oRecord->data->{$cs[0]->id})) {
 						continue;
 					}
-					$val = $record->data->{$cs[0]->id};
+					$val = $oRecord->data->{$cs[0]->id};
 					if ($cs[0]->type === 'single') {
 						foreach ($cs[0]->ops as $index => $op) {
 							if ($op->v === $val) {
@@ -2008,9 +2163,9 @@ class record extends main_base {
 						}
 						$val = $val2;
 					}
-					$data->{$cs[1]->id} = $val;
+					$oRecData->{$cs[1]->id} = $val;
 				}
-				$modelRec->setData($user, $app, $ek, $data);
+				$modelRec->setData($oEnrollee, $oApp, $ek, $oRecData);
 				$countOfImport++;
 			}
 		}

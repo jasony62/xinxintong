@@ -148,6 +148,9 @@ define(['frame'], function(ngApp) {
         $scope.transferSchemaAndVotes = function() {
             srvEnrollRecord.transferSchemaAndVotes($scope.app);
         };
+        $scope.transferGroupAndMarks = function() {
+            srvEnrollRecord.transferGroupAndMarks($scope.app);
+        };
         $scope.fillByOther = function() {
             srvEnrollRecord.fillByOther($scope.app);
         };

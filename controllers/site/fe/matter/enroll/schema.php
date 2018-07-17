@@ -25,7 +25,7 @@ class schema extends base {
 		$modelSch = $this->model('matter\enroll\schema');
 		$modelSch->setDynaSchemas($oApp);
 
-		$dataSchemas = $oApp->dataSchemas;
+		$dataSchemas = $oApp->dynaDataSchemas;
 
 		return new \ResponseData($dataSchemas);
 	}

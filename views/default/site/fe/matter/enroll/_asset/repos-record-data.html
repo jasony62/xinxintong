@@ -46,7 +46,7 @@
                 <span ng-bind-html="rec.data[schema.id]._text"></span>
             </div>
             <div ng-switch-default>
-                <span ng-bind="rec.data[schema.id]"></span>
+                <span ng-bind-html="rec.data[schema.id]"></span>
             </div>
             <div ng-if="schema.cowork==='Y'">
                 <button class='btn btn-default btn-sm' ng-click="coworkRecord(rec)"><span ng-if="rec.coworkState[schema.id].length">查看全部（<span ng-bind="rec.coworkState[schema.id].length"></span>）或</span>添加 <span class='glyphicon glyphicon-menu-right'></span> <span class='text-muted' ng-if="rec._coworkRequireLikeNum">（还需要{{rec._coworkRequireLikeNum}}个<span class='glyphicon glyphicon-thumbs-up'></span>）</span>

@@ -185,11 +185,24 @@ utilSchema.optionsSubstitute = function(oSchema, value) {
     var val, aVal, aLab = [];
     if (val = value) {
         if (oSchema.ops && oSchema.ops.length) {
-            aVal = val.split(',');
-            oSchema.ops.forEach(function(op) {
-                aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-            });
-            val = aLab.join(',');
+            if (oSchema.type === 'score') {
+                var label = '';
+                oSchema.ops.forEach(function(op, index) {
+                    if (val[op.v] !== undefined) {
+                        label += '<div>' + op.l + ':' + val[op.v] + '</div>';
+                    }
+                });
+                label = label.replace(/\s\/\s$/, '');
+                return label;
+            }else if(angular.isString(val)) {
+                aVal = val.split(',');
+                oSchema.ops.forEach(function(op) {
+                    aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                });
+                val = aLab.join(','); 
+            }else if (angular.isObject(val) || angular.isArray(val)) {
+                val = JSON.stringify(val);
+            }
         }
     } else {
         val = '';

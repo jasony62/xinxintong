@@ -375,7 +375,7 @@ class record extends base {
 			/**
 			 * 检查登记数量
 			 */
-			if ($oApp->count_limit > 0) {
+			if (isset($oApp->count_limit) && $oApp->count_limit > 0) {
 				$records = $modelRec->byUser($oApp, $oUser);
 				if (count($records) >= $oApp->count_limit) {
 					return [false, ['已经进行过' . count($records) . '次登记，不允再次登记']];

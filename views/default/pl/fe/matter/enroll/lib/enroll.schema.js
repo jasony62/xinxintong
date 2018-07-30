@@ -475,7 +475,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     oMschema._schemas.forEach(function(oMsSchema) {
                                         if (oApp._schemasById[oMsSchema.id] === undefined) {
                                             oMsSchema.assocState = '';
-                                        } else if (oApp._schemasById[oMsSchema.id].type === 'member') {
+                                        } else if (oApp._schemasById[oMsSchema.id].schema_id === msid) {
                                             oMsSchema.assocState = 'yes';
                                         } else {
                                             oMsSchema.assocState = 'no';

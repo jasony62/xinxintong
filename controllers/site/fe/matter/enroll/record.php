@@ -90,7 +90,7 @@ class record extends base {
 		}
 
 		// 检查是否允许登记
-		$rst = $this->_canSubmit($oEnrollApp, $oUser, $oEnrolledData, $ek);
+		$rst = $this->_canSubmit($oEnrollApp, $oUser, $oEnrolledData, $ek, $rid);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -349,7 +349,7 @@ class record extends base {
 	 * 3、多选题选项的数量（schema.limitChoice, schema.range）
 	 *
 	 */
-	private function _canSubmit($oApp, $oUser, $oRecData, $ek) {
+	private function _canSubmit($oApp, $oUser, $oRecData, $ek, $rid = '') {
 		/**
 		 * 检查活动是否在进行过程中
 		 */
@@ -376,7 +376,7 @@ class record extends base {
 			 * 检查登记数量
 			 */
 			if (isset($oApp->count_limit) && $oApp->count_limit > 0) {
-				$records = $modelRec->byUser($oApp, $oUser);
+				$records = $modelRec->byUser($oApp, $oUser, ['rid' => $rid]);
 				if (count($records) >= $oApp->count_limit) {
 					return [false, ['已经进行过' . count($records) . '次登记，不允再次登记']];
 				}

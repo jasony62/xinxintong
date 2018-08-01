@@ -531,18 +531,15 @@ class import extends \pl\fe\matter\base {
 
 		if (isset($oOptions)) {
 			/* 导入记录关联系统用户ID */
-			if (isset($oOptions->assoc->userid) && true === $oOptions->assoc->userid) {
+			if (!empty($oOptions->assoc->source)) {
 				$oAssoc = $oOptions->assoc;
-				if (empty($oAssoc->source)) {
-					return [false, '导入记录关联【系统用户ID】参数不完整（1）'];
-				}
 				switch ($oAssoc->source) {
 				case 'app.mschema':
 					if (!isset($oApp->entryRule)) {
 						$oApp2 = $modelApp->byId($oApp->id, ['fields' => 'entry_rule']);
 						$oApp->entryRule = $oApp2->entryRule;
 					}
-					if (!isset($oApp->entryRule->member) && empty((array) $oApp->entryRule->member)) {
+					if (!isset($oApp->entryRule->member) || empty((array) $oApp->entryRule->member)) {
 						return [false, '导入记录关联【系统用户ID】参数不完整（2）'];
 					}
 					if (empty((object) $oAssoc->intersected)) {

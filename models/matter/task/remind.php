@@ -23,6 +23,7 @@ class remind_model extends \TMS_MODEL {
 
 			/* 获得活动的进入链接 */
 			$noticeURL = $oMatter->entryUrl;
+			$noticeURL .= '&origin=timer';
 
 			/* 获得用户 */
 			if (empty($oMatter->user_app_id)) {
@@ -71,8 +72,11 @@ class remind_model extends \TMS_MODEL {
 				return [false, '指定的活动不存在，或已不可用'];
 			}
 			$noticeURL = $oMatter->entryUrl; // 获得活动的进入链接
+			if (!empty($arguments) && is_object($arguments) && !empty($arguments->page)) {
+				$noticeURL .= '&page=' . $arguments->page;
+			}
+			$noticeURL .= '&origin=timer';
 			$noticeName = 'timer.enroll.remind'; // 事件的名称
-
 			/* 发送给通讯录中的用户 */
 			if (isset($oMatter->entryRule->scope->member) && $oMatter->entryRule->scope->member === 'Y' && isset($oMatter->entryRule->member)) {
 				$modelMs = $this->model('site\user\memberschema');

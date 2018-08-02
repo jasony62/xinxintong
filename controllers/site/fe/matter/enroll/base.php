@@ -77,7 +77,7 @@ class base extends \site\fe\matter\base {
 						}
 						$this->gotoMember($oApp, $aMemberSchemaIds);
 					} else {
-						$msg = '您没有填写通讯录信息，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+						$msg = '您【ID:' . $oUser->uid . '】没有填写通讯录信息，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
 						return [false, $msg];
 					}
 				}
@@ -95,22 +95,28 @@ class base extends \site\fe\matter\base {
 				/* 限分组用户访问 */
 				if (isset($oEntryRule->group->id)) {
 					$oGroupApp = $this->model('matter\group')->byId($oEntryRule->group->id, ['fields' => 'id,state,title']);
-					if ($oGroupApp && $oGroupApp->state === '1') {
-						$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
-						if (count($oGroupUsr)) {
-							$oGroupUsr = $oGroupUsr[0];
-							if (isset($oEntryRule->group->round->id)) {
-								if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
-									$bMatched = true;
-								}
-							} else {
+					if (false === $oGroupApp || $oGroupApp->state !== '1') {
+						$msg = '【' . $oApp->title . '】指定的分组活动不可访问，请联系活动的组织者解决。';
+						if (true === $bRedirect) {
+							$this->outputInfo($msg);
+						} else {
+							return [false, $msg];
+						}
+					}
+					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
+					if (count($oGroupUsr)) {
+						$oGroupUsr = $oGroupUsr[0];
+						if (isset($oEntryRule->group->round->id)) {
+							if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
 								$bMatched = true;
 							}
+						} else {
+							$bMatched = true;
 						}
 					}
 				}
 				if (false === $bMatched) {
-					$msg = '您目前的分组，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+					$msg = '您【ID:' . $oUser->uid . '】目前的分组，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
 					if (true === $bRedirect) {
 						$this->outputInfo($msg);
 					} else {

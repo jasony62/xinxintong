@@ -227,7 +227,7 @@ class main extends base {
 
 		if ($oOpenPage === null) {
 			if ($redirect === true) {
-				$this->outputError('指定的页面[' . $page . ']不存在');
+				$this->outputError('没有获得活动的默认页面，请联系活动管理员解决。');
 			}
 		}
 
@@ -250,7 +250,7 @@ class main extends base {
 			$oOpenedRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
 		}
 		/* 要打开的应用 */
-		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => self::AppFields, 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
+		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => '*', 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

@@ -27,32 +27,42 @@ class timer extends \pl\fe\base {
 		return new \ResponseData($oTask);
 	}
 	/**
-	 *
+	 * 素材指定的定时任务
 	 */
-	public function byMatter_action($type, $id) {
+	public function byMatter_action($type, $id, $model = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelTim = $this->model('matter\timer');
-		$tasks = $modelTim->byMatter($type, $id);
+		$tasks = $modelTim->byMatter($type, $id, ['model' => $model]);
 
 		return new \ResponseData($tasks);
 	}
 	/**
-	 * 添加定时任务
+	 * 给指定素材添加定时任务
 	 */
-	public function create_action($site) {
+	public function create_action() {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$oConfig = $this->getPostJson();
+
+		if (empty($oConfig->matter->type) || empty($oConfig->matter->id)) {
+			return new \ParameterError();
+		}
+		$oMatter = $this->model('matter\\' . $oConfig->matter->type)->byId($oConfig->matter->id, ['fields' => 'id,siteid', 'cascaded' => 'N']);
+		if (false === $oMatter) {
+			return new \ObjectNotFoundError();
+		}
+
 		$modelTim = $this->model('matter\timer');
 
 		$oTimer = new \stdClass;
 		$oTimer->matter_type = $oConfig->matter->type;
 		$oTimer->matter_id = $oConfig->matter->id;
-		$oTimer->siteid = $site;
+		$oTimer->siteid = $oMatter->siteid;
 		$oTimer->enabled = 'N';
 
 		$oTimer->task_model = $oConfig->task->model;
@@ -85,8 +95,10 @@ class timer extends \pl\fe\base {
 	}
 	/**
 	 * 更新定时任务属性信息
+	 *
+	 * @param int $id 任务ID
 	 */
-	public function update_action($site, $id) {
+	public function update_action($id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -126,7 +138,7 @@ class timer extends \pl\fe\base {
 		$rst = $this->model()->update(
 			'xxt_timer_task',
 			$oNewUpdate,
-			['siteid' => $site, 'id' => $id]
+			['id' => $id]
 		);
 
 		if (isset($oTaskArguments)) {
@@ -137,6 +149,8 @@ class timer extends \pl\fe\base {
 	}
 	/**
 	 * 删除定时任务
+	 *
+	 * @param int $id 任务ID
 	 */
 	public function remove_action($id) {
 		if (false === ($oUser = $this->accountUser())) {

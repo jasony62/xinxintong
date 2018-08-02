@@ -146,7 +146,7 @@ define(['frame'], function(ngApp) {
             $scope.qrcode = qrcodes.length ? qrcodes[0] : false;
         });
     }]);
-    ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvEnrollApp', function($scope, http2, $interval, $uibModal, srvEnrollApp) {
+    ngApp.provider.controller('ctrlReport', ['$scope', 'http2', '$interval', '$uibModal', 'srvEnrollApp', function($scope, http2, $interval, $uibModal, srvEnrollApp) {
         function listReceivers(app) {
             http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
                 var map = { wx: '微信', yx: '易信', qy: '企业号' };
@@ -272,7 +272,82 @@ define(['frame'], function(ngApp) {
         };
         srvEnrollApp.get().then(function(app) {
             listReceivers(app);
-            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + app.siteid + '&type=enroll&id=' + app.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + app.siteid + '&type=enroll&id=' + app.id + '&model=report', function(rsp) {
+                rsp.data.forEach(function(oTask) {
+                    oTimerTask[oTask.task_model].state = 'Y';
+                    oTimerTask[oTask.task_model].taskId = oTask.id;
+                    oTimerTask[oTask.task_model].task = {};
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'task_expire_at', 'enabled', 'notweekend', 'task_arguments'].forEach(function(prop) {
+                        oTimerTask[oTask.task_model].task[prop] = oTask[prop];
+                    });
+                    $scope.$watch('timerTask.' + oTask.task_model, function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
+                });
+            });
+        });
+    }]);
+    ngApp.provider.controller('ctrlRemind', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
+        var oTimerTask;
+        $scope.timerTask = oTimerTask = {
+            remind: {
+                modified: false,
+                state: 'N'
+            },
+        };
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            oTimerTask.remind.task.task_expire_at = data.value;
+        });
+        $scope.shiftTimerTask = function() {
+            var oOneTask;
+            oOneTask = oTimerTask.remind;
+            if (oOneTask.state === 'Y') {
+                var oConfig;
+                oConfig = {
+                    matter: { id: $scope.app.id, type: 'enroll' },
+                    task: { model: 'remind' }
+                }
+                http2.post('/rest/pl/fe/matter/timer/create?site=' + $scope.app.siteid, oConfig, function(rsp) {
+                    oOneTask.state = 'Y';
+                    oOneTask.taskId = rsp.data.id;
+                    oOneTask.task = {};
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
+                        oOneTask.task[prop] = '' + rsp.data[prop];
+                    });
+                    $scope.$watch('timerTask.remind', function(oUpdTask, oOldTask) {
+                        if (oUpdTask && oUpdTask.task) {
+                            if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                                oUpdTask.modified = true;
+                            }
+                        }
+                    }, true);
+                });
+            } else {
+                http2.get('/rest/pl/fe/matter/timer/remove?site=' + $scope.app.siteid + '&id=' + oOneTask.taskId, function(rsp) {
+                    oOneTask.state = 'N';
+                    delete oOneTask.taskId;
+                    delete oOneTask.task;
+                });
+            }
+        };
+        $scope.saveTimerTask = function() {
+            var oOneTask;
+            oOneTask = oTimerTask.remind;
+            if (oOneTask.state === 'Y') {
+                http2.post('/rest/pl/fe/matter/timer/update?site=' + $scope.app.siteid + '&id=' + oOneTask.taskId, oOneTask.task, function(rsp) {
+                    ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
+                        oOneTask.task[prop] = '' + rsp.data[prop];
+                    });
+                    oOneTask.modified = false;
+                });
+            }
+        };
+        srvEnrollApp.get().then(function(app) {
+            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + app.siteid + '&type=enroll&id=' + app.id + '&model=remind', function(rsp) {
                 rsp.data.forEach(function(oTask) {
                     oTimerTask[oTask.task_model].state = 'Y';
                     oTimerTask[oTask.task_model].taskId = oTask.id;

@@ -10,7 +10,7 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlImport', ['$scope', '$uibModal', 'http2', 'noticebox', function($scope, $uibModal, http2, noticebox) {
         $scope.importByExcel = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/importByExcel.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/importByExcel.html?_=2',
                 controller: ['$scope', '$timeout', '$uibModalInstance', 'srvEnrollRound', function($scope2, $timeout, $mi, srvEnlRnd) {
                     var oApp, oResu, oOptions;
                     oApp = $scope.app;
@@ -57,15 +57,19 @@ define(['frame'], function(ngApp) {
                     $scope2.options = oOptions = {
                         overwrite: '',
                         assoc: {
-                            userid: true,
-                            source: 'app.mschema'
-                        },
+                            source: ''
+                        }
                     };
                     $scope2.hasError = true; // 参数是否完整
+                    $scope2.assocSource = {}; // 用户系统ID来源
                     $scope2.intersectedValidNum = 0;
                     srvEnlRnd.list().then(function(oResult) {
                         $scope2.rounds = oResult.rounds;
                     });
+                    if (oApp.entryRule && oApp.entryRule.scope && oApp.entryRule.scope.member === 'Y' && oApp.entryRule.member && Object.keys(oApp.entryRule.member).length) {
+                        oOptions.assoc.soruce = 'app.mschema';
+                        $scope2.assocSource.mschema = true;
+                    }
                     $scope2.cancel = function() {
                         $mi.dismiss('cancel');
                     };
@@ -75,7 +79,7 @@ define(['frame'], function(ngApp) {
                         if (!oOptions.rid) {
                             $scope2.hasError = true;
                         }
-                        if (oOptions.assoc.userid) {
+                        if (oOptions.assoc.source) {
                             if (!oOptions.assoc.intersected || Object.keys(oOptions.assoc.intersected).length === 0) {
                                 $scope2.hasError = true;
                             } else {
@@ -90,8 +94,6 @@ define(['frame'], function(ngApp) {
                 windowClass: 'auto-height',
                 backdrop: 'static',
                 size: 'lg'
-            }).result.then(function() {
-
             });
         };
         $scope.downloadTemplate = function() {

@@ -194,13 +194,13 @@ utilSchema.optionsSubstitute = function(oSchema, value) {
                 });
                 label = label.replace(/\s\/\s$/, '');
                 return label;
-            }else if(angular.isString(val)) {
+            } else if (angular.isString(val)) {
                 aVal = val.split(',');
                 oSchema.ops.forEach(function(op) {
                     aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
                 });
-                val = aLab.join(','); 
-            }else if (angular.isObject(val) || angular.isArray(val)) {
+                val = aLab.join(',');
+            } else if (angular.isObject(val) || angular.isArray(val)) {
                 val = JSON.stringify(val);
             }
         }

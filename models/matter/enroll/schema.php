@@ -112,6 +112,12 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 			}
+			/* 是否可见 */
+			if (isset($oSchema->visibility)) {
+				if (empty($oSchema->visibility->rules)) {
+					unset($oSchema->visibility);
+				}
+			}
 
 			$purified[] = $oSchema;
 		}

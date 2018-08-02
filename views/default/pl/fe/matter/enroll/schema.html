@@ -122,14 +122,18 @@
                     <button ng-if="schema.id==='_round_id'" class='btn btn-sm btn-default' ng-click="refreshSchema(schema)">刷新 <span class='glyphicon glyphicon-refresh'></span></button>
                 </div>
                 <div ng-if="'Y'===schema.requireCheck">
-                    <p class='help-block'>需要【<span>{{assocApp(schema.fromApp).title}}</span>】中有题目【<span>{{assocAppSchema(schema).title}}</span>】的值与填写内容匹配的记录
+                    <div class='hint text-muted'>需要【<span>{{assocApp(schema.fromApp).title}}</span>】中有题目【<span>{{assocAppSchema(schema).title}}</span>】的值与填写内容匹配的记录
                         <button class='btn btn-default btn-xs' ng-click="unassocWithOtherApp(schema) "><span class='glyphicon glyphicon-remove'></span></button>
-                    </p>
+                    </div>
                 </div>
                 <div ng-if="schema.schema_id">
-                    <p class='help-block'>用通讯录【<span>{{mschemasById[schema.schema_id].title}}</span>】中【<span>{{mschemasById[schema.schema_id]._schemasById[schema.id].title}}</span>】自动填写
+                    <div class='hint text-muted'>用通讯录【<span>{{mschemasById[schema.schema_id].title}}</span>】中【<span>{{mschemasById[schema.schema_id]._schemasById[schema.id].title}}</span>】自动填写
                         <button class='btn btn-default btn-xs' ng-click="unassocWithMschema(schema) "><span class='glyphicon glyphicon-remove'></span></button>
-                    </p>
+                    </div>
+                </div>
+                <div class='hint'>
+                    <span class='text-danger small' ng-if="schema.required==='Y'">必填</span>
+                    <span class='text-danger small' ng-if="schema.shareable==='Y'">共享</span>
                 </div>
             </div>
         </div>

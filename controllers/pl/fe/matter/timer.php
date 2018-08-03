@@ -59,39 +59,39 @@ class timer extends \pl\fe\base {
 
 		$modelTim = $this->model('matter\timer');
 
-		$oTimer = new \stdClass;
-		$oTimer->matter_type = $oConfig->matter->type;
-		$oTimer->matter_id = $oConfig->matter->id;
-		$oTimer->siteid = $oMatter->siteid;
-		$oTimer->enabled = 'N';
+		$oNewTimer = new \stdClass;
+		$oNewTimer->matter_type = $oConfig->matter->type;
+		$oNewTimer->matter_id = $oConfig->matter->id;
+		$oNewTimer->siteid = $oMatter->siteid;
+		$oNewTimer->enabled = 'N';
 
-		$oTimer->task_model = $oConfig->task->model;
-		!empty($oConfig->task->arguments) && $oTimer->task_arguments = $this->escape($modelTim->toJson($oConfig->task->arguments));
-		$oTimer->task_expire_at = isset($oTimer->expireAt) ? $oTimer->expireAt : 0;
+		$oNewTimer->task_model = $oConfig->task->model;
+		!empty($oConfig->task->arguments) && $oNewTimer->task_arguments = $this->escape($modelTim->toJson($oConfig->task->arguments));
+		$oNewTimer->task_expire_at = isset($oNewTimer->expireAt) ? $oNewTimer->expireAt : 0;
 
 		if (isset($oConfig->timer)) {
-			isset($oConfig->timer->min) && $oTimer->min = $oConfig->timer->min;
-			isset($oConfig->timer->hour) && $oTimer->hour = $oConfig->timer->hour;
-			isset($oConfig->timer->mday) && $oTimer->mday = $oConfig->timer->mday;
-			isset($oConfig->timer->mon) && $oTimer->mon = $oConfig->timer->mon;
-			isset($oConfig->timer->wday) && $oTimer->wday = $oConfig->timer->wday;
-			$oTimer->wday = isset($oConfig->timer->wday) ? $oConfig->timer->wday : 'Y';
-			isset($oConfig->timer->lelf_count) && $oTimer->left_count = $oConfig->timer->left_count;
+			isset($oConfig->timer->min) && $oNewTimer->min = $oConfig->timer->min;
+			isset($oConfig->timer->hour) && $oNewTimer->hour = $oConfig->timer->hour;
+			isset($oConfig->timer->mday) && $oNewTimer->mday = $oConfig->timer->mday;
+			isset($oConfig->timer->mon) && $oNewTimer->mon = $oConfig->timer->mon;
+			isset($oConfig->timer->wday) && $oNewTimer->wday = $oConfig->timer->wday;
+			$oNewTimer->wday = isset($oConfig->timer->wday) ? $oConfig->timer->wday : 'Y';
+			isset($oConfig->timer->lelf_count) && $oNewTimer->left_count = $oConfig->timer->left_count;
 		} else {
-			$oTimer->pattern = 'W';
-			$oTimer->mday = $oTimer->mon = $oTimer->wday = -1;
-			$oTimer->min = 0;
-			$oTimer->hour = 8;
-			$oTimer->notweekend = 'Y';
-			$oTimer->left_count = 1;
+			$oNewTimer->pattern = 'W';
+			$oNewTimer->mday = $oNewTimer->mon = $oNewTimer->wday = -1;
+			$oNewTimer->min = 0;
+			$oNewTimer->hour = 8;
+			$oNewTimer->notweekend = 'Y';
+			$oNewTimer->left_count = 1;
 		}
 
-		$oTimer->id = $modelTim->insert('xxt_timer_task', $oTimer, true);
-		if (isset($oTimer->task_arguments)) {
-			$oTimer->task_arguments = json_decode($oTimer->task_arguments);
+		$oNewTimer->id = $modelTim->insert('xxt_timer_task', $oNewTimer, true);
+		if (!empty($oNewTimer->task_arguments)) {
+			$oNewTimer->task_arguments = $oConfig->task->arguments;
 		}
 
-		return new \ResponseData($oTimer);
+		return new \ResponseData($oNewTimer);
 	}
 	/**
 	 * 更新定时任务属性信息

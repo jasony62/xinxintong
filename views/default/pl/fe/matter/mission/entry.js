@@ -1,27 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEntry', ['$scope', '$q', 'http2', 'srvQuickEntry', '$timeout', 'srvSite', function($scope, $q, http2, srvQuickEntry, $timeout, srvSite) {
-        /* 加载从数据库中返回的定时任务 */
-        function fnLoadDbTask(tasks, oDbTask) {
-            var oLocalTask;
-            oLocalTask = {
-                id: oDbTask.id,
-                task: {},
-                modified: false
-            };
-            ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
-                oLocalTask.task[prop] = '' + oDbTask[prop];
-            });
-            tasks.push(oLocalTask);
-            oTimerTask['t_' + oLocalTask.id] = oLocalTask;
-            $scope.$watch('timerTask.t_' + oLocalTask.id, function(oUpdTask, oOldTask) {
-                if (oUpdTask && oUpdTask.task) {
-                    if (!angular.equals(oUpdTask.task, oOldTask.task)) {
-                        oUpdTask.modified = true;
-                    }
-                }
-            }, true);
-        }
+    ngApp.provider.controller('ctrlEntry', ['$scope', 'srvQuickEntry', '$timeout', 'srvSite', 'srvTimerNotice', function($scope, srvQuickEntry, $timeout, srvSite, srvTimerNotice) {
         var targetUrl, host, opEntry;
         $scope.opEntry = opEntry = {};
         $timeout(function() {
@@ -50,53 +29,15 @@ define(['frame'], function(ngApp) {
         $scope.updCanFavor = function() {
             srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
         };
-        var oTimerTask;
-        $scope.timerTask = oTimerTask = {};
-        /* 获得指定类型的定时任务 */
-        $scope.timerTaskList = function(model) {
-            var defer = $q.defer();
-            http2.get('/rest/pl/fe/matter/timer/byMatter?type=mission&id=' + $scope.mission.id + '&model=' + model, function(rsp) {
-                var tasks = [];
-                rsp.data.forEach(function(oTask) {
-                    fnLoadDbTask(tasks, oTask);
-                });
-                defer.resolve(tasks);
-            });
-            return defer.promise;
-        };
-        /* 定时任务结束时间 */
+        /* 定时任务服务 */
+        $scope.srvTimer = srvTimerNotice;
+        /* 定时任务截止时间 */
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-            oTimerTask['t_' + data.state].task.task_expire_at = data.value;
+            var oTimer;
+            if (oTimer = $scope.srvTimer.timerById(data.state)) {
+                oTimer.task.task_expire_at = data.value;
+            }
         });
-        /* 定时任务设置更新 */
-        $scope.saveTimerTask = function(oOneTask) {
-            http2.post('/rest/pl/fe/matter/timer/update?id=' + oOneTask.id, oOneTask.task, function(rsp) {
-                ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
-                    oOneTask.task[prop] = '' + rsp.data[prop];
-                });
-                oOneTask.modified = false;
-            });
-        };
-        /* 添加定时任务 */
-        $scope.addTimerTask = function(tasks, model) {
-            var oConfig;
-            oConfig = {
-                matter: { id: $scope.mission.id, type: 'mission' },
-                task: { model: model }
-            }
-            http2.post('/rest/pl/fe/matter/timer/create', oConfig, function(rsp) {
-                fnLoadDbTask(tasks, rsp.data);
-            });
-        };
-        /* 删除定时任务 */
-        $scope.delTimerTask = function(tasks, index) {
-            var oOneTask = tasks[index];
-            if (window.confirm('确定删除定时任务？')) {
-                http2.get('/rest/pl/fe/matter/timer/remove?id=' + oOneTask.id, function(rsp) {
-                    tasks.splice(index, 1);
-                });
-            }
-        };
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
             /* 监督人入口 */
@@ -179,11 +120,11 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlRemind', ['$scope', 'http2', '$interval', '$uibModal', 'srvSite', function($scope, http2, $interval, $uibModal, srvSite) {
+    ngApp.provider.controller('ctrlRemind', ['$scope', function($scope) {
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
-            $scope.timerTaskList('remind').then(function(tasks) {
-                $scope.tasks = tasks;
+            $scope.srvTimer.list(oMission, 'remind').then(function(timers) {
+                $scope.timers = timers;
             });
         });
     }]);
@@ -264,8 +205,8 @@ define(['frame'], function(ngApp) {
             if (!oMission) return;
             listReceivers(oMission);
             /* 定时推送 */
-            $scope.timerTaskList('report').then(function(tasks) {
-                $scope.tasks = tasks;
+            $scope.srvTimer.list(oMission, 'report').then(function(timers) {
+                $scope.timers = timers;
             });
         });
     }]);

@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEntry', ['$scope', '$q', 'http2', 'mediagallery', '$timeout', 'srvEnrollApp', 'srvTimerNotice', function($scope, $q, http2, mediagallery, $timeout, srvEnrollApp, srvTimerNotice) {
+    ngApp.provider.controller('ctrlEntry', ['$scope', 'mediagallery', '$timeout', 'srvEnrollApp', 'srvTimerNotice', function($scope, mediagallery, $timeout, srvEnrollApp, srvTimerNotice) {
         $timeout(function() {
             new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         });
@@ -229,7 +229,7 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlRemind', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
+    ngApp.provider.controller('ctrlRemind', ['$scope', 'srvEnrollApp', function($scope, srvEnrollApp) {
         srvEnrollApp.get().then(function(oApp) {
             $scope.srvTimer.list(oApp, 'remind').then(function(timers) {
                 $scope.timers = timers;

@@ -161,10 +161,14 @@ class event_model extends \TMS_MODEL {
 				}
 			}
 			if (isset($oUpdatedRndUsrData)) {
-				$modelUsr->modify($oEnlUsrRnd, $oUpdatedRndUsrData);
+				$oUpdateUsrData1 = $oUpdatedRndUsrData;
 			} else {
-				$modelUsr->modify($oEnlUsrRnd, $oUpdatedEnlUsrData);
+				$oUpdateUsrData1 = $oUpdatedEnlUsrData;
 			}
+			if ($oEnlUsrRnd->state == 0) {
+				$oUpdateUsrData1->state = 1;
+			}
+			$modelUsr->modify($oEnlUsrRnd, $oUpdateUsrData1);
 		}
 		$oEnlUsrApp = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => 'ALL']);
 		if (false === $oEnlUsrApp) {
@@ -183,10 +187,14 @@ class event_model extends \TMS_MODEL {
 				}
 			}
 			if (isset($oUpdatedAppUsrData)) {
-				$modelUsr->modify($oEnlUsrApp, $oUpdatedAppUsrData);
+				$oUpdatedUsrData2 = $oUpdatedAppUsrData;
 			} else {
-				$modelUsr->modify($oEnlUsrApp, $oUpdatedEnlUsrData);
+				$oUpdatedUsrData2 = $oUpdatedEnlUsrData;
 			}
+			if ($oEnlUsrRnd->state == 0) {
+				$oUpdatedUsrData2->state = 1;
+			}
+			$modelUsr->modify($oEnlUsrApp, $oUpdatedUsrData2);
 		}
 
 		/* 更新项目用户数据 */

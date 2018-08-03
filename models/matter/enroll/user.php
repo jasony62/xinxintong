@@ -20,6 +20,9 @@ class user_model extends \TMS_MODEL {
 		} else {
 			$q[2]['rid'] = 'ALL';
 		}
+		if (isset($aOptions['state'])) {
+			$q[2]['state'] = $aOptions['state'];
+		}
 
 		$oUser = $this->query_obj_ss($q);
 		if ($oUser) {
@@ -204,10 +207,9 @@ class user_model extends \TMS_MODEL {
 				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;
 				break;
 			case 'score':
-				$aDbData[$field] = $value;
-				break;
+			case 'state':
 			case 'group_id':
-				$aDbData['group_id'] = $value;
+				$aDbData[$field] = $value;
 				break;
 			case 'modify_log':
 				if (empty($oBeforeData->modify_log)) {

@@ -1136,7 +1136,7 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
         ['pattern', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
             oLocal.task[prop] = oDb[prop];
         });
-        ['min', 'hour', 'wday', 'mday', 'mon'].forEach(function(prop) {
+        ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
             oLocal.task[prop] = '' + oDb[prop];
         });
         oLocal.task.task_arguments = oDb.task_arguments ? oDb.task_arguments : { page: '' };

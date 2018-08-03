@@ -20,9 +20,6 @@ class user_model extends \TMS_MODEL {
 		} else {
 			$q[2]['rid'] = 'ALL';
 		}
-		if (isset($aOptions['state'])) {
-			$q[2]['state'] = $aOptions['state'];
-		}
 
 		$oUser = $this->query_obj_ss($q);
 		if ($oUser) {

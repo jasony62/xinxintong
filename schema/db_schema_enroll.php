@@ -825,6 +825,7 @@ $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log
 $sql .= ",referrer text null"; //
 $sql .= ",round_id varchar(32) not null default ''";
 $sql .= ",round_title varchar(40) not null default ''";
+$sql .= ",role_rounds varchar(255) not null default ''";
 $sql .= ",draw_at int not null";
 $sql .= ",data text null"; // 登记的数据项
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

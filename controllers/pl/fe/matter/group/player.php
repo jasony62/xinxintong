@@ -25,7 +25,12 @@ class player extends \pl\fe\matter\base {
 		$modelPlayer = $this->model('matter\group\player');
 
 		$oApp = $modelGrp->byId($app);
-		$result = $modelPlayer->byApp($oApp);
+		$filter = $this->getPostJson();
+		$options = [];
+		if (isset($filter->roleRoundId)) {
+			$options['roleRoundId'] = $modelPlayer->escape($filter->roleRoundId);
+		}
+		$result = $modelPlayer->byApp($oApp, $options);
 
 		return new \ResponseData($result);
 	}
@@ -395,6 +400,7 @@ class player extends \pl\fe\matter\base {
 			return new \ResponseError($result[1]);
 		}
 		$oPlayer->data = json_decode($result[1]);
+		$oPlayer->role_rounds = [];
 
 		return new \ResponseData($oPlayer);
 	}
@@ -418,6 +424,10 @@ class player extends \pl\fe\matter\base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		$player = $modelPly->byId($oApp->id, $ek, ['fields' => 'userid,state']);
+		if (false === $player || $player->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
 		/* 更新记录数据 */
 		$oNewPlayer = new \stdClass;
@@ -431,7 +441,7 @@ class player extends \pl\fe\matter\base {
 			$oNewPlayer->tags = $modelPly->escape($oPosted->tags);
 		}
 		if (empty($oPosted->round_id)) {
-			$oNewPlayer->round_id = 0;
+			$oNewPlayer->round_id = '';
 			$oNewPlayer->round_title = '';
 		} else {
 			$modelRnd = $this->model('matter\group\round');
@@ -440,6 +450,16 @@ class player extends \pl\fe\matter\base {
 				$oNewPlayer->round_title = $round->title;
 			}
 		}
+		if (empty($oPosted->role_rounds)) {
+			$oNewPlayer->role_rounds = '';
+		} else if (!empty($player->userid)) {
+			$roleRounds = [];
+			foreach ($oPosted->role_rounds as $roleRound) {
+				$roleRounds[] = $roleRound;
+			}
+			$oNewPlayer->role_rounds = json_encode($roleRounds);
+		}
+
 		$modelPly->update(
 			'xxt_group_player',
 			$oNewPlayer,

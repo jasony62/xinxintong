@@ -48,7 +48,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.addPlayer = function() {
-            srvGroupPlayer.edit({ tags: '' , role_rounds: []}).then(function(updated) {
+            srvGroupPlayer.edit({ tags: '', role_rounds: [] }).then(function(updated) {
                 srvGroupPlayer.add(updated.player);
             });
         };
@@ -143,7 +143,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.criteria = _oCriteria = {
             round: { round_id: 'all' },
-            roleRound: {round_id: 'all'}
+            roleRound: { round_id: 'all' }
         };
         $scope.$watch('app', function(oApp) {
             if (oApp) {
@@ -157,7 +157,18 @@ define(['frame'], function(ngApp) {
             }
         });
         srvGroupRound.list().then(function(rounds) {
-            $scope.rounds = rounds;
+            $scope.teamRounds = [];
+            $scope.roleRounds = [];
+            rounds.forEach(function(oRound) {
+                switch (oRound.round_type) {
+                    case 'T':
+                        $scope.teamRounds.push(oRound);
+                        break;
+                    case 'R':
+                        $scope.roleRounds.push(oRound);
+                        break;
+                }
+            });
         });
     }]);
 });

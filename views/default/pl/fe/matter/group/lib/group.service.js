@@ -19,7 +19,8 @@ provider('srvGroupApp', function() {
                 } else {
                     url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _appId;
                     http2.get(url, function(rsp) {
-                        var url, schemasById = {}, roundsById = {};
+                        var url, schemasById = {},
+                            roundsById = {};
                         _oApp = rsp.data;
                         _oApp.tags = (!_oApp.tags || _oApp.tags.length === 0) ? [] : _oApp.tags.split(',');
                         try {
@@ -368,6 +369,7 @@ provider('srvGroupApp', function() {
             },
             list: function(round, arg) {
                 arg == 'round' ? commonRound(this) : roleRound(this);
+
                 function commonRound(obj) {
                     if (round === undefined) {
                         round = _activeRound;
@@ -380,13 +382,14 @@ provider('srvGroupApp', function() {
                         return obj.winners(round);
                     }
                 }
+
                 function roleRound(obj) {
                     if (round === null) {
-                        return obj.all({roleRoundId: 'all'});
+                        return obj.all({ roleRoundId: 'all' });
                     } else if (round === false) {
-                        return obj.all({roleRoundId: 'pending'});
+                        return obj.all({ roleRoundId: 'pending' });
                     } else {
-                        return obj.all({roleRoundId: round.round_id});
+                        return obj.all({ roleRoundId: round.round_id });
                     }
                 }
             },
@@ -569,7 +572,7 @@ provider('srvGroupApp', function() {
                                     targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
                                 }
                             });
-                        } 
+                        }
                         targetAndMsg.message = notify.message;
 
                         url = '/rest/pl/fe/matter/group/notice/send';
@@ -606,7 +609,18 @@ provider('srvGroupApp', function() {
     srvGroupApp.get().then(function(oApp) {
         $scope.app = oApp;
         srvGroupRound.list().then(function(rounds) {
-            $scope.rounds = rounds;
+            $scope.teamRounds = [];
+            $scope.roleRounds = [];
+            rounds.forEach(function(oRound) {
+                switch (oRound.round_type) {
+                    case 'T':
+                        $scope.teamRounds.push(oRound);
+                        break;
+                    case 'R':
+                        $scope.roleRounds.push(oRound);
+                        break;
+                }
+            });
             var obj = {};
             if (player.role_rounds && player.role_rounds.length) {
                 player.role_rounds.forEach(function(roundId) {
@@ -637,16 +651,16 @@ provider('srvGroupApp', function() {
     };
     $scope.ok = function() {
         var oNewPlayer, oScopePlayer;
-        if($scope.player._role_rounds) {
-            for(var i in $scope.player._role_rounds) {
-                if($scope.player._role_rounds[i]&&$scope.player.role_rounds.indexOf(i)===-1) {
+        if ($scope.player._role_rounds) {
+            for (var i in $scope.player._role_rounds) {
+                if ($scope.player._role_rounds[i] && $scope.player.role_rounds.indexOf(i) === -1) {
                     $scope.player.role_rounds.push(i);
                 }
-                if(!$scope.player._role_rounds[i]&&$scope.player.role_rounds.indexOf(i)!==-1) {
+                if (!$scope.player._role_rounds[i] && $scope.player.role_rounds.indexOf(i) !== -1) {
                     $scope.player.role_rounds.splice(i, 1);
                 }
             }
-        } 
+        }
         oScopePlayer = $scope.player;
         oNewPlayer = {
             data: {},

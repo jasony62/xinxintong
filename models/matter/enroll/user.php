@@ -204,10 +204,9 @@ class user_model extends \TMS_MODEL {
 				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;
 				break;
 			case 'score':
-				$aDbData[$field] = $value;
-				break;
+			case 'state':
 			case 'group_id':
-				$aDbData['group_id'] = $value;
+				$aDbData[$field] = $value;
 				break;
 			case 'modify_log':
 				if (empty($oBeforeData->modify_log)) {

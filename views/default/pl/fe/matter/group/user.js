@@ -32,13 +32,13 @@ define(['frame'], function(ngApp) {
         $scope.execute = function() {
             srvGroupPlayer.execute();
         };
-        $scope.list = function() {
-            if (_oCriteria.round.round_id === 'all') {
-                srvGroupPlayer.list(null);
-            } else if (_oCriteria.round.round_id === 'pending') {
-                srvGroupPlayer.list(false);
+        $scope.list = function(arg) {
+            if (_oCriteria[arg].round_id === 'all') {
+                srvGroupPlayer.list(null, arg);
+            } else if (_oCriteria[arg].round_id === 'pending') {
+                srvGroupPlayer.list(false, arg);
             } else {
-                srvGroupPlayer.list(_oCriteria.round);
+                srvGroupPlayer.list(_oCriteria[arg]);
             }
         };
         $scope.editPlayer = function(player) {
@@ -48,7 +48,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.addPlayer = function() {
-            srvGroupPlayer.edit({ tags: '' }).then(function(updated) {
+            srvGroupPlayer.edit({ tags: '' , role_rounds: []}).then(function(updated) {
                 srvGroupPlayer.add(updated.player);
             });
         };
@@ -116,13 +116,13 @@ define(['frame'], function(ngApp) {
                 }
                 $(this.target).trigger('hide');
             },
-            cancel: function() {
-                _oCriteria.round.round_id = 'all';
-                $scope.list();
+            cancel: function(arg) {
+                _oCriteria[arg].round_id = 'all';
+                $scope.list(arg);
                 this.close();
             },
-            exec: function() {
-                $scope.list();
+            exec: function(arg) {
+                $scope.list(arg);
                 this.close();
             }
         };
@@ -142,7 +142,8 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.criteria = _oCriteria = {
-            round: { round_id: 'all' }
+            round: { round_id: 'all' },
+            roleRound: {round_id: 'all'}
         };
         $scope.$watch('app', function(oApp) {
             if (oApp) {
@@ -150,7 +151,7 @@ define(['frame'], function(ngApp) {
                     $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
                 }
                 srvGroupPlayer.init(players).then(function() {
-                    $scope.list();
+                    $scope.list('round');
                     $scope.tableReady = 'Y';
                 });
             }

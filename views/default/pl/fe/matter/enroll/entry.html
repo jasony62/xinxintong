@@ -228,20 +228,28 @@
             <div class='timer' ng-repeat="timer in timers">
                 <div class='form-group'>
                     <label class='radio-inline'>
-                        <input type='radio' value='' ng-model="timer.task.task_arguments.page">按照活动进入规则</label>
+                        <input type='radio' name='noticePage' value='' ng-model="timer.task.task_arguments.page">按照活动进入规则</label>
                     <label class='radio-inline'>
-                        <input type='radio' value='repos' ng-model="timer.task.task_arguments.page">共享页</label>
+                        <input type='radio' name='noticePage' value='repos' ng-model="timer.task.task_arguments.page">共享页</label>
                     <label class='radio-inline'>
-                        <input type='radio' value='event' ng-model="timer.task.task_arguments.page">动态页</label>
+                        <input type='radio' name='noticePage' value='event' ng-model="timer.task.task_arguments.page">动态页</label>
                     <label class='radio-inline'>
-                        <input type='radio' value='rank' ng-model="timer.task.task_arguments.page">排行榜</label>
+                        <input type='radio' name='noticePage' value='rank' ng-model="timer.task.task_arguments.page">排行榜</label>
+                </div>
+                <div class='form-group'>
+                    <label class='radio-inline'>
+                        <input type='radio' name='receiverScope' value='enroll' ng-model="timer.task.task_arguments.receiver.scope">填写人</label>
+                    <label class='radio-inline'>
+                        <input type='radio' name='receiverScope' value='mschema' ng-model="timer.task.task_arguments.receiver.scope">通讯录</label>
+                    <label class='radio-inline'>
+                        <input type='radio' name='receiverScope' value='group' ng-model="timer.task.task_arguments.receiver.scope">分组活动</label>
                 </div>
                 <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
                 <hr>
             </div>
             <!--end timer-->
             <div>
-                <button class='btn btn-default' ng-click="srvTimer.add(app,timers,'remind',{page:''})">添加定时发送规则</button>
+                <button class='btn btn-default' ng-click="srvTimer.add(app,timers,'remind',{page:'',receiver:{scope:'enroll'}})">添加定时发送规则</button>
             </div>
         </div>
     </div>

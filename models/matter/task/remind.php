@@ -151,7 +151,7 @@ class remind_model extends \TMS_MODEL {
 					'xxt_group_player',
 					['state' => 1, 'aid' => $oMatter->entryRule->group->id],
 				];
-				$receivers = $modelMission->query_objs_ss($q);
+				$receivers = $modelEnl->query_objs_ss($q);
 			}
 			break;
 		case 'enroll':

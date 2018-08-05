@@ -545,7 +545,7 @@ provider('srvGroupApp', function() {
             },
             edit: function(player) {
                 return $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/group/component/playerEditor.html?_=4',
+                    templateUrl: '/views/default/pl/fe/matter/group/component/userEditor.html?_=1',
                     controller: 'ctrlGroupEditor',
                     windowClass: 'auto-height',
                     resolve: {

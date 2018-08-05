@@ -191,7 +191,7 @@ class event_model extends \TMS_MODEL {
 			} else {
 				$oUpdatedUsrData2 = $oUpdatedEnlUsrData;
 			}
-			if ($oEnlUsrRnd->state == 0) {
+			if ($oEnlUsrApp->state == 0) {
 				$oUpdatedUsrData2->state = 1;
 			}
 			$modelUsr->modify($oEnlUsrApp, $oUpdatedUsrData2);

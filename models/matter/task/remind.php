@@ -151,6 +151,9 @@ class remind_model extends \TMS_MODEL {
 					'xxt_group_player',
 					['state' => 1, 'aid' => $oMatter->entryRule->group->id],
 				];
+				if (!empty($oMatter->entryRule->group->round->id)) {
+					$q[2]['round_id'] = $oMatter->entryRule->group->round->id;
+				}
 				$receivers = $modelEnl->query_objs_ss($q);
 			}
 			break;

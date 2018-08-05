@@ -183,7 +183,6 @@ class main extends \pl\fe\matter\main_base {
 						'type' => $ep->type,
 						'data_schemas' => $modelApp->escape($ep->data_schemas),
 						'act_schemas' => $modelApp->escape($ep->act_schemas),
-						'user_schemas' => $modelApp->escape($ep->user_schemas),
 					],
 					"aid='{$oNewApp->id}' and id=$newPage->id"
 				);

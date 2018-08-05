@@ -338,8 +338,8 @@ class player_model extends \TMS_MODEL {
 		}
 		$fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,wx_openid,yx_openid,qy_openid,headimgurl,round_id,round_title,role_rounds';
 
-		$result = new \stdClass; // 返回的结果
-		$result->total = 0;
+		$oResult = new \stdClass; // 返回的结果
+		$oResult->total = 0;
 		/* 数据过滤条件 */
 		$w = "state=1 and aid='{$oApp->id}'";
 		/*tags*/
@@ -382,14 +382,14 @@ class player_model extends \TMS_MODEL {
 				}
 			}
 
-			$result->players = $players;
+			$oResult->players = $players;
 			/* total */
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
-			$result->total = $total;
+			$oResult->total = $total;
 		}
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 获得用户的登记
@@ -542,11 +542,11 @@ class player_model extends \TMS_MODEL {
 	 */
 	public function &pendings($appId) {
 		/* 没有抽中过的用户 */
-		$q = array(
+		$q = [
 			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,data,tags,comment,role_rounds',
 			'xxt_group_player',
 			"aid='$appId' and state=1 and round_id=0",
-		);
+		];
 		$q2['o'] = 'enroll_at desc';
 		/* 获得用户的登记数据 */
 		if (($players = $this->query_objs_ss($q, $q2)) && !empty($players)) {
@@ -583,14 +583,14 @@ class player_model extends \TMS_MODEL {
 
 		if ($players = $this->query_objs_ss($q, $q2)) {
 			if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_rounds')) {
-				foreach ($players as $player) {
-					if (!empty($player->data)) {
-						$player->data = json_decode($player->data);
+				foreach ($players as $oPlayer) {
+					if (!empty($oPlayer->data)) {
+						$oPlayer->data = json_decode($oPlayer->data);
 					}
-					if (!empty($player->role_rounds)) {
-						$player->role_rounds = json_decode($player->role_rounds);
+					if (!empty($oPlayer->role_rounds)) {
+						$oPlayer->role_rounds = json_decode($oPlayer->role_rounds);
 					} else {
-						$player->role_rounds = [];
+						$oPlayer->role_rounds = [];
 					}
 				}
 			}

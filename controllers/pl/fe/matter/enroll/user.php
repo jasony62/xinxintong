@@ -34,16 +34,16 @@ class user extends \pl\fe\matter\base {
 		!empty($post->rid) && $aOptions['rid'] = $post->rid;
 		!empty($post->onlyEnrolled) && $aOptions['onlyEnrolled'] = $post->onlyEnrolled;
 
-		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
+		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
 		/* 由于版本原因，判断是否需要系统获取填写人信息 */
-		if (0 === count($result->users)) {
+		if (0 === count($oResult->users)) {
 			if ($this->_refresh($oApp) > 0) {
-				$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
+				$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
 			}
 		}
 
 		/* 查询有openid的用户发送消息的情况 */
-		if (count($result->users)) {
+		if (count($oResult->users)) {
 			if (!empty($oApp->group_app_id)) {
 				foreach ($oApp->dataSchemas as $schema) {
 					if ($schema->id == '_round_id') {
@@ -52,7 +52,7 @@ class user extends \pl\fe\matter\base {
 					}
 				}
 			}
-			foreach ($result->users as &$user) {
+			foreach ($oResult->users as &$user) {
 				$q = [
 					'd.tmplmsg_id,d.status,b.create_at',
 					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
@@ -77,7 +77,7 @@ class user extends \pl\fe\matter\base {
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 缺席用户列表
@@ -99,10 +99,10 @@ class user extends \pl\fe\matter\base {
 
 		$modelUsr = $this->model('matter\enroll\user');
 		/* 获得当前活动的参与人 */
-		$oUsers = $modelUsr->enrolleeByApp($oApp, '', '', ['fields' => 'id,userid', 'onlyEnrolled' => 'Y', 'cascaded' => 'N', 'rid' => $rid]);
-		$result = $modelUsr->absentByApp($oApp, $oUsers->users, $rid);
+		$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['fields' => 'id,userid', 'onlyEnrolled' => 'Y', 'cascaded' => 'N', 'rid' => $rid]);
+		$oResult = $modelUsr->absentByApp($oApp, $oEnrollees->users, $rid);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 根据通讯录返回用户完成情况
@@ -127,10 +127,10 @@ class user extends \pl\fe\matter\base {
 		$modelUsr = $this->model('matter\enroll\user');
 		$options = [];
 		!empty($rid) && $options['rid'] = $rid;
-		$result = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page, $size, $options);
+		$oResult = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page, $size, $options);
 		/*查询有openid的用户发送消息的情况*/
-		if (count($result->members)) {
-			foreach ($result->members as $member) {
+		if (count($oResult->members)) {
+			foreach ($oResult->members as $member) {
 				$q = [
 					'd.tmplmsg_id,d.status,b.create_at',
 					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
@@ -148,7 +148,7 @@ class user extends \pl\fe\matter\base {
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 发表过留言的用户
@@ -165,9 +165,9 @@ class user extends \pl\fe\matter\base {
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-		$result = $modelUsr->remarkerByApp($oApp, $page, $size);
+		$oResult = $modelUsr->remarkerByApp($oApp, $page, $size);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 数据导出
@@ -205,13 +205,13 @@ class user extends \pl\fe\matter\base {
 			}
 			$options = [];
 			!empty($rid) && $options['rid'] = $rid;
-			$result = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page = '', $size = '', $options);
-			$data = $result->members;
+			$oResult = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page = '', $size = '', $options);
+			$data = $oResult->members;
 		} else {
 			$options = [];
 			!empty($rid) && $options['rid'] = $rid;
-			$result = $modelUsr->enrolleeByApp($oApp, $page = '', $size = '', $options);
-			$data = $result->users;
+			$oResult = $modelUsr->enrolleeByApp($oApp, $page = '', $size = '', $options);
+			$data = $oResult->users;
 		}
 
 		foreach ($data as &$user) {
@@ -439,8 +439,8 @@ class user extends \pl\fe\matter\base {
 		}
 
 		/* 未签到用户 */
-		$result = $modelUsr->absentByApp($oApp, $data, $rid);
-		$absentUsers = $result->users;
+		$oResult = $modelUsr->absentByApp($oApp, $data, $rid);
+		$absentUsers = $oResult->users;
 		if (count($absentUsers)) {
 			$objPHPExcel->createSheet();
 			$objPHPExcel->setActiveSheetIndex(1);

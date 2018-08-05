@@ -200,7 +200,7 @@ class main extends main_base {
 		if (false === $oCopied || $oCopied->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		$oEntryRule = clone $oCopied->entryRule;
+		$oNewEntryRule = clone $oCopied->entryRule;
 		$aDataSchemas = $oCopied->dataSchemas;
 		$aPages = $oCopied->pages;
 		$newaid = uniqid();
@@ -210,8 +210,8 @@ class main extends main_base {
 		/**
 		 * 如果通讯录的所属范围和新活动的范围不一致，需要解除关联的通信录
 		 */
-		if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
-			$aMatterMschemas = $modelApp->getEntryMemberSchema($oEntryRule);
+		if (isset($oNewEntryRule->scope->member) && $oNewEntryRule->scope->member === 'Y') {
+			$aMatterMschemas = $modelApp->getEntryMemberSchema($oNewEntryRule);
 			foreach ($aMatterMschemas as $oMschema) {
 				if (!empty($oMschema->matter_type) && ($oMschema->matter_type !== 'mission' || $oMschema->matter_id !== $mission)) {
 					/* 应用的题目 */
@@ -220,12 +220,12 @@ class main extends main_base {
 					foreach ($aPages as $oPage) {
 						$modelPg->replaceMemberSchema($oPage, $oMschema);
 					}
-					unset($oEntryRule->member->{$oMschema->id});
+					unset($oNewEntryRule->member->{$oMschema->id});
 				}
 			}
-			if (count((array) $oEntryRule->member) === 0) {
-				unset($oEntryRule->scope->member);
-				unset($oEntryRule->member);
+			if (count((array) $oNewEntryRule->member) === 0) {
+				unset($oNewEntryRule->scope->member);
+				unset($oNewEntryRule->member);
 			}
 		}
 		/**
@@ -235,9 +235,11 @@ class main extends main_base {
 			/**
 			 * 只有同项目内的分组活动可以作为参与规则
 			 */
-			if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
-				unset($oEntryRule->scope->group);
-				unset($oEntryRule->group);
+			if (isset($oNewEntryRule->scope->group) && $oNewEntryRule->scope->group === 'Y') {
+				unset($oNewEntryRule->scope->group);
+			}
+			if (isset($oNewEntryRule->group)) {
+				unset($oNewEntryRule->group);
 			}
 			/**
 			 * 如果关联了分组或登记活动，需要去掉题目的关联信息
@@ -280,7 +282,7 @@ class main extends main_base {
 		$oNewApp->multi_rounds = $oCopied->multi_rounds;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
 		$oNewApp->can_siteuser = 'Y';
-		$oNewApp->entry_rule = json_encode($oEntryRule);
+		$oNewApp->entry_rule = json_encode($oNewEntryRule);
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
 		$oNewApp->group_app_id = $oCopied->group_app_id;
 		$oNewApp->enroll_app_id = $oCopied->enroll_app_id;

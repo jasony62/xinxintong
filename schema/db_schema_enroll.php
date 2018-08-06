@@ -93,7 +93,6 @@ $sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动�
 $sql .= ",seq int not null"; //页面序号
 $sql .= ",data_schemas longtext"; // 登记项定义
 $sql .= ",act_schemas text"; // 登记操作定义
-$sql .= ",user_schemas text"; // 登记用户信息定义（仅登记页有效）
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -657,7 +656,6 @@ $sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
 $sql .= ",seq int not null"; //页面序号
 $sql .= ",data_schemas text"; // 登记项定义
 $sql .= ",act_schemas text"; // 登记操作定义
-$sql .= ",user_schemas text"; // 登记用户信息定义（仅登记页有效）
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -792,6 +790,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_group_round(";
 $sql .= "aid varchar(40) not null";
 $sql .= ",round_id varchar(32) not null";
+$sql .= ",round_type char(1) not null default 'T'"; // 分组类型 T：团队，R：角色
 $sql .= ",create_at int not null";
 $sql .= ",title varchar(40) not null";
 $sql .= ",autoplay char(1) not null default 'N'"; // 自动抽取直到达到抽取次数
@@ -816,16 +815,17 @@ $sql .= ",wx_openid varchar(255) not null default ''";
 $sql .= ",yx_openid varchar(255) not null default ''";
 $sql .= ",qy_openid varchar(255) not null default ''";
 $sql .= ",headimgurl varchar(255) not null default ''";
-$sql .= ",is_leader char(1) not null default 'N'"; // 用户角色，N：组员，Y：组长，S：超级用户
+$sql .= ",is_leader char(1) not null default 'N'"; // 人员分组中的用户角色，N：组员，Y：组长，S：超级用户
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
 $sql .= ",tags text null";
 $sql .= ",comment text null";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log
 $sql .= ",referrer text null"; //
-$sql .= ",round_id varchar(32) not null default ''";
+$sql .= ",round_id varchar(32) not null default ''"; // 团队分组
 $sql .= ",round_title varchar(40) not null default ''";
-$sql .= ",draw_at int not null";
+$sql .= ",role_rounds varchar(255) not null default ''"; // 角色分组
+$sql .= ",draw_at int not null"; // 加入人员分组的时间
 $sql .= ",data text null"; // 登记的数据项
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

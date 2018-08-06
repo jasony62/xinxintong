@@ -91,7 +91,15 @@ ul.img-tiles li.img-picker button span {
             </div>
         </div>
         <div class="form-group">
-            <label class="col-md-3 control-label">角色</label>
+            <label class="col-md-3 control-label">所属团队分组</label>
+            <div class="col-md-9">
+                <select class='form-control' ng-model="player.round_id" ng-options="r.round_id as r.title for r in teamRounds">
+                    <option></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">团队角色</label>
             <div class="col-md-9">
                 <div class='radio'>
                     <label class='inline-radio'>
@@ -115,12 +123,15 @@ ul.img-tiles li.img-picker button span {
                 <textarea class='form-control' ng-model="player.comment"></textarea>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-md-3 control-label">所属分组</label>
+        <div class="form-group" ng-if="roleRounds.length">
+            <label class="col-md-3 control-label">所属角色分组</label>
             <div class="col-md-9">
-                <select class='form-control' ng-model="player.round_id" ng-options="r.round_id as r.title for r in rounds">
-                    <option></option>
-                </select>
+                <ul>
+                    <li class='checkbox' ng-repeat="round in roleRounds">
+                        <label>
+                            <input type="checkbox" name="{{player.id}}" ng-model="player._role_rounds[round.round_id]" /><span>{{round.title}}</span></label>
+                    </li>
+                </ul>
             </div>
         </div>
     </form>

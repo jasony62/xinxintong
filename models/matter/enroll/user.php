@@ -104,10 +104,11 @@ class user_model extends \TMS_MODEL {
 		if (isset($assocGroupId)) {
 			$modelGrpUsr = $this->model('matter\group\player');
 			$oAssocGrpApp = (object) ['id' => $assocGroupId];
-			$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oUser->uid, ['fields' => 'round_id,is_leader', 'onlyOne' => true]);
+			$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oUser->uid, ['fields' => 'round_id,is_leader,role_rounds', 'onlyOne' => true]);
 			if ($oGrpMemb) {
 				$oUser->group_id = $oGrpMemb->round_id;
 				$oUser->is_leader = $oGrpMemb->is_leader;
+				$oUser->role_rounds = $oGrpMemb->role_rounds;
 			}
 		}
 
@@ -116,6 +117,11 @@ class user_model extends \TMS_MODEL {
 			$oUser->is_editor = 'N';
 			if (!empty($oUser->group_id)) {
 				if ($oUser->group_id === $oApp->actionRule->role->editor->group) {
+					$oUser->is_editor = 'Y';
+				}
+			}
+			if ($oUser->is_editor === 'N' && !empty($oUser->role_rounds)) {
+				if (in_array($oApp->actionRule->role->editor->group, $oUser->role_rounds)) {
 					$oUser->is_editor = 'Y';
 				}
 			}
@@ -400,28 +406,44 @@ class user_model extends \TMS_MODEL {
 	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
 	 * 2、如果活动关联了分组活动
 	 * 3、如果活动所属项目指定了用户名单
-	 *   $oUsers 当前轮次的所有用户
+	 *
+	 * @param array  $oEnrollees 当前轮次的所有已登记用户
+	 *
 	 */
-	public function absentByApp($oApp, $oUsers, $rid = '') {
+	public function absentByApp($oApp, $oEnrollees, $rid = '') {
 		empty($rid) && $rid = 'ALL';
-		$oUsers2 = [];
-		foreach ($oUsers as $oUser) {
-			$oUsers2[$oUser->id] = $oUser->userid;
+
+		$oEnrolleeIds = []; // 已登记用户
+		foreach ($oEnrollees as $oUser) {
+			$oEnrolleeIds[] = $oUser->userid;
 		}
+
 		/* 获取未登记人员 */
 		$aAbsentUsrs = [];
 		$oEntryRule = $oApp->entryRule;
 		if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
 			$oGrpApp = $oEntryRule->group;
 			$modelGrpUsr = $this->model('matter\group\player');
-			$aGrpUsrs = $modelGrpUsr->byRound(
-				$oGrpApp->id,
-				isset($oGrpApp->round->id) ? $oGrpApp->round->id : null,
-				['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']
-			);
-			foreach ($aGrpUsrs as $oGrpUsr) {
-				if (false === in_array($oGrpUsr->userid, $oUsers2)) {
-					$aAbsentUsrs[] = $oGrpUsr;
+			if (empty($oGrpApp->round->id)) {
+				$aGrpUsrs = $modelGrpUsr->byApp(
+					$oGrpApp->id,
+					['fields' => 'userid,nickname,is_leader,round_id,round_title']
+				);
+				foreach ($aGrpUsrs->players as $oGrpUsr) {
+					if (false === in_array($oGrpUsr->userid, $oEnrolleeIds)) {
+						$aAbsentUsrs[] = $oGrpUsr;
+					}
+				}
+			} else {
+				$aGrpUsrs = $modelGrpUsr->byRound(
+					$oGrpApp->id,
+					$oGrpApp->round->id,
+					['fields' => 'userid,nickname,is_leader,round_id,round_title']
+				);
+				foreach ($aGrpUsrs as $oGrpUsr) {
+					if (false === in_array($oGrpUsr->userid, $oEnrolleeIds)) {
+						$aAbsentUsrs[] = $oGrpUsr;
+					}
 				}
 			}
 		} else if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
@@ -429,7 +451,7 @@ class user_model extends \TMS_MODEL {
 			foreach ($oEntryRule->member as $mschemaId => $rule) {
 				$members = $modelMem->byMschema($mschemaId);
 				foreach ($members as $oMember) {
-					if (false === in_array($oMember->userid, $oUsers2)) {
+					if (false === in_array($oMember->userid, $oEnrolleeIds)) {
 						$oUser = new \stdClass;
 						$oUser->userid = $oMember->userid;
 						$oUser->nickname = $oMember->name;
@@ -439,9 +461,9 @@ class user_model extends \TMS_MODEL {
 			}
 		} else if (!empty($oApp->group_app_id)) {
 			$modelGrpUsr = $this->model('matter\group\player');
-			$aGrpUsrs = $modelGrpUsr->byApp($oApp->group_app_id, ['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']);
+			$aGrpUsrs = $modelGrpUsr->byApp($oApp->group_app_id, ['fields' => 'userid,nickname,is_leader,round_id,round_title']);
 			foreach ($aGrpUsrs->players as $oGrpUsr) {
-				if (false === in_array($oGrpUsr->userid, $oUsers2)) {
+				if (false === in_array($oGrpUsr->userid, $oEnrolleeIds)) {
 					$aAbsentUsrs[] = $oGrpUsr;
 				}
 			}
@@ -453,7 +475,7 @@ class user_model extends \TMS_MODEL {
 				foreach ($oMission->entry_rule->member as $mschemaId => $rule) {
 					$members = $modelMem->byMschema($mschemaId);
 					foreach ($members as $oMember) {
-						if (false === in_array($oMember->userid, $oUsers2)) {
+						if (false === in_array($oMember->userid, $oEnrolleeIds)) {
 							$oUser = new \stdClass;
 							$oUser->userid = $oMember->userid;
 							$oUser->nickname = $oMember->name;
@@ -464,30 +486,30 @@ class user_model extends \TMS_MODEL {
 			} else {
 				if ($oMission->user_app_type === 'enroll') {
 					$modelRec = $this->model('matter\enroll\record');
-					$result = $modelRec->byApp($oMission->user_app_id);
-					if (!empty($result->records)) {
-						foreach ($result->records as $oRec) {
-							if (false === in_array($oRec->userid, $oUsers2)) {
+					$oResult = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($oResult->records)) {
+						foreach ($oResult->records as $oRec) {
+							if (false === in_array($oRec->userid, $oEnrolleeIds)) {
 								$aAbsentUsrs[] = $oRec;
 							}
 						}
 					}
 				} else if ($oMission->user_app_type === 'signin') {
 					$modelRec = $this->model('matter\signin\record');
-					$result = $modelRec->byApp($oMission->user_app_id);
-					if (!empty($result->records)) {
-						foreach ($result->records as $oRec) {
-							if (false === in_array($oRec->userid, $oUsers2)) {
+					$oResult = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($oResult->records)) {
+						foreach ($oResult->records as $oRec) {
+							if (false === in_array($oRec->userid, $oEnrolleeIds)) {
 								$aAbsentUsrs[] = $oRec;
 							}
 						}
 					}
 				} else if ($oMission->user_app_type === 'group') {
 					$modelRec = $this->model('matter\group\player');
-					$result = $modelRec->byApp($oMission->user_app_id);
-					if (!empty($result->players)) {
-						foreach ($result->players as $oRec) {
-							if (false === in_array($oRec->userid, $oUsers2)) {
+					$aGrpUsrs = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($aGrpUsrs->players)) {
+						foreach ($aGrpUsrs->players as $oRec) {
+							if (false === in_array($oRec->userid, $oEnrolleeIds)) {
 								$aAbsentUsrs[] = $oRec;
 							}
 						}
@@ -498,33 +520,33 @@ class user_model extends \TMS_MODEL {
 
 		/* userid去重 */
 		$aAbsentUsrs2 = [];
-		foreach ($aAbsentUsrs as $aAbsentUsr) {
-			$state = true;
-			foreach ($aAbsentUsrs2 as $aAbsentUsr2) {
-				if ($aAbsentUsr->userid === $aAbsentUsr2->userid || empty($aAbsentUsr->userid)) {
-					$state = false;
+		foreach ($aAbsentUsrs as $oAbsentUsr) {
+			$bExistent = true;
+			foreach ($aAbsentUsrs2 as $oAbsentUsr2) {
+				if (empty($oAbsentUsr->userid) || $oAbsentUsr->userid === $oAbsentUsr2->userid) {
+					$bExistent = false;
 					break;
 				}
 			}
-			if ($state) {
+			if ($bExistent) {
 				//获取未签到人员的信息，并从$oApp->absent_cause中筛选出已经签到的人
-				if (isset($oApp->absent_cause->{$aAbsentUsr->userid}) && isset($oApp->absent_cause->{$aAbsentUsr->userid}->{$rid})) {
-					$aAbsentUsr->absent_cause = new \stdClass;
-					$aAbsentUsr->absent_cause->cause = $oApp->absent_cause->{$aAbsentUsr->userid}->{$rid};
-					$aAbsentUsr->absent_cause->rid = $rid;
+				if (isset($oApp->absent_cause->{$oAbsentUsr->userid}) && isset($oApp->absent_cause->{$oAbsentUsr->userid}->{$rid})) {
+					$oAbsentUsr->absent_cause = new \stdClass;
+					$oAbsentUsr->absent_cause->cause = $oApp->absent_cause->{$oAbsentUsr->userid}->{$rid};
+					$oAbsentUsr->absent_cause->rid = $rid;
 				} else {
-					$aAbsentUsr->absent_cause = new \stdClass;
-					$aAbsentUsr->absent_cause->rid = $rid;
-					$aAbsentUsr->absent_cause->cause = '';
+					$oAbsentUsr->absent_cause = new \stdClass;
+					$oAbsentUsr->absent_cause->rid = $rid;
+					$oAbsentUsr->absent_cause->cause = '';
 				}
-				$aAbsentUsrs2[] = $aAbsentUsr;
+				$aAbsentUsrs2[] = $oAbsentUsr;
 			}
 		}
 
-		$result = new \stdClass;
-		$result->users = $aAbsentUsrs2;
+		$oResult = new \stdClass;
+		$oResult->users = $aAbsentUsrs2;
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 发表过留言的用户
@@ -532,7 +554,7 @@ class user_model extends \TMS_MODEL {
 	public function remarkerByApp($oApp, $page = 1, $size = 30, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$q = [
 			$fields,
 			"xxt_enroll_user",
@@ -543,19 +565,19 @@ class user_model extends \TMS_MODEL {
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
 		$users = $this->query_objs_ss($q, $q2);
-		$result->users = $users;
+		$oResult->users = $users;
 
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
-		$result->total = $total;
+		$oResult->total = $total;
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 指定用户的行为报告
 	 */
 	public function reportByUser($oApp, $oUser) {
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 
 		/* 登记次数 */
 		$modelRec = $this->model('matter\enroll\record');
@@ -563,23 +585,23 @@ class user_model extends \TMS_MODEL {
 		if (false === $records) {
 			return false;
 		}
-		$result->enroll_num = count($records);
-		$result->comment = '';
-		if ($result->enroll_num > 0) {
+		$oResult->enroll_num = count($records);
+		$oResult->comment = '';
+		if ($oResult->enroll_num > 0) {
 			$comments = [];
 			foreach ($records as $record) {
 				if (!empty($record->comment)) {
 					$comments[] = $record->comment;
 				}
 			}
-			$result->comment = implode(',', $comments);
+			$oResult->comment = implode(',', $comments);
 		}
 		/* 发表留言次数 */
 		$modelRec = $this->model('matter\enroll\remark');
 		$remarks = $modelRec->byUser($oApp, $oUser, ['fields' => 'id']);
-		$result->do_remark_num = count($remarks);
+		$oResult->do_remark_num = count($remarks);
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 根据用户的填写记录更新用户数据

@@ -29,7 +29,7 @@ class schema_model extends \TMS_MODEL {
 	 * schema_id 通讯录id
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id'];
 
 		$purified = [];
 		$schemasById = [];
@@ -116,6 +116,118 @@ class schema_model extends \TMS_MODEL {
 			if (isset($oSchema->visibility)) {
 				if (empty($oSchema->visibility->rules)) {
 					unset($oSchema->visibility);
+				} else {
+					for ($i = count($oSchema->visibility->rules) - 1; $i >= 0; $i--) {
+						$oRule = $oSchema->visibility->rules[$i];
+						if (empty($oRule->schema) || empty($oRule->op) || empty($schemasById[$oRule->schema])) {
+							array_splice($oSchema->visibility->rules, $i, 1);
+						} else {
+							$oDependentSchema = $schemasById[$oRule->schema];
+							if (!in_array($oDependentSchema->type, ['single', 'multiple']) || empty($oDependentSchema->ops)) {
+								array_splice($oSchema->visibility->rules, $i, 1);
+							} else {
+								$bExistent = false;
+								foreach ($oDependentSchema->ops as $oOp) {
+									if ($oOp->v === $oRule->op) {
+										$bExistent = true;
+										break;
+									}
+								}
+								if (!$bExistent) {
+									array_splice($oSchema->visibility->rules, $i, 1);
+								}
+							}
+						}
+					}
+					if (empty($oSchema->visibility->rules)) {
+						unset($oSchema->visibility);
+					}
+				}
+			}
+			/* 选项可见条件 */
+			if (isset($oSchema->optGroups)) {
+				if (empty($oSchema->optGroups)) {
+					unset($oSchema->optGroups);
+				} else {
+					for ($i = count($oSchema->optGroups) - 1; $i >= 0; $i--) {
+						$bValid = true;
+						$oOptGroup = $oSchema->optGroups[$i];
+						if (empty($oOptGroup->assocOp->schemaId) || empty($oOptGroup->assocOp->v) || empty($schemasById[$oOptGroup->assocOp->schemaId])) {
+							$bValid = false;
+						} else {
+							$oDependentSchema = $schemasById[$oOptGroup->assocOp->schemaId];
+							if ($oDependentSchema->type !== 'single' || empty($oDependentSchema->ops)) {
+								$bValid = false;
+							} else {
+								$bExistent = false;
+								foreach ($oDependentSchema->ops as $oOp) {
+									if ($oOp->v === $oOptGroup->assocOp->v) {
+										$bExistent = true;
+										break;
+									}
+								}
+								if (!$bExistent) {
+									$bValid = false;
+								}
+							}
+						}
+						if (false === $bValid) {
+							array_splice($oSchema->optGroups, $i, 1);
+							if (!empty($oSchema->ops)) {
+								foreach ($oSchema->ops as $oOp) {
+									if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
+										unset($oOp->g);
+									}
+								}
+							}
+						}
+					}
+					if (empty($oSchema->optGroups)) {
+						unset($oSchema->optGroups);
+					}
+				}
+			}
+			/* 单选题和多选题默认选项 */
+			if (isset($oSchema->defaultValue)) {
+				if ($oSchema->type === 'single') {
+					if (!is_string($oSchema->defaultValue)) {
+						unset($oSchema->defaultValue);
+					} else {
+						$bExistent = false;
+						foreach ($oSchema->ops as $oOp) {
+							if ($oOp->v === $oSchema->defaultValue) {
+								$bExistent = true;
+								break;
+							}
+						}
+						if (false === $bExistent) {
+							unset($oSchema->defaultValue);
+						}
+					}
+				} else if ($oSchema->type === 'multiple') {
+					if (!is_object($oSchema->defaultValue)) {
+						unset($oSchema->defaultValue);
+					} else {
+						foreach ($oSchema->defaultValue as $oOpV => $bChecked) {
+							if (false === $bChecked) {
+								unset($oSchema->defaultValue->$oOpV);
+							} else {
+								$bExistent = false;
+								foreach ($oSchema->ops as $oOp) {
+									if ($oOp->v === $oOpV) {
+										$bExistent = true;
+										break;
+									}
+								}
+								if (false === $bExistent) {
+									unset($oSchema->defaultValue->$oOpV);
+								}
+							}
+						}
+						if (count((array) $oSchema->defaultValue) === 0) {
+							unset($oSchema->defaultValue);
+						}
+					}
 				}
 			}
 

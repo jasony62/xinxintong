@@ -27,6 +27,18 @@ class topic extends base {
 				$oEditor = new \stdClass;
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
+				$modelGrpUsr = $this->model('matter\group\player');
+				$assocGroupId = $oApp->entryRule->group->id;
+				$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+				if (isset($groupEditor->players)) {
+					$groupEditorPlayers = $groupEditor->players;
+					$oEditorUsers = new \stdClass;
+					foreach ($groupEditorPlayers as $player) {
+						$oEditorUsers->{$player->userid} = $player->role_rounds;
+					}
+					unset($groupEditorPlayers);
+				}
 			}
 		}
 
@@ -47,36 +59,12 @@ class topic extends base {
 		if (isset($oMockUser->unionid) && $oTopic->unionid === $oMockUser->unionid) {
 			$oTopic->nickname = '我';
 		} else if (isset($oEditor)) {
-			/*查看创建者是否在编辑组中*/
-			// 查看创建者的userid
-			$modelAcnt = $this->model('site\user\account');
-			$oTPCreateUids = $modelAcnt->byUnionid($oTopic->unionid, ['fields' => 'uid', 'siteid' => $oTopic->siteid]);
-
-			// 查询活动编辑组
-			if (!empty($oApp->group_app_id)) {
-				$assocGroupId = $oApp->group_app_id;
-			} else if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && isset($oApp->entryRule->group->id)) {
-				$assocGroupId = $oApp->entryRule->group->id;
-			}
-			// 获取编辑中中的所有成员
-			if (isset($assocGroupId)) {
-				$modelGrpUsr = $this->model('matter\group\player');
-				$assocGroupUsers = $modelGrpUsr->byRound($assocGroupId, $oEditor->group, ['fields' => 'userid']);
-				$assocGroupUsers2 = [];
-				foreach ($assocGroupUsers as $assocGroupUser) {
-					$assocGroupUsers2[] = $assocGroupUser->userid;
-				}
-				// 查询创建者是否在编辑组中
-				foreach ($oTPCreateUids as $oTPCreateUid) {
-					if (in_array($oTPCreateUid->uid, $assocGroupUsers2)) {
-						$oTopic->is_editor = 'Y';
-					}
-				}
-				/* 设置编辑统一昵称 */
-				if (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y') {
-					if (!empty($oTopic->is_editor) && $oTopic->is_editor === 'Y') {
-						$oTopic->nickname = $oEditor->nickname;
-					}
+			/* 设置编辑统一昵称 */
+			if (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y') {
+				if (!empty($oTopic->group_id) && $oTopic->group_id === $oEditor->group) {
+					$oTopic->nickname = $oEditor->nickname;
+				} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oTopic->userid})) { // 记录提交者是否有编辑组角色
+					$oTopic->nickname = $oEditor->nickname;
 				}
 			}
 		}

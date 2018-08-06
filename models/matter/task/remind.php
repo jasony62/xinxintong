@@ -18,6 +18,7 @@ class remind_model extends \TMS_MODEL {
 			$aResult = $this->_mission($oMatter, $arguments);
 			break;
 		case 'enroll':
+			$arguments = empty($arguments) ? new \stdClass : (is_object($arguments) ? $arguments : json_decode($arguments));
 			$aResult = $this->_enroll($oMatter, $arguments);
 			break;
 		case 'plan':
@@ -111,32 +112,53 @@ class remind_model extends \TMS_MODEL {
 	/**
 	 * 记录活动提醒通知
 	 */
-	private function _enroll($oMatter, $arguments) {
+	private function _enroll($oMatter, $oArguments) {
 		$modelEnl = $this->model('matter\enroll');
 		$oMatter = $modelEnl->byId($oMatter->id, ['cascaded' => 'N']);
 		if (false === $oMatter || $oMatter->state !== '1') {
 			return [false, '指定的活动不存在，或已不可用'];
 		}
-		$noticeURL = $oMatter->entryUrl; // 获得活动的进入链接
-		if (!empty($arguments) && is_object($arguments) && !empty($arguments->page)) {
-			$noticeURL .= '&page=' . $arguments->page;
-		}
+
+		/* 获得活动的进入链接 */
+		$noticeURL = $oMatter->entryUrl;
 		$noticeURL .= '&origin=timer';
-		/* 优先发送给通讯录中的用户 */
-		if (isset($oMatter->entryRule->scope->member) && $oMatter->entryRule->scope->member === 'Y' && isset($oMatter->entryRule->member)) {
-			$modelMs = $this->model('site\user\memberschema');
-			$modelMem = $this->model('site\user\member');
-			$receivers = [];
-			foreach ($oMatter->entryRule->member as $mschemaId => $oRule) {
-				$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
-				if ($oMschema->is_wx_fan === 'Y') {
-					$aOnce = $modelMem->byMschema($mschemaId, ['fields' => 'userid']);
-					$receivers = array_merge($receivers, $aOnce);
+		if (!empty($oArguments->page)) {
+			$noticeURL .= '&page=' . $oArguments->page;
+		}
+		/* 通知接收人范围 */
+		$receiverScope = empty($oArguments->receiver->scope) ? 'enroll' : $oArguments->receiver->scope;
+
+		switch ($receiverScope) {
+		case 'mschema':
+			/* 优先发送给通讯录中的用户 */
+			if (isset($oMatter->entryRule->scope->member) && $oMatter->entryRule->scope->member === 'Y' && isset($oMatter->entryRule->member)) {
+				$modelMs = $this->model('site\user\memberschema');
+				$modelMem = $this->model('site\user\member');
+				$receivers = [];
+				foreach ($oMatter->entryRule->member as $mschemaId => $oRule) {
+					$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+					if ($oMschema->is_wx_fan === 'Y') {
+						$aOnce = $modelMem->byMschema($mschemaId, ['fields' => 'userid']);
+						$receivers = array_merge($receivers, $aOnce);
+					}
 				}
 			}
-		}
-		/* 发送给记录填写人 */
-		if (empty($receivers)) {
+			break;
+		case 'group':
+			if (isset($oMatter->entryRule->scope->group) && $oMatter->entryRule->scope->group === 'Y' && !empty($oMatter->entryRule->group->id)) {
+				$q = [
+					'distinct userid',
+					'xxt_group_player',
+					['state' => 1, 'aid' => $oMatter->entryRule->group->id],
+				];
+				if (!empty($oMatter->entryRule->group->round->id)) {
+					$q[2]['round_id'] = $oMatter->entryRule->group->round->id;
+				}
+				$receivers = $modelEnl->query_objs_ss($q);
+			}
+			break;
+		case 'enroll':
+			/* 发送给记录填写人 */
 			$modelUsr = $this->model('matter\enroll\user');
 			$options = [
 				'rid' => 'ALL',
@@ -146,9 +168,11 @@ class remind_model extends \TMS_MODEL {
 			];
 			$enrollUsers = $modelUsr->enrolleeByApp($oMatter, '', '', $options);
 			$receivers = $enrollUsers->users;
-			if (count($receivers) === 0) {
-				return [false, '没有填写人'];
-			}
+			break;
+		}
+
+		if (count($receivers) === 0) {
+			return [false, '指定活动中没有接收人'];
 		}
 
 		return [true, $oMatter, $noticeURL, $receivers];

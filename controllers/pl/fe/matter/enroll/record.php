@@ -1574,7 +1574,7 @@ class record extends main_base {
 		}
 
 		// 登记活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,enroll_app_id,group_app_id,multi_rounds,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,enroll_app_id,group_app_id,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			die('指定的对象不存在或者已经不可用');
 		}
@@ -1665,9 +1665,7 @@ class record extends main_base {
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记时间');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
-		if ($oApp->multi_rounds === 'Y') {
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
-		}
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
 
 		// 转换标题
 		$aNumberSum = []; // 数值型题目的合计

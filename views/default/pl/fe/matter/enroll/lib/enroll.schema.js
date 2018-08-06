@@ -131,22 +131,33 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 updatedAppProps.push('assignedNickname');
                             }
                         }
-                        srvApp.update(updatedAppProps).then(function() {
+                        srvApp.update(updatedAppProps).then(function(oUpdatedApp) {
+                            function fnRefreshSchema(oOld, oNew) {
+                                for (var prop in oOld) {
+                                    if (oNew[prop] === undefined) {
+                                        delete oOld[prop];
+                                    } else {
+                                        oOld[prop] = oNew[prop];
+                                    }
+                                }
+                            }
+                            for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
+                                fnRefreshSchema(oApp.dataSchemas[i], oUpdatedApp.dataSchemas[i]);
+                            }
                             if (!changedPages || changedPages.length === 0) {
                                 deferred.resolve();
                             } else {
-                                var fnOnePage;
-                                fnOnePage = function(index) {
+                                function fnUpdateOnePage(index) {
                                     srvAppPage.update(changedPages[index], ['dataSchemas', 'html']).then(function() {
                                         index++;
                                         if (index === changedPages.length) {
                                             deferred.resolve();
                                         } else {
-                                            fnOnePage(index);
+                                            fnUpdateOnePage(index);
                                         }
                                     });
                                 };
-                                fnOnePage(0);
+                                fnUpdateOnePage(0);
                             }
                         });
                     });

@@ -78,10 +78,7 @@ class main extends \TMS_CONTROLLER {
 				);
 			}
 		}
-
-		if ($oApp->multi_rounds === 'Y') {
-			$params['activeRound'] = $this->model('matter\enroll\round')->getActive($oApp);
-		}
+		$params['activeRound'] = $this->model('matter\enroll\round')->getActive($oApp);
 
 		return new \ResponseData($params);
 	}

@@ -67,9 +67,6 @@ class enroll_model extends enroll_base {
 	 * 新建记录活动
 	 */
 	public function create($oUser, $oNewApp) {
-		if (empty($oNewApp->multi_rounds)) {
-			$oNewApp->multi_rounds = 'Y';
-		}
 		$oNewApp = parent::create($oUser, $oNewApp);
 
 		/* 创建活动默认填写轮次 */

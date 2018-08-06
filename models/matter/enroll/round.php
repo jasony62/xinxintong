@@ -111,7 +111,7 @@ class round_model extends \TMS_MODEL {
 			}
 		}
 		$roundId = uniqid();
-		$round = [
+		$aNewRound = [
 			'siteid' => $oApp->siteid,
 			'aid' => $oApp->id,
 			'rid' => $roundId,
@@ -123,19 +123,11 @@ class round_model extends \TMS_MODEL {
 			'start_at' => empty($oProps->start_at) ? 0 : $oProps->start_at,
 			'end_at' => empty($oProps->end_at) ? 0 : $oProps->end_at,
 		];
-		$this->insert('xxt_enroll_round', $round, false);
+		$this->insert('xxt_enroll_round', $aNewRound, false);
 
-		if (empty($oApp->multi_rounds) || $oApp->multi_rounds !== 'Y') {
-			$this->update(
-				'xxt_enroll',
-				['multi_rounds' => 'Y'],
-				['id' => $oApp->id]
-			);
-		}
+		$oRound = $this->byId($roundId);
 
-		$round = $this->byId($roundId);
-
-		return [true, $round];
+		return [true, $oRound];
 	}
 	/**
 	 * 获得指定登记活动的当前轮次

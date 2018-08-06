@@ -33,7 +33,6 @@ $sql .= ",entry_rule text null"; // 进入规则
 $sql .= ",action_rule text null"; // 行动规则
 $sql .= ",enrolled_entry_page varchar(20) not null default ''";
 $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登记记录，还是编辑新的
-$sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
 $sql .= ",can_repos char(1) not null default 'N'"; // 打开共享页
 $sql .= ",can_rank char(1) not null default 'N'"; // 打开排行页
 $sql .= ",can_coin char(1) not null default 'N'"; // 是否支持积分

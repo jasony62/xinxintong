@@ -97,7 +97,6 @@ class enroll_model extends \TMS_MODEL {
 			'siteid' => $site,
 			'template_id' => $tid,
 			'scenario_config' => empty($matter->scenario_config) ? '' : $this->escape($matter->scenario_config),
-			'multi_rounds' => $matter->multi_rounds,
 			'enrolled_entry_page' => $matter->enrolled_entry_page,
 			'open_lastroll' => $matter->open_lastroll,
 			'data_schemas' => $this->escape($matter->data_schemas),

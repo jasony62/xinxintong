@@ -279,7 +279,6 @@ class main extends main_base {
 		$oNewApp->scenario = $oCopied->scenario;
 		$oNewApp->scenario_config = json_encode($oCopied->scenarioConfig);
 		$oNewApp->count_limit = $oCopied->count_limit;
-		$oNewApp->multi_rounds = $oCopied->multi_rounds;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
 		$oNewApp->can_siteuser = 'Y';
 		$oNewApp->entry_rule = json_encode($oNewEntryRule);
@@ -555,7 +554,6 @@ class main extends main_base {
 		$oNewApp->start_at = $current;
 		$oNewApp->scenario = $template->scenario;
 		$oNewApp->scenario_config = $template->scenario_config;
-		$oNewApp->multi_rounds = $template->multi_rounds;
 		$oNewApp->data_schemas = $modelApp->escape($template->data_schemas);
 		$oNewApp->open_lastroll = $template->open_lastroll;
 		$oNewApp->enrolled_entry_page = $template->enrolled_entry_page;

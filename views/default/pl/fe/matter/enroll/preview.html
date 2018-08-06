@@ -57,7 +57,7 @@
                     <div ng-switch-when="M">每月{{rule.mday}}日{{rule.hour}}点生成填写轮次 <span class='glyphicon' ng-class="rule.enabled==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>
                     </div>
                 </li>
-                <li class='status' ng-if="app.multi_rounds==='Y'"><span>当前轮次：{{opData.title}}</span></li>
+                <li class='status'><span>当前轮次：{{opData.title}}</span></li>
             </ul>
         </div>
     </div>
@@ -85,7 +85,7 @@
         <div class='panel-body'>
             <label>填写记录</label>
             <ul class='status-group'>
-                <li class='status' ng-if="app.multi_rounds==='Y'">轮次：{{opData.title}}</li>
+                <li class='status'>轮次：{{opData.title}}</li>
                 <li class='status'>已有<a href='' ng-click="switchTo('enrollee')"><span ng-bind="opData.enrollee_num"></span></a>人参与（含进入了活动但未提交数据用户{{opData.enrollee_unsubmit_num}}人）</li>
                 <li class='status'>已有<a href='' ng-click="switchTo('record')"><span ng-bind="opData.total"></span></a>条记录提交</li>
                 <li class='status' ng-repeat="mschema in status.user.member">通信录【<span ng-bind="mschema.title"></span>】中已有<span ng-bind="opData.mschema[mschema.id].enrolled"></span>人提交记录，<span>{{mschema.count.verified-opData.mschema[mschema.id].enrolled}}</span>人未提交记录</li>

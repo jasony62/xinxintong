@@ -264,29 +264,21 @@ class record extends base {
 	 */
 	private function _getSubmitRecordRid($oApp, $rid = '') {
 		$modelRnd = $this->model('matter\enroll\round');
-		$bRequireRound = false;
 		if (empty($rid)) {
-			if ($oApp->multi_rounds === 'Y') {
-				$bRequireRound = true;
-				$oRecordRnd = $modelRnd->getActive($oApp);
-			}
+			$oRecordRnd = $modelRnd->getActive($oApp);
 		} else {
-			$bRequireRound = true;
 			$oRecordRnd = $modelRnd->byId($rid);
 		}
-		if ($bRequireRound) {
-			if (empty($oRecordRnd)) {
-				return [false, '没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用'];
-			} else {
-				$now = time();
-				if ($oRecordRnd->end_at != 0 && $oRecordRnd->end_at < $now) {
-					return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
-				}
+		if (empty($oRecordRnd)) {
+			return [false, '没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用'];
+		} else {
+			$now = time();
+			if ($oRecordRnd->end_at != 0 && $oRecordRnd->end_at < $now) {
+				return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
 			}
-			return [true, $oRecordRnd->rid];
 		}
 
-		return [true, ''];
+		return [true, $oRecordRnd->rid];
 	}
 	/**
 	 * 保存记录数据
@@ -995,13 +987,11 @@ class record extends base {
 			return new \ResponseError('仅允许记录的提交者删除记录');
 		}
 		// 判断活动是否添加了轮次
-		if ($oApp->multi_rounds == 'Y') {
-			$modelRnd = $this->model('matter\enroll\round');
-			$oActiveRnd = $modelRnd->getActive($oApp);
-			$now = time();
-			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now) || ($oActiveRnd->rid !== $oRecord->rid)) {
-				return new \ResponseError('记录所在活动轮次已结束，不能提交、修改、保存或删除！');
-			}
+		$modelRnd = $this->model('matter\enroll\round');
+		$oActiveRnd = $modelRnd->getActive($oApp);
+		$now = time();
+		if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now) || ($oActiveRnd->rid !== $oRecord->rid)) {
+			return new \ResponseError('记录所在活动轮次已结束，不能提交、修改、保存或删除！');
 		}
 		// 如果已经获得积分不允许删除
 		$modelEnlUsr = $this->model('matter\enroll\user');

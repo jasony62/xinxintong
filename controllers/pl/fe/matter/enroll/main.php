@@ -429,6 +429,7 @@ class main extends main_base {
 				$modelSch = $this->model('matter\enroll\schema');
 				$dataSchemas = $modelSch->purify($val);
 				$oUpdated->data_schemas = $modelApp->escape($modelApp->toJson($dataSchemas));
+				$oApp->dataSchemas = $dataSchemas;
 				break;
 			case 'entryRule':
 				if ($val->scope === 'group') {
@@ -488,6 +489,10 @@ class main extends main_base {
 		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
 			// 记录操作日志并更新信息
 			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'U', $oUpdated);
+			/* 清除数据 */
+			if (isset($oApp->data_schemas)) {
+				unset($oApp->data_schemas);
+			}
 		}
 
 		return new \ResponseData($oApp);

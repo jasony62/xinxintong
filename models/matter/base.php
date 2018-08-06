@@ -176,7 +176,6 @@ class base_model extends \TMS_MODEL {
 
 		/* 记录修改日志 */
 		$oUpdated->modifier = $oUser->id;
-		//$oUpdated->modifier_src = $oUser->src;
 		$oUpdated->modifier_name = $this->escape($oUser->name);
 		$oUpdated->modify_at = $current;
 

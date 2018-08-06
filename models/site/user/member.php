@@ -301,23 +301,23 @@ class member_model extends \TMS_MODEL {
 	 * $attrs array 用户认证信息定义
 	 *  0:hidden,1:mandatory,2:unique,3:immuatable,4:verification,5:identity
 	 *
-	 * return
+	 * @return
 	 *  若不合法，返回描述原因的字符串
 	 *  合法返回false
 	 */
-	public function rejectAuth(&$member, &$oMschema) {
-		if (isset($member->mobile) && $oMschema->attr_mobile[2] === '1') {
+	public function rejectAuth(&$oMember, &$oMschema) {
+		if (isset($oMember->mobile) && $oMschema->attrs->mobile->hide === false && $oMschema->attrs->mobile->unique) {
 			/**
 			 * 检查手机号的唯一性
 			 */
-			$mobile = $member->mobile;
+			$mobile = $oMember->mobile;
 			$q = [
 				'id',
 				'xxt_site_member',
-				"schema_id={$member->schema_id} and forbidden='N' and mobile='$mobile'",
+				"schema_id={$oMember->schema_id} and forbidden='N' and mobile='$mobile'",
 			];
 			/* 不是当前用户自己 */
-			!empty($member->id) && $q[2] .= " and id<>'{$member->id}'";
+			!empty($oMember->id) && $q[2] .= " and id<>'{$oMember->id}'";
 			$members = $this->query_objs_ss($q);
 			if (count($members) > 0) {
 				if (empty($oMschema->title)) {
@@ -327,25 +327,25 @@ class member_model extends \TMS_MODEL {
 				}
 			}
 		}
-		if (isset($member->email) && $oMschema->attr_email[2] === '1') {
+		if (isset($oMember->email) && $oMschema->attrs->email->hide === false && $oMschema->attrs->email->unique) {
 			/**
 			 * 检查邮箱的唯一性
 			 */
-			$email = $member->email;
+			$email = $oMember->email;
 			$q = [
 				'id',
 				'xxt_site_member',
-				"schema_id={$member->schema_id} and forbidden='N' and email='$email'",
+				"schema_id={$oMember->schema_id} and forbidden='N' and email='$email'",
 			];
 			/* 不是当前用户自己 */
-			!empty($member->id) && $q[2] .= " and id<>'{$member->id}'";
+			!empty($oMember->id) && $q[2] .= " and id<>'{$oMember->id}'";
 
 			$members = $this->query_objs_ss($q);
 			if (count($members) > 0) {
 				if (empty($oMschema->title)) {
 					return '邮箱已经存在，不允许重复登记！';
 				} else {
-					return '邮箱已经【' . $oMschema->title . '】中，不允许重复登记！';
+					return '邮箱已经在【' . $oMschema->title . '】中，不允许重复登记！';
 				}
 			}
 		}

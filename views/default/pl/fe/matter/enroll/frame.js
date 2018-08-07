@@ -50,7 +50,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage'], function(requ
             return result = h + ":" + m + ":" + s;
         }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', 'srvEnrollSchemaProvider', 'srvEnrollLogProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider, srvEnrollSchemaProvider, srvEnrollLogProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', 'srvEnrollSchemaProvider', 'srvEnrollLogProvider', 'srvTimerNoticeProvider',function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider, srvEnrollSchemaProvider, srvEnrollLogProvider, srvTimerNoticeProvider) {
         var RouteParam = function(name) {
             var baseURL;
             !baseURL && (baseURL = '/views/default/pl/fe/matter/enroll/');

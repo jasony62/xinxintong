@@ -1,7 +1,7 @@
 define(['missionService', 'enrollService', 'signinService'], function() {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tinymce.ui.xxt', 'schema.ui.xxt', 'pl.const', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvMissionProvider', 'srvMissionRoundProvider', 'srvQuickEntryProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvMissionProvider, srvMissionRoundProvider, srvQuickEntryProvider, srvTagProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvMissionProvider', 'srvMissionRoundProvider', 'srvQuickEntryProvider', 'srvTagProvider', 'srvTimerNoticeProvider',function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvMissionProvider, srvMissionRoundProvider, srvQuickEntryProvider, srvTagProvider, srvTimerNoticeProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/matter/mission/';
             this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);

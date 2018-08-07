@@ -78,6 +78,7 @@ class tag extends base {
 			if ($oUserTag = $modelEnl->query_obj_ss($q)) {
 				return new \ParameterError('标签【' . $label . '】已经存在');
 			}
+			$oEnlTag->tag_id = $oEnlTag->id;
 		} else {
 			$oEnlTag = new \stdClass;
 			$oEnlTag->siteid = $oApp->siteid;

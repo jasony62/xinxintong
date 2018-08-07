@@ -207,7 +207,7 @@ class cowork extends base {
 
 		$oRecData = $oResult[1]->data;
 
-		return new \ResponseData($oRecData->data);
+		return new \ResponseData($oRecData);
 	}
 	/**
 	 * 将题目的协作填写项改为留言

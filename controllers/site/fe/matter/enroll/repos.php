@@ -410,6 +410,7 @@ class repos extends base {
 		} else {
 			$oMockUser = $oUser;
 		}
+		$oEditor = null; // 作为编辑用户的信息
 
 		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oMockUser);
 		if (!empty($oResult->records)) {

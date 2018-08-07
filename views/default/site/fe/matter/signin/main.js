@@ -165,9 +165,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
         $scope.mission = oMission;
         $scope.app = oApp;
         $scope.user = params.user;
-        if (oApp.multi_rounds === 'Y') {
-            $scope.activeRound = params.activeRound;
-        }
+        $scope.activeRound = params.activeRound;
         setShareData($scope, params);
         if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
             tmsDynaPage.loadCode(ngApp, oSite.header_page);

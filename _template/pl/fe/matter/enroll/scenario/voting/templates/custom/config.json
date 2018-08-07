@@ -132,6 +132,5 @@
             "entry": "voting"
         }
     },
-    "multi_rounds": "N",
     "enrolled_entry_page": "result"
 }

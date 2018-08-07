@@ -57,7 +57,7 @@
 #pageEdit .mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
 
 /*record-view*/
-#enrollRecords table img{max-width:96px;}
+table img{max-width:96px;}
 #enrollRecords th{text-align:center;}
 #enrollRecords td span.signin_late{color:red;}
 #enrollRecords .nickname{background:lightblue;}

@@ -160,11 +160,9 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         if (Object.keys(oAppNavs)) {
             $scope.appNavs = oAppNavs;
         }
-        if (_oApp.multi_rounds === 'Y') {
-            EnlRound.list().then(function(result) {
-                $scope.rounds = result.rounds;
-            });
-        }
+        EnlRound.list().then(function(result) {
+            $scope.rounds = result.rounds;
+        });
         $scope.searchNotice(1).then(function(data) {
             if (data.total === 0) {
                 $scope.filter.scope = 'A';

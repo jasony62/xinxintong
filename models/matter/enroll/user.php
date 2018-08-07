@@ -427,7 +427,7 @@ class user_model extends \TMS_MODEL {
 			if (empty($oGrpApp->round->id)) {
 				$aGrpUsrs = $modelGrpUsr->byApp(
 					$oGrpApp->id,
-					['fields' => 'userid,nickname,is_leader,round_id,round_title']
+					['fields' => 'userid,nickname,is_leader,round_id,round_title,data']
 				);
 				foreach ($aGrpUsrs->players as $oGrpUsr) {
 					if (false === in_array($oGrpUsr->userid, $oEnrolleeIds)) {
@@ -438,7 +438,7 @@ class user_model extends \TMS_MODEL {
 				$aGrpUsrs = $modelGrpUsr->byRound(
 					$oGrpApp->id,
 					$oGrpApp->round->id,
-					['fields' => 'userid,nickname,is_leader,round_id,round_title']
+					['fields' => 'userid,nickname,is_leader,round_id,round_title,data']
 				);
 				foreach ($aGrpUsrs as $oGrpUsr) {
 					if (false === in_array($oGrpUsr->userid, $oEnrolleeIds)) {
@@ -446,6 +446,7 @@ class user_model extends \TMS_MODEL {
 					}
 				}
 			}
+			$oReferenceApp = $this->model('matter\group')->byId($oGrpApp->id, ['fields' => 'id,title,data_schemas']);
 		} else if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
 			$modelMem = $this->model('site\user\member');
 			foreach ($oEntryRule->member as $mschemaId => $rule) {
@@ -467,6 +468,7 @@ class user_model extends \TMS_MODEL {
 					$aAbsentUsrs[] = $oGrpUsr;
 				}
 			}
+			$oReferenceApp = $this->model('matter\group')->byId($oApp->group_app_id, ['fields' => 'id,title,data_schemas']);
 		} else if (!empty($oApp->mission_id)) {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($oApp->mission_id, ['fields' => 'user_app_id,user_app_type,entry_rule']);
@@ -514,6 +516,7 @@ class user_model extends \TMS_MODEL {
 							}
 						}
 					}
+					$oReferenceApp = $this->model('matter\group')->byId($oMission->user_app_id, ['fields' => 'id,title,data_schemas']);
 				}
 			}
 		}
@@ -545,6 +548,10 @@ class user_model extends \TMS_MODEL {
 
 		$oResult = new \stdClass;
 		$oResult->users = $aAbsentUsrs2;
+		if (isset($oReferenceApp)) {
+			unset($oReferenceApp->data_schemas);
+			$oResult->app = $oReferenceApp;
+		}
 
 		return $oResult;
 	}

@@ -90,7 +90,6 @@ $sql .= ",modifier_name varchar(255) not null default ''"; // 版本创建者账
 $sql .= ",create_at int not null";
 $sql .= ",template_id int not null";
 $sql .= ",scenario_config text"; // 登记活动场景的配置参数
-$sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
 $sql .= ",enrolled_entry_page varchar(20) not null default ''"; //已填写时进入
 $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登记记录，还是编辑新的
 $sql .= ",data_schemas longtext"; // 登记项定义

@@ -321,6 +321,5 @@
         }
     },
     "count_limit": "1",
-    "multi_rounds": "N",
     "enrolled_entry_page": "score"
 }

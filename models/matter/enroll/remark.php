@@ -76,7 +76,7 @@ class remark_model extends \TMS_MODEL {
 		if (!empty($schemaId)) {
 			$q[2] .= " and schema_id='$schemaId'";
 		}
-		/* 根据数据状态或分组显示可见行 */
+		/* 根据数据状态或分组显示可见性 */
 		if (!empty($oUser->uid) && $oRecord->userid !== $oUser->uid) {
 			if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
 				$w = " and (";

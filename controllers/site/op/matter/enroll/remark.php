@@ -32,7 +32,7 @@ class remark extends \site\op\base {
 
 		$oCriteria = $this->getPostJson();
 		$options = [
-			'fields' => 'id,userid,user_src,create_at,nickname,content,agreed,like_num,schema_id,enroll_key',
+			'fields' => 'id,userid,create_at,nickname,content,agreed,like_num,schema_id,enroll_key',
 			'criteria' => $oCriteria,
 		];
 		$result = $this->model('matter\enroll\remark')->listByApp($oApp, $page, $size, $options);

@@ -3,7 +3,7 @@ namespace matter\enroll;
 
 require_once dirname(__FILE__) . '/record_base.php';
 /**
- * 登记活动记录
+ * 记录活动记录
  */
 class record_model extends record_base {
 	/**
@@ -466,7 +466,7 @@ class record_model extends record_base {
 	/**
 	 * 登记清单
 	 *
-	 * @param object/string 登记活动/登记活动的id
+	 * @param object/string 记录活动/记录活动的id
 	 * @param object/array $aOptions
 	 * --creater openid
 	 * --visitor openid
@@ -497,21 +497,28 @@ class record_model extends record_base {
 				$oSchemasById->{$oSchema->id} = $oSchema;
 			}
 		}
-		// 指定登记活动下的登记记录
+		// 指定记录活动下的登记记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
 		/* 指定轮次，或者当前激活轮次 */
 		if (empty($oCriteria->record->rid)) {
-			$oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp);
-			if ($oActiveRnd) {
-				$rid = $oActiveRnd->rid;
-				$w .= " and r.rid='$rid'";
+			if (!empty($oApp->appRound->rid)) {
+				$rid = $oApp->appRound->rid;
+				$w .= " and (r.rid='$rid'";
+				if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
+					$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
+				}
+				$w .= ')';
 			}
 		} else {
 			if (is_string($oCriteria->record->rid)) {
 				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 					$rid = $oCriteria->record->rid;
-					$w .= " and r.rid='$rid'";
+					$w .= " and (r.rid='$rid'";
+					if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
+						$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
+					}
+					$w .= ')';
 				}
 			} else if (is_array($oCriteria->record->rid)) {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
@@ -961,7 +968,7 @@ class record_model extends record_base {
 		$oResult = new \stdClass; // 返回的结果
 		$oResult->total = 0;
 
-		// 指定登记活动下的登记记录
+		// 指定记录活动下的登记记录
 		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$oApp->id}'";
 
 		// 指定了轮次

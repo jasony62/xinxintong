@@ -428,7 +428,7 @@ class schema_model extends \TMS_MODEL {
 				];
 				/* 设置轮次条件 */
 				if (!empty($oDsAppRnd)) {
-					$q[2]['rid'] = $oDsAppRnd->rid;
+					$q[2]['rid'] = (object) ['op' => 'or', 'pat' => ["rid='{$oDsAppRnd->rid}'", "exists (select 1 from xxt_enroll_record_remark rr where t0.enroll_key=rr.enroll_key and rr.state=1 and rr.rid='{$oDsAppRnd->rid}')"]];
 				}
 				/* 设置过滤条件 */
 				if (!empty($oSchema->dsSchema->filters)) {

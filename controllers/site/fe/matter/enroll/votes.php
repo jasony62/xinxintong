@@ -22,7 +22,7 @@ class votes extends base {
 		$aResult = $this->model('matter\enroll\record')->getStat($oApp, $rid, $renewCache);
 
 		$aOrderedResult = [];
-		foreach ($oApp->dataSchemas as $oSchema) {
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if (isset($aResult[$oSchema->id])) {
 				$aOrderedResult[] = $aResult[$oSchema->id];
 			}

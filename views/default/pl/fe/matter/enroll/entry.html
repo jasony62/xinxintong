@@ -94,6 +94,14 @@
                         </div>
                         <div>
                             <label class='checkbox-inline'>
+                                <input type='checkbox' ng-model="app.rankConfig.scope.average_score" ng-change="update('rankConfig')">平均得分
+                            </label>
+                            <label class='radio-inline'>
+                                <input type='radio' name='defaultRankItem' value='average_score' ng-model="app.rankConfig.defaultItem" ng-change="update('rankConfig')">默认
+                            </label>
+                        </div>
+                        <div>
+                            <label class='checkbox-inline'>
                                 <input type='checkbox' ng-model="app.rankConfig.scope.enroll" ng-change="update('rankConfig')">提交记录数量
                             </label>
                             <label class='radio-inline'>

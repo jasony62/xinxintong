@@ -333,7 +333,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
             }
         }
         /* 排行显示内容设置 */
-        rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score'];
+        rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score'];
         oConfig = {};
         rankItems.forEach(function(item) {
             oConfig[item] = true;

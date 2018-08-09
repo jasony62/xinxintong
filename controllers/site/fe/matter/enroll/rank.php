@@ -167,6 +167,9 @@ class rank extends base {
 		case 'score':
 			$sql .= 'sum(score)';
 			break;
+		case 'average_score':
+			$sql .= 'sum(score)/count(*)';
+			break;
 		}
 		$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "' and state=1";
 		if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
@@ -189,7 +192,7 @@ class rank extends base {
 			$oUserGroup->title = $oUserGroup->l;
 			unset($oUserGroup->v);
 			unset($oUserGroup->l);
-			if ($oCriteria->orderby === 'score') {
+			if (in_array($oCriteria->orderby, ['score', 'average_score'])) {
 				$oUserGroup->num = (float) $modelUsr->query_value($sqlByGroup);
 			} else {
 				$oUserGroup->num = (int) $modelUsr->query_value($sqlByGroup);

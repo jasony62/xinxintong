@@ -167,6 +167,9 @@ class rank extends base {
 		case 'score':
 			$sql .= 'sum(score)';
 			break;
+		case 'average_score':
+			$sql .= 'sum(score)/count(*)';
+			break;
 		}
 		$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "' and state=1";
 		if (!empty($oCriteria->round) && is_string($oCriteria->round)) {

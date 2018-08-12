@@ -30,6 +30,9 @@ class schema_model extends \TMS_MODEL {
 	 */
 	public function purify($aAppSchemas) {
 		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id'];
+		$validPropsBySchema = [
+			'html' => ['id', 'type', 'content', 'title'],
+		];
 
 		$purified = [];
 		$schemasById = [];
@@ -37,9 +40,17 @@ class schema_model extends \TMS_MODEL {
 			$schemasById[$oSchema->id] = $oSchema;
 		}
 		foreach ($aAppSchemas as $oSchema) {
-			foreach ($oSchema as $prop => $val) {
-				if (!in_array($prop, $validProps)) {
-					unset($oSchema->{$prop});
+			if (isset($validPropsBySchema[$oSchema->type])) {
+				foreach ($oSchema as $prop => $val) {
+					if (!in_array($prop, $validPropsBySchema[$oSchema->type])) {
+						unset($oSchema->{$prop});
+					}
+				}
+			} else {
+				foreach ($oSchema as $prop => $val) {
+					if (!in_array($prop, $validProps)) {
+						unset($oSchema->{$prop});
+					}
 				}
 			}
 			// 删除多选题答案中被删除的选项

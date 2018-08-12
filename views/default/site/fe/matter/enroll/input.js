@@ -389,7 +389,7 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile) {
+ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', function($scope, $parse, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile) {
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
@@ -445,7 +445,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 if (oSchema.ops && oSchema.ops.length && oSchema.optGroups && oSchema.optGroups.length) {
                     oSchema.optGroups.forEach(function(oOptGroup) {
                         if (oOptGroup.assocOp && oOptGroup.assocOp.schemaId && oOptGroup.assocOp.v) {
-                            if (oRecordData[oOptGroup.assocOp.schemaId] !== oOptGroup.assocOp.v) {
+                            if ($parse(oOptGroup.assocOp.schemaId)(oRecordData) !== oOptGroup.assocOp.v) {
                                 oSchema.ops.forEach(function(oOption) {
                                     var domOption;
                                     if (oOption.g && oOption.g === oOptGroup.i) {

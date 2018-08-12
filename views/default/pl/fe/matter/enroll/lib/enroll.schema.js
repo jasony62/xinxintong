@@ -1722,7 +1722,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.addOption = function(schema, afterIndex) {
                 var maxSeq = 0,
                     newOp = {
-                        l: ''
+                        l: '新选项'
                     };
 
                 if (schema.ops === undefined) {

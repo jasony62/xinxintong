@@ -127,7 +127,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         } else {
                             if (oApp.assignedNickname.schema) {
-                                oAppNicknameSchema.valid = 'N';
                                 delete oApp.assignedNickname.schema;
                                 updatedAppProps.push('assignedNickname');
                             }

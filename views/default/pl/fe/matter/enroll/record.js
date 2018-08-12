@@ -240,7 +240,7 @@ define(['frame'], function(ngApp) {
                     }
                 });
 
-                $scope.bRequireNickname = oApp.assignedNickname && oApp.assignedNickname.valid === 'Y' && oApp.assignedNickname.schema;
+                $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
                 if (!oApp.group_app_id) {
                     $scope.bRequireGroup = oApp.entryRule.scope.group === 'Y' && oApp.entryRule.group && oApp.entryRule.group.id;
                 }

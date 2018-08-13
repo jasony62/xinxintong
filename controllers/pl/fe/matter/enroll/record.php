@@ -1578,7 +1578,7 @@ class record extends main_base {
 		if (false === $oApp || $oApp->state !== '1') {
 			die('指定的对象不存在或者已经不可用');
 		}
-		$schemas = $oApp->dataSchemas;
+		$schemas = $oApp->dynaDataSchemas;
 
 		// 关联的登记活动
 		if (!empty($oApp->enroll_app_id)) {
@@ -1966,7 +1966,7 @@ class record extends main_base {
 
 		// 登记活动
 		$enrollApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id,sync_mission_round', 'cascaded' => 'N']);
-		$schemas = json_decode($enrollApp->data_schemas);
+		$schemas = $enrollApp->dataSchemas;
 
 		// 关联的登记活动
 		if (!empty($enrollApp->enroll_app_id)) {

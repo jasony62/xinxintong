@@ -50,11 +50,15 @@
                 </uib-tab>
             </uib-tabset>
         </div>
-        <div class='col-md-4'>
+        <div class='col-md-4' ng-init="isCollapsed=true">
             <div class="alert alert-info">
                 导入活动【<span ng-bind="data.fromApp.title"></span>】<span ng-if="data.fromRnd">填写轮次【<span ng-bind="data.fromRnd.title"></span>】</span><span ng-if="!data.fromRnd">所有</span>的记录
             </div>
-            <div class="alert alert-info" ng-if="data.compatibleSchemas.length">
+            <div class="alert alert-info" ng-show="data.compatibleSchemas.length>0">
+                有【<span ng-bind="data.compatibleSchemas.length"></span>】道题目可导入，<a href ng-click="isCollapsed=!isCollapsed" class="alert-link">查看</a>
+            </div>
+            <div class='alert alert-info' ng-show="!isCollapsed">
+                <button class="close" ng-click="isCollapsed=true"><span>&times;</span></button>
                 导入题目<span ng-repeat="schema in data.compatibleSchemas">【<span ng-bind="schema[0].title"></span>】</span>的数据
             </div>
             <div class="alert alert-warning" ng-if="data.compatibleSchemas.length===0">

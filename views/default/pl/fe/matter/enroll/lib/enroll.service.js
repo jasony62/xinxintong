@@ -1134,6 +1134,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             http2.get('/rest/pl/fe/matter/enroll/round/list?app=' + appId + '&' + oDataset.page.j(), function(rsp) {
                                 oDataset.data = rsp.data.rounds;
                                 oDataset.page.total = rsp.data.total;
+                                _oData.fromRnd = oDataset.data[0];
                             });
                         }
                         var _oData;
@@ -1178,6 +1179,19 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 $scope2.doSearchFromRnd(1);
                                 http2.get('/rest/pl/fe/matter/enroll/schema/compatible?app1=' + _appId + '&app2=' + oFromApp.id, function(rsp) {
                                     _oData.compatibleSchemas = rsp.data;
+                                    if (rsp.data.length === 0) {
+                                        noticebox.info('选中活动的题目和当前活动的题目不匹配，无法导入记录');
+                                    }
+                                });
+                            }
+                        });
+                        $scope2.$watch('data.fromRnd', function(oFromRnd) {
+                            if (oFromRnd) {
+                                http2.get('/rest/pl/fe/matter/enroll/record/countByRound?round=' + oFromRnd.rid, function(rsp) {
+                                    _oData.countOfRecord = rsp.data;
+                                    if (rsp.data === 0) {
+                                        noticebox.info('选中活动的填写轮次的记录为空，无法导入记录');
+                                    }
                                 });
                             }
                         });

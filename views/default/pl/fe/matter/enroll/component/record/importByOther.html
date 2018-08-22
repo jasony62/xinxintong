@@ -25,9 +25,7 @@
                 </div>
                 <div class='col-md-6'>
                     <div class='form-group'>
-                        <select class="form-control" ng-model="data.fromRnd" ng-options="rnd.title for rnd in fromRnds.data" size="10">
-                            <option value=>所有轮次</option>
-                        </select>
+                        <select class="form-control" ng-model="data.fromRnd" ng-options="rnd.title for rnd in fromRnds.data" size="10"></select>
                     </div>
                     <div class='form-group' ng-if="fromRnds.page.total>fromRnds.page.size">
                         <div class='pl-pagination'>
@@ -59,6 +57,9 @@
                     <div class="alert alert-info">
                         将活动【<span ng-bind="data.fromApp.title"></span>】<span ng-if="data.fromRnd">填写轮次【<span ng-bind="data.fromRnd.title"></span>】</span><span ng-if="!data.fromRnd">所有</span>的记录导入到当前活动的填写轮次【<span ng-if="data.toRnd" ng-bind="data.toRnd.title"></span><span ng-if="!data.toRnd">需要指定</span>】
                     </div>
+                    <div class="alert" ng-class="{'alert-info':data.countOfRecord>0,'alert-warning':data.countOfRecord===0}">
+                        根据条件导入的记录数为【<span ng-bind="data.countOfRecord"></span>】条
+                    </div>
                     <div class="alert alert-info" ng-if="data.compatibleSchemas.length">
                         导入题目<span ng-repeat="schema in data.compatibleSchemas">【<span ng-bind="schema[0].title"></span>】</span>的数据
                     </div>
@@ -68,7 +69,7 @@
                     <p class='help-block'>只导入目标活动中题目的名称和类型与当前活动的题目一致的数据</p>
                 </div>
                 <div class='col-md-6'>
-                    <button class="btn btn-success" ng-click="ok()" ng-disabled="!data.toRnd||!data.fromApp||data.compatibleSchemas.length===0">执行导入</button>
+                    <button class="btn btn-success" ng-click="ok()" ng-disabled="!data.toRnd||!data.fromApp||data.compatibleSchemas.length===0||data.countOfRecrd===0">执行导入</button>
                 </div>
             </div>
         </uib-tab>

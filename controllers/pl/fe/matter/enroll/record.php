@@ -105,6 +105,26 @@ class record extends main_base {
 		return new \ResponseData($oResult);
 	}
 	/**
+	 * 指定活动轮次的记录的数量
+	 *
+	 */
+	public function countByRound_action($round) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$oRound = $modelRnd->byId($round, ['fields' => 'rid']);
+		if (false === $oRound) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$count = $modelRec->byRound($oRound->rid, ['fields' => 'count(*)']);
+
+		return new \ResponseData($count);
+	}
+	/**
 	 * 计算指定登记项所有记录的合计
 	 * 若不指定登记项，则返回活动中所有数值型登记项的合集
 	 * 若指定的登记项不是数值型，返回0

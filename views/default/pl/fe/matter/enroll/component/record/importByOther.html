@@ -15,7 +15,7 @@
                                 <button class='btn btn-default' ng-click="doFilter()"><i class='glyphicon glyphicon-refresh'></i></button>
                             </div>
                         </div>
-                        <select class="form-control" ng-model="data.fromApp" ng-options="app.title for app in fromApps.data" size="10" ng-change="selectApp()"></select>
+                        <select class="form-control" ng-model="data.fromApp" ng-options="app.title for app in fromApps.data" size="10"></select>
                     </div>
                     <div class='form-group' ng-if="fromApps.page.total>fromApps.page.size">
                         <div class='pl-pagination'>

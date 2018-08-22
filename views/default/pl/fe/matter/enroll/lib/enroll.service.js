@@ -1175,6 +1175,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         };
                         $scope2.$watch('data.fromApp', function(oFromApp) {
                             if (oFromApp) {
+                                $scope2.doSearchFromRnd(1);
                                 http2.get('/rest/pl/fe/matter/enroll/schema/compatible?app1=' + _appId + '&app2=' + oFromApp.id, function(rsp) {
                                     _oData.compatibleSchemas = rsp.data;
                                 });

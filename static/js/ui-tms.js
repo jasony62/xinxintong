@@ -91,6 +91,13 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         _getBox('progress', msg);
     };
 }]).service('http2', ['$http', '$timeout', '$sce', 'noticebox', function($http, $timeout, $sce, noticebox) {
+    this.newPage = function(size, at) {
+        return {
+            at: at || 1,
+            size: size || 10,
+            j: function() { return 'page=' + this.at + '&size=' + this.size; }
+        }
+    };
     this.get = function(url, callback, options) {
         var _timer;
         options = angular.extend({

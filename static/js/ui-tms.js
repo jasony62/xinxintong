@@ -3,26 +3,6 @@
  * combox
  * editable
  */
-'use strict';
-(function() {
-    function doXhr(method, url, data) {
-        var xhr = new XMLHttpRequest();
-        xhr.open(method, url, true);
-        xhr.setRequestHeader("Content-type", "application/json;charset=UTF-8");
-        xhr.setRequestHeader("Accept", "application/json");
-        xhr.send(JSON.stringify(data));
-    }
-    window.onerror = function(msg, url, line, column) {
-        var message = [
-            'Message: ' + msg,
-            'URL: ' + url,
-            'Line: ' + line,
-            'Column: ' + column,
-        ].join(' - ');
-        doXhr('post', '/rest/log/add', { src: 'js', msg: message });
-        console.log(message);
-    };
-})();
 angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', function($timeout) {
     var _boxId = 'tmsbox' + (new Date() * 1),
         _last = {
@@ -111,6 +91,13 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         _getBox('progress', msg);
     };
 }]).service('http2', ['$http', '$timeout', '$sce', 'noticebox', function($http, $timeout, $sce, noticebox) {
+    this.newPage = function(size, at) {
+        return {
+            at: at || 1,
+            size: size || 10,
+            j: function() { return 'page=' + this.at + '&size=' + this.size; }
+        }
+    };
     this.get = function(url, callback, options) {
         var _timer;
         options = angular.extend({

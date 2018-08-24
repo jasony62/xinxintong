@@ -728,7 +728,7 @@ class record_model extends record_base {
 		$visibilitySchemas = []; // 设置了可见性规则的题目
 		if (!empty($oApp->dataSchemas)) {
 			foreach ($oApp->dataSchemas as $oSchema) {
-				if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
+				if (isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') {
 					$bRequireScore = true;
 					break;
 				}

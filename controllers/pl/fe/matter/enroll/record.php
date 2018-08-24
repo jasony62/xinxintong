@@ -69,13 +69,9 @@ class record extends main_base {
 		$oResult = $modelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
 		if (!empty($oResult->records)) {
 			$remarkables = [];
-			$bRequireScore = false;
 			foreach ($oEnrollApp->dynaDataSchemas as $oSchema) {
 				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
 					$remarkables[] = $oSchema->id;
-				}
-				if (isset($oSchema->requireScore) && $oSchema->requireScore == 'Y') {
-					$bRequireScore = true;
 				}
 			}
 			if (count($remarkables)) {
@@ -84,20 +80,6 @@ class record extends main_base {
 					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
 					$oRec->verbose = new \stdClass;
 					$oRec->verbose->data = $oRecordData;
-				}
-			}
-			if ($bRequireScore) {
-				foreach ($oResult->records as $oRec) {
-					$one = $modelRec->query_obj_ss([
-						'id,score',
-						'xxt_enroll_record',
-						['siteid' => $oEnrollApp->siteid, 'enroll_key' => $oRec->enroll_key],
-					]);
-					if (count($one)) {
-						$oRec->score = json_decode($one->score);
-					} else {
-						$oRec->score = new \stdClass;
-					}
 				}
 			}
 		}
@@ -1758,7 +1740,7 @@ class record extends main_base {
 			}
 			// 处理登记项
 			$data = $oRecord->data;
-			$oRecScore = empty($oRecord->score) ? new \stdClass : json_decode($oRecord->score);
+			$oRecScore = empty($oRecord->score) ? null : $oRecord->score;
 			$supplement = $oRecord->supplement;
 			$oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
 			$i = 0; // 列序号

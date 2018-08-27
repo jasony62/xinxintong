@@ -85,7 +85,7 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  * prefix for rest.
  * 需要和web服务器的配置一致
  */
-!defined('TMS_APP_API_PREFIX') && define('TMS_APP_API_PREFIX', '/app.php'); // 前缀API前缀
+!defined('TMS_APP_API_PREFIX') && define('TMS_APP_API_PREFIX', '/rest'); // 前缀API前缀
 !defined('TMS_APP_VIEW_PREFIX') && define('TMS_APP_VIEW_PREFIX', '/page'); // 请求页面前缀
 
 /***********************

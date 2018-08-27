@@ -1,5 +1,5 @@
 ﻿<?php
-die('danger');
+// die('danger');
 /**
  * create all tables.
  */

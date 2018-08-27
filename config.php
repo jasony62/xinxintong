@@ -85,7 +85,7 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  * prefix for rest.
  * 需要和web服务器的配置一致
  */
-!defined('TMS_APP_API_PREFIX') && define('TMS_APP_API_PREFIX', '/rest'); // 前缀API前缀
+!defined('TMS_APP_API_PREFIX') && define('TMS_APP_API_PREFIX', '/app.php'); // 前缀API前缀
 !defined('TMS_APP_VIEW_PREFIX') && define('TMS_APP_VIEW_PREFIX', '/page'); // 请求页面前缀
 
 /***********************
@@ -94,11 +94,11 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
 /**
  * 平台首页，未指定，或未找到指定地址时跳转到首页。
  */
-!defined('TMS_APP_HOME') && define('TMS_APP_HOME', '/rest/home');
+!defined('TMS_APP_HOME') && define('TMS_APP_HOME', '/app.php/home');
 /**
  * 用户未认证通过时缺省页
  */
-!defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/rest/site/fe/user/access');
+!defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/app.php/site/fe/user/access');
 define('TMS_APP_AUTHED', '/pl/fe'); // 认证通过后的缺省页
 
 /*************************

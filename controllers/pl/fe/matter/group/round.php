@@ -116,11 +116,11 @@ class round extends \pl\fe\matter\base {
 	 * 属于指定分组的人
 	 */
 	public function winnersGet_action($app, $rid = null) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-		$result = $this->model('matter\group\player')->byRound($app, $rid);
+		$oResult = $this->model('matter\group\player')->byRound($app, $rid);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 }

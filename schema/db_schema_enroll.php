@@ -1,7 +1,7 @@
 <?php
 require_once '../db.php';
 /*********************************************
- *登记活动
+ *记录活动
  *********************************************/
 $sql = "create table if not exists xxt_enroll(";
 $sql .= "id varchar(40) not null";
@@ -19,8 +19,8 @@ $sql .= ",title varchar(255) not null default ''";
 $sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
 $sql .= ",pic text null"; // 分享或生成链接时的图片
 $sql .= ",mission_id int not null default 0"; // 所属项目
-$sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
-$sql .= ",scenario_config text null"; // 登记活动场景的配置参数
+$sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
+$sql .= ",scenario_config text null"; // 记录活动场景的配置参数
 $sql .= ",round_cron text null"; // 定时创建轮次规则
 $sql .= ",sync_mission_round char(1) not null default 'N'"; // 和项目轮次同步
 $sql .= ",count_limit int not null default 0"; // 限制登记次数，0不限制
@@ -33,7 +33,6 @@ $sql .= ",entry_rule text null"; // 进入规则
 $sql .= ",action_rule text null"; // 行动规则
 $sql .= ",enrolled_entry_page varchar(20) not null default ''";
 $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登记记录，还是编辑新的
-$sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
 $sql .= ",can_repos char(1) not null default 'N'"; // 打开共享页
 $sql .= ",can_rank char(1) not null default 'N'"; // 打开排行页
 $sql .= ",can_coin char(1) not null default 'N'"; // 是否支持积分
@@ -45,7 +44,7 @@ $sql .= ",notify_config text null"; // 通知提醒设置
 $sql .= ",assigned_nickname text null"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
 $sql .= ",tags text null"; // 登记记录标签
 $sql .= ",category_tags text null"; // 素材分类标签
-$sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的登记活动
+$sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的记录活动
 $sql .= ",group_app_id varchar(40) not null default ''"; // 关联的分组活动
 $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
@@ -93,14 +92,13 @@ $sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动�
 $sql .= ",seq int not null"; //页面序号
 $sql .= ",data_schemas longtext"; // 登记项定义
 $sql .= ",act_schemas text"; // 登记操作定义
-$sql .= ",user_schemas text"; // 登记用户信息定义（仅登记页有效）
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动轮次
+ * 记录活动轮次
  */
 $sql = "create table if not exists xxt_enroll_round(";
 $sql .= "id int not null auto_increment";
@@ -165,7 +163,7 @@ $sql .= ",data longtext null"; // 登记的数据项
 $sql .= ",supplement longtext null"; // 补充说明
 $sql .= ",score text null"; // 测试活动，登记记录的得分
 $sql .= ",verified char(1) not null default 'N'"; // 记录是否已通过审核
-$sql .= ",matched_enroll_key varchar(32) not null default ''"; // 如果关联了登记活动，记录关联的登记记录
+$sql .= ",matched_enroll_key varchar(32) not null default ''"; // 如果关联了记录活动，记录关联的登记记录
 $sql .= ",group_enroll_key varchar(32) not null default ''"; // 如果关联了分组活动，记录关联的分组记录
 $sql .= ",submit_log text null"; // 数据提交日志
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受，D(iscuss)）
@@ -235,7 +233,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动标签指定记录
+ * 记录活动标签指定记录
  */
 $sql = 'create table if not exists xxt_enroll_assoc_log(';
 $sql .= 'id bigint not null auto_increment';
@@ -274,7 +272,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动内容留言
+ * 记录活动内容留言
  */
 $sql = "create table if not exists xxt_enroll_record_remark(";
 $sql .= "id int not null auto_increment";
@@ -288,7 +286,6 @@ $sql .= ",enroll_key varchar(32) not null"; // 被留言的记录
 $sql .= ",enroll_userid varchar(40) not null default ''"; // 提交登记记录的人
 $sql .= ",group_id varchar(32) not null default ''"; // 发表留言的人所属用户分组id
 $sql .= ",userid varchar(40) not null default ''"; // 发表留言的人
-$sql .= ",user_src char(1) not null default 'S'"; // 用户来源团队用户账号（Platform）或个人用户账号（Site）；没用了，userid已经统一了
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",modify_at int not null default 0";
@@ -310,7 +307,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动的参与人及行为汇总，包含：登记人和留言人
+ * 记录活动的参与人及行为汇总，包含：登记人和留言人
  */
 $sql = "create table if not exists xxt_enroll_user(";
 $sql .= "id int not null auto_increment";
@@ -372,7 +369,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动页面记录追踪
+ * 记录活动页面记录追踪
  */
 $sql = "create table if not exists xxt_enroll_trace(";
 $sql .= "id int not null auto_increment";
@@ -452,7 +449,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动标签
+ * 记录活动标签
  */
 $sql = 'create table if not exists xxt_enroll_tag(';
 $sql .= 'id bigint not null auto_increment';
@@ -469,7 +466,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动用户标签
+ * 记录活动用户标签
  */
 $sql = 'create table if not exists xxt_enroll_user_tag(';
 $sql .= 'id bigint not null auto_increment';
@@ -486,7 +483,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动标签指定记录
+ * 记录活动标签指定记录
  */
 $sql = 'create table if not exists xxt_enroll_tag_assign(';
 $sql .= 'id bigint not null auto_increment';
@@ -504,7 +501,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动标签指定记录
+ * 记录活动标签指定记录
  */
 $sql = 'create table if not exists xxt_enroll_tag_target(';
 $sql .= 'id bigint not null auto_increment';
@@ -578,7 +575,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_signin(";
 $sql .= "id varchar(40) not null";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的登记活动
+$sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的记录活动
 $sql .= ",group_app_id varchar(40) not null default ''"; // 关联的分组活动
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",creater_name varchar(255) not null default ''";
@@ -657,7 +654,6 @@ $sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
 $sql .= ",seq int not null"; //页面序号
 $sql .= ",data_schemas text"; // 登记项定义
 $sql .= ",act_schemas text"; // 登记操作定义
-$sql .= ",user_schemas text"; // 登记用户信息定义（仅登记页有效）
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -792,6 +788,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_group_round(";
 $sql .= "aid varchar(40) not null";
 $sql .= ",round_id varchar(32) not null";
+$sql .= ",round_type char(1) not null default 'T'"; // 分组类型 T：团队，R：角色
 $sql .= ",create_at int not null";
 $sql .= ",title varchar(40) not null";
 $sql .= ",autoplay char(1) not null default 'N'"; // 自动抽取直到达到抽取次数
@@ -816,16 +813,17 @@ $sql .= ",wx_openid varchar(255) not null default ''";
 $sql .= ",yx_openid varchar(255) not null default ''";
 $sql .= ",qy_openid varchar(255) not null default ''";
 $sql .= ",headimgurl varchar(255) not null default ''";
-$sql .= ",is_leader char(1) not null default 'N'"; // 用户角色，N：组员，Y：组长，S：超级用户
+$sql .= ",is_leader char(1) not null default 'N'"; // 人员分组中的用户角色，N：组员，Y：组长，S：超级用户
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
 $sql .= ",tags text null";
 $sql .= ",comment text null";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log
 $sql .= ",referrer text null"; //
-$sql .= ",round_id varchar(32) not null default ''";
+$sql .= ",round_id varchar(32) not null default ''"; // 团队分组
 $sql .= ",round_title varchar(40) not null default ''";
-$sql .= ",draw_at int not null";
+$sql .= ",role_rounds varchar(255) not null default ''"; // 角色分组
+$sql .= ",draw_at int not null"; // 加入人员分组的时间
 $sql .= ",data text null"; // 登记的数据项
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

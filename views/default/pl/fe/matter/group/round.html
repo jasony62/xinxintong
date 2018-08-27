@@ -15,10 +15,19 @@
                         <input type='text' class='form-control' ng-model='rnd.title' tms-auto-update tms-wait=1000 tms-update="updateRound(rnd,'title')">
                     </div>
                 </div>
-                <div class='col-md-6'>
+                <div class='col-md-3'>
                     <div class='form-group'>
                         <label>人数</label>
                         <input type='text' class='form-control' ng-model='rnd.times' tms-auto-update tms-wait=1000 tms-update="updateRound(rnd,'times')">
+                    </div>
+                </div>
+                <div class='col-md-3'>
+                    <div class='form-group'>
+                        <label>类型</label>
+                        <select class='form-control' ng-model='rnd.round_type' ng-change="updateRound(rnd,'round_type')">
+                            <option value='T'>团队</option>
+                            <option value='R'>角色</option>
+                        </select>
                     </div>
                 </div>
             </div>

@@ -26,9 +26,13 @@ class schema_model extends \TMS_MODEL {
 	 * referSchema
 	 * referOption
 	 * referRercord
+	 * schema_id 通讯录id
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'cowork', 'filterWhiteSpace', 'ops'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id', 'asdir'];
+		$validPropsBySchema = [
+			'html' => ['id', 'type', 'content', 'title'],
+		];
 
 		$purified = [];
 		$schemasById = [];
@@ -36,9 +40,17 @@ class schema_model extends \TMS_MODEL {
 			$schemasById[$oSchema->id] = $oSchema;
 		}
 		foreach ($aAppSchemas as $oSchema) {
-			foreach ($oSchema as $prop => $val) {
-				if (!in_array($prop, $validProps)) {
-					unset($oSchema->{$prop});
+			if (isset($validPropsBySchema[$oSchema->type])) {
+				foreach ($oSchema as $prop => $val) {
+					if (!in_array($prop, $validPropsBySchema[$oSchema->type])) {
+						unset($oSchema->{$prop});
+					}
+				}
+			} else {
+				foreach ($oSchema as $prop => $val) {
+					if (!in_array($prop, $validProps)) {
+						unset($oSchema->{$prop});
+					}
 				}
 			}
 			// 删除多选题答案中被删除的选项
@@ -107,6 +119,124 @@ class schema_model extends \TMS_MODEL {
 						$oParentSchema = $schemasById[$oSchema->parent->id];
 						if ($oSchema->parent->type !== $oParentSchema->type) {
 							unset($oSchema->parent);
+						}
+					}
+				}
+			}
+			/* 是否可见 */
+			if (isset($oSchema->visibility)) {
+				if (empty($oSchema->visibility->rules)) {
+					unset($oSchema->visibility);
+				} else {
+					for ($i = count($oSchema->visibility->rules) - 1; $i >= 0; $i--) {
+						$oRule = $oSchema->visibility->rules[$i];
+						if (empty($oRule->schema) || empty($oRule->op) || empty($schemasById[$oRule->schema])) {
+							array_splice($oSchema->visibility->rules, $i, 1);
+						} else {
+							$oDependentSchema = $schemasById[$oRule->schema];
+							if (!in_array($oDependentSchema->type, ['single', 'multiple']) || empty($oDependentSchema->ops)) {
+								array_splice($oSchema->visibility->rules, $i, 1);
+							} else {
+								$bExistent = false;
+								foreach ($oDependentSchema->ops as $oOp) {
+									if ($oOp->v === $oRule->op) {
+										$bExistent = true;
+										break;
+									}
+								}
+								if (!$bExistent) {
+									array_splice($oSchema->visibility->rules, $i, 1);
+								}
+							}
+						}
+					}
+					if (empty($oSchema->visibility->rules)) {
+						unset($oSchema->visibility);
+					}
+				}
+			}
+			/* 选项可见条件 */
+			if (isset($oSchema->optGroups)) {
+				if (empty($oSchema->optGroups)) {
+					unset($oSchema->optGroups);
+				} else {
+					for ($i = count($oSchema->optGroups) - 1; $i >= 0; $i--) {
+						$bValid = true;
+						$oOptGroup = $oSchema->optGroups[$i];
+						if (empty($oOptGroup->assocOp->schemaId) || empty($oOptGroup->assocOp->v) || empty($schemasById[$oOptGroup->assocOp->schemaId])) {
+							$bValid = false;
+						} else {
+							$oDependentSchema = $schemasById[$oOptGroup->assocOp->schemaId];
+							if ($oDependentSchema->type !== 'single' || empty($oDependentSchema->ops)) {
+								$bValid = false;
+							} else {
+								$bExistent = false;
+								foreach ($oDependentSchema->ops as $oOp) {
+									if ($oOp->v === $oOptGroup->assocOp->v) {
+										$bExistent = true;
+										break;
+									}
+								}
+								if (!$bExistent) {
+									$bValid = false;
+								}
+							}
+						}
+						if (false === $bValid) {
+							array_splice($oSchema->optGroups, $i, 1);
+							if (!empty($oSchema->ops)) {
+								foreach ($oSchema->ops as $oOp) {
+									if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
+										unset($oOp->g);
+									}
+								}
+							}
+						}
+					}
+					if (empty($oSchema->optGroups)) {
+						unset($oSchema->optGroups);
+					}
+				}
+			}
+			/* 单选题和多选题默认选项 */
+			if (isset($oSchema->defaultValue)) {
+				if ($oSchema->type === 'single') {
+					if (!is_string($oSchema->defaultValue)) {
+						unset($oSchema->defaultValue);
+					} else {
+						$bExistent = false;
+						foreach ($oSchema->ops as $oOp) {
+							if ($oOp->v === $oSchema->defaultValue) {
+								$bExistent = true;
+								break;
+							}
+						}
+						if (false === $bExistent) {
+							unset($oSchema->defaultValue);
+						}
+					}
+				} else if ($oSchema->type === 'multiple') {
+					if (!is_object($oSchema->defaultValue)) {
+						unset($oSchema->defaultValue);
+					} else {
+						foreach ($oSchema->defaultValue as $oOpV => $bChecked) {
+							if (false === $bChecked) {
+								unset($oSchema->defaultValue->$oOpV);
+							} else {
+								$bExistent = false;
+								foreach ($oSchema->ops as $oOp) {
+									if ($oOp->v === $oOpV) {
+										$bExistent = true;
+										break;
+									}
+								}
+								if (false === $bExistent) {
+									unset($oSchema->defaultValue->$oOpV);
+								}
+							}
+						}
+						if (count((array) $oSchema->defaultValue) === 0) {
+							unset($oSchema->defaultValue);
 						}
 					}
 				}
@@ -309,7 +439,7 @@ class schema_model extends \TMS_MODEL {
 				];
 				/* 设置轮次条件 */
 				if (!empty($oDsAppRnd)) {
-					$q[2]['rid'] = $oDsAppRnd->rid;
+					$q[2]['rid'] = (object) ['op' => 'or', 'pat' => ["rid='{$oDsAppRnd->rid}'", "exists (select 1 from xxt_enroll_record_remark rr where t0.enroll_key=rr.enroll_key and rr.state=1 and rr.rid='{$oDsAppRnd->rid}')"]];
 				}
 				/* 设置过滤条件 */
 				if (!empty($oSchema->dsSchema->filters)) {
@@ -643,5 +773,78 @@ class schema_model extends \TMS_MODEL {
 
 			$newSchemas[] = $oNewSchema;
 		}
+	}
+	/**
+	 * 获得schemasB中和schemasA兼容的登记项定义及对应关系
+	 *
+	 * 从目标应用中导入和指定应用的数据定义中名称（title）和类型（type）一致的项
+	 * 如果是单选题、多选题、打分题选项必须一致
+	 * 如果是打分题，分值设置范围必须一致
+	 * name,email,mobile,shorttext,longtext认为是同一种类型
+	 * 忽略：项目阶段，说明描述
+	 */
+	public function compatibleSchemas($schemasA, $schemasB) {
+		if (empty($schemasB) || empty($schemasA)) {
+			return [];
+		}
+		$mapOfCompatibleType = [
+			'shorttext' => 'text',
+			'longtext' => 'text',
+			'name' => 'text',
+			'email' => 'text',
+			'mobile' => 'text',
+			'location' => 'text',
+			'date' => 'text',
+			'single' => 'single',
+			'multiple' => 'multiple',
+			'score' => 'score',
+			'file' => 'file',
+			'image' => 'image',
+		];
+		$mapAByType = [];
+		foreach ($schemasA as $schemaA) {
+			if (!isset($mapOfCompatibleType[$schemaA->type])) {
+				continue;
+			}
+			$compatibleType = $mapOfCompatibleType[$schemaA->type];
+			if (!isset($mapAByType[$compatibleType])) {
+				$mapAByType[$compatibleType] = [];
+			}
+			$mapAByType[$compatibleType][] = $schemaA;
+		}
+
+		$aResult = [];
+		foreach ($schemasB as $schemaB) {
+			if (!isset($mapOfCompatibleType[$schemaB->type])) {
+				continue;
+			}
+			$compatibleType = $mapOfCompatibleType[$schemaB->type];
+			if (!isset($mapAByType[$compatibleType])) {
+				continue;
+			}
+			foreach ($mapAByType[$compatibleType] as $schemaA) {
+				if ($schemaA->title !== $schemaB->title) {
+					continue;
+				}
+				if ($compatibleType === 'single' || $compatibleType === 'multiple' || $compatibleType === 'score') {
+					if (count($schemaA->ops) !== count($schemaB->ops)) {
+						continue;
+					}
+					$isCompatible = true;
+					for ($i = 0, $ii = count($schemaA->ops); $i < $ii; $i++) {
+						if ($schemaA->ops[$i]->l !== $schemaB->ops[$i]->l) {
+							$isCompatible = false;
+							break;
+						}
+					}
+					if ($isCompatible === false) {
+						continue;
+					}
+				}
+				$aResult[] = [$schemaB, $schemaA];
+			}
+		}
+
+		return $aResult;
 	}
 }

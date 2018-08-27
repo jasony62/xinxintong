@@ -90,7 +90,7 @@ class record extends base {
 		}
 
 		// 检查是否允许登记
-		$rst = $this->_canSubmit($oEnrollApp, $oUser, $oEnrolledData, $ek);
+		$rst = $this->_canSubmit($oEnrollApp, $oUser, $oEnrolledData, $ek, $rid);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -264,29 +264,21 @@ class record extends base {
 	 */
 	private function _getSubmitRecordRid($oApp, $rid = '') {
 		$modelRnd = $this->model('matter\enroll\round');
-		$bRequireRound = false;
 		if (empty($rid)) {
-			if ($oApp->multi_rounds === 'Y') {
-				$bRequireRound = true;
-				$oRecordRnd = $modelRnd->getActive($oApp);
-			}
+			$oRecordRnd = $modelRnd->getActive($oApp);
 		} else {
-			$bRequireRound = true;
 			$oRecordRnd = $modelRnd->byId($rid);
 		}
-		if ($bRequireRound) {
-			if (empty($oRecordRnd)) {
-				return [false, '没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用'];
-			} else {
-				$now = time();
-				if ($oRecordRnd->end_at != 0 && $oRecordRnd->end_at < $now) {
-					return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
-				}
+		if (empty($oRecordRnd)) {
+			return [false, '没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用'];
+		} else {
+			$now = time();
+			if ($oRecordRnd->end_at != 0 && $oRecordRnd->end_at < $now) {
+				return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
 			}
-			return [true, $oRecordRnd->rid];
 		}
 
-		return [true, ''];
+		return [true, $oRecordRnd->rid];
 	}
 	/**
 	 * 保存记录数据
@@ -349,7 +341,7 @@ class record extends base {
 	 * 3、多选题选项的数量（schema.limitChoice, schema.range）
 	 *
 	 */
-	private function _canSubmit($oApp, $oUser, $oRecData, $ek) {
+	private function _canSubmit($oApp, $oUser, $oRecData, $ek, $rid = '') {
 		/**
 		 * 检查活动是否在进行过程中
 		 */
@@ -375,8 +367,8 @@ class record extends base {
 			/**
 			 * 检查登记数量
 			 */
-			if ($oApp->count_limit > 0) {
-				$records = $modelRec->byUser($oApp, $oUser);
+			if (isset($oApp->count_limit) && $oApp->count_limit > 0) {
+				$records = $modelRec->byUser($oApp, $oUser, ['rid' => $rid]);
 				if (count($records) >= $oApp->count_limit) {
 					return [false, ['已经进行过' . count($records) . '次登记，不允再次登记']];
 				}
@@ -995,13 +987,11 @@ class record extends base {
 			return new \ResponseError('仅允许记录的提交者删除记录');
 		}
 		// 判断活动是否添加了轮次
-		if ($oApp->multi_rounds == 'Y') {
-			$modelRnd = $this->model('matter\enroll\round');
-			$oActiveRnd = $modelRnd->getActive($oApp);
-			$now = time();
-			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now) || ($oActiveRnd->rid !== $oRecord->rid)) {
-				return new \ResponseError('记录所在活动轮次已结束，不能提交、修改、保存或删除！');
-			}
+		$modelRnd = $this->model('matter\enroll\round');
+		$oActiveRnd = $modelRnd->getActive($oApp);
+		$now = time();
+		if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now) || ($oActiveRnd->rid !== $oRecord->rid)) {
+			return new \ResponseError('记录所在活动轮次已结束，不能提交、修改、保存或删除！');
 		}
 		// 如果已经获得积分不允许删除
 		$modelEnlUsr = $this->model('matter\enroll\user');

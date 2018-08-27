@@ -32,10 +32,10 @@
     <div ng-cloak class='ng-cloak container'>
         <div id='rank' class='app'>
             <div class='row filter'>
-                <div class="col-md-2 col-xs-4" ng-if="app.multi_rounds==='Y'">
+                <div class="col-md-2 col-xs-4">
                     <div class='form-control' ng-click="setRound()" title='{{checkedRoundTitles}}' style='overflow:hidden;white-space:nowrap;'>{{checkedRoundTitles}}</div>
                 </div>
-                <div class='col-md-2' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']">
+                <div class='col-md-2 col-xs-4'>
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
                         <option value='group' ng-if="app.group_app_id||app.entryRule.scope.group==='Y'">用户分组</option>
@@ -45,7 +45,7 @@
                         <option value='remark-rec' ng-if="isRemark">内容留言-推荐</option>
                     </select>
                 </div>
-                <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='user'">
+                <div class='col-md-3 col-xs-4' ng-if="appState.criteria.obj==='user'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll' ng-if="config.enroll">提交记录数量</option>
                         <option value='remark' ng-if="config.remark">获得留言数量</option>
@@ -56,7 +56,7 @@
                         <option value='score' ng-if="config.score">得分</option>
                     </select>
                 </div>
-                <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='group'">
+                <div class='col-md-3 col-xs-4' ng-if="appState.criteria.obj==='group'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll' ng-if="config.enroll">提交记录数量</option>
                         <option value='remark' ng-if="config.remark">获得留言数量</option>
@@ -65,9 +65,10 @@
                         <option value='do_like' ng-if="config.do_like">进行点赞数量</option>
                         <option value='total_coin' ng-if="config.total_coin">积分</option>
                         <option value='score' ng-if="config.score">得分</option>
+                        <option value='average_score' ng-if="config.average_score">组员平均得分</option>
                     </select>
                 </div>
-                <div class='col-md-3' ng-class="{true:'col-xs-4',false:'col-xs-6'}[app.multi_rounds=='Y']" ng-if="appState.criteria.obj==='data'||appState.criteria.obj==='data-rec'">
+                <div class='col-md-3 col-xs-4' ng-if="appState.criteria.obj==='data'||appState.criteria.obj==='data-rec'">
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='remark'>获得留言数量</option>
                         <option value='like'>获得点赞数量</option>
@@ -373,7 +374,7 @@
             <button class="btn btn-primary" ng-click="ok()">确定</button>
         </div>
     </script>
-    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>

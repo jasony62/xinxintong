@@ -296,7 +296,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         $scope.app = oApp;
         $scope.user = oUser;
         $scope.activeRid = '';
-        if (oApp.multi_rounds === 'Y' && params.activeRound) {
+        if (params.activeRound) {
             $scope.activeRound = params.activeRound;
             $scope.activeRid = params.activeRound.rid;
         }

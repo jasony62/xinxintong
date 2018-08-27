@@ -3,7 +3,7 @@ namespace matter\enroll;
 
 require_once dirname(__FILE__) . '/record_base.php';
 /**
- * 登记活动记录
+ * 记录活动记录
  */
 class record_model extends record_base {
 	/**
@@ -466,7 +466,7 @@ class record_model extends record_base {
 	/**
 	 * 登记清单
 	 *
-	 * @param object/string 登记活动/登记活动的id
+	 * @param object/string 记录活动/记录活动的id
 	 * @param object/array $aOptions
 	 * --creater openid
 	 * --visitor openid
@@ -497,21 +497,28 @@ class record_model extends record_base {
 				$oSchemasById->{$oSchema->id} = $oSchema;
 			}
 		}
-		// 指定登记活动下的登记记录
+		// 指定记录活动下的登记记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
 		/* 指定轮次，或者当前激活轮次 */
 		if (empty($oCriteria->record->rid)) {
-			$oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp);
-			if ($oActiveRnd) {
-				$rid = $oActiveRnd->rid;
-				$w .= " and r.rid='$rid'";
+			if (!empty($oApp->appRound->rid)) {
+				$rid = $oApp->appRound->rid;
+				$w .= " and (r.rid='$rid'";
+				if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
+					$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
+				}
+				$w .= ')';
 			}
 		} else {
 			if (is_string($oCriteria->record->rid)) {
 				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 					$rid = $oCriteria->record->rid;
-					$w .= " and r.rid='$rid'";
+					$w .= " and (r.rid='$rid'";
+					if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
+						$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
+					}
+					$w .= ')';
 				}
 			} else if (is_array($oCriteria->record->rid)) {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
@@ -961,7 +968,7 @@ class record_model extends record_base {
 		$oResult = new \stdClass; // 返回的结果
 		$oResult->total = 0;
 
-		// 指定登记活动下的登记记录
+		// 指定记录活动下的登记记录
 		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$oApp->id}'";
 
 		// 指定了轮次
@@ -1684,79 +1691,6 @@ class record_model extends record_base {
 					$op->c = 0;
 				}
 				$oDataBySchema->sum += $op->c;
-			}
-		}
-
-		return $aResult;
-	}
-	/**
-	 * 获得schemasB中和schemasA兼容的登记项定义及对应关系
-	 *
-	 * 从目标应用中导入和指定应用的数据定义中名称（title）和类型（type）一致的项
-	 * 如果是单选题、多选题、打分题选项必须一致
-	 * 如果是打分题，分值设置范围必须一致
-	 * name,email,mobile,shorttext,longtext认为是同一种类型
-	 * 忽略：项目阶段，说明描述
-	 */
-	public function compatibleSchemas($schemasA, $schemasB) {
-		if (empty($schemasB) || empty($schemasA)) {
-			return [];
-		}
-		$mapOfCompatibleType = [
-			'shorttext' => 'text',
-			'longtext' => 'text',
-			'name' => 'text',
-			'email' => 'text',
-			'mobile' => 'text',
-			'location' => 'text',
-			'date' => 'text',
-			'single' => 'single',
-			'multiple' => 'multiple',
-			'score' => 'score',
-			'file' => 'file',
-			'image' => 'image',
-		];
-		$mapAByType = [];
-		foreach ($schemasA as $schemaA) {
-			if (!isset($mapOfCompatibleType[$schemaA->type])) {
-				continue;
-			}
-			$compatibleType = $mapOfCompatibleType[$schemaA->type];
-			if (!isset($mapAByType[$compatibleType])) {
-				$mapAByType[$compatibleType] = [];
-			}
-			$mapAByType[$compatibleType][] = $schemaA;
-		}
-
-		$aResult = [];
-		foreach ($schemasB as $schemaB) {
-			if (!isset($mapOfCompatibleType[$schemaB->type])) {
-				continue;
-			}
-			$compatibleType = $mapOfCompatibleType[$schemaB->type];
-			if (!isset($mapAByType[$compatibleType])) {
-				continue;
-			}
-			foreach ($mapAByType[$compatibleType] as $schemaA) {
-				if ($schemaA->title !== $schemaB->title) {
-					continue;
-				}
-				if ($compatibleType === 'single' || $compatibleType === 'multiple' || $compatibleType === 'score') {
-					if (count($schemaA->ops) !== count($schemaB->ops)) {
-						continue;
-					}
-					$isCompatible = true;
-					for ($i = 0, $ii = count($schemaA->ops); $i < $ii; $i++) {
-						if ($schemaA->ops[$i]->l !== $schemaB->ops[$i]->l) {
-							$isCompatible = false;
-							break;
-						}
-					}
-					if ($isCompatible === false) {
-						continue;
-					}
-				}
-				$aResult[] = [$schemaB, $schemaA];
 			}
 		}
 

@@ -166,15 +166,15 @@ class main extends \site\fe\matter\base {
 		}
 		$id = $model->escape($post->id);
 		$type = $model->escape($post->type);
-		$title = isset($post->title)? $model->escape($post->title) : '';
-		$shareby = isset($post->shareby)? $model->escape($post->shareby) : '';
+		$title = isset($post->title) ? $model->escape($post->title) : '';
+		$shareby = isset($post->shareby) ? $model->escape($post->shareby) : '';
 		$search = !empty($post->search) ? $model->escape($post->search) : (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '');
 		$referer = !empty($post->referer) ? $model->escape($post->referer) : (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
 
 		if ($type === 'enroll') {
 			$userRid = !empty($post->rid) ? $model->escape($post->rid) : '';
 			if (empty($post->assignedNickname)) {
-				$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,multi_rounds,assigned_nickname', 'cascaded' => 'N']);
+				$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
 				if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
 					$options = [];
 					$options['fields'] = 'nickname';
@@ -344,7 +344,7 @@ class main extends \site\fe\matter\base {
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
 		if ($type === 'enroll') {
-			$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,multi_rounds,assigned_nickname', 'cascaded' => 'N']);
+			$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
 			if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
 				$options = [];
 				$options['fields'] = 'nickname';
@@ -448,7 +448,7 @@ class main extends \site\fe\matter\base {
 		$inviteToken = $_GET['inviteToken'];
 
 		$rst = $this->model('invite\token')->checkToken($inviteToken, $userid, $oMatter);
-	
+
 		return $rst;
 	}
 }

@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记记录数据汇总
+ * 填写记录数据汇总
  */
 class repos extends base {
 	/**
@@ -106,7 +106,7 @@ class repos extends base {
 		// 登记数据过滤条件
 		$oCriteria = $this->getPostJson();
 
-		// 登记记录过滤条件
+		// 填写记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
@@ -287,7 +287,7 @@ class repos extends base {
 		return $bSameGroup;
 	}
 	/**
-	 * 返回指定活动的登记记录的共享内容
+	 * 返回指定活动的填写记录的共享内容
 	 */
 	public function recordList_action($app, $page = 1, $size = 12, $role = null) {
 		$modelApp = $this->model('matter\enroll');
@@ -323,16 +323,17 @@ class repos extends base {
 			if (!empty($oRule->remark->likeNum)) {
 				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
 			}
-			if (!empty($oRule->remark->agreed)) {
+			if (!empty($oRule->remark->agreed) && is_array($oRule->remark->agreed)) {
 				$remarkReposAgreed = $oRule->remark->agreed;
 			}
 		}
-		// 登记数据过滤条件
+		// 填写记录过滤条件
 		$oPosted = $this->getPostJson();
-		// 登记记录过滤条件
+		// 填写记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
+		$oOptions->regardRemarkRoundAsRecordRound = true; // 将留言的轮次作为记录的轮次
 
 		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
 
@@ -409,6 +410,7 @@ class repos extends base {
 		} else {
 			$oMockUser = $oUser;
 		}
+		$oEditor = null; // 作为编辑用户的信息
 
 		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oMockUser);
 		if (!empty($oResult->records)) {
@@ -422,6 +424,18 @@ class repos extends base {
 					$oEditor = new \stdClass;
 					$oEditor->group = $oActionRule->role->editor->group;
 					$oEditor->nickname = $oActionRule->role->editor->nickname;
+					// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
+					$modelGrpUsr = $this->model('matter\group\player');
+					$assocGroupId = $oApp->entryRule->group->id;
+					$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+					if (isset($groupEditor->players)) {
+						$groupEditorPlayers = $groupEditor->players;
+						$oEditorUsers = new \stdClass;
+						foreach ($groupEditorPlayers as $player) {
+							$oEditorUsers->{$player->userid} = $player->role_rounds;
+						}
+						unset($groupEditorPlayers);
+					}
 				}
 			}
 
@@ -510,6 +524,9 @@ class repos extends base {
 						/* 设置编辑统一昵称 */
 						if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
 							$oRecord->nickname = $oEditor->nickname;
+						} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRecord->userid})) {
+							// 记录提交者是否有编辑组角色
+							$oRecord->nickname = $oEditor->nickname;
 						}
 					}
 				}
@@ -520,27 +537,48 @@ class repos extends base {
 				unset($oRecord->yx_openid);
 				unset($oRecord->qy_openid);
 				unset($oRecord->headimgurl);
+
 				/* 获得推荐的评论数据 */
-				$q = [
-					'id,group_id,agreed,like_num,like_log,nickname,content,create_at',
-					'xxt_enroll_record_remark',
-					"enroll_key='{$oRecord->enroll_key}' and state=1",
-				];
-				if ($remarkReposLikeNum) {
-					$q[2] .= " and (agreedin ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
-				} else {
-					$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
-				}
-				$q2 = [
-					'o' => 'agreed desc,like_num desc,create_at desc',
-				];
-				$oRecord->agreedRemarks = $modelRec->query_objs_ss($q, $q2);
-				foreach ($oRecord->agreedRemarks as $oRemark) {
-					if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
-						/* 设置编辑统一昵称 */
-						if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
-							$oRemark->nickname = $oEditor->nickname;
+				$fnRemarksByRecord = function ($ek, $agreed, $rid = '') use ($modelRec, $oEditor, $oUser) {
+					$q = [
+						'id,group_id,agreed,like_num,like_log,userid,nickname,content,create_at',
+						'xxt_enroll_record_remark',
+						['enroll_key' => $ek, 'state' => 1, 'agreed' => $agreed],
+					];
+					if (!empty($rid)) {
+						$q[2]['rid'] = $rid;
+					}
+					$q2 = [
+						'o' => 'agreed desc,like_num desc,create_at desc',
+					];
+					$remarks = $modelRec->query_objs_ss($q, $q2);
+					foreach ($remarks as $oRemark) {
+						if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+							/* 设置编辑统一昵称 */
+							if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+								$oRemark->nickname = $oEditor->nickname;
+							} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRemark->userid})) {
+								// 记录提交者是否有编辑组角色
+								$oRemark->nickname = $oEditor->nickname;
+							}
 						}
+					}
+					return $remarks;
+				};
+				//if ($remarkReposLikeNum) {
+				//	$q[2] .= " and (agreedin ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
+				//} else {
+				//	$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
+				//}
+				/* 推荐的留言 */
+				if (in_array('Y', $remarkReposAgreed)) {
+					$oRecord->agreedRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'Y');
+				}
+				/* 同一个轮次的留言 */
+				if (in_array('A', $remarkReposAgreed)) {
+					if (empty($oCriteria->record->rid) || 0 !== strcasecmp($oCriteria->record->rid, 'all')) {
+						$rid = empty($oCriteria->record->rid) ? $oApp->appRound->rid : $oCriteria->record->rid;
+						$oRecord->roundRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'A', $rid);
 					}
 				}
 			}
@@ -549,7 +587,7 @@ class repos extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 返回指定活动的登记记录的共享内容
+	 * 返回指定活动的填写记录的共享内容
 	 */
 	public function recordByTopic_action($app, $topic, $page = 1, $size = 12, $role = null) {
 		$modelApp = $this->model('matter\enroll');
@@ -592,7 +630,7 @@ class repos extends base {
 		// 登记数据过滤条件
 		$oPosted = $this->getPostJson();
 
-		// 登记记录过滤条件
+		// 填写记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
@@ -642,6 +680,18 @@ class repos extends base {
 					$oEditor = new \stdClass;
 					$oEditor->group = $oApp->actionRule->role->editor->group;
 					$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+					// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
+					$modelGrpUsr = $this->model('matter\group\player');
+					$assocGroupId = $oApp->entryRule->group->id;
+					$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+					if (isset($groupEditor->players)) {
+						$groupEditorPlayers = $groupEditor->players;
+						$oEditorUsers = new \stdClass;
+						foreach ($groupEditorPlayers as $player) {
+							$oEditorUsers->{$player->userid} = $player->role_rounds;
+						}
+						unset($groupEditorPlayers);
+					}
 				}
 			}
 
@@ -722,6 +772,9 @@ class repos extends base {
 						/* 设置编辑统一昵称 */
 						if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
 							$oRecord->nickname = $oEditor->nickname;
+						} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRecord->userid})) {
+							// 记录提交者是否有编辑组角色
+							$oRecord->nickname = $oEditor->nickname;
 						}
 					}
 				}
@@ -734,7 +787,7 @@ class repos extends base {
 				unset($oRecord->headimgurl);
 				/* 获得推荐的评论数据 */
 				$q = [
-					'id,group_id,agreed,like_num,like_log,nickname,content,create_at',
+					'id,group_id,agreed,like_num,like_log,userid,nickname,content,create_at',
 					'xxt_enroll_record_remark',
 					"enroll_key='{$oRecord->enroll_key}' and state=1",
 				];
@@ -751,6 +804,9 @@ class repos extends base {
 					if (isset($oEditor) && (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y')) {
 						/* 设置编辑统一昵称 */
 						if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+							$oRemark->nickname = $oEditor->nickname;
+						} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRemark->userid})) {
+							// 记录提交者是否有编辑组角色
 							$oRemark->nickname = $oEditor->nickname;
 						}
 					}
@@ -780,6 +836,18 @@ class repos extends base {
 				$oEditor = new \stdClass;
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
+				$modelGrpUsr = $this->model('matter\group\player');
+				$assocGroupId = $oApp->entryRule->group->id;
+				$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+				if (isset($groupEditor->players)) {
+					$groupEditorPlayers = $groupEditor->players;
+					$oEditorUsers = new \stdClass;
+					foreach ($groupEditorPlayers as $player) {
+						$oEditorUsers->{$player->userid} = $player->role_rounds;
+					}
+					unset($groupEditorPlayers);
+				}
 			}
 		}
 
@@ -819,6 +887,9 @@ class repos extends base {
 				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
 					/* 设置编辑统一昵称 */
 					if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
+						$oRecord->nickname = $oEditor->nickname;
+					} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRecord->userid})) {
+						// 记录提交者是否有编辑组角色
 						$oRecord->nickname = $oEditor->nickname;
 					}
 				}

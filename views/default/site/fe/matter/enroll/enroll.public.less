@@ -1,4 +1,5 @@
 @import "../../../../../../static/less/site.fe.base.less";
+
 body {
     margin-bottom: 64px;
 }
@@ -8,20 +9,20 @@ img {
 }
 
 hr {
-	margin: 12px 0 12px;
+    margin: 12px 0 12px;
 }
 
 p {
-	word-break: break-all;
+    word-break: break-all;
 }
 
 blockquote {
-	font-size: 16px;
-	margin-bottom: 8px;
+    font-size: 16px;
+    margin-bottom: 8px;
 }
 
 button.option {
-	padding: 0;
+    padding: 0;
 }
 
 .navbar-header {
@@ -140,12 +141,14 @@ button.option {
 
     .data {
         blockquote {
-            &>div+div {
+            .schema+.schema {
                 margin-top: 8px;
+                padding-top:8px;
+                border-top:1px dashed #ddd;
             }
 
             .schema>div+div {
-                margin-top: 8px;
+                margin-top: 4px;
             }
 
         }
@@ -171,7 +174,6 @@ button.option {
         position: relative;
 
         &:before {
-            content: '推荐留言';
             position: absolute;
             left: 50%;
             margin-left: -2em;
@@ -192,6 +194,14 @@ button.option {
 
         .remark+.remark {
             margin-bottom: 1em;
+        }
+
+        &.agreed:before {
+            content: '推荐留言';
+        }
+
+        &.round:before {
+            content: '轮次留言';
         }
 
     }
@@ -257,8 +267,8 @@ button.option {
     }
 
     .btn-default {
-		color: #777;
-	}
+        color: #777;
+    }
 
     .dropdown {
         button {
@@ -321,123 +331,125 @@ button.option {
 }
 
 #record, #cowork, #remarks {
-	padding: 16px;
-	background: #fff;
+    padding: 16px;
+    background: #fff;
 }
 
 #record {
-	.title {
-		margin: 0 -1rem .5rem -1rem;
-		background: #ddd;
-		padding: .5rem 1rem;
-		border-bottom: 1px solid #ccc;
+    .title {
+        margin: 0 -1rem .5rem -1rem;
+        background: #ddd;
+        padding: .5rem 1rem;
+        border-bottom: 1px solid #ccc;
 
-		.dropdown-menu {
-			right: 0;
-			left: auto;
-			min-width: auto;
-		}
+        .dropdown-menu {
+            right: 0;
+            left: auto;
+            min-width: auto;
+        }
 
-	}
+    }
 
-	.data blockquote>div+div {
-		margin-top: 8px;
-	}
+    .data blockquote>div+div {
+        margin-top: 8px;
+    }
 
-	.tags, .assocs {
-		margin-top: 8px;
-	}
+    .tags, .assocs {
+        margin-top: 8px;
+    }
 
-	.tags {
-		&>button+button {
-			margin-left: 4px;
-		}
+    .tags {
+        &>button+button {
+            margin-left: 4px;
+        }
 
-	}
+    }
 
-	.assocs>div {
-		padding: 4px 0;
+    .assocs>div {
+        padding: 4px 0;
 
-		.assoc-reason {
-			border: 1px solid #ccc;
-			border-radius: 4px;
-			margin-right: 8px;
-			padding: 0 4px;
-		}
+        .assoc-reason {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 8px;
+            padding: 0 4px;
+        }
 
-		.assoc-text {
-			cursor: pointer;
-		}
+        .assoc-text {
+            cursor: pointer;
+        }
 
-	}
+    }
 
 }
 
 #cowork {
-	position: relative;
-	margin-top: 1rem;
+    position: relative;
+    margin-top: 1rem;
 }
 
 #cowork {
-	.item {
-		position: relative;
-		transition: background 1s;
-	}
+    .item {
+        position: relative;
+        transition: background 1s;
+    }
 
-	.blink {
-		background: #d9edf7;
-	}
+    .blink {
+        background: #d9edf7;
+    }
+
 }
 
 #remarks {
-	position: relative;
-	margin-top: 3rem;
+    position: relative;
+    margin-top: 3rem;
 }
 
 #remarks {
-	&:before {
-		content: '留言';
-		position: absolute;
-		left: 50%;
-		margin-left: -1em;
-		top: -2em;
-		font-size: .7em;
-		color: #eee;
-		padding: .2em 1em;
-		background: #666;
-		border-radius: 1em;
-	}
+    &:before {
+        content: '留言';
+        position: absolute;
+        left: 50%;
+        margin-left: -1em;
+        top: -2em;
+        font-size: .7em;
+        color: #eee;
+        padding: .2em 1em;
+        background: #666;
+        border-radius: 1em;
+    }
 
-	.remarkList {
-		background: #fff;
-		min-height: 167px;
-		margin-bottom: 30px;
-	}
+    .remarkList {
+        background: #fff;
+        min-height: 167px;
+        margin-bottom: 30px;
+    }
 
-	.remark {
-		position: relative;
-		background: #fff;
-		border-bottom: 1px solid #ddd;
-		transition: background 1s;
-		padding: 8px 0;
+    .remark {
+        position: relative;
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+        transition: background 1s;
+        padding: 8px 0;
 
-		&:last-child {
-			border-bottom: 0;
-		}
+        &:last-child {
+            border-bottom: 0;
+        }
 
-		&>* {
-			margin: 1em 0 .2em;
-		}
+        &>* {
+            margin: 1em 0 .2em;
+        }
 
-	}
+    }
 
-	.blink {
-		background: #d9edf7;
-	}
+    .blink {
+        background: #d9edf7;
+    }
 
-	.form-control {
-		border-radius: 0;
-	}
+    .form-control {
+        border-radius: 0;
+    }
+
 }
 
 .modal-edit-topic {
@@ -449,29 +461,29 @@ button.option {
 }
 
 .tms-editor {
-	position: absolute;
-	top: 8px;
-	bottom: 8px;
-	left: 8px;
-	right: 8px;
-	display: flex;
-	flex-direction: column;
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
 
-	&>*:first-child {
-		position: relative;
-		flex-grow: 1;
-		margin-bottom: 8px;
-		border: 1px solid #ddd;
-		border-radius: 4px;
-		overflow-y: auto;
+    &>*:first-child {
+        position: relative;
+        flex-grow: 1;
+        margin-bottom: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow-y: auto;
 
-		iframe {
-			display: block;
-			width: 100%;
-			border: 0;
-		}
+        iframe {
+            display: block;
+            width: 100%;
+            border: 0;
+        }
 
-	}
+    }
 
 }
 
@@ -503,11 +515,10 @@ button.option {
     }
 
     .app {
-    	.records.col-xs-12,
-    	.tags.col-xs-12,
-    	.topics.col-xs-12 {
-    		padding: 0;
-    	}
+        .records.col-xs-12, .tags.col-xs-12, .topics.col-xs-12 {
+            padding: 0;
+        }
+
     }
 
     #filterCriteria {

@@ -55,20 +55,20 @@ class main extends \pl\fe\base {
 	/**
 	 * 更新成员数据
 	 */
-	public function update_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+	public function update_action($id) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 		$modelMem = $this->model('site\user\member')->setOnlyWriteDbConn(true);
-		$oldMember = $modelMem->byId($id, ['fields' => 'schema_id']);
-		$attrs = $this->model('site\user\memberschema')->byId($oldMember->schema_id, ['fields' => 'attr_mobile,attr_email,attr_name,extattr']);
+		$oOldMember = $modelMem->byId($id, ['fields' => 'id,schema_id']);
+		$attrs = $this->model('site\user\memberschema')->byId($oOldMember->schema_id, ['fields' => 'attr_mobile,attr_email,attr_name,extattr']);
 
 		$oPosted = $this->getPostJson();
 		/**
 		 * 基本属性
 		 */
 		$emailVerified = (isset($oPosted->email_verified) && $oPosted->email_verified === 'Y') ? 'Y' : 'N';
-		$newMember = array(
+		$aNewMember = array(
 			'mobile' => empty($oPosted->mobile) ? '' : $oPosted->mobile,
 			'email' => empty($oPosted->email) ? '' : $oPosted->email,
 			'name' => empty($oPosted->name) ? '' : $oPosted->name,
@@ -76,35 +76,35 @@ class main extends \pl\fe\base {
 			'verified' => in_array($oPosted->verified, ['Y', 'N', 'P']) ? $oPosted->verified : 'P',
 		);
 		if ($attrs->attr_mobile[5] === '1') {
-			$newMember['identity'] = $oPosted->mobile;
+			$aNewMember['identity'] = $oPosted->mobile;
 		} else if ($attrs->attr_email[5] === '1') {
-			$newMember['identity'] = $oPosted->email;
+			$aNewMember['identity'] = $oPosted->email;
 		}
 		/**
 		 * 扩展属性
 		 */
-		$newMember['extattr'] = empty($oPosted->extattr) ? '{}' : $modelMem->escape($modelMem->toJson($oPosted->extattr));
+		$aNewMember['extattr'] = empty($oPosted->extattr) ? '{}' : $modelMem->escape($modelMem->toJson($oPosted->extattr));
 
 		/*检查数据的唯一性*/
-		$newMember2 = $newMember;
-		$newMember2['schema_id'] = $oldMember->schema_id;
-		$newMember2['id'] = $id;
-		$newMember2 = (object) $newMember2;
-		if ($errMsg = $modelMem->rejectAuth($newMember2, $attrs)) {
+		$aNewMember2 = $aNewMember;
+		$aNewMember2['schema_id'] = $oOldMember->schema_id;
+		$aNewMember2['id'] = $id;
+		$aNewMember2 = (object) $aNewMember2;
+		if ($errMsg = $modelMem->rejectAuth($aNewMember2, $attrs)) {
 			return new \ResponseError($errMsg);
 		}
 
-		$newMember['modify_at'] = time();
+		$aNewMember['modify_at'] = time();
 		$rst = $modelMem->update(
 			'xxt_site_member',
-			$newMember,
-			['siteid' => $site, 'id' => $id]
+			$aNewMember,
+			['id' => $id]
 		);
 
 		// 如果通讯录被分组活动绑定，并且设置了自动更新用户，需要更新用户
-		if (isset($newMember['verified']) && $newMember['verified'] === 'Y') {
-			$newMember2 = $modelMem->byId($id, ['fields' => 'id,forbidden,schema_id']);
-			$modelMem->syncToGroupPlayer($newMember2->schema_id, $newMember2);
+		if (isset($aNewMember['verified']) && $aNewMember['verified'] === 'Y') {
+			$aNewMember2 = $modelMem->byId($id, ['fields' => 'id,forbidden,schema_id']);
+			$modelMem->syncToGroupPlayer($aNewMember2->schema_id, $aNewMember2);
 		}
 
 		return new \ResponseData($rst);

@@ -277,40 +277,40 @@ class log_model extends \TMS_MODEL {
 			);
 		}
 		// 新建日志
-		$log = [];
-		$log['siteid'] = $siteId;
-		$log['userid'] = $oUser->userid;
-		$log['nickname'] = $this->escape($oUser->nickname);
-		$log['matter_id'] = $oMatter->id;
-		$log['matter_type'] = $oMatter->type;
-		$log['matter_title'] = $this->escape($oMatter->title);
+		$aNewLog = [];
+		$aNewLog['siteid'] = $siteId;
+		$aNewLog['userid'] = $oUser->userid;
+		$aNewLog['nickname'] = $this->escape($oUser->nickname);
+		$aNewLog['matter_id'] = $oMatter->id;
+		$aNewLog['matter_type'] = $oMatter->type;
+		$aNewLog['matter_title'] = $this->escape($oMatter->title);
 		if (!empty($oMatter->mission_id)) {
-			$log['mission_id'] = $oMatter->mission_id;
+			$aNewLog['mission_id'] = $oMatter->mission_id;
 			if (!empty($oMatter->mission_title)) {
-				$log['mission_title'] = $this->escape($oMatter->mission_title);
+				$aNewLog['mission_title'] = $this->escape($oMatter->mission_title);
 			} else {
 				$mission = $this->M('matter\mission')->byId($oMatter->mission_id, ['fields' => 'title']);
-				$log['mission_title'] = $this->escape($mission->title);
+				$aNewLog['mission_title'] = $this->escape($mission->title);
 			}
 		}
-		$log['user_agent'] = $client->agent;
-		$log['client_ip'] = isset($client->ip) ? $client->ip : '';
-		$log['referer'] = $referer;
-		$log['operation'] = $oOperation->name;
-		$log['operate_at'] = isset($oOperation->at) ? $oOperation->at : time();
+		$aNewLog['user_agent'] = $client->agent;
+		$aNewLog['client_ip'] = isset($client->ip) ? $client->ip : '';
+		$aNewLog['referer'] = $referer;
+		$aNewLog['operation'] = $oOperation->name;
+		$aNewLog['operate_at'] = isset($oOperation->at) ? $oOperation->at : time();
 		if (isset($oOperation->data)) {
 			if (is_string($oOperation->data)) {
-				$log['operate_data'] = $this->escape($oOperation->data);
+				$aNewLog['operate_data'] = $this->escape($oOperation->data);
 			} else {
-				$log['operate_data'] = $this->escape($this->toJson($oOperation->data));
+				$aNewLog['operate_data'] = $this->escape($this->toJson($oOperation->data));
 			}
 		}
-		$log['matter_last_op'] = 'Y';
-		$log['matter_op_num'] = $matterOpNum;
-		$log['user_last_op'] = 'Y';
-		$log['user_op_num'] = $userOpNum;
+		$aNewLog['matter_last_op'] = 'Y';
+		$aNewLog['matter_op_num'] = $matterOpNum;
+		$aNewLog['user_last_op'] = 'Y';
+		$aNewLog['user_op_num'] = $userOpNum;
 
-		$logid = $this->insert('xxt_log_user_matter', $log, true);
+		$logid = $this->insert('xxt_log_user_matter', $aNewLog, true);
 
 		return $logid;
 	}

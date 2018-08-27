@@ -207,7 +207,7 @@ class cowork extends base {
 
 		$oRecData = $oResult[1]->data;
 
-		return new \ResponseData($oRecData->data);
+		return new \ResponseData($oRecData);
 	}
 	/**
 	 * 将题目的协作填写项改为留言
@@ -231,7 +231,6 @@ class cowork extends base {
 		$oNewRemark->rid = $oRecord->rid;
 		$oNewRemark->userid = $oItem->userid;
 		$oNewRemark->group_id = isset($oItem->group_id) ? $oItem->group_id : '';
-		$oNewRemark->user_src = 'S';
 		$oNewRemark->nickname = $modelRec->escape($oItem->nickname);
 		$oNewRemark->enroll_key = $oRecord->enroll_key;
 		$oNewRemark->enroll_group_id = $oRecord->group_id;

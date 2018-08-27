@@ -7,7 +7,7 @@ class enroll_model extends \TMS_MODEL {
 	/**
 	 * 创建模板
 	 */
-	public function create(&$site, $user, &$data){
+	public function create(&$site, $user, &$data) {
 		$current = time();
 		/* 新建模板 */
 		$template = [
@@ -18,11 +18,11 @@ class enroll_model extends \TMS_MODEL {
 			'site_name' => $site->name,
 			'matter_type' => $data->matter_type,
 			'scenario' => isset($data->scenario) ? $data->scenario : 'common',
-			'title' => isset($data->title)? $data->title : '新模板('.$data->matter_type.')',
-			'pic' => isset($data->pic)? $data->pic : '',
-			'summary' => isset($data->summary)? $this->escape($data->summary) : '',
-			'coin' => isset($data->coin)? $data->coin : 0,
-			'visible_scope' => isset($data->visible_scope)? $data->visible_scope : 'S',
+			'title' => isset($data->title) ? $data->title : '新模板(' . $data->matter_type . ')',
+			'pic' => isset($data->pic) ? $data->pic : '',
+			'summary' => isset($data->summary) ? $this->escape($data->summary) : '',
+			'coin' => isset($data->coin) ? $data->coin : 0,
+			'visible_scope' => isset($data->visible_scope) ? $data->visible_scope : 'S',
 			'push_home' => isset($data->push_home) ? $data->push_home : 'N',
 		];
 		$template['id'] = $this->insert('xxt_template', $template, true);
@@ -36,21 +36,21 @@ class enroll_model extends \TMS_MODEL {
 			'create_at' => $current,
 			'siteid' => $site->id,
 			'template_id' => $template['id'],
-			'scenario_config' => isset($data->scenario_config)? $data->scenario_config : '',
-			'enrolled_entry_page' => isset($data->enrolled_entry_page)? $data->enrolled_entry_page : '',
-			'open_lastroll' => isset($data->open_lastroll)? $data->open_lastroll : 'Y',
-			'data_schemas' => isset($data->data_schemas)? $data->data_schemas : '',
+			'scenario_config' => isset($data->scenario_config) ? $data->scenario_config : '',
+			'enrolled_entry_page' => isset($data->enrolled_entry_page) ? $data->enrolled_entry_page : '',
+			'open_lastroll' => isset($data->open_lastroll) ? $data->open_lastroll : 'Y',
+			'data_schemas' => isset($data->data_schemas) ? $data->data_schemas : '',
 		];
 		$options['id'] = $this->insert('xxt_template_enroll', $options, true);
 		$this->update(
-				'xxt_template',
-				['last_version'=>$versionNum],
-				['id' => $template['id']]
-			);
+			'xxt_template',
+			['last_version' => $versionNum],
+			['id' => $template['id']]
+		);
 
-		$app = (object)$template;
+		$app = (object) $template;
 		$app->last_version = $versionNum;
-		$app->version = (object)$options;
+		$app->version = (object) $options;
 		return $app;
 	}
 	/**
@@ -59,19 +59,19 @@ class enroll_model extends \TMS_MODEL {
 	 * @param  [type] $vid  [description]
 	 * @return [type]       [description]
 	 */
-	public function checkVersion($site, $vid){
+	public function checkVersion($site, $vid) {
 		$q = [
 			'pub_status',
 			'xxt_template_enroll',
-			['siteid' => $site, 'id' => $vid]
+			['siteid' => $site, 'id' => $vid],
 		];
-		if($version = $this->query_obj_ss($q)){
-			if($version->pub_status === "Y"){
+		if ($version = $this->query_obj_ss($q)) {
+			if ($version->pub_status === "Y") {
 				return array(true);
-			}else{
-				return array(false,'未发布');
+			} else {
+				return array(false, '未发布');
 			}
-		}else{
+		} else {
 			die('版本不存在');
 		}
 	}
@@ -85,8 +85,8 @@ class enroll_model extends \TMS_MODEL {
 	 * @param  string $pubStatus [是否为发布状态]
 	 * @return [type]            [description]
 	 */
-	public function createNewVersion($site, $tid ,&$matter, $user, $time = '', $pubStatus = 'N'){
-		$current = empty($time)? time() : $time;
+	public function createNewVersion($site, $tid, &$matter, $user, $time = '', $pubStatus = 'N') {
+		$current = empty($time) ? time() : $time;
 		//创建模板版本号
 		$version = $this->model('matter\template')->getVersionNum($site, $tid, 'enroll');
 		$options = [
@@ -97,7 +97,6 @@ class enroll_model extends \TMS_MODEL {
 			'siteid' => $site,
 			'template_id' => $tid,
 			'scenario_config' => empty($matter->scenario_config) ? '' : $this->escape($matter->scenario_config),
-			'multi_rounds' => $matter->multi_rounds,
 			'enrolled_entry_page' => $matter->enrolled_entry_page,
 			'open_lastroll' => $matter->open_lastroll,
 			'data_schemas' => $this->escape($matter->data_schemas),
@@ -112,7 +111,7 @@ class enroll_model extends \TMS_MODEL {
 			$modelPage = $this->model('matter\enroll\page');
 			$modelCode = $this->model('code\page');
 			foreach ($matter->pages as $ep) {
-				$newPage = $modelPage->add($user, $site, 'template:'.$vid);
+				$newPage = $modelPage->add($user, $site, 'template:' . $vid);
 				$rst = $this->update(
 					'xxt_enroll_page',
 					[
@@ -121,9 +120,8 @@ class enroll_model extends \TMS_MODEL {
 						'type' => $ep->type,
 						'data_schemas' => $this->escape($ep->data_schemas),
 						'act_schemas' => $this->escape($ep->act_schemas),
-						'user_schemas' => $this->escape($ep->user_schemas),
 					],
-					['aid' => 'template:'.$vid, 'id' => $newPage->id]
+					['aid' => 'template:' . $vid, 'id' => $newPage->id]
 				);
 				$data = [
 					'title' => $ep->title,
@@ -134,7 +132,7 @@ class enroll_model extends \TMS_MODEL {
 				$modelCode->modify($newPage->code_id, $data);
 			}
 		}
-		
-		return (object)$options;
+
+		return (object) $options;
 	}
 }

@@ -1122,49 +1122,93 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                 });
             };
+            /**
+             * 从其他活动导入记录
+             */
             _ins.importByOther = function() {
                 var defer = $q.defer();
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/importByOther.html?_=1',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/record/importByOther.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                        var page, data, filter;
-                        $scope2.page = page = {
-                            at: 1,
-                            size: 10,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
-                        $scope2.data = data = {};
-                        $scope2.filter = filter = {};
+                        function doSearchRnd(appId, oDataset) {
+                            http2.get('/rest/pl/fe/matter/enroll/round/list?app=' + appId + '&' + oDataset.page.j(), function(rsp) {
+                                oDataset.data = rsp.data.rounds;
+                                oDataset.page.total = rsp.data.total;
+                                _oData.fromRnd = oDataset.data[0];
+                            });
+                        }
+                        var _oData;
+                        $scope2.data = _oData = {};
+                        $scope2.rounds = { page: http2.newPage() };
+                        $scope2.fromApps = { page: http2.newPage(), filter: {} };
+                        $scope2.fromRnds = { page: http2.newPage() };
                         $scope2.ok = function() {
-                            $mi.close(data);
+                            $mi.close(_oData);
                         };
                         $scope2.cancel = function() {
                             $mi.dismiss('cancel');
                         };
                         $scope2.doFilter = function() {
-                            page.at = 1;
-                            $scope2.doSearch();
+                            $scope2.fromApps.page.at = 1;
+                            $scope2.doSearchFromApp();
                         };
-                        $scope2.doSearch = function() {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&' + page.j();
+                        $scope2.doSearchRnd = function() {
+                            doSearchRnd(_appId, $scope2.rounds);
+                        };
+                        $scope2.doSearchFromApp = function() {
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&' + $scope2.fromApps.page.j();
                             http2.post(url, {
-                                byTitle: filter.byTitle
+                                byTitle: $scope2.fromApps.filter.byTitle
                             }, function(rsp) {
-                                $scope2.apps = rsp.data.apps;
-                                if ($scope2.apps.length) {
-                                    data.fromApp = $scope2.apps[0].id;
+                                $scope2.fromApps.data = rsp.data.apps;
+                                if ($scope2.fromApps.data.length) {
+                                    _oData.fromApp = $scope2.fromApps.data[0];
+                                    $scope2.doSearchFromRnd(1);
                                 }
-                                page.total = rsp.data.total;
+                                $scope2.fromApps.page.total = rsp.data.total;
                             });
                         };
-                        $scope2.doSearch();
+                        $scope2.doSearchFromRnd = function(at) {
+                            if (at) {
+                                $scope2.fromRnds.page.at = at;
+                            }
+                            doSearchRnd(_oData.fromApp.id, $scope2.fromRnds);
+                        };
+                        $scope2.$watch('data.fromApp', function(oFromApp) {
+                            if (oFromApp) {
+                                $scope2.doSearchFromRnd(1);
+                                http2.get('/rest/pl/fe/matter/enroll/schema/compatible?app1=' + _appId + '&app2=' + oFromApp.id, function(rsp) {
+                                    _oData.compatibleSchemas = rsp.data;
+                                });
+                            }
+                        });
+                        $scope2.$watch('data.fromRnd', function(oFromRnd) {
+                            if (oFromRnd) {
+                                http2.get('/rest/pl/fe/matter/enroll/record/countByRound?round=' + oFromRnd.rid, function(rsp) {
+                                    _oData.countOfRecord = rsp.data;
+                                });
+                            }
+                        });
+                        $scope2.$watch('data', function(oNewData) {
+                            if (oNewData) {
+                                $scope2.executable = (!!oNewData.toRnd && !!oNewData.fromApp && !!oNewData.fromRnd && !!oNewData.compatibleSchemas && oNewData.compatibleSchemas.length > 0 && oNewData.countOfRecord > 0);
+                            }
+                        }, true);
+                        $scope2.doSearchRnd();
+                        $scope2.doSearchFromApp();
                     }],
                     backdrop: 'static',
-                }).result.then(function(data) {
+                    size: 'lg',
+                    windowClass: 'auto-height'
+                }).result.then(function(_oData) {
                     var url = '/rest/pl/fe/matter/enroll/record/importByOther?site=' + _siteId + '&app=' + _appId;
-                    url += '&fromApp=' + data.fromApp;
+                    url += '&fromApp=' + _oData.fromApp.id;
+                    if (_oData.toRnd) {
+                        url += '&toRnd=' + _oData.toRnd.rid;
+                    }
+                    if (_oData.fromRnd) {
+                        url += '&fromRnd=' + _oData.fromRnd.rid;
+                    }
                     http2.post(url, {}, function(rsp) {
                         noticebox.info('导入（' + rsp.data + '）条数据');
                         _ins.search(1).then(function() {
@@ -1664,16 +1708,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
-            _ins.addRemark = function(ek, schemaId, newRemark, itemId) {
-                var url, defer = $q.defer();
-                url = '/rest/pl/fe/matter/enroll/remark/add?ek=' + ek;
-                schemaId && (url += '&schema=' + schemaId);
-                itemId && (url += '&id=' + itemId);
-                http2.post(url, newRemark, function(rsp) {
-                    defer.resolve(rsp.data);
-                });
-                return defer.promise;
-            };
             _ins.agree = function(ek, schemaId, value, itemId) {
                 var url, defer = $q.defer();
                 url = '/rest/pl/fe/matter/enroll/data/agree?ek=' + ek;
@@ -1681,15 +1715,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '&value=' + value;
                 itemId && (url += '&id=' + itemId);
                 http2.get(url, function(rsp) {
-                    defer.resolve(rsp.data);
-                });
-                return defer.promise;
-            };
-            _ins.agreeRemark = function(remarkId, value) {
-                var url, defer = $q.defer();
-                url = '/rest/pl/fe/matter/enroll/remark/agree';
-                url += '?value=' + value;
-                http2.post(url, { remark: remarkId }, function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;

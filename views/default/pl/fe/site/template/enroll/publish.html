@@ -97,12 +97,6 @@
                         <table class='table table-bordered'>
                             <tbody>
                                 <tr>
-                                    <td>是否支持轮次</td>
-                                    <td>
-                                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.multi_rounds" ng-change="update('multi_rounds');">
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td rowspan="2">已填写时进入</td>
                                     <td style='padding:0'>
                                         <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('enrolled_entry_page')">

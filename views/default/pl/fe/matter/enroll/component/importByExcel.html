@@ -5,17 +5,19 @@
 <div class="modal-body">
     <div class='row'>
         <div class='col-md-12'>
-            <div class='form-inline'>
-                <div class='form-group' ng-class="{'has-error':!options.rid}">
-                    <select class='form-control' ng-options="rnd.rid as rnd.title for rnd in rounds" ng-model="options.rid">
-                        <option value=>选择导入轮次</option>
-                    </select>
-                </div>
-                <div class='form-group'>
-                    <label class='radio-inline'>
-                        <input type='radio' name='overwrite' value='' ng-model="options.overwrite"> 保留已有记录</label>
-                    <label class='radio-inline'>
-                        <input type='radio' name='overwrite' value='all' ng-model="options.overwrite"> 覆盖已有记录</label>
+            <div class='form-group'>
+                <div class='form-inline'>
+                    <div class='form-group' ng-class="{'has-error':!options.rid}">
+                        <select class='form-control' ng-options="rnd.rid as rnd.title for rnd in rounds" ng-model="options.rid">
+                            <option value=>选择导入轮次</option>
+                        </select>
+                    </div>
+                    <div class='form-group'>
+                        <label class='radio-inline'>
+                            <input type='radio' name='overwrite' value='' ng-model="options.overwrite"> 保留已有记录</label>
+                        <label class='radio-inline'>
+                            <input type='radio' name='overwrite' value='all' ng-model="options.overwrite"> 覆盖已有记录</label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -23,15 +25,13 @@
     <hr>
     <div class='row'>
         <div class='col-md-6'>
-            <div class='checkbox'>
+            <div class='radio'>
                 <label>
-                    <input type='checkbox' ng-model="options.assoc.userid"> 导入记录作为用户填写内容（关联【系统用户ID】）</label>
+                    <input type='radio' name='assocSource' value='' ng-model="options.assoc.source"> 导入数据不关联用户系统ID</label>
             </div>
-            <div>
-                <div class='radio'>
-                    <label>
-                        <input type='radio' name='assocSource' value='app.mschema' ng-model="options.assoc.source"> 通过将导入记录中的信息与活动进入规则中指定的【通讯录】中的信息进行匹配，确定用户</label>
-                </div>
+            <div class='radio'>
+                <label>
+                    <input type='radio' name='assocSource' value='app.mschema' ng-disabled="!assocSource.mschema" ng-model="options.assoc.source"> 通过将导入记录中的信息与活动进入规则中指定的【通讯录】中的信息进行匹配，关联用户的系统ID</label>
             </div>
         </div>
         <div class='col-md-6' ng-switch on="options.assoc.source">

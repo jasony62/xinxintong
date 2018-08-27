@@ -30,10 +30,8 @@ class main extends base {
 		$params['user'] = $oUser;
 		/*打开页面*/
 		$params['page'] = $this->getPage($templateDir, $initialConfig, $page);
-		if ($initialConfig->multi_rounds === 'Y') {
-			$data = $this->getData($templateDir);
-			isset($data->activeRound) && $params['activeRound'] = $data->activeRound;
-		}
+		$data = $this->getData($templateDir);
+		isset($data->activeRound) && $params['activeRound'] = $data->activeRound;
 
 		return new \ResponseData($params);
 	}

@@ -40,7 +40,7 @@ class record extends main_base {
 		return new \ResponseData($oRecord);
 	}
 	/**
-	 * 活动登记名单
+	 * 活动的记录
 	 *
 	 */
 	public function list_action($app, $page = 1, $size = 30) {
@@ -105,11 +105,31 @@ class record extends main_base {
 		return new \ResponseData($oResult);
 	}
 	/**
+	 * 指定活动轮次的记录的数量
+	 *
+	 */
+	public function countByRound_action($round) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$oRound = $modelRnd->byId($round, ['fields' => 'rid']);
+		if (false === $oRound) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$count = $modelRec->byRound($oRound->rid, ['fields' => 'count(*)']);
+
+		return new \ResponseData($count);
+	}
+	/**
 	 * 计算指定登记项所有记录的合计
 	 * 若不指定登记项，则返回活动中所有数值型登记项的合集
 	 * 若指定的登记项不是数值型，返回0
 	 */
-	public function sum4Schema_action($site, $app, $rid = '', $gid = '') {
+	public function sum4Schema_action($app, $rid = '', $gid = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -234,7 +254,7 @@ class record extends main_base {
 	/**
 	 * 返回指定登记项的活动登记名单
 	 */
-	public function list4Schema_action($site, $app, $rid = null, $schema, $page = 1, $size = 10) {
+	public function list4Schema_action($app, $rid = null, $schema, $page = 1, $size = 10) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1574,11 +1594,11 @@ class record extends main_base {
 		}
 
 		// 登记活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,enroll_app_id,group_app_id,multi_rounds,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,enroll_app_id,group_app_id,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			die('指定的对象不存在或者已经不可用');
 		}
-		$schemas = $oApp->dataSchemas;
+		$schemas = $oApp->dynaDataSchemas;
 
 		// 关联的登记活动
 		if (!empty($oApp->enroll_app_id)) {
@@ -1665,9 +1685,7 @@ class record extends main_base {
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记时间');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
-		if ($oApp->multi_rounds === 'Y') {
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
-		}
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
 
 		// 转换标题
 		$aNumberSum = []; // 数值型题目的合计
@@ -1740,7 +1758,7 @@ class record extends main_base {
 			}
 			// 处理登记项
 			$data = $oRecord->data;
-			$oRecScore = empty($oRecord->score) ? null : $oRecord->score;
+			$oRecScore = empty($oRecord->score) ? new \stdClass : json_decode($oRecord->score);
 			$supplement = $oRecord->supplement;
 			$oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
 			$i = 0; // 列序号
@@ -1968,7 +1986,7 @@ class record extends main_base {
 
 		// 登记活动
 		$enrollApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id,sync_mission_round', 'cascaded' => 'N']);
-		$schemas = json_decode($enrollApp->data_schemas);
+		$schemas = $enrollApp->dataSchemas;
 
 		// 关联的登记活动
 		if (!empty($enrollApp->enroll_app_id)) {
@@ -2089,15 +2107,17 @@ class record extends main_base {
 	 *
 	 * @param string $app app'id
 	 * @param string $fromApp 目标应用的id
+	 * @param string $fromRnd 目标轮次的id
 	 * @param string $append 追加记录，否则清空现有记录
 	 *
 	 */
-	public function importByOther_action($site, $app, $fromApp, $append = 'Y') {
+	public function importByOther_action($app, $fromApp, $toRnd, $fromRnd = '', $append = 'Y') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\enroll');
+		$modelSch = $this->model('matter\enroll\schema');
 		$modelRec = $this->model('matter\enroll\record');
 
 		if (false === ($oApp = $modelApp->byId($app))) {
@@ -2108,12 +2128,12 @@ class record extends main_base {
 		}
 
 		/* 获得兼容的登记项 */
-		$compatibleSchemas = $modelRec->compatibleSchemas($oApp->dynaDataSchemas, $oFromApp->dynaDataSchemas);
+		$compatibleSchemas = $modelSch->compatibleSchemas($oApp->dynaDataSchemas, $oFromApp->dynaDataSchemas);
 		if (empty($compatibleSchemas)) {
 			return new \ResponseData('没有匹配的数据项');
 		}
 		/* 获得数据 */
-		$oResult = $modelRec->byApp($oFromApp);
+		$oResult = $modelRec->byApp($oFromApp, null, (object) ['record' => (object) ['rid' => $fromRnd]]);
 		$countOfImport = 0;
 		if ($oResult->total > 0) {
 			foreach ($oResult->records as $oRecord) {
@@ -2124,6 +2144,7 @@ class record extends main_base {
 				$aOptions = [];
 				$aOptions['enrollAt'] = $oRecord->enroll_at;
 				$aOptions['nickname'] = $oRecord->nickname;
+				$aOptions['assignRid'] = $toRnd;
 				$ek = $modelRec->enroll($oApp, $oEnrollee, $aOptions);
 				// 登记数据
 				$oRecData = new \stdClass;

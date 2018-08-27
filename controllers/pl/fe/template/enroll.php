@@ -115,9 +115,6 @@ class enroll extends \pl\fe\base {
 			if (isset($nv->act_schemas)) {
 				$nv->act_schemas = $modelPage->escape($modelPage->toJson($nv->act_schemas));
 			}
-			if (isset($nv->user_schemas)) {
-				$nv->user_schemas = $modelPage->escape($modelPage->toJson($nv->user_schemas));
-			}
 			$rst = $modelPage->update(
 				'xxt_enroll_page',
 				$nv,

@@ -60,8 +60,8 @@
                         <th style='width:40px'></th>
                         <th style='width:140px' ng-if="bRequireNickname">用户</th>
                         <th style='width:140px' ng-if="bRequireGroup">分组</th>
-                        <th style='width:100px'>登记时间</th>
-                        <th style='width:100px' ng-if="app.multi_rounds==='Y'">登记轮次</th>
+                        <th style='width:100px'>填写时间</th>
+                        <th style='width:100px'>填写轮次</th>
                         <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th ng-if="bRequireScore">总得分</th>
                         <th class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
@@ -86,7 +86,7 @@
                         <td ng-if="bRequireNickname">{{r.nickname}}</td>
                         <td ng-if="bRequireGroup">{{r.group.title}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-                        <td ng-if="app.multi_rounds==='Y'">{{r.round.title}}</td>
+                        <td>{{r.round.title}}</td>
                         <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
@@ -148,7 +148,7 @@
                         <td></td>
                         <td ng-if="bRequireNickname"></td>
                         <td></td>
-                        <td ng-if="app.multi_rounds==='Y'"></td>
+                        <td></td>
                         <td ng-repeat="schema in recordSchemasExt">
                             <div ng-if="schema.format==='number'||schema.type==='score'">
                                 {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}

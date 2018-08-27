@@ -65,98 +65,98 @@ if (!$mysqli->query($sql)) {
 /**
  * 团队主页频道
  */
-$sql = 'create table if not exists xxt_site_home_channel (';
-$sql .= 'id int not null auto_increment';
-$sql .= ",creater varchar(40) not null";
-$sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ',put_at int not null';
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",channel_id int not null";
-$sql .= ",title varchar(70) not null default ''";
-$sql .= ",display_name varchar(70) not null default ''";
-$sql .= ',pic text null';
-$sql .= ',summary varchar(240) not null';
-$sql .= ",seq int not null default 0";
-$sql .= ",home_group char(1) not null default 'C'";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_home_channel): ' . $mysqli->error;
-}
+// $sql = 'create table if not exists xxt_site_home_channel (';
+// $sql .= 'id int not null auto_increment';
+// $sql .= ",creater varchar(40) not null";
+// $sql .= ",creater_name varchar(255) not null default ''";
+// $sql .= ',put_at int not null';
+// $sql .= ",siteid varchar(32) not null";
+// $sql .= ",channel_id int not null";
+// $sql .= ",title varchar(70) not null default ''";
+// $sql .= ",display_name varchar(70) not null default ''";
+// $sql .= ',pic text null';
+// $sql .= ',summary varchar(240) not null';
+// $sql .= ",seq int not null default 0";
+// $sql .= ",home_group char(1) not null default 'C'";
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error(xxt_site_home_channel): ' . $mysqli->error;
+// }
 /**
  * 关注了团队的站点用户
  */
-$sql = 'create table if not exists xxt_site_subscriber (';
-$sql .= 'id int not null auto_increment';
-$sql .= ",siteid varchar(32) not null"; // 被关注的团队
-$sql .= ",site_name varchar(50) not null";
-$sql .= ",unionid varchar(40) not null";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ',subscribe_at int not null'; // 关注时间
-$sql .= ',unsubscribe_at int not null default 0'; // 关注时间
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_subscriber): ' . $mysqli->error;
-}
+// $sql = 'create table if not exists xxt_site_subscriber (';
+// $sql .= 'id int not null auto_increment';
+// $sql .= ",siteid varchar(32) not null"; // 被关注的团队
+// $sql .= ",site_name varchar(50) not null";
+// $sql .= ",unionid varchar(40) not null";
+// $sql .= ",nickname varchar(255) not null default ''";
+// $sql .= ',subscribe_at int not null'; // 关注时间
+// $sql .= ',unsubscribe_at int not null default 0'; // 关注时间
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error(xxt_site_subscriber): ' . $mysqli->error;
+// }
 /**
  * 站点用户通过关注团队获得的素材
  */
-$sql = "create table if not exists xxt_site_subscription (";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",site_name varchar(50) not null";
-$sql .= ",put_at int not null"; // 团队获得素材的时间
-$sql .= ",unionid varchar(40) not null";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",matter_type varchar(20)"; //
-$sql .= ",matter_title varchar(70) not null";
-$sql .= ",matter_pic text null";
-$sql .= ",matter_summary varchar(240) not null default ''";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_subscription): ' . $mysqli->error;
-}
+// $sql = "create table if not exists xxt_site_subscription (";
+// $sql .= "id int not null auto_increment";
+// $sql .= ",siteid varchar(32) not null";
+// $sql .= ",site_name varchar(50) not null";
+// $sql .= ",put_at int not null"; // 团队获得素材的时间
+// $sql .= ",unionid varchar(40) not null";
+// $sql .= ",nickname varchar(255) not null default ''";
+// $sql .= ",matter_id varchar(40) not null";
+// $sql .= ",matter_type varchar(20)"; //
+// $sql .= ",matter_title varchar(70) not null";
+// $sql .= ",matter_pic text null";
+// $sql .= ",matter_summary varchar(240) not null default ''";
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error(xxt_site_subscription): ' . $mysqli->error;
+// }
 /**
  * 关注了团队的团队
  */
-$sql = 'create table if not exists xxt_site_friend (';
-$sql .= 'id int not null auto_increment';
-$sql .= ",siteid varchar(32) not null"; // 被关注的团队
-$sql .= ",site_name varchar(50) not null";
-$sql .= ",from_siteid varchar(32) not null"; // 发起关注的团队
-$sql .= ",from_site_name varchar(50) not null"; // 发起关注的团队
-$sql .= ",creater varchar(40) not null";
-$sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ',subscribe_at int not null'; // 关注时间
-$sql .= ',unsubscribe_at int not null default 0'; // 关注时间
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_friend): ' . $mysqli->error;
-}
+// $sql = 'create table if not exists xxt_site_friend (';
+// $sql .= 'id int not null auto_increment';
+// $sql .= ",siteid varchar(32) not null"; // 被关注的团队
+// $sql .= ",site_name varchar(50) not null";
+// $sql .= ",from_siteid varchar(32) not null"; // 发起关注的团队
+// $sql .= ",from_site_name varchar(50) not null"; // 发起关注的团队
+// $sql .= ",creater varchar(40) not null";
+// $sql .= ",creater_name varchar(255) not null default ''";
+// $sql .= ',subscribe_at int not null'; // 关注时间
+// $sql .= ',unsubscribe_at int not null default 0'; // 关注时间
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error(xxt_site_friend): ' . $mysqli->error;
+// }
 /**
  * 关注了团队的团队获得的订阅内容
  */
-$sql = 'create table if not exists xxt_site_friend_subscription (';
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",site_name varchar(50) not null";
-$sql .= ",put_at int not null"; // 获得素材的时间
-$sql .= ",from_siteid varchar(32) not null"; // 发起关注的团队
-$sql .= ",from_site_name varchar(50) not null"; // 发起关注的团队
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",matter_type varchar(20)"; //
-$sql .= ",matter_title varchar(70) not null";
-$sql .= ",matter_pic text null";
-$sql .= ",matter_summary varchar(240) not null default ''";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_friend_subscription): ' . $mysqli->error;
-}
+// $sql = 'create table if not exists xxt_site_friend_subscription (';
+// $sql .= "id int not null auto_increment";
+// $sql .= ",siteid varchar(32) not null";
+// $sql .= ",site_name varchar(50) not null";
+// $sql .= ",put_at int not null"; // 获得素材的时间
+// $sql .= ",from_siteid varchar(32) not null"; // 发起关注的团队
+// $sql .= ",from_site_name varchar(50) not null"; // 发起关注的团队
+// $sql .= ",matter_id varchar(40) not null";
+// $sql .= ",matter_type varchar(20)"; //
+// $sql .= ",matter_title varchar(70) not null";
+// $sql .= ",matter_pic text null";
+// $sql .= ",matter_summary varchar(240) not null default ''";
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error(xxt_site_friend_subscription): ' . $mysqli->error;
+// }
 /**
  * 团队访客用户
  */
@@ -207,63 +207,63 @@ if (!$mysqli->query($sql)) {
 /**
  * 团队用户收藏记录
  */
-$sql = "create table if not exists xxt_site_favor(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",site_name varchar(50) not null";
-$sql .= ",unionid varchar(32) not null"; // 注册用户的id
-$sql .= ",nickname varchar(50)";
-$sql .= ",favor_at int not null";
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",matter_type varchar(20) not null";
-$sql .= ",matter_title varchar(70) not null";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_favor): ' . $mysqli->error;
-}
+// $sql = "create table if not exists xxt_site_favor(";
+// $sql .= "id int not null auto_increment";
+// $sql .= ",siteid varchar(32) not null";
+// $sql .= ",site_name varchar(50) not null";
+// $sql .= ",unionid varchar(32) not null"; // 注册用户的id
+// $sql .= ",nickname varchar(50)";
+// $sql .= ",favor_at int not null";
+// $sql .= ",matter_id varchar(40) not null";
+// $sql .= ",matter_type varchar(20) not null";
+// $sql .= ",matter_title varchar(70) not null";
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error(xxt_site_favor): ' . $mysqli->error;
+// }
 /**
  * 团队收藏记录
  */
-$sql = "create table if not exists xxt_site_friend_favor(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",creater varchar(40) not null";
-$sql .= ",creater_name varchar(255) not null";
-$sql .= ",favor_at int not null";
-$sql .= ",from_siteid varchar(32) not null";
-$sql .= ",from_site_name varchar(50) not null";
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",matter_type varchar(20) not null";
-$sql .= ",matter_title varchar(70) not null";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_friend_favor): ' . $mysqli->error;
-}
+// $sql = "create table if not exists xxt_site_friend_favor(";
+// $sql .= "id int not null auto_increment";
+// $sql .= ",siteid varchar(32) not null";
+// $sql .= ",creater varchar(40) not null";
+// $sql .= ",creater_name varchar(255) not null";
+// $sql .= ",favor_at int not null";
+// $sql .= ",from_siteid varchar(32) not null";
+// $sql .= ",from_site_name varchar(50) not null";
+// $sql .= ",matter_id varchar(40) not null";
+// $sql .= ",matter_type varchar(20) not null";
+// $sql .= ",matter_title varchar(70) not null";
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error(xxt_site_friend_favor): ' . $mysqli->error;
+// }
 /**
  * 团队投稿记录
  */
-$sql = "create table if not exists xxt_site_contribute(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null"; // 接收投稿的团队
-$sql .= ",from_siteid varchar(32) not null"; // 进行投稿的团队
-$sql .= ",from_site_name varchar(50) not null";
-$sql .= ",creater varchar(40) not null"; // 投稿用户
-$sql .= ",creater_name varchar(255) not null"; // 投稿用户
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",matter_type varchar(20) not null";
-$sql .= ",matter_title varchar(70) not null";
-$sql .= ",matter_summary varchar(240) not null default ''";
-$sql .= ",matter_pic text null";
-$sql .= ",create_at int not null"; // 投稿时间
-$sql .= ",browse_at int not null default 0"; // 浏览时间
-$sql .= ",close_at int not null default 0"; // 关闭时间
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_friend_favor): ' . $mysqli->error;
-}
+// $sql = "create table if not exists xxt_site_contribute(";
+// $sql .= "id int not null auto_increment";
+// $sql .= ",siteid varchar(32) not null"; // 接收投稿的团队
+// $sql .= ",from_siteid varchar(32) not null"; // 进行投稿的团队
+// $sql .= ",from_site_name varchar(50) not null";
+// $sql .= ",creater varchar(40) not null"; // 投稿用户
+// $sql .= ",creater_name varchar(255) not null"; // 投稿用户
+// $sql .= ",matter_id varchar(40) not null";
+// $sql .= ",matter_type varchar(20) not null";
+// $sql .= ",matter_title varchar(70) not null";
+// $sql .= ",matter_summary varchar(240) not null default ''";
+// $sql .= ",matter_pic text null";
+// $sql .= ",create_at int not null"; // 投稿时间
+// $sql .= ",browse_at int not null default 0"; // 浏览时间
+// $sql .= ",close_at int not null default 0"; // 关闭时间
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error(xxt_site_friend_favor): ' . $mysqli->error;
+// }
 /**************************/
 /**
  * 自定义用户信息

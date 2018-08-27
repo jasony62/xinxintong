@@ -572,171 +572,171 @@ if (!$mysqli->query($sql)) {
 /**
  * 签到活动定义
  */
-$sql = "create table if not exists xxt_signin(";
-$sql .= "id varchar(40) not null";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的记录活动
-$sql .= ",group_app_id varchar(40) not null default ''"; // 关联的分组活动
-$sql .= ",creater varchar(40) not null default ''";
-$sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ",creater_src char(1)";
-$sql .= ",create_at int not null";
-$sql .= ",modifier varchar(40) not null default ''";
-$sql .= ",modifier_name varchar(255) not null default ''";
-$sql .= ",modifier_src char(1)";
-$sql .= ",modify_at int not null";
-$sql .= ",state tinyint not null default 1"; //0:删除,1:配置,2:运行
-$sql .= ",title varchar(255) not null default ''";
-$sql .= ",summary varchar(240) not null default ''";
-$sql .= ",pic text"; // 分享或生成链接时的图片
-$sql .= ",start_at int not null default 0"; // 开始时间
-$sql .= ",end_at int not null default 0"; // 结束时间
-$sql .= ",category_tags text"; // 素材分类标签
-$sql .= ",mission_id int not null default 0"; // 所属项目
-$sql .= ",entry_rule text"; // 进入规则
-$sql .= ",data_schemas text";
-$sql .= ",recycle_schemas longtext null"; // 放入回收站的定义
-$sql .= ",assigned_nickname text"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
-$sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
-$sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
-$sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉
-$sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
-$sql .= ",extattrs text"; //扩展属性
-$sql .= ",tags text";
-$sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
-$sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事件通知
-$sql .= ",matter_mg_tag varchar(255) not null default ''";
-$sql .= ",absent_cause text";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_group): ' . $mysqli->error;
-}
-/**
- * 签到活动轮次
- */
-$sql = "create table if not exists xxt_signin_round(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",rid varchar(13) not null";
-$sql .= ",aid varchar(40) not null";
-$sql .= ",creater varchar(40) not null default ''";
-$sql .= ",create_at int not null";
-$sql .= ",start_at int not null default 0"; // 轮次开始时间
-$sql .= ",before_start_code_id int not null default 0";
-$sql .= ",end_at int not null default 0"; // 轮次结束时间
-$sql .= ",after_end_code_id int not null default 0";
-$sql .= ",late_at int not null default 0"; // 轮次迟到时间
-$sql .= ",after_late_code_id int not null default 0";
-$sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的标题
-$sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
-$sql .= ",pic text"; // 分享或生成链接时的图片
-$sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 签到活动页面
- */
-$sql = "create table if not exists xxt_signin_page(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",aid varchar(40) not null";
-$sql .= ",creater varchar(40) not null default ''";
-$sql .= ",create_at int not null";
-$sql .= ",type char(1) not null default 'V'"; //S:signin,V:view
-$sql .= ",title varchar(70) not null default ''";
-$sql .= ",name varchar(20) not null default ''";
-$sql .= ",code_id int not null default 0"; // from xxt_code_page
-$sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
-$sql .= ",seq int not null"; //页面序号
-$sql .= ",data_schemas text"; // 登记项定义
-$sql .= ",act_schemas text"; // 登记操作定义
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 签到登记记录
- */
-$sql = "create table if not exists xxt_signin_record(";
-$sql .= "id int not null auto_increment";
-$sql .= ",aid varchar(40) not null";
-$sql .= ",siteid varchar(32) not null default ''";
-$sql .= ",userid varchar(40) not null default ''";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",wx_openid varchar(255) not null default ''";
-$sql .= ",yx_openid varchar(255) not null default ''";
-$sql .= ",qy_openid varchar(255) not null default ''";
-$sql .= ",headimgurl varchar(255) not null default ''";
-$sql .= ",enroll_key varchar(32) not null";
-$sql .= ",enroll_at int not null"; // 填写报名信息时间
-$sql .= ",signin_at int not null default 0"; // 签到时间
-$sql .= ",signin_num int not null default 0"; // 签到次数
-$sql .= ",signin_log text"; // 签到日志
-$sql .= ",tags text";
-$sql .= ",comment text";
-$sql .= ",state tinyint not null default 1"; //0:remove,1:normal
-$sql .= ",referrer text"; // 发起签到的链接
-$sql .= ",data text"; // 登记的数据项
-$sql .= ",verified char(1) not null default 'Y'"; // 记录是否已通过审核
-$sql .= ",verified_enroll_key varchar(32) not null default ''"; // 如果是通过了报名表的验证，记录关联的报名记录
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 自定义签到数据
- */
-$sql = "create table if not exists xxt_signin_record_data(";
-$sql .= "aid varchar(40) not null";
-$sql .= ",enroll_key varchar(32) not null";
-$sql .= ",name varchar(40) not null";
-$sql .= ",value text";
-$sql .= ",state tinyint not null default 1"; //0:remove,1:normal
-$sql .= ",primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 登记信息通知接收人
- */
-$sql = "create table if not exists xxt_signin_receiver(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",aid varchar(40) not null";
-$sql .= ",join_at int not null default 0"; // 加入时间
-$sql .= ",userid varchar(40) not null default ''";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",sns_user text"; // 社交账号信息
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 签到活动签到记录
- */
-$sql = "create table if not exists xxt_signin_log(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null default ''";
-$sql .= ",aid varchar(40) not null";
-$sql .= ",rid varchar(13) not null default ''";
-$sql .= ",enroll_key varchar(32) not null";
-$sql .= ",userid varchar(40) not null default ''";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",signin_at int not null default 0"; // 签到时间
-$sql .= ",state tinyint not null default 1"; //0:remove,1:normal
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
+// $sql = "create table if not exists xxt_signin(";
+// $sql .= "id varchar(40) not null";
+// $sql .= ",siteid varchar(32) not null";
+// $sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的记录活动
+// $sql .= ",group_app_id varchar(40) not null default ''"; // 关联的分组活动
+// $sql .= ",creater varchar(40) not null default ''";
+// $sql .= ",creater_name varchar(255) not null default ''";
+// $sql .= ",creater_src char(1)";
+// $sql .= ",create_at int not null";
+// $sql .= ",modifier varchar(40) not null default ''";
+// $sql .= ",modifier_name varchar(255) not null default ''";
+// $sql .= ",modifier_src char(1)";
+// $sql .= ",modify_at int not null";
+// $sql .= ",state tinyint not null default 1"; //0:删除,1:配置,2:运行
+// $sql .= ",title varchar(255) not null default ''";
+// $sql .= ",summary varchar(240) not null default ''";
+// $sql .= ",pic text"; // 分享或生成链接时的图片
+// $sql .= ",start_at int not null default 0"; // 开始时间
+// $sql .= ",end_at int not null default 0"; // 结束时间
+// $sql .= ",category_tags text"; // 素材分类标签
+// $sql .= ",mission_id int not null default 0"; // 所属项目
+// $sql .= ",entry_rule text"; // 进入规则
+// $sql .= ",data_schemas text";
+// $sql .= ",recycle_schemas longtext null"; // 放入回收站的定义
+// $sql .= ",assigned_nickname text"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
+// $sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
+// $sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
+// $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉
+// $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
+// $sql .= ",extattrs text"; //扩展属性
+// $sql .= ",tags text";
+// $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
+// $sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事件通知
+// $sql .= ",matter_mg_tag varchar(255) not null default ''";
+// $sql .= ",absent_cause text";
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error(xxt_group): ' . $mysqli->error;
+// }
+// /**
+//  * 签到活动轮次
+//  */
+// $sql = "create table if not exists xxt_signin_round(";
+// $sql .= "id int not null auto_increment";
+// $sql .= ",siteid varchar(32) not null";
+// $sql .= ",rid varchar(13) not null";
+// $sql .= ",aid varchar(40) not null";
+// $sql .= ",creater varchar(40) not null default ''";
+// $sql .= ",create_at int not null";
+// $sql .= ",start_at int not null default 0"; // 轮次开始时间
+// $sql .= ",before_start_code_id int not null default 0";
+// $sql .= ",end_at int not null default 0"; // 轮次结束时间
+// $sql .= ",after_end_code_id int not null default 0";
+// $sql .= ",late_at int not null default 0"; // 轮次迟到时间
+// $sql .= ",after_late_code_id int not null default 0";
+// $sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的标题
+// $sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
+// $sql .= ",pic text"; // 分享或生成链接时的图片
+// $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error: ' . $mysqli->error;
+// }
+// /**
+//  * 签到活动页面
+//  */
+// $sql = "create table if not exists xxt_signin_page(";
+// $sql .= "id int not null auto_increment";
+// $sql .= ",siteid varchar(32) not null";
+// $sql .= ",aid varchar(40) not null";
+// $sql .= ",creater varchar(40) not null default ''";
+// $sql .= ",create_at int not null";
+// $sql .= ",type char(1) not null default 'V'"; //S:signin,V:view
+// $sql .= ",title varchar(70) not null default ''";
+// $sql .= ",name varchar(20) not null default ''";
+// $sql .= ",code_id int not null default 0"; // from xxt_code_page
+// $sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
+// $sql .= ",seq int not null"; //页面序号
+// $sql .= ",data_schemas text"; // 登记项定义
+// $sql .= ",act_schemas text"; // 登记操作定义
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error: ' . $mysqli->error;
+// }
+// /**
+//  * 签到登记记录
+//  */
+// $sql = "create table if not exists xxt_signin_record(";
+// $sql .= "id int not null auto_increment";
+// $sql .= ",aid varchar(40) not null";
+// $sql .= ",siteid varchar(32) not null default ''";
+// $sql .= ",userid varchar(40) not null default ''";
+// $sql .= ",nickname varchar(255) not null default ''";
+// $sql .= ",wx_openid varchar(255) not null default ''";
+// $sql .= ",yx_openid varchar(255) not null default ''";
+// $sql .= ",qy_openid varchar(255) not null default ''";
+// $sql .= ",headimgurl varchar(255) not null default ''";
+// $sql .= ",enroll_key varchar(32) not null";
+// $sql .= ",enroll_at int not null"; // 填写报名信息时间
+// $sql .= ",signin_at int not null default 0"; // 签到时间
+// $sql .= ",signin_num int not null default 0"; // 签到次数
+// $sql .= ",signin_log text"; // 签到日志
+// $sql .= ",tags text";
+// $sql .= ",comment text";
+// $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
+// $sql .= ",referrer text"; // 发起签到的链接
+// $sql .= ",data text"; // 登记的数据项
+// $sql .= ",verified char(1) not null default 'Y'"; // 记录是否已通过审核
+// $sql .= ",verified_enroll_key varchar(32) not null default ''"; // 如果是通过了报名表的验证，记录关联的报名记录
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error: ' . $mysqli->error;
+// }
+// /**
+//  * 自定义签到数据
+//  */
+// $sql = "create table if not exists xxt_signin_record_data(";
+// $sql .= "aid varchar(40) not null";
+// $sql .= ",enroll_key varchar(32) not null";
+// $sql .= ",name varchar(40) not null";
+// $sql .= ",value text";
+// $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
+// $sql .= ",primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error: ' . $mysqli->error;
+// }
+// /**
+//  * 登记信息通知接收人
+//  */
+// $sql = "create table if not exists xxt_signin_receiver(";
+// $sql .= "id int not null auto_increment";
+// $sql .= ",siteid varchar(32) not null";
+// $sql .= ",aid varchar(40) not null";
+// $sql .= ",join_at int not null default 0"; // 加入时间
+// $sql .= ",userid varchar(40) not null default ''";
+// $sql .= ",nickname varchar(255) not null default ''";
+// $sql .= ",sns_user text"; // 社交账号信息
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error: ' . $mysqli->error;
+// }
+// /**
+//  * 签到活动签到记录
+//  */
+// $sql = "create table if not exists xxt_signin_log(";
+// $sql .= "id int not null auto_increment";
+// $sql .= ",siteid varchar(32) not null default ''";
+// $sql .= ",aid varchar(40) not null";
+// $sql .= ",rid varchar(13) not null default ''";
+// $sql .= ",enroll_key varchar(32) not null";
+// $sql .= ",userid varchar(40) not null default ''";
+// $sql .= ",nickname varchar(255) not null default ''";
+// $sql .= ",signin_at int not null default 0"; // 签到时间
+// $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
+// $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+// if (!$mysqli->query($sql)) {
+// 	header('HTTP/1.0 500 Internal Server Error');
+// 	echo 'database error: ' . $mysqli->error;
+// }
 /*****************************************
  * 分组活动
  *****************************************/

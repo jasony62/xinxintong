@@ -200,7 +200,7 @@ class rank extends base {
 		}
 		/* 对分组数据进行排讯 */
 		usort($userGroups, function ($a, $b) {
-			return $b->num - $a->num;
+			return $b->num > $a->num ? -1 : 1;
 		});
 
 		$oResult = new \stdClass;

@@ -1758,7 +1758,7 @@ class record extends main_base {
 			}
 			// 处理登记项
 			$data = $oRecord->data;
-			$oRecScore = empty($oRecord->score) ? new \stdClass : json_decode($oRecord->score);
+			$oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
 			$supplement = $oRecord->supplement;
 			$oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
 			$i = 0; // 列序号

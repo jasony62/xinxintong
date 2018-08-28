@@ -193,7 +193,7 @@ class rank extends base {
 			unset($oUserGroup->v);
 			unset($oUserGroup->l);
 			if (in_array($oCriteria->orderby, ['score', 'average_score'])) {
-				$oUserGroup->num = (float) $modelUsr->query_value($sqlByGroup);
+				$oUserGroup->num = round((float) $modelUsr->query_value($sqlByGroup), 2);
 			} else {
 				$oUserGroup->num = (int) $modelUsr->query_value($sqlByGroup);
 			}

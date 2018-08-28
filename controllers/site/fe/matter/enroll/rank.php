@@ -198,9 +198,9 @@ class rank extends base {
 				$oUserGroup->num = (int) $modelUsr->query_value($sqlByGroup);
 			}
 		}
-		/* 对分组数据进行排讯 */
+		/* 对分组数据进行排序 */
 		usort($userGroups, function ($a, $b) {
-			return $b->num > $a->num ? -1 : 1;
+			return $a->num < $b->num ? 1 : -1;
 		});
 
 		$oResult = new \stdClass;

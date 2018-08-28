@@ -354,7 +354,7 @@
                             <div ng-if='m.score'>{{m.score}}</div>
                         </td>
                     </tr>
-                    <tr ng-repeat='m in kanban.absent'>
+                    <tr ng-repeat='m in kanban.undone'>
                         <td>{{$index+1}}</td>
                         <td>{{m.nickname}}</td>
                         <td ng-if='app.group_app_id'>

@@ -128,12 +128,12 @@ class user extends base {
 			return new \ObjectNotFoundError();
 		}
 		$oUser = $this->getUser($oApp);
-		if (empty($oUser->group_id) && (empty($oUser->is_leader) || !in_array($oUser->is_leader, ['Y', 'S']))) {
-			return new \ParameterError('没有获取数据的权限');
-		}
+		//if (empty($oUser->group_id) && (empty($oUser->is_leader) || !in_array($oUser->is_leader, ['Y', 'S']))) {
+		//	return new \ParameterError('没有获取数据的权限');
+		//}
 
 		$modelUsr = $this->model('matter\enroll\user');
-		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid]);
+		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid, 'onlyEnrolled' => 'Y']);
 		if (count($oResult->users)) {
 			if (!empty($oApp->group_app_id)) {
 				foreach ($oApp->dataSchemas as $schema) {
@@ -154,8 +154,8 @@ class user extends base {
 			}
 		}
 		if ($rid) {
-			$oResultAbsent = $modelUsr->absentByApp($oApp, $oResult->users, $rid);
-			$oResult->absent = $oResultAbsent->users;
+			$oResultUndone = $modelUsr->undoneByApp($oApp, $rid);
+			$oResult->undone = $oResultUndone->users;
 		}
 
 		return new \ResponseData($oResult);

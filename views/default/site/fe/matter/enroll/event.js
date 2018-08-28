@@ -111,7 +111,7 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
     $scope.shiftRound = function(oRound) {
         fnGetKanban(oRound.rid).then(function(result) {
             $scope.kanban.users = result.users;
-            $scope.kanban.absent = result.absent;
+            $scope.kanban.undone = result.undone;
         });
     };
     $scope.kanban = {};
@@ -124,7 +124,7 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
                 $scope.subView = 'kanban.html';
                 fnGetKanban().then(function(result) {
                     $scope.kanban.users = result.users;
-                    $scope.kanban.absent = result.absent;
+                    $scope.kanban.undone = result.undone;
                 });
             } else {
                 $scope.subView = 'timeline.html';
@@ -166,7 +166,6 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         $scope.searchNotice(1).then(function(data) {
             if (data.total === 0) {
                 $scope.filter.scope = 'A';
-                //$scope.searchEvent(1);
             }
         });
     });

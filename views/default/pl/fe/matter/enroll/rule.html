@@ -85,6 +85,10 @@
                                         <label>
                                             <input type='checkbox' ng-model="rule.record.submit.pre.editor">仅限活动编辑组用户提交记录（问题）</label>
                                     </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.record.submit.optional">作为可选任务</label>
+                                    </div>
                                     <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
                                 </div>
                             </div>
@@ -290,6 +294,10 @@
                                         <label>留言显示在共享页的要求说明</label>
                                         <textarea class='form-control' ng-model="rule.remark.repos.pre.desc"></textarea>
                                     </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.remark.submit.optional">作为可选任务</label>
+                                    </div>
                                     <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
                                 </div>
                             </div>
@@ -357,28 +365,6 @@
                             <div class='panel panel-default'>
                                 <div class='panel-heading'>完成活动任务整体要求</div>
                                 <div class='panel-body'>
-                                    <div class='form-group'>
-                                        <label>必须完成的任务</label>
-                                        <div tms-array-checkbox model="rule.absent.mandatory.tasks">
-                                            <label class='checkbox-inline'>
-                                                <input type='checkbox' value='record.submit.end'>提交记录
-                                            </label>
-                                            <label class='checkbox-inline'>
-                                                <input type='checkbox' value='remark.submit.end'>提交留言
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class='form-group'>
-                                        <label>可选完成的任务</label>
-                                        <div tms-array-checkbox model="rule.absent.optional.tasks">
-                                            <label class='checkbox-inline'>
-                                                <input type='checkbox' value='record.submit.end'>提交记录
-                                            </label>
-                                            <label class='checkbox-inline'>
-                                                <input type='checkbox' value='remark.submit.end'>提交留言
-                                            </label>
-                                        </div>
-                                    </div>
                                     <div class='form-group'>
                                         <div class='input-group'>
                                             <div class='input-group-addon'>至少完成的可选任务数</div>

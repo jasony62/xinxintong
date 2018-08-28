@@ -29,7 +29,10 @@ class schema_model extends \TMS_MODEL {
 	 * schema_id 通讯录id
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'remarkable', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id', 'asdir'];
+		$validPropsBySchema = [
+			'html' => ['id', 'type', 'content', 'title'],
+		];
 
 		$purified = [];
 		$schemasById = [];
@@ -37,9 +40,17 @@ class schema_model extends \TMS_MODEL {
 			$schemasById[$oSchema->id] = $oSchema;
 		}
 		foreach ($aAppSchemas as $oSchema) {
-			foreach ($oSchema as $prop => $val) {
-				if (!in_array($prop, $validProps)) {
-					unset($oSchema->{$prop});
+			if (isset($validPropsBySchema[$oSchema->type])) {
+				foreach ($oSchema as $prop => $val) {
+					if (!in_array($prop, $validPropsBySchema[$oSchema->type])) {
+						unset($oSchema->{$prop});
+					}
+				}
+			} else {
+				foreach ($oSchema as $prop => $val) {
+					if (!in_array($prop, $validProps)) {
+						unset($oSchema->{$prop});
+					}
 				}
 			}
 			// 删除多选题答案中被删除的选项
@@ -762,5 +773,78 @@ class schema_model extends \TMS_MODEL {
 
 			$newSchemas[] = $oNewSchema;
 		}
+	}
+	/**
+	 * 获得schemasB中和schemasA兼容的登记项定义及对应关系
+	 *
+	 * 从目标应用中导入和指定应用的数据定义中名称（title）和类型（type）一致的项
+	 * 如果是单选题、多选题、打分题选项必须一致
+	 * 如果是打分题，分值设置范围必须一致
+	 * name,email,mobile,shorttext,longtext认为是同一种类型
+	 * 忽略：项目阶段，说明描述
+	 */
+	public function compatibleSchemas($schemasA, $schemasB) {
+		if (empty($schemasB) || empty($schemasA)) {
+			return [];
+		}
+		$mapOfCompatibleType = [
+			'shorttext' => 'text',
+			'longtext' => 'text',
+			'name' => 'text',
+			'email' => 'text',
+			'mobile' => 'text',
+			'location' => 'text',
+			'date' => 'text',
+			'single' => 'single',
+			'multiple' => 'multiple',
+			'score' => 'score',
+			'file' => 'file',
+			'image' => 'image',
+		];
+		$mapAByType = [];
+		foreach ($schemasA as $schemaA) {
+			if (!isset($mapOfCompatibleType[$schemaA->type])) {
+				continue;
+			}
+			$compatibleType = $mapOfCompatibleType[$schemaA->type];
+			if (!isset($mapAByType[$compatibleType])) {
+				$mapAByType[$compatibleType] = [];
+			}
+			$mapAByType[$compatibleType][] = $schemaA;
+		}
+
+		$aResult = [];
+		foreach ($schemasB as $schemaB) {
+			if (!isset($mapOfCompatibleType[$schemaB->type])) {
+				continue;
+			}
+			$compatibleType = $mapOfCompatibleType[$schemaB->type];
+			if (!isset($mapAByType[$compatibleType])) {
+				continue;
+			}
+			foreach ($mapAByType[$compatibleType] as $schemaA) {
+				if ($schemaA->title !== $schemaB->title) {
+					continue;
+				}
+				if ($compatibleType === 'single' || $compatibleType === 'multiple' || $compatibleType === 'score') {
+					if (count($schemaA->ops) !== count($schemaB->ops)) {
+						continue;
+					}
+					$isCompatible = true;
+					for ($i = 0, $ii = count($schemaA->ops); $i < $ii; $i++) {
+						if ($schemaA->ops[$i]->l !== $schemaB->ops[$i]->l) {
+							$isCompatible = false;
+							break;
+						}
+					}
+					if ($isCompatible === false) {
+						continue;
+					}
+				}
+				$aResult[] = [$schemaB, $schemaA];
+			}
+		}
+
+		return $aResult;
 	}
 }

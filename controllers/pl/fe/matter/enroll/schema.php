@@ -418,4 +418,25 @@ class schema extends main_base {
 
 		return new \ResponseData($newSchemas);
 	}
+	/**
+	 * 两个活动相互兼容的题目
+	 */
+	public function compatible_action($app1, $app2) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$modelSch = $this->model('matter\enroll\schema');
+
+		if (false === ($oApp1 = $modelApp->byId($app1))) {
+			return new \ResponseError('指定的活动不存在（1）');
+		}
+		if (false === ($oApp2 = $modelApp->byId($app2))) {
+			return new \ResponseError('指定的活动不存在（2）');
+		}
+		$aCompatibleSchemas = $modelSch->compatibleSchemas($oApp1->dynaDataSchemas, $oApp2->dynaDataSchemas);
+
+		return new \ResponseData($aCompatibleSchemas);
+	}
 }

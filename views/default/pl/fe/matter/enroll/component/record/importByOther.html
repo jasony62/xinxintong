@@ -1,0 +1,83 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()" type="button">×</button>
+    <h5 class="modal-title">从其他活动导入记录</h5>
+</div>
+<div class="modal-body">
+    <div class='row'>
+        <div class='col-md-8'>
+            <uib-tabset active="active">
+                <uib-tab index="1" heading="1.从哪个活动和轮次">
+                    <p></p>
+                    <div class='row'>
+                        <div class='col-md-6'>
+                            <div class='form-group'>
+                                <div class='input-group'>
+                                    <input type='text' class='form-control' ng-model="fromApps.filter.byTitle" placeholder="输入活动标题筛选">
+                                    <div class='input-group-btn'>
+                                        <button class='btn btn-default' ng-click="doFilter()"><i class='glyphicon glyphicon-refresh'></i></button>
+                                    </div>
+                                </div>
+                                <select class="form-control" ng-model="data.fromApp" ng-options="app.title for app in fromApps.data" size="10"></select>
+                            </div>
+                            <div class='form-group' ng-if="fromApps.page.total>fromApps.page.size">
+                                <div class='pl-pagination'>
+                                    <ul uib-pagination class='pagination-sm' boundary-links="false" total-items="fromApps.page.total" max-size="5" rotate="false" ng-model="fromApps.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearchFromApp()"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-md-6'>
+                            <div class='form-group'>
+                                <select class="form-control" ng-model="data.fromRnd" ng-options="rnd.title for rnd in fromRnds.data" size="10"></select>
+                            </div>
+                            <div class='form-group' ng-if="fromRnds.page.total>fromRnds.page.size">
+                                <div class='pl-pagination'>
+                                    <ul uib-pagination class='pagination-sm' boundary-links="false" total-items="fromRnds.page.total" max-size="5" rotate="false" ng-model="fromRnds.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearchFromRnd()"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </uib-tab>
+                <uib-tab index="2" heading="2.导入到哪个轮次">
+                    <p></p>
+                    <div class='form-group'>
+                        <select class="form-control" ng-model="data.toRnd" ng-options="rnd.title for rnd in rounds.data" size="10"></select>
+                    </div>
+                    <div class='form-group' ng-if="rounds.page.total>rounds.page.size">
+                        <div class='pl-pagination'>
+                            <ul uib-pagination class='pagination-sm' boundary-links="false" total-items="rounds.page.total" max-size="5" rotate="false" ng-model="fromRnds.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearchRnd()"></ul>
+                        </div>
+                    </div>
+                </uib-tab>
+            </uib-tabset>
+        </div>
+        <div class='col-md-4' ng-init="isCollapsed=true">
+            <div class="alert alert-info">
+                导入活动【<span ng-bind="data.fromApp.title"></span>】<span ng-if="data.fromRnd">填写轮次【<span ng-bind="data.fromRnd.title"></span>】</span><span ng-if="!data.fromRnd">所有</span>的记录
+            </div>
+            <div class="alert alert-info" ng-show="data.compatibleSchemas.length>0">
+                有【<span ng-bind="data.compatibleSchemas.length"></span>】道题目可导入，<a href ng-click="isCollapsed=!isCollapsed" class="alert-link">查看</a>
+            </div>
+            <div class='alert alert-info' ng-show="!isCollapsed">
+                <button class="close" ng-click="isCollapsed=true"><span>&times;</span></button>
+                导入题目<span ng-repeat="schema in data.compatibleSchemas">【<span ng-bind="schema[0].title"></span>】</span>的数据
+            </div>
+            <div class="alert alert-warning" ng-if="data.compatibleSchemas.length===0">
+                没有可以导入的题目
+            </div>
+            <p class='help-block'>只导入目标活动中题目的名称和类型与当前活动的题目一致的数据</p>
+            <div class="alert" ng-class="{'alert-info':data.countOfRecord>0,'alert-warning':data.countOfRecord===0}">
+                导入的记录数为【<span ng-bind="data.countOfRecord"></span>】条
+            </div>
+            <div class="alert alert-info" ng-if="data.toRnd">
+                导入到当前活动的填写轮次【<span ng-bind="data.toRnd.title"></span>】
+            </div>
+            <div class="alert alert-warning" ng-if="!data.toRnd">
+                需要在当前活动中指定接收导入记录的填写轮次
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    <button class="btn" ng-class="{'btn-success':executable,'btn-default':!executable}" ng-click="ok()" ng-disabled="!executable">执行导入</button>
+</div>

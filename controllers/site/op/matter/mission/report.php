@@ -78,7 +78,7 @@ class report extends \site\op\base {
 		/* 获得用户 */
 		switch ($oUserSource->type) {
 		case 'enroll':
-			$users = $this->model('matter\enroll\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all']);
+			$users = $this->model('matter\enroll\user')->enrolleeByApp($oUserSource, '', '', ['fields' => 'userid,nickname', 'cascaded' => 'N']);
 			break;
 		case 'signin':
 			$users = $this->model('matter\signin\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname']);
@@ -188,7 +188,7 @@ class report extends \site\op\base {
 		/* 获得用户 */
 		switch ($userSource->type) {
 		case 'enroll':
-			$users = $this->model('matter\enroll\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all']);
+			$users = $this->model('matter\enroll\user')->enrolleeByApp($userSource, '', '', ['fields' => 'userid,nickname', 'cascaded' => 'N']);
 			break;
 		case 'signin':
 			$users = $this->model('matter\signin\record')->enrolleeByApp($userSource, ['fields' => 'distinct userid,nickname']);

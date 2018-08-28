@@ -520,12 +520,54 @@ class user_model extends \TMS_MODEL {
 	 * 1. 如果没有指定任务规则，检查用户是否进行过登记
 	 */
 	public function isUndone($oApp, $rid, $oAssignedUser) {
-		$oAppUser = $this->byId($oApp, $oAssignedUser->userid, ['rid' => $rid, 'fields' => 'state,enroll_num']);
+		$oAppUser = $this->byId($oApp, $oAssignedUser->userid, ['rid' => $rid, 'fields' => 'state,enroll_num,do_remark_num']);
 		if (false === $oAppUser || $oAppUser->state !== '1') {
 			return true;
 		}
-		if ((int) $oAppUser->enroll_num <= 0) {
-			return true;
+		if (isset($oApp->actionRule)) {
+			$oRule = $oApp->actionRule;
+		} else {
+			$oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['fileds' => 'actionRule']);
+			$oRule = $oApp2->actionRule;
+		}
+
+		$aUndoneTasks = []; // 没有完成的任务
+		$countOfDone = 0; // 已完成的任务数量
+		/* 提交记录 */
+		if (isset($oRule->record->submit->end->min)) {
+			$bUndone = (int) $oAppUser->enroll_num < (int) $oRule->record->submit->end->min;
+			if (true === $bUndone && empty($oRule->record->submit->optional)) {
+				return true;
+			}
+			$aUndoneTasks['RecordSubmit'] = $bUndone;
+			if (false === $bUndone) {
+				$countOfDone++;
+			}
+		}
+		/* 提交评论 */
+		if (isset($oRule->remark->submit->end->min)) {
+			$bUndone = (int) $oAppUser->do_remark_num < (int) $oRule->remark->submit->end->min;
+			if (true === $bUndone && empty($oRule->remark->submit->optional)) {
+				return true;
+			}
+			$aUndoneTasks['RemarkSubmit'] = $bUndone;
+			if (false === $bUndone) {
+				$countOfDone++;
+			}
+		}
+		/* 没有指定任务，默认要求提交至少1条记录 */
+		if (empty($aUndoneTask)) {
+			if ((int) $oAppUser->enroll_num <= 0) {
+				return true;
+			}
+		}
+		if (isset($oRule->done->optional->num)) {
+			if ($countOfDone < (int) $oRule->done->optional->num) {
+				return true;
+			}
+		} else if ($countOfDone < 1) {
+			/* 默认至少要完成一项任务 */
+			return false;
 		}
 
 		return false;

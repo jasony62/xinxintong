@@ -594,8 +594,8 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 留言填写记录
 	 */
-	public function remarkRecord($oApp, $oRecord, $oOperator) {
-		$oOperatorData = $this->_doRemarkRecOrData($oApp, $oRecord, $oOperator, 'record');
+	public function remarkRecord($oApp, $oRecord, $oRemark, $oOperator) {
+		$oOperatorData = $this->_doRemarkRecOrData($oApp, $oRecord, $oRemark, $oOperator, 'record');
 		$oOwnerData = $this->_getRemarkRecOrData($oApp, $oRecord, $oOperator, 'record');
 
 		$eventAt = time();
@@ -620,8 +620,8 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 留言填写数据
 	 */
-	public function remarkRecData($oApp, $oRecOrData, $oOperator) {
-		$oOperatorData = $this->_doRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record.data');
+	public function remarkRecData($oApp, $oRecOrData, $oRemark, $oOperator) {
+		$oOperatorData = $this->_doRemarkRecOrData($oApp, $oRecOrData, $oRemark, $oOperator, 'record.data');
 		$oOwnerData = $this->_getRemarkRecOrData($oApp, $oRecOrData, $oOperator, 'record.data');
 
 		$eventAt = time();
@@ -646,8 +646,8 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 留言填写数据
 	 */
-	public function remarkCowork($oApp, $oCowork, $oOperator) {
-		$oOperatorData = $this->_doRemarkRecOrData($oApp, $oCowork, $oOperator, 'cowork');
+	public function remarkCowork($oApp, $oCowork, $oRemark, $oOperator) {
+		$oOperatorData = $this->_doRemarkRecOrData($oApp, $oCowork, $oRemark, $oOperator, 'cowork');
 		$oOwnerData = $this->_getRemarkCowork($oApp, $oCowork, $oOperator);
 
 		$eventAt = time();
@@ -672,7 +672,7 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 留言填写记录或数据
 	 */
-	private function _doRemarkRecOrData($oApp, $oRecOrData, $oOperator, $logArgType) {
+	private function _doRemarkRecOrData($oApp, $oRecOrData, $oRemark, $oOperator, $logArgType) {
 		$operatorId = $this->_getOperatorId($oOperator);
 		$eventAt = time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
@@ -695,10 +695,10 @@ class event_model extends \TMS_MODEL {
 			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
 		}
 
-		$this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
+		$this->_updateUsrData($oApp, $oRemark->rid, false, $oOperator, $oUpdatedUsrData);
 		// 如果日志插入失败需要重新增加
 		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
-			$modelUsr->awardCoin($oApp, $operatorId, $oRecOrData->rid, self::DoRemarkEventName);
+			$modelUsr->awardCoin($oApp, $operatorId, $oRemark->rid, self::DoRemarkEventName);
 		}
 
 		return $oUpdatedUsrData;

@@ -123,14 +123,20 @@ class user extends base {
 	 */
 	public function kanban_action($app, $rid = '', $page = 1, $size = 100) {
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause,data_schemas']);
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,action_rule,group_app_id,absent_cause,data_schemas']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
 		$oUser = $this->getUser($oApp);
-		//if (empty($oUser->group_id) && (empty($oUser->is_leader) || !in_array($oUser->is_leader, ['Y', 'S']))) {
-		//	return new \ParameterError('没有获取数据的权限');
-		//}
+		if (!empty($oApp->actionRule->role->kanban->group)) {
+			if (empty($oUser->group_id)) {
+				if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+					return new \ParameterError('没有查看数据的权限');
+				}
+			} else if ($oUser->group_id !== $oApp->actionRule->role->kanban->group) {
+				return new \ParameterError('没有查看数据的权限');
+			}
+		}
 
 		$modelUsr = $this->model('matter\enroll\user');
 		//$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid, 'onlyEnrolled' => 'Y']);

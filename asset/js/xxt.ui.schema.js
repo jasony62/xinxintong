@@ -273,7 +273,16 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                     }
                     switch (type) {
                         case 'image':
-                            var imgs = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id].split(',') : [];
+                            var imgs;
+                            if (oRecord.data[oSchema.id]) {
+                                if (angular.isString(oRecord.data[oSchema.id])) {
+                                    imgs = oRecord.data[oSchema.id].split(',')
+                                } else {
+                                    imgs = oRecord.data[oSchema.id];
+                                }
+                            } else {
+                                imgs = [];
+                            }
                             data[oSchema.id] = imgs;
                             break;
                         case 'file':

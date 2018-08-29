@@ -131,10 +131,10 @@ class user extends base {
 		if (!empty($oApp->actionRule->role->kanban->group)) {
 			if (empty($oUser->group_id)) {
 				if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-					return new \ParameterError('没有查看数据的权限');
+					return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
 				}
 			} else if ($oUser->group_id !== $oApp->actionRule->role->kanban->group) {
-				return new \ParameterError('没有查看数据的权限');
+				return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
 			}
 		}
 

@@ -568,7 +568,7 @@ class user_model extends \TMS_MODEL {
 			}
 		} else if ($countOfDone < 1) {
 			/* 默认至少要完成一项任务 */
-			return false;
+			return $aUndoneTasks;
 		}
 
 		return false;

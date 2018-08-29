@@ -47,13 +47,28 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
 
     function fnGetKanban(rid) {
         var url, defer;
-        defer = $q.defer();
         url = LS.j('user/kanban', 'site', 'app');
         if (rid) url += '&rid=' + rid;
         http2.get(url).then(function(rsp) {
-            defer.resolve(rsp.data);
+            var oUndoneByUserid = {};
+            if (rsp.data.users && rsp.data.users.length) {
+                if (rsp.data.undone && rsp.data.undone.length) {
+                    rsp.data.undone.forEach(function(oUndone) {
+                        oUndoneByUserid[oUndone.userid] = oUndone;
+                    });
+                }
+                rsp.data.users.forEach(function(oUser) {
+                    if (oUndoneByUserid[oUser.userid]) {
+                        if (oUndoneByUserid[oUser.userid].tasks) {
+                            oUser.undone = oUndoneByUserid[oUser.userid].tasks;
+                        }
+                        delete oUndoneByUserid[oUser.userid];
+                    }
+                });
+            }
+            $scope.kanban.users = rsp.data.users;
+            $scope.kanban.undone = oUndoneByUserid;
         });
-        return defer.promise;
     }
     var _oApp, _aLogs, _oPage, _oFilter;
     $scope.page = _oPage = {
@@ -109,10 +124,7 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         }
     };
     $scope.shiftRound = function(oRound) {
-        fnGetKanban(oRound.rid).then(function(result) {
-            $scope.kanban.users = result.users;
-            $scope.kanban.undone = result.undone;
-        });
+        fnGetKanban(oRound ? oRound.rid : '');
     };
     $scope.kanban = {};
     $scope.$watch('filter', function(nv, ov) {
@@ -122,10 +134,7 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
                 $scope.searchNotice(1);
             } else if (/kanban/.test(nv.scope)) {
                 $scope.subView = 'kanban.html';
-                fnGetKanban().then(function(result) {
-                    $scope.kanban.users = result.users;
-                    $scope.kanban.undone = result.undone;
-                });
+                fnGetKanban();
             } else {
                 $scope.subView = 'timeline.html';
                 $scope.searchEvent(1);

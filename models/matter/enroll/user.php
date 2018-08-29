@@ -536,10 +536,10 @@ class user_model extends \TMS_MODEL {
 		/* 提交记录 */
 		if (isset($oRule->record->submit->end->min)) {
 			$bUndone = (int) $oAppUser->enroll_num < (int) $oRule->record->submit->end->min;
+			$aUndoneTasks['enroll_num'] = [$bUndone, (int) $oRule->record->submit->end->min, (int) $oAppUser->enroll_num];
 			if (true === $bUndone && empty($oRule->record->submit->optional)) {
-				return true;
+				return $aUndoneTasks;
 			}
-			$aUndoneTasks['RecordSubmit'] = $bUndone;
 			if (false === $bUndone) {
 				$countOfDone++;
 			}
@@ -547,10 +547,10 @@ class user_model extends \TMS_MODEL {
 		/* 提交评论 */
 		if (isset($oRule->remark->submit->end->min)) {
 			$bUndone = (int) $oAppUser->do_remark_num < (int) $oRule->remark->submit->end->min;
+			$aUndoneTasks['do_remark_num'] = [$bUndone, (int) $oRule->remark->submit->end->min, (int) $oAppUser->do_remark_num];
 			if (true === $bUndone && empty($oRule->remark->submit->optional)) {
-				return true;
+				return $aUndoneTasks;
 			}
-			$aUndoneTasks['RemarkSubmit'] = $bUndone;
 			if (false === $bUndone) {
 				$countOfDone++;
 			}
@@ -558,12 +558,13 @@ class user_model extends \TMS_MODEL {
 		/* 没有指定任务，默认要求提交至少1条记录 */
 		if (empty($aUndoneTask)) {
 			if ((int) $oAppUser->enroll_num <= 0) {
-				return true;
+				return ['enroll_num' => [false, 1, 0]];
 			}
 		}
+		/* 完成的可选任务数量 */
 		if (isset($oRule->done->optional->num)) {
 			if ($countOfDone < (int) $oRule->done->optional->num) {
-				return true;
+				return $aUndoneTasks;
 			}
 		} else if ($countOfDone < 1) {
 			/* 默认至少要完成一项任务 */
@@ -584,11 +585,14 @@ class user_model extends \TMS_MODEL {
 		$aUndoneUsrs = []; // 没有完成任务的用户
 		$oAssignedUsrs = $oAssignedUsrsResult->users;
 		foreach ($oAssignedUsrs as $oAssignedUser) {
-			if ($this->isUndone($oApp, $rid, $oAssignedUser)) {
+			if ($tasks = $this->isUndone($oApp, $rid, $oAssignedUser)) {
 				if (isset($oApp->absent_cause->{$oAssignedUser->userid}->{$rid})) {
 					$oAssignedUser->absent_cause = new \stdClass;
 					$oAssignedUser->absent_cause->cause = $oApp->absent_cause->{$oAssignedUser->userid}->{$rid};
 					$oAssignedUser->absent_cause->rid = $rid;
+				}
+				if (true !== $tasks) {
+					$oAssignedUser->tasks = $tasks;
 				}
 				$aUndoneUsrs[] = $oAssignedUser;
 			}

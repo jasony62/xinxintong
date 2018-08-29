@@ -139,7 +139,6 @@ class user extends base {
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-		//$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid, 'onlyEnrolled' => 'Y']);
 		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid]);
 		if (count($oResult->users)) {
 			if (!empty($oApp->group_app_id)) {
@@ -150,11 +149,15 @@ class user extends base {
 					}
 				}
 			}
-			foreach ($oResult->users as &$user) {
-				if (isset($aUserRounds) && $user->group_id) {
+			foreach ($oResult->users as &$oUser) {
+				unset($oUser->siteid);
+				unset($oUser->aid);
+				unset($oUser->modify_log);
+				unset($oUser->wx_openid);
+				if (isset($aUserRounds) && $oUser->group_id) {
 					foreach ($aUserRounds as $v) {
-						if ($v->v == $user->group_id) {
-							$user->group = $v;
+						if ($v->v == $oUser->group_id) {
+							$oUser->group = $v;
 						}
 					}
 				}

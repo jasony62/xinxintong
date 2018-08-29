@@ -300,7 +300,7 @@
                         <td ng-if='app.group_app_id'>
                             <div ng-if='u.group'>{{u.group.l}}</div>
                         </td>
-                        <td ng-class="{'undone':u.undone.enroll_num[0]===false}">
+                        <td ng-class="{'undone':u.undone.enroll_num[0]===true}">
                             <div ng-if='u.enroll_num'>{{u.enroll_num}}</div>
                         </td>
                         <td>
@@ -309,7 +309,7 @@
                         <td>
                             <div ng-if='u.do_cowork_num'>{{u.do_cowork_num}}</div>
                         </td>
-                        <td ng-class="{'undone':u.undone.do_remark_num[0]===false}">
+                        <td ng-class="{'undone':u.undone.do_remark_num[0]===true}">
                             <div ng-if='u.do_remark_num'>{{u.do_remark_num}}</div>
                         </td>
                         <td>

@@ -556,7 +556,7 @@ class user_model extends \TMS_MODEL {
 			}
 		}
 		/* 没有指定任务，默认要求提交至少1条记录 */
-		if (empty($aUndoneTask)) {
+		if (empty($aUndoneTasks)) {
 			if ((int) $oAppUser->enroll_num <= 0) {
 				return ['enroll_num' => [false, 1, 0]];
 			}

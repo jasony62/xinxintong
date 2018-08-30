@@ -1679,9 +1679,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             };
             $scope.schemaEditorHtml = function() {
                 if ($scope.activeOption) {
-                    return '/views/default/pl/fe/matter/enroll/schema/option.html';
+                    return '/views/default/pl/fe/matter/enroll/schema/option.html?_=1';
                 } else if ($scope.activeSchema) {
-                    return '/views/default/pl/fe/matter/enroll/schema/main.html';
+                    return '/views/default/pl/fe/matter/enroll/schema/main.html?_=1';
                 } else {
                     return '';
                 }

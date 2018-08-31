@@ -654,7 +654,9 @@ class record extends base {
 							$oRecord->data = new \stdClass;
 						}
 						foreach ($oAssocRecord as $key => $value) {
-							$oRecord->data->{$key} = $value;
+							if (!isset($oRecord->data->{$key})) {
+								$oRecord->data->{$key} = $value;
+							}
 						}
 					}
 				}
@@ -676,7 +678,9 @@ class record extends base {
 
 					$oAssocRecord->_round_id = $oGrpPlayer[0]->round_id;
 					foreach ($oAssocRecord as $k => $v) {
-						$oRecord->data->{$k} = $v;
+						if (!isset($oRecord->data->{$k})) {
+							$oRecord->data->{$k} = $v;
+						}
 					}
 				}
 			}

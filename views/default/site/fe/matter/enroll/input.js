@@ -442,7 +442,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                         oSchema.visibility.visible = bVisible;
                         /* 被隐藏的题目需要清除数据 */
                         if (false === bVisible) {
-                            $parse(oSchema.id).assign(oRecordData, null);
+                            $parse(oSchema.id).assign(oRecordData, undefined);
                         }
                     } else if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
                         domSchema.classList.toggle('hide', !bVisible);

@@ -82,6 +82,9 @@ class record_model extends record_base {
 
 		$this->insert('xxt_enroll_record', $aRecord, false);
 
+		/*记录和轮次的关系*/
+		$modelRun->createRecord((object) $aRecord);
+
 		return $ek;
 	}
 	/**
@@ -468,8 +471,6 @@ class record_model extends record_base {
 	 *
 	 * @param object/string 记录活动/记录活动的id
 	 * @param object/array $aOptions
-	 * --creater openid
-	 * --visitor openid
 	 * --page
 	 * --size
 	 * --kw 检索关键词
@@ -504,7 +505,8 @@ class record_model extends record_base {
 		if (empty($oCriteria->record->rid)) {
 			if (!empty($oApp->appRound->rid)) {
 				$rid = $oApp->appRound->rid;
-				$w .= " and (r.rid='$rid'";
+				//$w .= " and (r.rid='$rid'";
+				$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=r.enroll_key)";
 				if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
 					$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
 				}
@@ -514,7 +516,8 @@ class record_model extends record_base {
 			if (is_string($oCriteria->record->rid)) {
 				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 					$rid = $oCriteria->record->rid;
-					$w .= " and (r.rid='$rid'";
+					//$w .= " and (r.rid='$rid'";
+					$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=r.enroll_key)";
 					if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
 						$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
 					}
@@ -523,7 +526,8 @@ class record_model extends record_base {
 			} else if (is_array($oCriteria->record->rid)) {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
 					$rid = $oCriteria->record->rid;
-					$w .= " and r.rid in('" . implode("','", $rid) . "')";
+					//$w .= " and r.rid in('" . implode("','", $rid) . "')";
+					$w .= " and exists(select 1 from xxt_enroll_record_round rrnd where rrnd.ridrid in('" . implode("','", $rid) . "') and rrnd.enroll_key=r.enroll_key)";
 				}
 			}
 		}

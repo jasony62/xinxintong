@@ -209,6 +209,23 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
+ * 记录所属的轮次，支持1条记录出现在多个轮次
+ */
+$sql = "create table if not exists xxt_enroll_record_round(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null";
+$sql .= ",enroll_key varchar(32) not null";
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",add_at int not null"; // 加入轮次的时间
+$sql .= ",add_cause char(1) not null"; // 加入的原因 Create:创建新记录，Revise：修订
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
  * 活动登记记录间的关联
  */
 $sql = "create table if not exists xxt_enroll_assoc(";

@@ -78,7 +78,12 @@ class enroll_model extends enroll_base {
 			$oRoundProto = new \stdClass;
 			$oRoundProto->title = '填写轮次';
 			$oRoundProto->state = 1;
-			$modelRnd->create($oNewApp, $oRoundProto, $oUser);
+			$aResult = $modelRnd->create($oNewApp, $oRoundProto, $oUser);
+			if (true === $aResult[0]) {
+				$oApp->appRound = $aResult[1];
+			}
+		} else {
+			$oApp->appRound = $oAppRnd;
 		}
 
 		return $oNewApp;

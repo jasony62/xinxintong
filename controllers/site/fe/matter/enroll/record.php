@@ -199,6 +199,7 @@ class record extends base {
 		 * 提交登记数据
 		 */
 		$aUpdatedEnrollRec = [];
+		$bReviseRecordBeyondRound = false;
 		if ($bSubmitNewRecord) {
 			/* 插入登记数据 */
 			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname, 'assignRid' => $rid]);
@@ -209,7 +210,10 @@ class record extends base {
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey);
 			/* 修改后的记录在当前轮次可见 */
 			if (isset($oEnrollApp->scenarioConfig->visibleRevisedRecordAtRound) && $oEnrollApp->scenarioConfig->visibleRevisedRecordAtRound === 'Y') {
-				$this->model('matter\enroll\round')->reviseRecord($oEnrollApp->appRound, $oBeforeRecord);
+				$aResult = $this->model('matter\enroll\round')->reviseRecord($oEnrollApp->appRound, $oBeforeRecord);
+				if (true === $aResult[0]) {
+					$bReviseRecordBeyondRound = true;
+				}
 			}
 			if ($rst[0] === true) {
 				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
@@ -245,7 +249,13 @@ class record extends base {
 		}
 		/* 处理用户汇总数据，积分数据 */
 		$oRecord = $modelRec->byId($ek);
-		$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
+		if ($bReviseRecordBeyondRound) {
+			$oRoundRecord = clone $oRecord;
+			$oRoundRecord->rid = $oEnrollApp->appRound->rid;
+			$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRoundRecord, $oUser, $bSubmitNewRecord, true);
+		} else {
+			$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
+		}
 		/* 生成提醒 */
 		if ($bSubmitNewRecord) {
 			$this->model('matter\enroll\notice')->addRecord($oEnrollApp, $oRecord, $oUser);

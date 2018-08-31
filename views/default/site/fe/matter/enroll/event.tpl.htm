@@ -271,6 +271,7 @@
                         <th>姓名</th>
                         <th ng-if="app.group_app_id">分组</th>
                         <th>填写记录</th>
+                        <th>跨轮次修改</th>
                         <th>最后填写时间</th>
                         <th>协作填写</th>
                         <th>发表留言</th>
@@ -302,6 +303,9 @@
                         </td>
                         <td ng-class="{'undone':u.undone.enroll_num[0]===true}">
                             <div ng-if='u.enroll_num'>{{u.enroll_num}}</div>
+                        </td>
+                        <td ng-class="{'undone':u.undone.revise_num[0]===true}">
+                            <div ng-if='u.revise_num'>{{u.revise_num}}</div>
                         </td>
                         <td>
                             <div ng-if='u.last_enroll_at>0'>{{u.last_enroll_at*1000|date:'MM-dd HH:mm'}}</div>

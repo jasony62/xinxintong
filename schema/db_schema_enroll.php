@@ -336,6 +336,7 @@ $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",last_enroll_at int not null default 0"; // 最后一次登记时间
 $sql .= ",enroll_num int not null default 0"; // 登记记录的条数
+$sql .= ",revise_num int not null default 0"; // 跨轮次修订的次数
 $sql .= ",last_cowork_at int not null default 0"; // 最后一次获得协作填写时间
 $sql .= ",cowork_num int not null default 0"; // 获得协作填写的数量
 $sql .= ",last_do_cowork_at int not null default 0"; // 最后一次进行协作填写时间

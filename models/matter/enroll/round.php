@@ -349,6 +349,6 @@ class round_model extends \TMS_MODEL {
 
 		$oRecordRound->id = $this->insert('xxt_enroll_record_round', $oRecordRound, false);
 
-		return $oRecordRound;
+		return [true, $oRecordRound];
 	}
 }

@@ -1008,7 +1008,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             };
             $scope.setVisibility = function(oSchema) {
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setVisibility.html?_=1',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setVisibility.html?_=2',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var _optSchemas, _rules, _oBeforeRules;
                         _optSchemas = []; //所有选择题

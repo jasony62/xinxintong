@@ -420,9 +420,11 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                             for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
                                 oRule = oSchema.visibility.rules[i];
                                 oRuleVal = $parse(oRule.schema)(oRecordData);
-                                if (oRuleVal === oRule.op || oRuleVal[oRule.op]) {
-                                    bVisible = true;
-                                    break;
+                                if (oRuleVal) {
+                                    if (oRuleVal === oRule.op || oRuleVal[oRule.op]) {
+                                        bVisible = true;
+                                        break;
+                                    }
                                 }
                             }
                         } else {
@@ -430,7 +432,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                             for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
                                 oRule = oSchema.visibility.rules[i];
                                 oRuleVal = $parse(oRule.schema)(oRecordData);
-                                if (oRuleVal !== oRule.op && !oRuleVal[oRule.op]) {
+                                if (!oRuleVal || (oRuleVal !== oRule.op && !oRuleVal[oRule.op])) {
                                     bVisible = false;
                                     break;
                                 }

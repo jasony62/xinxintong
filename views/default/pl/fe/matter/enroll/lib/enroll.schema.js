@@ -1038,6 +1038,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 }
                             }
                         });
+                        $scope2.data = { logicOR: false };
+                        if (oSchema.visibility && oSchema.visibility.logicOR) {
+                            $scope2.data.logicOR = true;
+                        }
                         $scope2.optSchemas = _optSchemas;
                         $scope2.rules = _rules;
                         $scope2.addRule = function() {
@@ -1050,7 +1054,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             _rules.splice(0, _rules.length);
                         };
                         $scope2.ok = function() {
-                            var oConfig = { rules: [] };
+                            var oConfig = { rules: [], logicOR: $scope2.data.logicOR };
                             _rules.forEach(function(oRule) {
                                 oConfig.rules.push({ schema: oRule.schema.id, op: oRule.op.v });
                             });

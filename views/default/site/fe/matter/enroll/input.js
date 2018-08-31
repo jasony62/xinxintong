@@ -415,18 +415,35 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 if (domSchema) {
                     if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
                         var bVisible, oRule;
-                        bVisible = true;
-                        for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
-                            oRule = oSchema.visibility.rules[i];
-                            if (oRule.schema.indexOf('member.extattr') === 0) {
-                                var memberSchemaId = oRule.schema.substr(15);
-                                if (!oRecordData.member.extattr[memberSchemaId] || (oRecordData.member.extattr[memberSchemaId] !== oRule.op && !oRecordData.member.extattr[memberSchemaId][oRule.op])) {
+                        if (oSchema.visibility.logicOR) {
+                            bVisible = false;
+                            for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                                oRule = oSchema.visibility.rules[i];
+                                if (oRule.schema.indexOf('member.extattr') === 0) {
+                                    var memberSchemaId = oRule.schema.substr(15);
+                                    if (oRecordData.member.extattr[memberSchemaId] && (oRecordData.member.extattr[memberSchemaId] === oRule.op || oRecordData.member.extattr[memberSchemaId][oRule.op])) {
+                                        bVisible = true;
+                                        break;
+                                    }
+                                } else if (oRecordData[oRule.schema] && (oRecordData[oRule.schema] === oRule.op || oRecordData[oRule.schema][oRule.op])) {
+                                    bVisible = true;
+                                    break;
+                                }
+                            }
+                        } else {
+                            bVisible = true;
+                            for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                                oRule = oSchema.visibility.rules[i];
+                                if (oRule.schema.indexOf('member.extattr') === 0) {
+                                    var memberSchemaId = oRule.schema.substr(15);
+                                    if (!oRecordData.member.extattr[memberSchemaId] || (oRecordData.member.extattr[memberSchemaId] !== oRule.op && !oRecordData.member.extattr[memberSchemaId][oRule.op])) {
+                                        bVisible = false;
+                                        break;
+                                    }
+                                } else if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
                                     bVisible = false;
                                     break;
                                 }
-                            } else if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
-                                bVisible = false;
-                                break;
                             }
                         }
                         domSchema.classList.toggle('hide', !bVisible);

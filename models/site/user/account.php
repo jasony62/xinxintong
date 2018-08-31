@@ -331,6 +331,18 @@ class account_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
+	 * 修改头像
+	 */
+	public function changeHeadImgUrl($siteId, $uid, $headimgurl) {
+		$rst = $this->update(
+			'xxt_site_account',
+			['headimgurl' => $headimgurl],
+			["siteid" => $siteId, "uid" => $uid]
+		);
+
+		return $rst;
+	}
+	/**
 	 * 删除一个注册用户
 	 *
 	 * 如果一个用户从来没有登录过，就可以直接删除

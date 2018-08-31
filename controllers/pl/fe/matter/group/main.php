@@ -22,6 +22,9 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$app = isset($app) ? $app : $id;
+		if (empty($app)) {
+			return new \ParameterError();
+		}
 		$oApp = $this->model('matter\group')->byId($app);
 		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();

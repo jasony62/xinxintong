@@ -63,25 +63,29 @@ class data_model extends entity_model {
 						unset($dbData->{$schemaId});
 						$treatedValue = '[]';
 					} else {
-						$treatedValues = json_decode($treatedValue);
-						foreach ($treatedValues as $k => $v) {
-							$aSchemaValue = [
-								'aid' => $oApp->id,
-								'rid' => $oRecord->rid,
-								'enroll_key' => $oRecord->enroll_key,
-								'submit_at' => $oRecord->enroll_at,
-								'userid' => isset($oUser->uid) ? $oUser->uid : '',
-								'nickname' => $oRecord->nickname,
-								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
-								'schema_id' => $schemaId,
-								'multitext_seq' => (int) $k + 1,
-								'value' => $this->escape($v->value),
-							];
-							$dataId = $this->insert('xxt_enroll_record_data', $aSchemaValue, true);
-							$treatedValues[$k]->id = $dataId;
+						if (!empty($treatedValue)) {
+							$treatedValues = json_decode($treatedValue);
+							foreach ($treatedValues as $k => $v) {
+								$aSchemaValue = [
+									'aid' => $oApp->id,
+									'rid' => $oRecord->rid,
+									'enroll_key' => $oRecord->enroll_key,
+									'submit_at' => $oRecord->enroll_at,
+									'userid' => isset($oUser->uid) ? $oUser->uid : '',
+									'nickname' => $oRecord->nickname,
+									'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+									'schema_id' => $schemaId,
+									'multitext_seq' => (int) $k + 1,
+									'value' => $this->escape($v->value),
+								];
+								$dataId = $this->insert('xxt_enroll_record_data', $aSchemaValue, true);
+								$treatedValues[$k]->id = $dataId;
+							}
+							$dbData->{$schemaId} = $treatedValues;
+							$treatedValue = $this->toJson($treatedValues);
+						} else {
+							unset($dbData->{$schemaId});
 						}
-						$dbData->{$schemaId} = $treatedValues;
-						$treatedValue = $this->toJson($treatedValues);
 					}
 				}
 				if (!empty($treatedValue)) {

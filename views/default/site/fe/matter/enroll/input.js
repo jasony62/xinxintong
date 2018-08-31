@@ -414,18 +414,13 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
                 if (domSchema) {
                     if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
-                        var bVisible, oRule;
+                        var bVisible, oRule, oRuleVal;
                         if (oSchema.visibility.logicOR) {
                             bVisible = false;
                             for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
                                 oRule = oSchema.visibility.rules[i];
-                                if (oRule.schema.indexOf('member.extattr') === 0) {
-                                    var memberSchemaId = oRule.schema.substr(15);
-                                    if (oRecordData.member.extattr[memberSchemaId] && (oRecordData.member.extattr[memberSchemaId] === oRule.op || oRecordData.member.extattr[memberSchemaId][oRule.op])) {
-                                        bVisible = true;
-                                        break;
-                                    }
-                                } else if (oRecordData[oRule.schema] && (oRecordData[oRule.schema] === oRule.op || oRecordData[oRule.schema][oRule.op])) {
+                                oRuleVal = $parse(oRule.schema)(oRecordData);
+                                if (oRuleVal === oRule.op || oRuleVal[oRule.op]) {
                                     bVisible = true;
                                     break;
                                 }
@@ -434,13 +429,8 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                             bVisible = true;
                             for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
                                 oRule = oSchema.visibility.rules[i];
-                                if (oRule.schema.indexOf('member.extattr') === 0) {
-                                    var memberSchemaId = oRule.schema.substr(15);
-                                    if (!oRecordData.member.extattr[memberSchemaId] || (oRecordData.member.extattr[memberSchemaId] !== oRule.op && !oRecordData.member.extattr[memberSchemaId][oRule.op])) {
-                                        bVisible = false;
-                                        break;
-                                    }
-                                } else if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
+                                oRuleVal = $parse(oRule.schema)(oRecordData);
+                                if (oRuleVal !== oRule.op && !oRuleVal[oRule.op]) {
                                     bVisible = false;
                                     break;
                                 }
@@ -448,6 +438,10 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                         }
                         domSchema.classList.toggle('hide', !bVisible);
                         oSchema.visibility.visible = bVisible;
+                        /* 被隐藏的题目需要清除数据 */
+                        if (false === bVisible) {
+                            $parse(oSchema.id).assign(oRecordData, null);
+                        }
                     } else if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
                         domSchema.classList.toggle('hide', !bVisible);
                     }

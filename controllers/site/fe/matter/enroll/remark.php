@@ -283,12 +283,12 @@ class remark extends base {
 				}
 			}
 			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
-				$this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oRemarker);
+				$this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oNewRemark, $oRemarker);
 			} else {
-				$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oRemarker);
+				$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oNewRemark, $oRemarker);
 			}
 		} else {
-			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oRemarker);
+			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oNewRemark, $oRemarker);
 		}
 
 		/* 生成提醒 */

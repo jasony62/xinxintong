@@ -193,14 +193,14 @@ class rank extends base {
 			unset($oUserGroup->v);
 			unset($oUserGroup->l);
 			if (in_array($oCriteria->orderby, ['score', 'average_score'])) {
-				$oUserGroup->num = (float) $modelUsr->query_value($sqlByGroup);
+				$oUserGroup->num = round((float) $modelUsr->query_value($sqlByGroup), 2);
 			} else {
 				$oUserGroup->num = (int) $modelUsr->query_value($sqlByGroup);
 			}
 		}
-		/* 对分组数据进行排讯 */
+		/* 对分组数据进行排序 */
 		usort($userGroups, function ($a, $b) {
-			return $b->num - $a->num;
+			return $a->num < $b->num ? 1 : -1;
 		});
 
 		$oResult = new \stdClass;

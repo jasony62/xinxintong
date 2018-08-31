@@ -108,7 +108,7 @@ class account_model extends \TMS_MODEL {
 		$acts = $this->byUnionid($unionid, $options);
 		if (count($acts) > 1) {
 			// 正常情况下一定会存在，且只有一个
-			throw new \Exception('数据错误，注册账号的主访客账号不存在');
+			throw new \Exception('数据错误，注册账号的主访客账号存在多条数据');
 		} else if (count($acts) === 1) {
 			return $acts[0];
 		} else {

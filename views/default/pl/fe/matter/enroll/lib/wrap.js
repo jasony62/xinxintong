@@ -392,7 +392,11 @@ define([], function() {
                 html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + oSchema.id + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
                 html += '</li>';
                 html += '<li class="img-picker">';
-                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
+                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + oSchema.id + '\'';
+                if (oSchema.count && parseInt(oSchema.count)) {
+                    html += ',' + oSchema.count;
+                }
+                html += ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -410,7 +414,11 @@ define([], function() {
                 html += '</div>';
                 html += '<li>';
                 html += '<li class="list-group-item file-picker">';
-                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')">上传文件</button>';
+                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\'';
+                if (oSchema.count && parseInt(oSchema.count)) {
+                    html += ',' + (oSchema.count || 1);
+                }
+                html += ')">上传文件</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;

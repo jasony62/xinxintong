@@ -22,6 +22,14 @@
                                         <input type='text' class='form-control' ng-model="rule.role.editor.nickname" placeholder="输入昵称">
                                         <div class='help-block'>编辑组用户的昵称组外用户不可见，显示为编辑组统一昵称</div>
                                     </div>
+                                    <div class='form-group'>
+                                        <label>可以查看活动看板的用户组</label>
+                                        <select class='form-control' ng-model="rule.role.kanban.group">
+                                            <option value=''>所有用户</option>
+                                            <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
+                                        </select>
+                                        <div class='help-block'>超级用户不受次限制</div>
+                                    </div>
                                     <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
                                 </div>
                             </div>
@@ -84,6 +92,10 @@
                                     <div class='checkbox'>
                                         <label>
                                             <input type='checkbox' ng-model="rule.record.submit.pre.editor">仅限活动编辑组用户提交记录（问题）</label>
+                                    </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.record.submit.optional">作为可选任务</label>
                                     </div>
                                     <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
                                 </div>
@@ -290,6 +302,10 @@
                                         <label>留言显示在共享页的要求说明</label>
                                         <textarea class='form-control' ng-model="rule.remark.repos.pre.desc"></textarea>
                                     </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.remark.submit.optional">作为可选任务</label>
+                                    </div>
                                     <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
                                 </div>
                             </div>
@@ -349,6 +365,19 @@
                                     <div class='form-group'>
                                         <label>每个记录（问题）组长推荐留言</label>
                                         <textarea class='form-control' ng-model="rule.leader.remark.agree.end.desc"></textarea>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>完成活动任务整体要求</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <div class='input-group'>
+                                            <div class='input-group-addon'>至少完成的可选任务数</div>
+                                            <input type='text' class='form-control' ng-model="rule.done.optional.num">
+                                        </div>
                                     </div>
                                     <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
                                 </div>

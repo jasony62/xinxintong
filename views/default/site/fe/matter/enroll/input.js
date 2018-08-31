@@ -91,13 +91,16 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
     return {
         restrict: 'A',
         controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
-            function imgCount(schemaId, count, from) {
+            function imgCount(schemaId, count) {
                 if (schemaId !== null) {
                     aModifiedImgFields.indexOf(schemaId) === -1 && aModifiedImgFields.push(schemaId);
                     $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
-                    if (count !== null && $scope.data[schemaId].length === count && count != 0) {
-                        noticebox.warn('最多允许上传（' + count + '）张图片');
-                        return;
+                    if (count) {
+                        count = parseInt(count);
+                        if (count > 0 && $scope.data[schemaId].length >= count) {
+                            noticebox.warn('最多允许上传（' + count + '）张图片');
+                            return;
+                        }
                     }
                 }
             }

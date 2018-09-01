@@ -527,7 +527,7 @@ class record_model extends record_base {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
 					$rid = $oCriteria->record->rid;
 					//$w .= " and r.rid in('" . implode("','", $rid) . "')";
-					$w .= " and exists(select 1 from xxt_enroll_record_round rrnd where rrnd.ridrid in('" . implode("','", $rid) . "') and rrnd.enroll_key=r.enroll_key)";
+					$w .= " and exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid in('" . implode("','", $rid) . "') and rrnd.enroll_key=r.enroll_key)";
 				}
 			}
 		}

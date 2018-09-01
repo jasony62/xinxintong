@@ -80,10 +80,10 @@ class enroll_model extends enroll_base {
 			$oRoundProto->state = 1;
 			$aResult = $modelRnd->create($oNewApp, $oRoundProto, $oUser);
 			if (true === $aResult[0]) {
-				$oApp->appRound = $aResult[1];
+				$oNewApp->appRound = $aResult[1];
 			}
 		} else {
-			$oApp->appRound = $oAppRnd;
+			$oNewApp->appRound = $oAppRnd;
 		}
 
 		return $oNewApp;

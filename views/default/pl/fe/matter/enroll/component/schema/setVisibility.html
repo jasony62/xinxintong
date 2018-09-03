@@ -25,9 +25,13 @@
             </tr>
         </tbody>
     </table>
-    <div>
+    <div class='form-group'>
         <button class='btn btn-default' ng-click="addRule()">添加可见条件</button>
         <button class='btn btn-default' ng-click="cleanRule()">清除所有条件</button>
+    </div>
+    <div class='checkbox'>
+        <label>
+            <input type='checkbox' ng-model="data.logicOR"> 满足任意条件题目可见，否则满足全部条件题目可见</label>
     </div>
 </div>
 <div class="modal-footer">

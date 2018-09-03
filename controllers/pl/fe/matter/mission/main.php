@@ -347,16 +347,16 @@ class main extends \pl\fe\matter\base {
 	 * @param string $site site'id
 	 * @param int $id mission'id
 	 */
-	public function remove_action($site, $id) {
+	public function remove_action($id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelMis = $this->model('matter\mission');
-		$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic,creater');
+		$oMission = $modelMis->byId($id, 'id,siteid,title,summary,pic,creater');
 
 		$modelAcl = $this->model('matter\mission\acl');
-		$acl = $modelAcl->byCoworker($mission->id, $oUser->id);
+		$acl = $modelAcl->byCoworker($oMission->id, $oUser->id);
 
 		if (in_array($acl->coworker_role, ['O', 'A'])) {
 			/* 当前用户是项目的创建者或者团队管理员 */
@@ -371,7 +371,7 @@ class main extends \pl\fe\matter\base {
 				/* 如果已经素材，就只打标记 */
 				$rst = $modelMis->update('xxt_mission_acl', ['state' => 0], ["mission_id" => $id]);
 				$rst = $modelMis->update('xxt_mission', ['state' => 0], ["id" => $id]);
-				$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'Recycle');
+				$this->model('matter\log')->matterOp($oMission->siteid, $oUser, $oMission, 'Recycle');
 				/*给项目下的活动素材打标记*/
 				foreach ($cnts as $cnt) {
 					if ($cnt->matter_type === 'memberschema') {
@@ -386,19 +386,19 @@ class main extends \pl\fe\matter\base {
 				}
 			} else {
 				/* 清空任务的ACL */
-				$modelAcl->removeMission($mission);
+				$modelAcl->removeMission($oMission);
 				/* 删除数据 */
 				$rst = $modelMis->delete('xxt_mission_acl', ["mission_id" => $id]);
 				$rst = $modelMis->delete('xxt_mission', ["id" => $id]);
-				$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'D');
+				$this->model('matter\log')->matterOp($oMission->siteid, $oUser, $oMission, 'D');
 			}
 		} else {
 			/* 从访问列表中移除当前用户 */
 			$coworker = new \stdClass;
 			$coworker->id = $oUser->id;
-			$modelAcl->removeCoworker($mission, $coworker);
+			$modelAcl->removeCoworker($oMission, $coworker);
 			/* 更新用户的操作日志 */
-			$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'Quit');
+			$this->model('matter\log')->matterOp($oMission->siteid, $oUser, $oMission, 'Quit');
 		}
 
 		return new \ResponseData('ok');
@@ -412,7 +412,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$model = $this->model('matter\mission');
-		if (false === ($mission = $model->byId($id, 'id,title,summary,pic'))) {
+		if (false === ($oMission = $model->byId($id, 'id,siteid,title,summary,pic'))) {
 			return new \ResponseError('数据已经被彻底删除，无法恢复');
 		}
 
@@ -420,18 +420,18 @@ class main extends \pl\fe\matter\base {
 		$rst = $model->update(
 			'xxt_mission',
 			['state' => 1],
-			["id" => $mission->id]
+			["id" => $oMission->id]
 		);
 		$rst = $model->update(
 			'xxt_mission_acl',
 			['state' => 1],
-			["mission_id" => $mission->id]
+			["mission_id" => $oMission->id]
 		);
 		/*恢复项目中的素材*/
 		$q = [
 			'siteid,matter_id,matter_type,matter_title',
 			'xxt_mission_matter',
-			"mission_id='$id'",
+			['mission_id' => $id],
 		];
 		$cnts = $model->query_objs_ss($q);
 
@@ -446,7 +446,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $oUser, $mission, 'Restore');
+		$this->model('matter\log')->matterOp($oMission->siteid, $oUser, $oMission, 'Restore');
 
 		return new \ResponseData($rst);
 	}

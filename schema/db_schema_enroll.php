@@ -209,6 +209,23 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
+ * 记录所属的轮次，支持1条记录出现在多个轮次
+ */
+$sql = "create table if not exists xxt_enroll_record_round(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null";
+$sql .= ",enroll_key varchar(32) not null";
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",add_at int not null"; // 加入轮次的时间
+$sql .= ",add_cause char(1) not null"; // 加入的原因 Create:创建新记录，Revise：修订
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
  * 活动登记记录间的关联
  */
 $sql = "create table if not exists xxt_enroll_assoc(";
@@ -319,6 +336,7 @@ $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",last_enroll_at int not null default 0"; // 最后一次登记时间
 $sql .= ",enroll_num int not null default 0"; // 登记记录的条数
+$sql .= ",revise_num int not null default 0"; // 跨轮次修订的次数
 $sql .= ",last_cowork_at int not null default 0"; // 最后一次获得协作填写时间
 $sql .= ",cowork_num int not null default 0"; // 获得协作填写的数量
 $sql .= ",last_do_cowork_at int not null default 0"; // 最后一次进行协作填写时间

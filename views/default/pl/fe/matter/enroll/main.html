@@ -115,6 +115,10 @@
                 <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.sync_mission_round" ng-change="update('sync_mission_round')"> 活动轮次和项目轮次保持一致</label>
             </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.visibleRevisedRecordAtRound" ng-change="update('scenarioConfig')"> 修改非当前轮次的记录后，记录在当前轮次中可见</label>
+            </div>
         </div>
     </div>
     <div id='main-access' class='panel panel-default' ng-controller='ctrlAccess'>

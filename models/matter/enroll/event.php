@@ -237,7 +237,7 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 用户提交记录
 	 */
-	public function submitRecord($oApp, $oRecord, $oUser, $bSubmitNewRecord) {
+	public function submitRecord($oApp, $oRecord, $oUser, $bSubmitNewRecord, $bReviseRecordBeyondRound = false) {
 		$eventAt = isset($oRecord->enroll_at) ? $oRecord->enroll_at : time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		/* 记录修改日志 */
@@ -265,6 +265,8 @@ class event_model extends \TMS_MODEL {
 				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
 			}
 			$oUpdatedUsrData->enroll_num = 1;
+		} else if (true === $bReviseRecordBeyondRound) {
+			$oUpdatedUsrData->revise_num = 1;
 		}
 		/* 更新用户汇总数据 */
 		$fnUpdateRndUser = function ($oUserData) use ($oRecord, $oUser) {

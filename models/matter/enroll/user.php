@@ -181,6 +181,7 @@ class user_model extends \TMS_MODEL {
 				$aDbData[$field] = $value;
 				break;
 			case 'enroll_num':
+			case 'revise_num':
 			case 'cowork_num':
 			case 'do_cowork_num':
 			case 'do_like_num':

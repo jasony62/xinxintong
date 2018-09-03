@@ -35,14 +35,37 @@ class base extends \site\fe\matter\base {
 	 * @param boolean $redirect
 	 *
 	 */
-	protected function checkEntryRule($oApp, $bRedirect = false) {
+	protected function checkEntryRule($oApp, $bRedirect = false, $oUser = null) {
 		if (!isset($oApp->entryRule->scope)) {
 			return [true];
 		}
-		$oUser = $this->getUser($oApp);
+		if (empty($oUser)) {
+			$oUser = $this->getUser($oApp);
+		}
+		
 		$oEntryRule = $oApp->entryRule;
 		$oScope = $oEntryRule->scope;
 
+		if (isset($oScope->login) && $oScope->login === 'Y') {
+			if (empty($oUser->loginExpire)) {
+				$msg = '您没有登陆，不满足【' . $oApp->title . '】的参与规则，请登陆后再尝试操作。';
+				if (true === $bRedirect) {
+					if (isset($_SERVER['REQUEST_URI'])) {
+						$referer = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+						if (!empty($referer) && !in_array($referer, array('/'))) {
+							if (false === strpos($referer, '/fe/user')) {
+								$this->mySetCookie('_user_access_referer', $referer);
+							}
+						}
+					}
+					$authUrl = '/rest/site/fe/user/access';
+					$authUrl .= '?setCookieReferer=N';
+					$this->redirect($authUrl);
+				} else {
+					return [false, $msg];
+				}
+			}
+		}
 		if (isset($oScope->member) && $oScope->member === 'Y') {
 			if (empty($oEntryRule->optional->member) || $oEntryRule->optional->member !== 'Y') {
 				if (!isset($oEntryRule->member)) {

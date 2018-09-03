@@ -16,13 +16,13 @@ class main extends \site\fe\base {
 	/**
 	 * 登录和注册页
 	 */
-	public function access_action() {
+	public function access_action($setCookieReferer = 'Y') {
 		/* 整理cookie中的数据，便于后续处理 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->resetAllCookieUser();
 
 		/* 保存页面来源 */
-		if (isset($_SERVER['HTTP_REFERER'])) {
+		if (isset($_SERVER['HTTP_REFERER']) && $setCookieReferer === 'Y') {
 			$referer = $_SERVER['HTTP_REFERER'];
 			if (!empty($referer) && !in_array($referer, array('/'))) {
 				if (false === strpos($referer, '/fe/user')) {

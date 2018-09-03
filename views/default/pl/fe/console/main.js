@@ -172,11 +172,11 @@ define(['frame'], function(ngApp) {
             if (!nv) return;
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
-            $scope.$watch('criteria', function(nv) {
-                if (!nv) return;
-                $scope.list(1);
-            }, true);
         });
+        $scope.$watch('criteria', function(nv) {
+            if (!nv) return;
+            $scope.list(1);
+        }, true);
     }]);
     ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'CstNaming', 'cstApp', '$uibModal', 'facListFilter', function($scope, $location, http2, CstNaming, cstApp, $uibModal, facListFilter) {
         var lsearch, filter2, _oPage;
@@ -272,26 +272,26 @@ define(['frame'], function(ngApp) {
             if (!nv) return;
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
-            $scope.$watch('unionType', function(nv) {
-                var aUnionType;
-                if (nv) {
-                    aUnionType = nv.split('.');
-                    _oCriteria.matter.type = aUnionType[0];
-                    if (aUnionType.length === 2) {
-                        _oCriteria.matter.scenario = aUnionType[1];
-                    } else {
-                        delete _oCriteria.matter.scenario;
-                    }
-                } else {
-                    _oCriteria.matter.type = '';
-                    _oCriteria.matter.scenario = '';
-                }
-            });
-            $scope.$watch('criteria', function(nv, ov) {
-                if (!nv) return;
-                $scope.list(1);
-            }, true);
         });
+        $scope.$watch('unionType', function(nv) {
+            var aUnionType;
+            if (nv) {
+                aUnionType = nv.split('.');
+                _oCriteria.matter.type = aUnionType[0];
+                if (aUnionType.length === 2) {
+                    _oCriteria.matter.scenario = aUnionType[1];
+                } else {
+                    delete _oCriteria.matter.scenario;
+                }
+            } else {
+                _oCriteria.matter.type = '';
+                _oCriteria.matter.scenario = '';
+            }
+        });
+        $scope.$watch('criteria', function(nv, ov) {
+            if (!nv) return;
+            $scope.list(1);
+        }, true);
     }]);
     ngApp.provider.controller('ctrlDoc', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {
         var _oPage, filter2;
@@ -362,11 +362,11 @@ define(['frame'], function(ngApp) {
             if (!nv) return;
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
-            $scope.$watch('criteria', function(nv) {
-                if (!nv) return;
-                $scope.list(1);
-            }, true);
         });
+        $scope.$watch('criteria', function(nv) {
+            if (!nv) return;
+            $scope.list(1);
+        }, true);
     }]);
     ngApp.provider.controller('ctrlUser', ['$scope', '$location', 'http2', 'cstApp', 'pushnotify', 'noticebox', function($scope, $location, http2, cstApp, pushnotify, noticebox) {
         var oSelected, oMembers;
@@ -390,14 +390,14 @@ define(['frame'], function(ngApp) {
                 sender: 'schema:' + oMembers.schema.id
             };
             pushnotify.open(oMembers.schema.siteid, function(notify) {
-                var url, targetAndMsg = {}; 
+                var url, targetAndMsg = {};
                 if (notify.matters.length) {
                     if (rows) {
                         targetAndMsg.users = [];
                         Object.keys(rows.selected).forEach(function(key) {
                             if (rows.selected[key] === true) {
                                 var rec = oMembers.persons[key];
-                                targetAndMsg.users.push({ id:rec.id, userid: rec.userid});
+                                targetAndMsg.users.push({ id: rec.id, userid: rec.userid });
                             }
                         });
                     }
@@ -497,7 +497,7 @@ define(['frame'], function(ngApp) {
                 }
                 $scope.members = members;
                 $scope.page.total = rsp.data.total;
-                $scope.$emit('member.data', {page:$scope.page, rows:$scope.rows, schema:$scope.mschema, persons:members});
+                $scope.$emit('member.data', { page: $scope.page, rows: $scope.rows, schema: $scope.mschema, persons: members });
             });
         };
         $scope.editMember = function(oMember) {
@@ -554,12 +554,12 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('rows.allSelected', function(nv) {
             var index = 0;
-            if(nv == 'Y') {
-                while(index < $scope.members.length) {
+            if (nv == 'Y') {
+                while (index < $scope.members.length) {
                     $scope.rows.selected[index++] = true;
                 }
                 $scope.rows.count = $scope.members.length;
-            }else if(nv == 'N'){
+            } else if (nv == 'N') {
                 $scope.rows.reset();
             }
         });

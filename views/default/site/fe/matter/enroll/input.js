@@ -879,6 +879,9 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         }).result.then(function(data) {
             var item = { id: 0, value: '' };
             item.value = data.content;
+            if (!$scope.data[schemaId] || !angular.isArray($scope.data[schemaId])) {
+                $scope.data[schemaId] = [];
+            }
             $scope.data[schemaId].push(item);
         });
     };

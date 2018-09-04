@@ -162,34 +162,31 @@ class base extends \site\fe\matter\base {
 	 * @return object
 	 *
 	 */
-	protected function checkEntryRule2($oApp) {
+	protected function checkEntryRule2($oApp, $oUser = null) {
 		$oResult = new \stdClass;
 		$oResult->passed = 'Y';
 
 		if (isset($oApp->entryRule->scope)) {
-			$oUser = $this->getUser($oApp);
+			if (empty($oUser)) {
+				$oUser = $this->getUser($oApp);
+			}
 			$oEntryRule = $oApp->entryRule;
-			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
-				$bMemberPassed = false;
-				/* 限自定义用户访问 */
-				foreach ($oEntryRule->member as $schemaId => $rule) {
-					if (!empty($rule->entry)) {
-						/* 检查用户的信息是否完整，是否已经通过审核 */
-						$modelMem = $this->model('site\user\member');
-						if (empty($oUser->unionid)) {
-							$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
-							if (count($aMembers) === 1) {
-								$oMember = $aMembers[0];
-								if ($oMember->verified === 'Y') {
-									$bMemberPassed = true;
-									break;
-								}
-							}
-						} else {
-							$modelAcnt = $this->model('site\user\account');
-							$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-							foreach ($aUnionUsers as $oUnionUser) {
-								$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+			if (isset($oEntryRule->scope->login) && $oEntryRule->scope->login === 'Y') {
+				if (empty($oUser->loginExpire)) {
+					$oResult->passed = 'N';
+					$oResult->scope = 'login';
+				}
+			}
+			if ($oResult->passed === 'Y' && isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
+				if (empty($oEntryRule->optional->member) || $oEntryRule->optional->member !== 'Y') {
+					$bMemberPassed = false;
+					/* 限自定义用户访问 */
+					foreach ($oEntryRule->member as $schemaId => $rule) {
+						if (!empty($rule->entry)) {
+							/* 检查用户的信息是否完整，是否已经通过审核 */
+							$modelMem = $this->model('site\user\member');
+							if (empty($oUser->unionid)) {
+								$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
 								if (count($aMembers) === 1) {
 									$oMember = $aMembers[0];
 									if ($oMember->verified === 'Y') {
@@ -197,17 +194,30 @@ class base extends \site\fe\matter\base {
 										break;
 									}
 								}
-							}
-							if ($bMemberPassed) {
-								break;
+							} else {
+								$modelAcnt = $this->model('site\user\account');
+								$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+								foreach ($aUnionUsers as $oUnionUser) {
+									$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+									if (count($aMembers) === 1) {
+										$oMember = $aMembers[0];
+										if ($oMember->verified === 'Y') {
+											$bMemberPassed = true;
+											break;
+										}
+									}
+								}
+								if ($bMemberPassed) {
+									break;
+								}
 							}
 						}
 					}
-				}
-				if (!$bMemberPassed) {
-					$oResult->passed = 'N';
-					$oResult->scope = 'member';
-					$oResult->member = $oEntryRule->member;
+					if (!$bMemberPassed) {
+						$oResult->passed = 'N';
+						$oResult->scope = 'member';
+						$oResult->member = $oEntryRule->member;
+					}
 				}
 			}
 			if ($oResult->passed === 'Y' && isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {

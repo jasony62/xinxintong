@@ -375,7 +375,7 @@ class record extends base {
 				return [false, '仅限活动编辑组用户提交填写记录'];
 			}
 		}
-		if (isset($oApp->entryRule->action_forbid) && $oApp->entryRule->action_forbid->submit_record === "Y") {
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->submit_record != "Y") {
 			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
 			if ($checkEntryRule[0] === false) {
 				return $checkEntryRule;
@@ -796,8 +796,7 @@ class record extends base {
 		$oUser = $this->getUser($oApp);
 
 		/* 检查是否满足了点赞的前置条件 */
-		// if (isset($oApp->entryRule->action_forbid) && $oApp->entryRule->action_forbid->like_record === "Y") {
-		if (isset($oApp->entryRule->action_forbid) && $oApp->entryRule->action_forbid->like === "Y") {
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->like != "Y") {
 			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
 			if ($checkEntryRule[0] === false) {
 				return new \ResponseError($checkEntryRule[1]);

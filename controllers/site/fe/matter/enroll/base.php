@@ -46,7 +46,7 @@ class base extends \site\fe\matter\base {
 		$oEntryRule = $oApp->entryRule;
 		$oScope = $oEntryRule->scope;
 
-		if (isset($oScope->login) && $oScope->login === 'Y') {
+		if (isset($oScope->register) && $oScope->register === 'Y') {
 			if (empty($oUser->loginExpire)) {
 				$msg = '您没有登陆，不满足【' . $oApp->title . '】的参与规则，请登陆后再尝试操作。';
 				if (true === $bRedirect) {
@@ -171,7 +171,7 @@ class base extends \site\fe\matter\base {
 				$oUser = $this->getUser($oApp);
 			}
 			$oEntryRule = $oApp->entryRule;
-			if (isset($oEntryRule->scope->login) && $oEntryRule->scope->login === 'Y') {
+			if (isset($oEntryRule->scope->register) && $oEntryRule->scope->register === 'Y') {
 				if (empty($oUser->loginExpire)) {
 					$oResult->passed = 'N';
 					$oResult->scope = 'login';

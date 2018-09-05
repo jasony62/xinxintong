@@ -20,7 +20,7 @@ define(['frame'], function(ngApp) {
                             type: 'group'
                         }
                         srvMemberPicker.open(matter, oSourceApp).then(function() {
-                            $scope.list();
+                            $scope.list('round');
                         });
                         break;
                 }

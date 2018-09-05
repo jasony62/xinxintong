@@ -777,36 +777,27 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         }
         ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
         /* 用户已经登记过或保存过，恢复之前的数据 */
-        if (LS.s().newRecord !== 'Y') {
-            http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {
-                var oRecord;
-                oRecord = rsp.data;
-                ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
-                $scope.record = oRecord;
-                if (oRecord.supplement) {
-                    $scope.supplement = oRecord.supplement;
-                }
-                /*设置页面分享信息*/
-                $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
-                /*页面阅读日志*/
-                $scope.logAccess();
-                /*根据加载的数据设置页面*/
-                fnAfterLoad(params.app, params.page, $scope.data);
-            });
+        var urlLoadRecord;
+        if (LS.s().newRecord === 'Y') {
+            urlLoadRecord = LS.j('record/get', 'site', 'app', 'rid') + '&loadLast=N';
         } else {
-            /* 加载记录的缺省值 */
-            http2.get(LS.j('record/get', 'site', 'app', 'rid') + '&ek=&loadLast=N&withSaved=N', { autoBreak: false, autoNotice: false }).then(function(rsp) {
-                var oRecord;
-                oRecord = rsp.data;
-                ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
-                /*设置页面分享信息*/
-                $scope.setSnsShare(false, { 'newRecord': LS.s().newRecord });
-                /*页面阅读日志*/
-                $scope.logAccess();
-                /*根据加载的数据设置页面*/
-                fnAfterLoad(params.app, params.page, $scope.data);
-            });
+            urlLoadRecord = LS.j('record/get', 'site', 'app', 'rid', 'ek') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y';
         }
+        http2.get(urlLoadRecord, { autoBreak: false, autoNotice: false }).then(function(rsp) {
+            var oRecord;
+            oRecord = rsp.data;
+            ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
+            $scope.record = oRecord;
+            if (oRecord.supplement) {
+                $scope.supplement = oRecord.supplement;
+            }
+            /*设置页面分享信息*/
+            $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
+            /*页面阅读日志*/
+            $scope.logAccess();
+            /*根据加载的数据设置页面*/
+            fnAfterLoad(params.app, params.page, $scope.data);
+        });
         /* 微信不支持上传文件，指导用户进行处理 */
         if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {
             if (_oApp.entryRule && _oApp.entryRule.scope && _oApp.entryRule.scope.member === 'Y') {

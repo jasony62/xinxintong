@@ -26,7 +26,7 @@ class base extends \site\fe\matter\base {
 	protected function checkEntryRule($oApp, $bRedirect = false, &$oRound = null) {
 		$oUser = $this->who;
 		$oEntryRule = $oApp->entryRule;
-		$oScope = $oEntryRule->scope;
+		$oScope = isset($oEntryRule->scope) ? $oEntryRule->scope : new \stdClass;
 		$modelRec = $this->model('matter\signin\record');
 		if ($signinLog = $modelRec->userSigned($oUser, $oApp, $oRound)) {
 			/* 用户是否已经签到 */

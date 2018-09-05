@@ -40,7 +40,7 @@ class group extends \pl\fe\base {
 		$groups = $rst[1]->groups;
 
 		$model = $this->model();
-		$model->delete('xxt_site_wxfangroup', "siteid='$site'");
+		$model->delete('xxt_site_wxfangroup', ['siteid' => $site]);
 		foreach ($groups as $g) {
 			$i = ['id' => $g->id, 'siteid' => $site, 'name' => $g->name];
 			$model->insert('xxt_site_wxfangroup', $i, false);

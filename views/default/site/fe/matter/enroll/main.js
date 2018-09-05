@@ -207,7 +207,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             sharelink += "&shareby=" + shareid;
             /* 设置分享 */
             summary = oApp.summary;
-            if (oPage && oPage.share_summary && oPage.share_summary.length && oRecord) {
+            if (oPage && oPage.share_summary && oPage.share_summary.length && oRecord && oRecord.data && oRecord.data[oPage.share_summary]) {
                 summary = oRecord.data[oPage.share_summary];
             }
             /* 分享次数计数器 */

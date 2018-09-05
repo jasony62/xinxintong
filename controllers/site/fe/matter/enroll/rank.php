@@ -118,25 +118,23 @@ class rank extends base {
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		$modelGrpRnd = $this->model('matter\group\round');
 		if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) {
-			$modelGrpRnd = $this->model('matter\group\round');
-			$rounds = $modelGrpRnd->byApp($oApp->entryRule->group->id);
-			$userGroups = [];
-			foreach ($rounds as $oRound) {
-				$oNewGroup = new \stdClass;
-				$oNewGroup->v = $oRound->round_id;
-				$oNewGroup->l = $oRound->title;
-				$userGroups[] = $oNewGroup;
-			}
+			$rounds = $modelGrpRnd->byApp($oApp->entryRule->group->id, ['cascade' => 'playerCount']);
 		} else if (!empty($oApp->group_app_id)) {
-			foreach ($oApp->dataSchemas as $oSchema) {
-				if ($oSchema->id === '_round_id') {
-					$userGroups = $oSchema->ops;
-				}
-			}
+			$rounds = $modelGrpRnd->byApp($oApp->group_app_id, ['cascade' => 'playerCount']);
 		}
-		if (empty($userGroups)) {
+		if (empty($rounds)) {
 			return new \ObjectNotFoundError();
+		}
+
+		$userGroups = [];
+		foreach ($rounds as $oRound) {
+			$oNewGroup = new \stdClass;
+			$oNewGroup->v = $oRound->round_id;
+			$oNewGroup->l = $oRound->title;
+			$oNewGroup->playerCount = $oRound->playerCount;
+			$userGroups[] = $oNewGroup;
 		}
 
 		$oCriteria = $this->getPostJson();
@@ -165,10 +163,8 @@ class rank extends base {
 			$sql .= 'sum(user_total_coin)';
 			break;
 		case 'score':
-			$sql .= 'sum(score)';
-			break;
 		case 'average_score':
-			$sql .= 'sum(score)/count(*)';
+			$sql .= 'sum(score)';
 			break;
 		}
 		$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "' and state=1";
@@ -193,14 +189,22 @@ class rank extends base {
 			unset($oUserGroup->v);
 			unset($oUserGroup->l);
 			if (in_array($oCriteria->orderby, ['score', 'average_score'])) {
-				$oUserGroup->num = (float) $modelUsr->query_value($sqlByGroup);
+				if ($oCriteria->orderby === 'score') {
+					$oUserGroup->num = round((float) $modelUsr->query_value($sqlByGroup), 2);
+				} else {
+					if (!empty($oUserGroup->playerCount)) {
+						$oUserGroup->num = round((float) ($modelUsr->query_value($sqlByGroup) / $oUserGroup->playerCount), 2);
+					} else {
+						$oUserGroup->num = 0;
+					}
+				}
 			} else {
 				$oUserGroup->num = (int) $modelUsr->query_value($sqlByGroup);
 			}
 		}
-		/* 对分组数据进行排讯 */
+		/* 对分组数据进行排序 */
 		usort($userGroups, function ($a, $b) {
-			return $b->num - $a->num;
+			return $a->num < $b->num ? 1 : -1;
 		});
 
 		$oResult = new \stdClass;

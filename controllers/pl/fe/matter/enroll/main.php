@@ -687,7 +687,7 @@ class main extends main_base {
 
 		/* 保存数据 */
 		$records = $config->records;
-		$this->_persist($oSite->id, $appId, $records);
+		$this->_persist($oNewApp, $records);
 
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oSite->id, $user, $oNewApp, 'C');
@@ -709,6 +709,10 @@ class main extends main_base {
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
+		if (empty($oMission->user_app_id) || empty($oMission->user_app_type)) {
+			return new \ParameterError('项目没有指定用户名单，无法创建活动');
+		}
+
 		$oSite = $this->model('site')->byId($oMission->siteid, ['fields' => 'id,heading_pic']);
 		if (false === $oSite) {
 			return new \ObjectNotFoundError();
@@ -782,38 +786,36 @@ class main extends main_base {
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
 		/* 获得项目用户 */
-		if (isset($oMission->user_app_id) && isset($oMission->user_app_type)) {
-			$oUserSource = new \stdClass;
-			$oUserSource->id = $oMission->user_app_id;
-			$oUserSource->type = $oMission->user_app_type;
-			switch ($oUserSource->type) {
-			case 'group':
-				$oGrpApp = $this->model('matter\group')->byId($oUserSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
-				$users = $this->model('matter\group\player')->byApp($oUserSource, (object) ['fields' => 'userid,nickname']);
-				$misUsers = isset($users->players) ? $users->players : [];
-				break;
-			case 'enroll':
-				$misUsers = $this->model('matter\enroll\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all', 'userid' => 'all']);
-				break;
-			case 'signin':
-				$misUsers = $this->model('matter\signin\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname']);
-				break;
-			case 'mschema':
-				$misUsers = $this->model('site\user\member')->byMschema($oUserSource->id, ['fields' => 'userid,name nickname']);
-				break;
-			}
-			/* 添加空记录 */
-			if (count($misUsers)) {
-				$modelRec = $this->model('matter\enroll\record');
-				foreach ($misUsers as $oMisUser) {
-					if (empty($oMisUser->userid)) {
-						continue;
-					}
-					$oMockUser = new \stdClass;
-					$oMockUser->uid = $oMisUser->userid;
-					$oMockUser->nickname = $oMisUser->nickname;
-					$modelRec->enroll($oNewApp, $oMockUser, ['nickname' => $oMockUser->nickname]);
+		$oUserSource = new \stdClass;
+		$oUserSource->id = $oMission->user_app_id;
+		$oUserSource->type = $oMission->user_app_type;
+		switch ($oUserSource->type) {
+		case 'group':
+			$oGrpApp = $this->model('matter\group')->byId($oUserSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
+			$users = $this->model('matter\group\player')->byApp($oUserSource, (object) ['fields' => 'userid,nickname']);
+			$misUsers = isset($users->players) ? $users->players : [];
+			break;
+		case 'enroll':
+			$misUsers = $this->model('matter\enroll\user')->enrolleeByApp($oUserSource, '', '', ['fields' => 'userid,nickname', 'cascaded' => 'N']);
+			break;
+		case 'signin':
+			$misUsers = $this->model('matter\signin\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname']);
+			break;
+		case 'mschema':
+			$misUsers = $this->model('site\user\member')->byMschema($oUserSource->id, ['fields' => 'userid,name nickname']);
+			break;
+		}
+		/* 添加空记录 */
+		if (count($misUsers)) {
+			$modelRec = $this->model('matter\enroll\record');
+			foreach ($misUsers as $oMisUser) {
+				if (empty($oMisUser->userid)) {
+					continue;
 				}
+				$oMockUser = new \stdClass;
+				$oMockUser->uid = $oMisUser->userid;
+				$oMockUser->nickname = $oMisUser->nickname;
+				$modelRec->enroll($oNewApp, $oMockUser, ['nickname' => $oMockUser->nickname]);
 			}
 		}
 
@@ -1055,7 +1057,7 @@ class main extends main_base {
 			$records2[] = $record2;
 		}
 		/* 保存数据*/
-		$this->_persist($site, $appId, $records2);
+		$this->_persist($oNewApp, $records2);
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
@@ -1067,44 +1069,48 @@ class main extends main_base {
 	/**
 	 * 保存数据
 	 */
-	private function _persist($site, $appId, &$records) {
+	private function _persist($oApp, &$records) {
 		$current = time();
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 		$enrollKeys = [];
 
-		foreach ($records as $record) {
-			$ek = $modelRec->genKey($site, $appId);
+		foreach ($records as $oRecord) {
+			$ek = $modelRec->genKey($oApp->siteid, $oApp->id);
 
-			$r = array();
-			$r['aid'] = $appId;
-			$r['siteid'] = $site;
-			$r['enroll_key'] = $ek;
-			$r['enroll_at'] = $current;
-			$r['verified'] = isset($record->verified) ? $record->verified : 'N';
-			$r['comment'] = isset($record->comment) ? $record->comment : '';
-			if (isset($record->tags)) {
-				$r['tags'] = $record->tags;
-				$modelApp->updateTags($appId, $record->tags);
+			$aNewRec = array();
+			$aNewRec['aid'] = $oApp->id;
+			$aNewRec['siteid'] = $oApp->siteid;
+			$aNewRec['rid'] = $oApp->appRound->rid;
+			$aNewRec['enroll_key'] = $ek;
+			$aNewRec['enroll_at'] = $current;
+			$aNewRec['verified'] = isset($oRecord->verified) ? $oRecord->verified : 'N';
+			$aNewRec['comment'] = isset($oRecord->comment) ? $oRecord->comment : '';
+			if (isset($oRecord->tags)) {
+				$aNewRec['tags'] = $oRecord->tags;
+				$modelApp->updateTags($oApp->id, $oRecord->tags);
 			}
-			$id = $modelRec->insert('xxt_enroll_record', $r, true);
-			$r['id'] = $id;
+			$id = $modelRec->insert('xxt_enroll_record', $aNewRec, true);
+			$aNewRec['id'] = $id;
+			/* 记录和轮次的关系 */
+			$modelRun->createRecord((object) $aNewRec);
 			/**
 			 * 登记数据
 			 */
-			if (isset($record->data)) {
+			if (isset($oRecord->data)) {
 				//
-				$jsonData = $modelRec->toJson($record->data);
+				$jsonData = $modelRec->toJson($oRecord->data);
 				$modelRec->update('xxt_enroll_record', ['data' => $jsonData], "enroll_key='$ek'");
 				$enrollKeys[] = $ek;
 				//
-				foreach ($record->data as $n => $v) {
+				foreach ($oRecord->data as $n => $v) {
 					if (is_object($v) || is_array($v)) {
 						$v = json_encode($v);
 					}
 					if (count($v)) {
 						$cd = [
-							'aid' => $appId,
+							'aid' => $oApp->id,
+							'rid' => $oApp->appRound->rid,
 							'enroll_key' => $ek,
 							'schema_id' => $n,
 							'value' => $v,

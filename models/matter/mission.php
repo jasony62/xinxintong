@@ -148,10 +148,10 @@ class mission_model extends app_base {
 		if (isset($aOptions['bySite'])) {
 			$bySite = $aOptions['bySite'];
 			if ($bySite === '_coworker') {
-				$q[2] .= " and exists(select 1 from xxt_mission_acl a where a.coworker='{$oUser->id}' and coworker_role='C' and a.last_invite='Y' and a.mission_id=m.id)";
+				$q[2] .= " and exists(select 1 from xxt_mission_acl a where a.mission_id=m.id and a.coworker='{$oUser->id}' and a.state=1 and coworker_role='C' and a.last_invite='Y')";
 			} else {
 				$q[2] .= " and m.siteid='{$bySite}'";
-				$q[2] .= " and exists(select 1 from xxt_mission_acl a where a.coworker='{$oUser->id}' and a.last_invite='Y' and a.mission_id=m.id)";
+				$q[2] .= " and exists(select 1 from xxt_mission_acl a where a.mission_id=m.id and a.coworker='{$oUser->id}' and a.state=1 and a.last_invite='Y')";
 			}
 		}
 		if (isset($aOptions['byTitle'])) {

@@ -466,9 +466,9 @@ class player extends \pl\fe\matter\base {
 			["aid" => $oApp->id, "enroll_key" => $ek]
 		);
 		/* 更新用户数据 */
-		$result = $modelPly->setData($oApp, $ek, $oPosted->data);
-		if (false === $result[0]) {
-			return new \ResponseError($result[1]);
+		$aResult = $modelPly->setData($oApp, $ek, $oPosted->data);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
 		}
 
 		$oNewPlayer = $modelPly->byId($oApp->id, $ek);
@@ -476,7 +476,7 @@ class player extends \pl\fe\matter\base {
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'update', $oNewPlayer);
 
-		return new \ResponseData($oPosted);
+		return new \ResponseData($oNewPlayer);
 	}
 	/**
 	 * 未分组的人

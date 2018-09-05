@@ -2,7 +2,7 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', '$uibModal', 'tmsSchema', function($scope, http2, srvEnrollRecord, $q, $uibModal, tmsSchema) {
         function _fnAbsent() {
-            http2.get('/rest/pl/fe/matter/enroll/user/absent?app=' + $scope.app.id + '&rid=' + _oCriteria.rid, function(rsp) {
+            http2.get('/rest/pl/fe/matter/enroll/user/undone?app=' + $scope.app.id + '&rid=' + _oCriteria.rid, function(rsp) {
                 var schemasById;
                 $scope.absentUsers = rsp.data.users;
                 if (rsp.data.app) {

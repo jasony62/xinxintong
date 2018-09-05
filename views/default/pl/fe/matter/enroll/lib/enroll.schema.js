@@ -1008,7 +1008,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             };
             $scope.setVisibility = function(oSchema) {
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setVisibility.html?_=1',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setVisibility.html?_=2',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var _optSchemas, _rules, _oBeforeRules;
                         _optSchemas = []; //所有选择题
@@ -1038,6 +1038,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 }
                             }
                         });
+                        $scope2.data = { logicOR: false };
+                        if (oSchema.visibility && oSchema.visibility.logicOR) {
+                            $scope2.data.logicOR = true;
+                        }
                         $scope2.optSchemas = _optSchemas;
                         $scope2.rules = _rules;
                         $scope2.addRule = function() {
@@ -1050,7 +1054,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             _rules.splice(0, _rules.length);
                         };
                         $scope2.ok = function() {
-                            var oConfig = { rules: [] };
+                            var oConfig = { rules: [], logicOR: $scope2.data.logicOR };
                             _rules.forEach(function(oRule) {
                                 oConfig.rules.push({ schema: oRule.schema.id, op: oRule.op.v });
                             });
@@ -1679,9 +1683,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             };
             $scope.schemaEditorHtml = function() {
                 if ($scope.activeOption) {
-                    return '/views/default/pl/fe/matter/enroll/schema/option.html';
+                    return '/views/default/pl/fe/matter/enroll/schema/option.html?_=1';
                 } else if ($scope.activeSchema) {
-                    return '/views/default/pl/fe/matter/enroll/schema/main.html';
+                    return '/views/default/pl/fe/matter/enroll/schema/main.html?_=1';
                 } else {
                     return '';
                 }

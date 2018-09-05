@@ -80,27 +80,22 @@ class user extends \pl\fe\matter\base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 缺席用户列表
-	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
-	 * 2、如果活动关联了分组活动
-	 * 3、如果活动所属项目指定了用户名单
+	 * 未完成任务用户列表
 	 */
-	public function absent_action($app, $rid = '') {
-		if (false === ($oUser = $this->accountUser())) {
+	public function undone_action($app, $rid = '') {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 		empty($rid) && $rid = 'ALL';
 
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
-		if (false === $oApp) {
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,group_app_id,absent_cause']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-		/* 获得当前活动的参与人 */
-		$oEnrollees = $modelUsr->enrolleeByApp($oApp, '', '', ['fields' => 'id,userid', 'onlyEnrolled' => 'Y', 'cascaded' => 'N', 'rid' => $rid]);
-		$oResult = $modelUsr->absentByApp($oApp, $oEnrollees->users, $rid);
+		$oResult = $modelUsr->undoneByApp($oApp, $rid);
 
 		return new \ResponseData($oResult);
 	}
@@ -438,10 +433,10 @@ class user extends \pl\fe\matter\base {
 			}
 		}
 
-		/* 未签到用户 */
-		$oResult = $modelUsr->absentByApp($oApp, $data, $rid);
-		$absentUsers = $oResult->users;
-		if (count($absentUsers)) {
+		/* 未完成活动任务用户 */
+		$oResult = $modelUsr->undoneByApp($oApp, $rid);
+		$undoneUsers = $oResult->users;
+		if (count($undoneUsers)) {
 			$objPHPExcel->createSheet();
 			$objPHPExcel->setActiveSheetIndex(1);
 			$objActiveSheet2 = $objPHPExcel->getActiveSheet();
@@ -454,16 +449,12 @@ class user extends \pl\fe\matter\base {
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '备注');
 
 			$rowNumber = 2;
-			foreach ($absentUsers as $k => $absentUser) {
+			foreach ($undoneUsers as $k => $oUndoneUser) {
 				$colNumber = 0;
 				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $k + 1);
-				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->nickname);
-				if (isset($absentUser->round_title)) {
-					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->round_title);
-				} else {
-					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
-				}
-				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->absent_cause->cause);
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $oUndoneUser->nickname);
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oUndoneUser->round_title) ? $oUndoneUser->round_title : '');
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oUndoneUser->absent_cause->cause) ? $oUndoneUser->absent_cause->cause : '');
 
 				$rowNumber++;
 			}

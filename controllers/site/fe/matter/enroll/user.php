@@ -123,13 +123,19 @@ class user extends base {
 	 */
 	public function kanban_action($app, $rid = '', $page = 1, $size = 100) {
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause,data_schemas']);
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,action_rule,group_app_id,absent_cause,data_schemas']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
 		$oUser = $this->getUser($oApp);
-		if (empty($oUser->group_id) && (empty($oUser->is_leader) || !in_array($oUser->is_leader, ['Y', 'S']))) {
-			return new \ParameterError('没有获取数据的权限');
+		if (!empty($oApp->actionRule->role->kanban->group)) {
+			if (empty($oUser->group_id)) {
+				if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+					return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
+				}
+			} else if ($oUser->group_id !== $oApp->actionRule->role->kanban->group) {
+				return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
+			}
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
@@ -143,19 +149,23 @@ class user extends base {
 					}
 				}
 			}
-			foreach ($oResult->users as &$user) {
-				if (isset($aUserRounds) && $user->group_id) {
+			foreach ($oResult->users as &$oUser) {
+				unset($oUser->siteid);
+				unset($oUser->aid);
+				unset($oUser->modify_log);
+				unset($oUser->wx_openid);
+				if (isset($aUserRounds) && $oUser->group_id) {
 					foreach ($aUserRounds as $v) {
-						if ($v->v == $user->group_id) {
-							$user->group = $v;
+						if ($v->v == $oUser->group_id) {
+							$oUser->group = $v;
 						}
 					}
 				}
 			}
 		}
 		if ($rid) {
-			$oResultAbsent = $modelUsr->absentByApp($oApp, $oResult->users, $rid);
-			$oResult->absent = $oResultAbsent->users;
+			$oResultUndone = $modelUsr->undoneByApp($oApp, $rid);
+			$oResult->undone = $oResultUndone->users;
 		}
 
 		return new \ResponseData($oResult);

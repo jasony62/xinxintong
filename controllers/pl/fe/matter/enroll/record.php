@@ -1758,7 +1758,7 @@ class record extends main_base {
 			}
 			// 处理登记项
 			$data = $oRecord->data;
-			$oRecScore = empty($oRecord->score) ? new \stdClass : json_decode($oRecord->score);
+			$oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
 			$supplement = $oRecord->supplement;
 			$oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
 			$i = 0; // 列序号
@@ -2366,7 +2366,7 @@ class record extends main_base {
 				$misUsers = isset($users->players) ? $users->players : [];
 				break;
 			case 'enroll':
-				$misUsers = $this->model('matter\enroll\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname', 'rid' => 'all', 'userid' => 'all']);
+				$misUsers = $this->model('matter\enroll\user')->enrolleeByApp($oUserSource, '', '', ['fields' => 'userid,nickname', 'cascaded' => 'N']);
 				break;
 			case 'signin':
 				$misUsers = $this->model('matter\signin\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname']);

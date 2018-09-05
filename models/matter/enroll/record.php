@@ -82,6 +82,9 @@ class record_model extends record_base {
 
 		$this->insert('xxt_enroll_record', $aRecord, false);
 
+		/*记录和轮次的关系*/
+		$modelRun->createRecord((object) $aRecord);
+
 		return $ek;
 	}
 	/**
@@ -468,8 +471,6 @@ class record_model extends record_base {
 	 *
 	 * @param object/string 记录活动/记录活动的id
 	 * @param object/array $aOptions
-	 * --creater openid
-	 * --visitor openid
 	 * --page
 	 * --size
 	 * --kw 检索关键词
@@ -504,7 +505,8 @@ class record_model extends record_base {
 		if (empty($oCriteria->record->rid)) {
 			if (!empty($oApp->appRound->rid)) {
 				$rid = $oApp->appRound->rid;
-				$w .= " and (r.rid='$rid'";
+				//$w .= " and (r.rid='$rid'";
+				$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=r.enroll_key)";
 				if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
 					$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
 				}
@@ -514,7 +516,8 @@ class record_model extends record_base {
 			if (is_string($oCriteria->record->rid)) {
 				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 					$rid = $oCriteria->record->rid;
-					$w .= " and (r.rid='$rid'";
+					//$w .= " and (r.rid='$rid'";
+					$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=r.enroll_key)";
 					if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
 						$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
 					}
@@ -523,7 +526,8 @@ class record_model extends record_base {
 			} else if (is_array($oCriteria->record->rid)) {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
 					$rid = $oCriteria->record->rid;
-					$w .= " and r.rid in('" . implode("','", $rid) . "')";
+					//$w .= " and r.rid in('" . implode("','", $rid) . "')";
+					$w .= " and exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid in('" . implode("','", $rid) . "') and rrnd.enroll_key=r.enroll_key)";
 				}
 			}
 		}
@@ -867,84 +871,6 @@ class record_model extends record_base {
 		}
 
 		return $records;
-	}
-	/**
-	 * 活动登记人名单
-	 *
-	 * @param object $oApp
-	 * @param object $options
-	 * --rid 轮次id
-	 *
-	 * return
-	 */
-	public function enrolleeByApp($oApp, $options = null, $criteria = null) {
-		if ($options) {
-			is_array($options) && $options = (object) $options;
-			$rid = null;
-			if (!empty($options->rid)) {
-				if (strcasecmp($options->rid, 'all') === 0) {
-					$rid = null;
-				} else if (!empty($options->rid)) {
-					$rid = $options->rid;
-				}
-			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
-			}
-		}
-		$fields = isset($options->fields) ? $options->fields : 'enroll_key,userid';
-
-		$w = "state=1 and aid='{$oApp->id}'";
-		if (!empty($options->userid)) {
-		} else {
-			$w .= " and userid<>''";
-		}
-
-		// 按轮次过滤
-		!empty($rid) && $w .= " and e.rid='$rid'";
-
-		// 指定了登记记录过滤条件
-		if (!empty($criteria->record)) {
-			$whereByRecord = '';
-			if (!empty($criteria->record->verified)) {
-				$whereByRecord .= " and verified='{$criteria->record->verified}'";
-			}
-			$w .= $whereByRecord;
-		}
-
-		// 指定了记录标签
-		if (!empty($criteria->tags)) {
-			$whereByTag = '';
-			foreach ($criteria->tags as $tag) {
-				$whereByTag .= " and concat(',',e.tags,',') like '%,$tag,%'";
-			}
-			$w .= $whereByTag;
-		}
-
-		// 指定了登记数据过滤条件
-		if (isset($criteria->data)) {
-			$whereByData = '';
-			foreach ($criteria->data as $k => $v) {
-				if (!empty($v)) {
-					$whereByData .= ' and (';
-					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
-					$whereByData .= ')';
-				}
-			}
-			$w .= $whereByData;
-		}
-
-		// 获得填写的登记数据
-		$q = [
-			$fields,
-			"xxt_enroll_record e",
-			$w,
-		];
-		$enrollees = $this->query_objs_ss($q);
-
-		return $enrollees;
 	}
 	/**
 	 * 已删除的登记清单

@@ -263,7 +263,7 @@
                 </ul>
             </div>
         </div>
-        <div class='table-responsive'>
+        <div id='kanban' class='table-responsive'>
             <table class='table table-bordered'>
                 <thead>
                     <tr>
@@ -271,6 +271,7 @@
                         <th>姓名</th>
                         <th ng-if="app.group_app_id">分组</th>
                         <th>填写记录</th>
+                        <th>跨轮次修改</th>
                         <th>最后填写时间</th>
                         <th>协作填写</th>
                         <th>发表留言</th>
@@ -294,82 +295,104 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat='m in kanban.users'>
+                    <tr ng-repeat='u in kanban.users' ng-class="{'undone':u.undone}">
                         <td>{{$index+1}}</td>
-                        <td>{{m.nickname}}</td>
+                        <td>{{u.nickname}}</td>
                         <td ng-if='app.group_app_id'>
-                            <div ng-if='m.group'>{{m.group.l}}</div>
+                            <div ng-if='u.group'>{{u.group.l}}</div>
+                        </td>
+                        <td ng-class="{'undone':u.undone.enroll_num[0]===true}">
+                            <div ng-if='u.enroll_num'>{{u.enroll_num}}</div>
+                        </td>
+                        <td ng-class="{'undone':u.undone.revise_num[0]===true}">
+                            <div ng-if='u.revise_num'>{{u.revise_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.enroll_num'>{{m.user.enroll_num}}</div>
-                            <div ng-if='m.enroll_num'>{{m.enroll_num}}</div>
+                            <div ng-if='u.last_enroll_at>0'>{{u.last_enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.last_enroll_at>0'>{{m.user.last_enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                            <div ng-if='m.last_enroll_at>0'>{{m.last_enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                            <div ng-if='u.do_cowork_num'>{{u.do_cowork_num}}</div>
+                        </td>
+                        <td ng-class="{'undone':u.undone.do_remark_num[0]===true}">
+                            <div ng-if='u.do_remark_num'>{{u.do_remark_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.do_cowork_num'>{{m.user.do_cowork_num}}</div>
-                            <div ng-if='m.do_cowork_num'>{{m.do_cowork_num}}</div>
+                            <div ng-if='u.do_like_num'>{{u.do_like_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.do_remark_num'>{{m.user.do_remark_num}}</div>
-                            <div ng-if='m.do_remark_num'>{{m.do_remark_num}}</div>
+                            <div ng-if='u.agree_num'>{{u.agree_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.do_like_num'>{{m.user.do_like_num}}</div>
-                            <div ng-if='m.do_like_num'>{{m.do_like_num}}</div>
+                            <div ng-if='u.cowork_num'>{{u.cowork_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.agree_num'>{{m.user.agree_num}}</div>
-                            <div ng-if='m.agree_num'>{{m.agree_num}}</div>
+                            <div ng-if='u.remark_num'>{{u.remark_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.cowork_num'>{{m.user.cowork_num}}</div>
-                            <div ng-if='m.cowork_num'>{{m.cowork_num}}</div>
+                            <div ng-if='u.like_num'>{{u.like_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.remark_num'>{{m.user.remark_num}}</div>
-                            <div ng-if='m.remark_num'>{{m.remark_num}}</div>
+                            <div>{{u.do_repos_read_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.user.like_num'>{{m.user.like_num}}</div>
-                            <div ng-if='m.like_num'>{{m.like_num}}</div>
-                        </td>
-                        <td>{{m.do_repos_read_num}}</td>
-                        <td>{{m.do_topic_read_num}}</td>
-                        <td>{{m.topic_read_num}}</td>
-                        <td>{{m.do_cowork_read_num}}</td>
-                        <td>{{m.cowork_read_num}}</td>
-                        <td>{{m.do_repos_read_elapse | filterTime}}</td>
-                        <td>{{m.do_topic_read_elapse | filterTime}}</td>
-                        <td>{{m.topic_read_elapse | filterTime}}</td>
-                        <td>{{m.do_cowork_read_elapse | filterTime}}</td>
-                        <td>{{m.cowork_read_elapse | filterTime}}</td>
-                        <td>
-                            <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
-                            <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
+                            <div>{{u.do_topic_read_num}}</div>
                         </td>
                         <td>
-                            <div ng-if='m.score'>{{m.score}}</div>
+                            <div>{{u.topic_read_num}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.do_cowork_read_num}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.cowork_read_num}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.do_repos_read_elapse | filterTime}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.do_topic_read_elapse | filterTime}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.topic_read_elapse | filterTime}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.do_cowork_read_elapse | filterTime}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.cowork_read_elapse | filterTime}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.user_total_coin'>{{u.user_total_coin}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.score'>{{m.score}}</div>
                         </td>
                     </tr>
-                    <tr ng-repeat='m in kanban.absent'>
+                    <tr ng-repeat='u in kanban.undone' class="undone">
                         <td>{{$index+1}}</td>
-                        <td>{{m.nickname}}</td>
-                        <td ng-if='app.group_app_id'>
-                            <div ng-if='m.group'>{{m.group.l}}</div>
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td>{{u.nickname}}</td>
+                        <td ng-if='app.group_app_id'></td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
                     </tr>
                 </tbody>
             </table>

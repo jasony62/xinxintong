@@ -47,8 +47,9 @@ class base extends \site\fe\matter\base {
 		$oScope = $oEntryRule->scope;
 
 		if (isset($oScope->register) && $oScope->register === 'Y') {
-			if (empty($oUser->loginExpire)) {
-				$msg = '您没有登陆，不满足【' . $oApp->title . '】的参与规则，请登陆后再尝试操作。';
+			$checkRegister = $this->_checkRegisterEntryRule($oUser);
+			if ($checkRegister[0] === false) {
+				$msg = '未检测到您的注册信息，不满足【' . $oApp->title . '】的参与规则，请登陆后再尝试操作。';
 				if (true === $bRedirect) {
 					if (isset($_SERVER['REQUEST_URI'])) {
 						$referer = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
@@ -172,7 +173,8 @@ class base extends \site\fe\matter\base {
 			}
 			$oEntryRule = $oApp->entryRule;
 			if (isset($oEntryRule->scope->register) && $oEntryRule->scope->register === 'Y') {
-				if (empty($oUser->loginExpire)) {
+				$checkRegister = $this->_checkRegisterEntryRule($oUser);
+				if ($checkRegister[0] === false) {
 					$oResult->passed = 'N';
 					$oResult->scope = 'login';
 				}
@@ -290,5 +292,63 @@ class base extends \site\fe\matter\base {
 		} else {
 			$this->askFollow($site, $sns);
 		}
+	}
+	/**
+	 * 检查用户是否是注册用户
+	 */
+	private function _checkRegisterEntryRule($oUser) {
+		$checkRegister = false;
+
+		if (empty($oUser->unionid)) {
+			$modelAct = $this->model('site\user\account');
+			$getUserRegisterInfo = function ($unionids) use ($modelAct) {
+				$q = [
+					'count(uid)',
+					'account',
+					"uid in ($unionids) and forbidden = 0"
+				];
+				$val = (int) $modelAct->query_val_ss($q);
+				return $val;
+			};
+
+			if (isset($oUser->sns)) {
+				$sns = $oUser->sns;
+				if (isset($sns->wx)) {
+					$openid = $sns->wx->openid;
+					$snsName = 'wx';
+				} else if (isset($sns->yx)) {
+					$openid = $sns->yx->openid;
+					$snsName = 'yx';
+				} else if (isset($sns->qy)) {
+					$openid = $sns->qy->openid;
+					$snsName = 'qy';
+				}
+				$aSiteAccounts = $modelAct->byOpenid('ALL', $snsName, $openid, ['fields' => 'distinct unionid']);
+				$unionids = [];
+				foreach ($aSiteAccounts as $oSiteAccount) {
+					$unionids[] = $oSiteAccount->unionid;
+				}
+				$unionids = '"' . implode('","', $unionids) . '"';
+				// 查询用户的注册账号信息
+				$val = $getUserRegisterInfo($unionids);
+				if ($val > 0) {
+					$checkRegister = true;
+				}
+			}
+			if (!$checkRegister) {
+				$siteUser = $modelAct->byId($oUser->uid, ['fields' => 'unionid']);
+				if ($siteUser && !empty($siteUser->unionid)) {
+					$val = $getUserRegisterInfo('"' . $siteUser->unionid . '"');
+					if ($val > 0) {
+						$checkRegister = true;
+					}
+				}
+			}
+		} else {
+			$checkRegister = true;			
+		}
+
+		$result = [$checkRegister];
+		return $result;
 	}
 }

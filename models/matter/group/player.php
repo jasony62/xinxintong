@@ -607,7 +607,7 @@ class player_model extends \TMS_MODEL {
 			'xxt_group_player',
 			['aid' => $appId, 'round_id' => $rid, 'state' => 1],
 		];
-		$cnt = $this->query_val_ss($q);
+		$cnt = (int) $this->query_val_ss($q);
 
 		return $cnt;
 	}

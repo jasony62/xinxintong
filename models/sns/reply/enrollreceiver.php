@@ -14,13 +14,9 @@ class enrollreceiver_model extends Reply {
 		$this->appId = $appId;
 	}
 	/**
-	 *
+	 * 当前用户加入通知接受人
 	 */
 	public function exec($doResponse = true) {
-		/**
-		 * 当前用户加入通知接受人
-		 */
-		$modelEnl = \TMS_APP::model('matter\enroll');
 		$siteId = $this->call['siteid'];
 		$openId = $this->call['from_user'];
 		$snsSrc = $this->call['src'];
@@ -37,14 +33,14 @@ class enrollreceiver_model extends Reply {
 			$oSnsUser = new \stdClass;
 			$oSnsUser->src = $snsSrc;
 			$oSnsUser->openid = $openId;
-			$modelEnl->insert(
+			$modelAcnt->insert(
 				'xxt_enroll_receiver',
 				[
 					'siteid' => $siteId,
 					'aid' => $this->appId,
 					'join_at' => time(),
-					'userid' => $oSiteUser->userid,
-					'nickname' => $oSiteUser->nickname,
+					'userid' => $oSiteUser->uid,
+					'nickname' => $modelAcnt->escape($oSiteUser->nickname),
 					'sns_user' => json_encode($oSnsUser),
 				],
 				false

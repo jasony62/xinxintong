@@ -203,16 +203,16 @@
             <div class="form-group">
                 <label>忽略参与规则可进行的操作</label>
                 <div class="checkbox">
-                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.like" ng-change="update('like')">点赞</label>
+                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.like" ng-change="configExclude()">点赞</label>
                 </div>
                 <div class="checkbox">
-                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.submit_record" ng-change="update('submit_record')">提交记录</label>
+                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.submit_record" ng-change="configExclude()">提交记录</label>
                 </div>
                 <div class="checkbox">
-                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_remark" ng-change="update('add_remark')">添加留言</label>
+                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_remark" ng-change="configExclude()">添加留言</label>
                 </div>
                 <div class="checkbox">
-                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_cowork" ng-change="update('add_cowork')">添加答案</label>
+                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_cowork" ng-change="configExclude()">添加答案</label>
                 </div>
             </div>
             <hr>

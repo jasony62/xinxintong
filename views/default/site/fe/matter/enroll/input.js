@@ -795,7 +795,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             });
         } else {
             /* 加载记录的缺省值 */
-            http2.get(LS.j('record/get', 'site', 'app', 'rid') + '$ek=&loadLast=N&withSaved=N', { autoBreak: false, autoNotice: false }).then(function(rsp) {
+            http2.get(LS.j('record/get', 'site', 'app', 'rid') + '&ek=&loadLast=N&withSaved=N', { autoBreak: false, autoNotice: false }).then(function(rsp) {
                 var oRecord;
                 oRecord = rsp.data;
                 ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);

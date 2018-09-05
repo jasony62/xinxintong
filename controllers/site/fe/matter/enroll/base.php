@@ -176,7 +176,7 @@ class base extends \site\fe\matter\base {
 				$checkRegister = $this->_checkRegisterEntryRule($oUser);
 				if ($checkRegister[0] === false) {
 					$oResult->passed = 'N';
-					$oResult->scope = 'login';
+					$oResult->scope = 'register';
 				}
 			}
 			if ($oResult->passed === 'Y' && isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {

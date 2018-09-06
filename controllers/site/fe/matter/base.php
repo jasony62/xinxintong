@@ -378,7 +378,7 @@ class base extends \site\fe\base {
 		$oScope = $oEntryRule->scope;
 
 		if (isset($oScope->register) && $oScope->register === 'Y') {
-			$checkRegister = $this->_checkRegisterEntryRule($oUser);
+			$checkRegister = $this->checkRegisterEntryRule($oUser);
 			if ($checkRegister[0] === false) {
 				$msg = '未检测到您的注册信息，不满足【' . $oApp->title . '】的参与规则，请登陆后再尝试操作。';
 				if (true === $bRedirect) {
@@ -482,7 +482,7 @@ class base extends \site\fe\base {
 	/**
 	 * 检查用户是否是注册用户
 	 */
-	protected function _checkRegisterEntryRule($oUser) {
+	protected function checkRegisterEntryRule($oUser) {
 		$checkRegister = false;
 
 		if (empty($oUser->unionid)) {

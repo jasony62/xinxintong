@@ -51,16 +51,7 @@ class base extends \site\fe\matter\base {
 			if ($checkRegister[0] === false) {
 				$msg = '未检测到您的注册信息，不满足【' . $oApp->title . '】的参与规则，请登陆后再尝试操作。';
 				if (true === $bRedirect) {
-					// if (isset($_SERVER['REQUEST_URI'])) {
-					// 	$referer = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
-					// 	if (!empty($referer) && !in_array($referer, array('/'))) {
-					// 		if (false === strpos($referer, '/fe/user')) {
-					// 			$this->mySetCookie('_user_access_referer', $referer);
-					// 		}
-					// 	}
-					// }
 					$authUrl = '/rest/site/fe/user/access';
-					// $authUrl .= '?setCookieReferer=N';
 					$this->redirect($authUrl);
 				} else {
 					return [false, $msg];

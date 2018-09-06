@@ -71,6 +71,9 @@
         <div class='panel-body'>
             <div class='form-group'>
                 <label>设置进入条件</label>
+                <div class="checkbox">
+                    <label><input type="checkbox" ng-true-value="'Y'" ng-model="rule.scope.register" ng-change="changeUserScope('register')">用户参与活动前需登陆</label>
+                </div>
                 <div class='checkbox'>
                     <label><input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label>
                     <span ng-if="rule.scope.member==='Y'">

@@ -377,13 +377,26 @@ provider('srvGroupApp', function() {
                     if (round === null) {
                         return obj.all({});
                     } else if (round === false) {
-                        return obj.pendings();
+                        return obj.pendings('T');
                     } else {
-                        return obj.winners(round);
+                        return obj.winners(round, 'T');
                     }
                 }
 
                 function roleRound(obj) {
+                    if (round === undefined) {
+                        round = _activeRound;
+                    }
+                    if (round === null) {
+                        return obj.all({});
+                    } else if (round === false) {
+                        return obj.pendings('R');
+                    } else {
+                        return obj.winners(round, 'R');
+                    }
+                }
+                
+                /*function roleRound(obj) {
                     if (round === null) {
                         return obj.all({ roleRoundId: 'all' });
                     } else if (round === false) {
@@ -391,7 +404,7 @@ provider('srvGroupApp', function() {
                     } else {
                         return obj.all({ roleRoundId: round.round_id });
                     }
-                }
+                }*/
             },
             all: function(oFilter) {
                 var defer = $q.defer(),
@@ -411,9 +424,9 @@ provider('srvGroupApp', function() {
                 });
                 return defer.promise;
             },
-            winners: function(round) {
+            winners: function(round, roundType) {
                 var defer = $q.defer(),
-                    url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + _appId + '&rid=' + round.round_id;
+                    url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + _appId + '&rid=' + round.round_id + '&roundType=' + roundType;
 
                 _activeRound = round;
                 _aPlayers.splice(0, _aPlayers.length);
@@ -427,9 +440,9 @@ provider('srvGroupApp', function() {
                 });
                 return defer.promise;
             },
-            pendings: function() {
+            pendings: function(roundType) {
                 var defer = $q.defer(),
-                    url = '/rest/pl/fe/matter/group/player/pendingsGet?app=' + _appId;
+                    url = '/rest/pl/fe/matter/group/player/pendingsGet?app=' + _appId + '&roundType=' + roundType;
 
                 _activeRound = false;
                 _aPlayers.splice(0, _aPlayers.length);
@@ -545,7 +558,7 @@ provider('srvGroupApp', function() {
             },
             edit: function(player) {
                 return $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/group/component/userEditor.html?_=1',
+                    templateUrl: '/views/default/pl/fe/matter/group/component/userEditor.html?_=2',
                     controller: 'ctrlGroupEditor',
                     windowClass: 'auto-height',
                     resolve: {

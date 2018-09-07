@@ -120,10 +120,10 @@ class round extends \pl\fe\matter\base {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-		if ($roundType === 'T') {
-			$oResult = $this->model('matter\group\player')->byRound($app, $rid);
-		} else {
+		if ($roundType === 'R') {
 			$oResult = $this->model('matter\group\player')->byRoleRound($app, $rid);
+		} else {
+			$oResult = $this->model('matter\group\player')->byRound($app, $rid);
 		}
 
 		return new \ResponseData($oResult);

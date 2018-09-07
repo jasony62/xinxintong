@@ -395,16 +395,6 @@ provider('srvGroupApp', function() {
                         return obj.winners(round, 'R');
                     }
                 }
-                
-                /*function roleRound(obj) {
-                    if (round === null) {
-                        return obj.all({ roleRoundId: 'all' });
-                    } else if (round === false) {
-                        return obj.all({ roleRoundId: 'pending' });
-                    } else {
-                        return obj.all({ roleRoundId: round.round_id });
-                    }
-                }*/
             },
             all: function(oFilter) {
                 var defer = $q.defer(),
@@ -558,7 +548,7 @@ provider('srvGroupApp', function() {
             },
             edit: function(player) {
                 return $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/group/component/userEditor.html?_=2',
+                    templateUrl: '/views/default/pl/fe/matter/group/component/userEditor.html?_=1',
                     controller: 'ctrlGroupEditor',
                     windowClass: 'auto-height',
                     resolve: {

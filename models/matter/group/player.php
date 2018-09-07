@@ -513,7 +513,7 @@ class player_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 移出分组
+	 * 移出分组 （团队分组）
 	 */
 	public function quitGroup($appId, $ek) {
 		$rst = $this->update(
@@ -528,7 +528,7 @@ class player_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 移入分组
+	 * 移入分组 （团队分组）
 	 */
 	public function joinGroup($appId, &$round, $ek) {
 		$rst = $this->update(
@@ -543,7 +543,7 @@ class player_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 有资格参加指定轮次分组的用户
+	 * 有资格参加指定轮次分组的用户(团队分组)
 	 */
 	public function &pendings($appId) {
 		/* 没有抽中过的用户 */
@@ -604,6 +604,40 @@ class player_model extends \TMS_MODEL {
 		return $players;
 	}
 	/**
+	 * 指定角色分组内的用户(角色分组)
+	 */
+	public function &byRoleRound($appId, $rid = null, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_group_player',
+			"aid='$appId' and state=1",
+		];
+		if (!empty($rid)) {
+			$q[2] .= " and role_rounds like '%\"" . $rid . "\"%'";
+		} else {
+			$q[2] .= " and (role_rounds <> '' or role_rounds <> '[]'";
+		}
+		$q2 = ['o' => 'round_id,draw_at'];
+
+		if ($players = $this->query_objs_ss($q, $q2)) {
+			if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_rounds')) {
+				foreach ($players as $oPlayer) {
+					if (!empty($oPlayer->data)) {
+						$oPlayer->data = json_decode($oPlayer->data);
+					}
+					if (!empty($oPlayer->role_rounds)) {
+						$oPlayer->role_rounds = json_decode($oPlayer->role_rounds);
+					} else {
+						$oPlayer->role_rounds = [];
+					}
+				}
+			}
+		}
+
+		return $players;
+	}
+	/**
 	 * 获得分组内用户的数量（团队分组）
 	 */
 	public function &countByRound($appId, $rid) {
@@ -611,6 +645,20 @@ class player_model extends \TMS_MODEL {
 			'count(*)',
 			'xxt_group_player',
 			['aid' => $appId, 'round_id' => $rid, 'state' => 1],
+		];
+		$cnt = (int) $this->query_val_ss($q);
+
+		return $cnt;
+	}
+	/**
+	 * 获得角色分组内用户的数量（角色分组）
+	 */
+	public function &countByRoleRound($appId, $rid) {
+		$q = [
+			'count(*)',
+			'xxt_group_player',
+			['aid' => $appId, 'round_id' => $rid, 'state' => 1],
+			"aid = '{$appId}' and state = 1 and role_rounds like '%\"" . $rid . "\"%'"
 		];
 		$cnt = (int) $this->query_val_ss($q);
 

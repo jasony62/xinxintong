@@ -570,6 +570,33 @@ class player_model extends \TMS_MODEL {
 		return $players;
 	}
 	/**
+	 * 没有参加角色分组的用户(角色分组)
+	 */
+	public function &pendingsRole($appId) {
+		/* 没有抽中过的用户 */
+		$q = [
+			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,data,tags,comment,role_rounds',
+			'xxt_group_player',
+			"aid='$appId' and state=1 and (role_rounds = '' or role_rounds = '[]')",
+		];
+		$q2['o'] = 'enroll_at desc';
+		/* 获得用户的登记数据 */
+		if (($players = $this->query_objs_ss($q, $q2)) && !empty($players)) {
+			foreach ($players as &$player) {
+				if (!empty($player->data)) {
+					$player->data = json_decode($player->data);
+				}
+				if (!empty($player->role_rounds)) {
+					$player->role_rounds = json_decode($player->role_rounds);
+				} else {
+					$player->role_rounds = [];
+				}
+			}
+		}
+
+		return $players;
+	}
+	/**
 	 * 指定分组内的用户(团队分组)
 	 */
 	public function &byRound($appId, $rid = null, $aOptions = []) {

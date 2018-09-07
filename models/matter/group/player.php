@@ -354,6 +354,11 @@ class player_model extends \TMS_MODEL {
 		} else if (isset($oOptions->roleRoundId) && (strcasecmp($oOptions->roleRoundId, 'all') !== 0)) {
 			$w .= " and role_rounds like '%\"" . $oOptions->roleRoundId . "\"%' and userid <> ''";
 		}
+		if (isset($oOptions->roundId) && ($oOptions->roundId == '' || $oOptions->roundId == 'pending')) {
+			$w .= " and round_id = ''";
+		} else if (isset($oOptions->roundId) && (strcasecmp($oOptions->roundId, 'all') !== 0)) {
+			$w .= " and round_id = '" . $oOptions->roundId . "' and userid <> ''";
+		}
 		$q = [
 			$fields,
 			'xxt_group_player',
@@ -565,7 +570,7 @@ class player_model extends \TMS_MODEL {
 		return $players;
 	}
 	/**
-	 * 指定分组内的用户
+	 * 指定分组内的用户(团队分组)
 	 */
 	public function &byRound($appId, $rid = null, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
@@ -599,7 +604,7 @@ class player_model extends \TMS_MODEL {
 		return $players;
 	}
 	/**
-	 * 获得分组内用户的数量
+	 * 获得分组内用户的数量（团队分组）
 	 */
 	public function &countByRound($appId, $rid) {
 		$q = [

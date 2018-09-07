@@ -30,6 +30,9 @@ class player extends \pl\fe\matter\base {
 		if (isset($filter->roleRoundId)) {
 			$options['roleRoundId'] = $modelPlayer->escape($filter->roleRoundId);
 		}
+		if (isset($filter->roundId)) {
+			$options['roundId'] = $modelPlayer->escape($filter->roundId);
+		}
 		$result = $modelPlayer->byApp($oApp, $options);
 
 		return new \ResponseData($result);

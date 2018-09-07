@@ -84,13 +84,13 @@ class remind_model extends \TMS_MODEL {
 				$matterEnroll = new \stdClass;
 				$matterEnroll->id = $oMatter->user_app_id;
 				$modelEnlUsr = $this->model('matter\enroll\user');
-				$options = [
+				$aOptions = [
 					'rid' => 'ALL',
 					'onlyEnrolled' => 'Y',
 					'fields' => 'userid',
 					'cascaded' => 'N',
 				];
-				$enrollUsers = $modelEnlUsr->enrolleeByApp($matterEnroll, '', '', $options);
+				$enrollUsers = $modelEnlUsr->enrolleeByApp($matterEnroll, '', '', $aOptions);
 				$receivers = $enrollUsers->users;
 				break;
 			case 'signin':
@@ -160,13 +160,13 @@ class remind_model extends \TMS_MODEL {
 		case 'enroll':
 			/* 发送给记录填写人 */
 			$modelUsr = $this->model('matter\enroll\user');
-			$options = [
+			$aOptions = [
 				'rid' => 'ALL',
 				'onlyEnrolled' => 'Y',
 				'fields' => 'userid',
 				'cascaded' => 'N',
 			];
-			$enrollUsers = $modelUsr->enrolleeByApp($oMatter, '', '', $options);
+			$enrollUsers = $modelUsr->enrolleeByApp($oMatter, '', '', $aOptions);
 			$receivers = $enrollUsers->users;
 			break;
 		}

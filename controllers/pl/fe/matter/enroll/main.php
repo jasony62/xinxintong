@@ -1151,8 +1151,8 @@ class main extends main_base {
 					break;
 				// 0-6 周几
 				case 'W':
-					if (empty($oRule->wday)) {return [false, '请设置定时轮次每周几开始！'];}
-					if (empty($oRule->end_wday)) {return [false, '请设置定时轮次每周几结束！'];}
+					if (!isset($oRule->wday)) {return [false, '请设置定时轮次每周几开始！'];}
+					if (!isset($oRule->end_wday)) {return [false, '请设置定时轮次每周几结束！'];}
 					if (empty($oRule->hour)) {return [false, '请设置定时轮次每周几的几点开始！'];}
 					break;
 				// 0-23 几点

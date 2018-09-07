@@ -14,31 +14,34 @@ class enrollreceiver_model extends Reply {
 		$this->appId = $appId;
 	}
 	/**
-	 *
+	 * 当前用户加入通知接受人
 	 */
 	public function exec($doResponse = true) {
-		/**
-		 * 当前用户加入通知接受人
-		 */
-		$modelEnl = \TMS_APP::model('matter\enroll');
 		$siteId = $this->call['siteid'];
 		$openId = $this->call['from_user'];
 		$snsSrc = $this->call['src'];
 
-		$fan = \TMS_APP::M('sns\\' . $snsSrc . '\\fan')->byOpenid($siteId, $openId);
-		if ($fan) {
-			$snsUser = new \stdClass;
-			$snsUser->src = $snsSrc;
-			$snsUser->openid = $openId;
-			$modelEnl->insert(
+		$modelAcnt = \TMS_APP::M('site\user\account');
+		$oSiteUser = $modelAcnt->byPrimaryOpenid($siteId, $snsSrc, $openId);
+		if ($oSiteUser) {
+			if (!empty($oSiteUser->unionid) && isset($oSiteUser->is_reg_primary) && $oSiteUser->is_reg_primary !== 'Y') {
+				$oRegUser = $modelAcnt->byPrimaryUnionid($siteId, $oSiteUser->unionid);
+				if ($oRegUser) {
+					$oSiteUser = $oRegUser;
+				}
+			}
+			$oSnsUser = new \stdClass;
+			$oSnsUser->src = $snsSrc;
+			$oSnsUser->openid = $openId;
+			$modelAcnt->insert(
 				'xxt_enroll_receiver',
 				[
 					'siteid' => $siteId,
 					'aid' => $this->appId,
 					'join_at' => time(),
-					'userid' => $fan->userid,
-					'nickname' => $fan->nickname,
-					'sns_user' => json_encode($snsUser),
+					'userid' => $oSiteUser->uid,
+					'nickname' => $modelAcnt->escape($oSiteUser->nickname),
+					'sns_user' => json_encode($oSnsUser),
 				],
 				false
 			);

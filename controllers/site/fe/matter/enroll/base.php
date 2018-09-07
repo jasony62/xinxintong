@@ -51,7 +51,11 @@ class base extends \site\fe\matter\base {
 			if ($checkRegister[0] === false) {
 				$msg = '未检测到您的注册信息，不满足【' . $oApp->title . '】的参与规则，请登陆后再尝试操作。';
 				if (true === $bRedirect) {
+					$originUrl = $this->getRequestUrl();
+					// 对url加密避免在浏览器地址栏上直接显示
+					$originUrl = $this->model()->encrypt($originUrl, 'ENCODE', 'originUrl');
 					$authUrl = '/rest/site/fe/user/access';
+					$authUrl .= '?originUrl=' . $originUrl;
 					$this->redirect($authUrl);
 				} else {
 					return [false, $msg];

@@ -80,15 +80,11 @@ define(['require'], function(require) {
             http2.post('/rest/pl/fe/site/update?site=' + $scope.siteId, p, function(rsp) {});
         };
         $scope.remove = function() {
-            if ((recommenSite && recommenSite.approved == 'Y') || navSite) {
-                noticebox.error('团队已推荐到平台主页或发布到平台主导航条，不能删除');
-            } else {
-                if (window.confirm('确定删除团队？')) {
-                    var url = '/rest/pl/fe/site/remove?site=' + $scope.siteId;
-                    http2.get(url, function(rsp) {
-                        location.href = '/rest/pl/fe';
-                    });
-                }
+            if (window.confirm('确定删除团队【' + $scope.site.name + '】？')) {
+                var url = '/rest/pl/fe/site/remove?site=' + $scope.siteId;
+                http2.get(url, function(rsp) {
+                    location.href = '/rest/pl/fe';
+                });
             }
         };
         $scope.quit = function() {

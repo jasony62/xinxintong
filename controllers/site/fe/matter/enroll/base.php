@@ -55,7 +55,7 @@ class base extends \site\fe\matter\base {
 					// 对url加密避免在浏览器地址栏上直接显示
 					$originUrl = $this->model()->encrypt($originUrl, 'ENCODE', 'originUrl');
 					$authUrl = '/rest/site/fe/user/access';
-					$authUrl .= '?originUrl=' . $originUrl;
+					$authUrl .= '?originUrl=' . $originUrl . '&urlEncryptKey=originUrl';
 					$this->redirect($authUrl);
 				} else {
 					return [false, $msg];

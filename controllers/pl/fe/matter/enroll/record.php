@@ -1787,9 +1787,11 @@ class record extends main_base {
 				switch ($oSchema->type) {
 				case 'single':
 					$cellValue = '';
-					foreach ($oSchema->ops as $op) {
-						if ($op->v === $v) {
-							$cellValue = $op->l;
+					if (!empty($oSchema->ops)) {
+						foreach ($oSchema->ops as $op) {
+							if ($op->v === $v) {
+								$cellValue = $op->l;
+							}
 						}
 					}
 					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
@@ -1803,12 +1805,14 @@ class record extends main_base {
 					break;
 				case 'multiple':
 					$labels = [];
-					$v = explode(',', $v);
-					foreach ($v as $oneV) {
-						foreach ($oSchema->ops as $op) {
-							if ($op->v === $oneV) {
-								$labels[] = $op->l;
-								break;
+					if (!empty($oSchema->ops)) {
+						$v = explode(',', $v);
+						foreach ($v as $oneV) {
+							foreach ($oSchema->ops as $op) {
+								if ($op->v === $oneV) {
+									$labels[] = $op->l;
+									break;
+								}
 							}
 						}
 					}
@@ -1824,9 +1828,11 @@ class record extends main_base {
 					break;
 				case 'score':
 					$labels = [];
-					foreach ($oSchema->ops as $op) {
-						if (isset($v->{$op->v})) {
-							$labels[] = $op->l . ':' . $v->{$op->v};
+					if (!empty($oSchema->ops)) {
+						foreach ($oSchema->ops as $op) {
+							if (isset($v->{$op->v})) {
+								$labels[] = $op->l . ':' . $v->{$op->v};
+							}
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(' / ', $labels));

@@ -111,9 +111,6 @@ define([], function() {
                     oSchema.content = '请点击下面“编辑”按钮，编辑本说明文字';
                 }
             }
-            if (/longtext|file|image|multitext|url|voice/.test(type)) {
-                oSchema.remarkable = 'Y';
-            }
             if (oProto && oProto.format !== undefined) {
                 oSchema.format = oProto.format;
             } else if (/shorttext/.test(type)) {

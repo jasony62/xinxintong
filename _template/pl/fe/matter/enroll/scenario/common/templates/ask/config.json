@@ -13,7 +13,6 @@
                 "title": "请填写您的问题",
                 "type": "longtext",
                 "required": "Y",
-                "remarkable": "Y",
                 "shareable": "Y",
                 "unique": "Y"
             },
@@ -40,7 +39,6 @@
         "title": "请填写您的问题",
         "type": "longtext",
         "required": "Y",
-        "remarkable": "Y",
         "shareable": "Y",
         "unique": "Y"
     }],

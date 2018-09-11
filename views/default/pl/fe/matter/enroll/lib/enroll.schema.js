@@ -60,13 +60,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     oUpdatedSchema.scoreMode = 'evaluation';
                                 }
                                 break;
-                            case 'shareable':
-                                if (!/single|multiple|scope/.test(oUpdatedSchema.type)) {
-                                    if (oUpdatedSchema.shareable === 'Y') {
-                                        oUpdatedSchema.remarkable = 'Y';
-                                    }
-                                }
-                                break;
                         }
                     }
                     if (oUpdatedSchema.format === 'number') {

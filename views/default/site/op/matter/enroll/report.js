@@ -41,7 +41,6 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 // schemas
                 var recordSchemas = [],
                     recordSchemas2 = [],
-                    remarkableSchemas = [],
                     enrollDataSchemas = [],
                     groupDataSchemas = [],
                     numberSchemas = [];
@@ -50,18 +49,12 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                         recordSchemas.push(schema);
                         recordSchemas2.push(schema);
                     }
-                    if (schema.remarkable && schema.remarkable === 'Y') {
-                        remarkableSchemas.push(schema);
-                        recordSchemas2.push({ type: 'remark', title: '留言数', id: schema.id });
-                        recordSchemas2.push({ type: 'agreed', title: '设置态度', id: schema.id });
-                    }
                     if (schema.format && schema.format === 'number') {
                         numberSchemas.push(schema);
                     }
                 });
                 $scope.recordSchemas = recordSchemas;
                 $scope.recordSchemas2 = recordSchemas2;
-                $scope.remarkableSchemas = remarkableSchemas;
                 $scope.numberSchemas = numberSchemas;
                 oApp._schemasFromEnrollApp.forEach(function(schema) {
                     if (schema.type !== 'html') {

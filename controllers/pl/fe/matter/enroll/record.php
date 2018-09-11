@@ -68,22 +68,10 @@ class record extends main_base {
 		$modelRec = $this->model('matter\enroll\record');
 		$oResult = $modelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
 		if (!empty($oResult->records)) {
-			$remarkables = [];
 			$bRequireScore = false;
 			foreach ($oEnrollApp->dynaDataSchemas as $oSchema) {
-				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
-					$remarkables[] = $oSchema->id;
-				}
 				if (isset($oSchema->requireScore) && $oSchema->requireScore == 'Y') {
 					$bRequireScore = true;
-				}
-			}
-			if (count($remarkables)) {
-				foreach ($oResult->records as $oRec) {
-					$modelRem = $this->model('matter\enroll\data');
-					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
-					$oRec->verbose = new \stdClass;
-					$oRec->verbose->data = $oRecordData;
 				}
 			}
 			if ($bRequireScore) {
@@ -1649,23 +1637,6 @@ class record extends main_base {
 			die('导出数据为空');
 		}
 
-		if (!empty($oResult->records)) {
-			$remarkables = [];
-			foreach ($oApp->dataSchemas as $oSchema) {
-				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
-					$remarkables[] = $oSchema->id;
-				}
-			}
-			if (count($remarkables)) {
-				foreach ($oResult->records as &$oRec) {
-					$modelRem = $this->model('matter\enroll\data');
-					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
-					$oRec->verbose = new \stdClass;
-					$oRec->verbose->data = $oRecordData;
-				}
-			}
-		}
-
 		// 是否需要分组信息
 		$bRequireGroup = empty($oApp->group_app_id) && isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id);
 
@@ -1720,9 +1691,6 @@ class record extends main_base {
 				$aScoreSum[$columnNum4] = $oSchema->id;
 				$bRequireScore = true;
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
-			}
-			if (isset($remarkables) && in_array($oSchema->id, $remarkables)) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '留言数');
 			}
 		}
 		if ($bRequireNickname) {
@@ -1898,19 +1866,6 @@ class record extends main_base {
 				if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
 					$cellScore = empty($oRecScore->{$oSchema->id}) ? 0 : $oRecScore->{$oSchema->id};
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
-				}
-				// 留言数
-				if (isset($remarkables) && in_array($oSchema->id, $remarkables)) {
-					if (isset($oVerbose->{$oSchema->id})) {
-						$remark_num = $oVerbose->{$oSchema->id}->remark_num;
-					} else {
-						$remark_num = 0;
-					}
-					$two = $i + $columnNum3;
-					$col = ($two - $one >= 2) ? ($two - 1) : $two;
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($col, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
-					$i++;
-					$columnNum3++;
 				}
 				$i++;
 			}

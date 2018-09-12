@@ -2,7 +2,7 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlUser', ['$scope', '$q', '$uibModal', 'http2', 'noticebox', 'cstApp', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', 'srvMemberPicker', function($scope, $q, $uibModal, http2, noticebox, cstApp, srvGroupApp, srvGroupRound, srvGroupPlayer, srvMemberPicker) {
         $scope.syncByApp = function(data) {
             srvGroupApp.syncByApp().then(function(count) {
-                $scope.list();
+                $scope.list('round');
             });
         };
         $scope.chooseAppUser = function() {
@@ -38,7 +38,7 @@ define(['frame'], function(ngApp) {
             } else if (_oCriteria[arg].round_id === 'pending') {
                 srvGroupPlayer.list(false, arg);
             } else {
-                srvGroupPlayer.list(_oCriteria[arg]);
+                srvGroupPlayer.list(_oCriteria[arg], arg);
             }
         };
         $scope.editPlayer = function(player) {

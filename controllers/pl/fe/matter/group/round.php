@@ -114,12 +114,17 @@ class round extends \pl\fe\matter\base {
 	}
 	/**
 	 * 属于指定分组的人
+	 * $roundType 分组类型 “T” 团队分组，"R" 角色分组
 	 */
-	public function winnersGet_action($app, $rid = null) {
+	public function winnersGet_action($app, $rid = null, $roundType = 'T') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-		$oResult = $this->model('matter\group\player')->byRound($app, $rid);
+		if ($roundType === 'R') {
+			$oResult = $this->model('matter\group\player')->byRoleRound($app, $rid);
+		} else {
+			$oResult = $this->model('matter\group\player')->byRound($app, $rid);
+		}
 
 		return new \ResponseData($oResult);
 	}

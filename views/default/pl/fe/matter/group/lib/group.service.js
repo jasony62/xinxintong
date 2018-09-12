@@ -377,19 +377,22 @@ provider('srvGroupApp', function() {
                     if (round === null) {
                         return obj.all({});
                     } else if (round === false) {
-                        return obj.pendings();
+                        return obj.pendings('T');
                     } else {
-                        return obj.winners(round);
+                        return obj.winners(round, 'T');
                     }
                 }
 
                 function roleRound(obj) {
+                    if (round === undefined) {
+                        round = _activeRound;
+                    }
                     if (round === null) {
-                        return obj.all({ roleRoundId: 'all' });
+                        return obj.all({});
                     } else if (round === false) {
-                        return obj.all({ roleRoundId: 'pending' });
+                        return obj.pendings('R');
                     } else {
-                        return obj.all({ roleRoundId: round.round_id });
+                        return obj.winners(round, 'R');
                     }
                 }
             },
@@ -411,9 +414,9 @@ provider('srvGroupApp', function() {
                 });
                 return defer.promise;
             },
-            winners: function(round) {
+            winners: function(round, roundType) {
                 var defer = $q.defer(),
-                    url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + _appId + '&rid=' + round.round_id;
+                    url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + _appId + '&rid=' + round.round_id + '&roundType=' + roundType;
 
                 _activeRound = round;
                 _aPlayers.splice(0, _aPlayers.length);
@@ -427,9 +430,9 @@ provider('srvGroupApp', function() {
                 });
                 return defer.promise;
             },
-            pendings: function() {
+            pendings: function(roundType) {
                 var defer = $q.defer(),
-                    url = '/rest/pl/fe/matter/group/player/pendingsGet?app=' + _appId;
+                    url = '/rest/pl/fe/matter/group/player/pendingsGet?app=' + _appId + '&roundType=' + roundType;
 
                 _activeRound = false;
                 _aPlayers.splice(0, _aPlayers.length);

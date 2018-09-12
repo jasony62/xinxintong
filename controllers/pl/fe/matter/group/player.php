@@ -30,6 +30,9 @@ class player extends \pl\fe\matter\base {
 		if (isset($filter->roleRoundId)) {
 			$options['roleRoundId'] = $modelPlayer->escape($filter->roleRoundId);
 		}
+		if (isset($filter->roundId)) {
+			$options['roundId'] = $modelPlayer->escape($filter->roundId);
+		}
 		$result = $modelPlayer->byApp($oApp, $options);
 
 		return new \ResponseData($result);
@@ -480,9 +483,14 @@ class player extends \pl\fe\matter\base {
 	}
 	/**
 	 * 未分组的人
+	 * $roundType 分组类型 “T” 团队分组，"R" 角色分组
 	 */
-	public function pendingsGet_action($app, $rid = null) {
-		$result = $this->model('matter\group\player')->pendings($app);
+	public function pendingsGet_action($app, $rid = null, $roundType = 'T') {
+		if ($roundType === 'R') {
+			$result = $this->model('matter\group\player')->pendingsRole($app);
+		} else {
+			$result = $this->model('matter\group\player')->pendings($app);
+		}
 
 		return new \ResponseData($result);
 	}
@@ -513,7 +521,7 @@ class player extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 将用户移出分组
+	 * 将用户移出分组 (团队分组)
 	 */
 	public function quitGroup_action($site, $app) {
 		if (false === ($oUser = $this->accountUser())) {

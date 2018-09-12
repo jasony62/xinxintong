@@ -32,7 +32,6 @@ class record extends base {
 		//header('Access-Control-Allow-Methods:POST');
 		//header('Access-Control-Allow-Headers:Content-Type');
 		//$_SERVER['REQUEST_METHOD'] === 'OPTIONS' && exit;
-
 		if (empty($site)) {
 			header('HTTP/1.0 500 parameter error:site is empty.');
 			die('参数错误！');
@@ -545,13 +544,33 @@ class record extends base {
 		if (empty($submitkey)) {
 			$submitkey = $this->who->uid;
 		}
+		/* 检查此文件片段是否已经成功上传 */
+		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+			if (!defined('SAE_TMP_PATH')) {
+				$rootDir = TMS_UPLOAD_DIR . "$oApp->siteid" . '/' . \TMS_MODEL::toLocalEncoding('_resumable');
+				$chunkNumber = $_GET['resumableChunkNumber'];
+				$filename = str_replace(' ', '_', $_GET['resumableFilename']);
+				$chunkDir = $_GET['resumableIdentifier'] . '_part';
+				$chunkFile = \TMS_MODEL::toLocalEncoding($filename) . '.part' . $chunkNumber;
+				$absPath = $rootDir . '/' . $chunkDir . '/' . $chunkFile;
+				if (file_exists($absPath)) {
+					header("HTTP/1.0 200 Ok");
+					return new \ResponseData('已上传');
+				} else{
+					header("HTTP/1.0 404 Not Found");
+					return new \ResponseData('未上传');
+				}
+			} else {
+				header("HTTP/1.0 404 Not Found");
+				return new \ResponseData('未上传');
+			}
+		}
 		/**
 		 * 分块上传文件
 		 */
 		$dest = '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $_POST['resumableFilename'];
 		$oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, '_user');
 		$aResult = $oResumable->handleRequest($_POST);
-
 		if (true === $aResult[0]) {
 			return new \ResponseData('ok');
 		} else {

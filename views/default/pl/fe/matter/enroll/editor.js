@@ -11,7 +11,7 @@ define(['frame'], function(ngApp) {
                         } else if (schema.type === 'file') {
                             if (oRecord.data[schema.id].length) {
                                 oRecord.data[schema.id].forEach(function(oFile) {
-                                    if (oFile.url) {
+                                    if (oFile.url && angular.isString(oFile)) {
                                         oFile.url = $sce.trustAsResourceUrl(oFile.url);
                                     }
                                 });

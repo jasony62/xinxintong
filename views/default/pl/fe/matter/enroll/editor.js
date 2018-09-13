@@ -1,9 +1,9 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlEditor', ['$scope', '$sce', '$q', 'noticebox', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvEnrollRound', 'tmsSchema', function($scope, $sce, $q, noticebox, $location, srvEnrollApp, srvEnrollRecord, srvEnlRnd, tmsSchema) {
-        function _afterGetApp(app) {
+        function _afterGetApp(oApp) {
             if (oRecord.data) {
-                app.dataSchemas.forEach(function(schema) {
+                oApp.dataSchemas.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
                         tmsSchema.forEdit(schema, oRecord.data);
                         if (schema.type == 'multitext') {
@@ -19,12 +19,12 @@ define(['frame'], function(ngApp) {
                         }
                     }
                 });
-                app._schemasFromEnrollApp.forEach(function(schema) {
+                oApp._schemasFromEnrollApp.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
                         tmsSchema.forEdit(schema, oRecord.data);
                     }
                 });
-                app._schemasFromGroupApp.forEach(function(schema) {
+                oApp._schemasFromGroupApp.forEach(function(schema) {
                     if (oRecord.data[schema.id]) {
                         tmsSchema.forEdit(schema, oRecord.data);
                     }
@@ -33,9 +33,9 @@ define(['frame'], function(ngApp) {
             } else {
                 oRecord.data = {};
             }
-            $scope.app = oApp = app;
-            $scope.enrollDataSchemas = app._schemasByEnrollApp;
-            $scope.groupDataSchemas = app._schemasByGroupApp;
+            $scope.app = _oApp = oApp;
+            $scope.enrollDataSchemas = oApp._schemasByEnrollApp;
+            $scope.groupDataSchemas = oApp._schemasByGroupApp;
             if (oApp.scenario === 'quiz') {
                 oQuizScore = {};
                 _quizScore(oRecord);
@@ -77,7 +77,7 @@ define(['frame'], function(ngApp) {
             };
             /*多项填空题，如果值为空则删掉*/
             for (var k in oRecord.data) {
-                if (k !== 'member' && oApp._schemasById[k] && oApp._schemasById[k].type == 'multitext') {
+                if (k !== 'member' && _oApp._schemasById[k] && _oApp._schemasById[k].type == 'multitext') {
                     angular.forEach(oRecord.data[k], function(data, index) {
                         if (data.value == '') {
                             oRecord.data[k].splice(index, 1);
@@ -107,7 +107,7 @@ define(['frame'], function(ngApp) {
                     oUpdated.quizScore = oQuizScore;
                 }
                 srvEnrollRecord.update(oRecord, oUpdated).then(function(newRecord) {
-                    if (oApp.scenario === 'quiz') {
+                    if (_oApp.scenario === 'quiz') {
                         _quizScore(newRecord);
                     }
                     noticebox.success('完成保存');
@@ -119,8 +119,8 @@ define(['frame'], function(ngApp) {
                 srvEnrollRecord.add(oUpdated).then(function(newRecord) {
                     oRecord.enroll_key = newRecord.enroll_key;
                     oRecord.enroll_at = newRecord.enroll_at;
-                    $location.search({ site: oApp.siteid, id: oApp.id, ek: newRecord.enroll_key });
-                    if (oApp.scenario === 'quiz') {
+                    $location.search({ site: _oApp.siteid, id: _oApp.id, ek: newRecord.enroll_key });
+                    if (_oApp.scenario === 'quiz') {
                         _quizScore(newRecord);
                     }
                     noticebox.success('完成保存');
@@ -129,7 +129,7 @@ define(['frame'], function(ngApp) {
             oBeforeRecord = angular.copy(oRecord);
         };
 
-        var oRecord, oBeforeRecord, oQuizScore, oBeforeQuizScore, oApp, oTasksOfBeforeSubmit;
+        var oRecord, oBeforeRecord, oQuizScore, oBeforeQuizScore, _oApp, oTasksOfBeforeSubmit;
         oTasksOfBeforeSubmit = [];
 
         $scope.save = function() {
@@ -288,16 +288,16 @@ define(['frame'], function(ngApp) {
                 $scope.record = oRecord = record;
                 oRecord.aTags = (!oRecord.tags || oRecord.tags.length === 0) ? [] : oRecord.tags.split(',');
                 $scope.doSearchRound();
-                srvEnrollApp.get().then(function(app) {
-                    _afterGetApp(app);
+                srvEnrollApp.get().then(function(oApp) {
+                    _afterGetApp(oApp);
                 });
             });
         } else {
             $scope.record = oRecord = {};
             oRecord.aTags = [];
             $scope.doSearchRound();
-            srvEnrollApp.get().then(function(app) {
-                _afterGetApp(app);
+            srvEnrollApp.get().then(function(oApp) {
+                _afterGetApp(oApp);
             });
         }
     }]);

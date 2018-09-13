@@ -685,7 +685,7 @@ class player_model extends \TMS_MODEL {
 			'count(*)',
 			'xxt_group_player',
 			['aid' => $appId, 'round_id' => $rid, 'state' => 1],
-			"aid = '{$appId}' and state = 1 and role_rounds like '%\"" . $rid . "\"%'"
+			"aid = '{$appId}' and state = 1 and role_rounds like '%\"" . $rid . "\"%'",
 		];
 		$cnt = (int) $this->query_val_ss($q);
 

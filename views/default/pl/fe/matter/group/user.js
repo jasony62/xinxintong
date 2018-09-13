@@ -78,16 +78,16 @@ define(['frame'], function(ngApp) {
                 $scope.rows.reset();
             }
         };
-        $scope.quitGroup = function(players) {
-            if ($scope.activeRound && players.length) {
-                srvGroupPlayer.quitGroup($scope.activeRound, players).then(function() {
+        $scope.quitGroup = function(users) {
+            if (users.length) {
+                srvGroupPlayer.quitGroup(users).then(function() {
                     $scope.rows.reset();
                 });
             }
         };
-        $scope.joinGroup = function(round, players) {
-            if (round && players.length) {
-                srvGroupPlayer.joinGroup(round, players).then(function() {
+        $scope.joinGroup = function(oRound, users) {
+            if (users.length && oRound) {
+                srvGroupPlayer.joinGroup(oRound, users).then(function() {
                     $scope.rows.reset();
                 });
             }

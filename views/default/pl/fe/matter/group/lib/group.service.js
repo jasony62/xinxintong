@@ -446,50 +446,47 @@ provider('srvGroupApp', function() {
                 });
                 return defer.promise;
             },
-            quitGroup: function(round, players) {
+            quitGroup: function(users) {
                 var defer = $q.defer(),
                     url, eks = [];
 
-                url = '/rest/pl/fe/matter/group/player/quitGroup?site=' + _siteId + '&app=' + _appId;
-                url += '&round=' + round.round_id;
+                url = '/rest/pl/fe/matter/group/player/quitGroup?app=' + _appId;
 
-                players.forEach(function(player) {
-                    eks.push(player.enroll_key);
+                users.forEach(function($oUser) {
+                    eks.push($oUser.enroll_key);
                 });
 
                 http2.post(url, eks, function(rsp) {
-                    var result = rsp.data;
-                    players.forEach(function(player) {
-                        if (result[player.enroll_key] !== false) {
-                            _aPlayers.splice(_aPlayers.indexOf(player), 1);
+                    var oResult = rsp.data;
+                    users.forEach(function(oUser) {
+                        if (oResult[oUser.enroll_key] !== false) {
+                            oUser.round_id = '';
+                            oUser.round_title = '';
+                            tmsSchema.forTable(oUser, _oApp._schemasById);
                         }
                     });
                     defer.resolve();
                 });
                 return defer.promise;
             },
-            joinGroup: function(round, players) {
+            joinGroup: function(oRound, users) {
                 var defer = $q.defer(),
                     url, eks = [];
 
-                url = '/rest/pl/fe/matter/group/player/joinGroup?site=' + _siteId + '&app=' + _appId;
-                url += '&round=' + round.round_id;
+                url = '/rest/pl/fe/matter/group/player/joinGroup?app=' + _appId;
+                url += '&round=' + oRound.round_id;
 
-                players.forEach(function(player) {
-                    eks.push(player.enroll_key);
+                users.forEach(function(oUser) {
+                    eks.push(oUser.enroll_key);
                 });
 
                 http2.post(url, eks, function(rsp) {
-                    var result = rsp.data;
-                    players.forEach(function(player) {
-                        if (result[player.enroll_key] !== false) {
-                            if (_activeRound === false) {
-                                _aPlayers.splice(_aPlayers.indexOf(player), 1);
-                            } else if (_activeRound === null) {
-                                player.round_id = round.round_id;
-                                player.round_title = round.title;
-                                tmsSchema.forTable(player, _oApp._schemasById);
-                            }
+                    var oResult = rsp.data;
+                    users.forEach(function(oUser) {
+                        if (oResult[oUser.enroll_key] !== false) {
+                            oUser.round_id = oRound.round_id;
+                            oUser.round_title = oRound.title;
+                            tmsSchema.forTable(oUser, _oApp._schemasById);
                         }
                     });
                     defer.resolve();

@@ -3,14 +3,14 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlEditor', ['$scope', '$sce', '$q', 'noticebox', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvEnrollRound', 'tmsSchema', function($scope, $sce, $q, noticebox, $location, srvEnrollApp, srvEnrollRecord, srvEnlRnd, tmsSchema) {
         function _afterGetApp(oApp) {
             if (oRecord.data) {
-                oApp.dataSchemas.forEach(function(schema) {
-                    if (oRecord.data[schema.id]) {
-                        tmsSchema.forEdit(schema, oRecord.data);
-                        if (schema.type == 'multitext') {
-                            _items(schema);
-                        } else if (schema.type === 'file') {
-                            if (oRecord.data[schema.id].length) {
-                                oRecord.data[schema.id].forEach(function(oFile) {
+                oApp.dataSchemas.forEach(function(oSchema) {
+                    if (oRecord.data[oSchema.id]) {
+                        tmsSchema.forEdit(oSchema, oRecord.data);
+                        if (oSchema.type == 'multitext') {
+                            _items(oSchema);
+                        } else if (oSchema.type === 'file') {
+                            if (oRecord.data[oSchema.id] && oRecord.data[oSchema.id].length) {
+                                oRecord.data[oSchema.id].forEach(function(oFile) {
                                     if (oFile.url && angular.isString(oFile)) {
                                         oFile.url = $sce.trustAsResourceUrl(oFile.url);
                                     }
@@ -19,14 +19,14 @@ define(['frame'], function(ngApp) {
                         }
                     }
                 });
-                oApp._schemasFromEnrollApp.forEach(function(schema) {
-                    if (oRecord.data[schema.id]) {
-                        tmsSchema.forEdit(schema, oRecord.data);
+                oApp._schemasFromEnrollApp.forEach(function(oSchema) {
+                    if (oRecord.data[oSchema.id]) {
+                        tmsSchema.forEdit(oSchema, oRecord.data);
                     }
                 });
-                oApp._schemasFromGroupApp.forEach(function(schema) {
-                    if (oRecord.data[schema.id]) {
-                        tmsSchema.forEdit(schema, oRecord.data);
+                oApp._schemasFromGroupApp.forEach(function(oSchema) {
+                    if (oRecord.data[oSchema.id]) {
+                        tmsSchema.forEdit(oSchema, oRecord.data);
                     }
                 });
                 oBeforeRecord = angular.copy(oRecord);

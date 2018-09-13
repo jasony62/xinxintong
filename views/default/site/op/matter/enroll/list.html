@@ -22,8 +22,8 @@
                         <th style='width:50px'>
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
-                        <th>登记时间</th>
-                        <th ng-if="app.multi_rounds==='Y'">登记轮次</th>
+                        <th>填写时间</th>
+                        <th>填写轮次</th>
                         <th>审核通过</th>
                         <th>用户昵称</th>
                         <th ng-repeat="schema in recordSchemas2">{{schema.title}}</th>
@@ -41,10 +41,10 @@
                                 <input type='checkbox' ng-model="rows.selected[$index]">
                             </div>
                         </td>
-                        <td data-th='登记时间'>
+                        <td data-th='填写时间'>
                             <div ng-class="{unread:r.enroll_at>lastCachedStatus.lastAt}">{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</div>
                         </td>
-                        <td data-th='登记轮次' ng-if="app.multi_rounds==='Y'">
+                        <td data-th='填写轮次'>
                             <div>{{r.round.title}}</div>
                         </td>
                         <td data-th='审核通过'>
@@ -147,7 +147,6 @@
         <nav class="navbar navbar-default navbar-fixed-bottom">
             <form class="navbar-form navbar-right">
                 <p class="tms-keep-inline"><a href="" ng-click="switchTo('report')" class="navbar-link">看报告</a></p>
-                <p class="tms-keep-inline" ng-if="remarkableSchemas.length"><a href="" ng-click="switchTo('remarks')" class="navbar-link">看留言</a></p>
                 <span> 共{{page.total}}条，</span>
                 <span>第 <select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select><span>页</span></span>
                 <button class='btn btn-default' ng-click="getRecords()">刷新</button>

@@ -74,6 +74,22 @@ class round_model extends \TMS_MODEL {
 		return $oResult;
 	}
 	/**
+	 * 活动下填写时段的数量
+	 */
+	public function countByApp($oApp, $aOptions = []) {
+		$state = isset($aOptions['state']) ? $aOptions['state'] : false;
+		$q = [
+			'count(*)',
+			'xxt_enroll_round',
+			['aid' => $oApp->id],
+		];
+		$state && $q[2]['state'] = $state;
+
+		$count = (int) $this->query_val_ss($q);
+
+		return $count;
+	}
+	/**
 	 * 添加轮次
 	 *
 	 * @param object $oApp
@@ -95,7 +111,7 @@ class round_model extends \TMS_MODEL {
 			}
 		}
 		$roundId = uniqid();
-		$round = [
+		$aNewRound = [
 			'siteid' => $oApp->siteid,
 			'aid' => $oApp->id,
 			'rid' => $roundId,
@@ -107,19 +123,11 @@ class round_model extends \TMS_MODEL {
 			'start_at' => empty($oProps->start_at) ? 0 : $oProps->start_at,
 			'end_at' => empty($oProps->end_at) ? 0 : $oProps->end_at,
 		];
-		$this->insert('xxt_enroll_round', $round, false);
+		$this->insert('xxt_enroll_round', $aNewRound, false);
 
-		if (empty($oApp->multi_rounds) || $oApp->multi_rounds !== 'Y') {
-			$this->update(
-				'xxt_enroll',
-				['multi_rounds' => 'Y'],
-				['id' => $oApp->id]
-			);
-		}
+		$oRound = $this->byId($roundId);
 
-		$round = $this->byId($roundId);
-
-		return [true, $round];
+		return [true, $oRound];
 	}
 	/**
 	 * 获得指定登记活动的当前轮次
@@ -149,11 +157,21 @@ class round_model extends \TMS_MODEL {
 	 *
 	 */
 	public function getActive($oApp, $aOptions = []) {
-		if (!isset($oApp->sync_mission_round)) {
-			throw new \Exception('没有提供活动轮次设置的完整信息（1）');
-		}
-
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+
+		$aRequireAppFields = []; // 应用必须包含的字段
+		if (!isset($oApp->sync_mission_round)) {
+			$aRequireAppFields[] = 'sync_mission_round';
+		}
+		if (!isset($oApp->mission_id)) {
+			$aRequireAppFields[] = 'mission_id';
+		}
+		if (!empty($aRequireAppFields)) {
+			$oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['fields' => implode(',', $aRequireAppFields), 'notDecode' => true]);
+			foreach ($oApp2 as $k => $v) {
+				$oApp->{$k} = $v;
+			}
+		}
 
 		if ($oApp->sync_mission_round === 'Y') {
 			/* 根据项目的轮次规则生成轮次 */
@@ -242,11 +260,15 @@ class round_model extends \TMS_MODEL {
 			'xxt_enroll_round',
 			['aid' => $oApp->id, 'state' => 1, 'start_at' => $oCronRound->start_at],
 		];
-		if ($oRound = $this->query_obj_ss($q)) {
-			return [true, $oRound];
+		$rounds = $this->query_objs_ss($q);
+		if (count($rounds) > 1) {
+			return [false, '轮次数据错误，同一个开始时间有多个轮次[' . date('y年n月d日 H:i', $oCronRound->start_at) . ']'];
 		}
-		/* 创建新论次 */
-		if (false === $oRound) {
+		if (count($rounds) === 1) {
+			/* 找到匹配的轮次 */
+			$oRound = $rounds[0];
+		} else {
+			/* 创建新论次 */
 			$rst = $this->create($oApp, $oCronRound);
 			if (false === $rst[0]) {
 				return $rst;
@@ -256,5 +278,77 @@ class round_model extends \TMS_MODEL {
 
 		return [true, $oRound];
 	}
+	/**
+	 * 删除轮次
+	 */
+	public function remove($oApp, $oRound) {
+		/* 删除轮次下的记录 */
+		$modelRec = $this->model('matter\enroll\record');
+		$records = $modelRec->byRound($oRound->rid);
+		if (count($records)) {
+			foreach ($records as $oRecord) {
+				$modelRec->remove($oApp, $oRecord);
+			}
+			/* 打标记 */
+			$rst = $this->update(
+				'xxt_enroll_round',
+				['state' => 100],
+				['aid' => $oApp->id, 'rid' => $oRound->rid]
+			);
+		} else {
+			/* 删除 */
+			$rst = $this->delete(
+				'xxt_enroll_round',
+				['aid' => $oApp->id, 'rid' => $oRound->rid]
+			);
+		}
 
+		return $rst;
+	}
+	/**
+	 * 创建记录
+	 */
+	public function createRecord($oRecord) {
+		$oRecordRound = new \stdClass;
+		$oRecordRound->siteid = $oRecord->siteid;
+		$oRecordRound->aid = $oRecord->aid;
+		$oRecordRound->rid = $oRecord->rid;
+		$oRecordRound->enroll_key = $oRecord->enroll_key;
+		$oRecordRound->userid = isset($oRecord->userid) ? $oRecord->userid : '';
+		$oRecordRound->add_at = isset($oRecord->first_enroll_at) ? $oRecord->first_enroll_at : current();
+		$oRecordRound->add_cause = 'C';
+
+		$oRecordRound->id = $this->insert('xxt_enroll_record_round', $oRecordRound, false);
+
+		return $oRecordRound;
+	}
+	/**
+	 * 修改记录
+	 */
+	public function reviseRecord($oRound, $oRecord) {
+		if ($oRound->rid === $oRecord->rid) {
+			return [false, '记录已经在轮次中'];
+		}
+		$q = [
+			'count(*)',
+			'xxt_enroll_record_round',
+			['rid' => $oRound->rid, 'enroll_key' => $oRecord->enroll_key],
+		];
+		if ((int) $this->query_val_ss($q) > 0) {
+			return [false, '修改记录已经在轮次中'];
+		}
+
+		$oRecordRound = new \stdClass;
+		$oRecordRound->siteid = $oRecord->siteid;
+		$oRecordRound->aid = $oRecord->aid;
+		$oRecordRound->rid = $oRound->rid;
+		$oRecordRound->enroll_key = $oRecord->enroll_key;
+		$oRecordRound->userid = isset($oRecord->userid) ? $oRecord->userid : '';
+		$oRecordRound->add_at = isset($oRecord->enroll_at) ? $oRecord->enroll_at : current();
+		$oRecordRound->add_cause = 'R';
+
+		$oRecordRound->id = $this->insert('xxt_enroll_record_round', $oRecordRound, false);
+
+		return [true, $oRecordRound];
+	}
 }

@@ -1,9 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlEntry', ['$scope', '$timeout', 'srvPlanApp', function($scope, $timeout, srvPlanApp) {
-        $timeout(function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        });
         srvPlanApp.get().then(function(oApp) {
             var oEntry;
             oEntry = {

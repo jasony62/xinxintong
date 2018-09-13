@@ -173,8 +173,5 @@ define(['frame'], function(ngApp) {
             _oEditing = nv;
             arrangeMatters();
         });
-        (function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        })();
     }]);
 });

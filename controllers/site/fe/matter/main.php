@@ -149,7 +149,7 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 记录访问日志
 	 */
-	public function logAccess_action($site, $id, $type, $title = '', $shareby = '') {
+	public function logAccess_action($site) {
 		/* support CORS */
 		//header('Access-Control-Allow-Origin:*');
 		//header('Access-Control-Allow-Methods:POST');
@@ -160,16 +160,21 @@ class main extends \site\fe\matter\base {
 
 		$user = $this->who;
 		$model = $this->model();
-		$site = $model->escape($site);
-		$id = $model->escape($id);
-		$type = $model->escape($type);
-		$shareby = $model->escape($shareby);
-
 		$post = $this->getPostJson();
+		if (!$post || !isset($post->id) || !isset($post->type)) {
+			return new \ResponseError('参数不完整');
+		}
+		$id = $model->escape($post->id);
+		$type = $model->escape($post->type);
+		$title = isset($post->title) ? $model->escape($post->title) : '';
+		$shareby = isset($post->shareby) ? $model->escape($post->shareby) : '';
+		$search = !empty($post->search) ? $model->escape($post->search) : (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '');
+		$referer = !empty($post->referer) ? $model->escape($post->referer) : (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+
 		if ($type === 'enroll') {
-			$userRid = !empty($post->rid) ? $post->rid : '';
+			$userRid = !empty($post->rid) ? $model->escape($post->rid) : '';
 			if (empty($post->assignedNickname)) {
-				$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,multi_rounds,assigned_nickname', 'cascaded' => 'N']);
+				$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
 				if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
 					$options = [];
 					$options['fields'] = 'nickname';
@@ -192,15 +197,19 @@ class main extends \site\fe\matter\base {
 			$args = [
 				'site' => $site,
 				'id' => $id,
-				'title' => $model->escape($title),
+				'title' => $title,
 				'type' => $type,
 				'user_uid' => $user->uid,
 				'user_nickname' => (!empty($assignedNickname)) ? $assignedNickname : $user->nickname,
 				'clientIp' => $this->client_ip(),
 				'HTTP_USER_AGENT' => $_SERVER['HTTP_USER_AGENT'],
-				'QUERY_STRING' => isset($post->search) ? $post->search : (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''),
-				'HTTP_REFERER' => isset($post->referer) ? $post->referer : (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''),
+				'QUERY_STRING' => $search,
+				'HTTP_REFERER' => $referer,
 			];
+			if (!empty($post->target_type) && !empty($post->target_id)) {
+				$args['target_type'] = $model->escape($post->target_type);
+				$args['target_id'] = $model->escape($post->target_id);
+			}
 			isset($userRid) && $args['rid'] = $userRid;
 			\Resque::enqueue('default', 'job\log\site\fe\matter\access', $args);
 		} else {
@@ -221,9 +230,11 @@ class main extends \site\fe\matter\base {
 			!empty($assignedNickname) && $user->nickname = $assignedNickname;
 			$options = [];
 			isset($userRid) && $options['rid'] = $userRid;
-			
-			$search = !empty($post->search) ? $post->search : (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '');
-			$referer = !empty($post->referer) ? $post->referer : (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+			if (!empty($post->target_type) && !empty($post->target_id)) {
+				$options['target_type'] = $model->escape($post->target_type);
+				$options['target_id'] = $model->escape($post->target_id);
+			}
+
 			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $search, $referer, $options);
 		}
 
@@ -245,6 +256,15 @@ class main extends \site\fe\matter\base {
 		$logClient = new \stdClass;
 		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
 		$logClient->ip = $this->client_ip();
+
+		// 登记活动的专题页和讨论页和共享页需要单独记录
+		if ($type === 'enroll') {
+			$targets = ['topic', 'repos', 'cowork'];
+			if (!empty($options['target_type']) && in_array($options['target_type'], $targets) && !empty($options['target_id'])) {
+				$logMatter->id = $options['target_id'];
+				$logMatter->type = 'enroll.' . $options['target_type'];
+			}
+		}
 
 		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer, $options);
 		/**
@@ -269,16 +289,10 @@ class main extends \site\fe\matter\base {
 	 * $shareby 谁分享的当前素材ID
 	 *
 	 */
-	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '', $shareUrl = '') {
+	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '', $shareUrl = '', $rid = '', $target_type = '', $target_id = '') {
 		//header('Access-Control-Allow-Origin:*');
 
 		$model = $this->model();
-		$shareid = $model->escape($shareid);
-		$site = $model->escape($site);
-		$id = $model->escape($id);
-		$type = $model->escape($type);
-		$shareto = $model->escape($shareto);
-		$shareby = $model->escape($shareby);
 		/* 检查请求是否由客户端发起 */
 		if ($type === 'lottery') {
 			if (!$this->_isAgentEnter($id)) {
@@ -321,13 +335,33 @@ class main extends \site\fe\matter\base {
 		$logMatter = new \stdClass;
 		$logMatter->id = $id;
 		$logMatter->type = $type;
-		$logMatter->title = $model->escape($title);
+		$logMatter->title = $title;
 
 		$logClient = new \stdClass;
 		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
 		$logClient->ip = $this->client_ip();
 
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+
+		if ($type === 'enroll') {
+			$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
+			if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
+				$options = [];
+				$options['fields'] = 'nickname';
+				$options['assignRid'] = $rid;
+				$userRec = $this->model('matter\enroll\record')->lastByUser($oApp, $user, $options);
+				if ($userRec) {
+					!empty($userRec->nickname) && $logUser->nickname = $userRec->nickname;
+				}
+			}
+
+			// 登记活动的专题页和讨论页和共享页需要单独记录
+			$targets = ['topic', 'repos', 'cowork'];
+			if (!empty($target_type) && in_array($target_type, $targets) && !empty($target_id)) {
+				$logMatter->id = $target_id;
+				$logMatter->type = 'enroll.' . $target_type;
+			}
+		}
 
 		$this->model('matter\log')->addShareAction($site, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient, $referer, $shareUrl);
 
@@ -414,7 +448,7 @@ class main extends \site\fe\matter\base {
 		$inviteToken = $_GET['inviteToken'];
 
 		$rst = $this->model('invite\token')->checkToken($inviteToken, $userid, $oMatter);
-	
+
 		return $rst;
 	}
 }

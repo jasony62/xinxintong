@@ -61,7 +61,7 @@ class task extends \pl\fe\matter\base {
 		return new \ResponseData($oResult);
 	}
 	/*
-	*
+		*
 	*/
 	public function listSchema_action($app, $checkSchmId, $taskSchmId = '', $actSchmId = '', $page = '', $size = '') {
 		if (false === ($oUser = $this->accountUser())) {
@@ -132,19 +132,19 @@ class task extends \pl\fe\matter\base {
 		if (isset($oPosted)) {
 			foreach ($oPosted as $prop => $val) {
 				switch ($prop) {
-					case 'verified':
-						if (in_array($val, ['Y', 'N', 'P'])) {
-							$aUpdated['verified'] = $val;
-						}
-						break;
-					case 'comment':
-						$aUpdated['comment'] = $modelApp->escape($val);
-						break;
-					case 'data':
-						$data = $this->updateUserTask($oApp, $oTask, $val);
-						$aUpdated['data'] = $modelApp->escape($modelApp->toJson($data->oCheckData));
-						$aUpdated['score'] = $modelApp->escape($modelApp->toJson($data->oScoreData));
-						break;
+				case 'verified':
+					if (in_array($val, ['Y', 'N', 'P'])) {
+						$aUpdated['verified'] = $val;
+					}
+					break;
+				case 'comment':
+					$aUpdated['comment'] = $modelApp->escape($val);
+					break;
+				case 'data':
+					$data = $this->updateUserTask($oApp, $oTask, $val);
+					$aUpdated['data'] = $modelApp->escape($modelApp->toJson($data->oCheckData));
+					$aUpdated['score'] = $modelApp->escape($modelApp->toJson($data->oScoreData));
+					break;
 				}
 			}
 		}
@@ -161,7 +161,7 @@ class task extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/*
-	* 修改用户任务
+		* 修改用户任务
 	*/
 	private function updateUserTask($oApp, $oTask, $data) {
 		$modelSchTsk = $this->model('matter\plan\schema\task');
@@ -286,23 +286,6 @@ class task extends \pl\fe\matter\base {
 			die('record empty');
 		}
 
-		if (!empty($result->tasks)) {
-			$remarkables = [];
-			foreach ($oApp->checkSchemas as $oSchema) {
-				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
-					$remarkables[] = $oSchema->id;
-				}
-			}
-			if (count($remarkables)) {
-				foreach ($result->tasks as &$oRec) {
-					$modelTskAct = $this->model('matter\plan\action');
-					$oRecordData = $modelTskAct->byRecord($oRec->id, ['schema' => $remarkables]);
-					$oRec->verbose = new \stdClass;
-					$oRec->verbose->data = $oRecordData;
-				}
-			}
-		}
-
 		$tasks = $result->tasks;
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
@@ -376,7 +359,7 @@ class task extends \pl\fe\matter\base {
 			$oRecord = $tasks[$j];
 			$rowIndex = $j + 2;
 			$columnNum2 = 0; //列号
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $j+1);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $j + 1);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->nickname);
 			if (isset($groupRounds)) {
 				if (!empty($oRecord->group_id)) {

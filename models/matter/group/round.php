@@ -39,11 +39,11 @@ class round_model extends \TMS_MODEL {
 	 * 获得抽奖的轮次
 	 *
 	 * @param string $app
-	 * @param array $options
+	 * @param array $aOptions
 	 */
-	public function &byApp($appId, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascade = isset($options['cascade']) ? $options['cascade'] : '';
+	public function &byApp($appId, $aOptions = array()) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascade = isset($aOptions['cascade']) ? $aOptions['cascade'] : '';
 		$cascade = explode(',', $cascade);
 
 		$q = [

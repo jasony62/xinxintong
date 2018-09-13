@@ -1056,8 +1056,28 @@ provider('srvMemberPicker', function() {
         }
     }];
 }).
-controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($scope, http2, $uibModal, $compile) {
-    var page, criteria, app;
+controller('ctrlStat', ['$scope', 'http2', '$uibModal', '$compile', function($scope, http2, $uibModal, $compile) {
+    var page, criteria, time1, time2, app;
+    time1 = (function() {
+        var t;
+        t = new Date;
+        t.setHours(8);
+        t.setMinutes(0);
+        t.setMilliseconds(0);
+        t.setSeconds(0);
+        t = parseInt(t / 1000);
+        return t;
+    })();
+    time2 = (function() {
+        var t = new Date;
+        t = new Date(t.setDate(t.getDate() + 1));
+        t.setHours(8);
+        t.setMinutes(0);
+        t.setMilliseconds(0);
+        t.setSeconds(0);
+        t = parseInt(t / 1000);
+        return t;
+    })();
     $scope.page = page = {
         at: 1,
         size: 30,
@@ -1066,108 +1086,131 @@ controller('ctrlStat',['$scope', 'http2', '$uibModal', '$compile', function($sco
         }
     };
     $scope.criteria = criteria = {
-        start: '',
-        end: '',
-        byUser: ''
+        startAt: '',
+        endAt: '',
+        byEvent: ''
+    };
+    $scope.events = [{
+        id: 'read',
+        value: '阅读'
+    }, {
+        id: 'shareT',
+        value: '分享'
+    }, {
+        id: 'shareF',
+        value: '转发'
+    }];
+    $scope.operation = {
+        'read': '阅读',
+        'shareT': '分享',
+        'shareF': '转发'
     };
     $scope.list = function() {
         var url;
-        url = '/rest/pl/fe/matter/'+ app.type +'/log/operateStat?site=' + app.siteid + '&appId=' + app.id + page._j();
+        url = '/rest/pl/fe/matter/' + app.type + '/log/userMatterAction?site=' + app.siteid + '&appId=' + app.id + page._j();
         http2.post(url, criteria, function(rsp) {
-            $scope.spreaders = rsp.data.logs;
+            $scope.logs = rsp.data.logs;
             page.total = rsp.data.total;
         });
     };
-    $scope.cancle = function() {
-        criteria.byUser = '';
-        $scope.list();
-    };
-    $scope.detail = function(user, type) {
-        $uibModal.open({
-            templateUrl: '/views/default/pl/fe/_module/statDetail.html?_=1',
-            controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, http2) {
-                var _oCriteria = {
-                    byOp: type,
-                    byUserId: user.userid,
-                    start: criteria.start,
-                    end: criteria.end,
-                    shareby: user.matter_shareby
-                }
-                $scope.page = {
-                    at: 1,
-                    size: 15,
-                    j: function() {
-                        return '&page=' + this.at + '&size=' + this.size;
-                    }
-                };
-                $scope.doSearch = function() {
-                    var url;
-                    url = '/rest/pl/fe/matter/' + app.type + '/log/userMatterAction?appId=' + app.id + $scope.page.j();
-                    http2.post(url, _oCriteria, function(rsp) {
-                        $scope.logs = rsp.data.logs;
-                        $scope.page.total = rsp.data.total;
-                    });
-                };
-                $scope.cancle = function() {
-                    $mi.dismiss();
-                };
-                $scope.doSearch();
-            }],
-            backdrop: 'static'
-        })
-    };
-    $scope.open = function(event, uid) {
-        var _oPage, _criteria, url;
-        $(event.currentTarget).addClass('hidden').next().removeClass('hidden');
-        $scope.oPage = _oPage = {
-            at: 1,
-            size: 10,
-            j: function() {
-                return '&page=' + this.at + '&size=' + this.size;
-            }
-        };
-        _criteria = angular.copy(criteria);
-        _criteria.shareby = uid;
-        url = '/rest/pl/fe/matter/'+ app.type +'/log/operateStat?site=' + app.siteid + '&appId=' + app.id;
-        http2.post(url, _criteria, function(rsp) {
-            var template, $template, persons=[];
-            persons = rsp.data.logs;
-            $scope.oPage.total = rsp.data.total;
-            for(var i=persons.length-1; i>=0; i--) {
-                template ='<tr class="bg1">';
-                template +='<td>'+(i+1)+'</td>';
-                template +='<td>'+persons[i].nickname+'</td>';
-                template +='<td ng-click=\'detail('+JSON.stringify(persons[i])+',"read")\'><a href="#">'+persons[i].readNum+'</a></td>';
-                template +='<td ng-click=\'detail('+JSON.stringify(persons[i])+', "share.timeline")\'><a href="#">'+persons[i].shareTNum+'</a></td>';
-                template +='<td ng-click=\'detail('+JSON.stringify(persons[i])+', "share.friend")\'><a href="#">'+persons[i].shareFNum+'</a></td>';
-                template +='<td>'+persons[i].attractReadNum+'</td>';
-                template +='<td>'+persons[i].attractReaderNum+'</td>';
-                template +='<td>';
-                template +='</td>';
-                template +='</tr>';
-                $template = $compile(template)($scope);
-                $(event.target).parents('tr').after($template);
-            }
-        });
-    };
-    $scope.close = function(event) {
-        var str = $(event.target).parents('tr').attr('class');
-        $('tbody').find('tr').each(function() {
-            if($(this).attr('class') !== str) {
-                $(this).remove();
-            }
-        });
-        $(event.currentTarget).addClass('hidden').prev().removeClass('hidden');
-    }
     $scope.export = function(user) {
         var url;
-        url = '/rest/pl/fe/matter/'+ app.type +'/log/exportOperateStat?site='+ app.siteid +'&appId='+ app.id;
-        url += '&start='+ criteria.start +'&end='+ criteria.end;
-        if(user) {url += '&shareby='+user.userid;}
+        url = '/rest/pl/fe/matter/' + app.type + '/log/exportOperateStat?site=' + app.siteid + '&appId=' + app.id;
+        url += '&startAt=' + criteria.startAt + '&endAt=' + criteria.endAt + '&byEvent=' + criteria.byEvent;
         window.open(url);
     };
+
     $scope.$watch('editing', function(nv) {
-        if(!nv) return;
+        if (!nv) return;
         app = nv;
+        criteria.startAt = time1;
+        criteria.endAt = time2;
+        $scope.list();
     });
+}]).
+/**
+ * 定时通知
+ */
+service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q, http2) {
+    function fnDbToLocal(oDb, oLocal) {
+        ['pattern', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
+            oLocal.task[prop] = oDb[prop];
+        });
+        ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
+            oLocal.task[prop] = '' + oDb[prop];
+        });
+        oLocal.task.task_arguments = oDb.task_arguments ? oDb.task_arguments : { page: '' };
+    }
+
+    function fnAppendLocal(oDbTimer) {
+        var oLocalTimer;
+        oLocalTimer = {
+            id: oDbTimer.id,
+            task: {}
+        };
+        fnDbToLocal(oDbTimer, oLocalTimer);
+        oWatcher['t_' + oLocalTimer.id] = oLocalTimer;
+        $scope.$watch('watcher.t_' + oLocalTimer.id, function(oUpdTask, oOldTask) {
+            if (oUpdTask && oUpdTask.task) {
+                if (!angular.equals(oUpdTask.task, oOldTask.task)) {
+                    oUpdTask.modified = true;
+                }
+            }
+        }, true);
+
+        return oLocalTimer
+    }
+    var $scope, oWatcher; // 监控数据的变化情况
+    $scope = $rootScope.$new(true);
+    $scope.watcher = oWatcher = {};
+    /* 添加定时任务 */
+    this.add = function(oMatter, timers, model, oArgs) {
+        var oConfig;
+        oConfig = {
+            matter: { id: oMatter.id, type: oMatter.type },
+            task: { model: model }
+        };
+        if (oArgs) oConfig.task.arguments = oArgs;
+        http2.post('/rest/pl/fe/matter/timer/create', oConfig, function(rsp) {
+            var oNewTimer;
+            oNewTimer = fnAppendLocal(rsp.data);
+            timers.push(oNewTimer);
+        });
+    };
+    /* 保存定时任务设置 */
+    this.save = function(oTimer) {
+        http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task, function(rsp) {
+            fnDbToLocal(rsp.data, oTimer);
+            oTimer.modified = false;
+        });
+    };
+    /* 删除定时任务 */
+    this.del = function(timers, index) {
+        var oTimer;
+        if (window.confirm('确定删除定时规则？')) {
+            oTimer = timers[index];
+            http2.get('/rest/pl/fe/matter/timer/remove?id=' + oTimer.id, function(rsp) {
+                timers.splice(index, 1);
+            });
+        }
+    };
+    /* 根据id获得定时任务 */
+    this.timerById = function(id) {
+        return oWatcher[id];
+    };
+    /* 定时任务列表 */
+    this.list = function(oMatter, model) {
+        var defer = $q.defer();
+        http2.get('/rest/pl/fe/matter/timer/byMatter?type=' + oMatter.type + '&id=' + oMatter.id + '&model=' + model, function(rsp) {
+            var timers = [];
+            rsp.data.forEach(function(oTask) {
+                var oNewTimer;
+                oNewTimer = fnAppendLocal(oTask);
+                timers.push(oNewTimer);
+            });
+            defer.resolve(timers);
+        });
+
+        return defer.promise;
+    };
 }]);

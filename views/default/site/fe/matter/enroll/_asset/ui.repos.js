@@ -58,6 +58,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                                     break;
                                 case 'single':
                                 case 'multiple':
+                                case 'score':
                                     oRecord.data[oSchema.id] = $sce.trustAsHtml(oUtilSchema.optionsSubstitute(oSchema, schemaData));
                                     break;
                             }

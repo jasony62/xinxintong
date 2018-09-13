@@ -74,7 +74,7 @@ define(['frame'], function(ngApp) {
         /*overview*/
         var status;
         $scope.status = status = {
-            schema: { required: 0, remarkable: 0, shareable: 0 },
+            schema: { required: 0, shareable: 0 },
             page: { submitAfter: null, addRecord: 'N', removeRecord: 'N', browseHistory: null, whenEnrolled: null, repos: 'N', rank: 'N' },
             user: { member: [], sns: [] }
         };
@@ -87,9 +87,6 @@ define(['frame'], function(ngApp) {
                 if (oSchema.shareable === 'Y') {
                     status.schema.shareable++;
                 }
-                if (oSchema.remarkable === 'Y') {
-                    status.schema.remarkable++;
-                }
             });
         }, true);
         $scope.$watch('app.pages', function(pages) {
@@ -101,33 +98,33 @@ define(['frame'], function(ngApp) {
             status.page.whenEnrolled = pagesByName[$scope.app.enrolled_entry_page];
             pages.forEach(function(oPage) {
                 if (oPage.type === 'I') {
-                    if (oPage.act_schemas && oPage.act_schemas.length) {
-                        for (var i = 0, ii = oPage.act_schemas.length; i < ii; i++) {
-                            if (oPage.act_schemas[i].name === 'submit') {
-                                status.page.submitAfter = pagesByName[oPage.act_schemas[i].next] ? pagesByName[oPage.act_schemas[i].next] : { title: '未指定' };
+                    if (oPage.actSchemas && oPage.actSchemas.length) {
+                        for (var i = 0, ii = oPage.actSchemas.length; i < ii; i++) {
+                            if (oPage.actSchemas[i].name === 'submit') {
+                                status.page.submitAfter = pagesByName[oPage.actSchemas[i].next] ? pagesByName[oPage.actSchemas[i].next] : { title: '未指定' };
                                 break;
                             }
                         }
                     }
                 } else if (oPage.type === 'V') {
-                    if (oPage.act_schemas && oPage.act_schemas.length) {
-                        for (var i = 0, ii = oPage.act_schemas.length; i < ii; i++) {
-                            if (oPage.act_schemas[i].name === 'addRecord') {
+                    if (oPage.actSchemas && oPage.actSchemas.length) {
+                        for (var i = 0, ii = oPage.actSchemas.length; i < ii; i++) {
+                            if (oPage.actSchemas[i].name === 'addRecord') {
                                 status.page.addRecord = 'Y';
                             }
-                            if (oPage.act_schemas[i].name === 'removeRecord') {
+                            if (oPage.actSchemas[i].name === 'removeRecord') {
                                 status.page.removeRecord = 'Y';
                             }
-                            if (oPage.act_schemas[i].next === 'repos') {
+                            if (oPage.actSchemas[i].next === 'repos') {
                                 status.page.repos = 'Y';
                             }
-                            if (oPage.act_schemas[i].next === 'rank') {
+                            if (oPage.actSchemas[i].next === 'rank') {
                                 status.page.rank = 'Y';
                             }
                         }
                     }
                 } else if (oPage.type === 'L') {
-                    if (oPage.data_schemas && oPage.data_schemas.length) {
+                    if (oPage.dataSchemas && oPage.dataSchemas.length) {
                         status.page.browseHistory = 'Y';
                     }
                 }

@@ -79,6 +79,22 @@ class page_model extends \TMS_MODEL {
 			$modelCode = \TMS_APP::model('code\page');
 			$pages = [];
 			foreach ($eps as &$ep) {
+				if (property_exists($ep, 'data_schemas')) {
+					if (!empty($ep->data_schemas)) {
+						$ep->dataSchemas = json_decode($ep->data_schemas);
+					} else {
+						$ep->dataSchemas = [];
+					}
+					//unset($ep->data_schemas);
+				}
+				if (property_exists($ep, 'act_schemas')) {
+					if (!empty($ep->act_schemas)) {
+						$ep->actSchemas = json_decode($ep->act_schemas);
+					} else {
+						$ep->actSchemas = [];
+					}
+					//unset($ep->act_schemas);
+				}
 				if ($published === 'Y') {
 					$code = $modelCode->lastPublishedByName($ep->siteid, $ep->code_name);
 				} else {

@@ -264,36 +264,15 @@ class main extends \pl\fe\base {
 			}
 
 			$dataE = array();
-			isset($nv->multi_rounds) && $dataE['multi_rounds'] = $nv->multi_rounds;
-			if (isset($nv->multi_rounds)) {
-				if ($nv->multi_rounds === 'Y') {
-					$dataE['multi_rounds'] = 'Y';
-					$config = new \stdClass;
-					$config->can_period = 'D';
-					$config->can_rounds = 'Y';
-					$dataE['scenario_config'] = $modelTmp->escape($modelTmp->toJson($config));
-				} else {
-					$dataE['multi_rounds'] = 'N';
-					$config = new \stdClass;
-					$config->can_rounds = 'D';
-					$dataE['scenario_config'] = $modelTmp->escape($modelTmp->toJson($config));
-				}
-			}
+			$config = new \stdClass;
+			$config->can_period = 'D';
+			$config->can_rounds = 'Y';
+			$dataE['scenario_config'] = $modelTmp->escape($modelTmp->toJson($config));
+
 			isset($nv->data_schemas) && $dataE['data_schemas'] = $nv->data_schemas;
 			isset($nv->enrolled_entry_page) && $dataE['enrolled_entry_page'] = $nv->enrolled_entry_page;
 			isset($nv->open_lastroll) && $dataE['open_lastroll'] = $nv->open_lastroll;
 			isset($nv->up_said) && $dataE['up_said'] = $modelTmp->escape($nv->up_said);
-			// if(isset($nv->scenario)){
-			// 	$pageConfig = $this->_getSysTemplate($nv->scenario, 'simple');
-			// 	/* 场景设置 */
-			// 	if (isset($pageConfig->scenarioConfig)) {
-			// 		$scenarioConfig = $pageConfig->scenarioConfig;
-			// 		$dataE['scenario_config'] = json_encode($scenarioConfig);
-			// 	}
-			// 	if (isset($pageConfig->multi_rounds)) {
-			// 		$dataE['multi_rounds'] = $multi_rounds;
-			// 	}
-			// }
 
 			if (!empty($dataE)) {
 				$rst = $modelTmp->update('xxt_template_enroll', $dataE, ["id" => $vid]);

@@ -127,9 +127,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 }
             }
             method(oSigninApp);
-            oSigninApp.dataSchemas.forEach(function(oSchema) {
-                schemaLib._upgrade(oSchema, oSigninApp);
-            });
             oSigninApp.pages.forEach(function(page) {
                 pageLib.enhance(page, oSigninApp._schemasById);
             });
@@ -583,10 +580,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         backdrop: 'static',
                         controller: ['$scope', '$timeout', '$uibModalInstance', function($scope2, $timeout, $mi) {
                             var popover = {
-                                    title: round.title,
-                                    url: appUrl + '&round=' + round.rid,
-                                },
-                                zeroClipboard;
+                                title: round.title,
+                                url: appUrl + '&round=' + round.rid,
+                            };
 
                             popover.qrcode = '/rest/site/fe/matter/signin/qrcode?site=' + siteId + '&url=' + encodeURIComponent(popover.url);
                             $scope2.popover = popover;
@@ -621,9 +617,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     });
                                 }
                             }
-                            $timeout(function() {
-                                new ZeroClipboard(document.querySelector('#copyURL'));
-                            });
                             $scope2.cancel = function() {
                                 $mi.dismiss();
                             };
@@ -947,9 +940,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                 return defer.promise;
             };
-            _ins.absent = function() {
-                var defer = $q.defer();
-                http2.get('/rest/pl/fe/matter/signin/record/absent?site=' + siteId + '&app=' + appId, function(rsp) {
+            _ins.absent = function(rid) {
+                var defer = $q.defer(),
+                    url;
+                url = '/rest/pl/fe/matter/signin/record/absent?site=' + siteId + '&app=' + appId;
+                if (rid) url += '&rid=' + rid;
+                http2.get(url, function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;

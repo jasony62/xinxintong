@@ -3,26 +3,6 @@
  * combox
  * editable
  */
-'use strict';
-(function() {
-    function doXhr(method, url, data) {
-        var xhr = new XMLHttpRequest();
-        xhr.open(method, url, true);
-        xhr.setRequestHeader("Content-type", "application/json;charset=UTF-8");
-        xhr.setRequestHeader("Accept", "application/json");
-        xhr.send(JSON.stringify(data));
-    }
-    window.onerror = function(msg, url, line, column) {
-        var message = [
-            'Message: ' + msg,
-            'URL: ' + url,
-            'Line: ' + line,
-            'Column: ' + column,
-        ].join(' - ');
-        doXhr('post', '/rest/log/add', { src: 'js', msg: message });
-        console.log(message);
-    };
-})();
 angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', function($timeout) {
     var _boxId = 'tmsbox' + (new Date() * 1),
         _last = {
@@ -111,6 +91,13 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         _getBox('progress', msg);
     };
 }]).service('http2', ['$http', '$timeout', '$sce', 'noticebox', function($http, $timeout, $sce, noticebox) {
+    this.newPage = function(size, at) {
+        return {
+            at: at || 1,
+            size: size || 10,
+            j: function() { return 'page=' + this.at + '&size=' + this.size; }
+        }
+    };
     this.get = function(url, callback, options) {
         var _timer;
         options = angular.extend({
@@ -360,54 +347,74 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             }, true);
         }
     }
-}]).directive('noticeBox', ['$timeout', function($timeout) {
+}]).directive('tmsArrayCheckbox', ['$timeout', '$parse', function($timeout, $parse) {
+    function fnFindCheckbox(elem, stack) {
+        if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'checkbox') {
+            stack.push(elem);
+            return;
+        }
+        if (elem.children && elem.children.length) {
+            angular.forEach(elem.children, function(child) {
+                fnFindCheckbox(child, stack);
+            });
+        }
+        return;
+    }
+
     return {
-        restrict: 'EA',
-        scope: {
-            err: '=',
-            info: '=',
-            prog: '=',
-            delay: '@'
-        },
-        templateUrl: '/static/template/noticebox.html?_=6',
-        controller: ['$scope', '$timeout', function($scope, $timeout) {
-            $scope.closeBox = function() {
-                var msgType = '';
-                if ($scope.err && $scope.err.toString().length) {
-                    $scope.err = '';
-                    msgType = 'err';
-                } else if ($scope.info && $scope.info.length) {
-                    $scope.info = '';
-                    msgType = 'info';
-                } else if ($scope.prog && $scope.prog.length) {
-                    $scope.prog = '';
-                    msgType = 'prog';
-                }
-                $scope.$emit('xxt.notice-box.timeout', msgType);
-            };
-            $scope.$watch('info', function(nv) {
-                if (nv && nv.length > 0) {
-                    $scope.err = $scope.prog = '';
-                    $timeout(function() {
-                        $scope.info = '';
-                        $scope.$emit('xxt.notice-box.timeout', 'info');
-                    }, $scope.delay || 2000);
+        restrict: 'A',
+        link: function(scope, elems, attrs) {
+            $timeout(function() {
+                var checkboxStack = [],
+                    oInnerModel = {};
+
+                fnFindCheckbox(elems[0], checkboxStack);
+                if (checkboxStack.length) {
+                    scope.$watch(attrs.model, function(oOutModel) {
+                        var aBeforeValue;
+                        if (oOutModel) {
+                            if (angular.isArray(oOutModel)) {
+                                aBeforeValue = oOutModel;
+                            } else if (angular.isString(oOutModel)) {
+                                aBeforeValue = oOutModel.split(',');
+                            } else if (angular.isObject(oOutModel)) {
+                                angular.forEach(oOutModel, function(key, val) {
+                                    val && aBeforeValue.push(key);
+                                });
+                            } else {
+                                aBeforeValue = [];
+                            }
+                            if (aBeforeValue.length) {
+                                checkboxStack.forEach(function(eleCheckbox) {
+                                    var val;
+                                    val = eleCheckbox.getAttribute('value');
+                                    if (aBeforeValue && aBeforeValue.length) {
+                                        if (aBeforeValue.indexOf(val) !== -1) {
+                                            eleCheckbox.checked = true;
+                                            oInnerModel[val] = true;
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    checkboxStack.forEach(function(eleCheckbox) {
+                        eleCheckbox.addEventListener('change', function() {
+                            var val;
+                            val = this.getAttribute('value');
+                            if (this.checked) {
+                                oInnerModel[val] = true;
+                            } else {
+                                delete oInnerModel[val];
+                            }
+                            scope.$apply(function() {
+                                $parse(attrs.model).assign(scope, Object.keys(oInnerModel));
+                            });
+                        });
+                    });
                 }
             });
-            $scope.$watch('err', function(nv) {
-                if (nv && nv.length > 0) {
-                    $scope.prog && ($scope.prog = '');
-                    $scope.info && ($scope.info = '');
-                }
-            });
-            $scope.$watch('prog', function(nv) {
-                if (nv && nv.length > 0) {
-                    $scope.err && ($scope.err = '');
-                    $scope.info && ($scope.info = '');
-                }
-            });
-        }],
-        replace: true
+        }
     };
 }]).filter('tmsDateFilter', ['$filter', function($filter) {
     var i18n = {

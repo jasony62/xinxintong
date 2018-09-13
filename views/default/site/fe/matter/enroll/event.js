@@ -2,6 +2,15 @@
 require('./event.css');
 
 var ngApp = require('./main.js');
+ngApp.filter('filterTime', function() {
+    return function(e) {
+        var result, h, m, s, time = e * 1;
+        h = Math.floor(time / 3600);
+        m = Math.floor((time / 60 % 6));
+        s = Math.floor((time % 60));
+        return result = h + ":" + m + ":" + s;
+    }
+});
 ngApp.service('EnlRound', ['http2', '$q', 'tmsLocation', function(http2, $q, LS) {
     var oPage;
     oPage = {
@@ -38,13 +47,28 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
 
     function fnGetKanban(rid) {
         var url, defer;
-        defer = $q.defer();
         url = LS.j('user/kanban', 'site', 'app');
         if (rid) url += '&rid=' + rid;
         http2.get(url).then(function(rsp) {
-            defer.resolve(rsp.data);
+            var oUndoneByUserid = {};
+            if (rsp.data.users && rsp.data.users.length) {
+                if (rsp.data.undone && rsp.data.undone.length) {
+                    rsp.data.undone.forEach(function(oUndone) {
+                        oUndoneByUserid[oUndone.userid] = oUndone;
+                    });
+                }
+                rsp.data.users.forEach(function(oUser) {
+                    if (oUndoneByUserid[oUser.userid]) {
+                        if (oUndoneByUserid[oUser.userid].tasks) {
+                            oUser.undone = oUndoneByUserid[oUser.userid].tasks;
+                        }
+                        delete oUndoneByUserid[oUser.userid];
+                    }
+                });
+            }
+            $scope.kanban.users = rsp.data.users;
+            $scope.kanban.undone = oUndoneByUserid;
         });
-        return defer.promise;
     }
     var _oApp, _aLogs, _oPage, _oFilter;
     $scope.page = _oPage = {
@@ -100,10 +124,7 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         }
     };
     $scope.shiftRound = function(oRound) {
-        fnGetKanban(oRound.rid).then(function(result) {
-            $scope.kanban.users = result.users;
-            $scope.kanban.absent = result.absent;
-        });
+        fnGetKanban(oRound ? oRound.rid : '');
     };
     $scope.kanban = {};
     $scope.$watch('filter', function(nv, ov) {
@@ -113,10 +134,7 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
                 $scope.searchNotice(1);
             } else if (/kanban/.test(nv.scope)) {
                 $scope.subView = 'kanban.html';
-                fnGetKanban().then(function(result) {
-                    $scope.kanban.users = result.users;
-                    $scope.kanban.absent = result.absent;
-                });
+                fnGetKanban();
             } else {
                 $scope.subView = 'timeline.html';
                 $scope.searchEvent(1);
@@ -151,25 +169,13 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         if (Object.keys(oAppNavs)) {
             $scope.appNavs = oAppNavs;
         }
-        if (_oApp.multi_rounds === 'Y') {
-            EnlRound.list().then(function(result) {
-                $scope.rounds = result.rounds;
-            });
-        }
+        EnlRound.list().then(function(result) {
+            $scope.rounds = result.rounds;
+        });
         $scope.searchNotice(1).then(function(data) {
             if (data.total === 0) {
                 $scope.filter.scope = 'A';
-                //$scope.searchEvent(1);
             }
         });
     });
 }]);
-ngApp.filter('filterTime', function() {
-    return  function(e) {
-        var result, h, m, s, time = e*1;
-        h = Math.floor(time / 3600);
-        m = Math.floor((time / 60 % 6));
-        s = Math.floor((time % 60));
-        return result = h + ":" + m + ":" + s;
-    }
-});

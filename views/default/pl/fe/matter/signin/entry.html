@@ -63,7 +63,6 @@
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{opEntry.url}}">
                     <div class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
                         <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
@@ -162,7 +161,6 @@
             <div class='input-group'>
                 <div class='form-control' style='height:auto;word-break:break-all' ng-bind='popover.url'></div>
                 <span class='input-group-addon'>
-                    <button id='copyURL' class='btn btn-default' data-clipboard-text="{{popover.url}}">复制</button>
                     <a class='btn btn-default' ng-href="{{popover.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                 </span>
             </div>

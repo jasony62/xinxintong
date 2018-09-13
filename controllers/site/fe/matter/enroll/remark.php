@@ -55,7 +55,7 @@ class remark extends base {
 		$this->_setNickname($oRemark, $oUser, isset($oEditor) ? $oEditor : null);
 		/* 关联数据 */
 		if (!empty($cascaded)) {
-			$oRecord = $this->model('matter\enroll\record')->byId($oRemark->enroll_key, ['fields' => 'userid,group_id,nickname']);
+			$oRecord = $this->model('matter\enroll\record')->byId($oRemark->enroll_key, ['fields' => 'id,userid,group_id,nickname']);
 			$this->_setNickname($oRecord, $oUser, isset($oEditor) ? $oEditor : null);
 			$oRemark->record = $oRecord;
 			if (!empty($oRemark->data_id)) {
@@ -88,6 +88,18 @@ class remark extends base {
 				$oEditor = new \stdClass;
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
+				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
+				$modelGrpUsr = $this->model('matter\group\player');
+				$assocGroupId = $oApp->entryRule->group->id;
+				$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+				if (isset($groupEditor->players)) {
+					$groupEditorPlayers = $groupEditor->players;
+					$oEditorUsers = new \stdClass;
+					foreach ($groupEditorPlayers as $player) {
+						$oEditorUsers->{$player->userid} = $player->role_rounds;
+					}
+					unset($groupEditorPlayers);
+				}
 			}
 		}
 
@@ -95,7 +107,7 @@ class remark extends base {
 
 		$modelRem = $this->model('matter\enroll\remark');
 		$aOptions = [
-			'fields' => 'id,seq_in_record,seq_in_data,userid,group_id,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log,as_cowork_id',
+			'fields' => 'id,seq_in_record,seq_in_data,userid,group_id,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log,as_cowork_id',
 		];
 		if (!empty($data)) {
 			$aOptions['data_id'] = $data;
@@ -128,6 +140,9 @@ class remark extends base {
 				} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
 					/* 设置编辑统一昵称 */
 					if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+						$oRemark->nickname = $oEditor->nickname;
+					} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRemark->userid})) {
+						// 记录提交者是否有编辑组角色
 						$oRemark->nickname = $oEditor->nickname;
 					}
 				}
@@ -181,17 +196,16 @@ class remark extends base {
 		}
 
 		/* 发表留言的用户 */
-		$oUser = $this->getUser($oApp);
+		$oRemarker = $this->getUser($oApp);
 
 		$current = time();
 		$oNewRemark = new \stdClass;
 		$oNewRemark->siteid = $oRecord->siteid;
 		$oNewRemark->aid = $oRecord->aid;
-		$oNewRemark->rid = $oRecord->rid;
-		$oNewRemark->userid = $oUser->uid;
-		$oNewRemark->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-		$oNewRemark->user_src = 'S';
-		$oNewRemark->nickname = $modelRec->escape($oUser->nickname);
+		$oNewRemark->rid = $oApp->appRound->rid; // 记录在当前活动的激活轮次上
+		$oNewRemark->userid = $oRemarker->uid;
+		$oNewRemark->group_id = isset($oRemarker->group_id) ? $oRemarker->group_id : '';
+		$oNewRemark->nickname = $modelRec->escape($oRemarker->nickname);
 		$oNewRemark->enroll_key = $ek;
 		$oNewRemark->enroll_group_id = $oRecord->group_id;
 		$oNewRemark->enroll_userid = $oRecord->userid;
@@ -269,19 +283,19 @@ class remark extends base {
 				}
 			}
 			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
-				$this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oUser);
+				$this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oNewRemark, $oRemarker);
 			} else {
-				$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oUser);
+				$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oNewRemark, $oRemarker);
 			}
 		} else {
-			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oUser);
+			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oNewRemark, $oRemarker);
 		}
 
 		/* 生成提醒 */
-		$this->model('matter\enroll\notice')->addRemark($oApp, $oRecord, $oNewRemark, $oUser, isset($oRecData) ? $oRecData : null, isset($oRemark) ? $oRemark : null);
+		$this->model('matter\enroll\notice')->addRemark($oApp, $oRecord, $oNewRemark, $oRemarker, isset($oRecData) ? $oRecData : null, isset($oRemark) ? $oRemark : null);
 
 		/* 修改昵称 */
-		if ($oNewRemark->userid === $oUser->uid) {
+		if ($oNewRemark->userid === $oRemarker->uid) {
 			$oNewRemark->nickname = '我';
 		}
 

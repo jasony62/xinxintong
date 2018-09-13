@@ -128,22 +128,6 @@ define([], function() {
         return html;
     }
 
-    function _htmlDynaRadio(oSchema) {
-        var html;
-
-        html = '<li ng-repeat="op in schemasById[\'' + oSchema.id + '\'].ops" class="radio" wrap="radio"';
-        oSchema.required === 'Y' && (html += 'required');
-        html += '><label><input type="radio" name="' + oSchema.id + '"';
-        html += ' value="{{op.v}}"';
-        html += ' ng-model="data.' + oSchema.id + '"';
-        oSchema.attrs && oSchema.attrs.forEach(function(attr) {
-            html += 'data-' + attr.name + '="' + attr.value + '"';
-        });
-        html += '><span ng-bind-html="op.l"></span></label></li>';
-
-        return html;
-    }
-
     function _htmlCheckbox(schema, op, config, forEdit) {
         var html, cls;
 
@@ -162,19 +146,6 @@ define([], function() {
         forEdit && (html += 'contenteditable="true"');
         html += '>' + op.l + '</span></label>';
         if (op.desc && op.desc.length) html += '<div class="desc">' + op.desc + '</div>';
-        html += '</li>';
-
-        return html;
-    }
-
-    function _htmlDynaCheckbox(oSchema) {
-        var html;
-
-        html = '<li ng-repeat="op in schemasById[\'' + oSchema.id + '\'].ops" class="checkbox" wrap="checkbox"';
-        oSchema.required === 'Y' && (html += 'required');
-        html += '><label><input type="checkbox" name="' + oSchema.id + '"';
-        html += ' ng-model="data.' + oSchema.id + '[op.v]"';
-        html += '><span ng-bind-html="op.l"></span></label>';
         html += '</li>';
 
         return html;
@@ -251,9 +222,6 @@ define([], function() {
 
         return html;
     };
-    InputWrap.prototype._htmlDynaRadio = function(oWrap) {
-        return _htmlDynaRadio(oWrap.schema);
-    };
     InputWrap.prototype._htmlSingleSelect = function(oWrap, onlyChildren) {
         var config = oWrap.config,
             schema = oWrap.schema,
@@ -293,9 +261,6 @@ define([], function() {
         }
 
         return html;
-    };
-    InputWrap.prototype._htmlDynaCheckbox = function(oWrap) {
-        return _htmlDynaCheckbox(oWrap.schema);
     };
     InputWrap.prototype._htmlScoreItem = function(oWrap, bForEdit) {
         var config = oWrap.config,
@@ -427,7 +392,11 @@ define([], function() {
                 html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + oSchema.id + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
                 html += '</li>';
                 html += '<li class="img-picker">';
-                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
+                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + oSchema.id + '\'';
+                if (oSchema.count && parseInt(oSchema.count)) {
+                    html += ',' + oSchema.count;
+                }
+                html += ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -445,7 +414,11 @@ define([], function() {
                 html += '</div>';
                 html += '<li>';
                 html += '<li class="list-group-item file-picker">';
-                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\',' + (oSchema.count || 1) + ')">上传文件</button>';
+                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + oSchema.id + '\'';
+                if (oSchema.count && parseInt(oSchema.count)) {
+                    html += ',' + (oSchema.count || 1);
+                }
+                html += ')">上传文件</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -530,11 +503,7 @@ define([], function() {
                 } else if (/single/.test(oSchema.type)) {
                     (function(lib) {
                         var html;
-                        if (oSchema.dsOps) {
-                            /* 选项需要从其他活动中动态获得 */
-                            html = lib._htmlDynaRadio(dataWrap);
-                            $dom.children('ul').html(html);
-                        } else if (oSchema.ops) {
+                        if (oSchema.ops) {
                             /* 直接在页面上生成选项 */
                             if (oConfig.component === 'R') {
                                 if ($dom.children('ul').length) {
@@ -554,20 +523,14 @@ define([], function() {
                                 }
                             }
                         }
-                        _htmlSupplement($dom, oSchema);
                     })(this);
                 } else if ('multiple' === oSchema.type) {
                     (function(lib) {
                         var html;
-                        if (oSchema.dsOps) {
-                            /* 选项需要从其他活动中动态获得 */
-                            html = lib._htmlDynaCheckbox(dataWrap);
-                            $dom.children('ul').html(html);
-                        } else if (oSchema.ops) {
+                        if (oSchema.ops) {
                             html = lib._htmlMultiple(dataWrap, false, true);
                             $dom.children('ul').html(html);
                         }
-                        _htmlSupplement($dom, oSchema);
                     })(this);
                 } else if ('score' === oSchema.type) {
                     (function(lib) {
@@ -589,8 +552,6 @@ define([], function() {
                         imageEmbed = lib.embed(dataWrap);
                         $dom.attr(imageEmbed.attrs);
                         $dom.html(imageEmbed.html);
-
-                        _htmlSupplement($dom, oSchema);
                     })(this);
                 } else if (/file/.test(oSchema.type)) {
                     (function(lib) {
@@ -603,8 +564,6 @@ define([], function() {
                         fileEmbed = lib.embed(dataWrap);
                         $dom.attr(fileEmbed.attrs);
                         $dom.html(fileEmbed.html);
-
-                        _htmlSupplement($dom, oSchema);
                     })(this);
                 } else if (/voice/.test(oSchema.type)) {
                     (function(lib) {
@@ -617,10 +576,9 @@ define([], function() {
                         voiceEmbed = lib.embed(dataWrap);
                         $dom.attr(voiceEmbed.attrs);
                         $dom.html(voiceEmbed.html);
-
-                        _htmlSupplement($dom, oSchema);
                     })(this);
                 }
+                _htmlSupplement($dom, oSchema);
                 $label.toggleClass('hide', !!oConfig.hidename);
                 if (oSchema.description && oSchema.description.length) {
                     if (!$dom.find('[class="description"]').length) {

@@ -14,7 +14,7 @@ class notice extends main_base {
 	 *
 	 */
 	public function send_action($app, $tmplmsg, $rid = null) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
@@ -24,25 +24,27 @@ class notice extends main_base {
 		}
 
 		$modelEnlUsr = $this->model('matter\enroll\user');
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
-		if (isset($posted->criteria)) {
+		if (isset($oPosted->criteria)) {
 			// 筛选条件
-			$oCriteria = $posted->criteria;
+			$oCriteria = $oPosted->criteria;
 			!empty($oCriteria->rid) && $rid = $modelEnlUsr->escape($oCriteria->rid);
 			$aOptions = [
 				'rid' => $rid,
+				'cascaded' => 'N',
 			];
 			!empty($oCriteria->onlyEnrolled) && $aOptions['onlyEnrolled'] = $oCriteria->onlyEnrolled;
 			$enrollUsers = $modelEnlUsr->enrolleeByApp($oApp, '', '', $aOptions);
 			$enrollers = $enrollUsers->users;
-		} else if (isset($posted->users)) {
+		} else if (isset($oPosted->users)) {
 			// 直接指定
-			$enrollers = $posted->users;
+			$enrollers = $oPosted->users;
 		}
+
 		/* 发送消息 */
 		if (count($enrollers)) {
-			$params = $posted->message;
+			$params = $oPosted->message;
 			$rst = $this->notifyWithMatter($oApp, $enrollers, $tmplmsg, $params);
 			if ($rst[0] === false) {
 				return new \ResponseError($rst[1]);
@@ -65,11 +67,11 @@ class notice extends main_base {
 			}
 			$oUser = $this->accountUser();
 			$modelTmplBat = $this->model('matter\tmplmsg\batch');
-			$creater = new \stdClass;
-			$creater->uid = $oUser->id;
-			$creater->name = $oUser->name;
-			$creater->src = 'pl';
-			$modelTmplBat->send($oApp->siteid, $tmplmsgId, $creater, $receivers, $params, ['send_from' => 'enroll:' . $oApp->id]);
+			$oCreator = new \stdClass;
+			$oCreator->uid = $oUser->id;
+			$oCreator->name = $oUser->name;
+			$oCreator->src = 'pl';
+			$modelTmplBat->send($oApp->siteid, $tmplmsgId, $oCreator, $receivers, $params, ['send_from' => 'enroll:' . $oApp->id]);
 		}
 
 		return array(true);
@@ -100,6 +102,7 @@ class notice extends main_base {
 			$modelAcnt = $this->model('site\user\account');
 			$modelRec = $this->model('matter\enroll\record');
 			$records = [];
+			$records2 = [];
 			foreach ($logs as $log) {
 				$oSiteUser = $modelAcnt->byId($log->userid);
 				if (empty($log->assoc_with)) {
@@ -110,9 +113,16 @@ class notice extends main_base {
 					$records[] = $record;
 					continue;
 				}
-				if ($record = $modelRec->byId($log->assoc_with)) {
+				if (isset($records2[$log->assoc_with])) {
+					$record = clone $records2[$log->assoc_with];
 					$record->noticeStatus = $log->status;
 					$records[] = $record;
+					unset($record);
+				} else if ($record = $modelRec->byId($log->assoc_with)) {
+					$record->noticeStatus = $log->status;
+					$records[] = $record;
+					$records2[$log->assoc_with] = clone $record;
+					unset($record);
 				}
 			}
 			$oResult->records = $records;

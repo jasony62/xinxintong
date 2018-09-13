@@ -278,7 +278,7 @@ class proxy_model extends \sns\proxybase {
 						$v = str_replace('"', '', $pv[1]);
 						$user->{$p} = $v;
 					}
-					
+
 					if (isset($user->nickname)) {
 						$user->nickname = \TMS_APP::model()->cleanEmoji($user->nickname, true);
 					}

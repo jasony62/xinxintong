@@ -2,7 +2,7 @@
 namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
-/*
+/**
  * 登记活动主控制器
  */
 class main extends main_base {
@@ -18,7 +18,6 @@ class main extends main_base {
 		if (false === ($oApp = $modelEnl->byId($app))) {
 			return new \ResponseError('指定的数据不存在');
 		}
-		unset($oApp->data_schemas);
 		unset($oApp->round_cron);
 		unset($oApp->rp_config);
 
@@ -62,9 +61,6 @@ class main extends main_base {
 			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
 			$oApp->groups = $groups;
 		}
-
-		/* 设置活动的动态选项 */
-		$modelEnl->setDynaOptions($oApp);
 
 		return new \ResponseData($oApp);
 	}
@@ -201,10 +197,10 @@ class main extends main_base {
 		$modelCode = $this->model('code\page');
 
 		$oCopied = $modelApp->byId($app);
-		if (false === $oCopied) {
+		if (false === $oCopied || $oCopied->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		$oEntryRule = clone $oCopied->entryRule;
+		$oNewEntryRule = clone $oCopied->entryRule;
 		$aDataSchemas = $oCopied->dataSchemas;
 		$aPages = $oCopied->pages;
 		$newaid = uniqid();
@@ -214,8 +210,8 @@ class main extends main_base {
 		/**
 		 * 如果通讯录的所属范围和新活动的范围不一致，需要解除关联的通信录
 		 */
-		if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
-			$aMatterMschemas = $modelApp->getEntryMemberSchema($oEntryRule);
+		if (isset($oNewEntryRule->scope->member) && $oNewEntryRule->scope->member === 'Y') {
+			$aMatterMschemas = $modelApp->getEntryMemberSchema($oNewEntryRule);
 			foreach ($aMatterMschemas as $oMschema) {
 				if (!empty($oMschema->matter_type) && ($oMschema->matter_type !== 'mission' || $oMschema->matter_id !== $mission)) {
 					/* 应用的题目 */
@@ -224,12 +220,12 @@ class main extends main_base {
 					foreach ($aPages as $oPage) {
 						$modelPg->replaceMemberSchema($oPage, $oMschema);
 					}
-					unset($oEntryRule->member->{$oMschema->id});
+					unset($oNewEntryRule->member->{$oMschema->id});
 				}
 			}
-			if (count((array) $oEntryRule->member) === 0) {
-				unset($oEntryRule->scope->member);
-				unset($oEntryRule->member);
+			if (count((array) $oNewEntryRule->member) === 0) {
+				unset($oNewEntryRule->scope->member);
+				unset($oNewEntryRule->member);
 			}
 		}
 		/**
@@ -239,9 +235,11 @@ class main extends main_base {
 			/**
 			 * 只有同项目内的分组活动可以作为参与规则
 			 */
-			if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
-				unset($oEntryRule->scope->group);
-				unset($oEntryRule->group);
+			if (isset($oNewEntryRule->scope->group) && $oNewEntryRule->scope->group === 'Y') {
+				unset($oNewEntryRule->scope->group);
+			}
+			if (isset($oNewEntryRule->group)) {
+				unset($oNewEntryRule->group);
 			}
 			/**
 			 * 如果关联了分组或登记活动，需要去掉题目的关联信息
@@ -281,10 +279,9 @@ class main extends main_base {
 		$oNewApp->scenario = $oCopied->scenario;
 		$oNewApp->scenario_config = json_encode($oCopied->scenarioConfig);
 		$oNewApp->count_limit = $oCopied->count_limit;
-		$oNewApp->multi_rounds = $oCopied->multi_rounds;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
 		$oNewApp->can_siteuser = 'Y';
-		$oNewApp->entry_rule = json_encode($oEntryRule);
+		$oNewApp->entry_rule = json_encode($oNewEntryRule);
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
 		$oNewApp->group_app_id = $oCopied->group_app_id;
 		$oNewApp->enroll_app_id = $oCopied->enroll_app_id;
@@ -310,12 +307,11 @@ class main extends main_base {
 				$rst = $modelPg->update(
 					'xxt_enroll_page',
 					[
-						'title' => $ep->title,
+						'title' => $modelApp->escape($ep->title),
 						'name' => $ep->name,
 						'type' => $ep->type,
-						'data_schemas' => $modelApp->escape($ep->data_schemas),
-						'act_schemas' => $modelApp->escape($ep->act_schemas),
-						'user_schemas' => $modelApp->escape($ep->user_schemas),
+						'data_schemas' => $modelApp->escape($modelApp->toJson($ep->dataSchemas)),
+						'act_schemas' => $modelApp->escape($modelApp->toJson($ep->actSchemas)),
 					],
 					['aid' => $oNewApp->id, 'id' => $oNewPage->id]
 				);
@@ -422,56 +418,80 @@ class main extends main_base {
 		$oPosted = $this->getPostJson();
 		/* 处理数据 */
 		$oUpdated = new \stdClass;
-		foreach ($oPosted as $n => $v) {
-			if (in_array($n, ['title', 'summary'])) {
-				$oUpdated->{$n} = $modelApp->escape($v);
-			} else if (in_array($n, ['data_schemas', 'recycle_schemas'])) {
-				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'entryRule') {
-				if ($v->scope === 'group') {
-					if (isset($v->group->title)) {
-						unset($v->group->title);
+		foreach ($oPosted as $prop => $val) {
+			switch ($prop) {
+			case 'title':
+			case 'summary':
+				$oUpdated->{$prop} = $modelApp->escape($val);
+				break;
+			case 'dataSchemas':
+				$modelSch = $this->model('matter\enroll\schema');
+				$dataSchemas = $modelSch->purify($val);
+				$oUpdated->data_schemas = $modelApp->escape($modelApp->toJson($dataSchemas));
+				$oApp->dataSchemas = $dataSchemas;
+				break;
+			case 'entryRule':
+				if ($val->scope === 'group') {
+					if (isset($val->group->title)) {
+						unset($val->group->title);
 					}
-					if (isset($v->group->round->title)) {
-						unset($v->group->round->title);
+					if (isset($val->group->round->title)) {
+						unset($val->group->round->title);
 					}
 				}
-				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'actionRule') {
-				$oUpdated->action_rule = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'assignedNickname') {
-				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'scenarioConfig') {
-				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'notifyConfig') {
-				$oUpdated->notify_config = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'roundCron') {
-				$rst = $this->checkCron($v);
+				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'recycle_schemas':
+				$oUpdated->recycle_schemas = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'roundCron':
+				$rst = $this->checkCron($val);
 				if ($rst[0] === false) {
 					return new \ResponseError($rst[1]);
 				}
-				$oUpdated->round_cron = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'rpConfig') {
-				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'reposConfig') {
-				$oUpdated->repos_config = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'rankConfig') {
-				$oUpdated->rank_config = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'absent_cause') {
+				$oUpdated->round_cron = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'actionRule':
+				$oUpdated->action_rule = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'assignedNickname':
+				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'scenarioConfig':
+				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'notifyConfig':
+				$oUpdated->notify_config = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'rpConfig':
+				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'reposConfig':
+				$oUpdated->repos_config = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'rankConfig':
+				$oUpdated->rank_config = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'absent_cause':
 				$absentCause = !empty($oApp->absent_cause) ? $oApp->absent_cause : new \stdClass;
-				foreach ($v as $uid => $val) {
+				foreach ($val as $uid => $val2) {
 					!isset($absentCause->{$uid}) && $absentCause->{$uid} = new \stdClass;
-					$absentCause->{$uid}->{$val->rid} = $val->cause;
+					$absentCause->{$uid}->{$val2->rid} = $val2->cause;
 				}
-				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($absentCause));
-			} else {
-				$oUpdated->{$n} = $v;
+				$oUpdated->absent_cause = $modelApp->escape($modelApp->toJson($absentCause));
+				break;
+			default:
+				$oUpdated->{$prop} = $val;
 			}
 		}
 
 		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
 			// 记录操作日志并更新信息
 			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'U', $oUpdated);
+			/* 清除数据 */
+			if (isset($oApp->data_schemas)) {
+				unset($oApp->data_schemas);
+			}
 		}
 
 		return new \ResponseData($oApp);
@@ -534,7 +554,6 @@ class main extends main_base {
 		$oNewApp->start_at = $current;
 		$oNewApp->scenario = $template->scenario;
 		$oNewApp->scenario_config = $template->scenario_config;
-		$oNewApp->multi_rounds = $template->multi_rounds;
 		$oNewApp->data_schemas = $modelApp->escape($template->data_schemas);
 		$oNewApp->open_lastroll = $template->open_lastroll;
 		$oNewApp->enrolled_entry_page = $template->enrolled_entry_page;
@@ -668,7 +687,7 @@ class main extends main_base {
 
 		/* 保存数据 */
 		$records = $config->records;
-		$this->_persist($oSite->id, $appId, $records);
+		$this->_persist($oNewApp, $records);
 
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oSite->id, $user, $oNewApp, 'C');
@@ -690,6 +709,10 @@ class main extends main_base {
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
+		if (empty($oMission->user_app_id) || empty($oMission->user_app_type)) {
+			return new \ParameterError('项目没有指定用户名单，无法创建活动');
+		}
+
 		$oSite = $this->model('site')->byId($oMission->siteid, ['fields' => 'id,heading_pic']);
 		if (false === $oSite) {
 			return new \ObjectNotFoundError();
@@ -751,7 +774,7 @@ class main extends main_base {
 		/* create app */
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
-		$oNewApp->title = $modelApp->escape($oMission->title) . '-新登记活动';
+		$oNewApp->title = $modelApp->escape($oMission->title) . '-计分活动';
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
 		$oNewApp->can_siteuser = 'Y';
@@ -762,15 +785,36 @@ class main extends main_base {
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
+		/* 获得项目用户 */
+		$oUserSource = new \stdClass;
+		$oUserSource->id = $oMission->user_app_id;
+		$oUserSource->type = $oMission->user_app_type;
+		switch ($oUserSource->type) {
+		case 'group':
+			$oGrpApp = $this->model('matter\group')->byId($oUserSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
+			$users = $this->model('matter\group\player')->byApp($oUserSource, (object) ['fields' => 'userid,nickname']);
+			$misUsers = isset($users->players) ? $users->players : [];
+			break;
+		case 'enroll':
+			$misUsers = $this->model('matter\enroll\user')->enrolleeByApp($oUserSource, '', '', ['fields' => 'userid,nickname', 'cascaded' => 'N']);
+			break;
+		case 'signin':
+			$misUsers = $this->model('matter\signin\record')->enrolleeByApp($oUserSource, ['fields' => 'distinct userid,nickname']);
+			break;
+		case 'mschema':
+			$misUsers = $this->model('site\user\member')->byMschema($oUserSource->id, ['fields' => 'userid,name nickname']);
+			break;
+		}
 		/* 添加空记录 */
-		$modelMisUsr = $this->model('matter\mission\user');
-		$enrollees = $modelMisUsr->enrolleeByMission($oMission);
-		if (count($enrollees)) {
+		if (count($misUsers)) {
 			$modelRec = $this->model('matter\enroll\record');
-			foreach ($enrollees as $oEnrollee) {
+			foreach ($misUsers as $oMisUser) {
+				if (empty($oMisUser->userid)) {
+					continue;
+				}
 				$oMockUser = new \stdClass;
-				$oMockUser->uid = $oEnrollee->userid;
-				$oMockUser->nickname = $oEnrollee->nickname;
+				$oMockUser->uid = $oMisUser->userid;
+				$oMockUser->nickname = $oMisUser->nickname;
 				$modelRec->enroll($oNewApp, $oMockUser, ['nickname' => $oMockUser->nickname]);
 			}
 		}
@@ -1013,7 +1057,7 @@ class main extends main_base {
 			$records2[] = $record2;
 		}
 		/* 保存数据*/
-		$this->_persist($site, $appId, $records2);
+		$this->_persist($oNewApp, $records2);
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
 
@@ -1025,44 +1069,48 @@ class main extends main_base {
 	/**
 	 * 保存数据
 	 */
-	private function _persist($site, $appId, &$records) {
+	private function _persist($oApp, &$records) {
 		$current = time();
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 		$enrollKeys = [];
 
-		foreach ($records as $record) {
-			$ek = $modelRec->genKey($site, $appId);
+		foreach ($records as $oRecord) {
+			$ek = $modelRec->genKey($oApp->siteid, $oApp->id);
 
-			$r = array();
-			$r['aid'] = $appId;
-			$r['siteid'] = $site;
-			$r['enroll_key'] = $ek;
-			$r['enroll_at'] = $current;
-			$r['verified'] = isset($record->verified) ? $record->verified : 'N';
-			$r['comment'] = isset($record->comment) ? $record->comment : '';
-			if (isset($record->tags)) {
-				$r['tags'] = $record->tags;
-				$modelApp->updateTags($appId, $record->tags);
+			$aNewRec = array();
+			$aNewRec['aid'] = $oApp->id;
+			$aNewRec['siteid'] = $oApp->siteid;
+			$aNewRec['rid'] = $oApp->appRound->rid;
+			$aNewRec['enroll_key'] = $ek;
+			$aNewRec['enroll_at'] = $current;
+			$aNewRec['verified'] = isset($oRecord->verified) ? $oRecord->verified : 'N';
+			$aNewRec['comment'] = isset($oRecord->comment) ? $oRecord->comment : '';
+			if (isset($oRecord->tags)) {
+				$aNewRec['tags'] = $oRecord->tags;
+				$modelApp->updateTags($oApp->id, $oRecord->tags);
 			}
-			$id = $modelRec->insert('xxt_enroll_record', $r, true);
-			$r['id'] = $id;
+			$id = $modelRec->insert('xxt_enroll_record', $aNewRec, true);
+			$aNewRec['id'] = $id;
+			/* 记录和轮次的关系 */
+			$modelRun->createRecord((object) $aNewRec);
 			/**
 			 * 登记数据
 			 */
-			if (isset($record->data)) {
+			if (isset($oRecord->data)) {
 				//
-				$jsonData = $modelRec->toJson($record->data);
+				$jsonData = $modelRec->toJson($oRecord->data);
 				$modelRec->update('xxt_enroll_record', ['data' => $jsonData], "enroll_key='$ek'");
 				$enrollKeys[] = $ek;
 				//
-				foreach ($record->data as $n => $v) {
+				foreach ($oRecord->data as $n => $v) {
 					if (is_object($v) || is_array($v)) {
 						$v = json_encode($v);
 					}
 					if (count($v)) {
 						$cd = [
-							'aid' => $appId,
+							'aid' => $oApp->id,
+							'rid' => $oApp->appRound->rid,
 							'enroll_key' => $ek,
 							'schema_id' => $n,
 							'value' => $v,
@@ -1099,17 +1147,17 @@ class main extends main_base {
 				case 'M':
 					if (empty($oRule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
 					if (empty($oRule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
-					if ($oRule->hour === '') {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
 					break;
 				// 0-6 周几
 				case 'W':
-					if ($oRule->wday === '') {return [false, '请设置定时轮次每周几开始！'];}
-					if ($oRule->end_wday === '') {return [false, '请设置定时轮次每周几结束！'];}
-					if ($oRule->hour === '') {return [false, '请设置定时轮次每周几的几点开始！'];}
+					if (!isset($oRule->wday)) {return [false, '请设置定时轮次每周几开始！'];}
+					if (!isset($oRule->end_wday)) {return [false, '请设置定时轮次每周几结束！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每周几的几点开始！'];}
 					break;
 				// 0-23 几点
 				default:
-					if ($oRule->hour === '') {return [false, '请设置定时轮次每天的几点开始！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每天的几点开始！'];}
 					break;
 				}
 			} else if ($oRule->pattern === 'interval') {

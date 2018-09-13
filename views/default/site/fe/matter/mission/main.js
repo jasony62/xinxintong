@@ -31,14 +31,6 @@ require(['matterService'], function() {
                         if (/quiz|score_sheet/.test(matter)) {
                             oIndicator.score = true;
                         }
-                        if (matter.dataSchemas) {
-                            for (var i = matter.dataSchemas.length - 1; i >= 0; i--) {
-                                if (matter.dataSchemas[i].remarkable && matter.dataSchemas[i].remarkable === 'Y') {
-                                    oIndicator.remark = oIndicator.like = true;
-                                    break;
-                                }
-                            }
-                        }
                         if (matter.can_coin && matter.can_coin === 'Y') {
                             oIndicator.coin = true;
                         }
@@ -116,7 +108,10 @@ require(['matterService'], function() {
                     $scope.groupUsers = groupUsers;
                     _oCriteria.groupUser = groupUsers[0];
                 }
-                http2.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + missionId + '&type=mission&title=' + _oMission.title, {
+                http2.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
+                    id: missionId,
+                    type: 'mission',
+                    title: _oMission.title,
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });

@@ -1,0 +1,16 @@
+<div ng-controller="ctrlSchemaOption">
+    <div class="form-group">
+        <label>选项ID</label>
+        <input class='form-control' type='text' ng-model='activeOption.v' readonly>
+    </div>
+    <div class="form-group">
+        <label>选项标题</label>
+        <input class='form-control' type='text' ng-model='activeOption.l' ng-change="updSchema(activeSchema)">
+    </div>
+    <button class='btn btn-default' ng-click="editOption(activeSchema,activeOption,'desc')"><span class='glyphicon glyphicon-edit'></span> 编辑选项描述</button>
+    <hr>
+    <div class="form-group" ng-if="activeSchema.requireScore==='Y'">
+        <label>选项分值</label>
+        <input type='text' class='form-control' ng-model='activeOption.score' ng-change="updSchema(activeSchema)">
+    </div>
+</div>

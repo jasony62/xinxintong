@@ -16,16 +16,17 @@ class data_model extends entity_model {
 	 */
 	public function setData($oUser, $oApp, $oRecord, $submitData, $submitkey = '', $oAssignScore = null) {
 		if (empty($submitkey)) {
-			$submitkey = empty($oUser) ? '' : $oUser->uid;
+			$submitkey = empty($oUser->uid) ? '' : $oUser->uid;
 		}
 
-		$schemasById = []; // 方便获取登记项定义
-		foreach ($oApp->dataSchemas as $schema) {
-			if (strpos($schema->id, 'member.') === 0) {
-				$schema->id = 'member';
+		$schemasById = []; // 方便获取题目的定义
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
+			if (strpos($oSchema->id, 'member.') === 0) {
+				$oSchema->id = 'member';
 			}
-			$schemasById[$schema->id] = $schema;
-		}
+			$schemasById[$oSchema->id] = $oSchema;
+		};
+
 		$dbData = $this->disposRecrdData($oApp, $schemasById, $submitData, $submitkey, $oRecord);
 		if ($dbData[0] === false) {
 			return $dbData;
@@ -62,24 +63,29 @@ class data_model extends entity_model {
 						unset($dbData->{$schemaId});
 						$treatedValue = '[]';
 					} else {
-						$treatedValues = json_decode($treatedValue);
-						foreach ($treatedValues as $k => $v) {
-							$aSchemaValue = [
-								'aid' => $oApp->id,
-								'rid' => $oRecord->rid,
-								'enroll_key' => $oRecord->enroll_key,
-								'submit_at' => $oRecord->enroll_at,
-								'userid' => isset($oUser->uid) ? $oUser->uid : '',
-								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
-								'schema_id' => $schemaId,
-								'multitext_seq' => (int) $k + 1,
-								'value' => $this->escape($v->value),
-							];
-							$dataId = $this->insert('xxt_enroll_record_data', $aSchemaValue, true);
-							$treatedValues[$k]->id = $dataId;
+						if (!empty($treatedValue)) {
+							$treatedValues = json_decode($treatedValue);
+							foreach ($treatedValues as $k => $v) {
+								$aSchemaValue = [
+									'aid' => $oApp->id,
+									'rid' => $oRecord->rid,
+									'enroll_key' => $oRecord->enroll_key,
+									'submit_at' => $oRecord->enroll_at,
+									'userid' => isset($oUser->uid) ? $oUser->uid : '',
+									'nickname' => $oRecord->nickname,
+									'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+									'schema_id' => $schemaId,
+									'multitext_seq' => (int) $k + 1,
+									'value' => $this->escape($v->value),
+								];
+								$dataId = $this->insert('xxt_enroll_record_data', $aSchemaValue, true);
+								$treatedValues[$k]->id = $dataId;
+							}
+							$dbData->{$schemaId} = $treatedValues;
+							$treatedValue = $this->toJson($treatedValues);
+						} else {
+							unset($dbData->{$schemaId});
 						}
-						$dbData->{$schemaId} = $treatedValues;
-						$treatedValue = $this->toJson($treatedValues);
 					}
 				}
 				if (!empty($treatedValue)) {
@@ -89,6 +95,7 @@ class data_model extends entity_model {
 						'enroll_key' => $oRecord->enroll_key,
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
+						'nickname' => $oRecord->nickname,
 						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'schema_id' => $schemaId,
 						'value' => $this->escape($treatedValue),
@@ -112,6 +119,7 @@ class data_model extends entity_model {
 								'enroll_key' => $oRecord->enroll_key,
 								'submit_at' => $oRecord->enroll_at,
 								'userid' => isset($oUser->uid) ? $oUser->uid : '',
+								'nickname' => $oRecord->nickname,
 								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 								'schema_id' => $schemaId,
 								'multitext_seq' => (int) $k + 1,
@@ -137,6 +145,7 @@ class data_model extends entity_model {
 					$aSchemaValue = [
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
+						'nickname' => $oRecord->nickname,
 						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'value' => $this->escape($treatedValue),
 						'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
@@ -156,7 +165,7 @@ class data_model extends entity_model {
 					);
 				}
 			} else {
-				// 处理可多项填写题型
+				/* 获得一道题目的多条数据，多项填写题型 */
 				$aSchemaValue = [];
 				if ($oSchema->type === 'multitext') {
 					$newSchemaValues = json_decode($treatedValue);
@@ -166,12 +175,15 @@ class data_model extends entity_model {
 						if ((int) $v->multitext_seq > 0) {
 							$beforeSchemaItems[$v->id] = $v;
 						} else if ((int) $v->multitext_seq === 0) {
+							/* 题目的根数据 */
 							$oBeforeSchemaVal = $v;
 						}
 					}
 					if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-						$treatedValue = $oBeforeSchemaVal->value;
-						$dbData->{$schemaId} = json_encode($treatedValue);
+						if (isset($oBeforeSchemaVal->value)) {
+							$treatedValue = $oBeforeSchemaVal->value;
+							$dbData->{$schemaId} = json_encode($treatedValue);
+						}
 					} else {
 						foreach ($newSchemaValues as $k => $newSchemaValue) {
 							if ($newSchemaValue->id == 0) {
@@ -181,6 +193,7 @@ class data_model extends entity_model {
 									'enroll_key' => $oRecord->enroll_key,
 									'submit_at' => $oRecord->enroll_at,
 									'userid' => isset($oUser->uid) ? $oUser->uid : '',
+									'nickname' => $oRecord->nickname,
 									'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 									'schema_id' => $schemaId,
 									'multitext_seq' => (int) $k + 1,
@@ -203,6 +216,7 @@ class data_model extends entity_model {
 										$aSchemaValue = [
 											'submit_at' => $oRecord->enroll_at,
 											'userid' => isset($oUser->uid) ? $oUser->uid : '',
+											'nickname' => $oRecord->nickname,
 											'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 											'value' => $this->escape($newSchemaValue->value),
 											'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
@@ -249,6 +263,7 @@ class data_model extends entity_model {
 							$aSchemaValue = [
 								'submit_at' => $oRecord->enroll_at,
 								'userid' => isset($oUser->uid) ? $oUser->uid : '',
+								'nickname' => $oRecord->nickname,
 								'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 								'value' => $this->escape($treatedValue),
 								'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
@@ -400,79 +415,175 @@ class data_model extends entity_model {
 	/**
 	 * 计算题目的分数
 	 */
-	public function socreRecordData($oApp, $oRecord, $schemasById, $dbData, $oAssignScore = null) {
-		$oRecordScore = new \stdClass;
-		$oRecordScore->sum = 0; //记录总分
+	public function socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore = null) {
+		$oRecordScore = new \stdClass; // 记录的得分数据
+		$oRecordScore->sum = 0; // 记录总分
+		$oQuizNum = new \stdClass;
+		$oQuizNum->schema = 0; // 测验题目的数量
+		$oQuizNum->correctSchema = 0; // 答对测验题目的数量
+
+		/* 评估 */
+		$fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) {
+			$schemaScore = null; // 题目的得分
+			switch ($oSchema->type) {
+			case 'shorttext';
+				if (isset($oSchema->format) && $oSchema->format === 'number') {
+					$weight = (isset($oSchema->weight) && is_numeric($oSchema->weight)) ? $oSchema->weight : 1;
+					$schemaScore = $treatedValue * $weight;
+				}
+				break;
+			case 'single':
+				if (!empty($oSchema->ops)) {
+					foreach ($oSchema->ops as $oOp) {
+						if (isset($oOp->v) && $treatedValue === $oOp->v) {
+							if (!empty($oOp->score) && is_numeric($oOp->score)) {
+								$schemaScore = $oOp->score;
+							}
+							break;
+						}
+					}
+				}
+				break;
+			case 'multiple':
+				if (!empty($oSchema->ops)) {
+					$aTreatedValue = explode(',', $treatedValue);
+					foreach ($oSchema->ops as $oOp) {
+						if (isset($oOp->v) && in_array($oOp->v, $aTreatedValue)) {
+							if (!empty($oOp->score) && is_numeric($oOp->score)) {
+								if (isset($schemaScore)) {
+									$schemaScore += $oOp->score;
+								} else {
+									$schemaScore = $oOp->score;
+								}
+							}
+							/* 去掉已经比较过的选中项，提高效率 */
+							if (count($aTreatedValue) === 1) {
+								break;
+							}
+							array_splice($aTreatedValue, array_search($oOp->v, $aTreatedValue), 1);
+						}
+					}
+				}
+				break;
+			case 'score': // 打分题
+				if (!empty($oSchema->ops)) {
+					$oTreatedValue = json_decode($treatedValue);
+					foreach ($oSchema->ops as $oOp) {
+						if (isset($oOp->v) && !empty($oTreatedValue->{$oOp->v}) && is_numeric($oTreatedValue->{$oOp->v})) {
+							if (isset($schemaScore)) {
+								$schemaScore += $oTreatedValue->{$oOp->v};
+							} else {
+								$schemaScore = $oTreatedValue->{$oOp->v};
+							}
+						}
+					}
+				}
+				break;
+			}
+			if (isset($schemaScore)) {
+				$oRecordScore->{$oSchema->id} = $schemaScore;
+				$oRecordScore->sum += round((float) $schemaScore, 2);
+				return true;
+			}
+			return false;
+		};
+
+		/* 测验 */
+		$fnQuestion = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oRecord, $oAssignScore, $oQuizNum) {
+			if (empty($oSchema->answer)) {
+				return false;
+			}
+			$quizScore = null;
+			$oQuizNum->schema++;
+			switch ($oSchema->type) {
+			case 'single':
+				if ($treatedValue === $oSchema->answer) {
+					$quizScore = empty($oSchema->score) ? 0 : $oSchema->score;
+					$oQuizNum->correctSchema++;
+				} else {
+					$quizScore = 0;
+				}
+				break;
+			case 'multiple':
+				$correct = 0;
+				$pendingValues = explode(',', $treatedValue);
+				is_string($oSchema->answer) && $oSchema->answer = explode(',', $oSchema->answer);
+				foreach ($pendingValues as $pending) {
+					if (in_array($pending, $oSchema->answer)) {
+						$correct++;
+					} else {
+						$correct = 0;
+						break;
+					}
+				}
+				$quizScore = (empty($oSchema->score) ? 0 : $oSchema->score) / count($oSchema->answer) * $correct;
+				if (count($oSchema->answer) === $correct) {
+					$oQuizNum->correctSchema++;
+				}
+				break;
+			default: // 主观题
+				if (!empty($oAssignScore) && isset($oAssignScore->{$oSchema->id})) {
+					//有指定的优先使用指定的评分
+					$quizScore = $oAssignScore->{$oSchema->id};
+				} else {
+					$oLastSchemaValues = $this->query_objs_ss(
+						[
+							'id,value,score',
+							'xxt_enroll_record_data',
+							['enroll_key' => $oRecord->enroll_key, 'schema_id' => $oSchema->id, 'state' => 1],
+						]
+					);
+					if (!empty($oLastSchemaValues) && (count($oLastSchemaValues) == 1) && ($oLastSchemaValues[0]->value == $treatedValue) && !empty($oLastSchemaValues[0]->score)) {
+						//有提交记录且没修改且已经评分
+						$quizScore = $oLastSchemaValues[0]->score;
+					} elseif ($treatedValue === $oSchema->answer) {
+						$quizScore = $oSchema->score;
+					} else {
+						$quizScore = 0;
+					}
+				}
+				if ($quizScore == $oSchema->score) {
+					$oQuizNum->correctSchema++;
+				}
+				break;
+			}
+			// 记录分数
+			if (isset($quizScore)) {
+				$oRecordScore->{$oSchema->id} = round((float) $quizScore, 2);
+				$oRecordScore->sum += round((float) $quizScore, 2);
+			}
+			return true;
+		};
+
 		foreach ($dbData as $schemaId => $treatedValue) {
-			if (!isset($schemasById[$schemaId])) {
+			if (!isset($aSchemasById[$schemaId])) {
 				continue;
 			}
-			$oSchema = $schemasById[$schemaId];
-
+			$oSchema = $aSchemasById[$schemaId];
+			if (!isset($oSchema->requireScore) || $oSchema->requireScore !== 'Y' || !isset($oSchema->scoreMode)) {
+				continue;
+			}
+			// @todo 为什么要有这么一段代码？
 			if (is_object($treatedValue) || is_array($treatedValue)) {
 				$treatedValue = $this->toJson($treatedValue);
 			}
 			/**
 			 * 计算单个题目的得分
 			 */
-			if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
-				$weight = isset($oSchema->weight) ? $oSchema->weight : 1;
-				$oRecordScore->{$schemaId} = $treatedValue * $weight;
-				$oRecordScore->sum += $oRecordScore->{$schemaId};
+			switch ($oSchema->scoreMode) {
+			case 'evaluation':
+				$fnEvaluation($oSchema, $treatedValue, $oRecordScore);
+				break;
+			case 'question':
+				$fnQuestion($oSchema, $treatedValue, $oRecordScore);
+				break;
 			}
-			/* 计算题目的分数。只支持对单选题和多选题自动打分 */
-			if ($oApp->scenario === 'quiz') {
-				$quizScore = null;
-				if (isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') {
-					if (!empty($oSchema->answer)) {
-						switch ($oSchema->type) {
-						case 'single':
-							$quizScore = $treatedValue === $oSchema->answer ? ($oSchema->score ? $oSchema->score : 0) : 0;
-							break;
-						case 'multiple':
-							$correct = 0;
-							$pendingValues = explode(',', $treatedValue);
-							is_string($oSchema->answer) && $oSchema->answer = explode(',', $oSchema->answer);
-							foreach ($pendingValues as $pending) {
-								if (in_array($pending, $oSchema->answer)) {
-									$correct++;
-								} else {
-									$correct = 0;
-									break;
-								}
-							}
-							$quizScore = ($oSchema->score ? $oSchema->score : 0) / count($oSchema->answer) * $correct;
-							break;
-						default: // 主观题
-							if (!empty($oAssignScore) && isset($oAssignScore->{$schemaId})) {
-								//有指定的优先使用指定的评分
-								$quizScore = $oAssignScore->{$schemaId};
-							} else {
-								$oLastSchemaValues = $this->query_objs_ss(
-									[
-										'id,value,score',
-										'xxt_enroll_record_data',
-										['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId, 'state' => 1],
-									]
-								);
-								if (!empty($oLastSchemaValues) && (count($oLastSchemaValues) == 1) && ($oLastSchemaValues[0]->value == $treatedValue) && !empty($oLastSchemaValues[0]->score)) {
-									//有提交记录且没修改且已经评分
-									$quizScore = $oLastSchemaValues[0]->score;
-								} elseif ($treatedValue === $oSchema->answer) {
-									$quizScore = $oSchema->score;
-								} else {
-									$quizScore = 0;
-								}
-							}
-							break;
-						}
-					}
-					//记录分数
-					if (isset($quizScore)) {
-						$oRecordScore->{$schemaId} = $quizScore;
-						$oRecordScore->sum += (int) $quizScore;
-					}
-				}
+		}
+
+		/* 如果测验题目全对，且指定了总分，那么总得分为指定的总分 */
+		if ($oApp->scenario === 'quiz' && !empty($oApp->scenarioConfig->quizSum)) {
+			if ($oQuizNum->schema === $oQuizNum->correctSchema) {
+				$oRecordScore->sum = $oApp->scenarioConfig->quizSum;
 			}
 		}
 
@@ -568,7 +679,7 @@ class data_model extends entity_model {
 		}
 		/* 是否排除协作填写数据 */
 		if (isset($oOptions->multitext_seq)) {
-			$q[2] .= ' and multitext_seq=' . $multitext_seq;
+			$q[2] .= ' and multitext_seq=' . $oOptions->multitext_seq;
 		}
 		/* 限制填写轮次 */
 		if (!empty($rid)) {

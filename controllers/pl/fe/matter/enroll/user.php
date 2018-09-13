@@ -27,16 +27,16 @@ class user extends main_base {
 		!empty($post->rid) && $aOptions['rid'] = $post->rid;
 		!empty($post->onlyEnrolled) && $aOptions['onlyEnrolled'] = $post->onlyEnrolled;
 
-		$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
+		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
 		/* 由于版本原因，判断是否需要系统获取填写人信息 */
-		if (0 === count($result->users)) {
+		if (0 === count($oResult->users)) {
 			if ($this->_refresh($oApp) > 0) {
-				$result = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
+				$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
 			}
 		}
 
 		/* 查询有openid的用户发送消息的情况 */
-		if (count($result->users)) {
+		if (count($oResult->users)) {
 			if (!empty($oApp->group_app_id)) {
 				foreach ($oApp->dataSchemas as $schema) {
 					if ($schema->id == '_round_id') {
@@ -45,7 +45,7 @@ class user extends main_base {
 					}
 				}
 			}
-			foreach ($result->users as &$user) {
+			foreach ($oResult->users as &$user) {
 				$q = [
 					'd.tmplmsg_id,d.status,b.create_at',
 					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
@@ -70,32 +70,27 @@ class user extends main_base {
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
-	 * 缺席用户列表
-	 * 1、如果活动指定了通讯录用户参与；如果活动指定了分组活动的分组用户
-	 * 2、如果活动关联了分组活动
-	 * 3、如果活动所属项目指定了用户名单
+	 * 未完成任务用户列表
 	 */
-	public function absent_action($app, $rid = '') {
-		if (false === ($oUser = $this->accountUser())) {
+	public function undone_action($app, $rid = '') {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 		empty($rid) && $rid = 'ALL';
 
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,absent_cause']);
-		if (false === $oApp) {
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,group_app_id,absent_cause']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-		/* 获得当前活动的参与人 */
-		$oUsers = $modelUsr->enrolleeByApp($oApp, '', '', ['fields' => 'id,userid', 'onlyEnrolled' => 'Y', 'cascaded' => 'N', 'rid' => $rid]);
-		$result = $modelUsr->absentByApp($oApp, $oUsers->users, $rid);
+		$oResult = $modelUsr->undoneByApp($oApp, $rid);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 根据通讯录返回用户完成情况
@@ -120,10 +115,10 @@ class user extends main_base {
 		$modelUsr = $this->model('matter\enroll\user');
 		$options = [];
 		!empty($rid) && $options['rid'] = $rid;
-		$result = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page, $size, $options);
+		$oResult = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page, $size, $options);
 		/*查询有openid的用户发送消息的情况*/
-		if (count($result->members)) {
-			foreach ($result->members as $member) {
+		if (count($oResult->members)) {
+			foreach ($oResult->members as $member) {
 				$q = [
 					'd.tmplmsg_id,d.status,b.create_at',
 					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
@@ -141,7 +136,7 @@ class user extends main_base {
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 发表过留言的用户
@@ -158,9 +153,9 @@ class user extends main_base {
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-		$result = $modelUsr->remarkerByApp($oApp, $page, $size);
+		$oResult = $modelUsr->remarkerByApp($oApp, $page, $size);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 数据导出
@@ -198,13 +193,13 @@ class user extends main_base {
 			}
 			$options = [];
 			!empty($rid) && $options['rid'] = $rid;
-			$result = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page = '', $size = '', $options);
-			$data = $result->members;
+			$oResult = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page = '', $size = '', $options);
+			$data = $oResult->members;
 		} else {
 			$options = [];
 			!empty($rid) && $options['rid'] = $rid;
-			$result = $modelUsr->enrolleeByApp($oApp, $page = '', $size = '', $options);
-			$data = $result->users;
+			$oResult = $modelUsr->enrolleeByApp($oApp, $page = '', $size = '', $options);
+			$data = $oResult->users;
 		}
 
 		foreach ($data as &$user) {
@@ -431,10 +426,10 @@ class user extends main_base {
 			}
 		}
 
-		/* 未签到用户 */
-		$result = $modelUsr->absentByApp($oApp, $data, $rid);
-		$absentUsers = $result->users;
-		if (count($absentUsers)) {
+		/* 未完成活动任务用户 */
+		$oResult = $modelUsr->undoneByApp($oApp, $rid);
+		$undoneUsers = $oResult->users;
+		if (count($undoneUsers)) {
 			$objPHPExcel->createSheet();
 			$objPHPExcel->setActiveSheetIndex(1);
 			$objActiveSheet2 = $objPHPExcel->getActiveSheet();
@@ -447,16 +442,12 @@ class user extends main_base {
 			$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '备注');
 
 			$rowNumber = 2;
-			foreach ($absentUsers as $k => $absentUser) {
+			foreach ($undoneUsers as $k => $oUndoneUser) {
 				$colNumber = 0;
 				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $k + 1);
-				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->nickname);
-				if (isset($absentUser->round_title)) {
-					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->round_title);
-				} else {
-					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
-				}
-				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->absent_cause->cause);
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $oUndoneUser->nickname);
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oUndoneUser->round_title) ? $oUndoneUser->round_title : '');
+				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oUndoneUser->absent_cause->cause) ? $oUndoneUser->absent_cause->cause : '');
 
 				$rowNumber++;
 			}

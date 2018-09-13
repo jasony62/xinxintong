@@ -19,14 +19,17 @@ class timer_model extends base_model {
 		return 'timer';
 	}
 	/**
-	 *
+	 * 获得素材下的定时任务
 	 */
-	public function &byMatter($type, $id) {
+	public function &byMatter($type, $id, $aOptions = []) {
 		$q = [
 			'*',
 			'xxt_timer_task',
 			['matter_type' => $type, 'matter_id' => $id],
 		];
+		if (!empty($aOptions['model'])) {
+			$q[2]['task_model'] = $aOptions['model'];
+		}
 
 		$tasks = $this->query_objs_ss($q);
 		foreach ($tasks as $oTask) {

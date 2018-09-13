@@ -37,7 +37,7 @@ ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $
                     value = data[oSchema.id];
                 }
                 /* 隐藏题和协作题不做检查 */
-                if ((!oSchema.visibility || oSchema.visibility.visible) && oSchema.cowork !== 'Y') {
+                if ((!oSchema.visibility || !oSchema.visibility.rules || oSchema.visibility.rules.length === 0 || oSchema.visibility.visible) && oSchema.cowork !== 'Y') {
                     if (oSchema.type && oSchema.type !== 'html') {
                         if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
                             return sCheckResult;
@@ -91,13 +91,16 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
     return {
         restrict: 'A',
         controller: ['$scope', '$timeout', 'noticebox', function($scope, $timeout, noticebox) {
-            function imgCount(schemaId, count, from) {
+            function imgCount(schemaId, count) {
                 if (schemaId !== null) {
                     aModifiedImgFields.indexOf(schemaId) === -1 && aModifiedImgFields.push(schemaId);
                     $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
-                    if (count !== null && $scope.data[schemaId].length === count && count != 0) {
-                        noticebox.warn('最多允许上传（' + count + '）张图片');
-                        return;
+                    if (count) {
+                        count = parseInt(count);
+                        if (count > 0 && $scope.data[schemaId].length >= count) {
+                            noticebox.warn('最多允许上传（' + count + '）张图片');
+                            return;
+                        }
                     }
                 }
             }
@@ -286,10 +289,10 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
                 }
                 if ($scope.schemasById && $scope.schemasById[schemaId]) {
                     oSchema = $scope.schemasById[schemaId];
-                } else if ($scope.app && $scope.app.dataSchemas && $scope.app.dataSchemas.length) {
-                    for (var i = $scope.app.dataSchemas.length - 1; i >= 0; i--) {
-                        if ($scope.app.dataSchemas[i].id = schemaId) {
-                            oSchema = $scope.app.dataSchemas[i];
+                } else if ($scope.app && $scope.app.dynaDataSchemas && $scope.app.dynaDataSchemas.length) {
+                    for (var i = $scope.app.dynaDataSchemas.length - 1; i >= 0; i--) {
+                        if ($scope.app.dynaDataSchemas[i].id = schemaId) {
+                            oSchema = $scope.app.dynaDataSchemas[i];
                             break;
                         }
                     }
@@ -389,11 +392,11 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', function($scope, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile) {
+ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', function($scope, $parse, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile) {
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
-            domActs.forEach(function(domAct) {
+            angular.forEach(domActs, function(domAct) {
                 var ngClick = domAct.getAttribute('ng-click');
                 if (ngClick.indexOf('submit') === 0) {
                     domAct.style.display = 'none';
@@ -411,23 +414,36 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
                 if (domSchema) {
                     if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
-                        var bVisible, oRule;
-                        bVisible = true;
-                        for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
-                            oRule = oSchema.visibility.rules[i];
-                            if (oRule.schema.indexOf('member.extattr') === 0) {
-                                var memberSchemaId = oRule.schema.substr(15);
-                                if (!oRecordData.member.extattr[memberSchemaId] || (oRecordData.member.extattr[memberSchemaId] !== oRule.op && !oRecordData.member.extattr[memberSchemaId][oRule.op])) {
+                        var bVisible, oRule, oRuleVal;
+                        if (oSchema.visibility.logicOR) {
+                            bVisible = false;
+                            for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                                oRule = oSchema.visibility.rules[i];
+                                oRuleVal = $parse(oRule.schema)(oRecordData);
+                                if (oRuleVal) {
+                                    if (oRuleVal === oRule.op || oRuleVal[oRule.op]) {
+                                        bVisible = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            bVisible = true;
+                            for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                                oRule = oSchema.visibility.rules[i];
+                                oRuleVal = $parse(oRule.schema)(oRecordData);
+                                if (!oRuleVal || (oRuleVal !== oRule.op && !oRuleVal[oRule.op])) {
                                     bVisible = false;
                                     break;
                                 }
-                            } else if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
-                                bVisible = false;
-                                break;
                             }
                         }
                         domSchema.classList.toggle('hide', !bVisible);
                         oSchema.visibility.visible = bVisible;
+                        /* 被隐藏的题目需要清除数据 */
+                        if (false === bVisible) {
+                            $parse(oSchema.id).assign(oRecordData, undefined);
+                        }
                     } else if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
                         domSchema.classList.toggle('hide', !bVisible);
                     }
@@ -438,14 +454,14 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     /**
      * 控制题目关联选项的显示
      */
-    function fnToggleAssocOptions(dataSchemas, oRecordData) {
-        dataSchemas.forEach(function(oSchemaWrap) {
+    function fnToggleAssocOptions(pageDataSchemas, oRecordData) {
+        pageDataSchemas.forEach(function(oSchemaWrap) {
             var oSchema, oConfig;
             if ((oConfig = oSchemaWrap.config) && (oSchema = oSchemaWrap.schema)) {
                 if (oSchema.ops && oSchema.ops.length && oSchema.optGroups && oSchema.optGroups.length) {
                     oSchema.optGroups.forEach(function(oOptGroup) {
                         if (oOptGroup.assocOp && oOptGroup.assocOp.schemaId && oOptGroup.assocOp.v) {
-                            if (oRecordData[oOptGroup.assocOp.schemaId] !== oOptGroup.assocOp.v) {
+                            if ($parse(oOptGroup.assocOp.schemaId)(oRecordData) !== oOptGroup.assocOp.v) {
                                 oSchema.ops.forEach(function(oOption) {
                                     var domOption;
                                     if (oOption.g && oOption.g === oOptGroup.i) {
@@ -513,8 +529,8 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
     /**
      * 添加辅助功能
      */
-    function fnAssistant(dataSchemas) {
-        dataSchemas.forEach(function(oSchemaWrap) {
+    function fnAssistant(pageDataSchemas) {
+        pageDataSchemas.forEach(function(oSchemaWrap) {
             var oSchema, domSchema, domRequireAssist;
             if (oSchema = oSchemaWrap.schema) {
                 domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
@@ -540,30 +556,69 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
      * 给关联选项添加选项nickname
      */
     function fnAppendOpNickname(dataSchemas) {
-        dataSchemas.forEach(function(oSchemaWrap) {
-            var oSchema, domSchema;
-            if (oSchema = oSchemaWrap.schema) {
-                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
-                if (domSchema && oSchema.dsOps && oSchema.showOpNickname === 'Y') {
-                    switch (oSchema.type) {
-                        case 'multiple':
-                            if (oSchema.ops && oSchema.ops.length) {
-                                oSchema.ops.forEach(function(oOp) {
-                                    var domOption, spanNickname;
+        dataSchemas.forEach(function(oSchema) {
+            var domSchema;
+            domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+            if (domSchema && oSchema.dsOps && oSchema.showOpNickname === 'Y') {
+                switch (oSchema.type) {
+                    case 'multiple':
+                        if (oSchema.ops && oSchema.ops.length) {
+                            var domOptions;
+                            domOptions = document.querySelectorAll('[wrap=input][schema="' + oSchema.id + '"] input[type=checkbox][ng-model]');
+                            oSchema.ops.forEach(function(oOp, index) {
+                                var domOption, spanNickname;
+                                if (domOption = domOptions[index]) {
                                     if (oOp.ds && oOp.ds.nickname) {
-                                        domOption = document.querySelector('input[ng-model="data.' + oSchema.id + '.' + oOp.v + '"]');
-                                        if (domOption) {
-                                            domOption = domOption.parentNode;
-                                            spanNickname = document.createElement('span');
-                                            spanNickname.classList.add('option-nickname');
-                                            spanNickname.innerHTML = '[' + oOp.ds.nickname + ']';
-                                            domOption.appendChild(spanNickname);
-                                        }
+                                        domOption = domOption.parentNode;
+                                        spanNickname = document.createElement('span');
+                                        spanNickname.classList.add('option-nickname');
+                                        spanNickname.innerHTML = '[' + oOp.ds.nickname + ']';
+                                        domOption.appendChild(spanNickname);
                                     }
-                                });
-                            }
-                            break;
-                    }
+                                }
+                            });
+                        }
+                        break;
+                }
+            }
+        });
+    }
+    /**
+     * 给关联选项添加选项nickname
+     */
+    function fnAppendOpDsLink(dataSchemas) {
+        dataSchemas.forEach(function(oSchema) {
+            var domSchema;
+            domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+            if (domSchema && oSchema.dsOps && oSchema.dsOps.app && oSchema.dsOps.app.id && oSchema.showOpDsLink === 'Y') {
+                switch (oSchema.type) {
+                    case 'multiple':
+                        if (oSchema.ops && oSchema.ops.length) {
+                            var domOptions;
+                            domOptions = document.querySelectorAll('[wrap=input][schema=' + oSchema.id + '] input[type=checkbox][name=' + oSchema.id + '][ng-model]');
+                            oSchema.ops.forEach(function(oOp, index) {
+                                var domOption, spanLink;
+                                if (domOption = domOptions[index]) {
+                                    if (oOp.ds && oOp.ds.ek) {
+                                        domOption = domOption.parentNode;
+                                        spanLink = document.createElement('span');
+                                        spanLink.classList.add('option-link');
+                                        spanLink.innerHTML = '[详情]';
+                                        spanLink.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            var url
+                                            url = LS.j('', 'site');
+                                            url += '&app=' + oSchema.dsOps.app.id;
+                                            url += '&page=cowork';
+                                            url += '&ek=' + oOp.ds.ek;
+                                            location.href = url;
+                                        });
+                                        domOption.appendChild(spanLink);
+                                    }
+                                }
+                            });
+                        }
+                        break;
                 }
             }
         });
@@ -612,14 +667,8 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
             submitState.finish();
         });
     }
-
-    function _localSave(type) {
-        submitState.start(null, StateCacheKey, type);
-        submitState.cache($scope.data);
-        submitState.finish(true);
-    }
     /* 页面和记录数据加载完成 */
-    function fnAfterLoad(oPage, oRecordData) {
+    function fnAfterLoad(oApp, oPage, oRecordData) {
         var dataSchemas;
         dataSchemas = oPage.dataSchemas;
         // 设置题目的默认值
@@ -631,7 +680,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         // 添加辅助功能
         fnAssistant(dataSchemas);
         // 从其他活动生成的选项的昵称
-        fnAppendOpNickname(dataSchemas);
+        fnAppendOpNickname(oApp.dynaDataSchemas);
+        // 从其他活动生成的选项的详情链接
+        fnAppendOpDsLink(oApp.dynaDataSchemas);
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
@@ -666,6 +717,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
         if (_oApp.can_rank === 'Y') {
             oAppNavs.rank = {};
+        }
+        if (_oApp.scenario === 'voting') {
+            oAppNavs.votes = {};
         }
         if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
             oAppNavs.event = {};
@@ -702,7 +756,6 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     };
     $scope.save = function(event) {
-        //_localSave('save');
         $scope.submit(event, '', 'save');
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
@@ -710,56 +763,41 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = params.app._schemasById;
         _oApp = params.app;
-        if (params.page.data_schemas) {
-            params.page.dataSchemas = JSON.parse(params.page.data_schemas);
-        }
         if (_oApp.end_submit_at > 0 && parseInt(_oApp.end_submit_at) < (new Date * 1) / 1000) {
             fnDisableActions();
             noticebox.warn('活动提交数据时间已经结束，不能提交数据');
         }
         /* 判断多项类型 */
-        if (_oApp.dataSchemas.length) {
-            angular.forEach(_oApp.dataSchemas, function(dataSchema) {
+        if (_oApp.dynaDataSchemas.length) {
+            angular.forEach(_oApp.dynaDataSchemas, function(dataSchema) {
                 if (dataSchema.type == 'multitext') {
                     $scope.data[dataSchema.id] === undefined && ($scope.data[dataSchema.id] = []);
                 }
             });
         }
-        /* 恢复用户未提交的数据 */
-        // if (window.localStorage) {
-        //     submitState._cacheKey = StateCacheKey;
-        //     var cached = submitState.fromCache(StateCacheKey);
-        //     if (cached) {
-        //         if (cached.member) {
-        //             delete cached.member;
-        //         }
-        //         angular.extend($scope.data, cached);
-        //         submitState.modified = true;
-        //     }
-        // }
-        /* 自动填充用户通信录数据 */
         ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
         /* 用户已经登记过或保存过，恢复之前的数据 */
-        if (LS.s().newRecord !== 'Y') {
-            http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y', { autoBreak: false, autoNotice: false }).then(function(rsp) {
-                var oRecord;
-                oRecord = rsp.data;
-                ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
-                $scope.record = oRecord;
-                if (oRecord.supplement) {
-                    $scope.supplement = oRecord.supplement;
-                }
-                /*设置页面分享信息*/
-                $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
-                /*根据加载的数据设置页面*/
-                fnAfterLoad(params.page, $scope.data);
-            });
+        var urlLoadRecord;
+        if (LS.s().newRecord === 'Y') {
+            urlLoadRecord = LS.j('record/get', 'site', 'app', 'rid') + '&loadLast=N';
         } else {
-            /*设置页面分享信息*/
-            $scope.setSnsShare(false, { 'newRecord': LS.s().newRecord });
-            /*根据加载的数据设置页面*/
-            fnAfterLoad(params.page, $scope.data);
+            urlLoadRecord = LS.j('record/get', 'site', 'app', 'rid', 'ek') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y';
         }
+        http2.get(urlLoadRecord, { autoBreak: false, autoNotice: false }).then(function(rsp) {
+            var oRecord;
+            oRecord = rsp.data;
+            ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
+            $scope.record = oRecord;
+            if (oRecord.supplement) {
+                $scope.supplement = oRecord.supplement;
+            }
+            /*设置页面分享信息*/
+            $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
+            /*页面阅读日志*/
+            $scope.logAccess();
+            /*根据加载的数据设置页面*/
+            fnAfterLoad(params.app, params.page, $scope.data);
+        });
         /* 微信不支持上传文件，指导用户进行处理 */
         if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {
             if (_oApp.entryRule && _oApp.entryRule.scope && _oApp.entryRule.scope.member === 'Y') {
@@ -818,6 +856,9 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }).result.then(function(data) {
             var item = { id: 0, value: '' };
             item.value = data.content;
+            if (!$scope.data[schemaId] || !angular.isArray($scope.data[schemaId])) {
+                $scope.data[schemaId] = [];
+            }
             $scope.data[schemaId].push(item);
         });
     };
@@ -954,7 +995,7 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
                 if (oResult.selected.value) {
                     $scope.data[oHandleSchema.id] = oResult.selected.value;
                     /* 检查是否存在关联题目，自动完成数据填写 */
-                    _oApp.dataSchemas.forEach(function(oOther) {
+                    _oApp.dynaDataSchemas.forEach(function(oOther) {
                         if (oOther.id !== oHandleSchema.id && oOther.history === 'Y' && oOther.historyAssoc && oOther.historyAssoc.indexOf(oHandleSchema.id) !== -1) {
                             assocSchemaIds.push(oOther.id);
                         }
@@ -975,28 +1016,29 @@ ngApp.controller('ctrlInput', ['$scope', '$q', '$uibModal', '$timeout', 'Input',
         }
     };
     $scope.score = function(schemaId, opIndex, number) {
-        var schema = $scope.schemasById[schemaId],
-            op = schema.ops[opIndex];
+        var oSchema, oOption;
 
-        if ($scope.data[schemaId] === undefined) {
-            $scope.data[schemaId] = {};
-            schema.ops.forEach(function(op) {
-                $scope.data[schema.id][op.v] = 0;
+        if (!(oSchema = $scope.schemasById[schemaId])) return;
+        if (!(oOption = oSchema.ops[opIndex])) return;
+
+        if ($scope.data[oSchema.id] === undefined) {
+            $scope.data[oSchema.id] = {};
+            oSchema.ops.forEach(function(oOp) {
+                $scope.data[oSchema.id][oOp.v] = 0;
             });
         }
 
-        $scope.data[schemaId][op.v] = number;
+        $scope.data[oSchema.id][oOption.v] = number;
     };
     $scope.lessScore = function(schemaId, opIndex, number) {
+        var oSchema, oOption;
+
         if (!$scope.schemasById) return false;
-
-        var schema = $scope.schemasById[schemaId],
-            op = schema.ops[opIndex];
-
-        if ($scope.data[schemaId] === undefined) {
+        if (!(oSchema = $scope.schemasById[schemaId])) return false;
+        if (!(oOption = oSchema.ops[opIndex])) return false;
+        if ($scope.data[oSchema.id] === undefined) {
             return false;
         }
-
-        return $scope.data[schemaId][op.v] >= number;
+        return $scope.data[oSchema.id][oOption.v] >= number;
     };
 }]);

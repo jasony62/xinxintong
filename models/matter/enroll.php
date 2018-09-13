@@ -64,22 +64,63 @@ class enroll_model extends enroll_base {
 		return $url;
 	}
 	/**
+	 * 新建记录活动
+	 */
+	public function create($oUser, $oNewApp) {
+		$oNewApp = parent::create($oUser, $oNewApp);
+
+		/* 创建活动默认填写轮次 */
+		$modelRnd = $this->model('matter\enroll\round');
+		if (!empty($oNewApp->sync_mission_round) && $oNewApp->sync_mission_round === 'Y') {
+			$oAppRnd = $modelRnd->getActive($oNewApp);
+		}
+		if (empty($oAppRnd)) {
+			$oRoundProto = new \stdClass;
+			$oRoundProto->title = '填写轮次';
+			$oRoundProto->state = 1;
+			$aResult = $modelRnd->create($oNewApp, $oRoundProto, $oUser);
+			if (true === $aResult[0]) {
+				$oNewApp->appRound = $aResult[1];
+			}
+		} else {
+			$oNewApp->appRound = $oAppRnd;
+		}
+
+		return $oNewApp;
+	}
+	/**
 	 * 返回指定活动的数据
 	 *
 	 * @param string $aid
 	 * @param array $options
+	 *
 	 */
-	public function &byId($appId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+	public function &byId($appId, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
+		$appRid = isset($aOptions['appRid']) ? $aOptions['appRid'] : '';
+
 		$q = [
 			$fields,
 			'xxt_enroll',
 			["id" => $appId],
 		];
 
-		if (($oApp = $this->query_obj_ss($q)) && empty($options['notDecode'])) {
+		if (($oApp = $this->query_obj_ss($q)) && empty($aOptions['notDecode'])) {
 			$oApp->type = 'enroll';
+			/* 自动补充信息 */
+			if (!property_exists($oApp, 'id')) {
+				$oApp->id = $appId;
+			}
+			/* 活动轮次 */
+			$modelRnd = $this->model('matter\enroll\round');
+			if (empty($appRid)) {
+				$oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+			} else {
+				$oAppRnd = $modelRnd->byId($appRid, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+			}
+			$oApp->appRound = $oAppRnd;
+
 			if (isset($oApp->siteid) && isset($oApp->id)) {
 				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
 				$oApp->opUrl = $this->getOpUrl($oApp->siteid, $oApp->id);
@@ -100,10 +141,20 @@ class enroll_model extends enroll_base {
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
 				if (!empty($oApp->data_schemas)) {
 					$oApp->dataSchemas = json_decode($oApp->data_schemas);
+					/* 应用的动态题目 */
+					$oApp2 = (object) ['id' => $oApp->id, 'appRound' => $oApp->appRound, 'dataSchemas' => json_decode($oApp->data_schemas), 'mission_id' => $oApp->mission_id];
+					$modelSch = $this->model('matter\enroll\schema');
+					$modelSch->setDynaSchemas($oApp2);
+					$oApp->dynaDataSchemas = $oApp2->dataSchemas;
+					/* 设置活动的动态选项 */
+					$modelSch->setDynaOptions($oApp, $oAppRnd);
 				} else {
-					$oApp->dataSchemas = [];
+					$oApp->dataSchemas = $oApp->dynaDataSchemas = [];
 				}
+				/* 清除数据 */
+				unset($oApp->data_schemas);
 			}
+
 			if ($fields === '*' || false !== strpos($fields, 'recycle_schemas')) {
 				if (!empty($oApp->recycle_schemas)) {
 					$oApp->recycleSchemas = json_decode($oApp->recycle_schemas);
@@ -182,50 +233,11 @@ class enroll_model extends enroll_base {
 			}
 
 			$modelPage = $this->model('matter\enroll\page');
-			if ($cascaded === 'Y') {
-				$oApp->pages = $modelPage->byApp($oApp->id);
-			} else {
-				$oApp->pages = $modelPage->byApp($oApp->id, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
-			}
-		}
-
-		return $oApp;
-	}
-	/**
-	 * 设置活动题目的动态选项
-	 *
-	 * @param object $oApp
-	 * @param object $oAppRound
-	 *
-	 * @return object $oApp
-	 */
-	public function setDynaOptions(&$oApp, $oAppRound = null) {
-		foreach ($oApp->dataSchemas as $oSchema) {
-			if (in_array($oSchema->type, ['single', 'multiple'])) {
-				if (!empty($oSchema->dsOps->app->id) && !empty($oSchema->dsOps->schema->id)) {
-					if (!empty($oAppRound->mission_rid)) {
-						if (!isset($modelRnd)) {
-							$modelRnd = $this->model('matter\enroll\round');
-						}
-						$oDsAppRnd = $modelRnd->byMissionRid($oSchema->dsOps->app, $oAppRound->mission_rid, ['fields' => 'rid']);
-					}
-					$oSchema->ops = [];
-					$q = [
-						'enroll_key,value,userid,nickname',
-						"xxt_enroll_record_data",
-						['state' => 1, 'aid' => $oSchema->dsOps->app->id, 'schema_id' => $oSchema->dsOps->schema->id],
-					];
-					if (!empty($oDsAppRnd)) {
-						$q[2]['rid'] = $oDsAppRnd->rid;
-					}
-					$datas = $this->query_objs_ss($q);
-					foreach ($datas as $index => $oRecData) {
-						$oNewOp = new \stdClass;
-						$oNewOp->v = 'v' . ($index + 1);
-						$oNewOp->l = $oRecData->value;
-						$oNewOp->ds = (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname];
-						$oSchema->ops[] = $oNewOp;
-					}
+			if (!empty($oApp->id)) {
+				if ($cascaded === 'Y') {
+					$oApp->pages = $modelPage->byApp($oApp->id);
+				} else {
+					$oApp->pages = $modelPage->byApp($oApp->id, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
 				}
 			}
 		}
@@ -301,8 +313,8 @@ class enroll_model extends enroll_base {
 			$tags = implode(',', $tags);
 		}
 
-		$options = array('fields' => 'id,tags', 'cascaded' => 'N');
-		$oApp = $this->byId($aid, $options);
+		$aOptions = ['fields' => 'id,tags', 'cascaded' => 'N'];
+		$oApp = $this->byId($aid, $aOptions);
 		if (empty($oApp->tags)) {
 			$this->update('xxt_enroll', ['tags' => $tags], ["id" => $aid]);
 		} else {
@@ -469,7 +481,7 @@ class enroll_model extends enroll_base {
 			/* 匿名访问 */
 			$nickname = '';
 		} else {
-			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
+			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
 				foreach ($oEntryRule->member as $schemaId => $rule) {
 					$modelMem = $this->model('site\user\member');
 					if (empty($oUser->unionid)) {
@@ -715,7 +727,7 @@ class enroll_model extends enroll_base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	public function &addPageByTemplate(&$user, &$site, $oMission, &$appId, &$oTemplateConfig) {
+	public function &addPageByTemplate(&$user, $oSite, $oMission, &$appId, &$oTemplateConfig) {
 		$pages = $oTemplateConfig->pages;
 		if (empty($pages)) {
 			return false;
@@ -726,36 +738,37 @@ class enroll_model extends enroll_base {
 		/**
 		 * 处理页面
 		 */
-		foreach ($pages as $page) {
-			$ap = $modelPage->add($user, $site->id, $appId, (array) $page);
+		foreach ($pages as $oPage) {
+			$ap = $modelPage->add($user, $oSite->id, $appId, (array) $oPage);
 			/**
 			 * 处理页面数据定义
 			 */
-			if (empty($page->data_schemas) && !empty($oTemplateConfig->schema) && !empty($page->simpleConfig)) {
+			if (empty($oTemplateConfig->schema)) {
+				$oPage->data_schemas = [];
+			} else if (empty($oPage->data_schemas) && !empty($oPage->simpleConfig)) {
 				/* 页面使用应用的所有数据定义 */
-				$page->data_schemas = [];
-				foreach ($oTemplateConfig->schema as $schema) {
-					$newPageSchema = new \stdClass;
-					$newPageSchema->schema = $schema;
-					$newPageSchema->config = clone $page->simpleConfig;
-					if ($page->type === 'V') {
-						$newPageSchema->config->id = 'V_' . $schema->id;
+				foreach ($oTemplateConfig->schema as $oSchema) {
+					$oNewPageSchema = new \stdClass;
+					$oNewPageSchema->schema = $oSchema;
+					$oNewPageSchema->config = clone $oPage->simpleConfig;
+					if ($oPage->type === 'V') {
+						$oNewPageSchema->config->id = 'V_' . $oSchema->id;
 					}
-					$page->data_schemas[] = $newPageSchema;
+					$oPage->data_schemas[] = $oNewPageSchema;
 				}
 			}
 			$pageSchemas = [];
-			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? $this->toJson($page->data_schemas) : '[]';
-			$pageSchemas['act_schemas'] = isset($page->act_schemas) ? $this->toJson($page->act_schemas) : '[]';
+			$pageSchemas['data_schemas'] = isset($oPage->data_schemas) ? $this->toJson($oPage->data_schemas) : '[]';
+			$pageSchemas['act_schemas'] = isset($oPage->act_schemas) ? $this->toJson($oPage->act_schemas) : '[]';
 			$rst = $modelPage->update(
 				'xxt_enroll_page',
 				$pageSchemas,
 				"aid='$appId' and id={$ap->id}"
 			);
 			/* 填充页面 */
-			if (!empty($page->code)) {
-				$code = (array) $page->code;
-				$code['html'] = $modelPage->compileHtml($page->type, $code['html'], $page->data_schemas);
+			if (!empty($oPage->code)) {
+				$code = (array) $oPage->code;
+				$code['html'] = $modelPage->compileHtml($oPage->type, $code['html'], $oPage->data_schemas);
 				$modelCode->modify($ap->code_id, $code);
 			}
 		}

@@ -27,7 +27,8 @@
             <div class="btn-group" uib-dropdown>
                 <button class="btn btn-default" uib-dropdown-toggle>移动<span ng-bind="rows.players.length"></span>个用户到...<i class="caret"></i></button>
                 <ul uib-dropdown-menu>
-                    <li ng-repeat="rnd in rounds"><a href="" ng-click="joinGroup(rnd,rows.players)">{{rnd.title}}</a></li>
+                    <li ng-repeat="rnd in teamRounds"><a href ng-click="joinGroup(rnd,rows.players)">{{rnd.title}}</a></li>
+                    <li><a href ng-click="quitGroup(rows.players)">未分组</a></li>
                 </ul>
             </div>
             <div class="btn-group" uib-dropdown>
@@ -36,6 +37,9 @@
                     <li><a href="" ng-click="addPlayer()">添加用户</a></li>
                     <li><a href="" ng-click="export()">导出结果</a></li>
                     <li class="divider"></li>
+                    <li><a href="" ng-click="notify(true)">给选中用户发消息<span>（{{rows.players.length}}）</span></a></li>
+                    <li><a href="" ng-click="notify()">给全部用户发消息<span>（{{players.length}}）</span></a></li>
+                    <li class="divider"></li>
                     <li><a href="" ng-click="empty()">清空用户</a></li>
                 </ul>
             </div>
@@ -43,7 +47,7 @@
     </div>
     <!-- result -->
     <div tms-flex-height top='72' bottom='72' class='form-group'>
-        <div tms-table-wrap ready='tableReady' overflow-x='auto' ng-include="'/views/default/pl/fe/matter/group/component/players.html?_=7'">
+        <div tms-table-wrap ready='tableReady' overflow-x='auto' ng-include="'/views/default/pl/fe/matter/group/component/users.html?_=1'">
         </div>
     </div>
     <!-- end result -->

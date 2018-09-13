@@ -80,9 +80,9 @@ class record extends base {
 		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
 
 		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
-		$rawPosted = file_get_contents("php://input");
-		$modelLog = $this->model('log');
-		$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
+		//$rawPosted = file_get_contents("php://input");
+		//$modelLog = $this->model('log');
+		//$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
 
 		if ($subType === 'save') {
 			$logid = $this->_saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted);
@@ -90,7 +90,7 @@ class record extends base {
 		}
 
 		// 检查是否允许登记
-		$rst = $this->_canSubmit($oEnrollApp, $oUser, $oEnrolledData, $ek);
+		$rst = $this->_canSubmit($oEnrollApp, $oUser, $oEnrolledData, $ek, $rid);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -198,7 +198,8 @@ class record extends base {
 		/**
 		 * 提交登记数据
 		 */
-		$oUpdatedEnrollRec = [];
+		$aUpdatedEnrollRec = [];
+		$bReviseRecordBeyondRound = false;
 		if ($bSubmitNewRecord) {
 			/* 插入登记数据 */
 			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname, 'assignRid' => $rid]);
@@ -207,13 +208,20 @@ class record extends base {
 		} else {
 			/* 重新插入新提交的数据 */
 			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey);
+			/* 修改后的记录在当前轮次可见 */
+			if (isset($oEnrollApp->scenarioConfig->visibleRevisedRecordAtRound) && $oEnrollApp->scenarioConfig->visibleRevisedRecordAtRound === 'Y') {
+				$aResult = $this->model('matter\enroll\round')->reviseRecord($oEnrollApp->appRound, $oBeforeRecord);
+				if (true === $aResult[0]) {
+					$bReviseRecordBeyondRound = true;
+				}
+			}
 			if ($rst[0] === true) {
 				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
-				$oUpdatedEnrollRec['enroll_at'] = time();
-				$oUpdatedEnrollRec['userid'] = $oUser->uid;
-				$oUpdatedEnrollRec['group_id'] = empty($oUser->group_id) ? '' : $oUser->group_id;
-				$oUpdatedEnrollRec['nickname'] = $modelRec->escape($oUser->nickname);
-				$oUpdatedEnrollRec['verified'] = 'N';
+				$aUpdatedEnrollRec['enroll_at'] = time();
+				$aUpdatedEnrollRec['userid'] = $oUser->uid;
+				$aUpdatedEnrollRec['group_id'] = empty($oUser->group_id) ? '' : $oUser->group_id;
+				$aUpdatedEnrollRec['nickname'] = $modelRec->escape($oUser->nickname);
+				$aUpdatedEnrollRec['verified'] = 'N';
 			}
 		}
 		if (false === $rst[0]) {
@@ -227,25 +235,36 @@ class record extends base {
 			$rst = $modelRec->setSupplement($oUser, $oEnrollApp, $ek, $oPosted->supplement);
 		}
 		if (isset($matchedRecord)) {
-			$oUpdatedEnrollRec['matched_enroll_key'] = $matchedRecord->enroll_key;
+			$aUpdatedEnrollRec['matched_enroll_key'] = $matchedRecord->enroll_key;
 		}
 		if (isset($groupRecord)) {
-			$oUpdatedEnrollRec['group_enroll_key'] = $groupRecord->enroll_key;
+			$aUpdatedEnrollRec['group_enroll_key'] = $groupRecord->enroll_key;
 		}
-		if (count($oUpdatedEnrollRec)) {
+		if (count($aUpdatedEnrollRec)) {
 			$modelRec->update(
 				'xxt_enroll_record',
-				$oUpdatedEnrollRec,
+				$aUpdatedEnrollRec,
 				"enroll_key='$ek'"
 			);
 		}
 		/* 处理用户汇总数据，积分数据 */
 		$oRecord = $modelRec->byId($ek);
-		$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
+		if ($bReviseRecordBeyondRound) {
+			$oRoundRecord = clone $oRecord;
+			$oRoundRecord->rid = $oEnrollApp->appRound->rid;
+			$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRoundRecord, $oUser, $bSubmitNewRecord, true);
+		} else {
+			$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
+		}
 		/* 生成提醒 */
 		if ($bSubmitNewRecord) {
 			$this->model('matter\enroll\notice')->addRecord($oEnrollApp, $oRecord, $oUser);
 		}
+
+		/* 抵消保存日志 */
+		$oOperation = new \stdClass;
+		$oOperation->name = 'submit';
+		$logid = $this->_logUserOp($oEnrollApp, $oOperation, $oUser);
 
 		/* 通知登记活动事件接收人 */
 		if (isset($oEnrollApp->notifyConfig->submit->valid) && $oEnrollApp->notifyConfig->submit->valid === true) {
@@ -259,29 +278,21 @@ class record extends base {
 	 */
 	private function _getSubmitRecordRid($oApp, $rid = '') {
 		$modelRnd = $this->model('matter\enroll\round');
-		$bRequireRound = false;
 		if (empty($rid)) {
-			if ($oApp->multi_rounds === 'Y') {
-				$bRequireRound = true;
-				$oRecordRnd = $modelRnd->getActive($oApp);
-			}
+			$oRecordRnd = $modelRnd->getActive($oApp);
 		} else {
-			$bRequireRound = true;
 			$oRecordRnd = $modelRnd->byId($rid);
 		}
-		if ($bRequireRound) {
-			if (empty($oRecordRnd)) {
-				return [false, '没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用'];
-			} else {
-				$now = time();
-				if ($oRecordRnd->end_at != 0 && $oRecordRnd->end_at < $now) {
-					return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
-				}
+		if (empty($oRecordRnd)) {
+			return [false, '没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用'];
+		} else {
+			$now = time();
+			if ($oRecordRnd->end_at != 0 && $oRecordRnd->end_at < $now) {
+				return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
 			}
-			return [true, $oRecordRnd->rid];
 		}
 
-		return [true, ''];
+		return [true, $oRecordRnd->rid];
 	}
 	/**
 	 * 保存记录数据
@@ -305,33 +316,33 @@ class record extends base {
 		!empty($rid) && $oPosted->rid = $rid;
 
 		/* 插入到用户对素材的行为日志中 */
-		$operation = new \stdClass;
-		$operation->name = 'saveData';
-		$operation->data = $oPosted;
-		$logid = $this->_logUserOp($oEnrollApp, $operation, $oUser);
+		$oOperation = new \stdClass;
+		$oOperation->name = 'saveData';
+		$oOperation->data = $oPosted;
+		$logid = $this->_logUserOp($oEnrollApp, $oOperation, $oUser);
 
 		return $logid;
 	}
 	/**
 	 * 记录用户提交日志
 	 *
-	 * @param object $app
+	 * @param object $oApp
 	 *
 	 */
-	private function _logUserOp($oApp, $operation, $user) {
+	private function _logUserOp($oApp, $oOperation, $oUser) {
 		$modelLog = $this->model('matter\log');
 
-		$logUser = new \stdClass;
-		$logUser->userid = $user->uid;
-		$logUser->nickname = $user->nickname;
+		$oLogUser = new \stdClass;
+		$oLogUser->userid = $oUser->uid;
+		$oLogUser->nickname = $oUser->nickname;
 
-		$client = new \stdClass;
-		$client->agent = $_SERVER['HTTP_USER_AGENT'];
-		$client->ip = $this->client_ip();
+		$oClient = new \stdClass;
+		$oClient->agent = $_SERVER['HTTP_USER_AGENT'];
+		$oClient->ip = $this->client_ip();
 
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-		$logid = $modelLog->addUserMatterOp($oApp->siteid, $logUser, $oApp, $operation, $client, $referer);
+		$logid = $modelLog->addUserMatterOp($oApp->siteid, $oLogUser, $oApp, $oOperation, $oClient, $referer);
 
 		return $logid;
 	}
@@ -344,7 +355,7 @@ class record extends base {
 	 * 3、多选题选项的数量（schema.limitChoice, schema.range）
 	 *
 	 */
-	private function _canSubmit($oApp, $oUser, $oRecData, $ek) {
+	private function _canSubmit($oApp, $oUser, $oRecData, $ek, $rid = '') {
 		/**
 		 * 检查活动是否在进行过程中
 		 */
@@ -370,8 +381,8 @@ class record extends base {
 			/**
 			 * 检查登记数量
 			 */
-			if ($oApp->count_limit > 0) {
-				$records = $modelRec->byUser($oApp, $oUser);
+			if (isset($oApp->count_limit) && $oApp->count_limit > 0) {
+				$records = $modelRec->byUser($oApp, $oUser, ['rid' => $rid]);
 				if (count($records) >= $oApp->count_limit) {
 					return [false, ['已经进行过' . count($records) . '次登记，不允再次登记']];
 				}
@@ -643,7 +654,9 @@ class record extends base {
 							$oRecord->data = new \stdClass;
 						}
 						foreach ($oAssocRecord as $key => $value) {
-							$oRecord->data->{$key} = $value;
+							if (!isset($oRecord->data->{$key})) {
+								$oRecord->data->{$key} = $value;
+							}
 						}
 					}
 				}
@@ -665,7 +678,9 @@ class record extends base {
 
 					$oAssocRecord->_round_id = $oGrpPlayer[0]->round_id;
 					foreach ($oAssocRecord as $k => $v) {
-						$oRecord->data->{$k} = $v;
+						if (!isset($oRecord->data->{$k})) {
+							$oRecord->data->{$k} = $v;
+						}
 					}
 				}
 			}
@@ -990,13 +1005,11 @@ class record extends base {
 			return new \ResponseError('仅允许记录的提交者删除记录');
 		}
 		// 判断活动是否添加了轮次
-		if ($oApp->multi_rounds == 'Y') {
-			$modelRnd = $this->model('matter\enroll\round');
-			$oActiveRnd = $modelRnd->getActive($oApp);
-			$now = time();
-			if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now) || ($oActiveRnd->rid !== $oRecord->rid)) {
-				return new \ResponseError('记录所在活动轮次已结束，不能提交、修改、保存或删除！');
-			}
+		$modelRnd = $this->model('matter\enroll\round');
+		$oActiveRnd = $modelRnd->getActive($oApp);
+		$now = time();
+		if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now) || ($oActiveRnd->rid !== $oRecord->rid)) {
+			return new \ResponseError('记录所在活动轮次已结束，不能提交、修改、保存或删除！');
 		}
 		// 如果已经获得积分不允许删除
 		$modelEnlUsr = $this->model('matter\enroll\user');

@@ -58,6 +58,13 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
 
             return srvAppPage.update(page, names);
         };
+        $scope.cleanPage = function() {
+            if (window.confirm('确定清除页面【' + $scope.ep.title + '】的所有内容？')) {
+                srvAppPage.clean($scope.ep).then(function() {
+                    editorProxy.getEditor().setContent('');
+                });
+            }
+        };
         $scope.delPage = function() {
             var oPage, oActSchema, bUserd;
             $('body').click();
@@ -134,10 +141,10 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 }
             }
             // 更新应用
-            srvSigninApp.update('data_schemas').then(function() {
+            srvSigninApp.update('dataSchemas').then(function() {
                 // 更新页面
                 pages.forEach(function(oPage) {
-                    $scope.updPage(oPage, ['data_schemas', 'act_schemas', 'html']);
+                    $scope.updPage(oPage, ['dataSchemas', 'actSchemas', 'html']);
                 });
             });
         };

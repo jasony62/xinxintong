@@ -33,7 +33,7 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', functio
         http2.get(LS.j('record/get', 'site', 'app', 'ek')).then(function(rsp) {
             var oRecord;
             oRecord = rsp.data;
-            oApp.dataSchemas.forEach(function(oSchema) {
+            oApp.dynaDataSchemas.forEach(function(oSchema) {
                 if (oSchema.requireScore && oSchema.requireScore === 'Y') {
                     quizSchemas.push(oSchema);
                     quizSchemasById[oSchema.id] = oSchema;
@@ -46,6 +46,8 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', functio
             $scope.record = oRecord;
             /*设置页面分享信息*/
             $scope.setSnsShare(oRecord);
+            /*页面阅读日志*/
+            $scope.logAccess();
             /*设置页面导航*/
             var oAppNavs = {};
             if (oApp.can_repos === 'Y') {

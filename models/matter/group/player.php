@@ -158,6 +158,11 @@ class player_model extends \TMS_MODEL {
 			if (!empty($record->data)) {
 				$record->data = json_decode($record->data);
 			}
+			if (!empty($record->role_rounds)) {
+				$record->role_rounds = json_decode($record->role_rounds);
+			} else {
+				$record->role_rounds = [];
+			}
 		}
 
 		return $record;
@@ -180,19 +185,33 @@ class player_model extends \TMS_MODEL {
 		];
 		if (empty($aid)) {
 			$records = $this->query_objs_ss($q);
-			if (count($records) && $cascaded === 'Y' && ($fields === '*' || false !== strpos($fields, 'data'))) {
-				foreach ($records as &$record) {
-					if (!empty($record->data)) {
-						$record->data = json_decode($record->data);
+			if (count($records) && $cascaded === 'Y') {
+				if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_rounds')) {
+					foreach ($records as &$record) {
+						if (!empty($record->data)) {
+							$record->data = json_decode($record->data);
+						}
+						if (!empty($record->role_rounds)) {
+							$record->role_rounds = json_decode($record->role_rounds);
+						} else {
+							$record->role_rounds = [];
+						}
 					}
 				}
 			}
 			return $records;
 		} else {
 			$q[2]['aid'] = $aid;
-			if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y' && ($fields === '*' || false !== strpos($fields, 'data'))) {
-				if (!empty($record->data)) {
-					$record->data = json_decode($record->data);
+			if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y') {
+				if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_rounds')) {
+					if (!empty($record->data)) {
+						$record->data = json_decode($record->data);
+					}
+					if (!empty($record->role_rounds)) {
+						$record->role_rounds = json_decode($record->role_rounds);
+					} else {
+						$record->role_rounds = [];
+					}
 				}
 			}
 			return $record;
@@ -220,9 +239,16 @@ class player_model extends \TMS_MODEL {
 
 		$list = $this->query_objs_ss($q);
 		if (count($list)) {
-			if ($fields === '*' || strpos($fields, 'data') !== false) {
+			if ($fields === '*' || strpos($fields, 'data') !== false || strpos($fields, 'role_rounds') !== false) {
 				foreach ($list as &$record) {
-					$record->data = json_decode($record->data);
+					if (!empty($record->data)) {
+						$record->data = json_decode($record->data);
+					}
+					if (!empty($record->role_rounds)) {
+						$record->role_rounds = json_decode($record->role_rounds);
+					} else {
+						$record->role_rounds = [];
+					}
 				}
 			}
 		}
@@ -282,6 +308,11 @@ class player_model extends \TMS_MODEL {
 					$record->data = $data;
 				}
 			}
+			if (empty($record->role_rounds)) {
+				$record->role_rounds = [];
+			} else {
+				$record->role_rounds = json_decode($record->role_rounds);
+			}
 		}
 
 		return $records;
@@ -305,10 +336,10 @@ class player_model extends \TMS_MODEL {
 			$kw = isset($oOptions->kw) ? $oOptions->kw : null;
 			$by = isset($oOptions->by) ? $oOptions->by : null;
 		}
-		$fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,wx_openid,yx_openid,qy_openid,headimgurl,round_id,round_title';
+		$fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,wx_openid,yx_openid,qy_openid,headimgurl,round_id,round_title,role_rounds';
 
-		$result = new \stdClass; // 返回的结果
-		$result->total = 0;
+		$oResult = new \stdClass; // 返回的结果
+		$oResult->total = 0;
 		/* 数据过滤条件 */
 		$w = "state=1 and aid='{$oApp->id}'";
 		/*tags*/
@@ -317,6 +348,16 @@ class player_model extends \TMS_MODEL {
 			foreach ($aTags as $tag) {
 				$w .= " and concat(',',tags,',') like '%,$tag,%'";
 			}
+		}
+		if (isset($oOptions->roleRoundId) && ($oOptions->roleRoundId == '' || $oOptions->roleRoundId == 'pending')) {
+			$w .= " and role_rounds = ''";
+		} else if (isset($oOptions->roleRoundId) && (strcasecmp($oOptions->roleRoundId, 'all') !== 0)) {
+			$w .= " and role_rounds like '%\"" . $oOptions->roleRoundId . "\"%' and userid <> ''";
+		}
+		if (isset($oOptions->roundId) && ($oOptions->roundId == '' || $oOptions->roundId == 'pending')) {
+			$w .= " and round_id = ''";
+		} else if (isset($oOptions->roundId) && (strcasecmp($oOptions->roundId, 'all') !== 0)) {
+			$w .= " and round_id = '" . $oOptions->roundId . "' and userid <> ''";
 		}
 		$q = [
 			$fields,
@@ -333,21 +374,27 @@ class player_model extends \TMS_MODEL {
 		$q2['o'] = 'round_id asc,enroll_at desc';
 		if ($players = $this->query_objs_ss($q, $q2)) {
 			/* record data */
-			if ($fields === '*' || false !== strpos($fields, 'data')) {
+			if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_rounds')) {
 				foreach ($players as &$player) {
-					if (isset($player->data)) {
+					if (!empty($player->data)) {
 						$player->data = json_decode($player->data);
+					}
+					if (!empty($player->role_rounds)) {
+						$player->role_rounds = json_decode($player->role_rounds);
+					} else {
+						$player->role_rounds = [];
 					}
 				}
 			}
-			$result->players = $players;
+
+			$oResult->players = $players;
 			/* total */
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
-			$result->total = $total;
+			$oResult->total = $total;
 		}
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 获得用户的登记
@@ -366,6 +413,17 @@ class player_model extends \TMS_MODEL {
 		$q2 = ['o' => 'enroll_at desc'];
 
 		$list = $this->query_objs_ss($q, $q2);
+		if (count($list)) {
+			if ($fields === '*' || false !== strpos($fields, 'role_rounds')) {
+				foreach ($list as &$player) {
+					if (!empty($player->role_rounds)) {
+						$player->role_rounds = json_decode($player->role_rounds);
+					} else {
+						$player->role_rounds = [];
+					}
+				}
+			}
+		}
 		if (isset($aOptions['onlyOne']) && $aOptions['onlyOne'] === true) {
 			if (count($list)) {
 				return $list[0];
@@ -455,7 +513,7 @@ class player_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 移出分组
+	 * 移出分组 （团队分组）
 	 */
 	public function quitGroup($appId, $ek) {
 		$rst = $this->update(
@@ -470,7 +528,7 @@ class player_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 移入分组
+	 * 移入分组 （团队分组）
 	 */
 	public function joinGroup($appId, &$round, $ek) {
 		$rst = $this->update(
@@ -485,27 +543,61 @@ class player_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 有资格参加指定轮次分组的用户
+	 * 有资格参加指定轮次分组的用户(团队分组)
 	 */
 	public function &pendings($appId) {
 		/* 没有抽中过的用户 */
-		$q = array(
-			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,data,tags,comment',
+		$q = [
+			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,data,tags,comment,role_rounds',
 			'xxt_group_player',
 			"aid='$appId' and state=1 and round_id=0",
-		);
+		];
 		$q2['o'] = 'enroll_at desc';
 		/* 获得用户的登记数据 */
 		if (($players = $this->query_objs_ss($q, $q2)) && !empty($players)) {
 			foreach ($players as &$player) {
-				$player->data = json_decode($player->data);
+				if (!empty($player->data)) {
+					$player->data = json_decode($player->data);
+				}
+				if (!empty($player->role_rounds)) {
+					$player->role_rounds = json_decode($player->role_rounds);
+				} else {
+					$player->role_rounds = [];
+				}
 			}
 		}
 
 		return $players;
 	}
 	/**
-	 * 指定分组内的用户
+	 * 没有参加角色分组的用户(角色分组)
+	 */
+	public function &pendingsRole($appId) {
+		/* 没有抽中过的用户 */
+		$q = [
+			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,data,tags,comment,role_rounds',
+			'xxt_group_player',
+			"aid='$appId' and state=1 and (role_rounds = '' or role_rounds = '[]')",
+		];
+		$q2['o'] = 'enroll_at desc';
+		/* 获得用户的登记数据 */
+		if (($players = $this->query_objs_ss($q, $q2)) && !empty($players)) {
+			foreach ($players as &$player) {
+				if (!empty($player->data)) {
+					$player->data = json_decode($player->data);
+				}
+				if (!empty($player->role_rounds)) {
+					$player->role_rounds = json_decode($player->role_rounds);
+				} else {
+					$player->role_rounds = [];
+				}
+			}
+		}
+
+		return $players;
+	}
+	/**
+	 * 指定分组内的用户(团队分组)
 	 */
 	public function &byRound($appId, $rid = null, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
@@ -522,9 +614,16 @@ class player_model extends \TMS_MODEL {
 		$q2 = ['o' => 'round_id,draw_at'];
 
 		if ($players = $this->query_objs_ss($q, $q2)) {
-			if ($fields === '*' || false !== strpos($fields, 'data')) {
-				foreach ($players as $player) {
-					$player->data = json_decode($player->data);
+			if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_rounds')) {
+				foreach ($players as $oPlayer) {
+					if (!empty($oPlayer->data)) {
+						$oPlayer->data = json_decode($oPlayer->data);
+					}
+					if (!empty($oPlayer->role_rounds)) {
+						$oPlayer->role_rounds = json_decode($oPlayer->role_rounds);
+					} else {
+						$oPlayer->role_rounds = [];
+					}
 				}
 			}
 		}
@@ -532,7 +631,41 @@ class player_model extends \TMS_MODEL {
 		return $players;
 	}
 	/**
-	 * 获得分组内用户的数量
+	 * 指定角色分组内的用户(角色分组)
+	 */
+	public function &byRoleRound($appId, $rid = null, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_group_player',
+			"aid='$appId' and state=1",
+		];
+		if (!empty($rid)) {
+			$q[2] .= " and role_rounds like '%\"" . $rid . "\"%'";
+		} else {
+			$q[2] .= " and (role_rounds <> '' or role_rounds <> '[]'";
+		}
+		$q2 = ['o' => 'round_id,draw_at'];
+
+		if ($players = $this->query_objs_ss($q, $q2)) {
+			if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_rounds')) {
+				foreach ($players as $oPlayer) {
+					if (!empty($oPlayer->data)) {
+						$oPlayer->data = json_decode($oPlayer->data);
+					}
+					if (!empty($oPlayer->role_rounds)) {
+						$oPlayer->role_rounds = json_decode($oPlayer->role_rounds);
+					} else {
+						$oPlayer->role_rounds = [];
+					}
+				}
+			}
+		}
+
+		return $players;
+	}
+	/**
+	 * 获得分组内用户的数量（团队分组）
 	 */
 	public function &countByRound($appId, $rid) {
 		$q = [
@@ -540,7 +673,21 @@ class player_model extends \TMS_MODEL {
 			'xxt_group_player',
 			['aid' => $appId, 'round_id' => $rid, 'state' => 1],
 		];
-		$cnt = $this->query_val_ss($q);
+		$cnt = (int) $this->query_val_ss($q);
+
+		return $cnt;
+	}
+	/**
+	 * 获得角色分组内用户的数量（角色分组）
+	 */
+	public function &countByRoleRound($appId, $rid) {
+		$q = [
+			'count(*)',
+			'xxt_group_player',
+			['aid' => $appId, 'round_id' => $rid, 'state' => 1],
+			"aid = '{$appId}' and state = 1 and role_rounds like '%\"" . $rid . "\"%'",
+		];
+		$cnt = (int) $this->query_val_ss($q);
 
 		return $cnt;
 	}
@@ -580,9 +727,9 @@ class player_model extends \TMS_MODEL {
 		if (!empty($oMschema->extAttrs)) {
 			foreach ($oMschema->extAttrs as $ea) {
 				$dataSchema = new \stdClass;
-				$dataSchema->id = $ea->id;
-				$dataSchema->type = $ea->type;
-				$dataSchema->title = $ea->title;
+				foreach ($ea as $key => $val) {
+					$dataSchema->{$key} = $val;
+				}
 				$extDataSchemas[] = $dataSchema;
 			}
 		}
@@ -660,7 +807,7 @@ class player_model extends \TMS_MODEL {
 			],
 			['id' => $oGrpApp->id]
 		);
-		$oGrpApp->dataSchemas = json_decode($oSourceApp->data_schemas);
+		$oGrpApp->dataSchemas = $oSourceApp->dataSchemas;
 		/* 清空已有分组数据 */
 		$this->clean($oGrpApp->id, true);
 
@@ -916,9 +1063,8 @@ class player_model extends \TMS_MODEL {
 		$dataSchemas = json_decode($objGrp->data_schemas);
 		$data = new \stdClass;
 		foreach ($dataSchemas as $ds) {
-			$data->{$ds->id} = isset($ds->format) ? $record->{$ds->format} : (isset($record->{$ds->id}) ? $record->{$ds->id} : '');
+			$data->{$ds->id} = !empty($ds->format) ? $record->{$ds->format} : (!empty($record->{$ds->id}) ? $record->{$ds->id} : '');
 		}
-
 		$record->data = $data;
 		return $record;
 	}

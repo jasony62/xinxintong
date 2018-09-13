@@ -7,34 +7,10 @@ define(['wrap'], function(SchemaWrap) {
      * 页面处理逻辑基类
      */
     var oProtoPage = {
-        _parseSchemas: function() {
-            var dataSchemas = this.data_schemas,
-                actSchemas = this.act_schemas,
-                userSchemas = this.user_schemas;
-
-            try {
-                if (dataSchemas && dataSchemas.length) {
-                    this.data_schemas = JSON.parse(dataSchemas.replace(/\s/g));
-                } else {
-                    this.data_schemas = [];
-                }
-            } catch (e) {
-                alert('应用程序错误！');
-                console.error(e, dataSchemas);
-                return;
-            }
-            try {
-                this.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
-            } catch (e) {
-                alert('应用程序错误！');
-                console.error(e);
-                return;
-            }
-        },
         wrapBySchema: function(schema) {
             var dataWrap, i;
-            for (i = this.data_schemas.length - 1; i >= 0; i--) {
-                dataWrap = this.data_schemas[i];
+            for (i = this.dataSchemas.length - 1; i >= 0; i--) {
+                dataWrap = this.dataSchemas[i];
                 if (schema.id === dataWrap.schema.id) {
                     return dataWrap;
                 }
@@ -43,9 +19,9 @@ define(['wrap'], function(SchemaWrap) {
             return false;
         },
         removeButton: function(schema) {
-            for (var i = this.act_schemas.length - 1; i >= 0; i--) {
-                if (this.act_schemas[i].id === schema.id) {
-                    return this.act_schemas.splice(i, 1);
+            for (var i = this.actSchemas.length - 1; i >= 0; i--) {
+                if (this.actSchemas[i].id === schema.id) {
+                    return this.actSchemas.splice(i, 1);
                 }
             }
             return false;
@@ -58,16 +34,16 @@ define(['wrap'], function(SchemaWrap) {
 
             if (/I|V/.test(this.type)) {
                 movedWrap = this.wrapBySchema(oMovedSchema);
-                this.data_schemas.splice(this.data_schemas.indexOf(movedWrap), 1);
+                this.dataSchemas.splice(this.dataSchemas.indexOf(movedWrap), 1);
                 $html = $('<div>' + this.html + '</div>');
                 $movedHtml = $html.find('[schema="' + oMovedSchema.id + '"]');
                 if (oPrevSchema) {
                     prevWrap = this.wrapBySchema(oPrevSchema);
-                    this.data_schemas.splice(this.data_schemas.indexOf(prevWrap), 0, movedWrap);
+                    this.dataSchemas.splice(this.dataSchemas.indexOf(prevWrap), 0, movedWrap);
                     $prevHtml = $html.find("[schema='" + oPrevSchema.id + "']");
                     $prevHtml.after($movedHtml);
                 } else {
-                    this.data_schemas.splice(0, 0, movedWrap);
+                    this.dataSchemas.splice(0, 0, movedWrap);
                     $($html.find('[schema]').get(0)).before($movedHtml);
                 }
                 this.html = $html.html();
@@ -77,9 +53,9 @@ define(['wrap'], function(SchemaWrap) {
          * 根据按钮项获得按钮项的包裹对象
          */
         wrapByButton: function(schema) {
-            for (var i = this.act_schemas.length - 1; i >= 0; i--) {
-                if (this.act_schemas[i].id === schema.id) {
-                    return this.act_schemas[i];
+            for (var i = this.actSchemas.length - 1; i >= 0; i--) {
+                if (this.actSchemas[i].id === schema.id) {
+                    return this.actSchemas[i];
                 }
             }
 
@@ -89,15 +65,15 @@ define(['wrap'], function(SchemaWrap) {
             var $html, schemasById, oSchema, $schemas, $schema;
             $html = $('<div>' + this.html + '</div>');
             schemasById = {};
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                oSchema = this.data_schemas[i].schema;
+            for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
+                oSchema = this.dataSchemas[i].schema;
                 if ($html.find("[schema='" + oSchema.id + "']").length === 0) {
                     return ['s01', '题目【' + oSchema.title + '】在页面【' + this.title + '】中不存在，可通过（显示/隐藏）操作在页面中添加该题目', oSchema];
                 }
                 schemasById[oSchema.id] = oSchema;
             }
             $schemas = $html.find("[schema]");
-            if ($schemas.length !== this.data_schemas.length) {
+            if ($schemas.length !== this.dataSchemas.length) {
                 for (var i = $schemas.length - 1; i >= 0; i--) {
                     $schema = $($schemas[i]);
                     if (!schemasById[$schema.attr('schema')]) {
@@ -116,10 +92,10 @@ define(['wrap'], function(SchemaWrap) {
             switch (code) {
                 case 's01':
                     if (aCheckResult[2]) {
-                        for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                            if (this.data_schemas[i].schema.id === aCheckResult[2].id) {
-                                this.data_schemas.splice(i, 1);
-                                aChangedProps.push('data_schemas');
+                        for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
+                            if (this.dataSchemas[i].schema.id === aCheckResult[2].id) {
+                                this.dataSchemas.splice(i, 1);
+                                aChangedProps.push('dataSchemas');
                                 break;
                             }
                         }
@@ -149,9 +125,9 @@ define(['wrap'], function(SchemaWrap) {
         _arrange: function(mapOfAppSchemas) {
             var _this = this;
 
-            if (this.data_schemas.length) {
+            if (this.dataSchemas.length) {
                 var dataSchemas = [];
-                this.data_schemas.forEach(function(item) {
+                this.dataSchemas.forEach(function(item) {
                     var matched = false;
                     if (item.schema && item.schema.id) {
                         if (mapOfAppSchemas[item.schema.id]) {
@@ -162,7 +138,7 @@ define(['wrap'], function(SchemaWrap) {
                     }
                     if (!matched) console.error("page[" + _this.name + "]'schema is invalid:", item);
                 });
-                this.data_schemas = dataSchemas;
+                this.dataSchemas = dataSchemas;
             }
         },
         /**
@@ -212,17 +188,17 @@ define(['wrap'], function(SchemaWrap) {
 
             if (afterSchema) {
                 afterWrap = this.wrapBySchema(afterSchema);
-                var afterIndex = this.data_schemas.indexOf(afterWrap);
+                var afterIndex = this.dataSchemas.indexOf(afterWrap);
                 if (afterIndex === -1) {
-                    this.data_schemas.push(newWrap);
+                    this.dataSchemas.push(newWrap);
                 } else {
-                    this.data_schemas.splice(afterIndex + 1, 0, newWrap);
+                    this.dataSchemas.splice(afterIndex + 1, 0, newWrap);
                 }
             } else if (afterSchema === false) {
                 afterWrap = false;
-                this.data_schemas.splice(0, 0, newWrap);
+                this.dataSchemas.splice(0, 0, newWrap);
             } else {
-                this.data_schemas.push(newWrap);
+                this.dataSchemas.push(newWrap);
             }
 
             wrapParam = SchemaWrap.input.embed(newWrap);
@@ -254,9 +230,9 @@ define(['wrap'], function(SchemaWrap) {
 
             $html.find("[schema='" + schema.id + "']").remove();
             this.html = $html.html();
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                if (this.data_schemas[i].schema.id === schema.id) {
-                    this.data_schemas.splice(i, 1);
+            for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
+                if (this.dataSchemas[i].schema.id === schema.id) {
+                    this.dataSchemas.splice(i, 1);
                     found = true;
                     break;
                 }
@@ -275,9 +251,9 @@ define(['wrap'], function(SchemaWrap) {
         _arrange: function(mapOfAppSchemas) {
             var _this = this;
 
-            if (this.data_schemas.length) {
+            if (this.dataSchemas.length) {
                 var dataSchemas = [];
-                angular.forEach(this.data_schemas, function(item) {
+                angular.forEach(this.dataSchemas, function(item) {
                     var config = item.config,
                         schema = item.schema,
                         matched = false;
@@ -295,7 +271,7 @@ define(['wrap'], function(SchemaWrap) {
                     }
                     if (!matched) console.error("page[" + _this.name + "]'schema is invalid:", item);
                 });
-                this.data_schemas = dataSchemas;
+                this.dataSchemas = dataSchemas;
             }
         },
         /**
@@ -349,11 +325,11 @@ define(['wrap'], function(SchemaWrap) {
             } else if (afterSchema === false) {
                 afterWrap = false;
             } else {
-                if (this.data_schemas.length) {
-                    lastWrap = this.data_schemas[this.data_schemas.length - 1];
+                if (this.dataSchemas.length) {
+                    lastWrap = this.dataSchemas[this.dataSchemas.length - 1];
                     if (lastWrap.schema.type === '_enrollAt') {
-                        if (this.data_schemas.length > 1) {
-                            afterWrap = this.data_schemas[this.data_schemas.length - 2];
+                        if (this.dataSchemas.length > 1) {
+                            afterWrap = this.dataSchemas[this.dataSchemas.length - 2];
                         }
                     } else {
                         afterWrap = lastWrap;
@@ -363,16 +339,16 @@ define(['wrap'], function(SchemaWrap) {
 
             oNewWrap = SchemaWrap.value.newWrap(schema);
             if (afterWrap) {
-                afterIndex = this.data_schemas.indexOf(afterWrap);
+                afterIndex = this.dataSchemas.indexOf(afterWrap);
                 if (afterIndex === -1) {
-                    this.data_schemas.push(oNewWrap);
+                    this.dataSchemas.push(oNewWrap);
                 } else {
-                    this.data_schemas.splice(afterIndex + 1, 0, oNewWrap);
+                    this.dataSchemas.splice(afterIndex + 1, 0, oNewWrap);
                 }
             } else if (afterWrap === false) {
-                this.data_schemas.splice(0, 0, oNewWrap);
+                this.dataSchemas.splice(0, 0, oNewWrap);
             } else {
-                this.data_schemas.push(oNewWrap);
+                this.dataSchemas.push(oNewWrap);
             }
 
             wrapParam = SchemaWrap.value.embed(oNewWrap);
@@ -400,9 +376,9 @@ define(['wrap'], function(SchemaWrap) {
 
             $html.find("[schema='" + schema.id + "']").remove();
             this.html = $html.html();
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                if (this.data_schemas[i].schema.id === schema.id) {
-                    this.data_schemas.splice(i, 1);
+            for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
+                if (this.dataSchemas[i].schema.id === schema.id) {
+                    this.dataSchemas.splice(i, 1);
                     found = true;
                     break;
                 }
@@ -410,9 +386,9 @@ define(['wrap'], function(SchemaWrap) {
             return found;
         },
         wrapById: function(wrapId) {
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                if (this.data_schemas[i].config.id === wrapId) {
-                    return this.data_schemas[i];
+            for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
+                if (this.dataSchemas[i].config.id === wrapId) {
+                    return this.dataSchemas[i];
                 }
             }
             return false;
@@ -424,8 +400,8 @@ define(['wrap'], function(SchemaWrap) {
      */
     var oProtoListPage = {
         _arrange: function(mapOfAppSchemas) {
-            if (this.data_schemas.length) {
-                this.data_schemas.forEach(function(item) {
+            if (this.dataSchemas.length) {
+                this.dataSchemas.forEach(function(item) {
                     // todo 处理异常数据的情况，应该在保存数据的时候做检查
                     if (item && item.schemas) {
                         var listSchemas = [];
@@ -435,14 +411,14 @@ define(['wrap'], function(SchemaWrap) {
                         item.schemas = listSchemas;
                     }
                 });
-            } else if (angular.isObject(this.data_schemas)) {
-                this.data_schemas = [];
+            } else if (angular.isObject(this.dataSchemas)) {
+                this.dataSchemas = [];
             }
         },
         wrapByList: function(config) {
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                if (this.data_schemas[i].config.id === config.id) {
-                    return this.data_schemas[i];
+            for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
+                if (this.dataSchemas[i].config.id === config.id) {
+                    return this.dataSchemas[i];
                 }
             }
             return false;
@@ -452,8 +428,8 @@ define(['wrap'], function(SchemaWrap) {
          */
         wrapBySchema: function(schema) {
             var listWrap, schemaInList, i;
-            for (i = this.data_schemas.length - 1; i >= 0; i--) {
-                listWrap = this.data_schemas[i];
+            for (i = this.dataSchemas.length - 1; i >= 0; i--) {
+                listWrap = this.dataSchemas[i];
                 for (var j = listWrap.schemas.length - 1; j >= 0; j--) {
                     schemaInList = listWrap.schemas[j];
                     if (schema.id === schemaInList.id) {
@@ -473,8 +449,8 @@ define(['wrap'], function(SchemaWrap) {
             $pageHtml = $('<div>' + this.html + '</div>');
             valueHtml = SchemaWrap.records._htmlValue(oSchema);
 
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                listWrap = this.data_schemas[i];
+            for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
+                listWrap = this.dataSchemas[i];
                 $listHtml = $pageHtml.find("[id='" + listWrap.config.id + "']>ul>li[ng-repeat]");
                 if ($listHtml.length) {
                     if (oBeforeSchema) {
@@ -544,8 +520,8 @@ define(['wrap'], function(SchemaWrap) {
             $html.find("[schema='" + schema.id + "']").remove();
             this.html = $html.html();
             // 清除数据定义中的项
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                list = this.data_schemas[i];
+            for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
+                list = this.dataSchemas[i];
                 if (list.schemas) {
                     for (var j = list.schemas.length - 1; j >= 0; j--) {
                         if (list.schemas[j].id === schema.id) {
@@ -560,10 +536,10 @@ define(['wrap'], function(SchemaWrap) {
         moveSchema: function(oMovedSchema, oPrevSchema) {
             var $html, listSchemas, $moved, $list;
             $html = $('<div>' + this.html + '</div>');
-            for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-                $list = $html.find("[id=" + this.data_schemas[i].config.id + "]");
+            for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
+                $list = $html.find("[id=" + this.dataSchemas[i].config.id + "]");
                 if ($list.length === 1) {
-                    listSchemas = this.data_schemas[i].schemas;
+                    listSchemas = this.dataSchemas[i].schemas;
                     for (var j = listSchemas.length - 1; j >= 0; j--) {
                         if (listSchemas[j].id === oMovedSchema.id) {
                             listSchemas.splice(j, 1);
@@ -616,7 +592,6 @@ define(['wrap'], function(SchemaWrap) {
                 default:
                     console.error('unknown page type', oPage);
             }
-            oPage._parseSchemas();
             if (mapOfAppSchemas) {
                 oPage._arrange(mapOfAppSchemas);
             }

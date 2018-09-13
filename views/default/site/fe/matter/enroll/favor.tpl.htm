@@ -70,7 +70,7 @@
             <div id='repos'>
                 <div class='records'>
                     <div class='record' ng-repeat="rec in repos" ng-cloak>
-                        <div class='header'>
+                        <div class='top-bar'>
                             <div class='seq label label-default'>{{$index+1}}</div>
                             <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
                             <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">取消收藏</button>
@@ -216,7 +216,7 @@
             <hr>
             <div class='records'>
                 <div class='record' ng-repeat="rec in repos" ng-cloak>
-                    <div class='header'>
+                    <div class='top-bar'>
                         <div class='seq label label-default' ng-bind="$index+1"></div>
                         <div class='nickname text-muted' ng-bind="rec.nickname||'隐藏'"></div>
                         <div>
@@ -310,7 +310,7 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>

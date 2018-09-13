@@ -6,7 +6,7 @@ define(['require', 'mschemaService'], function(require) {
             'schema.duplicated': '不允许重复添加登记项',
         },
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvSiteProvider', 'srvMschemaProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvSiteProvider, srvMschemaProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvSiteProvider', 'srvMschemaProvider', 'srvMschemaNoticeProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvSiteProvider, srvMschemaProvider, srvMschemaNoticeProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/site/mschema/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
@@ -30,13 +30,14 @@ define(['require', 'mschemaService'], function(require) {
         $routeProvider
             .when('/rest/pl/fe/site/mschema/main', new RouteParam('main'))
             .when('/rest/pl/fe/site/mschema/extattr', new RouteParam('extattr'))
+            .when('/rest/pl/fe/site/mschema/notice', new RouteParam('notice'))
             .otherwise(new RouteParam('main'));
 
         var siteId = location.search.match(/site=([^&]*)/)[1];
         srvSiteProvider.config(siteId);
         srvMschemaProvider.config(siteId);
     }]);
-    ngApp.controller('ctrlMschema', ['$scope', 'http2', 'srvSite', 'srvMschema', function($scope, http2, srvSite, srvMschema) {
+    ngApp.controller('ctrlMschema', ['$scope', '$location', 'http2', 'srvSite', 'srvMschema', function($scope, $location, http2, srvSite, srvMschema) {
         function shiftAttr(oSchema) {
             oSchema.attrs = {
                 mobile: oSchema.attr_mobile.split(''),
@@ -45,6 +46,24 @@ define(['require', 'mschemaService'], function(require) {
             };
         }
         $scope.schemas = [];
+        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+            var subView = currentRoute.match(/([^\/]+?)\?/);
+            $scope.subView = subView[1] === 'mschema' ? 'main' : subView[1];
+            switch ($scope.subView) {
+                case 'main':
+                    $scope.opened = 'edit';
+                    break;
+                case 'notice':
+                    $scope.opened = 'other';
+                    break;
+                default:
+                    $scope.opened = '';
+            }
+        });
+        $scope.switchTo = function(subView, hash) {
+            var url = '/rest/pl/fe/site/mschema/' + subView;
+            $location.path(url).hash(hash || '');
+        };
         $scope.chooseSchema = function(oSchema) {
             $scope.choosedSchema = oSchema;
         };
@@ -74,7 +93,7 @@ define(['require', 'mschemaService'], function(require) {
                 $scope.sns = data;
             });
             if (location.hash) {
-                entryMschemaId = location.hash.substr(1);
+                $scope.entryMschemaId = entryMschemaId = location.hash.substr(1);
                 srvMschema.get(entryMschemaId).then(function(oMschema) {
                     shiftAttr(oMschema);
                     $scope.schemas = [oMschema];

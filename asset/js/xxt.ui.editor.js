@@ -1,5 +1,6 @@
 'use strict';
 
+var ResizeSensor = require('../../static/js/ResizeSensor.js');
 require('./xxt.ui.paste.js');
 require('./xxt.ui.url.js');
 
@@ -20,7 +21,7 @@ ngMod.controller('tmsEditorController', ['$scope', 'tmsUrl', function($scope, tm
         $scope.iframeDoc.getSelection().removeAllRanges();
     };
 }]);
-ngMod.directive('tmsEditor', ['$q', 'http2', 'tmsPaste', function($q, http2, tmsPaste) {
+ngMod.directive('tmsEditor', ['$q', '$timeout', 'http2', 'tmsPaste', function($q, $timeout, http2, tmsPaste) {
     function _calcTextWidth(text) {
         var divMock, height, width;
         divMock = document.createElement('DIV');
@@ -112,6 +113,11 @@ ngMod.directive('tmsEditor', ['$q', 'http2', 'tmsPaste', function($q, http2, tms
             iframeHTML += '<div class="tms-editor-content " contentEditable="true" placeholder="添加内容...">' + $scope.content + '</div>';
             iframeHTML += '</body></html>';
             iframeNode = document.querySelector('#' + $scope.id + ' iframe');
+            if (iframeNode.parentElement) {
+                new ResizeSensor(iframeNode.parentElement, function() {
+                    iframeNode.height = iframeNode.parentElement.offsetHeight - 2;
+                });
+            }
             if (iframeNode.contentDocument) {
                 _iframeDoc = iframeNode.contentDocument
             } else if (iframeNode.contentWindow) {
@@ -178,16 +184,19 @@ ngMod.directive('tmsEditor', ['$q', 'http2', 'tmsPaste', function($q, http2, tms
                 tmsPaste.onpaste(text, { doc: _iframeDoc, filter: { whiteSpace: true } });
             });
             /* 设置基本样式 */
-            document.querySelectorAll('#' + $scope.id + ' button[command]').forEach(function(eleBtn) {
-                eleBtn.addEventListener('click', function() {
-                    var cmd, args;
-                    cmd = this.getAttribute('command').toLowerCase();
-                    switch (cmd) {
-                        case 'backcolor':
-                            args = 'yellow';
-                            break;
-                    }
-                    _iframeDoc.execCommand(cmd, false, args);
+            $timeout(function() {
+                var btns = document.querySelectorAll('#' + $scope.id + ' button[command]');
+                angular.forEach(btns, function(eleBtn) {
+                    eleBtn.addEventListener('click', function() {
+                        var cmd, args;
+                        cmd = this.getAttribute('command').toLowerCase();
+                        switch (cmd) {
+                            case 'backcolor':
+                                args = 'yellow';
+                                break;
+                        }
+                        _iframeDoc.execCommand(cmd, false, args);
+                    });
                 });
             });
             /* 插入图片操作 */

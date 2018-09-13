@@ -2,7 +2,7 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlUser', ['$scope', '$q', '$uibModal', 'http2', 'noticebox', 'cstApp', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', 'srvMemberPicker', function($scope, $q, $uibModal, http2, noticebox, cstApp, srvGroupApp, srvGroupRound, srvGroupPlayer, srvMemberPicker) {
         $scope.syncByApp = function(data) {
             srvGroupApp.syncByApp().then(function(count) {
-                $scope.list();
+                $scope.list('round');
             });
         };
         $scope.chooseAppUser = function() {
@@ -20,7 +20,7 @@ define(['frame'], function(ngApp) {
                             type: 'group'
                         }
                         srvMemberPicker.open(matter, oSourceApp).then(function() {
-                            $scope.list();
+                            $scope.list('round');
                         });
                         break;
                 }
@@ -32,13 +32,13 @@ define(['frame'], function(ngApp) {
         $scope.execute = function() {
             srvGroupPlayer.execute();
         };
-        $scope.list = function() {
-            if (_oCriteria.round.round_id === 'all') {
-                srvGroupPlayer.list(null);
-            } else if (_oCriteria.round.round_id === 'pending') {
-                srvGroupPlayer.list(false);
+        $scope.list = function(arg) {
+            if (_oCriteria[arg].round_id === 'all') {
+                srvGroupPlayer.list(null, arg);
+            } else if (_oCriteria[arg].round_id === 'pending') {
+                srvGroupPlayer.list(false, arg);
             } else {
-                srvGroupPlayer.list(_oCriteria.round);
+                srvGroupPlayer.list(_oCriteria[arg], arg);
             }
         };
         $scope.editPlayer = function(player) {
@@ -48,7 +48,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.addPlayer = function() {
-            srvGroupPlayer.edit({ tags: '' }).then(function(updated) {
+            srvGroupPlayer.edit({ tags: '', role_rounds: [] }).then(function(updated) {
                 srvGroupPlayer.add(updated.player);
             });
         };
@@ -78,16 +78,16 @@ define(['frame'], function(ngApp) {
                 $scope.rows.reset();
             }
         };
-        $scope.quitGroup = function(players) {
-            if ($scope.activeRound && players.length) {
-                srvGroupPlayer.quitGroup($scope.activeRound, players).then(function() {
+        $scope.quitGroup = function(users) {
+            if (users.length) {
+                srvGroupPlayer.quitGroup(users).then(function() {
                     $scope.rows.reset();
                 });
             }
         };
-        $scope.joinGroup = function(round, players) {
-            if (round && players.length) {
-                srvGroupPlayer.joinGroup(round, players).then(function() {
+        $scope.joinGroup = function(oRound, users) {
+            if (users.length && oRound) {
+                srvGroupPlayer.joinGroup(oRound, users).then(function() {
                     $scope.rows.reset();
                 });
             }
@@ -116,13 +116,13 @@ define(['frame'], function(ngApp) {
                 }
                 $(this.target).trigger('hide');
             },
-            cancel: function() {
-                _oCriteria.round.round_id = 'all';
-                $scope.list();
+            cancel: function(arg) {
+                _oCriteria[arg].round_id = 'all';
+                $scope.list(arg);
                 this.close();
             },
-            exec: function() {
-                $scope.list();
+            exec: function(arg) {
+                $scope.list(arg);
                 this.close();
             }
         };
@@ -142,7 +142,8 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.criteria = _oCriteria = {
-            round: { round_id: 'all' }
+            round: { round_id: 'all' },
+            roleRound: { round_id: 'all' }
         };
         $scope.$watch('app', function(oApp) {
             if (oApp) {
@@ -150,13 +151,24 @@ define(['frame'], function(ngApp) {
                     $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
                 }
                 srvGroupPlayer.init(players).then(function() {
-                    $scope.list();
+                    $scope.list('round');
                     $scope.tableReady = 'Y';
                 });
             }
         });
         srvGroupRound.list().then(function(rounds) {
-            $scope.rounds = rounds;
+            $scope.teamRounds = [];
+            $scope.roleRounds = [];
+            rounds.forEach(function(oRound) {
+                switch (oRound.round_type) {
+                    case 'T':
+                        $scope.teamRounds.push(oRound);
+                        break;
+                    case 'R':
+                        $scope.roleRounds.push(oRound);
+                        break;
+                }
+            });
         });
     }]);
 });

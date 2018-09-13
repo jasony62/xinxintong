@@ -21,11 +21,11 @@ class batch_model extends \TMS_MODEL {
 	 *
 	 * @param string $siteId
 	 * @param int $tmplmsgId 应用内模板消息id
-	 * @param object $creater
+	 * @param object $oCreator
 	 * @param array $userids
 	 *
 	 */
-	public function send($siteId, $tmplmsgId, $creater, $receivers, $params, $options = []) {
+	public function send($siteId, $tmplmsgId, $oCreator, $receivers, $params, $aOptions = []) {
 		if (count($receivers) === 0) {
 			return true;
 		}
@@ -68,18 +68,18 @@ class batch_model extends \TMS_MODEL {
 		}
 
 		// 创建发送批次
-		empty($options['remark']) && $options['remark'] = implode("\n", $txtTmplMsg);
-		$batch = $this->_create($siteId, $tmpl, $creater, $params, count($mapOfUsers), $options);
+		empty($aOptions['remark']) && $aOptions['remark'] = implode("\n", $txtTmplMsg);
+		$oBatch = $this->_create($siteId, $tmpl, $oCreator, $params, count($mapOfUsers), $aOptions);
 
 		// 消息发送日志
 		$log = [
-			'batch_id' => $batch->id,
+			'batch_id' => $oBatch->id,
 			'siteid' => $siteId,
 			'tmplmsg_id' => $tmplmsgId,
 		];
-		foreach ($mapOfUsers as $userid => $user) {
+		foreach ($mapOfUsers as $userid => $oUser) {
 			$log['userid'] = $userid;
-			isset($user->assoc_with) && $log['assoc_with'] = $user->assoc_with;
+			isset($oUser->assoc_with) && $log['assoc_with'] = $oUser->assoc_with;
 
 			/* 平台应用内消息 */
 			$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
@@ -87,11 +87,11 @@ class batch_model extends \TMS_MODEL {
 			$log['status'] = '';
 			$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);
 
-			if (!empty($user->wx_openid)) {
+			if (!empty($oUser->wx_openid)) {
 				if (!empty($tmpl->templateid)) {
 					/* 发送微信模板消息 */
-					$wxTmplMsg['touser'] = $user->wx_openid;
-					$log['openid'] = $user->wx_openid;
+					$wxTmplMsg['touser'] = $oUser->wx_openid;
+					$log['openid'] = $oUser->wx_openid;
 					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($wxTmplMsg));
 					if (!isset($snsConfig)) {
 						$snsConfig = $this->model('sns\wx')->bySite($tmpl->siteid);
@@ -105,60 +105,60 @@ class batch_model extends \TMS_MODEL {
 					}
 					$modelTmpl->insert('xxt_log_tmplmsg_detail', $log, false);
 				} else {
-					$log['openid'] = $user->wx_openid;
+					$log['openid'] = $oUser->wx_openid;
 					$wxTxtTmplMsg = $txtTmplMsg;
 					if (!empty($url)) {
 						$wxTxtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
 					}
 					$log['data'] = $modelTmpl->escape($modelTmpl->toJson($wxTxtTmplMsg));
 
-					$rst = $this->_sendTxtByOpenid($siteId, $user->wx_openid, 'wx', $wxTxtTmplMsg, $log);
+					$rst = $this->_sendTxtByOpenid($siteId, $oUser->wx_openid, 'wx', $wxTxtTmplMsg, $log);
 				}
 			}
 			/* 易信用户，将模板消息转换文本消息 */
-			if (!empty($user->qy_openid)) {
-				$log['openid'] = $user->qy_openid;
+			if (!empty($oUser->qy_openid)) {
+				$log['openid'] = $oUser->qy_openid;
 				$qyTxtTmplMsg = $txtTmplMsg;
 				if (!empty($url)) {
 					$qyTxtTmplMsg[] = " <a href='" . $url . "'>查看详情</a>";
 				}
 				$log['data'] = $modelTmpl->escape($modelTmpl->toJson($qyTxtTmplMsg));
 
-				$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $qyTxtTmplMsg, $log);
+				$rst = $this->_sendTxtByOpenid($siteId, $oUser->qy_openid, 'qy', $qyTxtTmplMsg, $log);
 			}
-			if (!empty($user->yx_openid)) {
-				$log['openid'] = $user->yx_openid;
+			if (!empty($oUser->yx_openid)) {
+				$log['openid'] = $oUser->yx_openid;
 				$yxTxtTmplMsg = $txtTmplMsg;
 				if (!empty($url)) {
 					$yxTxtTmplMsg[] = '查看详情：\n' . $url;
 				}
 				$log['data'] = $modelTmpl->escape($modelTmpl->toJson($yxTxtTmplMsg));
 
-				$rst = $this->_sendTxtByOpenid($siteId, $user->yx_openid, 'yx', $yxTxtTmplMsg, $log);
+				$rst = $this->_sendTxtByOpenid($siteId, $oUser->yx_openid, 'yx', $yxTxtTmplMsg, $log);
 			}
 		}
 	}
 	/**
 	 * 创建批次
 	 */
-	private function _create($siteId, $tmpl, $creater, $params, $userCount, $options = []) {
-		$batch = new \stdClass;
-		$batch->siteid = $siteId;
-		$batch->tmplmsg_id = $tmpl->id;
-		$batch->template_id = $tmpl->templateid;
-		$batch->user_num = $userCount;
-		$batch->creater = isset($creater->uid) ? $creater->uid : '';
-		$batch->creater_name = isset($creater->name) ? $creater->name : '';
-		$batch->creater_src = isset($creater->src) ? $creater->src : '';
-		$batch->create_at = time();
-		$batch->params = $this->escape($this->toJson($params));
-		!empty($options['event_name']) && $batch->event_name = $options['event_name'];
-		!empty($options['send_from']) && $batch->send_from = $options['send_from'];
-		!empty($options['remark']) && $batch->remark = $options['remark'];
+	private function _create($siteId, $tmpl, $oCreator, $params, $userCount, $aOptions = []) {
+		$oBatch = new \stdClass;
+		$oBatch->siteid = $siteId;
+		$oBatch->tmplmsg_id = $tmpl->id;
+		$oBatch->template_id = $tmpl->templateid;
+		$oBatch->user_num = $userCount;
+		$oBatch->creater = isset($oCreator->uid) ? $oCreator->uid : '';
+		$oBatch->creater_name = isset($oCreator->name) ? $this->escape($oCreator->name) : '';
+		$oBatch->creater_src = isset($oCreator->src) ? $oCreator->src : '';
+		$oBatch->create_at = time();
+		$oBatch->params = $this->escape($this->toJson($params));
+		!empty($aOptions['event_name']) && $oBatch->event_name = $aOptions['event_name'];
+		!empty($aOptions['send_from']) && $oBatch->send_from = $aOptions['send_from'];
+		!empty($aOptions['remark']) && $oBatch->remark = $aOptions['remark'];
 
-		$batch->id = $this->insert('xxt_log_tmplmsg_batch', $batch, true);
+		$oBatch->id = $this->insert('xxt_log_tmplmsg_batch', $oBatch, true);
 
-		return $batch;
+		return $oBatch;
 	}
 	/**
 	 *

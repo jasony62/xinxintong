@@ -1,15 +1,28 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', '$uibModal', function($scope, http2, srvEnrollRecord, $q, $uibModal) {
-        function _absent() {
-            http2.get('/rest/pl/fe/matter/enroll/user/absent?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&rid=' + _oCriteria.rid, function(rsp) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', '$uibModal', 'tmsSchema', function($scope, http2, srvEnrollRecord, $q, $uibModal, tmsSchema) {
+        function _fnAbsent() {
+            http2.get('/rest/pl/fe/matter/enroll/user/undone?app=' + $scope.app.id + '&rid=' + _oCriteria.rid, function(rsp) {
+                var schemasById;
                 $scope.absentUsers = rsp.data.users;
+                if (rsp.data.app) {
+                    $scope.absentApp = rsp.data.app;
+                    if ($scope.absentApp.dataSchemas) {
+                        schemasById = {};
+                        $scope.absentApp.dataSchemas.forEach(function(oSchema) {
+                            schemasById[oSchema.id] = oSchema;
+                        });
+                        $scope.absentUsers.forEach(function(oUser) {
+                            tmsSchema.forTable(oUser, schemasById);
+                        });
+                    }
+                }
             });
         }
 
-        var _oCriteria, _oRows, rounds, page;
+        var _oCriteria, _oRows, _oPage;
         $scope.category = 'enrollee';
-        $scope.page = page = {
+        $scope.page = _oPage = {
             at: 1,
             size: 20,
             j: function() {
@@ -113,16 +126,17 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static',
             }).result.then(function(_oCriteria) {
                 $scope.searchEnrollee(1);
-                _absent();
+                _fnAbsent();
             });
         };
         $scope.searchEnrollee = function(pageAt) {
             var url;
 
-            pageAt && (page.at = pageAt);
-            url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + page.j();
+            _oRows.reset();
+            pageAt && (_oPage.at = pageAt);
+            url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + _oPage.j();
             http2.post(url, _oCriteria, function(rsp) {
-                srvEnrollRecord.init($scope.app, $scope.page, $scope.criteria, rsp.data.users);
+                srvEnrollRecord.init($scope.app, _oPage, _oCriteria, rsp.data.users);
                 rsp.data.users.forEach(function(user) {
                     if (user.tmplmsg && user.tmplmsg.status) {
                         user._tmpStatus = user.tmplmsg.status.split(':');
@@ -130,7 +144,7 @@ define(['frame'], function(ngApp) {
                     }
                 });
                 $scope.enrollees = rsp.data.users;
-                $scope.page.total = rsp.data.total;
+                _oPage.total = rsp.data.total;
             });
         };
         $scope.repairEnrollee = function() {
@@ -155,7 +169,7 @@ define(['frame'], function(ngApp) {
             $scope.rule = oRule;
             $scope.tmsTableWrapReady = 'Y';
             $scope.searchEnrollee(1);
-            _absent();
+            _fnAbsent();
         });
         $scope.$watch('rows.allSelected', function(nv) {
             var index = 0;

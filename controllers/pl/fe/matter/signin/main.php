@@ -183,7 +183,6 @@ class main extends \pl\fe\matter\main_base {
 						'type' => $ep->type,
 						'data_schemas' => $modelApp->escape($ep->data_schemas),
 						'act_schemas' => $modelApp->escape($ep->act_schemas),
-						'user_schemas' => $modelApp->escape($ep->user_schemas),
 					],
 					"aid='{$oNewApp->id}' and id=$newPage->id"
 				);
@@ -222,30 +221,47 @@ class main extends \pl\fe\matter\main_base {
 		/**
 		 * 处理数据
 		 */
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 		$oUpdated = new \stdClass;
-		foreach ($posted as $n => $v) {
-			if (in_array($n, ['data_schemas', 'recycle_schemas'])) {
-				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'entryRule') {
-				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($v));
-			} else if ($n === 'assignedNickname') {
-				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($v));
-			} else if (in_array($n, ['title', 'summary'])) {
-				$oUpdated->{$n} = $modelApp->escape($v);
-			} else if ($n === 'absent_cause') {
+		foreach ($oPosted as $prop => $val) {
+			switch ($prop) {
+			case 'data_schemas':
+				$modelSch = $this->model('matter\enroll\schema');
+				$dataSchemas = $modelSch->purify($val);
+				$oUpdated->{$prop} = $modelApp->escape($modelApp->toJson($dataSchemas));
+				$oApp->dataSchemas = $dataSchemas;
+				break;
+			case 'recycle_schemas':
+				$oUpdated->{$prop} = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'entryRule':
+				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'assignedNickname':
+				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($val));
+				break;
+			case 'title':
+			case 'summary':
+				$oUpdated->{$prop} = $modelApp->escape($val);
+				break;
+			case 'absent_cause':
 				$absentCause = !empty($oApp->absent_cause) ? $oApp->absent_cause : new \stdClass;
-				foreach ($v as $uid => $val) {
-					$absentCause->{$uid} = $val;
+				foreach ($val as $uid => $val2) {
+					$absentCause->{$uid} = $val2;
 				}
-				$oUpdated->{$n} = $modelApp->escape($modelApp->toJson($absentCause));
-			} else {
-				$oUpdated->{$n} = $v;
+				$oUpdated->{$prop} = $modelApp->escape($modelApp->toJson($absentCause));
+				break;
+			default:
+				$oUpdated->{$prop} = $val;
 			}
 		}
 
 		if ($oApp = $modelApp->modify($oUser, $oApp, $oUpdated)) {
 			$this->model('matter\log')->matterOp($site, $oUser, $oApp, 'U');
+			/* 清除数据 */
+			if (isset($oApp->data_schemas)) {
+				unset($oApp->data_schemas);
+			}
 		}
 
 		return new \ResponseData($oApp);

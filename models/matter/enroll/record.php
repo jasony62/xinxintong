@@ -3,7 +3,7 @@ namespace matter\enroll;
 
 require_once dirname(__FILE__) . '/record_base.php';
 /**
- * 登记活动记录
+ * 记录活动记录
  */
 class record_model extends record_base {
 	/**
@@ -43,8 +43,8 @@ class record_model extends record_base {
 			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $aOptions);
 			$aRecord['nickname'] = $this->escape($nickname);
 		}
-		/* 登记用户的社交账号信息 */
-		if (!empty($oUser)) {
+		/* 登记用户的社交账号信息，还需要吗？ */
+		if (!empty($oUser->uid)) {
 			$oUserOpenids = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid']);
 			if ($oUserOpenids) {
 				$aRecord['wx_openid'] = $oUserOpenids->wx_openid;
@@ -81,6 +81,9 @@ class record_model extends record_base {
 		}
 
 		$this->insert('xxt_enroll_record', $aRecord, false);
+
+		/*记录和轮次的关系*/
+		$modelRun->createRecord((object) $aRecord);
 
 		return $ek;
 	}
@@ -437,8 +440,7 @@ class record_model extends record_base {
 	private function _mapOfScoreSchema(&$oApp) {
 		$scoreSchemas = new \stdClass;
 
-		$schemas = is_object($oApp->data_schemas) ? $oApp->data_schemas : json_decode($oApp->data_schemas);
-		foreach ($schemas as $schema) {
+		foreach ($oApp->dataSchemas as $schema) {
 			if ($schema->type === 'single' && isset($schema->score) && $schema->score === 'Y') {
 				$scoreSchemas->{$schema->id} = new \stdClass;
 				$scoreSchemas->{$schema->id}->ops = new \stdClass;
@@ -467,10 +469,8 @@ class record_model extends record_base {
 	/**
 	 * 登记清单
 	 *
-	 * @param object/string 登记活动/登记活动的id
+	 * @param object/string 记录活动/记录活动的id
 	 * @param object/array $aOptions
-	 * --creater openid
-	 * --visitor openid
 	 * --page
 	 * --size
 	 * --kw 检索关键词
@@ -498,33 +498,36 @@ class record_model extends record_base {
 				$oSchemasById->{$oSchema->id} = $oSchema;
 			}
 		}
-		// 指定登记活动下的登记记录
+		// 指定记录活动下的登记记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
-		// 指定轮次，或者当前激活轮次
-		if (!empty($oCriteria->record->rid)) {
+		/* 指定轮次，或者当前激活轮次 */
+		if (empty($oCriteria->record->rid)) {
+			if (!empty($oApp->appRound->rid)) {
+				$rid = $oApp->appRound->rid;
+				//$w .= " and (r.rid='$rid'";
+				$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=r.enroll_key)";
+				if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
+					$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
+				}
+				$w .= ')';
+			}
+		} else {
 			if (is_string($oCriteria->record->rid)) {
 				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 					$rid = $oCriteria->record->rid;
+					//$w .= " and (r.rid='$rid'";
+					$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=r.enroll_key)";
+					if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
+						$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
+					}
+					$w .= ')';
 				}
 			} else if (is_array($oCriteria->record->rid)) {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
 					$rid = $oCriteria->record->rid;
-				}
-			}
-		} else if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
-			$rid = $oActiveRnd->rid;
-		}
-		if (isset($rid)) {
-			if (is_string($rid)) {
-				$w .= " and r.rid='$rid'";
-			} else if (is_array($rid)) {
-				if (empty($rid)) {
-					$w .= " and r.rid=''";
-				} else {
-					$w .= " and r.rid in('";
-					$w .= implode("','", $rid);
-					$w .= "')";
+					//$w .= " and r.rid in('" . implode("','", $rid) . "')";
+					$w .= " and exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid in('" . implode("','", $rid) . "') and rrnd.enroll_key=r.enroll_key)";
 				}
 			}
 		}
@@ -870,103 +873,9 @@ class record_model extends record_base {
 		return $records;
 	}
 	/**
-	 * 活动登记人名单
-	 *
-	 * @param object $oApp
-	 * @param object $options
-	 * --rid 轮次id
-	 *
-	 * return
-	 */
-	public function enrolleeByApp($oApp, $options = null, $criteria = null) {
-		if ($options) {
-			is_array($options) && $options = (object) $options;
-			$rid = null;
-			if (!empty($options->rid)) {
-				if (strcasecmp($options->rid, 'all') === 0) {
-					$rid = null;
-				} else if (!empty($options->rid)) {
-					$rid = $options->rid;
-				}
-			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
-			}
-		}
-		$fields = isset($options->fields) ? $options->fields : 'enroll_key,userid';
-
-		$w = "state=1 and aid='{$oApp->id}'";
-		if (!empty($options->userid)) {
-		} else {
-			$w .= " and userid<>''";
-		}
-
-		// 按轮次过滤
-		!empty($rid) && $w .= " and e.rid='$rid'";
-
-		// 指定了登记记录过滤条件
-		if (!empty($criteria->record)) {
-			$whereByRecord = '';
-			if (!empty($criteria->record->verified)) {
-				$whereByRecord .= " and verified='{$criteria->record->verified}'";
-			}
-			$w .= $whereByRecord;
-		}
-
-		// 指定了记录标签
-		if (!empty($criteria->tags)) {
-			$whereByTag = '';
-			foreach ($criteria->tags as $tag) {
-				$whereByTag .= " and concat(',',e.tags,',') like '%,$tag,%'";
-			}
-			$w .= $whereByTag;
-		}
-
-		// 指定了登记数据过滤条件
-		if (isset($criteria->data)) {
-			$whereByData = '';
-			foreach ($criteria->data as $k => $v) {
-				if (!empty($v)) {
-					$whereByData .= ' and (';
-					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
-					$whereByData .= ')';
-				}
-			}
-			$w .= $whereByData;
-		}
-
-		// 获得填写的登记数据
-		$q = [
-			$fields,
-			"xxt_enroll_record e",
-			$w,
-		];
-		$enrollees = $this->query_objs_ss($q);
-
-		return $enrollees;
-	}
-	/**
 	 * 已删除的登记清单
-	 *
-	 * 1、如果活动仅限会员报名，那么要叠加会员信息
-	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
-	 *
-	 * $siteId
-	 * $aid
-	 * $options
-	 * --page
-	 * --size
-	 * --rid 轮次id
-	 *
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
 	 */
-	public function recycle($siteId, &$app, $options = null) {
+	public function recycle($oApp, $options = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$page = isset($options->page) ? $options->page : null;
@@ -978,15 +887,15 @@ class record_model extends record_base {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($app)) {
+			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
 			}
 		}
 		$oResult = new \stdClass; // 返回的结果
 		$oResult->total = 0;
 
-		// 指定登记活动下的登记记录
-		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$app->id}'";
+		// 指定记录活动下的登记记录
+		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$oApp->id}'";
 
 		// 指定了轮次
 		!empty($rid) && $w .= " and e.rid='$rid'";
@@ -1024,9 +933,9 @@ class record_model extends record_base {
 					$r->data = $data;
 				}
 				// 记录的分数
-				if ($app->scenario === 'voting') {
+				if ($oApp->scenario === 'voting') {
 					if (!isset($scoreSchemas)) {
-						$scoreSchemas = $this->_mapOfScoreSchema($app);
+						$scoreSchemas = $this->_mapOfScoreSchema($oApp);
 						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
 					$r->_score = $this->_calcVotingScore($scoreSchemas, $data);
@@ -1047,7 +956,7 @@ class record_model extends record_base {
 	 * 返回指定登记项的登记记录
 	 *
 	 */
-	public function list4Schema(&$oApp, $schemaId, $options = null) {
+	public function list4Schema($oApp, $schemaId, $options = null) {
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if ($oSchema->id === $schemaId) {
 				$oDataSchema = $oSchema;
@@ -1159,41 +1068,58 @@ class record_model extends record_base {
 	 * 计算指定登记项所有记录的合计
 	 */
 	public function sum4Schema($oApp, $rid = 'ALL', $gid = '') {
-		if (empty($oApp->dataSchemas)) {
+		if (empty($oApp->dynaDataSchemas)) {
 			return false;
 		}
 		$oResult = new \stdClass;
-		$dataSchemas = $oApp->dataSchemas;
+		$dataSchemas = $oApp->dynaDataSchemas;
 		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
 			}
 		}
 		/* 每道题目的合计 */
-		foreach ($dataSchemas as $schema) {
-			if (isset($schema->format) && $schema->format === 'number') {
-				$q = [
-					'sum(value)',
-					'xxt_enroll_record_data',
-					['aid' => $oApp->id, 'schema_id' => $schema->id, 'state' => 1],
-				];
-				if (!empty($rid)) {
-					if (is_string($rid)) {
-						$rid !== 'ALL' && $q[2]['rid'] = $rid;
-					} else if (is_array($rid)) {
-						if (empty(array_intersect(['all', 'ALL'], $rid))) {
-							$q[2]['rid'] = $rid;
-						}
+		foreach ($dataSchemas as $oSchema) {
+			if (!in_array($oSchema->type, ['shorttext', 'score'])) {
+				continue;
+			}
+			if ($oSchema->type === 'shorttext') {
+				/* 数字格式的单行填写题 */
+				if (!isset($oSchema->format) || $oSchema->format !== 'number') {
+					continue;
+				}
+			}
+
+			switch ($oSchema->type) {
+			case 'shorttext':
+				$sumSql = 'sum(value)';
+				break;
+			case 'score':
+				$sumSql = 'sum(score)';
+				break;
+			}
+
+			$q = [
+				$sumSql,
+				'xxt_enroll_record_data',
+				['aid' => $oApp->id, 'schema_id' => $oSchema->id, 'state' => 1],
+			];
+			if (!empty($rid)) {
+				if (is_string($rid)) {
+					$rid !== 'ALL' && $q[2]['rid'] = $rid;
+				} else if (is_array($rid)) {
+					if (empty(array_intersect(['all', 'ALL'], $rid))) {
+						$q[2]['rid'] = $rid;
 					}
 				}
-				if (!empty($gid)) {
-					$q[2]['group_id'] = $gid;
-				}
-
-				$sum = (float) $this->query_val_ss($q);
-				$sum = number_format($sum, 2, '.', '');
-				$oResult->{$schema->id} = (float) $sum;
 			}
+			if (!empty($gid)) {
+				$q[2]['group_id'] = $gid;
+			}
+
+			$sum = (float) $this->query_val_ss($q);
+			$sum = number_format($sum, 2, '.', '');
+			$oResult->{$oSchema->id} = (float) $sum;
 		}
 
 		return $oResult;
@@ -1202,11 +1128,11 @@ class record_model extends record_base {
 	 * 计算指定登记项所有记录的合计
 	 */
 	public function score4Schema($oApp, $rid = 'ALL', $gid = '') {
-		if (empty($oApp->data_schemas)) {
+		if (empty($oApp->dynaDataSchemas)) {
 			return false;
 		}
 		$oResult = new \stdClass;
-		$dataSchemas = isset($oApp->dataSchemas) ? $oApp->dataSchemas : json_decode($oApp->data_schemas);
+		$dataSchemas = $oApp->dynaDataSchemas;
 		if (empty($rid)) {
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
 				$rid = $activeRound->rid;
@@ -1214,7 +1140,7 @@ class record_model extends record_base {
 		}
 		/* 每道题目的得分 */
 		foreach ($dataSchemas as $oSchema) {
-			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') || (isset($oSchema->format) && $oSchema->format === 'number')) {
+			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
 				$q = [
 					'sum(score)',
 					'xxt_enroll_record_data',
@@ -1487,7 +1413,7 @@ class record_model extends record_base {
 	 */
 	public function &getStat($appIdOrObj, $rid = '', $renewCache = 'Y') {
 		if (is_string($appIdOrObj)) {
-			$oApp = $this->model('matter\enroll')->byId($appIdOrObj, ['fields' => 'id,data_schemas,round_cron', 'cascaded' => 'N']);
+			$oApp = $this->model('matter\enroll')->byId($appIdOrObj, ['fields' => 'id,data_schemas,round_cron,sync_mission_round', 'cascaded' => 'N']);
 		} else {
 			$oApp = $appIdOrObj;
 		}
@@ -1526,13 +1452,13 @@ class record_model extends record_base {
 			}
 			// 如果更新的登记数据，重新计算统计结果
 			if ($newCnt > 0) {
-				$oResult = $this->_calcStat($oApp, $rid);
+				$aResult = $this->_calcStat($oApp, $rid);
 				// 保存统计结果
 				$this->delete(
 					'xxt_enroll_record_stat',
 					['aid' => $oApp->id, 'rid' => $rid]
 				);
-				foreach ($oResult as $id => $oDataBySchema) {
+				foreach ($aResult as $id => $oDataBySchema) {
 					foreach ($oDataBySchema->ops as $op) {
 						$r = [
 							'siteid' => $oApp->siteid,
@@ -1550,7 +1476,7 @@ class record_model extends record_base {
 				}
 			} else {
 				/* 从缓存中获取统计数据 */
-				$oResult = [];
+				$aResult = [];
 				$q = [
 					'id,title,v,l,c',
 					'xxt_enroll_record_stat',
@@ -1558,44 +1484,61 @@ class record_model extends record_base {
 				];
 				$aCached = $this->query_objs_ss($q);
 				foreach ($aCached as $oDataByOp) {
-					if (empty($oResult[$oDataByOp->id])) {
+					if (empty($aResult[$oDataByOp->id])) {
 						$oDataBySchema = (object) [
 							'id' => $oDataByOp->id,
 							'title' => $oDataByOp->title,
 							'ops' => [],
 							'sum' => 0,
 						];
-						$oResult[$oDataByOp->id] = $oDataBySchema;
+						$aResult[$oDataByOp->id] = $oDataBySchema;
 					} else {
-						$oDataBySchema = $oResult[$oDataByOp->id];
+						$oDataBySchema = $aResult[$oDataByOp->id];
 					}
-					$op = (object) [
+					$oOp = (object) [
 						'v' => $oDataByOp->v,
 						'l' => $oDataByOp->l,
 						'c' => $oDataByOp->c,
 					];
-					$oDataBySchema->ops[] = $op;
-					$oDataBySchema->sum += $op->c;
+					$oDataBySchema->ops[] = $oOp;
+					$oDataBySchema->sum += $oOp->c;
 				}
 			}
 		} else {
-			$oResult = $this->_calcStat($oApp, $rid);
+			$aResult = $this->_calcStat($oApp, $rid);
 		}
 
-		return $oResult;
+		// 对选择题和打分题选项排序
+		$oSchemas = new \stdClass;
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
+			$oSchemas->{$oSchema->id} = $oSchema;
+		}
+		foreach ($aResult as $key => &$value) {
+			if (isset($oSchemas->{$key}) && in_array($oSchemas->{$key}->type, ['single', 'multiple', 'score'])) {
+				$ops = $value->ops;
+				$sortArr = [];
+				foreach ($ops as $op) {
+					$sortArr[] = $op->v;
+				}
+				array_multisort($sortArr, SORT_ASC, SORT_NATURAL, $ops);
+				$value->ops = $ops;
+			}
+		}
+
+		return $aResult;
 	}
 	/**
 	 * 统计选择题、记分题汇总信息
 	 */
 	private function &_calcStat($oApp, $rid) {
-		$oResult = [];
+		$aResult = [];
 
-		$dataSchemas = $oApp->dataSchemas;
+		$dataSchemas = $oApp->dynaDataSchemas;
 		foreach ($dataSchemas as $oSchema) {
 			if (!in_array($oSchema->type, ['single', 'multiple', 'phase', 'score', 'multitext'])) {
 				continue;
 			}
-			$oResult[$oSchema->id] = $oDataBySchema = (object) [
+			$aResult[$oSchema->id] = $oDataBySchema = (object) [
 				'title' => isset($oSchema->title) ? $oSchema->title : '',
 				'id' => $oSchema->id,
 				'ops' => [],
@@ -1677,79 +1620,6 @@ class record_model extends record_base {
 			}
 		}
 
-		return $oResult;
-	}
-	/**
-	 * 获得schemasB中和schemasA兼容的登记项定义及对应关系
-	 *
-	 * 从目标应用中导入和指定应用的数据定义中名称（title）和类型（type）一致的项
-	 * 如果是单选题、多选题、打分题选项必须一致
-	 * 如果是打分题，分值设置范围必须一致
-	 * name,email,mobile,shorttext,longtext认为是同一种类型
-	 * 忽略：项目阶段，说明描述
-	 */
-	public function compatibleSchemas($schemasA, $schemasB) {
-		if (empty($schemasB) || empty($schemasA)) {
-			return [];
-		}
-		$mapOfCompatibleType = [
-			'shorttext' => 'text',
-			'longtext' => 'text',
-			'name' => 'text',
-			'email' => 'text',
-			'mobile' => 'text',
-			'location' => 'text',
-			'date' => 'text',
-			'single' => 'single',
-			'multiple' => 'multiple',
-			'score' => 'score',
-			'file' => 'file',
-			'image' => 'image',
-		];
-		$mapAByType = [];
-		foreach ($schemasA as $schemaA) {
-			if (!isset($mapOfCompatibleType[$schemaA->type])) {
-				continue;
-			}
-			$compatibleType = $mapOfCompatibleType[$schemaA->type];
-			if (!isset($mapAByType[$compatibleType])) {
-				$mapAByType[$compatibleType] = [];
-			}
-			$mapAByType[$compatibleType][] = $schemaA;
-		}
-
-		$oResult = [];
-		foreach ($schemasB as $schemaB) {
-			if (!isset($mapOfCompatibleType[$schemaB->type])) {
-				continue;
-			}
-			$compatibleType = $mapOfCompatibleType[$schemaB->type];
-			if (!isset($mapAByType[$compatibleType])) {
-				continue;
-			}
-			foreach ($mapAByType[$compatibleType] as $schemaA) {
-				if ($schemaA->title !== $schemaB->title) {
-					continue;
-				}
-				if ($compatibleType === 'single' || $compatibleType === 'multiple' || $compatibleType === 'score') {
-					if (count($schemaA->ops) !== count($schemaB->ops)) {
-						continue;
-					}
-					$isCompatible = true;
-					for ($i = 0, $ii = count($schemaA->ops); $i < $ii; $i++) {
-						if ($schemaA->ops[$i]->l !== $schemaB->ops[$i]->l) {
-							$isCompatible = false;
-							break;
-						}
-					}
-					if ($isCompatible === false) {
-						continue;
-					}
-				}
-				$oResult[] = [$schemaB, $schemaA];
-			}
-		}
-
-		return $oResult;
+		return $aResult;
 	}
 }

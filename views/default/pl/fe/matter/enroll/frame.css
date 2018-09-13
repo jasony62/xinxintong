@@ -10,7 +10,7 @@
 
 /*schema-view*/
 #schema-view .flexrow{display:flex;margin-bottom:8px;}
-#schema-view .flexrow >*{flex:1;}
+#schema-view .flexrow>*{flex:1;}
 #schema-view .schemas{index}
 #schema-view .schemas .schema{counter-increment:index;position:relative;padding-left:24px;padding-right:24px;}
 #schema-view .schemas .schema:before{content:counter(index);background:#999;color:#fff;position:absolute;top:0px;left:0px;width:18px;height:18px;line-height:18px;text-align:center;border-top-left-radius:2px;}
@@ -42,6 +42,7 @@
 #schema-view .schema .description img{max-width:100%;}
 #schema-view .schema.active{border-left:4px solid red;margin-left:-3px;}
 #schema-view img{max-width:100%;}
+#schema-view .schema .hint{margin-top:8px;}
 
 /*page-view*/
 #page-view .schema-switch{position:absolute;top:50%;margin-top:-10px;right:4px;}
@@ -56,7 +57,7 @@
 #pageEdit .mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
 
 /*record-view*/
-#enrollRecords table img{max-width:96px;}
+table img{max-width:96px;}
 #enrollRecords th{text-align:center;}
 #enrollRecords td span.signin_late{color:red;}
 #enrollRecords .nickname{background:lightblue;}

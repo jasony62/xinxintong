@@ -17,6 +17,9 @@
                 <option value='repos'>共享数据页</option>
                 <option value='rank'>排行榜</option>
                 <option value='score'>测验结果</option>
+                <option value='votes'>投票榜</option>
+                <option value='marks'>打分榜</option>
+                <option value='cowork'>讨论页</option>
                 <option value='_autoForward'>自动跳转</option>
                 <option value='closeWindow'>关闭页面</option>
             </select>
@@ -39,15 +42,10 @@
                 <option value='repos'>共享数据页</option>
                 <option value='rank'>排行榜</option>
                 <option value='score'>测验结果</option>
+                <option value='votes'>投票榜</option>
+                <option value='marks'>打分榜</option>
                 <option value='closeWindow'>关闭页面</option>
             </select>
         </div>
-    </div>
-    <div class="form-group" ng-show="'sendInvite'===activeWrap.schema.name">
-        <label>操作后</label>
-        <select class='form-control' ng-model='activeWrap.schema.accept' ng-change="updWrap()">
-            <option value='{{p.name}}' ng-repeat="p in nextPages">{{p.title}}</option>
-            <option value='closeWindow'>关闭页面</option>
-        </select>
     </div>
 </div>

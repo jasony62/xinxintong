@@ -25,7 +25,15 @@ class player extends \pl\fe\matter\base {
 		$modelPlayer = $this->model('matter\group\player');
 
 		$oApp = $modelGrp->byId($app);
-		$result = $modelPlayer->byApp($oApp);
+		$filter = $this->getPostJson();
+		$options = [];
+		if (isset($filter->roleRoundId)) {
+			$options['roleRoundId'] = $modelPlayer->escape($filter->roleRoundId);
+		}
+		if (isset($filter->roundId)) {
+			$options['roundId'] = $modelPlayer->escape($filter->roundId);
+		}
+		$result = $modelPlayer->byApp($oApp, $options);
 
 		return new \ResponseData($result);
 	}
@@ -395,6 +403,7 @@ class player extends \pl\fe\matter\base {
 			return new \ResponseError($result[1]);
 		}
 		$oPlayer->data = json_decode($result[1]);
+		$oPlayer->role_rounds = [];
 
 		return new \ResponseData($oPlayer);
 	}
@@ -418,6 +427,10 @@ class player extends \pl\fe\matter\base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		$player = $modelPly->byId($oApp->id, $ek, ['fields' => 'userid,state']);
+		if (false === $player || $player->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
 
 		/* 更新记录数据 */
 		$oNewPlayer = new \stdClass;
@@ -431,7 +444,7 @@ class player extends \pl\fe\matter\base {
 			$oNewPlayer->tags = $modelPly->escape($oPosted->tags);
 		}
 		if (empty($oPosted->round_id)) {
-			$oNewPlayer->round_id = 0;
+			$oNewPlayer->round_id = '';
 			$oNewPlayer->round_title = '';
 		} else {
 			$modelRnd = $this->model('matter\group\round');
@@ -440,15 +453,25 @@ class player extends \pl\fe\matter\base {
 				$oNewPlayer->round_title = $round->title;
 			}
 		}
+		if (empty($oPosted->role_rounds)) {
+			$oNewPlayer->role_rounds = '';
+		} else if (!empty($player->userid)) {
+			$roleRounds = [];
+			foreach ($oPosted->role_rounds as $roleRound) {
+				$roleRounds[] = $roleRound;
+			}
+			$oNewPlayer->role_rounds = json_encode($roleRounds);
+		}
+
 		$modelPly->update(
 			'xxt_group_player',
 			$oNewPlayer,
 			["aid" => $oApp->id, "enroll_key" => $ek]
 		);
 		/* 更新用户数据 */
-		$result = $modelPly->setData($oApp, $ek, $oPosted->data);
-		if (false === $result[0]) {
-			return new \ResponseError($result[1]);
+		$aResult = $modelPly->setData($oApp, $ek, $oPosted->data);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
 		}
 
 		$oNewPlayer = $modelPly->byId($oApp->id, $ek);
@@ -456,13 +479,18 @@ class player extends \pl\fe\matter\base {
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'update', $oNewPlayer);
 
-		return new \ResponseData($oPosted);
+		return new \ResponseData($oNewPlayer);
 	}
 	/**
 	 * 未分组的人
+	 * $roundType 分组类型 “T” 团队分组，"R" 角色分组
 	 */
-	public function pendingsGet_action($app, $rid = null) {
-		$result = $this->model('matter\group\player')->pendings($app);
+	public function pendingsGet_action($app, $rid = null, $roundType = 'T') {
+		if ($roundType === 'R') {
+			$result = $this->model('matter\group\player')->pendingsRole($app);
+		} else {
+			$result = $this->model('matter\group\player')->pendings($app);
+		}
 
 		return new \ResponseData($result);
 	}
@@ -493,44 +521,51 @@ class player extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 将用户移出分组
+	 * 将用户移出分组 (团队分组)
 	 */
-	public function quitGroup_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function quitGroup_action($app) {
+		if (false === ($oOpUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
+		$oApp = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
 		$eks = $this->getPostJson();
 		if (empty($eks)) {
 			return new \ResponseError('没有指定用户');
 		}
 
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$modelPly = $this->model('matter\group\player');
 		foreach ($eks as $ek) {
-			if ($player = $modelPly->byId($app, $ek)) {
-				if ($modelPly->quitGroup($app, $ek)) {
-					$result->{$ek} = $player->round_id;
+			if ($oUser = $modelPly->byId($oApp->id, $ek)) {
+				if ($modelPly->quitGroup($oApp->id, $ek)) {
+					$oResult->{$ek} = $oUser->round_id;
 				} else {
-					$result->{$ek} = false;
+					$oResult->{$ek} = false;
 				}
 			} else {
-				$result->{$ek} = false;
+				$oResult->{$ek} = false;
 			}
 		}
 
 		// 记录操作日志
-		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'quitGroup', $result);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oOpUser, $oApp, 'quitGroup', $oResult);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 将用户移入分组
 	 */
-	public function joinGroup_action($site, $app, $round) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function joinGroup_action($app, $round) {
+		if (false === ($oOpUser = $this->accountUser())) {
 			return new \ResponseTimeout();
+		}
+
+		$oApp = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
 		}
 
 		$eks = $this->getPostJson();
@@ -538,26 +573,25 @@ class player extends \pl\fe\matter\base {
 			return new \ResponseError('没有指定用户');
 		}
 
-		$round = $this->model('matter\group\round')->byId($round);
+		$oRound = $this->model('matter\group\round')->byId($round);
 
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$modelPly = $this->model('matter\group\player');
 		foreach ($eks as $ek) {
-			if ($player = $modelPly->byId($app, $ek)) {
-				if ($modelPly->joinGroup($app, $round, $ek)) {
-					$result->{$ek} = $round->round_id;
+			if ($oUser = $modelPly->byId($oApp->id, $ek)) {
+				if ($modelPly->joinGroup($oApp->id, $oRound, $ek)) {
+					$oResult->{$ek} = $oRound->round_id;
 				} else {
-					$result->{$ek} = false;
+					$oResult->{$ek} = false;
 				}
 			} else {
-				$result->{$ek} = false;
+				$oResult->{$ek} = false;
 			}
 		}
 
 		// 记录操作日志
-		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'joinGroup', $result);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oOpUser, $oApp, 'joinGroup', $oResult);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 }

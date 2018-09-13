@@ -9,50 +9,53 @@ class round extends \pl\fe\matter\base {
 	/**
 	 * 返回视图
 	 */
-	public function index_action($site, $id) {
+	public function index_action($id) {
 		\TPL::output('/pl/fe/matter/group/frame');
 		exit;
 	}
 	/**
 	 * 获得分组活动下的轮次（分组）
 	 *
-	 * @param string $site
 	 * @param string $app
 	 * @param string $cascade 返回的结果中包含哪些级联。逗号分隔的字符串。支持：playerCount
 	 *
 	 */
-	public function list_action($site, $app, $cascade = '') {
-		if (false === ($user = $this->accountUser())) {
+	public function list_action($app, $cascade = '') {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-		$options = ['cascade' => $cascade];
-		$rounds = $this->model('matter\group\round')->byApp($app, $options);
+
+		$aOptions = ['cascade' => $cascade];
+		$rounds = $this->model('matter\group\round')->byApp($app, $aOptions);
 
 		return new \ResponseData($rounds);
 	}
 	/**
 	 *
 	 */
-	public function add_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+	public function add_action($app) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-		$posted = $this->getPostJson();
-		$r = array(
+
+		$oPosted = $this->getPostJson();
+		$aNewRound = [
 			'aid' => $app,
 			'round_id' => uniqid(),
 			'create_at' => time(),
-			'title' => empty($posted->title) ? '新分组' : $posted->title,
+			'title' => empty($oPosted->title) ? '新分组' : $oPosted->title,
+			'times' => 1,
 			'targets' => '',
-		);
-		$this->model()->insert('xxt_group_round', $r, false);
+		];
 
-		return new \ResponseData($r);
+		$this->model()->insert('xxt_group_round', $aNewRound, false);
+
+		return new \ResponseData($aNewRound);
 	}
 	/**
 	 *
 	 */
-	public function update_action($site, $app, $rid) {
+	public function update_action($app, $rid) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -85,7 +88,7 @@ class round extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function remove_action($site, $app, $rid) {
+	public function remove_action($app, $rid) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -111,13 +114,18 @@ class round extends \pl\fe\matter\base {
 	}
 	/**
 	 * 属于指定分组的人
+	 * $roundType 分组类型 “T” 团队分组，"R" 角色分组
 	 */
-	public function winnersGet_action($app, $rid = null) {
-		if (false === ($user = $this->accountUser())) {
+	public function winnersGet_action($app, $rid = null, $roundType = 'T') {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-		$result = $this->model('matter\group\player')->byRound($app, $rid);
+		if ($roundType === 'R') {
+			$oResult = $this->model('matter\group\player')->byRoleRound($app, $rid);
+		} else {
+			$oResult = $this->model('matter\group\player')->byRound($app, $rid);
+		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 }

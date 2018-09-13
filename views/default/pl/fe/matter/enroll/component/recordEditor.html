@@ -25,7 +25,8 @@
     position: absolute
 }
 
-#recordEditor ul.img-tiles li.img-thumbnail button, #recordEditor ul.list-group button {
+#recordEditor ul.img-tiles li.img-thumbnail button,
+#recordEditor ul.list-group button {
     position: absolute;
     top: 0;
     right: 0
@@ -45,18 +46,6 @@
     text-align: right;
 }
 
-#recordEditor .remark {
-    border-bottom: 1px solid #ddd;
-}
-
-#recordEditor .remark:last-child {
-    border-bottom: 0;
-}
-
-#recordEditor .remark>* {
-    margin: 1em 0;
-}
-
 .bottom-bar {
     display: flex;
     align-items: center;
@@ -64,13 +53,6 @@
 
 .bottom-bar>* {
     margin-right: .5em;
-}
-
-#recordEditor .remark .bottom-bar .datetime {
-    color: #777;
-    flex: 1;
-    line-height: 30px;
-    font-size: .8em;
 }
 </style>
 <div id='recordEditor' class='col-md-6 col-md-offset-3'>
@@ -198,9 +180,6 @@
                                         <div ng-if="schema.shareable==='Y'">
                                             <span>赞同<span class='badge'>{{record.verbose[schema.id]._items[item.id].like_num||0}}</span></span>
                                         </div>
-                                        <div ng-if="schema.remarkable==='Y'">
-                                            <span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id]._items[item.id].remark_num||0}}</span>
-                                        </div>
                                         <span ng-if="schema.shareable==='Y'">
                                             <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id]._items[item.id].agreed,item.id)" ng-model="record.verbose[schema.id]._items[item.id].agreed" disabled>
                                                 <option value=''>未表态</option>
@@ -209,32 +188,6 @@
                                                 <option value='N'>屏蔽</option>
                                             </select>
                                         </span>
-                                    </div>
-                                    <div class='form-group remarks' ng-if="openedItemRemarksSchema===item.id">
-                                        <div class='col-md-9'>
-                                            <div class='remark' ng-repeat="remark in schemaRemarks[item.id]">
-                                                <blockquote>
-                                                    <p>{{remark.content}}</p>
-                                                    <footer>{{remark.nickname}}</footer>
-                                                </blockquote>
-                                                <div class='bottom-bar'>
-                                                    <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
-                                                    <span>赞同 <span class='badge'>{{remark.like_num}}</span></span>
-                                                    <select class='form-control input-sm' style='width:7em' ng-change="agreeRemark(remark)" ng-model="remark.agreed">
-                                                        <option value=''>未表态</option>
-                                                        <option value='Y'>推荐</option>
-                                                        <option value='A'>接受</option>
-                                                        <option value='N'>屏蔽</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="input-group" style='margin-top:1em'>
-                                                <textarea class='form-control' ng-model="newRemark.content"></textarea>
-                                                <div class="input-group-btn" style='padding-left:10px;'>
-                                                    <button class='btn btn-success' ng-click="addRemark(schema, item.id)">发表</button>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                                 <button class="btn btn-default" ng-click="addItem(schema.id)">添加内容</button>
@@ -265,31 +218,8 @@
                                 <div ng-if="schema.shareable==='Y'">
                                     <span>赞同<span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
                                 </div>
-                                <div ng-if="schema.remarkable==='Y'">
-                                    <span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span>
-                                </div>
                                 <div ng-if="schema.shareable==='Y'">
                                     <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id].agreed)" ng-model="record.verbose[schema.id].agreed" disabled>
-                                        <option value=''>未表态</option>
-                                        <option value='Y'>推荐</option>
-                                        <option value='A'>接受</option>
-                                        <option value='N'>屏蔽</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class='form-group remarks' ng-if="openedRemarksSchema===schema">
-                        <div class='col-md-9 col-md-offset-3'>
-                            <div class='remark' ng-repeat="remark in schemaRemarks[record.verbose[schema.id].id]">
-                                <blockquote>
-                                    <p>{{remark.content}}</p>
-                                    <footer>{{remark.nickname}}</footer>
-                                </blockquote>
-                                <div class='bottom-bar'>
-                                    <div class='datetime'>{{remark.create_at*1000|date:'MM-dd HH:mm'}}</div>
-                                    <span>赞同 <span class='badge'>{{remark.like_num}}</span></span>
-                                    <select class='form-control input-sm' style='width:7em' ng-change="agreeRemark(remark)" ng-model="remark.agreed" disabled>
                                         <option value=''>未表态</option>
                                         <option value='Y'>推荐</option>
                                         <option value='A'>接受</option>

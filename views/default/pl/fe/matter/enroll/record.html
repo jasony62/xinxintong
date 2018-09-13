@@ -15,7 +15,7 @@
                     <li class="divider"></li>
                     <li><a href ng-click="batchTag()">选中记录打标签<span>（{{rows.count}}）</span></a></li>
                     <li class="divider"></li>
-                    <li><a href ng-click="export()">导出填写记录<span>（{{page.total}}）</span></a></li>
+                    <li><a href ng-click="export()">导出全部填写记录<span>（{{page.total}}）</span></a></li>
                     <li><a href ng-click="exportImage()">导出填写记录中的图片</a></li>
                     <li class="divider"></li>
                     <li><a href ng-click="editRecord()">添加记录</a></li>
@@ -23,6 +23,11 @@
                     <li class="divider"></li>
                     <li><a href ng-click="renewScore()">更新全部记录得分</a></li>
                     <li><a href ng-click="importByOther()">从其他活动导入记录</a></li>
+                    <li><a href ng-click="exportToOther()">将记录导入其他活动<span>（{{rows.count}}）</span></a></li>
+                    <li><a href ng-click="fillByOther()">用其他活动的数据填充到已有记录</a></li>
+                    <li><a href ng-click="transferVotes()">将投票结果作为其他活动的记录</a></li>
+                    <li><a href ng-click="transferSchemaAndVotes()">将题目和投票结果作为其他活动的记录</a></li>
+                    <li><a href ng-click="transferGroupAndMarks()">将题目组和打分结果作为其他活动的记录</a></li>
                     <li ng-if="app.scenario==='mis_user_score'" class="divider"></li>
                     <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncMissionUser()">从项目同步用户数据</a></li>
                     <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>
@@ -55,8 +60,8 @@
                         <th style='width:40px'></th>
                         <th style='width:140px' ng-if="bRequireNickname">用户</th>
                         <th style='width:140px' ng-if="bRequireGroup">分组</th>
-                        <th style='width:100px'>登记时间</th>
-                        <th style='width:100px' ng-if="app.multi_rounds==='Y'">登记轮次</th>
+                        <th style='width:100px'>填写时间</th>
+                        <th style='width:100px'>填写轮次</th>
                         <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th ng-if="bRequireScore">总得分</th>
                         <th class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
@@ -81,7 +86,7 @@
                         <td ng-if="bRequireNickname">{{r.nickname}}</td>
                         <td ng-if="bRequireGroup">{{r.group.title}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-                        <td ng-if="app.multi_rounds==='Y'">{{r.round.title}}</td>
+                        <td>{{r.round.title}}</td>
                         <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
@@ -143,9 +148,9 @@
                         <td></td>
                         <td ng-if="bRequireNickname"></td>
                         <td></td>
-                        <td ng-if="app.multi_rounds==='Y'"></td>
+                        <td></td>
                         <td ng-repeat="schema in recordSchemasExt">
-                            <div ng-if="schema.format==='number'">
+                            <div ng-if="schema.format==='number'||schema.type==='score'">
                                 {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                             </div>
                             <div ng-if="schema.type==='calcScore'">

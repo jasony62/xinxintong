@@ -1,6 +1,6 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt']);
     ngApp.constant('cstApp', {
         matterNames: {
             doc: {
@@ -23,6 +23,27 @@ define(['require'], function(require) {
             'site': '团队',
             'mission': '项目',
         },
+        notifyMatter: [{
+            value: 'tmplmsg',
+            title: '模板消息',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'enroll',
+            title: '登记活动',
+            url: '/rest/pl/fe/matter'
+        }]
     });
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         var RouteParam = function(name) {
@@ -53,78 +74,19 @@ define(['require'], function(require) {
         });
     }]);
     ngApp.controller('ctrlFrame', ['$scope', '$location', 'http2', 'srvUserNotice', '$uibModal', 'cstApp', function($scope, $location, http2, srvUserNotice, $uibModal, cstApp) {
-        var frameState, lsearch;
-        /* 恢复上一次访问的状态 */
-        if (window.localStorage) {
-            $scope.$watch('frameState', function(nv) {
-                if (nv) {
-                    window.localStorage.setItem("pl.fe.frameState", JSON.stringify(nv));
-                }
-            }, true);
-            if (frameState = window.localStorage.getItem("pl.fe.frameState")) {
-                frameState = JSON.parse(frameState);
-            } else {
-                frameState = {
-                    sid: '',
-                    view: '',
-                    scope: ''
-                };
-            }
-        } else {
-            frameState = {
-                sid: '',
-                view: '',
-                scope: ''
-            };
-        }
-        /* 通过参数指定的状态 */
-        lsearch = $location.search();
-        if (lsearch.sid) {
-            frameState.sid = lsearch.sid;
-        }
-        if (lsearch.view) {
-            frameState.view = lsearch.view;
-            if (lsearch.scope) {
-                frameState.scope = lsearch.scope;
-            }
-        }
+        var _oFrameState;
+        _oFrameState = {
+            sid: '',
+            view: '',
+            scope: ''
+        };
         $scope.opened = 'main';
-        $scope.frameState = frameState;
-        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
-            var subView = currentRoute.match(/[^\/]+$/)[0];
-            subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
-            subView = subView === 'fe' ? 'main' : subView;
-            if (subView !== frameState.view) {
-                frameState.view = subView;
-                if (frameState.view === 'main') {
-                    frameState.scope = 'mission';
-                } else if (frameState.view === 'friend') {
-                    frameState.scope = 'subscribeSite';
-                }
-            }
-            switch (frameState.scope) {
-                case 'mission':
-                case 'activity':
-                case 'doc':
-                case 'user':
-                case 'recycle':
-                    $scope.opened = 'main';
-                    break;
-                case 'subscribeSite':
-                case 'contributeSite':
-                case 'favorSite':
-                    $scope.opened = 'friend';
-                    break;
-                default:
-                    $scope.opened = '';
-            }
-        });
         var url = '/rest/pl/fe/user/get?_=' + (new Date * 1);
         http2.get(url, function(rsp) {
             $scope.loginUser = rsp.data;
         });
         $scope.getMatterTag = function() {
-            http2.get('/rest/pl/fe/matter/tag/listTags?site=' + $scope.frameState.sid, function(rsp) {
+            http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _oFrameState.sid, function(rsp) {
                 $scope.tagsMatter = rsp.data;
             });
         };
@@ -138,7 +100,7 @@ define(['require'], function(require) {
             $scope.notice = result;
         });
         $scope.changeScope = function(scope) {
-            frameState.scope = scope;
+            _oFrameState.scope = scope;
             if (location.search) {
                 $location.url('/rest/pl/fe');
             }
@@ -208,9 +170,9 @@ define(['require'], function(require) {
             _fns[fnName].call(_fns, site, scenario);
         }
         $scope.addMatter = function(matterType, scenario) {
-            if (frameState.sid) {
+            if (_oFrameState.sid) {
                 if (matterType) {
-                    var site = { id: frameState.sid };
+                    var site = { id: _oFrameState.sid };
                     if (/^enroll\.(.+)/.test(matterType)) {
                         addMatter(site, 'enroll', matterType.split('.')[1]);
                     } else {
@@ -219,23 +181,84 @@ define(['require'], function(require) {
                 }
             }
         };
+
         $scope.listSite = function() {
             var url, oPlSite;
             url = '/rest/pl/fe/site/list';
             oPlSite = { id: '_coworker', name: '被邀合作项目' };
             http2.get(url + '?_=' + (new Date * 1), function(rsp) {
-                if (rsp.data.length === 0) {
-                    http2.get('/rest/pl/fe/site/create', function(rsp) {
-                        http2.get(url + '?_=' + (new Date * 1), function(rsp) {
-                            $scope.sites = rsp.data;
-                            $scope.sites.splice(0, 0, oPlSite);
-                            frameState.sid = rsp.data[0].id;
-                        });
-                    });
-                } else {
-                    $scope.sites = rsp.data;
-                    $scope.sites.splice(0, 0, oPlSite);
+                var userSites;
+                $scope.sites = userSites = rsp.data;
+                userSites.splice(0, 0, oPlSite);
+                /* 恢复上一次访问的状态 */
+                if (window.localStorage) {
+                    $scope.$watch('frameState', function(nv) {
+                        if (nv) {
+                            window.localStorage.setItem("pl.fe.frameState", JSON.stringify(nv));
+                        }
+                    }, true);
+                    if (_oFrameState = window.localStorage.getItem("pl.fe.frameState")) {
+                        _oFrameState = JSON.parse(_oFrameState);
+                    }
                 }
+                /* 通过参数指定的状态 */
+                var lsearch
+                lsearch = $location.search();
+                if (lsearch.sid) {
+                    _oFrameState.sid = lsearch.sid;
+                }
+                if (lsearch.view) {
+                    _oFrameState.view = lsearch.view;
+                    if (lsearch.scope) {
+                        _oFrameState.scope = lsearch.scope;
+                    }
+                }
+                var bSiteExistent;
+                if (_oFrameState.sid) {
+                    for (var i = 0, ii = userSites.length; i < ii; i++) {
+                        if (_oFrameState.sid === userSites[i].id) {
+                            bSiteExistent = true;
+                            break;
+                        }
+                    }
+                    if (!bSiteExistent) {
+                        _oFrameState.sid = '';
+                    }
+                }
+                if (!_oFrameState.sid) {
+                    _oFrameState.sid = userSites[0].id;
+                }
+                /* 设置页面入口状态 */
+                $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+                    var subView = currentRoute.match(/[^\/]+$/)[0];
+                    subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
+                    subView = subView === 'fe' ? 'main' : subView;
+                    if (subView !== _oFrameState.view) {
+                        _oFrameState.view = subView;
+                        if (_oFrameState.view === 'main') {
+                            _oFrameState.scope = 'mission';
+                        } else if (_oFrameState.view === 'friend') {
+                            _oFrameState.scope = 'subscribeSite';
+                        }
+                    }
+                    switch (_oFrameState.scope) {
+                        case 'mission':
+                        case 'activity':
+                        case 'doc':
+                        case 'user':
+                        case 'recycle':
+                            $scope.opened = 'main';
+                            break;
+                        case 'subscribeSite':
+                        case 'contributeSite':
+                        case 'favorSite':
+                            $scope.opened = 'friend';
+                            break;
+                        default:
+                            $scope.opened = '';
+                    }
+                });
+                $scope.frameState = _oFrameState;
             });
         };
         $scope.matterTagsFram = function(filter, filter2) {

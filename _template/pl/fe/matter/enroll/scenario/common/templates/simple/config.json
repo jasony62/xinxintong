@@ -130,6 +130,5 @@
         }
     },
     "count_limit": "1",
-    "multi_rounds": "Y",
     "enrolled_entry_page": "result"
 }

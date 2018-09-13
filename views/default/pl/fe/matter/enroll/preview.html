@@ -9,7 +9,6 @@
                 <li class='status' ng-if="app.enroll_app_id">已经和登记活动【<span ng-bind="app.enrollApp.title"></span>】关联</li>
                 <li class='status' ng-if="!app.group_app_id">未指定关联的分组数据 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定关联分组活动和关联题目后，关联题目填写的内容必须在关联的分组活动中有对应记录'></span></li>
                 <li class='status' ng-if="app.group_app_id">已经和分组活动【<span ng-bind="app.groupApp.title"></span>】关联</li>
-                <li class='status'>填写人可以留言其他人填写的数据 <span class='glyphicon glyphicon-ok'></span>，可以留言的题目有<span ng-bind="status.schema.remarkable"></span>道</li>
                 <li class='status'>填写人可以查看其他人填写的数据 <span class='glyphicon' ng-class="status.page.repos==='Y'||app.can_repos==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，可以查看的题目有<span ng-bind="status.schema.shareable"></span>道 <span class='glyphicon glyphicon-question-sign' uib-tooltip='在活动【描述】中设置【开放共享页】，或者在页面中添加导航到【共享数据页】的【页面导航】按钮，用户可以在共享数据页中查看所有用户提交的共享题目内容'></span></li>
             </ul>
         </div>
@@ -57,7 +56,7 @@
                     <div ng-switch-when="M">每月{{rule.mday}}日{{rule.hour}}点生成填写轮次 <span class='glyphicon' ng-class="rule.enabled==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>
                     </div>
                 </li>
-                <li class='status' ng-if="app.multi_rounds==='Y'"><span>当前轮次：{{opData.title}}</span></li>
+                <li class='status'><span>当前轮次：{{opData.title}}</span></li>
             </ul>
         </div>
     </div>
@@ -85,7 +84,7 @@
         <div class='panel-body'>
             <label>填写记录</label>
             <ul class='status-group'>
-                <li class='status' ng-if="app.multi_rounds==='Y'">轮次：{{opData.title}}</li>
+                <li class='status'>轮次：{{opData.title}}</li>
                 <li class='status'>已有<a href='' ng-click="switchTo('enrollee')"><span ng-bind="opData.enrollee_num"></span></a>人参与（含进入了活动但未提交数据用户{{opData.enrollee_unsubmit_num}}人）</li>
                 <li class='status'>已有<a href='' ng-click="switchTo('record')"><span ng-bind="opData.total"></span></a>条记录提交</li>
                 <li class='status' ng-repeat="mschema in status.user.member">通信录【<span ng-bind="mschema.title"></span>】中已有<span ng-bind="opData.mschema[mschema.id].enrolled"></span>人提交记录，<span>{{mschema.count.verified-opData.mschema[mschema.id].enrolled}}</span>人未提交记录</li>

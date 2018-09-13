@@ -6,7 +6,7 @@
             <div style='display:inline-block' ng-if="category==='record'">
                 <div class='form-group' ng-if='app.rounds'>
                     <label>轮次</label>
-                    <select class='form-control' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
+                    <select class='form-control' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='changeRound()'>
                         <option value=>全部</option>
                     </select>
                 </div>

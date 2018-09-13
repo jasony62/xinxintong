@@ -556,7 +556,7 @@ class signin_model extends enroll_base {
 		/* 关联了通讯录，替换匹配的题目 */
 		if (!empty($oTemplateConfig->schema)) {
 			/* 通讯录关联题目 */
-			if (!empty($oEntryRule->scope) && $oEntryRule->scope === 'member') {
+			if (!empty($oEntryRule->scope) && $oEntryRule->scope === 'member' && isset($oEntryRule->member)) {
 				$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
 				if (!empty($mschemaIds)) {
 					$this->setSchemaByMschema($mschemaIds[0], $oTemplateConfig);

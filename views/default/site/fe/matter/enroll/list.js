@@ -166,7 +166,7 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation',
             controller: ['$scope', '$uibModalInstance', 'Round', 'oApp', 'oOptions', function($scope2, $mi, Round, oApp, oOptions) {
                 var facRound, aFilterSchemas;
                 $scope2.filterSchemas = aFilterSchemas = [];
-                oApp.dataSchemas.forEach(function(oSchema) {
+                oApp.dynaDataSchemas.forEach(function(oSchema) {
                     if (['shorttext', 'longtext', 'location', 'single', 'multiple'].indexOf(oSchema.type) !== -1) {
                         if (oOptions.owner && oOptions.owner === 'G' && oSchema.id === '_round_id') {} else {
                             aFilterSchemas.push(oSchema);
@@ -200,8 +200,8 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation',
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         oApp = params.app;
-        if (params.activeRound) {
-            oActiveRound = params.activeRound;
+        if (oApp.appRound) {
+            oActiveRound = oApp.appRound;
             oCurrentCriteria = { record: { rid: oActiveRound.rid } };
         }
         $scope.$watch('options.owner', function(nv) {
@@ -217,6 +217,8 @@ ngApp.controller('ctrlList', ['$scope', function($scope) {
         oApp = params.app;
         /*设置页面分享信息*/
         $scope.setSnsShare();
+        /*页面阅读日志*/
+        $scope.logAccess();
         /*设置页面操作*/
         $scope.appActs = {
             addRecord: {}

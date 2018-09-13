@@ -340,8 +340,5 @@ define(['frame'], function(ngApp) {
             }
         });
         getInitData();
-        (function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        })();
     }]);
 });

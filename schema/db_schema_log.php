@@ -5,7 +5,7 @@ require_once '../db.php';
  */
 $sql = "create table if not exists xxt_log(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",create_at int(10) not null";
 $sql .= ",method varchar(255) not null";
 $sql .= ",data longtext null";
@@ -23,28 +23,22 @@ $sql = "create table if not exists xxt_log_user_matter(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",userid varchar(40) not null";
-$sql .= ",mpid varchar(32) not null default ''"; // should be removed
-$sql .= ",openid varchar(255) not null default ''"; // should be removed
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20) not null";
 $sql .= ",matter_title varchar(70) not null";
 $sql .= ",mission_id int not null default 0"; // 素材所属项目
 $sql .= ",mission_title varchar(70) not null default ''"; // 素材所属项目
-$sql .= ",last_action_at int not null default 0"; // should be removed
-$sql .= ",read_num int not null default 0"; // should be removed
-$sql .= ",share_friend_num int not null default 0"; // should be removed
-$sql .= ",share_timeline_num int not null default 0"; // should be removed
 $sql .= ",operation varchar(255) not null";
 $sql .= ",operate_at int not null";
-$sql .= ",operate_data text";
+$sql .= ",operate_data text null";
 $sql .= ",matter_last_op char(1) not null default 'Y'"; // 是否为素材进行的最后一次指定类型的操作
 $sql .= ",matter_op_num int not null default 1"; // 素材进行指定类型的累积次数
 $sql .= ",user_last_op char(1) not null default 'Y'"; // 是否为用户对素材进行的最后一次指定类型的操作，用于检查用户对哪些素材进行过指定操作
 $sql .= ",user_op_num int not null default 1"; // 用户对素材进行指定操作的累积次数
-$sql .= ",user_agent text";
+$sql .= ",user_agent text null";
 $sql .= ",client_ip varchar(40) not null default ''";
-$sql .= ",referer text";
+$sql .= ",referer text null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

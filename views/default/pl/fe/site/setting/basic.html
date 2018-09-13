@@ -48,9 +48,9 @@
         <div class='col-md-10'>
             <div class='input-group'>
                 <div class='form-control' style='overflow:hidden;word-break:none' ng-bind='homeURL'></div>
-                <span class="input-group-btn">
-                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{homeURL}}">复制</button>
-                </span>
+                <div class="input-group-btn">
+                    <a class='btn btn-default' ng-href="{{homeURL}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                </div>
             </div>
         </div>
     </div>

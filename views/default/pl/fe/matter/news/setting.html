@@ -9,8 +9,7 @@
         <div class='form-group'>
             <button class='btn btn-default btn-sm' ng-click='assign()'>选择素材</button>
             <ul class='list-group' sortable style='margin-bottom:0'>
-                <li class='list-group-item' ng-repeat="m in editing.matters" stuff="s" title='{{m.type|typetitle}}' ng-mouseenter='hover=true'
-                ng-mouseleave='hover=false'>
+                <li class='list-group-item' ng-repeat="m in editing.matters" stuff="s" title='{{m.type|typetitle}}' ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
                     <span>{{m.title}}</span>
                     <button class='btn btn-default btn-xs pull-right' ng-click='removeMatter($index)' ng-if="hover">
                         <span class='glyphicon glyphicon-remove'></span>
@@ -41,9 +40,9 @@
         <div class="panel-body">
             <div class='input-group'>
                 <input class='form-control' readonly value="{{entryUrl}}">
-                    <span class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entryUrl}}">复制</button>
-                    </span>
+                <div class='input-group-btn'>
+                    <a class='btn btn-default' ng-href="{{entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                </div>
             </div>
         </div>
     </div>

@@ -1,8 +1,5 @@
 (function() {
     ngApp.provider.controller('ctrlRunning', ['$scope', 'http2', function($scope, http2) {
-        (function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        })();
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
         };

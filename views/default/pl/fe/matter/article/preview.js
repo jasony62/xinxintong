@@ -1,8 +1,5 @@
 define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
-        (function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        })();
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="' + $scope.editing.title + '二维码.png"></a>')[0].click();
         };

@@ -3,9 +3,6 @@ define(['frame'], function(ngApp) {
      * app setting controller
      */
     ngApp.provider.controller('ctrlPage', ['$scope', '$q', 'http2', function($scope, $q, http2) {
-        (function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        })();
         $scope.$parent.subView = 'page';
         $scope.$watch('wall', function(nv) {
             if (nv) {

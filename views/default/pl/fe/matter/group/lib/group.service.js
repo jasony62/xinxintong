@@ -345,7 +345,7 @@ provider('srvGroupApp', function() {
         }
     }];
 }).provider('srvGroupPlayer', function() {
-    var _oApp, _siteId, _appId, _aPlayers, _activeRound;
+    var _oApp, _siteId, _appId, _aPlayers;
     this.$get = ['$q', '$uibModal', 'noticebox', 'http2', 'cstApp', 'pushnotify', 'tmsSchema', 'srvGroupApp', function($q, $uibModal, noticebox, http2, cstApp, pushnotify, tmsSchema, srvGroupApp) {
         return {
             init: function(aPlayers) {
@@ -363,7 +363,7 @@ provider('srvGroupApp', function() {
                 var _self = this;
                 if (window.confirm('本操作将清除已有分组数据，确定执行?')) {
                     http2.get('/rest/pl/fe/matter/group/execute?site=' + _siteId + '&app=' + _appId, function(rsp) {
-                        _self.list(_activeRound);
+                        _self.list();
                     });
                 }
             },
@@ -371,9 +371,6 @@ provider('srvGroupApp', function() {
                 arg == 'round' ? commonRound(this) : roleRound(this);
 
                 function commonRound(obj) {
-                    if (round === undefined) {
-                        round = _activeRound;
-                    }
                     if (round === null) {
                         return obj.all({});
                     } else if (round === false) {
@@ -384,9 +381,6 @@ provider('srvGroupApp', function() {
                 }
 
                 function roleRound(obj) {
-                    if (round === undefined) {
-                        round = _activeRound;
-                    }
                     if (round === null) {
                         return obj.all({});
                     } else if (round === false) {
@@ -400,7 +394,6 @@ provider('srvGroupApp', function() {
                 var defer = $q.defer(),
                     url = '/rest/pl/fe/matter/group/player/list?site=' + _siteId + '&app=' + _appId;
 
-                _activeRound = null;
                 _aPlayers.splice(0, _aPlayers.length);
                 http2.post(url, oFilter, function(rsp) {
                     if (rsp.data.total) {
@@ -418,7 +411,6 @@ provider('srvGroupApp', function() {
                 var defer = $q.defer(),
                     url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + _appId + '&rid=' + round.round_id + '&roundType=' + roundType;
 
-                _activeRound = round;
                 _aPlayers.splice(0, _aPlayers.length);
                 http2.get(url, function(rsp) {
                     rsp.data.forEach(function(player) {
@@ -434,7 +426,6 @@ provider('srvGroupApp', function() {
                 var defer = $q.defer(),
                     url = '/rest/pl/fe/matter/group/player/pendingsGet?app=' + _appId + '&roundType=' + roundType;
 
-                _activeRound = false;
                 _aPlayers.splice(0, _aPlayers.length);
                 http2.get(url, function(rsp) {
                     rsp.data.forEach(function(player) {

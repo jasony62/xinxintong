@@ -3,9 +3,6 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlEntry', ['$scope', 'srvQuickEntry', '$timeout', 'srvSite', 'srvTimerNotice', function($scope, srvQuickEntry, $timeout, srvSite, srvTimerNotice) {
         var targetUrl, host, opEntry;
         $scope.opEntry = opEntry = {};
-        $timeout(function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        });
         $scope.makeOpUrl = function() {
             srvQuickEntry.add(targetUrl, $scope.mission.title).then(function(task) {
                 opEntry.url = location.protocol + '//' + host + '/q/' + task.code;

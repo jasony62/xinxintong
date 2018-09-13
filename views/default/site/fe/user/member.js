@@ -60,7 +60,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
     }
 }]);
 ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation', 'http2', function($scope, $timeout, noticebox, LS, http2) {
-    var validate = function() {
+    var fnValidate = function(oSchema) {
         var required = function(value, len, alerttext) {
             if (value == null || value == "" || value.length < len) {
                 noticebox.warn(alerttext);
@@ -91,13 +91,14 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             }
         };
         var member = $scope.member;
-        if (member.name !== undefined && false === required(member.name, 2, '请提供您的姓名！')) {
+        console.log('m', member);
+        if (member.name && false === required(member.name, 2, '请提供您的姓名！')) {
             return false;
         }
-        if (member.mobile !== undefined && false === isMobile(member.mobile, '请提供正确的手机号（11位数字）！')) {
+        if (member.mobile && false === isMobile(member.mobile, '请提供正确的手机号（11位数字）！')) {
             return false;
         }
-        if (member.email !== undefined && false === isEmail(member.email, '请提供正确的邮箱！')) {
+        if (member.email && false === isEmail(member.email, '请提供正确的邮箱！')) {
             return false;
         }
         return true;
@@ -192,7 +193,7 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
     })();
     $scope.doAuth = function(ignoreCheck) {
         if (!ignoreCheck) {
-            if (!validate()) {
+            if (!fnValidate($scope.schema)) {
                 return;
             }
             if (document.querySelectorAll('.ng-invalid-required').length) {
@@ -203,7 +204,7 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
         sendRequest(LS.j('doAuth', 'site', 'schema'));
     };
     $scope.doReauth = function() {
-        if (!validate()) return;
+        if (!fnValidate($scope.schema)) return;
         if (document.querySelectorAll('.ng-invalid-required').length) {
             noticebox.warn('请填写必填项');
             return;

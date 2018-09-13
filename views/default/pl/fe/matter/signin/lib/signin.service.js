@@ -618,9 +618,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     });
                                 }
                             }
-                            $timeout(function() {
-                                new ZeroClipboard(document.querySelector('#copyURL'));
-                            });
                             $scope2.cancel = function() {
                                 $mi.dismiss();
                             };

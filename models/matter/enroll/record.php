@@ -185,6 +185,9 @@ class record_model extends record_base {
 		if ($fields === '*' || false !== strpos($fields, 'like_log')) {
 			$oRecord->like_log = empty($oRecord->like_log) ? new \stdClass : json_decode($oRecord->like_log);
 		}
+		if ($fields === '*' || false !== strpos($fields, 'dislike_log')) {
+			$oRecord->dislike_log = empty($oRecord->dislike_log) ? new \stdClass : json_decode($oRecord->dislike_log);
+		}
 		if ($verbose === 'Y' && isset($oRecord->enroll_key)) {
 			$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
 		}

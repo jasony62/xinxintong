@@ -166,14 +166,20 @@ class user_model extends \TMS_MODEL {
 			case 'last_cowork_at':
 			case 'last_do_cowork_at':
 			case 'last_like_at':
+			case 'last_dislike_at':
 			case 'last_like_cowork_at':
+			case 'last_dislike_cowork_at':
 			case 'last_do_like_at':
+			case 'last_do_dislike_at':
 			case 'last_do_like_cowork_at':
+			case 'last_do_dislike_cowork_at':
 			case 'last_remark_at':
 			case 'last_remark_cowork_at':
 			case 'last_do_remark_at':
 			case 'last_like_remark_at':
+			case 'last_dislike_remark_at':
 			case 'last_do_like_remark_at':
+			case 'last_do_dislike_remark_at':
 			case 'last_agree_at':
 			case 'last_agree_cowork_at':
 			case 'last_agree_remark_at':
@@ -185,11 +191,17 @@ class user_model extends \TMS_MODEL {
 			case 'cowork_num':
 			case 'do_cowork_num':
 			case 'do_like_num':
+			case 'do_dislike_num':
 			case 'do_like_cowork_num':
+			case 'do_dislike_cowork_num':
 			case 'do_like_remark_num':
+			case 'do_dislike_remark_num':
 			case 'like_num':
+			case 'dislike_num':
 			case 'like_cowork_num':
+			case 'dislike_cowork_num':
 			case 'like_remark_num':
+			case 'dislike_remark_num':
 			case 'do_remark_num':
 			case 'remark_num':
 			case 'remark_cowork_num':

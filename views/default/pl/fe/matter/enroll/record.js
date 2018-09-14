@@ -131,11 +131,19 @@ define(['frame'], function(ngApp) {
         };
         $scope.renewScore = function() {
             srvEnlRnd.list().then(function(oResult) {
-                oResult.rounds.forEach(function(oRound) {
-                    srvEnrollApp.renewScore(oRound.rid).then(function() {
+                var rounds = oResult.rounds;
+
+                function renewScoreByRound(i) {
+                    var oRound;
+                    if (i < rounds.length) {
+                        srvEnrollApp.renewScore(rounds[i]).then(function() {
+                            renewScoreByRound(++i);
+                        });
+                    } else {
                         $scope.doSearch(1);
-                    });
-                });
+                    }
+                }
+                renewScoreByRound(0);
             });
         };
         $scope.importByOther = function() {

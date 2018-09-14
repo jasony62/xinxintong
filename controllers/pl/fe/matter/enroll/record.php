@@ -166,7 +166,7 @@ class record extends main_base {
 	/**
 	 * 更新指定活动下所有记录的得分
 	 */
-	public function renewScore_action($app) {
+	public function renewScore_action($app, $rid = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -186,6 +186,9 @@ class record extends main_base {
 		$modelRecData = $this->model('matter\enroll\data');
 		$renewCount = 0;
 		$q = ['id,enroll_key,data,score', 'xxt_enroll_record', ['aid' => $oApp->id]];
+		if (!empty($rid)) {
+			$q[2]['rid'] = $rid;
+		}
 		$records = $modelApp->query_objs_ss($q);
 		foreach ($records as $oRecord) {
 			if (!empty($oRecord->data)) {

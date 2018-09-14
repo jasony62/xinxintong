@@ -130,8 +130,12 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.exportImage();
         };
         $scope.renewScore = function() {
-            srvEnrollApp.renewScore().then(function() {
-                $scope.doSearch(1);
+            srvEnlRnd.list().then(function(oResult) {
+                oResult.rounds.forEach(function(oRound) {
+                    srvEnrollApp.renewScore(oRound.rid).then(function() {
+                        $scope.doSearch(1);
+                    });
+                });
             });
         };
         $scope.importByOther = function() {

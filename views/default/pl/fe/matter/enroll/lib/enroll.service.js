@@ -486,12 +486,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     return defer.promise;
                 },
-                renewScore: function(record) {
+                renewScore: function(rid) {
                     var url, defer;
 
                     url = '/rest/pl/fe/matter/enroll/record/renewScore';
-                    url += '?site=' + _siteId;
-                    url += '&app=' + _appId;
+                    url += '?app=' + _appId;
+                    if (rid) url += '&rid=' + rid;
                     defer = $q.defer();
 
                     http2.get(url, function(rsp) {

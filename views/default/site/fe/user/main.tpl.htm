@@ -26,8 +26,11 @@
         </div>
     </nav>
     <div class="container">
-        <div class='avatar'>
-            <img class='headimg img-circle' ng-src="{{user.headimgurl}}">
+        <div class='avatar' tms-image-input="Y">
+            <div class='headimg' ng-click="changeHeadImg()"> 
+                <img ng-src="{{user.headimgurl}}" >
+                <span class='img-edit'><i class='glyphicon glyphicon-edit'></i> 上传新头像</span>
+            </div>
             <div class='nickname' ng-bind="user.nickname"></div>
         </div>
         <div class='list-group'>

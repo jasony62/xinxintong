@@ -98,6 +98,28 @@ class main extends \site\fe\base {
 		return new \ResponseData('ok');
 	}
 	/**
+	 * 修改用户头像信息
+	 * 只有注册过用户才能修改？？？
+	 */
+	public function changeHeadImg_action() {
+		$data = $this->getPostJson();
+		if (empty($data->headImgUrl)) {
+			return new \ResponseError('头像地址不能为空');
+		}
+
+		$user = $this->who;
+
+		/* 更新注册用户信息 */
+		$modelWay = $this->model('site\fe\way');
+		/* 更新站点用户信息 */
+		$modelUsr = $this->model('site\user\account');
+		if ($account = $modelUsr->byId($user->uid)) {
+			$modelUsr->changeHeadImgUrl($this->siteId, $account->uid, $data->headImgUrl);
+		}
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 修改用户口令
 	 * 只有注册用户才能修改
 	 */

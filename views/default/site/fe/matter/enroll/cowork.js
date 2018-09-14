@@ -439,6 +439,15 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             oRemark.like_num = rsp.data.like_num;
         });
     };
+    $scope.dislikeRemark = function(oRemark) {
+        var url;
+        url = LS.j('remark/dislike', 'site');
+        url += '&remark=' + oRemark.id;
+        http2.get(url).then(function(rsp) {
+            oRemark.dislike_log = rsp.data.dislike_log;
+            oRemark.dislike_num = rsp.data.dislike_num;
+        });
+    };
     $scope.coworkAsRemark = function(oSchema, index) {
         var oRecData, oItem;
         oRecData = $scope.record.verbose[oSchema.id];
@@ -541,6 +550,14 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             oRecord.like_num = rsp.data.like_num;
         });
     };
+    $scope.dislikeRecord = function() {
+        var oRecord;
+        oRecord = $scope.record;
+        http2.get(LS.j('record/dislike', 'site', 'ek')).then(function(rsp) {
+            oRecord.dislike_log = rsp.data.dislike_log;
+            oRecord.dislike_num = rsp.data.dislike_num;
+        });
+    };
     $scope.editRecord = function(event) {
         if ($scope.record.userid !== $scope.user.uid) {
             noticebox.warn('不允许编辑其他用户提交的记录');
@@ -568,6 +585,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
             oItem.like_log = rsp.data.like_log;
             oItem.like_num = rsp.data.like_num;
+        });
+    };
+    $scope.dislikeItem = function(oItem) {
+        http2.get(LS.j('data/dislike', 'site') + '&data=' + oItem.id).then(function(rsp) {
+            oItem.dislike_log = rsp.data.dislike_log;
+            oItem.dislike_num = rsp.data.dislike_num;
         });
     };
     $scope.gotoUpper = function(upperId) {
